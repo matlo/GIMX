@@ -38,7 +38,7 @@ DEP_RELEASE =
 OUT_RELEASE = bin/Release/gimx-serial
 
 OBJ_DEBUG = $(OBJDIR_DEBUG)/sixemuguiApp.o $(OBJDIR_DEBUG)/sixemuguiMain.o
-OBJ_RELEASE = $(OBJDIR_RELEASE)/sixemuguiApp.o $(OBJDIR_RELEASE)/sixemuguiMain.o
+OBJ_RELEASE = serial.rc.o $(OBJDIR_RELEASE)/sixemuguiApp.o $(OBJDIR_RELEASE)/sixemuguiMain.o
 
 all: release
 
@@ -58,6 +58,8 @@ $(OBJDIR_RELEASE)/sixemuguiMain.o: sixemuguiMain.cpp
 	test -d $(OBJDIR_RELEASE) || mkdir -p $(OBJDIR_RELEASE)
 	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $(OBJDIR_RELEASE)/sixemuguiMain.o sixemuguiMain.cpp
 
+serial.rc.o: serial.rc
+	windres $^ -o $@
 
 clean_release:
 	rm -f $(OBJ_RELEASE) $(OUT_RELEASE)
