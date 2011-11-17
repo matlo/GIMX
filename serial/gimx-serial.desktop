@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Version=0.24
+Name=Gimx-serial
+GenericName=Gimx-serial
+Icon=
+Exec=/usr/bin/gimx-serial
+Categories=Game;
