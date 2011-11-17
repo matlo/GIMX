@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Version=0.24
+Name=Gimx-config
+GenericName=Gimx-config
+Icon=
+Exec=/usr/bin/gimx-config
+Categories=Game;
