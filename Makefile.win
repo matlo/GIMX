@@ -1,0 +1,26 @@
+DIRS=sixaxis-emu sixaxis-emu-configurator sixemugui-serial sixstatus fpsconfig
+
+all:
+	+for i in $(DIRS); do cd $$i; make -f Makefile.win all; cd ..; done
+
+clean:
+	+for i in $(DIRS); do cd $$i; make -f Makefile.win clean; cd ..; done
+
+install: all
+	mkdir -p setup
+	mkdir -p setup/config
+	mkdir -p setup/macros
+	cp -u -f /mingw/bin/libgcc_s_dw2-1.dll setup
+	cp -u -f /mingw/bin/libiconv-2.dll setup
+	cp -u -f /mingw/bin/libpthread-2.dll setup
+	cp -u -f /mingw/bin/libstdc++-6.dll setup
+	cp -u -f /mingw/bin/libxml2.dll setup
+	cp -u -f /mingw/bin/SDL.dll setup
+	cp -u -f /mingw/bin/zlib1.dll setup
+	cp -u -f sixaxis-emu/emuclient.exe setup
+	cp -u -f -r sixaxis-emu/config/*.xml setup/config
+	cp -u -f -r sixaxis-emu/macros/*.txt setup/macros
+	cp -u -f sixaxis-emu-configurator/bin/Release/gimx-config.exe setup
+	cp -u -f sixemugui-serial/bin/Release/gimx-serial.exe setup
+	cp -u -f sixstatus/bin/Release/gimx-status.exe setup
+	cp -u -f fpsconfig/bin/Release/gimx-fpsconfig.exe setup
