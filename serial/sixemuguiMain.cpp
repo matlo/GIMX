@@ -663,36 +663,94 @@ void sixemuguiFrame::OnButton1Click1(wxCommandEvent& event)
 
 void sixemuguiFrame::OnMenuEditConfig(wxCommandEvent& event)
 {
-    string command = "";
+  string command = "";
 #ifdef WIN32
-    command.append("gimx-config.exe");
-#else
-    command.append("gimx-config");
-#endif
-    command.append(" -f ");
-    command.append(Choice4->GetStringSelection().mb_str());
-    command.append(" &");
+  command.append("gimx-config.exe -f ");
+  command.append(Choice4->GetStringSelection().mb_str());
 
-    if(system(command.c_str()) != 0)
-    {
-        wxMessageBox( wxT("Error editing the config file!"), wxT("Error"), wxICON_ERROR);
-    }
+  STARTUPINFOA startupInfo =
+  { 0};
+  startupInfo.cb = sizeof(startupInfo);
+  PROCESS_INFORMATION processInformation;
+
+  char* cmd = strdup(command.c_str());
+
+  BOOL result = CreateProcessA(
+      "gimx-config.exe",
+      cmd,
+      NULL,
+      NULL,
+      FALSE,
+      NORMAL_PRIORITY_CLASS,
+      NULL,
+      NULL,
+      &startupInfo,
+      &processInformation
+  );
+
+  free(cmd);
+
+  if(result == 0)
+  {
+    wxMessageBox( wxT("Error editing the config file!"), wxT("Error"), wxICON_ERROR);
+  }
+#else
+  command.append("gimx-config");
+  command.append(" -f ");
+  command.append(Choice4->GetStringSelection().mb_str());
+  command.append(" &");
+
+  if (system(command.c_str()) != 0)
+  {
+    wxMessageBox(wxT("Error editing the config file!"), wxT("Error"),
+        wxICON_ERROR);
+  }
+#endif
 }
 
 void sixemuguiFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
 {
-    string command = "";
+  string command = "";
 #ifdef WIN32
-    command.append("gimx-fpsconfig.exe");
-#else
-    command.append("gimx-fpsconfig");
-#endif
-    command.append(" -f ");
-    command.append(Choice4->GetStringSelection().mb_str());
-    command.append(" &");
+  command.append("gimx-fpsconfig.exe -f ");
+  command.append(Choice4->GetStringSelection().mb_str());
 
-    if(system(command.c_str()) != 0)
-    {
-        wxMessageBox( wxT("Error editing the config file!"), wxT("Error"), wxICON_ERROR);
-    }
+  STARTUPINFOA startupInfo =
+  { 0};
+  startupInfo.cb = sizeof(startupInfo);
+  PROCESS_INFORMATION processInformation;
+
+  char* cmd = strdup(command.c_str());
+
+  BOOL result = CreateProcessA(
+      "gimx-fpsconfig.exe",
+      cmd,
+      NULL,
+      NULL,
+      FALSE,
+      NORMAL_PRIORITY_CLASS,
+      NULL,
+      NULL,
+      &startupInfo,
+      &processInformation
+  );
+
+  free(cmd);
+
+  if(result == 0)
+  {
+    wxMessageBox( wxT("Error editing the config file!"), wxT("Error"), wxICON_ERROR);
+  }
+#else
+  command.append("gimx-fpsconfig");
+  command.append(" -f ");
+  command.append(Choice4->GetStringSelection().mb_str());
+  command.append(" &");
+
+  if (system(command.c_str()) != 0)
+  {
+    wxMessageBox(wxT("Error editing the config file!"), wxT("Error"),
+        wxICON_ERROR);
+  }
+#endif
 }
