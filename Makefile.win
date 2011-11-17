@@ -22,5 +22,5 @@ install: all
 	cp -u -f -r core/macros/*.txt setup/macros
 	cp -u -f config/bin/Release/gimx-config.exe setup
 	cp -u -f serial/bin/Release/gimx-serial.exe setup
-	cp -u -f sixstatus/bin/Release/gimx-status.exe setup
+	cp -u -f status/bin/Release/gimx-status.exe setup
 	cp -u -f fpsconfig/bin/Release/gimx-fpsconfig.exe setup
