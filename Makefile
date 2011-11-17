@@ -1,4 +1,4 @@
-DIRS=sixaxis-emu sixaxis-emu-configurator sixemugui sixemugui-serial sixstatus fpsconfig
+DIRS=core config bluetooth serial status fpsconfig
 
 all:
 	+for i in $(DIRS); do cd $$i; make all; cd ..; done
