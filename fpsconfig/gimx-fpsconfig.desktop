@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Version=0.24
+Name=Gimx-fpsconfig
+GenericName=Gimx-fpsconfig
+Icon=
+Exec=/usr/bin/gimx-fpsconfig
+Categories=Game;

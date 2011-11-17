@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="fpsconfig" />
+		<Option pch_mode="0" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/fpsconfig" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/fpsconfig" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="`wx-config --cflags`" />
+			<Add option="-Winvalid-pch" />
+			<Add option="-include wx_pch.h" />
+			<Add option="-DWX_PRECOMP" />
+			<Add directory="include" />
+			<Add directory="/usr/include/libxml2" />
+		</Compiler>
+		<Linker>
+			<Add option="`wx-config --libs`" />
+			<Add library="SDL" />
+			<Add library="xml2" />
+		</Linker>
+		<Unit filename="fpsconfigApp.cpp" />
+		<Unit filename="fpsconfigApp.h" />
+		<Unit filename="fpsconfigMain.cpp" />
+		<Unit filename="fpsconfigMain.h" />
+		<Unit filename="include/AxisMapper.h" />
+		<Unit filename="include/ButtonMapper.h" />
+		<Unit filename="include/Configuration.h" />
+		<Unit filename="include/ConfigurationFile.h" />
+		<Unit filename="include/Controller.h" />
+		<Unit filename="include/Device.h" />
+		<Unit filename="include/Event.h" />
+		<Unit filename="include/Intensity.h" />
+		<Unit filename="include/Trigger.h" />
+		<Unit filename="include/XmlReader.h" />
+		<Unit filename="include/XmlWritter.h" />
+		<Unit filename="include/event_catcher.h" />
+		<Unit filename="src/AxisMapper.cpp" />
+		<Unit filename="src/ButtonMapper.cpp" />
+		<Unit filename="src/Configuration.cpp" />
+		<Unit filename="src/ConfigurationFile.cpp" />
+		<Unit filename="src/Controller.cpp" />
+		<Unit filename="src/Device.cpp" />
+		<Unit filename="src/Event.cpp" />
+		<Unit filename="src/Intensity.cpp" />
+		<Unit filename="src/Trigger.cpp" />
+		<Unit filename="src/XmlReader.cpp" />
+		<Unit filename="src/XmlWritter.cpp" />
+		<Unit filename="src/event_catcher.cpp" />
+		<Unit filename="wx_pch.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<wxsmith version="1">
+				<gui name="wxWidgets" src="fpsconfigApp.cpp" main="fpsconfigFrame" init_handlers="necessary" language="CPP" />
+				<resources>
+					<wxFrame wxs="wxsmith/fpsconfigframe.wxs" src="fpsconfigMain.cpp" hdr="fpsconfigMain.h" name="fpsconfigFrame" language="CPP" />
+				</resources>
+			</wxsmith>
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
