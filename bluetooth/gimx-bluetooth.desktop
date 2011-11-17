@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Version=0.24
+Name=Gimx-bluetooth
+GenericName=Gimx-bluetooth
+Icon=
+Exec=/usr/bin/gimx-bluetooth
+Categories=Game;
