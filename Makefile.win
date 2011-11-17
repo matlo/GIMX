@@ -1,4 +1,4 @@
-DIRS=sixaxis-emu sixaxis-emu-configurator sixemugui-serial sixstatus fpsconfig
+DIRS=core config serial status fpsconfig
 
 all:
 	+for i in $(DIRS); do cd $$i; make -f Makefile.win all; cd ..; done
