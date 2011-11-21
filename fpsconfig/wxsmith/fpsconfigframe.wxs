@@ -141,7 +141,7 @@
 			<object class="wxTextCtrl" name="ID_TEXTCTRL2" variable="TextCtrl2" member="yes">
 				<value>0.00</value>
 				<pos>550,320</pos>
-				<size>40,27</size>
+				<size>40,-1</size>
 				<tooltip>Filter</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
@@ -150,7 +150,7 @@
 			<object class="wxTextCtrl" name="ID_TEXTCTRL3" variable="TextCtrl3" member="yes">
 				<value>0.00</value>
 				<pos>550,352</pos>
-				<size>40,27</size>
+				<size>40,-1</size>
 				<tooltip>Filter</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
@@ -159,7 +159,7 @@
 			<object class="wxTextCtrl" name="ID_TEXTCTRL22" variable="TextCtrl22" member="yes">
 				<value>1.00</value>
 				<pos>380,320</pos>
-				<size>40,27</size>
+				<size>40,-1</size>
 				<tooltip>Acceleration</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
@@ -381,7 +381,7 @@
 			<object class="wxTextCtrl" name="ID_TEXTCTRL1" variable="TextCtrl1" member="yes">
 				<value>1.00</value>
 				<pos>438,320</pos>
-				<size>50,27</size>
+				<size>50,-1</size>
 				<tooltip>x/y ratio</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
@@ -400,7 +400,7 @@
 				<value>0</value>
 				<max>9900</max>
 				<pos>24,256</pos>
-				<size>64,27</size>
+				<size>64,-1</size>
 				<tooltip>Set your mouse DPI if you are building a new config with unknown calibration parameters.&#x0A;To use someone else&apos;s calibration parameters: set the parameters and the corresponding DPI, tick the box below, and set the new DPI.</tooltip>
 				<handler function="OnMouseDPIChange" entry="EVT_SPINCTRL" />
 			</object>
