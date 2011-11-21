@@ -31,6 +31,9 @@
 #include <pwd.h>
 #endif
 
+#include <wx/aboutdlg.h>
+#include "serial.h"
+
 using namespace std;
 
 #ifdef WIN32
@@ -462,8 +465,14 @@ void sixemuguiFrame::OnQuit(wxCommandEvent& event)
 
 void sixemuguiFrame::OnAbout(wxCommandEvent& event)
 {
-  wxString msg = _("Gimx-serial\n(c) Matlo GNU GPL\nHomepage: http://www.gimx.fr/\nSource code: http://code.google.com/p/diyps3controller/\nForum: http://www.forum.gimx.fr/\n");
-  wxMessageBox(msg, _("Welcome to..."));
+  wxAboutDialogInfo info;
+  info.SetName(wxTheApp->GetAppName());
+  info.SetVersion(wxT(INFO_VERSION));
+  wxString text = wxString(_(INFO_DESCR)) + wxString(_("\n2010-2011 ")) + wxString(_(INFO_DEV)) + wxString(_(" ")) + wxString(_(INFO_LICENCE));
+  info.SetDescription(text);
+  info.SetWebSite(wxT(INFO_WEB));
+  
+  wxAboutBox(info);
 }
 
 void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
