@@ -24,6 +24,9 @@
 #include <wx/string.h>
 //*)
 
+#include <wx/aboutdlg.h>
+#include "../config.h"
+
 using namespace std;
 
 //helper functions
@@ -271,6 +274,8 @@ void sixaxis_emu_guiFrame::fillButtonChoice(wxChoice* choice)
 #ifndef WIN32
 char* homedir;
 #endif
+
+wxString default_directory;
 
 sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWindowID id)
 {
@@ -563,13 +568,13 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     FlexGridSizer3->Add(Button9, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     Choice8 = new wxChoice(Panel3, ID_CHOICE8, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE8"));
     FlexGridSizer3->Add(Choice8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    TextCtrl8 = new wxTextCtrl(Panel3, ID_TEXTCTRL8, _("20"), wxDefaultPosition, wxSize(27,27), 0, wxDefaultValidator, _T("ID_TEXTCTRL8"));
+    TextCtrl8 = new wxTextCtrl(Panel3, ID_TEXTCTRL8, _("20"), wxDefaultPosition, wxSize(27,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL8"));
     TextCtrl8->SetToolTip(_("Dead zone [0..99]"));
     FlexGridSizer3->Add(TextCtrl8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    TextCtrl9 = new wxTextCtrl(Panel3, ID_TEXTCTRL9, _("1.00"), wxDefaultPosition, wxSize(59,27), 0, wxDefaultValidator, _T("ID_TEXTCTRL9"));
+    TextCtrl9 = new wxTextCtrl(Panel3, ID_TEXTCTRL9, _("1.00"), wxDefaultPosition, wxSize(59,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL9"));
     TextCtrl9->SetToolTip(_("Sensitivity [-100.00..100.00]"));
     FlexGridSizer3->Add(TextCtrl9, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    TextCtrl10 = new wxTextCtrl(Panel3, ID_TEXTCTRL10, _("1.00"), wxDefaultPosition, wxSize(55,27), 0, wxDefaultValidator, _T("ID_TEXTCTRL10"));
+    TextCtrl10 = new wxTextCtrl(Panel3, ID_TEXTCTRL10, _("1.00"), wxDefaultPosition, wxSize(55,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL10"));
     TextCtrl10->SetToolTip(_("Acceleration [0.00..2.00]"));
     FlexGridSizer3->Add(TextCtrl10, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     Choice1 = new wxChoice(Panel3, ID_CHOICE1, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
@@ -578,10 +583,10 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     Choice1->Append(_("Rectangle"));
     FlexGridSizer3->Add(Choice1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer11 = new wxFlexGridSizer(1, 2, 0, 0);
-    TextCtrl1 = new wxTextCtrl(Panel3, ID_TEXTCTRL1, _("1"), wxDefaultPosition, wxSize(27,27), 0, wxDefaultValidator, _T("ID_TEXTCTRL1"));
+    TextCtrl1 = new wxTextCtrl(Panel3, ID_TEXTCTRL1, _("1"), wxDefaultPosition, wxSize(27,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL1"));
     TextCtrl1->SetToolTip(_("Buffer size [1..30]"));
     FlexGridSizer11->Add(TextCtrl1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    TextCtrl2 = new wxTextCtrl(Panel3, ID_TEXTCTRL2, _("0.00"), wxDefaultPosition, wxSize(41,27), 0, wxDefaultValidator, _T("ID_TEXTCTRL2"));
+    TextCtrl2 = new wxTextCtrl(Panel3, ID_TEXTCTRL2, _("0.00"), wxDefaultPosition, wxSize(41,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL2"));
     TextCtrl2->SetToolTip(_("Filter [0.00..1.00]"));
     FlexGridSizer11->Add(TextCtrl2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer3->Add(FlexGridSizer11, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -824,7 +829,7 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     MenuItem25->Enable(false);
 #endif
 
-    wxString default_directory = wxString(cmd.c_str(), wxConvUTF8);
+    default_directory = wxString(cmd.c_str(), wxConvUTF8);
 
     FileDialog1->SetDirectory(default_directory);
 
@@ -871,8 +876,14 @@ void sixaxis_emu_guiFrame::OnQuit(wxCommandEvent& event)
 
 void sixaxis_emu_guiFrame::OnAbout(wxCommandEvent& event)
 {
-    wxString msg = _("Gimx-config\n(c) Matlo GNU GPL\nHomepage: http://www.gimx.fr/\nSource code: http://code.google.com/p/diyps3controller/\nForum: http://www.forum.gimx.fr/\n");
-    wxMessageBox(msg, _("Welcome to..."));
+  wxAboutDialogInfo info;
+  info.SetName(wxTheApp->GetAppName());
+  info.SetVersion(wxT(INFO_VERSION));
+  wxString text = wxString(_(INFO_DESCR)) + wxString(_("\n2010-2011 ")) + wxString(_(INFO_DEV)) + wxString(_(" ")) + wxString(_(INFO_LICENCE));
+  info.SetDescription(text);
+  info.SetWebSite(wxT(INFO_WEB));
+
+  wxAboutBox(info);
 }
 
 void sixaxis_emu_guiFrame::OnMenuItemNew(wxCommandEvent& event)
@@ -923,7 +934,7 @@ void sixaxis_emu_guiFrame::OnButtonAdd1Click(wxCommandEvent& event)
     Grid1->SetCellValue(0, 5, TextCtrl3->GetValue());
     Grid1->SetCellValue(0, 6, Choice5->GetStringSelection());
     Grid1->AutoSizeColumns();
-    Panel2->Layout();
+    refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::OnButton3Click(wxCommandEvent& event)
@@ -964,7 +975,7 @@ void sixaxis_emu_guiFrame::OnButton3Click(wxCommandEvent& event)
     Grid2->SetCellValue(0, 10, TextCtrl1->GetValue());
     Grid2->SetCellValue(0, 11, TextCtrl2->GetValue());
     Grid2->AutoSizeColumns();
-    Panel3->Layout();
+    refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::DeleteLinkedRows(wxGrid* grid, int row)
@@ -1091,13 +1102,13 @@ void sixaxis_emu_guiFrame::DeleteSelectedRows(wxGrid* grid)
 void sixaxis_emu_guiFrame::OnButton6Click(wxCommandEvent& event)
 {
     sixaxis_emu_guiFrame::DeleteSelectedRows(Grid1);
-    Panel2->Layout();
+    refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::OnButton7Click(wxCommandEvent& event)
 {
     sixaxis_emu_guiFrame::DeleteSelectedRows(Grid2);
-    Panel3->Layout();
+    refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::OnChoice4Select(wxCommandEvent& event)
@@ -1126,9 +1137,9 @@ void sixaxis_emu_guiFrame::OnChoice4Select(wxCommandEvent& event)
     else
     {
         TextCtrl8->Enable();
-        TextCtrl8->SetValue(_("8"));
+        TextCtrl8->SetValue(_("20"));
         TextCtrl9->Enable();
-        TextCtrl9->SetValue(_("4"));
+        TextCtrl9->SetValue(_("1"));
         TextCtrl10->Enable();
         TextCtrl10->SetValue(_("1"));
         Choice1->Enable();
@@ -1138,7 +1149,7 @@ void sixaxis_emu_guiFrame::OnChoice4Select(wxCommandEvent& event)
         TextCtrl2->Enable();
         TextCtrl2->SetValue(_("0.00"));
     }
-    Panel3->Layout();
+    refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::OnChoice4Select1(wxCommandEvent& event)
@@ -1158,7 +1169,7 @@ void sixaxis_emu_guiFrame::OnChoice4Select1(wxCommandEvent& event)
         TextCtrl3->Enable();
         TextCtrl3->SetValue(_("10"));
     }
-    Panel2->Layout();
+    refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::auto_detect(wxStaticText* device_type, wxStaticText* device_name, wxStaticText* device_id, wxString event_type, wxStaticText* event_id)
@@ -1217,9 +1228,9 @@ void sixaxis_emu_guiFrame::OnButton1Click1(wxCommandEvent& event)
       }
     }
 
-    Panel1->Layout();
-
     Button1->Enable(true);
+
+    refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::OnButton8Click(wxCommandEvent& event)
@@ -1241,7 +1252,7 @@ void sixaxis_emu_guiFrame::OnButton8Click(wxCommandEvent& event)
 
     fillButtonChoice(Choice5);
 
-    Panel2->Layout();
+    refresh_gui();
 
     Button8->Enable(true);
 }
@@ -1269,9 +1280,9 @@ void sixaxis_emu_guiFrame::OnButton9Click(wxCommandEvent& event)
       if(evcatch.GetDeviceType() == _("mouse"))
       {
         TextCtrl8->Enable();
-        TextCtrl8->SetValue(_("8"));
+        TextCtrl8->SetValue(_("20"));
         TextCtrl9->Enable();
-        TextCtrl9->SetValue(_("4"));
+        TextCtrl9->SetValue(_("1"));
       }
       else if(evcatch.GetDeviceType() == _("joystick"))
       {
@@ -1294,7 +1305,7 @@ void sixaxis_emu_guiFrame::OnButton9Click(wxCommandEvent& event)
       fillAxisAxisChoice(Choice8);
     }
 
-    Panel3->Layout();
+    refresh_gui();
 
     Button9->Enable(true);
 }
@@ -1459,6 +1470,7 @@ void sixaxis_emu_guiFrame::refresh_gui()
     Panel1->Layout();
     Panel2->Layout();
     Panel3->Layout();
+    Refresh();
 }
 
 void sixaxis_emu_guiFrame::OnMenuOpen(wxCommandEvent& event)
@@ -1649,24 +1661,27 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration8(wxCommandEvent& event)
 
 void sixaxis_emu_guiFrame::OnMenuSave(wxCommandEvent& event)
 {
+    wxString end;
     save_current();
     configFile.WriteConfigFile();
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
+
+  wxFileDialog saveFileDialog(this, _T("Save Config file"), _T(""), _T(""), _T("XML files (*.xml)|*.xml"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+  saveFileDialog.SetDirectory(default_directory);
+  wxString FileName = saveFileDialog.GetDirectory();
+  wxMessageBox(FileName, wxT("Info"), wxICON_INFORMATION);
+
+  if (configFile.GetFilePath().StartsWith(default_directory, &end) && end.Freq('/') != 1)
+  {
+    wxMessageBox(configFile.GetFilePath(), wxT("Info"), wxICON_INFORMATION);
+  }
 }
 
 void sixaxis_emu_guiFrame::OnMenuSaveAs(wxCommandEvent& event)
 {
     wxFileDialog saveFileDialog(this, _T("Save Config file"), _T(""), _T(""), _T("XML files (*.xml)|*.xml"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 
-#ifndef WIN32
-    string cmd = "";
-    cmd.append(homedir);
-    cmd.append("/.emuclient/config");
-#else
-    string cmd = "config";
-#endif
-    wxString default_directory = wxString(cmd.c_str(), wxConvUTF8);
     saveFileDialog.SetDirectory(default_directory);
 
     if ( saveFileDialog.ShowModal() == wxID_CANCEL ) return;
@@ -1715,6 +1730,11 @@ void sixaxis_emu_guiFrame::OnButtonModifyButton(wxCommandEvent& event)
     }
     else
     {
+        if (StaticText40->GetLabel() == wxEmptyString)
+        {
+          wxMessageBox(wxT("Please detect an Event!"), wxT("Error"), wxICON_ERROR);
+          return;
+        }
         if(Choice5->GetStringSelection() == wxEmptyString)
         {
             wxMessageBox( wxT("Please select a Button!"), wxT("Error"), wxICON_ERROR);
@@ -1748,7 +1768,7 @@ void sixaxis_emu_guiFrame::OnButtonModifyButton(wxCommandEvent& event)
         Button2->SetLabel(_("Modify"));
     }
     Grid1->AutoSizeColumns();
-    Panel2->Layout();
+    refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::updateButtonConfigurations()
@@ -1843,6 +1863,11 @@ void sixaxis_emu_guiFrame::OnButtonModifyAxis(wxCommandEvent& event)
     }
     else
     {
+        if (StaticText43->GetLabel() == wxEmptyString)
+        {
+          wxMessageBox(wxT("Please detect an Event!"), wxT("Error"), wxICON_ERROR);
+          return;
+        }
         if(Choice8->GetStringSelection() == wxEmptyString)
         {
             wxMessageBox( wxT("Please select an Axis!"), wxT("Error"), wxICON_ERROR);
@@ -1881,7 +1906,7 @@ void sixaxis_emu_guiFrame::OnButtonModifyAxis(wxCommandEvent& event)
         Button5->SetLabel(_("Modify"));
     }
     Grid2->AutoSizeColumns();
-    Panel3->Layout();
+    refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::updateAxisConfigurations()
@@ -1934,6 +1959,12 @@ void sixaxis_emu_guiFrame::OnChoice1Select(wxCommandEvent& event)
 
 void sixaxis_emu_guiFrame::OnChoice8Select2(wxCommandEvent& event)
 {
+  if (Choice7->GetStringSelection() == _("axis"))
+  {
+    if (Choice1->GetStringSelection() == wxEmptyString)
+    {
+      Choice1->SetSelection(1);
+    }
     if(Choice8->GetStringSelection().Contains(_("stick")))
     {
         if(Choice1->GetStringSelection() == wxEmptyString)
@@ -1965,6 +1996,18 @@ void sixaxis_emu_guiFrame::OnChoice8Select2(wxCommandEvent& event)
         TextCtrl9->SetValue(_("0.004"));
       }
     }
+  }
+  else
+  {
+    TextCtrl8->Disable();
+    TextCtrl8->SetValue(wxEmptyString);
+    TextCtrl9->Disable();
+    TextCtrl9->SetValue(wxEmptyString);
+    TextCtrl10->Disable();
+    TextCtrl10->SetValue(wxEmptyString);
+    Choice1->Disable();
+    Choice1->SetSelection(0);
+  }
 }
 
 void sixaxis_emu_guiFrame::OnMenuItemCopyConfiguration(wxCommandEvent& event)
@@ -2005,7 +2048,7 @@ void sixaxis_emu_guiFrame::OnButton10Click1(wxCommandEvent& event)
     StaticText37->SetLabel(wxEmptyString);
     CheckBox1->SetValue(false);
 
-    Panel1->Layout();
+    refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::replaceDevice(wxString device_type)
@@ -2226,15 +2269,13 @@ void sixaxis_emu_guiFrame::OnButton13Click1(wxCommandEvent& event)
     }
   }
 
-  Panel1->Layout();
-
   Button13->Enable(true);
+
+  refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::OnButton14Click(wxCommandEvent& event)
 {
-  Button14->Enable(false);
-
   wxString old_device_type = StaticText58->GetLabel();
   wxString old_device_name = StaticText59->GetLabel();
   wxString old_device_id = StaticText60->GetLabel();
@@ -2275,9 +2316,7 @@ void sixaxis_emu_guiFrame::OnButton14Click(wxCommandEvent& event)
   StaticText60->SetLabel(wxEmptyString);
   StaticText61->SetLabel(wxEmptyString);
 
-  Panel1->Layout();
-
-  Button14->Enable(false);
+  refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::OnButton11Click1(wxCommandEvent& event)
@@ -2321,15 +2360,13 @@ void sixaxis_emu_guiFrame::OnButton11Click1(wxCommandEvent& event)
     }
   }
 
-  Panel1->Layout();
-
   Button11->Enable(true);
+
+  refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::OnButton12Click(wxCommandEvent& event)
 {
-  Button12->Enable(false);
-
   wxString old_device_type = StaticText48->GetLabel();
   wxString old_device_name = StaticText49->GetLabel();
   wxString old_device_id = StaticText50->GetLabel();
@@ -2370,9 +2407,7 @@ void sixaxis_emu_guiFrame::OnButton12Click(wxCommandEvent& event)
   StaticText50->SetLabel(wxEmptyString);
   StaticText51->SetLabel(wxEmptyString);
 
-  Panel1->Layout();
-
-  Button12->Enable(false);
+  refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::OnSpinCtrl3Change(wxSpinEvent& event)
@@ -2383,7 +2418,7 @@ void sixaxis_emu_guiFrame::OnSpinCtrl3Change(wxSpinEvent& event)
         SpinCtrl1->SetValue(SpinCtrl1->GetValue()*SpinCtrl1->GetMax()/max);
         SpinCtrl1->SetRange(1, max);
     }
-    Panel1->Layout();
+    refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::OnSpinCtrl4Change(wxSpinEvent& event)
@@ -2394,7 +2429,7 @@ void sixaxis_emu_guiFrame::OnSpinCtrl4Change(wxSpinEvent& event)
         SpinCtrl2->SetValue(SpinCtrl2->GetValue()*SpinCtrl2->GetMax()/max);
         SpinCtrl2->SetRange(1, max);
     }
-    Panel1->Layout();
+    refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::OnButton15Click(wxCommandEvent& event)
@@ -2438,15 +2473,13 @@ void sixaxis_emu_guiFrame::OnButton15Click(wxCommandEvent& event)
     }
   }
 
-  Panel1->Layout();
-
   Button15->Enable(true);
+
+  refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::OnButton16Click(wxCommandEvent& event)
 {
-  Button16->Enable(false);
-
   wxString old_device_type = StaticText67->GetLabel();
   wxString old_device_name = StaticText68->GetLabel();
   wxString old_device_id = StaticText69->GetLabel();
@@ -2487,9 +2520,7 @@ void sixaxis_emu_guiFrame::OnButton16Click(wxCommandEvent& event)
   StaticText69->SetLabel(wxEmptyString);
   StaticText70->SetLabel(wxEmptyString);
 
-  Panel1->Layout();
-
-  Button16->Enable(true);
+  refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::OnButton17Click(wxCommandEvent& event)
@@ -2533,15 +2564,13 @@ void sixaxis_emu_guiFrame::OnButton17Click(wxCommandEvent& event)
     }
   }
 
-  Panel1->Layout();
-
   Button17->Enable(true);
+
+  refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::OnButton18Click(wxCommandEvent& event)
 {
-  Button18->Enable(false);
-
   wxString old_device_type = StaticText1->GetLabel();
   wxString old_device_name = StaticText2->GetLabel();
   wxString old_device_id = StaticText3->GetLabel();
@@ -2582,9 +2611,7 @@ void sixaxis_emu_guiFrame::OnButton18Click(wxCommandEvent& event)
   StaticText3->SetLabel(wxEmptyString);
   StaticText9->SetLabel(wxEmptyString);
 
-  Panel1->Layout();
-
-  Button18->Enable(true);
+  refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::OnMenuSetMouseDPI(wxCommandEvent& event)
