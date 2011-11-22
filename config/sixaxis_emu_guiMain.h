@@ -106,7 +106,6 @@ class sixaxis_emu_guiFrame: public wxFrame
         void OnButtonModifyAxis(wxCommandEvent& event);
         void OnChoice1Select(wxCommandEvent& event);
         void OnChoice8Select1(wxCommandEvent& event);
-        void OnChoice8Select2(wxCommandEvent& event);
         void OnMenuItemCopyConfiguration(wxCommandEvent& event);
         void OnMenuItemPasteConfiguration(wxCommandEvent& event);
         void OnMenuItemCopyController(wxCommandEvent& event);

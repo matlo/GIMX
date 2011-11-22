@@ -934,7 +934,6 @@
 										<object class="sizeritem">
 											<object class="wxChoice" name="ID_CHOICE8" variable="Choice8" member="yes">
 												<selection>0</selection>
-												<handler function="OnChoice8Select2" entry="EVT_CHOICE" />
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 											<border>5</border>
@@ -942,8 +941,8 @@
 										</object>
 										<object class="sizeritem">
 											<object class="wxTextCtrl" name="ID_TEXTCTRL8" variable="TextCtrl8" member="yes">
-												<value>20</value>
-												<size>27,27</size>
+												<enabled>0</enabled>
+												<size>27,-1</size>
 												<tooltip>Dead zone [0..99]</tooltip>
 												<handler function="OnTextCtrlText" entry="EVT_TEXT" />
 											</object>
@@ -953,8 +952,8 @@
 										</object>
 										<object class="sizeritem">
 											<object class="wxTextCtrl" name="ID_TEXTCTRL9" variable="TextCtrl9" member="yes">
-												<value>1.00</value>
-												<size>59,27</size>
+												<enabled>0</enabled>
+												<size>59,-1</size>
 												<tooltip>Sensitivity [-100.00..100.00]</tooltip>
 												<handler function="OnTextCtrlText" entry="EVT_TEXT" />
 											</object>
@@ -964,8 +963,8 @@
 										</object>
 										<object class="sizeritem">
 											<object class="wxTextCtrl" name="ID_TEXTCTRL10" variable="TextCtrl10" member="yes">
-												<value>1.00</value>
-												<size>55,27</size>
+												<enabled>0</enabled>
+												<size>55,-1</size>
 												<tooltip>Acceleration [0.00..2.00]</tooltip>
 												<handler function="OnTextCtrlText" entry="EVT_TEXT" />
 											</object>
@@ -975,12 +974,13 @@
 										</object>
 										<object class="sizeritem">
 											<object class="wxChoice" name="ID_CHOICE1" variable="Choice1" member="yes">
+												<enabled>0</enabled>
 												<content>
 													<item></item>
 													<item>Circle</item>
 													<item>Rectangle</item>
 												</content>
-												<selection>1</selection>
+												<selection>0</selection>
 												<handler function="OnChoice1Select" entry="EVT_CHOICE" />
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -993,8 +993,8 @@
 												<rows>1</rows>
 												<object class="sizeritem">
 													<object class="wxTextCtrl" name="ID_TEXTCTRL1" variable="TextCtrl1" member="yes">
-														<value>1</value>
-														<size>27,27</size>
+												        <enabled>0</enabled>
+												        <size>27,-1</size>
 														<tooltip>Buffer size [1..30]</tooltip>
 														<handler function="OnTextCtrlText" entry="EVT_TEXT" />
 													</object>
@@ -1004,8 +1004,8 @@
 												</object>
 												<object class="sizeritem">
 													<object class="wxTextCtrl" name="ID_TEXTCTRL2" variable="TextCtrl2" member="yes">
-														<value>0.00</value>
-														<size>41,27</size>
+												        <enabled>0</enabled>
+												        <size>41,-1</size>
 														<tooltip>Filter [0.00..1.00]</tooltip>
 														<handler function="OnTextCtrlText" entry="EVT_TEXT" />
 													</object>

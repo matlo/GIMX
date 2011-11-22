@@ -568,19 +568,23 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     FlexGridSizer3->Add(Button9, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     Choice8 = new wxChoice(Panel3, ID_CHOICE8, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE8"));
     FlexGridSizer3->Add(Choice8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    TextCtrl8 = new wxTextCtrl(Panel3, ID_TEXTCTRL8, _("20"), wxDefaultPosition, wxSize(27,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL8"));
+    TextCtrl8 = new wxTextCtrl(Panel3, ID_TEXTCTRL8, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TEXTCTRL8"));
     TextCtrl8->SetToolTip(_("Dead zone [0..99]"));
+	  TextCtrl8->Disable();
     FlexGridSizer3->Add(TextCtrl8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    TextCtrl9 = new wxTextCtrl(Panel3, ID_TEXTCTRL9, _("1.00"), wxDefaultPosition, wxSize(59,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL9"));
+    TextCtrl9 = new wxTextCtrl(Panel3, ID_TEXTCTRL9, wxEmptyString, wxDefaultPosition, wxSize(59,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL9"));
     TextCtrl9->SetToolTip(_("Sensitivity [-100.00..100.00]"));
+	  TextCtrl9->Disable();
     FlexGridSizer3->Add(TextCtrl9, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    TextCtrl10 = new wxTextCtrl(Panel3, ID_TEXTCTRL10, _("1.00"), wxDefaultPosition, wxSize(55,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL10"));
+    TextCtrl10 = new wxTextCtrl(Panel3, ID_TEXTCTRL10, wxEmptyString, wxDefaultPosition, wxSize(55,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL10"));
     TextCtrl10->SetToolTip(_("Acceleration [0.00..2.00]"));
+	  TextCtrl10->Disable();
     FlexGridSizer3->Add(TextCtrl10, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     Choice1 = new wxChoice(Panel3, ID_CHOICE1, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
-    Choice1->Append(wxEmptyString);
-    Choice1->SetSelection( Choice1->Append(_("Circle")) );
+    Choice1->SetSelection(Choice1->Append(wxEmptyString));
+    Choice1->Append(_("Circle"));
     Choice1->Append(_("Rectangle"));
+    Choice1->Disable();
     FlexGridSizer3->Add(Choice1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer11 = new wxFlexGridSizer(1, 2, 0, 0);
     TextCtrl1 = new wxTextCtrl(Panel3, ID_TEXTCTRL1, _("1"), wxDefaultPosition, wxSize(27,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL1"));
@@ -743,7 +747,6 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButtonModifyButton);
     Connect(ID_CHOICE7,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnChoice4Select);
     Connect(ID_BUTTON9,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButton9Click);
-    Connect(ID_CHOICE8,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnChoice8Select2);
     Connect(ID_TEXTCTRL8,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnTextCtrlText);
     Connect(ID_TEXTCTRL9,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnTextCtrlText);
     Connect(ID_TEXTCTRL10,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnTextCtrlText);
@@ -899,6 +902,10 @@ void sixaxis_emu_guiFrame::OnMenuItemNew(wxCommandEvent& event)
     Menu1->Enable(idMenuSave, false);
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
+    Button3->Enable();
+    Button4->Enable();
+    Button6->Enable();
+    Button7->Enable();
 }
 
 void sixaxis_emu_guiFrame::OnButtonAdd1Click(wxCommandEvent& event)
@@ -1117,37 +1124,26 @@ void sixaxis_emu_guiFrame::OnChoice4Select(wxCommandEvent& event)
     StaticText32->SetLabel(wxEmptyString);
     StaticText42->SetLabel(wxEmptyString);
     StaticText43->SetLabel(wxEmptyString);
-    fillButtonAxisChoice(Choice8);
+    TextCtrl8->Disable();
+	  TextCtrl8->SetValue(wxEmptyString);
+  	TextCtrl9->Disable();
+	  TextCtrl9->SetValue(wxEmptyString);
+	  TextCtrl10->Disable();
+	  TextCtrl10->SetValue(wxEmptyString);
+	  Choice1->SetSelection(0);
+	  Choice1->Disable();
+	  TextCtrl1->Disable();
+	  TextCtrl1->SetValue(wxEmptyString);
+	  TextCtrl2->Disable();
+	  TextCtrl2->SetValue(wxEmptyString);
 
     if(Choice7->GetStringSelection() == _("button"))
     {
-        TextCtrl8->Disable();
-        TextCtrl8->SetValue(wxEmptyString);
-        TextCtrl9->Disable();
-        TextCtrl9->SetValue(wxEmptyString);
-        TextCtrl10->Disable();
-        TextCtrl10->SetValue(wxEmptyString);
-        Choice1->SetSelection(0);
-        Choice1->Disable();
-        TextCtrl1->Disable();
-        TextCtrl1->SetValue(wxEmptyString);
-        TextCtrl2->Disable();
-        TextCtrl2->SetValue(wxEmptyString);
+        fillButtonAxisChoice(Choice8);
     }
     else
     {
-        TextCtrl8->Enable();
-        TextCtrl8->SetValue(_("20"));
-        TextCtrl9->Enable();
-        TextCtrl9->SetValue(_("1"));
-        TextCtrl10->Enable();
-        TextCtrl10->SetValue(_("1"));
-        Choice1->Enable();
-        Choice1->SetSelection(1);
-        TextCtrl1->Enable();
-        TextCtrl1->SetValue(_("1"));
-        TextCtrl2->Enable();
-        TextCtrl2->SetValue(_("0.00"));
+        fillAxisAxisChoice(Choice8);
     }
     refresh_gui();
 }
@@ -1258,51 +1254,66 @@ void sixaxis_emu_guiFrame::OnButton8Click(wxCommandEvent& event)
 }
 
 void sixaxis_emu_guiFrame::OnButton9Click(wxCommandEvent& event)
-{
+{    
+    wxString old_device_type = StaticText41->GetLabel();
+    wxString old_device_name = StaticText32->GetLabel();
+    wxString old_device_id = StaticText42->GetLabel();
+	
     Button9->Enable(false);
 
     auto_detect(StaticText41, StaticText32, StaticText42, Choice7->GetStringSelection(), StaticText43);
 
-    if(evcatch.GetEventType() == _("button"))
+  	if(old_device_type != StaticText41->GetLabel()
+       || old_device_name != StaticText32->GetLabel()
+       || old_device_id != StaticText42->GetLabel())
     {
-        TextCtrl8->Disable();
-        TextCtrl8->SetValue(wxEmptyString);
-        TextCtrl9->Disable();
-        TextCtrl9->SetValue(wxEmptyString);
-        TextCtrl10->Disable();
-        TextCtrl10->SetValue(wxEmptyString);
-        Choice1->Disable();
-        Choice1->SetSelection(0);
-        fillButtonAxisChoice(Choice8);
-    }
-    else
-    {
-      if(evcatch.GetDeviceType() == _("mouse"))
-      {
-        TextCtrl8->Enable();
-        TextCtrl8->SetValue(_("20"));
-        TextCtrl9->Enable();
-        TextCtrl9->SetValue(_("1"));
-      }
-      else if(evcatch.GetDeviceType() == _("joystick"))
-      {
-        TextCtrl8->Enable();
-        TextCtrl8->SetValue(_("0"));
-        TextCtrl9->Enable();
-        if(!Choice8->GetStringSelection().Contains(_("stick")))
+        if(evcatch.GetEventType() == _("button"))
         {
-          TextCtrl9->SetValue(_("0.008"));
+            TextCtrl8->Disable();
+            TextCtrl8->SetValue(wxEmptyString);
+            TextCtrl9->Disable();
+            TextCtrl9->SetValue(wxEmptyString);
+            TextCtrl10->Disable();
+            TextCtrl10->SetValue(wxEmptyString);
+            Choice1->Disable();
+            Choice1->SetSelection(0);
+            fillButtonAxisChoice(Choice8);
         }
         else
         {
-          TextCtrl9->SetValue(_("0.004"));
+      	  TextCtrl8->Enable();
+          TextCtrl9->Enable();
+          TextCtrl10->Enable();
+          TextCtrl10->SetValue(_("1"));
+          Choice1->Enable();
+          Choice1->SetSelection(1);
+          if(evcatch.GetDeviceType() == _("mouse"))
+          {
+              TextCtrl8->SetValue(_("20"));
+              TextCtrl9->SetValue(_("1"));
+              TextCtrl1->Enable();
+              TextCtrl1->SetValue(_("1"));
+              TextCtrl2->Enable();
+              TextCtrl2->SetValue(_("0.00"));
+          }
+          else if(evcatch.GetDeviceType() == _("joystick"))
+          {
+              TextCtrl8->SetValue(_("0"));
+              if(!Choice8->GetStringSelection().Contains(_("stick")))
+              {
+                  TextCtrl9->SetValue(_("0.008"));
+              }
+              else
+              {
+                  TextCtrl9->SetValue(_("0.004"));
+              }
+        	    TextCtrl1->Disable();
+              TextCtrl1->SetValue(wxEmptyString);
+              TextCtrl2->Disable();
+              TextCtrl2->SetValue(wxEmptyString);
+          }
+          fillAxisAxisChoice(Choice8);
         }
-      }
-      TextCtrl10->Enable();
-      TextCtrl10->SetValue(_("1"));
-      Choice1->SetSelection(1);
-      Choice1->Enable();
-      fillAxisAxisChoice(Choice8);
     }
 
     refresh_gui();
@@ -1493,6 +1504,10 @@ void sixaxis_emu_guiFrame::OnMenuOpen(wxCommandEvent& event)
     Menu1->Enable(idMenuSave, true);
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
+    Button3->Enable();
+    Button4->Enable();
+    Button6->Enable();
+    Button7->Enable();
 }
 
 void sixaxis_emu_guiFrame::OnMenuItemController1(wxCommandEvent& event)
@@ -1504,6 +1519,10 @@ void sixaxis_emu_guiFrame::OnMenuItemController1(wxCommandEvent& event)
     load_current();
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
+    Button3->Enable();
+    Button4->Enable();
+    Button6->Enable();
+    Button7->Enable();
     refresh_gui();
 }
 
@@ -1516,6 +1535,10 @@ void sixaxis_emu_guiFrame::OnMenuItemController2(wxCommandEvent& event)
     load_current();
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
+    Button3->Enable();
+    Button4->Enable();
+    Button6->Enable();
+    Button7->Enable();
     refresh_gui();
 }
 
@@ -1528,6 +1551,10 @@ void sixaxis_emu_guiFrame::OnMenuItemController3(wxCommandEvent& event)
     load_current();
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
+    Button3->Enable();
+    Button4->Enable();
+    Button6->Enable();
+    Button7->Enable();
     refresh_gui();
 }
 
@@ -1540,6 +1567,10 @@ void sixaxis_emu_guiFrame::OnMenuItemController4(wxCommandEvent& event)
     load_current();
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
+    Button3->Enable();
+    Button4->Enable();
+    Button6->Enable();
+    Button7->Enable();
     refresh_gui();
 }
 
@@ -1552,6 +1583,10 @@ void sixaxis_emu_guiFrame::OnMenuItemController5(wxCommandEvent& event)
     load_current();
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
+    Button3->Enable();
+    Button4->Enable();
+    Button6->Enable();
+    Button7->Enable();
     refresh_gui();
 }
 
@@ -1564,6 +1599,10 @@ void sixaxis_emu_guiFrame::OnMenuItemController6(wxCommandEvent& event)
     load_current();
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
+    Button3->Enable();
+    Button4->Enable();
+    Button6->Enable();
+    Button7->Enable();
     refresh_gui();
 }
 
@@ -1576,6 +1615,10 @@ void sixaxis_emu_guiFrame::OnMenuItemController7(wxCommandEvent& event)
     load_current();
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
+    Button3->Enable();
+    Button4->Enable();
+    Button6->Enable();
+    Button7->Enable();
     refresh_gui();
 }
 
@@ -1586,6 +1629,10 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration1(wxCommandEvent& event)
     load_current();
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
+    Button3->Enable();
+    Button4->Enable();
+    Button6->Enable();
+    Button7->Enable();
     refresh_gui();
 }
 
@@ -1596,6 +1643,10 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration2(wxCommandEvent& event)
     load_current();
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
+    Button3->Enable();
+    Button4->Enable();
+    Button6->Enable();
+    Button7->Enable();
     refresh_gui();
 }
 
@@ -1606,6 +1657,10 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration3(wxCommandEvent& event)
     load_current();
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
+    Button3->Enable();
+    Button4->Enable();
+    Button6->Enable();
+    Button7->Enable();
     refresh_gui();
 }
 
@@ -1616,6 +1671,10 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration4(wxCommandEvent& event)
     load_current();
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
+    Button3->Enable();
+    Button4->Enable();
+    Button6->Enable();
+    Button7->Enable();
     refresh_gui();
 }
 
@@ -1626,6 +1685,10 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration5(wxCommandEvent& event)
     load_current();
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
+    Button3->Enable();
+    Button4->Enable();
+    Button6->Enable();
+    Button7->Enable();
     refresh_gui();
 }
 
@@ -1636,6 +1699,10 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration6(wxCommandEvent& event)
     load_current();
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
+    Button3->Enable();
+    Button4->Enable();
+    Button6->Enable();
+    Button7->Enable();
     refresh_gui();
 }
 
@@ -1646,6 +1713,10 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration7(wxCommandEvent& event)
     load_current();
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
+    Button3->Enable();
+    Button4->Enable();
+    Button6->Enable();
+    Button7->Enable();
     refresh_gui();
 }
 
@@ -1656,6 +1727,10 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration8(wxCommandEvent& event)
     load_current();
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
+    Button3->Enable();
+    Button4->Enable();
+    Button6->Enable();
+    Button7->Enable();
     refresh_gui();
 }
 
@@ -1666,6 +1741,10 @@ void sixaxis_emu_guiFrame::OnMenuSave(wxCommandEvent& event)
     configFile.WriteConfigFile();
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
+    Button3->Enable();
+    Button4->Enable();
+    Button6->Enable();
+    Button7->Enable();
 }
 
 void sixaxis_emu_guiFrame::OnMenuSaveAs(wxCommandEvent& event)
@@ -1842,8 +1921,11 @@ void sixaxis_emu_guiFrame::OnButtonModifyAxis(wxCommandEvent& event)
             TextCtrl10->Enable();
             Choice1->SetSelection(Choice1->FindString(Grid2->GetCellValue(grid2mod, 9)));
             Choice1->Enable();
-            TextCtrl1->Enable();
-            TextCtrl2->Enable();
+			      if(StaticText41->GetLabel() == _("mouse"))
+			      {
+                TextCtrl1->Enable();
+                TextCtrl2->Enable();
+      			}
             fillAxisAxisChoice(Choice8);
         }
         Choice8->SetSelection(Choice8->FindString(Grid2->GetCellValue(grid2mod, 5)));
@@ -1947,59 +2029,6 @@ void sixaxis_emu_guiFrame::OnChoice1Select(wxCommandEvent& event)
     }
 }
 
-void sixaxis_emu_guiFrame::OnChoice8Select2(wxCommandEvent& event)
-{
-  if (Choice7->GetStringSelection() == _("axis"))
-  {
-    if (Choice1->GetStringSelection() == wxEmptyString)
-    {
-      Choice1->SetSelection(1);
-    }
-    if(Choice8->GetStringSelection().Contains(_("stick")))
-    {
-        if(Choice1->GetStringSelection() == wxEmptyString)
-        {
-            Choice1->SetSelection(1);
-        }
-    }
-    else
-    {
-        if(Choice8->GetStringSelection() != wxEmptyString)
-        {
-            Choice1->SetSelection(0);
-        }
-    }
-    if(StaticText41->GetLabel() == _("mouse"))
-    {
-      TextCtrl8->SetValue(_("8"));
-      TextCtrl9->SetValue(_("4"));
-    }
-    else if(StaticText41->GetLabel() == _("joystick"))
-    {
-      TextCtrl8->SetValue(_("0"));
-      if(!Choice8->GetStringSelection().Contains(_("stick")))
-      {
-        TextCtrl9->SetValue(_("0.008"));
-      }
-      else
-      {
-        TextCtrl9->SetValue(_("0.004"));
-      }
-    }
-  }
-  else
-  {
-    TextCtrl8->Disable();
-    TextCtrl8->SetValue(wxEmptyString);
-    TextCtrl9->Disable();
-    TextCtrl9->SetValue(wxEmptyString);
-    TextCtrl10->Disable();
-    TextCtrl10->SetValue(wxEmptyString);
-    Choice1->Disable();
-    Choice1->SetSelection(0);
-  }
-}
-
 void sixaxis_emu_guiFrame::OnMenuItemCopyConfiguration(wxCommandEvent& event)
 {
   save_current();
@@ -2013,6 +2042,10 @@ void sixaxis_emu_guiFrame::OnMenuItemPasteConfiguration(wxCommandEvent& event)
   refresh_gui();
   Button2->SetLabel(_("Modify"));
   Button5->SetLabel(_("Modify"));
+  Button3->Enable();
+  Button4->Enable();
+  Button6->Enable();
+  Button7->Enable();
 }
 
 void sixaxis_emu_guiFrame::OnMenuItemCopyController(wxCommandEvent& event)
@@ -2028,6 +2061,10 @@ void sixaxis_emu_guiFrame::OnMenuItemPasteController(wxCommandEvent& event)
   refresh_gui();
   Button2->SetLabel(_("Modify"));
   Button5->SetLabel(_("Modify"));
+  Button3->Enable();
+  Button4->Enable();
+  Button6->Enable();
+  Button7->Enable();
 }
 
 void sixaxis_emu_guiFrame::OnButton10Click1(wxCommandEvent& event)
@@ -2733,7 +2770,7 @@ wxString sixaxis_emu_guiFrame::isAlreadyUsed(wxString device_type, wxString devi
     }
 
     if(Grid2->GetCellValue(i, 0) == device_type
-       && (Grid2->GetCellValue(i, 1).IsEmpty() || device_name.IsEmpty() || Grid1->GetCellValue(i, 1) == device_name)
+       && (Grid2->GetCellValue(i, 1).IsEmpty() || device_name.IsEmpty() || Grid2->GetCellValue(i, 1) == device_name)
        && Grid2->GetCellValue(i, 2) == device_id
        && Grid2->GetCellValue(i, 3) == event_type
        && Grid2->GetCellValue(i, 4) == event_id)
