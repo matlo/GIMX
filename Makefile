@@ -9,7 +9,7 @@ clean:
 install: all
 	for i in $(DIRS); do cd $$i; make install; cd ..; done
 	mkdir -p $(DESTDIR)/usr/lib
-	cp libsdl/lib/libSDL.so $(DESTDIR)/usr/lib/libSDL-9.2.so.0
+	cp ../libsdl/lib/libSDL.so $(DESTDIR)/usr/lib/libSDL-9.2.so.0
 	
 
 uninstall:
