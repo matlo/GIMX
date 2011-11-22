@@ -1666,16 +1666,6 @@ void sixaxis_emu_guiFrame::OnMenuSave(wxCommandEvent& event)
     configFile.WriteConfigFile();
     Button2->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
-
-  wxFileDialog saveFileDialog(this, _T("Save Config file"), _T(""), _T(""), _T("XML files (*.xml)|*.xml"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-  saveFileDialog.SetDirectory(default_directory);
-  wxString FileName = saveFileDialog.GetDirectory();
-  wxMessageBox(FileName, wxT("Info"), wxICON_INFORMATION);
-
-  if (configFile.GetFilePath().StartsWith(default_directory, &end) && end.Freq('/') != 1)
-  {
-    wxMessageBox(configFile.GetFilePath(), wxT("Info"), wxICON_INFORMATION);
-  }
 }
 
 void sixaxis_emu_guiFrame::OnMenuSaveAs(wxCommandEvent& event)
