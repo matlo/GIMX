@@ -26,7 +26,7 @@
 #include <wx/mstream.h>
 
 #include <wx/aboutdlg.h>
-#include "../fpsconfig.h"
+#include "fpsconfig.h"
 
 using namespace std;
 

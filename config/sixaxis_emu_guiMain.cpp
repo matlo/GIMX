@@ -25,7 +25,7 @@
 //*)
 
 #include <wx/aboutdlg.h>
-#include "../config.h"
+#include "config.h"
 
 using namespace std;
 
