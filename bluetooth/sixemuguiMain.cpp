@@ -28,7 +28,7 @@
 #include <sstream>
 
 #include <wx/aboutdlg.h>
-#include "../bluetooth.h"
+#include "bluetooth.h"
 
 using namespace std;
 
