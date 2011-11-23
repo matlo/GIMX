@@ -308,7 +308,6 @@
 																			<item>Rectangle</item>
 																		</content>
 																		<selection>0</selection>
-																		<handler function="OnChoice1Select" entry="EVT_CHOICE" />
 																	</object>
 																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																	<border>5</border>
@@ -518,7 +517,6 @@
 																			<item>Rectangle</item>
 																		</content>
 																		<selection>0</selection>
-																		<handler function="OnChoice1Select" entry="EVT_CHOICE" />
 																	</object>
 																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																	<border>5</border>
