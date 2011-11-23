@@ -487,7 +487,7 @@ void fpsconfigFrame::OnAbout(wxCommandEvent& event)
   wxAboutDialogInfo info;
   info.SetName(wxTheApp->GetAppName());
   info.SetVersion(wxT(INFO_VERSION));
-  wxString text = wxString(_(INFO_DESCR)) + wxString(_("\n2010-2011 ")) + wxString(_(INFO_DEV)) + wxString(_(" ")) + wxString(_(INFO_LICENCE));
+  wxString text = wxString(_(INFO_DESCR)) + wxString(_("\n")) + wxString(_(INFO_YEAR)) + wxString(_(" ")) + wxString(_(INFO_DEV)) + wxString(_(" ")) + wxString(_(INFO_LICENCE));
   info.SetDescription(text);
   info.SetWebSite(wxT(INFO_WEB));
   
