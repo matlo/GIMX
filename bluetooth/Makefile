@@ -71,6 +71,7 @@ install: all
 	mkdir -p $(prefix)/share/applications
 	for i in $(BINS); do cp $$i $(bindir)/; done
 	cp gimx-bluetooth.desktop $(prefix)/share/applications
+	cp gimx-bluetooth.png $(prefix)/share/app-install/icons
 
 uninstall:
 	-for i in $(BINS); do rm $(bindir)/$$i; done

@@ -114,6 +114,7 @@ install: all
 	mkdir -p $(prefix)/share/applications
 	for i in $(BINS); do cp $$i $(bindir)/; done
 	cp gimx-fpsconfig.desktop $(prefix)/share/applications
+	cp gimx-fpsconfig.png $(prefix)/share/app-install/icons
 
 uninstall:
 	-for i in $(BINS); do rm $(bindir)/$$i; done

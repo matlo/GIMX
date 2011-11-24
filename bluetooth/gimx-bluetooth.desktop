@@ -3,6 +3,6 @@ Type=Application
 Version=0.24
 Name=Gimx-bluetooth
 GenericName=Gimx-bluetooth
-Icon=
+Icon=gimx-bluetooth
 Exec=/usr/bin/gimx-bluetooth
 Categories=Game;

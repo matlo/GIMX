@@ -3,6 +3,6 @@ Type=Application
 Version=0.24
 Name=Gimx-fpsconfig
 GenericName=Gimx-fpsconfig
-Icon=
+Icon=gimx-fpsconfig
 Exec=/usr/bin/gimx-fpsconfig
 Categories=Game;

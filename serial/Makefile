@@ -70,6 +70,7 @@ install: all
 	mkdir -p $(prefix)/share/applications
 	for i in $(BINS); do cp $$i $(bindir)/; done
 	cp gimx-serial.desktop $(prefix)/share/applications
+	cp gimx-serial.png $(prefix)/share/app-install/icons
 
 uninstall:
 	-for i in $(BINS); do rm $(bindir)/$$i; done

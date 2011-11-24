@@ -3,6 +3,6 @@ Type=Application
 Version=0.24
 Name=Gimx-serial
 GenericName=Gimx-serial
-Icon=
+Icon=gimx-serial
 Exec=/usr/bin/gimx-serial
 Categories=Game;
