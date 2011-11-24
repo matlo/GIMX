@@ -68,6 +68,7 @@ install: all
 	mkdir -p $(prefix)
 	mkdir -p $(bindir)
 	mkdir -p $(prefix)/share/applications
+	mkdir -p $(prefix)/share/app-install
 	for i in $(BINS); do cp $$i $(bindir)/; done
 	cp gimx-serial.desktop $(prefix)/share/applications
 	cp gimx-serial.png $(prefix)/share/app-install/icons

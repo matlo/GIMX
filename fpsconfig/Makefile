@@ -112,6 +112,7 @@ install: all
 	mkdir -p $(prefix)
 	mkdir -p $(bindir)
 	mkdir -p $(prefix)/share/applications
+	mkdir -p $(prefix)/share/app-install
 	for i in $(BINS); do cp $$i $(bindir)/; done
 	cp gimx-fpsconfig.desktop $(prefix)/share/applications
 	cp gimx-fpsconfig.png $(prefix)/share/app-install/icons

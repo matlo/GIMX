@@ -69,6 +69,7 @@ install: all
 	mkdir -p $(prefix)
 	mkdir -p $(bindir)
 	mkdir -p $(prefix)/share/applications
+	mkdir -p $(prefix)/share/app-install
 	for i in $(BINS); do cp $$i $(bindir)/; done
 	cp gimx-bluetooth.desktop $(prefix)/share/applications
 	cp gimx-bluetooth.png $(prefix)/share/app-install/icons
