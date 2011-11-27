@@ -122,5 +122,6 @@ uninstall:
 	-rmdir $(bindir)
 	-rmdir $(prefix)
 	-rm $(prefix)/share/applications/gimx-config.desktop
+	-rm $(prefix)/share/pixmaps/gimx-config.png
 
 really-clean: clean uninstall

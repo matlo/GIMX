@@ -79,5 +79,6 @@ uninstall:
 	-rmdir $(bindir)
 	-rmdir $(prefix)
 	-rm $(prefix)/share/applications/gimx-bluetooth.desktop
+	-rm $(prefix)/share/pixmaps/gimx-bluetooth.png
 
 really-clean: clean uninstall

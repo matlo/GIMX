@@ -78,5 +78,6 @@ uninstall:
 	-rmdir $(bindir)
 	-rmdir $(prefix)
 	-rm $(prefix)/share/applications/gimx-serial.desktop
+	-rm $(prefix)/share/pixmaps/gimx-serial.png
 
 really-clean: clean uninstall

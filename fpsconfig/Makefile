@@ -122,5 +122,6 @@ uninstall:
 	-rmdir $(bindir)
 	-rmdir $(prefix)
 	-rm $(prefix)/share/applications/gimx-fpsconfig.desktop
+	-rm $(prefix)/share/pixmaps/gimx-fpsconfig.png
 
 really-clean: clean uninstall
