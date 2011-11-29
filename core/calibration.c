@@ -18,6 +18,7 @@
 #define DEFAULT_MULTIPLIER_STEP 0.01
 #define EXPONENT_STEP 0.01
 #define DURATION 1000000 //1s
+#define STEPS 720
 
 extern int refresh;
 extern int mean_axis_value;
@@ -183,12 +184,12 @@ static void circle_test()
   while(current_cal == RD || current_cal == VEL)
   {
     step = mcal->vel;
-    for (i = step; i < 360; i += step)
+    for (i = step; i < STEPS; i += step)
     {
       for (j = 0; j < DEFAULT_REFRESH_PERIOD / refresh; ++j)
       {
-        mouse_evt.motion.xrel = round(mcal->rd * pow((double)dpi/5700, *mcal->ex) * (cos(i * 2 * pi / 360) - cos((i - step) * 2 * pi / 360)));
-        mouse_evt.motion.yrel = round(mcal->rd * pow((double)dpi/5700, *mcal->ex) * (sin(i * 2 * pi / 360) - sin((i - step) * 2 * pi / 360)));
+        mouse_evt.motion.xrel = round(mcal->rd * pow((double)dpi/5700, *mcal->ex) * (cos(i * 2 * pi / STEPS) - cos((i - step) * 2 * pi / STEPS)));
+        mouse_evt.motion.yrel = round(mcal->rd * pow((double)dpi/5700, *mcal->ex) * (sin(i * 2 * pi / STEPS) - sin((i - step) * 2 * pi / STEPS)));
         mouse_evt.motion.which = current_mouse;
         mouse_evt.type = SDL_MOUSEMOTION;
         SDL_PushEvent(&mouse_evt);
