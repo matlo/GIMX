@@ -171,7 +171,7 @@ static void circle_test()
   int dpi;
   SDL_Event mouse_evt = { };
   s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
-  int step = mcal->vel;
+  int step;
 
   dpi = mcal->dpi;
   
@@ -182,6 +182,7 @@ static void circle_test()
 
   while(current_cal == RD || current_cal == VEL)
   {
+    step = mcal->vel;
     for (i = step; i < 360; i += step)
     {
       for (j = 0; j < DEFAULT_REFRESH_PERIOD / refresh; ++j)
