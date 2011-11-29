@@ -131,8 +131,8 @@ typedef struct
   double* my;
   double* ex;
   double* ey;
-  double rd;
-  double vel;
+  int rd;
+  int vel;
   int* dzx;
   int* dzy;
   e_shape* dzs;

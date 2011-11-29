@@ -168,10 +168,10 @@ static void auto_test()
 static void circle_test()
 {
   int i, j;
-  const int step = 1;
   int dpi;
   SDL_Event mouse_evt = { };
   s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
+  int step = mcal->vel;
 
   dpi = mcal->dpi;
   
@@ -182,12 +182,12 @@ static void circle_test()
 
   while(current_cal == RD || current_cal == VEL)
   {
-    for (i = 1; i < 360; i += step)
+    for (i = step; i < 360; i += step)
     {
       for (j = 0; j < DEFAULT_REFRESH_PERIOD / refresh; ++j)
       {
-        mouse_evt.motion.xrel = round(128 * mcal->vel * pow((double)dpi/5700, *mcal->ex) * (cos(i * 2 * pi / 360) - cos((i - 1) * 2 * pi / 360)));
-        mouse_evt.motion.yrel = round(128 * mcal->vel * pow((double)dpi/5700, *mcal->ex) * (sin(i * 2 * pi / 360) - sin((i - 1) * 2 * pi / 360)));
+        mouse_evt.motion.xrel = round(mcal->rd * pow((double)dpi/5700, *mcal->ex) * (cos(i * 2 * pi / 360) - cos((i - step) * 2 * pi / 360)));
+        mouse_evt.motion.yrel = round(mcal->rd * pow((double)dpi/5700, *mcal->ex) * (sin(i * 2 * pi / 360) - sin((i - step) * 2 * pi / 360)));
         mouse_evt.motion.which = current_mouse;
         mouse_evt.type = SDL_MOUSEMOTION;
         SDL_PushEvent(&mouse_evt);
@@ -275,8 +275,8 @@ static void display_calibration()
     {
       printf(" NA\n");
     }
-    printf("radius: %.2f\n", mcal->rd);
-    printf("velocity: %.2f\n", mcal->vel);
+    printf("radius: %d\n", mcal->rd);
+    printf("velocity: %d\n", mcal->vel);
     printf("time: %d\n", test_time);
   }
 }
@@ -588,10 +588,10 @@ void cal_button(int which, int button)
           }
           break;
         case RD:
-          mcal->rd += 0.5;
+          mcal->rd += 1;
           break;
         case VEL:
-          mcal->vel += 0.01;
+          mcal->vel += 1;
           break;
         case EX:
           if (mcal->ex)
@@ -686,10 +686,18 @@ void cal_button(int which, int button)
           }
           break;
         case RD:
-          mcal->rd -= 0.5;
+          mcal->rd -= 1;
+          if(mcal->rd < 1)
+          {
+            mcal->rd = 1;
+          }
           break;
         case VEL:
-          mcal->vel -= 0.01;
+          mcal->vel -= 1;
+          if(mcal->vel < 1)
+          {
+            mcal->vel = 1;
+          }
           break;
         case EX:
           if (mcal->ex)
