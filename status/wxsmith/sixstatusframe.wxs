@@ -624,7 +624,7 @@
 									</object>
 									<object class="sizeritem">
 										<object class="wxStaticBoxSizer" variable="StaticBoxSizer7" member="no">
-											<label>Circle test (rctrl+F11)</label>
+											<label>Circle test (rctrl+F10)</label>
 											<object class="sizeritem">
 												<object class="wxFlexGridSizer" variable="FlexGridSizer6" member="no">
 													<cols>2</cols>
@@ -639,7 +639,23 @@
 													</object>
 													<object class="sizeritem">
 														<object class="wxStaticText" name="ID_STATICTEXT35" variable="StaticText35" member="yes">
-															<label>000.00</label>
+															<label>00000</label>
+														</object>
+														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+														<border>5</border>
+														<option>1</option>
+													</object>
+													<object class="sizeritem">
+														<object class="wxStaticText" name="ID_STATICTEXT44" variable="StaticText44" member="yes">
+															<label>velocity (rctrl + F11):</label>
+														</object>
+														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+														<border>5</border>
+														<option>1</option>
+													</object>
+													<object class="sizeritem">
+														<object class="wxStaticText" name="ID_STATICTEXT45" variable="StaticText45" member="yes">
+															<label>000</label>
 														</object>
 														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 														<border>5</border>

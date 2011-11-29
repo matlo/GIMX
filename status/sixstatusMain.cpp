@@ -118,6 +118,8 @@ const long sixstatusFrame::ID_STATICTEXT29 = wxNewId();
 const long sixstatusFrame::ID_STATICTEXT30 = wxNewId();
 const long sixstatusFrame::ID_STATICTEXT36 = wxNewId();
 const long sixstatusFrame::ID_STATICTEXT35 = wxNewId();
+const long sixstatusFrame::ID_STATICTEXT44 = wxNewId();
+const long sixstatusFrame::ID_STATICTEXT45 = wxNewId();
 const long sixstatusFrame::idMenuQuit = wxNewId();
 const long sixstatusFrame::idMenuAbout = wxNewId();
 const long sixstatusFrame::ID_STATUSBAR1 = wxNewId();
@@ -139,6 +141,7 @@ typedef enum
   DZY,
   DZS,
   RD,
+  VE,
   EX,
   EY
 }e_current_cal;
@@ -178,6 +181,7 @@ string exponent_x;
 string exponent_y;
 string shape;
 string radius;
+string velocity;
 
 void read_status(void)
 {
@@ -245,6 +249,10 @@ void read_status(void)
         {
             current_cal = RD;
         }
+        else if(!s.compare(0, 30, "adjusting circle test velocity"))
+        {
+            current_cal = VE;
+        }
         else if(!s.compare(0, 13, "multiplier_x:"))
         {
             parser >> s;
@@ -284,6 +292,11 @@ void read_status(void)
         {
             parser >> s;
             parser >> radius;
+        }
+        else if(!s.compare(0, 9, "velocity:"))
+        {
+            parser >> s;
+            parser >> velocity;
         }
         else if(!s.compare(0, 15, "max_axis_value:"))
         {
@@ -482,7 +495,7 @@ sixstatusFrame::sixstatusFrame(wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer1;
     wxMenu* Menu2;
     wxStaticBoxSizer* StaticBoxSizer5;
-
+    
     Create(parent, wxID_ANY, _("Gimx-status"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     FlexGridSizer1 = new wxFlexGridSizer(2, 1, 0, 0);
     StaticBoxSizer5 = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Sixaxis status"));
@@ -634,12 +647,16 @@ sixstatusFrame::sixstatusFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer2->Add(StaticText30, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer4->Add(FlexGridSizer2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer7->Add(StaticBoxSizer4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticBoxSizer7 = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Circle test (rctrl+F11)"));
+    StaticBoxSizer7 = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Circle test (rctrl+F10)"));
     FlexGridSizer6 = new wxFlexGridSizer(2, 2, 0, 0);
     StaticText36 = new wxStaticText(this, ID_STATICTEXT36, _("radius (rctrl + F10):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT36"));
     FlexGridSizer6->Add(StaticText36, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText35 = new wxStaticText(this, ID_STATICTEXT35, _("000.00"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT35"));
+    StaticText35 = new wxStaticText(this, ID_STATICTEXT35, _("00000"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT35"));
     FlexGridSizer6->Add(StaticText35, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticText44 = new wxStaticText(this, ID_STATICTEXT44, _("velocity (rctrl + F11):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT44"));
+    FlexGridSizer6->Add(StaticText44, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticText45 = new wxStaticText(this, ID_STATICTEXT45, _("000"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT45"));
+    FlexGridSizer6->Add(StaticText45, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer7->Add(FlexGridSizer6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer7->Add(StaticBoxSizer7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer5->Add(FlexGridSizer7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -664,7 +681,7 @@ sixstatusFrame::sixstatusFrame(wxWindow* parent,wxWindowID id)
     SetStatusBar(StatusBar1);
     FlexGridSizer1->Fit(this);
     FlexGridSizer1->SetSizeHints(this);
-
+    
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixstatusFrame::OnQuit);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixstatusFrame::OnAbout);
     //*)
@@ -952,6 +969,7 @@ void sixstatusFrame::Update()
     set_text(StaticText30, exponent_y);
     set_text(StaticText34, shape);
     set_text(StaticText35, radius);
+    set_text(StaticText45, velocity);
 
     TextColor();
 
