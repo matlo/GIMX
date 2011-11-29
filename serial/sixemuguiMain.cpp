@@ -89,6 +89,7 @@ const long sixemuguiFrame::ID_BUTTON3 = wxNewId();
 const long sixemuguiFrame::ID_PANEL1 = wxNewId();
 const long sixemuguiFrame::ID_MENUITEM1 = wxNewId();
 const long sixemuguiFrame::ID_MENUITEM2 = wxNewId();
+const long sixemuguiFrame::ID_MENUITEM3 = wxNewId();
 const long sixemuguiFrame::idMenuQuit = wxNewId();
 const long sixemuguiFrame::idMenuAbout = wxNewId();
 const long sixemuguiFrame::ID_STATUSBAR1 = wxNewId();
@@ -408,6 +409,8 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     Menu1->Append(MenuItem3);
     MenuItem4 = new wxMenuItem(Menu1, ID_MENUITEM2, _("Edit fps config"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuItem4);
+    MenuItem5 = new wxMenuItem(Menu1, ID_MENUITEM3, _("Refresh"), wxEmptyString, wxITEM_NORMAL);
+    Menu1->Append(MenuItem5);
     MenuItem1 = new wxMenuItem(Menu1, idMenuQuit, _("Quit\tAlt-F4"), _("Quit the application"), wxITEM_NORMAL);
     Menu1->Append(MenuItem1);
     MenuBar1->Append(Menu1, _("&File"));
@@ -431,6 +434,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnButton3Click);
     Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuEditConfig);
     Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuEditFpsConfig);
+    Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuRefresh);
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnQuit);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnAbout);
     //*)
@@ -471,7 +475,7 @@ void sixemuguiFrame::OnAbout(wxCommandEvent& event)
   wxString text = wxString(_(INFO_DESCR)) + wxString(_("\n")) + wxString(_(INFO_YEAR)) + wxString(_(" ")) + wxString(_(INFO_DEV)) + wxString(_(" ")) + wxString(_(INFO_LICENCE));
   info.SetDescription(text);
   info.SetWebSite(wxT(INFO_WEB));
-  
+
   wxAboutBox(info);
 }
 
@@ -762,4 +766,12 @@ void sixemuguiFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
         wxICON_ERROR);
   }
 #endif
+}
+
+void sixemuguiFrame::OnMenuRefresh(wxCommandEvent& event)
+{
+    wxString previous = Choice4->GetStringSelection();
+    Choice4->Clear();
+    read_filenames(Choice4);
+    Choice4->SetSelection(Choice4->FindString(previous));
 }

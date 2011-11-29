@@ -47,6 +47,7 @@ class sixemuguiFrame: public wxFrame
         void OnButton1Click1(wxCommandEvent& event);
         void OnMenuEditConfig(wxCommandEvent& event);
         void OnMenuEditFpsConfig(wxCommandEvent& event);
+        void OnMenuRefresh(wxCommandEvent& event);
         //*)
 
         //(*Identifiers(sixemuguiFrame)
@@ -66,12 +67,14 @@ class sixemuguiFrame: public wxFrame
         static const long ID_PANEL1;
         static const long ID_MENUITEM1;
         static const long ID_MENUITEM2;
+        static const long ID_MENUITEM3;
         static const long idMenuQuit;
         static const long idMenuAbout;
         static const long ID_STATUSBAR1;
         //*)
 
         //(*Declarations(sixemuguiFrame)
+        wxMenuItem* MenuItem5;
         wxStaticText* StaticText2;
         wxButton* Button1;
         wxMenuItem* MenuItem4;

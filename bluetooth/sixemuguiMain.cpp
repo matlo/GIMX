@@ -396,6 +396,8 @@ static int read_sixaxis_config(wxChoice* cdevice, wxChoice* cmaster)
 
 void sixemuguiFrame::refresh()
 {
+    wxString previous = Choice4->GetStringSelection();
+    Choice4->Clear();
     Choice3->Clear();
     Choice5->Clear();
     Choice6->Clear();
@@ -403,6 +405,7 @@ void sixemuguiFrame::refresh()
     readSixaxis();
     readDongles();
     read_filenames(CONFIG_DIR, Choice4);
+    Choice4->SetSelection(Choice4->FindString(previous));
     if(Choice1->GetCount() == 0)
     {
         wxMessageBox( wxT("No Sixaxis Detected!\nSixaxis usb wire plugged?"), wxT("Error"), wxICON_ERROR);
@@ -751,7 +754,7 @@ void sixemuguiFrame::OnAbout(wxCommandEvent& event)
   wxString text = wxString(_(INFO_DESCR)) + wxString(_("\n")) + wxString(_(INFO_YEAR)) + wxString(_(" ")) + wxString(_(INFO_DEV)) + wxString(_(" ")) + wxString(_(INFO_LICENCE));
   info.SetDescription(text);
   info.SetWebSite(wxT(INFO_WEB));
-  
+
   wxAboutBox(info);
 }
 
