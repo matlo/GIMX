@@ -785,6 +785,7 @@ void sixstatusFrame::TextColor()
       set_text_color(StaticText30, wxColour(0, 0, 0));
       set_text_color(StaticText34, wxColour(0, 0, 0));
       set_text_color(StaticText35, wxColour(0, 0, 0));
+      set_text_color(StaticText45, wxColour(0, 0, 0));
       break;
     case MC:
       set_text_color(StaticText43, wxColour(0, 0, 0));
@@ -798,6 +799,7 @@ void sixstatusFrame::TextColor()
       set_text_color(StaticText30, wxColour(0, 0, 0));
       set_text_color(StaticText34, wxColour(0, 0, 0));
       set_text_color(StaticText35, wxColour(0, 0, 0));
+      set_text_color(StaticText45, wxColour(0, 0, 0));
       break;
     case CC:
       set_text_color(StaticText43, wxColour(0, 0, 0));
@@ -811,6 +813,7 @@ void sixstatusFrame::TextColor()
       set_text_color(StaticText30, wxColour(0, 0, 0));
       set_text_color(StaticText34, wxColour(0, 0, 0));
       set_text_color(StaticText35, wxColour(0, 0, 0));
+      set_text_color(StaticText45, wxColour(0, 0, 0));
       break;
     case MX:
       set_text_color(StaticText43, wxColour(0, 0, 0));
@@ -824,6 +827,7 @@ void sixstatusFrame::TextColor()
       set_text_color(StaticText30, wxColour(0, 0, 0));
       set_text_color(StaticText34, wxColour(0, 0, 0));
       set_text_color(StaticText35, wxColour(0, 0, 0));
+      set_text_color(StaticText45, wxColour(0, 0, 0));
       break;
     case MY:
       set_text_color(StaticText43, wxColour(0, 0, 0));
@@ -837,6 +841,7 @@ void sixstatusFrame::TextColor()
       set_text_color(StaticText30, wxColour(0, 0, 0));
       set_text_color(StaticText34, wxColour(0, 0, 0));
       set_text_color(StaticText35, wxColour(0, 0, 0));
+      set_text_color(StaticText45, wxColour(0, 0, 0));
       break;
     case DZX:
       set_text_color(StaticText43, wxColour(0, 0, 0));
@@ -850,6 +855,7 @@ void sixstatusFrame::TextColor()
       set_text_color(StaticText30, wxColour(0, 0, 0));
       set_text_color(StaticText34, wxColour(0, 0, 0));
       set_text_color(StaticText35, wxColour(0, 0, 0));
+      set_text_color(StaticText45, wxColour(0, 0, 0));
       break;
     case DZY:
       set_text_color(StaticText43, wxColour(0, 0, 0));
@@ -863,6 +869,7 @@ void sixstatusFrame::TextColor()
       set_text_color(StaticText30, wxColour(0, 0, 0));
       set_text_color(StaticText34, wxColour(0, 0, 0));
       set_text_color(StaticText35, wxColour(0, 0, 0));
+      set_text_color(StaticText45, wxColour(0, 0, 0));
       break;
     case DZS:
       set_text_color(StaticText43, wxColour(0, 0, 0));
@@ -876,6 +883,7 @@ void sixstatusFrame::TextColor()
       set_text_color(StaticText30, wxColour(0, 0, 0));
       set_text_color(StaticText34, wxColour(255, 0, 0));
       set_text_color(StaticText35, wxColour(0, 0, 0));
+      set_text_color(StaticText45, wxColour(0, 0, 0));
       break;
     case RD:
       set_text_color(StaticText43, wxColour(0, 0, 0));
@@ -889,6 +897,21 @@ void sixstatusFrame::TextColor()
       set_text_color(StaticText30, wxColour(0, 0, 0));
       set_text_color(StaticText34, wxColour(0, 0, 0));
       set_text_color(StaticText35, wxColour(255, 0, 0));
+      set_text_color(StaticText45, wxColour(0, 0, 0));
+      break;
+    case VE:
+      set_text_color(StaticText43, wxColour(0, 0, 0));
+      set_text_color(StaticText38, wxColour(0, 0, 0));
+      set_text_color(StaticText40, wxColour(0, 0, 0));
+      set_text_color(StaticText21, wxColour(0, 0, 0));
+      set_text_color(StaticText22, wxColour(0, 0, 0));
+      set_text_color(StaticText24, wxColour(0, 0, 0));
+      set_text_color(StaticText26, wxColour(0, 0, 0));
+      set_text_color(StaticText28, wxColour(0, 0, 0));
+      set_text_color(StaticText30, wxColour(0, 0, 0));
+      set_text_color(StaticText34, wxColour(0, 0, 0));
+      set_text_color(StaticText35, wxColour(0, 0, 0));
+      set_text_color(StaticText45, wxColour(255, 0, 0));
       break;
     case EX:
       set_text_color(StaticText43, wxColour(0, 0, 0));
@@ -902,6 +925,7 @@ void sixstatusFrame::TextColor()
       set_text_color(StaticText30, wxColour(0, 0, 0));
       set_text_color(StaticText34, wxColour(0, 0, 0));
       set_text_color(StaticText35, wxColour(0, 0, 0));
+      set_text_color(StaticText45, wxColour(0, 0, 0));
       break;
     case EY:
       set_text_color(StaticText43, wxColour(0, 0, 0));
@@ -915,6 +939,7 @@ void sixstatusFrame::TextColor()
       set_text_color(StaticText30, wxColour(255, 0, 0));
       set_text_color(StaticText34, wxColour(0, 0, 0));
       set_text_color(StaticText35, wxColour(0, 0, 0));
+      set_text_color(StaticText45, wxColour(0, 0, 0));
       break;
   }
 }
