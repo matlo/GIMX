@@ -485,10 +485,11 @@ void cal_key(int device_id, int sym, int down)
         if (current_conf >= 0 && current_mouse >= 0)
         {
           current_cal = TEST;
+          pthread_attr_init(&thread_attr);
+          pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
+          pthread_create(&thread, &thread_attr, (void*) auto_test, NULL);
+          printf("translation test started\n");
         }
-        pthread_attr_init(&thread_attr);
-        pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
-        pthread_create(&thread, &thread_attr, (void*) auto_test, NULL);
       }
       break;
   }
