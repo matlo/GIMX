@@ -774,4 +774,8 @@ void sixemuguiFrame::OnMenuRefresh(wxCommandEvent& event)
     Choice4->Clear();
     read_filenames(Choice4);
     Choice4->SetSelection(Choice4->FindString(previous));
+    previous = ComboBox1->GetStringSelection();
+    ComboBox1->Clear();
+    read_devices(ComboBox1);
+    ComboBox1->SetSelection(ComboBox1->FindString(previous));
 }
