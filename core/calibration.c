@@ -15,6 +15,11 @@
 #include "sdl_tools.h"
 #include "config_writter.h"
 
+#ifdef WIN32
+#include <windows.h>
+#define sleep Sleep
+#endif
+
 #define DEFAULT_MULTIPLIER_STEP 0.01
 #define EXPONENT_STEP 0.01
 #define DURATION 1000000 //1s
