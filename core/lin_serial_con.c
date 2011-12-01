@@ -51,6 +51,7 @@ int lin_serial_connect(char* portname)
     options.c_cflag &= ~CSTOPB;
     options.c_cflag &= ~CSIZE;
     options.c_cflag |= CS8;
+    options.c_oflag &= ~OPOST;
     if(tcsetattr(serial, TCSANOW, &options) < 0)
     {
       printf("can't set serial port options\n");
