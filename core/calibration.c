@@ -184,9 +184,9 @@ static void circle_test()
   while(current_cal == RD || current_cal == VEL)
   {
     step = mcal->vel;
-    for (i = step; i < STEPS; i += step)
+    for (i = step; i < STEPS && current_cal != NONE; i += step)
     {
-      for (j = 0; j < DEFAULT_REFRESH_PERIOD / refresh; ++j)
+      for (j = 0; j < DEFAULT_REFRESH_PERIOD / refresh && current_cal != NONE; ++j)
       {
         mouse_evt.motion.xrel = round(mcal->rd * pow((double)dpi/5700, *mcal->ex) * (cos(i * 2 * pi / STEPS) - cos((i - step) * 2 * pi / STEPS)));
         mouse_evt.motion.yrel = round(mcal->rd * pow((double)dpi/5700, *mcal->ex) * (sin(i * 2 * pi / STEPS) - sin((i - step) * 2 * pi / STEPS)));
@@ -318,6 +318,17 @@ void cal_key(int device_id, int sym, int down)
 
   switch (sym)
   {
+    case SDLK_ESCAPE:
+      /*
+       * Ugly stuff to prevent emuclient to crash in case a test thread is running.
+       * Threads will be removed in a future release.
+       */
+      if(current_cal != NONE)
+      {
+        current_cal = NONE;
+        sleep(5);
+      }
+      break;
     case SDLK_F1:
       if (down && rctrl)
       {
