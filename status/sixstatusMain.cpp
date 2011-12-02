@@ -307,6 +307,19 @@ void read_status(void)
             parser >> max_axis_value;
             mean_axis_value = max_axis_value/2;
         }
+#ifdef WIN32
+        /*
+         * Hackish way to keep emuclient window in foreground.
+         */
+        else if(!s.compare(0, 15, "sdl initialized"))
+        {
+          HWND Handle = FindWindow(NULL, TEXT("Sixaxis Control"));
+          if(Handle)
+          {
+            SetForegroundWindow(Handle);
+          }
+        }
+#endif
 
         while(parser >> s)
         {

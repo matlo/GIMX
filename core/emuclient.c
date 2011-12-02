@@ -201,6 +201,10 @@ int main(int argc, char *argv[])
   {
     err(1, "can't init sdl");
   }
+  else
+  {
+    printf("sdl initialized\n");
+  }
 
   if(grab)
   {
