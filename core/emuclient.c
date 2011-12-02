@@ -18,7 +18,6 @@
 #include <sched.h>
 #else
 #include <windows.h>
-#define sleep Sleep
 #endif
 #include <unistd.h>
 #include <fcntl.h>
@@ -205,7 +204,7 @@ int main(int argc, char *argv[])
 
   if(grab)
   {
-    sleep(1);
+    usleep(1000000);
     sdl_grab();
   }
 
