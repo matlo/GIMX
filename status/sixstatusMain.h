@@ -102,10 +102,13 @@ class sixstatusFrame: public wxFrame
         static const long ID_STATICTEXT28;
         static const long ID_STATICTEXT29;
         static const long ID_STATICTEXT30;
+        static const long ID_STATICTEXT46;
+        static const long ID_STATICTEXT47;
         static const long ID_STATICTEXT36;
         static const long ID_STATICTEXT35;
         static const long ID_STATICTEXT44;
         static const long ID_STATICTEXT45;
+        static const long ID_STATICTEXT48;
         static const long idMenuQuit;
         static const long idMenuAbout;
         static const long ID_STATUSBAR1;
@@ -160,6 +163,7 @@ class sixstatusFrame: public wxFrame
         wxStaticText* StaticText7;
         wxStatusBar* StatusBar1;
         wxGauge* Gauge17;
+        wxStaticText* StaticText47;
         wxStaticText* StaticText28;
         wxStaticText* StaticText41;
         wxStaticText* StaticText43;
@@ -174,11 +178,13 @@ class sixstatusFrame: public wxFrame
         wxStaticText* StaticText36;
         wxStaticText* StaticText17;
         wxStaticText* StaticText4;
+        wxStaticText* StaticText48;
         wxGauge* Gauge14;
         wxGauge* Gauge7;
         wxGauge* Gauge9;
         wxStaticText* StaticText16;
         wxGauge* Gauge13;
+        wxStaticText* StaticText46;
         //*)
 
         DECLARE_EVENT_TABLE()
