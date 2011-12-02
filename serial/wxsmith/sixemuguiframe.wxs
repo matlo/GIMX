@@ -268,6 +268,7 @@
 				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM3" variable="MenuItem5" member="yes">
 					<label>Refresh</label>
+					<accel>F5</accel>
 					<handler function="OnMenuRefresh" entry="EVT_MENU" />
 				</object>
 				<object class="wxMenuItem" name="idMenuQuit" variable="MenuItem1" member="no">
