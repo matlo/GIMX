@@ -15,11 +15,6 @@
 #include "sdl_tools.h"
 #include "config_writter.h"
 
-#ifdef WIN32
-#include <windows.h>
-#define sleep Sleep
-#endif
-
 #define DEFAULT_MULTIPLIER_STEP 0.01
 #define EXPONENT_STEP 0.01
 #define DURATION 1000000 //1s
@@ -331,7 +326,7 @@ void cal_key(int device_id, int sym, int down)
       if(current_cal != NONE)
       {
         current_cal = NONE;
-        sleep(5);
+        usleep(5000000);
       }
       break;
     case SDLK_F1:
