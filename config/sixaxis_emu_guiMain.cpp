@@ -711,6 +711,7 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     Menu6->Append(MenuItem30);
     MenuItem31 = new wxMenuItem(Menu6, ID_MENUITEM25, _("Link controls"), wxEmptyString, wxITEM_CHECK);
     Menu6->Append(MenuItem31);
+    MenuItem31->Check(true);
     MenuBar1->Append(Menu6, _("Advanced"));
     Menu2 = new wxMenu();
     MenuItem2 = new wxMenuItem(Menu2, idMenuAbout, _("About\tF1"), _("Show info about this application"), wxITEM_NORMAL);

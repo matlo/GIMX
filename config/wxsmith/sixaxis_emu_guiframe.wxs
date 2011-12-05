@@ -1261,6 +1261,7 @@
 				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM25" variable="MenuItem31" member="yes">
 					<label>Link controls</label>
+					<checked>1</checked>
 					<checkable>1</checkable>
 				</object>
 			</object>
