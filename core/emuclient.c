@@ -38,6 +38,8 @@
 #include <libxml/parser.h>
 #include "serial_con.h"
 
+#include <locale.h>
+
 #define EVENT_BUFFER_SIZE 256
 #define DEFAULT_POSTPONE_COUNT 3
 #define DEFAULT_MAX_AXIS_VALUE 255
@@ -107,6 +109,8 @@ int main(int argc, char *argv[])
 
   setlinebuf(stdout);
   homedir = getpwuid(getuid())->pw_dir;
+
+  setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 
   system("test -d ~/.emuclient || cp -r /etc/emuclient ~/.emuclient");
 #else

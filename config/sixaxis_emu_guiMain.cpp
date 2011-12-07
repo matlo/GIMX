@@ -26,6 +26,7 @@
 
 #include <wx/aboutdlg.h>
 #include "config.h"
+#include <locale.h>
 
 using namespace std;
 
@@ -864,6 +865,8 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     }
 
     configFile.SetEvCatch(&evcatch);
+
+    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 }
 
 sixaxis_emu_guiFrame::~sixaxis_emu_guiFrame()
@@ -1284,13 +1287,13 @@ void sixaxis_emu_guiFrame::OnButton9Click(wxCommandEvent& event)
       	  TextCtrl8->Enable();
           TextCtrl9->Enable();
           TextCtrl10->Enable();
-          TextCtrl10->SetValue(_("1"));
+          TextCtrl10->SetValue(_("1.00"));
           Choice1->Enable();
           Choice1->SetSelection(1);
           if(evcatch.GetDeviceType() == _("mouse"))
           {
               TextCtrl8->SetValue(_("20"));
-              TextCtrl9->SetValue(_("1"));
+              TextCtrl9->SetValue(_("1.00"));
               TextCtrl1->Enable();
               TextCtrl1->SetValue(_("1"));
               TextCtrl2->Enable();
@@ -2200,9 +2203,9 @@ void sixaxis_emu_guiFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
         {
             new_value = dialog2.GetValue();
 
-            evcatch.run(device_type, _("button"));
             if(MenuItem30->IsChecked())
             {
+                evcatch.run(device_type, _("button"));
                 device_name = evcatch.GetDeviceName();
                 device_id = evcatch.GetDeviceId();
             }
@@ -2225,18 +2228,10 @@ void sixaxis_emu_guiFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
                     double val, exp;
                     wxString sval = it->GetEvent()->GetMultiplier();
                     wxString sexp = it->GetEvent()->GetExponent();
-#ifndef WIN32
-                    sval.Replace(_("."), _(","));
-                    sexp.Replace(_("."), _(","));
-#endif
                     if(sval.ToDouble(&val) && sexp.ToDouble(&exp))
                     {
                         val = val * pow((double)old_value / new_value, exp);
                         sval.Printf(wxT("%.2f"), val);
-#ifndef WIN32
-                        sval.Replace(_(","), _("."));
-                        sexp.Replace(_(","), _("."));
-#endif
                         it->GetEvent()->SetMultiplier(sval);
                     }
                 }
@@ -2665,10 +2660,6 @@ void sixaxis_emu_guiFrame::OnTextCtrlText(wxCommandEvent& event)
     {
         text->SetValue(str);
     }
-
-#ifndef WIN32
-    str.Replace(_("."), _(","));
-#endif
 
     if(text == TextCtrl8)
     {
