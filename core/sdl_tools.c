@@ -85,7 +85,8 @@ int sdl_initialize()
       joystickVirtualIndex[i] = 0;
     }
     joystickNbButton[i] = SDL_JoystickNumButtons(joysticks[i]);
-    if (!strcmp(joystickName[i], "Sony PLAYSTATION(R)3 Controller"))
+    if (!strcmp(joystickName[i], "Sony PLAYSTATION(R)3 Controller")
+        || !strcmp(joystickName[i], "Sony Navigation Controller"))
     {
       joystickSixaxis[i] = 1;
     }

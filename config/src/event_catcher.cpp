@@ -371,7 +371,8 @@ void event_catcher::init()
           joystickVirtualIndex[i] = 0;
         }
         joystickNbButton[i] = SDL_JoystickNumButtons(jstick[i]);
-        if(joystickName[i] == _("Sony PLAYSTATION(R)3 Controller"))
+        if(joystickName[i] == _("Sony PLAYSTATION(R)3 Controller")
+            || joystickName[i] == _("Sony Navigation Controller"))
         {
           joystickSixaxis[i] = 1;
         }
