@@ -128,6 +128,7 @@ class sixaxis_emu_guiFrame: public wxFrame
         void OnMenuSetMouseDPI(wxCommandEvent& event);
         void OnTextCtrl8Text(wxCommandEvent& event);
         void OnTextCtrlText(wxCommandEvent& event);
+        void OnMenuMultipleMK(wxCommandEvent& event);
         //*)
         void DeleteSelectedRows(wxGrid* grid);
         void DeleteLinkedRows(wxGrid* grid, int row);

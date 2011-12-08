@@ -1161,6 +1161,7 @@
 				<object class="separator" />
 				<object class="wxMenuItem" name="ID_MENUITEM20" variable="MenuItem26" member="yes">
 					<label>Replace Mouse</label>
+					<enabled>0</enabled>
 					<handler function="OnMenuReplaceMouse" entry="EVT_MENU" />
 				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM22" variable="MenuItem28" member="yes">
@@ -1169,6 +1170,7 @@
 				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM21" variable="MenuItem27" member="yes">
 					<label>Replace Keyboard</label>
+					<enabled>0</enabled>
 					<handler function="OnMenuReplaceKeyboard" entry="EVT_MENU" />
 				</object>
 			</object>
@@ -1257,6 +1259,7 @@
 				<label>Advanced</label>
 				<object class="wxMenuItem" name="ID_MENUITEM24" variable="MenuItem30" member="yes">
 					<label>Multiple Mice and Keyboards</label>
+					<handler function="OnMenuMultipleMK" entry="EVT_MENU" />
 					<checkable>1</checkable>
 				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM25" variable="MenuItem31" member="yes">

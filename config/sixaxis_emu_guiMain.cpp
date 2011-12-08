@@ -313,7 +313,7 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     wxFlexGridSizer* FlexGridSizer17;
     wxMenu* Menu2;
     wxStaticBoxSizer* StaticBoxSizer5;
-    
+
     Create(parent, wxID_ANY, _("Gimx-config"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     GridSizer1 = new wxGridSizer(1, 1, 0, 0);
     Notebook1 = new wxNotebook(this, ID_NOTEBOOK1, wxDefaultPosition, wxSize(-1,570), 0, _T("ID_NOTEBOOK1"));
@@ -668,10 +668,12 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     Menu5->AppendSeparator();
     MenuItem26 = new wxMenuItem(Menu5, ID_MENUITEM20, _("Replace Mouse"), wxEmptyString, wxITEM_NORMAL);
     Menu5->Append(MenuItem26);
+    MenuItem26->Enable(false);
     MenuItem28 = new wxMenuItem(Menu5, ID_MENUITEM22, _("Replace Mouse DPI"), wxEmptyString, wxITEM_NORMAL);
     Menu5->Append(MenuItem28);
     MenuItem27 = new wxMenuItem(Menu5, ID_MENUITEM21, _("Replace Keyboard"), wxEmptyString, wxITEM_NORMAL);
     Menu5->Append(MenuItem27);
+    MenuItem27->Enable(false);
     MenuBar1->Append(Menu5, _("Edit"));
     Menu3 = new wxMenu();
     MenuItem7 = new wxMenuItem(Menu3, ID_MENUITEM1, _("1"), wxEmptyString, wxITEM_RADIO);
@@ -728,7 +730,7 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     FileDialog1 = new wxFileDialog(this, _("Select file"), wxEmptyString, wxEmptyString, _("XML files (*.xml)|*.xml"), wxFD_DEFAULT_STYLE|wxFD_OPEN, wxDefaultPosition, wxDefaultSize, _T("wxFileDialog"));
     GridSizer1->Fit(this);
     GridSizer1->SetSizeHints(this);
-    
+
     Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButton1Click1);
     Connect(ID_BUTTON10,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButton10Click1);
     Connect(ID_BUTTON13,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButton13Click1);
@@ -785,6 +787,7 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     Connect(ID_MENUITEM14,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemConfiguration6);
     Connect(ID_MENUITEM15,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemConfiguration7);
     Connect(ID_MENUITEM16,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemConfiguration8);
+    Connect(ID_MENUITEM24,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuMultipleMK);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnAbout);
     //*)
 
@@ -854,6 +857,8 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
       {
         configFile.ReadConfigFile(wxfile);
         MenuItem30->Check(configFile.MultipleMK());
+        wxCommandEvent event;
+        OnMenuMultipleMK(event);
         load_current();
         refresh_gui();
         Menu1->Enable(idMenuSave, true);
@@ -1257,11 +1262,11 @@ void sixaxis_emu_guiFrame::OnButton8Click(wxCommandEvent& event)
 }
 
 void sixaxis_emu_guiFrame::OnButton9Click(wxCommandEvent& event)
-{    
+{
     wxString old_device_type = StaticText41->GetLabel();
     wxString old_device_name = StaticText32->GetLabel();
     wxString old_device_id = StaticText42->GetLabel();
-	
+
     Button9->Enable(false);
 
     auto_detect(StaticText41, StaticText32, StaticText42, Choice7->GetStringSelection(), StaticText43);
@@ -1497,6 +1502,7 @@ void sixaxis_emu_guiFrame::OnMenuOpen(wxCommandEvent& event)
     configFile.ReadConfigFile(FileName);
 
     MenuItem30->Check(configFile.MultipleMK());
+    OnMenuMultipleMK(event);
 
     currentController = 0;
     currentConfiguration = 0;
@@ -2800,4 +2806,18 @@ wxString sixaxis_emu_guiFrame::isAlreadyUsed(wxString device_type, wxString devi
   }
 
   return wxEmptyString;
+}
+
+void sixaxis_emu_guiFrame::OnMenuMultipleMK(wxCommandEvent& event)
+{
+    if(MenuItem30->IsChecked())
+    {
+        MenuItem26->Enable(true);
+        MenuItem27->Enable(true);
+    }
+    else
+    {
+        MenuItem26->Enable(false);
+        MenuItem27->Enable(false);
+    }
 }
