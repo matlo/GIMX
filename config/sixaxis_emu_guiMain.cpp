@@ -1182,7 +1182,7 @@ void sixaxis_emu_guiFrame::auto_detect(wxStaticText* device_type, wxStaticText* 
 
     device_type->SetLabel(wxString(evcatch.GetDeviceType()));
 
-    if(MenuItem30->IsChecked())
+    if(MenuItem30->IsChecked() || evcatch.GetDeviceType() == _("joystick"))
     {
       device_name->SetLabel(wxString(evcatch.GetDeviceName()));
       device_id->SetLabel( wxString(evcatch.GetDeviceId()));
