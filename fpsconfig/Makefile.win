@@ -54,7 +54,7 @@ fpsconfig.rc.o: fpsconfig.rc
 	windres $^ -o $@
 
 clean_release:
-	rm -f $(OBJ_RELEASE) $(OUT_RELEASE)
+	rm -rf obj bin
 
 .PHONY: clean clean_release
 

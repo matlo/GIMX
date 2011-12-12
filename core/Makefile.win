@@ -7,7 +7,7 @@ INC=
 all: $(BINS)
 
 clean:
-	rm -f $(BINS) *~ *.o
+	rm -f $(BINS) *~ *.o *.exe
 
 emuclient: emuclient.o sixaxis.o dump.o macros.o config.o conversion.o config_writter.o config_reader.o sdl_tools.o win_serial_con.o calibration.o win_serial_con.o serial_con.o
 	$(CC) -o $@ $^ $(LIB)
