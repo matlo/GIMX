@@ -224,7 +224,7 @@ static void read_devices(wxComboBox* choice)
 
   while ((d = readdir(dirp)))
   {
-    if (d->d_type == DT_CHR && !strncmp(d->d_name, "ttyUSB", 6))
+    if (d->d_type == DT_CHR && (!strncmp(d->d_name, "ttyUSB", 6) || !strncmp(d->d_name, "ttyACM", 6)))
     {
       if(!line.empty() && line == d->d_name)
       {
@@ -531,7 +531,7 @@ void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
 #ifndef WIN32
     command.append("/dev/");
 #endif
-    command.append(ComboBox1->GetStringSelection().mb_str());
+    command.append(ComboBox1->GetValue().mb_str());
     if(CheckBox2->IsChecked())
     {
         command.append(" --status | gimx-status");
@@ -569,7 +569,7 @@ void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
     ofstream outfile2 (filename.c_str(), ios_base::trunc);
     if(outfile2.is_open())
     {
-        outfile2 << ComboBox2->GetStringSelection().mb_str() << endl;
+        outfile2 << ComboBox2->GetValue().mb_str() << endl;
         outfile2.close();
     }
     filename.erase();
@@ -582,7 +582,7 @@ void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
     ofstream outfile3 (filename.c_str(), ios_base::trunc);
     if(outfile3.is_open())
     {
-        outfile3 << ComboBox1->GetStringSelection().mb_str() << endl;
+        outfile3 << ComboBox1->GetValue().mb_str() << endl;
         outfile3.close();
     }
 
