@@ -409,6 +409,8 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     wxBackgroundBitmap* ToolBarBackground = new wxBackgroundBitmap(wxBitmap(background_img));
     Panel1->PushEventHandler(ToolBarBackground);
 
+    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
+
 #ifndef WIN32
     if(!getuid())
     {
@@ -471,8 +473,6 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
         wxMessageBox( wxT("Cannot open config file: ") + wxString(file, wxConvUTF8), wxT("Error"), wxICON_ERROR);
       }
     }
-
-    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 }
 
 fpsconfigFrame::~fpsconfigFrame()
