@@ -15,6 +15,13 @@
 #include "config.h"
 #include "dump.h"
 
+/*
+ * These defines are exclusive.
+ */
+#define JS 1
+#define PS2 0
+#define PS3 0
+
 static int debug;
 
 /*
@@ -47,6 +54,28 @@ void serial_send(int force_update)
 {
   s_report_data data =
   { };
+#if PS2
+  s_report_data2 data2 =
+  { .head = 0x5A, .Bt1 = 0xFF, .Bt2 = 0xFF };
+#endif
+#if PS3
+  unsigned char buf[50] =
+  {
+      0x01,0x00,0x00,0x00,
+      0x00, //0x01 = PS3 button
+      0x00,0x7a,0x80,0x82,
+      0x7d,0x00,0x00,0x00,
+      0x00,0x00,0x00,0x00,
+      0x00,0x00,0x00,0x00,
+      0x00,0x00,0x00,0x00,
+      0x00,0x00,0x00,0x00,
+      0x02,0xee,0x10,0x00,
+      0x00,0x00,0x00,0x02,
+      0xff,0x77,0x01,0x80,
+      0x02,0x1f,0x02,0x02,
+      0x01,0x9c,0x00,0x05
+  };
+#endif
   int i;
   struct timeval tv;
   uint8_t* pdata = (uint8_t*) &data;
@@ -56,10 +85,12 @@ void serial_send(int force_update)
     /*
      * Make sure the value is not out of range.
      */
+#if JS
     data.X = clamp(0, state[0].user.axis[0][0] + mean_axis_value, max_axis_value);
     data.Y = clamp(0, state[0].user.axis[0][1] + mean_axis_value, max_axis_value);
     data.Z = clamp(0, state[0].user.axis[1][0] + mean_axis_value, max_axis_value);
     data.Rz = clamp(0, state[0].user.axis[1][1] + mean_axis_value, max_axis_value);
+
     if (state[0].user.button[sb_square].pressed)
     {
       data.Bt |= 0x0001;
@@ -153,11 +184,116 @@ void serial_send(int force_update)
     {
       data.Hat = 0x0008;
     }
+#endif
+
+#if PS2
+    data2.X = clamp(0, state[0].user.axis[0][0] / 255  + 128, 255);
+    data2.Y = clamp(0, state[0].user.axis[0][1] / 255 + 128, 255);
+    data2.Z = clamp(0, state[0].user.axis[1][0] / 255 + 128, 255);
+    data2.Rz = clamp(0, state[0].user.axis[1][1] / 255 + 128, 255);
+
+    if (state[0].user.button[sb_square].pressed)
+    {
+      data2.Bt2 &= ~0x80;
+    }
+    if (state[0].user.button[sb_cross].pressed)
+    {
+      data2.Bt2 &= ~0x40;
+    }
+    if (state[0].user.button[sb_circle].pressed)
+    {
+      data2.Bt2 &= ~0x20;
+    }
+    if (state[0].user.button[sb_triangle].pressed)
+    {
+      data2.Bt2 &= ~0x10;
+    }
+
+    if (state[0].user.button[sb_select].pressed)
+    {
+      data2.Bt1 &= ~0x01;
+    }
+    if (state[0].user.button[sb_start].pressed)
+    {
+      data2.Bt1 &= ~0x08;
+    }
+    if (state[0].user.button[sb_l3].pressed)
+    {
+      data2.Bt1 &= ~0x02;
+    }
+    if (state[0].user.button[sb_r3].pressed)
+    {
+      data2.Bt1 &= ~0x04;
+    }
+
+    if (state[0].user.button[sb_l1].pressed)
+    {
+      data2.Bt2 &= ~0x04;
+    }
+    if (state[0].user.button[sb_r1].pressed)
+    {
+      data2.Bt2 &= ~0x08;
+    }
+    if (state[0].user.button[sb_l2].pressed)
+    {
+      data2.Bt2 &= ~0x01;
+    }
+    if (state[0].user.button[sb_r2].pressed)
+    {
+      data2.Bt2 &= ~0x02;
+    }
+
+    if (state[0].user.button[sb_up].pressed)
+    {
+      data2.Bt1 &= ~0x10;
+    }
+    if (state[0].user.button[sb_right].pressed)
+    {
+      data2.Bt1 &= ~0x20;
+    }
+    if (state[0].user.button[sb_down].pressed)
+    {
+      data2.Bt1 &= ~0x40;
+    }
+    if (state[0].user.button[sb_left].pressed)
+    {
+      data2.Bt1 &= ~0x80;
+    }
+#endif
+
+#if PS3
+    extern const int digital_order[17];
+
+    extern const int analog_order[12];
+
+    for (i = 0; i < 17; i++) {
+        int byte = 2 + (i / 8);
+        int offset = i % 8;
+        if (state[0].user.button[digital_order[i]].pressed)
+            buf[byte] |= (1 << offset);
+    }
+
+    buf[6] = clamp(0, state[0].user.axis[0][0] / 255  + 128, 255);
+    buf[7] = clamp(0, state[0].user.axis[0][1] / 255 + 128, 255);
+    buf[8] = clamp(0, state[0].user.axis[1][0] / 255 + 128, 255);
+    buf[9] = clamp(0, state[0].user.axis[1][1] / 255 + 128, 255);
+
+    for (i = 0; i < 12; i++)
+        buf[14 + i] = state[0].user.button[analog_order[i]].value;
+#endif
 
 #ifdef WIN32
-    win_serial_send(&data);
+    win_serial_send(&data, sizeof(data));
 #else
-    lin_serial_send(&data);
+#if JS
+    lin_serial_send(&data, sizeof(data));
+#endif
+#if PS2
+    lin_serial_send(&data2, sizeof(data2));
+#endif
+#if PS3
+    lin_serial_send(buf, sizeof(buf));
+#endif
 #endif
 
     if(controller[0].send_command)

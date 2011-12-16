@@ -13,7 +13,7 @@
 #include "serial_con.h"
 
 int win_serial_connect(char*);
-void win_serial_send(s_report_data* pdata);
+void win_serial_send(void*, unsigned int);
 void win_serial_close();
 
 #endif /* WIN_SERIAL_H_ */

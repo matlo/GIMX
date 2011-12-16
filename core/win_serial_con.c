@@ -67,11 +67,11 @@ int win_serial_connect(char* portname)
 /*
  * Send a usb report to the serial port.
  */
-void win_serial_send(s_report_data* pdata)
+void win_serial_send(void* pdata, unsigned int size)
 {
   DWORD dwBytesWrite = 0;
 
-  WriteFile(serial, (uint8_t*)pdata, sizeof(s_report_data), &dwBytesWrite, NULL);
+  WriteFile(serial, (uint8_t*)pdata, size, &dwBytesWrite, NULL);
 }
 
 /*

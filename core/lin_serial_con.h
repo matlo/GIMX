@@ -11,7 +11,7 @@
 #include "serial_con.h"
 
 int lin_serial_connect(char*);
-int lin_serial_send(s_report_data* pdata);
+int lin_serial_send(void*, unsigned int);
 void lin_serial_close();
 
 #endif /* LIN_SERIAL_CON_H_ */

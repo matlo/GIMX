@@ -69,9 +69,9 @@ int lin_serial_connect(char* portname)
 /*
  * Send a usb report to the serial port.
  */
-int lin_serial_send(s_report_data* pdata)
+int lin_serial_send(void* pdata, unsigned int size)
 {
-  return write(serial, (uint8_t*)pdata, sizeof(s_report_data));
+  return write(serial, (uint8_t*)pdata, size);
 }
 
 void lin_serial_close()

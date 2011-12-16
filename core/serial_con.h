@@ -23,6 +23,17 @@ typedef struct
   uint16_t Bt;
 } s_report_data;
 
+typedef struct
+{
+  uint8_t head;
+  uint8_t Bt1;
+  uint8_t Bt2;
+  int8_t Z;
+  int8_t Rz;
+  int8_t X;
+  int8_t Y;
+} s_report_data2;
+
 int serial_connect(char*);
 void serial_send(int);
 void serial_close();

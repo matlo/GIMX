@@ -7,6 +7,8 @@
 #include <winsock2.h> /* for htons */
 #endif
 
+#define PS3 0
+
 int clamp(int min, int val, int max)
 {
     if (val < min) return min;
@@ -48,7 +50,9 @@ int assemble_input_01(uint8_t *buf, int maxlen, struct sixaxis_state *state)
     int i;
 
     if (maxlen < 48) return -1;
+#if PS3
     memset(buf, 0, 48);
+#endif
 
     /* Digital button state */
     for (i = 0; i < 17; i++) {
