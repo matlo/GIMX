@@ -639,7 +639,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     StatusBar1->SetFieldsCount(2,__wxStatusBarWidths_1);
     StatusBar1->SetStatusStyles(2,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
-    SingleInstanceChecker1.Create(_T("Sixemugui_") + wxGetUserId() + _T("_Guard"));
+    SingleInstanceChecker1.Create(_T("gimx-bluetooth_") + wxGetUserId() + _T("_Guard"));
 
     Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSelectSixaxisBdaddr);
     Connect(ID_CHOICE2,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSelectPS3Bdaddr);
@@ -665,7 +665,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
 
     if(SingleInstanceChecker1.IsAnotherRunning())
     {
-        wxMessageBox( wxT("Sixemugui is already running!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( wxT("gimx-bluetooth is already running!"), wxT("Error"), wxICON_ERROR);
         exit(-1);
     }
 
