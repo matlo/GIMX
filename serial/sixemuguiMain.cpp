@@ -441,9 +441,11 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
 
     if(SingleInstanceChecker1.IsAnotherRunning())
     {
-        wxMessageBox( wxT("Sixemugui is already running!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( wxT("gimx-serial is already running!"), wxT("Error"), wxICON_ERROR);
         exit(-1);
     }
+
+    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 
 #ifndef WIN32
     homedir = getpwuid(getuid())->pw_dir;
@@ -485,8 +487,9 @@ void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
     string filename = "";
     wxString dpi;
     int refresh;
-    char crefresh[3];
-    int frequency;
+    ostringstream ios;
+    double frequency;
+    wxString wxfrequency;
     wxString configname;
 
 #ifdef WIN32
@@ -512,8 +515,8 @@ void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
     configname.Replace(_(" "), _("\\ "));
     command.append(configname.mb_str());
     command.append(" --refresh ");
-    frequency = wxAtoi(ComboBox2->GetValue());
-    if(frequency)
+    wxfrequency = ComboBox2->GetValue();
+    if(wxfrequency.ToDouble(&frequency))
     {
       refresh = 1000 / frequency;
     }
@@ -521,8 +524,8 @@ void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
     {
       refresh = 10;
     }
-    snprintf(crefresh, sizeof(crefresh), "%d", refresh);
-    command.append(crefresh);
+    ios << refresh;
+    command.append(ios.str());
     if(CheckBox5->IsChecked())
     {
         command.append(" --force-updates");
