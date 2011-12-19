@@ -173,6 +173,7 @@ static void circle_test()
   SDL_Event mouse_evt = { };
   s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
   int step;
+  int nb_motion;
 
   dpi = mcal->dpi;
   
@@ -181,12 +182,19 @@ static void circle_test()
     dpi = 5700;
   }
 
+  nb_motion = DEFAULT_REFRESH_PERIOD / refresh;
+
+  if(!nb_motion)
+  {
+    nb_motion = 1;
+  }
+
   while(current_cal == RD || current_cal == VEL)
   {
     step = mcal->vel;
     for (i = step; i < STEPS && current_cal != NONE; i += step)
     {
-      for (j = 0; j < DEFAULT_REFRESH_PERIOD / refresh && current_cal != NONE; ++j)
+      for (j = 0; j < nb_motion && current_cal != NONE; ++j)
       {
         mouse_evt.motion.xrel = round(mcal->rd * pow((double)dpi/5700, *mcal->ex) * (cos(i * 2 * pi / STEPS) - cos((i - step) * 2 * pi / STEPS)));
         mouse_evt.motion.yrel = round(mcal->rd * pow((double)dpi/5700, *mcal->ex) * (sin(i * 2 * pi / STEPS) - sin((i - step) * 2 * pi / STEPS)));
