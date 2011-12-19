@@ -517,7 +517,7 @@
 			<styles>wxSB_NORMAL,wxSB_NORMAL</styles>
 		</object>
 		<object class="wxSingleInstanceChecker" variable="SingleInstanceChecker1" member="yes">
-			<appname>Sixemugui</appname>
+			<appname>gimx-bluetooth</appname>
 		</object>
 	</object>
 </wxsmith>
