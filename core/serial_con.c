@@ -187,10 +187,10 @@ void serial_send(int force_update)
 #endif
 
 #if PS2
-    data2.X = clamp(0, state[0].user.axis[0][0] / 255  + 128, 255);
-    data2.Y = clamp(0, state[0].user.axis[0][1] / 255 + 128, 255);
-    data2.Z = clamp(0, state[0].user.axis[1][0] / 255 + 128, 255);
-    data2.Rz = clamp(0, state[0].user.axis[1][1] / 255 + 128, 255);
+    data2.X = clamp(0, state[0].user.axis[0][0] + 128, 255);
+    data2.Y = clamp(0, state[0].user.axis[0][1] + 128, 255);
+    data2.Z = clamp(0, state[0].user.axis[1][0] + 128, 255);
+    data2.Rz = clamp(0, state[0].user.axis[1][1] + 128, 255);
 
     if (state[0].user.button[sb_square].pressed)
     {
