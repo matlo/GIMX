@@ -313,7 +313,7 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     wxFlexGridSizer* FlexGridSizer17;
     wxMenu* Menu2;
     wxStaticBoxSizer* StaticBoxSizer5;
-
+    
     Create(parent, wxID_ANY, _("Gimx-config"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     GridSizer1 = new wxGridSizer(1, 1, 0, 0);
     Notebook1 = new wxNotebook(this, ID_NOTEBOOK1, wxDefaultPosition, wxSize(-1,570), 0, _T("ID_NOTEBOOK1"));
@@ -321,24 +321,24 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     FlexGridSizer10 = new wxFlexGridSizer(2, 1, 0, 0);
     StaticBoxSizer1 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("Profile trigger"));
     FlexGridSizer13 = new wxFlexGridSizer(1, 9, 0, 0);
-    StaticText35 = new wxStaticText(Panel1, ID_STATICTEXT35, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT35"));
-    FlexGridSizer13->Add(StaticText35, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText27 = new wxStaticText(Panel1, ID_STATICTEXT27, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT27"));
-    FlexGridSizer13->Add(StaticText27, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText36 = new wxStaticText(Panel1, ID_STATICTEXT36, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT36"));
-    FlexGridSizer13->Add(StaticText36, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText37 = new wxStaticText(Panel1, ID_STATICTEXT37, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT37"));
-    FlexGridSizer13->Add(StaticText37, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ProfileTriggerDeviceType = new wxStaticText(Panel1, ID_STATICTEXT35, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT35"));
+    FlexGridSizer13->Add(ProfileTriggerDeviceType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ProfileTriggerDeviceName = new wxStaticText(Panel1, ID_STATICTEXT27, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT27"));
+    FlexGridSizer13->Add(ProfileTriggerDeviceName, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ProfileTriggerDeviceId = new wxStaticText(Panel1, ID_STATICTEXT36, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT36"));
+    FlexGridSizer13->Add(ProfileTriggerDeviceId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ProfileTriggerButtonId = new wxStaticText(Panel1, ID_STATICTEXT37, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT37"));
+    FlexGridSizer13->Add(ProfileTriggerButtonId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     Button1 = new wxButton(Panel1, ID_BUTTON1, _("Auto detect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON1"));
     FlexGridSizer13->Add(Button1, 1, wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL, 5);
     CheckBox1 = new wxCheckBox(Panel1, ID_CHECKBOX1, _("Switch back"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX1"));
     CheckBox1->SetValue(false);
     FlexGridSizer13->Add(CheckBox1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText28 = new wxStaticText(Panel1, ID_STATICTEXT28, _("Delay (ms):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT28"));
-    FlexGridSizer13->Add(StaticText28, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    SpinCtrl5 = new wxSpinCtrl(Panel1, ID_SPINCTRL5, _T("0"), wxDefaultPosition, wxSize(65,-1), 0, 0, 1000, 0, _T("ID_SPINCTRL5"));
-    SpinCtrl5->SetValue(_T("0"));
-    FlexGridSizer13->Add(SpinCtrl5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName1 = new wxStaticText(Panel1, ID_STATICTEXT28, _("Delay (ms):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT28"));
+    FlexGridSizer13->Add(VarName1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ProfileTriggerDelay = new wxSpinCtrl(Panel1, ID_SPINCTRL5, _T("0"), wxDefaultPosition, wxSize(65,-1), 0, 0, 1000, 0, _T("ID_SPINCTRL5"));
+    ProfileTriggerDelay->SetValue(_T("0"));
+    FlexGridSizer13->Add(ProfileTriggerDelay, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     Button10 = new wxButton(Panel1, ID_BUTTON10, _("Delete"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON10"));
     FlexGridSizer13->Add(Button10, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer1->Add(FlexGridSizer13, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -349,104 +349,104 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     FlexGridSizer12 = new wxFlexGridSizer(2, 5, 0, 0);
     StaticBoxSizer5 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("Increase"));
     FlexGridSizer14 = new wxFlexGridSizer(2, 6, 0, 0);
-    StaticText58 = new wxStaticText(Panel1, ID_STATICTEXT58, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT58"));
-    FlexGridSizer14->Add(StaticText58, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText59 = new wxStaticText(Panel1, ID_STATICTEXT59, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT59"));
-    FlexGridSizer14->Add(StaticText59, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText60 = new wxStaticText(Panel1, ID_STATICTEXT60, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT60"));
-    FlexGridSizer14->Add(StaticText60, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText61 = new wxStaticText(Panel1, ID_STATICTEXT61, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT61"));
-    FlexGridSizer14->Add(StaticText61, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Button13 = new wxButton(Panel1, ID_BUTTON13, _("Auto detect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON13"));
-    FlexGridSizer14->Add(Button13, 1, wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL, 5);
-    Button14 = new wxButton(Panel1, ID_BUTTON14, _("Delete"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON14"));
-    FlexGridSizer14->Add(Button14, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    LSIncDeviceType = new wxStaticText(Panel1, ID_STATICTEXT58, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT58"));
+    FlexGridSizer14->Add(LSIncDeviceType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    LSIncDeviceName = new wxStaticText(Panel1, ID_STATICTEXT59, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT59"));
+    FlexGridSizer14->Add(LSIncDeviceName, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    LSIncDeviceId = new wxStaticText(Panel1, ID_STATICTEXT60, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT60"));
+    FlexGridSizer14->Add(LSIncDeviceId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    LSIncButtonId = new wxStaticText(Panel1, ID_STATICTEXT61, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT61"));
+    FlexGridSizer14->Add(LSIncButtonId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    LSIncAutoDetect = new wxButton(Panel1, ID_BUTTON13, _("Auto detect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON13"));
+    FlexGridSizer14->Add(LSIncAutoDetect, 1, wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL, 5);
+    LSIncDelete = new wxButton(Panel1, ID_BUTTON14, _("Delete"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON14"));
+    FlexGridSizer14->Add(LSIncDelete, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer5->Add(FlexGridSizer14, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer12->Add(StaticBoxSizer5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText24 = new wxStaticText(Panel1, ID_STATICTEXT24, _("Dead zone"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT24"));
-    FlexGridSizer12->Add(StaticText24, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    SpinCtrl3 = new wxSpinCtrl(Panel1, ID_SPINCTRL3, _T("0"), wxDefaultPosition, wxSize(60,-1), 0, 0, 127, 0, _T("ID_SPINCTRL3"));
-    SpinCtrl3->SetValue(_T("0"));
-    FlexGridSizer12->Add(SpinCtrl3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText62 = new wxStaticText(Panel1, ID_STATICTEXT62, _("Steps:"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT62"));
-    FlexGridSizer12->Add(StaticText62, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    SpinCtrl1 = new wxSpinCtrl(Panel1, ID_SPINCTRL1, _T("1"), wxDefaultPosition, wxSize(60,-1), 0, 1, 127, 1, _T("ID_SPINCTRL1"));
-    SpinCtrl1->SetValue(_T("1"));
-    FlexGridSizer12->Add(SpinCtrl1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName2 = new wxStaticText(Panel1, ID_STATICTEXT24, _("Dead zone"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT24"));
+    FlexGridSizer12->Add(VarName2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    LSDeadzone = new wxSpinCtrl(Panel1, ID_SPINCTRL3, _T("0"), wxDefaultPosition, wxSize(60,-1), 0, 0, 127, 0, _T("ID_SPINCTRL3"));
+    LSDeadzone->SetValue(_T("0"));
+    FlexGridSizer12->Add(LSDeadzone, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName3 = new wxStaticText(Panel1, ID_STATICTEXT62, _("Steps:"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT62"));
+    FlexGridSizer12->Add(VarName3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    LSSteps = new wxSpinCtrl(Panel1, ID_SPINCTRL1, _T("1"), wxDefaultPosition, wxSize(60,-1), 0, 1, 127, 1, _T("ID_SPINCTRL1"));
+    LSSteps->SetValue(_T("1"));
+    FlexGridSizer12->Add(LSSteps, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer6 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("Decrease"));
     FlexGridSizer15 = new wxFlexGridSizer(1, 6, 0, 0);
-    StaticText67 = new wxStaticText(Panel1, ID_STATICTEXT67, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT67"));
-    FlexGridSizer15->Add(StaticText67, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText68 = new wxStaticText(Panel1, ID_STATICTEXT68, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT68"));
-    FlexGridSizer15->Add(StaticText68, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText69 = new wxStaticText(Panel1, ID_STATICTEXT69, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT69"));
-    FlexGridSizer15->Add(StaticText69, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText70 = new wxStaticText(Panel1, ID_STATICTEXT70, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT70"));
-    FlexGridSizer15->Add(StaticText70, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Button15 = new wxButton(Panel1, ID_BUTTON15, _("Auto detect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON15"));
-    FlexGridSizer15->Add(Button15, 1, wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL, 5);
-    Button16 = new wxButton(Panel1, ID_BUTTON16, _("Delete"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON16"));
-    FlexGridSizer15->Add(Button16, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    LSDecDeviceType = new wxStaticText(Panel1, ID_STATICTEXT67, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT67"));
+    FlexGridSizer15->Add(LSDecDeviceType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    LSDecDeviceName = new wxStaticText(Panel1, ID_STATICTEXT68, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT68"));
+    FlexGridSizer15->Add(LSDecDeviceName, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    LSDecDeviceId = new wxStaticText(Panel1, ID_STATICTEXT69, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT69"));
+    FlexGridSizer15->Add(LSDecDeviceId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    LSDecButtonId = new wxStaticText(Panel1, ID_STATICTEXT70, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT70"));
+    FlexGridSizer15->Add(LSDecButtonId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    LSDecAutoDetect = new wxButton(Panel1, ID_BUTTON15, _("Auto detect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON15"));
+    FlexGridSizer15->Add(LSDecAutoDetect, 1, wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL, 5);
+    LSDecDelete = new wxButton(Panel1, ID_BUTTON16, _("Delete"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON16"));
+    FlexGridSizer15->Add(LSDecDelete, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer6->Add(FlexGridSizer15, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer12->Add(StaticBoxSizer6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText19 = new wxStaticText(Panel1, ID_STATICTEXT19, _("Shape"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT19"));
-    FlexGridSizer12->Add(StaticText19, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Choice2 = new wxChoice(Panel1, ID_CHOICE2, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE2"));
-    Choice2->SetSelection( Choice2->Append(_("Circle")) );
-    Choice2->Append(_("Rectangle"));
-    FlexGridSizer12->Add(Choice2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName4 = new wxStaticText(Panel1, ID_STATICTEXT19, _("Shape"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT19"));
+    FlexGridSizer12->Add(VarName4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    LSShape = new wxChoice(Panel1, ID_CHOICE2, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE2"));
+    LSShape->SetSelection( LSShape->Append(_("Circle")) );
+    LSShape->Append(_("Rectangle"));
+    FlexGridSizer12->Add(LSShape, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer3->Add(FlexGridSizer12, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer18->Add(StaticBoxSizer3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer4 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("Right"));
     FlexGridSizer16 = new wxFlexGridSizer(2, 5, 0, 0);
     StaticBoxSizer7 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("Increase"));
     FlexGridSizer2 = new wxFlexGridSizer(2, 6, 0, 0);
-    StaticText48 = new wxStaticText(Panel1, ID_STATICTEXT48, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT48"));
-    FlexGridSizer2->Add(StaticText48, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText49 = new wxStaticText(Panel1, ID_STATICTEXT49, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT49"));
-    FlexGridSizer2->Add(StaticText49, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText50 = new wxStaticText(Panel1, ID_STATICTEXT50, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT50"));
-    FlexGridSizer2->Add(StaticText50, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText51 = new wxStaticText(Panel1, ID_STATICTEXT51, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT51"));
-    FlexGridSizer2->Add(StaticText51, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Button11 = new wxButton(Panel1, ID_BUTTON11, _("Auto detect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON11"));
-    FlexGridSizer2->Add(Button11, 1, wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL, 5);
-    Button12 = new wxButton(Panel1, ID_BUTTON12, _("Delete"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON12"));
-    FlexGridSizer2->Add(Button12, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    RSIncDeviceType = new wxStaticText(Panel1, ID_STATICTEXT48, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT48"));
+    FlexGridSizer2->Add(RSIncDeviceType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    RSIncDeviceName = new wxStaticText(Panel1, ID_STATICTEXT49, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT49"));
+    FlexGridSizer2->Add(RSIncDeviceName, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    RSIncDeviceId = new wxStaticText(Panel1, ID_STATICTEXT50, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT50"));
+    FlexGridSizer2->Add(RSIncDeviceId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    RSIncButtonId = new wxStaticText(Panel1, ID_STATICTEXT51, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT51"));
+    FlexGridSizer2->Add(RSIncButtonId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    RSIncAutoDetect = new wxButton(Panel1, ID_BUTTON11, _("Auto detect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON11"));
+    FlexGridSizer2->Add(RSIncAutoDetect, 1, wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL, 5);
+    RSIncDelete = new wxButton(Panel1, ID_BUTTON12, _("Delete"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON12"));
+    FlexGridSizer2->Add(RSIncDelete, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer7->Add(FlexGridSizer2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer16->Add(StaticBoxSizer7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText26 = new wxStaticText(Panel1, ID_STATICTEXT26, _("Dead zone"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT26"));
-    FlexGridSizer16->Add(StaticText26, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    SpinCtrl4 = new wxSpinCtrl(Panel1, ID_SPINCTRL4, _T("0"), wxDefaultPosition, wxSize(60,-1), 0, 0, 127, 0, _T("ID_SPINCTRL4"));
-    SpinCtrl4->SetValue(_T("0"));
-    FlexGridSizer16->Add(SpinCtrl4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText25 = new wxStaticText(Panel1, ID_STATICTEXT25, _("Steps:"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT25"));
-    FlexGridSizer16->Add(StaticText25, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    SpinCtrl2 = new wxSpinCtrl(Panel1, ID_SPINCTRL2, _T("1"), wxDefaultPosition, wxSize(60,-1), 0, 1, 127, 1, _T("ID_SPINCTRL2"));
-    SpinCtrl2->SetValue(_T("1"));
-    FlexGridSizer16->Add(SpinCtrl2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName5 = new wxStaticText(Panel1, ID_STATICTEXT26, _("Dead zone"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT26"));
+    FlexGridSizer16->Add(VarName5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    RSDeadZone = new wxSpinCtrl(Panel1, ID_SPINCTRL4, _T("0"), wxDefaultPosition, wxSize(60,-1), 0, 0, 127, 0, _T("ID_SPINCTRL4"));
+    RSDeadZone->SetValue(_T("0"));
+    FlexGridSizer16->Add(RSDeadZone, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName6 = new wxStaticText(Panel1, ID_STATICTEXT25, _("Steps:"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT25"));
+    FlexGridSizer16->Add(VarName6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    RSSteps = new wxSpinCtrl(Panel1, ID_SPINCTRL2, _T("1"), wxDefaultPosition, wxSize(60,-1), 0, 1, 127, 1, _T("ID_SPINCTRL2"));
+    RSSteps->SetValue(_T("1"));
+    FlexGridSizer16->Add(RSSteps, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer8 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("Decrease"));
     FlexGridSizer17 = new wxFlexGridSizer(1, 6, 0, 0);
-    StaticText1 = new wxStaticText(Panel1, ID_STATICTEXT1, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
-    FlexGridSizer17->Add(StaticText1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText2 = new wxStaticText(Panel1, ID_STATICTEXT2, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
-    FlexGridSizer17->Add(StaticText2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText3 = new wxStaticText(Panel1, ID_STATICTEXT3, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT3"));
-    FlexGridSizer17->Add(StaticText3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText9 = new wxStaticText(Panel1, ID_STATICTEXT9, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT9"));
-    FlexGridSizer17->Add(StaticText9, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Button17 = new wxButton(Panel1, ID_BUTTON17, _("Auto detect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON17"));
-    FlexGridSizer17->Add(Button17, 1, wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL, 5);
-    Button18 = new wxButton(Panel1, ID_BUTTON18, _("Delete"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON18"));
-    FlexGridSizer17->Add(Button18, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    RSDecDeviceType = new wxStaticText(Panel1, ID_STATICTEXT1, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
+    FlexGridSizer17->Add(RSDecDeviceType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    RSDecDeviceName = new wxStaticText(Panel1, ID_STATICTEXT2, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
+    FlexGridSizer17->Add(RSDecDeviceName, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    RSDecDeviceId = new wxStaticText(Panel1, ID_STATICTEXT3, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT3"));
+    FlexGridSizer17->Add(RSDecDeviceId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    RSDecButtonId = new wxStaticText(Panel1, ID_STATICTEXT9, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT9"));
+    FlexGridSizer17->Add(RSDecButtonId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    RSDecAutoDetect = new wxButton(Panel1, ID_BUTTON17, _("Auto detect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON17"));
+    FlexGridSizer17->Add(RSDecAutoDetect, 1, wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL, 5);
+    RSDecDelete = new wxButton(Panel1, ID_BUTTON18, _("Delete"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON18"));
+    FlexGridSizer17->Add(RSDecDelete, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer8->Add(FlexGridSizer17, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer16->Add(StaticBoxSizer8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText23 = new wxStaticText(Panel1, ID_STATICTEXT23, _("Shape"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT23"));
-    FlexGridSizer16->Add(StaticText23, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Choice3 = new wxChoice(Panel1, ID_CHOICE3, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE3"));
-    Choice3->SetSelection( Choice3->Append(_("Circle")) );
-    Choice3->Append(_("Rectangle"));
-    FlexGridSizer16->Add(Choice3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName7 = new wxStaticText(Panel1, ID_STATICTEXT23, _("Shape"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT23"));
+    FlexGridSizer16->Add(VarName7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    RSShape = new wxChoice(Panel1, ID_CHOICE3, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE3"));
+    RSShape->SetSelection( RSShape->Append(_("Circle")) );
+    RSShape->Append(_("Rectangle"));
+    FlexGridSizer16->Add(RSShape, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer4->Add(FlexGridSizer16, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer18->Add(StaticBoxSizer4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer2->Add(FlexGridSizer18, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -458,66 +458,66 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     FlexGridSizer9 = new wxFlexGridSizer(2, 1, 0, 0);
     FlexGridSizer9->AddGrowableRow(1);
     FlexGridSizer1 = new wxFlexGridSizer(2, 8, 0, 0);
-    StaticText4 = new wxStaticText(Panel2, ID_STATICTEXT4, _("Device type"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT4"));
-    FlexGridSizer1->Add(StaticText4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText29 = new wxStaticText(Panel2, ID_STATICTEXT29, _("Device name"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT29"));
-    FlexGridSizer1->Add(StaticText29, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText10 = new wxStaticText(Panel2, ID_STATICTEXT10, _("Device id"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT10"));
-    FlexGridSizer1->Add(StaticText10, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText5 = new wxStaticText(Panel2, ID_STATICTEXT5, _("Event type"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT5"));
-    FlexGridSizer1->Add(StaticText5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText6 = new wxStaticText(Panel2, ID_STATICTEXT6, _("Event id"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT6"));
-    FlexGridSizer1->Add(StaticText6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText8 = new wxStaticText(Panel2, ID_STATICTEXT8, _("Threshold"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT8"));
-    FlexGridSizer1->Add(StaticText8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText20 = new wxStaticText(Panel2, ID_STATICTEXT20, wxEmptyString, wxDefaultPosition, wxSize(31,21), 0, _T("ID_STATICTEXT20"));
-    FlexGridSizer1->Add(StaticText20, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText7 = new wxStaticText(Panel2, ID_STATICTEXT7, _("Button"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT7"));
-    FlexGridSizer1->Add(StaticText7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText38 = new wxStaticText(Panel2, ID_STATICTEXT38, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT38"));
-    FlexGridSizer1->Add(StaticText38, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText30 = new wxStaticText(Panel2, ID_STATICTEXT30, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT30"));
-    FlexGridSizer1->Add(StaticText30, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText39 = new wxStaticText(Panel2, ID_STATICTEXT39, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT39"));
-    FlexGridSizer1->Add(StaticText39, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Choice4 = new wxChoice(Panel2, ID_CHOICE4, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE4"));
-    Choice4->SetSelection( Choice4->Append(_("button")) );
-    Choice4->Append(_("axis up"));
-    Choice4->Append(_("axis down"));
-    FlexGridSizer1->Add(Choice4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText40 = new wxStaticText(Panel2, ID_STATICTEXT40, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT40"));
-    FlexGridSizer1->Add(StaticText40, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    TextCtrl3 = new wxTextCtrl(Panel2, ID_TEXTCTRL3, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TEXTCTRL3"));
-    TextCtrl3->Disable();
-    FlexGridSizer1->Add(TextCtrl3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Button8 = new wxButton(Panel2, ID_BUTTON8, _("Auto detect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON8"));
-    FlexGridSizer1->Add(Button8, 1, wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL, 5);
-    Choice5 = new wxChoice(Panel2, ID_CHOICE5, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE5"));
-    FlexGridSizer1->Add(Choice5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName8 = new wxStaticText(Panel2, ID_STATICTEXT4, _("Device type"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT4"));
+    FlexGridSizer1->Add(VarName8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName9 = new wxStaticText(Panel2, ID_STATICTEXT29, _("Device name"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT29"));
+    FlexGridSizer1->Add(VarName9, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName10 = new wxStaticText(Panel2, ID_STATICTEXT10, _("Device id"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT10"));
+    FlexGridSizer1->Add(VarName10, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName11 = new wxStaticText(Panel2, ID_STATICTEXT5, _("Event type"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT5"));
+    FlexGridSizer1->Add(VarName11, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName12 = new wxStaticText(Panel2, ID_STATICTEXT6, _("Event id"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT6"));
+    FlexGridSizer1->Add(VarName12, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName14 = new wxStaticText(Panel2, ID_STATICTEXT8, _("Threshold"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT8"));
+    FlexGridSizer1->Add(VarName14, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName15 = new wxStaticText(Panel2, ID_STATICTEXT20, wxEmptyString, wxDefaultPosition, wxSize(31,21), 0, _T("ID_STATICTEXT20"));
+    FlexGridSizer1->Add(VarName15, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName13 = new wxStaticText(Panel2, ID_STATICTEXT7, _("Button"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT7"));
+    FlexGridSizer1->Add(VarName13, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonTabDeviceType = new wxStaticText(Panel2, ID_STATICTEXT38, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT38"));
+    FlexGridSizer1->Add(ButtonTabDeviceType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonTabDeviceName = new wxStaticText(Panel2, ID_STATICTEXT30, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT30"));
+    FlexGridSizer1->Add(ButtonTabDeviceName, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonTabDeviceId = new wxStaticText(Panel2, ID_STATICTEXT39, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT39"));
+    FlexGridSizer1->Add(ButtonTabDeviceId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonTabEventType = new wxChoice(Panel2, ID_CHOICE4, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE4"));
+    ButtonTabEventType->SetSelection( ButtonTabEventType->Append(_("button")) );
+    ButtonTabEventType->Append(_("axis up"));
+    ButtonTabEventType->Append(_("axis down"));
+    FlexGridSizer1->Add(ButtonTabEventType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonTabEventId = new wxStaticText(Panel2, ID_STATICTEXT40, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT40"));
+    FlexGridSizer1->Add(ButtonTabEventId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonTabThreshold = new wxTextCtrl(Panel2, ID_TEXTCTRL3, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TEXTCTRL3"));
+    ButtonTabThreshold->Disable();
+    FlexGridSizer1->Add(ButtonTabThreshold, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonTabAutoDetect = new wxButton(Panel2, ID_BUTTON8, _("Auto detect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON8"));
+    FlexGridSizer1->Add(ButtonTabAutoDetect, 1, wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL, 5);
+    ButtonTabButtonId = new wxChoice(Panel2, ID_CHOICE5, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE5"));
+    FlexGridSizer1->Add(ButtonTabButtonId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer9->Add(FlexGridSizer1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer8 = new wxFlexGridSizer(1, 2, 0, 0);
-    Grid1 = new wxGrid(Panel2, ID_GRID1, wxDefaultPosition, wxDefaultSize, wxVSCROLL, _T("ID_GRID1"));
-    Grid1->CreateGrid(0,7);
-    Grid1->EnableEditing(false);
-    Grid1->EnableGridLines(true);
-    Grid1->SetRowLabelSize(25);
-    Grid1->SetColLabelValue(0, _("Device type"));
-    Grid1->SetColLabelValue(1, _("Device name"));
-    Grid1->SetColLabelValue(2, _("Device id"));
-    Grid1->SetColLabelValue(3, _("Event type"));
-    Grid1->SetColLabelValue(4, _("Event id"));
-    Grid1->SetColLabelValue(5, _("Threshold"));
-    Grid1->SetColLabelValue(6, _("Button id"));
-    Grid1->SetDefaultCellFont( Grid1->GetFont() );
-    Grid1->SetDefaultCellTextColour( Grid1->GetForegroundColour() );
-    FlexGridSizer8->Add(Grid1, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonTabControls = new wxGrid(Panel2, ID_GRID1, wxDefaultPosition, wxDefaultSize, wxVSCROLL, _T("ID_GRID1"));
+    ButtonTabControls->CreateGrid(0,7);
+    ButtonTabControls->EnableEditing(false);
+    ButtonTabControls->EnableGridLines(true);
+    ButtonTabControls->SetRowLabelSize(25);
+    ButtonTabControls->SetColLabelValue(0, _("Device type"));
+    ButtonTabControls->SetColLabelValue(1, _("Device name"));
+    ButtonTabControls->SetColLabelValue(2, _("Device id"));
+    ButtonTabControls->SetColLabelValue(3, _("Event type"));
+    ButtonTabControls->SetColLabelValue(4, _("Event id"));
+    ButtonTabControls->SetColLabelValue(5, _("Threshold"));
+    ButtonTabControls->SetColLabelValue(6, _("Button id"));
+    ButtonTabControls->SetDefaultCellFont( ButtonTabControls->GetFont() );
+    ButtonTabControls->SetDefaultCellTextColour( ButtonTabControls->GetForegroundColour() );
+    FlexGridSizer8->Add(ButtonTabControls, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer6 = new wxFlexGridSizer(2, 1, 0, 0);
-    Button4 = new wxButton(Panel2, ID_BUTTON4, _("Add"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON4"));
-    FlexGridSizer6->Add(Button4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Button6 = new wxButton(Panel2, ID_BUTTON6, _("Remove"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON6"));
-    FlexGridSizer6->Add(Button6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Button2 = new wxButton(Panel2, ID_BUTTON2, _("Modify"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON2"));
-    FlexGridSizer6->Add(Button2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonTabAdd = new wxButton(Panel2, ID_BUTTON4, _("Add"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON4"));
+    FlexGridSizer6->Add(ButtonTabAdd, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonTabRemove = new wxButton(Panel2, ID_BUTTON6, _("Remove"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON6"));
+    FlexGridSizer6->Add(ButtonTabRemove, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonTabModify = new wxButton(Panel2, ID_BUTTON2, _("Modify"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON2"));
+    FlexGridSizer6->Add(ButtonTabModify, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer8->Add(FlexGridSizer6, 1, wxALL|wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL, 5);
     FlexGridSizer9->Add(FlexGridSizer8, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     Panel2->SetSizer(FlexGridSizer9);
@@ -526,76 +526,76 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     Panel3 = new wxPanel(Notebook1, ID_PANEL3, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL3"));
     FlexGridSizer5 = new wxFlexGridSizer(2, 1, 0, 0);
     FlexGridSizer3 = new wxFlexGridSizer(2, 12, 0, 0);
-    StaticText11 = new wxStaticText(Panel3, ID_STATICTEXT11, _("Device type"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT11"));
-    FlexGridSizer3->Add(StaticText11, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText31 = new wxStaticText(Panel3, ID_STATICTEXT31, _("Device name"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT31"));
-    FlexGridSizer3->Add(StaticText31, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText12 = new wxStaticText(Panel3, ID_STATICTEXT12, _("Device id"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT12"));
-    FlexGridSizer3->Add(StaticText12, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText13 = new wxStaticText(Panel3, ID_STATICTEXT13, _("Event type"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT13"));
-    FlexGridSizer3->Add(StaticText13, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText14 = new wxStaticText(Panel3, ID_STATICTEXT14, _("Event id"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT14"));
-    FlexGridSizer3->Add(StaticText14, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText21 = new wxStaticText(Panel3, ID_STATICTEXT21, wxEmptyString, wxDefaultPosition, wxSize(30,17), 0, _T("ID_STATICTEXT21"));
-    FlexGridSizer3->Add(StaticText21, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText16 = new wxStaticText(Panel3, ID_STATICTEXT16, _("Axis"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT16"));
-    FlexGridSizer3->Add(StaticText16, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText15 = new wxStaticText(Panel3, ID_STATICTEXT15, _("DZ"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT15"));
-    StaticText15->SetToolTip(_("Dead zone"));
-    FlexGridSizer3->Add(StaticText15, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText17 = new wxStaticText(Panel3, ID_STATICTEXT17, _("Sens."), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT17"));
-    StaticText17->SetToolTip(_("Sensitivity"));
-    FlexGridSizer3->Add(StaticText17, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText18 = new wxStaticText(Panel3, ID_STATICTEXT18, _("Accel."), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT18"));
-    StaticText18->SetToolTip(_("Acceleration"));
-    FlexGridSizer3->Add(StaticText18, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText22 = new wxStaticText(Panel3, ID_STATICTEXT22, _("Shape"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT22"));
-    FlexGridSizer3->Add(StaticText22, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText33 = new wxStaticText(Panel3, ID_STATICTEXT33, _("Smoothing"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT33"));
-    FlexGridSizer3->Add(StaticText33, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText41 = new wxStaticText(Panel3, ID_STATICTEXT41, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT41"));
-    FlexGridSizer3->Add(StaticText41, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText32 = new wxStaticText(Panel3, ID_STATICTEXT32, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT32"));
-    FlexGridSizer3->Add(StaticText32, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText42 = new wxStaticText(Panel3, ID_STATICTEXT42, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT42"));
-    FlexGridSizer3->Add(StaticText42, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Choice7 = new wxChoice(Panel3, ID_CHOICE7, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE7"));
-    Choice7->SetSelection( Choice7->Append(_("axis")) );
-    Choice7->Append(_("button"));
-    FlexGridSizer3->Add(Choice7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText43 = new wxStaticText(Panel3, ID_STATICTEXT43, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT43"));
-    FlexGridSizer3->Add(StaticText43, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Button9 = new wxButton(Panel3, ID_BUTTON9, _("Auto detect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON9"));
-    FlexGridSizer3->Add(Button9, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Choice8 = new wxChoice(Panel3, ID_CHOICE8, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE8"));
-    FlexGridSizer3->Add(Choice8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    TextCtrl8 = new wxTextCtrl(Panel3, ID_TEXTCTRL8, wxEmptyString, wxDefaultPosition, wxSize(27,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL8"));
-    TextCtrl8->Disable();
-    TextCtrl8->SetToolTip(_("Dead zone [0..64]"));
-    FlexGridSizer3->Add(TextCtrl8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    TextCtrl9 = new wxTextCtrl(Panel3, ID_TEXTCTRL9, wxEmptyString, wxDefaultPosition, wxSize(59,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL9"));
-    TextCtrl9->Disable();
-    TextCtrl9->SetToolTip(_("Sensitivity [-100.00..100.00]"));
-    FlexGridSizer3->Add(TextCtrl9, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    TextCtrl10 = new wxTextCtrl(Panel3, ID_TEXTCTRL10, wxEmptyString, wxDefaultPosition, wxSize(55,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL10"));
-    TextCtrl10->Disable();
-    TextCtrl10->SetToolTip(_("Acceleration [0.00..2.00]"));
-    FlexGridSizer3->Add(TextCtrl10, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Choice1 = new wxChoice(Panel3, ID_CHOICE1, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
-    Choice1->SetSelection( Choice1->Append(wxEmptyString) );
-    Choice1->Append(_("Circle"));
-    Choice1->Append(_("Rectangle"));
-    Choice1->Disable();
-    FlexGridSizer3->Add(Choice1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName16 = new wxStaticText(Panel3, ID_STATICTEXT11, _("Device type"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT11"));
+    FlexGridSizer3->Add(VarName16, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticText1 = new wxStaticText(Panel3, ID_STATICTEXT31, _("Device name"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT31"));
+    FlexGridSizer3->Add(StaticText1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName17 = new wxStaticText(Panel3, ID_STATICTEXT12, _("Device id"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT12"));
+    FlexGridSizer3->Add(VarName17, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName18 = new wxStaticText(Panel3, ID_STATICTEXT13, _("Event type"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT13"));
+    FlexGridSizer3->Add(VarName18, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName19 = new wxStaticText(Panel3, ID_STATICTEXT14, _("Event id"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT14"));
+    FlexGridSizer3->Add(VarName19, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName24 = new wxStaticText(Panel3, ID_STATICTEXT21, wxEmptyString, wxDefaultPosition, wxSize(30,17), 0, _T("ID_STATICTEXT21"));
+    FlexGridSizer3->Add(VarName24, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName21 = new wxStaticText(Panel3, ID_STATICTEXT16, _("Axis"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT16"));
+    FlexGridSizer3->Add(VarName21, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName20 = new wxStaticText(Panel3, ID_STATICTEXT15, _("DZ"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT15"));
+    VarName20->SetToolTip(_("Dead zone"));
+    FlexGridSizer3->Add(VarName20, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName22 = new wxStaticText(Panel3, ID_STATICTEXT17, _("Sens."), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT17"));
+    VarName22->SetToolTip(_("Sensitivity"));
+    FlexGridSizer3->Add(VarName22, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName23 = new wxStaticText(Panel3, ID_STATICTEXT18, _("Accel."), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT18"));
+    VarName23->SetToolTip(_("Acceleration"));
+    FlexGridSizer3->Add(VarName23, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName25 = new wxStaticText(Panel3, ID_STATICTEXT22, _("Shape"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT22"));
+    FlexGridSizer3->Add(VarName25, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    VarName26 = new wxStaticText(Panel3, ID_STATICTEXT33, _("Smoothing"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT33"));
+    FlexGridSizer3->Add(VarName26, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    AxisTabDeviceType = new wxStaticText(Panel3, ID_STATICTEXT41, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT41"));
+    FlexGridSizer3->Add(AxisTabDeviceType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    AxisTabDeviceName = new wxStaticText(Panel3, ID_STATICTEXT32, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT32"));
+    FlexGridSizer3->Add(AxisTabDeviceName, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    AxisTabDeviceId = new wxStaticText(Panel3, ID_STATICTEXT42, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT42"));
+    FlexGridSizer3->Add(AxisTabDeviceId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    AxisTabEventType = new wxChoice(Panel3, ID_CHOICE7, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE7"));
+    AxisTabEventType->SetSelection( AxisTabEventType->Append(_("axis")) );
+    AxisTabEventType->Append(_("button"));
+    FlexGridSizer3->Add(AxisTabEventType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    AxisTabEventId = new wxStaticText(Panel3, ID_STATICTEXT43, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT43"));
+    FlexGridSizer3->Add(AxisTabEventId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    AxisTabAutoDetect = new wxButton(Panel3, ID_BUTTON9, _("Auto detect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON9"));
+    FlexGridSizer3->Add(AxisTabAutoDetect, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    AxisTabAxisId = new wxChoice(Panel3, ID_CHOICE8, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE8"));
+    FlexGridSizer3->Add(AxisTabAxisId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    AxisTabDeadZone = new wxTextCtrl(Panel3, ID_TEXTCTRL8, wxEmptyString, wxDefaultPosition, wxSize(27,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL8"));
+    AxisTabDeadZone->Disable();
+    AxisTabDeadZone->SetToolTip(_("Dead zone [0..64]"));
+    FlexGridSizer3->Add(AxisTabDeadZone, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    AxisTabSensitivity = new wxTextCtrl(Panel3, ID_TEXTCTRL9, wxEmptyString, wxDefaultPosition, wxSize(59,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL9"));
+    AxisTabSensitivity->Disable();
+    AxisTabSensitivity->SetToolTip(_("Sensitivity [-100.00..100.00]"));
+    FlexGridSizer3->Add(AxisTabSensitivity, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    AxisTabAcceleration = new wxTextCtrl(Panel3, ID_TEXTCTRL10, wxEmptyString, wxDefaultPosition, wxSize(55,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL10"));
+    AxisTabAcceleration->Disable();
+    AxisTabAcceleration->SetToolTip(_("Acceleration [0.00..2.00]"));
+    FlexGridSizer3->Add(AxisTabAcceleration, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    AxisTabShape = new wxChoice(Panel3, ID_CHOICE1, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
+    AxisTabShape->SetSelection( AxisTabShape->Append(wxEmptyString) );
+    AxisTabShape->Append(_("Circle"));
+    AxisTabShape->Append(_("Rectangle"));
+    AxisTabShape->Disable();
+    FlexGridSizer3->Add(AxisTabShape, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer11 = new wxFlexGridSizer(1, 2, 0, 0);
-    TextCtrl1 = new wxTextCtrl(Panel3, ID_TEXTCTRL1, wxEmptyString, wxDefaultPosition, wxSize(27,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL1"));
-    TextCtrl1->Disable();
-    TextCtrl1->SetToolTip(_("Buffer size [1..30]"));
-    FlexGridSizer11->Add(TextCtrl1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    TextCtrl2 = new wxTextCtrl(Panel3, ID_TEXTCTRL2, wxEmptyString, wxDefaultPosition, wxSize(41,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL2"));
-    TextCtrl2->Disable();
-    TextCtrl2->SetToolTip(_("Filter [0.00..1.00]"));
-    FlexGridSizer11->Add(TextCtrl2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    AxisTabBufferSize = new wxTextCtrl(Panel3, ID_TEXTCTRL1, wxEmptyString, wxDefaultPosition, wxSize(27,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL1"));
+    AxisTabBufferSize->Disable();
+    AxisTabBufferSize->SetToolTip(_("Buffer size [1..30]"));
+    FlexGridSizer11->Add(AxisTabBufferSize, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    AxisTabFilter = new wxTextCtrl(Panel3, ID_TEXTCTRL2, wxEmptyString, wxDefaultPosition, wxSize(41,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL2"));
+    AxisTabFilter->Disable();
+    AxisTabFilter->SetToolTip(_("Filter [0.00..1.00]"));
+    FlexGridSizer11->Add(AxisTabFilter, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer3->Add(FlexGridSizer11, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer5->Add(FlexGridSizer3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer4 = new wxFlexGridSizer(1, 2, 0, 0);
@@ -730,32 +730,32 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     FileDialog1 = new wxFileDialog(this, _("Select file"), wxEmptyString, wxEmptyString, _("XML files (*.xml)|*.xml"), wxFD_DEFAULT_STYLE|wxFD_OPEN, wxDefaultPosition, wxDefaultSize, _T("wxFileDialog"));
     GridSizer1->Fit(this);
     GridSizer1->SetSizeHints(this);
-
+    
     Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButton1Click1);
     Connect(ID_BUTTON10,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButton10Click1);
-    Connect(ID_BUTTON13,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButton13Click1);
-    Connect(ID_BUTTON14,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButton14Click);
-    Connect(ID_SPINCTRL3,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnSpinCtrl3Change);
-    Connect(ID_BUTTON15,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButton15Click);
-    Connect(ID_BUTTON16,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButton16Click);
-    Connect(ID_BUTTON11,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButton11Click1);
-    Connect(ID_BUTTON12,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButton12Click);
-    Connect(ID_SPINCTRL4,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnSpinCtrl4Change);
-    Connect(ID_BUTTON17,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButton17Click);
-    Connect(ID_BUTTON18,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButton18Click);
-    Connect(ID_CHOICE4,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnChoice4Select1);
-    Connect(ID_BUTTON8,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButton8Click);
+    Connect(ID_BUTTON13,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnLSIncAutoDetectClick1);
+    Connect(ID_BUTTON14,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnLSIncDeleteClick);
+    Connect(ID_SPINCTRL3,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnLSDeadzoneChange);
+    Connect(ID_BUTTON15,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnLSDecAutoDetectClick);
+    Connect(ID_BUTTON16,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnLSDecDeleteClick);
+    Connect(ID_BUTTON11,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnRSIncAutoDetectClick1);
+    Connect(ID_BUTTON12,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnRSIncDeleteClick);
+    Connect(ID_SPINCTRL4,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnRSDeadZoneChange);
+    Connect(ID_BUTTON17,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnRSDecAutoDetectClick);
+    Connect(ID_BUTTON18,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnRSDecDeleteClick);
+    Connect(ID_CHOICE4,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButtonTabEventTypeSelect1);
+    Connect(ID_BUTTON8,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButtonTabAutoDetectClick);
     Connect(ID_BUTTON4,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButtonAdd1Click);
-    Connect(ID_BUTTON6,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButton6Click);
+    Connect(ID_BUTTON6,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButtonTabRemoveClick);
     Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButtonModifyButton);
-    Connect(ID_CHOICE7,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnChoice4Select);
-    Connect(ID_BUTTON9,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButton9Click);
-    Connect(ID_TEXTCTRL8,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL9,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL10,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnTextCtrlText);
-    Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnChoice1Select);
-    Connect(ID_TEXTCTRL1,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL2,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnTextCtrlText);
+    Connect(ID_CHOICE7,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButtonTabEventTypeSelect);
+    Connect(ID_BUTTON9,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnAxisTabAutoDetectClick);
+    Connect(ID_TEXTCTRL8,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnTextCtrl);
+    Connect(ID_TEXTCTRL9,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnTextCtrl);
+    Connect(ID_TEXTCTRL10,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnTextCtrl);
+    Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnAxisTabShapeSelect);
+    Connect(ID_TEXTCTRL1,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnTextCtrl);
+    Connect(ID_TEXTCTRL2,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnTextCtrl);
     Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButton3Click);
     Connect(ID_BUTTON7,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButton7Click);
     Connect(ID_BUTTON5,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButtonModifyAxis);
@@ -791,8 +791,8 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnAbout);
     //*)
 
-    fillButtonChoice(Choice5);
-    fillAxisAxisChoice(Choice8);
+    fillButtonChoice(ButtonTabButtonId);
+    fillAxisAxisChoice(AxisTabAxisId);
 
     currentController = 0;
     currentConfiguration = 0;
@@ -840,7 +840,7 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
 
     FileDialog1->SetDirectory(default_directory);
 
-    Grid1->AutoSizeColumns();
+    ButtonTabControls->AutoSizeColumns();
     Grid2->AutoSizeColumns();
 
     if(!file.IsEmpty())
@@ -908,28 +908,28 @@ void sixaxis_emu_guiFrame::OnMenuItemNew(wxCommandEvent& event)
     load_current();
     refresh_gui();
     Menu1->Enable(idMenuSave, false);
-    Button2->SetLabel(_("Modify"));
+    ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
     Button3->Enable();
-    Button4->Enable();
-    Button6->Enable();
+    ButtonTabAdd->Enable();
+    ButtonTabRemove->Enable();
     Button7->Enable();
 }
 
 void sixaxis_emu_guiFrame::OnButtonAdd1Click(wxCommandEvent& event)
 {
-    if(StaticText40->GetLabel() == wxEmptyString)
+    if(ButtonTabEventId->GetLabel() == wxEmptyString)
     {
         wxMessageBox( wxT("Please detect an Event!"), wxT("Error"), wxICON_ERROR);
         return;
     }
-    if(Choice5->GetStringSelection() == wxEmptyString)
+    if(ButtonTabButtonId->GetStringSelection() == wxEmptyString)
     {
         wxMessageBox( wxT("Please select a Button!"), wxT("Error"), wxICON_ERROR);
         return;
     }
 
-    wxString check = isAlreadyUsed(StaticText38->GetLabel(), StaticText30->GetLabel(), StaticText39->GetLabel(), Choice4->GetStringSelection(), StaticText40->GetLabel(), -1, -1);
+    wxString check = isAlreadyUsed(ButtonTabDeviceType->GetLabel(), ButtonTabDeviceName->GetLabel(), ButtonTabDeviceId->GetLabel(), ButtonTabEventType->GetStringSelection(), ButtonTabEventId->GetLabel(), -1, -1);
 
     if(!check.IsEmpty())
     {
@@ -940,32 +940,32 @@ void sixaxis_emu_guiFrame::OnButtonAdd1Click(wxCommandEvent& event)
       }
     }
 
-    Grid1->InsertRows();
-    Grid1->SetCellValue(0, 0, StaticText38->GetLabel());
-    Grid1->SetCellValue(0, 1, StaticText30->GetLabel());
-    Grid1->SetCellValue(0, 2, StaticText39->GetLabel());
-    Grid1->SetCellValue(0, 3, Choice4->GetStringSelection());
-    Grid1->SetCellValue(0, 4, StaticText40->GetLabel());
-    Grid1->SetCellValue(0, 5, TextCtrl3->GetValue());
-    Grid1->SetCellValue(0, 6, Choice5->GetStringSelection());
-    Grid1->AutoSizeColumns();
+    ButtonTabControls->InsertRows();
+    ButtonTabControls->SetCellValue(0, 0, ButtonTabDeviceType->GetLabel());
+    ButtonTabControls->SetCellValue(0, 1, ButtonTabDeviceName->GetLabel());
+    ButtonTabControls->SetCellValue(0, 2, ButtonTabDeviceId->GetLabel());
+    ButtonTabControls->SetCellValue(0, 3, ButtonTabEventType->GetStringSelection());
+    ButtonTabControls->SetCellValue(0, 4, ButtonTabEventId->GetLabel());
+    ButtonTabControls->SetCellValue(0, 5, ButtonTabThreshold->GetValue());
+    ButtonTabControls->SetCellValue(0, 6, ButtonTabButtonId->GetStringSelection());
+    ButtonTabControls->AutoSizeColumns();
     refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::OnButton3Click(wxCommandEvent& event)
 {
-    if(StaticText43->GetLabel() == wxEmptyString)
+    if(AxisTabEventId->GetLabel() == wxEmptyString)
     {
         wxMessageBox( wxT("Please detect an Event!"), wxT("Error"), wxICON_ERROR);
         return;
     }
-    if(Choice8->GetStringSelection() == wxEmptyString)
+    if(AxisTabAxisId->GetStringSelection() == wxEmptyString)
     {
         wxMessageBox( wxT("Please select an Axis!"), wxT("Error"), wxICON_ERROR);
         return;
     }
 
-    wxString check = isAlreadyUsed(StaticText41->GetLabel(), StaticText32->GetLabel(), StaticText42->GetLabel(), Choice7->GetStringSelection(), StaticText43->GetLabel(), -1, -1);
+    wxString check = isAlreadyUsed(AxisTabDeviceType->GetLabel(), AxisTabDeviceName->GetLabel(), AxisTabDeviceId->GetLabel(), AxisTabEventType->GetStringSelection(), AxisTabEventId->GetLabel(), -1, -1);
 
     if(!check.IsEmpty())
     {
@@ -977,32 +977,32 @@ void sixaxis_emu_guiFrame::OnButton3Click(wxCommandEvent& event)
     }
 
     Grid2->InsertRows();
-    Grid2->SetCellValue(0, 0, StaticText41->GetLabel());
-    Grid2->SetCellValue(0, 1, StaticText32->GetLabel());
-    Grid2->SetCellValue(0, 2, StaticText42->GetLabel());
-    Grid2->SetCellValue(0, 3, Choice7->GetStringSelection());
-    Grid2->SetCellValue(0, 4, StaticText43->GetLabel());
-    Grid2->SetCellValue(0, 5, Choice8->GetStringSelection());
-    Grid2->SetCellValue(0, 6, TextCtrl8->GetValue());
-    Grid2->SetCellValue(0, 7, TextCtrl9->GetValue());
-    Grid2->SetCellValue(0, 8, TextCtrl10->GetValue());
-    Grid2->SetCellValue(0, 9, Choice1->GetStringSelection());
-    Grid2->SetCellValue(0, 10, TextCtrl1->GetValue());
-    Grid2->SetCellValue(0, 11, TextCtrl2->GetValue());
+    Grid2->SetCellValue(0, 0, AxisTabDeviceType->GetLabel());
+    Grid2->SetCellValue(0, 1, AxisTabDeviceName->GetLabel());
+    Grid2->SetCellValue(0, 2, AxisTabDeviceId->GetLabel());
+    Grid2->SetCellValue(0, 3, AxisTabEventType->GetStringSelection());
+    Grid2->SetCellValue(0, 4, AxisTabEventId->GetLabel());
+    Grid2->SetCellValue(0, 5, AxisTabAxisId->GetStringSelection());
+    Grid2->SetCellValue(0, 6, AxisTabDeadZone->GetValue());
+    Grid2->SetCellValue(0, 7, AxisTabSensitivity->GetValue());
+    Grid2->SetCellValue(0, 8, AxisTabAcceleration->GetValue());
+    Grid2->SetCellValue(0, 9, AxisTabShape->GetStringSelection());
+    Grid2->SetCellValue(0, 10, AxisTabBufferSize->GetValue());
+    Grid2->SetCellValue(0, 11, AxisTabFilter->GetValue());
     Grid2->AutoSizeColumns();
     refresh_gui();
 }
 
 void sixaxis_emu_guiFrame::DeleteLinkedRows(wxGrid* grid, int row)
 {
-  if(grid == Grid1)
+  if(grid == ButtonTabControls)
   {
-    wxString old_device_type = Grid1->GetCellValue(row, 0);
-    wxString old_device_name = Grid1->GetCellValue(row, 1);
-    wxString old_device_id = Grid1->GetCellValue(row, 2);
-    wxString old_event_type = Grid1->GetCellValue(row, 3);
-    wxString old_event_id = Grid1->GetCellValue(row, 4);
-    wxString old_button_id = Grid1->GetCellValue(row, 6);
+    wxString old_device_type = ButtonTabControls->GetCellValue(row, 0);
+    wxString old_device_name = ButtonTabControls->GetCellValue(row, 1);
+    wxString old_device_id = ButtonTabControls->GetCellValue(row, 2);
+    wxString old_event_type = ButtonTabControls->GetCellValue(row, 3);
+    wxString old_event_id = ButtonTabControls->GetCellValue(row, 4);
+    wxString old_button_id = ButtonTabControls->GetCellValue(row, 6);
 
     Controller* controller = configFile.GetController(currentController);
 
@@ -1114,9 +1114,9 @@ void sixaxis_emu_guiFrame::DeleteSelectedRows(wxGrid* grid)
     grid->AutoSizeColumns();
 }
 
-void sixaxis_emu_guiFrame::OnButton6Click(wxCommandEvent& event)
+void sixaxis_emu_guiFrame::OnButtonTabRemoveClick(wxCommandEvent& event)
 {
-    sixaxis_emu_guiFrame::DeleteSelectedRows(Grid1);
+    sixaxis_emu_guiFrame::DeleteSelectedRows(ButtonTabControls);
     refresh_gui();
 }
 
@@ -1126,52 +1126,52 @@ void sixaxis_emu_guiFrame::OnButton7Click(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnChoice4Select(wxCommandEvent& event)
+void sixaxis_emu_guiFrame::OnButtonTabEventTypeSelect(wxCommandEvent& event)
 {
-    StaticText41->SetLabel(wxEmptyString);
-    StaticText32->SetLabel(wxEmptyString);
-    StaticText42->SetLabel(wxEmptyString);
-    StaticText43->SetLabel(wxEmptyString);
-    TextCtrl8->Disable();
-	  TextCtrl8->SetValue(wxEmptyString);
-  	TextCtrl9->Disable();
-	  TextCtrl9->SetValue(wxEmptyString);
-	  TextCtrl10->Disable();
-	  TextCtrl10->SetValue(wxEmptyString);
-	  Choice1->SetSelection(0);
-	  Choice1->Disable();
-	  TextCtrl1->Disable();
-	  TextCtrl1->SetValue(wxEmptyString);
-	  TextCtrl2->Disable();
-	  TextCtrl2->SetValue(wxEmptyString);
+    AxisTabDeviceType->SetLabel(wxEmptyString);
+    AxisTabDeviceName->SetLabel(wxEmptyString);
+    AxisTabDeviceId->SetLabel(wxEmptyString);
+    AxisTabEventId->SetLabel(wxEmptyString);
+    AxisTabDeadZone->Disable();
+	  AxisTabDeadZone->SetValue(wxEmptyString);
+  	AxisTabSensitivity->Disable();
+	  AxisTabSensitivity->SetValue(wxEmptyString);
+	  AxisTabAcceleration->Disable();
+	  AxisTabAcceleration->SetValue(wxEmptyString);
+	  AxisTabShape->SetSelection(0);
+	  AxisTabShape->Disable();
+	  AxisTabBufferSize->Disable();
+	  AxisTabBufferSize->SetValue(wxEmptyString);
+	  AxisTabFilter->Disable();
+	  AxisTabFilter->SetValue(wxEmptyString);
 
-    if(Choice7->GetStringSelection() == _("button"))
+    if(AxisTabEventType->GetStringSelection() == _("button"))
     {
-        fillButtonAxisChoice(Choice8);
+        fillButtonAxisChoice(AxisTabAxisId);
     }
     else
     {
-        fillAxisAxisChoice(Choice8);
+        fillAxisAxisChoice(AxisTabAxisId);
     }
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnChoice4Select1(wxCommandEvent& event)
+void sixaxis_emu_guiFrame::OnButtonTabEventTypeSelect1(wxCommandEvent& event)
 {
-    StaticText38->SetLabel(wxEmptyString);
-    StaticText30->SetLabel(wxEmptyString);
-    StaticText39->SetLabel(wxEmptyString);
-    StaticText40->SetLabel(wxEmptyString);
+    ButtonTabDeviceType->SetLabel(wxEmptyString);
+    ButtonTabDeviceName->SetLabel(wxEmptyString);
+    ButtonTabDeviceId->SetLabel(wxEmptyString);
+    ButtonTabEventId->SetLabel(wxEmptyString);
 
-    if(Choice4->GetStringSelection() == _("button"))
+    if(ButtonTabEventType->GetStringSelection() == _("button"))
     {
-        TextCtrl3->Disable();
-        TextCtrl3->SetValue(wxEmptyString);
+        ButtonTabThreshold->Disable();
+        ButtonTabThreshold->SetValue(wxEmptyString);
     }
     else
     {
-        TextCtrl3->Enable();
-        TextCtrl3->SetValue(_("10"));
+        ButtonTabThreshold->Enable();
+        ButtonTabThreshold->SetValue(_("10"));
     }
     refresh_gui();
 }
@@ -1200,14 +1200,14 @@ void sixaxis_emu_guiFrame::OnButton1Click1(wxCommandEvent& event)
 {
     Button1->Enable(false);
 
-    wxString old_device_type = StaticText35->GetLabel();
-    wxString old_device_name = StaticText27->GetLabel();
-    wxString old_device_id = StaticText36->GetLabel();
-    wxString old_event_id = StaticText37->GetLabel();
+    wxString old_device_type = ProfileTriggerDeviceType->GetLabel();
+    wxString old_device_name = ProfileTriggerDeviceName->GetLabel();
+    wxString old_device_id = ProfileTriggerDeviceId->GetLabel();
+    wxString old_event_id = ProfileTriggerButtonId->GetLabel();
     Device* dev;
     Event* ev;
 
-    auto_detect(StaticText35, StaticText27, StaticText36, _("button"), StaticText37);
+    auto_detect(ProfileTriggerDeviceType, ProfileTriggerDeviceName, ProfileTriggerDeviceId, _("button"), ProfileTriggerButtonId);
 
     if(old_device_type != wxEmptyString && MenuItem31->IsChecked())
     {
@@ -1224,10 +1224,10 @@ void sixaxis_emu_guiFrame::OnButton1Click1(wxCommandEvent& event)
 
         if(dev->GetType() == old_device_type && dev->GetType() == old_device_type && dev->GetType() == old_device_type && ev->GetId() == old_event_id)
         {
-          dev->SetType(StaticText35->GetLabel());
-          dev->SetName(StaticText27->GetLabel());
-          dev->SetId(StaticText36->GetLabel());
-          ev->SetId(StaticText37->GetLabel());
+          dev->SetType(ProfileTriggerDeviceType->GetLabel());
+          dev->SetName(ProfileTriggerDeviceName->GetLabel());
+          dev->SetId(ProfileTriggerDeviceId->GetLabel());
+          ev->SetId(ProfileTriggerButtonId->GetLabel());
         }
       }
     }
@@ -1237,96 +1237,96 @@ void sixaxis_emu_guiFrame::OnButton1Click1(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnButton8Click(wxCommandEvent& event)
+void sixaxis_emu_guiFrame::OnButtonTabAutoDetectClick(wxCommandEvent& event)
 {
-    Button8->Enable(false);
+    ButtonTabAutoDetect->Enable(false);
 
-    auto_detect(StaticText38, StaticText30, StaticText39, Choice4->GetStringSelection(), StaticText40);
+    auto_detect(ButtonTabDeviceType, ButtonTabDeviceName, ButtonTabDeviceId, ButtonTabEventType->GetStringSelection(), ButtonTabEventId);
 
     if(evcatch.GetEventType() == _("button"))
     {
-        TextCtrl3->Disable();
-        TextCtrl3->SetValue(wxEmptyString);
+        ButtonTabThreshold->Disable();
+        ButtonTabThreshold->SetValue(wxEmptyString);
     }
     else
     {
-        TextCtrl3->Enable();
-        TextCtrl3->SetValue(_("10"));
+        ButtonTabThreshold->Enable();
+        ButtonTabThreshold->SetValue(_("10"));
     }
 
-    fillButtonChoice(Choice5);
+    fillButtonChoice(ButtonTabButtonId);
 
     refresh_gui();
 
-    Button8->Enable(true);
+    ButtonTabAutoDetect->Enable(true);
 }
 
-void sixaxis_emu_guiFrame::OnButton9Click(wxCommandEvent& event)
+void sixaxis_emu_guiFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
 {
-    wxString old_device_type = StaticText41->GetLabel();
-    wxString old_device_name = StaticText32->GetLabel();
-    wxString old_device_id = StaticText42->GetLabel();
+    wxString old_device_type = AxisTabDeviceType->GetLabel();
+    wxString old_device_name = AxisTabDeviceName->GetLabel();
+    wxString old_device_id = AxisTabDeviceId->GetLabel();
 
-    Button9->Enable(false);
+    AxisTabAutoDetect->Enable(false);
 
-    auto_detect(StaticText41, StaticText32, StaticText42, Choice7->GetStringSelection(), StaticText43);
+    auto_detect(AxisTabDeviceType, AxisTabDeviceName, AxisTabDeviceId, AxisTabEventType->GetStringSelection(), AxisTabEventId);
 
-  	if(old_device_type != StaticText41->GetLabel()
-       || old_device_name != StaticText32->GetLabel()
-       || old_device_id != StaticText42->GetLabel())
+  	if(old_device_type != AxisTabDeviceType->GetLabel()
+       || old_device_name != AxisTabDeviceName->GetLabel()
+       || old_device_id != AxisTabDeviceId->GetLabel())
     {
         if(evcatch.GetEventType() == _("button"))
         {
-            TextCtrl8->Disable();
-            TextCtrl8->SetValue(wxEmptyString);
-            TextCtrl9->Disable();
-            TextCtrl9->SetValue(wxEmptyString);
-            TextCtrl10->Disable();
-            TextCtrl10->SetValue(wxEmptyString);
-            Choice1->Disable();
-            Choice1->SetSelection(0);
-            fillButtonAxisChoice(Choice8);
+            AxisTabDeadZone->Disable();
+            AxisTabDeadZone->SetValue(wxEmptyString);
+            AxisTabSensitivity->Disable();
+            AxisTabSensitivity->SetValue(wxEmptyString);
+            AxisTabAcceleration->Disable();
+            AxisTabAcceleration->SetValue(wxEmptyString);
+            AxisTabShape->Disable();
+            AxisTabShape->SetSelection(0);
+            fillButtonAxisChoice(AxisTabAxisId);
         }
         else
         {
-      	  TextCtrl8->Enable();
-          TextCtrl9->Enable();
-          TextCtrl10->Enable();
-          TextCtrl10->SetValue(_("1.00"));
-          Choice1->Enable();
-          Choice1->SetSelection(1);
+      	  AxisTabDeadZone->Enable();
+          AxisTabSensitivity->Enable();
+          AxisTabAcceleration->Enable();
+          AxisTabAcceleration->SetValue(_("1.00"));
+          AxisTabShape->Enable();
+          AxisTabShape->SetSelection(1);
           if(evcatch.GetDeviceType() == _("mouse"))
           {
-              TextCtrl8->SetValue(_("20"));
-              TextCtrl9->SetValue(_("1.00"));
-              TextCtrl1->Enable();
-              TextCtrl1->SetValue(_("1"));
-              TextCtrl2->Enable();
-              TextCtrl2->SetValue(_("0.00"));
+              AxisTabDeadZone->SetValue(_("20"));
+              AxisTabSensitivity->SetValue(_("1.00"));
+              AxisTabBufferSize->Enable();
+              AxisTabBufferSize->SetValue(_("1"));
+              AxisTabFilter->Enable();
+              AxisTabFilter->SetValue(_("0.00"));
           }
           else if(evcatch.GetDeviceType() == _("joystick"))
           {
-              TextCtrl8->SetValue(_("0"));
-              if(!Choice8->GetStringSelection().Contains(_("stick")))
+              AxisTabDeadZone->SetValue(_("0"));
+              if(!AxisTabAxisId->GetStringSelection().Contains(_("stick")))
               {
-                  TextCtrl9->SetValue(_("0.008"));
+                  AxisTabAcceleration->SetValue(_("0.008"));
               }
               else
               {
-                  TextCtrl9->SetValue(_("0.004"));
+                  AxisTabAcceleration->SetValue(_("0.004"));
               }
-        	    TextCtrl1->Disable();
-              TextCtrl1->SetValue(wxEmptyString);
-              TextCtrl2->Disable();
-              TextCtrl2->SetValue(wxEmptyString);
+        	    AxisTabBufferSize->Disable();
+              AxisTabBufferSize->SetValue(wxEmptyString);
+              AxisTabFilter->Disable();
+              AxisTabFilter->SetValue(wxEmptyString);
           }
-          fillAxisAxisChoice(Choice8);
+          fillAxisAxisChoice(AxisTabAxisId);
         }
     }
 
     refresh_gui();
 
-    Button9->Enable(true);
+    AxisTabAutoDetect->Enable(true);
 }
 
 void sixaxis_emu_guiFrame::save_current()
@@ -1335,32 +1335,32 @@ void sixaxis_emu_guiFrame::save_current()
     std::list<AxisMapper>* axisMappers;
     std::list<Intensity>* intensityList;
     //Save Trigger
-    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->SetType(StaticText35->GetLabel());
-    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->SetName(StaticText27->GetLabel());
-    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->SetId(StaticText36->GetLabel());
-    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetEvent()->SetId(StaticText37->GetLabel());
+    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->SetType(ProfileTriggerDeviceType->GetLabel());
+    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->SetName(ProfileTriggerDeviceName->GetLabel());
+    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->SetId(ProfileTriggerDeviceId->GetLabel());
+    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetEvent()->SetId(ProfileTriggerButtonId->GetLabel());
     configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->SetSwitchBack(CheckBox1->GetValue()?_("yes"):_("no"));
-    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->SetDelay(SpinCtrl5->GetValue());
+    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->SetDelay(ProfileTriggerDelay->GetValue());
     //Save Intensity
     intensityList = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetIntensityList();
     intensityList->erase(intensityList->begin(), intensityList->end());
     //Save left stick Intensity
     intensityList->push_back(Intensity(_("left_stick"),
-        StaticText58->GetLabel(), StaticText60->GetLabel(), StaticText59->GetLabel(), StaticText61->GetLabel(),
-        StaticText67->GetLabel(), StaticText69->GetLabel(), StaticText68->GetLabel(), StaticText70->GetLabel(),
-        SpinCtrl3->GetValue(), SpinCtrl1->GetValue(), Choice2->GetStringSelection()));
+        LSIncDeviceType->GetLabel(), LSIncDeviceId->GetLabel(), LSIncDeviceName->GetLabel(), LSIncButtonId->GetLabel(),
+        LSDecDeviceType->GetLabel(), LSDecDeviceId->GetLabel(), LSDecDeviceName->GetLabel(), LSDecButtonId->GetLabel(),
+        LSDeadzone->GetValue(), LSSteps->GetValue(), LSShape->GetStringSelection()));
     //Save right stick intensity
     intensityList->push_back(Intensity(_("right_stick"),
-        StaticText48->GetLabel(), StaticText50->GetLabel(), StaticText49->GetLabel(), StaticText51->GetLabel(),
-        StaticText1->GetLabel(), StaticText3->GetLabel(), StaticText2->GetLabel(), StaticText9->GetLabel(),
-        SpinCtrl4->GetValue(), SpinCtrl2->GetValue(), Choice3->GetStringSelection()));
+        RSIncDeviceType->GetLabel(), RSIncDeviceId->GetLabel(), RSIncDeviceName->GetLabel(), RSIncButtonId->GetLabel(),
+        RSDecDeviceType->GetLabel(), RSDecDeviceId->GetLabel(), RSDecDeviceName->GetLabel(), RSDecButtonId->GetLabel(),
+        RSDeadZone->GetValue(), RSSteps->GetValue(), RSShape->GetStringSelection()));
     //Save ButtonMappers
     buttonMappers = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetButtonMapperList();
     buttonMappers->erase(buttonMappers->begin(), buttonMappers->end());
-    for(int i=0; i<Grid1->GetNumberRows(); i++)
+    for(int i=0; i<ButtonTabControls->GetNumberRows(); i++)
     {
         //ButtonMapper(wxString dtype, wxString did, wxString dname, wxString etype, wxString eid, wxString threshold, wxString button)
-        buttonMappers->push_front(ButtonMapper(Grid1->GetCellValue(i, 0), Grid1->GetCellValue(i, 2), Grid1->GetCellValue(i, 1), Grid1->GetCellValue(i, 3), Grid1->GetCellValue(i, 4), Grid1->GetCellValue(i, 5), Grid1->GetCellValue(i, 6)));
+        buttonMappers->push_front(ButtonMapper(ButtonTabControls->GetCellValue(i, 0), ButtonTabControls->GetCellValue(i, 2), ButtonTabControls->GetCellValue(i, 1), ButtonTabControls->GetCellValue(i, 3), ButtonTabControls->GetCellValue(i, 4), ButtonTabControls->GetCellValue(i, 5), ButtonTabControls->GetCellValue(i, 6)));
     }
     //Save AxisMappers
     axisMappers = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetAxisMapperList();
@@ -1379,10 +1379,10 @@ void sixaxis_emu_guiFrame::load_current()
     std::list<AxisMapper>* axisMappers;
     std::list<Intensity>* intensityList;
     //Load Trigger
-    StaticText35->SetLabel(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->GetType());
-    StaticText27->SetLabel(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->GetName());
-    StaticText36->SetLabel(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->GetId());
-    StaticText37->SetLabel(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetEvent()->GetId());
+    ProfileTriggerDeviceType->SetLabel(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->GetType());
+    ProfileTriggerDeviceName->SetLabel(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->GetName());
+    ProfileTriggerDeviceId->SetLabel(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->GetId());
+    ProfileTriggerButtonId->SetLabel(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetEvent()->GetId());
     if(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetSwitchBack() == _("yes"))
     {
         CheckBox1->SetValue(true);
@@ -1391,76 +1391,76 @@ void sixaxis_emu_guiFrame::load_current()
     {
         CheckBox1->SetValue(false);
     }
-    SpinCtrl5->SetValue(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDelay());
+    ProfileTriggerDelay->SetValue(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDelay());
     //Load left & right stick intensities
     intensityList = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetIntensityList();
-    StaticText58->SetLabel(wxEmptyString);
-    StaticText59->SetLabel(wxEmptyString);
-    StaticText60->SetLabel(wxEmptyString);
-    StaticText61->SetLabel(wxEmptyString);
-    StaticText67->SetLabel(wxEmptyString);
-    StaticText68->SetLabel(wxEmptyString);
-    StaticText69->SetLabel(wxEmptyString);
-    StaticText70->SetLabel(wxEmptyString);
-    SpinCtrl3->SetValue(0);
-    SpinCtrl1->SetValue(1);
-    Choice2->SetSelection(0);
-    StaticText48->SetLabel(wxEmptyString);
-    StaticText49->SetLabel(wxEmptyString);
-    StaticText50->SetLabel(wxEmptyString);
-    StaticText51->SetLabel(wxEmptyString);
-    StaticText1->SetLabel(wxEmptyString);
-    StaticText2->SetLabel(wxEmptyString);
-    StaticText3->SetLabel(wxEmptyString);
-    StaticText9->SetLabel(wxEmptyString);
-    SpinCtrl4->SetValue(0);
-    SpinCtrl2->SetValue(1);
-    Choice3->SetSelection(0);
+    LSIncDeviceType->SetLabel(wxEmptyString);
+    LSIncDeviceName->SetLabel(wxEmptyString);
+    LSIncDeviceId->SetLabel(wxEmptyString);
+    LSIncButtonId->SetLabel(wxEmptyString);
+    LSDecDeviceType->SetLabel(wxEmptyString);
+    LSDecDeviceName->SetLabel(wxEmptyString);
+    LSDecDeviceId->SetLabel(wxEmptyString);
+    LSDecButtonId->SetLabel(wxEmptyString);
+    LSDeadzone->SetValue(0);
+    LSSteps->SetValue(1);
+    LSShape->SetSelection(0);
+    RSIncDeviceType->SetLabel(wxEmptyString);
+    RSIncDeviceName->SetLabel(wxEmptyString);
+    RSIncDeviceId->SetLabel(wxEmptyString);
+    RSIncButtonId->SetLabel(wxEmptyString);
+    RSDecDeviceType->SetLabel(wxEmptyString);
+    RSDecDeviceName->SetLabel(wxEmptyString);
+    RSDecDeviceId->SetLabel(wxEmptyString);
+    RSDecButtonId->SetLabel(wxEmptyString);
+    RSDeadZone->SetValue(0);
+    RSSteps->SetValue(1);
+    RSShape->SetSelection(0);
     for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
     {
       if(it->GetControl() == _("left_stick"))
       {
-        StaticText58->SetLabel(it->GetDeviceUp()->GetType());
-        StaticText59->SetLabel(it->GetDeviceUp()->GetName());
-        StaticText60->SetLabel(it->GetDeviceUp()->GetId());
-        StaticText61->SetLabel(it->GetEventUp()->GetId());
-        StaticText67->SetLabel(it->GetDeviceDown()->GetType());
-        StaticText68->SetLabel(it->GetDeviceDown()->GetName());
-        StaticText69->SetLabel(it->GetDeviceDown()->GetId());
-        StaticText70->SetLabel(it->GetEventDown()->GetId());
-        SpinCtrl3->SetValue(it->GetDeadZone());
-        SpinCtrl1->SetValue(it->GetSteps());
-        Choice2->SetSelection(Choice2->FindString(it->GetShape()));
+        LSIncDeviceType->SetLabel(it->GetDeviceUp()->GetType());
+        LSIncDeviceName->SetLabel(it->GetDeviceUp()->GetName());
+        LSIncDeviceId->SetLabel(it->GetDeviceUp()->GetId());
+        LSIncButtonId->SetLabel(it->GetEventUp()->GetId());
+        LSDecDeviceType->SetLabel(it->GetDeviceDown()->GetType());
+        LSDecDeviceName->SetLabel(it->GetDeviceDown()->GetName());
+        LSDecDeviceId->SetLabel(it->GetDeviceDown()->GetId());
+        LSDecButtonId->SetLabel(it->GetEventDown()->GetId());
+        LSDeadzone->SetValue(it->GetDeadZone());
+        LSSteps->SetValue(it->GetSteps());
+        LSShape->SetSelection(LSShape->FindString(it->GetShape()));
       }
       else if(it->GetControl() == _("right_stick"))
       {
-        StaticText48->SetLabel(it->GetDeviceUp()->GetType());
-        StaticText49->SetLabel(it->GetDeviceUp()->GetName());
-        StaticText50->SetLabel(it->GetDeviceUp()->GetId());
-        StaticText51->SetLabel(it->GetEventUp()->GetId());
-        StaticText1->SetLabel(it->GetDeviceDown()->GetType());
-        StaticText2->SetLabel(it->GetDeviceDown()->GetName());
-        StaticText3->SetLabel(it->GetDeviceDown()->GetId());
-        StaticText9->SetLabel(it->GetEventDown()->GetId());
-        SpinCtrl4->SetValue(it->GetDeadZone());
-        SpinCtrl2->SetValue(it->GetSteps());
-        Choice3->SetSelection(Choice3->FindString(it->GetShape()));
+        RSIncDeviceType->SetLabel(it->GetDeviceUp()->GetType());
+        RSIncDeviceName->SetLabel(it->GetDeviceUp()->GetName());
+        RSIncDeviceId->SetLabel(it->GetDeviceUp()->GetId());
+        RSIncButtonId->SetLabel(it->GetEventUp()->GetId());
+        RSDecDeviceType->SetLabel(it->GetDeviceDown()->GetType());
+        RSDecDeviceName->SetLabel(it->GetDeviceDown()->GetName());
+        RSDecDeviceId->SetLabel(it->GetDeviceDown()->GetId());
+        RSDecButtonId->SetLabel(it->GetEventDown()->GetId());
+        RSDeadZone->SetValue(it->GetDeadZone());
+        RSSteps->SetValue(it->GetSteps());
+        RSShape->SetSelection(RSShape->FindString(it->GetShape()));
       }
     }
     //Load ButtonMappers
-    Grid1->DeleteRows(0, Grid1->GetNumberRows());
+    ButtonTabControls->DeleteRows(0, ButtonTabControls->GetNumberRows());
     buttonMappers = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetButtonMapperList();
     for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); it++)
     {
-        Grid1->InsertRows();
-        Grid1->SetCellValue(0, 0, it->GetDevice()->GetType());
-        Grid1->SetCellValue(0, 1, it->GetDevice()->GetName());
-        Grid1->SetCellValue(0, 2, it->GetDevice()->GetId());
-        Grid1->SetCellValue(0, 3, it->GetEvent()->GetType());
-        Grid1->SetCellValue(0, 4, it->GetEvent()->GetId());
-        Grid1->SetCellValue(0, 5, it->GetEvent()->GetThreshold());
-        Grid1->SetCellValue(0, 6, it->GetButton());
-        Grid1->AutoSizeColumns();
+        ButtonTabControls->InsertRows();
+        ButtonTabControls->SetCellValue(0, 0, it->GetDevice()->GetType());
+        ButtonTabControls->SetCellValue(0, 1, it->GetDevice()->GetName());
+        ButtonTabControls->SetCellValue(0, 2, it->GetDevice()->GetId());
+        ButtonTabControls->SetCellValue(0, 3, it->GetEvent()->GetType());
+        ButtonTabControls->SetCellValue(0, 4, it->GetEvent()->GetId());
+        ButtonTabControls->SetCellValue(0, 5, it->GetEvent()->GetThreshold());
+        ButtonTabControls->SetCellValue(0, 6, it->GetButton());
+        ButtonTabControls->AutoSizeColumns();
     }
     //Load AxisMappers
     Grid2->DeleteRows(0, Grid2->GetNumberRows());
@@ -1511,11 +1511,11 @@ void sixaxis_emu_guiFrame::OnMenuOpen(wxCommandEvent& event)
     load_current();
     refresh_gui();
     Menu1->Enable(idMenuSave, true);
-    Button2->SetLabel(_("Modify"));
+    ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
     Button3->Enable();
-    Button4->Enable();
-    Button6->Enable();
+    ButtonTabAdd->Enable();
+    ButtonTabRemove->Enable();
     Button7->Enable();
 }
 
@@ -1526,11 +1526,11 @@ void sixaxis_emu_guiFrame::OnMenuItemController1(wxCommandEvent& event)
     currentConfiguration = 0;
     Menu4->Check(ID_MENUITEM8, true);
     load_current();
-    Button2->SetLabel(_("Modify"));
+    ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
     Button3->Enable();
-    Button4->Enable();
-    Button6->Enable();
+    ButtonTabAdd->Enable();
+    ButtonTabRemove->Enable();
     Button7->Enable();
     refresh_gui();
 }
@@ -1542,11 +1542,11 @@ void sixaxis_emu_guiFrame::OnMenuItemController2(wxCommandEvent& event)
     currentConfiguration = 0;
     Menu4->Check(ID_MENUITEM8, true);
     load_current();
-    Button2->SetLabel(_("Modify"));
+    ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
     Button3->Enable();
-    Button4->Enable();
-    Button6->Enable();
+    ButtonTabAdd->Enable();
+    ButtonTabRemove->Enable();
     Button7->Enable();
     refresh_gui();
 }
@@ -1558,11 +1558,11 @@ void sixaxis_emu_guiFrame::OnMenuItemController3(wxCommandEvent& event)
     currentConfiguration = 0;
     Menu4->Check(ID_MENUITEM8, true);
     load_current();
-    Button2->SetLabel(_("Modify"));
+    ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
     Button3->Enable();
-    Button4->Enable();
-    Button6->Enable();
+    ButtonTabAdd->Enable();
+    ButtonTabRemove->Enable();
     Button7->Enable();
     refresh_gui();
 }
@@ -1574,11 +1574,11 @@ void sixaxis_emu_guiFrame::OnMenuItemController4(wxCommandEvent& event)
     currentConfiguration = 0;
     Menu4->Check(ID_MENUITEM8, true);
     load_current();
-    Button2->SetLabel(_("Modify"));
+    ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
     Button3->Enable();
-    Button4->Enable();
-    Button6->Enable();
+    ButtonTabAdd->Enable();
+    ButtonTabRemove->Enable();
     Button7->Enable();
     refresh_gui();
 }
@@ -1590,11 +1590,11 @@ void sixaxis_emu_guiFrame::OnMenuItemController5(wxCommandEvent& event)
     currentConfiguration = 0;
     Menu4->Check(ID_MENUITEM8, true);
     load_current();
-    Button2->SetLabel(_("Modify"));
+    ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
     Button3->Enable();
-    Button4->Enable();
-    Button6->Enable();
+    ButtonTabAdd->Enable();
+    ButtonTabRemove->Enable();
     Button7->Enable();
     refresh_gui();
 }
@@ -1606,11 +1606,11 @@ void sixaxis_emu_guiFrame::OnMenuItemController6(wxCommandEvent& event)
     currentConfiguration = 0;
     Menu4->Check(ID_MENUITEM8, true);
     load_current();
-    Button2->SetLabel(_("Modify"));
+    ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
     Button3->Enable();
-    Button4->Enable();
-    Button6->Enable();
+    ButtonTabAdd->Enable();
+    ButtonTabRemove->Enable();
     Button7->Enable();
     refresh_gui();
 }
@@ -1622,11 +1622,11 @@ void sixaxis_emu_guiFrame::OnMenuItemController7(wxCommandEvent& event)
     currentConfiguration = 0;
     Menu4->Check(ID_MENUITEM8, true);
     load_current();
-    Button2->SetLabel(_("Modify"));
+    ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
     Button3->Enable();
-    Button4->Enable();
-    Button6->Enable();
+    ButtonTabAdd->Enable();
+    ButtonTabRemove->Enable();
     Button7->Enable();
     refresh_gui();
 }
@@ -1636,11 +1636,11 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration1(wxCommandEvent& event)
     save_current();
     currentConfiguration = 0;
     load_current();
-    Button2->SetLabel(_("Modify"));
+    ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
     Button3->Enable();
-    Button4->Enable();
-    Button6->Enable();
+    ButtonTabAdd->Enable();
+    ButtonTabRemove->Enable();
     Button7->Enable();
     refresh_gui();
 }
@@ -1650,11 +1650,11 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration2(wxCommandEvent& event)
     save_current();
     currentConfiguration = 1;
     load_current();
-    Button2->SetLabel(_("Modify"));
+    ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
     Button3->Enable();
-    Button4->Enable();
-    Button6->Enable();
+    ButtonTabAdd->Enable();
+    ButtonTabRemove->Enable();
     Button7->Enable();
     refresh_gui();
 }
@@ -1664,11 +1664,11 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration3(wxCommandEvent& event)
     save_current();
     currentConfiguration = 2;
     load_current();
-    Button2->SetLabel(_("Modify"));
+    ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
     Button3->Enable();
-    Button4->Enable();
-    Button6->Enable();
+    ButtonTabAdd->Enable();
+    ButtonTabRemove->Enable();
     Button7->Enable();
     refresh_gui();
 }
@@ -1678,11 +1678,11 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration4(wxCommandEvent& event)
     save_current();
     currentConfiguration = 3;
     load_current();
-    Button2->SetLabel(_("Modify"));
+    ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
     Button3->Enable();
-    Button4->Enable();
-    Button6->Enable();
+    ButtonTabAdd->Enable();
+    ButtonTabRemove->Enable();
     Button7->Enable();
     refresh_gui();
 }
@@ -1692,11 +1692,11 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration5(wxCommandEvent& event)
     save_current();
     currentConfiguration = 4;
     load_current();
-    Button2->SetLabel(_("Modify"));
+    ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
     Button3->Enable();
-    Button4->Enable();
-    Button6->Enable();
+    ButtonTabAdd->Enable();
+    ButtonTabRemove->Enable();
     Button7->Enable();
     refresh_gui();
 }
@@ -1706,11 +1706,11 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration6(wxCommandEvent& event)
     save_current();
     currentConfiguration = 5;
     load_current();
-    Button2->SetLabel(_("Modify"));
+    ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
     Button3->Enable();
-    Button4->Enable();
-    Button6->Enable();
+    ButtonTabAdd->Enable();
+    ButtonTabRemove->Enable();
     Button7->Enable();
     refresh_gui();
 }
@@ -1720,11 +1720,11 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration7(wxCommandEvent& event)
     save_current();
     currentConfiguration = 6;
     load_current();
-    Button2->SetLabel(_("Modify"));
+    ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
     Button3->Enable();
-    Button4->Enable();
-    Button6->Enable();
+    ButtonTabAdd->Enable();
+    ButtonTabRemove->Enable();
     Button7->Enable();
     refresh_gui();
 }
@@ -1734,11 +1734,11 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration8(wxCommandEvent& event)
     save_current();
     currentConfiguration = 7;
     load_current();
-    Button2->SetLabel(_("Modify"));
+    ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
     Button3->Enable();
-    Button4->Enable();
-    Button6->Enable();
+    ButtonTabAdd->Enable();
+    ButtonTabRemove->Enable();
     Button7->Enable();
     refresh_gui();
 }
@@ -1748,11 +1748,11 @@ void sixaxis_emu_guiFrame::OnMenuSave(wxCommandEvent& event)
     wxString end;
     save_current();
     configFile.WriteConfigFile();
-    Button2->SetLabel(_("Modify"));
+    ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
     Button3->Enable();
-    Button4->Enable();
-    Button6->Enable();
+    ButtonTabAdd->Enable();
+    ButtonTabRemove->Enable();
     Button7->Enable();
 }
 
@@ -1777,10 +1777,10 @@ void sixaxis_emu_guiFrame::OnMenuSaveAs(wxCommandEvent& event)
 
 void sixaxis_emu_guiFrame::OnButtonModifyButton(wxCommandEvent& event)
 {
-    wxArrayInt array = Grid1->GetSelectedRows();
+    wxArrayInt array = ButtonTabControls->GetSelectedRows();
     int count = array.GetCount();
 
-    if(Button2->GetLabel() == _("Modify"))
+    if(ButtonTabModify->GetLabel() == _("Modify"))
     {
         if(count == 0)
         {
@@ -1794,32 +1794,32 @@ void sixaxis_emu_guiFrame::OnButtonModifyButton(wxCommandEvent& event)
         }
         grid1mod = array.Item(0);
 
-        StaticText38->SetLabel(Grid1->GetCellValue(grid1mod, 0));
-        StaticText30->SetLabel(Grid1->GetCellValue(grid1mod, 1));
-        StaticText39->SetLabel(Grid1->GetCellValue(grid1mod, 2));
-        Choice4->SetSelection(Choice4->FindString(Grid1->GetCellValue(grid1mod, 3)));
-        StaticText40->SetLabel(Grid1->GetCellValue(grid1mod, 4));
-        TextCtrl3->SetValue(Grid1->GetCellValue(grid1mod, 5));
-        fillButtonChoice(Choice5);
-        Choice5->SetSelection(Choice5->FindString(Grid1->GetCellValue(grid1mod, 6)));
-        Button4->Disable();
-        Button6->Disable();
-        Button2->SetLabel(_("Apply"));
+        ButtonTabDeviceType->SetLabel(ButtonTabControls->GetCellValue(grid1mod, 0));
+        ButtonTabDeviceName->SetLabel(ButtonTabControls->GetCellValue(grid1mod, 1));
+        ButtonTabDeviceId->SetLabel(ButtonTabControls->GetCellValue(grid1mod, 2));
+        ButtonTabEventType->SetSelection(ButtonTabEventType->FindString(ButtonTabControls->GetCellValue(grid1mod, 3)));
+        ButtonTabEventId->SetLabel(ButtonTabControls->GetCellValue(grid1mod, 4));
+        ButtonTabThreshold->SetValue(ButtonTabControls->GetCellValue(grid1mod, 5));
+        fillButtonChoice(ButtonTabButtonId);
+        ButtonTabButtonId->SetSelection(ButtonTabButtonId->FindString(ButtonTabControls->GetCellValue(grid1mod, 6)));
+        ButtonTabAdd->Disable();
+        ButtonTabRemove->Disable();
+        ButtonTabModify->SetLabel(_("Apply"));
     }
     else
     {
-        if (StaticText40->GetLabel() == wxEmptyString)
+        if (ButtonTabEventId->GetLabel() == wxEmptyString)
         {
           wxMessageBox(wxT("Please detect an Event!"), wxT("Error"), wxICON_ERROR);
           return;
         }
-        if(Choice5->GetStringSelection() == wxEmptyString)
+        if(ButtonTabButtonId->GetStringSelection() == wxEmptyString)
         {
             wxMessageBox( wxT("Please select a Button!"), wxT("Error"), wxICON_ERROR);
             return;
         }
 
-        wxString check = isAlreadyUsed(StaticText38->GetLabel(), StaticText30->GetLabel(), StaticText39->GetLabel(), Choice4->GetStringSelection(), StaticText40->GetLabel(), grid1mod, -1);
+        wxString check = isAlreadyUsed(ButtonTabDeviceType->GetLabel(), ButtonTabDeviceName->GetLabel(), ButtonTabDeviceId->GetLabel(), ButtonTabEventType->GetStringSelection(), ButtonTabEventId->GetLabel(), grid1mod, -1);
 
         if(!check.IsEmpty())
         {
@@ -1834,18 +1834,18 @@ void sixaxis_emu_guiFrame::OnButtonModifyButton(wxCommandEvent& event)
         {
           updateButtonConfigurations();
         }
-        Grid1->SetCellValue(grid1mod, 0, StaticText38->GetLabel());
-        Grid1->SetCellValue(grid1mod, 1, StaticText30->GetLabel());
-        Grid1->SetCellValue(grid1mod, 2, StaticText39->GetLabel());
-        Grid1->SetCellValue(grid1mod, 3, Choice4->GetStringSelection());
-        Grid1->SetCellValue(grid1mod, 4, StaticText40->GetLabel());
-        Grid1->SetCellValue(grid1mod, 5, TextCtrl3->GetValue());
-        Grid1->SetCellValue(grid1mod, 6, Choice5->GetStringSelection());
-        Button4->Enable();
-        Button6->Enable();
-        Button2->SetLabel(_("Modify"));
+        ButtonTabControls->SetCellValue(grid1mod, 0, ButtonTabDeviceType->GetLabel());
+        ButtonTabControls->SetCellValue(grid1mod, 1, ButtonTabDeviceName->GetLabel());
+        ButtonTabControls->SetCellValue(grid1mod, 2, ButtonTabDeviceId->GetLabel());
+        ButtonTabControls->SetCellValue(grid1mod, 3, ButtonTabEventType->GetStringSelection());
+        ButtonTabControls->SetCellValue(grid1mod, 4, ButtonTabEventId->GetLabel());
+        ButtonTabControls->SetCellValue(grid1mod, 5, ButtonTabThreshold->GetValue());
+        ButtonTabControls->SetCellValue(grid1mod, 6, ButtonTabButtonId->GetStringSelection());
+        ButtonTabAdd->Enable();
+        ButtonTabRemove->Enable();
+        ButtonTabModify->SetLabel(_("Modify"));
     }
-    Grid1->AutoSizeColumns();
+    ButtonTabControls->AutoSizeColumns();
     refresh_gui();
 }
 
@@ -1864,20 +1864,20 @@ void sixaxis_emu_guiFrame::updateButtonConfigurations()
       buttonMappers = config->GetButtonMapperList();
       for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); it++)
       {
-          if(it->GetDevice()->GetType() == Grid1->GetCellValue(grid1mod, 0)
-              && it->GetDevice()->GetName() == Grid1->GetCellValue(grid1mod, 1)
-              && it->GetDevice()->GetId() == Grid1->GetCellValue(grid1mod, 2)
-              && it->GetEvent()->GetType() == Grid1->GetCellValue(grid1mod, 3)
-              && it->GetEvent()->GetId() == Grid1->GetCellValue(grid1mod, 4)
-              && it->GetButton() == Grid1->GetCellValue(grid1mod, 6))
+          if(it->GetDevice()->GetType() == ButtonTabControls->GetCellValue(grid1mod, 0)
+              && it->GetDevice()->GetName() == ButtonTabControls->GetCellValue(grid1mod, 1)
+              && it->GetDevice()->GetId() == ButtonTabControls->GetCellValue(grid1mod, 2)
+              && it->GetEvent()->GetType() == ButtonTabControls->GetCellValue(grid1mod, 3)
+              && it->GetEvent()->GetId() == ButtonTabControls->GetCellValue(grid1mod, 4)
+              && it->GetButton() == ButtonTabControls->GetCellValue(grid1mod, 6))
           {
-              it->GetDevice()->SetType(StaticText38->GetLabel());
-              it->GetDevice()->SetId(StaticText39->GetLabel());
-              it->GetDevice()->SetName(StaticText30->GetLabel());
-              it->GetEvent()->SetType(Choice4->GetStringSelection());
-              it->GetEvent()->SetId(StaticText40->GetLabel());
-              it->GetEvent()->SetThreshold(TextCtrl3->GetValue());
-              it->SetButton(Choice5->GetStringSelection());
+              it->GetDevice()->SetType(ButtonTabDeviceType->GetLabel());
+              it->GetDevice()->SetId(ButtonTabDeviceId->GetLabel());
+              it->GetDevice()->SetName(ButtonTabDeviceName->GetLabel());
+              it->GetEvent()->SetType(ButtonTabEventType->GetStringSelection());
+              it->GetEvent()->SetId(ButtonTabEventId->GetLabel());
+              it->GetEvent()->SetThreshold(ButtonTabThreshold->GetValue());
+              it->SetButton(ButtonTabButtonId->GetStringSelection());
           }
       }
     }
@@ -1902,60 +1902,60 @@ void sixaxis_emu_guiFrame::OnButtonModifyAxis(wxCommandEvent& event)
         }
         grid2mod = array.Item(0);
 
-        StaticText41->SetLabel(Grid2->GetCellValue(grid2mod, 0));
-        StaticText32->SetLabel(Grid2->GetCellValue(grid2mod, 1));
-        StaticText42->SetLabel(Grid2->GetCellValue(grid2mod, 2));
-        Choice7->SetSelection(Choice7->FindString(Grid2->GetCellValue(grid2mod, 3)));
-        StaticText43->SetLabel(Grid2->GetCellValue(grid2mod, 4));
-        TextCtrl8->SetValue(Grid2->GetCellValue(grid2mod, 6));
-        TextCtrl9->SetValue(Grid2->GetCellValue(grid2mod, 7));
-        TextCtrl10->SetValue(Grid2->GetCellValue(grid2mod, 8));
-        TextCtrl1->SetValue(Grid2->GetCellValue(grid2mod, 10));
-        TextCtrl2->SetValue(Grid2->GetCellValue(grid2mod, 11));
-        if(Choice7->GetStringSelection() == _("button"))
+        AxisTabDeviceType->SetLabel(Grid2->GetCellValue(grid2mod, 0));
+        AxisTabDeviceName->SetLabel(Grid2->GetCellValue(grid2mod, 1));
+        AxisTabDeviceId->SetLabel(Grid2->GetCellValue(grid2mod, 2));
+        AxisTabEventType->SetSelection(AxisTabEventType->FindString(Grid2->GetCellValue(grid2mod, 3)));
+        AxisTabEventId->SetLabel(Grid2->GetCellValue(grid2mod, 4));
+        AxisTabDeadZone->SetValue(Grid2->GetCellValue(grid2mod, 6));
+        AxisTabSensitivity->SetValue(Grid2->GetCellValue(grid2mod, 7));
+        AxisTabAcceleration->SetValue(Grid2->GetCellValue(grid2mod, 8));
+        AxisTabBufferSize->SetValue(Grid2->GetCellValue(grid2mod, 10));
+        AxisTabFilter->SetValue(Grid2->GetCellValue(grid2mod, 11));
+        if(AxisTabEventType->GetStringSelection() == _("button"))
         {
-            TextCtrl8->Disable();
-            TextCtrl9->Disable();
-            TextCtrl10->Disable();
-            Choice1->Disable();
-            Choice1->SetSelection(0);
-            TextCtrl1->Disable();
-            TextCtrl2->Disable();
-            fillButtonAxisChoice(Choice8);
+            AxisTabDeadZone->Disable();
+            AxisTabSensitivity->Disable();
+            AxisTabAcceleration->Disable();
+            AxisTabShape->Disable();
+            AxisTabShape->SetSelection(0);
+            AxisTabBufferSize->Disable();
+            AxisTabFilter->Disable();
+            fillButtonAxisChoice(AxisTabAxisId);
         }
         else
         {
-            TextCtrl8->Enable();
-            TextCtrl9->Enable();
-            TextCtrl10->Enable();
-            Choice1->SetSelection(Choice1->FindString(Grid2->GetCellValue(grid2mod, 9)));
-            Choice1->Enable();
-			      if(StaticText41->GetLabel() == _("mouse"))
+            AxisTabDeadZone->Enable();
+            AxisTabSensitivity->Enable();
+            AxisTabAcceleration->Enable();
+            AxisTabShape->SetSelection(AxisTabShape->FindString(Grid2->GetCellValue(grid2mod, 9)));
+            AxisTabShape->Enable();
+			      if(AxisTabDeviceType->GetLabel() == _("mouse"))
 			      {
-                TextCtrl1->Enable();
-                TextCtrl2->Enable();
+                AxisTabBufferSize->Enable();
+                AxisTabFilter->Enable();
       			}
-            fillAxisAxisChoice(Choice8);
+            fillAxisAxisChoice(AxisTabAxisId);
         }
-        Choice8->SetSelection(Choice8->FindString(Grid2->GetCellValue(grid2mod, 5)));
+        AxisTabAxisId->SetSelection(AxisTabAxisId->FindString(Grid2->GetCellValue(grid2mod, 5)));
         Button3->Disable();
         Button7->Disable();
         Button5->SetLabel(_("Apply"));
     }
     else
     {
-        if (StaticText43->GetLabel() == wxEmptyString)
+        if (AxisTabEventId->GetLabel() == wxEmptyString)
         {
           wxMessageBox(wxT("Please detect an Event!"), wxT("Error"), wxICON_ERROR);
           return;
         }
-        if(Choice8->GetStringSelection() == wxEmptyString)
+        if(AxisTabAxisId->GetStringSelection() == wxEmptyString)
         {
             wxMessageBox( wxT("Please select an Axis!"), wxT("Error"), wxICON_ERROR);
             return;
         }
 
-        wxString check = isAlreadyUsed(StaticText41->GetLabel(), StaticText32->GetLabel(), StaticText42->GetLabel(), Choice7->GetStringSelection(), StaticText43->GetLabel(), -1, grid2mod);
+        wxString check = isAlreadyUsed(AxisTabDeviceType->GetLabel(), AxisTabDeviceName->GetLabel(), AxisTabDeviceId->GetLabel(), AxisTabEventType->GetStringSelection(), AxisTabEventId->GetLabel(), -1, grid2mod);
 
         if(!check.IsEmpty())
         {
@@ -1970,18 +1970,18 @@ void sixaxis_emu_guiFrame::OnButtonModifyAxis(wxCommandEvent& event)
         {
           updateAxisConfigurations();
         }
-        Grid2->SetCellValue(grid2mod, 0, StaticText41->GetLabel());
-        Grid2->SetCellValue(grid2mod, 1, StaticText32->GetLabel());
-        Grid2->SetCellValue(grid2mod, 2, StaticText42->GetLabel());
-        Grid2->SetCellValue(grid2mod, 3, Choice7->GetStringSelection());
-        Grid2->SetCellValue(grid2mod, 4, StaticText43->GetLabel());
-        Grid2->SetCellValue(grid2mod, 5, Choice8->GetStringSelection());
-        Grid2->SetCellValue(grid2mod, 6, TextCtrl8->GetValue());
-        Grid2->SetCellValue(grid2mod, 7, TextCtrl9->GetValue());
-        Grid2->SetCellValue(grid2mod, 8, TextCtrl10->GetValue());
-        Grid2->SetCellValue(grid2mod, 9, Choice1->GetStringSelection());
-        Grid2->SetCellValue(grid2mod, 10, TextCtrl1->GetValue());
-        Grid2->SetCellValue(grid2mod, 11, TextCtrl2->GetValue());
+        Grid2->SetCellValue(grid2mod, 0, AxisTabDeviceType->GetLabel());
+        Grid2->SetCellValue(grid2mod, 1, AxisTabDeviceName->GetLabel());
+        Grid2->SetCellValue(grid2mod, 2, AxisTabDeviceId->GetLabel());
+        Grid2->SetCellValue(grid2mod, 3, AxisTabEventType->GetStringSelection());
+        Grid2->SetCellValue(grid2mod, 4, AxisTabEventId->GetLabel());
+        Grid2->SetCellValue(grid2mod, 5, AxisTabAxisId->GetStringSelection());
+        Grid2->SetCellValue(grid2mod, 6, AxisTabDeadZone->GetValue());
+        Grid2->SetCellValue(grid2mod, 7, AxisTabSensitivity->GetValue());
+        Grid2->SetCellValue(grid2mod, 8, AxisTabAcceleration->GetValue());
+        Grid2->SetCellValue(grid2mod, 9, AxisTabShape->GetStringSelection());
+        Grid2->SetCellValue(grid2mod, 10, AxisTabBufferSize->GetValue());
+        Grid2->SetCellValue(grid2mod, 11, AxisTabFilter->GetValue());
         Button3->Enable();
         Button7->Enable();
         Button5->SetLabel(_("Modify"));
@@ -2012,24 +2012,24 @@ void sixaxis_emu_guiFrame::updateAxisConfigurations()
               && it->GetEvent()->GetId() == Grid2->GetCellValue(grid2mod, 4)
               && it->GetAxis() == Grid2->GetCellValue(grid2mod, 5))
           {
-              it->GetDevice()->SetType(StaticText41->GetLabel());
-              it->GetDevice()->SetId(StaticText42->GetLabel());
-              it->GetDevice()->SetName(StaticText32->GetLabel());
-              it->GetEvent()->SetType(Choice7->GetStringSelection());
-              it->GetEvent()->SetId(StaticText43->GetLabel());
-              it->SetAxis(Choice8->GetStringSelection());
+              it->GetDevice()->SetType(AxisTabDeviceType->GetLabel());
+              it->GetDevice()->SetId(AxisTabDeviceId->GetLabel());
+              it->GetDevice()->SetName(AxisTabDeviceName->GetLabel());
+              it->GetEvent()->SetType(AxisTabEventType->GetStringSelection());
+              it->GetEvent()->SetId(AxisTabEventId->GetLabel());
+              it->SetAxis(AxisTabAxisId->GetStringSelection());
           }
       }
     }
 }
 
-void sixaxis_emu_guiFrame::OnChoice1Select(wxCommandEvent& event)
+void sixaxis_emu_guiFrame::OnAxisTabShapeSelect(wxCommandEvent& event)
 {
-    if(Choice7->GetStringSelection() == _("axis"))
+    if(AxisTabEventType->GetStringSelection() == _("axis"))
     {
-        if(Choice1->GetStringSelection() == wxEmptyString)
+        if(AxisTabShape->GetStringSelection() == wxEmptyString)
         {
-            Choice1->SetSelection(1);
+            AxisTabShape->SetSelection(1);
         }
     }
 }
@@ -2045,11 +2045,11 @@ void sixaxis_emu_guiFrame::OnMenuItemPasteConfiguration(wxCommandEvent& event)
   configFile.GetController(currentController)->SetConfiguration(tempConfiguration, currentConfiguration);
   load_current();
   refresh_gui();
-  Button2->SetLabel(_("Modify"));
+  ButtonTabModify->SetLabel(_("Modify"));
   Button5->SetLabel(_("Modify"));
   Button3->Enable();
-  Button4->Enable();
-  Button6->Enable();
+  ButtonTabAdd->Enable();
+  ButtonTabRemove->Enable();
   Button7->Enable();
 }
 
@@ -2064,20 +2064,20 @@ void sixaxis_emu_guiFrame::OnMenuItemPasteController(wxCommandEvent& event)
   configFile.SetController(tempController, currentController);
   load_current();
   refresh_gui();
-  Button2->SetLabel(_("Modify"));
+  ButtonTabModify->SetLabel(_("Modify"));
   Button5->SetLabel(_("Modify"));
   Button3->Enable();
-  Button4->Enable();
-  Button6->Enable();
+  ButtonTabAdd->Enable();
+  ButtonTabRemove->Enable();
   Button7->Enable();
 }
 
 void sixaxis_emu_guiFrame::OnButton10Click1(wxCommandEvent& event)
 {
-    StaticText35->SetLabel(wxEmptyString);
-    StaticText27->SetLabel(wxEmptyString);
-    StaticText36->SetLabel(wxEmptyString);
-    StaticText37->SetLabel(wxEmptyString);
+    ProfileTriggerDeviceType->SetLabel(wxEmptyString);
+    ProfileTriggerDeviceName->SetLabel(wxEmptyString);
+    ProfileTriggerDeviceId->SetLabel(wxEmptyString);
+    ProfileTriggerButtonId->SetLabel(wxEmptyString);
     CheckBox1->SetValue(false);
 
     refresh_gui();
@@ -2252,16 +2252,16 @@ void sixaxis_emu_guiFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
     }
 }
 
-void sixaxis_emu_guiFrame::OnButton13Click1(wxCommandEvent& event)
+void sixaxis_emu_guiFrame::OnLSIncAutoDetectClick1(wxCommandEvent& event)
 {
-  Button13->Enable(false);
+  LSIncAutoDetect->Enable(false);
 
-  wxString old_device_type = StaticText58->GetLabel();
-  wxString old_device_name = StaticText59->GetLabel();
-  wxString old_device_id = StaticText60->GetLabel();
-  wxString old_event_id = StaticText61->GetLabel();
+  wxString old_device_type = LSIncDeviceType->GetLabel();
+  wxString old_device_name = LSIncDeviceName->GetLabel();
+  wxString old_device_id = LSIncDeviceId->GetLabel();
+  wxString old_event_id = LSIncButtonId->GetLabel();
 
-  auto_detect(StaticText58, StaticText59, StaticText60, _("button"), StaticText61);
+  auto_detect(LSIncDeviceType, LSIncDeviceName, LSIncDeviceId, _("button"), LSIncButtonId);
 
   if(old_device_type != wxEmptyString && MenuItem31->IsChecked())
   {
@@ -2283,27 +2283,27 @@ void sixaxis_emu_guiFrame::OnButton13Click1(wxCommandEvent& event)
           Event* ev = it->GetEventUp();
           if(dev->GetType() == old_device_type && dev->GetName() == old_device_name && dev->GetType() == old_device_type && ev->GetId() == old_event_id)
           {
-            dev->SetType(StaticText58->GetLabel());
-            dev->SetName(StaticText59->GetLabel());
-            dev->SetId(StaticText60->GetLabel());
-            ev->SetId(StaticText61->GetLabel());
+            dev->SetType(LSIncDeviceType->GetLabel());
+            dev->SetName(LSIncDeviceName->GetLabel());
+            dev->SetId(LSIncDeviceId->GetLabel());
+            ev->SetId(LSIncButtonId->GetLabel());
           }
         }
       }
     }
   }
 
-  Button13->Enable(true);
+  LSIncAutoDetect->Enable(true);
 
   refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnButton14Click(wxCommandEvent& event)
+void sixaxis_emu_guiFrame::OnLSIncDeleteClick(wxCommandEvent& event)
 {
-  wxString old_device_type = StaticText58->GetLabel();
-  wxString old_device_name = StaticText59->GetLabel();
-  wxString old_device_id = StaticText60->GetLabel();
-  wxString old_event_id = StaticText61->GetLabel();
+  wxString old_device_type = LSIncDeviceType->GetLabel();
+  wxString old_device_name = LSIncDeviceName->GetLabel();
+  wxString old_device_id = LSIncDeviceId->GetLabel();
+  wxString old_event_id = LSIncButtonId->GetLabel();
 
   if(old_device_type != wxEmptyString && MenuItem31->IsChecked())
   {
@@ -2335,24 +2335,24 @@ void sixaxis_emu_guiFrame::OnButton14Click(wxCommandEvent& event)
     }
   }
 
-  StaticText58->SetLabel(wxEmptyString);
-  StaticText59->SetLabel(wxEmptyString);
-  StaticText60->SetLabel(wxEmptyString);
-  StaticText61->SetLabel(wxEmptyString);
+  LSIncDeviceType->SetLabel(wxEmptyString);
+  LSIncDeviceName->SetLabel(wxEmptyString);
+  LSIncDeviceId->SetLabel(wxEmptyString);
+  LSIncButtonId->SetLabel(wxEmptyString);
 
   refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnButton11Click1(wxCommandEvent& event)
+void sixaxis_emu_guiFrame::OnRSIncAutoDetectClick1(wxCommandEvent& event)
 {
-  Button11->Enable(false);
+  RSIncAutoDetect->Enable(false);
 
-  wxString old_device_type = StaticText48->GetLabel();
-  wxString old_device_name = StaticText49->GetLabel();
-  wxString old_device_id = StaticText50->GetLabel();
-  wxString old_event_id = StaticText51->GetLabel();
+  wxString old_device_type = RSIncDeviceType->GetLabel();
+  wxString old_device_name = RSIncDeviceName->GetLabel();
+  wxString old_device_id = RSIncDeviceId->GetLabel();
+  wxString old_event_id = RSIncButtonId->GetLabel();
 
-  auto_detect(StaticText48, StaticText49, StaticText50, _("button"), StaticText51);
+  auto_detect(RSIncDeviceType, RSIncDeviceName, RSIncDeviceId, _("button"), RSIncButtonId);
 
   if(old_device_type != wxEmptyString && MenuItem31->IsChecked())
   {
@@ -2374,27 +2374,27 @@ void sixaxis_emu_guiFrame::OnButton11Click1(wxCommandEvent& event)
           Event* ev = it->GetEventUp();
           if(dev->GetType() == old_device_type && dev->GetName() == old_device_name && dev->GetType() == old_device_type && ev->GetId() == old_event_id)
           {
-            dev->SetType(StaticText48->GetLabel());
-            dev->SetName(StaticText49->GetLabel());
-            dev->SetId(StaticText50->GetLabel());
-            ev->SetId(StaticText51->GetLabel());
+            dev->SetType(RSIncDeviceType->GetLabel());
+            dev->SetName(RSIncDeviceName->GetLabel());
+            dev->SetId(RSIncDeviceId->GetLabel());
+            ev->SetId(RSIncButtonId->GetLabel());
           }
         }
       }
     }
   }
 
-  Button11->Enable(true);
+  RSIncAutoDetect->Enable(true);
 
   refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnButton12Click(wxCommandEvent& event)
+void sixaxis_emu_guiFrame::OnRSIncDeleteClick(wxCommandEvent& event)
 {
-  wxString old_device_type = StaticText48->GetLabel();
-  wxString old_device_name = StaticText49->GetLabel();
-  wxString old_device_id = StaticText50->GetLabel();
-  wxString old_event_id = StaticText51->GetLabel();
+  wxString old_device_type = RSIncDeviceType->GetLabel();
+  wxString old_device_name = RSIncDeviceName->GetLabel();
+  wxString old_device_id = RSIncDeviceId->GetLabel();
+  wxString old_event_id = RSIncButtonId->GetLabel();
 
   if(old_device_type != wxEmptyString && MenuItem31->IsChecked())
   {
@@ -2426,46 +2426,46 @@ void sixaxis_emu_guiFrame::OnButton12Click(wxCommandEvent& event)
     }
   }
 
-  StaticText48->SetLabel(wxEmptyString);
-  StaticText49->SetLabel(wxEmptyString);
-  StaticText50->SetLabel(wxEmptyString);
-  StaticText51->SetLabel(wxEmptyString);
+  RSIncDeviceType->SetLabel(wxEmptyString);
+  RSIncDeviceName->SetLabel(wxEmptyString);
+  RSIncDeviceId->SetLabel(wxEmptyString);
+  RSIncButtonId->SetLabel(wxEmptyString);
 
   refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnSpinCtrl3Change(wxSpinEvent& event)
+void sixaxis_emu_guiFrame::OnLSDeadzoneChange(wxSpinEvent& event)
 {
-    int max = 127-SpinCtrl3->GetValue();
+    int max = 127-LSDeadzone->GetValue();
     if(max)
     {
-        SpinCtrl1->SetValue(SpinCtrl1->GetValue()*SpinCtrl1->GetMax()/max);
-        SpinCtrl1->SetRange(1, max);
+        LSSteps->SetValue(LSSteps->GetValue()*LSSteps->GetMax()/max);
+        LSSteps->SetRange(1, max);
     }
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnSpinCtrl4Change(wxSpinEvent& event)
+void sixaxis_emu_guiFrame::OnRSDeadZoneChange(wxSpinEvent& event)
 {
-    int max = 127-SpinCtrl4->GetValue();
+    int max = 127-RSDeadZone->GetValue();
     if(max)
     {
-        SpinCtrl2->SetValue(SpinCtrl2->GetValue()*SpinCtrl2->GetMax()/max);
-        SpinCtrl2->SetRange(1, max);
+        RSSteps->SetValue(RSSteps->GetValue()*RSSteps->GetMax()/max);
+        RSSteps->SetRange(1, max);
     }
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnButton15Click(wxCommandEvent& event)
+void sixaxis_emu_guiFrame::OnLSDecAutoDetectClick(wxCommandEvent& event)
 {
-  Button15->Enable(false);
+  LSDecAutoDetect->Enable(false);
 
-  wxString old_device_type = StaticText67->GetLabel();
-  wxString old_device_name = StaticText68->GetLabel();
-  wxString old_device_id = StaticText69->GetLabel();
-  wxString old_event_id = StaticText70->GetLabel();
+  wxString old_device_type = LSDecDeviceType->GetLabel();
+  wxString old_device_name = LSDecDeviceName->GetLabel();
+  wxString old_device_id = LSDecDeviceId->GetLabel();
+  wxString old_event_id = LSDecButtonId->GetLabel();
 
-  auto_detect(StaticText67, StaticText68, StaticText69, _("button"), StaticText70);
+  auto_detect(LSDecDeviceType, LSDecDeviceName, LSDecDeviceId, _("button"), LSDecButtonId);
 
   if(old_device_type != wxEmptyString && MenuItem31->IsChecked())
   {
@@ -2487,27 +2487,27 @@ void sixaxis_emu_guiFrame::OnButton15Click(wxCommandEvent& event)
           Event* ev = it->GetEventDown();
           if(dev->GetType() == old_device_type && dev->GetName() == old_device_name && dev->GetType() == old_device_type && ev->GetId() == old_event_id)
           {
-            dev->SetType(StaticText67->GetLabel());
-            dev->SetName(StaticText68->GetLabel());
-            dev->SetId(StaticText69->GetLabel());
-            ev->SetId(StaticText70->GetLabel());
+            dev->SetType(LSDecDeviceType->GetLabel());
+            dev->SetName(LSDecDeviceName->GetLabel());
+            dev->SetId(LSDecDeviceId->GetLabel());
+            ev->SetId(LSDecButtonId->GetLabel());
           }
         }
       }
     }
   }
 
-  Button15->Enable(true);
+  LSDecAutoDetect->Enable(true);
 
   refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnButton16Click(wxCommandEvent& event)
+void sixaxis_emu_guiFrame::OnLSDecDeleteClick(wxCommandEvent& event)
 {
-  wxString old_device_type = StaticText67->GetLabel();
-  wxString old_device_name = StaticText68->GetLabel();
-  wxString old_device_id = StaticText69->GetLabel();
-  wxString old_event_id = StaticText70->GetLabel();
+  wxString old_device_type = LSDecDeviceType->GetLabel();
+  wxString old_device_name = LSDecDeviceName->GetLabel();
+  wxString old_device_id = LSDecDeviceId->GetLabel();
+  wxString old_event_id = LSDecButtonId->GetLabel();
 
   if(old_device_type != wxEmptyString && MenuItem31->IsChecked())
   {
@@ -2539,24 +2539,24 @@ void sixaxis_emu_guiFrame::OnButton16Click(wxCommandEvent& event)
     }
   }
 
-  StaticText67->SetLabel(wxEmptyString);
-  StaticText68->SetLabel(wxEmptyString);
-  StaticText69->SetLabel(wxEmptyString);
-  StaticText70->SetLabel(wxEmptyString);
+  LSDecDeviceType->SetLabel(wxEmptyString);
+  LSDecDeviceName->SetLabel(wxEmptyString);
+  LSDecDeviceId->SetLabel(wxEmptyString);
+  LSDecButtonId->SetLabel(wxEmptyString);
 
   refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnButton17Click(wxCommandEvent& event)
+void sixaxis_emu_guiFrame::OnRSDecAutoDetectClick(wxCommandEvent& event)
 {
-  Button17->Enable(false);
+  RSDecAutoDetect->Enable(false);
 
-  wxString old_device_type = StaticText1->GetLabel();
-  wxString old_device_name = StaticText2->GetLabel();
-  wxString old_device_id = StaticText3->GetLabel();
-  wxString old_event_id = StaticText9->GetLabel();
+  wxString old_device_type = RSDecDeviceType->GetLabel();
+  wxString old_device_name = RSDecDeviceName->GetLabel();
+  wxString old_device_id = RSDecDeviceId->GetLabel();
+  wxString old_event_id = RSDecButtonId->GetLabel();
 
-  auto_detect(StaticText1, StaticText2, StaticText3, _("button"), StaticText9);
+  auto_detect(RSDecDeviceType, RSDecDeviceName, RSDecDeviceId, _("button"), RSDecButtonId);
 
   if(old_device_type != wxEmptyString && MenuItem31->IsChecked())
   {
@@ -2578,27 +2578,27 @@ void sixaxis_emu_guiFrame::OnButton17Click(wxCommandEvent& event)
           Event* ev = it->GetEventDown();
           if(dev->GetType() == old_device_type && dev->GetName() == old_device_name && dev->GetType() == old_device_type && ev->GetId() == old_event_id)
           {
-            dev->SetType(StaticText1->GetLabel());
-            dev->SetName(StaticText2->GetLabel());
-            dev->SetId(StaticText3->GetLabel());
-            ev->SetId(StaticText9->GetLabel());
+            dev->SetType(RSDecDeviceType->GetLabel());
+            dev->SetName(RSDecDeviceName->GetLabel());
+            dev->SetId(RSDecDeviceId->GetLabel());
+            ev->SetId(RSDecButtonId->GetLabel());
           }
         }
       }
     }
   }
 
-  Button17->Enable(true);
+  RSDecAutoDetect->Enable(true);
 
   refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnButton18Click(wxCommandEvent& event)
+void sixaxis_emu_guiFrame::OnRSDecDeleteClick(wxCommandEvent& event)
 {
-  wxString old_device_type = StaticText1->GetLabel();
-  wxString old_device_name = StaticText2->GetLabel();
-  wxString old_device_id = StaticText3->GetLabel();
-  wxString old_event_id = StaticText9->GetLabel();
+  wxString old_device_type = RSDecDeviceType->GetLabel();
+  wxString old_device_name = RSDecDeviceName->GetLabel();
+  wxString old_device_id = RSDecDeviceId->GetLabel();
+  wxString old_event_id = RSDecButtonId->GetLabel();
 
   if(old_device_type != wxEmptyString && MenuItem31->IsChecked())
   {
@@ -2630,10 +2630,10 @@ void sixaxis_emu_guiFrame::OnButton18Click(wxCommandEvent& event)
     }
   }
 
-  StaticText1->SetLabel(wxEmptyString);
-  StaticText2->SetLabel(wxEmptyString);
-  StaticText3->SetLabel(wxEmptyString);
-  StaticText9->SetLabel(wxEmptyString);
+  RSDecDeviceType->SetLabel(wxEmptyString);
+  RSDecDeviceName->SetLabel(wxEmptyString);
+  RSDecDeviceId->SetLabel(wxEmptyString);
+  RSDecButtonId->SetLabel(wxEmptyString);
 
   refresh_gui();
 }
@@ -2647,7 +2647,7 @@ void sixaxis_emu_guiFrame::OnMenuSetMouseDPI(wxCommandEvent& event)
     }
 }
 
-void sixaxis_emu_guiFrame::OnTextCtrlText(wxCommandEvent& event)
+void sixaxis_emu_guiFrame::OnTextCtrl(wxCommandEvent& event)
 {
     wxString str;
     wxTextCtrl* text;
@@ -2667,7 +2667,7 @@ void sixaxis_emu_guiFrame::OnTextCtrlText(wxCommandEvent& event)
         text->SetValue(str);
     }
 
-    if(text == TextCtrl8)
+    if(text == AxisTabDeadZone)
     {
         if(!str.ToLong(&lvalue))
         {
@@ -2682,14 +2682,14 @@ void sixaxis_emu_guiFrame::OnTextCtrlText(wxCommandEvent& event)
             text->SetValue(_("64"));
         }
     }
-    else if(text == TextCtrl9)
+    else if(text == AxisTabSensitivity)
     {
         if(!str.ToDouble(&value))
         {
             text->SetValue(_("1.00"));
         }
     }
-    else if(text == TextCtrl10)
+    else if(text == AxisTabAcceleration)
     {
         if(!str.ToDouble(&value))
         {
@@ -2704,7 +2704,7 @@ void sixaxis_emu_guiFrame::OnTextCtrlText(wxCommandEvent& event)
             text->SetValue(_("2.00"));
         }
     }
-    else if(text == TextCtrl1)
+    else if(text == AxisTabBufferSize)
     {
         if(!str.ToLong(&lvalue))
         {
@@ -2719,7 +2719,7 @@ void sixaxis_emu_guiFrame::OnTextCtrlText(wxCommandEvent& event)
             text->SetValue(_("30"));
         }
     }
-    else if(text == TextCtrl2)
+    else if(text == AxisTabFilter)
     {
         if(!str.ToDouble(&value))
         {
@@ -2738,18 +2738,18 @@ void sixaxis_emu_guiFrame::OnTextCtrlText(wxCommandEvent& event)
 
 wxString sixaxis_emu_guiFrame::isAlreadyUsed(wxString device_type, wxString device_name, wxString device_id, wxString event_type, wxString event_id, int gridIndex1, int gridIndex2)
 {
-  for(int i=0; i<Grid1->GetNumberRows(); i++)
+  for(int i=0; i<ButtonTabControls->GetNumberRows(); i++)
   {
     if(gridIndex1 >= 0 && i == gridIndex1)
     {
       continue;
     }
 
-    if(Grid1->GetCellValue(i, 0) == device_type
-       && (Grid1->GetCellValue(i, 1).IsEmpty() || device_name.IsEmpty() || Grid1->GetCellValue(i, 1) == device_name)
-       && Grid1->GetCellValue(i, 2) == device_id
-       && Grid1->GetCellValue(i, 3) == event_type
-       && Grid1->GetCellValue(i, 4) == event_id)
+    if(ButtonTabControls->GetCellValue(i, 0) == device_type
+       && (ButtonTabControls->GetCellValue(i, 1).IsEmpty() || device_name.IsEmpty() || ButtonTabControls->GetCellValue(i, 1) == device_name)
+       && ButtonTabControls->GetCellValue(i, 2) == device_id
+       && ButtonTabControls->GetCellValue(i, 3) == event_type
+       && ButtonTabControls->GetCellValue(i, 4) == event_id)
     {
       return _("This control is already used in the current profile (Button tab).\nContinue?");
     }
@@ -2774,32 +2774,32 @@ wxString sixaxis_emu_guiFrame::isAlreadyUsed(wxString device_type, wxString devi
 
   if(event_type == _("button"))
   {
-    if(device_type == StaticText58->GetLabel()
-       && (StaticText59->GetLabel().IsEmpty() || device_name.IsEmpty() || StaticText59->GetLabel() == device_name)
-       && StaticText60->GetLabel() == device_id
-       && StaticText61->GetLabel() == event_id)
+    if(device_type == LSIncDeviceType->GetLabel()
+       && (LSIncDeviceName->GetLabel().IsEmpty() || device_name.IsEmpty() || LSIncDeviceName->GetLabel() == device_name)
+       && LSIncDeviceId->GetLabel() == device_id
+       && LSIncButtonId->GetLabel() == event_id)
     {
       return _("This control is already used in the current profile:\nOverall tab > Stick intensity > Left > Increase.\nContinue?");
     }
-    if(device_type == StaticText67->GetLabel()
-       && (StaticText68->GetLabel().IsEmpty() || device_name.IsEmpty() || StaticText68->GetLabel() == device_name)
-       && StaticText69->GetLabel() == device_id
-       && StaticText70->GetLabel() == event_id)
+    if(device_type == LSDecDeviceType->GetLabel()
+       && (LSDecDeviceName->GetLabel().IsEmpty() || device_name.IsEmpty() || LSDecDeviceName->GetLabel() == device_name)
+       && LSDecDeviceId->GetLabel() == device_id
+       && LSDecButtonId->GetLabel() == event_id)
     {
       return _("This control is already used in the current profile:\nOverall tab > Stick intensity > Left > Decrease.\nContinue?");
     }
 
-    if(device_type == StaticText48->GetLabel()
-       && (StaticText49->GetLabel().IsEmpty() || device_name.IsEmpty() || StaticText49->GetLabel() == device_name)
-       && StaticText50->GetLabel() == device_id
-       && StaticText51->GetLabel() == event_id)
+    if(device_type == RSIncDeviceType->GetLabel()
+       && (RSIncDeviceName->GetLabel().IsEmpty() || device_name.IsEmpty() || RSIncDeviceName->GetLabel() == device_name)
+       && RSIncDeviceId->GetLabel() == device_id
+       && RSIncButtonId->GetLabel() == event_id)
     {
       return _("This control is already used in the current profile:\nOverall tab > Stick intensity > Right > Increase.\nContinue?");
     }
-    if(device_type == StaticText1->GetLabel()
-       && (StaticText2->GetLabel().IsEmpty() || device_name.IsEmpty() || StaticText2->GetLabel() == device_name)
-       && StaticText3->GetLabel() == device_id
-       && StaticText4->GetLabel() == event_id)
+    if(device_type == RSDecDeviceType->GetLabel()
+       && (RSDecDeviceName->GetLabel().IsEmpty() || device_name.IsEmpty() || RSDecDeviceName->GetLabel() == device_name)
+       && RSDecDeviceId->GetLabel() == device_id
+       && RSIncButtonId->GetLabel() == event_id)
     {
       return _("This control is already used in the current profile:\nOverall tab > Stick intensity > Right > Decrease.\nContinue?");
     }

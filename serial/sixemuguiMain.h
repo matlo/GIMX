@@ -37,14 +37,14 @@ class sixemuguiFrame: public wxFrame
         //(*Handlers(sixemuguiFrame)
         void OnQuit(wxCommandEvent& event);
         void OnAbout(wxCommandEvent& event);
-        void OnButton1Click(wxCommandEvent& event);
-        void OnButton3Click(wxCommandEvent& event);
-        void OnCheckBox1Click(wxCommandEvent& event);
-        void OnCheckBox2Click(wxCommandEvent& event);
-        void OnCheckBox3Click(wxCommandEvent& event);
+        void OnButtonCheckClick(wxCommandEvent& event);
+        void OnButtonStartClick(wxCommandEvent& event);
+        void OnCheckBoxGrabClick(wxCommandEvent& event);
+        void OnCheckBoxGuiClick(wxCommandEvent& event);
+        void OnCheckBoxTerminalClick(wxCommandEvent& event);
         void OnChoice8Select(wxCommandEvent& event);
         void OnCheckBoxCalibrate(wxCommandEvent& event);
-        void OnButton1Click1(wxCommandEvent& event);
+        void OnButtonCheckClick1(wxCommandEvent& event);
         void OnMenuEditConfig(wxCommandEvent& event);
         void OnMenuEditFpsConfig(wxCommandEvent& event);
         void OnMenuRefresh(wxCommandEvent& event);
@@ -74,25 +74,25 @@ class sixemuguiFrame: public wxFrame
         //*)
 
         //(*Declarations(sixemuguiFrame)
-        wxMenuItem* MenuItem5;
+        wxCheckBox* CheckBoxCalibrate;
+        wxMenuItem* MenuRefresh;
+        wxMenuItem* MenuEditFpsConfig;
         wxStaticText* StaticText2;
-        wxButton* Button1;
-        wxMenuItem* MenuItem4;
-        wxCheckBox* CheckBox3;
-        wxCheckBox* CheckBox2;
+        wxCheckBox* CheckBoxGui;
+        wxCheckBox* CheckBoxGrab;
+        wxComboBox* ComboBoxDevice;
+        wxCheckBox* CheckBoxTerminal;
+        wxChoice* ChoiceConfig;
         wxPanel* Panel1;
         wxStaticText* StaticText1;
         wxStaticText* StaticText3;
-        wxCheckBox* CheckBox1;
+        wxComboBox* ComboBoxFrequency;
         wxSingleInstanceChecker SingleInstanceChecker1;
-        wxMenuItem* MenuItem3;
-        wxButton* Button3;
         wxStatusBar* StatusBar1;
-        wxChoice* Choice4;
-        wxCheckBox* CheckBox4;
-        wxComboBox* ComboBox1;
-        wxComboBox* ComboBox2;
-        wxCheckBox* CheckBox5;
+        wxButton* ButtonCheck;
+        wxButton* ButtonStart;
+        wxMenuItem* MenuEditConfig;
+        wxCheckBox* CheckBoxForceUpdates;
         //*)
 
         DECLARE_EVENT_TABLE()

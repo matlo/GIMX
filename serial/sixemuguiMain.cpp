@@ -341,8 +341,8 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer3 = new wxFlexGridSizer(1, 2, 0, 0);
     StaticText3 = new wxStaticText(Panel1, ID_STATICTEXT3, _("Device"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT3"));
     FlexGridSizer3->Add(StaticText3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    ComboBox1 = new wxComboBox(Panel1, ID_COMBOBOX1, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX1"));
-    FlexGridSizer3->Add(ComboBox1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ComboBoxDevice = new wxComboBox(Panel1, ID_COMBOBOX1, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX1"));
+    FlexGridSizer3->Add(ComboBoxDevice, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer2->Add(FlexGridSizer3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer1->Add(StaticBoxSizer2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer4 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("emuclient"));
@@ -351,52 +351,52 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer6 = new wxFlexGridSizer(0, 3, 0, 0);
     StaticText1 = new wxStaticText(Panel1, ID_STATICTEXT1, _("Update frequency "), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
     FlexGridSizer6->Add(StaticText1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    ComboBox2 = new wxComboBox(Panel1, ID_COMBOBOX2, wxEmptyString, wxDefaultPosition, wxSize(75,-1), 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX2"));
-    ComboBox2->SetSelection( ComboBox2->Append(_("100")) );
-    ComboBox2->Append(_("125"));
-    ComboBox2->Append(_("250"));
-    FlexGridSizer6->Add(ComboBox2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ComboBoxFrequency = new wxComboBox(Panel1, ID_COMBOBOX2, wxEmptyString, wxDefaultPosition, wxSize(75,-1), 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX2"));
+    ComboBoxFrequency->SetSelection( ComboBoxFrequency->Append(_("100")) );
+    ComboBoxFrequency->Append(_("125"));
+    ComboBoxFrequency->Append(_("250"));
+    FlexGridSizer6->Add(ComboBoxFrequency, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText2 = new wxStaticText(Panel1, ID_STATICTEXT2, _("Hz"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
     FlexGridSizer6->Add(StaticText2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer2->Add(FlexGridSizer6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    CheckBox5 = new wxCheckBox(Panel1, ID_CHECKBOX5, _("Force updates"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX5"));
-    CheckBox5->SetValue(true);
-    FlexGridSizer2->Add(CheckBox5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    CheckBoxForceUpdates = new wxCheckBox(Panel1, ID_CHECKBOX5, _("Force updates"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX5"));
+    CheckBoxForceUpdates->SetValue(true);
+    FlexGridSizer2->Add(CheckBoxForceUpdates, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer5->Add(FlexGridSizer2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer8 = new wxFlexGridSizer(2, 2, 0, 0);
     StaticBoxSizer5 = new wxStaticBoxSizer(wxVERTICAL, Panel1, _("Mouse"));
     FlexGridSizer10 = new wxFlexGridSizer(1, 2, 0, 0);
-    CheckBox1 = new wxCheckBox(Panel1, ID_CHECKBOX1, _("grab"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX1"));
-    CheckBox1->SetValue(true);
-    FlexGridSizer10->Add(CheckBox1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    CheckBox4 = new wxCheckBox(Panel1, ID_CHECKBOX4, _("calibrate"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX4"));
-    CheckBox4->SetValue(false);
-    FlexGridSizer10->Add(CheckBox4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    CheckBoxGrab = new wxCheckBox(Panel1, ID_CHECKBOX1, _("grab"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX1"));
+    CheckBoxGrab->SetValue(true);
+    FlexGridSizer10->Add(CheckBoxGrab, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    CheckBoxCalibrate = new wxCheckBox(Panel1, ID_CHECKBOX4, _("calibrate"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX4"));
+    CheckBoxCalibrate->SetValue(false);
+    FlexGridSizer10->Add(CheckBoxCalibrate, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer5->Add(FlexGridSizer10, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer8->Add(StaticBoxSizer5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer6 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("Output"));
     FlexGridSizer11 = new wxFlexGridSizer(0, 3, 0, 0);
-    CheckBox2 = new wxCheckBox(Panel1, ID_CHECKBOX2, _("gui"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX2"));
-    CheckBox2->SetValue(false);
-    FlexGridSizer11->Add(CheckBox2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    CheckBox3 = new wxCheckBox(Panel1, ID_CHECKBOX3, _("terminal"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX3"));
-    CheckBox3->SetValue(false);
-    FlexGridSizer11->Add(CheckBox3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    CheckBoxGui = new wxCheckBox(Panel1, ID_CHECKBOX2, _("gui"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX2"));
+    CheckBoxGui->SetValue(false);
+    FlexGridSizer11->Add(CheckBoxGui, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    CheckBoxTerminal = new wxCheckBox(Panel1, ID_CHECKBOX3, _("terminal"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX3"));
+    CheckBoxTerminal->SetValue(false);
+    FlexGridSizer11->Add(CheckBoxTerminal, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer6->Add(FlexGridSizer11, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer8->Add(StaticBoxSizer6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer5->Add(FlexGridSizer8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer9 = new wxFlexGridSizer(1, 2, 0, 0);
     StaticBoxSizer8 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("Config"));
     FlexGridSizer4 = new wxFlexGridSizer(0, 3, 0, 0);
-    Choice4 = new wxChoice(Panel1, ID_CHOICE4, wxDefaultPosition, wxSize(225,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE4"));
-    FlexGridSizer4->Add(Choice4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ChoiceConfig = new wxChoice(Panel1, ID_CHOICE4, wxDefaultPosition, wxSize(225,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE4"));
+    FlexGridSizer4->Add(ChoiceConfig, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer8->Add(FlexGridSizer4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer9->Add(StaticBoxSizer8, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer7 = new wxFlexGridSizer(2, 1, 0, 0);
-    Button1 = new wxButton(Panel1, ID_BUTTON1, _("Check"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON1"));
-    FlexGridSizer7->Add(Button1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Button3 = new wxButton(Panel1, ID_BUTTON3, _("Start"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON3"));
-    FlexGridSizer7->Add(Button3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonCheck = new wxButton(Panel1, ID_BUTTON1, _("Check"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON1"));
+    FlexGridSizer7->Add(ButtonCheck, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonStart = new wxButton(Panel1, ID_BUTTON3, _("Start"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON3"));
+    FlexGridSizer7->Add(ButtonStart, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer9->Add(FlexGridSizer7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer5->Add(FlexGridSizer9, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer4->Add(FlexGridSizer5, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -405,12 +405,12 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer1->SetSizeHints(Panel1);
     MenuBar1 = new wxMenuBar();
     Menu1 = new wxMenu();
-    MenuItem3 = new wxMenuItem(Menu1, ID_MENUITEM1, _("Edit config"), wxEmptyString, wxITEM_NORMAL);
-    Menu1->Append(MenuItem3);
-    MenuItem4 = new wxMenuItem(Menu1, ID_MENUITEM2, _("Edit fps config"), wxEmptyString, wxITEM_NORMAL);
-    Menu1->Append(MenuItem4);
-    MenuItem5 = new wxMenuItem(Menu1, ID_MENUITEM3, _("Refresh\tF5"), wxEmptyString, wxITEM_NORMAL);
-    Menu1->Append(MenuItem5);
+    MenuEditConfig = new wxMenuItem(Menu1, ID_MENUITEM1, _("Edit config"), wxEmptyString, wxITEM_NORMAL);
+    Menu1->Append(MenuEditConfig);
+    MenuEditFpsConfig = new wxMenuItem(Menu1, ID_MENUITEM2, _("Edit fps config"), wxEmptyString, wxITEM_NORMAL);
+    Menu1->Append(MenuEditFpsConfig);
+    MenuRefresh = new wxMenuItem(Menu1, ID_MENUITEM3, _("Refresh\tF5"), wxEmptyString, wxITEM_NORMAL);
+    Menu1->Append(MenuRefresh);
     MenuItem1 = new wxMenuItem(Menu1, idMenuQuit, _("Quit\tAlt-F4"), _("Quit the application"), wxITEM_NORMAL);
     Menu1->Append(MenuItem1);
     MenuBar1->Append(Menu1, _("&File"));
@@ -425,13 +425,13 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     StatusBar1->SetFieldsCount(2,__wxStatusBarWidths_1);
     StatusBar1->SetStatusStyles(2,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
-    SingleInstanceChecker1.Create(_T("Sixemugui-serial_") + wxGetUserId() + _T("_Guard"));
+    SingleInstanceChecker1.Create(_T("gimx-serial_") + wxGetUserId() + _T("_Guard"));
     
     Connect(ID_CHECKBOX4,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnCheckBoxCalibrate);
-    Connect(ID_CHECKBOX2,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnCheckBox2Click);
-    Connect(ID_CHECKBOX3,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnCheckBox3Click);
-    Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnButton1Click1);
-    Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnButton3Click);
+    Connect(ID_CHECKBOX2,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnCheckBoxGuiClick);
+    Connect(ID_CHECKBOX3,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnCheckBoxTerminalClick);
+    Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnButtonCheckClick1);
+    Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnButtonStartClick);
     Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuEditConfig);
     Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuEditFpsConfig);
     Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuRefresh);
@@ -451,9 +451,9 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     homedir = getpwuid(getuid())->pw_dir;
 #endif
 
-    read_filenames(Choice4);
-    read_frequency(ComboBox2);
-    read_devices(ComboBox1);
+    read_filenames(ChoiceConfig);
+    read_frequency(ComboBoxFrequency);
+    read_devices(ComboBoxDevice);
 
     Refresh();
 }
@@ -481,7 +481,7 @@ void sixemuguiFrame::OnAbout(wxCommandEvent& event)
   wxAboutBox(info);
 }
 
-void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
+void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
 {
     string command = "";
     string filename = "";
@@ -495,7 +495,7 @@ void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
 #ifdef WIN32
     command.append("emuclient.exe");
 #else
-    if(CheckBox3->IsChecked())
+    if(CheckBoxTerminal->IsChecked())
     {
         command.append("gnome-terminal -e \"");
     }
@@ -506,16 +506,16 @@ void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
     command.append(" emuclient");
 #endif
     command.append(" --precision 16 --serial");
-    if(!CheckBox1->IsChecked())
+    if(!CheckBoxGrab->IsChecked())
     {
         command.append(" --nograb");
     }
     command.append(" --config ");
-    configname = Choice4->GetStringSelection();
+    configname = ChoiceConfig->GetStringSelection();
     configname.Replace(_(" "), _("\\ "));
     command.append(configname.mb_str());
     command.append(" --refresh ");
-    wxfrequency = ComboBox2->GetValue();
+    wxfrequency = ComboBoxFrequency->GetValue();
     if(wxfrequency.ToDouble(&frequency))
     {
       refresh = 1000 / frequency;
@@ -526,7 +526,7 @@ void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
     }
     ios << refresh;
     command.append(ios.str());
-    if(CheckBox5->IsChecked())
+    if(CheckBoxForceUpdates->IsChecked())
     {
         command.append(" --force-updates");
     }
@@ -534,12 +534,12 @@ void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
 #ifndef WIN32
     command.append("/dev/");
 #endif
-    command.append(ComboBox1->GetValue().mb_str());
-    if(CheckBox2->IsChecked())
+    command.append(ComboBoxDevice->GetValue().mb_str());
+    if(CheckBoxGui->IsChecked())
     {
         command.append(" --status | gimx-status");
     }
-    else if(CheckBox3->IsChecked())
+    else if(CheckBoxTerminal->IsChecked())
     {
         command.append(" --status");
     }
@@ -549,7 +549,7 @@ void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
 
     //cout << command << endl;
 
-    Button3->Disable();
+    ButtonStart->Disable();
 #ifdef WIN32
     filename.append("default");
 #else
@@ -559,7 +559,7 @@ void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
     ofstream outfile (filename.c_str(), ios_base::trunc);
     if(outfile.is_open())
     {
-        outfile << Choice4->GetStringSelection().mb_str() << endl;
+        outfile << ChoiceConfig->GetStringSelection().mb_str() << endl;
         outfile.close();
     }
     filename.erase();
@@ -572,7 +572,7 @@ void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
     ofstream outfile2 (filename.c_str(), ios_base::trunc);
     if(outfile2.is_open())
     {
-        outfile2 << ComboBox2->GetValue().mb_str() << endl;
+        outfile2 << ComboBoxFrequency->GetValue().mb_str() << endl;
         outfile2.close();
     }
     filename.erase();
@@ -585,7 +585,7 @@ void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
     ofstream outfile3 (filename.c_str(), ios_base::trunc);
     if(outfile3.is_open())
     {
-        outfile3 << ComboBox1->GetValue().mb_str() << endl;
+        outfile3 << ComboBoxDevice->GetValue().mb_str() << endl;
         outfile3.close();
     }
 
@@ -594,29 +594,29 @@ void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
         wxMessageBox( wxT("Connection error!\nPlease check the USB to serial device!"), wxT("Error"), wxICON_ERROR);
     }
 
-    Button3->Enable();
+    ButtonStart->Enable();
 }
 
-void sixemuguiFrame::OnCheckBox2Click(wxCommandEvent& event)
+void sixemuguiFrame::OnCheckBoxGuiClick(wxCommandEvent& event)
 {
-    CheckBox3->SetValue(false);
+    CheckBoxTerminal->SetValue(false);
 }
 
-void sixemuguiFrame::OnCheckBox3Click(wxCommandEvent& event)
+void sixemuguiFrame::OnCheckBoxTerminalClick(wxCommandEvent& event)
 {
-    CheckBox2->SetValue(false);
+    CheckBoxGui->SetValue(false);
 }
 
 void sixemuguiFrame::OnCheckBoxCalibrate(wxCommandEvent& event)
 {
-    if(CheckBox4->IsChecked())
+    if(CheckBoxCalibrate->IsChecked())
     {
-        CheckBox2->SetValue(true);
-        CheckBox3->SetValue(false);
+        CheckBoxGui->SetValue(true);
+        CheckBoxTerminal->SetValue(false);
     }
     else
     {
-        CheckBox2->SetValue(false);
+        CheckBoxGui->SetValue(false);
     }
 }
 
@@ -626,7 +626,7 @@ void sixemuguiFrame::OnCheckBoxCalibrate(wxCommandEvent& event)
 #define CHECK_FILE "/tmp/check_result"
 #endif
 
-void sixemuguiFrame::OnButton1Click1(wxCommandEvent& event)
+void sixemuguiFrame::OnButtonCheckClick1(wxCommandEvent& event)
 {
     string command = "";
     string filename = "";
@@ -640,7 +640,7 @@ void sixemuguiFrame::OnButton1Click1(wxCommandEvent& event)
     command.append("emuclient");
 #endif
     command.append(" --config ");
-    configname = Choice4->GetStringSelection();
+    configname = ChoiceConfig->GetStringSelection();
     configname.Replace(_(" "), _("\\ "));
     command.append(configname.mb_str());
     command.append(" --check --nograb > ");
@@ -682,7 +682,7 @@ void sixemuguiFrame::OnMenuEditConfig(wxCommandEvent& event)
   string command = "";
 #ifdef WIN32
   command.append("gimx-config.exe -f ");
-  command.append(Choice4->GetStringSelection().mb_str());
+  command.append(ChoiceConfig->GetStringSelection().mb_str());
 
   STARTUPINFOA startupInfo =
   { 0};
@@ -713,7 +713,7 @@ void sixemuguiFrame::OnMenuEditConfig(wxCommandEvent& event)
 #else
   command.append("gimx-config");
   command.append(" -f ");
-  command.append(Choice4->GetStringSelection().mb_str());
+  command.append(ChoiceConfig->GetStringSelection().mb_str());
   command.append(" &");
 
   if (system(command.c_str()) != 0)
@@ -729,7 +729,7 @@ void sixemuguiFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
   string command = "";
 #ifdef WIN32
   command.append("gimx-fpsconfig.exe -f ");
-  command.append(Choice4->GetStringSelection().mb_str());
+  command.append(ChoiceConfig->GetStringSelection().mb_str());
 
   STARTUPINFOA startupInfo =
   { 0};
@@ -760,7 +760,7 @@ void sixemuguiFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
 #else
   command.append("gimx-fpsconfig");
   command.append(" -f ");
-  command.append(Choice4->GetStringSelection().mb_str());
+  command.append(ChoiceConfig->GetStringSelection().mb_str());
   command.append(" &");
 
   if (system(command.c_str()) != 0)
@@ -773,12 +773,12 @@ void sixemuguiFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
 
 void sixemuguiFrame::OnMenuRefresh(wxCommandEvent& event)
 {
-    wxString previous = Choice4->GetStringSelection();
-    Choice4->Clear();
-    read_filenames(Choice4);
-    Choice4->SetSelection(Choice4->FindString(previous));
-    previous = ComboBox1->GetStringSelection();
-    ComboBox1->Clear();
-    read_devices(ComboBox1);
-    ComboBox1->SetSelection(ComboBox1->FindString(previous));
+    wxString previous = ChoiceConfig->GetStringSelection();
+    ChoiceConfig->Clear();
+    read_filenames(ChoiceConfig);
+    ChoiceConfig->SetSelection(ChoiceConfig->FindString(previous));
+    previous = ComboBoxDevice->GetStringSelection();
+    ComboBoxDevice->Clear();
+    read_devices(ComboBoxDevice);
+    ComboBoxDevice->SetSelection(ComboBoxDevice->FindString(previous));
 }
