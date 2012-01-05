@@ -21,6 +21,7 @@
 #define JS 1
 #define PS2 0
 #define PS3 0
+#define X360 0
 
 static int debug;
 
@@ -75,6 +76,11 @@ void serial_send(int force_update)
       0x02,0x1f,0x02,0x02,
       0x01,0x9c,0x00,0x05
   };
+#endif
+#if X360
+  s_report_360 report =
+  { .type = 0x00, .size = 0x14 };
+  int axis_value;
 #endif
   int i;
   struct timeval tv;
@@ -282,6 +288,106 @@ void serial_send(int force_update)
         buf[14 + i] = state[0].user.button[analog_order[i]].value;
 #endif
 
+#if X360
+    if (state[0].user.button[sb_up].pressed)
+    {
+      report.buttons |= 0x0001;
+    }
+    if (state[0].user.button[sb_down].pressed)
+    {
+      report.buttons |= 0x0002;
+    }
+    if (state[0].user.button[sb_left].pressed)
+    {
+      report.buttons |= 0x0004;
+    }
+    if (state[0].user.button[sb_right].pressed)
+    {
+      report.buttons |= 0x0008;
+    }
+
+    if (state[0].user.button[sb_start].pressed)
+    {
+      report.buttons |= 0x0010;
+    }
+    if (state[0].user.button[sb_select].pressed)
+    {
+      report.buttons |= 0x0020;
+    }
+    if (state[0].user.button[sb_l3].pressed)
+    {
+      report.buttons |= 0x0040;
+    }
+    if (state[0].user.button[sb_r3].pressed)
+    {
+      report.buttons |= 0x0080;
+    }
+
+    if (state[0].user.button[sb_l1].pressed)
+    {
+      report.buttons |= 0x0100;
+    }
+    if (state[0].user.button[sb_r1].pressed)
+    {
+      report.buttons |= 0x0200;
+    }
+    if (state[0].user.button[sb_ps].pressed)
+    {
+      report.buttons |= 0x0400;
+    }
+
+    if (state[0].user.button[sb_cross].pressed)
+    {
+      report.buttons |= 0x1000;
+    }
+    if (state[0].user.button[sb_circle].pressed)
+    {
+      report.buttons |= 0x2000;
+    }
+    if (state[0].user.button[sb_square].pressed)
+    {
+      report.buttons |= 0x4000;
+    }
+    if (state[0].user.button[sb_triangle].pressed)
+    {
+      report.buttons |= 0x8000;
+    }
+
+    if (state[0].user.button[sb_l2].pressed)
+    {
+      report.ltrigger = 0xFF;
+    }
+    if (state[0].user.button[sb_r2].pressed)
+    {
+      report.rtrigger = 0xFF;
+    }
+
+    axis_value = state[0].user.axis[0][0] / 255;
+    report.xaxis = clamp(-128, axis_value, 127) << 8;
+    if(axis_value > 127)
+    {
+      report.xaxis |= 0xFF;
+    }
+    axis_value = - state[0].user.axis[0][1] / 255;
+    report.yaxis = clamp(-128, axis_value, 127) << 8;
+    if(axis_value > 127)
+    {
+      report.yaxis |= 0xFF;
+    }
+    axis_value = state[0].user.axis[1][0] / 255;
+    report.zaxis = clamp(-128, axis_value, 127) << 8;
+    if(axis_value > 127)
+    {
+      report.zaxis |= 0xFF;
+    }
+    axis_value = -state[0].user.axis[1][1] / 255;
+    report.taxis = clamp(-128, axis_value, 127) << 8;
+    if(axis_value > 127)
+    {
+      report.taxis |= 0xFF;
+    }
+#endif
+
 #ifdef WIN32
     win_serial_send(&data, sizeof(data));
 #else
@@ -293,6 +399,9 @@ void serial_send(int force_update)
 #endif
 #if PS3
     lin_serial_send(buf, sizeof(buf));
+#endif
+#if X360
+    lin_serial_send(&report, sizeof(report));
 #endif
 #endif
 

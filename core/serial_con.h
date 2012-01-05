@@ -34,6 +34,20 @@ typedef struct
   int8_t Y;
 } s_report_data2;
 
+typedef struct
+{
+  uint8_t type;
+  uint8_t size;
+  uint16_t buttons;
+  uint8_t ltrigger;
+  uint8_t rtrigger;
+  uint16_t xaxis;
+  uint16_t yaxis;
+  uint16_t zaxis;
+  uint16_t taxis;
+  uint8_t unused[6];
+} s_report_360;
+
 int serial_connect(char*);
 void serial_send(int);
 void serial_close();
