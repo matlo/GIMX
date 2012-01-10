@@ -2,7 +2,7 @@
 <wxsmith>
 	<object class="wxFrame" name="sixemuguiFrame">
 		<title>Gimx-serial</title>
-		<size>412,420</size>
+		<size>412,470</size>
 		<id_arg>0</id_arg>
 		<object class="wxPanel" name="ID_PANEL1" variable="Panel1" member="yes">
 			<size>0,0</size>
@@ -53,8 +53,41 @@
 										<cols>1</cols>
 										<rows>2</rows>
 										<object class="sizeritem">
+											<object class="wxFlexGridSizer" variable="FlexGridSizer12" member="no">
+												<cols>2</cols>
+												<rows>1</rows>
+												<object class="sizeritem">
+													<object class="wxStaticText" name="ID_STATICTEXT4" variable="StaticText4" member="yes">
+														<label>Controller</label>
+													</object>
+													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+													<border>5</border>
+													<option>1</option>
+												</object>
+												<object class="sizeritem">
+													<object class="wxComboBox" name="ID_COMBOBOX3" variable="ControllerType" member="yes">
+														<content>
+															<item>Joystick</item>
+															<item>360 pad</item>
+															<item>Sixaxis</item>
+															<item>PS2 pad</item>
+														</content>
+														<selection>0</selection>
+														<size>100,-1</size>
+													</object>
+													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+													<border>5</border>
+													<option>1</option>
+												</object>
+											</object>
+											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+											<border>5</border>
+											<option>1</option>
+										</object>
+										<object class="sizeritem">
 											<object class="wxFlexGridSizer" variable="FlexGridSizer6" member="no">
 												<cols>3</cols>
+												<rows>1</rows>
 												<object class="sizeritem">
 													<object class="wxStaticText" name="ID_STATICTEXT1" variable="StaticText1" member="yes">
 														<label>Update frequency </label>

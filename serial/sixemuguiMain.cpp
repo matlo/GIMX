@@ -75,6 +75,8 @@ wxString wxbuildinfo(wxbuildinfoformat format)
 //(*IdInit(sixemuguiFrame)
 const long sixemuguiFrame::ID_STATICTEXT3 = wxNewId();
 const long sixemuguiFrame::ID_COMBOBOX1 = wxNewId();
+const long sixemuguiFrame::ID_STATICTEXT4 = wxNewId();
+const long sixemuguiFrame::ID_COMBOBOX3 = wxNewId();
 const long sixemuguiFrame::ID_STATICTEXT1 = wxNewId();
 const long sixemuguiFrame::ID_COMBOBOX2 = wxNewId();
 const long sixemuguiFrame::ID_STATICTEXT2 = wxNewId();
@@ -326,6 +328,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     wxStaticBoxSizer* StaticBoxSizer8;
     wxStaticBoxSizer* StaticBoxSizer6;
     wxFlexGridSizer* FlexGridSizer8;
+    wxFlexGridSizer* FlexGridSizer12;
     wxMenuBar* MenuBar1;
     wxFlexGridSizer* FlexGridSizer6;
     wxFlexGridSizer* FlexGridSizer1;
@@ -334,7 +337,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     wxStaticBoxSizer* StaticBoxSizer5;
     
     Create(parent, wxID_ANY, _("Gimx-serial"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
-    SetClientSize(wxSize(412,420));
+    SetClientSize(wxSize(412,470));
     Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxSize(0,0), wxTAB_TRAVERSAL, _T("ID_PANEL1"));
     FlexGridSizer1 = new wxFlexGridSizer(2, 1, 0, 0);
     StaticBoxSizer2 = new wxStaticBoxSizer(wxVERTICAL, Panel1, _("USB to serial"));
@@ -348,7 +351,17 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     StaticBoxSizer4 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("emuclient"));
     FlexGridSizer5 = new wxFlexGridSizer(3, 1, 0, 0);
     FlexGridSizer2 = new wxFlexGridSizer(2, 1, 0, 0);
-    FlexGridSizer6 = new wxFlexGridSizer(0, 3, 0, 0);
+    FlexGridSizer12 = new wxFlexGridSizer(1, 2, 0, 0);
+    StaticText4 = new wxStaticText(Panel1, ID_STATICTEXT4, _("Controller"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT4"));
+    FlexGridSizer12->Add(StaticText4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ControllerType = new wxComboBox(Panel1, ID_COMBOBOX3, wxEmptyString, wxDefaultPosition, wxSize(100,-1), 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX3"));
+    ControllerType->SetSelection( ControllerType->Append(_("Joystick")) );
+    ControllerType->Append(_("360 pad"));
+    ControllerType->Append(_("Sixaxis"));
+    ControllerType->Append(_("PS2 pad"));
+    FlexGridSizer12->Add(ControllerType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer2->Add(FlexGridSizer12, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer6 = new wxFlexGridSizer(1, 3, 0, 0);
     StaticText1 = new wxStaticText(Panel1, ID_STATICTEXT1, _("Update frequency "), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
     FlexGridSizer6->Add(StaticText1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ComboBoxFrequency = new wxComboBox(Panel1, ID_COMBOBOX2, wxEmptyString, wxDefaultPosition, wxSize(75,-1), 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX2"));
@@ -492,6 +505,31 @@ void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
     wxString wxfrequency;
     wxString configname;
 
+    if(ControllerType->GetStringSelection() == _("360 pad"))
+    {
+      {
+        wxMessageBox( _("1. Make sure a single genuine 360 controller is connected to the PC.\n"
+            "2. Make sure the adapter is connected to the PC.\n"
+            "3. Make sure the adapter is NOT connected to the 360.\n"
+            "4. Press OK, and connect the adapter to the 360 after 2-3 seconds."), wxT("Info"), wxICON_INFORMATION);
+      }
+#ifdef WIN32
+      command.append("usbspoof.exe");
+#else
+      command.append("usbspoof");
+      command.append(" -p /dev/");
+#endif
+      command.append(ComboBoxDevice->GetValue().mb_str());
+
+      if(system(command.c_str()) != 0)
+      {
+        wxMessageBox( wxT("Spoof error!\nPlease try again!"), wxT("Error"), wxICON_ERROR);
+        return;
+      }
+
+      command.clear();
+    }
+
 #ifdef WIN32
     command.append("emuclient.exe");
 #else
@@ -505,6 +543,18 @@ void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
     }
     command.append(" emuclient");
 #endif
+    if(ControllerType->GetStringSelection() == _("360 pad"))
+    {
+      command.append(" --360pad");
+    }
+    else if(ControllerType->GetStringSelection() == _("Sixaxis"))
+    {
+      command.append(" --sixaxis");
+    }
+    else if(ControllerType->GetStringSelection() == _("PS2 pad"))
+    {
+      command.append(" --PS2pad");
+    }
     command.append(" --precision 16 --serial");
     if(!CheckBoxGrab->IsChecked())
     {

@@ -53,6 +53,8 @@ class sixemuguiFrame: public wxFrame
         //(*Identifiers(sixemuguiFrame)
         static const long ID_STATICTEXT3;
         static const long ID_COMBOBOX1;
+        static const long ID_STATICTEXT4;
+        static const long ID_COMBOBOX3;
         static const long ID_STATICTEXT1;
         static const long ID_COMBOBOX2;
         static const long ID_STATICTEXT2;
@@ -78,6 +80,7 @@ class sixemuguiFrame: public wxFrame
         wxMenuItem* MenuRefresh;
         wxMenuItem* MenuEditFpsConfig;
         wxStaticText* StaticText2;
+        wxComboBox* ControllerType;
         wxCheckBox* CheckBoxGui;
         wxCheckBox* CheckBoxGrab;
         wxComboBox* ComboBoxDevice;
@@ -91,6 +94,7 @@ class sixemuguiFrame: public wxFrame
         wxStatusBar* StatusBar1;
         wxButton* ButtonCheck;
         wxButton* ButtonStart;
+        wxStaticText* StaticText4;
         wxMenuItem* MenuEditConfig;
         wxCheckBox* CheckBoxForceUpdates;
         //*)
