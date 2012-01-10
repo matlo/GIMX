@@ -10,6 +10,14 @@
 
 #include <stdint.h>
 
+typedef enum
+{
+  C_TYPE_JOYSTICK,
+  C_TYPE_360_PAD,
+  C_TYPE_SIXAXIS,
+  C_TYPE_PS2_PAD
+} e_controller_type;
+
 /*
  * The usb report structure to send over the serial connection.
  */
@@ -49,7 +57,7 @@ typedef struct
 } s_report_360;
 
 int serial_connect(char*);
-void serial_send(int);
+void serial_send(e_controller_type, int);
 void serial_close();
 
 #endif /* SERIAL_CON_H_ */

@@ -97,6 +97,7 @@ int main(int argc, char *argv[])
   LARGE_INTEGER t0, t1, freq;
 #endif
   int time_to_sleep;
+  e_controller_type ctype = C_TYPE_JOYSTICK;
 
 #ifndef WIN32
   /*
@@ -164,6 +165,18 @@ int main(int argc, char *argv[])
     else if (!strcmp(argv[i], "--check"))
     {
       check_config = 1;
+    }
+    else if (!strcmp(argv[i], "--360pad"))
+    {
+      ctype = C_TYPE_360_PAD;
+    }
+    else if (!strcmp(argv[i], "--Sixaxis"))
+    {
+      ctype = C_TYPE_SIXAXIS;
+    }
+    else if (!strcmp(argv[i], "--PS2pad"))
+    {
+      ctype = C_TYPE_PS2_PAD;
     }
 //#ifdef WIN32
 //    else if (!strcmp(argv[i], "--ip") && i < argc)
@@ -318,14 +331,14 @@ int main(int argc, char *argv[])
 #ifndef WIN32
     if(serial)
     {
-      serial_send(force_updates);
+      serial_send(ctype, force_updates);
     }
     else
     {
       tcp_send(force_updates);
     }
 #else
-    serial_send(force_updates);
+    serial_send(ctype, force_updates);
 #endif
 
 #ifdef WIN32

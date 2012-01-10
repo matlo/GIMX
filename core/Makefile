@@ -1,7 +1,7 @@
 prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
 confdir=$(DESTDIR)/etc/emuclient
-BINS=emu emuclient sixaddr bdaddr hcirevision
+BINS=emu emuclient sixaddr bdaddr hcirevision usbspoof
 CC=gcc
 CFLAGS=-Wall -O2
 LIB=-L../../libsdl/lib -lSDL -lxml2 -lXi -lm -lpthread
@@ -23,6 +23,9 @@ emuclient: emuclient.o sixaxis.o dump.o macros.o config.o conversion.o config_wr
 
 sixaddr: utils/sixaddr.c
 	$(CC) -o $@ $^ -lusb
+	
+usbspoof: utils/usbspoof.c
+	$(CC) -o $@ $^ -lusb-1.0 -lpthread
 
 bdaddr: utils/bdaddr.c utils/oui.c
 	$(CC) -o $@ $^ -lbluetooth
