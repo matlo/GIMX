@@ -127,25 +127,25 @@ static void _360pad_serial_send()
     report.rtrigger = 0xFF;
   }
 
-  axis_value = state[0].user.axis[0][0] / 255;
+  axis_value = state[0].user.axis[0][0];
   report.xaxis = clamp(-128, axis_value, 127) << 8;
   if(axis_value > 127)
   {
     report.xaxis |= 0xFF;
   }
-  axis_value = - state[0].user.axis[0][1] / 255;
+  axis_value = - state[0].user.axis[0][1];
   report.yaxis = clamp(-128, axis_value, 127) << 8;
   if(axis_value > 127)
   {
     report.yaxis |= 0xFF;
   }
-  axis_value = state[0].user.axis[1][0] / 255;
+  axis_value = state[0].user.axis[1][0];
   report.zaxis = clamp(-128, axis_value, 127) << 8;
   if(axis_value > 127)
   {
     report.zaxis |= 0xFF;
   }
-  axis_value = -state[0].user.axis[1][1] / 255;
+  axis_value = -state[0].user.axis[1][1];
   report.taxis = clamp(-128, axis_value, 127) << 8;
   if(axis_value > 127)
   {
@@ -189,10 +189,10 @@ static void sixaxis_serial_send()
           buf[byte] |= (1 << offset);
   }
 
-  buf[6] = clamp(0, state[0].user.axis[0][0] / 255  + 128, 255);
-  buf[7] = clamp(0, state[0].user.axis[0][1] / 255 + 128, 255);
-  buf[8] = clamp(0, state[0].user.axis[1][0] / 255 + 128, 255);
-  buf[9] = clamp(0, state[0].user.axis[1][1] / 255 + 128, 255);
+  buf[6] = clamp(0, state[0].user.axis[0][0] + mean_axis_value, max_axis_value);
+  buf[7] = clamp(0, state[0].user.axis[0][1] + mean_axis_value, max_axis_value);
+  buf[8] = clamp(0, state[0].user.axis[1][0] + mean_axis_value, max_axis_value);
+  buf[9] = clamp(0, state[0].user.axis[1][1] + mean_axis_value, max_axis_value);
 
   for (i = 0; i < 12; i++)
       buf[14 + i] = state[0].user.button[analog_order[i]].value;
@@ -320,10 +320,10 @@ static void ps2_serial_send()
   s_report_data2 data =
   { .head = 0x5A, .Bt1 = 0xFF, .Bt2 = 0xFF };
 
-  data.X = clamp(0, state[0].user.axis[0][0] + 128, 255);
-  data.Y = clamp(0, state[0].user.axis[0][1] + 128, 255);
-  data.Z = clamp(0, state[0].user.axis[1][0] + 128, 255);
-  data.Rz = clamp(0, state[0].user.axis[1][1] + 128, 255);
+  data.X = clamp(0, state[0].user.axis[0][0] + mean_axis_value, max_axis_value);
+  data.Y = clamp(0, state[0].user.axis[0][1] + mean_axis_value, max_axis_value);
+  data.Z = clamp(0, state[0].user.axis[1][0] + mean_axis_value, max_axis_value);
+  data.Rz = clamp(0, state[0].user.axis[1][1] + mean_axis_value, max_axis_value);
 
   if (state[0].user.button[sb_square].pressed)
   {
