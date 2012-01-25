@@ -76,7 +76,8 @@ wxString wxbuildinfo(wxbuildinfoformat format)
 const long sixemuguiFrame::ID_STATICTEXT3 = wxNewId();
 const long sixemuguiFrame::ID_COMBOBOX1 = wxNewId();
 const long sixemuguiFrame::ID_STATICTEXT4 = wxNewId();
-const long sixemuguiFrame::ID_COMBOBOX3 = wxNewId();
+const long sixemuguiFrame::ID_CHOICE1 = wxNewId();
+const long sixemuguiFrame::ID_BUTTON2 = wxNewId();
 const long sixemuguiFrame::ID_STATICTEXT1 = wxNewId();
 const long sixemuguiFrame::ID_COMBOBOX2 = wxNewId();
 const long sixemuguiFrame::ID_STATICTEXT2 = wxNewId();
@@ -335,7 +336,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer11;
     wxMenu* Menu2;
     wxStaticBoxSizer* StaticBoxSizer5;
-    
+
     Create(parent, wxID_ANY, _("Gimx-serial"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     SetClientSize(wxSize(412,470));
     Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxSize(0,0), wxTAB_TRAVERSAL, _T("ID_PANEL1"));
@@ -351,23 +352,27 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     StaticBoxSizer4 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("emuclient"));
     FlexGridSizer5 = new wxFlexGridSizer(3, 1, 0, 0);
     FlexGridSizer2 = new wxFlexGridSizer(2, 1, 0, 0);
-    FlexGridSizer12 = new wxFlexGridSizer(1, 2, 0, 0);
+    FlexGridSizer12 = new wxFlexGridSizer(1, 3, 0, 0);
     StaticText4 = new wxStaticText(Panel1, ID_STATICTEXT4, _("Controller"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT4"));
     FlexGridSizer12->Add(StaticText4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    ControllerType = new wxComboBox(Panel1, ID_COMBOBOX3, wxEmptyString, wxDefaultPosition, wxSize(100,-1), 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX3"));
+    ControllerType = new wxChoice(Panel1, ID_CHOICE1, wxDefaultPosition, wxSize(100,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
     ControllerType->SetSelection( ControllerType->Append(_("Joystick")) );
     ControllerType->Append(_("360 pad"));
     ControllerType->Append(_("Sixaxis"));
     ControllerType->Append(_("PS2 pad"));
     FlexGridSizer12->Add(ControllerType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonSpoof = new wxButton(Panel1, ID_BUTTON2, _("Spoof"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON2"));
+    ButtonSpoof->Disable();
+    FlexGridSizer12->Add(ButtonSpoof, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer2->Add(FlexGridSizer12, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer6 = new wxFlexGridSizer(1, 3, 0, 0);
     StaticText1 = new wxStaticText(Panel1, ID_STATICTEXT1, _("Update frequency "), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
     FlexGridSizer6->Add(StaticText1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ComboBoxFrequency = new wxComboBox(Panel1, ID_COMBOBOX2, wxEmptyString, wxDefaultPosition, wxSize(75,-1), 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX2"));
-    ComboBoxFrequency->SetSelection( ComboBoxFrequency->Append(_("100")) );
+    ComboBoxFrequency->Append(_("62.5"));
+    ComboBoxFrequency->Append(_("100"));
     ComboBoxFrequency->Append(_("125"));
-    ComboBoxFrequency->Append(_("250"));
+    ComboBoxFrequency->SetSelection( ComboBoxFrequency->Append(_("250")) );
     FlexGridSizer6->Add(ComboBoxFrequency, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText2 = new wxStaticText(Panel1, ID_STATICTEXT2, _("Hz"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
     FlexGridSizer6->Add(StaticText2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -439,7 +444,9 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     StatusBar1->SetStatusStyles(2,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
     SingleInstanceChecker1.Create(_T("gimx-serial_") + wxGetUserId() + _T("_Guard"));
-    
+
+    Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnControllerTypeSelect);
+    Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnButtonSpoofClick);
     Connect(ID_CHECKBOX4,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnCheckBoxCalibrate);
     Connect(ID_CHECKBOX2,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnCheckBoxGuiClick);
     Connect(ID_CHECKBOX3,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnCheckBoxTerminalClick);
@@ -451,6 +458,8 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnQuit);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnAbout);
     //*)
+
+    spoofed = false;
 
     if(SingleInstanceChecker1.IsAnotherRunning())
     {
@@ -505,29 +514,10 @@ void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
     wxString wxfrequency;
     wxString configname;
 
-    if(ControllerType->GetStringSelection() == _("360 pad"))
+    if(ControllerType->GetStringSelection() == _("360 pad") && !spoofed)
     {
-      {
-        wxMessageBox( _("1. Make sure a single genuine 360 controller is connected to the PC.\n"
-            "2. Make sure the adapter is connected to the PC.\n"
-            "3. Make sure the adapter is NOT connected to the 360.\n"
-            "4. Press OK, and connect the adapter to the 360 after 2-3 seconds."), wxT("Info"), wxICON_INFORMATION);
-      }
-#ifdef WIN32
-      command.append("usbspoof.exe");
-#else
-      command.append("usbspoof");
-      command.append(" -p /dev/");
-#endif
-      command.append(ComboBoxDevice->GetValue().mb_str());
-
-      if(system(command.c_str()) != 0)
-      {
-        wxMessageBox( wxT("Spoof error!\nPlease try again!"), wxT("Error"), wxICON_ERROR);
-        return;
-      }
-
-      command.clear();
+      wxMessageBox( wxT("Spoof the 360 controller first!"), wxT("Error"), wxICON_ERROR);
+      return;
     }
 
 #ifdef WIN32
@@ -555,7 +545,15 @@ void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
     {
       command.append(" --PS2pad");
     }
-    command.append(" --precision 16 --serial");
+    if(ControllerType->GetStringSelection() == _("Joystick"))
+    {
+      command.append(" --precision 16");
+    }
+    else
+    {
+      command.append(" --precision 8");
+    }
+    command.append(" --serial");
     if(!CheckBoxGrab->IsChecked())
     {
         command.append(" --nograb");
@@ -831,4 +829,71 @@ void sixemuguiFrame::OnMenuRefresh(wxCommandEvent& event)
     ComboBoxDevice->Clear();
     read_devices(ComboBoxDevice);
     ComboBoxDevice->SetSelection(ComboBoxDevice->FindString(previous));
+}
+
+void sixemuguiFrame::OnControllerTypeSelect(wxCommandEvent& event)
+{
+    if(!spoofed && (ControllerType->GetStringSelection() == _("360 pad")
+       || ControllerType->GetStringSelection() == _("Sixaxis")))
+    {
+      ButtonSpoof->Enable(true);
+    }
+    else
+    {
+      ButtonSpoof->Enable(false);
+    }
+    if(ControllerType->GetStringSelection() == _("Joystick"))
+    {
+      ComboBoxFrequency->SetSelection(3);
+      ComboBoxFrequency->Enable(true);
+    }
+    else if(ControllerType->GetStringSelection() == _("360 pad"))
+    {
+      ComboBoxFrequency->SetSelection(2);
+      ComboBoxFrequency->Enable(false);
+    }
+    else if(ControllerType->GetStringSelection() == _("Sixaxis"))
+    {
+      ComboBoxFrequency->SetSelection(1);
+      ComboBoxFrequency->Enable(false);
+    }
+    else if(ControllerType->GetStringSelection() == _("PS2 pad"))
+    {
+      ComboBoxFrequency->SetSelection(0);
+      ComboBoxFrequency->Enable(false);
+    }
+}
+
+void sixemuguiFrame::OnButtonSpoofClick(wxCommandEvent& event)
+{
+    string command = "";
+
+    if(ControllerType->GetStringSelection() == _("360 pad") && !spoofed)
+    {
+      {
+        wxMessageBox( _("1. Make sure a single genuine 360 controller is connected to the PC.\n"
+            "2. Make sure the adapter is connected to the PC.\n"
+            "3. Make sure the adapter is NOT connected to the 360.\n"
+            "4. Press OK, and connect the adapter to the 360 after 2-3 seconds."), wxT("Info"), wxICON_INFORMATION);
+      }
+#ifdef WIN32
+      command.append("usbspoof.exe -p ");
+#else
+      command.append("usbspoof -p /dev/");
+#endif
+      command.append(ComboBoxDevice->GetValue().mb_str());
+
+      if(system(command.c_str()) != 0)
+      {
+        spoofed = false;
+        wxMessageBox( wxT("Spoof error!\nPlease try again!"), wxT("Error"), wxICON_ERROR);
+        return;
+      }
+      else
+      {
+        wxMessageBox( _("Spoof successful!"), wxT("Info"), wxICON_INFORMATION);
+        spoofed = true;
+        ButtonSpoof->Enable(false);
+      }
+    }
 }

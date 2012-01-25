@@ -48,13 +48,16 @@ class sixemuguiFrame: public wxFrame
         void OnMenuEditConfig(wxCommandEvent& event);
         void OnMenuEditFpsConfig(wxCommandEvent& event);
         void OnMenuRefresh(wxCommandEvent& event);
+        void OnControllerTypeSelect(wxCommandEvent& event);
+        void OnButtonSpoofClick(wxCommandEvent& event);
         //*)
 
         //(*Identifiers(sixemuguiFrame)
         static const long ID_STATICTEXT3;
         static const long ID_COMBOBOX1;
         static const long ID_STATICTEXT4;
-        static const long ID_COMBOBOX3;
+        static const long ID_CHOICE1;
+        static const long ID_BUTTON2;
         static const long ID_STATICTEXT1;
         static const long ID_COMBOBOX2;
         static const long ID_STATICTEXT2;
@@ -80,7 +83,6 @@ class sixemuguiFrame: public wxFrame
         wxMenuItem* MenuRefresh;
         wxMenuItem* MenuEditFpsConfig;
         wxStaticText* StaticText2;
-        wxComboBox* ControllerType;
         wxCheckBox* CheckBoxGui;
         wxCheckBox* CheckBoxGrab;
         wxComboBox* ComboBoxDevice;
@@ -91,13 +93,17 @@ class sixemuguiFrame: public wxFrame
         wxStaticText* StaticText3;
         wxComboBox* ComboBoxFrequency;
         wxSingleInstanceChecker SingleInstanceChecker1;
+        wxChoice* ControllerType;
         wxStatusBar* StatusBar1;
         wxButton* ButtonCheck;
+        wxButton* ButtonSpoof;
         wxButton* ButtonStart;
         wxStaticText* StaticText4;
         wxMenuItem* MenuEditConfig;
         wxCheckBox* CheckBoxForceUpdates;
         //*)
+
+        bool spoofed;
 
         DECLARE_EVENT_TABLE()
 };
