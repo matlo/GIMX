@@ -436,7 +436,7 @@
 									</object>
 									<object class="sizeritem">
 										<object class="wxStaticText" name="ID_STATICTEXT41" variable="StaticText41" member="yes">
-											<label>Config (rctrl+F2):</label>
+											<label>Config (F2):</label>
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
@@ -468,7 +468,7 @@
 													<rows>2</rows>
 													<object class="sizeritem">
 														<object class="wxStaticText" name="ID_STATICTEXT19" variable="StaticText19" member="yes">
-															<label>x (rctrl + F3):</label>
+															<label>x (F3):</label>
 														</object>
 														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 														<border>5</border>
@@ -484,7 +484,7 @@
 													</object>
 													<object class="sizeritem">
 														<object class="wxStaticText" name="ID_STATICTEXT20" variable="StaticText20" member="yes">
-															<label>x/y ratio (rctrl + F4):</label>
+															<label>x/y ratio (F4):</label>
 														</object>
 														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 														<border>5</border>
@@ -517,7 +517,7 @@
 													<rows>3</rows>
 													<object class="sizeritem">
 														<object class="wxStaticText" name="ID_STATICTEXT23" variable="StaticText23" member="yes">
-															<label>x (rctrl + F5):</label>
+															<label>x (F5):</label>
 														</object>
 														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 														<border>5</border>
@@ -533,7 +533,7 @@
 													</object>
 													<object class="sizeritem">
 														<object class="wxStaticText" name="ID_STATICTEXT25" variable="StaticText25" member="yes">
-															<label>y (rctrl + F6):</label>
+															<label>y (F6):</label>
 														</object>
 														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 														<border>5</border>
@@ -549,7 +549,7 @@
 													</object>
 													<object class="sizeritem">
 														<object class="wxStaticText" name="ID_STATICTEXT37" variable="StaticText37" member="yes">
-															<label>Shape (rctrl + F7):</label>
+															<label>Shape (F7):</label>
 														</object>
 														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 														<border>5</border>
@@ -582,7 +582,7 @@
 													<rows>2</rows>
 													<object class="sizeritem">
 														<object class="wxStaticText" name="ID_STATICTEXT27" variable="StaticText27" member="yes">
-															<label>x (rctrl + F8):</label>
+															<label>x (F8):</label>
 														</object>
 														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 														<border>5</border>
@@ -598,7 +598,7 @@
 													</object>
 													<object class="sizeritem">
 														<object class="wxStaticText" name="ID_STATICTEXT29" variable="StaticText29" member="yes">
-															<label>y (rctrl + F9):</label>
+															<label>y (F9):</label>
 														</object>
 														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 														<border>5</border>
@@ -648,7 +648,7 @@
 													</object>
 													<object class="sizeritem">
 														<object class="wxStaticText" name="ID_STATICTEXT36" variable="StaticText36" member="yes">
-															<label>radius (rctrl + F10):</label>
+															<label>radius (F10):</label>
 														</object>
 														<flag>wxALL|wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL</flag>
 														<border>5</border>
@@ -664,7 +664,7 @@
 													</object>
 													<object class="sizeritem">
 														<object class="wxStaticText" name="ID_STATICTEXT44" variable="StaticText44" member="yes">
-															<label>velocity (rctrl + F11):</label>
+															<label>velocity (F11):</label>
 														</object>
 														<flag>wxALL|wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL</flag>
 														<border>5</border>
@@ -680,7 +680,7 @@
 													</object>
 													<object class="sizeritem">
 														<object class="wxStaticText" name="ID_STATICTEXT48" variable="StaticText48" member="yes">
-															<label>Translation (rctrl + F12)</label>
+															<label>Translation (F12)</label>
 														</object>
 														<flag>wxALL|wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL</flag>
 														<border>5</border>
