@@ -338,7 +338,7 @@ void cal_key(int device_id, int sym, int down)
       }
       break;
     case SDLK_F1:
-      if (down && rctrl)
+      if (down && (rctrl || lctrl))
       {
         if (current_cal == NONE)
         {
@@ -358,7 +358,7 @@ void cal_key(int device_id, int sym, int down)
       }
       break;
     case SDLK_F2:
-      if (down && rctrl)
+      if (down && current_cal != NONE)
       {
         if (current_cal == CC)
         {
@@ -373,7 +373,7 @@ void cal_key(int device_id, int sym, int down)
       }
       break;
     case SDLK_F3:
-      if (down && rctrl && current_cal != NONE)
+      if (down && current_cal != NONE)
       {
         if (current_conf >= 0 && current_mouse >= 0)
         {
@@ -383,7 +383,7 @@ void cal_key(int device_id, int sym, int down)
       }
       break;
     case SDLK_F4:
-      if (down && rctrl && current_cal != NONE)
+      if (down && current_cal != NONE)
       {
         if (current_conf >= 0 && current_mouse >= 0)
         {
@@ -393,7 +393,7 @@ void cal_key(int device_id, int sym, int down)
       }
       break;
     case SDLK_F5:
-      if (down && rctrl && current_cal != NONE)
+      if (down && current_cal != NONE)
       {
         if (current_conf >= 0 && current_mouse >= 0)
         {
@@ -406,7 +406,7 @@ void cal_key(int device_id, int sym, int down)
       }
       break;
     case SDLK_F6:
-      if (down && rctrl && current_cal != NONE)
+      if (down && current_cal != NONE)
       {
         if (current_conf >= 0 && current_mouse >= 0)
         {
@@ -419,7 +419,7 @@ void cal_key(int device_id, int sym, int down)
       }
       break;
     case SDLK_F7:
-      if (down && rctrl && current_cal != NONE)
+      if (down && current_cal != NONE)
       {
         if (current_conf >= 0 && current_mouse >= 0)
         {
@@ -432,7 +432,7 @@ void cal_key(int device_id, int sym, int down)
       }
       break;
     case SDLK_F8:
-      if (down && rctrl && current_cal != NONE)
+      if (down && current_cal != NONE)
       {
         if (current_conf >= 0 && current_mouse >= 0)
         {
@@ -442,7 +442,7 @@ void cal_key(int device_id, int sym, int down)
       }
       break;
     case SDLK_F9:
-      if (down && rctrl && current_cal != NONE)
+      if (down && current_cal != NONE)
       {
         if (current_conf >= 0 && current_mouse >= 0)
         {
@@ -452,7 +452,7 @@ void cal_key(int device_id, int sym, int down)
       }
       break;
     case SDLK_F10:
-      if (down && rctrl && current_cal != NONE)
+      if (down && current_cal != NONE)
       {
         if (current_conf >= 0 && current_mouse >= 0)
         {
@@ -470,7 +470,7 @@ void cal_key(int device_id, int sym, int down)
       }
       break;
     case SDLK_F11:
-      if (down && rctrl && current_cal != NONE)
+      if (down && current_cal != NONE)
       {
         if (current_conf >= 0 && current_mouse >= 0)
         {
@@ -488,7 +488,7 @@ void cal_key(int device_id, int sym, int down)
       }
       break;
     case SDLK_F12:
-      if (down && rctrl && current_cal != NONE)
+      if (down && current_cal != NONE)
       {
         if (current_conf >= 0 && current_mouse >= 0)
         {
