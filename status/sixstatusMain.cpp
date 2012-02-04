@@ -146,7 +146,8 @@ typedef enum
   RD,
   VE,
   EX,
-  EY
+  EY,
+  TEST
 }e_current_cal;
 
 static e_current_cal current_cal;
@@ -255,6 +256,10 @@ void read_status(void)
         else if(!s.compare(0, 30, "adjusting circle test velocity"))
         {
             current_cal = VE;
+        }
+        else if(!s.compare(0, 24, "translation test started"))
+        {
+            current_cal = TEST;
         }
         else if(!s.compare(0, 13, "multiplier_x:"))
         {
@@ -617,7 +622,7 @@ sixstatusFrame::sixstatusFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer8->Add(StaticText39, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText38 = new wxStaticText(this, ID_STATICTEXT38, _("Name id"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT38"));
     FlexGridSizer8->Add(StaticText38, 1, wxALL|wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText41 = new wxStaticText(this, ID_STATICTEXT41, _("Config (rctrl+F2):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT41"));
+    StaticText41 = new wxStaticText(this, ID_STATICTEXT41, _("Config (F2):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT41"));
     FlexGridSizer8->Add(StaticText41, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText40 = new wxStaticText(this, ID_STATICTEXT40, _("0"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT40"));
     FlexGridSizer8->Add(StaticText40, 1, wxALL|wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL, 5);
@@ -625,11 +630,11 @@ sixstatusFrame::sixstatusFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer7 = new wxFlexGridSizer(1, 4, 0, 0);
     StaticBoxSizer1 = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Multiplier"));
     FlexGridSizer3 = new wxFlexGridSizer(2, 2, 0, 0);
-    StaticText19 = new wxStaticText(this, ID_STATICTEXT19, _("x (rctrl + F3):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT19"));
+    StaticText19 = new wxStaticText(this, ID_STATICTEXT19, _("x (F3):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT19"));
     FlexGridSizer3->Add(StaticText19, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText21 = new wxStaticText(this, ID_STATICTEXT21, _("00.00"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT21"));
     FlexGridSizer3->Add(StaticText21, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText20 = new wxStaticText(this, ID_STATICTEXT20, _("x/y ratio (rctrl + F4):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT20"));
+    StaticText20 = new wxStaticText(this, ID_STATICTEXT20, _("x/y ratio (F4):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT20"));
     FlexGridSizer3->Add(StaticText20, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText22 = new wxStaticText(this, ID_STATICTEXT22, _("00.00"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT22"));
     FlexGridSizer3->Add(StaticText22, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -637,15 +642,15 @@ sixstatusFrame::sixstatusFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer7->Add(StaticBoxSizer1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer3 = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Dead zone"));
     FlexGridSizer4 = new wxFlexGridSizer(3, 2, 0, 0);
-    StaticText23 = new wxStaticText(this, ID_STATICTEXT23, _("x (rctrl + F5):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT23"));
+    StaticText23 = new wxStaticText(this, ID_STATICTEXT23, _("x (F5):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT23"));
     FlexGridSizer4->Add(StaticText23, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText24 = new wxStaticText(this, ID_STATICTEXT24, _("000"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT24"));
     FlexGridSizer4->Add(StaticText24, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText25 = new wxStaticText(this, ID_STATICTEXT25, _("y (rctrl + F6):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT25"));
+    StaticText25 = new wxStaticText(this, ID_STATICTEXT25, _("y (F6):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT25"));
     FlexGridSizer4->Add(StaticText25, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText26 = new wxStaticText(this, ID_STATICTEXT26, _("000"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT26"));
     FlexGridSizer4->Add(StaticText26, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText37 = new wxStaticText(this, ID_STATICTEXT37, _("Shape (rctrl + F7):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT37"));
+    StaticText37 = new wxStaticText(this, ID_STATICTEXT37, _("Shape (F7):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT37"));
     FlexGridSizer4->Add(StaticText37, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText34 = new wxStaticText(this, ID_STATICTEXT34, _("Rectangle"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT34"));
     FlexGridSizer4->Add(StaticText34, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -653,11 +658,11 @@ sixstatusFrame::sixstatusFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer7->Add(StaticBoxSizer3, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer4 = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Exponent"));
     FlexGridSizer2 = new wxFlexGridSizer(2, 2, 0, 0);
-    StaticText27 = new wxStaticText(this, ID_STATICTEXT27, _("x (rctrl + F8):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT27"));
+    StaticText27 = new wxStaticText(this, ID_STATICTEXT27, _("x (F8):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT27"));
     FlexGridSizer2->Add(StaticText27, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText28 = new wxStaticText(this, ID_STATICTEXT28, _("0.00"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT28"));
     FlexGridSizer2->Add(StaticText28, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText29 = new wxStaticText(this, ID_STATICTEXT29, _("y (rctrl + F9):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT29"));
+    StaticText29 = new wxStaticText(this, ID_STATICTEXT29, _("y (F9):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT29"));
     FlexGridSizer2->Add(StaticText29, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText30 = new wxStaticText(this, ID_STATICTEXT30, _("0.00"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT30"));
     FlexGridSizer2->Add(StaticText30, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -669,15 +674,15 @@ sixstatusFrame::sixstatusFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer6->Add(StaticText46, 1, wxALL|wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL, 5);
     StaticText47 = new wxStaticText(this, ID_STATICTEXT47, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT47"));
     FlexGridSizer6->Add(StaticText47, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText36 = new wxStaticText(this, ID_STATICTEXT36, _("radius (rctrl + F10):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT36"));
+    StaticText36 = new wxStaticText(this, ID_STATICTEXT36, _("radius (F10):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT36"));
     FlexGridSizer6->Add(StaticText36, 1, wxALL|wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL, 5);
     StaticText35 = new wxStaticText(this, ID_STATICTEXT35, _("00000"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT35"));
     FlexGridSizer6->Add(StaticText35, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText44 = new wxStaticText(this, ID_STATICTEXT44, _("velocity (rctrl + F11):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT44"));
+    StaticText44 = new wxStaticText(this, ID_STATICTEXT44, _("velocity (F11):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT44"));
     FlexGridSizer6->Add(StaticText44, 1, wxALL|wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL, 5);
     StaticText45 = new wxStaticText(this, ID_STATICTEXT45, _("000"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT45"));
     FlexGridSizer6->Add(StaticText45, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText48 = new wxStaticText(this, ID_STATICTEXT48, _("Translation (rctrl + F12)"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT48"));
+    StaticText48 = new wxStaticText(this, ID_STATICTEXT48, _("Translation (F12)"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT48"));
     FlexGridSizer6->Add(StaticText48, 1, wxALL|wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer7->Add(FlexGridSizer6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer7->Add(StaticBoxSizer7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -959,6 +964,20 @@ void sixstatusFrame::TextColor()
       set_text_color(StaticText26, wxColour(0, 0, 0));
       set_text_color(StaticText28, wxColour(0, 0, 0));
       set_text_color(StaticText30, wxColour(255, 0, 0));
+      set_text_color(StaticText34, wxColour(0, 0, 0));
+      set_text_color(StaticText35, wxColour(0, 0, 0));
+      set_text_color(StaticText45, wxColour(0, 0, 0));
+      break;
+    case TEST:
+      set_text_color(StaticText43, wxColour(0, 0, 0));
+      set_text_color(StaticText38, wxColour(0, 0, 0));
+      set_text_color(StaticText40, wxColour(0, 0, 0));
+      set_text_color(StaticText21, wxColour(0, 0, 0));
+      set_text_color(StaticText22, wxColour(0, 0, 0));
+      set_text_color(StaticText24, wxColour(0, 0, 0));
+      set_text_color(StaticText26, wxColour(0, 0, 0));
+      set_text_color(StaticText28, wxColour(0, 0, 0));
+      set_text_color(StaticText30, wxColour(0, 0, 0));
       set_text_color(StaticText34, wxColour(0, 0, 0));
       set_text_color(StaticText35, wxColour(0, 0, 0));
       set_text_color(StaticText45, wxColour(0, 0, 0));
