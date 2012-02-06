@@ -336,7 +336,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer11;
     wxMenu* Menu2;
     wxStaticBoxSizer* StaticBoxSizer5;
-
+    
     Create(parent, wxID_ANY, _("Gimx-serial"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     SetClientSize(wxSize(412,470));
     Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxSize(0,0), wxTAB_TRAVERSAL, _T("ID_PANEL1"));
@@ -357,6 +357,8 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer12->Add(StaticText4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ControllerType = new wxChoice(Panel1, ID_CHOICE1, wxDefaultPosition, wxSize(100,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
     ControllerType->SetSelection( ControllerType->Append(_("Joystick")) );
+    ControllerType->Append(_("GPP(360)"));
+    ControllerType->Append(_("GPP(PS3)"));
     ControllerType->Append(_("360 pad"));
     ControllerType->Append(_("Sixaxis"));
     ControllerType->Append(_("PS2 pad"));
@@ -444,7 +446,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     StatusBar1->SetStatusStyles(2,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
     SingleInstanceChecker1.Create(_T("gimx-serial_") + wxGetUserId() + _T("_Guard"));
-
+    
     Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnControllerTypeSelect);
     Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnButtonSpoofClick);
     Connect(ID_CHECKBOX4,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnCheckBoxCalibrate);
@@ -533,7 +535,15 @@ void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
     }
     command.append(" emuclient");
 #endif
-    if(ControllerType->GetStringSelection() == _("360 pad"))
+    if(ControllerType->GetStringSelection() == _("Joystick"))
+    {
+      command.append(" --joystick");
+    }
+    else if(ControllerType->GetStringSelection().StartsWith(_("GPP")))
+    {
+      command.append(" --GPP");
+    }
+    else if(ControllerType->GetStringSelection() == _("360 pad"))
     {
       command.append(" --360pad");
     }
@@ -846,6 +856,16 @@ void sixemuguiFrame::OnControllerTypeSelect(wxCommandEvent& event)
     {
       ComboBoxFrequency->SetSelection(3);
       ComboBoxFrequency->Enable(true);
+    }
+    else if(ControllerType->GetStringSelection() == _("GPP(360)"))
+    {
+      ComboBoxFrequency->SetSelection(2);
+      ComboBoxFrequency->Enable(false);
+    }
+    else if(ControllerType->GetStringSelection() == _("GPP(PS3)"))
+    {
+      ComboBoxFrequency->SetSelection(1);
+      ComboBoxFrequency->Enable(false);
     }
     else if(ControllerType->GetStringSelection() == _("360 pad"))
     {

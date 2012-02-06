@@ -68,6 +68,8 @@
 													<object class="wxChoice" name="ID_CHOICE1" variable="ControllerType" member="yes">
 														<content>
 															<item>Joystick</item>
+															<item>GPP(360)</item>
+															<item>GPP(PS3)</item>
 															<item>360 pad</item>
 															<item>Sixaxis</item>
 															<item>PS2 pad</item>
