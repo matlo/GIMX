@@ -10,7 +10,7 @@
 
 #include <libxml/xmlreader.h>
 
-#define DEFAULT_RADIUS 256
+#define DEFAULT_RADIUS 512
 #define DEFAULT_VELOCITY 1
 
 void read_config_file(const char*);

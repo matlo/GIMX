@@ -10,7 +10,6 @@
 #include <SDL/SDL.h>
 #include <unistd.h>
 #include <math.h>
-#include <pthread.h>
 #include "config.h"
 #include "sdl_tools.h"
 #include "config_writter.h"
@@ -65,51 +64,8 @@ inline s_mouse_cal* cal_get_mouse(int mouse, int conf)
 /*
  * Test translation acceleration.
  */
-static void auto_test()
-{
-  int i, k;
-  double d = 0.1;//0.1 inches
-  int dots;
-  int dpi;
-
-  SDL_Event mouse_evt = { };
-
-  dpi = cal_get_mouse(current_mouse, current_conf)->dpi;
-  
-  if(dpi <= 0)
-  {
-    return;
-  }
-
-  for (k = 0; k < 6; ++k)
-  {
-    dots = d*dpi;
-
-    for (i = 0; i < dots; i++)
-    {
-      mouse_evt.motion.xrel = 1;
-      mouse_evt.motion.which = current_mouse;
-      mouse_evt.type = SDL_MOUSEMOTION;
-      SDL_PushEvent(&mouse_evt);
-      usleep(DURATION/dots);
-    }
-
-    usleep(1000000);
-
-    for (i = 0; i < dots/2; i++)
-    {
-      mouse_evt.motion.xrel = -2 * 1;
-      mouse_evt.motion.which = current_mouse;
-      mouse_evt.type = SDL_MOUSEMOTION;
-      SDL_PushEvent(&mouse_evt);
-      usleep(DURATION/dots);
-    }
-
-    usleep(1000000);
-
-    d = d*2;
-  }
-
+//static void auto_test()
+//{
   /*if(mouse_cal[current_mouse][current_conf].dzx)
    {
    state[0].user.axis[1][0] = *mouse_cal[current_mouse][current_conf].dzx;
@@ -161,49 +117,99 @@ static void auto_test()
    state[0].user.axis[1][1] = 0;
    controller[0].send_command = 1;
    }*/
+//}
+
+static double distance = 0.1; //0.1 inches
+static int dots = 0;
+static int direction = 1;
+static int step = 1;
+
+static int timer = 0;
+
+static void translation_test()
+{
+  int dpi;
+
+  SDL_Event mouse_evt =
+  { };
+
+  dpi = cal_get_mouse(current_mouse, current_conf)->dpi;
+
+  if (dpi <= 0)
+  {
+    return;
+  }
+
+  if(timer > 0)
+  {
+    timer--;
+    return;
+  }
+
+  if (dots <= 0)
+  {
+    dots = distance * dpi;
+  }
+
+  mouse_evt.motion.xrel = direction * step;
+  mouse_evt.motion.which = current_mouse;
+  mouse_evt.type = SDL_MOUSEMOTION;
+  SDL_PushEvent(&mouse_evt);
+
+  dots -= step;
+
+  if (dots <= 0)
+  {
+    timer = DURATION / refresh;
+    step *= 2;
+    if (direction < 0)
+    {
+      distance = distance * 2;
+      if (distance > 1)
+      {
+        step = 1;
+        distance = 0.1;
+      }
+    }
+    direction *= -1;
+  }
 }
 
-/*
- *
- */
+static int circle_step = 0;
+
 static void circle_test()
 {
-  int i, j;
-  int dpi;
   SDL_Event mouse_evt = { };
   s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
   int step;
-  int nb_motion;
 
-  dpi = mcal->dpi;
-  
-  if(dpi <= 0)
+  int dpi = mcal->dpi;
+
+  if (dpi <= 0)
   {
     dpi = 5700;
   }
 
-  nb_motion = DEFAULT_REFRESH_PERIOD / refresh;
+  step = mcal->vel;
+  mouse_evt.motion.xrel = round(mcal->rd * pow((double) dpi / 5700, *mcal->ex) * (cos(circle_step * 2 * pi / STEPS) - cos((circle_step - step) * 2 * pi / STEPS)));
+  mouse_evt.motion.yrel = round(mcal->rd * pow((double) dpi / 5700, *mcal->ex) * (sin(circle_step * 2 * pi / STEPS) - sin((circle_step - step) * 2 * pi / STEPS)));
+  mouse_evt.motion.which = current_mouse;
+  mouse_evt.type = SDL_MOUSEMOTION;
+  SDL_PushEvent(&mouse_evt);
 
-  if(!nb_motion)
+  circle_step += step;
+  circle_step = circle_step % STEPS;
+}
+
+void calibration_test()
+{
+  if(current_cal == RD || current_cal == VEL)
   {
-    nb_motion = 1;
+    circle_test();
   }
-
-  while(current_cal == RD || current_cal == VEL)
+  else if(current_cal == TEST)
   {
-    step = mcal->vel;
-    for (i = step; i < STEPS && current_cal != NONE; i += step)
-    {
-      for (j = 0; j < nb_motion && current_cal != NONE; ++j)
-      {
-        mouse_evt.motion.xrel = round(mcal->rd * pow((double)dpi/5700, *mcal->ex) * (cos(i * 2 * pi / STEPS) - cos((i - step) * 2 * pi / STEPS)));
-        mouse_evt.motion.yrel = round(mcal->rd * pow((double)dpi/5700, *mcal->ex) * (sin(i * 2 * pi / STEPS) - sin((i - step) * 2 * pi / STEPS)));
-        mouse_evt.motion.which = current_mouse;
-        mouse_evt.type = SDL_MOUSEMOTION;
-        SDL_PushEvent(&mouse_evt);
-        usleep(refresh / 2);
-      }
-    }
+    translation_test();
   }
 }
 
@@ -296,8 +302,6 @@ static void display_calibration()
  */
 void cal_key(int device_id, int sym, int down)
 {
-  pthread_t thread;
-  pthread_attr_t thread_attr;
   s_mouse_control* mc = cfg_get_mouse_control(current_mouse);
 
   switch (sym)
@@ -327,14 +331,9 @@ void cal_key(int device_id, int sym, int down)
   switch (sym)
   {
     case SDLK_ESCAPE:
-      /*
-       * Ugly stuff to prevent emuclient to crash in case a test thread is running.
-       * Threads will be removed in a future release.
-       */
       if(current_cal != NONE)
       {
         current_cal = NONE;
-        usleep(5000000);
       }
       break;
     case SDLK_F1:
@@ -458,12 +457,8 @@ void cal_key(int device_id, int sym, int down)
         {
           if(current_cal != RD && current_cal != VEL)
           {
-            current_cal = RD;
-            pthread_attr_init(&thread_attr);
-            pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
-            pthread_create(&thread, &thread_attr, (void*) circle_test, NULL);
+            circle_step = 0;
           }
-
           printf("adjusting circle test radius\n");
           current_cal = RD;
         }
@@ -476,12 +471,8 @@ void cal_key(int device_id, int sym, int down)
         {
           if(current_cal != RD && current_cal != VEL)
           {
-            current_cal = VEL;
-            pthread_attr_init(&thread_attr);
-            pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
-            pthread_create(&thread, &thread_attr, (void*) circle_test, NULL);
+            circle_step = 0;
           }
-
           printf("adjusting circle test velocity\n");
           current_cal = VEL;
         }
@@ -492,11 +483,15 @@ void cal_key(int device_id, int sym, int down)
       {
         if (current_conf >= 0 && current_mouse >= 0)
         {
-          current_cal = TEST;
-          pthread_attr_init(&thread_attr);
-          pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
-          pthread_create(&thread, &thread_attr, (void*) auto_test, NULL);
+          if(current_cal != TEST)
+          {
+            distance = 0.1; //0.1 inches
+            dots = 0;
+            direction = 1;
+            step = 1;
+          }
           printf("translation test started\n");
+          current_cal = TEST;
         }
       }
       break;
