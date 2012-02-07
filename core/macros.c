@@ -6,7 +6,6 @@
    License: GPLv3
 */
 
-#include <pthread.h>
 #include <SDL/SDL.h>
 #include <limits.h>
 #include "macros.h"
@@ -14,6 +13,7 @@
 #include <stdio.h>
 #include <dirent.h>
 #include "conversion.h"
+#include <math.h>
 
 #ifdef WIN32
 #include <sys/stat.h>
@@ -45,6 +45,7 @@ typedef struct {
 s_macro_arg macro_arg;
 
 extern char* homedir;
+extern int refresh;
 
 /*
  * This table is used to store all the macros that are read from script files at the initialization of the process.
@@ -88,9 +89,10 @@ SDLKey process_line(const char* line, SDLKey macro) {
     char command[LINE_MAX];
     char argument[LINE_MAX];
     SDLKey key;
-    int delay;
+    int delay_nb;
     s_macro_event_delay** pt = NULL;
     int ret;
+    int i;
 
     if (macro != SDLK_UNKNOWN) {
         pt = macro_table + macro;
@@ -147,7 +149,14 @@ SDLKey process_line(const char* line, SDLKey macro) {
             (*pt)[(*pt)->size - 1].event.type = SDL_KEYDOWN;
             (*pt)[(*pt)->size - 1].event.key.state = SDL_KEYDOWN;
             (*pt)[(*pt)->size - 1].event.key.keysym.sym = key;
-            (*pt)[(*pt)->size - 1].delay = DEFAULT_DELAY;
+            (*pt)[(*pt)->size - 1].delay = 0;
+      
+            delay_nb = ceil((double)DEFAULT_DELAY / (refresh/1000));      
+            for(i=0; i<delay_nb; ++i)
+            {
+              allocate_element(pt);
+              (*pt)[(*pt)->size - 1].delay = 1;
+            }
 
             allocate_element(pt);
 
@@ -157,11 +166,12 @@ SDLKey process_line(const char* line, SDLKey macro) {
         }
     } else if (!strncmp(command, "DELAY", strlen("DELAY"))) {
         if ((*pt)) {
-            delay = atoi(argument);
-
-            allocate_element(pt);
-
-            (*pt)[(*pt)->size - 1].delay = delay;
+            delay_nb = ceil((double)atoi(argument) / (refresh/1000));
+            for(i=0; i<delay_nb; ++i)
+            {
+              allocate_element(pt);
+              (*pt)[(*pt)->size - 1].delay = 1;
+            }
         }
     }
 
@@ -174,21 +184,28 @@ SDLKey process_line(const char* line, SDLKey macro) {
 void dump_scripts() {
     s_macro_event_delay** p_table;
     s_macro_event_delay* p_element;
+    int delay_nb;
 
     for (p_table = macro_table; p_table < macro_table + SDLK_LAST; p_table++) {
         if (*p_table) {
+            delay_nb = 0;
             printf("MACRO %s\n\n", (*p_table)->macro);
             for (p_element = *p_table; p_element && p_element < *p_table
                     + (*p_table)->size; p_element++) {
+                if (p_element->delay) {
+                    delay_nb++;
+                }
+                else if(delay_nb)
+                {
+                    printf("DELAY %d\n", delay_nb*(refresh/1000));
+                    delay_nb = 0;
+                }
                 if (p_element->event.type == SDL_KEYDOWN) {
                     printf("KEYDOWN %s\n", get_chars_from_key(
                             p_element->event.key.keysym.sym));
                 } else if (p_element->event.type == SDL_KEYUP) {
                     printf("KEYUP %s\n", get_chars_from_key(
                             p_element->event.key.keysym.sym));
-                }
-                if (p_element->delay) {
-                    printf("DELAY %d\n", p_element->delay);
                 }
             }
             printf("\n");
@@ -264,6 +281,10 @@ void read_macros() {
           while (fgets(line, LINE_MAX, fp)) {
               if (line[0] != '#') {
                   macro = process_line(line, macro);
+                  if(macro == SDLK_UNKNOWN)
+                  {
+                      break;
+                  }
               }
           }
           fclose(fp);
@@ -285,40 +306,112 @@ void initialize_macros() {
     read_macros();
 }
 
-/*
- * This code is run by each thread that executes a macro.
- */
-void macro(s_macro_arg* p_macro_arg) {
-    SDL_Event event;
-    s_macro_event_delay* p_element;
-    s_macro_event_delay* p_table = p_macro_arg->macro;
+typedef struct
+{
+  int keyboard_id;
+  SDLKey key;
+  int index;
+} s_running_macro;
 
-    for (p_element = p_table; p_element < p_table + p_table->size; p_element++) {
-        if (p_element->event.type != SDL_NOEVENT) {
-            event = p_element->event;
-            event.key.which = p_macro_arg->keyboard_id;
-            SDL_PushEvent(&event);
-        }
-        if (p_element->delay > 0) {
-            usleep(p_element->delay*1000);
-        }
+/*
+ * This table contains pending macros.
+ * Dynamically allocated.
+ */
+s_running_macro* running_macro = NULL;
+unsigned int running_macro_nb = 0;
+
+/*
+ * Unregister a macro.
+ */
+static int macro_delete(int keyboard_id, SDLKey key)
+{
+  int i;
+  for(i=0; i<running_macro_nb; ++i)
+  {
+    if(running_macro[i].keyboard_id == keyboard_id && running_macro[i].key == key)
+    {
+      memcpy(running_macro+i, running_macro+i+1, (running_macro_nb-i-1)*sizeof(s_running_macro));
+      running_macro_nb--;
+      running_macro = realloc(running_macro, running_macro_nb*sizeof(s_running_macro));
+      if(running_macro_nb && !running_macro)
+      {
+        fprintf(stderr, "macro_delete: can't realloc!\n");
+        exit(-1);
+      }
+      return 1;
     }
-    pthread_exit (0);
+  }
+  return 0;
 }
 
 /*
- * Launches a thread if there is a macro for that key.
+ * Register a new macro.
+ */
+static void macro_add(int keyboard_id, SDLKey key)
+{
+  running_macro_nb++;
+  running_macro = realloc(running_macro, running_macro_nb*sizeof(s_running_macro));
+  if(!running_macro)
+  {
+    fprintf(stderr, "macro_add: can't realloc!\n");
+    exit(-1);
+  }
+  running_macro[running_macro_nb-1].keyboard_id = keyboard_id;
+  running_macro[running_macro_nb-1].key = key;
+  running_macro[running_macro_nb-1].index = 0;
+}
+
+/*
+ * Start or stop a macro.
  */
 void macro_lookup(int keyboard_id, SDLKey key)
 {
-    pthread_t thread;
-    pthread_attr_t thread_attr;
-
-    if(macro_table[key]) {
-        macro_arg.keyboard_id = keyboard_id;
-        macro_arg.macro = macro_table[key];
-        pthread_attr_init(&thread_attr);
-        pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
-        pthread_create( &thread, &thread_attr, (void*)macro, (void*) &macro_arg);
+  if(macro_table[key])
+  {
+    if(!macro_delete(keyboard_id, key))
+    {
+      macro_add(keyboard_id, key);
     }
+  }
+}
+
+/*
+ * Generate events for pending macros.
+ */
+void macro_process()
+{
+  int i;
+  SDL_Event event;
+  s_macro_event_delay* p_macro_table;
+  for(i=0; i<running_macro_nb; ++i)
+  {
+    if(running_macro[i].index < macro_table[running_macro[i].key]->size)
+    {
+      running_macro[i].index++;
+    
+      while(running_macro[i].index < macro_table[running_macro[i].key]->size)
+      {
+        p_macro_table = macro_table[running_macro[i].key] + running_macro[i].index;
+        event = p_macro_table->event;
+        if(event.type != SDL_NOEVENT)
+        {
+            event.key.which = running_macro[i].keyboard_id;
+            SDL_PushEvent(&event);
+        }
+        if(!p_macro_table->delay)
+        {
+          running_macro[i].index++;
+        }
+        else
+        {
+          break;
+        }
+      }
+    }
+    if(running_macro[i].index >= macro_table[running_macro[i].key]->size)
+    {
+      macro_delete(running_macro[i].keyboard_id, running_macro[i].key);
+      i--;
+    }
+  }
 }
