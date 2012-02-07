@@ -1237,11 +1237,7 @@ void read_config_file(const char* file)
 
   if(strstr(file, "*") == (file + strlen(file) - 1))
   {
-#ifndef WIN32
-    snprintf(file_path, sizeof(file_path), "%s/%s", "/etc/emuclient/config", file);
-#else
-    snprintf(file_path, sizeof(file_path), "%s/%s", "config/example", file);
-#endif
+    snprintf(file_path, sizeof(file_path), "%s/%s", CONFIG_EXAMPLE_DIR, file);
     file_path[strlen(file_path) - 1] = '\0';
   }
   else
@@ -1249,7 +1245,7 @@ void read_config_file(const char* file)
 #ifndef WIN32
     snprintf(file_path, sizeof(file_path), "%s/%s/%s", homedir, CONFIG_DIR, file);
 #else
-  snprintf(file_path, sizeof(file_path), "%s/%s", CONFIG_DIR, file);
+    snprintf(file_path, sizeof(file_path), "%s/%s", CONFIG_DIR, file);
 #endif
   }
 
