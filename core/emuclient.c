@@ -37,6 +37,7 @@
 #include "calibration.h"
 #include <libxml/parser.h>
 #include "serial_con.h"
+#include "gpp_con.h"
 
 #include <locale.h>
 
@@ -166,6 +167,10 @@ int main(int argc, char *argv[])
     {
       check_config = 1;
     }
+    else if (!strcmp(argv[i], "--joystick"))
+    {
+      ctype = C_TYPE_JOYSTICK;
+    }
     else if (!strcmp(argv[i], "--360pad"))
     {
       ctype = C_TYPE_360_PAD;
@@ -177,6 +182,10 @@ int main(int argc, char *argv[])
     else if (!strcmp(argv[i], "--PS2pad"))
     {
       ctype = C_TYPE_PS2_PAD;
+    }
+    else if (!strcmp(argv[i], "--GPP"))
+    {
+      ctype = C_TYPE_GPP;
     }
 //#ifdef WIN32
 //    else if (!strcmp(argv[i], "--ip") && i < argc)
@@ -218,10 +227,6 @@ int main(int argc, char *argv[])
   {
     err(1, "can't init sdl");
   }
-  else
-  {
-    printf("sdl initialized\n");
-  }
 
   if(grab)
   {
@@ -251,9 +256,19 @@ int main(int argc, char *argv[])
 #ifndef WIN32
   if(serial)
   {
-    if (serial_connect(portname) < 0)
+    if(ctype != C_TYPE_GPP)
     {
-      err(1, "serial_connect");
+      if (serial_connect(portname) < 0)
+      {
+        err(1, "serial_connect");
+      }
+    }
+    else
+    {
+      if (gpp_connect() < 0)
+      {
+        err(1, "gpp_connect");
+      }
     }
   }
   else if(tcp_connect() < 0)
@@ -276,6 +291,12 @@ int main(int argc, char *argv[])
     QueryPerformanceCounter(&t0);
 #endif
 
+    /*
+     * These two functions generate events.
+     */
+    macro_process();
+	  calibration_test();
+    
     SDL_PumpEvents();
     num_evt = SDL_PeepEvents(events, sizeof(events) / sizeof(events[0]),
         SDL_GETEVENT, SDL_ALLEVENTS);
@@ -331,7 +352,14 @@ int main(int argc, char *argv[])
 #ifndef WIN32
     if(serial)
     {
-      serial_send(ctype, force_updates);
+      if(ctype != C_TYPE_GPP)
+      {
+        serial_send(ctype, force_updates);
+      }
+      else
+      {
+        gpp_send(force_updates);
+      }
     }
     else
     {
@@ -378,9 +406,17 @@ EXIT:
   free_macros();
   free_config();
   sdl_quit();
-#ifdef WIN32
-  serial_close();
-#endif
+  if(serial)
+  {
+    if(ctype != C_TYPE_GPP)
+    {
+      serial_close();
+    }
+    else
+    {
+      gpp_disconnect();
+    }
+  }
 
   xmlCleanupParser();
 
