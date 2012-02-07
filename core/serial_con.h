@@ -15,7 +15,8 @@ typedef enum
   C_TYPE_JOYSTICK,
   C_TYPE_360_PAD,
   C_TYPE_SIXAXIS,
-  C_TYPE_PS2_PAD
+  C_TYPE_PS2_PAD,
+  C_TYPE_GPP
 } e_controller_type;
 
 /*
