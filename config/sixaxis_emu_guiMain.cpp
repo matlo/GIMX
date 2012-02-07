@@ -12,9 +12,6 @@
 #include <wx/msgdlg.h>
 #include <stdio.h>
 #include <sys/types.h>
-#ifndef WIN32
-#include <pwd.h>
-#endif
 #include <SDL/SDL.h>
 #include "wx/numdlg.h"
 #include <math.h>
@@ -27,6 +24,8 @@
 #include <wx/aboutdlg.h>
 #include "config.h"
 #include <locale.h>
+#include <wx/filename.h>
+#include <wx/dir.h>
 
 using namespace std;
 
@@ -271,12 +270,6 @@ void sixaxis_emu_guiFrame::fillButtonChoice(wxChoice* choice)
     choice->Append(_("PS"));
     choice->SetSelection(choice->FindString(previous));
 }
-
-#ifndef WIN32
-char* homedir;
-#endif
-
-wxString default_directory;
 
 sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWindowID id)
 {
@@ -797,35 +790,29 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     currentController = 0;
     currentConfiguration = 0;
 
+    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
+
+    default_directory = wxEmptyString;
+
 #ifndef WIN32
     if(!getuid())
     {
     	int answer = wxMessageBox(_("It's not recommended to run as root user. Continue?"), _("Confirm"), wxYES_NO);
-		if (answer == wxNO)
-		{
-			exit(0);
-		}
+      if (answer == wxNO)
+      {
+        exit(0);
+      }
     }
 
-    homedir = getpwuid(getuid())->pw_dir;
+    default_directory.Append(wxFileName::GetHomeDir());
+    default_directory.Append(_("/.emuclient/"));
+#endif
 
-    string cmd = "";
-    cmd.append("test -d ");
-    cmd.append(homedir);
-    cmd.append("/.emuclient || cp -r /etc/emuclient ");
-    cmd.append(homedir);
-    cmd.append("/.emuclient");
-    if(system(cmd.c_str()) < 0)
-    {
-        wxMessageBox( wxT("Cannot open emuclient config directory!"), wxT("Error"), wxICON_ERROR);
-    }
+    default_directory.Append(_("config/"));
 
-    cmd.erase();
-    cmd.append(homedir);
-    cmd.append("/.emuclient/config");
+    FileDialog1->SetDirectory(default_directory);
 
-#else
-    string cmd = "config";
+#ifdef WIN32
     MenuItem8->Enable(false);
     MenuItem9->Enable(false);
     MenuItem10->Enable(false);
@@ -836,23 +823,28 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     MenuItem25->Enable(false);
 #endif
 
-    default_directory = wxString(cmd.c_str(), wxConvUTF8);
-
-    FileDialog1->SetDirectory(default_directory);
-
     ButtonTabControls->AutoSizeColumns();
     Grid2->AutoSizeColumns();
 
     if(!file.IsEmpty())
     {
-      wxString wxfile;
+      wxString wxfile = wxEmptyString;
+
+      if(file.EndsWith(_("*")))
+      {
 #ifndef WIN32
-      wxfile.Append(wxString(homedir, wxConvUTF8));
-      wxfile.Append(_("/.emuclient/config/"));
+        wxfile.Append(_("/etc/emuclient/config/"));
 #else
-      wxfile.Append(_("config/"));
+        wxfile.Append(_("config/example/"));
 #endif
-      wxfile.Append(file);
+        wxfile.Append(file.SubString(0, file.Length() - 2));
+      }
+      else
+      {
+        wxfile.Append(default_directory);
+        wxfile.Append(file.SubString(0, file.Length() - 1));
+      }
+
       if(::wxFileExists(wxfile))
       {
         configFile.ReadConfigFile(wxfile);
@@ -867,11 +859,15 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
       {
         wxMessageBox( wxT("Cannot open config file: ") + wxString(file, wxConvUTF8), wxT("Error"), wxICON_ERROR);
       }
+
+      if(file.EndsWith(_("*")))
+      {
+        wxMessageBox( wxT("This file is read-only."), wxT("Info"), wxICON_INFORMATION);
+        Menu1->Enable(idMenuSave, false);
+      }
     }
 
     configFile.SetEvCatch(&evcatch);
-
-    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 }
 
 sixaxis_emu_guiFrame::~sixaxis_emu_guiFrame()

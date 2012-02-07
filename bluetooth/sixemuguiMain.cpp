@@ -33,6 +33,7 @@
 using namespace std;
 
 #define CONFIG_DIR ".emuclient/config/"
+#define CONFIG_EXAMPLE_DIR "/etc/emuclient/config"
 
 char* homedir;
 
@@ -344,13 +345,43 @@ static void read_filenames(const char* dir, wxChoice* choice)
     {
       if (d->d_type == DT_REG)
       {
-        if(!line.empty() && line == d->d_name)
+        if(strstr(d->d_name, ".xml") == (d->d_name + strlen(d->d_name) + 1 - sizeof(".xml")))
         {
-          choice->SetSelection(choice->Append(wxString(d->d_name, wxConvUTF8)));
+          if(!line.empty() && line == d->d_name)
+          {
+            choice->SetSelection(choice->Append(wxString(d->d_name, wxConvUTF8)));
+          }
+          else
+          {
+            choice->Append(wxString(d->d_name, wxConvUTF8));
+          }
         }
-        else
+      }
+    }
+
+    closedir(dirp);
+
+    dirp = opendir(CONFIG_EXAMPLE_DIR);
+    if (dirp == NULL)
+    {
+      printf("Warning: can't open config directory %s\n", CONFIG_EXAMPLE_DIR);
+      return;
+    }
+
+    while ((d = readdir(dirp)))
+    {
+      if (d->d_type == DT_REG)
+      {
+        if(strstr(d->d_name, ".xml") == (d->d_name + strlen(d->d_name) + 1 - sizeof(".xml")))
         {
-          choice->Append(wxString(d->d_name, wxConvUTF8));
+          if(!line.empty() && line.substr(0, line.length()-1) == d->d_name)
+          {
+            choice->SetSelection(choice->Append(wxString(d->d_name, wxConvUTF8) + _("*")));
+          }
+          else
+          {
+            choice->Append(wxString(d->d_name, wxConvUTF8) + _("*"));
+          }
         }
       }
     }
@@ -479,7 +510,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer11;
     wxMenu* Menu2;
     wxStaticBoxSizer* StaticBoxSizer5;
-
+    
     Create(parent, wxID_ANY, _("Gimx-bluetooth"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     SetClientSize(wxSize(675,525));
     Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxSize(0,0), wxTAB_TRAVERSAL, _T("ID_PANEL1"));
@@ -489,11 +520,12 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer2 = new wxFlexGridSizer(2, 2, 0, 0);
     StaticText1 = new wxStaticText(Panel1, ID_STATICTEXT1, _("Address"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
     FlexGridSizer2->Add(StaticText1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Choice1 = new wxChoice(Panel1, ID_CHOICE1, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
+    Choice1 = new wxChoice(Panel1, ID_CHOICE1, wxDefaultPosition, wxSize(175,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
+    Choice1->Append(wxEmptyString);
     FlexGridSizer2->Add(Choice1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText2 = new wxStaticText(Panel1, ID_STATICTEXT2, _("PS3 address"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
     FlexGridSizer2->Add(StaticText2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Choice2 = new wxChoice(Panel1, ID_CHOICE2, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE2"));
+    Choice2 = new wxChoice(Panel1, ID_CHOICE2, wxDefaultPosition, wxSize(175,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE2"));
     FlexGridSizer2->Add(Choice2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer1->Add(FlexGridSizer2, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer7->Add(StaticBoxSizer1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -501,19 +533,19 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer3 = new wxFlexGridSizer(5, 2, 0, 0);
     StaticText3 = new wxStaticText(Panel1, ID_STATICTEXT3, _("Address"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT3"));
     FlexGridSizer3->Add(StaticText3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Choice3 = new wxChoice(Panel1, ID_CHOICE3, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE3"));
+    Choice3 = new wxChoice(Panel1, ID_CHOICE3, wxDefaultPosition, wxSize(175,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE3"));
     FlexGridSizer3->Add(Choice3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText4 = new wxStaticText(Panel1, ID_STATICTEXT4, _("Name"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT4"));
     FlexGridSizer3->Add(StaticText4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Choice5 = new wxChoice(Panel1, ID_CHOICE5, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE5"));
+    Choice5 = new wxChoice(Panel1, ID_CHOICE5, wxDefaultPosition, wxSize(175,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE5"));
     FlexGridSizer3->Add(Choice5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText6 = new wxStaticText(Panel1, ID_STATICTEXT6, _("Manufacturer"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT6"));
     FlexGridSizer3->Add(StaticText6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Choice6 = new wxChoice(Panel1, ID_CHOICE6, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE6"));
+    Choice6 = new wxChoice(Panel1, ID_CHOICE6, wxDefaultPosition, wxSize(175,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE6"));
     FlexGridSizer3->Add(Choice6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText7 = new wxStaticText(Panel1, ID_STATICTEXT7, _("Chip version"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT7"));
     FlexGridSizer3->Add(StaticText7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Choice7 = new wxChoice(Panel1, ID_CHOICE7, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE7"));
+    Choice7 = new wxChoice(Panel1, ID_CHOICE7, wxDefaultPosition, wxSize(175,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE7"));
     FlexGridSizer3->Add(Choice7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText8 = new wxStaticText(Panel1, ID_STATICTEXT8, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT8"));
     FlexGridSizer3->Add(StaticText8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -640,7 +672,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     StatusBar1->SetStatusStyles(2,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
     SingleInstanceChecker1.Create(_T("gimx-bluetooth_") + wxGetUserId() + _T("_Guard"));
-
+    
     Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSelectSixaxisBdaddr);
     Connect(ID_CHOICE2,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSelectPS3Bdaddr);
     Connect(ID_CHOICE3,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSelectBtDongle);
@@ -701,10 +733,10 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     }
     cmd.erase();
     cmd.append("test -d ");
-	cmd.append(homedir);
-	cmd.append("/.emuclient || cp -r /etc/emuclient ");
-	cmd.append(homedir);
-	cmd.append("/.emuclient");
+	  cmd.append(homedir);
+	  cmd.append("/.emuclient || cp -r /etc/emuclient ");
+	  cmd.append(homedir);
+	  cmd.append("/.emuclient");
     if(system(cmd.c_str()) < 0)
     {
         wxMessageBox( wxT("Cannot open emuclient config directory!"), wxT("Error"), wxICON_ERROR);

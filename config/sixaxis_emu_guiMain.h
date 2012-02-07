@@ -419,6 +419,8 @@ class sixaxis_emu_guiFrame: public wxFrame
 
         unsigned int grid1mod;
         unsigned int grid2mod;
+        
+        wxString default_directory;
 
         DECLARE_EVENT_TABLE()
 };

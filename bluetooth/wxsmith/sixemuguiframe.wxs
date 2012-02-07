@@ -30,6 +30,10 @@
 										</object>
 										<object class="sizeritem">
 											<object class="wxChoice" name="ID_CHOICE1" variable="Choice1" member="yes">
+												<content>
+													<item></item>
+												</content>
+												<size>175,-1</size>
 												<handler function="OnSelectSixaxisBdaddr" entry="EVT_CHOICE" />
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -46,6 +50,7 @@
 										</object>
 										<object class="sizeritem">
 											<object class="wxChoice" name="ID_CHOICE2" variable="Choice2" member="yes">
+												<size>175,-1</size>
 												<handler function="OnSelectPS3Bdaddr" entry="EVT_CHOICE" />
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -79,6 +84,7 @@
 										</object>
 										<object class="sizeritem">
 											<object class="wxChoice" name="ID_CHOICE3" variable="Choice3" member="yes">
+												<size>175,-1</size>
 												<handler function="OnSelectBtDongle" entry="EVT_CHOICE" />
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -95,6 +101,7 @@
 										</object>
 										<object class="sizeritem">
 											<object class="wxChoice" name="ID_CHOICE5" variable="Choice5" member="yes">
+												<size>175,-1</size>
 												<handler function="OnChoice5Select" entry="EVT_CHOICE" />
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -111,6 +118,7 @@
 										</object>
 										<object class="sizeritem">
 											<object class="wxChoice" name="ID_CHOICE6" variable="Choice6" member="yes">
+												<size>175,-1</size>
 												<handler function="OnChoice6Select" entry="EVT_CHOICE" />
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -127,6 +135,7 @@
 										</object>
 										<object class="sizeritem">
 											<object class="wxChoice" name="ID_CHOICE7" variable="Choice7" member="yes">
+												<size>175,-1</size>
 												<handler function="OnChoice7Select" entry="EVT_CHOICE" />
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
