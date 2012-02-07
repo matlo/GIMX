@@ -38,9 +38,11 @@ using namespace std;
 
 #ifdef WIN32
 #define CONFIG_DIR "config/"
+#define CONFIG_EXAMPLE_DIR "config/example"
 #define MAX_PORT_ID 32
 #else
 #define CONFIG_DIR ".emuclient/config/"
+#define CONFIG_EXAMPLE_DIR "/etc/emuclient/config"
 char* homedir;
 #endif
 
@@ -195,6 +197,24 @@ static void read_frequency(wxComboBox* choice)
       infile.close();
   }
 }
+
+static void read_controller_type(wxChoice* choice)
+{
+  string filename = "";
+  string line = "";
+
+  filename.append("controller");
+  ifstream infile (filename.c_str());
+  if ( infile.is_open() )
+  {
+      if( infile.good() )
+      {
+          getline (infile,line);
+          choice->SetSelection(choice->FindString(wxString(line.c_str(), wxConvUTF8)));
+      }
+      infile.close();
+  }
+}
 #else
 static void read_devices(wxComboBox* choice)
 {
@@ -277,13 +297,43 @@ static void read_filenames(wxChoice* choice)
     {
       if (d->d_type == DT_REG)
       {
-        if(!line.empty() && line == d->d_name)
+        if(strstr(d->d_name, ".xml") == (d->d_name + strlen(d->d_name) + 1 - sizeof(".xml")))
         {
-          choice->SetSelection(choice->Append(wxString(d->d_name, wxConvUTF8)));
+          if(!line.empty() && line == d->d_name)
+          {
+            choice->SetSelection(choice->Append(wxString(d->d_name, wxConvUTF8)));
+          }
+          else
+          {
+            choice->Append(wxString(d->d_name, wxConvUTF8));
+          }
         }
-        else
+      }
+    }
+
+    closedir(dirp);
+
+    dirp = opendir(CONFIG_EXAMPLE_DIR);
+    if (dirp == NULL)
+    {
+      printf("Warning: can't open config directory %s\n", CONFIG_EXAMPLE_DIR);
+      return;
+    }
+
+    while ((d = readdir(dirp)))
+    {
+      if (d->d_type == DT_REG)
+      {
+        if(strstr(d->d_name, ".xml") == (d->d_name + strlen(d->d_name) + 1 - sizeof(".xml")))
         {
-          choice->Append(wxString(d->d_name, wxConvUTF8));
+          if(!line.empty() && line.substr(0, line.length()-2) == d->d_name)
+          {
+            choice->SetSelection(choice->Append(wxString(d->d_name, wxConvUTF8) + _("*")));
+          }
+          else
+          {
+            choice->Append(wxString(d->d_name, wxConvUTF8) + _("*"));
+          }
         }
       }
     }
@@ -298,6 +348,25 @@ static void read_frequency(wxComboBox* choice)
 
   filename.append(homedir);
   filename.append("/.sixemugui-serial/frequency");
+  ifstream infile (filename.c_str());
+  if ( infile.is_open() )
+  {
+      if( infile.good() )
+      {
+          getline (infile,line);
+          choice->SetSelection(choice->FindString(wxString(line.c_str(), wxConvUTF8)));
+      }
+      infile.close();
+  }
+}
+
+static void read_controller_type(wxChoice* choice)
+{
+  string filename = "";
+  string line = "";
+
+  filename.append(homedir);
+  filename.append("/.sixemugui-serial/controller");
   ifstream infile (filename.c_str());
   if ( infile.is_open() )
   {
@@ -478,6 +547,9 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     read_filenames(ChoiceConfig);
     read_frequency(ComboBoxFrequency);
     read_devices(ComboBoxDevice);
+    read_controller_type(ControllerType);
+    wxCommandEvent event;
+    OnControllerTypeSelect(event);
 
     Refresh();
 }
@@ -645,6 +717,19 @@ void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
     {
         outfile3 << ComboBoxDevice->GetValue().mb_str() << endl;
         outfile3.close();
+    }
+    filename.erase();
+#ifdef WIN32
+    filename.append("controller");
+#else
+    filename.append(homedir);
+    filename.append("/.sixemugui-serial/controller");
+#endif
+    ofstream outfile4 (filename.c_str(), ios_base::trunc);
+    if(outfile4.is_open())
+    {
+        outfile4 << ControllerType->GetStringSelection().mb_str() << endl;
+        outfile4.close();
     }
 
     if(system(command.c_str()) != 0)
