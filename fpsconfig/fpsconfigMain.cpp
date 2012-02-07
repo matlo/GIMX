@@ -455,14 +455,27 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
 
     if(!file.IsEmpty())
     {
-      wxString wxfile;
+      wxString wxfile = wxEmptyString;
+      if(file.EndsWith(_("*")))
+      {
 #ifndef WIN32
-      wxfile.Append(wxString(homedir, wxConvUTF8));
-      wxfile.Append(_("/.emuclient/config/"));
+        wxfile.Append(_("/etc/emuclient/config/"));
 #else
-      wxfile.Append(_("config/"));
+        wxfile.Append(_("config/example/"));
 #endif
-      wxfile.Append(file);
+        wxfile.Append(file.SubString(0, file.Length() - 2));
+      }
+      else
+      {
+#ifndef WIN32
+        wxfile.Append(wxString(homedir, wxConvUTF8));
+        wxfile.Append(_("/.emuclient/config/"));
+#else
+        wxfile.Append(_("config/"));
+#endif
+        wxfile.Append(file);
+      }
+
       if(::wxFileExists(wxfile))
       {
         configFile.ReadConfigFile(wxfile);
@@ -471,6 +484,12 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
       else
       {
         wxMessageBox( wxT("Cannot open config file: ") + wxString(file, wxConvUTF8), wxT("Error"), wxICON_ERROR);
+      }
+
+      if(file.EndsWith(_("*")))
+      {
+        wxMessageBox( wxT("This file is read-only."), wxT("Info"), wxICON_INFORMATION);
+        MenuItem4->Enable(false);
       }
     }
 }
