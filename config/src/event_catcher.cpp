@@ -341,7 +341,24 @@ void event_catcher::init()
         return;
     }
 
-    SDL_WM_SetCaption("Event Catcher", "Event Catcher");
+	if(m_DeviceType != wxEmptyString)
+	{
+	  wxString title = _("Press a ");
+	  title.Append(m_DeviceType);
+	  title.Append(_(" button"));
+      SDL_WM_SetCaption(title.mb_str(), title.mb_str());
+	}
+	else
+	{
+	  if(m_EventType == _("button"))
+	  {
+	    SDL_WM_SetCaption("Press a button...", "Press a button...");
+	  }
+	  else
+	  {
+	    SDL_WM_SetCaption("Move an axis...", "Move an axis...");
+	  }
+	}
 
     screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 0, SDL_HWSURFACE | SDL_ANYFORMAT);
     if (screen == NULL)
@@ -513,10 +530,10 @@ void event_catcher::run(wxString device_type, wxString event_type)
     int num_evt;
     const char* event_id;
 
-    m_DeviceType = wxEmptyString;
+    m_DeviceType = device_type;
     m_DeviceId = wxEmptyString;
     m_DeviceName = wxEmptyString;
-    m_EventType = wxEmptyString;
+    m_EventType = event_type;
     m_EventId = wxEmptyString;
 
     init();

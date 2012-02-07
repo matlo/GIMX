@@ -2089,9 +2089,9 @@ void sixaxis_emu_guiFrame::replaceDevice(wxString device_type)
     std::list<AxisMapper>* axisMappers;
     std::list<Intensity>* intensityList;
 
-    evcatch.run(device_type, _("button"));
     if(MenuItem30->IsChecked())
     {
+	      evcatch.run(device_type, _("button"));
         device_name = evcatch.GetDeviceName();
         device_id = evcatch.GetDeviceId();
     }
@@ -2816,4 +2816,9 @@ void sixaxis_emu_guiFrame::OnMenuMultipleMK(wxCommandEvent& event)
         MenuItem26->Enable(false);
         MenuItem27->Enable(false);
     }
+	  if(event.GetEventObject() && event.GetEventObject()->IsSameAs(*(wxObject*)MenuItem30))
+	  {
+	    replaceDevice(_("mouse"));
+	    replaceDevice(_("keyboard"));
+	  }
 }
