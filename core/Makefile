@@ -4,10 +4,10 @@ confdir=$(DESTDIR)/etc/emuclient
 BINS=emu emuclient sixaddr bdaddr hcirevision usbspoof
 CC=gcc
 CFLAGS=-Wall -O2
-LIB=-L../../libsdl/lib -lSDL -lxml2 -lXi -lm -lpthread
+LIB=-L../../libsdl/lib -lSDL -lxml2 -lXi -lm -lpthread -ludev
 INC=-I../../libsdl/include -I/usr/include/libxml2
 
-all: $(BINS)
+all: gpp $(BINS)
 
 clean:
 	rm -f $(BINS) *~ *.o
@@ -18,13 +18,18 @@ emu: emu.o sixaxis.o dump.o l2cap_con.o bt_utils.o
 emu-serial: emu-serial.o sixaxis.o dump.o
 	$(CC) -o $@ $^
 
-emuclient: emuclient.o sixaxis.o dump.o macros.o config.o conversion.o config_writter.o config_reader.o sdl_tools.o tcp_con.o calibration.o serial_con.o lin_serial_con.o
+emuclient: emuclient.o sixaxis.o dump.o macros.o config.o conversion.o config_writter.o config_reader.o sdl_tools.o tcp_con.o calibration.o serial_con.o lin_serial_con.o gpp/hid_LINUX.o gpp/pcprog.o gpp_con.o
 	$(CC) -o $@ $^ $(LIB)
+
+gpp:
+	$(CC) $(CFLAGS) -o gpp/hid_LINUX.o -c gpp/hid_LINUX.c
+	$(CC) $(CFLAGS) -o gpp/pcprog.o -c gpp/pcprog.c
+	$(CC) $(CFLAGS) -o gpp_con.o -c gpp_con.c
 
 sixaddr: utils/sixaddr.c
 	$(CC) -o $@ $^ -lusb
 	
-usbspoof: utils/usbspoof.c
+usbspoof: utils/usbspoof.c utils/pcapwriter.c
 	$(CC) -o $@ $^ -lusb-1.0 -lpthread
 
 bdaddr: utils/bdaddr.c utils/oui.c
