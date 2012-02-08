@@ -1,7 +1,7 @@
 BINS=emuclient
 CC=gcc
 CFLAGS=-Wall -O2
-LIB=-lmingw32 -lSDLmain -lSDL -llibxml2 -lpthread -lws2_32 -liconv
+LIB=-lmingw32 -lSDLmain -lSDL -llibxml2 -lws2_32 -liconv -lhid -lsetupapi
 INC=
 
 all: $(BINS)
@@ -9,8 +9,13 @@ all: $(BINS)
 clean:
 	rm -f $(BINS) *~ *.o *.exe
 
-emuclient: emuclient.o sixaxis.o dump.o macros.o config.o conversion.o config_writter.o config_reader.o sdl_tools.o win_serial_con.o calibration.o win_serial_con.o serial_con.o
+emuclient: emuclient.o sixaxis.o dump.o macros.o config.o conversion.o config_writter.o config_reader.o sdl_tools.o win_serial_con.o calibration.o win_serial_con.o serial_con.o gpp/hid_WINDOWS.o gpp/pcprog.o gpp_con.o
 	$(CC) -o $@ $^ $(LIB)
+
+gpp:
+	$(CC) $(CFLAGS) -o gpp/hid_WINDOWS.o -c gpp/hid_WINDOWS.c
+	$(CC) $(CFLAGS) -o gpp/pcprog.o -c gpp/pcprog.c
+	$(CC) $(CFLAGS) -o gpp_con.o -c gpp_con.c
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(INC) -o $@ -c $< 
