@@ -16,11 +16,13 @@
 
 #define DEFAULT_MULTIPLIER_STEP 0.01
 #define EXPONENT_STEP 0.01
-#define DURATION 1000000 //1s
+#define DURATION 500000 //1s
 #define STEPS 720
 
 extern int refresh;
 extern int mean_axis_value;
+extern double axis_scale;
+extern double frequency_scale;
 extern int display;
 extern char* config_file;
 
@@ -61,94 +63,43 @@ inline s_mouse_cal* cal_get_mouse(int mouse, int conf)
   return &(mouse_cal[mouse][conf]);
 }
 
-/*
- * Test translation acceleration.
- */
-//static void auto_test()
-//{
-  /*if(mouse_cal[current_mouse][current_conf].dzx)
-   {
-   state[0].user.axis[1][0] = *mouse_cal[current_mouse][current_conf].dzx;
-   controller[0].send_command = 1;
-
-   usleep(test_time*1000);
-
-   state[0].user.axis[1][0] = 0;
-   controller[0].send_command = 1;
-   }*/
-
-  /*if(mouse_cal[current_mouse][current_conf].dzy)
-   {
-   state[0].user.axis[1][1] = *mouse_cal[current_mouse][current_conf].dzy;
-   controller[0].send_command = 1;
-
-   usleep(test_time*1000);
-
-   state[0].user.axis[1][1] = 0;
-   controller[0].send_command = 1;
-
-   usleep(500*1000);
-
-   state[0].user.axis[1][1] = *mouse_cal[current_mouse][current_conf].dzy;
-   controller[0].send_command = 1;
-
-   usleep(1000*1000);
-
-   state[0].user.axis[1][1] = 0;
-   controller[0].send_command = 1;
-
-   usleep(500*1000);
-
-   state[0].user.axis[1][1] = - *mouse_cal[current_mouse][current_conf].dzy;
-   controller[0].send_command = 1;
-
-   usleep(test_time*1000);
-
-   state[0].user.axis[1][1] = 0;
-   controller[0].send_command = 1;
-
-   usleep(500*1000);
-
-   state[0].user.axis[1][1] = - *mouse_cal[current_mouse][current_conf].dzy;
-   controller[0].send_command = 1;
-
-   usleep(1000*1000);
-
-   state[0].user.axis[1][1] = 0;
-   controller[0].send_command = 1;
-   }*/
-//}
-
 static double distance = 0.1; //0.1 inches
 static int dots = 0;
 static int direction = 1;
 static int step = 1;
 
-static int timer = 0;
+static int delay = 0;
 
 static void translation_test()
 {
   int dpi;
+  int dz;
+  double mul;
+  double exp;
 
-  SDL_Event mouse_evt =
-  { };
+  SDL_Event mouse_evt = { };
 
-  dpi = cal_get_mouse(current_mouse, current_conf)->dpi;
+  s_mouse_cal* mc = cal_get_mouse(current_mouse, current_conf);
+
+  dpi = mc->dpi;
+  dz = *mc->dzx;
+  mul = *mc->mx;
+  exp = *mc->ex;
 
   if (dpi <= 0)
   {
     return;
   }
 
-  if(timer > 0)
-  {
-    timer--;
-    return;
-  }
-
   if (dots <= 0)
   {
     dots = distance * dpi;
+  }
+
+  if(delay > 0)
+  {
+    delay--;
+    return;
   }
 
   mouse_evt.motion.xrel = direction * step;
@@ -160,18 +111,21 @@ static void translation_test()
 
   if (dots <= 0)
   {
-    timer = DURATION / refresh;
+    delay = DURATION / refresh;
     step *= 2;
-    if (direction < 0)
+    direction *= -1;
+    if (direction > 0)
     {
-      distance = distance * 2;
-      if (distance > 1)
+      if ((dz - mul + mul * pow(step * 2 * frequency_scale, exp)) * axis_scale > mean_axis_value)
       {
         step = 1;
         distance = 0.1;
       }
+      else
+      {
+        distance = distance * 3;
+      }
     }
-    direction *= -1;
   }
 }
 
