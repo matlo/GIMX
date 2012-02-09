@@ -40,9 +40,9 @@ void ConfigurationFile::ReadConfigFile(wxString filePath)
     m_FilePath = filePath;
 }
 
-void ConfigurationFile::WriteConfigFile()
+int ConfigurationFile::WriteConfigFile()
 {
     XmlWritter writer(this);
 
-    writer.WriteConfigFile();
+    return writer.WriteConfigFile();
 }

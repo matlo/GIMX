@@ -1743,7 +1743,10 @@ void sixaxis_emu_guiFrame::OnMenuSave(wxCommandEvent& event)
 {
     wxString end;
     save_current();
-    configFile.WriteConfigFile();
+    if(configFile.WriteConfigFile() < 0)
+    {
+      wxMessageBox(wxT("Can't save ") + configFile.GetFilePath(), wxT("Error"), wxICON_ERROR);
+    }
     ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
     Button3->Enable();

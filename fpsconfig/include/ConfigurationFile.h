@@ -14,7 +14,7 @@ class ConfigurationFile
         ConfigurationFile(const ConfigurationFile& other);
         ConfigurationFile& operator=(const ConfigurationFile& other);
         void ReadConfigFile(wxString filePath);
-        void WriteConfigFile();
+        int WriteConfigFile();
         wxString GetFilePath() { return m_FilePath; }
         void SetFilePath(wxString val) { m_FilePath = val; }
         Controller* GetController(unsigned int i) { return m_Controllers+i; }

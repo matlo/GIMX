@@ -9,7 +9,7 @@ class XmlWritter
         XmlWritter();
         XmlWritter(ConfigurationFile* configFile);
         virtual ~XmlWritter();
-        void WriteConfigFile();
+        int WriteConfigFile();
         void CreateEventNode(xmlNodePtr parent_node, Event* event);
         void CreateDeviceNode(xmlNodePtr parent_node, Device* device);
         void CreateAxisMapNode(xmlNodePtr parent_node);

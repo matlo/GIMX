@@ -943,7 +943,10 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     wsmy = wxString::Format(wxT("%.02f"), my);
     axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("y"), _("rstick y"), wxString::Format(wxT("%i"),SpinCtrl2->GetValue()), wsmy, TextCtrl26->GetValue(), Choice1->GetStringSelection(), wxString::Format(wxT("%i"), SpinCtrl14->GetValue()), TextCtrl3->GetValue()));
 
-    configFile.WriteConfigFile();
+    if(configFile.WriteConfigFile() < 0)
+    {
+      wxMessageBox(wxT("Can't save ") + configFile.GetFilePath(), wxT("Error"), wxICON_ERROR);
+    }
 }
 
 void fpsconfigFrame::LoadConfig()

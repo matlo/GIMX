@@ -220,8 +220,9 @@ void XmlWritter::CreateControllerNodes(xmlNodePtr parent_node)
     }
 }
 
-void XmlWritter::WriteConfigFile()
+int XmlWritter::WriteConfigFile()
 {
+    int ret;
     xmlDocPtr doc = NULL;       /* document pointer */
     xmlNodePtr root_node = NULL;/* node pointers */
 
@@ -239,8 +240,10 @@ void XmlWritter::WriteConfigFile()
     /*
      * Dumping document to stdio or file
      */
-    xmlSaveFormatFileEnc(m_ConfigurationFile->GetFilePath().mb_str(), doc, "UTF-8", 1);
+    ret = xmlSaveFormatFileEnc(m_ConfigurationFile->GetFilePath().mb_str(), doc, "UTF-8", 1);
 
     /*free the document */
     xmlFreeDoc(doc);
+
+    return ret;
 }
