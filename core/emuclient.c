@@ -227,6 +227,11 @@ int main(int argc, char *argv[])
   {
     err(1, "can't init sdl");
   }
+  else if(display)
+  {
+    /* Needed by gimx-status */
+    printf("sdl initialized\n");
+  }
 
   if(grab)
   {
