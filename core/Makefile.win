@@ -4,7 +4,7 @@ CFLAGS=-Wall -O2
 LIB=-lmingw32 -lSDLmain -lSDL -llibxml2 -lws2_32 -liconv -lhid -lsetupapi
 INC=
 
-all: $(BINS)
+all: gpp $(BINS)
 
 clean:
 	rm -f $(BINS) *~ *.o *.exe
@@ -13,7 +13,7 @@ emuclient: emuclient.o sixaxis.o dump.o macros.o config.o conversion.o config_wr
 	$(CC) -o $@ $^ $(LIB)
 
 gpp:
-	$(CC) $(CFLAGS) -o gpp/hid_WINDOWS.o -c gpp/hid_WINDOWS.c
+	$(CC) $(CFLAGS) -o gpp/hid_WINDOWS.o -c gpp/hid_LINUX.c
 	$(CC) $(CFLAGS) -o gpp/pcprog.o -c gpp/pcprog.c
 	$(CC) $(CFLAGS) -o gpp_con.o -c gpp_con.c
 
