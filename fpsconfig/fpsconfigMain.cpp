@@ -859,6 +859,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     double mx, my;
     double xyratio;
     wxString wsmx, wsmy, wsxyratio;
+    bool found;
     /*
      * Save DPI value.
      */
@@ -868,25 +869,66 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
      */
     //Save ButtonMappers
     buttonMappers = configFile.GetController(0)->GetConfiguration(0)->GetButtonMapperList();
-    for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); it = buttonMappers->erase(it)) {}
     for(int i=bi_select; i<BI_MAX; i++)
     {
         if(!buttons[i].GetDevice()->GetType().IsEmpty())
         {
-            buttonMappers->push_front(buttons[i]);
+            found = false;
+            for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end() && !found && !found; it++)
+            {
+                if(it->GetButton() == buttons[i].GetButton())
+                {
+                    it->SetEvent(*buttons[i].GetEvent());
+                    it->SetDevice(*buttons[i].GetDevice());
+                    found = true;
+                }
+            }
+            if(found == false)
+            {
+                buttonMappers->push_front(buttons[i]);
+            }
         }
     }
     //Save AxisMappers
     axisMappers = configFile.GetController(0)->GetConfiguration(0)->GetAxisMapperList();
-    for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); it = axisMappers->erase(it)) {}
     for(int i=ai_ls_up; i<AI_MAX; i++)
     {
         if(!axes[i].GetDevice()->GetType().IsEmpty())
         {
-            axisMappers->push_front(axes[i]);
+            found = false;
+            for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; it++)
+            {
+                if(it->GetAxis() == axes[i].GetAxis())
+                {
+                  it->SetDevice(*axes[i].GetDevice());
+                  it->SetEvent(*axes[i].GetEvent());
+                  found = true;
+                }
+            }
+            if(found == false)
+            {
+                axisMappers->push_front(axes[i]);
+            }
         }
     }
-    axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("x"), _("rstick x"), wxString::Format(wxT("%i"),SpinCtrl1->GetValue()), TextCtrl4->GetValue(), TextCtrl22->GetValue(), Choice2->GetStringSelection(), wxString::Format(wxT("%i"),SpinCtrl13->GetValue()), TextCtrl2->GetValue()));
+    found = false;
+    for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; it++)
+    {
+        if(it->GetDevice()->GetType() == _("mouse") && it->GetEvent()->GetType() == _("axis") && it->GetEvent()->GetId() == _("x") && it->GetAxis() == _("rstick x"))
+        {
+            it->GetEvent()->SetDeadZone(wxString::Format(wxT("%i"),SpinCtrl1->GetValue()));
+            it->GetEvent()->SetMultiplier(TextCtrl4->GetValue());
+            it->GetEvent()->SetExponent(TextCtrl22->GetValue());
+            it->GetEvent()->SetShape(Choice2->GetStringSelection());
+            it->GetEvent()->SetBufferSize(wxString::Format(wxT("%i"),SpinCtrl13->GetValue()));
+            it->GetEvent()->SetFilter(TextCtrl2->GetValue());
+            found = true;
+        }
+    }
+    if(found == false)
+    {
+        axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("x"), _("rstick x"), wxString::Format(wxT("%i"),SpinCtrl1->GetValue()), TextCtrl4->GetValue(), TextCtrl22->GetValue(), Choice2->GetStringSelection(), wxString::Format(wxT("%i"),SpinCtrl13->GetValue()), TextCtrl2->GetValue()));
+    }
     wsmx = TextCtrl4->GetValue();
     wsxyratio = TextCtrl1->GetValue();
     if(wsmx.ToDouble(&mx) && wsxyratio.ToDouble(&xyratio))
@@ -898,38 +940,101 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         my = mx;
     }
     wsmy = wxString::Format(wxT("%.02f"), my);
-    axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("y"), _("rstick y"), wxString::Format(wxT("%i"),SpinCtrl1->GetValue()), wsmy, TextCtrl22->GetValue(), Choice2->GetStringSelection(), wxString::Format(wxT("%i"),SpinCtrl13->GetValue()), TextCtrl2->GetValue()));
+    found = false;
+    for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; it++)
+    {
+        if(it->GetDevice()->GetType() == _("mouse") && it->GetEvent()->GetType() == _("axis") && it->GetEvent()->GetId() == _("y") && it->GetAxis() == _("rstick y"))
+        {
+            it->GetEvent()->SetDeadZone(wxString::Format(wxT("%i"),SpinCtrl1->GetValue()));
+            it->GetEvent()->SetMultiplier(wsmy);
+            it->GetEvent()->SetExponent(TextCtrl22->GetValue());
+            it->GetEvent()->SetShape(Choice2->GetStringSelection());
+            it->GetEvent()->SetBufferSize(wxString::Format(wxT("%i"),SpinCtrl13->GetValue()));
+            it->GetEvent()->SetFilter(TextCtrl2->GetValue());
+            found = true;
+        }
+    }
+    if(found == false)
+    {
+        axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("y"), _("rstick y"), wxString::Format(wxT("%i"),SpinCtrl1->GetValue()), wsmy, TextCtrl22->GetValue(), Choice2->GetStringSelection(), wxString::Format(wxT("%i"),SpinCtrl13->GetValue()), TextCtrl2->GetValue()));
+    }
     /*
      * Save secondary config.
      */
     //Save Trigger
-    configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetType(_("mouse"));
-    configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetName(_(""));
-    configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetId(_("0"));
-    configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetEvent()->SetId(_("BUTTON_RIGHT"));
-    configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->SetSwitchBack(_("yes"));
-    configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->SetDelay(0);
+    if(configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->GetType() != _("mouse")
+        || configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetEvent()->GetId() != (_("BUTTON_RIGHT"))
+        || configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetSwitchBack() != _("yes"))
+    {
+        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetType(_("mouse"));
+        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetName(_(""));
+        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetId(_("0"));
+        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetEvent()->SetId(_("BUTTON_RIGHT"));
+        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->SetSwitchBack(_("yes"));
+        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->SetDelay(0);
+    }
     //Save ButtonMappers
     buttonMappers = configFile.GetController(0)->GetConfiguration(1)->GetButtonMapperList();
-    for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); it = buttonMappers->erase(it)) {}
     for(int i=bi_select; i<BI_MAX; i++)
     {
         if(!buttons[i].GetDevice()->GetType().IsEmpty())
         {
-            buttonMappers->push_front(buttons[i]);
+            found = false;
+            for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end() && !found; it++)
+            {
+                if(it->GetButton() == buttons[i].GetButton())
+                {
+                    it->SetEvent(*buttons[i].GetEvent());
+                    it->SetDevice(*buttons[i].GetDevice());
+                    found = true;
+                }
+            }
+            if(found == false)
+            {
+                buttonMappers->push_front(buttons[i]);
+            }
         }
     }
     //Save AxisMappers
     axisMappers = configFile.GetController(0)->GetConfiguration(1)->GetAxisMapperList();
-    for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); it = axisMappers->erase(it)) {}
     for(int i=ai_ls_up; i<AI_MAX; i++)
     {
         if(!axes[i].GetDevice()->GetType().IsEmpty())
         {
-            axisMappers->push_front(axes[i]);
+            found = false;
+            for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; it++)
+            {
+                if(it->GetAxis() == axes[i].GetAxis())
+                {
+                  it->SetDevice(*axes[i].GetDevice());
+                  it->SetEvent(*axes[i].GetEvent());
+                  found = true;
+                }
+            }
+            if(found == false)
+            {
+                axisMappers->push_front(axes[i]);
+            }
         }
     }
-    axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("x"), _("rstick x"), wxString::Format(wxT("%i"),SpinCtrl2->GetValue()), TextCtrl24->GetValue(), TextCtrl26->GetValue(), Choice2->GetStringSelection(), wxString::Format(wxT("%i"), SpinCtrl14->GetValue()), TextCtrl3->GetValue()));
+    found = false;
+    for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; it++)
+    {
+        if(it->GetDevice()->GetType() == _("mouse") && it->GetEvent()->GetType() == _("axis") && it->GetEvent()->GetId() == _("x") && it->GetAxis() == _("rstick x"))
+        {
+            it->GetEvent()->SetDeadZone(wxString::Format(wxT("%i"),SpinCtrl2->GetValue()));
+            it->GetEvent()->SetMultiplier(TextCtrl24->GetValue());
+            it->GetEvent()->SetExponent(TextCtrl26->GetValue());
+            it->GetEvent()->SetShape(Choice1->GetStringSelection());
+            it->GetEvent()->SetBufferSize(wxString::Format(wxT("%i"),SpinCtrl14->GetValue()));
+            it->GetEvent()->SetFilter(TextCtrl3->GetValue());
+            found = true;
+        }
+    }
+    if(found == false)
+    {
+      axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("x"), _("rstick x"), wxString::Format(wxT("%i"),SpinCtrl2->GetValue()), TextCtrl24->GetValue(), TextCtrl26->GetValue(), Choice1->GetStringSelection(), wxString::Format(wxT("%i"), SpinCtrl14->GetValue()), TextCtrl3->GetValue()));
+    }
     wsmx = TextCtrl24->GetValue();
     wsxyratio = TextCtrl25->GetValue();
     if(wsmx.ToDouble(&mx) && wsxyratio.ToDouble(&xyratio))
@@ -941,7 +1046,24 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         my = mx;
     }
     wsmy = wxString::Format(wxT("%.02f"), my);
-    axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("y"), _("rstick y"), wxString::Format(wxT("%i"),SpinCtrl2->GetValue()), wsmy, TextCtrl26->GetValue(), Choice1->GetStringSelection(), wxString::Format(wxT("%i"), SpinCtrl14->GetValue()), TextCtrl3->GetValue()));
+    found = false;
+    for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; it++)
+    {
+        if(it->GetDevice()->GetType() == _("mouse") && it->GetEvent()->GetType() == _("axis") && it->GetEvent()->GetId() == _("y") && it->GetAxis() == _("rstick y"))
+        {
+            it->GetEvent()->SetDeadZone(wxString::Format(wxT("%i"),SpinCtrl2->GetValue()));
+            it->GetEvent()->SetMultiplier(wsmy);
+            it->GetEvent()->SetExponent(TextCtrl26->GetValue());
+            it->GetEvent()->SetShape(Choice1->GetStringSelection());
+            it->GetEvent()->SetBufferSize(wxString::Format(wxT("%i"),SpinCtrl14->GetValue()));
+            it->GetEvent()->SetFilter(TextCtrl3->GetValue());
+            found = true;
+        }
+    }
+    if(found == false)
+    {
+        axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("y"), _("rstick y"), wxString::Format(wxT("%i"),SpinCtrl2->GetValue()), wsmy, TextCtrl26->GetValue(), Choice1->GetStringSelection(), wxString::Format(wxT("%i"), SpinCtrl14->GetValue()), TextCtrl3->GetValue()));
+    }
 
     if(configFile.WriteConfigFile() < 0)
     {
@@ -955,7 +1077,6 @@ void fpsconfigFrame::LoadConfig()
   std::list<AxisMapper>* axisMappers;
   e_button_index bindex;
   e_axis_index aindex;
-  bool warning = false;
   wxButton* button;
   std::list<Intensity>* intensityList;
 
@@ -965,20 +1086,6 @@ void fpsconfigFrame::LoadConfig()
 
   current_dpi = configFile.GetController(0)->GetMouseDPI();
   SpinCtrl9->SetValue(current_dpi);
-
-  /*
-   * Delete the stick intensity lists.
-   */
-  intensityList = configFile.GetController(0)->GetConfiguration(0)->GetIntensityList();
-  intensityList->erase(intensityList->begin(), intensityList->end());
-  intensityList = configFile.GetController(0)->GetConfiguration(1)->GetIntensityList();
-  intensityList->erase(intensityList->begin(), intensityList->end());
-
-  /*
-   * Delete the triggers.
-   */
-  configFile.GetController(0)->GetConfiguration(0)->SetTrigger(Trigger());
-  configFile.GetController(0)->GetConfiguration(1)->SetTrigger(Trigger());
 
   /*
    * Load primary config.
@@ -1011,17 +1118,9 @@ void fpsconfigFrame::LoadConfig()
           continue;
       }
 
-      if(button->GetLabel().IsEmpty())
-      {
-          buttons[bindex] = *it;
-          buttons[bindex].GetDevice()->SetName(_(""));
-          button->SetLabel(it->GetEvent()->GetId());
-          button->SetToolTip(it->GetEvent()->GetId());
-      }
-      else
-      {
-          warning = true;
-      }
+      buttons[bindex] = *it;
+      button->SetLabel(it->GetEvent()->GetId());
+      button->SetToolTip(it->GetEvent()->GetId());
   }
   //Load AxisMappers
   for(int i=ai_ls_up; i<AI_MAX; i++)
@@ -1097,10 +1196,6 @@ void fpsconfigFrame::LoadConfig()
                   SpinCtrl7->SetValue(xyratio*100);
               }
           }
-          else
-          {
-              warning = true;
-          }
       }
       else
       {
@@ -1114,13 +1209,8 @@ void fpsconfigFrame::LoadConfig()
           if(button->GetLabel().IsEmpty())
           {
               axes[aindex] = *it;
-              axes[aindex].GetDevice()->SetName(_(""));
               button->SetLabel(it->GetEvent()->GetId());
               button->SetToolTip(it->GetEvent()->GetId());
-          }
-          else
-          {
-              warning = true;
           }
       }
   }
@@ -1191,16 +1281,7 @@ void fpsconfigFrame::LoadConfig()
                   SpinCtrl8->SetValue(xyratio*100);
               }
           }
-          else
-          {
-              warning = true;
-          }
       }
-  }
-
-  if(warning)
-  {
-      wxMessageBox( wxT("Some parts of this config file are not supported\nand will be lost if the file is edited.\n"), wxT("Info"), wxICON_INFORMATION);
   }
 
   MenuItem4->Enable(true);
