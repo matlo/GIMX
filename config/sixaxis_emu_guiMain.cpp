@@ -849,8 +849,16 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
       {
         configFile.ReadConfigFile(wxfile);
         MenuItem30->Check(configFile.MultipleMK());
-        wxCommandEvent event;
-        OnMenuMultipleMK(event);
+        if(MenuItem30->IsChecked())
+        {
+            MenuItem26->Enable(true);
+            MenuItem27->Enable(true);
+        }
+        else
+        {
+            MenuItem26->Enable(false);
+            MenuItem27->Enable(false);
+        }
         load_current();
         refresh_gui();
         Menu1->Enable(idMenuSave, true);
@@ -1498,7 +1506,16 @@ void sixaxis_emu_guiFrame::OnMenuOpen(wxCommandEvent& event)
     configFile.ReadConfigFile(FileName);
 
     MenuItem30->Check(configFile.MultipleMK());
-    OnMenuMultipleMK(event);
+    if(MenuItem30->IsChecked())
+    {
+        MenuItem26->Enable(true);
+        MenuItem27->Enable(true);
+    }
+    else
+    {
+        MenuItem26->Enable(false);
+        MenuItem27->Enable(false);
+    }
 
     currentController = 0;
     currentConfiguration = 0;
@@ -2819,9 +2836,6 @@ void sixaxis_emu_guiFrame::OnMenuMultipleMK(wxCommandEvent& event)
         MenuItem26->Enable(false);
         MenuItem27->Enable(false);
     }
-	  if(event.GetEventObject() && event.GetEventObject()->IsSameAs(*(wxObject*)MenuItem30))
-	  {
-	    replaceDevice(_("mouse"));
-	    replaceDevice(_("keyboard"));
-	  }
+    replaceDevice(_("mouse"));
+    replaceDevice(_("keyboard"));
 }
