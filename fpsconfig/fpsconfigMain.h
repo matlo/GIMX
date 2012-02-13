@@ -211,6 +211,9 @@ class fpsconfigFrame: public wxFrame
         unsigned int current_dpi;
 
         double values[8];
+		
+        wxString defaultMouseName;
+        wxString defaultKeyboardName;
 
         DECLARE_EVENT_TABLE()
 };

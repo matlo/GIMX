@@ -414,7 +414,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
 #ifndef WIN32
     if(!getuid())
     {
-    	int answer = wxMessageBox(_("It's not recommended to run as root user. Continue?"), _("Confirm"), wxYES_NO);
+      int answer = wxMessageBox(_("It's not recommended to run as root user. Continue?"), _("Confirm"), wxYES_NO);
       if (answer == wxNO)
       {
         exit(0);
@@ -879,7 +879,18 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
                 if(it->GetButton() == buttons[i].GetButton())
                 {
                     it->SetEvent(*buttons[i].GetEvent());
-                    it->SetDevice(*buttons[i].GetDevice());
+                    if(it->GetDevice()->GetType() != buttons[i].GetDevice()->GetType())
+                    {
+                        it->SetDevice(*buttons[i].GetDevice());
+                        if(it->GetDevice()->GetType() == _("mouse"))
+                        {
+                          it->GetDevice()->SetName(defaultMouseName);
+                        }
+                        else if(it->GetDevice()->GetType() == _("keyboard"))
+                        {
+                          it->GetDevice()->SetName(defaultKeyboardName);
+                        }
+                    }
                     found = true;
                 }
             }
@@ -900,8 +911,11 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             {
                 if(it->GetAxis() == axes[i].GetAxis())
                 {
-                  it->SetDevice(*axes[i].GetDevice());
                   it->SetEvent(*axes[i].GetEvent());
+                  if(it->GetDevice()->GetType() != buttons[i].GetDevice()->GetType())
+                  {
+                    it->SetDevice(*buttons[i].GetDevice());
+                  }
                   found = true;
                 }
             }
@@ -985,7 +999,18 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
                 if(it->GetButton() == buttons[i].GetButton())
                 {
                     it->SetEvent(*buttons[i].GetEvent());
-                    it->SetDevice(*buttons[i].GetDevice());
+                    if(it->GetDevice()->GetType() != buttons[i].GetDevice()->GetType())
+                    {
+                        it->SetDevice(*buttons[i].GetDevice());
+                        if(it->GetDevice()->GetType() == _("mouse"))
+                        {
+                          it->GetDevice()->SetName(defaultMouseName);
+                        }
+                        else if(it->GetDevice()->GetType() == _("keyboard"))
+                        {
+                          it->GetDevice()->SetName(defaultKeyboardName);
+                        }
+                    }
                     found = true;
                 }
             }
@@ -1006,8 +1031,11 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             {
                 if(it->GetAxis() == axes[i].GetAxis())
                 {
-                  it->SetDevice(*axes[i].GetDevice());
                   it->SetEvent(*axes[i].GetEvent());
+                  if(it->GetDevice()->GetType() != buttons[i].GetDevice()->GetType())
+          {
+            it->SetDevice(*buttons[i].GetDevice());
+            }
                   found = true;
                 }
             }
@@ -1078,7 +1106,6 @@ void fpsconfigFrame::LoadConfig()
   e_button_index bindex;
   e_axis_index aindex;
   wxButton* button;
-  std::list<Intensity>* intensityList;
 
   double mx, my, exp, f;
   double xyratio;
@@ -1086,6 +1113,9 @@ void fpsconfigFrame::LoadConfig()
 
   current_dpi = configFile.GetController(0)->GetMouseDPI();
   SpinCtrl9->SetValue(current_dpi);
+  
+  defaultMouseName = wxEmptyString;
+  defaultKeyboardName = wxEmptyString;
 
   /*
    * Load primary config.
@@ -1121,6 +1151,17 @@ void fpsconfigFrame::LoadConfig()
       buttons[bindex] = *it;
       button->SetLabel(it->GetEvent()->GetId());
       button->SetToolTip(it->GetEvent()->GetId());
+      if(!it->GetDevice()->GetName().IsEmpty())
+      {
+          if(it->GetDevice()->GetType() == _("mouse"))
+          {
+              defaultMouseName = it->GetDevice()->GetName();
+          }
+          else if(it->GetDevice()->GetType() == _("keyboard"))
+          {
+              defaultKeyboardName = it->GetDevice()->GetName();
+          }
+      }
   }
   //Load AxisMappers
   for(int i=ai_ls_up; i<AI_MAX; i++)
