@@ -30,7 +30,7 @@ sixaddr: utils/sixaddr.c
 	$(CC) -o $@ $^ -lusb
 	
 usbspoof: utils/usbspoof.c utils/pcapwriter.c
-	$(CC) -o $@ $^ -lusb-1.0 -lpthread
+	$(CC) -o $@ $^ -lusb-1.0
 
 bdaddr: utils/bdaddr.c utils/oui.c
 	$(CC) -o $@ $^ -lbluetooth
