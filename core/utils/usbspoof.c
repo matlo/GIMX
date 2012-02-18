@@ -28,6 +28,7 @@
 #include <errno.h>
 
 #define SPOOF_TIMEOUT 15
+#define USB_REQ_TIMEOUT 1000
 
 #define VENDOR 0x045e
 #define PRODUCT 0x028e
@@ -442,7 +443,7 @@ int main(int argc, char *argv[])
            * Forward the request to the 360 controller.
            */
 		      ret = libusb_control_transfer(devh, creq.header.bRequestType, creq.header.bRequest,
-              creq.header.wValue, creq.header.wIndex, creq.data, creq.header.wLength, 10);
+              creq.header.wValue, creq.header.wIndex, creq.data, creq.header.wLength, USB_REQ_TIMEOUT);
 
 		      if(ret < 0)
           {
@@ -604,7 +605,7 @@ int main(int argc, char *argv[])
            * No need to forward anything back to the serial port.
            */
           ret = libusb_control_transfer(devh, creq.header.bRequestType, creq.header.bRequest,
-              creq.header.wValue, creq.header.wIndex, creq.data, ret, 10);
+              creq.header.wValue, creq.header.wIndex, creq.data, ret, USB_REQ_TIMEOUT);
 
 		      if(ret < 0)
           {
