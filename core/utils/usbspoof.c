@@ -7,20 +7,27 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <sys/select.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
 #include <unistd.h>
+#ifndef WIN32
 #include <termios.h>
+#include <signal.h>
+#else
+#include <windows.h>
+#include <mmsystem.h>
+#define EINPROGRESS 115
+#endif
 #include <stdlib.h>
 #include <libusb-1.0/libusb.h>
-#include <pthread.h>
 
 #include "pcapwriter.h"
 
 #include <errno.h>
+
+#define SPOOF_TIMEOUT 15
 
 #define VENDOR 0x045e
 #define PRODUCT 0x028e
@@ -31,17 +38,23 @@
 #define REQTYPE_VENDOR (2 << 5)
 
 #define BUFFER_SIZE 4096
-#define BAUDRATE B500000
 
 #define ITFNUM 2
 
 static int bexit = 0;
 
+#ifndef WIN32
+#define BAUDRATE B500000
 static int fd = -1;
+#else
+static int baudrate = 500000;
+static HANDLE serial;
+#endif
 
 static int spoof = 0;
 static int debug = 0;
 static int verbose = 0;
+static int libusb_debug = 0;
 
 static libusb_device_handle *devh = NULL;
 static libusb_context* ctx = NULL;
@@ -84,6 +97,21 @@ void ex_program(int sig)
   bexit = 1;
 }
 
+#ifndef WIN32
+void catch_alarm (int sig)
+{
+  bexit = 1;
+  printf("spoof ko!\n");
+  signal (sig, catch_alarm);
+}
+#else
+void CALLBACK TimeProc(UINT uID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2)
+{
+  bexit = 1;
+  printf("spoof ko!\n");
+}
+#endif
+
 void fatal(char *msg)
 {
   perror(msg);
@@ -100,7 +128,7 @@ static void usb_init_spoof()
     perror("libusb_init");
   }
   
-  libusb_set_debug(ctx, 3);
+  libusb_set_debug(ctx, libusb_debug);
 
   devh = libusb_open_device_with_vid_pid(ctx, VENDOR, PRODUCT);
   
@@ -113,24 +141,42 @@ static void usb_init_spoof()
   {
 	  fatal("libusb_reset_device");
 	}
-
+#ifndef WIN32
   if(libusb_detach_kernel_driver(devh, ITFNUM) < 0)
   {
     //fatal("libusb_detach_kernel_driver");
   }
+#endif
   int i;
   for(i=0; i<4; ++i)
   {
-  if (libusb_claim_interface(devh, i) < 0)
-  {
-    //fatal("usb_claim_interface");
-  }
+    if (libusb_claim_interface(devh, i) < 0)
+    {
+      perror("usb_claim_interface");
+    }
   }
 
   usb_header.bus_id = libusb_get_bus_number(libusb_get_device(devh));
   usb_header.device_address = libusb_get_device_address(libusb_get_device(devh));
+
+#ifdef WIN32
+  int config;
+  if(libusb_get_configuration(devh, &config) < 0)
+  {
+    fatal("libusb_get_configuration");
+  }
+  if(config == 0)
+  {
+    printf("set configuration 1");
+    if(libusb_set_configuration(devh, 1) < 0)
+    {
+      fatal("libusb_set_configuration");
+    }
+  }
+#endif
 }
 
+#ifndef WIN32
 /*
  * Opens ttyUSB0 for reading and writing.
  */
@@ -138,7 +184,7 @@ static void serial_port_init()
 {
   struct termios options;
 
-  fd = open("/dev/ttyUSB0", O_RDWR | O_NOCTTY | O_NDELAY/* | O_NONBLOCK*/);
+  fd = open(serial_port, O_RDWR | O_NOCTTY | O_NDELAY/* | O_NONBLOCK*/);
 
   if(fd < 0)
   {
@@ -164,6 +210,71 @@ static void serial_port_init()
 
   tcflush(fd, TCIFLUSH);
 }
+#else
+static void serial_port_init()
+{
+  DWORD accessdirection = GENERIC_READ | GENERIC_WRITE;
+  char scom[16];
+  snprintf(scom, sizeof(scom), "\\\\.\\%s", serial_port);
+  serial = CreateFile(scom, accessdirection, 0, 0, OPEN_EXISTING, 0, 0);
+  if (serial == INVALID_HANDLE_VALUE)
+  {
+    printf("can't open serial port\n");
+    exit(-1);
+  }
+  DCB dcbSerialParams =
+  { 0 };
+  dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
+  if (!GetCommState(serial, &dcbSerialParams))
+  {
+    printf("can't get serial port state\n");
+    exit(-1);
+  }
+  dcbSerialParams.BaudRate = baudrate;
+  dcbSerialParams.ByteSize = 8;
+  dcbSerialParams.StopBits = ONESTOPBIT;
+  dcbSerialParams.Parity = NOPARITY;
+  if (!SetCommState(serial, &dcbSerialParams))
+  {
+    printf("can't set serial port params\n");
+    exit(-1);
+  }
+  COMMTIMEOUTS timeouts =
+  { 0 };
+  timeouts.ReadIntervalTimeout = 50;
+  timeouts.ReadTotalTimeoutConstant = 50;
+  timeouts.ReadTotalTimeoutMultiplier = 10;
+  timeouts.WriteTotalTimeoutConstant = 50;
+  timeouts.WriteTotalTimeoutMultiplier = 10;
+  if (!SetCommTimeouts(serial, &timeouts))
+  {
+    printf("can't set serial port timeouts\n");
+    exit(-1);
+  }
+}
+
+int serial_write(void* pdata, unsigned int size)
+{
+  DWORD dwBytesWrite = 0;
+
+  if(WriteFile(serial, (uint8_t*)pdata, size, &dwBytesWrite, NULL))
+  {
+    return dwBytesWrite;
+  }
+  return 0;
+}
+
+int serial_read(void* pdata, unsigned int size)
+{
+  DWORD dwBytesWrite = 0;
+
+  if(ReadFile(serial, (uint8_t*)pdata, size, &dwBytesWrite, NULL))
+  {
+    return dwBytesWrite;
+  }
+  return 0;
+}
+#endif
 
 static void usage()
 {
@@ -182,10 +293,13 @@ static int read_args(int argc, char* argv[])
   nsecs = 0;
   tfnd = 0;
   flags = 0;
-  while ((opt = getopt(argc, argv, "vdp:w:")) != -1)
+  while ((opt = getopt(argc, argv, "vdp:w:u:")) != -1)
   {
     switch (opt)
     {
+      case 'u':
+        libusb_debug = atoi(optarg);
+        break;
       case 'v':
         verbose = 1;
         break;
@@ -206,13 +320,6 @@ static int read_args(int argc, char* argv[])
   }
 }
 
-static void timeout()
-{
-  sleep(15);
-  printf("spoof ko!\n");
-  exit(-1);
-}
-
 int main(int argc, char *argv[])
 {
   control_request creq;
@@ -220,8 +327,6 @@ int main(int argc, char *argv[])
   int ret;
   int i;
   int j;
-  pthread_t thread;
-  pthread_attr_t thread_attr;
 
   read_args(argc, argv);
 
@@ -242,16 +347,25 @@ int main(int argc, char *argv[])
 
   serial_port_init();
 
-  pthread_attr_init(&thread_attr);
-  pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
-  pthread_create(&thread, &thread_attr, (void*) timeout, NULL);
+#ifndef WIN32
+  signal (SIGALRM, catch_alarm);
+  alarm (SPOOF_TIMEOUT);
+#else
+  timeBeginPeriod(1000);
+  MMRESULT timerID;
+  timerID = timeSetEvent(1000*SPOOF_TIMEOUT, 0, TimeProc, 0, TIME_ONESHOT );
+#endif
 
   while(!bexit)
   {
     /*
      * Get data from the serial port.
      */
+#ifndef WIN32
     if(read(fd, p_data, sizeof(*p_data)) == sizeof(*p_data))
+#else
+    if(serial_read(p_data, sizeof(*p_data)) == sizeof(*p_data))
+#endif
     {
       if(debug)
       {
@@ -282,6 +396,7 @@ int main(int argc, char *argv[])
           }
           if(verbose)
           {
+            printf("--> GET\n");
             printf("bRequestType: 0x%02x bRequest: 0x%02x wValue: 0x%04x wIndex: 0x%04x wLength: 0x%04x\n", creq.header.bRequestType, creq.header.bRequest, creq.header.wValue, creq.header.wIndex, creq.header.wLength);
           }
 
@@ -314,6 +429,11 @@ int main(int argc, char *argv[])
 
           if(!(creq.header.bRequestType & REQTYPE_VENDOR))
           {
+            if(verbose || debug)
+            {
+              printf("--> standard requests are not forwarded\n");
+              printf("\n");
+            }
             p_data = (unsigned char*)&creq.header;
             continue;
           }
@@ -322,11 +442,11 @@ int main(int argc, char *argv[])
            * Forward the request to the 360 controller.
            */
 		      ret = libusb_control_transfer(devh, creq.header.bRequestType, creq.header.bRequest,
-              creq.header.wValue, creq.header.wIndex, creq.data, creq.header.wLength, 1000);
+              creq.header.wValue, creq.header.wIndex, creq.data, creq.header.wLength, 10);
 
 		      if(ret < 0)
           {
-            perror("libusb_control_transfer");
+            printf("libusb_control_transfer failed with error: %d\n", ret);
           }
           else
           {
@@ -347,7 +467,11 @@ int main(int argc, char *argv[])
             /*
              * Forward the length and the data to the serial port.
              */
+#ifndef WIN32
             if(write(fd, &length, sizeof(length)) < sizeof(length) || write(fd, creq.data, ret) < ret)
+#else
+            if(serial_write(&length, sizeof(length)) < sizeof(length) || serial_write(creq.data, ret) < ret)
+#endif
             {
               perror("write");
             }
@@ -376,6 +500,11 @@ int main(int argc, char *argv[])
           }
 
           p_data = (unsigned char*)&creq.header;
+
+          if(verbose || debug)
+          {
+            printf("\n");
+          }
         }
         /*
          * Check if data has to be waited for.
@@ -388,6 +517,7 @@ int main(int argc, char *argv[])
           }
           if(verbose)
           {
+            printf("--> SET\n");
             printf("bRequestType: 0x%02x bRequest: 0x%02x wValue: 0x%04x wIndex: 0x%04x wLength: 0x%04x\n", creq.header.bRequestType, creq.header.bRequest, creq.header.wValue, creq.header.wIndex, creq.header.wLength);
           }
 
@@ -398,7 +528,11 @@ int main(int argc, char *argv[])
             exit(0);
           }
 
+#ifndef WIN32
           ret = read(fd, p_data, creq.header.wLength);
+#else
+          ret = serial_read(p_data, creq.header.wLength);
+#endif
           if(ret < creq.header.wLength)
           {
             printf("\nread error!! expected: %d received: %d\n\n", creq.header.wLength, ret);
@@ -456,6 +590,11 @@ int main(int argc, char *argv[])
 
           if(!(creq.header.bRequestType & REQTYPE_VENDOR))
           {
+            if(verbose || debug)
+            {
+              printf("--> standard requests are not forwarded\n");
+              printf("\n");
+            }
             p_data = (unsigned char*)&creq.header;
             continue;
           }
@@ -465,11 +604,11 @@ int main(int argc, char *argv[])
            * No need to forward anything back to the serial port.
            */
           ret = libusb_control_transfer(devh, creq.header.bRequestType, creq.header.bRequest,
-              creq.header.wValue, creq.header.wIndex, creq.data, ret, 1000);
+              creq.header.wValue, creq.header.wIndex, creq.data, ret, 10);
 
 		      if(ret < 0)
           {
-            perror("libusb_control_transfer");
+            printf("libusb_control_transfer failed with error: %d\n", ret);
           }
 		      if(file_name)
           {
@@ -493,6 +632,11 @@ int main(int argc, char *argv[])
           }
 
           p_data = (unsigned char*)&creq.header;
+
+          if(verbose || debug)
+          {
+            printf("\n");
+          }
         }
       }
     }
@@ -501,7 +645,13 @@ int main(int argc, char *argv[])
   {
     pcapwriter_close();
   }
+  printf("exiting\n");
+#ifndef WIN32
   close(fd);
+#else
+  timeEndPeriod(1000);
+  CloseHandle(serial);
+#endif
   libusb_close(devh);
   libusb_exit(ctx);
   return 0;
