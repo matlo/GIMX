@@ -64,6 +64,8 @@ char* config_file = NULL;
 
 char* portname = NULL;
 
+char* keygen = NULL;
+
 int refresh = DEFAULT_REFRESH_PERIOD; //µs
 int postpone_count = DEFAULT_POSTPONE_COUNT;
 int max_axis_value = DEFAULT_MAX_AXIS_VALUE;
@@ -89,6 +91,7 @@ int main(int argc, char *argv[])
   int grab = 1;
   SDL_Event events[EVENT_BUFFER_SIZE];
   SDL_Event* event;
+  SDL_Event kgevent = {.type = SDL_KEYDOWN};
   int i;
   int num_evt;
   int read = 0;
@@ -187,6 +190,10 @@ int main(int argc, char *argv[])
     {
       ctype = C_TYPE_GPP;
     }
+    else if (!strcmp(argv[i], "--keygen") && i < argc)
+    {
+      keygen = argv[++i];
+    }
 //#ifdef WIN32
 //    else if (!strcmp(argv[i], "--ip") && i < argc)
 //    {
@@ -258,7 +265,6 @@ int main(int argc, char *argv[])
     sdl_release_unused();
   }
 
-#ifndef WIN32
   if(serial)
   {
     if(ctype != C_TYPE_GPP)
@@ -276,16 +282,25 @@ int main(int argc, char *argv[])
       }
     }
   }
+#ifndef WIN32
   else if(tcp_connect() < 0)
   {
     err(1, "tcp_connect");
   }
-#else
-  if (serial_connect(portname) < 0)
-  {
-    err(1, "serial_connect");
-  }
 #endif
+
+  if(keygen)
+  {
+    kgevent.key.keysym.sym = get_key_from_buffer(keygen);
+    if(kgevent.key.keysym.sym != SDLK_UNKNOWN)
+    {
+      SDL_PushEvent(&kgevent);
+    }
+    else
+    {
+      err(1, "Unknown key name for argument --keygen!");
+    }
+  }
 
   done = 0;
   while (!done)
