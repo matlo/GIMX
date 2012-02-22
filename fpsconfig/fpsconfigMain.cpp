@@ -912,9 +912,9 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
                 if(it->GetAxis() == axes[i].GetAxis())
                 {
                   it->SetEvent(*axes[i].GetEvent());
-                  if(it->GetDevice()->GetType() != buttons[i].GetDevice()->GetType())
+                  if(it->GetDevice()->GetType() != axes[i].GetDevice()->GetType())
                   {
-                    it->SetDevice(*buttons[i].GetDevice());
+                    it->SetDevice(*axes[i].GetDevice());
                   }
                   found = true;
                 }
@@ -947,7 +947,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     wsxyratio = TextCtrl1->GetValue();
     if(wsmx.ToDouble(&mx) && wsxyratio.ToDouble(&xyratio))
     {
-        my = mx * xyratio;
+        my = mx * values[4];
     }
     else
     {
@@ -1032,10 +1032,10 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
                 if(it->GetAxis() == axes[i].GetAxis())
                 {
                   it->SetEvent(*axes[i].GetEvent());
-                  if(it->GetDevice()->GetType() != buttons[i].GetDevice()->GetType())
-          {
-            it->SetDevice(*buttons[i].GetDevice());
-            }
+                  if(it->GetDevice()->GetType() != axes[i].GetDevice()->GetType())
+                  {
+                    it->SetDevice(*axes[i].GetDevice());
+                  }
                   found = true;
                 }
             }
@@ -1067,7 +1067,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     wsxyratio = TextCtrl25->GetValue();
     if(wsmx.ToDouble(&mx) && wsxyratio.ToDouble(&xyratio))
     {
-        my = mx * xyratio;
+        my = mx * values[5];
     }
     else
     {
@@ -1148,6 +1148,11 @@ void fpsconfigFrame::LoadConfig()
           continue;
       }
 
+      if(!buttons[bindex].GetEvent()->GetId().IsEmpty())
+      {
+          continue;
+      }
+      
       buttons[bindex] = *it;
       button->SetLabel(it->GetEvent()->GetId());
       button->SetToolTip(it->GetEvent()->GetId());
@@ -1235,6 +1240,7 @@ void fpsconfigFrame::LoadConfig()
 
                   TextCtrl1->SetValue(wsxyratio);
                   SpinCtrl7->SetValue(xyratio*100);
+                  values[4] = xyratio;
               }
           }
       }
@@ -1243,6 +1249,11 @@ void fpsconfigFrame::LoadConfig()
           aindex = getAxisIndex(button);
 
           if(aindex == ai_undef)
+          {
+              continue;
+          }
+
+          if(!axes[aindex].GetEvent()->GetId().IsEmpty())
           {
               continue;
           }
@@ -1320,6 +1331,7 @@ void fpsconfigFrame::LoadConfig()
 
                   TextCtrl25->SetValue(wsxyratio);
                   SpinCtrl8->SetValue(xyratio*100);
+                  values[5] = xyratio;
               }
           }
       }
@@ -1510,16 +1522,14 @@ void fpsconfigFrame::OnMouseDPIChange(wxSpinEvent& event)
     if(CheckBox1->IsChecked() && current_dpi && new_dpi)
     {
         /*
-         * Store the new x multiplier so as not to loose precision due to rounding.
+         * Store the new x multipliers so as not to loose precision due to rounding.
          */
         values[0] = values[0]*pow((double)current_dpi/new_dpi, values[2]);
         SpinCtrl3->SetValue(values[0]*100);
         wsm = wxString::Format(wxT("%.02f"), (double)values[0]);
 
         TextCtrl4->SetValue(wsm);
-        /*
-         * Store the new y multiplier so as not to loose precision due to rounding.
-         */
+        
         values[1] = values[1]*pow((double)current_dpi/new_dpi, values[3]);
         SpinCtrl4->SetValue(values[1]*100);
         wsm = wxString::Format(wxT("%.02f"), (double)values[1]);
