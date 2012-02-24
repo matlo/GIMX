@@ -937,35 +937,14 @@ void sixemuguiFrame::OnControllerTypeSelect(wxCommandEvent& event)
     {
       ButtonSpoof->Enable(false);
     }
-    if(ControllerType->GetStringSelection() == _("Joystick"))
-    {
-      ComboBoxFrequency->SetSelection(3);
-      ComboBoxFrequency->Enable(true);
-    }
-    else if(ControllerType->GetStringSelection() == _("GPP(360)"))
-    {
-      ComboBoxFrequency->SetSelection(2);
-      ComboBoxFrequency->Enable(false);
-    }
-    else if(ControllerType->GetStringSelection() == _("GPP(PS3)"))
-    {
-      ComboBoxFrequency->SetSelection(1);
-      ComboBoxFrequency->Enable(false);
-    }
-    else if(ControllerType->GetStringSelection() == _("360 pad"))
-    {
-      ComboBoxFrequency->SetSelection(2);
-      ComboBoxFrequency->Enable(false);
-    }
-    else if(ControllerType->GetStringSelection() == _("Sixaxis"))
-    {
-      ComboBoxFrequency->SetSelection(1);
-      ComboBoxFrequency->Enable(false);
-    }
-    else if(ControllerType->GetStringSelection() == _("PS2 pad"))
+    if(ControllerType->GetStringSelection() == _("PS2 pad"))
     {
       ComboBoxFrequency->SetSelection(0);
       ComboBoxFrequency->Enable(false);
+    }
+    else
+    {
+      ComboBoxFrequency->Enable(true);
     }
 }
 
