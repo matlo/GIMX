@@ -98,6 +98,7 @@ const long sixemuguiFrame::ID_MENUITEM2 = wxNewId();
 const long sixemuguiFrame::ID_MENUITEM3 = wxNewId();
 const long sixemuguiFrame::idMenuQuit = wxNewId();
 const long sixemuguiFrame::ID_MENUITEM4 = wxNewId();
+const long sixemuguiFrame::ID_MENUITEM5 = wxNewId();
 const long sixemuguiFrame::idMenuAbout = wxNewId();
 const long sixemuguiFrame::ID_STATUSBAR1 = wxNewId();
 //*)
@@ -213,6 +214,27 @@ static void read_controller_type(wxChoice* choice)
       {
           getline (infile,line);
           choice->SetSelection(choice->FindString(wxString(line.c_str(), wxConvUTF8)));
+      }
+      infile.close();
+  }
+}
+
+static void readStartUpdates(wxMenuItem* menuItem)
+{
+  string filename = "";
+  string line = "";
+
+  filename.append("startUpdates");
+  ifstream infile (filename.c_str());
+  if ( infile.is_open() )
+  {
+      if( infile.good() )
+      {
+          getline (infile,line);
+          if(line == "yes")
+          {
+              menuItem->Check(true);
+          }
       }
       infile.close();
   }
@@ -380,6 +402,28 @@ static void read_controller_type(wxChoice* choice)
       infile.close();
   }
 }
+
+static void readStartUpdates(wxMenuItem* menuItem)
+{
+  string filename = "";
+  string line = "";
+
+  filename.append(homedir);
+  filename.append("/.sixemugui-serial/startUpdates");
+  ifstream infile (filename.c_str());
+  if ( infile.is_open() )
+  {
+      if( infile.good() )
+      {
+          getline (infile,line);
+          if(line == "yes")
+          {
+              menuItem->Check(true);
+          }
+      }
+      infile.close();
+  }
+}
 #endif
 
 sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
@@ -508,6 +552,8 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     Menu2 = new wxMenu();
     MenuUpdate = new wxMenuItem(Menu2, ID_MENUITEM4, _("Update"), wxEmptyString, wxITEM_NORMAL);
     Menu2->Append(MenuUpdate);
+    MenuStartupUpdates = new wxMenuItem(Menu2, ID_MENUITEM5, _("Check updates at startup"), wxEmptyString, wxITEM_CHECK);
+    Menu2->Append(MenuStartupUpdates);
     MenuItem2 = new wxMenuItem(Menu2, idMenuAbout, _("About\tF1"), _("Show info about this application"), wxITEM_NORMAL);
     Menu2->Append(MenuItem2);
     MenuBar1->Append(Menu2, _("Help"));
@@ -532,6 +578,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuRefresh);
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnQuit);
     Connect(ID_MENUITEM4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuUpdate);
+    Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuStartupUpdates);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnAbout);
     //*)
 
@@ -555,6 +602,16 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     read_controller_type(ControllerType);
     wxCommandEvent event;
     OnControllerTypeSelect(event);
+    
+    started = false;
+    
+    readStartUpdates(MenuStartupUpdates);
+    if(MenuStartupUpdates->IsChecked())
+    {
+      OnMenuUpdate(event);
+    }
+
+    started = true;
 
     Refresh();
 }
@@ -1011,8 +1068,28 @@ void sixemuguiFrame::OnMenuUpdate(wxCommandEvent& event)
   {
     wxMessageBox(wxT("Can't check version!"), wxT("Error"), wxICON_ERROR);
   }
-  else
+  else if(started)
   {
     wxMessageBox(wxT("GIMX is up-to-date!"), wxT("Info"), wxICON_INFORMATION);
+  }
+}
+
+void sixemuguiFrame::OnMenuStartupUpdates(wxCommandEvent& event)
+{
+  string filename;
+  filename.append(homedir);
+  filename.append("/.sixemugui-serial/startUpdates");
+  ofstream outfile (filename.c_str(), ios_base::trunc);
+  if(outfile.is_open())
+  {
+    if(MenuStartupUpdates->IsChecked())
+    {
+      outfile << "yes" << endl;
+    }
+    else
+    {
+      outfile << "no" << endl;
+    }
+    outfile.close();
   }
 }

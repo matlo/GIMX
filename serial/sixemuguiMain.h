@@ -51,6 +51,7 @@ class sixemuguiFrame: public wxFrame
         void OnControllerTypeSelect(wxCommandEvent& event);
         void OnButtonSpoofClick(wxCommandEvent& event);
         void OnMenuUpdate(wxCommandEvent& event);
+        void OnMenuStartupUpdates(wxCommandEvent& event);
         //*)
 
         //(*Identifiers(sixemuguiFrame)
@@ -76,6 +77,7 @@ class sixemuguiFrame: public wxFrame
         static const long ID_MENUITEM3;
         static const long idMenuQuit;
         static const long ID_MENUITEM4;
+        static const long ID_MENUITEM5;
         static const long idMenuAbout;
         static const long ID_STATUSBAR1;
         //*)
@@ -100,6 +102,7 @@ class sixemuguiFrame: public wxFrame
         wxButton* ButtonCheck;
         wxButton* ButtonSpoof;
         wxButton* ButtonStart;
+        wxMenuItem* MenuStartupUpdates;
         wxStaticText* StaticText4;
         wxMenuItem* MenuEditConfig;
         wxCheckBox* CheckBoxForceUpdates;
@@ -107,6 +110,7 @@ class sixemuguiFrame: public wxFrame
         //*)
 
         bool spoofed;
+        bool started;
 
         DECLARE_EVENT_TABLE()
 };
