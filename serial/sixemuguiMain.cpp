@@ -16,7 +16,6 @@
 #include <wx/string.h>
 //*)
 
-#include <pthread.h>
 #include <unistd.h>
 #include <errno.h>
 #include <dirent.h>
@@ -33,6 +32,8 @@
 
 #include <wx/aboutdlg.h>
 #include "serial.h"
+
+#include "../shared/updater/updater.h"
 
 using namespace std;
 
@@ -96,6 +97,7 @@ const long sixemuguiFrame::ID_MENUITEM1 = wxNewId();
 const long sixemuguiFrame::ID_MENUITEM2 = wxNewId();
 const long sixemuguiFrame::ID_MENUITEM3 = wxNewId();
 const long sixemuguiFrame::idMenuQuit = wxNewId();
+const long sixemuguiFrame::ID_MENUITEM4 = wxNewId();
 const long sixemuguiFrame::idMenuAbout = wxNewId();
 const long sixemuguiFrame::ID_STATUSBAR1 = wxNewId();
 //*)
@@ -504,6 +506,8 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     Menu1->Append(MenuItem1);
     MenuBar1->Append(Menu1, _("&File"));
     Menu2 = new wxMenu();
+    MenuUpdate = new wxMenuItem(Menu2, ID_MENUITEM4, _("Update"), wxEmptyString, wxITEM_NORMAL);
+    Menu2->Append(MenuUpdate);
     MenuItem2 = new wxMenuItem(Menu2, idMenuAbout, _("About\tF1"), _("Show info about this application"), wxITEM_NORMAL);
     Menu2->Append(MenuItem2);
     MenuBar1->Append(Menu2, _("Help"));
@@ -527,6 +531,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuEditFpsConfig);
     Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuRefresh);
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnQuit);
+    Connect(ID_MENUITEM4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuUpdate);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnAbout);
     //*)
 
@@ -621,7 +626,7 @@ void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
     }
     else if(ControllerType->GetStringSelection() == _("Sixaxis"))
     {
-      command.append(" --sixaxis");
+      command.append(" --Sixaxis");
     }
     else if(ControllerType->GetStringSelection() == _("PS2 pad"))
     {
@@ -980,4 +985,34 @@ void sixemuguiFrame::OnButtonSpoofClick(wxCommandEvent& event)
         ButtonSpoof->Enable(false);
       }
     }
+}
+
+void sixemuguiFrame::OnMenuUpdate(wxCommandEvent& event)
+{
+  int ret;
+
+  updater u(VERSION_URL, VERSION_FILE, INFO_VERSION, DOWNLOAD_URL, DOWNLOAD_FILE);
+
+  ret = u.checkversion();
+
+  if (ret > 0)
+  {
+    int answer = wxMessageBox(_("Update available.\nStart installation?"), _("Confirm"), wxYES_NO);
+    if (answer == wxNO)
+    {
+     return;
+    }
+    if (u.update() < 0)
+    {
+      wxMessageBox(wxT("Can't retrieve update file!"), wxT("Error"), wxICON_ERROR);
+    }
+  }
+  else if (ret < 0)
+  {
+    wxMessageBox(wxT("Can't check version!"), wxT("Error"), wxICON_ERROR);
+  }
+  else
+  {
+    wxMessageBox(wxT("GIMX is up-to-date!"), wxT("Info"), wxICON_INFORMATION);
+  }
 }

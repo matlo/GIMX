@@ -128,6 +128,7 @@ class sixaxis_emu_guiFrame: public wxFrame
         void OnMenuSetMouseDPI(wxCommandEvent& event);
         void OnMenuMultipleMK(wxCommandEvent& event);
         void OnTextCtrl(wxCommandEvent& event);
+        void OnMenuUpdate(wxCommandEvent& event);
         //*)
         void DeleteSelectedRows(wxGrid* grid);
         void DeleteLinkedRows(wxGrid* grid, int row);
@@ -269,6 +270,7 @@ class sixaxis_emu_guiFrame: public wxFrame
         static const long ID_MENUITEM16;
         static const long ID_MENUITEM24;
         static const long ID_MENUITEM25;
+        static const long ID_MENUITEM26;
         static const long idMenuAbout;
         static const long ID_STATUSBAR1;
         //*)
@@ -404,6 +406,7 @@ class sixaxis_emu_guiFrame: public wxFrame
         wxStaticText* ProfileTriggerDeviceName;
         wxMenu* Menu5;
         wxChoice* AxisTabAxisId;
+        wxMenuItem* MenuUpdate;
         wxMenu* Menu4;
         wxMenuItem* MenuItem19;
         wxStaticText* ButtonTabDeviceName;

@@ -64,6 +64,7 @@ class fpsconfigFrame: public wxFrame
         void OnSpinCtrlChange(wxSpinEvent& event);
         void OnTextCtrlText(wxCommandEvent& event);
         void OnMouseDPIChange(wxSpinEvent& event);
+        void OnMenuUpdate(wxCommandEvent& event);
         //*)
 
         e_button_index getButtonIndex(wxButton* button);
@@ -134,6 +135,7 @@ class fpsconfigFrame: public wxFrame
         static const long ID_MENUITEM2;
         static const long ID_MENUITEM3;
         static const long idMenuQuit;
+        static const long ID_MENUITEM5;
         static const long idMenuAbout;
         static const long ID_STATUSBAR1;
         //*)
@@ -197,6 +199,7 @@ class fpsconfigFrame: public wxFrame
         wxSpinCtrl* SpinCtrl6;
         wxChoice* Choice1;
         wxChoice* Choice2;
+        wxMenuItem* MenuUpdate;
         wxButton* right;
         wxButton* circle;
         wxSpinCtrl* SpinCtrl8;

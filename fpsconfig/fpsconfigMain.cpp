@@ -30,6 +30,8 @@
 
 #include <locale.h>
 
+#include "../shared/updater/updater.h"
+
 using namespace std;
 
 //helper functions
@@ -123,6 +125,7 @@ const long fpsconfigFrame::ID_MENUITEM4 = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM2 = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM3 = wxNewId();
 const long fpsconfigFrame::idMenuQuit = wxNewId();
+const long fpsconfigFrame::ID_MENUITEM5 = wxNewId();
 const long fpsconfigFrame::idMenuAbout = wxNewId();
 const long fpsconfigFrame::ID_STATUSBAR1 = wxNewId();
 //*)
@@ -135,7 +138,7 @@ END_EVENT_TABLE()
 class wxBackgroundBitmap : public wxEvtHandler {
     typedef wxEvtHandler Inherited;
 public:
-    wxBackgroundBitmap(const wxBitmap &B) : Bitmap(B), wxEvtHandler() { }
+    wxBackgroundBitmap(const wxBitmap &B) : wxEvtHandler(), Bitmap(B) { }
     virtual bool        ProcessEvent(wxEvent &Event);
 protected:
     wxBitmap            Bitmap;
@@ -338,6 +341,8 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     Menu1->Append(MenuItem1);
     MenuBar1->Append(Menu1, _("&File"));
     Menu2 = new wxMenu();
+    MenuUpdate = new wxMenuItem(Menu2, ID_MENUITEM5, _("Update"), wxEmptyString, wxITEM_NORMAL);
+    Menu2->Append(MenuUpdate);
     MenuItem2 = new wxMenuItem(Menu2, idMenuAbout, _("About\tF1"), _("Show info about this application"), wxITEM_NORMAL);
     Menu2->Append(MenuItem2);
     MenuBar1->Append(Menu2, _("Help"));
@@ -401,6 +406,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuSave);
     Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuSaveAs);
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnQuit);
+    Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuUpdate);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnAbout);
     //*)
 
@@ -513,7 +519,7 @@ void fpsconfigFrame::OnAbout(wxCommandEvent& event)
   wxString text = wxString(_(INFO_DESCR)) + wxString(_("\n")) + wxString(_(INFO_YEAR)) + wxString(_(" ")) + wxString(_(INFO_DEV)) + wxString(_(" ")) + wxString(_(INFO_LICENCE));
   info.SetDescription(text);
   info.SetWebSite(wxT(INFO_WEB));
-  
+
   wxAboutBox(info);
 }
 
@@ -1113,7 +1119,7 @@ void fpsconfigFrame::LoadConfig()
 
   current_dpi = configFile.GetController(0)->GetMouseDPI();
   SpinCtrl9->SetValue(current_dpi);
-  
+
   defaultMouseName = wxEmptyString;
   defaultKeyboardName = wxEmptyString;
 
@@ -1152,7 +1158,7 @@ void fpsconfigFrame::LoadConfig()
       {
           continue;
       }
-      
+
       buttons[bindex] = *it;
       button->SetLabel(it->GetEvent()->GetId());
       button->SetToolTip(it->GetEvent()->GetId());
@@ -1529,7 +1535,7 @@ void fpsconfigFrame::OnMouseDPIChange(wxSpinEvent& event)
         wsm = wxString::Format(wxT("%.02f"), (double)values[0]);
 
         TextCtrl4->SetValue(wsm);
-        
+
         values[1] = values[1]*pow((double)current_dpi/new_dpi, values[3]);
         SpinCtrl4->SetValue(values[1]*100);
         wsm = wxString::Format(wxT("%.02f"), (double)values[1]);
@@ -1539,4 +1545,34 @@ void fpsconfigFrame::OnMouseDPIChange(wxSpinEvent& event)
 
     current_dpi = new_dpi;
     SpinCtrl9->SetValue(new_dpi);
+}
+
+void fpsconfigFrame::OnMenuUpdate(wxCommandEvent& event)
+{
+  int ret;
+
+  updater u(VERSION_URL, VERSION_FILE, INFO_VERSION, DOWNLOAD_URL, DOWNLOAD_FILE);
+
+  ret = u.checkversion();
+
+  if (ret > 0)
+  {
+    int answer = wxMessageBox(_("Update available.\nStart installation?"), _("Confirm"), wxYES_NO);
+    if (answer == wxNO)
+    {
+     return;
+    }
+    if (u.update() < 0)
+    {
+      wxMessageBox(wxT("Can't retrieve update file!"), wxT("Error"), wxICON_ERROR);
+    }
+  }
+  else if (ret < 0)
+  {
+    wxMessageBox(wxT("Can't check version!"), wxT("Error"), wxICON_ERROR);
+  }
+  else
+  {
+    wxMessageBox(wxT("GIMX is up-to-date!"), wxT("Info"), wxICON_INFORMATION);
+  }
 }

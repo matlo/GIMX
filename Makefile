@@ -1,4 +1,4 @@
-DIRS=core config bluetooth serial status fpsconfig
+DIRS=shared core config bluetooth serial status fpsconfig
 
 all:
 	+for i in $(DIRS); do cd $$i; make all; cd ..; done

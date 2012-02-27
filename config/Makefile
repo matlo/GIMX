@@ -35,7 +35,7 @@ OBJDIR_RELEASE = obj/Release
 DEP_RELEASE = 
 OUT_RELEASE = bin/Release/gimx-config
 
-OBJ_RELEASE = $(OBJDIR_RELEASE)/src/event_catcher.o $(OBJDIR_RELEASE)/src/XmlWritter.o $(OBJDIR_RELEASE)/src/XmlReader.o $(OBJDIR_RELEASE)/src/Trigger.o $(OBJDIR_RELEASE)/src/Intensity.o $(OBJDIR_RELEASE)/src/Event.o $(OBJDIR_RELEASE)/src/Device.o $(OBJDIR_RELEASE)/src/Controller.o $(OBJDIR_RELEASE)/src/ConfigurationFile.o $(OBJDIR_RELEASE)/src/Configuration.o $(OBJDIR_RELEASE)/src/ButtonMapper.o $(OBJDIR_RELEASE)/src/AxisMapper.o $(OBJDIR_RELEASE)/sixaxis_emu_guiMain.o $(OBJDIR_RELEASE)/sixaxis_emu_guiApp.o
+OBJ_RELEASE = $(OBJDIR_RELEASE)/src/event_catcher.o $(OBJDIR_RELEASE)/src/XmlWritter.o $(OBJDIR_RELEASE)/src/XmlReader.o $(OBJDIR_RELEASE)/src/Trigger.o $(OBJDIR_RELEASE)/src/Intensity.o $(OBJDIR_RELEASE)/src/Event.o $(OBJDIR_RELEASE)/src/Device.o $(OBJDIR_RELEASE)/src/Controller.o $(OBJDIR_RELEASE)/src/ConfigurationFile.o $(OBJDIR_RELEASE)/src/Configuration.o $(OBJDIR_RELEASE)/src/ButtonMapper.o $(OBJDIR_RELEASE)/src/AxisMapper.o $(OBJDIR_RELEASE)/sixaxis_emu_guiMain.o $(OBJDIR_RELEASE)/sixaxis_emu_guiApp.o ../shared/updater/updater.o
 
 all: release
 

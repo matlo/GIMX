@@ -1,4 +1,4 @@
-DIRS=core config serial status fpsconfig
+DIRS=shared core config serial status fpsconfig
 
 all:
 	+for i in $(DIRS); do cd $$i; make -f Makefile.win all; cd ..; done

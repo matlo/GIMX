@@ -30,6 +30,8 @@
 #include <wx/aboutdlg.h>
 #include "bluetooth.h"
 
+#include "../shared/updater/updater.h"
+
 using namespace std;
 
 #define CONFIG_DIR ".emuclient/config/"
@@ -105,6 +107,7 @@ const long sixemuguiFrame::ID_MENUITEM4 = wxNewId();
 const long sixemuguiFrame::ID_MENUITEM1 = wxNewId();
 const long sixemuguiFrame::ID_MENUITEM2 = wxNewId();
 const long sixemuguiFrame::idMenuQuit = wxNewId();
+const long sixemuguiFrame::ID_MENUITEM5 = wxNewId();
 const long sixemuguiFrame::idMenuAbout = wxNewId();
 const long sixemuguiFrame::ID_STATUSBAR1 = wxNewId();
 //*)
@@ -510,7 +513,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer11;
     wxMenu* Menu2;
     wxStaticBoxSizer* StaticBoxSizer5;
-    
+
     Create(parent, wxID_ANY, _("Gimx-bluetooth"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     SetClientSize(wxSize(675,525));
     Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxSize(0,0), wxTAB_TRAVERSAL, _T("ID_PANEL1"));
@@ -661,6 +664,8 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     Menu1->Append(MenuItem1);
     MenuBar1->Append(Menu1, _("&File"));
     Menu2 = new wxMenu();
+    MenuUpdate = new wxMenuItem(Menu2, ID_MENUITEM5, _("Update"), wxEmptyString, wxITEM_NORMAL);
+    Menu2->Append(MenuUpdate);
     MenuItem2 = new wxMenuItem(Menu2, idMenuAbout, _("About\tF1"), _("Show info about this application"), wxITEM_NORMAL);
     Menu2->Append(MenuItem2);
     MenuBar1->Append(Menu2, _("Help"));
@@ -672,7 +677,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     StatusBar1->SetStatusStyles(2,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
     SingleInstanceChecker1.Create(_T("gimx-bluetooth_") + wxGetUserId() + _T("_Guard"));
-    
+
     Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSelectSixaxisBdaddr);
     Connect(ID_CHOICE2,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSelectPS3Bdaddr);
     Connect(ID_CHOICE3,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSelectBtDongle);
@@ -692,6 +697,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSelectRefresh);
     Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSave);
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnQuit);
+    Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuUpdate);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnAbout);
     //*)
 
@@ -1302,4 +1308,34 @@ void sixemuguiFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
     {
         wxMessageBox( wxT("Error editing the config file!"), wxT("Error"), wxICON_ERROR);
     }
+}
+
+void sixemuguiFrame::OnMenuUpdate(wxCommandEvent& event)
+{
+  int ret;
+
+  updater u(VERSION_URL, VERSION_FILE, INFO_VERSION, DOWNLOAD_URL, DOWNLOAD_FILE);
+
+  ret = u.checkversion();
+
+  if (ret > 0)
+  {
+    int answer = wxMessageBox(_("Update available.\nStart installation?"), _("Confirm"), wxYES_NO);
+    if (answer == wxNO)
+    {
+     return;
+    }
+    if (u.update() < 0)
+    {
+      wxMessageBox(wxT("Can't retrieve update file!"), wxT("Error"), wxICON_ERROR);
+    }
+  }
+  else if (ret < 0)
+  {
+    wxMessageBox(wxT("Can't check version!"), wxT("Error"), wxICON_ERROR);
+  }
+  else
+  {
+    wxMessageBox(wxT("GIMX is up-to-date!"), wxT("Info"), wxICON_INFORMATION);
+  }
 }

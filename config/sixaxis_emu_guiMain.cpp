@@ -27,6 +27,8 @@
 #include <wx/filename.h>
 #include <wx/dir.h>
 
+#include "../shared/updater/updater.h"
+
 using namespace std;
 
 //helper functions
@@ -184,6 +186,7 @@ const long sixaxis_emu_guiFrame::ID_MENUITEM15 = wxNewId();
 const long sixaxis_emu_guiFrame::ID_MENUITEM16 = wxNewId();
 const long sixaxis_emu_guiFrame::ID_MENUITEM24 = wxNewId();
 const long sixaxis_emu_guiFrame::ID_MENUITEM25 = wxNewId();
+const long sixaxis_emu_guiFrame::ID_MENUITEM26 = wxNewId();
 const long sixaxis_emu_guiFrame::idMenuAbout = wxNewId();
 const long sixaxis_emu_guiFrame::ID_STATUSBAR1 = wxNewId();
 //*)
@@ -710,6 +713,8 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     MenuItem31->Check(true);
     MenuBar1->Append(Menu6, _("Advanced"));
     Menu2 = new wxMenu();
+    MenuUpdate = new wxMenuItem(Menu2, ID_MENUITEM26, _("Update"), wxEmptyString, wxITEM_NORMAL);
+    Menu2->Append(MenuUpdate);
     MenuItem2 = new wxMenuItem(Menu2, idMenuAbout, _("About\tF1"), _("Show info about this application"), wxITEM_NORMAL);
     Menu2->Append(MenuItem2);
     MenuBar1->Append(Menu2, _("Help"));
@@ -781,6 +786,7 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     Connect(ID_MENUITEM15,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemConfiguration7);
     Connect(ID_MENUITEM16,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemConfiguration8);
     Connect(ID_MENUITEM24,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuMultipleMK);
+    Connect(ID_MENUITEM26,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuUpdate);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnAbout);
     //*)
 
@@ -2838,4 +2844,34 @@ void sixaxis_emu_guiFrame::OnMenuMultipleMK(wxCommandEvent& event)
     }
     replaceDevice(_("mouse"));
     replaceDevice(_("keyboard"));
+}
+
+void sixaxis_emu_guiFrame::OnMenuUpdate(wxCommandEvent& event)
+{
+  int ret;
+
+  updater u(VERSION_URL, VERSION_FILE, INFO_VERSION, DOWNLOAD_URL, DOWNLOAD_FILE);
+
+  ret = u.checkversion();
+
+  if (ret > 0)
+  {
+    int answer = wxMessageBox(_("Update available.\nStart installation?"), _("Confirm"), wxYES_NO);
+    if (answer == wxNO)
+    {
+     return;
+    }
+    if (u.update() < 0)
+    {
+      wxMessageBox(wxT("Can't retrieve update file!"), wxT("Error"), wxICON_ERROR);
+    }
+  }
+  else if (ret < 0)
+  {
+    wxMessageBox(wxT("Can't check version!"), wxT("Error"), wxICON_ERROR);
+  }
+  else
+  {
+    wxMessageBox(wxT("GIMX is up-to-date!"), wxT("Info"), wxICON_INFORMATION);
+  }
 }
