@@ -1063,6 +1063,10 @@ void sixemuguiFrame::OnMenuUpdate(wxCommandEvent& event)
     {
       wxMessageBox(wxT("Can't retrieve update file!"), wxT("Error"), wxICON_ERROR);
     }
+    else
+    {
+      exit(0);
+    }
   }
   else if (ret < 0)
   {
@@ -1077,8 +1081,11 @@ void sixemuguiFrame::OnMenuUpdate(wxCommandEvent& event)
 void sixemuguiFrame::OnMenuStartupUpdates(wxCommandEvent& event)
 {
   string filename;
+#ifndef WIN32
   filename.append(homedir);
-  filename.append("/.sixemugui-serial/startUpdates");
+  filename.append("/.sixemugui-serial/");
+#endif
+  filename.append("startUpdates");
   ofstream outfile (filename.c_str(), ios_base::trunc);
   if(outfile.is_open())
   {
