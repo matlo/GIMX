@@ -218,6 +218,8 @@ class fpsconfigFrame: public wxFrame
         wxString defaultMouseName;
         wxString defaultKeyboardName;
 
+        wxString default_directory;
+
         DECLARE_EVENT_TABLE()
 };
 

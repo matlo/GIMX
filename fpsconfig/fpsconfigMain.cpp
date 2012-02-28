@@ -29,8 +29,10 @@
 #include "fpsconfig.h"
 
 #include <locale.h>
+#include <wx/filename.h>
 
 #include "../shared/updater/updater.h"
+#include "../directories.h"
 
 using namespace std;
 
@@ -59,10 +61,6 @@ wxString wxbuildinfo(wxbuildinfoformat format)
 
     return wxbuild;
 }
-
-#ifndef WIN32
-char* homedir;
-#endif
 
 //(*IdInit(fpsconfigFrame)
 const long fpsconfigFrame::ID_SPINCTRL8 = wxNewId();
@@ -417,6 +415,8 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
 
     setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 
+    default_directory = wxEmptyString;
+
 #ifndef WIN32
     if(!getuid())
     {
@@ -427,28 +427,20 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
       }
     }
 
-    homedir = getpwuid(getuid())->pw_dir;
+    default_directory.Append(wxFileName::GetHomeDir());
+    default_directory.Append(_("/.emuclient/"));
 
-    string cmd = "";
-    cmd.append("test -d ");
-    cmd.append(homedir);
-    cmd.append("/.emuclient || cp -r /etc/emuclient ");
-    cmd.append(homedir);
-    cmd.append("/.emuclient");
-    if(system(cmd.c_str()) < 0)
+    if(system("mkdir -p ~/.emuclient/config/example") < 0)
     {
-        wxMessageBox( wxT("Cannot open emuclient config directory!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( wxT("Can't create emuclient config example directory!"), wxT("Error"), wxICON_ERROR);
     }
-
-    cmd.erase();
-    cmd.append(homedir);
-    cmd.append("/.emuclient/config");
-
-#else
-    string cmd = "config";
+    if(system("cp /etc/emuclient/config/* ~/.emuclient/config/example") < 0)
+    {
+        wxMessageBox( wxT("Can't copy emuclient config examples!"), wxT("Error"), wxICON_ERROR);
+    }
 #endif
 
-    wxString default_directory = wxString(cmd.c_str(), wxConvUTF8);
+    default_directory.Append(_(CONFIG_DIR));
 
     FileDialog1->SetDirectory(default_directory);
 
@@ -462,23 +454,19 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     if(!file.IsEmpty())
     {
       wxString wxfile = wxEmptyString;
+
       if(file.EndsWith(_("*")))
       {
 #ifndef WIN32
-        wxfile.Append(_("/etc/emuclient/config/"));
-#else
-        wxfile.Append(_("config/example/"));
+        wxfile.Append(wxFileName::GetHomeDir());
+        wxfile.Append(_("/.emuclient/"));
 #endif
+        wxfile.Append(_(CONFIG_EXAMPLE_DIR));
         wxfile.Append(file.SubString(0, file.Length() - 2));
       }
       else
       {
-#ifndef WIN32
-        wxfile.Append(wxString(homedir, wxConvUTF8));
-        wxfile.Append(_("/.emuclient/config/"));
-#else
-        wxfile.Append(_("config/"));
-#endif
+        wxfile.Append(default_directory);
         wxfile.Append(file);
       }
 
@@ -837,14 +825,6 @@ void fpsconfigFrame::OnMenuSaveAs(wxCommandEvent& event)
 {
     wxFileDialog saveFileDialog(this, _T("Save Config file"), _T(""), _T(""), _T("XML files (*.xml)|*.xml"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 
-#ifndef WIN32
-    string cmd = "";
-    cmd.append(homedir);
-    cmd.append("/.emuclient/config");
-#else
-    string cmd = "config";
-#endif
-    wxString default_directory = wxString(cmd.c_str(), wxConvUTF8);
     saveFileDialog.SetDirectory(default_directory);
 
     if ( saveFileDialog.ShowModal() == wxID_CANCEL ) return;
