@@ -32,7 +32,6 @@ void gpp_send(int force_update)
 {
   char output[REP_IO_COUNT];
   int axis_value;
-  int8 r;
 
   if (force_update || controller[0].send_command)
   {
