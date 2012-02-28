@@ -37,6 +37,8 @@ using namespace std;
 #define CONFIG_DIR ".emuclient/config/"
 #define CONFIG_EXAMPLE_DIR "/etc/emuclient/config"
 
+#define OPT_DIR "/.gimx-bluetooth/"
+
 char* homedir;
 
 //helper functions
@@ -324,7 +326,8 @@ static void read_filenames(const char* dir, wxChoice* choice)
     string line = "";
 
     filename.append(homedir);
-    filename.append("/.sixemugui/default");
+    filename.append(OPT_DIR);
+    filename.append("default");
     ifstream infile (filename.c_str());
     if ( infile.is_open() )
     {
@@ -402,7 +405,8 @@ static int read_sixaxis_config(wxChoice* cdevice, wxChoice* cmaster)
     int ret = -1;
 
     filename.append(homedir);
-    filename.append("/.sixemugui/config");
+    filename.append(OPT_DIR);
+    filename.append("config");
 
     ifstream myfile(filename.c_str());
     if(myfile.is_open())
@@ -435,7 +439,8 @@ static void readStartUpdates(wxMenuItem* menuItem)
   string line = "";
 
   filename.append(homedir);
-  filename.append("/.sixemugui/startUpdates");
+  filename.append(OPT_DIR);
+  filename.append("startUpdates");
   ifstream infile (filename.c_str());
   if ( infile.is_open() )
   {
@@ -755,23 +760,20 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
 
     homedir = getpwuid(getuid())->pw_dir;
 
-    string cmd;
-    cmd.append("mkdir -p ");
-    cmd.append(homedir);
-    cmd.append("/.sixemugui");
-    if(system(cmd.c_str()) < 0)
+    if(system("test -d ~/.sixemugui | mv ~/.sixemugui ~/.gimx-bluetooth"))
     {
-        wxMessageBox( wxT("Cannot open sixemugui config directory!"), wxT("Error"), wxICON_ERROR);
     }
-    cmd.erase();
-    cmd.append("test -d ");
-	  cmd.append(homedir);
-	  cmd.append("/.emuclient || cp -r /etc/emuclient ");
-	  cmd.append(homedir);
-	  cmd.append("/.emuclient");
-    if(system(cmd.c_str()) < 0)
+    if(system("test -d ~/.gimx-bluetooth | mkdir -p ~/.gimx-bluetooth"))
     {
-        wxMessageBox( wxT("Cannot open emuclient config directory!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( wxT("Can't init ~/.gimx-bluetooth directory!"), wxT("Error"), wxICON_ERROR);
+    }
+    if(system("mkdir -p ~/.emuclient/config/example") < 0)
+    {
+        wxMessageBox( wxT("Can't init emuclient config example directory!"), wxT("Error"), wxICON_ERROR);
+    }
+    if(system("cp /etc/emuclient/config/* ~/.emuclient/config/example") < 0)
+    {
+        wxMessageBox( wxT("Can't copy emuclient config examples!"), wxT("Error"), wxICON_ERROR);
     }
 
     read_sixaxis_config(Choice1, Choice2);
