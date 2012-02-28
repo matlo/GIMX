@@ -28,6 +28,7 @@
 #include <wx/dir.h>
 
 #include "../shared/updater/updater.h"
+#include "../directories.h"
 
 using namespace std;
 
@@ -812,9 +813,18 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
 
     default_directory.Append(wxFileName::GetHomeDir());
     default_directory.Append(_("/.emuclient/"));
+
+    if(system("mkdir -p ~/.emuclient/config/example") < 0)
+    {
+        wxMessageBox( wxT("Can't create emuclient config example directory!"), wxT("Error"), wxICON_ERROR);
+    }
+    if(system("cp /etc/emuclient/config/* ~/.emuclient/config/example") < 0)
+    {
+        wxMessageBox( wxT("Can't copy emuclient config examples!"), wxT("Error"), wxICON_ERROR);
+    }
 #endif
 
-    default_directory.Append(_("config/"));
+    default_directory.Append(_(CONFIG_DIR));
 
     FileDialog1->SetDirectory(default_directory);
 
@@ -835,14 +845,14 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     if(!file.IsEmpty())
     {
       wxString wxfile = wxEmptyString;
-
+      
       if(file.EndsWith(_("*")))
       {
 #ifndef WIN32
-        wxfile.Append(_("/etc/emuclient/config/"));
-#else
-        wxfile.Append(_("config/example/"));
+        wxfile.Append(wxFileName::GetHomeDir());
+        wxfile.Append(_("/.emuclient/"));
 #endif
+        wxfile.Append(_(CONFIG_EXAMPLE_DIR));
         wxfile.Append(file.SubString(0, file.Length() - 2));
       }
       else
