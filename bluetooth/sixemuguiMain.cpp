@@ -37,7 +37,7 @@ using namespace std;
 #define CONFIG_DIR ".emuclient/config/"
 #define CONFIG_EXAMPLE_DIR "/etc/emuclient/config"
 
-#define OPT_DIR "/.gimx-bluetooth/"
+#define OPT_DIR "/.sixemugui/"
 
 char* homedir;
 
@@ -760,16 +760,17 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
 
     homedir = getpwuid(getuid())->pw_dir;
 
-    if(system("test -d ~/.sixemugui | mv ~/.sixemugui ~/.gimx-bluetooth"))
+    if(system("test -d ~/.sixemugui | mkdir -p ~/.sixemugui"))
     {
-    }
-    if(system("test -d ~/.gimx-bluetooth | mkdir -p ~/.gimx-bluetooth"))
-    {
-        wxMessageBox( wxT("Can't init ~/.gimx-bluetooth directory!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( wxT("Can't init ~/.sixemugui directory!"), wxT("Error"), wxICON_ERROR);
     }
     if(system("mkdir -p ~/.emuclient/config/example") < 0)
     {
         wxMessageBox( wxT("Can't init emuclient config example directory!"), wxT("Error"), wxICON_ERROR);
+    }
+    if(system("mkdir -p ~/.emuclient/macro") < 0)
+    {
+        wxMessageBox( wxT("Can't create emuclient macro directory!"), wxT("Error"), wxICON_ERROR);
     }
     if(system("cp /etc/emuclient/config/* ~/.emuclient/config/example") < 0)
     {
