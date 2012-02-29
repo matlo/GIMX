@@ -327,6 +327,10 @@
 			</object>
 			<object class="wxMenu" variable="Menu2" member="no">
 				<label>Help</label>
+				<object class="wxMenuItem" name="ID_MENUITEM6" variable="MenuGetConfigs" member="yes">
+					<label>Get configs</label>
+					<handler function="OnMenuGetConfigs" entry="EVT_MENU" />
+				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM4" variable="MenuUpdate" member="yes">
 					<label>Update</label>
 					<handler function="OnMenuUpdate" entry="EVT_MENU" />

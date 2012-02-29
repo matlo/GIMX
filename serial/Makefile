@@ -37,7 +37,7 @@ OBJDIR_RELEASE = obj/Release
 DEP_RELEASE = 
 OUT_RELEASE = bin/Release/gimx-serial
 
-OBJ_RELEASE = $(OBJDIR_RELEASE)/sixemuguiApp.o $(OBJDIR_RELEASE)/sixemuguiMain.o ../shared/updater/updater.o
+OBJ_RELEASE = $(OBJDIR_RELEASE)/sixemuguiApp.o $(OBJDIR_RELEASE)/sixemuguiMain.o ../shared/updater/updater.o ../shared/configupdater/configupdater.o
 
 all: release
 

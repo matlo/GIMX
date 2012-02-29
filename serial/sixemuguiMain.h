@@ -52,6 +52,7 @@ class sixemuguiFrame: public wxFrame
         void OnButtonSpoofClick(wxCommandEvent& event);
         void OnMenuUpdate(wxCommandEvent& event);
         void OnMenuStartupUpdates(wxCommandEvent& event);
+        void OnMenuGetConfigs(wxCommandEvent& event);
         //*)
 
         //(*Identifiers(sixemuguiFrame)
@@ -76,6 +77,7 @@ class sixemuguiFrame: public wxFrame
         static const long ID_MENUITEM2;
         static const long ID_MENUITEM3;
         static const long idMenuQuit;
+        static const long ID_MENUITEM6;
         static const long ID_MENUITEM4;
         static const long ID_MENUITEM5;
         static const long idMenuAbout;
@@ -101,6 +103,7 @@ class sixemuguiFrame: public wxFrame
         wxStatusBar* StatusBar1;
         wxButton* ButtonCheck;
         wxButton* ButtonSpoof;
+        wxMenuItem* MenuGetConfigs;
         wxButton* ButtonStart;
         wxMenuItem* MenuStartupUpdates;
         wxStaticText* StaticText4;

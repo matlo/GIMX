@@ -31,19 +31,20 @@
 #endif
 
 #include <wx/aboutdlg.h>
+#include <wx/dir.h>
 #include "serial.h"
 
+
+#include "../directories.h"
 #include "../shared/updater/updater.h"
+#include "../shared/configupdater/configupdater.h"
 
 using namespace std;
 
 #ifdef WIN32
-#define CONFIG_DIR "config/"
-#define CONFIG_EXAMPLE_DIR "config/example"
 #define MAX_PORT_ID 32
 #else
-#define CONFIG_DIR ".emuclient/config/"
-#define CONFIG_EXAMPLE_DIR "/etc/emuclient/config"
+#define OPT_DIR "/.sixemugui-serial/"
 char* homedir;
 #endif
 
@@ -97,6 +98,7 @@ const long sixemuguiFrame::ID_MENUITEM1 = wxNewId();
 const long sixemuguiFrame::ID_MENUITEM2 = wxNewId();
 const long sixemuguiFrame::ID_MENUITEM3 = wxNewId();
 const long sixemuguiFrame::idMenuQuit = wxNewId();
+const long sixemuguiFrame::ID_MENUITEM6 = wxNewId();
 const long sixemuguiFrame::ID_MENUITEM4 = wxNewId();
 const long sixemuguiFrame::ID_MENUITEM5 = wxNewId();
 const long sixemuguiFrame::idMenuAbout = wxNewId();
@@ -109,57 +111,6 @@ BEGIN_EVENT_TABLE(sixemuguiFrame,wxFrame)
 END_EVENT_TABLE()
 
 #ifdef WIN32
-static void read_filenames(wxChoice* choice)
-{
-    DIR *dirp;
-    struct dirent *d;
-    string filename = "";
-    string line = "";
-    struct stat buf;
-    char path[PATH_MAX];
-
-    filename.append("default");
-    ifstream infile (filename.c_str());
-    if ( infile.is_open() )
-    {
-        if( infile.good() )
-        {
-            getline (infile,line);
-        }
-        infile.close();
-    }
-
-    choice->Clear();
-
-    dirp = opendir(CONFIG_DIR);
-    if (dirp == NULL)
-    {
-      printf("Warning: can't open config directory\n");
-      return;
-    }
-
-    while ((d = readdir(dirp)))
-    {
-      snprintf(path, sizeof(path), "%s/%s", CONFIG_DIR, d->d_name);
-      if(stat(path, &buf) == 0)
-      {
-        if(S_ISREG(buf.st_mode))
-        {
-          if(!line.empty() && line == d->d_name)
-          {
-            choice->SetSelection(choice->Append(wxString(d->d_name, wxConvFile)));
-          }
-          else
-          {
-            choice->Append(wxString(d->d_name, wxConvFile));
-          }
-        }
-      }
-    }
-
-    closedir(dirp);
-}
-
 static void read_devices(wxComboBox* choice)
 {
   HANDLE hSerial;
@@ -182,74 +133,15 @@ static void read_devices(wxComboBox* choice)
     CloseHandle(hSerial);
   }
 }
-
-static void read_frequency(wxComboBox* choice)
-{
-  string filename = "";
-  string line = "";
-
-  filename.append("frequency");
-  ifstream infile (filename.c_str());
-  if ( infile.is_open() )
-  {
-      if( infile.good() )
-      {
-          getline (infile,line);
-          choice->SetSelection(choice->FindString(wxString(line.c_str(), wxConvUTF8)));
-      }
-      infile.close();
-  }
-}
-
-static void read_controller_type(wxChoice* choice)
-{
-  string filename = "";
-  string line = "";
-
-  filename.append("controller");
-  ifstream infile (filename.c_str());
-  if ( infile.is_open() )
-  {
-      if( infile.good() )
-      {
-          getline (infile,line);
-          choice->SetSelection(choice->FindString(wxString(line.c_str(), wxConvUTF8)));
-      }
-      infile.close();
-  }
-}
-
-static void readStartUpdates(wxMenuItem* menuItem)
-{
-  string filename = "";
-  string line = "";
-
-  filename.append("startUpdates");
-  ifstream infile (filename.c_str());
-  if ( infile.is_open() )
-  {
-      if( infile.good() )
-      {
-          getline (infile,line);
-          if(line == "yes")
-          {
-              menuItem->Check(true);
-          }
-      }
-      infile.close();
-  }
-}
 #else
 static void read_devices(wxComboBox* choice)
 {
-  DIR *dirp;
-  char dir_path[PATH_MAX];
-  struct dirent *d;
   string filename = "";
   string line = "";
 
   filename.append(homedir);
-  filename.append("/.sixemugui-serial/config");
+  filename.append(OPT_DIR);
+  filename.append("config");
   ifstream infile (filename.c_str());
   if ( infile.is_open() )
   {
@@ -262,107 +154,114 @@ static void read_devices(wxComboBox* choice)
 
   choice->Clear();
 
-  dirp = opendir("/dev");
-  if (dirp == NULL)
+  string ds = "/dev";
+
+  wxDir dir(wxString(ds.c_str(), wxConvUTF8));
+
+  if(!dir.IsOpened())
   {
-    printf("Warning: can't open /dev directory %s\n", dir_path);
+    cout << "Warning: can't open " << ds << endl;
     return;
   }
 
-  while ((d = readdir(dirp)))
+  wxString file;
+  wxString filespec = wxT("*");
+
+  for (bool cont = dir.GetFirst(&file, filespec, wxDIR_FILES); cont;  cont = dir.GetNext(&file))
   {
-    if (d->d_type == DT_CHR && (!strncmp(d->d_name, "ttyUSB", 6) || !strncmp(d->d_name, "ttyACM", 6)))
+    if(file.StartsWith(_("ttyUSB")) || file.StartsWith(_("ttyACM")))
     {
-      if(!line.empty() && line == d->d_name)
+      if(!line.empty() && wxString(line.c_str(), wxConvUTF8) == file)
       {
-        choice->SetSelection(choice->Append(wxString(d->d_name, wxConvUTF8)));
+        choice->SetSelection(choice->Append(file));
       }
       else
       {
-        choice->Append(wxString(d->d_name, wxConvUTF8));
+        choice->Append(file);
       }
     }
   }
-
-  closedir(dirp);
 }
+#endif
 
 static void read_filenames(wxChoice* choice)
 {
-    DIR *dirp;
-    char dir_path[PATH_MAX];
-    struct dirent *d;
-    string filename = "";
-    string line = "";
+  string filename = "";
+  string line = "";
 
-    filename.append(homedir);
-    filename.append("/.sixemugui-serial/default");
-    ifstream infile (filename.c_str());
-    if ( infile.is_open() )
+#ifndef WIN32
+  filename.append(homedir);
+  filename.append(OPT_DIR);
+#endif
+  filename.append("default");
+  ifstream infile (filename.c_str());
+  if ( infile.is_open() )
+  {
+    if( infile.good() )
     {
-        if( infile.good() )
-        {
-            getline (infile,line);
-        }
-        infile.close();
+      getline (infile,line);
     }
+    infile.close();
+  }
 
-    choice->Clear();
+  choice->Clear();
 
-    snprintf(dir_path, sizeof(dir_path), "%s/%s", homedir, CONFIG_DIR);
-    dirp = opendir(dir_path);
-    if (dirp == NULL)
+  string ds;
+#ifndef WIN32
+  ds.append(homedir);
+  ds.append(APP_DIR);
+#endif
+  ds.append(CONFIG_DIR);
+
+  wxDir dir(wxString(ds.c_str(), wxConvUTF8));
+
+  if(!dir.IsOpened())
+  {
+    cout << "Warning: can't open " << ds << endl;
+    return;
+  }
+
+  wxString file;
+  wxString filespec = wxT("*.xml");
+
+  for (bool cont = dir.GetFirst(&file, filespec, wxDIR_FILES); cont;  cont = dir.GetNext(&file))
+  {
+    if(!line.empty() && wxString(line.c_str(), wxConvUTF8) == file)
     {
-      printf("Warning: can't open config directory %s\n", dir_path);
-      return;
+      choice->SetSelection(choice->Append(file));
     }
-
-    while ((d = readdir(dirp)))
+    else
     {
-      if (d->d_type == DT_REG)
-      {
-        if(strstr(d->d_name, ".xml") == (d->d_name + strlen(d->d_name) + 1 - sizeof(".xml")))
-        {
-          if(!line.empty() && line == d->d_name)
-          {
-            choice->SetSelection(choice->Append(wxString(d->d_name, wxConvUTF8)));
-          }
-          else
-          {
-            choice->Append(wxString(d->d_name, wxConvUTF8));
-          }
-        }
-      }
+      choice->Append(file);
     }
+  }
 
-    closedir(dirp);
+  ds.clear();
+#ifndef WIN32
+  ds.append(homedir);
+  ds.append(APP_DIR);
+#endif
+  ds.append(CONFIG_EXAMPLE_DIR);
 
-    dirp = opendir(CONFIG_EXAMPLE_DIR);
-    if (dirp == NULL)
+  wxDir dir2(wxString(ds.c_str(), wxConvUTF8));
+
+  if(!dir2.IsOpened())
+  {
+    cout << "Warning: can't open " << ds << endl;
+    return;
+  }
+
+  for (bool cont = dir2.GetFirst(&file, filespec, wxDIR_FILES); cont;  cont = dir2.GetNext(&file))
+  {
+    if(!line.empty() && line[line.size()-1] == '*' && wxString(line.substr(0, line.size()-1).c_str(), wxConvUTF8) == file)
     {
-      printf("Warning: can't open config directory %s\n", CONFIG_EXAMPLE_DIR);
-      return;
+      choice->SetSelection(choice->Append(file + _("*")));
     }
-
-    while ((d = readdir(dirp)))
+    else
     {
-      if (d->d_type == DT_REG)
-      {
-        if(strstr(d->d_name, ".xml") == (d->d_name + strlen(d->d_name) + 1 - sizeof(".xml")))
-        {
-          if(!line.empty() && line.substr(0, line.length()-2) == d->d_name)
-          {
-            choice->SetSelection(choice->Append(wxString(d->d_name, wxConvUTF8) + _("*")));
-          }
-          else
-          {
-            choice->Append(wxString(d->d_name, wxConvUTF8) + _("*"));
-          }
-        }
-      }
+      choice->Append(file + _("*"));
     }
-
-    closedir(dirp);
+  }
 }
 
 static void read_frequency(wxComboBox* choice)
@@ -370,17 +269,20 @@ static void read_frequency(wxComboBox* choice)
   string filename = "";
   string line = "";
 
+#ifndef WIN32
   filename.append(homedir);
-  filename.append("/.sixemugui-serial/frequency");
+  filename.append(OPT_DIR);
+#endif
+  filename.append("frequency");
   ifstream infile (filename.c_str());
   if ( infile.is_open() )
   {
-      if( infile.good() )
-      {
-          getline (infile,line);
-          choice->SetSelection(choice->FindString(wxString(line.c_str(), wxConvUTF8)));
-      }
-      infile.close();
+    if( infile.good() )
+    {
+      getline (infile,line);
+      choice->SetSelection(choice->FindString(wxString(line.c_str(), wxConvUTF8)));
+    }
+    infile.close();
   }
 }
 
@@ -389,17 +291,20 @@ static void read_controller_type(wxChoice* choice)
   string filename = "";
   string line = "";
 
+#ifndef WIN32
   filename.append(homedir);
-  filename.append("/.sixemugui-serial/controller");
+  filename.append(OPT_DIR);
+#endif
+  filename.append("controller");
   ifstream infile (filename.c_str());
   if ( infile.is_open() )
   {
-      if( infile.good() )
-      {
-          getline (infile,line);
-          choice->SetSelection(choice->FindString(wxString(line.c_str(), wxConvUTF8)));
-      }
-      infile.close();
+    if( infile.good() )
+    {
+      getline (infile,line);
+      choice->SetSelection(choice->FindString(wxString(line.c_str(), wxConvUTF8)));
+    }
+    infile.close();
   }
 }
 
@@ -408,23 +313,25 @@ static void readStartUpdates(wxMenuItem* menuItem)
   string filename = "";
   string line = "";
 
+#ifndef WIN32
   filename.append(homedir);
-  filename.append("/.sixemugui-serial/startUpdates");
+  filename.append(OPT_DIR);
+#endif
+  filename.append("startUpdates");
   ifstream infile (filename.c_str());
   if ( infile.is_open() )
   {
-      if( infile.good() )
+    if( infile.good() )
+    {
+      getline (infile,line);
+      if(line == "yes")
       {
-          getline (infile,line);
-          if(line == "yes")
-          {
-              menuItem->Check(true);
-          }
+        menuItem->Check(true);
       }
-      infile.close();
+    }
+    infile.close();
   }
 }
-#endif
 
 sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
 {
@@ -451,7 +358,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer11;
     wxMenu* Menu2;
     wxStaticBoxSizer* StaticBoxSizer5;
-    
+
     Create(parent, wxID_ANY, _("Gimx-serial"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     SetClientSize(wxSize(412,470));
     Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxSize(0,0), wxTAB_TRAVERSAL, _T("ID_PANEL1"));
@@ -550,6 +457,8 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     Menu1->Append(MenuItem1);
     MenuBar1->Append(Menu1, _("&File"));
     Menu2 = new wxMenu();
+    MenuGetConfigs = new wxMenuItem(Menu2, ID_MENUITEM6, _("Get configs"), wxEmptyString, wxITEM_NORMAL);
+    Menu2->Append(MenuGetConfigs);
     MenuUpdate = new wxMenuItem(Menu2, ID_MENUITEM4, _("Update"), wxEmptyString, wxITEM_NORMAL);
     Menu2->Append(MenuUpdate);
     MenuStartupUpdates = new wxMenuItem(Menu2, ID_MENUITEM5, _("Check updates at startup"), wxEmptyString, wxITEM_CHECK);
@@ -565,7 +474,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     StatusBar1->SetStatusStyles(2,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
     SingleInstanceChecker1.Create(_T("gimx-serial_") + wxGetUserId() + _T("_Guard"));
-    
+
     Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnControllerTypeSelect);
     Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnButtonSpoofClick);
     Connect(ID_CHECKBOX4,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnCheckBoxCalibrate);
@@ -577,6 +486,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuEditFpsConfig);
     Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuRefresh);
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnQuit);
+    Connect(ID_MENUITEM6,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuGetConfigs);
     Connect(ID_MENUITEM4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuUpdate);
     Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuStartupUpdates);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnAbout);
@@ -594,6 +504,22 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
 
 #ifndef WIN32
     homedir = getpwuid(getuid())->pw_dir;
+
+    if(system("mkdir -p ~/.sixemugui-serial"))
+    {
+        wxMessageBox( wxT("Can't init ~/.sixemugui-serial directory!"), wxT("Error"), wxICON_ERROR);
+    }
+    if(system("mkdir -p ~/.emuclient/config") < 0)
+    {
+        wxMessageBox( wxT("Can't init ~/.emuclient/config!"), wxT("Error"), wxICON_ERROR);
+    }
+    if(system("test -d ~/.emuclient/config/example || (mkdir -p ~/.emuclient/config/example && cp /etc/emuclient/config/* ~/.emuclient/config/example)") < 0)
+    {
+    }
+    if(system("mkdir -p ~/.emuclient/macros") < 0)
+    {
+        wxMessageBox( wxT("Can't init ~/.emuclient/macros!"), wxT("Error"), wxICON_ERROR);
+    }
 #endif
 
     read_filenames(ChoiceConfig);
@@ -602,9 +528,9 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     read_controller_type(ControllerType);
     wxCommandEvent event;
     OnControllerTypeSelect(event);
-    
+
     started = false;
-    
+
     readStartUpdates(MenuStartupUpdates);
     if(MenuStartupUpdates->IsChecked())
     {
@@ -742,12 +668,11 @@ void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
     //cout << command << endl;
 
     ButtonStart->Disable();
-#ifdef WIN32
-    filename.append("default");
-#else
+#ifndef WIN32
     filename.append(homedir);
-    filename.append("/.sixemugui-serial/default");
+    filename.append(OPT_DIR);
 #endif
+    filename.append("default");
     ofstream outfile (filename.c_str(), ios_base::trunc);
     if(outfile.is_open())
     {
@@ -755,12 +680,11 @@ void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
         outfile.close();
     }
     filename.erase();
-#ifdef WIN32
-    filename.append("frequency");
-#else
+#ifndef WIN32
     filename.append(homedir);
-    filename.append("/.sixemugui-serial/frequency");
+    filename.append(OPT_DIR);
 #endif
+    filename.append("frequency");
     ofstream outfile2 (filename.c_str(), ios_base::trunc);
     if(outfile2.is_open())
     {
@@ -768,12 +692,11 @@ void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
         outfile2.close();
     }
     filename.erase();
-#ifdef WIN32
-    filename.append("config");
-#else
+#ifndef WIN32
     filename.append(homedir);
-    filename.append("/.sixemugui-serial/config");
+    filename.append(OPT_DIR);
 #endif
+    filename.append("config");
     ofstream outfile3 (filename.c_str(), ios_base::trunc);
     if(outfile3.is_open())
     {
@@ -781,12 +704,11 @@ void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
         outfile3.close();
     }
     filename.erase();
-#ifdef WIN32
-    filename.append("controller");
-#else
+#ifndef WIN32
     filename.append(homedir);
-    filename.append("/.sixemugui-serial/controller");
+    filename.append(OPT_DIR);
 #endif
+    filename.append("controller");
     ofstream outfile4 (filename.c_str(), ios_base::trunc);
     if(outfile4.is_open())
     {
@@ -1083,7 +1005,7 @@ void sixemuguiFrame::OnMenuStartupUpdates(wxCommandEvent& event)
   string filename;
 #ifndef WIN32
   filename.append(homedir);
-  filename.append("/.sixemugui-serial/");
+  filename.append(OPT_DIR);
 #endif
   filename.append("startUpdates");
   ofstream outfile (filename.c_str(), ios_base::trunc);
@@ -1098,5 +1020,48 @@ void sixemuguiFrame::OnMenuStartupUpdates(wxCommandEvent& event)
       outfile << "no" << endl;
     }
     outfile.close();
+  }
+}
+
+void sixemuguiFrame::OnMenuGetConfigs(wxCommandEvent& event)
+{
+  configupdater u(CONFIGS_URL, CONFIGS_FILE, CONFIGS_DIR);
+
+  list<string>* cl = u.getconfiglist();
+  list<string> cl_sel;
+
+  if(cl && !cl->empty())
+  {
+    wxArrayString choices;
+
+    for(list<string>::iterator it = cl->begin(); it != cl->end(); it++)
+    {
+      choices.Add(wxString(it->c_str(), wxConvUTF8));
+    }
+
+    wxMultiChoiceDialog dialog(this, wxT("Select the files to download."), wxT("Config download"), choices);
+
+    if (dialog.ShowModal() == wxID_OK)
+    {
+      wxArrayInt selections = dialog.GetSelections();
+
+      for ( size_t n = 0; n < selections.GetCount(); n++ )
+      {
+        string sel = string(choices[selections[n]].mb_str());
+        cl_sel.push_back(sel);
+      }
+
+      if(u.getconfigs(&cl_sel) < 0)
+      {
+        wxMessageBox(wxT("Can't retrieve configs!"), wxT("Error"), wxICON_ERROR);
+        return;
+      }
+      OnMenuRefresh(event);
+    }
+  }
+  else
+  {
+    wxMessageBox(wxT("Can't retrieve config list!"), wxT("Error"), wxICON_ERROR);
+    return;
   }
 }
