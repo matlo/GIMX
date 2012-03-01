@@ -430,13 +430,12 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     default_directory.Append(wxFileName::GetHomeDir());
     default_directory.Append(_("/.emuclient/"));
 
-    if(system("mkdir -p ~/.emuclient/config/example") < 0)
+    if(system("mkdir -p ~/.emuclient/config"))
     {
-        wxMessageBox( wxT("Can't create emuclient config example directory!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( wxT("Can't init ~/.emuclient/config!"), wxT("Error"), wxICON_ERROR);
     }
-    if(system("cp /etc/emuclient/config/* ~/.emuclient/config/example") < 0)
+    if(system("test -d ~/.emuclient/config/example || (mkdir -p ~/.emuclient/config/example && cp /etc/emuclient/config/* ~/.emuclient/config/example)"))
     {
-        wxMessageBox( wxT("Can't copy emuclient config examples!"), wxT("Error"), wxICON_ERROR);
     }
 #endif
 
