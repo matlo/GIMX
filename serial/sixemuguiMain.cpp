@@ -1055,7 +1055,7 @@ void sixemuguiFrame::OnMenuGetConfigs(wxCommandEvent& event)
         wxMessageBox(wxT("Can't retrieve configs!"), wxT("Error"), wxICON_ERROR);
         return;
       }
-      OnMenuRefresh(event);
+      read_filenames(ChoiceConfig);
     }
   }
   else

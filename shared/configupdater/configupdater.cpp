@@ -7,9 +7,48 @@
 
 #ifdef WIN32
 #include <windows.h>
+#define WGET_CMD "wget.exe -q -w 0 -t 1 -T 10 "
+#else
+#define WGET_CMD "wget -q -w 0 -t 1 -T 10 "
 #endif
 
-#define WGET_CMD "wget -q -w 0 -t 1 -T 10 "
+int exec(string command)
+{
+#ifdef WIN32
+  STARTUPINFOA startupInfo =
+  { 0};
+  startupInfo.cb = sizeof(startupInfo);
+  PROCESS_INFORMATION processInformation;
+
+  char* cmd = strdup(command.c_str());
+
+  BOOL result = CreateProcessA(
+      "wget.exe",
+      cmd,
+      NULL,
+      NULL,
+      FALSE,
+      CREATE_NO_WINDOW,
+      NULL,
+      NULL,
+      &startupInfo,
+      &processInformation
+  );
+
+  free(cmd);
+
+  WaitForSingleObject(processInformation.hProcess, INFINITE);
+  CloseHandle(processInformation.hProcess);
+
+  if(!result)
+  {
+    return -1;
+  }
+  return 0;
+#else
+  return system(command.c_str());
+#endif
+}
 
 list<string>* configupdater::getconfiglist()
 {
@@ -25,7 +64,7 @@ list<string>* configupdater::getconfiglist()
   cmd.append(" -O ");
   cmd.append(configs_file);
   
-  if(system(cmd.c_str()))
+  if(exec(cmd))
   {
     return NULL;
   }
@@ -61,7 +100,7 @@ int configupdater::getconfigs(list<string>* cl)
     cmd.append(configs_dir);
     cmd.append(*it);
     
-    if(system(cmd.c_str()))
+    if(exec(cmd))
     {
       return -1;
     }
