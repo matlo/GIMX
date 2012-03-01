@@ -28,14 +28,14 @@
 #include <sstream>
 
 #include <wx/aboutdlg.h>
+#include <wx/dir.h>
 #include "bluetooth.h"
 
+#include "../directories.h"
 #include "../shared/updater/updater.h"
+#include "../shared/configupdater/configupdater.h"
 
 using namespace std;
-
-#define CONFIG_DIR ".emuclient/config/"
-#define CONFIG_EXAMPLE_DIR "/etc/emuclient/config"
 
 #define OPT_DIR "/.sixemugui/"
 
@@ -109,6 +109,7 @@ const long sixemuguiFrame::ID_MENUITEM4 = wxNewId();
 const long sixemuguiFrame::ID_MENUITEM1 = wxNewId();
 const long sixemuguiFrame::ID_MENUITEM2 = wxNewId();
 const long sixemuguiFrame::idMenuQuit = wxNewId();
+const long sixemuguiFrame::ID_MENUITEM7 = wxNewId();
 const long sixemuguiFrame::ID_MENUITEM5 = wxNewId();
 const long sixemuguiFrame::ID_MENUITEM6 = wxNewId();
 const long sixemuguiFrame::idMenuAbout = wxNewId();
@@ -317,83 +318,84 @@ int sixemuguiFrame::setDongleAddress()
     return 0;
 }
 
-static void read_filenames(const char* dir, wxChoice* choice)
+static void read_filenames(wxChoice* choice)
 {
-    DIR *dirp;
-    char dir_path[PATH_MAX];
-    struct dirent *d;
-    string filename = "";
-    string line = "";
+  string filename = "";
+  string line = "";
 
-    filename.append(homedir);
-    filename.append(OPT_DIR);
-    filename.append("default");
-    ifstream infile (filename.c_str());
-    if ( infile.is_open() )
+#ifndef WIN32
+  filename.append(homedir);
+  filename.append(OPT_DIR);
+#endif
+  filename.append("default");
+  ifstream infile (filename.c_str());
+  if ( infile.is_open() )
+  {
+    if( infile.good() )
     {
-        if( infile.good() )
-        {
-            getline (infile,line);
-        }
-        infile.close();
+      getline (infile,line);
     }
+    infile.close();
+  }
 
-    choice->Clear();
+  choice->Clear();
 
-    snprintf(dir_path, sizeof(dir_path), "%s/%s", homedir, dir);
-    dirp = opendir(dir_path);
-    if (dirp == NULL)
+  string ds;
+#ifndef WIN32
+  ds.append(homedir);
+  ds.append(APP_DIR);
+#endif
+  ds.append(CONFIG_DIR);
+
+  wxDir dir(wxString(ds.c_str(), wxConvUTF8));
+
+  if(!dir.IsOpened())
+  {
+    cout << "Warning: can't open " << ds << endl;
+    return;
+  }
+
+  wxString file;
+  wxString filespec = wxT("*.xml");
+
+  for (bool cont = dir.GetFirst(&file, filespec, wxDIR_FILES); cont;  cont = dir.GetNext(&file))
+  {
+    if(!line.empty() && wxString(line.c_str(), wxConvUTF8) == file)
     {
-      printf("Warning: can't open config directory %s\n", dir_path);
-      return;
+      choice->SetSelection(choice->Append(file));
     }
-
-    while ((d = readdir(dirp)))
+    else
     {
-      if (d->d_type == DT_REG)
-      {
-        if(strstr(d->d_name, ".xml") == (d->d_name + strlen(d->d_name) + 1 - sizeof(".xml")))
-        {
-          if(!line.empty() && line == d->d_name)
-          {
-            choice->SetSelection(choice->Append(wxString(d->d_name, wxConvUTF8)));
-          }
-          else
-          {
-            choice->Append(wxString(d->d_name, wxConvUTF8));
-          }
-        }
-      }
+      choice->Append(file);
     }
+  }
 
-    closedir(dirp);
+  ds.clear();
+#ifndef WIN32
+  ds.append(homedir);
+  ds.append(APP_DIR);
+#endif
+  ds.append(CONFIG_EXAMPLE_DIR);
 
-    dirp = opendir(CONFIG_EXAMPLE_DIR);
-    if (dirp == NULL)
+  wxDir dir2(wxString(ds.c_str(), wxConvUTF8));
+
+  if(!dir2.IsOpened())
+  {
+    cout << "Warning: can't open " << ds << endl;
+    return;
+  }
+
+  for (bool cont = dir2.GetFirst(&file, filespec, wxDIR_FILES); cont;  cont = dir2.GetNext(&file))
+  {
+    if(!line.empty() && line[line.size()-1] == '*' && wxString(line.substr(0, line.size()-1).c_str(), wxConvUTF8) == file)
     {
-      printf("Warning: can't open config directory %s\n", CONFIG_EXAMPLE_DIR);
-      return;
+      choice->SetSelection(choice->Append(file + _("*")));
     }
-
-    while ((d = readdir(dirp)))
+    else
     {
-      if (d->d_type == DT_REG)
-      {
-        if(strstr(d->d_name, ".xml") == (d->d_name + strlen(d->d_name) + 1 - sizeof(".xml")))
-        {
-          if(!line.empty() && line.substr(0, line.length()-1) == d->d_name)
-          {
-            choice->SetSelection(choice->Append(wxString(d->d_name, wxConvUTF8) + _("*")));
-          }
-          else
-          {
-            choice->Append(wxString(d->d_name, wxConvUTF8) + _("*"));
-          }
-        }
-      }
+      choice->Append(file + _("*"));
     }
-
-    closedir(dirp);
+  }
 }
 
 static int read_sixaxis_config(wxChoice* cdevice, wxChoice* cmaster)
@@ -466,7 +468,7 @@ void sixemuguiFrame::refresh()
     Choice7->Clear();
     readSixaxis();
     readDongles();
-    read_filenames(CONFIG_DIR, Choice4);
+    read_filenames(Choice4);
     Choice4->SetSelection(Choice4->FindString(previous));
     if(Choice1->GetCount() == 0)
     {
@@ -541,7 +543,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer11;
     wxMenu* Menu2;
     wxStaticBoxSizer* StaticBoxSizer5;
-    
+
     Create(parent, wxID_ANY, _("Gimx-bluetooth"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     SetClientSize(wxSize(675,525));
     Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxSize(0,0), wxTAB_TRAVERSAL, _T("ID_PANEL1"));
@@ -692,6 +694,8 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     Menu1->Append(MenuItem1);
     MenuBar1->Append(Menu1, _("&File"));
     Menu2 = new wxMenu();
+    MenuGetConfigs = new wxMenuItem(Menu2, ID_MENUITEM7, _("Get configs"), wxEmptyString, wxITEM_NORMAL);
+    Menu2->Append(MenuGetConfigs);
     MenuUpdate = new wxMenuItem(Menu2, ID_MENUITEM5, _("Update"), wxEmptyString, wxITEM_NORMAL);
     Menu2->Append(MenuUpdate);
     MenuStartUpdates = new wxMenuItem(Menu2, ID_MENUITEM6, _("Check updates at startup"), wxEmptyString, wxITEM_CHECK);
@@ -707,7 +711,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     StatusBar1->SetStatusStyles(2,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
     SingleInstanceChecker1.Create(_T("gimx-bluetooth_") + wxGetUserId() + _T("_Guard"));
-    
+
     Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSelectSixaxisBdaddr);
     Connect(ID_CHOICE2,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSelectPS3Bdaddr);
     Connect(ID_CHOICE3,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSelectBtDongle);
@@ -727,6 +731,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSelectRefresh);
     Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSave);
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnQuit);
+    Connect(ID_MENUITEM7,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuGetConfigs);
     Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuUpdate);
     Connect(ID_MENUITEM6,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuStartUpdates);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnAbout);
@@ -1397,5 +1402,48 @@ void sixemuguiFrame::OnMenuStartUpdates(wxCommandEvent& event)
       outfile << "no" << endl;
     }
     outfile.close();
+  }
+}
+
+void sixemuguiFrame::OnMenuGetConfigs(wxCommandEvent& event)
+{
+  configupdater u(CONFIGS_URL, CONFIGS_FILE, CONFIGS_DIR);
+
+  list<string>* cl = u.getconfiglist();
+  list<string> cl_sel;
+
+  if(cl && !cl->empty())
+  {
+    wxArrayString choices;
+
+    for(list<string>::iterator it = cl->begin(); it != cl->end(); it++)
+    {
+      choices.Add(wxString(it->c_str(), wxConvUTF8));
+    }
+
+    wxMultiChoiceDialog dialog(this, wxT("Select the files to download."), wxT("Config download"), choices);
+
+    if (dialog.ShowModal() == wxID_OK)
+    {
+      wxArrayInt selections = dialog.GetSelections();
+
+      for ( size_t n = 0; n < selections.GetCount(); n++ )
+      {
+        string sel = string(choices[selections[n]].mb_str());
+        cl_sel.push_back(sel);
+      }
+
+      if(u.getconfigs(&cl_sel) < 0)
+      {
+        wxMessageBox(wxT("Can't retrieve configs!"), wxT("Error"), wxICON_ERROR);
+        return;
+      }
+      OnSelectRefresh(event);
+    }
+  }
+  else
+  {
+    wxMessageBox(wxT("Can't retrieve config list!"), wxT("Error"), wxICON_ERROR);
+    return;
   }
 }

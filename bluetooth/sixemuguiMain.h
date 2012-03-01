@@ -59,6 +59,7 @@ class sixemuguiFrame: public wxFrame
         void OnMenuEditFpsConfig(wxCommandEvent& event);
         void OnMenuUpdate(wxCommandEvent& event);
         void OnMenuStartUpdates(wxCommandEvent& event);
+        void OnMenuGetConfigs(wxCommandEvent& event);
         //*)
 
         void readSixaxis();
@@ -106,6 +107,7 @@ class sixemuguiFrame: public wxFrame
         static const long ID_MENUITEM1;
         static const long ID_MENUITEM2;
         static const long idMenuQuit;
+        static const long ID_MENUITEM7;
         static const long ID_MENUITEM5;
         static const long ID_MENUITEM6;
         static const long idMenuAbout;
@@ -147,6 +149,7 @@ class sixemuguiFrame: public wxFrame
         wxMenuItem* MenuItem6;
         wxCheckBox* CheckBox4;
         wxChoice* Choice6;
+        wxMenuItem* MenuGetConfigs;
         wxCheckBox* CheckBox7;
         wxStaticText* StaticText12;
         wxCheckBox* CheckBox5;
