@@ -7,9 +7,48 @@
 
 #ifdef WIN32
 #include <windows.h>
+#define WGET_CMD "wget.exe -q -w 0 -t 1 -T 10 "
+#else
+#define WGET_CMD "wget -q -w 0 -t 1 -T 10 "
 #endif
 
-#define WGET_CMD "wget -q -w 0 -t 1 -T 10 "
+static int exec(string command)
+{
+#ifdef WIN32
+  STARTUPINFOA startupInfo =
+  { 0};
+  startupInfo.cb = sizeof(startupInfo);
+  PROCESS_INFORMATION processInformation;
+
+  char* cmd = strdup(command.c_str());
+
+  BOOL result = CreateProcessA(
+      "wget.exe",
+      cmd,
+      NULL,
+      NULL,
+      FALSE,
+      CREATE_NO_WINDOW,
+      NULL,
+      NULL,
+      &startupInfo,
+      &processInformation
+  );
+
+  free(cmd);
+
+  WaitForSingleObject(processInformation.hProcess, INFINITE);
+  CloseHandle(processInformation.hProcess);
+
+  if(!result)
+  {
+    return -1;
+  }
+  return 0;
+#else
+  return system(command.c_str());
+#endif
+}
 
 int updater::checkversion()
 {
@@ -25,7 +64,7 @@ int updater::checkversion()
   cmd.append(" -O ");
   cmd.append(version_file);
   
-  if(system(cmd.c_str()))
+  if(exec(cmd))
   {
     return -1;
   }
@@ -59,7 +98,7 @@ int updater::update()
   cmd.append(" -O ");
   cmd.append(download_file);
   
-  if(system(cmd.c_str()))
+  if(exec(cmd))
   {
     return -1;
   }

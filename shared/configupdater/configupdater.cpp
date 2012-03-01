@@ -12,7 +12,7 @@
 #define WGET_CMD "wget -q -w 0 -t 1 -T 10 "
 #endif
 
-int exec(string command)
+static int exec(string command)
 {
 #ifdef WIN32
   STARTUPINFOA startupInfo =
