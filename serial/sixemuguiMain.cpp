@@ -1056,6 +1056,7 @@ void sixemuguiFrame::OnMenuGetConfigs(wxCommandEvent& event)
         return;
       }
       read_filenames(ChoiceConfig);
+      wxMessageBox(wxT("Download is complete!"), wxT("Info"), wxICON_INFORMATION);
     }
   }
   else
