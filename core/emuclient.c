@@ -200,18 +200,6 @@ int main(int argc, char *argv[])
 //#endif
   }
 
-#ifdef WIN32
-  if (!portname && !check_config)
-  {
-    err(1, "no serial port specified!\n");
-  }
-  /*
-   * Force precision to 16bits
-   */
-  max_axis_value = (1 << 16) - 1;
-  mean_axis_value = max_axis_value / 2;
-#endif
-
   if (display == 1)
   {
     printf("max_axis_value: %d\n", max_axis_value);//needed by sixstatus...
@@ -265,19 +253,16 @@ int main(int argc, char *argv[])
 
   if(serial)
   {
-    if(ctype != C_TYPE_GPP)
+    if (serial_connect(portname) < 0)
     {
-      if (serial_connect(portname) < 0)
-      {
-        err(1, "serial_connect");
-      }
+      err(1, "serial_connect");
     }
-    else
+  }
+  else if(ctype == C_TYPE_GPP)
+  {
+    if (gpp_connect() < 0)
     {
-      if (gpp_connect() < 0)
-      {
-        err(1, "gpp_connect");
-      }
+      err(1, "gpp_connect");
     }
   }
 #ifndef WIN32
@@ -367,24 +352,19 @@ int main(int argc, char *argv[])
 
     cfg_config_activation();
 
-#ifndef WIN32
     if(serial)
     {
-      if(ctype != C_TYPE_GPP)
-      {
-        serial_send(ctype, force_updates);
-      }
-      else
-      {
-        gpp_send(force_updates);
-      }
+      serial_send(ctype, force_updates);
     }
+    else if(ctype == C_TYPE_GPP)
+    {
+      gpp_send(force_updates);
+    }
+#ifndef WIN32
     else
     {
       tcp_send(force_updates);
     }
-#else
-    serial_send(ctype, force_updates);
 #endif
 
 #ifdef WIN32
@@ -426,14 +406,11 @@ EXIT:
   sdl_quit();
   if(serial)
   {
-    if(ctype != C_TYPE_GPP)
-    {
-      serial_close();
-    }
-    else
-    {
-      gpp_disconnect();
-    }
+    serial_close();
+  }
+  else if(ctype == C_TYPE_GPP)
+  {
+    gpp_disconnect();
   }
 
   xmlCleanupParser();

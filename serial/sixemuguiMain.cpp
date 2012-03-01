@@ -574,6 +574,15 @@ void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
     double frequency;
     wxString wxfrequency;
     wxString configname;
+    
+    if(!ControllerType->GetStringSelection().StartsWith(_("GPP")))
+    {
+      if(ComboBoxDevice->GetValue().IsEmpty())
+      {
+        wxMessageBox( wxT("No USB to serial device selected!"), wxT("Error"), wxICON_ERROR);
+        return;
+      }
+    }
 
     if(ControllerType->GetStringSelection() == _("360 pad") && !spoofed)
     {
@@ -622,7 +631,6 @@ void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
     {
       command.append(" --precision 8");
     }
-    command.append(" --serial");
     if(!CheckBoxGrab->IsChecked())
     {
         command.append(" --nograb");
@@ -647,11 +655,15 @@ void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
     {
         command.append(" --force-updates");
     }
-    command.append(" --port ");
+    if(!ControllerType->GetStringSelection().StartsWith(_("GPP")))
+    {
+      command.append(" --serial");
+      command.append(" --port ");
 #ifndef WIN32
-    command.append("/dev/");
+      command.append("/dev/");
 #endif
-    command.append(ComboBoxDevice->GetValue().mb_str());
+      command.append(ComboBoxDevice->GetValue().mb_str());
+    }
     if(CheckBoxGui->IsChecked())
     {
         command.append(" --status | gimx-status");
