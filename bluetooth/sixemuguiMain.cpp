@@ -765,21 +765,20 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
 
     homedir = getpwuid(getuid())->pw_dir;
 
-    if(system("test -d ~/.sixemugui | mkdir -p ~/.sixemugui"))
+    if(system("mkdir -p ~/.sixemugui"))
     {
-        wxMessageBox( wxT("Can't init ~/.sixemugui directory!"), wxT("Error"), wxICON_ERROR);
+      wxMessageBox( wxT("Can't init ~/.sixemugui directory!"), wxT("Error"), wxICON_ERROR);
     }
-    if(system("mkdir -p ~/.emuclient/config/example") < 0)
+    if(system("mkdir -p ~/.emuclient/config"))
     {
-        wxMessageBox( wxT("Can't init emuclient config example directory!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( wxT("Can't init ~/.emuclient/config!"), wxT("Error"), wxICON_ERROR);
     }
-    if(system("mkdir -p ~/.emuclient/macro") < 0)
+    if(system("test -d ~/.emuclient/config/example || (mkdir -p ~/.emuclient/config/example && cp /etc/emuclient/config/* ~/.emuclient/config/example)") < 0)
     {
-        wxMessageBox( wxT("Can't create emuclient macro directory!"), wxT("Error"), wxICON_ERROR);
     }
-    if(system("cp /etc/emuclient/config/* ~/.emuclient/config/example") < 0)
+    if(system("mkdir -p ~/.emuclient/macros"))
     {
-        wxMessageBox( wxT("Can't copy emuclient config examples!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( wxT("Can't init ~/.emuclient/macros!"), wxT("Error"), wxICON_ERROR);
     }
 
     read_sixaxis_config(Choice1, Choice2);

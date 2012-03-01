@@ -34,7 +34,6 @@
 #include <wx/dir.h>
 #include "serial.h"
 
-
 #include "../directories.h"
 #include "../shared/updater/updater.h"
 #include "../shared/configupdater/configupdater.h"
@@ -358,7 +357,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer11;
     wxMenu* Menu2;
     wxStaticBoxSizer* StaticBoxSizer5;
-
+    
     Create(parent, wxID_ANY, _("Gimx-serial"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     SetClientSize(wxSize(412,470));
     Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxSize(0,0), wxTAB_TRAVERSAL, _T("ID_PANEL1"));
@@ -474,7 +473,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     StatusBar1->SetStatusStyles(2,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
     SingleInstanceChecker1.Create(_T("gimx-serial_") + wxGetUserId() + _T("_Guard"));
-
+    
     Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnControllerTypeSelect);
     Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnButtonSpoofClick);
     Connect(ID_CHECKBOX4,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnCheckBoxCalibrate);
@@ -509,14 +508,14 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     {
         wxMessageBox( wxT("Can't init ~/.sixemugui-serial directory!"), wxT("Error"), wxICON_ERROR);
     }
-    if(system("mkdir -p ~/.emuclient/config") < 0)
+    if(system("mkdir -p ~/.emuclient/config"))
     {
         wxMessageBox( wxT("Can't init ~/.emuclient/config!"), wxT("Error"), wxICON_ERROR);
     }
     if(system("test -d ~/.emuclient/config/example || (mkdir -p ~/.emuclient/config/example && cp /etc/emuclient/config/* ~/.emuclient/config/example)") < 0)
     {
     }
-    if(system("mkdir -p ~/.emuclient/macros") < 0)
+    if(system("mkdir -p ~/.emuclient/macros"))
     {
         wxMessageBox( wxT("Can't init ~/.emuclient/macros!"), wxT("Error"), wxICON_ERROR);
     }
