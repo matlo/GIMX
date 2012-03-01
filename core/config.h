@@ -11,14 +11,6 @@
 #include <SDL/SDL.h>
 #include "sixaxis.h"
 
-#ifndef WIN32
-#define CONFIG_DIR ".emuclient/config"
-#define CONFIG_EXAMPLE_DIR "/etc/emuclient/config"
-#else
-#define CONFIG_DIR "config"
-#define CONFIG_EXAMPLE_DIR "config/example"
-#endif
-
 #define MAX_CONTROLLERS 7
 #define MAX_CONFIGURATIONS 8
 #define MAX_DEVICES 256

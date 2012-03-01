@@ -15,6 +15,8 @@
 #include <libxml/xmlreader.h>
 #include <iconv.h>
 
+#include "../directories.h"
+
 #ifdef WIN32
 #include <sys/stat.h>
 #define LINE_MAX 1024

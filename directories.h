@@ -9,7 +9,7 @@
 #define DIRECTORIES_H_
 
 #define CONFIG_DIR "config/"
-#define CONFIG_EXAMPLE_DIR "config/example"
+#define CONFIG_EXAMPLE_DIR "config/example/"
 
 #ifndef WIN32
 #define APP_DIR "/.emuclient/"

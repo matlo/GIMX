@@ -7,6 +7,8 @@
 #include <libxml/xmlwriter.h>
 #include <limits.h>
 
+#include "../directories.h"
+
 /*
  * These variables are used to read the configuration.
  */
