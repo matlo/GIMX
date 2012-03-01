@@ -8,7 +8,7 @@ clean:
 
 install: all
 	mkdir -p setup
-	mkdir -p setup/config
+	mkdir -p setup/config/example
 	mkdir -p setup/macros
 	cp -u -f /mingw/bin/libgcc_s_dw2-1.dll setup
 	cp -u -f /mingw/bin/libiconv-2.dll setup
@@ -17,7 +17,7 @@ install: all
 	cp -u -f /mingw/bin/SDL.dll setup
 	cp -u -f /mingw/bin/zlib1.dll setup
 	cp -u -f core/emuclient.exe setup
-	cp -u -f -r core/config/*.xml setup/config
+	cp -u -f -r core/config/*.xml setup/config/example
 	cp -u -f -r core/macros/*.txt setup/macros
 	cp -u -f config/bin/Release/gimx-config.exe setup
 	cp -u -f serial/bin/Release/gimx-serial.exe setup
