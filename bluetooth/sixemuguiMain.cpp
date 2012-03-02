@@ -1139,6 +1139,12 @@ void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
     string filename = "";
     wxString configname;
 
+    if(Choice4->GetStringSelection().IsEmpty())
+    {
+      wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
+      return;
+    }
+
     if(CheckBox3->IsChecked())
     {
         command.append("gnome-terminal -e \"");
@@ -1267,6 +1273,12 @@ void sixemuguiFrame::OnButton4Click(wxCommandEvent& event)
   string result = "";
   string line = "";
   wxString configname;
+
+  if(Choice4->GetStringSelection().IsEmpty())
+  {
+    wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
+    return;
+  }
 
 #ifdef WIN32
   command.append("emuclient.exe");
