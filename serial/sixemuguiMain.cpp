@@ -85,6 +85,7 @@ const long sixemuguiFrame::ID_STATICTEXT1 = wxNewId();
 const long sixemuguiFrame::ID_COMBOBOX2 = wxNewId();
 const long sixemuguiFrame::ID_STATICTEXT2 = wxNewId();
 const long sixemuguiFrame::ID_CHECKBOX5 = wxNewId();
+const long sixemuguiFrame::ID_CHECKBOX6 = wxNewId();
 const long sixemuguiFrame::ID_CHECKBOX1 = wxNewId();
 const long sixemuguiFrame::ID_CHECKBOX4 = wxNewId();
 const long sixemuguiFrame::ID_CHECKBOX2 = wxNewId();
@@ -350,6 +351,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     wxStaticBoxSizer* StaticBoxSizer8;
     wxStaticBoxSizer* StaticBoxSizer6;
     wxFlexGridSizer* FlexGridSizer8;
+    wxFlexGridSizer* FlexGridSizer13;
     wxFlexGridSizer* FlexGridSizer12;
     wxMenuBar* MenuBar1;
     wxFlexGridSizer* FlexGridSizer6;
@@ -378,10 +380,9 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer12->Add(StaticText4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ControllerType = new wxChoice(Panel1, ID_CHOICE1, wxDefaultPosition, wxSize(100,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
     ControllerType->SetSelection( ControllerType->Append(_("Joystick")) );
-    ControllerType->Append(_("GPP(360)"));
-    ControllerType->Append(_("GPP(PS3)"));
     ControllerType->Append(_("360 pad"));
     ControllerType->Append(_("Sixaxis"));
+    ControllerType->Append(_("GPP"));
     ControllerType->Append(_("PS2 pad"));
     FlexGridSizer12->Add(ControllerType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ButtonSpoof = new wxButton(Panel1, ID_BUTTON2, _("Spoof"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON2"));
@@ -400,9 +401,14 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     StaticText2 = new wxStaticText(Panel1, ID_STATICTEXT2, _("Hz"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
     FlexGridSizer6->Add(StaticText2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer2->Add(FlexGridSizer6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer13 = new wxFlexGridSizer(1, 2, 0, 0);
     CheckBoxForceUpdates = new wxCheckBox(Panel1, ID_CHECKBOX5, _("Force updates"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX5"));
     CheckBoxForceUpdates->SetValue(true);
-    FlexGridSizer2->Add(CheckBoxForceUpdates, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer13->Add(CheckBoxForceUpdates, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    CheckBoxSubpositions = new wxCheckBox(Panel1, ID_CHECKBOX6, _("Subposition"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX6"));
+    CheckBoxSubpositions->SetValue(true);
+    FlexGridSizer13->Add(CheckBoxSubpositions, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer2->Add(FlexGridSizer13, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer5->Add(FlexGridSizer2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer8 = new wxFlexGridSizer(2, 2, 0, 0);
     StaticBoxSizer5 = new wxStaticBoxSizer(wxVERTICAL, Panel1, _("Mouse"));
@@ -574,14 +580,14 @@ void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
     double frequency;
     wxString wxfrequency;
     wxString configname;
-    
+
     if(ChoiceConfig->GetStringSelection().IsEmpty())
     {
       wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
       return;
     }
 
-    if(!ControllerType->GetStringSelection().StartsWith(_("GPP")))
+    if(ControllerType->GetStringSelection() != _("GPP"))
     {
       if(ComboBoxDevice->GetValue().IsEmpty())
       {
@@ -613,7 +619,7 @@ void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
     {
       command.append(" --joystick");
     }
-    else if(ControllerType->GetStringSelection().StartsWith(_("GPP")))
+    else if(ControllerType->GetStringSelection() == _("GPP"))
     {
       command.append(" --GPP");
     }
@@ -661,7 +667,11 @@ void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
     {
         command.append(" --force-updates");
     }
-    if(!ControllerType->GetStringSelection().StartsWith(_("GPP")))
+    if(CheckBoxSubpositions->IsChecked())
+    {
+        command.append(" --subpos");
+    }
+    if(ControllerType->GetStringSelection() != _("GPP"))
     {
       command.append(" --serial");
       command.append(" --port ");
@@ -935,14 +945,21 @@ void sixemuguiFrame::OnMenuRefresh(wxCommandEvent& event)
 
 void sixemuguiFrame::OnControllerTypeSelect(wxCommandEvent& event)
 {
-    if(!spoofed && (ControllerType->GetStringSelection() == _("360 pad")
-       || ControllerType->GetStringSelection() == _("Sixaxis")))
+    if(!spoofed && (ControllerType->GetStringSelection() == _("360 pad")))
     {
       ButtonSpoof->Enable(true);
     }
     else
     {
       ButtonSpoof->Enable(false);
+    }
+    if(ControllerType->GetStringSelection() == _("GPP"))
+    {
+      ComboBoxDevice->Enable(false);
+    }
+    else
+    {
+      ComboBoxDevice->Enable(true);
     }
     if(ControllerType->GetStringSelection() == _("PS2 pad"))
     {
@@ -951,6 +968,7 @@ void sixemuguiFrame::OnControllerTypeSelect(wxCommandEvent& event)
     }
     else
     {
+      ComboBoxFrequency->SetSelection(3);
       ComboBoxFrequency->Enable(true);
     }
 }

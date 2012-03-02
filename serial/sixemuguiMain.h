@@ -65,6 +65,7 @@ class sixemuguiFrame: public wxFrame
         static const long ID_COMBOBOX2;
         static const long ID_STATICTEXT2;
         static const long ID_CHECKBOX5;
+        static const long ID_CHECKBOX6;
         static const long ID_CHECKBOX1;
         static const long ID_CHECKBOX4;
         static const long ID_CHECKBOX2;
@@ -96,6 +97,7 @@ class sixemuguiFrame: public wxFrame
         wxChoice* ChoiceConfig;
         wxPanel* Panel1;
         wxStaticText* StaticText1;
+        wxCheckBox* CheckBoxSubpositions;
         wxStaticText* StaticText3;
         wxComboBox* ComboBoxFrequency;
         wxSingleInstanceChecker SingleInstanceChecker1;

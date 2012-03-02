@@ -68,10 +68,9 @@
 													<object class="wxChoice" name="ID_CHOICE1" variable="ControllerType" member="yes">
 														<content>
 															<item>Joystick</item>
-															<item>GPP(360)</item>
-															<item>GPP(PS3)</item>
 															<item>360 pad</item>
 															<item>Sixaxis</item>
+															<item>GPP</item>
 															<item>PS2 pad</item>
 														</content>
 														<selection>0</selection>
@@ -138,9 +137,27 @@
 											<option>1</option>
 										</object>
 										<object class="sizeritem">
-											<object class="wxCheckBox" name="ID_CHECKBOX5" variable="CheckBoxForceUpdates" member="yes">
-												<label>Force updates</label>
-												<checked>1</checked>
+											<object class="wxFlexGridSizer" variable="FlexGridSizer13" member="no">
+												<cols>2</cols>
+												<rows>1</rows>
+												<object class="sizeritem">
+													<object class="wxCheckBox" name="ID_CHECKBOX5" variable="CheckBoxForceUpdates" member="yes">
+														<label>Force updates</label>
+														<checked>1</checked>
+													</object>
+													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+													<border>5</border>
+													<option>1</option>
+												</object>
+												<object class="sizeritem">
+													<object class="wxCheckBox" name="ID_CHECKBOX6" variable="CheckBoxSubpositions" member="yes">
+														<label>Subposition</label>
+														<checked>1</checked>
+													</object>
+													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+													<border>5</border>
+													<option>1</option>
+												</object>
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 											<border>5</border>
