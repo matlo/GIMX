@@ -232,7 +232,10 @@ int process(int psm, const unsigned char *buf, int len,
         /* Respond to these on CTRL port with a positive HANDSHAKE */
         if (psm == CTRL) {
             char foo = (HID_HANDSHAKE << 4) | 0x0;
-            write(ctrl, &foo, 1);
+            if(write(ctrl, &foo, 1) < 1)
+            {
+              printf("write error");
+            }
         }
         break;
 
