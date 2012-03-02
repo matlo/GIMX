@@ -575,6 +575,12 @@ void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
     wxString wxfrequency;
     wxString configname;
     
+    if(ChoiceConfig->GetStringSelection().IsEmpty())
+    {
+      wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
+      return;
+    }
+
     if(!ControllerType->GetStringSelection().StartsWith(_("GPP")))
     {
       if(ComboBoxDevice->GetValue().IsEmpty())
@@ -771,6 +777,12 @@ void sixemuguiFrame::OnButtonCheckClick1(wxCommandEvent& event)
     string result = "";
     string line = "";
     wxString configname;
+
+    if(ChoiceConfig->GetStringSelection().IsEmpty())
+    {
+      wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
+      return;
+    }
 
 #ifdef WIN32
     command.append("emuclient.exe");
