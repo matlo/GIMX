@@ -86,6 +86,8 @@ list<string>* configupdater::getconfiglist()
 
   infile.close();
   
+  remove(configs_file.c_str());
+
   return &configlist;
 }
 

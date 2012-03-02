@@ -83,6 +83,8 @@ int updater::checkversion()
 
   infile.close();
   
+  remove(version_file.c_str());
+
   return v > version;
 }
 
@@ -142,5 +144,6 @@ int updater::update()
     return -1;
   }
 #endif
+
   return 0;
 }
