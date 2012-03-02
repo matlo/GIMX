@@ -23,4 +23,5 @@ install: all
 	cp -u -f serial/bin/Release/gimx-serial.exe setup
 	cp -u -f status/bin/Release/gimx-status.exe setup
 	cp -u -f fpsconfig/bin/Release/gimx-fpsconfig.exe setup
-	cp -u -f /mingw/msys/1.0/bin/wget.exe setup
+	cp -u -f /local/bin/wget-1.11.4.exe setup/wget.exe
+	cp -u -f /etc/wgetrc setup/wget.ini
