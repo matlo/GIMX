@@ -526,7 +526,7 @@ int main(int argc, char *argv[])
           {
             spoof = 1;
             printf("spoof successful\n");
-            exit(0);
+            break;
           }
 
 #ifndef WIN32
@@ -655,5 +655,9 @@ int main(int argc, char *argv[])
 #endif
   libusb_close(devh);
   libusb_exit(ctx);
+  if(bexit)
+  {
+    return -1;
+  }
   return 0;
 }
