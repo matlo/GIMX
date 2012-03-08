@@ -300,7 +300,9 @@ int main(int argc, char *argv[])
     macro_process();
 	  calibration_test();
     
-    SDL_PumpEvents();
+    if(!keygen)
+      SDL_PumpEvents();
+
     num_evt = SDL_PeepEvents(events, sizeof(events) / sizeof(events[0]),
         SDL_GETEVENT, SDL_ALLEVENTS);
 
