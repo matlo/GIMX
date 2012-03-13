@@ -381,6 +381,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     ControllerType = new wxChoice(Panel1, ID_CHOICE1, wxDefaultPosition, wxSize(100,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
     ControllerType->SetSelection( ControllerType->Append(_("Joystick")) );
     ControllerType->Append(_("GPP"));
+    ControllerType->Append(_("PS2 pad"));
     FlexGridSizer12->Add(ControllerType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ButtonSpoof = new wxButton(Panel1, ID_BUTTON2, _("Spoof"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON2"));
     ButtonSpoof->Disable();
@@ -496,8 +497,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
 
 #ifndef WIN32
     ControllerType->Append(_("360 pad"));
-    /*ControllerType->Append(_("Sixaxis"));
-    ControllerType->Append(_("PS2 pad"));*/
+    /*ControllerType->Append(_("Sixaxis"));*/
 #endif
 
     spoofed = false;
