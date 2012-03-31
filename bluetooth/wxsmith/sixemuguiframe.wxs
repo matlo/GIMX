@@ -30,9 +30,6 @@
 										</object>
 										<object class="sizeritem">
 											<object class="wxChoice" name="ID_CHOICE1" variable="Choice1" member="yes">
-												<content>
-													<item></item>
-												</content>
 												<size>175,-1</size>
 												<handler function="OnSelectSixaxisBdaddr" entry="EVT_CHOICE" />
 											</object>
