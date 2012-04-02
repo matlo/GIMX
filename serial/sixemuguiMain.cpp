@@ -530,14 +530,14 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     }
 #endif
 
+    started = false;
+
     read_filenames(ChoiceConfig);
     read_frequency(ComboBoxFrequency);
     read_devices(ComboBoxDevice);
     read_controller_type(ControllerType);
     wxCommandEvent event;
     OnControllerTypeSelect(event);
-
-    started = false;
 
     readStartUpdates(MenuStartupUpdates);
     if(MenuStartupUpdates->IsChecked())
@@ -971,7 +971,10 @@ void sixemuguiFrame::OnControllerTypeSelect(wxCommandEvent& event)
     }
     else
     {
-      ComboBoxFrequency->SetSelection(3);
+      if(started)
+      {
+        ComboBoxFrequency->SetSelection(3);
+      }
       ComboBoxFrequency->Enable(true);
     }
 }
@@ -979,6 +982,12 @@ void sixemuguiFrame::OnControllerTypeSelect(wxCommandEvent& event)
 void sixemuguiFrame::OnButtonSpoofClick(wxCommandEvent& event)
 {
     string command = "";
+
+    if(ComboBoxDevice->GetValue().IsEmpty())
+    {
+      wxMessageBox( wxT("No USB to serial device selected!"), wxT("Error"), wxICON_ERROR);
+      return;
+    }
 
     if(ControllerType->GetStringSelection() == _("360 pad") && !spoofed)
     {
