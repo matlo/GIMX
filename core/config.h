@@ -188,6 +188,7 @@ typedef struct
   double value;
 }s_intensity;
 
+void cfg_trigger_init();
 void cfg_trigger_lookup(SDL_Event*);
 void cfg_config_activation();
 void cfg_intensity_lookup(SDL_Event*);

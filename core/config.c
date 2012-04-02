@@ -379,6 +379,19 @@ void cfg_intensity_lookup(SDL_Event* e)
 }
 
 /*
+ * Initialize next_config and prev_config tables.
+ */
+void cfg_trigger_init()
+{
+  int i;
+  for(i=0; i<MAX_CONTROLLERS; ++i)
+  {
+    next_config[i] = -1;
+    previous_config[i] = -1;
+  }
+}
+
+/*
  * Check if current configurations of controllers need to be updated.
  */
 void cfg_trigger_lookup(SDL_Event* e)
@@ -452,7 +465,16 @@ void cfg_trigger_lookup(SDL_Event* e)
         }
         else if(triggers[i][j].switch_back)
         {
-          selected = previous_config[i];
+          if(next_config[i] == j)
+          {
+            /* cancel the switch */
+            selected = current_config[i];
+          }
+          else
+          {
+            /* switch back */
+            selected = previous_config[i];
+          }
           break;
         }
       }
@@ -487,16 +509,19 @@ void cfg_config_activation()
     {
       if(!config_delay[i])
       {
-        if(display)
+        if(next_config[i] != current_config[i])
         {
-          gettimeofday(&tv, NULL);
+          if(display)
+          {
+            gettimeofday(&tv, NULL);
 
-          printf("%d %ld.%06ld controller %d is switched from configuration %d to %d\n", i, tv.tv_sec, tv.tv_usec, i, current_config[i], next_config[i]);
+            printf("%d %ld.%06ld controller %d is switched from configuration %d to %d\n", i, tv.tv_sec, tv.tv_usec, i, current_config[i], next_config[i]);
+          }
+          previous_config[i] = current_config[i];
+          current_config[i] = next_config[i];
+          update_stick(&left_intensity[i][current_config[i]], i, 0);
+          update_stick(&right_intensity[i][current_config[i]], i, 1);
         }
-        previous_config[i] = current_config[i];
-        current_config[i] = next_config[i];
-        update_stick(&left_intensity[i][current_config[i]], i, 0);
-        update_stick(&right_intensity[i][current_config[i]], i, 1);
         next_config[i] = -1;
       }
       else
@@ -580,9 +605,13 @@ static int postpone_event(unsigned int device, SDL_Event* event)
           && triggers[i][next_config[i]].device_id == device
           && triggers[i][next_config[i]].button == event->button.button)
       {
-        SDL_PushEvent(event);
-        ret = 1;
-        break;
+        /* do not postpone the event if it has to trigger a switch back */
+        if(!triggers[i][next_config[i]].switch_back)
+        {
+          SDL_PushEvent(event);
+          ret = 1;
+          break;
+        }
       }
     }
   }
@@ -1242,6 +1271,7 @@ void cfg_process_event(SDL_Event* event)
            */
           if(postpone_event(device, event))
           {
+            printf("postpone\n");
             return; //no need to do something more
           }
           controller[c_id].send_command = 1;

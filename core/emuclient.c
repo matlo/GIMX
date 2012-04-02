@@ -285,6 +285,8 @@ int main(int argc, char *argv[])
     }
   }
 
+  cfg_trigger_init();
+
   done = 0;
   while (!done)
   {
