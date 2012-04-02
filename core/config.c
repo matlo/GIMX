@@ -1271,7 +1271,6 @@ void cfg_process_event(SDL_Event* event)
            */
           if(postpone_event(device, event))
           {
-            printf("postpone\n");
             return; //no need to do something more
           }
           controller[c_id].send_command = 1;
