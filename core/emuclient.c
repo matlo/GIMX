@@ -338,10 +338,6 @@ int main(int argc, char *argv[])
         case SDL_KEYDOWN:
           cal_key(event->key.which, event->key.keysym.sym, 1);
           macro_lookup(event->key.which, event->key.keysym.sym);
-          if(event->key.keysym.sym == SDLK_ESCAPE)
-          {
-            done = 1;
-          }
           break;
         case SDL_KEYUP:
           cal_key(event->key.which, event->key.keysym.sym, 0);

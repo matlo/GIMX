@@ -256,6 +256,7 @@ static void display_calibration()
  */
 void cal_key(int device_id, int sym, int down)
 {
+  SDL_Event evt_quit = { };
   s_mouse_control* mc = cfg_get_mouse_control(current_mouse);
 
   switch (sym)
@@ -288,6 +289,11 @@ void cal_key(int device_id, int sym, int down)
       if(current_cal != NONE)
       {
         current_cal = NONE;
+      }
+      if(lshift)
+      {
+        evt_quit.quit.type = SDL_QUIT;
+        SDL_PushEvent(&evt_quit);
       }
       break;
     case SDLK_F1:
