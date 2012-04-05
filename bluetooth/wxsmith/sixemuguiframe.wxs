@@ -402,6 +402,7 @@
 												<object class="sizeritem">
 													<object class="wxCheckBox" name="ID_CHECKBOX7" variable="CheckBox7" member="yes">
 														<label>Subpositions</label>
+														<checked>1</checked>
 													</object>
 													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 													<border>5</border>
