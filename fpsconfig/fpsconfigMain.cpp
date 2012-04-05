@@ -485,6 +485,8 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
         MenuItem4->Enable(false);
       }
     }
+
+    configFile.SetEvCatch(&evcatch);
 }
 
 fpsconfigFrame::~fpsconfigFrame()
@@ -751,7 +753,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
     e_button_index bindex;
     e_axis_index aindex;
 
-    evcatch.run();
+    evcatch.run(wxEmptyString, _("button"));
     ((wxButton*)event.GetEventObject())->SetLabel(evcatch.GetEventId());
     ((wxButton*)event.GetEventObject())->SetToolTip(evcatch.GetEventId());
 

@@ -16,12 +16,12 @@ AR = ar
 RANLIB = ranlib
 WINDRES = windres
 
-INC = -Iinclude -I/usr/include/libxml2 -I../../libsdl/include
+INC = -I/usr/include/libxml2 -I../../libsdl/include -I../shared/configeditor/include
 CFLAGS = -Wall `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
 RESINC = 
 RCFLAGS = 
 LIBDIR =
-LIB = -L../../libsdl/lib -lSDL -lxml2 `wx-config --libs`
+LIB = ../shared/configeditor/configeditor.a -L../../libsdl/lib -lSDL -lxml2 `wx-config --libs`
 LDFLAGS =
 
 INC_RELEASE = $(INC)
@@ -35,7 +35,7 @@ OBJDIR_RELEASE = obj/Release
 DEP_RELEASE = 
 OUT_RELEASE = bin/Release/gimx-fpsconfig
 
-OBJ_RELEASE = $(OBJDIR_RELEASE)/src/event_catcher.o $(OBJDIR_RELEASE)/src/XmlWritter.o $(OBJDIR_RELEASE)/src/XmlReader.o $(OBJDIR_RELEASE)/src/Trigger.o $(OBJDIR_RELEASE)/src/Intensity.o $(OBJDIR_RELEASE)/src/Event.o $(OBJDIR_RELEASE)/src/Device.o $(OBJDIR_RELEASE)/src/Controller.o $(OBJDIR_RELEASE)/src/ConfigurationFile.o $(OBJDIR_RELEASE)/src/Configuration.o $(OBJDIR_RELEASE)/src/ButtonMapper.o $(OBJDIR_RELEASE)/src/AxisMapper.o $(OBJDIR_RELEASE)/fpsconfigMain.o $(OBJDIR_RELEASE)/fpsconfigApp.o ../shared/updater/updater.o
+OBJ_RELEASE = $(OBJDIR_RELEASE)/fpsconfigMain.o $(OBJDIR_RELEASE)/fpsconfigApp.o ../shared/updater/updater.o
 
 all: release
 
@@ -46,54 +46,6 @@ release: $(OUT_RELEASE)
 $(OUT_RELEASE): $(OBJ_RELEASE) $(DEP_RELEASE)
 	test -d bin/Release || mkdir -p bin/Release
 	$(LD) $(LDFLAGS_RELEASE) $(LIBDIR_RELEASE) -o $(OUT_RELEASE) $(OBJ_RELEASE) $(LIB_RELEASE)
-
-$(OBJDIR_RELEASE)/src/event_catcher.o: src/event_catcher.cpp
-	test -d $(OBJDIR_RELEASE)/src || mkdir -p $(OBJDIR_RELEASE)/src
-	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $(OBJDIR_RELEASE)/src/event_catcher.o src/event_catcher.cpp
-
-$(OBJDIR_RELEASE)/src/XmlWritter.o: src/XmlWritter.cpp
-	test -d $(OBJDIR_RELEASE)/src || mkdir -p $(OBJDIR_RELEASE)/src
-	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $(OBJDIR_RELEASE)/src/XmlWritter.o src/XmlWritter.cpp
-
-$(OBJDIR_RELEASE)/src/XmlReader.o: src/XmlReader.cpp
-	test -d $(OBJDIR_RELEASE)/src || mkdir -p $(OBJDIR_RELEASE)/src
-	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $(OBJDIR_RELEASE)/src/XmlReader.o src/XmlReader.cpp
-
-$(OBJDIR_RELEASE)/src/Trigger.o: src/Trigger.cpp
-	test -d $(OBJDIR_RELEASE)/src || mkdir -p $(OBJDIR_RELEASE)/src
-	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $(OBJDIR_RELEASE)/src/Trigger.o src/Trigger.cpp
-
-$(OBJDIR_RELEASE)/src/Intensity.o: src/Intensity.cpp
-	test -d $(OBJDIR_RELEASE)/src || mkdir -p $(OBJDIR_RELEASE)/src
-	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $(OBJDIR_RELEASE)/src/Intensity.o src/Intensity.cpp
-
-$(OBJDIR_RELEASE)/src/Event.o: src/Event.cpp
-	test -d $(OBJDIR_RELEASE)/src || mkdir -p $(OBJDIR_RELEASE)/src
-	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $(OBJDIR_RELEASE)/src/Event.o src/Event.cpp
-
-$(OBJDIR_RELEASE)/src/Device.o: src/Device.cpp
-	test -d $(OBJDIR_RELEASE)/src || mkdir -p $(OBJDIR_RELEASE)/src
-	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $(OBJDIR_RELEASE)/src/Device.o src/Device.cpp
-
-$(OBJDIR_RELEASE)/src/Controller.o: src/Controller.cpp
-	test -d $(OBJDIR_RELEASE)/src || mkdir -p $(OBJDIR_RELEASE)/src
-	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $(OBJDIR_RELEASE)/src/Controller.o src/Controller.cpp
-
-$(OBJDIR_RELEASE)/src/ConfigurationFile.o: src/ConfigurationFile.cpp
-	test -d $(OBJDIR_RELEASE)/src || mkdir -p $(OBJDIR_RELEASE)/src
-	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $(OBJDIR_RELEASE)/src/ConfigurationFile.o src/ConfigurationFile.cpp
-
-$(OBJDIR_RELEASE)/src/Configuration.o: src/Configuration.cpp
-	test -d $(OBJDIR_RELEASE)/src || mkdir -p $(OBJDIR_RELEASE)/src
-	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $(OBJDIR_RELEASE)/src/Configuration.o src/Configuration.cpp
-
-$(OBJDIR_RELEASE)/src/ButtonMapper.o: src/ButtonMapper.cpp
-	test -d $(OBJDIR_RELEASE)/src || mkdir -p $(OBJDIR_RELEASE)/src
-	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $(OBJDIR_RELEASE)/src/ButtonMapper.o src/ButtonMapper.cpp
-
-$(OBJDIR_RELEASE)/src/AxisMapper.o: src/AxisMapper.cpp
-	test -d $(OBJDIR_RELEASE)/src || mkdir -p $(OBJDIR_RELEASE)/src
-	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $(OBJDIR_RELEASE)/src/AxisMapper.o src/AxisMapper.cpp
 
 $(OBJDIR_RELEASE)/fpsconfigMain.o: fpsconfigMain.cpp
 	test -d $(OBJDIR_RELEASE) || mkdir -p $(OBJDIR_RELEASE)
