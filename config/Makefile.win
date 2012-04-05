@@ -14,12 +14,12 @@ AR = ar
 RANLIB = ranlib
 WINDRES = windres
 
-INC = -Iinclude
+INC =  -I../shared/configeditor/include
 CFLAGS = -Wall `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
 RESINC = 
 RCFLAGS = 
 LIBDIR =
-LIB = -lSDL -llibxml2 `wx-config --libs`
+LIB = ../shared/configeditor/configeditor.a -lSDL -llibxml2 `wx-config --libs`
 LDFLAGS = `wx-config --libs`
 
 INC_RELEASE = $(INC)
@@ -33,7 +33,7 @@ OBJDIR_RELEASE = obj/Release
 DEP_RELEASE = 
 OUT_RELEASE = bin/Release/gimx-config
 
-OBJ_RELEASE = config.rc.o $(OBJDIR_RELEASE)/src/event_catcher.o $(OBJDIR_RELEASE)/src/XmlWritter.o $(OBJDIR_RELEASE)/src/XmlReader.o $(OBJDIR_RELEASE)/src/Trigger.o $(OBJDIR_RELEASE)/src/Intensity.o $(OBJDIR_RELEASE)/src/Event.o $(OBJDIR_RELEASE)/src/Device.o $(OBJDIR_RELEASE)/src/Controller.o $(OBJDIR_RELEASE)/src/ConfigurationFile.o $(OBJDIR_RELEASE)/src/Configuration.o $(OBJDIR_RELEASE)/src/ButtonMapper.o $(OBJDIR_RELEASE)/src/AxisMapper.o $(OBJDIR_RELEASE)/sixaxis_emu_guiMain.o $(OBJDIR_RELEASE)/sixaxis_emu_guiApp.o ../shared/updater/updater.o
+OBJ_RELEASE = config.rc.o $(OBJDIR_RELEASE)/sixaxis_emu_guiMain.o $(OBJDIR_RELEASE)/sixaxis_emu_guiApp.o ../shared/updater/updater.o
 
 all: release
 
@@ -47,7 +47,6 @@ $(OUT_RELEASE): $(OBJ_RELEASE) $(DEP_RELEASE)
 
 $(OBJDIR_RELEASE)/%.o: %.cpp
 	test -d $(OBJDIR_RELEASE) || mkdir -p $(OBJDIR_RELEASE)
-	test -d $(OBJDIR_RELEASE)/src || mkdir -p $(OBJDIR_RELEASE)/src
 	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $@ $<
 
 config.rc.o: config.rc
