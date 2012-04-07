@@ -15,7 +15,7 @@
 static int exec(string command)
 {
 #ifdef WIN32
-  int ret;
+  unsigned int ret;
   STARTUPINFOA startupInfo =
   { 0};
   startupInfo.cb = sizeof(startupInfo);
