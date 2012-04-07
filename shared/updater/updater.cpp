@@ -15,6 +15,7 @@
 static int exec(string command)
 {
 #ifdef WIN32
+  int ret;
   STARTUPINFOA startupInfo =
   { 0};
   startupInfo.cb = sizeof(startupInfo);
@@ -38,13 +39,22 @@ static int exec(string command)
   free(cmd);
 
   WaitForSingleObject(processInformation.hProcess, INFINITE);
-  CloseHandle(processInformation.hProcess);
 
   if(!result)
   {
-    return -1;
+    ret = -1;
   }
-  return 0;
+  else
+  {
+    if(!GetExitCodeProcess(processInformation.hProcess, &ret))
+    {
+      ret = -1;
+    }
+  }
+
+  CloseHandle(processInformation.hProcess);
+
+  return ret;
 #else
   return system(command.c_str());
 #endif
