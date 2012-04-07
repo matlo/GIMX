@@ -87,7 +87,7 @@
 				<max>30</max>
 				<pos>506,320</pos>
 				<size>44,-1</size>
-				<tooltip>Buffer size</tooltip>
+				<tooltip>Buffer size (Hip Fire)</tooltip>
 			</object>
 			<object class="wxSpinCtrl" name="ID_SPINCTRL14" variable="SpinCtrl14" member="yes">
 				<value>1</value>
@@ -95,27 +95,27 @@
 				<max>30</max>
 				<pos>506,352</pos>
 				<size>44,-1</size>
-				<tooltip>Buffer size</tooltip>
+				<tooltip>Buffer size (ADS)</tooltip>
 			</object>
 			<object class="wxSpinCtrl" name="ID_SPINCTRL1" variable="SpinCtrl1" member="yes">
 				<value>20</value>
 				<max>64</max>
 				<pos>184,320</pos>
 				<size>44,-1</size>
-				<tooltip>Dead zone</tooltip>
+				<tooltip>Dead zone (Hip Fire)</tooltip>
 			</object>
 			<object class="wxSpinCtrl" name="ID_SPINCTRL2" variable="SpinCtrl2" member="yes">
 				<value>20</value>
 				<max>64</max>
 				<pos>184,352</pos>
 				<size>44,-1</size>
-				<tooltip>Dead zone</tooltip>
+				<tooltip>Dead zone (ADS)</tooltip>
 			</object>
 			<object class="wxTextCtrl" name="ID_TEXTCTRL24" variable="TextCtrl24" member="yes">
 				<value>1.00</value>
 				<pos>312,352</pos>
 				<size>50,-1</size>
-				<tooltip>Sensitivity</tooltip>
+				<tooltip>Sensitivity (ADS)</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
 				<handler function="OnTextCtrlText" entry="EVT_TEXT_ENTER" />
@@ -124,7 +124,7 @@
 				<value>1.00</value>
 				<pos>312,320</pos>
 				<size>50,-1</size>
-				<tooltip>Sensitivity</tooltip>
+				<tooltip>Sensitivity (Hip Fire)</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
 				<handler function="OnTextCtrlText" entry="EVT_TEXT_ENTER" />
@@ -133,7 +133,7 @@
 				<value>1.00</value>
 				<pos>380,352</pos>
 				<size>40,-1</size>
-				<tooltip>Acceleration</tooltip>
+				<tooltip>Acceleration (ADS)</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
 				<handler function="OnTextCtrlText" entry="EVT_TEXT_ENTER" />
@@ -142,7 +142,7 @@
 				<value>0.00</value>
 				<pos>550,320</pos>
 				<size>40,-1</size>
-				<tooltip>Filter</tooltip>
+				<tooltip>Filter (Hip Fire)</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
 				<handler function="OnTextCtrlText" entry="EVT_TEXT_ENTER" />
@@ -151,7 +151,7 @@
 				<value>0.00</value>
 				<pos>550,352</pos>
 				<size>40,-1</size>
-				<tooltip>Filter</tooltip>
+				<tooltip>Filter (ADS)</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
 				<handler function="OnTextCtrlText" entry="EVT_TEXT_ENTER" />
@@ -160,13 +160,13 @@
 				<value>1.00</value>
 				<pos>380,320</pos>
 				<size>40,-1</size>
-				<tooltip>Acceleration</tooltip>
+				<tooltip>Acceleration (Hip Fire)</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
 				<handler function="OnTextCtrlText" entry="EVT_TEXT_ENTER" />
 			</object>
 			<object class="wxStaticText" name="ID_STATICTEXT1" variable="StaticText1" member="yes">
-				<label>primary</label>
+				<label>Hip Fire</label>
 				<pos>120,328</pos>
 			</object>
 			<object class="wxStaticText" name="ID_STATICTEXT7" variable="StaticText7" member="yes">
@@ -175,8 +175,9 @@
 				<tooltip>Dead zone shape</tooltip>
 			</object>
 			<object class="wxStaticText" name="ID_STATICTEXT2" variable="StaticText2" member="yes">
-				<label>secondary</label>
-				<pos>104,360</pos>
+				<label>ADS</label>
+				<pos>144,360</pos>
+				<tooltip>Aiming Down the Sights</tooltip>
 			</object>
 			<object class="wxStaticText" name="ID_STATICTEXT3" variable="StaticText3" member="yes">
 				<label>DZ</label>
@@ -366,7 +367,7 @@
 				<selection>0</selection>
 				<pos>230,320</pos>
 				<size>80,-1</size>
-				<tooltip>Dead zone shape</tooltip>
+				<tooltip>Dead zone shape (Hip Fire)</tooltip>
 			</object>
 			<object class="wxChoice" name="ID_CHOICE1" variable="Choice1" member="yes">
 				<content>
@@ -376,13 +377,13 @@
 				<selection>0</selection>
 				<pos>230,352</pos>
 				<size>80,-1</size>
-				<tooltip>Dead zone shape</tooltip>
+				<tooltip>Dead zone shape (ADS)</tooltip>
 			</object>
 			<object class="wxTextCtrl" name="ID_TEXTCTRL1" variable="TextCtrl1" member="yes">
 				<value>1.00</value>
 				<pos>438,320</pos>
 				<size>50,-1</size>
-				<tooltip>x/y ratio</tooltip>
+				<tooltip>x/y ratio (Hip Fire)</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
 				<handler function="OnTextCtrlText" entry="EVT_TEXT_ENTER" />
@@ -391,7 +392,7 @@
 				<value>1.00</value>
 				<pos>438,352</pos>
 				<size>50,-1</size>
-				<tooltip>x/y ratio</tooltip>
+				<tooltip>x/y ratio (ADS)</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
 				<handler function="OnTextCtrlText" entry="EVT_TEXT_ENTER" />
