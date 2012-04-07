@@ -1379,7 +1379,7 @@ void sixaxis_emu_guiFrame::save_current()
     for(int i=0; i<ButtonTabControls->GetNumberRows(); i++)
     {
         //ButtonMapper(wxString dtype, wxString did, wxString dname, wxString etype, wxString eid, wxString threshold, wxString button)
-        buttonMappers->push_front(ButtonMapper(ButtonTabControls->GetCellValue(i, 0), ButtonTabControls->GetCellValue(i, 2), ButtonTabControls->GetCellValue(i, 1), ButtonTabControls->GetCellValue(i, 3), ButtonTabControls->GetCellValue(i, 4), ButtonTabControls->GetCellValue(i, 5), ButtonTabControls->GetCellValue(i, 6)));
+        buttonMappers->push_front(ButtonMapper(ButtonTabControls->GetCellValue(i, 0), ButtonTabControls->GetCellValue(i, 2), ButtonTabControls->GetCellValue(i, 1), ButtonTabControls->GetCellValue(i, 3), ButtonTabControls->GetCellValue(i, 4), ButtonTabControls->GetCellValue(i, 5), ButtonTabControls->GetCellValue(i, 6), wxEmptyString));//todo
     }
     //Save AxisMappers
     axisMappers = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetAxisMapperList();
@@ -1387,7 +1387,7 @@ void sixaxis_emu_guiFrame::save_current()
     for(int i=0; i<Grid2->GetNumberRows(); i++)
     {
         //AxisMapper(wxString dtype, wxString did, wxString dname, wxString etype, wxString eid, wxString axis, wxString deadZone, wxString multiplier, wxString exponent);
-        axisMappers->push_front(AxisMapper(Grid2->GetCellValue(i, 0), Grid2->GetCellValue(i, 2), Grid2->GetCellValue(i, 1), Grid2->GetCellValue(i, 3), Grid2->GetCellValue(i, 4), Grid2->GetCellValue(i, 5), Grid2->GetCellValue(i, 6), Grid2->GetCellValue(i, 7), Grid2->GetCellValue(i, 8), Grid2->GetCellValue(i, 9), Grid2->GetCellValue(i, 10), Grid2->GetCellValue(i, 11)));
+        axisMappers->push_front(AxisMapper(Grid2->GetCellValue(i, 0), Grid2->GetCellValue(i, 2), Grid2->GetCellValue(i, 1), Grid2->GetCellValue(i, 3), Grid2->GetCellValue(i, 4), Grid2->GetCellValue(i, 5), Grid2->GetCellValue(i, 6), Grid2->GetCellValue(i, 7), Grid2->GetCellValue(i, 8), Grid2->GetCellValue(i, 9), Grid2->GetCellValue(i, 10), Grid2->GetCellValue(i, 11), wxEmptyString));//todo
     }
 
 }

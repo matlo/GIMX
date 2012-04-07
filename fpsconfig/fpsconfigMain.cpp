@@ -34,6 +34,8 @@
 #include "../shared/updater/updater.h"
 #include "../directories.h"
 
+#include <wx/tooltip.h>
+
 using namespace std;
 
 //helper functions
@@ -488,6 +490,8 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     }
 
     configFile.SetEvCatch(&evcatch);
+	  
+	  wxToolTip::SetDelay(0);
 }
 
 fpsconfigFrame::~fpsconfigFrame()
@@ -756,7 +760,6 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 
     evcatch.run(wxEmptyString, _("button"));
     ((wxButton*)event.GetEventObject())->SetLabel(evcatch.GetEventId());
-    ((wxButton*)event.GetEventObject())->SetToolTip(evcatch.GetEventId());
 
     bindex = getButtonIndex((wxButton*)event.GetEventObject());
 
@@ -765,6 +768,14 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
         buttons[bindex].SetDevice(Device(evcatch.GetDeviceType(), _("0"), _("")));
         buttons[bindex].SetEvent(Event(_("button"), evcatch.GetEventId()));
         buttons[bindex].SetButton(wxString(button_labels[bindex], wxConvUTF8));
+        wxString tt = buttons[bindex].GetEvent()->GetId();
+        if(!buttons[bindex].GetLabel().IsEmpty())
+        {
+            tt.Append(_(" ["));
+            tt.Append(buttons[bindex].GetLabel());
+            tt.Append(_("]"));
+        }
+        ((wxButton*)event.GetEventObject())->SetToolTip(tt);
     }
     else
     {
@@ -775,6 +786,14 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
             axes[aindex].SetDevice(Device(evcatch.GetDeviceType(), _("0"), _("")));
             axes[aindex].SetEvent(Event(_("button"), evcatch.GetEventId()));
             axes[aindex].SetAxis(wxString(axis_labels[aindex], wxConvUTF8));
+            wxString tt = axes[aindex].GetEvent()->GetId();
+            if(!axes[aindex].GetLabel().IsEmpty())
+            {
+                tt.Append(_(" ["));
+                tt.Append(axes[aindex].GetLabel());
+                tt.Append(_("]"));
+            }
+            ((wxButton*)event.GetEventObject())->SetToolTip(tt);
         }
     }
 
@@ -929,7 +948,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     }
     if(found == false)
     {
-        axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("x"), _("rstick x"), wxString::Format(wxT("%i"),SpinCtrl1->GetValue()), TextCtrl4->GetValue(), TextCtrl22->GetValue(), Choice2->GetStringSelection(), wxString::Format(wxT("%i"),SpinCtrl13->GetValue()), TextCtrl2->GetValue()));
+        axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("x"), _("rstick x"), wxString::Format(wxT("%i"),SpinCtrl1->GetValue()), TextCtrl4->GetValue(), TextCtrl22->GetValue(), Choice2->GetStringSelection(), wxString::Format(wxT("%i"),SpinCtrl13->GetValue()), TextCtrl2->GetValue(), wxEmptyString));//todo
     }
     wsmx = TextCtrl4->GetValue();
     wsxyratio = TextCtrl1->GetValue();
@@ -958,7 +977,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     }
     if(found == false)
     {
-        axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("y"), _("rstick y"), wxString::Format(wxT("%i"),SpinCtrl1->GetValue()), wsmy, TextCtrl22->GetValue(), Choice2->GetStringSelection(), wxString::Format(wxT("%i"),SpinCtrl13->GetValue()), TextCtrl2->GetValue()));
+        axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("y"), _("rstick y"), wxString::Format(wxT("%i"),SpinCtrl1->GetValue()), wsmy, TextCtrl22->GetValue(), Choice2->GetStringSelection(), wxString::Format(wxT("%i"),SpinCtrl13->GetValue()), TextCtrl2->GetValue(), wxEmptyString));//todo
     }
     /*
      * Save ADS config.
@@ -1049,7 +1068,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     }
     if(found == false)
     {
-      axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("x"), _("rstick x"), wxString::Format(wxT("%i"),SpinCtrl2->GetValue()), TextCtrl24->GetValue(), TextCtrl26->GetValue(), Choice1->GetStringSelection(), wxString::Format(wxT("%i"), SpinCtrl14->GetValue()), TextCtrl3->GetValue()));
+      axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("x"), _("rstick x"), wxString::Format(wxT("%i"),SpinCtrl2->GetValue()), TextCtrl24->GetValue(), TextCtrl26->GetValue(), Choice1->GetStringSelection(), wxString::Format(wxT("%i"), SpinCtrl14->GetValue()), TextCtrl3->GetValue(), wxEmptyString));//todo
     }
     wsmx = TextCtrl24->GetValue();
     wsxyratio = TextCtrl25->GetValue();
@@ -1078,7 +1097,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     }
     if(found == false)
     {
-        axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("y"), _("rstick y"), wxString::Format(wxT("%i"),SpinCtrl2->GetValue()), wsmy, TextCtrl26->GetValue(), Choice1->GetStringSelection(), wxString::Format(wxT("%i"), SpinCtrl14->GetValue()), TextCtrl3->GetValue()));
+        axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("y"), _("rstick y"), wxString::Format(wxT("%i"),SpinCtrl2->GetValue()), wsmy, TextCtrl26->GetValue(), Choice1->GetStringSelection(), wxString::Format(wxT("%i"), SpinCtrl14->GetValue()), TextCtrl3->GetValue(), wxEmptyString));//todo
     }
 
     if(configFile.WriteConfigFile() < 0)
@@ -1143,7 +1162,14 @@ void fpsconfigFrame::LoadConfig()
 
       buttons[bindex] = *it;
       button->SetLabel(it->GetEvent()->GetId());
-      button->SetToolTip(it->GetEvent()->GetId());
+      wxString tt = it->GetEvent()->GetId();
+      if(!it->GetLabel().IsEmpty())
+      {
+          tt.Append(_(" ["));
+          tt.Append(it->GetLabel());
+          tt.Append(_("]"));
+      }
+      button->SetToolTip(tt);
       if(!it->GetDevice()->GetName().IsEmpty())
       {
           if(it->GetDevice()->GetType() == _("mouse"))
@@ -1250,7 +1276,14 @@ void fpsconfigFrame::LoadConfig()
           {
               axes[aindex] = *it;
               button->SetLabel(it->GetEvent()->GetId());
-              button->SetToolTip(it->GetEvent()->GetId());
+              wxString tt = it->GetEvent()->GetId();
+              if(!it->GetLabel().IsEmpty())
+              {
+                  tt.Append(_(" ["));
+                  tt.Append(it->GetLabel());
+                  tt.Append(_("]"));
+              }
+              button->SetToolTip(tt);
           }
       }
   }

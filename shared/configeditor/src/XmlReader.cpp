@@ -167,10 +167,15 @@ void XmlReader::ProcessAxisElement(xmlNode * a_node)
 {
     xmlNode* cur_node = NULL;
     wxString id;
+    wxString label;
     char* prop;
 
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
     id = wxString(prop, wxConvUTF8);
+    xmlFree(prop);
+	
+	  prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_LABEL);
+    label = wxString(prop, wxConvUTF8);
     xmlFree(prop);
 
     for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
@@ -225,6 +230,7 @@ void XmlReader::ProcessAxisElement(xmlNode * a_node)
     }
 
     m_TempAxisMapper.SetAxis(id);
+	  m_TempAxisMapper.SetLabel(label);
     m_TempAxisMapper.SetDevice(m_TempDevice);
     m_TempAxisMapper.SetEvent(m_TempEvent);
     m_TempConfiguration.GetAxisMapperList()->push_back(m_TempAxisMapper);
@@ -234,10 +240,15 @@ void XmlReader::ProcessButtonElement(xmlNode * a_node)
 {
     xmlNode* cur_node = NULL;
     wxString id;
+    wxString label;
     char* prop;
 
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
     id = wxString(prop, wxConvUTF8);
+    xmlFree(prop);
+	
+	  prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_LABEL);
+    label = wxString(prop, wxConvUTF8);
     xmlFree(prop);
 
     for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
@@ -287,6 +298,7 @@ void XmlReader::ProcessButtonElement(xmlNode * a_node)
     }
 
     m_TempButtonMapper.SetButton(id);
+	  m_TempButtonMapper.SetLabel(label);
     m_TempButtonMapper.SetDevice(m_TempDevice);
     m_TempButtonMapper.SetEvent(m_TempEvent);
     m_TempConfiguration.GetButtonMapperList()->push_back(m_TempButtonMapper);

@@ -40,6 +40,8 @@
 #define X_ATTR_STEPS "steps"
 #define X_ATTR_CONTROL "control"
 
+#define X_ATTR_LABEL "label"
+
 class XmlReader
 {
     public:

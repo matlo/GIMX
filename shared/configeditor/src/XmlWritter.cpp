@@ -62,6 +62,7 @@ void XmlWritter::CreateAxisMapNode(xmlNodePtr parent_node)
         am_node = xmlNewChild(node, NULL, BAD_CAST X_NODE_AXIS, NULL);
 
         xmlNewProp(am_node, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) it->GetAxis().mb_str(wxConvUTF8));
+		    xmlNewProp(am_node, BAD_CAST X_ATTR_LABEL, BAD_CAST (const char*) it->GetLabel().mb_str(wxConvUTF8));
 
         CreateDeviceNode(am_node, it->GetDevice());
 
@@ -81,6 +82,7 @@ void XmlWritter::CreateButtonMapNode(xmlNodePtr parent_node)
         bm_node = xmlNewChild(node, NULL, BAD_CAST X_NODE_BUTTON, NULL);
 
         xmlNewProp(bm_node, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) it->GetButton().mb_str(wxConvUTF8));
+		    xmlNewProp(bm_node, BAD_CAST X_ATTR_LABEL, BAD_CAST (const char*) it->GetLabel().mb_str(wxConvUTF8));
 
         CreateDeviceNode(bm_node, it->GetDevice());
 
