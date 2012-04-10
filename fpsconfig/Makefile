@@ -32,7 +32,7 @@ LIBDIR_RELEASE = $(LIBDIR)
 LIB_RELEASE = $(LIB)
 LDFLAGS_RELEASE = -s $(LDFLAGS)
 OBJDIR_RELEASE = obj/Release
-DEP_RELEASE = 
+DEP_RELEASE = ../shared/configeditor/configeditor.a
 OUT_RELEASE = bin/Release/gimx-fpsconfig
 
 OBJ_RELEASE = $(OBJDIR_RELEASE)/fpsconfigMain.o $(OBJDIR_RELEASE)/fpsconfigApp.o ../shared/updater/updater.o

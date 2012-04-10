@@ -32,7 +32,7 @@ LIBDIR_RELEASE = $(LIBDIR)
 LIB_RELEASE = $(LIB)
 LDFLAGS_RELEASE = -s $(LDFLAGS)
 OBJDIR_RELEASE = obj/Release
-DEP_RELEASE = 
+DEP_RELEASE = ../shared/configeditor/configeditor.a
 OUT_RELEASE = bin/Release/gimx-config
 
 OBJ_RELEASE = $(OBJDIR_RELEASE)/sixaxis_emu_guiMain.o $(OBJDIR_RELEASE)/sixaxis_emu_guiApp.o ../shared/updater/updater.o
