@@ -384,7 +384,7 @@ int cfgw_modify_file(char* file)
   char file_path[PATH_MAX];
 
 #ifndef WIN32
-  snprintf(file_path, sizeof(file_path), "%s/%s/%s", homedir, CONFIG_DIR, file);
+  snprintf(file_path, sizeof(file_path), "%s%s%s%s", homedir, APP_DIR, CONFIG_DIR, file);
 #else
   snprintf(file_path, sizeof(file_path), "%s/%s", CONFIG_DIR, file);
 #endif
