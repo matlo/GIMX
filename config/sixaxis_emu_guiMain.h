@@ -46,7 +46,6 @@ class sixaxis_emu_guiFrame: public wxFrame
         //(*Handlers(sixaxis_emu_guiFrame)
         void OnQuit(wxCommandEvent& event);
         void OnAbout(wxCommandEvent& event);
-        void OnButton1Click(wxCommandEvent& event);
         void OnMenuItemNew(wxCommandEvent& event);
         void OnButtonTabControlsCellLeftClick(wxGridEvent& event);
         void OnButtonTabControlsCellLeftClick1(wxGridEvent& event);
@@ -78,7 +77,6 @@ class sixaxis_emu_guiFrame: public wxFrame
         void OnGrid3CellLeftClick2(wxGridEvent& event);
         void OnCheckBox2Click(wxCommandEvent& event);
         void OnCheckBox1Click(wxCommandEvent& event);
-        void OnLSIncAutoDetectClick(wxCommandEvent& event);
         void OnButtonTabAutoDetectClick(wxCommandEvent& event);
         void OnAxisTabAutoDetectClick(wxCommandEvent& event);
         void OnButton10Click(wxCommandEvent& event);
