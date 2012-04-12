@@ -10,7 +10,7 @@
 				<object class="wxNotebook" name="ID_NOTEBOOK1" variable="Notebook1" member="yes">
 					<size>-1,570</size>
 					<object class="notebookpage">
-						<object class="wxPanel" name="ID_PANEL1" variable="Panel1" member="yes">
+						<object class="wxPanel" name="ID_PANEL1" variable="PanelOverall" member="yes">
 							<object class="wxFlexGridSizer" variable="FlexGridSizer10" member="no">
 								<cols>1</cols>
 								<rows>2</rows>
@@ -54,16 +54,16 @@
 													<option>1</option>
 												</object>
 												<object class="sizeritem">
-													<object class="wxButton" name="ID_BUTTON1" variable="Button1" member="yes">
+													<object class="wxButton" name="ID_BUTTON1" variable="ButtonAutoDetect" member="yes">
 														<label>Auto detect</label>
-														<handler function="OnButton1Click1" entry="EVT_BUTTON" />
+														<handler function="OnButtonAutoDetectClick" entry="EVT_BUTTON" />
 													</object>
 													<flag>wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL</flag>
 													<border>5</border>
 													<option>1</option>
 												</object>
 												<object class="sizeritem">
-													<object class="wxCheckBox" name="ID_CHECKBOX1" variable="CheckBox1" member="yes">
+													<object class="wxCheckBox" name="ID_CHECKBOX1" variable="CheckBoxSwitchBack" member="yes">
 														<label>Switch back</label>
 													</object>
 													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -71,7 +71,7 @@
 													<option>1</option>
 												</object>
 												<object class="sizeritem">
-													<object class="wxStaticText" name="ID_STATICTEXT28" variable="VarName1" member="yes">
+													<object class="wxStaticText" name="ID_STATICTEXT28" variable="StaticTextDelayPanelOverall" member="yes">
 														<label>Delay (ms):</label>
 													</object>
 													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -89,9 +89,9 @@
 													<option>1</option>
 												</object>
 												<object class="sizeritem">
-													<object class="wxButton" name="ID_BUTTON10" variable="Button10" member="yes">
+													<object class="wxButton" name="ID_BUTTON10" variable="ButtonDelete" member="yes">
 														<label>Delete</label>
-														<handler function="OnButton10Click1" entry="EVT_BUTTON" />
+														<handler function="OnButtonDeleteTrigger" entry="EVT_BUTTON" />
 													</object>
 													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 													<border>5</border>
@@ -163,7 +163,7 @@
 																				<object class="sizeritem">
 																					<object class="wxButton" name="ID_BUTTON13" variable="LSIncAutoDetect" member="yes">
 																						<label>Auto detect</label>
-																						<handler function="OnLSIncAutoDetectClick1" entry="EVT_BUTTON" />
+																						<handler function="OnLSIncAutoDetectClick" entry="EVT_BUTTON" />
 																					</object>
 																					<flag>wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL</flag>
 																					<border>5</border>
@@ -189,7 +189,7 @@
 																	<option>1</option>
 																</object>
 																<object class="sizeritem">
-																	<object class="wxStaticText" name="ID_STATICTEXT24" variable="VarName2" member="yes">
+																	<object class="wxStaticText" name="ID_STATICTEXT24" variable="StaticTextDeadZonePanelAxis" member="yes">
 																		<label>Dead zone</label>
 																	</object>
 																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -208,7 +208,7 @@
 																	<option>1</option>
 																</object>
 																<object class="sizeritem">
-																	<object class="wxStaticText" name="ID_STATICTEXT62" variable="VarName3" member="yes">
+																	<object class="wxStaticText" name="ID_STATICTEXT62" variable="StaticTextStepsPanelOverall" member="yes">
 																		<label>Steps:</label>
 																	</object>
 																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -294,7 +294,7 @@
 																	<option>1</option>
 																</object>
 																<object class="sizeritem">
-																	<object class="wxStaticText" name="ID_STATICTEXT19" variable="VarName4" member="yes">
+																	<object class="wxStaticText" name="ID_STATICTEXT19" variable="StaticTextShapePanelOverall" member="yes">
 																		<label>Shape</label>
 																	</object>
 																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -398,7 +398,7 @@
 																	<option>1</option>
 																</object>
 																<object class="sizeritem">
-																	<object class="wxStaticText" name="ID_STATICTEXT26" variable="VarName5" member="yes">
+																	<object class="wxStaticText" name="ID_STATICTEXT26" variable="StaticTextDeadZonePanelOverall" member="yes">
 																		<label>Dead zone</label>
 																	</object>
 																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -417,7 +417,7 @@
 																	<option>1</option>
 																</object>
 																<object class="sizeritem">
-																	<object class="wxStaticText" name="ID_STATICTEXT25" variable="VarName6" member="yes">
+																	<object class="wxStaticText" name="ID_STATICTEXT25" variable="StaticTextSteps2PanelOverall" member="yes">
 																		<label>Steps:</label>
 																	</object>
 																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -503,7 +503,7 @@
 																	<option>1</option>
 																</object>
 																<object class="sizeritem">
-																	<object class="wxStaticText" name="ID_STATICTEXT23" variable="VarName7" member="yes">
+																	<object class="wxStaticText" name="ID_STATICTEXT23" variable="StaticTextShape2PanelOverall" member="yes">
 																		<label>Shape</label>
 																	</object>
 																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -547,7 +547,7 @@
 						<label>Overall</label>
 					</object>
 					<object class="notebookpage">
-						<object class="wxPanel" name="ID_PANEL2" variable="Panel2" member="yes">
+						<object class="wxPanel" name="ID_PANEL2" variable="PanelButton" member="yes">
 							<object class="wxFlexGridSizer" variable="FlexGridSizer9" member="no">
 								<cols>1</cols>
 								<rows>2</rows>
@@ -557,7 +557,7 @@
 										<cols>8</cols>
 										<rows>2</rows>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT4" variable="VarName8" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT4" variable="StaticTextDeviceTypePanelButton" member="yes">
 												<label>Device type</label>
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -565,7 +565,7 @@
 											<option>1</option>
 										</object>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT29" variable="VarName9" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT29" variable="StaticTextDeviceNamePanelButton" member="yes">
 												<label>Device name</label>
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -573,7 +573,7 @@
 											<option>1</option>
 										</object>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT10" variable="VarName10" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT10" variable="StaticTextDeviceIdPanelButton" member="yes">
 												<label>Device id</label>
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -581,7 +581,7 @@
 											<option>1</option>
 										</object>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT5" variable="VarName11" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT5" variable="StaticTextEventTypePanelButton" member="yes">
 												<label>Event type</label>
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -589,7 +589,7 @@
 											<option>1</option>
 										</object>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT6" variable="VarName12" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT6" variable="StaticTextEventIdPanelButton" member="yes">
 												<label>Event id</label>
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -597,7 +597,7 @@
 											<option>1</option>
 										</object>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT8" variable="VarName14" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT8" variable="StaticTextThresholdPanelButton" member="yes">
 												<label>Threshold</label>
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -605,7 +605,7 @@
 											<option>1</option>
 										</object>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT20" variable="VarName15" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT20" variable="StaticTextEmptyPanelButton" member="yes">
 												<label></label>
 												<size>31,21</size>
 											</object>
@@ -614,7 +614,7 @@
 											<option>1</option>
 										</object>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT7" variable="VarName13" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT7" variable="StaticTextButtonPanelButton" member="yes">
 												<label>Button</label>
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -653,7 +653,7 @@
 													<item>axis down</item>
 												</content>
 												<selection>0</selection>
-												<handler function="OnButtonTabEventTypeSelect1" entry="EVT_CHOICE" />
+												<handler function="OnButtonTabEventTypeSelect" entry="EVT_CHOICE" />
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 											<border>5</border>
@@ -702,7 +702,7 @@
 										<cols>2</cols>
 										<rows>1</rows>
 										<object class="sizeritem">
-											<object class="wxGrid" name="ID_GRID1" variable="ButtonTabControls" member="yes">
+											<object class="wxGrid" name="ID_GRID1" variable="GridPanelButton" member="yes">
 												<cols>7</cols>
 												<readonly>1</readonly>
 												<labelcolwidth>25</labelcolwidth>
@@ -727,7 +727,7 @@
 												<object class="sizeritem">
 													<object class="wxButton" name="ID_BUTTON4" variable="ButtonTabAdd" member="yes">
 														<label>Add</label>
-														<handler function="OnButtonAdd1Click" entry="EVT_BUTTON" />
+														<handler function="OnButtonAddPanelButton" entry="EVT_BUTTON" />
 													</object>
 													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 													<border>5</border>
@@ -736,7 +736,7 @@
 												<object class="sizeritem">
 													<object class="wxButton" name="ID_BUTTON6" variable="ButtonTabRemove" member="yes">
 														<label>Remove</label>
-														<handler function="OnButtonTabRemoveClick" entry="EVT_BUTTON" />
+														<handler function="OnButtonRemovePanelButton" entry="EVT_BUTTON" />
 													</object>
 													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 													<border>5</border>
@@ -767,7 +767,7 @@
 						<selected>1</selected>
 					</object>
 					<object class="notebookpage">
-						<object class="wxPanel" name="ID_PANEL3" variable="Panel3" member="yes">
+						<object class="wxPanel" name="ID_PANEL3" variable="PanelAxis" member="yes">
 							<object class="wxFlexGridSizer" variable="FlexGridSizer5" member="no">
 								<cols>1</cols>
 								<rows>2</rows>
@@ -776,7 +776,7 @@
 										<cols>12</cols>
 										<rows>2</rows>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT11" variable="VarName16" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT11" variable="StaticTextDeviceTypePanelAxis" member="yes">
 												<label>Device type</label>
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -792,7 +792,7 @@
 											<option>1</option>
 										</object>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT12" variable="VarName17" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT12" variable="StaticTextDeviceIdPanelAxis" member="yes">
 												<label>Device id</label>
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -800,7 +800,7 @@
 											<option>1</option>
 										</object>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT13" variable="VarName18" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT13" variable="StaticTextEventTypePanelAxis" member="yes">
 												<label>Event type</label>
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -808,7 +808,7 @@
 											<option>1</option>
 										</object>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT14" variable="VarName19" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT14" variable="StaticTextEventIdPanelAxis" member="yes">
 												<label>Event id</label>
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -816,7 +816,7 @@
 											<option>1</option>
 										</object>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT21" variable="VarName24" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT21" variable="StaticTextEmptyPanelAxis" member="yes">
 												<label></label>
 												<size>30,17</size>
 											</object>
@@ -825,7 +825,7 @@
 											<option>1</option>
 										</object>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT16" variable="VarName21" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT16" variable="StaticTextAxisPanelAxis" member="yes">
 												<label>Axis</label>
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -833,7 +833,7 @@
 											<option>1</option>
 										</object>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT15" variable="VarName20" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT15" variable="StaticTextDZPanelAxis" member="yes">
 												<label>DZ</label>
 												<tooltip>Dead zone</tooltip>
 											</object>
@@ -842,7 +842,7 @@
 											<option>1</option>
 										</object>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT17" variable="VarName22" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT17" variable="StaticTextSensPanelAxis" member="yes">
 												<label>Sens.</label>
 												<tooltip>Sensitivity</tooltip>
 											</object>
@@ -851,7 +851,7 @@
 											<option>1</option>
 										</object>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT18" variable="VarName23" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT18" variable="StaticTextAccelPanelAxis" member="yes">
 												<label>Accel.</label>
 												<tooltip>Acceleration</tooltip>
 											</object>
@@ -860,7 +860,7 @@
 											<option>1</option>
 										</object>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT22" variable="VarName25" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT22" variable="StaticTextShapePanelAxis" member="yes">
 												<label>Shape</label>
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -868,7 +868,7 @@
 											<option>1</option>
 										</object>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT33" variable="VarName26" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT33" variable="StaticTextSmoothingPanelAxis" member="yes">
 												<label>Smoothing</label>
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -1026,7 +1026,7 @@
 										<cols>2</cols>
 										<rows>1</rows>
 										<object class="sizeritem">
-											<object class="wxGrid" name="ID_GRID2" variable="Grid2" member="yes">
+											<object class="wxGrid" name="ID_GRID2" variable="GridPanelAxis" member="yes">
 												<cols>12</cols>
 												<readonly>1</readonly>
 												<labelcolwidth>25</labelcolwidth>
@@ -1055,7 +1055,7 @@
 												<object class="sizeritem">
 													<object class="wxButton" name="ID_BUTTON3" variable="Button3" member="yes">
 														<label>Add</label>
-														<handler function="OnButton3Click" entry="EVT_BUTTON" />
+														<handler function="OnButtonAddPanelAxis" entry="EVT_BUTTON" />
 													</object>
 													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 													<border>5</border>
@@ -1064,7 +1064,7 @@
 												<object class="sizeritem">
 													<object class="wxButton" name="ID_BUTTON7" variable="Button7" member="yes">
 														<label>Remove</label>
-														<handler function="OnButton7Click" entry="EVT_BUTTON" />
+														<handler function="OnButtonRemovePanelAxis" entry="EVT_BUTTON" />
 													</object>
 													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 													<border>5</border>
@@ -1100,28 +1100,28 @@
 			</object>
 		</object>
 		<object class="wxMenuBar" variable="MenuBar1" member="no">
-			<object class="wxMenu" variable="Menu1" member="yes">
+			<object class="wxMenu" variable="MenuFile" member="yes">
 				<label>&amp;File</label>
-				<object class="wxMenuItem" name="idMenuNew" variable="MenuItem3" member="yes">
+				<object class="wxMenuItem" name="idMenuNew" variable="MenuItemNew" member="yes">
 					<label>New</label>
 					<accel>Ctrl-N</accel>
 					<help>Create a new configuration</help>
 					<handler function="OnMenuItemNew" entry="EVT_MENU" />
 				</object>
-				<object class="wxMenuItem" name="idMenuOpen" variable="MenuItem6" member="no">
+				<object class="wxMenuItem" name="idMenuOpen" variable="MenuItemOpen" member="no">
 					<label>Open</label>
 					<accel>Ctrl-O</accel>
 					<help>Open a configuration file</help>
 					<handler function="OnMenuOpen" entry="EVT_MENU" />
 				</object>
-				<object class="wxMenuItem" name="idMenuSave" variable="MenuItem4" member="yes">
+				<object class="wxMenuItem" name="idMenuSave" variable="MenuItemSave" member="yes">
 					<label>Save</label>
 					<accel>Ctrl-S</accel>
 					<help>Save configuration</help>
 					<enabled>0</enabled>
 					<handler function="OnMenuSave" entry="EVT_MENU" />
 				</object>
-				<object class="wxMenuItem" name="idMenuSaveAs" variable="MenuItem5" member="yes">
+				<object class="wxMenuItem" name="idMenuSaveAs" variable="MenuItemSaveAs" member="yes">
 					<label>Save As...</label>
 					<help>Save configuration to specified file</help>
 					<handler function="OnMenuSaveAs" entry="EVT_MENU" />
@@ -1134,147 +1134,147 @@
 					<handler function="OnQuit" entry="EVT_MENU" />
 				</object>
 			</object>
-			<object class="wxMenu" variable="Menu5" member="yes">
+			<object class="wxMenu" variable="MenuEdit" member="yes">
 				<label>Edit</label>
-				<object class="wxMenuItem" name="ID_MENUITEM12" variable="MenuItem18" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM12" variable="MenuItemCopyProfile" member="yes">
 					<label>Copy Profile</label>
 					<handler function="OnMenuItemCopyConfiguration" entry="EVT_MENU" />
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM18" variable="MenuItem24" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM18" variable="MenuItemCopyController" member="yes">
 					<label>Copy Controller</label>
 					<handler function="OnMenuItemCopyController" entry="EVT_MENU" />
 				</object>
 				<object class="separator" />
-				<object class="wxMenuItem" name="ID_MENUITEM17" variable="MenuItem23" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM17" variable="MenuItemPasteProfile" member="yes">
 					<label>Paste Profile</label>
 					<handler function="OnMenuItemPasteConfiguration" entry="EVT_MENU" />
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM19" variable="MenuItem25" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM19" variable="MenuItemPasteController" member="yes">
 					<label>Paste Controller</label>
 					<handler function="OnMenuItemPasteController" entry="EVT_MENU" />
 				</object>
 				<object class="separator" />
-				<object class="wxMenuItem" name="ID_MENUITEM23" variable="MenuItem29" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM23" variable="MenuItemSetMouseDPI" member="yes">
 					<label>Set Mouse DPI</label>
 					<handler function="OnMenuSetMouseDPI" entry="EVT_MENU" />
 				</object>
 				<object class="separator" />
-				<object class="wxMenuItem" name="ID_MENUITEM20" variable="MenuItem26" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM20" variable="MenuItemReplaceMouse" member="yes">
 					<label>Replace Mouse</label>
 					<enabled>0</enabled>
 					<handler function="OnMenuReplaceMouse" entry="EVT_MENU" />
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM22" variable="MenuItem28" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM22" variable="MenuItemReplaceMouseDPI" member="yes">
 					<label>Replace Mouse DPI</label>
 					<handler function="OnMenuReplaceMouseDPI" entry="EVT_MENU" />
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM21" variable="MenuItem27" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM21" variable="MenuItemReplaceKeyboard" member="yes">
 					<label>Replace Keyboard</label>
 					<enabled>0</enabled>
 					<handler function="OnMenuReplaceKeyboard" entry="EVT_MENU" />
 				</object>
 			</object>
-			<object class="wxMenu" variable="Menu3" member="yes">
+			<object class="wxMenu" variable="MenuController" member="yes">
 				<label>Controller</label>
-				<object class="wxMenuItem" name="ID_MENUITEM1" variable="MenuItem7" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM1" variable="MenuController1" member="yes">
 					<label>1</label>
 					<handler function="OnMenuItemController1" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM2" variable="MenuItem8" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM2" variable="MenuController2" member="yes">
 					<label>2</label>
 					<handler function="OnMenuItemController2" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM3" variable="MenuItem9" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM3" variable="MenuController3" member="yes">
 					<label>3</label>
 					<handler function="OnMenuItemController3" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM4" variable="MenuItem10" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM4" variable="MenuController4" member="yes">
 					<label>4</label>
 					<handler function="OnMenuItemController4" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM5" variable="MenuItem11" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM5" variable="MenuController5" member="yes">
 					<label>5</label>
 					<handler function="OnMenuItemController5" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM6" variable="MenuItem12" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM6" variable="MenuController6" member="yes">
 					<label>6</label>
 					<handler function="OnMenuItemController6" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM7" variable="MenuItem13" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM7" variable="MenuController7" member="yes">
 					<label>7</label>
 					<handler function="OnMenuItemController7" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
 			</object>
-			<object class="wxMenu" variable="Menu4" member="yes">
+			<object class="wxMenu" variable="MenuConfiguration" member="yes">
 				<label>Profile</label>
-				<object class="wxMenuItem" name="ID_MENUITEM8" variable="MenuItem14" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM8" variable="MenuConfiguration1" member="yes">
 					<label>1</label>
 					<handler function="OnMenuItemConfiguration1" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM9" variable="MenuItem15" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM9" variable="MenuConfiguration2" member="yes">
 					<label>2</label>
 					<handler function="OnMenuItemConfiguration2" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM10" variable="MenuItem17" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM10" variable="MenuConfiguration3" member="yes">
 					<label>3</label>
 					<handler function="OnMenuItemConfiguration3" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM11" variable="MenuItem16" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM11" variable="MenuConfiguration4" member="yes">
 					<label>4</label>
 					<handler function="OnMenuItemConfiguration4" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM13" variable="MenuItem19" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM13" variable="MenuConfiguration5" member="yes">
 					<label>5</label>
 					<handler function="OnMenuItemConfiguration5" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM14" variable="MenuItem20" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM14" variable="MenuConfiguration6" member="yes">
 					<label>6</label>
 					<handler function="OnMenuItemConfiguration6" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM15" variable="MenuItem21" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM15" variable="MenuConfiguration7" member="yes">
 					<label>7</label>
 					<handler function="OnMenuItemConfiguration7" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM16" variable="MenuItem22" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM16" variable="MenuConfiguration8" member="yes">
 					<label>8</label>
 					<handler function="OnMenuItemConfiguration8" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
 			</object>
-			<object class="wxMenu" variable="Menu6" member="yes">
+			<object class="wxMenu" variable="MenuAdvanced" member="yes">
 				<label>Advanced</label>
-				<object class="wxMenuItem" name="ID_MENUITEM24" variable="MenuItem30" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM24" variable="MenuItemMultipleMiceAndKeyboards" member="yes">
 					<label>Multiple Mice and Keyboards</label>
 					<handler function="OnMenuMultipleMK" entry="EVT_MENU" />
 					<checkable>1</checkable>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM25" variable="MenuItem31" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM25" variable="MenuItemLinkControls" member="yes">
 					<label>Link controls</label>
 					<checked>1</checked>
 					<checkable>1</checkable>
 				</object>
 			</object>
-			<object class="wxMenu" variable="Menu2" member="no">
+			<object class="wxMenu" variable="MenuHelp" member="no">
 				<label>Help</label>
 				<object class="wxMenuItem" name="ID_MENUITEM26" variable="MenuUpdate" member="yes">
 					<label>Update</label>
 					<handler function="OnMenuUpdate" entry="EVT_MENU" />
 				</object>
-				<object class="wxMenuItem" name="idMenuAbout" variable="MenuItem2" member="no">
+				<object class="wxMenuItem" name="idMenuAbout" variable="MenuItemAbout" member="no">
 					<label>About</label>
 					<accel>F1</accel>
 					<help>Show info about this application</help>
