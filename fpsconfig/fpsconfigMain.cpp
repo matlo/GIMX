@@ -433,12 +433,10 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     default_directory.Append(wxFileName::GetHomeDir());
     default_directory.Append(_("/.emuclient/"));
 
+	  /* Init user's config directory. */
     if(system("mkdir -p ~/.emuclient/config"))
     {
         wxMessageBox( wxT("Can't init ~/.emuclient/config!"), wxT("Error"), wxICON_ERROR);
-    }
-    if(system("test -d ~/.emuclient/config/example || (mkdir -p ~/.emuclient/config/example && cp /etc/emuclient/config/* ~/.emuclient/config/example)"))
-    {
     }
 #endif
 
@@ -453,24 +451,10 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
       values[i] = 1;
     }
 
+  	/* Open the file given as argument. */
     if(!file.IsEmpty())
     {
-      wxString wxfile = wxEmptyString;
-
-      if(file.EndsWith(_("*")))
-      {
-#ifndef WIN32
-        wxfile.Append(wxFileName::GetHomeDir());
-        wxfile.Append(_("/.emuclient/"));
-#endif
-        wxfile.Append(_(CONFIG_EXAMPLE_DIR));
-        wxfile.Append(file.SubString(0, file.Length() - 2));
-      }
-      else
-      {
-        wxfile.Append(default_directory);
-        wxfile.Append(file);
-      }
+      wxString wxfile = default_directory + file;
 
       if(::wxFileExists(wxfile))
       {
@@ -480,12 +464,6 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
       else
       {
         wxMessageBox( wxT("Cannot open config file: ") + wxString(file, wxConvUTF8), wxT("Error"), wxICON_ERROR);
-      }
-
-      if(file.EndsWith(_("*")))
-      {
-        wxMessageBox( wxT("This file is read-only."), wxT("Info"), wxICON_INFORMATION);
-        MenuItemSave->Enable(false);
       }
     }
 
