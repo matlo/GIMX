@@ -1,5 +1,5 @@
 /***************************************************************
- * Name:      sixaxis_emu_guiMain.cpp
+ * Name:      configMain.cpp
  * Purpose:   Code for Application Frame
  * Author:    Matlo (mat.lau@laposte.net)
  * Created:   2010-11-09
@@ -8,7 +8,7 @@
  **************************************************************/
 
 #include "wx_pch.h"
-#include "sixaxis_emu_guiMain.h"
+#include "configMain.h"
 #include <wx/msgdlg.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -16,7 +16,7 @@
 #include "wx/numdlg.h"
 #include <math.h>
 
-//(*InternalHeaders(sixaxis_emu_guiFrame)
+//(*InternalHeaders(configFrame)
 #include <wx/intl.h>
 #include <wx/string.h>
 //*)
@@ -58,147 +58,147 @@ wxString wxbuildinfo(wxbuildinfoformat format)
     return wxbuild;
 }
 
-//(*IdInit(sixaxis_emu_guiFrame)
-const long sixaxis_emu_guiFrame::ID_STATICTEXT35 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT27 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT36 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT37 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_BUTTON1 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_CHECKBOX1 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT28 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_SPINCTRL5 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_BUTTON10 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT58 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT59 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT60 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT61 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_BUTTON13 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_BUTTON14 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT24 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_SPINCTRL3 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT62 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_SPINCTRL1 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT67 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT68 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT69 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT70 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_BUTTON15 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_BUTTON16 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT19 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_CHOICE2 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT48 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT49 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT50 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT51 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_BUTTON11 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_BUTTON12 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT26 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_SPINCTRL4 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT25 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_SPINCTRL2 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT1 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT2 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT3 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT9 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_BUTTON17 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_BUTTON18 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT23 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_CHOICE3 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_PANEL1 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT4 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT29 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT10 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT5 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT6 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT8 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT20 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT7 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT38 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT30 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT39 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_CHOICE4 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT40 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_TEXTCTRL3 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_BUTTON8 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_CHOICE5 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_GRID1 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_BUTTON4 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_BUTTON6 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_BUTTON2 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_PANEL2 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT11 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT31 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT12 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT13 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT14 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT21 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT16 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT15 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT17 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT18 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT22 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT33 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT41 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT32 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT42 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_CHOICE7 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATICTEXT43 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_BUTTON9 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_CHOICE8 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_TEXTCTRL8 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_TEXTCTRL9 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_TEXTCTRL10 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_CHOICE1 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_TEXTCTRL1 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_TEXTCTRL2 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_GRID2 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_BUTTON3 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_BUTTON7 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_BUTTON5 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_PANEL3 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_NOTEBOOK1 = wxNewId();
-const long sixaxis_emu_guiFrame::idMenuNew = wxNewId();
-const long sixaxis_emu_guiFrame::idMenuOpen = wxNewId();
-const long sixaxis_emu_guiFrame::idMenuSave = wxNewId();
-const long sixaxis_emu_guiFrame::idMenuSaveAs = wxNewId();
-const long sixaxis_emu_guiFrame::idMenuQuit = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM12 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM18 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM17 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM19 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM23 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM20 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM22 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM21 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM1 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM2 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM3 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM4 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM5 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM6 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM7 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM8 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM9 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM10 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM11 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM13 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM14 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM15 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM16 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM24 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM25 = wxNewId();
-const long sixaxis_emu_guiFrame::ID_MENUITEM26 = wxNewId();
-const long sixaxis_emu_guiFrame::idMenuAbout = wxNewId();
-const long sixaxis_emu_guiFrame::ID_STATUSBAR1 = wxNewId();
+//(*IdInit(configFrame)
+const long configFrame::ID_STATICTEXT35 = wxNewId();
+const long configFrame::ID_STATICTEXT27 = wxNewId();
+const long configFrame::ID_STATICTEXT36 = wxNewId();
+const long configFrame::ID_STATICTEXT37 = wxNewId();
+const long configFrame::ID_BUTTON1 = wxNewId();
+const long configFrame::ID_CHECKBOX1 = wxNewId();
+const long configFrame::ID_STATICTEXT28 = wxNewId();
+const long configFrame::ID_SPINCTRL5 = wxNewId();
+const long configFrame::ID_BUTTON10 = wxNewId();
+const long configFrame::ID_STATICTEXT58 = wxNewId();
+const long configFrame::ID_STATICTEXT59 = wxNewId();
+const long configFrame::ID_STATICTEXT60 = wxNewId();
+const long configFrame::ID_STATICTEXT61 = wxNewId();
+const long configFrame::ID_BUTTON13 = wxNewId();
+const long configFrame::ID_BUTTON14 = wxNewId();
+const long configFrame::ID_STATICTEXT24 = wxNewId();
+const long configFrame::ID_SPINCTRL3 = wxNewId();
+const long configFrame::ID_STATICTEXT62 = wxNewId();
+const long configFrame::ID_SPINCTRL1 = wxNewId();
+const long configFrame::ID_STATICTEXT67 = wxNewId();
+const long configFrame::ID_STATICTEXT68 = wxNewId();
+const long configFrame::ID_STATICTEXT69 = wxNewId();
+const long configFrame::ID_STATICTEXT70 = wxNewId();
+const long configFrame::ID_BUTTON15 = wxNewId();
+const long configFrame::ID_BUTTON16 = wxNewId();
+const long configFrame::ID_STATICTEXT19 = wxNewId();
+const long configFrame::ID_CHOICE2 = wxNewId();
+const long configFrame::ID_STATICTEXT48 = wxNewId();
+const long configFrame::ID_STATICTEXT49 = wxNewId();
+const long configFrame::ID_STATICTEXT50 = wxNewId();
+const long configFrame::ID_STATICTEXT51 = wxNewId();
+const long configFrame::ID_BUTTON11 = wxNewId();
+const long configFrame::ID_BUTTON12 = wxNewId();
+const long configFrame::ID_STATICTEXT26 = wxNewId();
+const long configFrame::ID_SPINCTRL4 = wxNewId();
+const long configFrame::ID_STATICTEXT25 = wxNewId();
+const long configFrame::ID_SPINCTRL2 = wxNewId();
+const long configFrame::ID_STATICTEXT1 = wxNewId();
+const long configFrame::ID_STATICTEXT2 = wxNewId();
+const long configFrame::ID_STATICTEXT3 = wxNewId();
+const long configFrame::ID_STATICTEXT9 = wxNewId();
+const long configFrame::ID_BUTTON17 = wxNewId();
+const long configFrame::ID_BUTTON18 = wxNewId();
+const long configFrame::ID_STATICTEXT23 = wxNewId();
+const long configFrame::ID_CHOICE3 = wxNewId();
+const long configFrame::ID_PANEL1 = wxNewId();
+const long configFrame::ID_STATICTEXT4 = wxNewId();
+const long configFrame::ID_STATICTEXT29 = wxNewId();
+const long configFrame::ID_STATICTEXT10 = wxNewId();
+const long configFrame::ID_STATICTEXT5 = wxNewId();
+const long configFrame::ID_STATICTEXT6 = wxNewId();
+const long configFrame::ID_STATICTEXT8 = wxNewId();
+const long configFrame::ID_STATICTEXT20 = wxNewId();
+const long configFrame::ID_STATICTEXT7 = wxNewId();
+const long configFrame::ID_STATICTEXT38 = wxNewId();
+const long configFrame::ID_STATICTEXT30 = wxNewId();
+const long configFrame::ID_STATICTEXT39 = wxNewId();
+const long configFrame::ID_CHOICE4 = wxNewId();
+const long configFrame::ID_STATICTEXT40 = wxNewId();
+const long configFrame::ID_TEXTCTRL3 = wxNewId();
+const long configFrame::ID_BUTTON8 = wxNewId();
+const long configFrame::ID_CHOICE5 = wxNewId();
+const long configFrame::ID_GRID1 = wxNewId();
+const long configFrame::ID_BUTTON4 = wxNewId();
+const long configFrame::ID_BUTTON6 = wxNewId();
+const long configFrame::ID_BUTTON2 = wxNewId();
+const long configFrame::ID_PANEL2 = wxNewId();
+const long configFrame::ID_STATICTEXT11 = wxNewId();
+const long configFrame::ID_STATICTEXT31 = wxNewId();
+const long configFrame::ID_STATICTEXT12 = wxNewId();
+const long configFrame::ID_STATICTEXT13 = wxNewId();
+const long configFrame::ID_STATICTEXT14 = wxNewId();
+const long configFrame::ID_STATICTEXT21 = wxNewId();
+const long configFrame::ID_STATICTEXT16 = wxNewId();
+const long configFrame::ID_STATICTEXT15 = wxNewId();
+const long configFrame::ID_STATICTEXT17 = wxNewId();
+const long configFrame::ID_STATICTEXT18 = wxNewId();
+const long configFrame::ID_STATICTEXT22 = wxNewId();
+const long configFrame::ID_STATICTEXT33 = wxNewId();
+const long configFrame::ID_STATICTEXT41 = wxNewId();
+const long configFrame::ID_STATICTEXT32 = wxNewId();
+const long configFrame::ID_STATICTEXT42 = wxNewId();
+const long configFrame::ID_CHOICE7 = wxNewId();
+const long configFrame::ID_STATICTEXT43 = wxNewId();
+const long configFrame::ID_BUTTON9 = wxNewId();
+const long configFrame::ID_CHOICE8 = wxNewId();
+const long configFrame::ID_TEXTCTRL8 = wxNewId();
+const long configFrame::ID_TEXTCTRL9 = wxNewId();
+const long configFrame::ID_TEXTCTRL10 = wxNewId();
+const long configFrame::ID_CHOICE1 = wxNewId();
+const long configFrame::ID_TEXTCTRL1 = wxNewId();
+const long configFrame::ID_TEXTCTRL2 = wxNewId();
+const long configFrame::ID_GRID2 = wxNewId();
+const long configFrame::ID_BUTTON3 = wxNewId();
+const long configFrame::ID_BUTTON7 = wxNewId();
+const long configFrame::ID_BUTTON5 = wxNewId();
+const long configFrame::ID_PANEL3 = wxNewId();
+const long configFrame::ID_NOTEBOOK1 = wxNewId();
+const long configFrame::idMenuNew = wxNewId();
+const long configFrame::idMenuOpen = wxNewId();
+const long configFrame::idMenuSave = wxNewId();
+const long configFrame::idMenuSaveAs = wxNewId();
+const long configFrame::idMenuQuit = wxNewId();
+const long configFrame::ID_MENUITEM12 = wxNewId();
+const long configFrame::ID_MENUITEM18 = wxNewId();
+const long configFrame::ID_MENUITEM17 = wxNewId();
+const long configFrame::ID_MENUITEM19 = wxNewId();
+const long configFrame::ID_MENUITEM23 = wxNewId();
+const long configFrame::ID_MENUITEM20 = wxNewId();
+const long configFrame::ID_MENUITEM22 = wxNewId();
+const long configFrame::ID_MENUITEM21 = wxNewId();
+const long configFrame::ID_MENUITEM1 = wxNewId();
+const long configFrame::ID_MENUITEM2 = wxNewId();
+const long configFrame::ID_MENUITEM3 = wxNewId();
+const long configFrame::ID_MENUITEM4 = wxNewId();
+const long configFrame::ID_MENUITEM5 = wxNewId();
+const long configFrame::ID_MENUITEM6 = wxNewId();
+const long configFrame::ID_MENUITEM7 = wxNewId();
+const long configFrame::ID_MENUITEM8 = wxNewId();
+const long configFrame::ID_MENUITEM9 = wxNewId();
+const long configFrame::ID_MENUITEM10 = wxNewId();
+const long configFrame::ID_MENUITEM11 = wxNewId();
+const long configFrame::ID_MENUITEM13 = wxNewId();
+const long configFrame::ID_MENUITEM14 = wxNewId();
+const long configFrame::ID_MENUITEM15 = wxNewId();
+const long configFrame::ID_MENUITEM16 = wxNewId();
+const long configFrame::ID_MENUITEM24 = wxNewId();
+const long configFrame::ID_MENUITEM25 = wxNewId();
+const long configFrame::ID_MENUITEM26 = wxNewId();
+const long configFrame::idMenuAbout = wxNewId();
+const long configFrame::ID_STATUSBAR1 = wxNewId();
 //*)
 
-BEGIN_EVENT_TABLE(sixaxis_emu_guiFrame,wxFrame)
-    //(*EventTable(sixaxis_emu_guiFrame)
+BEGIN_EVENT_TABLE(configFrame,wxFrame)
+    //(*EventTable(configFrame)
     //*)
 END_EVENT_TABLE()
 
 
-void sixaxis_emu_guiFrame::fillButtonAxisChoice(wxChoice* choice)
+void configFrame::fillButtonAxisChoice(wxChoice* choice)
 {
     wxString previous = choice->GetStringSelection();
     choice->Clear();
@@ -226,7 +226,7 @@ void sixaxis_emu_guiFrame::fillButtonAxisChoice(wxChoice* choice)
     choice->SetSelection(choice->FindString(previous));
 }
 
-void sixaxis_emu_guiFrame::fillAxisAxisChoice(wxChoice* choice)
+void configFrame::fillAxisAxisChoice(wxChoice* choice)
 {
     wxString previous = choice->GetStringSelection();
     choice->Clear();
@@ -250,7 +250,7 @@ void sixaxis_emu_guiFrame::fillAxisAxisChoice(wxChoice* choice)
     choice->SetSelection(choice->FindString(previous));
 }
 
-void sixaxis_emu_guiFrame::fillButtonChoice(wxChoice* choice)
+void configFrame::fillButtonChoice(wxChoice* choice)
 {
     wxString previous = choice->GetStringSelection();
     choice->Clear();
@@ -275,9 +275,9 @@ void sixaxis_emu_guiFrame::fillButtonChoice(wxChoice* choice)
     choice->SetSelection(choice->FindString(previous));
 }
 
-sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWindowID id)
+configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
 {
-    //(*Initialize(sixaxis_emu_guiFrame)
+    //(*Initialize(configFrame)
     wxStaticBoxSizer* StaticBoxSizer2;
     wxFlexGridSizer* FlexGridSizer4;
     wxFlexGridSizer* FlexGridSizer16;
@@ -730,65 +730,65 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     GridSizer1->Fit(this);
     GridSizer1->SetSizeHints(this);
     
-    Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButtonAutoDetectClick);
-    Connect(ID_BUTTON10,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButtonDeleteTrigger);
-    Connect(ID_BUTTON13,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnLSIncAutoDetectClick);
-    Connect(ID_BUTTON14,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnLSIncDeleteClick);
-    Connect(ID_SPINCTRL3,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnLSDeadzoneChange);
-    Connect(ID_BUTTON15,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnLSDecAutoDetectClick);
-    Connect(ID_BUTTON16,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnLSDecDeleteClick);
-    Connect(ID_BUTTON11,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnRSIncAutoDetectClick1);
-    Connect(ID_BUTTON12,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnRSIncDeleteClick);
-    Connect(ID_SPINCTRL4,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnRSDeadZoneChange);
-    Connect(ID_BUTTON17,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnRSDecAutoDetectClick);
-    Connect(ID_BUTTON18,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnRSDecDeleteClick);
-    Connect(ID_CHOICE4,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButtonTabEventTypeSelect);
-    Connect(ID_BUTTON8,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButtonTabAutoDetectClick);
-    Connect(ID_BUTTON4,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButtonAddPanelButton);
-    Connect(ID_BUTTON6,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButtonRemovePanelButton);
-    Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButtonModifyButton);
-    Connect(ID_CHOICE7,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButtonTabEventTypeSelect);
-    Connect(ID_BUTTON9,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnAxisTabAutoDetectClick);
-    Connect(ID_TEXTCTRL8,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnTextCtrl);
-    Connect(ID_TEXTCTRL9,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnTextCtrl);
-    Connect(ID_TEXTCTRL10,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnTextCtrl);
-    Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnAxisTabShapeSelect);
-    Connect(ID_TEXTCTRL1,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnTextCtrl);
-    Connect(ID_TEXTCTRL2,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnTextCtrl);
-    Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButtonAddPanelAxis);
-    Connect(ID_BUTTON7,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButtonRemovePanelAxis);
-    Connect(ID_BUTTON5,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnButtonModifyAxis);
-    Connect(idMenuNew,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemNew);
-    Connect(idMenuOpen,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuOpen);
-    Connect(idMenuSave,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuSave);
-    Connect(idMenuSaveAs,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuSaveAs);
-    Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnQuit);
-    Connect(ID_MENUITEM12,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemCopyConfiguration);
-    Connect(ID_MENUITEM18,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemCopyController);
-    Connect(ID_MENUITEM17,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemPasteConfiguration);
-    Connect(ID_MENUITEM19,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemPasteController);
-    Connect(ID_MENUITEM23,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuSetMouseDPI);
-    Connect(ID_MENUITEM20,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuReplaceMouse);
-    Connect(ID_MENUITEM22,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuReplaceMouseDPI);
-    Connect(ID_MENUITEM21,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuReplaceKeyboard);
-    Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemController1);
-    Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemController2);
-    Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemController3);
-    Connect(ID_MENUITEM4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemController4);
-    Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemController5);
-    Connect(ID_MENUITEM6,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemController6);
-    Connect(ID_MENUITEM7,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemController7);
-    Connect(ID_MENUITEM8,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemConfiguration1);
-    Connect(ID_MENUITEM9,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemConfiguration2);
-    Connect(ID_MENUITEM10,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemConfiguration3);
-    Connect(ID_MENUITEM11,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemConfiguration4);
-    Connect(ID_MENUITEM13,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemConfiguration5);
-    Connect(ID_MENUITEM14,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemConfiguration6);
-    Connect(ID_MENUITEM15,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemConfiguration7);
-    Connect(ID_MENUITEM16,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuItemConfiguration8);
-    Connect(ID_MENUITEM24,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuMultipleMK);
-    Connect(ID_MENUITEM26,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnMenuUpdate);
-    Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixaxis_emu_guiFrame::OnAbout);
+    Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonAutoDetectClick);
+    Connect(ID_BUTTON10,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonDeleteTrigger);
+    Connect(ID_BUTTON13,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnLSIncAutoDetectClick);
+    Connect(ID_BUTTON14,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnLSIncDeleteClick);
+    Connect(ID_SPINCTRL3,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&configFrame::OnLSDeadzoneChange);
+    Connect(ID_BUTTON15,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnLSDecAutoDetectClick);
+    Connect(ID_BUTTON16,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnLSDecDeleteClick);
+    Connect(ID_BUTTON11,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnRSIncAutoDetectClick1);
+    Connect(ID_BUTTON12,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnRSIncDeleteClick);
+    Connect(ID_SPINCTRL4,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&configFrame::OnRSDeadZoneChange);
+    Connect(ID_BUTTON17,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnRSDecAutoDetectClick);
+    Connect(ID_BUTTON18,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnRSDecDeleteClick);
+    Connect(ID_CHOICE4,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&configFrame::OnButtonTabEventTypeSelect);
+    Connect(ID_BUTTON8,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonTabAutoDetectClick);
+    Connect(ID_BUTTON4,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonAddPanelButton);
+    Connect(ID_BUTTON6,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonRemovePanelButton);
+    Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonModifyButton);
+    Connect(ID_CHOICE7,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&configFrame::OnButtonTabEventTypeSelect);
+    Connect(ID_BUTTON9,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnAxisTabAutoDetectClick);
+    Connect(ID_TEXTCTRL8,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
+    Connect(ID_TEXTCTRL9,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
+    Connect(ID_TEXTCTRL10,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
+    Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&configFrame::OnAxisTabShapeSelect);
+    Connect(ID_TEXTCTRL1,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
+    Connect(ID_TEXTCTRL2,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
+    Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonAddPanelAxis);
+    Connect(ID_BUTTON7,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonRemovePanelAxis);
+    Connect(ID_BUTTON5,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonModifyAxis);
+    Connect(idMenuNew,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemNew);
+    Connect(idMenuOpen,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuOpen);
+    Connect(idMenuSave,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuSave);
+    Connect(idMenuSaveAs,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuSaveAs);
+    Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnQuit);
+    Connect(ID_MENUITEM12,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemCopyConfiguration);
+    Connect(ID_MENUITEM18,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemCopyController);
+    Connect(ID_MENUITEM17,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemPasteConfiguration);
+    Connect(ID_MENUITEM19,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemPasteController);
+    Connect(ID_MENUITEM23,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuSetMouseDPI);
+    Connect(ID_MENUITEM20,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuReplaceMouse);
+    Connect(ID_MENUITEM22,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuReplaceMouseDPI);
+    Connect(ID_MENUITEM21,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuReplaceKeyboard);
+    Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController1);
+    Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController2);
+    Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController3);
+    Connect(ID_MENUITEM4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController4);
+    Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController5);
+    Connect(ID_MENUITEM6,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController6);
+    Connect(ID_MENUITEM7,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController7);
+    Connect(ID_MENUITEM8,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration1);
+    Connect(ID_MENUITEM9,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration2);
+    Connect(ID_MENUITEM10,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration3);
+    Connect(ID_MENUITEM11,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration4);
+    Connect(ID_MENUITEM13,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration5);
+    Connect(ID_MENUITEM14,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration6);
+    Connect(ID_MENUITEM15,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration7);
+    Connect(ID_MENUITEM16,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration8);
+    Connect(ID_MENUITEM24,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuMultipleMK);
+    Connect(ID_MENUITEM26,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuUpdate);
+    Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnAbout);
     //*)
 
     fillButtonChoice(ButtonTabButtonId);
@@ -813,13 +813,11 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
 
     default_directory.Append(wxFileName::GetHomeDir());
     default_directory.Append(_("/.emuclient/"));
-
+	
+	/* Init user's config directory */
     if(system("mkdir -p ~/.emuclient/config"))
     {
         wxMessageBox( wxT("Can't init ~/.emuclient/config!"), wxT("Error"), wxICON_ERROR);
-    }
-    if(system("test -d ~/.emuclient/config/example || (mkdir -p ~/.emuclient/config/example && cp /etc/emuclient/config/* ~/.emuclient/config/example)"))
-    {
     }
 #endif
 
@@ -841,25 +839,11 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
     GridPanelButton->AutoSizeColumns();
     GridPanelAxis->AutoSizeColumns();
 
+	/* Open the file given as argument */
     if(!file.IsEmpty())
     {
-      wxString wxfile = wxEmptyString;
+      wxString wxfile = default_directory + file;
       
-      if(file.EndsWith(_("*")))
-      {
-#ifndef WIN32
-        wxfile.Append(wxFileName::GetHomeDir());
-        wxfile.Append(_("/.emuclient/"));
-#endif
-        wxfile.Append(_(CONFIG_EXAMPLE_DIR));
-        wxfile.Append(file.SubString(0, file.Length() - 2));
-      }
-      else
-      {
-        wxfile.Append(default_directory);
-        wxfile.Append(file.SubString(0, file.Length() - 1));
-      }
-
       if(::wxFileExists(wxfile))
       {
         configFile.ReadConfigFile(wxfile);
@@ -882,29 +866,23 @@ sixaxis_emu_guiFrame::sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWind
       {
         wxMessageBox( wxT("Cannot open config file: ") + wxString(file, wxConvUTF8), wxT("Error"), wxICON_ERROR);
       }
-
-      if(file.EndsWith(_("*")))
-      {
-        wxMessageBox( wxT("This file is read-only."), wxT("Info"), wxICON_INFORMATION);
-        MenuFile->Enable(idMenuSave, false);
-      }
     }
 
     configFile.SetEvCatch(&evcatch);
 }
 
-sixaxis_emu_guiFrame::~sixaxis_emu_guiFrame()
+configFrame::~configFrame()
 {
-    //(*Destroy(sixaxis_emu_guiFrame)
+    //(*Destroy(configFrame)
     //*)
 }
 
-void sixaxis_emu_guiFrame::OnQuit(wxCommandEvent& event)
+void configFrame::OnQuit(wxCommandEvent& event)
 {
     Close();
 }
 
-void sixaxis_emu_guiFrame::OnAbout(wxCommandEvent& event)
+void configFrame::OnAbout(wxCommandEvent& event)
 {
   wxAboutDialogInfo info;
   info.SetName(wxTheApp->GetAppName());
@@ -916,7 +894,7 @@ void sixaxis_emu_guiFrame::OnAbout(wxCommandEvent& event)
   wxAboutBox(info);
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemNew(wxCommandEvent& event)
+void configFrame::OnMenuItemNew(wxCommandEvent& event)
 {
     configFile = ConfigurationFile();
 
@@ -935,7 +913,7 @@ void sixaxis_emu_guiFrame::OnMenuItemNew(wxCommandEvent& event)
     Button7->Enable();
 }
 
-void sixaxis_emu_guiFrame::OnButtonAddPanelButton(wxCommandEvent& event)
+void configFrame::OnButtonAddPanelButton(wxCommandEvent& event)
 {
     if(ButtonTabEventId->GetLabel() == wxEmptyString)
     {
@@ -971,7 +949,7 @@ void sixaxis_emu_guiFrame::OnButtonAddPanelButton(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnButtonAddPanelAxis(wxCommandEvent& event)
+void configFrame::OnButtonAddPanelAxis(wxCommandEvent& event)
 {
     if(AxisTabEventId->GetLabel() == wxEmptyString)
     {
@@ -1012,7 +990,7 @@ void sixaxis_emu_guiFrame::OnButtonAddPanelAxis(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::DeleteLinkedRows(wxGrid* grid, int row)
+void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
 {
   if(grid == GridPanelButton)
   {
@@ -1094,7 +1072,7 @@ void sixaxis_emu_guiFrame::DeleteLinkedRows(wxGrid* grid, int row)
   }
 }
 
-void sixaxis_emu_guiFrame::DeleteSelectedRows(wxGrid* grid)
+void configFrame::DeleteSelectedRows(wxGrid* grid)
 {
     unsigned int first;
     unsigned int nbRows;
@@ -1133,19 +1111,19 @@ void sixaxis_emu_guiFrame::DeleteSelectedRows(wxGrid* grid)
     grid->AutoSizeColumns();
 }
 
-void sixaxis_emu_guiFrame::OnButtonRemovePanelButton(wxCommandEvent& event)
+void configFrame::OnButtonRemovePanelButton(wxCommandEvent& event)
 {
-    sixaxis_emu_guiFrame::DeleteSelectedRows(GridPanelButton);
+    configFrame::DeleteSelectedRows(GridPanelButton);
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnButtonRemovePanelAxis(wxCommandEvent& event)
+void configFrame::OnButtonRemovePanelAxis(wxCommandEvent& event)
 {
-    sixaxis_emu_guiFrame::DeleteSelectedRows(GridPanelAxis);
+    configFrame::DeleteSelectedRows(GridPanelAxis);
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnEventTypeSelectPanelAxis(wxCommandEvent& event)
+void configFrame::OnEventTypeSelectPanelAxis(wxCommandEvent& event)
 {
     AxisTabDeviceType->SetLabel(wxEmptyString);
     AxisTabDeviceName->SetLabel(wxEmptyString);
@@ -1175,7 +1153,7 @@ void sixaxis_emu_guiFrame::OnEventTypeSelectPanelAxis(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnButtonTabEventTypeSelect(wxCommandEvent& event)
+void configFrame::OnButtonTabEventTypeSelect(wxCommandEvent& event)
 {
     ButtonTabDeviceType->SetLabel(wxEmptyString);
     ButtonTabDeviceName->SetLabel(wxEmptyString);
@@ -1195,7 +1173,7 @@ void sixaxis_emu_guiFrame::OnButtonTabEventTypeSelect(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::auto_detect(wxStaticText* device_type, wxStaticText* device_name, wxStaticText* device_id, wxString event_type, wxStaticText* event_id)
+void configFrame::auto_detect(wxStaticText* device_type, wxStaticText* device_name, wxStaticText* device_id, wxString event_type, wxStaticText* event_id)
 {
     evcatch.run(wxEmptyString, event_type);
 
@@ -1215,7 +1193,7 @@ void sixaxis_emu_guiFrame::auto_detect(wxStaticText* device_type, wxStaticText* 
     event_id->SetLabel( wxString(evcatch.GetEventId()));
 }
 
-void sixaxis_emu_guiFrame::OnButtonAutoDetectClick(wxCommandEvent& event)
+void configFrame::OnButtonAutoDetectClick(wxCommandEvent& event)
 {
     ButtonAutoDetect->Enable(false);
 
@@ -1256,7 +1234,7 @@ void sixaxis_emu_guiFrame::OnButtonAutoDetectClick(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnButtonTabAutoDetectClick(wxCommandEvent& event)
+void configFrame::OnButtonTabAutoDetectClick(wxCommandEvent& event)
 {
     ButtonTabAutoDetect->Enable(false);
 
@@ -1280,7 +1258,7 @@ void sixaxis_emu_guiFrame::OnButtonTabAutoDetectClick(wxCommandEvent& event)
     ButtonTabAutoDetect->Enable(true);
 }
 
-void sixaxis_emu_guiFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
+void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
 {
     wxString old_device_type = AxisTabDeviceType->GetLabel();
     wxString old_device_name = AxisTabDeviceName->GetLabel();
@@ -1348,7 +1326,7 @@ void sixaxis_emu_guiFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
     AxisTabAutoDetect->Enable(true);
 }
 
-void sixaxis_emu_guiFrame::save_current()
+void configFrame::save_current()
 {
     std::list<ButtonMapper>* buttonMappers;
     std::list<AxisMapper>* axisMappers;
@@ -1392,7 +1370,7 @@ void sixaxis_emu_guiFrame::save_current()
 
 }
 
-void sixaxis_emu_guiFrame::load_current()
+void configFrame::load_current()
 {
     std::list<ButtonMapper>* buttonMappers;
     std::list<AxisMapper>* axisMappers;
@@ -1503,7 +1481,7 @@ void sixaxis_emu_guiFrame::load_current()
     }
 }
 
-void sixaxis_emu_guiFrame::refresh_gui()
+void configFrame::refresh_gui()
 {
     PanelOverall->Layout();
     PanelButton->Layout();
@@ -1511,7 +1489,7 @@ void sixaxis_emu_guiFrame::refresh_gui()
     Refresh();
 }
 
-void sixaxis_emu_guiFrame::OnMenuOpen(wxCommandEvent& event)
+void configFrame::OnMenuOpen(wxCommandEvent& event)
 {
     if ( FileDialog1->ShowModal() != wxID_OK ) return;
 
@@ -1547,7 +1525,7 @@ void sixaxis_emu_guiFrame::OnMenuOpen(wxCommandEvent& event)
     Button7->Enable();
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemController1(wxCommandEvent& event)
+void configFrame::OnMenuItemController1(wxCommandEvent& event)
 {
     save_current();
     currentController = 0;
@@ -1563,7 +1541,7 @@ void sixaxis_emu_guiFrame::OnMenuItemController1(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemController2(wxCommandEvent& event)
+void configFrame::OnMenuItemController2(wxCommandEvent& event)
 {
     save_current();
     currentController = 1;
@@ -1579,7 +1557,7 @@ void sixaxis_emu_guiFrame::OnMenuItemController2(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemController3(wxCommandEvent& event)
+void configFrame::OnMenuItemController3(wxCommandEvent& event)
 {
     save_current();
     currentController = 2;
@@ -1595,7 +1573,7 @@ void sixaxis_emu_guiFrame::OnMenuItemController3(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemController4(wxCommandEvent& event)
+void configFrame::OnMenuItemController4(wxCommandEvent& event)
 {
     save_current();
     currentController = 3;
@@ -1611,7 +1589,7 @@ void sixaxis_emu_guiFrame::OnMenuItemController4(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemController5(wxCommandEvent& event)
+void configFrame::OnMenuItemController5(wxCommandEvent& event)
 {
     save_current();
     currentController = 4;
@@ -1627,7 +1605,7 @@ void sixaxis_emu_guiFrame::OnMenuItemController5(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemController6(wxCommandEvent& event)
+void configFrame::OnMenuItemController6(wxCommandEvent& event)
 {
     save_current();
     currentController = 5;
@@ -1643,7 +1621,7 @@ void sixaxis_emu_guiFrame::OnMenuItemController6(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemController7(wxCommandEvent& event)
+void configFrame::OnMenuItemController7(wxCommandEvent& event)
 {
     save_current();
     currentController = 6;
@@ -1659,7 +1637,7 @@ void sixaxis_emu_guiFrame::OnMenuItemController7(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemConfiguration1(wxCommandEvent& event)
+void configFrame::OnMenuItemConfiguration1(wxCommandEvent& event)
 {
     save_current();
     currentConfiguration = 0;
@@ -1673,7 +1651,7 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration1(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemConfiguration2(wxCommandEvent& event)
+void configFrame::OnMenuItemConfiguration2(wxCommandEvent& event)
 {
     save_current();
     currentConfiguration = 1;
@@ -1687,7 +1665,7 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration2(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemConfiguration3(wxCommandEvent& event)
+void configFrame::OnMenuItemConfiguration3(wxCommandEvent& event)
 {
     save_current();
     currentConfiguration = 2;
@@ -1701,7 +1679,7 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration3(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemConfiguration4(wxCommandEvent& event)
+void configFrame::OnMenuItemConfiguration4(wxCommandEvent& event)
 {
     save_current();
     currentConfiguration = 3;
@@ -1715,7 +1693,7 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration4(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemConfiguration5(wxCommandEvent& event)
+void configFrame::OnMenuItemConfiguration5(wxCommandEvent& event)
 {
     save_current();
     currentConfiguration = 4;
@@ -1729,7 +1707,7 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration5(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemConfiguration6(wxCommandEvent& event)
+void configFrame::OnMenuItemConfiguration6(wxCommandEvent& event)
 {
     save_current();
     currentConfiguration = 5;
@@ -1743,7 +1721,7 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration6(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemConfiguration7(wxCommandEvent& event)
+void configFrame::OnMenuItemConfiguration7(wxCommandEvent& event)
 {
     save_current();
     currentConfiguration = 6;
@@ -1757,7 +1735,7 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration7(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemConfiguration8(wxCommandEvent& event)
+void configFrame::OnMenuItemConfiguration8(wxCommandEvent& event)
 {
     save_current();
     currentConfiguration = 7;
@@ -1771,7 +1749,7 @@ void sixaxis_emu_guiFrame::OnMenuItemConfiguration8(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnMenuSave(wxCommandEvent& event)
+void configFrame::OnMenuSave(wxCommandEvent& event)
 {
     wxString end;
     save_current();
@@ -1787,7 +1765,7 @@ void sixaxis_emu_guiFrame::OnMenuSave(wxCommandEvent& event)
     Button7->Enable();
 }
 
-void sixaxis_emu_guiFrame::OnMenuSaveAs(wxCommandEvent& event)
+void configFrame::OnMenuSaveAs(wxCommandEvent& event)
 {
     wxFileDialog saveFileDialog(this, _T("Save Config file"), _T(""), _T(""), _T("XML files (*.xml)|*.xml"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 
@@ -1806,7 +1784,7 @@ void sixaxis_emu_guiFrame::OnMenuSaveAs(wxCommandEvent& event)
     MenuFile->Enable(idMenuSave, true);
 }
 
-void sixaxis_emu_guiFrame::OnButtonModifyButton(wxCommandEvent& event)
+void configFrame::OnButtonModifyButton(wxCommandEvent& event)
 {
     wxArrayInt array = GridPanelButton->GetSelectedRows();
     int count = array.GetCount();
@@ -1880,7 +1858,7 @@ void sixaxis_emu_guiFrame::OnButtonModifyButton(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::updateButtonConfigurations()
+void configFrame::updateButtonConfigurations()
 {
     int k;
 
@@ -1914,7 +1892,7 @@ void sixaxis_emu_guiFrame::updateButtonConfigurations()
     }
 }
 
-void sixaxis_emu_guiFrame::OnButtonModifyAxis(wxCommandEvent& event)
+void configFrame::OnButtonModifyAxis(wxCommandEvent& event)
 {
     wxArrayInt array = GridPanelAxis->GetSelectedRows();
     int count = array.GetCount();
@@ -2021,7 +1999,7 @@ void sixaxis_emu_guiFrame::OnButtonModifyAxis(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::updateAxisConfigurations()
+void configFrame::updateAxisConfigurations()
 {
     int k;
 
@@ -2054,7 +2032,7 @@ void sixaxis_emu_guiFrame::updateAxisConfigurations()
     }
 }
 
-void sixaxis_emu_guiFrame::OnAxisTabShapeSelect(wxCommandEvent& event)
+void configFrame::OnAxisTabShapeSelect(wxCommandEvent& event)
 {
     if(AxisTabEventType->GetStringSelection() == _("axis"))
     {
@@ -2065,13 +2043,13 @@ void sixaxis_emu_guiFrame::OnAxisTabShapeSelect(wxCommandEvent& event)
     }
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemCopyConfiguration(wxCommandEvent& event)
+void configFrame::OnMenuItemCopyConfiguration(wxCommandEvent& event)
 {
   save_current();
   tempConfiguration = *configFile.GetController(currentController)->GetConfiguration(currentConfiguration);
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemPasteConfiguration(wxCommandEvent& event)
+void configFrame::OnMenuItemPasteConfiguration(wxCommandEvent& event)
 {
   configFile.GetController(currentController)->SetConfiguration(tempConfiguration, currentConfiguration);
   load_current();
@@ -2084,13 +2062,13 @@ void sixaxis_emu_guiFrame::OnMenuItemPasteConfiguration(wxCommandEvent& event)
   Button7->Enable();
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemCopyController(wxCommandEvent& event)
+void configFrame::OnMenuItemCopyController(wxCommandEvent& event)
 {
   save_current();
   tempController = *configFile.GetController(currentController);
 }
 
-void sixaxis_emu_guiFrame::OnMenuItemPasteController(wxCommandEvent& event)
+void configFrame::OnMenuItemPasteController(wxCommandEvent& event)
 {
   configFile.SetController(tempController, currentController);
   load_current();
@@ -2103,7 +2081,7 @@ void sixaxis_emu_guiFrame::OnMenuItemPasteController(wxCommandEvent& event)
   Button7->Enable();
 }
 
-void sixaxis_emu_guiFrame::OnButtonDeleteTrigger(wxCommandEvent& event)
+void configFrame::OnButtonDeleteTrigger(wxCommandEvent& event)
 {
     ProfileTriggerDeviceType->SetLabel(wxEmptyString);
     ProfileTriggerDeviceName->SetLabel(wxEmptyString);
@@ -2114,7 +2092,7 @@ void sixaxis_emu_guiFrame::OnButtonDeleteTrigger(wxCommandEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::replaceDevice(wxString device_type)
+void configFrame::replaceDevice(wxString device_type)
 {
     int k;
     wxString device_name = wxEmptyString;
@@ -2186,7 +2164,7 @@ void sixaxis_emu_guiFrame::replaceDevice(wxString device_type)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnMenuReplaceMouse(wxCommandEvent& event)
+void configFrame::OnMenuReplaceMouse(wxCommandEvent& event)
 {
     int answer = wxMessageBox(_("This will replace the mouse in the current controller.\nContinue?"), _("Confirm"), wxYES_NO);
     if (answer == wxNO)
@@ -2196,7 +2174,7 @@ void sixaxis_emu_guiFrame::OnMenuReplaceMouse(wxCommandEvent& event)
     replaceDevice(_("mouse"));
 }
 
-void sixaxis_emu_guiFrame::OnMenuReplaceKeyboard(wxCommandEvent& event)
+void configFrame::OnMenuReplaceKeyboard(wxCommandEvent& event)
 {
     int answer = wxMessageBox(_("This will replace the keyboard in the current controller.\nContinue?"), _("Confirm"), wxYES_NO);
     if (answer == wxNO)
@@ -2206,7 +2184,7 @@ void sixaxis_emu_guiFrame::OnMenuReplaceKeyboard(wxCommandEvent& event)
     replaceDevice(_("keyboard"));
 }
 
-void sixaxis_emu_guiFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
+void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
 {
     int answer = wxMessageBox(_("This will adjust multipliers in the current controller.\nContinue?"), _("Confirm"), wxYES_NO);
     if (answer == wxNO)
@@ -2283,7 +2261,7 @@ void sixaxis_emu_guiFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
     }
 }
 
-void sixaxis_emu_guiFrame::OnLSIncAutoDetectClick(wxCommandEvent& event)
+void configFrame::OnLSIncAutoDetectClick(wxCommandEvent& event)
 {
   LSIncAutoDetect->Enable(false);
 
@@ -2329,7 +2307,7 @@ void sixaxis_emu_guiFrame::OnLSIncAutoDetectClick(wxCommandEvent& event)
   refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnLSIncDeleteClick(wxCommandEvent& event)
+void configFrame::OnLSIncDeleteClick(wxCommandEvent& event)
 {
   wxString old_device_type = LSIncDeviceType->GetLabel();
   wxString old_device_name = LSIncDeviceName->GetLabel();
@@ -2374,7 +2352,7 @@ void sixaxis_emu_guiFrame::OnLSIncDeleteClick(wxCommandEvent& event)
   refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnRSIncAutoDetectClick1(wxCommandEvent& event)
+void configFrame::OnRSIncAutoDetectClick1(wxCommandEvent& event)
 {
   RSIncAutoDetect->Enable(false);
 
@@ -2420,7 +2398,7 @@ void sixaxis_emu_guiFrame::OnRSIncAutoDetectClick1(wxCommandEvent& event)
   refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnRSIncDeleteClick(wxCommandEvent& event)
+void configFrame::OnRSIncDeleteClick(wxCommandEvent& event)
 {
   wxString old_device_type = RSIncDeviceType->GetLabel();
   wxString old_device_name = RSIncDeviceName->GetLabel();
@@ -2465,7 +2443,7 @@ void sixaxis_emu_guiFrame::OnRSIncDeleteClick(wxCommandEvent& event)
   refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnLSDeadzoneChange(wxSpinEvent& event)
+void configFrame::OnLSDeadzoneChange(wxSpinEvent& event)
 {
     int max = 127-LSDeadzone->GetValue();
     if(max)
@@ -2476,7 +2454,7 @@ void sixaxis_emu_guiFrame::OnLSDeadzoneChange(wxSpinEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnRSDeadZoneChange(wxSpinEvent& event)
+void configFrame::OnRSDeadZoneChange(wxSpinEvent& event)
 {
     int max = 127-RSDeadZone->GetValue();
     if(max)
@@ -2487,7 +2465,7 @@ void sixaxis_emu_guiFrame::OnRSDeadZoneChange(wxSpinEvent& event)
     refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnLSDecAutoDetectClick(wxCommandEvent& event)
+void configFrame::OnLSDecAutoDetectClick(wxCommandEvent& event)
 {
   LSDecAutoDetect->Enable(false);
 
@@ -2533,7 +2511,7 @@ void sixaxis_emu_guiFrame::OnLSDecAutoDetectClick(wxCommandEvent& event)
   refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnLSDecDeleteClick(wxCommandEvent& event)
+void configFrame::OnLSDecDeleteClick(wxCommandEvent& event)
 {
   wxString old_device_type = LSDecDeviceType->GetLabel();
   wxString old_device_name = LSDecDeviceName->GetLabel();
@@ -2578,7 +2556,7 @@ void sixaxis_emu_guiFrame::OnLSDecDeleteClick(wxCommandEvent& event)
   refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnRSDecAutoDetectClick(wxCommandEvent& event)
+void configFrame::OnRSDecAutoDetectClick(wxCommandEvent& event)
 {
   RSDecAutoDetect->Enable(false);
 
@@ -2624,7 +2602,7 @@ void sixaxis_emu_guiFrame::OnRSDecAutoDetectClick(wxCommandEvent& event)
   refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnRSDecDeleteClick(wxCommandEvent& event)
+void configFrame::OnRSDecDeleteClick(wxCommandEvent& event)
 {
   wxString old_device_type = RSDecDeviceType->GetLabel();
   wxString old_device_name = RSDecDeviceName->GetLabel();
@@ -2669,7 +2647,7 @@ void sixaxis_emu_guiFrame::OnRSDecDeleteClick(wxCommandEvent& event)
   refresh_gui();
 }
 
-void sixaxis_emu_guiFrame::OnMenuSetMouseDPI(wxCommandEvent& event)
+void configFrame::OnMenuSetMouseDPI(wxCommandEvent& event)
 {
     wxNumberEntryDialog dialog1(this, wxT(""), wxT("Enter a number:"), wxT("Mouse DPI value"), configFile.GetController(currentController)->GetMouseDPI(), 0, 10000);
     if (dialog1.ShowModal() == wxID_OK)
@@ -2678,7 +2656,7 @@ void sixaxis_emu_guiFrame::OnMenuSetMouseDPI(wxCommandEvent& event)
     }
 }
 
-void sixaxis_emu_guiFrame::OnTextCtrl(wxCommandEvent& event)
+void configFrame::OnTextCtrl(wxCommandEvent& event)
 {
     wxString str;
     wxTextCtrl* text;
@@ -2767,7 +2745,7 @@ void sixaxis_emu_guiFrame::OnTextCtrl(wxCommandEvent& event)
     }
 }
 
-wxString sixaxis_emu_guiFrame::isAlreadyUsed(wxString device_type, wxString device_name, wxString device_id, wxString event_type, wxString event_id, int gridIndex1, int gridIndex2)
+wxString configFrame::isAlreadyUsed(wxString device_type, wxString device_name, wxString device_id, wxString event_type, wxString event_id, int gridIndex1, int gridIndex2)
 {
   for(int i=0; i<GridPanelButton->GetNumberRows(); i++)
   {
@@ -2839,7 +2817,7 @@ wxString sixaxis_emu_guiFrame::isAlreadyUsed(wxString device_type, wxString devi
   return wxEmptyString;
 }
 
-void sixaxis_emu_guiFrame::OnMenuMultipleMK(wxCommandEvent& event)
+void configFrame::OnMenuMultipleMK(wxCommandEvent& event)
 {
     if(MenuItemMultipleMiceAndKeyboards->IsChecked())
     {
@@ -2855,7 +2833,7 @@ void sixaxis_emu_guiFrame::OnMenuMultipleMK(wxCommandEvent& event)
     replaceDevice(_("keyboard"));
 }
 
-void sixaxis_emu_guiFrame::OnMenuUpdate(wxCommandEvent& event)
+void configFrame::OnMenuUpdate(wxCommandEvent& event)
 {
   int ret;
 

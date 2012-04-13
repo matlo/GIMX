@@ -1,5 +1,5 @@
 /***************************************************************
- * Name:      sixaxis_emu_guiMain.h
+ * Name:      configMain.h
  * Purpose:   Defines Application Frame
  * Author:    Matlo (mat.lau@laposte.net)
  * Created:   2010-11-09
@@ -7,10 +7,10 @@
  * License:
  **************************************************************/
 
-#ifndef SIXAXIS_EMU_GUIMAIN_H
-#define SIXAXIS_EMU_GUIMAIN_H
+#ifndef CONFIGMAIN_H
+#define CONFIGMAIN_H
 
-//(*Headers(sixaxis_emu_guiFrame)
+//(*Headers(configFrame)
 #include <wx/notebook.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
@@ -30,12 +30,12 @@
 #include <event_catcher.h>
 #include <ConfigurationFile.h>
 
-class sixaxis_emu_guiFrame: public wxFrame
+class configFrame: public wxFrame
 {
     public:
 
-        sixaxis_emu_guiFrame(wxString file,wxWindow* parent,wxWindowID id = -1);
-        virtual ~sixaxis_emu_guiFrame();
+        configFrame(wxString file,wxWindow* parent,wxWindowID id = -1);
+        virtual ~configFrame();
 
         void save_current();
         void load_current();
@@ -43,7 +43,7 @@ class sixaxis_emu_guiFrame: public wxFrame
 
     private:
 
-        //(*Handlers(sixaxis_emu_guiFrame)
+        //(*Handlers(configFrame)
         void OnQuit(wxCommandEvent& event);
         void OnAbout(wxCommandEvent& event);
         void OnMenuItemNew(wxCommandEvent& event);
@@ -139,7 +139,7 @@ class sixaxis_emu_guiFrame: public wxFrame
         void updateAxisConfigurations();
         wxString isAlreadyUsed(wxString device_type, wxString device_name, wxString device_id, wxString event_type, wxString event_id, int gridIndex1, int gridIndex2);
 
-        //(*Identifiers(sixaxis_emu_guiFrame)
+        //(*Identifiers(configFrame)
         static const long ID_STATICTEXT35;
         static const long ID_STATICTEXT27;
         static const long ID_STATICTEXT36;
@@ -273,7 +273,7 @@ class sixaxis_emu_guiFrame: public wxFrame
         static const long ID_STATUSBAR1;
         //*)
 
-        //(*Declarations(sixaxis_emu_guiFrame)
+        //(*Declarations(configFrame)
         wxStaticText* StaticTextStepsPanelOverall;
         wxStaticText* StaticTextSmoothingPanelAxis;
         wxStaticText* StaticTextEventTypePanelButton;
@@ -426,4 +426,4 @@ class sixaxis_emu_guiFrame: public wxFrame
         DECLARE_EVENT_TABLE()
 };
 
-#endif // SIXAXIS_EMU_GUIMAIN_H
+#endif // CONFIGMAIN_H

@@ -35,7 +35,7 @@ OBJDIR_RELEASE = obj/Release
 DEP_RELEASE = ../shared/configeditor/configeditor.a
 OUT_RELEASE = bin/Release/gimx-config
 
-OBJ_RELEASE = $(OBJDIR_RELEASE)/sixaxis_emu_guiMain.o $(OBJDIR_RELEASE)/sixaxis_emu_guiApp.o ../shared/updater/updater.o
+OBJ_RELEASE = $(OBJDIR_RELEASE)/configMain.o $(OBJDIR_RELEASE)/configApp.o ../shared/updater/updater.o
 
 all: release
 
@@ -47,13 +47,13 @@ $(OUT_RELEASE): $(OBJ_RELEASE) $(DEP_RELEASE)
 	test -d bin/Release || mkdir -p bin/Release
 	$(LD) $(LDFLAGS_RELEASE) $(LIBDIR_RELEASE) -o $(OUT_RELEASE) $(OBJ_RELEASE) $(LIB_RELEASE)
 
-$(OBJDIR_RELEASE)/sixaxis_emu_guiMain.o: sixaxis_emu_guiMain.cpp
+$(OBJDIR_RELEASE)/configMain.o: configMain.cpp
 	test -d $(OBJDIR_RELEASE) || mkdir -p $(OBJDIR_RELEASE)
-	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $(OBJDIR_RELEASE)/sixaxis_emu_guiMain.o sixaxis_emu_guiMain.cpp
+	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $(OBJDIR_RELEASE)/configMain.o configMain.cpp
 
-$(OBJDIR_RELEASE)/sixaxis_emu_guiApp.o: sixaxis_emu_guiApp.cpp
+$(OBJDIR_RELEASE)/configApp.o: configApp.cpp
 	test -d $(OBJDIR_RELEASE) || mkdir -p $(OBJDIR_RELEASE)
-	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $(OBJDIR_RELEASE)/sixaxis_emu_guiApp.o sixaxis_emu_guiApp.cpp
+	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $(OBJDIR_RELEASE)/configApp.o configApp.cpp
 
 clean_release:
 	rm -f $(OBJ_RELEASE) $(OUT_RELEASE)

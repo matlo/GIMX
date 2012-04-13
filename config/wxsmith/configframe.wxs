@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <wxsmith>
-	<object class="wxFrame" name="sixaxis_emu_guiFrame">
+	<object class="wxFrame" name="configFrame">
 		<title>Gimx-config</title>
 		<id_arg>0</id_arg>
 		<object class="wxGridSizer" variable="GridSizer1" member="no">
