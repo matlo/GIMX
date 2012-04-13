@@ -42,7 +42,7 @@ $(OUT): $(OBJ) $(DEP)
 clean:
 	rm -f $(OBJ) $(OUT)
 
-.PHONY: clean clean
+.PHONY: clean
 
 install: all
 	mkdir -p $(prefix)
