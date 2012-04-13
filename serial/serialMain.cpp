@@ -522,15 +522,15 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
 
     Refresh();
 	
-	if(ChoiceConfig->IsEmpty())
-	{
-	  int answer = wxMessageBox(_("No config found! Download configs?"), _("Confirm"), wxYES_NO);
-	  if (answer == wxYES)
-	  {
-	    wxCommandEvent event;
-		OnMenuGetConfigs(event);
-	  }
-	}
+    if(ChoiceConfig->IsEmpty())
+    {
+      int answer = wxMessageBox(_("No config found! Download configs?"), _("Confirm"), wxYES_NO);
+      if (answer == wxYES)
+      {
+        wxCommandEvent event;
+        OnMenuGetConfigs(event);
+      }
+    }
 }
 
 serialFrame::~serialFrame()
@@ -1084,16 +1084,16 @@ void serialFrame::OnMenuGetConfigs(wxCommandEvent& event)
       for ( size_t n = 0; n < selections.GetCount(); n++ )
       {
         string sel = string(choices[selections[n]].mb_str());
-		wxString wxfile = _(CONFIG_DIR) + choices[selections[n]];
-	    if(::wxFileExists(wxfile))
-		{
+        wxString wxfile = _(CONFIG_DIR) + choices[selections[n]];
+        if (::wxFileExists(wxfile))
+        {
           int answer = wxMessageBox(_("Overwrite local file: ") + choices[selections[n]] + _("?"), _("Confirm"), wxYES_NO);
-		  if (answer == wxNO)
-		  {
-		    continue;
-		  }
-		}
-		cl_sel.push_back(sel);
+          if (answer == wxNO)
+          {
+            continue;
+          }
+        }
+        cl_sel.push_back(sel);
       }
 
       if(u.getconfigs(&cl_sel) < 0)
@@ -1103,9 +1103,9 @@ void serialFrame::OnMenuGetConfigs(wxCommandEvent& event)
       }
       read_filenames(ChoiceConfig);
       if(!cl_sel.empty())
-	  {
-	    ChoiceConfig->SetSelection(ChoiceConfig->FindString(wxString(cl_sel.front().c_str(), wxConvUTF8)));
-	    wxMessageBox(wxT("Download is complete!"), wxT("Info"), wxICON_INFORMATION);
+	    {
+	      ChoiceConfig->SetSelection(ChoiceConfig->FindString(wxString(cl_sel.front().c_str(), wxConvUTF8)));
+	      wxMessageBox(wxT("Download is complete!"), wxT("Info"), wxICON_INFORMATION);
       }
     }
   }
