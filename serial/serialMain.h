@@ -1,5 +1,5 @@
 /***************************************************************
- * Name:      sixemuguiMain.h
+ * Name:      serialMain.h
  * Purpose:   Defines Application Frame
  * Author:    Matlo (mat.lau@laposte.net)
  * Created:   2011-01-12
@@ -7,10 +7,10 @@
  * License:
  **************************************************************/
 
-#ifndef SIXEMUGUIMAIN_H
-#define SIXEMUGUIMAIN_H
+#ifndef SERIALMAIN_H
+#define SERIALMAIN_H
 
-//(*Headers(sixemuguiFrame)
+//(*Headers(serialFrame)
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 #include <wx/menu.h>
@@ -25,16 +25,16 @@
 #include <wx/statusbr.h>
 //*)
 
-class sixemuguiFrame: public wxFrame
+class serialFrame: public wxFrame
 {
     public:
 
-        sixemuguiFrame(wxWindow* parent,wxWindowID id = -1);
-        virtual ~sixemuguiFrame();
+        serialFrame(wxWindow* parent,wxWindowID id = -1);
+        virtual ~serialFrame();
 
     private:
 
-        //(*Handlers(sixemuguiFrame)
+        //(*Handlers(serialFrame)
         void OnQuit(wxCommandEvent& event);
         void OnAbout(wxCommandEvent& event);
         void OnButtonCheckClick(wxCommandEvent& event);
@@ -55,7 +55,7 @@ class sixemuguiFrame: public wxFrame
         void OnMenuGetConfigs(wxCommandEvent& event);
         //*)
 
-        //(*Identifiers(sixemuguiFrame)
+        //(*Identifiers(serialFrame)
         static const long ID_STATICTEXT3;
         static const long ID_COMBOBOX1;
         static const long ID_STATICTEXT4;
@@ -85,7 +85,7 @@ class sixemuguiFrame: public wxFrame
         static const long ID_STATUSBAR1;
         //*)
 
-        //(*Declarations(sixemuguiFrame)
+        //(*Declarations(serialFrame)
         wxCheckBox* CheckBoxCalibrate;
         wxMenuItem* MenuRefresh;
         wxMenuItem* MenuEditFpsConfig;
@@ -120,4 +120,4 @@ class sixemuguiFrame: public wxFrame
         DECLARE_EVENT_TABLE()
 };
 
-#endif // SIXEMUGUIMAIN_H
+#endif // SERIALMAIN_H

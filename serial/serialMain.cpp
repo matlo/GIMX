@@ -1,5 +1,5 @@
 /***************************************************************
- * Name:      sixemuguiMain.cpp
+ * Name:      serialMain.cpp
  * Purpose:   Code for Application Frame
  * Author:    Matlo (mat.lau@laposte.net)
  * Created:   2011-01-12
@@ -8,10 +8,10 @@
  **************************************************************/
 
 #include "wx_pch.h"
-#include "sixemuguiMain.h"
+#include "serialMain.h"
 #include <wx/msgdlg.h>
 
-//(*InternalHeaders(sixemuguiFrame)
+//(*InternalHeaders(serialFrame)
 #include <wx/intl.h>
 #include <wx/string.h>
 //*)
@@ -75,38 +75,38 @@ wxString wxbuildinfo(wxbuildinfoformat format)
     return wxbuild;
 }
 
-//(*IdInit(sixemuguiFrame)
-const long sixemuguiFrame::ID_STATICTEXT3 = wxNewId();
-const long sixemuguiFrame::ID_COMBOBOX1 = wxNewId();
-const long sixemuguiFrame::ID_STATICTEXT4 = wxNewId();
-const long sixemuguiFrame::ID_CHOICE1 = wxNewId();
-const long sixemuguiFrame::ID_BUTTON2 = wxNewId();
-const long sixemuguiFrame::ID_STATICTEXT1 = wxNewId();
-const long sixemuguiFrame::ID_COMBOBOX2 = wxNewId();
-const long sixemuguiFrame::ID_STATICTEXT2 = wxNewId();
-const long sixemuguiFrame::ID_CHECKBOX5 = wxNewId();
-const long sixemuguiFrame::ID_CHECKBOX6 = wxNewId();
-const long sixemuguiFrame::ID_CHECKBOX1 = wxNewId();
-const long sixemuguiFrame::ID_CHECKBOX4 = wxNewId();
-const long sixemuguiFrame::ID_CHECKBOX2 = wxNewId();
-const long sixemuguiFrame::ID_CHECKBOX3 = wxNewId();
-const long sixemuguiFrame::ID_CHOICE4 = wxNewId();
-const long sixemuguiFrame::ID_BUTTON1 = wxNewId();
-const long sixemuguiFrame::ID_BUTTON3 = wxNewId();
-const long sixemuguiFrame::ID_PANEL1 = wxNewId();
-const long sixemuguiFrame::ID_MENUITEM1 = wxNewId();
-const long sixemuguiFrame::ID_MENUITEM2 = wxNewId();
-const long sixemuguiFrame::ID_MENUITEM3 = wxNewId();
-const long sixemuguiFrame::idMenuQuit = wxNewId();
-const long sixemuguiFrame::ID_MENUITEM6 = wxNewId();
-const long sixemuguiFrame::ID_MENUITEM4 = wxNewId();
-const long sixemuguiFrame::ID_MENUITEM5 = wxNewId();
-const long sixemuguiFrame::idMenuAbout = wxNewId();
-const long sixemuguiFrame::ID_STATUSBAR1 = wxNewId();
+//(*IdInit(serialFrame)
+const long serialFrame::ID_STATICTEXT3 = wxNewId();
+const long serialFrame::ID_COMBOBOX1 = wxNewId();
+const long serialFrame::ID_STATICTEXT4 = wxNewId();
+const long serialFrame::ID_CHOICE1 = wxNewId();
+const long serialFrame::ID_BUTTON2 = wxNewId();
+const long serialFrame::ID_STATICTEXT1 = wxNewId();
+const long serialFrame::ID_COMBOBOX2 = wxNewId();
+const long serialFrame::ID_STATICTEXT2 = wxNewId();
+const long serialFrame::ID_CHECKBOX5 = wxNewId();
+const long serialFrame::ID_CHECKBOX6 = wxNewId();
+const long serialFrame::ID_CHECKBOX1 = wxNewId();
+const long serialFrame::ID_CHECKBOX4 = wxNewId();
+const long serialFrame::ID_CHECKBOX2 = wxNewId();
+const long serialFrame::ID_CHECKBOX3 = wxNewId();
+const long serialFrame::ID_CHOICE4 = wxNewId();
+const long serialFrame::ID_BUTTON1 = wxNewId();
+const long serialFrame::ID_BUTTON3 = wxNewId();
+const long serialFrame::ID_PANEL1 = wxNewId();
+const long serialFrame::ID_MENUITEM1 = wxNewId();
+const long serialFrame::ID_MENUITEM2 = wxNewId();
+const long serialFrame::ID_MENUITEM3 = wxNewId();
+const long serialFrame::idMenuQuit = wxNewId();
+const long serialFrame::ID_MENUITEM6 = wxNewId();
+const long serialFrame::ID_MENUITEM4 = wxNewId();
+const long serialFrame::ID_MENUITEM5 = wxNewId();
+const long serialFrame::idMenuAbout = wxNewId();
+const long serialFrame::ID_STATUSBAR1 = wxNewId();
 //*)
 
-BEGIN_EVENT_TABLE(sixemuguiFrame,wxFrame)
-    //(*EventTable(sixemuguiFrame)
+BEGIN_EVENT_TABLE(serialFrame,wxFrame)
+    //(*EventTable(serialFrame)
     //*)
 END_EVENT_TABLE()
 
@@ -189,6 +189,7 @@ static void read_filenames(wxChoice* choice)
   string filename = "";
   string line = "";
 
+  /* Read the last config used so as to auto-select it. */
 #ifndef WIN32
   filename.append(homedir);
   filename.append(OPT_DIR);
@@ -206,6 +207,7 @@ static void read_filenames(wxChoice* choice)
 
   choice->Clear();
 
+  /* Read all config file names. */
   string ds;
 #ifndef WIN32
   ds.append(homedir);
@@ -233,33 +235,6 @@ static void read_filenames(wxChoice* choice)
     else
     {
       choice->Append(file);
-    }
-  }
-
-  ds.clear();
-#ifndef WIN32
-  ds.append(homedir);
-  ds.append(APP_DIR);
-#endif
-  ds.append(CONFIG_EXAMPLE_DIR);
-
-  wxDir dir2(wxString(ds.c_str(), wxConvUTF8));
-
-  if(!dir2.IsOpened())
-  {
-    cout << "Warning: can't open " << ds << endl;
-    return;
-  }
-
-  for (bool cont = dir2.GetFirst(&file, filespec, wxDIR_FILES); cont;  cont = dir2.GetNext(&file))
-  {
-    if(!line.empty() && line[line.size()-1] == '*' && wxString(line.substr(0, line.size()-1).c_str(), wxConvUTF8) == file)
-    {
-      choice->SetSelection(choice->Append(file + _("*")));
-    }
-    else
-    {
-      choice->Append(file + _("*"));
     }
   }
 }
@@ -333,9 +308,9 @@ static void readStartUpdates(wxMenuItem* menuItem)
   }
 }
 
-sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
+serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
 {
-    //(*Initialize(sixemuguiFrame)
+    //(*Initialize(serialFrame)
     wxStaticBoxSizer* StaticBoxSizer2;
     wxFlexGridSizer* FlexGridSizer4;
     wxMenuItem* MenuItem2;
@@ -478,21 +453,21 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     SetStatusBar(StatusBar1);
     SingleInstanceChecker1.Create(_T("gimx-serial_") + wxGetUserId() + _T("_Guard"));
     
-    Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnControllerTypeSelect);
-    Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnButtonSpoofClick);
-    Connect(ID_CHECKBOX4,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnCheckBoxCalibrate);
-    Connect(ID_CHECKBOX2,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnCheckBoxGuiClick);
-    Connect(ID_CHECKBOX3,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnCheckBoxTerminalClick);
-    Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnButtonCheckClick1);
-    Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnButtonStartClick);
-    Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuEditConfig);
-    Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuEditFpsConfig);
-    Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuRefresh);
-    Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnQuit);
-    Connect(ID_MENUITEM6,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuGetConfigs);
-    Connect(ID_MENUITEM4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuUpdate);
-    Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuStartupUpdates);
-    Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnAbout);
+    Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&serialFrame::OnControllerTypeSelect);
+    Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&serialFrame::OnButtonSpoofClick);
+    Connect(ID_CHECKBOX4,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&serialFrame::OnCheckBoxCalibrate);
+    Connect(ID_CHECKBOX2,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&serialFrame::OnCheckBoxGuiClick);
+    Connect(ID_CHECKBOX3,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&serialFrame::OnCheckBoxTerminalClick);
+    Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&serialFrame::OnButtonCheckClick1);
+    Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&serialFrame::OnButtonStartClick);
+    Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnMenuEditConfig);
+    Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnMenuEditFpsConfig);
+    Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnMenuRefresh);
+    Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnQuit);
+    Connect(ID_MENUITEM6,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnMenuGetConfigs);
+    Connect(ID_MENUITEM4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnMenuUpdate);
+    Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnMenuStartupUpdates);
+    Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnAbout);
     //*)
 
 #ifndef WIN32
@@ -513,6 +488,7 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
 #ifndef WIN32
     homedir = getpwuid(getuid())->pw_dir;
 
+	  /* Init user's config directory. */
     if(system("mkdir -p ~/.sixemugui-serial"))
     {
         wxMessageBox( wxT("Can't init ~/.sixemugui-serial directory!"), wxT("Error"), wxICON_ERROR);
@@ -520,9 +496,6 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     if(system("mkdir -p ~/.emuclient/config"))
     {
         wxMessageBox( wxT("Can't init ~/.emuclient/config!"), wxT("Error"), wxICON_ERROR);
-    }
-    if(system("test -d ~/.emuclient/config/example || (mkdir -p ~/.emuclient/config/example && cp /etc/emuclient/config/* ~/.emuclient/config/example)"))
-    {
     }
     if(system("mkdir -p ~/.emuclient/macros"))
     {
@@ -548,20 +521,30 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     started = true;
 
     Refresh();
+	
+	if(ChoiceConfig->IsEmpty())
+	{
+	  int answer = wxMessageBox(_("No config found! Download configs?"), _("Confirm"), wxYES_NO);
+	  if (answer == wxYES)
+	  {
+	    wxCommandEvent event;
+		OnMenuGetConfigs(event);
+	  }
+	}
 }
 
-sixemuguiFrame::~sixemuguiFrame()
+serialFrame::~serialFrame()
 {
-    //(*Destroy(sixemuguiFrame)
+    //(*Destroy(serialFrame)
     //*)
 }
 
-void sixemuguiFrame::OnQuit(wxCommandEvent& event)
+void serialFrame::OnQuit(wxCommandEvent& event)
 {
   Close();
 }
 
-void sixemuguiFrame::OnAbout(wxCommandEvent& event)
+void serialFrame::OnAbout(wxCommandEvent& event)
 {
   wxAboutDialogInfo info;
   info.SetName(wxTheApp->GetAppName());
@@ -573,7 +556,7 @@ void sixemuguiFrame::OnAbout(wxCommandEvent& event)
   wxAboutBox(info);
 }
 
-void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
+void serialFrame::OnButtonStartClick(wxCommandEvent& event)
 {
     string command = "";
     string filename = "";
@@ -754,17 +737,17 @@ void sixemuguiFrame::OnButtonStartClick(wxCommandEvent& event)
     ButtonStart->Enable();
 }
 
-void sixemuguiFrame::OnCheckBoxGuiClick(wxCommandEvent& event)
+void serialFrame::OnCheckBoxGuiClick(wxCommandEvent& event)
 {
     CheckBoxTerminal->SetValue(false);
 }
 
-void sixemuguiFrame::OnCheckBoxTerminalClick(wxCommandEvent& event)
+void serialFrame::OnCheckBoxTerminalClick(wxCommandEvent& event)
 {
     CheckBoxGui->SetValue(false);
 }
 
-void sixemuguiFrame::OnCheckBoxCalibrate(wxCommandEvent& event)
+void serialFrame::OnCheckBoxCalibrate(wxCommandEvent& event)
 {
     if(CheckBoxCalibrate->IsChecked())
     {
@@ -783,7 +766,7 @@ void sixemuguiFrame::OnCheckBoxCalibrate(wxCommandEvent& event)
 #define CHECK_FILE "/tmp/check_result"
 #endif
 
-void sixemuguiFrame::OnButtonCheckClick1(wxCommandEvent& event)
+void serialFrame::OnButtonCheckClick1(wxCommandEvent& event)
 {
     string command = "";
     string filename = "";
@@ -840,7 +823,7 @@ void sixemuguiFrame::OnButtonCheckClick1(wxCommandEvent& event)
     remove(CHECK_FILE);
 }
 
-void sixemuguiFrame::OnMenuEditConfig(wxCommandEvent& event)
+void serialFrame::OnMenuEditConfig(wxCommandEvent& event)
 {
   string command = "";
 #ifdef WIN32
@@ -887,7 +870,7 @@ void sixemuguiFrame::OnMenuEditConfig(wxCommandEvent& event)
 #endif
 }
 
-void sixemuguiFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
+void serialFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
 {
   string command = "";
 #ifdef WIN32
@@ -934,7 +917,7 @@ void sixemuguiFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
 #endif
 }
 
-void sixemuguiFrame::OnMenuRefresh(wxCommandEvent& event)
+void serialFrame::OnMenuRefresh(wxCommandEvent& event)
 {
     wxString previous = ChoiceConfig->GetStringSelection();
     ChoiceConfig->Clear();
@@ -946,7 +929,7 @@ void sixemuguiFrame::OnMenuRefresh(wxCommandEvent& event)
     ComboBoxDevice->SetSelection(ComboBoxDevice->FindString(previous));
 }
 
-void sixemuguiFrame::OnControllerTypeSelect(wxCommandEvent& event)
+void serialFrame::OnControllerTypeSelect(wxCommandEvent& event)
 {
     if(!spoofed && (ControllerType->GetStringSelection() == _("360 pad")))
     {
@@ -979,7 +962,7 @@ void sixemuguiFrame::OnControllerTypeSelect(wxCommandEvent& event)
     }
 }
 
-void sixemuguiFrame::OnButtonSpoofClick(wxCommandEvent& event)
+void serialFrame::OnButtonSpoofClick(wxCommandEvent& event)
 {
     string command = "";
 
@@ -1019,7 +1002,7 @@ void sixemuguiFrame::OnButtonSpoofClick(wxCommandEvent& event)
     }
 }
 
-void sixemuguiFrame::OnMenuUpdate(wxCommandEvent& event)
+void serialFrame::OnMenuUpdate(wxCommandEvent& event)
 {
   int ret;
 
@@ -1053,7 +1036,7 @@ void sixemuguiFrame::OnMenuUpdate(wxCommandEvent& event)
   }
 }
 
-void sixemuguiFrame::OnMenuStartupUpdates(wxCommandEvent& event)
+void serialFrame::OnMenuStartupUpdates(wxCommandEvent& event)
 {
   string filename;
 #ifndef WIN32
@@ -1076,9 +1059,9 @@ void sixemuguiFrame::OnMenuStartupUpdates(wxCommandEvent& event)
   }
 }
 
-void sixemuguiFrame::OnMenuGetConfigs(wxCommandEvent& event)
+void serialFrame::OnMenuGetConfigs(wxCommandEvent& event)
 {
-  configupdater u(CONFIGS_URL, CONFIGS_FILE, CONFIGS_DIR);
+  configupdater u(CONFIGS_URL, CONFIGS_FILE, CONFIG_DIR);
 
   list<string>* cl = u.getconfiglist();
   list<string> cl_sel;
@@ -1101,7 +1084,16 @@ void sixemuguiFrame::OnMenuGetConfigs(wxCommandEvent& event)
       for ( size_t n = 0; n < selections.GetCount(); n++ )
       {
         string sel = string(choices[selections[n]].mb_str());
-        cl_sel.push_back(sel);
+		wxString wxfile = _(CONFIG_DIR) + choices[selections[n]];
+	    if(::wxFileExists(wxfile))
+		{
+          int answer = wxMessageBox(_("Overwrite local file: ") + choices[selections[n]] + _("?"), _("Confirm"), wxYES_NO);
+		  if (answer == wxNO)
+		  {
+		    continue;
+		  }
+		}
+		cl_sel.push_back(sel);
       }
 
       if(u.getconfigs(&cl_sel) < 0)
@@ -1110,7 +1102,11 @@ void sixemuguiFrame::OnMenuGetConfigs(wxCommandEvent& event)
         return;
       }
       read_filenames(ChoiceConfig);
-      wxMessageBox(wxT("Download is complete!"), wxT("Info"), wxICON_INFORMATION);
+      if(!cl_sel.empty())
+	  {
+	    ChoiceConfig->SetSelection(ChoiceConfig->FindString(wxString(cl_sel.front().c_str(), wxConvUTF8)));
+	    wxMessageBox(wxT("Download is complete!"), wxT("Info"), wxICON_INFORMATION);
+      }
     }
   }
   else

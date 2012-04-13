@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <wxsmith>
-	<object class="wxFrame" name="sixemuguiFrame">
+	<object class="wxFrame" name="serialFrame">
 		<title>Gimx-serial</title>
 		<size>412,470</size>
 		<id_arg>0</id_arg>
