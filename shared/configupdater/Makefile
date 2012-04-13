@@ -10,4 +10,4 @@ all: $(OBJ)
 	$(CC) $(CFLAGS) $(INC) -o $@ -c $< 
 
 clean:
-	rm *.o
+	rm -f $(OBJ)
