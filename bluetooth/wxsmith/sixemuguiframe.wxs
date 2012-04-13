@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <wxsmith>
-	<object class="wxFrame" name="sixemuguiFrame">
+	<object class="wxFrame" name="bluetoothFrame">
 		<title>Gimx-bluetooth</title>
 		<size>675,525</size>
 		<id_arg>0</id_arg>

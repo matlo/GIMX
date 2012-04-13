@@ -1,5 +1,5 @@
 /***************************************************************
- * Name:      sixemuguiApp.cpp
+ * Name:      bluetoothApp.cpp
  * Purpose:   Code for Application Class
  * Author:    Matlo (mat.lau@laposte.net)
  * Created:   2011-01-12
@@ -8,25 +8,25 @@
  **************************************************************/
 
 #include "wx_pch.h"
-#include "sixemuguiApp.h"
+#include "bluetoothApp.h"
 
 //(*AppHeaders
-#include "sixemuguiMain.h"
+#include "bluetoothMain.h"
 #include <wx/image.h>
 //*)
 
 #include <glib.h>
 
-IMPLEMENT_APP(sixemuguiApp);
+IMPLEMENT_APP(bluetoothApp);
 
-bool sixemuguiApp::OnInit()
+bool bluetoothApp::OnInit()
 {
     //(*AppInitialize
     bool wxsOK = true;
     wxInitAllImageHandlers();
     if ( wxsOK )
     {
-    	sixemuguiFrame* Frame = new sixemuguiFrame(0);
+    	bluetoothFrame* Frame = new bluetoothFrame(0);
     	Frame->Show();
     	SetTopWindow(Frame);
     }
@@ -35,7 +35,7 @@ bool sixemuguiApp::OnInit()
 
 }
 
-int sixemuguiApp::OnExit()
+int bluetoothApp::OnExit()
 {
     g_spawn_command_line_sync ("killall emu", NULL, NULL, NULL, NULL);
     return 0;

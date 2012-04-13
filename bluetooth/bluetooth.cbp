@@ -2,12 +2,12 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="sixemugui" />
+		<Option title="bluetooth" />
 		<Option pch_mode="0" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/sixemugui" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Debug/bluetooth" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -17,7 +17,7 @@
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/sixemugui" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Release/bluetooth" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -44,22 +44,22 @@
 			<Add option="`wx-config --libs`" />
 			<Add option="`pkg-config --libs glib-2.0`" />
 		</Linker>
-		<Unit filename="sixemuguiApp.cpp" />
-		<Unit filename="sixemuguiApp.h" />
-		<Unit filename="sixemuguiMain.cpp" />
-		<Unit filename="sixemuguiMain.h" />
+		<Unit filename="bluetoothApp.cpp" />
+		<Unit filename="bluetoothApp.h" />
+		<Unit filename="bluetoothMain.cpp" />
+		<Unit filename="bluetoothMain.h" />
 		<Unit filename="wx_pch.h">
 			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>
-		<Unit filename="wxsmith/sixemuguiframe.wxs" />
+		<Unit filename="wxsmith/bluetoothframe.wxs" />
 		<Extensions>
 			<code_completion />
 			<envvars />
 			<wxsmith version="1">
-				<gui name="wxWidgets" src="sixemuguiApp.cpp" main="sixemuguiFrame" init_handlers="necessary" language="CPP" />
+				<gui name="wxWidgets" src="bluetoothApp.cpp" main="bluetoothFrame" init_handlers="necessary" language="CPP" />
 				<resources>
-					<wxFrame wxs="wxsmith/sixemuguiframe.wxs" src="sixemuguiMain.cpp" hdr="sixemuguiMain.h" name="sixemuguiFrame" language="CPP" />
+					<wxFrame wxs="wxsmith/bluetoothframe.wxs" src="bluetoothMain.cpp" hdr="bluetoothMain.h" name="bluetoothFrame" language="CPP" />
 				</resources>
 			</wxsmith>
 			<debugger />

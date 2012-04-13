@@ -1,5 +1,5 @@
 /***************************************************************
- * Name:      sixemuguiMain.h
+ * Name:      bluetoothMain.h
  * Purpose:   Defines Application Frame
  * Author:    Matlo (mat.lau@laposte.net)
  * Created:   2011-01-12
@@ -7,10 +7,10 @@
  * License:
  **************************************************************/
 
-#ifndef SIXEMUGUIMAIN_H
-#define SIXEMUGUIMAIN_H
+#ifndef BLUETOOTHMAIN_H
+#define BLUETOOTHMAIN_H
 
-//(*Headers(sixemuguiFrame)
+//(*Headers(bluetoothFrame)
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 #include <wx/menu.h>
@@ -24,16 +24,16 @@
 #include <wx/statusbr.h>
 //*)
 
-class sixemuguiFrame: public wxFrame
+class bluetoothFrame: public wxFrame
 {
     public:
 
-        sixemuguiFrame(wxWindow* parent,wxWindowID id = -1);
-        virtual ~sixemuguiFrame();
+        bluetoothFrame(wxWindow* parent,wxWindowID id = -1);
+        virtual ~bluetoothFrame();
 
     private:
 
-        //(*Handlers(sixemuguiFrame)
+        //(*Handlers(bluetoothFrame)
         void OnQuit(wxCommandEvent& event);
         void OnAbout(wxCommandEvent& event);
         void OnSelectSixaxisBdaddr(wxCommandEvent& event);
@@ -67,7 +67,7 @@ class sixemuguiFrame: public wxFrame
         int setDongleAddress();
         void refresh();
 
-        //(*Identifiers(sixemuguiFrame)
+        //(*Identifiers(bluetoothFrame)
         static const long ID_STATICTEXT1;
         static const long ID_CHOICE1;
         static const long ID_STATICTEXT2;
@@ -114,7 +114,7 @@ class sixemuguiFrame: public wxFrame
         static const long ID_STATUSBAR1;
         //*)
 
-        //(*Declarations(sixemuguiFrame)
+        //(*Declarations(bluetoothFrame)
         wxStaticText* StaticText10;
         wxChoice* Choice5;
         wxStaticText* StaticText9;
@@ -174,4 +174,4 @@ class sixemuguiFrame: public wxFrame
         DECLARE_EVENT_TABLE()
 };
 
-#endif // SIXEMUGUIMAIN_H
+#endif // BLUETOOTHMAIN_H

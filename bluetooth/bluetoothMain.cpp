@@ -1,5 +1,5 @@
 /***************************************************************
- * Name:      sixemuguiMain.cpp
+ * Name:      bluetoothMain.cpp
  * Purpose:   Code for Application Frame
  * Author:    Matlo (mat.lau@laposte.net)
  * Created:   2011-01-12
@@ -8,10 +8,10 @@
  **************************************************************/
 
 #include "wx_pch.h"
-#include "sixemuguiMain.h"
+#include "bluetoothMain.h"
 #include <wx/msgdlg.h>
 
-//(*InternalHeaders(sixemuguiFrame)
+//(*InternalHeaders(bluetoothFrame)
 #include <wx/intl.h>
 #include <wx/string.h>
 //*)
@@ -69,55 +69,55 @@ wxString wxbuildinfo(wxbuildinfoformat format)
     return wxbuild;
 }
 
-//(*IdInit(sixemuguiFrame)
-const long sixemuguiFrame::ID_STATICTEXT1 = wxNewId();
-const long sixemuguiFrame::ID_CHOICE1 = wxNewId();
-const long sixemuguiFrame::ID_STATICTEXT2 = wxNewId();
-const long sixemuguiFrame::ID_CHOICE2 = wxNewId();
-const long sixemuguiFrame::ID_STATICTEXT3 = wxNewId();
-const long sixemuguiFrame::ID_CHOICE3 = wxNewId();
-const long sixemuguiFrame::ID_STATICTEXT4 = wxNewId();
-const long sixemuguiFrame::ID_CHOICE5 = wxNewId();
-const long sixemuguiFrame::ID_STATICTEXT6 = wxNewId();
-const long sixemuguiFrame::ID_CHOICE6 = wxNewId();
-const long sixemuguiFrame::ID_STATICTEXT7 = wxNewId();
-const long sixemuguiFrame::ID_CHOICE7 = wxNewId();
-const long sixemuguiFrame::ID_STATICTEXT8 = wxNewId();
-const long sixemuguiFrame::ID_BUTTON2 = wxNewId();
-const long sixemuguiFrame::ID_CHECKBOX5 = wxNewId();
-const long sixemuguiFrame::ID_CHOICE8 = wxNewId();
-const long sixemuguiFrame::ID_BUTTON1 = wxNewId();
-const long sixemuguiFrame::ID_STATICTEXT5 = wxNewId();
-const long sixemuguiFrame::ID_STATICTEXT9 = wxNewId();
-const long sixemuguiFrame::ID_STATICTEXT10 = wxNewId();
-const long sixemuguiFrame::ID_STATICTEXT11 = wxNewId();
-const long sixemuguiFrame::ID_STATICTEXT12 = wxNewId();
-const long sixemuguiFrame::ID_STATICTEXT13 = wxNewId();
-const long sixemuguiFrame::ID_STATICTEXT14 = wxNewId();
-const long sixemuguiFrame::ID_CHECKBOX1 = wxNewId();
-const long sixemuguiFrame::ID_CHECKBOX4 = wxNewId();
-const long sixemuguiFrame::ID_CHECKBOX2 = wxNewId();
-const long sixemuguiFrame::ID_CHECKBOX3 = wxNewId();
-const long sixemuguiFrame::ID_CHECKBOX6 = wxNewId();
-const long sixemuguiFrame::ID_CHECKBOX7 = wxNewId();
-const long sixemuguiFrame::ID_CHOICE4 = wxNewId();
-const long sixemuguiFrame::ID_BUTTON4 = wxNewId();
-const long sixemuguiFrame::ID_BUTTON3 = wxNewId();
-const long sixemuguiFrame::ID_PANEL1 = wxNewId();
-const long sixemuguiFrame::ID_MENUITEM3 = wxNewId();
-const long sixemuguiFrame::ID_MENUITEM4 = wxNewId();
-const long sixemuguiFrame::ID_MENUITEM1 = wxNewId();
-const long sixemuguiFrame::ID_MENUITEM2 = wxNewId();
-const long sixemuguiFrame::idMenuQuit = wxNewId();
-const long sixemuguiFrame::ID_MENUITEM7 = wxNewId();
-const long sixemuguiFrame::ID_MENUITEM5 = wxNewId();
-const long sixemuguiFrame::ID_MENUITEM6 = wxNewId();
-const long sixemuguiFrame::idMenuAbout = wxNewId();
-const long sixemuguiFrame::ID_STATUSBAR1 = wxNewId();
+//(*IdInit(bluetoothFrame)
+const long bluetoothFrame::ID_STATICTEXT1 = wxNewId();
+const long bluetoothFrame::ID_CHOICE1 = wxNewId();
+const long bluetoothFrame::ID_STATICTEXT2 = wxNewId();
+const long bluetoothFrame::ID_CHOICE2 = wxNewId();
+const long bluetoothFrame::ID_STATICTEXT3 = wxNewId();
+const long bluetoothFrame::ID_CHOICE3 = wxNewId();
+const long bluetoothFrame::ID_STATICTEXT4 = wxNewId();
+const long bluetoothFrame::ID_CHOICE5 = wxNewId();
+const long bluetoothFrame::ID_STATICTEXT6 = wxNewId();
+const long bluetoothFrame::ID_CHOICE6 = wxNewId();
+const long bluetoothFrame::ID_STATICTEXT7 = wxNewId();
+const long bluetoothFrame::ID_CHOICE7 = wxNewId();
+const long bluetoothFrame::ID_STATICTEXT8 = wxNewId();
+const long bluetoothFrame::ID_BUTTON2 = wxNewId();
+const long bluetoothFrame::ID_CHECKBOX5 = wxNewId();
+const long bluetoothFrame::ID_CHOICE8 = wxNewId();
+const long bluetoothFrame::ID_BUTTON1 = wxNewId();
+const long bluetoothFrame::ID_STATICTEXT5 = wxNewId();
+const long bluetoothFrame::ID_STATICTEXT9 = wxNewId();
+const long bluetoothFrame::ID_STATICTEXT10 = wxNewId();
+const long bluetoothFrame::ID_STATICTEXT11 = wxNewId();
+const long bluetoothFrame::ID_STATICTEXT12 = wxNewId();
+const long bluetoothFrame::ID_STATICTEXT13 = wxNewId();
+const long bluetoothFrame::ID_STATICTEXT14 = wxNewId();
+const long bluetoothFrame::ID_CHECKBOX1 = wxNewId();
+const long bluetoothFrame::ID_CHECKBOX4 = wxNewId();
+const long bluetoothFrame::ID_CHECKBOX2 = wxNewId();
+const long bluetoothFrame::ID_CHECKBOX3 = wxNewId();
+const long bluetoothFrame::ID_CHECKBOX6 = wxNewId();
+const long bluetoothFrame::ID_CHECKBOX7 = wxNewId();
+const long bluetoothFrame::ID_CHOICE4 = wxNewId();
+const long bluetoothFrame::ID_BUTTON4 = wxNewId();
+const long bluetoothFrame::ID_BUTTON3 = wxNewId();
+const long bluetoothFrame::ID_PANEL1 = wxNewId();
+const long bluetoothFrame::ID_MENUITEM3 = wxNewId();
+const long bluetoothFrame::ID_MENUITEM4 = wxNewId();
+const long bluetoothFrame::ID_MENUITEM1 = wxNewId();
+const long bluetoothFrame::ID_MENUITEM2 = wxNewId();
+const long bluetoothFrame::idMenuQuit = wxNewId();
+const long bluetoothFrame::ID_MENUITEM7 = wxNewId();
+const long bluetoothFrame::ID_MENUITEM5 = wxNewId();
+const long bluetoothFrame::ID_MENUITEM6 = wxNewId();
+const long bluetoothFrame::idMenuAbout = wxNewId();
+const long bluetoothFrame::ID_STATUSBAR1 = wxNewId();
 //*)
 
-BEGIN_EVENT_TABLE(sixemuguiFrame,wxFrame)
-    //(*EventTable(sixemuguiFrame)
+BEGIN_EVENT_TABLE(bluetoothFrame,wxFrame)
+    //(*EventTable(bluetoothFrame)
     //*)
 END_EVENT_TABLE()
 
@@ -185,7 +185,7 @@ static const char *hciconfig_revision[] = { "hcirevision", hci, NULL };
 static const char *bdaddr[] = { "bdaddr", "-i", hci, NULL };
 static const char *bdaddr_modify[] = { "bdaddr", "-r", "-i", hci, bad, NULL };
 
-void sixemuguiFrame::readSixaxis()
+void bluetoothFrame::readSixaxis()
 {
     wxString params[2] = {_("Current Bluetooth master: "), _("Current Bluetooth Device Address: ")};
     wxString results[14];
@@ -217,7 +217,7 @@ void sixemuguiFrame::readSixaxis()
     }
 }
 
-void sixemuguiFrame::readDongles()
+void bluetoothFrame::readDongles()
 {
     wxString params1[3] = {_("BD Address: "), _("Name: "), _("Manufacturer: ")};
     wxString results1[3];
@@ -256,7 +256,7 @@ void sixemuguiFrame::readDongles()
     }
 }
 
-int sixemuguiFrame::setDongleAddress()
+int bluetoothFrame::setDongleAddress()
 {
     int i;
     int j = 0;
@@ -458,7 +458,7 @@ static void readStartUpdates(wxMenuItem* menuItem)
   }
 }
 
-void sixemuguiFrame::refresh()
+void bluetoothFrame::refresh()
 {
     wxString previous = Choice4->GetStringSelection();
     Choice4->Clear();
@@ -512,11 +512,11 @@ void sixemuguiFrame::refresh()
     }
 }
 
-sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
+bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
 {
     unsigned int i;
 
-    //(*Initialize(sixemuguiFrame)
+    //(*Initialize(bluetoothFrame)
     wxStaticBoxSizer* StaticBoxSizer2;
     wxFlexGridSizer* FlexGridSizer4;
     wxMenuItem* MenuItem2;
@@ -711,29 +711,29 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     SetStatusBar(StatusBar1);
     SingleInstanceChecker1.Create(_T("gimx-bluetooth_") + wxGetUserId() + _T("_Guard"));
     
-    Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSelectSixaxisBdaddr);
-    Connect(ID_CHOICE2,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSelectPS3Bdaddr);
-    Connect(ID_CHOICE3,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSelectBtDongle);
-    Connect(ID_CHOICE5,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnChoice5Select);
-    Connect(ID_CHOICE6,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnChoice6Select);
-    Connect(ID_CHOICE7,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnChoice7Select);
-    Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnButton2Click);
-    Connect(ID_CHOICE8,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnChoice8Select);
-    Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnButton1Click);
-    Connect(ID_CHECKBOX4,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnCheckBoxCalibrate);
-    Connect(ID_CHECKBOX2,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnCheckBox2Click);
-    Connect(ID_CHECKBOX3,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnCheckBox3Click);
-    Connect(ID_BUTTON4,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnButton4Click);
-    Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&sixemuguiFrame::OnButton3Click);
-    Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuEditConfig);
-    Connect(ID_MENUITEM4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuEditFpsConfig);
-    Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSelectRefresh);
-    Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnSave);
-    Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnQuit);
-    Connect(ID_MENUITEM7,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuGetConfigs);
-    Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuUpdate);
-    Connect(ID_MENUITEM6,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnMenuStartUpdates);
-    Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&sixemuguiFrame::OnAbout);
+    Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnSelectSixaxisBdaddr);
+    Connect(ID_CHOICE2,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnSelectPS3Bdaddr);
+    Connect(ID_CHOICE3,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnSelectBtDongle);
+    Connect(ID_CHOICE5,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnChoice5Select);
+    Connect(ID_CHOICE6,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnChoice6Select);
+    Connect(ID_CHOICE7,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnChoice7Select);
+    Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&bluetoothFrame::OnButton2Click);
+    Connect(ID_CHOICE8,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnChoice8Select);
+    Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&bluetoothFrame::OnButton1Click);
+    Connect(ID_CHECKBOX4,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&bluetoothFrame::OnCheckBoxCalibrate);
+    Connect(ID_CHECKBOX2,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&bluetoothFrame::OnCheckBox2Click);
+    Connect(ID_CHECKBOX3,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&bluetoothFrame::OnCheckBox3Click);
+    Connect(ID_BUTTON4,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&bluetoothFrame::OnButton4Click);
+    Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&bluetoothFrame::OnButton3Click);
+    Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnMenuEditConfig);
+    Connect(ID_MENUITEM4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnMenuEditFpsConfig);
+    Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnSelectRefresh);
+    Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnSave);
+    Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnQuit);
+    Connect(ID_MENUITEM7,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnMenuGetConfigs);
+    Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnMenuUpdate);
+    Connect(ID_MENUITEM6,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnMenuStartUpdates);
+    Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnAbout);
     //*)
 
     if(SingleInstanceChecker1.IsAnotherRunning())
@@ -796,13 +796,13 @@ sixemuguiFrame::sixemuguiFrame(wxWindow* parent,wxWindowID id)
     refresh();
 }
 
-sixemuguiFrame::~sixemuguiFrame()
+bluetoothFrame::~bluetoothFrame()
 {
-    //(*Destroy(sixemuguiFrame)
+    //(*Destroy(bluetoothFrame)
     //*)
 }
 
-void sixemuguiFrame::OnQuit(wxCommandEvent& event)
+void bluetoothFrame::OnQuit(wxCommandEvent& event)
 {
     int answer;
     int i;
@@ -827,7 +827,7 @@ void sixemuguiFrame::OnQuit(wxCommandEvent& event)
     Close();
 }
 
-void sixemuguiFrame::OnAbout(wxCommandEvent& event)
+void bluetoothFrame::OnAbout(wxCommandEvent& event)
 {
   wxAboutDialogInfo info;
   info.SetName(wxTheApp->GetAppName());
@@ -839,29 +839,29 @@ void sixemuguiFrame::OnAbout(wxCommandEvent& event)
   wxAboutBox(info);
 }
 
-void sixemuguiFrame::OnSelectSixaxisBdaddr(wxCommandEvent& event)
+void bluetoothFrame::OnSelectSixaxisBdaddr(wxCommandEvent& event)
 {
     Choice2->SetSelection(Choice1->GetSelection());
 }
 
-void sixemuguiFrame::OnSelectPS3Bdaddr(wxCommandEvent& event)
+void bluetoothFrame::OnSelectPS3Bdaddr(wxCommandEvent& event)
 {
     Choice1->SetSelection(Choice2->GetSelection());
 }
 
-void sixemuguiFrame::OnSelectBtDongle(wxCommandEvent& event)
+void bluetoothFrame::OnSelectBtDongle(wxCommandEvent& event)
 {
     Choice5->SetSelection(Choice3->GetSelection());
     Choice6->SetSelection(Choice3->GetSelection());
     Choice7->SetSelection(Choice3->GetSelection());
 }
 
-void sixemuguiFrame::OnSelectRefresh(wxCommandEvent& event)
+void bluetoothFrame::OnSelectRefresh(wxCommandEvent& event)
 {
     refresh();
 }
 
-void sixemuguiFrame::OnButton2Click(wxCommandEvent& event)
+void bluetoothFrame::OnButton2Click(wxCommandEvent& event)
 {
     int answer;
 
@@ -882,21 +882,21 @@ void sixemuguiFrame::OnButton2Click(wxCommandEvent& event)
     }
 }
 
-void sixemuguiFrame::OnChoice5Select(wxCommandEvent& event)
+void bluetoothFrame::OnChoice5Select(wxCommandEvent& event)
 {
     Choice3->SetSelection(Choice5->GetSelection());
     Choice6->SetSelection(Choice5->GetSelection());
     Choice7->SetSelection(Choice5->GetSelection());
 }
 
-void sixemuguiFrame::OnChoice6Select(wxCommandEvent& event)
+void bluetoothFrame::OnChoice6Select(wxCommandEvent& event)
 {
     Choice3->SetSelection(Choice6->GetSelection());
     Choice5->SetSelection(Choice6->GetSelection());
     Choice7->SetSelection(Choice6->GetSelection());
 }
 
-void sixemuguiFrame::OnChoice7Select(wxCommandEvent& event)
+void bluetoothFrame::OnChoice7Select(wxCommandEvent& event)
 {
     Choice3->SetSelection(Choice7->GetSelection());
     Choice5->SetSelection(Choice7->GetSelection());
@@ -978,7 +978,7 @@ void* emu_thread(void* arg)
     pthread_exit (0);
 }
 
-void sixemuguiFrame::OnButton1Click(wxCommandEvent& event)
+void bluetoothFrame::OnButton1Click(wxCommandEvent& event)
 {
     pthread_t thread;
     pthread_attr_t thread_attr;
@@ -992,15 +992,6 @@ void sixemuguiFrame::OnButton1Click(wxCommandEvent& event)
     {
         if(!dongleInUse[d_id])
         {
-            /*
-             * This allows not to launch the emu process as root.
-             */
-//            command.append("gksudo --description Sixemugui hciconfig hci");
-//            stringstream stream;
-//            stream << Choice3->GetSelection();
-//            command.append(stream.str());
-//            command.append(" class 0x508");
-//            g_spawn_command_line_sync (command.c_str(), NULL, NULL, NULL, NULL);
             /*
              * Update variables to be read by the thread.
              */
@@ -1132,7 +1123,7 @@ void sixemuguiFrame::OnButton1Click(wxCommandEvent& event)
     }
 }
 
-void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
+void bluetoothFrame::OnButton3Click(wxCommandEvent& event)
 {
     string command = "";
     string filename = "";
@@ -1195,7 +1186,7 @@ void sixemuguiFrame::OnButton3Click(wxCommandEvent& event)
 }
 
 
-void sixemuguiFrame::OnSave(wxCommandEvent& event)
+void bluetoothFrame::OnSave(wxCommandEvent& event)
 {
     string filename;
     string line;
@@ -1224,17 +1215,17 @@ void sixemuguiFrame::OnSave(wxCommandEvent& event)
     }
 }
 
-void sixemuguiFrame::OnCheckBox2Click(wxCommandEvent& event)
+void bluetoothFrame::OnCheckBox2Click(wxCommandEvent& event)
 {
     CheckBox3->SetValue(false);
 }
 
-void sixemuguiFrame::OnCheckBox3Click(wxCommandEvent& event)
+void bluetoothFrame::OnCheckBox3Click(wxCommandEvent& event)
 {
     CheckBox2->SetValue(false);
 }
 
-void sixemuguiFrame::OnChoice8Select(wxCommandEvent& event)
+void bluetoothFrame::OnChoice8Select(wxCommandEvent& event)
 {
     if(dongle[Choice8->GetSelection()] >= 0)
     {
@@ -1246,7 +1237,7 @@ void sixemuguiFrame::OnChoice8Select(wxCommandEvent& event)
     }
 }
 
-void sixemuguiFrame::OnCheckBoxCalibrate(wxCommandEvent& event)
+void bluetoothFrame::OnCheckBoxCalibrate(wxCommandEvent& event)
 {
     if(CheckBox4->IsChecked())
     {
@@ -1265,7 +1256,7 @@ void sixemuguiFrame::OnCheckBoxCalibrate(wxCommandEvent& event)
 #define CHECK_FILE "/tmp/check_result"
 #endif
 
-void sixemuguiFrame::OnButton4Click(wxCommandEvent& event)
+void bluetoothFrame::OnButton4Click(wxCommandEvent& event)
 {
   string command = "";
   string filename = "";
@@ -1329,7 +1320,7 @@ void sixemuguiFrame::OnButton4Click(wxCommandEvent& event)
   }
 }
 
-void sixemuguiFrame::OnMenuEditConfig(wxCommandEvent& event)
+void bluetoothFrame::OnMenuEditConfig(wxCommandEvent& event)
 {
     string command = "";
 #ifdef WIN32
@@ -1347,7 +1338,7 @@ void sixemuguiFrame::OnMenuEditConfig(wxCommandEvent& event)
     }
 }
 
-void sixemuguiFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
+void bluetoothFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
 {
     string command = "";
 #ifdef WIN32
@@ -1365,7 +1356,7 @@ void sixemuguiFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
     }
 }
 
-void sixemuguiFrame::OnMenuUpdate(wxCommandEvent& event)
+void bluetoothFrame::OnMenuUpdate(wxCommandEvent& event)
 {
   int ret;
 
@@ -1395,7 +1386,7 @@ void sixemuguiFrame::OnMenuUpdate(wxCommandEvent& event)
   }
 }
 
-void sixemuguiFrame::OnMenuStartUpdates(wxCommandEvent& event)
+void bluetoothFrame::OnMenuStartUpdates(wxCommandEvent& event)
 {
   string filename;
   filename.append(homedir);
@@ -1415,7 +1406,7 @@ void sixemuguiFrame::OnMenuStartUpdates(wxCommandEvent& event)
   }
 }
 
-void sixemuguiFrame::OnMenuGetConfigs(wxCommandEvent& event)
+void bluetoothFrame::OnMenuGetConfigs(wxCommandEvent& event)
 {
   configupdater u(CONFIGS_URL, CONFIGS_FILE, CONFIGS_DIR);
 

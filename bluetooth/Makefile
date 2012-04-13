@@ -5,7 +5,7 @@
 prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
 
-BINS=bin/Release/gimx-bluetooth
+BINS=gimx-bluetooth
 
 WSDIR = `pwd`
 
@@ -20,49 +20,29 @@ RANLIB = ranlib
 WINDRES = windres
 
 INC = 
-CFLAGS = -Wall `pkg-config --cflags glib-2.0` `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
+CFLAGS = -Wall -O2 `pkg-config --cflags glib-2.0` `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
 RESINC = 
 RCFLAGS = 
 LIBDIR =
 LIB = `wx-config --libs` `pkg-config --libs glib-2.0`
-LDFLAGS =
+LDFLAGS = -s
 
-INC_RELEASE = $(INC)
-CFLAGS_RELEASE = $(CFLAGS) -O2
-RESINC_RELEASE = $(RESINC)
-RCFLAGS_RELEASE = $(RCFLAGS)
-LIBDIR_RELEASE = $(LIBDIR)
-LIB_RELEASE = $(LIB)
-LDFLAGS_RELEASE = -s $(LDFLAGS)
-OBJDIR_RELEASE = obj/Release
-DEP_RELEASE = 
-OUT_RELEASE = bin/Release/gimx-bluetooth
+DEP = 
+OBJ = bluetoothApp.o bluetoothMain.o
+OUT = gimx-bluetooth
 
-OBJ_RELEASE = $(OBJDIR_RELEASE)/sixemuguiApp.o $(OBJDIR_RELEASE)/sixemuguiMain.o ../shared/updater/updater.o ../shared/configupdater/configupdater.o
+all: $(OUT)
 
-all: release
+$(OUT): $(OBJ) $(DEP)
+	$(LD) $(LDFLAGS) $(LIBDIR) -o $(OUT) $(OBJ) ../shared/updater/updater.o ../shared/configupdater/configupdater.o $(LIB)
 
-clean: clean_release
+%.o: %.cpp
+	$(CPP) $(CFLAGS) $(INC) -c -o $@ $<
 
-release: $(OUT_RELEASE)
+clean:
+	rm -f $(OBJ) $(OUT)
 
-$(OUT_RELEASE): $(OBJ_RELEASE) $(DEP_RELEASE)
-	test -d bin/Release || mkdir -p bin/Release
-	$(LD) $(LDFLAGS_RELEASE) $(LIBDIR_RELEASE) -o $(OUT_RELEASE) $(OBJ_RELEASE) $(LIB_RELEASE)
-
-$(OBJDIR_RELEASE)/sixemuguiApp.o: sixemuguiApp.cpp
-	test -d $(OBJDIR_RELEASE) || mkdir -p $(OBJDIR_RELEASE)
-	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $(OBJDIR_RELEASE)/sixemuguiApp.o sixemuguiApp.cpp
-
-$(OBJDIR_RELEASE)/sixemuguiMain.o: sixemuguiMain.cpp
-	test -d $(OBJDIR_RELEASE) || mkdir -p $(OBJDIR_RELEASE)
-	$(CPP) $(CFLAGS_RELEASE) $(INC_RELEASE) -c -o $(OBJDIR_RELEASE)/sixemuguiMain.o sixemuguiMain.cpp
-
-
-clean_release:
-	rm -f $(OBJ_RELEASE) $(OUT_RELEASE)
-
-.PHONY: clean clean_release
+.PHONY: clean clean
 
 install: all
 	mkdir -p $(prefix)

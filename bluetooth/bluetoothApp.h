@@ -1,5 +1,5 @@
 /***************************************************************
- * Name:      sixemuguiApp.h
+ * Name:      bluetoothApp.h
  * Purpose:   Defines Application Class
  * Author:    Matlo (mat.lau@laposte.net)
  * Created:   2011-01-12
@@ -7,17 +7,17 @@
  * License:
  **************************************************************/
 
-#ifndef SIXEMUGUIAPP_H
-#define SIXEMUGUIAPP_H
+#ifndef BLUETOOTHAPP_H
+#define BLUETOOTHAPP_H
 
 #include <wx/app.h>
-#include "sixemuguiMain.h"
+#include "bluetoothMain.h"
 
-class sixemuguiApp : public wxApp
+class bluetoothApp : public wxApp
 {
     public:
         virtual bool OnInit();
         virtual int OnExit();
 };
 
-#endif // SIXEMUGUIAPP_H
+#endif // BLUETOOTHAPP_H
