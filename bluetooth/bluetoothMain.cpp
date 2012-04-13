@@ -323,6 +323,7 @@ static void read_filenames(wxChoice* choice)
   string filename = "";
   string line = "";
 
+  /* Read the last config used so as to auto-select it. */
 #ifndef WIN32
   filename.append(homedir);
   filename.append(OPT_DIR);
@@ -340,6 +341,7 @@ static void read_filenames(wxChoice* choice)
 
   choice->Clear();
 
+  /* Read all config file names. */
   string ds;
 #ifndef WIN32
   ds.append(homedir);
@@ -367,33 +369,6 @@ static void read_filenames(wxChoice* choice)
     else
     {
       choice->Append(file);
-    }
-  }
-
-  ds.clear();
-#ifndef WIN32
-  ds.append(homedir);
-  ds.append(APP_DIR);
-#endif
-  ds.append(CONFIG_EXAMPLE_DIR);
-
-  wxDir dir2(wxString(ds.c_str(), wxConvUTF8));
-
-  if(!dir2.IsOpened())
-  {
-    cout << "Warning: can't open " << ds << endl;
-    return;
-  }
-
-  for (bool cont = dir2.GetFirst(&file, filespec, wxDIR_FILES); cont;  cont = dir2.GetNext(&file))
-  {
-    if(!line.empty() && line[line.size()-1] == '*' && wxString(line.substr(0, line.size()-1).c_str(), wxConvUTF8) == file)
-    {
-      choice->SetSelection(choice->Append(file + _("*")));
-    }
-    else
-    {
-      choice->Append(file + _("*"));
     }
   }
 }
@@ -440,8 +415,10 @@ static void readStartUpdates(wxMenuItem* menuItem)
   string filename = "";
   string line = "";
 
+#ifndef WIN32
   filename.append(homedir);
   filename.append(OPT_DIR);
+#endif
   filename.append("startUpdates");
   ifstream infile (filename.c_str());
   if ( infile.is_open() )
@@ -497,17 +474,6 @@ void bluetoothFrame::refresh()
             Choice5->SetSelection(0);
             Choice6->SetSelection(0);
             Choice7->SetSelection(0);
-        }
-    }
-    if(Choice4->GetCount() == 0)
-    {
-        wxMessageBox( wxT("No Config Files Detected!"), wxT("Error"), wxICON_ERROR);
-    }
-    else
-    {
-        if(Choice4->GetSelection() < 0)
-        {
-            Choice4->SetSelection(0);
         }
     }
 }
@@ -762,23 +728,23 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
       }
     }
 
+#ifndef WIN32
     homedir = getpwuid(getuid())->pw_dir;
 
+	  /* Init user's config directory. */
     if(system("mkdir -p ~/.sixemugui"))
     {
-      wxMessageBox( wxT("Can't init ~/.sixemugui directory!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( wxT("Can't init ~/.sixemugui directory!"), wxT("Error"), wxICON_ERROR);
     }
     if(system("mkdir -p ~/.emuclient/config"))
     {
         wxMessageBox( wxT("Can't init ~/.emuclient/config!"), wxT("Error"), wxICON_ERROR);
     }
-    if(system("test -d ~/.emuclient/config/example || (mkdir -p ~/.emuclient/config/example && cp /etc/emuclient/config/* ~/.emuclient/config/example)"))
-    {
-    }
     if(system("mkdir -p ~/.emuclient/macros"))
     {
         wxMessageBox( wxT("Can't init ~/.emuclient/macros!"), wxT("Error"), wxICON_ERROR);
     }
+#endif
 
     read_sixaxis_config(Choice1, Choice2);
 
@@ -794,6 +760,16 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     started = true;
 
     refresh();
+
+    if(Choice4->IsEmpty())
+    {
+      int answer = wxMessageBox(_("No config found! Download configs?"), _("Confirm"), wxYES_NO);
+      if (answer == wxYES)
+      {
+        wxCommandEvent event;
+        OnMenuGetConfigs(event);
+      }
+    }
 }
 
 bluetoothFrame::~bluetoothFrame()
@@ -1174,7 +1150,8 @@ void bluetoothFrame::OnButton3Click(wxCommandEvent& event)
 
     Button3->Disable();
     filename.append(homedir);
-    filename.append("/.sixemugui/default");
+    filename.append(OPT_DIR);
+    filename.append("default");
     ofstream outfile (filename.c_str(), ios_base::trunc);
     if(outfile.is_open())
     {
@@ -1195,7 +1172,8 @@ void bluetoothFrame::OnSave(wxCommandEvent& event)
     unsigned int i;
 
     filename.append(homedir);
-    filename.append("/.sixemugui/config");
+    filename.append(OPT_DIR);
+    filename.append("config");
 
     ofstream outfile (filename.c_str(), ios_base::trunc);
 
@@ -1375,6 +1353,10 @@ void bluetoothFrame::OnMenuUpdate(wxCommandEvent& event)
     {
       wxMessageBox(wxT("Can't retrieve update file!"), wxT("Error"), wxICON_ERROR);
     }
+    else
+    {
+      exit(0);
+    }
   }
   else if (ret < 0)
   {
@@ -1389,8 +1371,11 @@ void bluetoothFrame::OnMenuUpdate(wxCommandEvent& event)
 void bluetoothFrame::OnMenuStartUpdates(wxCommandEvent& event)
 {
   string filename;
+#ifndef WIN32
   filename.append(homedir);
-  filename.append("/.sixemugui/startUpdates");
+  filename.append(OPT_DIR);
+#endif
+  filename.append("startUpdates");
   ofstream outfile (filename.c_str(), ios_base::trunc);
   if(outfile.is_open())
   {
@@ -1408,7 +1393,7 @@ void bluetoothFrame::OnMenuStartUpdates(wxCommandEvent& event)
 
 void bluetoothFrame::OnMenuGetConfigs(wxCommandEvent& event)
 {
-  configupdater u(CONFIGS_URL, CONFIGS_FILE, CONFIGS_DIR);
+  configupdater u(CONFIGS_URL, CONFIGS_FILE, CONFIG_DIR);
 
   list<string>* cl = u.getconfiglist();
   list<string> cl_sel;
@@ -1431,6 +1416,15 @@ void bluetoothFrame::OnMenuGetConfigs(wxCommandEvent& event)
       for ( size_t n = 0; n < selections.GetCount(); n++ )
       {
         string sel = string(choices[selections[n]].mb_str());
+        wxString wxfile = _(CONFIG_DIR) + choices[selections[n]];
+        if (::wxFileExists(wxfile))
+        {
+          int answer = wxMessageBox(_("Overwrite local file: ") + choices[selections[n]] + _("?"), _("Confirm"), wxYES_NO);
+          if (answer == wxNO)
+          {
+            continue;
+          }
+        }
         cl_sel.push_back(sel);
       }
 
@@ -1440,7 +1434,11 @@ void bluetoothFrame::OnMenuGetConfigs(wxCommandEvent& event)
         return;
       }
       read_filenames(Choice4);
-      wxMessageBox(wxT("Download is complete!"), wxT("Info"), wxICON_INFORMATION);
+      if(!cl_sel.empty())
+      {
+        Choice4->SetSelection(Choice4->FindString(wxString(cl_sel.front().c_str(), wxConvUTF8)));
+        wxMessageBox(wxT("Download is complete!"), wxT("Info"), wxICON_INFORMATION);
+      }
     }
   }
   else
