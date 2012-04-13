@@ -3,10 +3,8 @@
 
 #ifdef WIN32
 #define CONFIGS_FILE "configs"
-#define CONFIGS_DIR "config/example/"
 #else
 #define CONFIGS_FILE "/tmp/configs"
-#define CONFIGS_DIR "~/.emuclient/config/example/"
 #endif
 
 #include <string>
