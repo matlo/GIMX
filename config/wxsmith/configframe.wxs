@@ -784,7 +784,7 @@
 											<option>1</option>
 										</object>
 										<object class="sizeritem">
-											<object class="wxStaticText" name="ID_STATICTEXT31" variable="LSDecDeviceType" member="yes">
+											<object class="wxStaticText" name="ID_STATICTEXT31" variable="StaticTextDeviceNamePanelAxis" member="yes">
 												<label>Device name</label>
 											</object>
 											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
