@@ -1,4 +1,4 @@
-include ../../Makedefs
+include ../Makedefs
 
 INC =
 CFLAGS += `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
