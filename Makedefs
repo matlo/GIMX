@@ -1,0 +1,12 @@
+#CC = i586-mingw32msvc-gcc
+#CPP = i586-mingw32msvc-g++
+#LD = i586-mingw32msvc-g++
+#AR = i586-mingw32msvc-ar
+#WINDRES = i586-mingw32msvc-windres
+
+CC = gcc
+CPP = g++
+LD = g++
+AR = ar
+
+CFLAGS=-Wall -O2

@@ -1,6 +1,6 @@
+include ../Makedefs
+
 BINS=emuclient usbspoof
-CC=gcc
-CFLAGS=-Wall -O2
 LIB=-lmingw32 -lSDLmain -lSDL -llibxml2 -lws2_32 -liconv -lhid -lsetupapi
 INC=
 

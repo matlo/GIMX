@@ -1,11 +1,7 @@
-CPP = g++
-LD = g++
-AR = ar
+include ../Makedefs
 
 INC = -I/usr/include/libxml2 -I../../libsdl/include -I../shared/configeditor/include
-CFLAGS = -Wall -O2 `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
-RESINC = 
-RCFLAGS = 
+CFLAGS += `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
 LIBDIR =
 LIB = ../shared/configeditor/configeditor.a -L../../libsdl/lib -lSDL -lxml2 `wx-config --libs`
 LDFLAGS = -s

@@ -1,9 +1,9 @@
+include ../Makedefs
+
 prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
 confdir=$(DESTDIR)/etc/emuclient
 BINS=emu emuclient sixaddr bdaddr hcirevision usbspoof
-CC=gcc
-CFLAGS=-Wall -O2
 LIB=-L../../libsdl/lib -lSDL -lxml2 -lXi -lm
 INC=-I../../libsdl/include -I/usr/include/libxml2
 
