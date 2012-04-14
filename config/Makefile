@@ -1,5 +1,8 @@
 include ../Makedefs
 
+prefix=$(DESTDIR)/usr
+bindir=$(prefix)/bin
+
 INC = -I/usr/include/libxml2 -I../../libsdl/include -I../shared/configeditor/include
 CFLAGS += `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
 LIBDIR =
