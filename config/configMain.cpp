@@ -279,9 +279,10 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
 {
     //(*Initialize(configFrame)
     wxStaticBoxSizer* StaticBoxSizer2;
+    wxMenu* MenuHelp;
     wxFlexGridSizer* FlexGridSizer4;
-    wxFlexGridSizer* FlexGridSizer16;
     wxMenuItem* MenuItemAbout;
+    wxFlexGridSizer* FlexGridSizer16;
     wxStaticBoxSizer* StaticBoxSizer4;
     wxFlexGridSizer* FlexGridSizer10;
     wxFlexGridSizer* FlexGridSizer3;
@@ -291,6 +292,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer2;
     wxFlexGridSizer* FlexGridSizer7;
     wxStaticBoxSizer* StaticBoxSizer7;
+    wxMenuItem* MenuItemOpen;
     wxStaticBoxSizer* StaticBoxSizer8;
     wxStaticBoxSizer* StaticBoxSizer3;
     wxGridSizer* GridSizer1;
@@ -298,7 +300,6 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer15;
     wxFlexGridSizer* FlexGridSizer18;
     wxFlexGridSizer* FlexGridSizer8;
-    wxMenuItem* MenuItemOpen;
     wxFlexGridSizer* FlexGridSizer14;
     wxFlexGridSizer* FlexGridSizer13;
     wxFlexGridSizer* FlexGridSizer12;
@@ -308,7 +309,6 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer1;
     wxFlexGridSizer* FlexGridSizer11;
     wxFlexGridSizer* FlexGridSizer17;
-    wxMenu* MenuHelp;
     wxStaticBoxSizer* StaticBoxSizer5;
     
     Create(parent, wxID_ANY, _("Gimx-config"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
@@ -525,8 +525,8 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     FlexGridSizer3 = new wxFlexGridSizer(2, 12, 0, 0);
     StaticTextDeviceTypePanelAxis = new wxStaticText(PanelAxis, ID_STATICTEXT11, _("Device type"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT11"));
     FlexGridSizer3->Add(StaticTextDeviceTypePanelAxis, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText1 = new wxStaticText(PanelAxis, ID_STATICTEXT31, _("Device name"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT31"));
-    FlexGridSizer3->Add(StaticText1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticTextDeviceNamePanelAxis = new wxStaticText(PanelAxis, ID_STATICTEXT31, _("Device name"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT31"));
+    FlexGridSizer3->Add(StaticTextDeviceNamePanelAxis, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticTextDeviceIdPanelAxis = new wxStaticText(PanelAxis, ID_STATICTEXT12, _("Device id"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT12"));
     FlexGridSizer3->Add(StaticTextDeviceIdPanelAxis, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticTextEventTypePanelAxis = new wxStaticText(PanelAxis, ID_STATICTEXT13, _("Event type"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT13"));

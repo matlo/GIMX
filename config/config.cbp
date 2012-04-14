@@ -2,7 +2,7 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="sixaxis-emu-gui" />
+		<Option title="gimx-config" />
 		<Option pch_mode="0" />
 		<Option compiler="gcc" />
 		<Build>
