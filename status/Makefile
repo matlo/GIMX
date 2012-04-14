@@ -13,6 +13,8 @@ DEP =
 OBJ = sixstatusApp.o sixstatusMain.o
 OUT = gimx-status
 
+BINS = $(OUT)
+
 all: $(OUT)
 
 $(OUT): $(OBJ) $(DEP)

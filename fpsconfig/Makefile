@@ -13,6 +13,8 @@ DEP = ../shared/configeditor/configeditor.a
 OBJ = fpsconfigMain.o fpsconfigApp.o
 OUT = gimx-fpsconfig
 
+BINS = $(OUT)
+
 all: $(OUT)
 
 $(OUT): $(OBJ) $(DEP)

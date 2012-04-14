@@ -13,6 +13,8 @@ DEP = ../shared/configeditor/configeditor.a
 OBJ = configMain.o configApp.o
 OUT = gimx-config
 
+BINS = $(OUT)
+
 all: $(OUT)
 
 $(OUT): $(OBJ) $(DEP)

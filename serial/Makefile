@@ -13,6 +13,8 @@ DEP =
 OBJ = serialApp.o serialMain.o
 OUT = gimx-serial
 
+BINS = $(OUT)
+
 all: $(OUT)
 
 $(OUT): $(OBJ) $(DEP)
