@@ -1393,7 +1393,13 @@ void bluetoothFrame::OnMenuStartUpdates(wxCommandEvent& event)
 
 void bluetoothFrame::OnMenuGetConfigs(wxCommandEvent& event)
 {
-  configupdater u(CONFIGS_URL, CONFIGS_FILE, CONFIG_DIR);
+  string dir;
+#ifndef WIN32
+  dir.append(homedir);
+  dir.append(APP_DIR);
+#endif
+  dir.append(CONFIG_DIR);
+  configupdater u(CONFIGS_URL, CONFIGS_FILE, dir);
 
   list<string>* cl = u.getconfiglist();
   list<string> cl_sel;
@@ -1416,7 +1422,7 @@ void bluetoothFrame::OnMenuGetConfigs(wxCommandEvent& event)
       for ( size_t n = 0; n < selections.GetCount(); n++ )
       {
         string sel = string(choices[selections[n]].mb_str());
-        wxString wxfile = _(CONFIG_DIR) + choices[selections[n]];
+        wxString wxfile = wxString(dir.c_str(), wxConvUTF8) + choices[selections[n]];
         if (::wxFileExists(wxfile))
         {
           int answer = wxMessageBox(_("Overwrite local file: ") + choices[selections[n]] + _("?"), _("Confirm"), wxYES_NO);
