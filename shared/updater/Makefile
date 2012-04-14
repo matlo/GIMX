@@ -1,6 +1,6 @@
+include ../../Makedefs
+
 OBJ=updater.o
-CC=g++
-CFLAGS=-Wall -O2
 LIB=
 INC=
 
