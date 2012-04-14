@@ -71,7 +71,7 @@ int GetDeviceName(xmlNode* a_node)
     cd = iconv_open("ISO-8859-1//TRANSLIT", "UTF-8");
     input = prop;
     in = strlen(prop) + 1;
-    iconv(cd, (const char**)&input, &in, (char**)&output, &out);
+    iconv(cd, (char**)&input, &in, (char**)&output, &out);
     iconv_close(cd);
   }
   else
