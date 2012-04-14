@@ -23,8 +23,6 @@
 #define PS3 0
 #define X360 0
 
-static int debug;
-
 /*
  * Imported from emuclient.c
  */
@@ -421,6 +419,8 @@ void serial_send(e_controller_type ctype, int force_update)
         break;
       case C_TYPE_PS2_PAD:
         ps2_serial_send();
+        break;
+      default:
         break;
     }
 
