@@ -450,6 +450,13 @@
 					<handler function="OnQuit" entry="EVT_MENU" />
 				</object>
 			</object>
+			<object class="wxMenu" variable="MenuAdvanced" member="no">
+				<label>Advanced</label>
+				<object class="wxMenuItem" name="ID_MENUITEM6" variable="MenuEditLabels" member="yes">
+					<label>Edit Labels</label>
+					<checkable>1</checkable>
+				</object>
+			</object>
 			<object class="wxMenu" variable="MenuHelp" member="no">
 				<label>Help</label>
 				<object class="wxMenuItem" name="ID_MENUITEM5" variable="MenuUpdate" member="yes">

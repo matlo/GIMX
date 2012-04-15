@@ -27,6 +27,8 @@
 #include <event_catcher.h>
 #include <ConfigurationFile.h>
 
+#include <wx/textdlg.h>
+
 typedef enum button_index {
     bi_undef = 0,
     bi_select, bi_start, bi_ps,
@@ -65,6 +67,7 @@ class fpsconfigFrame: public wxFrame
         void OnTextCtrlText(wxCommandEvent& event);
         void OnMouseDPIChange(wxSpinEvent& event);
         void OnMenuUpdate(wxCommandEvent& event);
+        void OnMenuEditLabels(wxCommandEvent& event);
         //*)
 
         e_button_index getButtonIndex(wxButton* button);
@@ -135,6 +138,7 @@ class fpsconfigFrame: public wxFrame
         static const long ID_MENUITEM2;
         static const long ID_MENUITEM3;
         static const long idMenuQuit;
+        static const long ID_MENUITEM6;
         static const long ID_MENUITEM5;
         static const long idMenuAbout;
         static const long ID_STATUSBAR1;
@@ -153,6 +157,7 @@ class fpsconfigFrame: public wxFrame
         wxStaticText* StaticTextHipFire;
         wxButton* start;
         wxButton* stickleft;
+        wxMenuItem* MenuEditLabels;
         wxSpinCtrl* SpinCtrlDeadZoneHipFire;
         wxButton* select;
         wxStaticText* StaticText8;
@@ -204,6 +209,8 @@ class fpsconfigFrame: public wxFrame
         wxStaticText* StaticTextShape;
         wxButton* circle;
         //*)
+
+        wxTextEntryDialog* textDialog;
 
         event_catcher evcatch;
         ConfigurationFile configFile;
