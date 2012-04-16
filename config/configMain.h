@@ -194,6 +194,7 @@ class configFrame: public wxFrame
         static const long ID_STATICTEXT8;
         static const long ID_STATICTEXT20;
         static const long ID_STATICTEXT7;
+        static const long ID_STATICTEXT34;
         static const long ID_STATICTEXT38;
         static const long ID_STATICTEXT30;
         static const long ID_STATICTEXT39;
@@ -202,6 +203,7 @@ class configFrame: public wxFrame
         static const long ID_TEXTCTRL3;
         static const long ID_BUTTON8;
         static const long ID_CHOICE5;
+        static const long ID_TEXTCTRL4;
         static const long ID_GRID1;
         static const long ID_BUTTON4;
         static const long ID_BUTTON6;
@@ -219,6 +221,7 @@ class configFrame: public wxFrame
         static const long ID_STATICTEXT18;
         static const long ID_STATICTEXT22;
         static const long ID_STATICTEXT33;
+        static const long ID_STATICTEXT44;
         static const long ID_STATICTEXT41;
         static const long ID_STATICTEXT32;
         static const long ID_STATICTEXT42;
@@ -232,6 +235,7 @@ class configFrame: public wxFrame
         static const long ID_CHOICE1;
         static const long ID_TEXTCTRL1;
         static const long ID_TEXTCTRL2;
+        static const long ID_TEXTCTRL5;
         static const long ID_GRID2;
         static const long ID_BUTTON3;
         static const long ID_BUTTON7;
@@ -274,6 +278,7 @@ class configFrame: public wxFrame
         //*)
 
         //(*Declarations(configFrame)
+        wxStaticText* StaticTextLabel;
         wxStaticText* StaticTextSteps2PanelOverall;
         wxMenuItem* MenuConfiguration6;
         wxStaticText* RSIncButtonId;
@@ -297,6 +302,7 @@ class configFrame: public wxFrame
         wxStaticText* RSIncDeviceName;
         wxButton* ButtonTabAutoDetect;
         wxStaticText* ButtonTabDeviceType;
+        wxTextCtrl* ButtonTabLabel;
         wxMenuItem* MenuController1;
         wxMenuItem* MenuController5;
         wxStaticText* LSIncButtonId;
@@ -322,6 +328,7 @@ class configFrame: public wxFrame
         wxButton* RSIncAutoDetect;
         wxStaticText* StaticTextShapePanelAxis;
         wxStaticText* LSIncDeviceName;
+        wxStaticText* StaticText1;
         wxStaticText* RSDecButtonId;
         wxButton* ButtonAutoDetect;
         wxStaticText* AxisTabDeviceId;
@@ -338,6 +345,7 @@ class configFrame: public wxFrame
         wxStaticText* LSIncDeviceId;
         wxStaticText* StaticTextDeviceTypePanelAxis;
         wxStaticText* LSDecButtonId;
+        wxTextCtrl* AxisTabLabel;
         wxButton* RSDecDelete;
         wxStaticText* ProfileTriggerButtonId;
         wxMenuItem* MenuConfiguration2;

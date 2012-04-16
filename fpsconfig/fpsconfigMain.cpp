@@ -475,8 +475,6 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
       }
     }
 
-    configFile.SetEvCatch(&evcatch);
-
 	  wxToolTip::SetDelay(0);
 }
 

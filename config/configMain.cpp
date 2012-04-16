@@ -853,7 +853,9 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     GridPanelButton->AutoSizeColumns();
     GridPanelAxis->AutoSizeColumns();
 
-	/* Open the file given as argument */
+	  configFile.SetEvCatch(&evcatch);
+
+	  /* Open the file given as argument */
     if(!file.IsEmpty())
     {
       wxString wxfile = default_directory + file;
@@ -881,8 +883,6 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
         wxMessageBox( wxT("Cannot open config file: ") + wxString(file, wxConvUTF8), wxT("Error"), wxICON_ERROR);
       }
     }
-
-    configFile.SetEvCatch(&evcatch);
 }
 
 configFrame::~configFrame()
@@ -1474,8 +1474,8 @@ void configFrame::load_current()
         GridPanelButton->SetCellValue(0, 5, it->GetEvent()->GetThreshold());
         GridPanelButton->SetCellValue(0, 6, it->GetButton());
         GridPanelButton->SetCellValue(0, 7, it->GetLabel());
-        GridPanelButton->AutoSizeColumns();
     }
+    GridPanelButton->AutoSizeColumns();
     //Load AxisMappers
     GridPanelAxis->DeleteRows(0, GridPanelAxis->GetNumberRows());
     axisMappers = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetAxisMapperList();
@@ -1495,8 +1495,8 @@ void configFrame::load_current()
         GridPanelAxis->SetCellValue(0, 10, it->GetEvent()->GetBufferSize());
         GridPanelAxis->SetCellValue(0, 11, it->GetEvent()->GetFilter());
         GridPanelAxis->SetCellValue(0, 12, it->GetLabel());
-        GridPanelAxis->AutoSizeColumns();
     }
+    GridPanelAxis->AutoSizeColumns();
 }
 
 void configFrame::refresh_gui()
