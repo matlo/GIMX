@@ -799,10 +799,11 @@ void XmlReader::ReadConfigFile(wxString filePath)
     if(m_evtcatch)
     {
       m_evtcatch->clean();
-    }
-    if(!m_info.IsEmpty())
-    {
-      wxMessageBox( m_info, wxT("Info"), wxICON_INFORMATION);
+	  
+      if(!m_info.IsEmpty())
+      {
+        wxMessageBox( m_info, wxT("Info"), wxICON_INFORMATION);
+      }
     }
 
     /*free the document */
