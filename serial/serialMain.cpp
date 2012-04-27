@@ -634,9 +634,17 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
         command.append(" --nograb");
     }
     command.append(" --config ");
+#ifdef WIN32
+    command.append("\"");
+#endif
     configname = ChoiceConfig->GetStringSelection();
+#ifndef WIN32
     configname.Replace(_(" "), _("\\ "));
+#endif
     command.append(configname.mb_str());
+#ifdef WIN32
+    command.append("\"");
+#endif
     command.append(" --refresh ");
     wxfrequency = ComboBoxFrequency->GetValue();
     if(wxfrequency.ToDouble(&frequency))
@@ -786,12 +794,20 @@ void serialFrame::OnButtonCheckClick1(wxCommandEvent& event)
     command.append("emuclient");
 #endif
     command.append(" --config ");
+#ifdef WIN32
+    command.append("\"");
+#endif
     configname = ChoiceConfig->GetStringSelection();
+#ifndef WIN32
     configname.Replace(_(" "), _("\\ "));
+#endif
     command.append(configname.mb_str());
+#ifdef WIN32
+    command.append("\"");
+#endif
     command.append(" --check --nograb > ");
     command.append(CHECK_FILE);
-
+    
     if(system(command.c_str()) != 0)
     {
         wxMessageBox( wxT("Can't check the config file!"), wxT("Error"), wxICON_ERROR);
@@ -828,7 +844,9 @@ void serialFrame::OnMenuEditConfig(wxCommandEvent& event)
   string command = "";
 #ifdef WIN32
   command.append("gimx-config.exe -f ");
+  command.append("\"");
   command.append(ChoiceConfig->GetStringSelection().mb_str());
+  command.append("\"");
 
   STARTUPINFOA startupInfo =
   { 0};
@@ -875,7 +893,9 @@ void serialFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
   string command = "";
 #ifdef WIN32
   command.append("gimx-fpsconfig.exe -f ");
+  command.append("\"");
   command.append(ChoiceConfig->GetStringSelection().mb_str());
+  command.append("\"");
 
   STARTUPINFOA startupInfo =
   { 0};

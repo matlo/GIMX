@@ -877,6 +877,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
         load_current();
         refresh_gui();
         MenuFile->Enable(idMenuSave, true);
+        FileDialog1->SetFilename(file);
       }
       else
       {
@@ -910,6 +911,7 @@ void configFrame::OnAbout(wxCommandEvent& event)
 
 void configFrame::OnMenuItemNew(wxCommandEvent& event)
 {
+    FileDialog1->SetFilename(wxEmptyString);
     configFile = ConfigurationFile();
 
     currentController = 0;
@@ -1788,6 +1790,7 @@ void configFrame::OnMenuSaveAs(wxCommandEvent& event)
     wxFileDialog saveFileDialog(this, _T("Save Config file"), _T(""), _T(""), _T("XML files (*.xml)|*.xml"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 
     saveFileDialog.SetDirectory(default_directory);
+    saveFileDialog.SetFilename(FileDialog1->GetFilename());
 
     if ( saveFileDialog.ShowModal() == wxID_CANCEL ) return;
 
