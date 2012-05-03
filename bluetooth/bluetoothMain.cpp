@@ -385,6 +385,11 @@ static int read_sixaxis_config(wxChoice* cdevice, wxChoice* cmaster)
     filename.append(OPT_DIR);
     filename.append("config");
 
+    if(!::wxFileExists(wxString(filename.c_str(), wxConvUTF8)))
+    {
+      return 0;
+    }
+
     ifstream myfile(filename.c_str());
     if(myfile.is_open())
     {
@@ -405,7 +410,7 @@ static int read_sixaxis_config(wxChoice* cdevice, wxChoice* cmaster)
     }
     else
     {
-        wxMessageBox( wxT("Cannot open config file."), wxT("Info"), wxICON_INFORMATION);
+        wxMessageBox( wxT("Cannot open file: ") + wxString(filename.c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
     }
     return ret;
 }
