@@ -13,14 +13,9 @@ int main(int argc, char *argv[])
   char command[64];
   int i;
 
-  if(argc > 1)
+  if(argc > 1 && sscanf(argv[1], "hci%d", &i) > 0)
   {
-    i = atoi(argv[1]);
-
-    if(i > -1 && i < 128)
-    {
-      sprintf(command, "hciconfig hci%d revision", i);
-    }
+    sprintf(command, "hciconfig hci%d revision", i);
 
     system(command);
   }
