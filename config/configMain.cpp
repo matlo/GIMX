@@ -622,8 +622,8 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     GridPanelAxis->SetColLabelValue(4, _("Event id"));
     GridPanelAxis->SetColLabelValue(5, _("Axis id"));
     GridPanelAxis->SetColLabelValue(6, _("Dead zone"));
-    GridPanelAxis->SetColLabelValue(7, _("Multiplier"));
-    GridPanelAxis->SetColLabelValue(8, _("Exponent"));
+    GridPanelAxis->SetColLabelValue(7, _("Sensitivity"));
+    GridPanelAxis->SetColLabelValue(8, _("Acceleration"));
     GridPanelAxis->SetColLabelValue(9, _("Shape"));
     GridPanelAxis->SetColLabelValue(10, _("Buffer Size"));
     GridPanelAxis->SetColLabelValue(11, _("Filter"));
@@ -680,7 +680,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     MenuItemReplaceMouse = new wxMenuItem(MenuEdit, ID_MENUITEM20, _("Replace Mouse"), wxEmptyString, wxITEM_NORMAL);
     MenuEdit->Append(MenuItemReplaceMouse);
     MenuItemReplaceMouse->Enable(false);
-    MenuItemReplaceMouseDPI = new wxMenuItem(MenuEdit, ID_MENUITEM22, _("Replace Mouse DPI"), wxEmptyString, wxITEM_NORMAL);
+    MenuItemReplaceMouseDPI = new wxMenuItem(MenuEdit, ID_MENUITEM22, _("Convert mouse sensitivity"), wxEmptyString, wxITEM_NORMAL);
     MenuEdit->Append(MenuItemReplaceMouseDPI);
     MenuItemReplaceKeyboard = new wxMenuItem(MenuEdit, ID_MENUITEM21, _("Replace Keyboard"), wxEmptyString, wxITEM_NORMAL);
     MenuEdit->Append(MenuItemReplaceKeyboard);

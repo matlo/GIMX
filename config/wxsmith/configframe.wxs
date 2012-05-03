@@ -1068,8 +1068,8 @@
 													<item>Event id</item>
 													<item>Axis id</item>
 													<item>Dead zone</item>
-													<item>Multiplier</item>
-													<item>Exponent</item>
+													<item>Sensitivity</item>
+													<item>Acceleration</item>
 													<item>Shape</item>
 													<item>Buffer Size</item>
 													<item>Filter</item>
@@ -1195,7 +1195,7 @@
 					<handler function="OnMenuReplaceMouse" entry="EVT_MENU" />
 				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM22" variable="MenuItemReplaceMouseDPI" member="yes">
-					<label>Replace Mouse DPI</label>
+					<label>Convert mouse sensitivity</label>
 					<handler function="OnMenuReplaceMouseDPI" entry="EVT_MENU" />
 				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM21" variable="MenuItemReplaceKeyboard" member="yes">
