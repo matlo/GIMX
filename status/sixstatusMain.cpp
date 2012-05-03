@@ -628,7 +628,7 @@ sixstatusFrame::sixstatusFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer8->Add(StaticText40, 1, wxALL|wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer5->Add(FlexGridSizer8, 1, wxALL|wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer7 = new wxFlexGridSizer(1, 4, 0, 0);
-    StaticBoxSizer1 = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Multiplier"));
+    StaticBoxSizer1 = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Sensitivity"));
     FlexGridSizer3 = new wxFlexGridSizer(2, 2, 0, 0);
     StaticText19 = new wxStaticText(this, ID_STATICTEXT19, _("x (F3):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT19"));
     FlexGridSizer3->Add(StaticText19, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -656,7 +656,7 @@ sixstatusFrame::sixstatusFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer4->Add(StaticText34, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer3->Add(FlexGridSizer4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer7->Add(StaticBoxSizer3, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticBoxSizer4 = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Exponent"));
+    StaticBoxSizer4 = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Acceleration"));
     FlexGridSizer2 = new wxFlexGridSizer(2, 2, 0, 0);
     StaticText27 = new wxStaticText(this, ID_STATICTEXT27, _("x (F8):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT27"));
     FlexGridSizer2->Add(StaticText27, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);

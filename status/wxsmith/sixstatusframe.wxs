@@ -461,7 +461,7 @@
 									<rows>1</rows>
 									<object class="sizeritem">
 										<object class="wxStaticBoxSizer" variable="StaticBoxSizer1" member="no">
-											<label>Multiplier</label>
+											<label>Sensitivity</label>
 											<object class="sizeritem">
 												<object class="wxFlexGridSizer" variable="FlexGridSizer3" member="no">
 													<cols>2</cols>
@@ -575,7 +575,7 @@
 									</object>
 									<object class="sizeritem">
 										<object class="wxStaticBoxSizer" variable="StaticBoxSizer4" member="no">
-											<label>Exponent</label>
+											<label>Acceleration</label>
 											<object class="sizeritem">
 												<object class="wxFlexGridSizer" variable="FlexGridSizer2" member="no">
 													<cols>2</cols>
