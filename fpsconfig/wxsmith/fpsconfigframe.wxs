@@ -409,15 +409,15 @@
 				<label>Mouse DPI</label>
 				<pos>24,240</pos>
 			</object>
-			<object class="wxCheckBox" name="ID_CHECKBOX1" variable="CheckBoxAdjustSensitivity" member="yes">
-				<label>adjust&#x0A;sensitivity</label>
-				<pos>24,280</pos>
-				<tooltip>Let this box unticked to build a new config with unknown calibration parameters.</tooltip>
-			</object>
 			<object class="wxStaticText" name="ID_STATICTEXT9" variable="StaticTextSmoothing" member="yes">
 				<label>Smoothing</label>
 				<pos>514,296</pos>
 				<tooltip>Mouse smoothing</tooltip>
+			</object>
+			<object class="wxButton" name="ID_BUTTON22" variable="ButtonConvertSensitivity" member="yes">
+				<label>Convert&#x0A;sensitivity</label>
+				<pos>24,288</pos>
+				<handler function="OnButtonConvertSensitivityClick" entry="EVT_BUTTON" />
 			</object>
 		</object>
 		<object class="wxMenuBar" variable="MenuBar1" member="no">

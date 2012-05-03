@@ -14,7 +14,6 @@
 #include <wx/stattext.h>
 #include <wx/menu.h>
 #include <wx/textctrl.h>
-#include <wx/checkbox.h>
 #include <wx/spinctrl.h>
 #include <wx/panel.h>
 #include <wx/filedlg.h>
@@ -68,6 +67,7 @@ class fpsconfigFrame: public wxFrame
         void OnMouseDPIChange(wxSpinEvent& event);
         void OnMenuUpdate(wxCommandEvent& event);
         void OnMenuEditLabels(wxCommandEvent& event);
+        void OnButtonConvertSensitivityClick(wxCommandEvent& event);
         //*)
 
         e_button_index getButtonIndex(wxButton* button);
@@ -130,8 +130,8 @@ class fpsconfigFrame: public wxFrame
         static const long ID_TEXTCTRL25;
         static const long ID_SPINCTRL9;
         static const long ID_STATICTEXT8;
-        static const long ID_CHECKBOX1;
         static const long ID_STATICTEXT9;
+        static const long ID_BUTTON22;
         static const long ID_PANEL1;
         static const long ID_MENUITEM1;
         static const long ID_MENUITEM4;
@@ -158,6 +158,7 @@ class fpsconfigFrame: public wxFrame
         wxButton* start;
         wxButton* stickleft;
         wxMenuItem* MenuEditLabels;
+        wxButton* ButtonConvertSensitivity;
         wxSpinCtrl* SpinCtrlDeadZoneHipFire;
         wxButton* select;
         wxStaticText* StaticText8;
@@ -202,7 +203,6 @@ class fpsconfigFrame: public wxFrame
         wxStaticText* StaticTextXy;
         wxTextCtrl* TextCtrlXyRatioHipFire;
         wxStaticText* StaticTextAccel;
-        wxCheckBox* CheckBoxAdjustSensitivity;
         wxSpinCtrl* SpinCtrlXyRatioADS;
         wxMenuItem* MenuUpdate;
         wxButton* right;

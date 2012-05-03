@@ -35,6 +35,7 @@
 #include "../directories.h"
 
 #include <wx/tooltip.h>
+#include "wx/numdlg.h"
 
 using namespace std;
 
@@ -117,8 +118,8 @@ const long fpsconfigFrame::ID_TEXTCTRL1 = wxNewId();
 const long fpsconfigFrame::ID_TEXTCTRL25 = wxNewId();
 const long fpsconfigFrame::ID_SPINCTRL9 = wxNewId();
 const long fpsconfigFrame::ID_STATICTEXT8 = wxNewId();
-const long fpsconfigFrame::ID_CHECKBOX1 = wxNewId();
 const long fpsconfigFrame::ID_STATICTEXT9 = wxNewId();
+const long fpsconfigFrame::ID_BUTTON22 = wxNewId();
 const long fpsconfigFrame::ID_PANEL1 = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM1 = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM4 = wxNewId();
@@ -324,11 +325,9 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     SpinCtrlDPI->SetValue(_T("0"));
     SpinCtrlDPI->SetToolTip(_("Set your mouse DPI if you are building a new config with unknown calibration parameters.\nTo use someone else\'s calibration parameters: set the parameters and the corresponding DPI, tick the box below, and set the new DPI."));
     StaticText8 = new wxStaticText(Panel1, ID_STATICTEXT8, _("Mouse DPI"), wxPoint(24,240), wxDefaultSize, 0, _T("ID_STATICTEXT8"));
-    CheckBoxAdjustSensitivity = new wxCheckBox(Panel1, ID_CHECKBOX1, _("adjust\nsensitivity"), wxPoint(24,280), wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX1"));
-    CheckBoxAdjustSensitivity->SetValue(false);
-    CheckBoxAdjustSensitivity->SetToolTip(_("Let this box unticked to build a new config with unknown calibration parameters."));
     StaticTextSmoothing = new wxStaticText(Panel1, ID_STATICTEXT9, _("Smoothing"), wxPoint(514,296), wxDefaultSize, 0, _T("ID_STATICTEXT9"));
     StaticTextSmoothing->SetToolTip(_("Mouse smoothing"));
+    ButtonConvertSensitivity = new wxButton(Panel1, ID_BUTTON22, _("Convert\nsensitivity"), wxPoint(24,288), wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON22"));
     MenuBar1 = new wxMenuBar();
     MenuFile = new wxMenu();
     MenuItemNew = new wxMenuItem(MenuFile, ID_MENUITEM1, _("New\tCtrl+N"), wxEmptyString, wxITEM_NORMAL);
@@ -408,6 +407,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(ID_TEXTCTRL25,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
     Connect(ID_TEXTCTRL25,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
     Connect(ID_SPINCTRL9,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnMouseDPIChange);
+    Connect(ID_BUTTON22,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&fpsconfigFrame::OnButtonConvertSensitivityClick);
     Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuNew);
     Connect(ID_MENUITEM4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuOpen);
     Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuSave);
@@ -467,7 +467,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
       if(::wxFileExists(wxfile))
       {
         configFile.ReadConfigFile(wxfile);
-        LoadConfig();        
+        LoadConfig();
         FileDialog1->SetFilename(file);
       }
       else
@@ -835,9 +835,9 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 }
 
 void fpsconfigFrame::OnMenuNew(wxCommandEvent& event)
-{    
+{
     FileDialog1->SetFilename(wxEmptyString);
-    
+
     wxButton* button;
 
     for(int i=bi_select; i<BI_MAX; i++)
@@ -1571,7 +1571,6 @@ void fpsconfigFrame::OnMouseDPIChange(wxSpinEvent& event)
     int vceil = ceil((double)v/STEP)*STEP;
     int vfloor = floor((double)v/STEP)*STEP;
     int new_dpi;
-    wxString wsm;
     if(vceil-v > STEP/2)
     {
         new_dpi = vceil;
@@ -1579,24 +1578,6 @@ void fpsconfigFrame::OnMouseDPIChange(wxSpinEvent& event)
     else
     {
         new_dpi = vfloor;
-    }
-
-    if(CheckBoxAdjustSensitivity->IsChecked() && current_dpi && new_dpi)
-    {
-        /*
-         * Store the new x multipliers so as not to loose precision due to rounding.
-         */
-        values[0] = values[0]*pow((double)current_dpi/new_dpi, values[2]);
-        SpinCtrlSensitivityHipFire->SetValue(values[0]*100);
-        wsm = wxString::Format(wxT("%.02f"), (double)values[0]);
-
-        TextCtrlSensitivityHipFire->SetValue(wsm);
-
-        values[1] = values[1]*pow((double)current_dpi/new_dpi, values[3]);
-        SpinCtrlSensitivityADS->SetValue(values[1]*100);
-        wsm = wxString::Format(wxT("%.02f"), (double)values[1]);
-
-        TextCtrlSensitivityADS->SetValue(wsm);
     }
 
     current_dpi = new_dpi;
@@ -1630,5 +1611,47 @@ void fpsconfigFrame::OnMenuUpdate(wxCommandEvent& event)
   else
   {
     wxMessageBox(wxT("GIMX is up-to-date!"), wxT("Info"), wxICON_INFORMATION);
+  }
+}
+
+void fpsconfigFrame::OnButtonConvertSensitivityClick(wxCommandEvent& event)
+{
+  int dest_value = 0;
+  wxString wsm;
+
+  if(!current_dpi)
+  {
+    return;
+  }
+
+  wxNumberEntryDialog dialog(this, wxT(""), wxT("Enter a number:"), wxT("Destination mouse DPI"), current_dpi, 100, 10000);
+
+  if (dialog.ShowModal() == wxID_OK)
+  {
+    dest_value = dialog.GetValue();
+
+    if(dest_value == current_dpi)
+    {
+      return;
+    }
+
+    /*
+     * Store the new x multipliers so as not to loose precision due to rounding.
+     */
+    values[0] = values[0]*pow((double)current_dpi/dest_value, values[2]);
+    SpinCtrlSensitivityHipFire->SetValue(values[0]*100);
+    wsm = wxString::Format(wxT("%.02f"), (double)values[0]);
+
+    TextCtrlSensitivityHipFire->SetValue(wsm);
+
+    values[1] = values[1]*pow((double)current_dpi/dest_value, values[3]);
+    SpinCtrlSensitivityADS->SetValue(values[1]*100);
+    wsm = wxString::Format(wxT("%.02f"), (double)values[1]);
+
+    TextCtrlSensitivityADS->SetValue(wsm);
+
+    current_dpi = dest_value;
+    SpinCtrlDPI->SetValue(dest_value);
+
   }
 }

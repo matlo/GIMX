@@ -2213,11 +2213,6 @@ void configFrame::OnMenuReplaceKeyboard(wxCommandEvent& event)
 
 void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
 {
-    int answer = wxMessageBox(_("This will adjust multipliers in the current controller.\nContinue?"), _("Confirm"), wxYES_NO);
-    if (answer == wxNO)
-    {
-     return;
-    }
     int k;
     wxString device_name = wxEmptyString;
     wxString device_id = _("0");
@@ -2231,19 +2226,27 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
 
     if(!old_value)
     {
-      old_value = 2000;
+      wxNumberEntryDialog dialog1(this, wxT(""), wxT("Enter a number:"), wxT("Source mouse DPI"), 2000, 100, 10000);
+
+      if(dialog1.ShowModal() == wxID_OK)
+      {
+          old_value = dialog1.GetValue();
+      }
     }
 
-    wxNumberEntryDialog dialog1(this, wxT(""), wxT("Enter a number:"), wxT("Old mouse DPI value"), old_value, 100, 10000);
-    if (dialog1.ShowModal() == wxID_OK)
-    {
-        old_value = dialog1.GetValue();
 
-        wxNumberEntryDialog dialog2(this, wxT(""), wxT("Enter a number:"), wxT("New mouse DPI value"), 2000, 100, 10000);
+    if (old_value)
+    {
+        wxNumberEntryDialog dialog2(this, wxT(""), wxT("Enter a number:"), wxT("Destination mouse DPI"), old_value, 100, 10000);
 
         if (dialog2.ShowModal() == wxID_OK)
         {
             new_value = dialog2.GetValue();
+
+            if(old_value == new_value)
+            {
+              return;
+            }
 
             if(MenuItemMultipleMiceAndKeyboards->IsChecked())
             {
