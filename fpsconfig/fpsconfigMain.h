@@ -72,8 +72,8 @@ class fpsconfigFrame: public wxFrame
 
         e_button_index getButtonIndex(wxButton* button);
         e_axis_index getAxisIndex(wxButton* button);
-        wxButton* getButtonButton(wxString blabel);
-        wxButton* getAxisButton(wxString blabel);
+        wxButton* getButtonButton(string blabel);
+        wxButton* getAxisButton(string blabel);
 
         void LoadConfig();
 
@@ -222,8 +222,8 @@ class fpsconfigFrame: public wxFrame
 
         double values[8];
 		
-        wxString defaultMouseName;
-        wxString defaultKeyboardName;
+        string defaultMouseName;
+        string defaultKeyboardName;
 
         wxString default_directory;
 

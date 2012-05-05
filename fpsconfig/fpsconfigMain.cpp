@@ -37,6 +37,8 @@
 #include <wx/tooltip.h>
 #include "wx/numdlg.h"
 
+#include <sstream>
+
 using namespace std;
 
 //helper functions
@@ -466,7 +468,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
 
       if(::wxFileExists(wxfile))
       {
-        configFile.ReadConfigFile(wxfile);
+        configFile.ReadConfigFile(string(wxfile.mb_str()));
         LoadConfig();
         FileDialog1->SetFilename(file);
       }
@@ -621,94 +623,94 @@ e_button_index fpsconfigFrame::getButtonIndex(wxButton* button)
     return bi_undef;//not supposed to occur...
 }
 
-wxButton* fpsconfigFrame::getButtonButton(wxString blabel)
+wxButton* fpsconfigFrame::getButtonButton(string blabel)
 {
-    if(blabel == wxString(button_labels[bi_select], wxConvUTF8))
+    if(blabel == button_labels[bi_select])
     {
         return select;
     }
-    else if(blabel == wxString(button_labels[bi_start], wxConvUTF8))
+    else if(blabel == button_labels[bi_start])
     {
         return start;
     }
-    else if(blabel == wxString(button_labels[bi_ps], wxConvUTF8))
+    else if(blabel == button_labels[bi_ps])
     {
         return ps;
     }
-    else if(blabel == wxString(button_labels[bi_up], wxConvUTF8))
+    else if(blabel == button_labels[bi_up])
     {
         return up;
     }
-    else if(blabel == wxString(button_labels[bi_down], wxConvUTF8))
+    else if(blabel == button_labels[bi_down])
     {
         return down;
     }
-    else if(blabel == wxString(button_labels[bi_right], wxConvUTF8))
+    else if(blabel == button_labels[bi_right])
     {
         return right;
     }
-    else if(blabel == wxString(button_labels[bi_left], wxConvUTF8))
+    else if(blabel == button_labels[bi_left])
     {
         return left;
     }
-    else if(blabel == wxString(button_labels[bi_square], wxConvUTF8))
+    else if(blabel == button_labels[bi_square])
     {
         return square;
     }
-    else if(blabel == wxString(button_labels[bi_cross], wxConvUTF8))
+    else if(blabel == button_labels[bi_cross])
     {
         return cross;
     }
-    else if(blabel == wxString(button_labels[bi_circle], wxConvUTF8))
+    else if(blabel == button_labels[bi_circle])
     {
         return circle;
     }
-    else if(blabel == wxString(button_labels[bi_triangle], wxConvUTF8))
+    else if(blabel == button_labels[bi_triangle])
     {
         return triangle;
     }
-    else if(blabel == wxString(button_labels[bi_l1], wxConvUTF8))
+    else if(blabel == button_labels[bi_l1])
     {
         return l1;
     }
-    else if(blabel == wxString(button_labels[bi_l2], wxConvUTF8))
+    else if(blabel == button_labels[bi_l2])
     {
         return l2;
     }
-    else if(blabel == wxString(button_labels[bi_l3], wxConvUTF8))
+    else if(blabel == button_labels[bi_l3])
     {
         return l3;
     }
-    else if(blabel == wxString(button_labels[bi_r1], wxConvUTF8))
+    else if(blabel == button_labels[bi_r1])
     {
         return r1;
     }
-    else if(blabel == wxString(button_labels[bi_r2], wxConvUTF8))
+    else if(blabel == button_labels[bi_r2])
     {
         return r2;
     }
-    else if(blabel == wxString(button_labels[bi_r3], wxConvUTF8))
+    else if(blabel == button_labels[bi_r3])
     {
         return r3;
     }
     return NULL;//not supposed to occur...
 }
 
-wxButton* fpsconfigFrame::getAxisButton(wxString alabel)
+wxButton* fpsconfigFrame::getAxisButton(string alabel)
 {
-    if(alabel == wxString(axis_labels[ai_ls_down], wxConvUTF8))
+    if(alabel == axis_labels[ai_ls_down])
     {
         return stickdown;
     }
-    else if(alabel == wxString(axis_labels[ai_ls_left], wxConvUTF8))
+    else if(alabel == axis_labels[ai_ls_left])
     {
         return stickleft;
     }
-    else if(alabel == wxString(axis_labels[ai_ls_right], wxConvUTF8))
+    else if(alabel == axis_labels[ai_ls_right])
     {
         return stickright;
     }
-    else if(alabel == wxString(axis_labels[ai_ls_up], wxConvUTF8))
+    else if(alabel == axis_labels[ai_ls_up])
     {
         return stickup;
     }
@@ -749,7 +751,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 
     if (bindex != bi_undef)
     {
-      textDialog->SetValue(buttons[bindex].GetLabel());
+      textDialog->SetValue(wxString(buttons[bindex].GetLabel().c_str(), wxConvUTF8));
     }
     else
     {
@@ -757,7 +759,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 
       if (aindex != ai_undef)
       {
-        textDialog->SetValue(axes[aindex].GetLabel());
+        textDialog->SetValue(wxString(axes[aindex].GetLabel().c_str(), wxConvUTF8));
       }
     }
 
@@ -765,50 +767,50 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
     {
       if (bindex != bi_undef)
       {
-        buttons[bindex].SetLabel(textDialog->GetValue());
-        wxString tt = buttons[bindex].GetEvent()->GetId();
-        if (!buttons[bindex].GetLabel().IsEmpty())
+        buttons[bindex].SetLabel(string(textDialog->GetValue().mb_str()));
+        string tt(buttons[bindex].GetEvent()->GetId());
+        if (!buttons[bindex].GetLabel().empty())
         {
-          tt.Append(_(" ["));
-          tt.Append(buttons[bindex].GetLabel());
-          tt.Append(_("]"));
+          tt.append(" [");
+          tt.append(buttons[bindex].GetLabel());
+          tt.append("]");
         }
-        ((wxButton*) event.GetEventObject())->SetToolTip(tt);
+        ((wxButton*) event.GetEventObject())->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
       }
       else if (aindex != ai_undef)
       {
-        axes[aindex].SetLabel(textDialog->GetValue());
-        wxString tt = axes[aindex].GetEvent()->GetId();
-        if (!axes[aindex].GetLabel().IsEmpty())
+        axes[aindex].SetLabel(string(textDialog->GetValue().mb_str()));
+        string tt(axes[aindex].GetEvent()->GetId());
+        if (!axes[aindex].GetLabel().empty())
         {
-          tt.Append(_(" ["));
-          tt.Append(axes[aindex].GetLabel());
-          tt.Append(_("]"));
+          tt.append(" [");
+          tt.append(axes[aindex].GetLabel());
+          tt.append("]");
         }
-        ((wxButton*) event.GetEventObject())->SetToolTip(tt);
+        ((wxButton*) event.GetEventObject())->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
       }
     }
   }
   else
   {
-    evcatch.run(wxEmptyString, _("button"));
-    ((wxButton*) event.GetEventObject())->SetLabel(evcatch.GetEventId());
+    evcatch.run("", "button");
+    ((wxButton*) event.GetEventObject())->SetLabel(wxString(evcatch.GetEventId().c_str(), wxConvUTF8));
 
     bindex = getButtonIndex((wxButton*) event.GetEventObject());
 
     if (bindex != bi_undef)
     {
-      buttons[bindex].SetDevice(Device(evcatch.GetDeviceType(), _("0"), _("")));
-      buttons[bindex].SetEvent(Event(_("button"), evcatch.GetEventId()));
-      buttons[bindex].SetButton(wxString(button_labels[bindex], wxConvUTF8));
-      wxString tt = buttons[bindex].GetEvent()->GetId();
-      if (!buttons[bindex].GetLabel().IsEmpty())
+      buttons[bindex].SetDevice(Device(evcatch.GetDeviceType(), "0", ""));
+      buttons[bindex].SetEvent(Event("button", evcatch.GetEventId()));
+      buttons[bindex].SetButton(button_labels[bindex]);
+      string tt(buttons[bindex].GetEvent()->GetId());
+      if (!buttons[bindex].GetLabel().empty())
       {
-        tt.Append(_(" ["));
-        tt.Append(buttons[bindex].GetLabel());
-        tt.Append(_("]"));
+        tt.append(" [");
+        tt.append(buttons[bindex].GetLabel());
+        tt.append("]");
       }
-      ((wxButton*) event.GetEventObject())->SetToolTip(tt);
+      ((wxButton*) event.GetEventObject())->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
     }
     else
     {
@@ -816,17 +818,17 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 
       if (aindex != ai_undef)
       {
-        axes[aindex].SetDevice(Device(evcatch.GetDeviceType(), _("0"), _("")));
-        axes[aindex].SetEvent(Event(_("button"), evcatch.GetEventId()));
-        axes[aindex].SetAxis(wxString(axis_labels[aindex], wxConvUTF8));
-        wxString tt = axes[aindex].GetEvent()->GetId();
-        if (!axes[aindex].GetLabel().IsEmpty())
+        axes[aindex].SetDevice(Device(evcatch.GetDeviceType(), "0", ""));
+        axes[aindex].SetEvent(Event("button", evcatch.GetEventId()));
+        axes[aindex].SetAxis(axis_labels[aindex]);
+        string tt(axes[aindex].GetEvent()->GetId());
+        if (!axes[aindex].GetLabel().empty())
         {
-          tt.Append(_(" ["));
-          tt.Append(axes[aindex].GetLabel());
-          tt.Append(_("]"));
+          tt.append(" [");
+          tt.append(axes[aindex].GetLabel());
+          tt.append("]");
         }
-        ((wxButton*) event.GetEventObject())->SetToolTip(tt);
+        ((wxButton*) event.GetEventObject())->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
       }
     }
   }
@@ -843,22 +845,22 @@ void fpsconfigFrame::OnMenuNew(wxCommandEvent& event)
     for(int i=bi_select; i<BI_MAX; i++)
     {
         buttons[i] = ButtonMapper();
-        button = getButtonButton(wxString(button_labels[i], wxConvUTF8));
+        button = getButtonButton(button_labels[i]);
         if(button != NULL)
         {
-            button->SetLabel(_(""));
-            button->SetToolTip(_(""));
+            button->SetLabel(wxEmptyString);
+            button->UnsetToolTip();
         }
     }
 
     for(int i=ai_ls_up; i<AI_MAX; i++)
     {
         axes[i] = AxisMapper();
-        button = getAxisButton(wxString(axis_labels[i], wxConvUTF8));
+        button = getAxisButton(axis_labels[i]);
         if(button != NULL)
         {
-            button->SetLabel(_(""));
-            button->SetToolTip(_(""));
+            button->SetLabel(wxEmptyString);
+            button->UnsetToolTip();
         }
     }
 
@@ -891,7 +893,7 @@ void fpsconfigFrame::OnMenuSaveAs(wxCommandEvent& event)
 
     if ( FileName.IsEmpty() ) return;
 
-    configFile.SetFilePath(FileName);
+    configFile.SetFilePath(string(FileName.mb_str()));
 
     OnMenuSave(event);
 }
@@ -904,6 +906,18 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     double xyratio;
     wxString wsmx, wsmy, wsxyratio;
     bool found;
+
+    string sDzHf, sBsHf, sDzADS, sBsADS;
+    stringstream ss1, ss2, ss3, ss4;
+    ss1 << SpinCtrlDeadZoneHipFire->GetValue();
+    ss1 >> sDzHf;
+    ss2 << SpinCtrlBufferSizeHipFire->GetValue();
+    ss2 >> sBsHf;
+    ss3 << SpinCtrlDeadZoneADS->GetValue();
+    ss3 >> sDzADS;
+    ss4 << SpinCtrlBufferSizeADS->GetValue();
+    ss4 >> sBsADS;
+
     /*
      * Save DPI value.
      */
@@ -915,7 +929,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     buttonMappers = configFile.GetController(0)->GetConfiguration(0)->GetButtonMapperList();
     for(int i=bi_select; i<BI_MAX; i++)
     {
-        if(!buttons[i].GetDevice()->GetType().IsEmpty())
+        if(!buttons[i].GetDevice()->GetType().empty())
         {
             found = false;
             for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end() && !found && !found; it++)
@@ -927,11 +941,11 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
                     if(it->GetDevice()->GetType() != buttons[i].GetDevice()->GetType())
                     {
                         it->SetDevice(*buttons[i].GetDevice());
-                        if(it->GetDevice()->GetType() == _("mouse"))
+                        if(it->GetDevice()->GetType() == "mouse")
                         {
                           it->GetDevice()->SetName(defaultMouseName);
                         }
-                        else if(it->GetDevice()->GetType() == _("keyboard"))
+                        else if(it->GetDevice()->GetType() == "keyboard")
                         {
                           it->GetDevice()->SetName(defaultKeyboardName);
                         }
@@ -949,7 +963,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     axisMappers = configFile.GetController(0)->GetConfiguration(0)->GetAxisMapperList();
     for(int i=ai_ls_up; i<AI_MAX; i++)
     {
-        if(!axes[i].GetDevice()->GetType().IsEmpty())
+        if(!axes[i].GetDevice()->GetType().empty())
         {
             found = false;
             for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; it++)
@@ -974,20 +988,22 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     found = false;
     for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; it++)
     {
-        if(it->GetDevice()->GetType() == _("mouse") && it->GetEvent()->GetType() == _("axis") && it->GetEvent()->GetId() == _("x") && it->GetAxis() == _("rstick x"))
+        if(it->GetDevice()->GetType() == "mouse" && it->GetEvent()->GetType() == "axis" && it->GetEvent()->GetId() == "x" && it->GetAxis() == "rstick x")
         {
-            it->GetEvent()->SetDeadZone(wxString::Format(wxT("%i"),SpinCtrlDeadZoneHipFire->GetValue()));
-            it->GetEvent()->SetMultiplier(TextCtrlSensitivityHipFire->GetValue());
-            it->GetEvent()->SetExponent(TextCtrlAccelerationHipFire->GetValue());
-            it->GetEvent()->SetShape(ChoiceDeadZoneShapeHipFire->GetStringSelection());
-            it->GetEvent()->SetBufferSize(wxString::Format(wxT("%i"),SpinCtrlBufferSizeHipFire->GetValue()));
-            it->GetEvent()->SetFilter(TextCtrlFilterHipFire->GetValue());
+            it->GetEvent()->SetDeadZone(sDzHf);
+            it->GetEvent()->SetMultiplier(string(TextCtrlSensitivityHipFire->GetValue().mb_str()));
+            it->GetEvent()->SetExponent(string(TextCtrlAccelerationHipFire->GetValue().mb_str()));
+            it->GetEvent()->SetShape(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str()));
+            it->GetEvent()->SetBufferSize(sBsHf);
+            it->GetEvent()->SetFilter(string(TextCtrlFilterHipFire->GetValue().mb_str()));
             found = true;
         }
     }
     if(found == false)
     {
-        axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("x"), _("rstick x"), wxString::Format(wxT("%i"),SpinCtrlDeadZoneHipFire->GetValue()), TextCtrlSensitivityHipFire->GetValue(), TextCtrlAccelerationHipFire->GetValue(), ChoiceDeadZoneShapeHipFire->GetStringSelection(), wxString::Format(wxT("%i"),SpinCtrlBufferSizeHipFire->GetValue()), TextCtrlFilterHipFire->GetValue(), _("Aiming")));
+        axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "x", "rstick x",
+            sDzHf, string(TextCtrlSensitivityHipFire->GetValue().mb_str()), string(TextCtrlAccelerationHipFire->GetValue().mb_str()),
+            string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str()), sBsHf, string(TextCtrlFilterHipFire->GetValue().mb_str()), "Aiming"));
     }
     wsmx = TextCtrlSensitivityHipFire->GetValue();
     wsxyratio = TextCtrlXyRatioHipFire->GetValue();
@@ -1003,41 +1019,44 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     found = false;
     for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; it++)
     {
-        if(it->GetDevice()->GetType() == _("mouse") && it->GetEvent()->GetType() == _("axis") && it->GetEvent()->GetId() == _("y") && it->GetAxis() == _("rstick y"))
+        if(it->GetDevice()->GetType() == "mouse" && it->GetEvent()->GetType() == "axis" && it->GetEvent()->GetId() == "y" && it->GetAxis() == "rstick y")
         {
-            it->GetEvent()->SetDeadZone(wxString::Format(wxT("%i"),SpinCtrlDeadZoneHipFire->GetValue()));
-            it->GetEvent()->SetMultiplier(wsmy);
-            it->GetEvent()->SetExponent(TextCtrlAccelerationHipFire->GetValue());
-            it->GetEvent()->SetShape(ChoiceDeadZoneShapeHipFire->GetStringSelection());
-            it->GetEvent()->SetBufferSize(wxString::Format(wxT("%i"),SpinCtrlBufferSizeHipFire->GetValue()));
-            it->GetEvent()->SetFilter(TextCtrlFilterHipFire->GetValue());
+            it->GetEvent()->SetDeadZone(sDzHf);
+            it->GetEvent()->SetMultiplier(string(wsmy.mb_str()));
+            it->GetEvent()->SetExponent(string(TextCtrlAccelerationHipFire->GetValue().mb_str()));
+            it->GetEvent()->SetShape(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str()));
+            it->GetEvent()->SetBufferSize(sBsHf);
+            it->GetEvent()->SetFilter(string(TextCtrlFilterHipFire->GetValue().mb_str()));
             found = true;
         }
     }
     if(found == false)
     {
-        axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("y"), _("rstick y"), wxString::Format(wxT("%i"),SpinCtrlDeadZoneHipFire->GetValue()), wsmy, TextCtrlAccelerationHipFire->GetValue(), ChoiceDeadZoneShapeHipFire->GetStringSelection(), wxString::Format(wxT("%i"),SpinCtrlBufferSizeHipFire->GetValue()), TextCtrlFilterHipFire->GetValue(), _("Aiming")));
+        axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "y", "rstick y",
+            sDzHf, string(wsmy.mb_str()), string(TextCtrlAccelerationHipFire->GetValue().mb_str()),
+            string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str()),
+            sBsHf, string(TextCtrlFilterHipFire->GetValue().mb_str()), "Aiming"));
     }
     /*
      * Save ADS config.
      */
     //Save Trigger
-    if(configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->GetType() != _("mouse")
-        || configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetEvent()->GetId() != (_("BUTTON_RIGHT"))
-        || configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetSwitchBack() != _("yes"))
+    if(configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->GetType() != "mouse"
+        || configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetEvent()->GetId() != "BUTTON_RIGHT"
+        || configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetSwitchBack() != "yes")
     {
-        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetType(_("mouse"));
-        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetName(_(""));
-        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetId(_("0"));
-        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetEvent()->SetId(_("BUTTON_RIGHT"));
-        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->SetSwitchBack(_("yes"));
+        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetType("mouse");
+        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetName("");
+        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetId("0");
+        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetEvent()->SetId("BUTTON_RIGHT");
+        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->SetSwitchBack("yes");
         configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->SetDelay(0);
     }
     //Save ButtonMappers
     buttonMappers = configFile.GetController(0)->GetConfiguration(1)->GetButtonMapperList();
     for(int i=bi_select; i<BI_MAX; i++)
     {
-        if(!buttons[i].GetDevice()->GetType().IsEmpty())
+        if(!buttons[i].GetDevice()->GetType().empty())
         {
             found = false;
             for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end() && !found; it++)
@@ -1049,11 +1068,11 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
                     if(it->GetDevice()->GetType() != buttons[i].GetDevice()->GetType())
                     {
                         it->SetDevice(*buttons[i].GetDevice());
-                        if(it->GetDevice()->GetType() == _("mouse"))
+                        if(it->GetDevice()->GetType() == "mouse")
                         {
                           it->GetDevice()->SetName(defaultMouseName);
                         }
-                        else if(it->GetDevice()->GetType() == _("keyboard"))
+                        else if(it->GetDevice()->GetType() == "keyboard")
                         {
                           it->GetDevice()->SetName(defaultKeyboardName);
                         }
@@ -1071,7 +1090,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     axisMappers = configFile.GetController(0)->GetConfiguration(1)->GetAxisMapperList();
     for(int i=ai_ls_up; i<AI_MAX; i++)
     {
-        if(!axes[i].GetDevice()->GetType().IsEmpty())
+        if(!axes[i].GetDevice()->GetType().empty())
         {
             found = false;
             for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; it++)
@@ -1096,20 +1115,23 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     found = false;
     for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; it++)
     {
-        if(it->GetDevice()->GetType() == _("mouse") && it->GetEvent()->GetType() == _("axis") && it->GetEvent()->GetId() == _("x") && it->GetAxis() == _("rstick x"))
+        if(it->GetDevice()->GetType() == "mouse" && it->GetEvent()->GetType() == "axis" && it->GetEvent()->GetId() == "x" && it->GetAxis() == "rstick x")
         {
-            it->GetEvent()->SetDeadZone(wxString::Format(wxT("%i"),SpinCtrlDeadZoneADS->GetValue()));
-            it->GetEvent()->SetMultiplier(TextCtrlSensitivityADS->GetValue());
-            it->GetEvent()->SetExponent(TextCtrlAccelerationADS->GetValue());
-            it->GetEvent()->SetShape(ChoiceDeadZoneShapeADS->GetStringSelection());
-            it->GetEvent()->SetBufferSize(wxString::Format(wxT("%i"),SpinCtrlBufferSizeADS->GetValue()));
-            it->GetEvent()->SetFilter(TextCtrlFilterADS->GetValue());
+            it->GetEvent()->SetDeadZone(sDzADS);
+            it->GetEvent()->SetMultiplier(string(TextCtrlSensitivityADS->GetValue().mb_str()));
+            it->GetEvent()->SetExponent(string(TextCtrlAccelerationADS->GetValue().mb_str()));
+            it->GetEvent()->SetShape(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str()));
+            it->GetEvent()->SetBufferSize(sBsADS);
+            it->GetEvent()->SetFilter(string(TextCtrlFilterADS->GetValue().mb_str()));
             found = true;
         }
     }
     if(found == false)
     {
-      axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("x"), _("rstick x"), wxString::Format(wxT("%i"),SpinCtrlDeadZoneADS->GetValue()), TextCtrlSensitivityADS->GetValue(), TextCtrlAccelerationADS->GetValue(), ChoiceDeadZoneShapeADS->GetStringSelection(), wxString::Format(wxT("%i"), SpinCtrlBufferSizeADS->GetValue()), TextCtrlFilterADS->GetValue(), _("Aiming")));
+      axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "x", "rstick x",
+          sDzADS, string(TextCtrlSensitivityADS->GetValue().mb_str()), string(TextCtrlAccelerationADS->GetValue().mb_str()),
+          string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str()),
+          sBsADS, string(TextCtrlFilterADS->GetValue().mb_str()), "Aiming"));
     }
     wsmx = TextCtrlSensitivityADS->GetValue();
     wsxyratio = TextCtrlXyRatioADS->GetValue();
@@ -1125,25 +1147,28 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     found = false;
     for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; it++)
     {
-        if(it->GetDevice()->GetType() == _("mouse") && it->GetEvent()->GetType() == _("axis") && it->GetEvent()->GetId() == _("y") && it->GetAxis() == _("rstick y"))
+        if(it->GetDevice()->GetType() == "mouse" && it->GetEvent()->GetType() == "axis" && it->GetEvent()->GetId() == "y" && it->GetAxis() == "rstick y")
         {
-            it->GetEvent()->SetDeadZone(wxString::Format(wxT("%i"),SpinCtrlDeadZoneADS->GetValue()));
-            it->GetEvent()->SetMultiplier(wsmy);
-            it->GetEvent()->SetExponent(TextCtrlAccelerationADS->GetValue());
-            it->GetEvent()->SetShape(ChoiceDeadZoneShapeADS->GetStringSelection());
-            it->GetEvent()->SetBufferSize(wxString::Format(wxT("%i"),SpinCtrlBufferSizeADS->GetValue()));
-            it->GetEvent()->SetFilter(TextCtrlFilterADS->GetValue());
+            it->GetEvent()->SetDeadZone(sDzADS);
+            it->GetEvent()->SetMultiplier(string(wsmy.mb_str()));
+            it->GetEvent()->SetExponent(string(TextCtrlAccelerationADS->GetValue().mb_str()));
+            it->GetEvent()->SetShape(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str()));
+            it->GetEvent()->SetBufferSize(sBsADS);
+            it->GetEvent()->SetFilter(string(TextCtrlFilterADS->GetValue().mb_str()));
             found = true;
         }
     }
     if(found == false)
     {
-        axisMappers->push_front(AxisMapper(_("mouse"), _("0"), _(""), _("axis"), _("y"), _("rstick y"), wxString::Format(wxT("%i"),SpinCtrlDeadZoneADS->GetValue()), wsmy, TextCtrlAccelerationADS->GetValue(), ChoiceDeadZoneShapeADS->GetStringSelection(), wxString::Format(wxT("%i"), SpinCtrlBufferSizeADS->GetValue()), TextCtrlFilterADS->GetValue(), _("Aiming")));
+        axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "y", "rstick y",
+            sDzADS, string(wsmy.mb_str()), string(TextCtrlAccelerationADS->GetValue().mb_str()),
+            string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str()),
+            sBsADS, string(TextCtrlFilterADS->GetValue().mb_str()), "Aiming"));
     }
 
     if(configFile.WriteConfigFile() < 0)
     {
-      wxMessageBox(wxT("Can't save ") + configFile.GetFilePath(), wxT("Error"), wxICON_ERROR);
+      wxMessageBox(wxT("Can't save ") + wxString(configFile.GetFilePath().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
     }
 }
 
@@ -1162,8 +1187,8 @@ void fpsconfigFrame::LoadConfig()
   current_dpi = configFile.GetController(0)->GetMouseDPI();
   SpinCtrlDPI->SetValue(current_dpi);
 
-  defaultMouseName = wxEmptyString;
-  defaultKeyboardName = wxEmptyString;
+  defaultMouseName = "";
+  defaultKeyboardName = "";
 
   /*
    * Load Hip Fire config.
@@ -1172,11 +1197,11 @@ void fpsconfigFrame::LoadConfig()
   for(int i=bi_select; i<BI_MAX; i++)
   {
       buttons[i] = ButtonMapper();
-      button = getButtonButton(wxString(button_labels[i], wxConvUTF8));
+      button = getButtonButton(button_labels[i]);
       if(button != NULL)
       {
-          button->SetLabel(_(""));
-          button->SetToolTip(_(""));
+          button->SetLabel(wxEmptyString);
+          button->UnsetToolTip();
       }
   }
   buttonMappers = configFile.GetController(0)->GetConfiguration(0)->GetButtonMapperList();
@@ -1196,28 +1221,28 @@ void fpsconfigFrame::LoadConfig()
           continue;
       }
 
-      if(!buttons[bindex].GetEvent()->GetId().IsEmpty())
+      if(!buttons[bindex].GetEvent()->GetId().empty())
       {
           continue;
       }
 
       buttons[bindex] = *it;
-      button->SetLabel(it->GetEvent()->GetId());
-      wxString tt = it->GetEvent()->GetId();
-      if(!it->GetLabel().IsEmpty())
+      button->SetLabel(wxString(it->GetEvent()->GetId().c_str(), wxConvUTF8));
+      string tt(it->GetEvent()->GetId());
+      if(!it->GetLabel().empty())
       {
-          tt.Append(_(" ["));
-          tt.Append(it->GetLabel());
-          tt.Append(_("]"));
+          tt.append(" [");
+          tt.append(it->GetLabel());
+          tt.append("]");
       }
-      button->SetToolTip(tt);
-      if(!it->GetDevice()->GetName().IsEmpty())
+      button->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
+      if(!it->GetDevice()->GetName().empty())
       {
-          if(it->GetDevice()->GetType() == _("mouse"))
+          if(it->GetDevice()->GetType() == "mouse")
           {
               defaultMouseName = it->GetDevice()->GetName();
           }
-          else if(it->GetDevice()->GetType() == _("keyboard"))
+          else if(it->GetDevice()->GetType() == "keyboard")
           {
               defaultKeyboardName = it->GetDevice()->GetName();
           }
@@ -1227,11 +1252,11 @@ void fpsconfigFrame::LoadConfig()
   for(int i=ai_ls_up; i<AI_MAX; i++)
   {
       axes[i] = AxisMapper();
-      button = getAxisButton(wxString(axis_labels[i], wxConvUTF8));
+      button = getAxisButton(axis_labels[i]);
       if(button != NULL)
       {
-          button->SetLabel(_(""));
-          button->SetToolTip(_(""));
+          button->SetLabel(wxEmptyString);
+          button->UnsetToolTip();
       }
   }
   wsmx.erase();
@@ -1245,14 +1270,14 @@ void fpsconfigFrame::LoadConfig()
 
       if(button == NULL)
       {
-          if(it->GetAxis() == _("rstick x"))
+          if(it->GetAxis() == "rstick x")
           {
-              SpinCtrlDeadZoneHipFire->SetValue(wxAtoi(it->GetEvent()->GetDeadZone()));
-              ChoiceDeadZoneShapeHipFire->SetStringSelection(it->GetEvent()->GetShape());
+              SpinCtrlDeadZoneHipFire->SetValue(wxAtoi(wxString(it->GetEvent()->GetDeadZone().c_str(), wxConvUTF8)));
+              ChoiceDeadZoneShapeHipFire->SetStringSelection(wxString(it->GetEvent()->GetShape().c_str(), wxConvUTF8));
 
-              SpinCtrlBufferSizeHipFire->SetValue(wxAtoi(it->GetEvent()->GetBufferSize()));
+              SpinCtrlBufferSizeHipFire->SetValue(wxAtoi(wxString(it->GetEvent()->GetBufferSize().c_str(), wxConvUTF8)));
 
-              wsf = it->GetEvent()->GetFilter();
+              wsf = wxString(it->GetEvent()->GetFilter().c_str(), wxConvUTF8);
 
               if(wsf.ToDouble(&f))
               {
@@ -1260,7 +1285,7 @@ void fpsconfigFrame::LoadConfig()
                 SpinCtrlFilterHipFire->SetValue(f*100);
               }
 
-              wsmx = it->GetEvent()->GetMultiplier();
+              wsmx = wxString(it->GetEvent()->GetMultiplier().c_str(), wxConvUTF8);
 
               if(wsmx.ToDouble(&mx))
               {
@@ -1276,17 +1301,17 @@ void fpsconfigFrame::LoadConfig()
                   }
               }
 
-              wsexp = it->GetEvent()->GetExponent();
+              wsexp = wxString(it->GetEvent()->GetExponent().c_str(), wxConvUTF8);
 
               if(wsexp.ToDouble(&exp))
               {
-                TextCtrlAccelerationHipFire->SetValue(it->GetEvent()->GetExponent());
+                TextCtrlAccelerationHipFire->SetValue(wxString(it->GetEvent()->GetExponent().c_str(), wxConvUTF8));
                 SpinCtrlAccelerationHipFire->SetValue(exp*100);
               }
           }
-          else if(it->GetAxis() == _("rstick y"))
+          else if(it->GetAxis() == "rstick y")
           {
-              wsmy = it->GetEvent()->GetMultiplier();
+              wsmy = wxString(it->GetEvent()->GetMultiplier().c_str(), wxConvUTF8);
 
               if(wsmy.ToDouble(&my) && mx && my)
               {
@@ -1308,23 +1333,23 @@ void fpsconfigFrame::LoadConfig()
               continue;
           }
 
-          if(!axes[aindex].GetEvent()->GetId().IsEmpty())
+          if(!axes[aindex].GetEvent()->GetId().empty())
           {
               continue;
           }
 
-          if(button->GetLabel().IsEmpty())
+          if(button->GetLabel().empty())
           {
               axes[aindex] = *it;
-              button->SetLabel(it->GetEvent()->GetId());
-              wxString tt = it->GetEvent()->GetId();
-              if(!it->GetLabel().IsEmpty())
+              button->SetLabel(wxString(it->GetEvent()->GetId().c_str(), wxConvUTF8));
+              string tt(it->GetEvent()->GetId());
+              if(!it->GetLabel().empty())
               {
-                  tt.Append(_(" ["));
-                  tt.Append(it->GetLabel());
-                  tt.Append(_("]"));
+                  tt.append(" [");
+                  tt.append(it->GetLabel());
+                  tt.append("]");
               }
-              button->SetToolTip(tt);
+              button->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
           }
       }
   }
@@ -1343,14 +1368,14 @@ void fpsconfigFrame::LoadConfig()
 
       if(button == NULL)
       {
-          if(it->GetAxis() == _("rstick x"))
+          if(it->GetAxis() == "rstick x")
           {
-              SpinCtrlDeadZoneADS->SetValue(wxAtoi(it->GetEvent()->GetDeadZone()));
-              ChoiceDeadZoneShapeADS->SetStringSelection(it->GetEvent()->GetShape());
+              SpinCtrlDeadZoneADS->SetValue(wxAtoi(wxString(it->GetEvent()->GetDeadZone().c_str(), wxConvUTF8)));
+              ChoiceDeadZoneShapeADS->SetStringSelection(wxString(it->GetEvent()->GetShape().c_str(), wxConvUTF8));
 
-              SpinCtrlBufferSizeADS->SetValue(wxAtoi(it->GetEvent()->GetBufferSize()));
+              SpinCtrlBufferSizeADS->SetValue(wxAtoi(wxString(it->GetEvent()->GetBufferSize().c_str(), wxConvUTF8)));
 
-              wsf = it->GetEvent()->GetFilter();
+              wsf = wxString(it->GetEvent()->GetFilter().c_str(), wxConvUTF8);
 
               if(wsf.ToDouble(&f))
               {
@@ -1358,7 +1383,7 @@ void fpsconfigFrame::LoadConfig()
                 SpinCtrlFilterADS->SetValue(f*100);
               }
 
-              wsmx = it->GetEvent()->GetMultiplier();
+              wsmx = wxString(it->GetEvent()->GetMultiplier().c_str(), wxConvUTF8);
 
               if(wsmx.ToDouble(&mx))
               {
@@ -1374,17 +1399,17 @@ void fpsconfigFrame::LoadConfig()
                   }
               }
 
-              wsexp = it->GetEvent()->GetExponent();
+              wsexp = wxString(it->GetEvent()->GetExponent().c_str(), wxConvUTF8);
 
               if(wsexp.ToDouble(&exp))
               {
-                TextCtrlAccelerationADS->SetValue(it->GetEvent()->GetExponent());
+                TextCtrlAccelerationADS->SetValue(wxString(it->GetEvent()->GetExponent().c_str(), wxConvUTF8));
                 SpinCtrlAccelerationADS->SetValue(exp*100);
               }
           }
-          else if(it->GetAxis() == _("rstick y"))
+          else if(it->GetAxis() == "rstick y")
           {
-              wsmy = it->GetEvent()->GetMultiplier();
+              wsmy = wxString(it->GetEvent()->GetMultiplier().c_str(), wxConvUTF8);
 
               if(wsmy.ToDouble(&my) && mx && my)
               {
@@ -1404,12 +1429,14 @@ void fpsconfigFrame::LoadConfig()
 
 void fpsconfigFrame::OnMenuOpen(wxCommandEvent& event)
 {
+    FileDialog1->SetDirectory(default_directory);
+
     if ( FileDialog1->ShowModal() != wxID_OK ) return;
 
     wxString FileName = FileDialog1->GetPath();
     if ( FileName.IsEmpty() ) return;
 
-    configFile.ReadConfigFile(FileName);
+    configFile.ReadConfigFile(string(FileName.mb_str()));
 
     LoadConfig();
 }
@@ -1616,7 +1643,7 @@ void fpsconfigFrame::OnMenuUpdate(wxCommandEvent& event)
 
 void fpsconfigFrame::OnButtonConvertSensitivityClick(wxCommandEvent& event)
 {
-  int dest_value = 0;
+  unsigned int dest_value = 0;
   wxString wsm;
 
   if(!current_dpi)
