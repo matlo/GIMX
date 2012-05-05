@@ -551,21 +551,6 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
         }
     }
 
-    if(m_TempConfiguration.GetIntensityList()->empty())
-    {
-      m_TempIntensity.SetControl("left_stick");
-      m_TempIntensity.SetDeviceUp(Device("", "", ""));
-      m_TempIntensity.SetEventUp(Event(""));
-      m_TempIntensity.SetDeviceDown(Device("", "", ""));
-      m_TempIntensity.SetEventDown(Event(""));
-      m_TempIntensity.SetDeadZone(0);
-      m_TempIntensity.SetShape("Circle");
-      m_TempIntensity.SetSteps(1);
-      m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
-      m_TempIntensity.SetControl("right_stick");
-      m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
-    }
-
     cur_node = cur_node->prev;
 
     for (cur_node = cur_node->next; cur_node; cur_node = cur_node->next)
