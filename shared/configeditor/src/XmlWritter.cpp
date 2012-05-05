@@ -1,4 +1,7 @@
 #include "XmlWritter.h"
+#include <string>
+
+using namespace std;
 
 XmlWritter::XmlWritter()
 {
@@ -22,22 +25,22 @@ XmlWritter::~XmlWritter()
 void XmlWritter::CreateEventNode(xmlNodePtr parent_node, Event* event)
 {
     xmlNodePtr e_node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_EVENT, NULL);
-    xmlNewProp(e_node, BAD_CAST X_ATTR_TYPE, BAD_CAST (const char*) event->GetType().mb_str(wxConvUTF8));
-    xmlNewProp(e_node, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) event->GetId().mb_str(wxConvUTF8));
-    if(event->GetType() == _("axis"))
+    xmlNewProp(e_node, BAD_CAST X_ATTR_TYPE, BAD_CAST (const char*) event->GetType().c_str());
+    xmlNewProp(e_node, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) event->GetId().c_str());
+    if(event->GetType() == "axis")
     {
         if(strcmp((const char*) parent_node->name, X_NODE_AXIS))
         {
-            xmlNewProp(e_node, BAD_CAST X_ATTR_THRESHOLD, BAD_CAST (const char*) event->GetThreshold().mb_str(wxConvUTF8));
+            xmlNewProp(e_node, BAD_CAST X_ATTR_THRESHOLD, BAD_CAST (const char*) event->GetThreshold().c_str());
         }
         else
         {
-            xmlNewProp(e_node, BAD_CAST X_ATTR_DEADZONE, BAD_CAST (const char*) event->GetDeadZone().mb_str(wxConvUTF8));
-            xmlNewProp(e_node, BAD_CAST X_ATTR_MULTIPLIER, BAD_CAST (const char*) event->GetMultiplier().mb_str(wxConvUTF8));
-            xmlNewProp(e_node, BAD_CAST X_ATTR_EXPONENT, BAD_CAST (const char*) event->GetExponent().mb_str(wxConvUTF8));
-            xmlNewProp(e_node, BAD_CAST X_ATTR_SHAPE, BAD_CAST (const char*) event->GetShape().mb_str(wxConvUTF8));
-            xmlNewProp(e_node, BAD_CAST X_ATTR_BUFFERSIZE, BAD_CAST (const char*) event->GetBufferSize().mb_str(wxConvUTF8));
-            xmlNewProp(e_node, BAD_CAST X_ATTR_FILTER, BAD_CAST (const char*) event->GetFilter().mb_str(wxConvUTF8));
+            xmlNewProp(e_node, BAD_CAST X_ATTR_DEADZONE, BAD_CAST (const char*) event->GetDeadZone().c_str());
+            xmlNewProp(e_node, BAD_CAST X_ATTR_MULTIPLIER, BAD_CAST (const char*) event->GetMultiplier().c_str());
+            xmlNewProp(e_node, BAD_CAST X_ATTR_EXPONENT, BAD_CAST (const char*) event->GetExponent().c_str());
+            xmlNewProp(e_node, BAD_CAST X_ATTR_SHAPE, BAD_CAST (const char*) event->GetShape().c_str());
+            xmlNewProp(e_node, BAD_CAST X_ATTR_BUFFERSIZE, BAD_CAST (const char*) event->GetBufferSize().c_str());
+            xmlNewProp(e_node, BAD_CAST X_ATTR_FILTER, BAD_CAST (const char*) event->GetFilter().c_str());
         }
     }
 }
@@ -45,9 +48,9 @@ void XmlWritter::CreateEventNode(xmlNodePtr parent_node, Event* event)
 void XmlWritter::CreateDeviceNode(xmlNodePtr parent_node, Device* device)
 {
     xmlNodePtr d_node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_DEVICE, NULL);
-    xmlNewProp(d_node, BAD_CAST X_ATTR_TYPE, BAD_CAST (const char*) device->GetType().mb_str(wxConvUTF8));
-    xmlNewProp(d_node, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) device->GetId().mb_str(wxConvUTF8));
-    xmlNewProp(d_node, BAD_CAST X_ATTR_NAME, BAD_CAST (const char*) device->GetName().mb_str(wxConvUTF8));
+    xmlNewProp(d_node, BAD_CAST X_ATTR_TYPE, BAD_CAST (const char*) device->GetType().c_str());
+    xmlNewProp(d_node, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) device->GetId().c_str());
+    xmlNewProp(d_node, BAD_CAST X_ATTR_NAME, BAD_CAST (const char*) device->GetName().c_str());
 }
 
 void XmlWritter::CreateAxisMapNode(xmlNodePtr parent_node)
@@ -61,8 +64,8 @@ void XmlWritter::CreateAxisMapNode(xmlNodePtr parent_node)
     {
         am_node = xmlNewChild(node, NULL, BAD_CAST X_NODE_AXIS, NULL);
 
-        xmlNewProp(am_node, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) it->GetAxis().mb_str(wxConvUTF8));
-		    xmlNewProp(am_node, BAD_CAST X_ATTR_LABEL, BAD_CAST (const char*) it->GetLabel().mb_str(wxConvUTF8));
+        xmlNewProp(am_node, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) it->GetAxis().c_str());
+		    xmlNewProp(am_node, BAD_CAST X_ATTR_LABEL, BAD_CAST (const char*) it->GetLabel().c_str());
 
         CreateDeviceNode(am_node, it->GetDevice());
 
@@ -81,8 +84,8 @@ void XmlWritter::CreateButtonMapNode(xmlNodePtr parent_node)
     {
         bm_node = xmlNewChild(node, NULL, BAD_CAST X_NODE_BUTTON, NULL);
 
-        xmlNewProp(bm_node, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) it->GetButton().mb_str(wxConvUTF8));
-		    xmlNewProp(bm_node, BAD_CAST X_ATTR_LABEL, BAD_CAST (const char*) it->GetLabel().mb_str(wxConvUTF8));
+        xmlNewProp(bm_node, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) it->GetButton().c_str());
+		    xmlNewProp(bm_node, BAD_CAST X_ATTR_LABEL, BAD_CAST (const char*) it->GetLabel().c_str());
 
         CreateDeviceNode(bm_node, it->GetDevice());
 
@@ -98,15 +101,15 @@ void XmlWritter::CreateTriggerNode(xmlNodePtr parent_node)
 
     xmlNodePtr node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_TRIGGER, NULL);
 
-    xmlNewProp(node, BAD_CAST X_ATTR_TYPE, BAD_CAST (const char*) trigger->GetDevice()->GetType().mb_str(wxConvUTF8));
+    xmlNewProp(node, BAD_CAST X_ATTR_TYPE, BAD_CAST (const char*) trigger->GetDevice()->GetType().c_str());
 
-    xmlNewProp(node, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) trigger->GetDevice()->GetId().mb_str(wxConvUTF8));
+    xmlNewProp(node, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) trigger->GetDevice()->GetId().c_str());
 
-    xmlNewProp(node, BAD_CAST X_ATTR_NAME, BAD_CAST (const char*) trigger->GetDevice()->GetName().mb_str(wxConvUTF8));
+    xmlNewProp(node, BAD_CAST X_ATTR_NAME, BAD_CAST (const char*) trigger->GetDevice()->GetName().c_str());
 
-    xmlNewProp(node, BAD_CAST X_ATTR_BUTTON_ID, BAD_CAST (const char*) trigger->GetEvent()->GetId().mb_str(wxConvUTF8));
+    xmlNewProp(node, BAD_CAST X_ATTR_BUTTON_ID, BAD_CAST (const char*) trigger->GetEvent()->GetId().c_str());
 
-    xmlNewProp(node, BAD_CAST X_ATTR_SWITCH_BACK, BAD_CAST (const char*) trigger->GetSwitchBack().mb_str(wxConvUTF8));
+    xmlNewProp(node, BAD_CAST X_ATTR_SWITCH_BACK, BAD_CAST (const char*) trigger->GetSwitchBack().c_str());
 
     snprintf(delay, sizeof(delay), "%hu", trigger->GetDelay());
     xmlNewProp(node, BAD_CAST X_ATTR_DELAY, BAD_CAST (const char*) delay);
@@ -133,33 +136,33 @@ void XmlWritter::CreateIntensityNodes(xmlNodePtr parent_node)
 
       xmlNodePtr node = xmlNewChild(pnode, NULL, BAD_CAST X_NODE_INTENSITY, NULL);
 
-      xmlNewProp(node, BAD_CAST X_ATTR_CONTROL, BAD_CAST (const char*) it->GetControl().mb_str(wxConvUTF8));
+      xmlNewProp(node, BAD_CAST X_ATTR_CONTROL, BAD_CAST (const char*) it->GetControl().c_str());
 
       xmlNewProp(node, BAD_CAST X_ATTR_DEADZONE, BAD_CAST (const char*) dead_zone);
 
-      xmlNewProp(node, BAD_CAST X_ATTR_SHAPE, BAD_CAST (const char*) it->GetShape().mb_str(wxConvUTF8));
+      xmlNewProp(node, BAD_CAST X_ATTR_SHAPE, BAD_CAST (const char*) it->GetShape().c_str());
 
       xmlNewProp(node, BAD_CAST X_ATTR_STEPS, BAD_CAST (const char*) steps);
 
       xmlNodePtr nodeup = xmlNewChild(node, NULL, BAD_CAST X_NODE_UP, NULL);
 
-      xmlNewProp(nodeup, BAD_CAST X_ATTR_TYPE, BAD_CAST (const char*) it->GetDeviceUp()->GetType().mb_str(wxConvUTF8));
+      xmlNewProp(nodeup, BAD_CAST X_ATTR_TYPE, BAD_CAST (const char*) it->GetDeviceUp()->GetType().c_str());
 
-      xmlNewProp(nodeup, BAD_CAST X_ATTR_NAME, BAD_CAST (const char*) it->GetDeviceUp()->GetName().mb_str(wxConvUTF8));
+      xmlNewProp(nodeup, BAD_CAST X_ATTR_NAME, BAD_CAST (const char*) it->GetDeviceUp()->GetName().c_str());
 
-      xmlNewProp(nodeup, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) it->GetDeviceUp()->GetId().mb_str(wxConvUTF8));
+      xmlNewProp(nodeup, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) it->GetDeviceUp()->GetId().c_str());
 
-      xmlNewProp(nodeup, BAD_CAST X_ATTR_BUTTON_ID, BAD_CAST (const char*) it->GetEventUp()->GetId().mb_str(wxConvUTF8));
+      xmlNewProp(nodeup, BAD_CAST X_ATTR_BUTTON_ID, BAD_CAST (const char*) it->GetEventUp()->GetId().c_str());
 
       xmlNodePtr nodedown = xmlNewChild(node, NULL, BAD_CAST X_NODE_DOWN, NULL);
 
-      xmlNewProp(nodedown, BAD_CAST X_ATTR_TYPE, BAD_CAST (const char*) it->GetDeviceDown()->GetType().mb_str(wxConvUTF8));
+      xmlNewProp(nodedown, BAD_CAST X_ATTR_TYPE, BAD_CAST (const char*) it->GetDeviceDown()->GetType().c_str());
 
-      xmlNewProp(nodedown, BAD_CAST X_ATTR_NAME, BAD_CAST (const char*) it->GetDeviceDown()->GetName().mb_str(wxConvUTF8));
+      xmlNewProp(nodedown, BAD_CAST X_ATTR_NAME, BAD_CAST (const char*) it->GetDeviceDown()->GetName().c_str());
 
-      xmlNewProp(nodedown, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) it->GetDeviceDown()->GetId().mb_str(wxConvUTF8));
+      xmlNewProp(nodedown, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) it->GetDeviceDown()->GetId().c_str());
 
-      xmlNewProp(nodedown, BAD_CAST X_ATTR_BUTTON_ID, BAD_CAST (const char*) it->GetEventDown()->GetId().mb_str(wxConvUTF8));
+      xmlNewProp(nodedown, BAD_CAST X_ATTR_BUTTON_ID, BAD_CAST (const char*) it->GetEventDown()->GetId().c_str());
     }
 }
 
@@ -242,7 +245,7 @@ int XmlWritter::WriteConfigFile()
     /*
      * Dumping document to stdio or file
      */
-    ret = xmlSaveFormatFileEnc(m_ConfigurationFile->GetFilePath().mb_str(), doc, "UTF-8", 1);
+    ret = xmlSaveFormatFileEnc(m_ConfigurationFile->GetFilePath().c_str(), doc, "UTF-8", 1);
 
     /*free the document */
     xmlFreeDoc(doc);

@@ -8,7 +8,7 @@ class Trigger
 {
     public:
         Trigger();
-        Trigger(wxString dtype, wxString did, wxString dname, wxString eid, wxString switchback, unsigned short delay);
+        Trigger(string dtype, string did, string dname, string eid, string switchback, unsigned short delay);
         virtual ~Trigger();
         Trigger(const Trigger& other);
         Trigger& operator=(const Trigger& other);
@@ -16,15 +16,15 @@ class Trigger
         void SetDevice(Device val) { m_Device = val; }
         Event* GetEvent() { return &m_Event; }
         void SetEvent(Event val) { m_Event = val; }
-        wxString GetSwitchBack() { return m_SwitchBack; }
-        void SetSwitchBack(wxString val) { m_SwitchBack = val; }
+        string GetSwitchBack() { return m_SwitchBack; }
+        void SetSwitchBack(string val) { m_SwitchBack = val; }
         unsigned short GetDelay() { return m_Delay; }
         void SetDelay(unsigned short val) { m_Delay = val; }
     protected:
     private:
         Device m_Device;
         Event m_Event;
-        wxString m_SwitchBack;
+        string m_SwitchBack;
         unsigned short m_Delay;
 };
 

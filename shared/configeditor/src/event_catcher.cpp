@@ -1,5 +1,6 @@
 #include "event_catcher.h"
 #include <unistd.h>
+#include <sstream>
 
 #define SCREEN_WIDTH  320
 #define SCREEN_HEIGHT 240
@@ -341,16 +342,14 @@ void event_catcher::init()
         return;
     }
 
-	if(m_DeviceType != wxEmptyString)
+	if(!m_DeviceType.empty())
 	{
-	  wxString title = _("Press a ");
-	  title.Append(m_DeviceType);
-	  title.Append(_(" button"));
-      SDL_WM_SetCaption(title.mb_str(), title.mb_str());
+	  string title = "Press a " + m_DeviceType + " button";
+    SDL_WM_SetCaption(title.c_str(), title.c_str());
 	}
 	else
 	{
-	  if(m_EventType == _("button"))
+	  if(m_EventType == "button")
 	  {
 	    SDL_WM_SetCaption("Press a button...", "Press a button...");
 	  }
@@ -370,10 +369,11 @@ void event_catcher::init()
     i = 0;
     while(i < MAX_DEVICES && (jstick[i] = SDL_JoystickOpen(i)))
     {
-        joystickName[i] = wxString(SDL_JoystickName(i), wxConvISO8859_1);
-        if(joystickName[i].StartsWith(_(BT_SIXAXIS_NAME)))
+        name = SDL_JoystickName(i);
+        joystickName[i] = string(name?name:"");
+        if(joystickName[i].find(BT_SIXAXIS_NAME) != string::npos)
         {
-          joystickName[i] = _(BT_SIXAXIS_NAME);
+          joystickName[i] = BT_SIXAXIS_NAME;
         }
         for(j=i-1; j>=0; --j)
         {
@@ -388,8 +388,8 @@ void event_catcher::init()
           joystickVirtualIndex[i] = 0;
         }
         joystickNbButton[i] = SDL_JoystickNumButtons(jstick[i]);
-        if(joystickName[i] == _("Sony PLAYSTATION(R)3 Controller")
-            || joystickName[i] == _("Sony Navigation Controller"))
+        if(joystickName[i] == "Sony PLAYSTATION(R)3 Controller"
+            || joystickName[i] == "Sony Navigation Controller")
         {
           joystickSixaxis[i] = 1;
         }
@@ -403,7 +403,7 @@ void event_catcher::init()
     i = 0;
     while ((name = SDL_GetMouseName(i)))
     {
-      mouseName[i] = wxString(name, wxConvISO8859_1);
+      mouseName[i] = string(name);
 
       for (j = i - 1; j >= 0; --j)
       {
@@ -421,13 +421,13 @@ void event_catcher::init()
     }
     if(i < MAX_DEVICES)
     {
-      mouseName[i].Empty();
+      mouseName[i].clear();
     }
 
     i = 0;
     while ((name = SDL_GetKeyboardName(i)))
     {
-      keyboardName[i] = wxString(name, wxConvISO8859_1);
+      keyboardName[i] = string(name);
 
       for (j = i - 1; j >= 0; --j)
       {
@@ -445,7 +445,7 @@ void event_catcher::init()
     }
     if(i < MAX_DEVICES)
     {
-      keyboardName[i].Empty();
+      keyboardName[i].clear();
     }
 }
 
@@ -458,17 +458,22 @@ void event_catcher::close_devices()
     }
 }
 
-bool event_catcher::check_device(wxString device_type, wxString device_name, wxString device_id)
+bool event_catcher::check_device(string device_type, string device_name, string device_id)
 {
     int i;
     int nb = 0;
-    if(device_type == _("keyboard"))
+    stringstream ss;
+    int did;
+
+    if(device_type == "keyboard")
     {
-      for(i=0; i<MAX_DEVICES && !keyboardName[i].IsEmpty(); ++i)
+      for(i=0; i<MAX_DEVICES && !keyboardName[i].empty(); ++i)
       {
         if(keyboardName[i] == device_name)
         {
-          if(nb == wxAtoi(device_id))
+          ss << device_id;
+          ss >> did;
+          if(nb == did)
           {
             return true;
           }
@@ -479,13 +484,15 @@ bool event_catcher::check_device(wxString device_type, wxString device_name, wxS
         }
       }
     }
-    else if(device_type == _("mouse"))
+    else if(device_type == "mouse")
     {
-      for(i=0; i<MAX_DEVICES && !mouseName[i].IsEmpty(); ++i)
+      for(i=0; i<MAX_DEVICES && !mouseName[i].empty(); ++i)
       {
         if(mouseName[i] == device_name)
         {
-          if(nb == wxAtoi(device_id))
+          ss << device_id;
+          ss >> did;
+          if(nb == did)
           {
             return true;
           }
@@ -496,13 +503,15 @@ bool event_catcher::check_device(wxString device_type, wxString device_name, wxS
         }
       }
     }
-    else if(device_type == _("joystick"))
+    else if(device_type == "joystick")
     {
       for(i=0; i<MAX_DEVICES && jstick[i]; ++i)
       {
         if(joystickName[i] == device_name)
         {
-          if(nb == wxAtoi(device_id))
+          ss << device_id;
+          ss >> did;
+          if(nb == did)
           {
             return true;
           }
@@ -522,8 +531,9 @@ void event_catcher::clean()
     SDL_Quit();
 }
 
-void event_catcher::run(wxString device_type, wxString event_type)
+void event_catcher::run(string device_type, string event_type)
 {
+    stringstream ss1, ss2;
     done = 0;
     SDL_Event events[EVENT_BUFFER_SIZE];
     SDL_Event* event;
@@ -531,10 +541,10 @@ void event_catcher::run(wxString device_type, wxString event_type)
     const char* event_id;
 
     m_DeviceType = device_type;
-    m_DeviceId = wxEmptyString;
-    m_DeviceName = wxEmptyString;
+    m_DeviceId = "";
+    m_DeviceName = "";
     m_EventType = event_type;
-    m_EventId = wxEmptyString;
+    m_EventId = "";
 
     init();
 
@@ -567,150 +577,161 @@ void event_catcher::run(wxString device_type, wxString event_type)
                 switch (event->type)
                 {
                 case SDL_KEYDOWN:
-                    if(device_type != wxEmptyString && device_type != _("keyboard"))
+                    if(device_type != "" && device_type != "keyboard")
                     {
                         break;
                     }
-                    if(event_type == _("button"))
+                    if(event_type == "button")
                     {
-                        m_DeviceType = _("keyboard");
-                        m_DeviceId = wxString::Format(wxT("%i"),keyboardVirtualIndex[event->key.which]);
+                        m_DeviceType = "keyboard";
+                        ss1 << keyboardVirtualIndex[event->key.which];
+                        m_DeviceId = ss1.str();
                         m_DeviceName = keyboardName[event->key.which];
-                        m_EventType = _("button");
+                        m_EventType = "button";
                         event_id = get_chars_from_key(event->key.keysym.sym);
-                        m_EventId = wxString(event_id, wxConvUTF8);
+                        m_EventId = event_id;
                         done = 1;
                     }
                     break;
                 case SDL_MOUSEBUTTONDOWN:
-                    if(device_type != wxEmptyString && device_type != _("mouse"))
+                    if(device_type != "" && device_type != "mouse")
                     {
                         break;
                     }
-                    if(event_type == _("button"))
+                    if(event_type == "button")
                     {
-                        m_DeviceType = _("mouse");
-                        m_DeviceId = wxString::Format(wxT("%i"),mouseVirtualIndex[event->button.which]);
+                        m_DeviceType = "mouse";
+                        ss1 << mouseVirtualIndex[event->button.which];
+                        m_DeviceId = ss1.str();
                         m_DeviceName = mouseName[event->button.which];
-                        m_EventType = _("button");
+                        m_EventType = "button";
                         event_id = get_chars_from_mouse_button(event->button.button);
-                        m_EventId = wxString(event_id, wxConvUTF8);
+                        m_EventId = event_id;
                         done = 1;
                     }
                     break;
                 case SDL_JOYBUTTONDOWN:
-                    if(device_type != wxEmptyString && device_type != _("joystick"))
+                    if(device_type != "" && device_type != "joystick")
                     {
                         break;
                     }
-                    if(event_type == _("button"))
+                    if(event_type == "button")
                     {
-                        m_DeviceType = _("joystick");
-                        m_DeviceId = wxString::Format(wxT("%i"),joystickVirtualIndex[event->jbutton.which]);
+                        m_DeviceType = "joystick";
+                        ss1 << joystickVirtualIndex[event->jbutton.which];
+                        m_DeviceId = ss1.str();
                         m_DeviceName = joystickName[event->jbutton.which];
-                        m_EventType = _("button");
-                        m_EventId = wxString::Format(wxT("%i"),event->jbutton.button);
+                        m_EventType = "button";
+                        ss2 << event->jbutton.button;
+                        m_EventId = ss2.str();
                         done = 1;
                     }
                     break;
                 case SDL_JOYHATMOTION:
-                    if(device_type != wxEmptyString && device_type != _("joystick"))
+                    if(device_type != "" && device_type != "joystick")
                     {
                         break;
                     }
-                    if(event_type == _("button"))
+                    if(event_type == "button")
                     {
-                        m_DeviceType = _("joystick");
-                        m_DeviceId = wxString::Format(wxT("%i"),joystickVirtualIndex[event->jhat.which]);
+                        m_DeviceType = "joystick";
+                        ss1 << joystickVirtualIndex[event->jhat.which];
+                        m_DeviceId = ss1.str();
                         m_DeviceName = joystickName[event->jhat.which];
-                        m_EventType = _("button");
+                        m_EventType = "button";
                         if(event->jhat.value & SDL_HAT_UP)
                         {
-                          m_EventId = wxString::Format(wxT("%i"),joystickNbButton[event->jhat.which]+4*event->jhat.hat);
+                          ss2 << joystickNbButton[event->jhat.which]+4*event->jhat.hat;
+                          m_EventId = ss2.str();
                           done = 1;
                         }
                         else if(event->jhat.value & SDL_HAT_RIGHT)
                         {
-                          m_EventId = wxString::Format(wxT("%i"),joystickNbButton[event->jhat.which]+4*event->jhat.hat+1);
+                          ss2 << joystickNbButton[event->jhat.which]+4*event->jhat.hat+1;
+                          m_EventId = ss2.str();
                           done = 1;
                         }
                         else if(event->jhat.value & SDL_HAT_DOWN)
                         {
-                          m_EventId = wxString::Format(wxT("%i"),joystickNbButton[event->jhat.which]+4*event->jhat.hat+2);
+                          ss2 << joystickNbButton[event->jhat.which]+4*event->jhat.hat+2;
+                          m_EventId = ss2.str();
                           done = 1;
                         }
                         else if(event->jhat.value & SDL_HAT_LEFT)
                         {
-                          m_EventId = wxString::Format(wxT("%i"),joystickNbButton[event->jhat.which]+4*event->jhat.hat+3);
+                          ss2 << joystickNbButton[event->jhat.which]+4*event->jhat.hat+3;
+                          m_EventId = ss2.str();
                           done = 1;
                         }
                     }
                     break;
                 case SDL_MOUSEMOTION:
-                    if(device_type != wxEmptyString && device_type != _("mouse"))
+                    if(device_type != "" && device_type != "mouse")
                     {
                         break;
                     }
-                    if(event_type == _("axis"))
+                    if(event_type == "axis")
                     {
                         if(abs(event->motion.xrel) > 5 || abs(event->motion.yrel) > 5)
                         {
-                            m_DeviceType = _("mouse");
-                            m_DeviceId = wxString::Format(wxT("%i"),mouseVirtualIndex[event->motion.which]);
+                            m_DeviceType = "mouse";
+                            ss1 << mouseVirtualIndex[event->motion.which];
+                            m_DeviceId = ss1.str();
                             m_DeviceName = mouseName[event->button.which];
-                            m_EventType = _("axis");
+                            m_EventType = "axis";
                             done = 1;
                             if(abs(event->motion.xrel) > abs(event->motion.yrel))
                             {
-                                m_EventId = _("x");
+                                m_EventId = "x";
                             }
                             else
                             {
-                                m_EventId = _("y");
+                                m_EventId = "y";
                             }
                         }
                     }
-                    else if(event_type == _("axis up"))
+                    else if(event_type == "axis up")
                     {
                         if(event->motion.xrel > 5 || event->motion.yrel > 5)
                         {
-                            m_DeviceType = _("mouse");
-                            m_DeviceId = wxString::Format(wxT("%i"),mouseVirtualIndex[event->motion.which]);
-                            m_DeviceName = mouseName[event->button.which];
-                            m_EventType = _("axis");
+                            m_DeviceType = "mouse";
+                            ss1 << mouseVirtualIndex[event->motion.which];
+                            m_DeviceId = ss1.str();
+                            m_EventType = "axis";
                             done = 1;
                             if(event->motion.xrel > event->motion.yrel)
                             {
-                                m_EventId = _("x");
+                                m_EventId = "x";
                             }
                             else
                             {
-                                m_EventId = _("y");
+                                m_EventId = "y";
                             }
                         }
                     }
-                    else if(event_type == _("axis down"))
+                    else if(event_type == "axis down")
                     {
                         if(event->motion.xrel < -5 || event->motion.yrel < -5)
                         {
-                            m_DeviceType = _("mouse");
-                            m_DeviceId = wxString::Format(wxT("%i"),mouseVirtualIndex[event->motion.which]);
+                            m_DeviceType = "mouse";
+                            ss1 << mouseVirtualIndex[event->motion.which];
+                            m_DeviceId = ss1.str();
                             m_DeviceName = mouseName[event->button.which];
-                            m_EventType = _("axis");
+                            m_EventType = "axis";
                             done = 1;
                             if(event->motion.xrel < event->motion.yrel)
                             {
-                                m_EventId = _("x");
+                                m_EventId = "x";
                             }
                             else
                             {
-                                m_EventId = _("y");
+                                m_EventId = "y";
                             }
                         }
                     }
                     break;
                 case SDL_JOYAXISMOTION:
-                    if(device_type != wxEmptyString && device_type != _("joystick"))
+                    if(device_type != "" && device_type != "joystick")
                     {
                         break;
                     }
@@ -721,39 +742,45 @@ void event_catcher::run(wxString device_type, wxString event_type)
                     {
                         event->jaxis.value = (event->jaxis.value + 32767) / 2;
                     }
-                    if(event_type == _("axis"))
+                    if(event_type == "axis")
                     {
                         if(abs(event->jaxis.value) > 10000)
                         {
-                            m_DeviceType = _("joystick");
-                            m_DeviceId = wxString::Format(wxT("%i"),joystickVirtualIndex[event->jaxis.which]);
+                            m_DeviceType = "joystick";
+                            ss1 << joystickVirtualIndex[event->jaxis.which];
+                            m_DeviceId = ss1.str();
                             m_DeviceName = joystickName[event->jaxis.which];
-                            m_EventType = _("axis");
-                            m_EventId = wxString::Format(wxT("%i"),event->jaxis.axis);
+                            m_EventType = "axis";
+                            ss2 << event->jaxis.axis;
+                            m_EventId = ss2.str();
                             done = 1;
                         }
                     }
-                    else if(event_type == _("axis up"))
+                    else if(event_type == "axis up")
                     {
                         if(event->jaxis.value > 10000)
                         {
-                            m_DeviceType = _("joystick");
-                            m_DeviceId = wxString::Format(wxT("%i"),joystickVirtualIndex[event->jaxis.which]);
+                            m_DeviceType = "joystick";
+                            ss1 << joystickVirtualIndex[event->jaxis.which];
+                            m_DeviceId = ss1.str();
                             m_DeviceName = joystickName[event->jaxis.which];
-                            m_EventType = _("axis");
-                            m_EventId = wxString::Format(wxT("%i"),event->jaxis.axis);
+                            m_EventType = "axis";
+                            ss2 << event->jaxis.axis;
+                            m_EventId = ss2.str();
                             done = 1;
                         }
                     }
-                    else if(event_type == _("axis down"))
+                    else if(event_type == "axis down")
                     {
                         if(event->jaxis.value < -10000)
                         {
-                            m_DeviceType = _("joystick");
-                            m_DeviceId = wxString::Format(wxT("%i"),joystickVirtualIndex[event->jaxis.which]);
+                            m_DeviceType = "joystick";
+                            ss1 << joystickVirtualIndex[event->jaxis.which];
+                            m_DeviceId = ss1.str();
                             m_DeviceName = joystickName[event->jaxis.which];
-                            m_EventType = _("axis");
-                            m_EventId = wxString::Format(wxT("%i"),event->jaxis.axis);
+                            m_EventType = "axis";
+                            ss2 << event->jaxis.axis;
+                            m_EventId = ss2.str();
                             done = 1;
                         }
                     }

@@ -5,7 +5,7 @@ AxisMapper::AxisMapper()
     //ctor
 }
 
-AxisMapper::AxisMapper(wxString dtype, wxString did, wxString dname, wxString etype, wxString eid, wxString axis, wxString deadZone, wxString multiplier, wxString exponent, wxString shape, wxString buffersize, wxString filter, wxString label):
+AxisMapper::AxisMapper(string dtype, string did, string dname, string etype, string eid, string axis, string deadZone, string multiplier, string exponent, string shape, string buffersize, string filter, string label):
 m_Device(dtype, did, dname), m_Event(etype, eid, deadZone, multiplier, exponent, shape, buffersize, filter), m_Axis(axis), m_Label(label)
 {
     //ctor

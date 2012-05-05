@@ -48,7 +48,9 @@ class XmlReader
         XmlReader();
         XmlReader(ConfigurationFile* configFile);
         virtual ~XmlReader();
-        void ReadConfigFile(wxString filePath);
+        int ReadConfigFile(string filePath);
+        string GetInfo() {return m_info;};
+        string GetError() {return m_error;};
         bool MultipleMK();
         void SetEvtCatch(event_catcher* e) { m_evtcatch = e; }
     protected:
@@ -76,7 +78,8 @@ class XmlReader
         ConfigurationFile m_TempConfigurationFile;
         ConfigurationFile* m_ConfigurationFile;
         event_catcher* m_evtcatch;
-        wxString m_info;
+        string m_info;
+        string m_error;
 };
 
 #endif // XMLREADER_H

@@ -1,8 +1,10 @@
 #include "XmlReader.h"
 #include <stdexcept>
+#include <sstream>
+
 using namespace std;
 
-#define EMPTY_NAME_MSG _("A device name is empty. Multiple mice and keyboards are not managed.")
+#define EMPTY_NAME_MSG "A device name is empty. Multiple mice and keyboards are not managed."
 
 XmlReader::XmlReader()
 {
@@ -24,84 +26,63 @@ XmlReader::~XmlReader()
 
 void XmlReader::ProcessEventElement(xmlNode * a_node)
 {
-    wxString type;
-    wxString id;
-    wxString threshold;
-    wxString deadZone;
-    wxString multiplier;
-    wxString exponent;
-    wxString shape;
-    wxString bufferSize;
-    wxString filter;
+    string type;
+    string id;
+    string threshold;
+    string deadZone;
+    string multiplier;
+    string exponent;
+    string shape;
+    string bufferSize;
+    string filter;
     char* prop;
 
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_TYPE);
-    type = wxString(prop, wxConvUTF8);
+    type = string(prop?prop:"");
     xmlFree(prop);
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
-    id = wxString(prop, wxConvUTF8);
+    id = string(prop?prop:"");
     xmlFree(prop);
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_THRESHOLD);
-    threshold = wxString(prop, wxConvUTF8);
+    threshold = string(prop?prop:"");
     xmlFree(prop);
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_DEADZONE);
-    deadZone = wxString(prop, wxConvUTF8);
+    deadZone = string(prop?prop:"");
     xmlFree(prop);
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_MULTIPLIER);
-    multiplier = wxString(prop, wxConvUTF8);
+    multiplier = string(prop?prop:"");
     xmlFree(prop);
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_EXPONENT);
-    exponent = wxString(prop, wxConvUTF8);
+    exponent = string(prop?prop:"");
     xmlFree(prop);
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_SHAPE);
-    if(type == _("axis"))
+    if(type == "axis")
     {
-        if(prop)
-        {
-            shape = wxString(prop, wxConvUTF8);
-        }
-        else
-        {
-            shape = _("Circle");
-        }
+        shape = string(prop?prop:"Circle");
     }
     else
     {
-        shape = _("");
+        shape = "";
     }
     xmlFree(prop);
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_BUFFERSIZE);
-    if (type == _("axis"))
+    if (type == "axis")
     {
-        if (prop)
-        {
-            bufferSize = wxString(prop, wxConvUTF8);
-        }
-        else
-        {
-            bufferSize = _("1");
-        }
+        bufferSize = string(prop?prop:"1");
     }
     else
     {
-        bufferSize = _("");
+        bufferSize = "";
     }
     xmlFree(prop);
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_FILTER);
-    if (type == _("axis"))
+    if (type == "axis")
     {
-        if (prop)
-        {
-            filter = wxString(prop, wxConvUTF8);
-        }
-        else
-        {
-            filter = _("0.00");
-        }
+        filter = string(prop?prop:"0.00");
     }
     else
     {
-        filter = _("");
+        filter = "";
     }
     xmlFree(prop);
 
@@ -118,43 +99,38 @@ void XmlReader::ProcessEventElement(xmlNode * a_node)
 
 void XmlReader::ProcessDeviceElement(xmlNode * a_node)
 {
-    wxString type;
-    wxString id;
-    wxString name;
-    wxString info = _("");
+    string type;
+    string id;
+    string name;
+    string info = "";
     char* prop;
 
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_TYPE);
-    type = wxString(prop, wxConvUTF8);
+    type = string(prop?prop:"");
     xmlFree(prop);
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
-    id = wxString(prop, wxConvUTF8);
+    id = string(prop?prop:"");
     xmlFree(prop);
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_NAME);
-    name = wxString(prop, wxConvUTF8);
+    name = string(prop?prop:"");
     xmlFree(prop);
 
-    if(name.IsEmpty())
+    if(name.empty())
     {
-        info.Append(EMPTY_NAME_MSG);
+        info.append(EMPTY_NAME_MSG);
 
-        if(!m_info.Contains(info))
+        if(m_info.find(info) == string::npos)
         {
-            m_info.Append(info);
+            m_info.append(info);
         }
     }
     else if(m_evtcatch && !m_evtcatch->check_device(type, name, id))
     {
-        info.Append(type);
-        info.Append(_(" not found: "));
-        info.Append(name);
-        info.Append(_(" "));
-        info.Append(id);
-        info.Append(_("\n"));
+        info.append(type + " not found: " + name + " (" + id + ")\n");
 
-        if(!m_info.Contains(info))
+        if(m_info.find(info) == string::npos)
         {
-            m_info.Append(info);
+            m_info.append(info);
         }
     }    
 
@@ -166,16 +142,16 @@ void XmlReader::ProcessDeviceElement(xmlNode * a_node)
 void XmlReader::ProcessAxisElement(xmlNode * a_node)
 {
     xmlNode* cur_node = NULL;
-    wxString id;
-    wxString label;
+    string id;
+    string label;
     char* prop;
 
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
-    id = wxString(prop, wxConvUTF8);
+    id = string(prop?prop:"");
     xmlFree(prop);
 	
 	  prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_LABEL);
-    label = wxString(prop, wxConvUTF8);
+    label = string(prop?prop:"");
     xmlFree(prop);
 
     for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
@@ -220,13 +196,13 @@ void XmlReader::ProcessAxisElement(xmlNode * a_node)
 
     if(!cur_node)
     {
-        string message(string("missing event element"));
+        string message("missing event element");
         throw invalid_argument(message);
     }
 
-    if(!id.Contains(_("stick")))
+    if(id.find("stick") == string::npos)
     {
-        m_TempEvent.SetShape(wxEmptyString);
+        m_TempEvent.SetShape("");
     }
 
     m_TempAxisMapper.SetAxis(id);
@@ -239,16 +215,16 @@ void XmlReader::ProcessAxisElement(xmlNode * a_node)
 void XmlReader::ProcessButtonElement(xmlNode * a_node)
 {
     xmlNode* cur_node = NULL;
-    wxString id;
-    wxString label;
+    string id;
+    string label;
     char* prop;
 
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
-    id = wxString(prop, wxConvUTF8);
+    id = string(prop?prop:"");
     xmlFree(prop);
 	
 	  prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_LABEL);
-    label = wxString(prop, wxConvUTF8);
+    label = string(prop?prop:"");
     xmlFree(prop);
 
     for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
@@ -350,36 +326,29 @@ void XmlReader::ProcessButtonMapElement(xmlNode * a_node)
 
 void XmlReader::ProcessTriggerElement(xmlNode * a_node)
 {
-    wxString device_type;
-    wxString device_id;
-    wxString device_name;
-    wxString button_id;
-    wxString switch_back;
+    string device_type;
+    string device_id;
+    string device_name;
+    string button_id;
+    string switch_back;
     unsigned short delay;
     char * prop;
 
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_TYPE);
-    device_type = wxString(prop, wxConvUTF8);
+    device_type = string(prop?prop:"");
     xmlFree(prop);
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
-    device_id = wxString(prop, wxConvUTF8);
+    device_id = string(prop?prop:"");
     xmlFree(prop);
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_NAME);
-    device_name = wxString(prop, wxConvUTF8);
+    device_name = string(prop?prop:"");
     xmlFree(prop);
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_BUTTON_ID);
-    button_id = wxString(prop, wxConvUTF8);
+    button_id = string(prop?prop:"");
     xmlFree(prop);
 
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_SWITCH_BACK);
-    if(prop)
-    {
-        switch_back = wxString(prop, wxConvUTF8);
-    }
-    else
-    {
-        switch_back = _("no");
-    }
+    switch_back = string(prop?prop:"no");
     xmlFree(prop);
 
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_DELAY);
@@ -406,18 +375,18 @@ void XmlReader::ProcessTriggerElement(xmlNode * a_node)
 void XmlReader::ProcessIntensityElement(xmlNode * a_node)
 {
     xmlNode* cur_node = NULL;
-    wxString control;
+    string control;
     unsigned char dead_zone;
-    wxString shape;
+    string shape;
     unsigned char steps;
-    wxString device_type;
-    wxString device_id;
-    wxString device_name;
-    wxString button_id;
+    string device_type;
+    string device_id;
+    string device_name;
+    string button_id;
     char * prop;
 
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_CONTROL);
-    control = wxString(prop, wxConvUTF8);
+    control = string(prop?prop:"");
     xmlFree(prop);
     m_TempIntensity.SetControl(control);
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_DEADZONE);
@@ -425,7 +394,7 @@ void XmlReader::ProcessIntensityElement(xmlNode * a_node)
     xmlFree(prop);
     m_TempIntensity.SetDeadZone(dead_zone);
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_SHAPE);
-    shape = wxString(prop, wxConvUTF8);
+    shape = string(prop?prop:"");
     xmlFree(prop);
     m_TempIntensity.SetShape(shape);
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_STEPS);
@@ -440,16 +409,16 @@ void XmlReader::ProcessIntensityElement(xmlNode * a_node)
             if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_UP))
             {
               prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_TYPE);
-              device_type = wxString(prop, wxConvUTF8);
+              device_type = string(prop?prop:"");
               xmlFree(prop);
               prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_ID);
-              device_id = wxString(prop, wxConvUTF8);
+              device_id = string(prop?prop:"");
               xmlFree(prop);
               prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_NAME);
-              device_name = wxString(prop, wxConvUTF8);
+              device_name = string(prop?prop:"");
               xmlFree(prop);
               prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_BUTTON_ID);
-              button_id = wxString(prop, wxConvUTF8);
+              button_id = string(prop?prop:"");
               xmlFree(prop);
 
               m_TempIntensity.SetDeviceUp(Device(device_type, device_id, device_name));
@@ -471,16 +440,16 @@ void XmlReader::ProcessIntensityElement(xmlNode * a_node)
             if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_DOWN))
             {
               prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_TYPE);
-              device_type = wxString(prop, wxConvUTF8);
+              device_type = string(prop?prop:"");
               xmlFree(prop);
               prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_ID);
-              device_id = wxString(prop, wxConvUTF8);
+              device_id = string(prop?prop:"");
               xmlFree(prop);
               prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_NAME);
-              device_name = wxString(prop, wxConvUTF8);
+              device_name = string(prop?prop:"");
               xmlFree(prop);
               prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_BUTTON_ID);
-              button_id = wxString(prop, wxConvUTF8);
+              button_id = string(prop?prop:"");
               xmlFree(prop);
 
               m_TempIntensity.SetDeviceDown(Device(device_type, device_id, device_name));
@@ -521,19 +490,22 @@ void XmlReader::ProcessIntensityListElement(xmlNode * a_node)
 void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
 {
     xmlNode* cur_node = NULL;
-    unsigned char config_index;
-    wxString id;
+    unsigned int config_index;
+    stringstream ss;
+    string id;
     char* prop;
 
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
-    id = wxString(prop, wxConvUTF8);
+    id = string(prop?prop:"");
     xmlFree(prop);
 
-    config_index = wxAtoi(id) - 1;
+    ss << id;
+    ss >> config_index;
+    config_index--;
 
     if(config_index >= MAX_CONFIGURATIONS || config_index < 0)
     {
-        string message(string("bad configuration id: ") + string(id.mb_str()));
+        string message("bad configuration id: " + id);
         throw invalid_argument(message);
     }
 
@@ -550,7 +522,7 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
             }
             else
             {
-                string message(string("bad element name: ") + string((char*)cur_node->name));
+                string message("bad element name: " + string((char*)cur_node->name));
                 throw invalid_argument(message);
             }
         }
@@ -558,7 +530,7 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
 
     if(!cur_node)
     {
-        string message(string("missing trigger element"));
+        string message("missing trigger element");
         throw invalid_argument(message);
     }
 
@@ -581,16 +553,16 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
 
     if(m_TempConfiguration.GetIntensityList()->empty())
     {
-      m_TempIntensity.SetControl(_("left_stick"));
-      m_TempIntensity.SetDeviceUp(Device(wxEmptyString, wxEmptyString, wxEmptyString));
-      m_TempIntensity.SetEventUp(Event(wxEmptyString));
-      m_TempIntensity.SetDeviceDown(Device(wxEmptyString, wxEmptyString, wxEmptyString));
-      m_TempIntensity.SetEventDown(Event(wxEmptyString));
+      m_TempIntensity.SetControl("left_stick");
+      m_TempIntensity.SetDeviceUp(Device("", "", ""));
+      m_TempIntensity.SetEventUp(Event(""));
+      m_TempIntensity.SetDeviceDown(Device("", "", ""));
+      m_TempIntensity.SetEventDown(Event(""));
       m_TempIntensity.SetDeadZone(0);
-      m_TempIntensity.SetShape(_("Circle"));
+      m_TempIntensity.SetShape("Circle");
       m_TempIntensity.SetSteps(1);
       m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
-      m_TempIntensity.SetControl(_("right_stick"));
+      m_TempIntensity.SetControl("right_stick");
       m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
     }
 
@@ -648,37 +620,27 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
 void XmlReader::ProcessControllerElement(xmlNode * a_node)
 {
     xmlNode* cur_node = NULL;
-    unsigned char controller_index;
-    wxString id, dpi;
+    unsigned int controller_index;
+    stringstream ss1, ss2;
+    string id, dpi;
+    unsigned int idpi;
     char* prop;
 
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
-    if(prop)
-    {
-        id = wxString(prop, wxConvUTF8);
-        xmlFree(prop);
-    }
-    else
-    {
-        id = _("-1");
-    }
+    id = string(prop?prop:"-1");
+    xmlFree(prop);
 
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_DPI);
-    if(prop)
-    {
-        dpi = wxString(prop, wxConvUTF8);
-        xmlFree(prop);
-    }
-    else
-    {
-        dpi = _("0");
-    }
+    dpi = string(prop?prop:"0");
+    xmlFree(prop);
 
-    controller_index = wxAtoi(id) - 1;
+    ss1 << id;
+    ss1 >> controller_index;
+    controller_index--;
 
     if(controller_index >= MAX_CONTROLLERS || controller_index < 0)
     {
-        string message(string("bad controller id: ") + string(id.mb_str()));
+        string message("bad controller id: " + id);
         throw invalid_argument(message);
     }
 
@@ -698,7 +660,9 @@ void XmlReader::ProcessControllerElement(xmlNode * a_node)
         }
     }
 
-    m_TempController.SetMouseDPI(wxAtoi(dpi));
+    ss2 << dpi;
+    ss2 >> idpi;
+    m_TempController.SetMouseDPI(idpi);
 
     m_TempConfigurationFile.SetController(m_TempController, controller_index);
 }
@@ -737,7 +701,7 @@ void XmlReader::ProcessRootElement(xmlNode * a_node)
 
 bool XmlReader::MultipleMK()
 {
-    if(m_info.Contains(EMPTY_NAME_MSG))
+    if(m_info.find(EMPTY_NAME_MSG) != string::npos)
     {
       return false;
     }
@@ -747,12 +711,14 @@ bool XmlReader::MultipleMK()
     }
 }
 
-void XmlReader::ReadConfigFile(wxString filePath)
+int XmlReader::ReadConfigFile(string filePath)
 {
     xmlDoc *doc = NULL;
     xmlNode *root_element = NULL;
+    int ret = 0;
 
-    m_info.Empty();
+    m_info.clear();
+    m_error.clear();
 
     if(m_evtcatch)
     {
@@ -769,7 +735,7 @@ void XmlReader::ReadConfigFile(wxString filePath)
     try
     {
         /*parse the file and get the DOM */
-        doc = xmlReadFile(filePath.mb_str(), NULL, 0);
+        doc = xmlReadFile(filePath.c_str(), NULL, 0);
 
         if (doc != NULL)
         {
@@ -793,19 +759,21 @@ void XmlReader::ReadConfigFile(wxString filePath)
     }
     catch(exception& e)
     {
-        wxMessageBox(wxString(e.what(), wxConvUTF8));
+        m_error = e.what();
+        ret = -1;
     }
 
     if(m_evtcatch)
     {
       m_evtcatch->clean();
-	  
-      if(!m_info.IsEmpty())
-      {
-        wxMessageBox( m_info, wxT("Info"), wxICON_INFORMATION);
-      }
+    }
+
+    if(!ret && !m_info.empty())
+    {
+      ret = 1;
     }
 
     /*free the document */
     xmlFreeDoc(doc);
+    return ret;
 }

@@ -1,37 +1,37 @@
 #include "Event.h"
 
 Event::Event():
-m_Type(_("")), m_Id(_("")), m_Threshold(_("")), m_DeadZone(_("")), m_Multiplier(_("")), m_Exponent(_("")), m_Shape(_("")), m_BufferSize(_("")), m_Filter(_(""))
+m_Type(""), m_Id(""), m_Threshold(""), m_DeadZone(""), m_Multiplier(""), m_Exponent(""), m_Shape(""), m_BufferSize(""), m_Filter("")
 {
     //ctor
 }
 
-Event::Event(wxString type, wxString id, wxString threshold, wxString deadZone, wxString multiplier, wxString exponent, wxString shape, wxString buffersize, wxString filter):
+Event::Event(string type, string id, string threshold, string deadZone, string multiplier, string exponent, string shape, string buffersize, string filter):
 m_Type(type), m_Id(id), m_Threshold(threshold), m_DeadZone(deadZone), m_Multiplier(multiplier), m_Exponent(exponent), m_Shape(shape), m_BufferSize(buffersize), m_Filter(filter)
 {
     //ctor
 }
 
-Event::Event(wxString type, wxString id, wxString threshold):
-m_Type(type), m_Id(id), m_Threshold(threshold), m_DeadZone(_("")), m_Multiplier(_("")), m_Exponent(_("")), m_Shape(_("")), m_BufferSize(_("")), m_Filter(_(""))
+Event::Event(string type, string id, string threshold):
+m_Type(type), m_Id(id), m_Threshold(threshold), m_DeadZone(""), m_Multiplier(""), m_Exponent(""), m_Shape(""), m_BufferSize(""), m_Filter("")
 {
     //ctor
 }
 
-Event::Event(wxString type, wxString id):
-m_Type(type), m_Id(id), m_Threshold(_("")), m_DeadZone(_("")), m_Multiplier(_("")), m_Exponent(_("")), m_Shape(_("")), m_BufferSize(_("")), m_Filter(_(""))
+Event::Event(string type, string id):
+m_Type(type), m_Id(id), m_Threshold(""), m_DeadZone(""), m_Multiplier(""), m_Exponent(""), m_Shape(""), m_BufferSize(""), m_Filter("")
 {
     //ctor
 }
 
-Event::Event(wxString type, wxString id, wxString deadZone, wxString multiplier, wxString exponent, wxString shape, wxString buffersize, wxString filter):
-m_Type(type), m_Id(id), m_Threshold(_("")), m_DeadZone(deadZone), m_Multiplier(multiplier), m_Exponent(exponent), m_Shape(shape), m_BufferSize(buffersize), m_Filter(filter)
+Event::Event(string type, string id, string deadZone, string multiplier, string exponent, string shape, string buffersize, string filter):
+m_Type(type), m_Id(id), m_Threshold(""), m_DeadZone(deadZone), m_Multiplier(multiplier), m_Exponent(exponent), m_Shape(shape), m_BufferSize(buffersize), m_Filter(filter)
 {
     //ctor
 }
 
-Event::Event(wxString id):
-m_Type(_("")), m_Id(id), m_Threshold(_("")), m_DeadZone(_("")), m_Multiplier(_("")), m_Exponent(_("")), m_Shape(_("")), m_BufferSize(_("")), m_Filter(_(""))
+Event::Event(string id):
+m_Type(""), m_Id(id), m_Threshold(""), m_DeadZone(""), m_Multiplier(""), m_Exponent(""), m_Shape(""), m_BufferSize(""), m_Filter("")
 {
     //ctor
 }

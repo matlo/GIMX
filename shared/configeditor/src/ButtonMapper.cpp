@@ -5,7 +5,7 @@ ButtonMapper::ButtonMapper()
     //ctor
 }
 
-ButtonMapper::ButtonMapper(wxString dtype, wxString did, wxString dname, wxString etype, wxString eid, wxString threshold, wxString button, wxString label):
+ButtonMapper::ButtonMapper(string dtype, string did, string dname, string etype, string eid, string threshold, string button, string label):
 m_Device(dtype, did, dname), m_Event(etype, eid, threshold), m_Button(button), m_Label(label)
 {
     //ctor

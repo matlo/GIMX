@@ -14,17 +14,21 @@ class ConfigurationFile
         virtual ~ConfigurationFile();
         ConfigurationFile(const ConfigurationFile& other);
         ConfigurationFile& operator=(const ConfigurationFile& other);
-        void ReadConfigFile(wxString filePath);
+        int ReadConfigFile(string filePath);
         bool MultipleMK() { return m_multipleMK; }
+        string GetError() { return m_Error; }
+        string GetInfo() { return m_Info; }
         int WriteConfigFile();
-        wxString GetFilePath() { return m_FilePath; }
-        void SetFilePath(wxString val) { m_FilePath = val; }
+        string GetFilePath() { return m_FilePath; }
+        void SetFilePath(string val) { m_FilePath = val; }
         Controller* GetController(unsigned int i) { return m_Controllers+i; }
         void SetController(Controller val, unsigned int i) { m_Controllers[i] = val; }
         void SetEvCatch(event_catcher* e) { m_evcatch = e; }
     protected:
     private:
-        wxString m_FilePath;
+        string m_FilePath;
+        string m_Error;
+        string m_Info;
         Controller m_Controllers[MAX_CONTROLLERS];
         event_catcher* m_evcatch;
         bool m_multipleMK;

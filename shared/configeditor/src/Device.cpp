@@ -1,12 +1,12 @@
 #include "Device.h"
 
 Device::Device():
-m_Type(_("")), m_Id(_("")), m_Name(_(""))
+m_Type(""), m_Id(""), m_Name("")
 {
     //ctor
 }
 
-Device::Device(wxString type, wxString id, wxString name):
+Device::Device(string type, string id, string name):
 m_Type(type), m_Id(id), m_Name(name)
 {
     //ctor

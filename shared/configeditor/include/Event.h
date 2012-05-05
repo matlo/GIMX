@@ -1,48 +1,51 @@
 #ifndef EVENT_H
 #define EVENT_H
 
+#include <string>
+
+using namespace std;
 
 class Event
 {
     public:
         Event();
-        Event(wxString type, wxString id, wxString threshold, wxString deadZone, wxString multiplier, wxString exponent, wxString shape, wxString buffersize, wxString filter);
-        Event(wxString type, wxString id, wxString threshold);
-        Event(wxString type, wxString id);
-        Event(wxString type, wxString id, wxString deadZone, wxString multiplier, wxString exponent, wxString shape, wxString buffersize, wxString filter);
-        Event(wxString id);
+        Event(string type, string id, string threshold, string deadZone, string multiplier, string exponent, string shape, string buffersize, string filter);
+        Event(string type, string id, string threshold);
+        Event(string type, string id);
+        Event(string type, string id, string deadZone, string multiplier, string exponent, string shape, string buffersize, string filter);
+        Event(string id);
         virtual ~Event();
         Event(const Event& other);
         Event& operator=(const Event& other);
-        wxString GetType() { return m_Type; }
-        void SetType(wxString val) { m_Type = val; }
-        wxString GetId() { return m_Id; }
-        void SetId(wxString val) { m_Id = val; }
-        wxString GetThreshold() { return m_Threshold; }
-        void SetThreshold(wxString val) { m_Threshold = val; }
-        wxString GetDeadZone() { return m_DeadZone; }
-        void SetDeadZone(wxString val) { m_DeadZone = val; }
-        wxString GetMultiplier() { return m_Multiplier; }
-        void SetMultiplier(wxString val) { m_Multiplier = val; }
-        wxString GetExponent() { return m_Exponent; }
-        void SetExponent(wxString val) { m_Exponent = val; }
-        wxString GetShape() { return m_Shape; }
-        void SetShape(wxString val) { m_Shape = val; }
-        wxString GetBufferSize() { return m_BufferSize; }
-        void SetBufferSize(wxString val) { m_BufferSize = val; }
-        wxString GetFilter() { return m_Filter; }
-        void SetFilter(wxString val) { m_Filter = val; }
+        string GetType() { return m_Type; }
+        void SetType(string val) { m_Type = val; }
+        string GetId() { return m_Id; }
+        void SetId(string val) { m_Id = val; }
+        string GetThreshold() { return m_Threshold; }
+        void SetThreshold(string val) { m_Threshold = val; }
+        string GetDeadZone() { return m_DeadZone; }
+        void SetDeadZone(string val) { m_DeadZone = val; }
+        string GetMultiplier() { return m_Multiplier; }
+        void SetMultiplier(string val) { m_Multiplier = val; }
+        string GetExponent() { return m_Exponent; }
+        void SetExponent(string val) { m_Exponent = val; }
+        string GetShape() { return m_Shape; }
+        void SetShape(string val) { m_Shape = val; }
+        string GetBufferSize() { return m_BufferSize; }
+        void SetBufferSize(string val) { m_BufferSize = val; }
+        string GetFilter() { return m_Filter; }
+        void SetFilter(string val) { m_Filter = val; }
     protected:
     private:
-        wxString m_Type;
-        wxString m_Id;
-        wxString m_Threshold;
-        wxString m_DeadZone;
-        wxString m_Multiplier;
-        wxString m_Exponent;
-        wxString m_Shape;
-        wxString m_BufferSize;
-        wxString m_Filter;
+        string m_Type;
+        string m_Id;
+        string m_Threshold;
+        string m_DeadZone;
+        string m_Multiplier;
+        string m_Exponent;
+        string m_Shape;
+        string m_BufferSize;
+        string m_Filter;
 };
 
 #endif // EVENT_H

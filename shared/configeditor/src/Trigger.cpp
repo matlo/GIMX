@@ -6,7 +6,7 @@ Trigger::Trigger()
     m_Delay = 0;
 }
 
-Trigger::Trigger(wxString dtype, wxString did, wxString dname, wxString eid, wxString switchback, unsigned short delay):
+Trigger::Trigger(string dtype, string did, string dname, string eid, string switchback, unsigned short delay):
     m_Device(dtype, did, dname),
     m_Event(eid),
     m_SwitchBack(switchback),
