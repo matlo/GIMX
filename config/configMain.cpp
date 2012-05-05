@@ -862,7 +862,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
 
       if(::wxFileExists(wxfile))
       {
-        configFile.ReadConfigFile(wxfile);
+        configFile.ReadConfigFile(string(wxfile.mb_str()));
         MenuItemMultipleMiceAndKeyboards->Check(configFile.MultipleMK());
         if(MenuItemMultipleMiceAndKeyboards->IsChecked())
         {
@@ -931,12 +931,12 @@ void configFrame::OnMenuItemNew(wxCommandEvent& event)
 
 void configFrame::OnButtonAddPanelButton(wxCommandEvent& event)
 {
-    if(ButtonTabEventId->GetLabel() == wxEmptyString)
+    if(ButtonTabEventId->GetLabel().IsEmpty())
     {
         wxMessageBox( wxT("Please detect an Event!"), wxT("Error"), wxICON_ERROR);
         return;
     }
-    if(ButtonTabButtonId->GetStringSelection() == wxEmptyString)
+    if(ButtonTabButtonId->GetStringSelection().IsEmpty())
     {
         wxMessageBox( wxT("Please select a Button!"), wxT("Error"), wxICON_ERROR);
         return;
@@ -968,12 +968,12 @@ void configFrame::OnButtonAddPanelButton(wxCommandEvent& event)
 
 void configFrame::OnButtonAddPanelAxis(wxCommandEvent& event)
 {
-    if(AxisTabEventId->GetLabel() == wxEmptyString)
+    if(AxisTabEventId->GetLabel().IsEmpty())
     {
         wxMessageBox( wxT("Please detect an Event!"), wxT("Error"), wxICON_ERROR);
         return;
     }
-    if(AxisTabAxisId->GetStringSelection() == wxEmptyString)
+    if(AxisTabAxisId->GetStringSelection().IsEmpty())
     {
         wxMessageBox( wxT("Please select an Axis!"), wxT("Error"), wxICON_ERROR);
         return;
@@ -1012,12 +1012,12 @@ void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
 {
   if(grid == GridPanelButton)
   {
-    wxString old_device_type = GridPanelButton->GetCellValue(row, 0);
-    wxString old_device_name = GridPanelButton->GetCellValue(row, 1);
-    wxString old_device_id = GridPanelButton->GetCellValue(row, 2);
-    wxString old_event_type = GridPanelButton->GetCellValue(row, 3);
-    wxString old_event_id = GridPanelButton->GetCellValue(row, 4);
-    wxString old_button_id = GridPanelButton->GetCellValue(row, 6);
+    string old_device_type = string(GridPanelButton->GetCellValue(row, 0).mb_str());
+    string old_device_name = string(GridPanelButton->GetCellValue(row, 1).mb_str());
+    string old_device_id = string(GridPanelButton->GetCellValue(row, 2).mb_str());
+    string old_event_type = string(GridPanelButton->GetCellValue(row, 3).mb_str());
+    string old_event_id = string(GridPanelButton->GetCellValue(row, 4).mb_str());
+    string old_button_id = string(GridPanelButton->GetCellValue(row, 6).mb_str());
 
     Controller* controller = configFile.GetController(currentController);
 
@@ -1051,12 +1051,12 @@ void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
   }
   else if(grid == GridPanelAxis)
   {
-    wxString old_device_type = GridPanelAxis->GetCellValue(row, 0);
-    wxString old_device_name = GridPanelAxis->GetCellValue(row, 1);
-    wxString old_device_id = GridPanelAxis->GetCellValue(row, 2);
-    wxString old_event_type = GridPanelAxis->GetCellValue(row, 3);
-    wxString old_event_id = GridPanelAxis->GetCellValue(row, 4);
-    wxString old_axis_id = GridPanelAxis->GetCellValue(row, 5);
+    string old_device_type = string(GridPanelAxis->GetCellValue(row, 0).mb_str());
+    string old_device_name = string(GridPanelAxis->GetCellValue(row, 1).mb_str());
+    string old_device_id = string(GridPanelAxis->GetCellValue(row, 2).mb_str());
+    string old_event_type = string(GridPanelAxis->GetCellValue(row, 3).mb_str());
+    string old_event_id = string(GridPanelAxis->GetCellValue(row, 4).mb_str());
+    string old_axis_id = string(GridPanelAxis->GetCellValue(row, 5).mb_str());
 
     Controller* controller = configFile.GetController(currentController);
 
@@ -1193,14 +1193,14 @@ void configFrame::OnButtonTabEventTypeSelect(wxCommandEvent& event)
 
 void configFrame::auto_detect(wxStaticText* device_type, wxStaticText* device_name, wxStaticText* device_id, wxString event_type, wxStaticText* event_id)
 {
-    evcatch.run(wxEmptyString, event_type);
+    evcatch.run("", string(event_type.mb_str()));
 
-    device_type->SetLabel(wxString(evcatch.GetDeviceType()));
+    device_type->SetLabel(wxString(evcatch.GetDeviceType().c_str(), wxConvUTF8));
 
-    if(MenuItemMultipleMiceAndKeyboards->IsChecked() || evcatch.GetDeviceType() == _("joystick"))
+    if(MenuItemMultipleMiceAndKeyboards->IsChecked() || evcatch.GetDeviceType() == "joystick")
     {
-      device_name->SetLabel(wxString(evcatch.GetDeviceName()));
-      device_id->SetLabel( wxString(evcatch.GetDeviceId()));
+      device_name->SetLabel(wxString(evcatch.GetDeviceName().c_str(), wxConvUTF8));
+      device_id->SetLabel( wxString(evcatch.GetDeviceId().c_str(), wxConvUTF8));
     }
     else
     {
@@ -1208,23 +1208,23 @@ void configFrame::auto_detect(wxStaticText* device_type, wxStaticText* device_na
       device_id->SetLabel(_("0"));
     }
 
-    event_id->SetLabel( wxString(evcatch.GetEventId()));
+    event_id->SetLabel( wxString(evcatch.GetEventId().c_str(), wxConvUTF8));
 }
 
 void configFrame::OnButtonAutoDetectClick(wxCommandEvent& event)
 {
     ButtonAutoDetect->Enable(false);
 
-    wxString old_device_type = ProfileTriggerDeviceType->GetLabel();
-    wxString old_device_name = ProfileTriggerDeviceName->GetLabel();
-    wxString old_device_id = ProfileTriggerDeviceId->GetLabel();
-    wxString old_event_id = ProfileTriggerButtonId->GetLabel();
+    string old_device_type = string(ProfileTriggerDeviceType->GetLabel().mb_str());
+    string old_device_name = string(ProfileTriggerDeviceName->GetLabel().mb_str());
+    string old_device_id = string(ProfileTriggerDeviceId->GetLabel().mb_str());
+    string old_event_id = string(ProfileTriggerButtonId->GetLabel().mb_str());
     Device* dev;
     Event* ev;
 
     auto_detect(ProfileTriggerDeviceType, ProfileTriggerDeviceName, ProfileTriggerDeviceId, _("button"), ProfileTriggerButtonId);
 
-    if(old_device_type != wxEmptyString && MenuItemLinkControls->IsChecked())
+    if(!old_device_type.empty() && MenuItemLinkControls->IsChecked())
     {
       int k;
 
@@ -1239,10 +1239,10 @@ void configFrame::OnButtonAutoDetectClick(wxCommandEvent& event)
 
         if(dev->GetType() == old_device_type && dev->GetType() == old_device_type && dev->GetType() == old_device_type && ev->GetId() == old_event_id)
         {
-          dev->SetType(ProfileTriggerDeviceType->GetLabel());
-          dev->SetName(ProfileTriggerDeviceName->GetLabel());
-          dev->SetId(ProfileTriggerDeviceId->GetLabel());
-          ev->SetId(ProfileTriggerButtonId->GetLabel());
+          dev->SetType(string(ProfileTriggerDeviceType->GetLabel().mb_str()));
+          dev->SetName(string(ProfileTriggerDeviceName->GetLabel().mb_str()));
+          dev->SetId(string(ProfileTriggerDeviceId->GetLabel().mb_str()));
+          ev->SetId(string(ProfileTriggerButtonId->GetLabel().mb_str()));
         }
       }
     }
@@ -1258,7 +1258,7 @@ void configFrame::OnButtonTabAutoDetectClick(wxCommandEvent& event)
 
     auto_detect(ButtonTabDeviceType, ButtonTabDeviceName, ButtonTabDeviceId, ButtonTabEventType->GetStringSelection(), ButtonTabEventId);
 
-    if(evcatch.GetEventType() == _("button"))
+    if(evcatch.GetEventType() == "button")
     {
         ButtonTabThreshold->Disable();
         ButtonTabThreshold->SetValue(wxEmptyString);
@@ -1290,7 +1290,7 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
        || old_device_name != AxisTabDeviceName->GetLabel()
        || old_device_id != AxisTabDeviceId->GetLabel())
     {
-        if(evcatch.GetEventType() == _("button"))
+        if(evcatch.GetEventType() == "button")
         {
             AxisTabDeadZone->Disable();
             AxisTabDeadZone->SetValue(wxEmptyString);
@@ -1310,7 +1310,7 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
           AxisTabAcceleration->SetValue(_("1.00"));
           AxisTabShape->Enable();
           AxisTabShape->SetSelection(1);
-          if(evcatch.GetDeviceType() == _("mouse"))
+          if(evcatch.GetDeviceType() == "mouse")
           {
               AxisTabDeadZone->SetValue(_("20"));
               AxisTabSensitivity->SetValue(_("1.00"));
@@ -1319,7 +1319,7 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
               AxisTabFilter->Enable();
               AxisTabFilter->SetValue(_("0.00"));
           }
-          else if(evcatch.GetDeviceType() == _("joystick"))
+          else if(evcatch.GetDeviceType() == "joystick")
           {
               AxisTabDeadZone->SetValue(_("0"));
               if(!AxisTabAxisId->GetStringSelection().Contains(_("stick")))
@@ -1350,40 +1350,49 @@ void configFrame::save_current()
     std::list<AxisMapper>* axisMappers;
     std::list<Intensity>* intensityList;
     //Save Trigger
-    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->SetType(ProfileTriggerDeviceType->GetLabel());
-    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->SetName(ProfileTriggerDeviceName->GetLabel());
-    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->SetId(ProfileTriggerDeviceId->GetLabel());
-    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetEvent()->SetId(ProfileTriggerButtonId->GetLabel());
-    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->SetSwitchBack(CheckBoxSwitchBack->GetValue()?_("yes"):_("no"));
+    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->SetType(string(ProfileTriggerDeviceType->GetLabel().mb_str()));
+    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->SetName(string(ProfileTriggerDeviceName->GetLabel().mb_str()));
+    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->SetId(string(ProfileTriggerDeviceId->GetLabel().mb_str()));
+    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetEvent()->SetId(string(ProfileTriggerButtonId->GetLabel().mb_str()));
+    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->SetSwitchBack(string(CheckBoxSwitchBack->GetValue()?"yes":"no"));
     configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->SetDelay(ProfileTriggerDelay->GetValue());
     //Save Intensity
     intensityList = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetIntensityList();
     intensityList->erase(intensityList->begin(), intensityList->end());
     //Save left stick Intensity
-    intensityList->push_back(Intensity(_("left_stick"),
-        LSIncDeviceType->GetLabel(), LSIncDeviceId->GetLabel(), LSIncDeviceName->GetLabel(), LSIncButtonId->GetLabel(),
-        LSDecDeviceType->GetLabel(), LSDecDeviceId->GetLabel(), LSDecDeviceName->GetLabel(), LSDecButtonId->GetLabel(),
-        LSDeadzone->GetValue(), LSSteps->GetValue(), LSShape->GetStringSelection()));
+    if(!LSIncDeviceType->GetLabel().IsEmpty())
+    {
+      intensityList->push_back(Intensity("left_stick",
+          string(LSIncDeviceType->GetLabel().mb_str()), string(LSIncDeviceId->GetLabel().mb_str()), string(LSIncDeviceName->GetLabel().mb_str()), string(LSIncButtonId->GetLabel().mb_str()),
+          string(LSDecDeviceType->GetLabel().mb_str()), string(LSDecDeviceId->GetLabel().mb_str()), string(LSDecDeviceName->GetLabel().mb_str()), string(LSDecButtonId->GetLabel().mb_str()),
+          LSDeadzone->GetValue(), LSSteps->GetValue(), string(LSShape->GetStringSelection().mb_str())));
+    }
     //Save right stick intensity
-    intensityList->push_back(Intensity(_("right_stick"),
-        RSIncDeviceType->GetLabel(), RSIncDeviceId->GetLabel(), RSIncDeviceName->GetLabel(), RSIncButtonId->GetLabel(),
-        RSDecDeviceType->GetLabel(), RSDecDeviceId->GetLabel(), RSDecDeviceName->GetLabel(), RSDecButtonId->GetLabel(),
-        RSDeadZone->GetValue(), RSSteps->GetValue(), RSShape->GetStringSelection()));
+    if(!RSIncDeviceType->GetLabel().IsEmpty())
+    {
+      intensityList->push_back(Intensity("right_stick",
+          string(RSIncDeviceType->GetLabel().mb_str()), string(RSIncDeviceId->GetLabel().mb_str()), string(RSIncDeviceName->GetLabel().mb_str()), string(RSIncButtonId->GetLabel().mb_str()),
+          string(RSDecDeviceType->GetLabel().mb_str()), string(RSDecDeviceId->GetLabel().mb_str()), string(RSDecDeviceName->GetLabel().mb_str()), string(RSDecButtonId->GetLabel().mb_str()),
+          RSDeadZone->GetValue(), RSSteps->GetValue(), string(RSShape->GetStringSelection().mb_str())));
+    }
     //Save ButtonMappers
     buttonMappers = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetButtonMapperList();
     buttonMappers->erase(buttonMappers->begin(), buttonMappers->end());
     for(int i=0; i<GridPanelButton->GetNumberRows(); i++)
     {
-        //ButtonMapper(wxString dtype, wxString did, wxString dname, wxString etype, wxString eid, wxString threshold, wxString button)
-        buttonMappers->push_front(ButtonMapper(GridPanelButton->GetCellValue(i, 0), GridPanelButton->GetCellValue(i, 2), GridPanelButton->GetCellValue(i, 1), GridPanelButton->GetCellValue(i, 3), GridPanelButton->GetCellValue(i, 4), GridPanelButton->GetCellValue(i, 5), GridPanelButton->GetCellValue(i, 6), GridPanelButton->GetCellValue(i, 7)));
+        buttonMappers->push_front(ButtonMapper(string(GridPanelButton->GetCellValue(i, 0).mb_str()), string(GridPanelButton->GetCellValue(i, 2).mb_str()), string(GridPanelButton->GetCellValue(i, 1).mb_str()),
+            string(GridPanelButton->GetCellValue(i, 3).mb_str()), string(GridPanelButton->GetCellValue(i, 4).mb_str()), string(GridPanelButton->GetCellValue(i, 5).mb_str()), string(GridPanelButton->GetCellValue(i, 6).mb_str()),
+            string(GridPanelButton->GetCellValue(i, 7).mb_str())));
     }
     //Save AxisMappers
     axisMappers = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetAxisMapperList();
     axisMappers->erase(axisMappers->begin(), axisMappers->end());
     for(int i=0; i<GridPanelAxis->GetNumberRows(); i++)
     {
-        //AxisMapper(wxString dtype, wxString did, wxString dname, wxString etype, wxString eid, wxString axis, wxString deadZone, wxString multiplier, wxString exponent);
-        axisMappers->push_front(AxisMapper(GridPanelAxis->GetCellValue(i, 0), GridPanelAxis->GetCellValue(i, 2), GridPanelAxis->GetCellValue(i, 1), GridPanelAxis->GetCellValue(i, 3), GridPanelAxis->GetCellValue(i, 4), GridPanelAxis->GetCellValue(i, 5), GridPanelAxis->GetCellValue(i, 6), GridPanelAxis->GetCellValue(i, 7), GridPanelAxis->GetCellValue(i, 8), GridPanelAxis->GetCellValue(i, 9), GridPanelAxis->GetCellValue(i, 10), GridPanelAxis->GetCellValue(i, 11), GridPanelAxis->GetCellValue(i, 12)));
+        axisMappers->push_front(AxisMapper(string(GridPanelAxis->GetCellValue(i, 0).mb_str()), string(GridPanelAxis->GetCellValue(i, 2).mb_str()), string(GridPanelAxis->GetCellValue(i, 1).mb_str()),
+            string(GridPanelAxis->GetCellValue(i, 3).mb_str()), string(GridPanelAxis->GetCellValue(i, 4).mb_str()), string(GridPanelAxis->GetCellValue(i, 5).mb_str()), string(GridPanelAxis->GetCellValue(i, 6).mb_str()),
+            string(GridPanelAxis->GetCellValue(i, 7).mb_str()), string(GridPanelAxis->GetCellValue(i, 8).mb_str()), string(GridPanelAxis->GetCellValue(i, 9).mb_str()), string(GridPanelAxis->GetCellValue(i, 10).mb_str()),
+            string(GridPanelAxis->GetCellValue(i, 11).mb_str()), string(GridPanelAxis->GetCellValue(i, 12).mb_str())));
     }
 
 }
@@ -1394,11 +1403,11 @@ void configFrame::load_current()
     std::list<AxisMapper>* axisMappers;
     std::list<Intensity>* intensityList;
     //Load Trigger
-    ProfileTriggerDeviceType->SetLabel(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->GetType());
-    ProfileTriggerDeviceName->SetLabel(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->GetName());
-    ProfileTriggerDeviceId->SetLabel(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->GetId());
-    ProfileTriggerButtonId->SetLabel(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetEvent()->GetId());
-    if(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetSwitchBack() == _("yes"))
+    ProfileTriggerDeviceType->SetLabel(wxString(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->GetType().c_str(),wxConvUTF8));
+    ProfileTriggerDeviceName->SetLabel(wxString(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->GetName().c_str(),wxConvUTF8));
+    ProfileTriggerDeviceId->SetLabel(wxString(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->GetId().c_str(),wxConvUTF8));
+    ProfileTriggerButtonId->SetLabel(wxString(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetEvent()->GetId().c_str(),wxConvUTF8));
+    if(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetSwitchBack() == "yes")
     {
         CheckBoxSwitchBack->SetValue(true);
     }
@@ -1433,33 +1442,33 @@ void configFrame::load_current()
     RSShape->SetSelection(0);
     for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
     {
-      if(it->GetControl() == _("left_stick"))
+      if(it->GetControl() == "left_stick")
       {
-        LSIncDeviceType->SetLabel(it->GetDeviceUp()->GetType());
-        LSIncDeviceName->SetLabel(it->GetDeviceUp()->GetName());
-        LSIncDeviceId->SetLabel(it->GetDeviceUp()->GetId());
-        LSIncButtonId->SetLabel(it->GetEventUp()->GetId());
-        LSDecDeviceType->SetLabel(it->GetDeviceDown()->GetType());
-        LSDecDeviceName->SetLabel(it->GetDeviceDown()->GetName());
-        LSDecDeviceId->SetLabel(it->GetDeviceDown()->GetId());
-        LSDecButtonId->SetLabel(it->GetEventDown()->GetId());
+        LSIncDeviceType->SetLabel(wxString(it->GetDeviceUp()->GetType().c_str(),wxConvUTF8));
+        LSIncDeviceName->SetLabel(wxString(it->GetDeviceUp()->GetName().c_str(),wxConvUTF8));
+        LSIncDeviceId->SetLabel(wxString(it->GetDeviceUp()->GetId().c_str(),wxConvUTF8));
+        LSIncButtonId->SetLabel(wxString(it->GetEventUp()->GetId().c_str(),wxConvUTF8));
+        LSDecDeviceType->SetLabel(wxString(it->GetDeviceDown()->GetType().c_str(),wxConvUTF8));
+        LSDecDeviceName->SetLabel(wxString(it->GetDeviceDown()->GetName().c_str(),wxConvUTF8));
+        LSDecDeviceId->SetLabel(wxString(it->GetDeviceDown()->GetId().c_str(),wxConvUTF8));
+        LSDecButtonId->SetLabel(wxString(it->GetEventDown()->GetId().c_str(),wxConvUTF8));
         LSDeadzone->SetValue(it->GetDeadZone());
         LSSteps->SetValue(it->GetSteps());
-        LSShape->SetSelection(LSShape->FindString(it->GetShape()));
+        LSShape->SetSelection(LSShape->FindString(wxString(it->GetShape().c_str(),wxConvUTF8)));
       }
-      else if(it->GetControl() == _("right_stick"))
+      else if(it->GetControl() == "right_stick")
       {
-        RSIncDeviceType->SetLabel(it->GetDeviceUp()->GetType());
-        RSIncDeviceName->SetLabel(it->GetDeviceUp()->GetName());
-        RSIncDeviceId->SetLabel(it->GetDeviceUp()->GetId());
-        RSIncButtonId->SetLabel(it->GetEventUp()->GetId());
-        RSDecDeviceType->SetLabel(it->GetDeviceDown()->GetType());
-        RSDecDeviceName->SetLabel(it->GetDeviceDown()->GetName());
-        RSDecDeviceId->SetLabel(it->GetDeviceDown()->GetId());
-        RSDecButtonId->SetLabel(it->GetEventDown()->GetId());
+        RSIncDeviceType->SetLabel(wxString(it->GetDeviceUp()->GetType().c_str(),wxConvUTF8));
+        RSIncDeviceName->SetLabel(wxString(it->GetDeviceUp()->GetName().c_str(),wxConvUTF8));
+        RSIncDeviceId->SetLabel(wxString(wxString(it->GetDeviceUp()->GetId().c_str(),wxConvUTF8)));
+        RSIncButtonId->SetLabel(wxString(it->GetEventUp()->GetId().c_str(),wxConvUTF8));
+        RSDecDeviceType->SetLabel(wxString(it->GetDeviceDown()->GetType().c_str(),wxConvUTF8));
+        RSDecDeviceName->SetLabel(wxString(it->GetDeviceDown()->GetName().c_str(),wxConvUTF8));
+        RSDecDeviceId->SetLabel(wxString(it->GetDeviceDown()->GetId().c_str(),wxConvUTF8));
+        RSDecButtonId->SetLabel(wxString(it->GetEventDown()->GetId().c_str(),wxConvUTF8));
         RSDeadZone->SetValue(it->GetDeadZone());
         RSSteps->SetValue(it->GetSteps());
-        RSShape->SetSelection(RSShape->FindString(it->GetShape()));
+        RSShape->SetSelection(RSShape->FindString(wxString(it->GetShape().c_str(),wxConvUTF8)));
       }
     }
     //Load ButtonMappers
@@ -1468,14 +1477,14 @@ void configFrame::load_current()
     for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); it++)
     {
         GridPanelButton->InsertRows();
-        GridPanelButton->SetCellValue(0, 0, it->GetDevice()->GetType());
-        GridPanelButton->SetCellValue(0, 1, it->GetDevice()->GetName());
-        GridPanelButton->SetCellValue(0, 2, it->GetDevice()->GetId());
-        GridPanelButton->SetCellValue(0, 3, it->GetEvent()->GetType());
-        GridPanelButton->SetCellValue(0, 4, it->GetEvent()->GetId());
-        GridPanelButton->SetCellValue(0, 5, it->GetEvent()->GetThreshold());
-        GridPanelButton->SetCellValue(0, 6, it->GetButton());
-        GridPanelButton->SetCellValue(0, 7, it->GetLabel());
+        GridPanelButton->SetCellValue(0, 0, wxString(it->GetDevice()->GetType().c_str(),wxConvUTF8));
+        GridPanelButton->SetCellValue(0, 1, wxString(it->GetDevice()->GetName().c_str(),wxConvUTF8));
+        GridPanelButton->SetCellValue(0, 2, wxString(it->GetDevice()->GetId().c_str(),wxConvUTF8));
+        GridPanelButton->SetCellValue(0, 3, wxString(it->GetEvent()->GetType().c_str(),wxConvUTF8));
+        GridPanelButton->SetCellValue(0, 4, wxString(it->GetEvent()->GetId().c_str(),wxConvUTF8));
+        GridPanelButton->SetCellValue(0, 5, wxString(it->GetEvent()->GetThreshold().c_str(),wxConvUTF8));
+        GridPanelButton->SetCellValue(0, 6, wxString(it->GetButton().c_str(),wxConvUTF8));
+        GridPanelButton->SetCellValue(0, 7, wxString(it->GetLabel().c_str(),wxConvUTF8));
     }
     GridPanelButton->AutoSizeColumns();
     //Load AxisMappers
@@ -1484,19 +1493,19 @@ void configFrame::load_current()
     for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); it++)
     {
         GridPanelAxis->InsertRows();
-        GridPanelAxis->SetCellValue(0, 0, it->GetDevice()->GetType());
-        GridPanelAxis->SetCellValue(0, 1, it->GetDevice()->GetName());
-        GridPanelAxis->SetCellValue(0, 2, it->GetDevice()->GetId());
-        GridPanelAxis->SetCellValue(0, 3, it->GetEvent()->GetType());
-        GridPanelAxis->SetCellValue(0, 4, it->GetEvent()->GetId());
-        GridPanelAxis->SetCellValue(0, 5, it->GetAxis());
-        GridPanelAxis->SetCellValue(0, 6, it->GetEvent()->GetDeadZone());
-        GridPanelAxis->SetCellValue(0, 7, it->GetEvent()->GetMultiplier());
-        GridPanelAxis->SetCellValue(0, 8, it->GetEvent()->GetExponent());
-        GridPanelAxis->SetCellValue(0, 9, it->GetEvent()->GetShape());
-        GridPanelAxis->SetCellValue(0, 10, it->GetEvent()->GetBufferSize());
-        GridPanelAxis->SetCellValue(0, 11, it->GetEvent()->GetFilter());
-        GridPanelAxis->SetCellValue(0, 12, it->GetLabel());
+        GridPanelAxis->SetCellValue(0, 0, wxString(it->GetDevice()->GetType().c_str(),wxConvUTF8));
+        GridPanelAxis->SetCellValue(0, 1, wxString(it->GetDevice()->GetName().c_str(),wxConvUTF8));
+        GridPanelAxis->SetCellValue(0, 2, wxString(it->GetDevice()->GetId().c_str(),wxConvUTF8));
+        GridPanelAxis->SetCellValue(0, 3, wxString(it->GetEvent()->GetType().c_str(),wxConvUTF8));
+        GridPanelAxis->SetCellValue(0, 4, wxString(it->GetEvent()->GetId().c_str(),wxConvUTF8));
+        GridPanelAxis->SetCellValue(0, 5, wxString(it->GetAxis().c_str(),wxConvUTF8));
+        GridPanelAxis->SetCellValue(0, 6, wxString(it->GetEvent()->GetDeadZone().c_str(),wxConvUTF8));
+        GridPanelAxis->SetCellValue(0, 7, wxString(it->GetEvent()->GetMultiplier().c_str(),wxConvUTF8));
+        GridPanelAxis->SetCellValue(0, 8, wxString(it->GetEvent()->GetExponent().c_str(),wxConvUTF8));
+        GridPanelAxis->SetCellValue(0, 9, wxString(it->GetEvent()->GetShape().c_str(),wxConvUTF8));
+        GridPanelAxis->SetCellValue(0, 10, wxString(it->GetEvent()->GetBufferSize().c_str(),wxConvUTF8));
+        GridPanelAxis->SetCellValue(0, 11, wxString(it->GetEvent()->GetFilter().c_str(),wxConvUTF8));
+        GridPanelAxis->SetCellValue(0, 12, wxString(it->GetLabel().c_str(),wxConvUTF8));
     }
     GridPanelAxis->AutoSizeColumns();
 }
@@ -1511,12 +1520,24 @@ void configFrame::refresh_gui()
 
 void configFrame::OnMenuOpen(wxCommandEvent& event)
 {
+    int ret;
+    FileDialog1->SetDirectory(default_directory);
+
     if ( FileDialog1->ShowModal() != wxID_OK ) return;
 
     wxString FileName = FileDialog1->GetPath();
     if ( FileName.IsEmpty() ) return;
 
-    configFile.ReadConfigFile(FileName);
+    ret = configFile.ReadConfigFile(string(FileName.mb_str()));
+
+    if(ret < 0)
+    {
+      wxMessageBox(wxString(configFile.GetError().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
+    }
+    else if(ret > 0)
+    {
+      wxMessageBox(wxString(configFile.GetInfo().c_str(), wxConvUTF8), wxT("Info"), wxICON_INFORMATION);
+    }
 
     MenuItemMultipleMiceAndKeyboards->Check(configFile.MultipleMK());
     if(MenuItemMultipleMiceAndKeyboards->IsChecked())
@@ -1775,7 +1796,7 @@ void configFrame::OnMenuSave(wxCommandEvent& event)
     save_current();
     if(configFile.WriteConfigFile() < 0)
     {
-      wxMessageBox(wxT("Can't save ") + configFile.GetFilePath(), wxT("Error"), wxICON_ERROR);
+      wxMessageBox(wxT("Can't save ") + wxString(configFile.GetFilePath().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
     }
     ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
@@ -1798,7 +1819,7 @@ void configFrame::OnMenuSaveAs(wxCommandEvent& event)
 
     if ( FileName.IsEmpty() ) return;
 
-    configFile.SetFilePath(FileName);
+    configFile.SetFilePath(string(FileName.mb_str()));
 
     OnMenuSave(event);
 
@@ -1839,12 +1860,12 @@ void configFrame::OnButtonModifyButton(wxCommandEvent& event)
     }
     else
     {
-        if (ButtonTabEventId->GetLabel() == wxEmptyString)
+        if (ButtonTabEventId->GetLabel().IsEmpty())
         {
           wxMessageBox(wxT("Please detect an Event!"), wxT("Error"), wxICON_ERROR);
           return;
         }
-        if(ButtonTabButtonId->GetStringSelection() == wxEmptyString)
+        if(ButtonTabButtonId->GetStringSelection().IsEmpty())
         {
             wxMessageBox( wxT("Please select a Button!"), wxT("Error"), wxICON_ERROR);
             return;
@@ -1896,21 +1917,21 @@ void configFrame::updateButtonConfigurations()
       buttonMappers = config->GetButtonMapperList();
       for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); it++)
       {
-          if(it->GetDevice()->GetType() == GridPanelButton->GetCellValue(grid1mod, 0)
-              && it->GetDevice()->GetName() == GridPanelButton->GetCellValue(grid1mod, 1)
-              && it->GetDevice()->GetId() == GridPanelButton->GetCellValue(grid1mod, 2)
-              && it->GetEvent()->GetType() == GridPanelButton->GetCellValue(grid1mod, 3)
-              && it->GetEvent()->GetId() == GridPanelButton->GetCellValue(grid1mod, 4)
-              && it->GetButton() == GridPanelButton->GetCellValue(grid1mod, 6))
+          if(it->GetDevice()->GetType() == string(GridPanelButton->GetCellValue(grid1mod, 0).mb_str())
+              && it->GetDevice()->GetName() == string(GridPanelButton->GetCellValue(grid1mod, 1).mb_str())
+              && it->GetDevice()->GetId() == string(GridPanelButton->GetCellValue(grid1mod, 2).mb_str())
+              && it->GetEvent()->GetType() == string(GridPanelButton->GetCellValue(grid1mod, 3).mb_str())
+              && it->GetEvent()->GetId() == string(GridPanelButton->GetCellValue(grid1mod, 4).mb_str())
+              && it->GetButton() == string(GridPanelButton->GetCellValue(grid1mod, 6).mb_str()))
           {
-              it->GetDevice()->SetType(ButtonTabDeviceType->GetLabel());
-              it->GetDevice()->SetId(ButtonTabDeviceId->GetLabel());
-              it->GetDevice()->SetName(ButtonTabDeviceName->GetLabel());
-              it->GetEvent()->SetType(ButtonTabEventType->GetStringSelection());
-              it->GetEvent()->SetId(ButtonTabEventId->GetLabel());
-              it->GetEvent()->SetThreshold(ButtonTabThreshold->GetValue());
-              it->SetButton(ButtonTabButtonId->GetStringSelection());
-              it->SetLabel(ButtonTabLabel->GetValue());
+              it->GetDevice()->SetType(string(ButtonTabDeviceType->GetLabel().mb_str()));
+              it->GetDevice()->SetId(string(ButtonTabDeviceId->GetLabel().mb_str()));
+              it->GetDevice()->SetName(string(ButtonTabDeviceName->GetLabel().mb_str()));
+              it->GetEvent()->SetType(string(ButtonTabEventType->GetStringSelection().mb_str()));
+              it->GetEvent()->SetId(string(ButtonTabEventId->GetLabel().mb_str()));
+              it->GetEvent()->SetThreshold(string(ButtonTabThreshold->GetValue().mb_str()));
+              it->SetButton(string(ButtonTabButtonId->GetStringSelection().mb_str()));
+              it->SetLabel(string(ButtonTabLabel->GetValue().mb_str()));
           }
       }
     }
@@ -1978,12 +1999,12 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event)
     }
     else
     {
-        if (AxisTabEventId->GetLabel() == wxEmptyString)
+        if (AxisTabEventId->GetLabel().IsEmpty())
         {
           wxMessageBox(wxT("Please detect an Event!"), wxT("Error"), wxICON_ERROR);
           return;
         }
-        if(AxisTabAxisId->GetStringSelection() == wxEmptyString)
+        if(AxisTabAxisId->GetStringSelection().IsEmpty())
         {
             wxMessageBox( wxT("Please select an Axis!"), wxT("Error"), wxICON_ERROR);
             return;
@@ -2040,20 +2061,20 @@ void configFrame::updateAxisConfigurations()
       axisMappers = config->GetAxisMapperList();
       for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); it++)
       {
-          if(it->GetDevice()->GetType() == GridPanelAxis->GetCellValue(grid2mod, 0)
-              && it->GetDevice()->GetName() == GridPanelAxis->GetCellValue(grid2mod, 1)
-              && it->GetDevice()->GetId() == GridPanelAxis->GetCellValue(grid2mod, 2)
-              && it->GetEvent()->GetType() == GridPanelAxis->GetCellValue(grid2mod, 3)
-              && it->GetEvent()->GetId() == GridPanelAxis->GetCellValue(grid2mod, 4)
-              && it->GetAxis() == GridPanelAxis->GetCellValue(grid2mod, 5))
+          if(it->GetDevice()->GetType() == string(GridPanelAxis->GetCellValue(grid2mod, 0).mb_str())
+              && it->GetDevice()->GetName() == string(GridPanelAxis->GetCellValue(grid2mod, 1).mb_str())
+              && it->GetDevice()->GetId() == string(GridPanelAxis->GetCellValue(grid2mod, 2).mb_str())
+              && it->GetEvent()->GetType() == string(GridPanelAxis->GetCellValue(grid2mod, 3).mb_str())
+              && it->GetEvent()->GetId() == string(GridPanelAxis->GetCellValue(grid2mod, 4).mb_str())
+              && it->GetAxis() == string(GridPanelAxis->GetCellValue(grid2mod, 5).mb_str()))
           {
-              it->GetDevice()->SetType(AxisTabDeviceType->GetLabel());
-              it->GetDevice()->SetId(AxisTabDeviceId->GetLabel());
-              it->GetDevice()->SetName(AxisTabDeviceName->GetLabel());
-              it->GetEvent()->SetType(AxisTabEventType->GetStringSelection());
-              it->GetEvent()->SetId(AxisTabEventId->GetLabel());
-              it->SetAxis(AxisTabAxisId->GetStringSelection());
-              it->SetLabel(AxisTabLabel->GetValue());
+              it->GetDevice()->SetType(string(AxisTabDeviceType->GetLabel().mb_str()));
+              it->GetDevice()->SetId(string(AxisTabDeviceId->GetLabel().mb_str()));
+              it->GetDevice()->SetName(string(AxisTabDeviceName->GetLabel().mb_str()));
+              it->GetEvent()->SetType(string(AxisTabEventType->GetStringSelection().mb_str()));
+              it->GetEvent()->SetId(string(AxisTabEventId->GetLabel().mb_str()));
+              it->SetAxis(string(AxisTabAxisId->GetStringSelection().mb_str()));
+              it->SetLabel(string(AxisTabLabel->GetValue().mb_str()));
           }
       }
     }
@@ -2063,7 +2084,7 @@ void configFrame::OnAxisTabShapeSelect(wxCommandEvent& event)
 {
     if(AxisTabEventType->GetStringSelection() == _("axis"))
     {
-        if(AxisTabShape->GetStringSelection() == wxEmptyString)
+        if(AxisTabShape->GetStringSelection().IsEmpty())
         {
             AxisTabShape->SetSelection(1);
         }
@@ -2119,11 +2140,12 @@ void configFrame::OnButtonDeleteTrigger(wxCommandEvent& event)
     refresh_gui();
 }
 
-void configFrame::replaceDevice(wxString device_type)
+void configFrame::replaceDevice(wxString wx_device_type)
 {
     int k;
-    wxString device_name = wxEmptyString;
-    wxString device_id = _("0");
+    string device_name = "";
+    string device_id = "0";
+    string device_type = string(wx_device_type.mb_str());
 
     std::list<ButtonMapper>* buttonMappers;
     std::list<AxisMapper>* axisMappers;
@@ -2131,7 +2153,7 @@ void configFrame::replaceDevice(wxString device_type)
 
     if(MenuItemMultipleMiceAndKeyboards->IsChecked())
     {
-	      evcatch.run(device_type, _("button"));
+	      evcatch.run(device_type, "button");
         device_name = evcatch.GetDeviceName();
         device_id = evcatch.GetDeviceId();
     }
@@ -2214,9 +2236,9 @@ void configFrame::OnMenuReplaceKeyboard(wxCommandEvent& event)
 void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
 {
     int k;
-    wxString device_name = wxEmptyString;
-    wxString device_id = _("0");
-    wxString device_type = _("mouse");
+    string device_name = "";
+    string device_id = "0";
+    string device_type = "mouse";
 
     std::list<AxisMapper>* axisMappers;
 
@@ -2250,7 +2272,7 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
 
             if(MenuItemMultipleMiceAndKeyboards->IsChecked())
             {
-                evcatch.run(device_type, _("button"));
+                evcatch.run(device_type, "button");
                 device_name = evcatch.GetDeviceName();
                 device_id = evcatch.GetDeviceId();
             }
@@ -2271,13 +2293,13 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
                 )
                 {
                     double val, exp;
-                    wxString sval = it->GetEvent()->GetMultiplier();
-                    wxString sexp = it->GetEvent()->GetExponent();
+                    wxString sval = wxString(it->GetEvent()->GetMultiplier().c_str(), wxConvUTF8);
+                    wxString sexp = wxString(it->GetEvent()->GetExponent().c_str(), wxConvUTF8);
                     if(sval.ToDouble(&val) && sexp.ToDouble(&exp))
                     {
                         val = val * pow((double)old_value / new_value, exp);
                         sval.Printf(wxT("%.2f"), val);
-                        it->GetEvent()->SetMultiplier(sval);
+                        it->GetEvent()->SetMultiplier(string(sval.mb_str()));
                     }
                 }
               }
@@ -2295,14 +2317,14 @@ void configFrame::OnLSIncAutoDetectClick(wxCommandEvent& event)
 {
   LSIncAutoDetect->Enable(false);
 
-  wxString old_device_type = LSIncDeviceType->GetLabel();
-  wxString old_device_name = LSIncDeviceName->GetLabel();
-  wxString old_device_id = LSIncDeviceId->GetLabel();
-  wxString old_event_id = LSIncButtonId->GetLabel();
+  string old_device_type = string(LSIncDeviceType->GetLabel().mb_str());
+  string old_device_name = string(LSIncDeviceName->GetLabel().mb_str());
+  string old_device_id = string(LSIncDeviceId->GetLabel().mb_str());
+  string old_event_id = string(LSIncButtonId->GetLabel().mb_str());
 
   auto_detect(LSIncDeviceType, LSIncDeviceName, LSIncDeviceId, _("button"), LSIncButtonId);
 
-  if(old_device_type != wxEmptyString && MenuItemLinkControls->IsChecked())
+  if(!old_device_type.empty() && MenuItemLinkControls->IsChecked())
   {
     int k;
 
@@ -2316,16 +2338,16 @@ void configFrame::OnLSIncAutoDetectClick(wxCommandEvent& event)
 
       for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
       {
-        if(it->GetControl() == _("left_stick"))
+        if(it->GetControl() == "left_stick")
         {
           Device* dev = it->GetDeviceUp();
           Event* ev = it->GetEventUp();
           if(dev->GetType() == old_device_type && dev->GetName() == old_device_name && dev->GetType() == old_device_type && ev->GetId() == old_event_id)
           {
-            dev->SetType(LSIncDeviceType->GetLabel());
-            dev->SetName(LSIncDeviceName->GetLabel());
-            dev->SetId(LSIncDeviceId->GetLabel());
-            ev->SetId(LSIncButtonId->GetLabel());
+            dev->SetType(string(LSIncDeviceType->GetLabel().mb_str()));
+            dev->SetName(string(LSIncDeviceName->GetLabel().mb_str()));
+            dev->SetId(string(LSIncDeviceId->GetLabel().mb_str()));
+            ev->SetId(string(LSIncButtonId->GetLabel().mb_str()));
           }
         }
       }
@@ -2339,12 +2361,12 @@ void configFrame::OnLSIncAutoDetectClick(wxCommandEvent& event)
 
 void configFrame::OnLSIncDeleteClick(wxCommandEvent& event)
 {
-  wxString old_device_type = LSIncDeviceType->GetLabel();
-  wxString old_device_name = LSIncDeviceName->GetLabel();
-  wxString old_device_id = LSIncDeviceId->GetLabel();
-  wxString old_event_id = LSIncButtonId->GetLabel();
+  string old_device_type = string(LSIncDeviceType->GetLabel().mb_str());
+  string old_device_name = string(LSIncDeviceName->GetLabel().mb_str());
+  string old_device_id = string(LSIncDeviceId->GetLabel().mb_str());
+  string old_event_id = string(LSIncButtonId->GetLabel().mb_str());
 
-  if(old_device_type != wxEmptyString && MenuItemLinkControls->IsChecked())
+  if(!old_device_type.empty() && MenuItemLinkControls->IsChecked())
   {
     int k;
 
@@ -2358,16 +2380,16 @@ void configFrame::OnLSIncDeleteClick(wxCommandEvent& event)
 
       for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
       {
-        if(it->GetControl() == _("left_stick"))
+        if(it->GetControl() == "left_stick")
         {
           Device* dev = it->GetDeviceUp();
           Event* ev = it->GetEventUp();
           if(dev->GetType() == old_device_type && dev->GetName() == old_device_name && dev->GetType() == old_device_type && ev->GetId() == old_event_id)
           {
-            dev->SetType(wxEmptyString);
-            dev->SetName(wxEmptyString);
-            dev->SetId(wxEmptyString);
-            ev->SetId(wxEmptyString);
+            dev->SetType("");
+            dev->SetName("");
+            dev->SetId("");
+            ev->SetId("");
           }
         }
       }
@@ -2386,14 +2408,14 @@ void configFrame::OnRSIncAutoDetectClick1(wxCommandEvent& event)
 {
   RSIncAutoDetect->Enable(false);
 
-  wxString old_device_type = RSIncDeviceType->GetLabel();
-  wxString old_device_name = RSIncDeviceName->GetLabel();
-  wxString old_device_id = RSIncDeviceId->GetLabel();
-  wxString old_event_id = RSIncButtonId->GetLabel();
+  string old_device_type = string(RSIncDeviceType->GetLabel().mb_str());
+  string old_device_name = string(RSIncDeviceName->GetLabel().mb_str());
+  string old_device_id = string(RSIncDeviceId->GetLabel().mb_str());
+  string old_event_id = string(RSIncButtonId->GetLabel().mb_str());
 
   auto_detect(RSIncDeviceType, RSIncDeviceName, RSIncDeviceId, _("button"), RSIncButtonId);
 
-  if(old_device_type != wxEmptyString && MenuItemLinkControls->IsChecked())
+  if(!old_device_type.empty() && MenuItemLinkControls->IsChecked())
   {
     int k;
 
@@ -2407,16 +2429,16 @@ void configFrame::OnRSIncAutoDetectClick1(wxCommandEvent& event)
 
       for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
       {
-        if(it->GetControl() == _("right_stick"))
+        if(it->GetControl() == "right_stick")
         {
           Device* dev = it->GetDeviceUp();
           Event* ev = it->GetEventUp();
           if(dev->GetType() == old_device_type && dev->GetName() == old_device_name && dev->GetType() == old_device_type && ev->GetId() == old_event_id)
           {
-            dev->SetType(RSIncDeviceType->GetLabel());
-            dev->SetName(RSIncDeviceName->GetLabel());
-            dev->SetId(RSIncDeviceId->GetLabel());
-            ev->SetId(RSIncButtonId->GetLabel());
+            dev->SetType(string(RSIncDeviceType->GetLabel().mb_str()));
+            dev->SetName(string(RSIncDeviceName->GetLabel().mb_str()));
+            dev->SetId(string(RSIncDeviceId->GetLabel().mb_str()));
+            ev->SetId(string(RSIncButtonId->GetLabel().mb_str()));
           }
         }
       }
@@ -2430,12 +2452,12 @@ void configFrame::OnRSIncAutoDetectClick1(wxCommandEvent& event)
 
 void configFrame::OnRSIncDeleteClick(wxCommandEvent& event)
 {
-  wxString old_device_type = RSIncDeviceType->GetLabel();
-  wxString old_device_name = RSIncDeviceName->GetLabel();
-  wxString old_device_id = RSIncDeviceId->GetLabel();
-  wxString old_event_id = RSIncButtonId->GetLabel();
+  string old_device_type = string(RSIncDeviceType->GetLabel().mb_str());
+  string old_device_name = string(RSIncDeviceName->GetLabel().mb_str());
+  string old_device_id = string(RSIncDeviceId->GetLabel().mb_str());
+  string old_event_id = string(RSIncButtonId->GetLabel().mb_str());
 
-  if(old_device_type != wxEmptyString && MenuItemLinkControls->IsChecked())
+  if(!old_device_type.empty() && MenuItemLinkControls->IsChecked())
   {
     int k;
 
@@ -2449,16 +2471,16 @@ void configFrame::OnRSIncDeleteClick(wxCommandEvent& event)
 
       for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
       {
-        if(it->GetControl() == _("right_stick"))
+        if(it->GetControl() == "right_stick")
         {
           Device* dev = it->GetDeviceUp();
           Event* ev = it->GetEventUp();
           if(dev->GetType() == old_device_type && dev->GetName() == old_device_name && dev->GetType() == old_device_type && ev->GetId() == old_event_id)
           {
-            dev->SetType(wxEmptyString);
-            dev->SetName(wxEmptyString);
-            dev->SetId(wxEmptyString);
-            ev->SetId(wxEmptyString);
+            dev->SetType("");
+            dev->SetName("");
+            dev->SetId("");
+            ev->SetId("");
           }
         }
       }
@@ -2499,14 +2521,14 @@ void configFrame::OnLSDecAutoDetectClick(wxCommandEvent& event)
 {
   LSDecAutoDetect->Enable(false);
 
-  wxString old_device_type = LSDecDeviceType->GetLabel();
-  wxString old_device_name = LSDecDeviceName->GetLabel();
-  wxString old_device_id = LSDecDeviceId->GetLabel();
-  wxString old_event_id = LSDecButtonId->GetLabel();
+  string old_device_type = string(LSDecDeviceType->GetLabel().mb_str());
+  string old_device_name = string(LSDecDeviceName->GetLabel().mb_str());
+  string old_device_id = string(LSDecDeviceId->GetLabel().mb_str());
+  string old_event_id = string(LSDecButtonId->GetLabel().mb_str());
 
   auto_detect(LSDecDeviceType, LSDecDeviceName, LSDecDeviceId, _("button"), LSDecButtonId);
 
-  if(old_device_type != wxEmptyString && MenuItemLinkControls->IsChecked())
+  if(!old_device_type.empty() && MenuItemLinkControls->IsChecked())
   {
     int k;
 
@@ -2520,16 +2542,16 @@ void configFrame::OnLSDecAutoDetectClick(wxCommandEvent& event)
 
       for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
       {
-        if(it->GetControl() == _("left_stick"))
+        if(it->GetControl() == "left_stick")
         {
           Device* dev = it->GetDeviceDown();
           Event* ev = it->GetEventDown();
           if(dev->GetType() == old_device_type && dev->GetName() == old_device_name && dev->GetType() == old_device_type && ev->GetId() == old_event_id)
           {
-            dev->SetType(LSDecDeviceType->GetLabel());
-            dev->SetName(LSDecDeviceName->GetLabel());
-            dev->SetId(LSDecDeviceId->GetLabel());
-            ev->SetId(LSDecButtonId->GetLabel());
+            dev->SetType(string(LSDecDeviceType->GetLabel().mb_str()));
+            dev->SetName(string(LSDecDeviceName->GetLabel().mb_str()));
+            dev->SetId(string(LSDecDeviceId->GetLabel().mb_str()));
+            ev->SetId(string(LSDecButtonId->GetLabel().mb_str()));
           }
         }
       }
@@ -2543,12 +2565,12 @@ void configFrame::OnLSDecAutoDetectClick(wxCommandEvent& event)
 
 void configFrame::OnLSDecDeleteClick(wxCommandEvent& event)
 {
-  wxString old_device_type = LSDecDeviceType->GetLabel();
-  wxString old_device_name = LSDecDeviceName->GetLabel();
-  wxString old_device_id = LSDecDeviceId->GetLabel();
-  wxString old_event_id = LSDecButtonId->GetLabel();
+  string old_device_type = string(LSDecDeviceType->GetLabel().mb_str());
+  string old_device_name = string(LSDecDeviceName->GetLabel().mb_str());
+  string old_device_id = string(LSDecDeviceId->GetLabel().mb_str());
+  string old_event_id = string(LSDecButtonId->GetLabel().mb_str());
 
-  if(old_device_type != wxEmptyString && MenuItemLinkControls->IsChecked())
+  if(!old_device_type.empty() && MenuItemLinkControls->IsChecked())
   {
     int k;
 
@@ -2562,16 +2584,16 @@ void configFrame::OnLSDecDeleteClick(wxCommandEvent& event)
 
       for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
       {
-        if(it->GetControl() == _("left_stick"))
+        if(it->GetControl() == "left_stick")
         {
           Device* dev = it->GetDeviceDown();
           Event* ev = it->GetEventDown();
           if(dev->GetType() == old_device_type && dev->GetName() == old_device_name && dev->GetType() == old_device_type && ev->GetId() == old_event_id)
           {
-            dev->SetType(wxEmptyString);
-            dev->SetName(wxEmptyString);
-            dev->SetId(wxEmptyString);
-            ev->SetId(wxEmptyString);
+            dev->SetType("");
+            dev->SetName("");
+            dev->SetId("");
+            ev->SetId("");
           }
         }
       }
@@ -2590,14 +2612,14 @@ void configFrame::OnRSDecAutoDetectClick(wxCommandEvent& event)
 {
   RSDecAutoDetect->Enable(false);
 
-  wxString old_device_type = RSDecDeviceType->GetLabel();
-  wxString old_device_name = RSDecDeviceName->GetLabel();
-  wxString old_device_id = RSDecDeviceId->GetLabel();
-  wxString old_event_id = RSDecButtonId->GetLabel();
+  string old_device_type = string(RSDecDeviceType->GetLabel().mb_str());
+  string old_device_name = string(RSDecDeviceName->GetLabel().mb_str());
+  string old_device_id = string(RSDecDeviceId->GetLabel().mb_str());
+  string old_event_id = string(RSDecButtonId->GetLabel().mb_str());
 
   auto_detect(RSDecDeviceType, RSDecDeviceName, RSDecDeviceId, _("button"), RSDecButtonId);
 
-  if(old_device_type != wxEmptyString && MenuItemLinkControls->IsChecked())
+  if(!old_device_type.empty() && MenuItemLinkControls->IsChecked())
   {
     int k;
 
@@ -2611,16 +2633,16 @@ void configFrame::OnRSDecAutoDetectClick(wxCommandEvent& event)
 
       for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
       {
-        if(it->GetControl() == _("right_stick"))
+        if(it->GetControl() == "right_stick")
         {
           Device* dev = it->GetDeviceDown();
           Event* ev = it->GetEventDown();
           if(dev->GetType() == old_device_type && dev->GetName() == old_device_name && dev->GetType() == old_device_type && ev->GetId() == old_event_id)
           {
-            dev->SetType(RSDecDeviceType->GetLabel());
-            dev->SetName(RSDecDeviceName->GetLabel());
-            dev->SetId(RSDecDeviceId->GetLabel());
-            ev->SetId(RSDecButtonId->GetLabel());
+            dev->SetType(string(RSDecDeviceType->GetLabel().mb_str()));
+            dev->SetName(string(RSDecDeviceName->GetLabel().mb_str()));
+            dev->SetId(string(RSDecDeviceId->GetLabel().mb_str()));
+            ev->SetId(string(RSDecButtonId->GetLabel().mb_str()));
           }
         }
       }
@@ -2634,12 +2656,12 @@ void configFrame::OnRSDecAutoDetectClick(wxCommandEvent& event)
 
 void configFrame::OnRSDecDeleteClick(wxCommandEvent& event)
 {
-  wxString old_device_type = RSDecDeviceType->GetLabel();
-  wxString old_device_name = RSDecDeviceName->GetLabel();
-  wxString old_device_id = RSDecDeviceId->GetLabel();
-  wxString old_event_id = RSDecButtonId->GetLabel();
+  string old_device_type = string(RSDecDeviceType->GetLabel().mb_str());
+  string old_device_name = string(RSDecDeviceName->GetLabel().mb_str());
+  string old_device_id = string(RSDecDeviceId->GetLabel().mb_str());
+  string old_event_id = string(RSDecButtonId->GetLabel().mb_str());
 
-  if(old_device_type != wxEmptyString && MenuItemLinkControls->IsChecked())
+  if(!old_device_type.empty() && MenuItemLinkControls->IsChecked())
   {
     int k;
 
@@ -2653,16 +2675,16 @@ void configFrame::OnRSDecDeleteClick(wxCommandEvent& event)
 
       for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
       {
-        if(it->GetControl() == _("right_stick"))
+        if(it->GetControl() == "right_stick")
         {
           Device* dev = it->GetDeviceDown();
           Event* ev = it->GetEventDown();
           if(dev->GetType() == old_device_type && dev->GetName() == old_device_name && dev->GetType() == old_device_type && ev->GetId() == old_event_id)
           {
-            dev->SetType(wxEmptyString);
-            dev->SetName(wxEmptyString);
-            dev->SetId(wxEmptyString);
-            ev->SetId(wxEmptyString);
+            dev->SetType("");
+            dev->SetName("");
+            dev->SetId("");
+            ev->SetId("");
           }
         }
       }
