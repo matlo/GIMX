@@ -176,78 +176,77 @@ static void display_calibration()
 
   if (current_cal != NONE)
   {
-    printf("calibrating mouse %s %d\n", sdl_get_mouse_name(current_mouse),
-        sdl_get_mouse_virtual_id(current_mouse));
-    printf("calibrating conf %d\n", current_conf + 1);
-    printf("multiplier_x:");
+    gprintf("calibrating mouse %s (%d)\n", sdl_get_mouse_name(current_mouse), sdl_get_mouse_virtual_id(current_mouse));
+    gprintf("calibrating conf %d\n", current_conf + 1);
+    gprintf("multiplier_x:");
     if (mcal->mx)
     {
-      printf(" %.2f\n", *mcal->mx);
+      gprintf(" %.2f\n", *mcal->mx);
     }
     else
     {
-      printf(" NA\n");
+      gprintf(" NA\n");
     }
-    printf("x/y_ratio:");
+    gprintf("x/y_ratio:");
     if (mcal->mx && mcal->my)
     {
-      printf(" %.2f\n", *mcal->my / *mcal->mx);
+      gprintf(" %.2f\n", *mcal->my / *mcal->mx);
     }
     else
     {
-      printf(" NA\n");
+      gprintf(" NA\n");
     }
-    printf("dead_zone_x:");
+    gprintf("dead_zone_x:");
     if (mcal->dzx)
     {
-      printf(" %d\n", *mcal->dzx);
+      gprintf(" %d\n", *mcal->dzx);
     }
     else
     {
-      printf(" NA\n");
+      gprintf(" NA\n");
     }
-    printf("dead_zone_y:");
+    gprintf("dead_zone_y:");
     if (mcal->dzy)
     {
-      printf(" %d\n", *mcal->dzy);
+      gprintf(" %d\n", *mcal->dzy);
     }
     else
     {
-      printf(" NA\n");
+      gprintf(" NA\n");
     }
-    printf("shape:");
+    gprintf("shape:");
     if (mcal->dzs)
     {
       if (*mcal->dzs == E_SHAPE_CIRCLE)
-        printf(" Circle\n");
+        gprintf(" Circle\n");
       else
-        printf(" Rectangle\n");
+        gprintf(" Rectangle\n");
     }
     else
     {
-      printf(" NA\n");
+      gprintf(" NA\n");
     }
-    printf("exponent_x:");
+    gprintf("exponent_x:");
     if (mcal->ex)
     {
-      printf(" %.2f\n", *mcal->ex);
+      gprintf(" %.2f\n", *mcal->ex);
     }
     else
     {
-      printf(" NA\n");
+      gprintf(" NA\n");
     }
-    printf("exponent_y:");
+    gprintf("exponent_y:");
     if (mcal->ey)
     {
-      printf(" %.2f\n", *mcal->ey);
+      gprintf(" %.2f\n", *mcal->ey);
     }
     else
     {
-      printf(" NA\n");
+      gprintf(" NA\n");
     }
-    printf("radius: %d\n", mcal->rd);
-    printf("velocity: %d\n", mcal->vel);
-    printf("time: %d\n", test_time);
+    gprintf("radius: %d\n", mcal->rd);
+    gprintf("velocity: %d\n", mcal->vel);
+    gprintf("time: %d\n", test_time);
   }
 }
 
@@ -302,7 +301,7 @@ void cal_key(int device_id, int sym, int down)
         if (current_cal == NONE)
         {
           current_cal = MC;
-          printf("mouse selection\n");
+          gprintf("mouse selection\n");
           display_calibration();
         }
         else
@@ -310,9 +309,9 @@ void cal_key(int device_id, int sym, int down)
           current_cal = NONE;
           if (cfgw_modify_file(config_file))
           {
-            printf("error writting the config file %s\n", config_file);
+            gprintf("error writting the config file %s\n", config_file);
           }
-          printf("calibration done\n");
+          gprintf("calibration done\n");
         }
       }
       break;
@@ -322,12 +321,12 @@ void cal_key(int device_id, int sym, int down)
         if (current_cal == CC)
         {
           current_cal = MC;
-          printf("mouse selection\n");
+          gprintf("mouse selection\n");
         }
         else if (current_cal >= MC)
         {
           current_cal = CC;
-          printf("config selection\n");
+          gprintf("config selection\n");
         }
       }
       break;
@@ -336,7 +335,7 @@ void cal_key(int device_id, int sym, int down)
       {
         if (current_conf >= 0 && current_mouse >= 0)
         {
-          printf("calibrating multiplier x\n");
+          gprintf("calibrating multiplier x\n");
           current_cal = MX;
         }
       }
@@ -346,7 +345,7 @@ void cal_key(int device_id, int sym, int down)
       {
         if (current_conf >= 0 && current_mouse >= 0)
         {
-          printf("calibrating x/y ratio\n");
+          gprintf("calibrating x/y ratio\n");
           current_cal = MY;
         }
       }
@@ -356,7 +355,7 @@ void cal_key(int device_id, int sym, int down)
       {
         if (current_conf >= 0 && current_mouse >= 0)
         {
-          printf("calibrating dead zone x\n");
+          gprintf("calibrating dead zone x\n");
           current_cal = DZX;
           mc->merge_x[mc->index] = 1;
           mc->merge_y[mc->index] = 0;
@@ -369,7 +368,7 @@ void cal_key(int device_id, int sym, int down)
       {
         if (current_conf >= 0 && current_mouse >= 0)
         {
-          printf("calibrating dead zone y\n");
+          gprintf("calibrating dead zone y\n");
           current_cal = DZY;
           mc->merge_x[mc->index] = 0;
           mc->merge_y[mc->index] = 1;
@@ -382,7 +381,7 @@ void cal_key(int device_id, int sym, int down)
       {
         if (current_conf >= 0 && current_mouse >= 0)
         {
-          printf("calibrating dead zone shape\n");
+          gprintf("calibrating dead zone shape\n");
           current_cal = DZS;
           mc->merge_x[mc->index] = 1;
           mc->merge_y[mc->index] = 1;
@@ -395,7 +394,7 @@ void cal_key(int device_id, int sym, int down)
       {
         if (current_conf >= 0 && current_mouse >= 0)
         {
-          printf("calibrating exponent x\n");
+          gprintf("calibrating exponent x\n");
           current_cal = EX;
         }
       }
@@ -405,7 +404,7 @@ void cal_key(int device_id, int sym, int down)
       {
         if (current_conf >= 0 && current_mouse >= 0)
         {
-          printf("calibrating exponent y\n");
+          gprintf("calibrating exponent y\n");
           current_cal = EY;
         }
       }
@@ -419,7 +418,7 @@ void cal_key(int device_id, int sym, int down)
           {
             circle_step = 0;
           }
-          printf("adjusting circle test radius\n");
+          gprintf("adjusting circle test radius\n");
           current_cal = RD;
         }
       }
@@ -433,7 +432,7 @@ void cal_key(int device_id, int sym, int down)
           {
             circle_step = 0;
           }
-          printf("adjusting circle test velocity\n");
+          gprintf("adjusting circle test velocity\n");
           current_cal = VEL;
         }
       }
@@ -450,7 +449,7 @@ void cal_key(int device_id, int sym, int down)
             direction = 1;
             step = 1;
           }
-          printf("translation test started\n");
+          gprintf("translation test started\n");
           current_cal = TEST;
         }
       }

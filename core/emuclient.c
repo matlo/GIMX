@@ -38,6 +38,7 @@
 #include <libxml/parser.h>
 #include "serial_con.h"
 #include "gpp_con.h"
+#include "display.h"
 
 #include <locale.h>
 
@@ -77,6 +78,7 @@ int subpos = 0;
 int serial = 0;
 int done = 0;
 int display = 0;
+int curses = 0;
 int force_updates = 0;
 int check_config = 0;
 
@@ -102,6 +104,8 @@ int main(int argc, char *argv[])
 #endif
   int time_to_sleep;
   e_controller_type ctype = C_TYPE_JOYSTICK;
+  int daxes[4];
+  int dbuttons[SB_MAX];
 
 #ifndef WIN32
   /*
@@ -140,7 +144,10 @@ int main(int argc, char *argv[])
     }
     else if (!strcmp(argv[i], "--status"))
     {
-      display = 1;
+      if(!curses)
+      {
+        display = 1;
+      }
     }
     else if (!strcmp(argv[i], "--refresh"))
     {
@@ -192,6 +199,13 @@ int main(int argc, char *argv[])
     {
       keygen = argv[++i];
     }
+    else if (!strcmp(argv[i], "--curses"))
+    {
+      if(!display)
+      {
+        curses = 1;
+      }
+    }
 //#ifdef WIN32
 //    else if (!strcmp(argv[i], "--ip") && i < argc)
 //    {
@@ -203,6 +217,11 @@ int main(int argc, char *argv[])
   if (display == 1)
   {
     printf("max_axis_value: %d\n", max_axis_value);//needed by sixstatus...
+  }
+
+  if(curses)
+  {
+    display_init();
   }
 
   axis_scale = (double) max_axis_value / DEFAULT_MAX_AXIS_VALUE;
@@ -346,6 +365,7 @@ int main(int argc, char *argv[])
           cal_button(event->button.which, event->button.button);
           break;
       }
+
     }
 
     cfg_process_motion();
@@ -376,6 +396,18 @@ int main(int argc, char *argv[])
       fflush(stdout);
     }
 #endif
+    if(curses)
+    {
+      daxes[0] = state[0].user.axis[0][0];
+      daxes[1] = state[0].user.axis[0][1];
+      daxes[2] = state[0].user.axis[1][0];
+      daxes[3] = state[0].user.axis[1][1];
+      for(i=0; i<SB_MAX; ++i)
+      {
+        dbuttons[i] = state[0].user.button[i].value;
+      }
+      display_run(daxes, mean_axis_value, dbuttons, 255);
+    }
 
 #ifndef WIN32
     gettimeofday(&t1, NULL);
@@ -394,7 +426,7 @@ int main(int argc, char *argv[])
     else
 
     {
-      printf("processing time higher than %dus: %dus!!\n", refresh, refresh - time_to_sleep);
+      //printf("processing time higher than %dus: %dus!!\n", refresh, refresh - time_to_sleep);
     }
   }
 
@@ -414,6 +446,11 @@ EXIT:
   }
 
   xmlCleanupParser();
+
+  if(curses)
+  {
+    display_end();
+  }
 
   return 0;
 }

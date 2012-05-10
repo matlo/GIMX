@@ -147,7 +147,7 @@ void sdl_release_unused()
   {
     if(!cfg_is_joystick_used(i))
     {
-      printf("close unused joystick: %s\n", joystickName[i]);
+      gprintf("close unused joystick: %s\n", joystickName[i]);
       free(joystickName[i]);
       joystickName[i] = NULL;
       SDL_JoystickClose(joysticks[i]);
@@ -159,7 +159,7 @@ void sdl_release_unused()
   }
   if(none)
   {
-    printf("close joystick subsystem\n");
+    gprintf("close joystick subsystem\n");
     SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
   }
 }

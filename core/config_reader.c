@@ -31,6 +31,8 @@ extern double axis_scale;
 extern int merge_all_devices;
 extern int check_config;
 
+extern int display;
+
 /*
  * These variables are used to read the configuration.
  */
@@ -117,7 +119,7 @@ static int GetDeviceId(xmlNode* a_node)
       }
       if(i == MAX_DEVICES || !sdl_get_joystick_name(i))
       {
-        printf("joystick not found: %s %d\n", r_device_name, r_device_id);
+        gprintf("joystick not found: %s %d\n", r_device_name, r_device_id);
         ret = 1;
       }
     }
@@ -129,7 +131,7 @@ static int GetDeviceId(xmlNode* a_node)
     {
       if(!merge_all_devices)
       {
-        printf("A device name is empty. Multiple mice and keyboards are not managed.\n");
+        gprintf("A device name is empty. Multiple mice and keyboards are not managed.\n");
       }
       merge_all_devices = 1;
     }
@@ -150,7 +152,7 @@ static int GetDeviceId(xmlNode* a_node)
         }
         if(i == MAX_DEVICES || !sdl_get_mouse_name(i))
         {
-          printf("mouse not found: %s %d\n", r_device_name, r_device_id);
+          gprintf("mouse not found: %s %d\n", r_device_name, r_device_id);
           ret = 1;
         }
       }
@@ -169,7 +171,7 @@ static int GetDeviceId(xmlNode* a_node)
         }
         if(i == MAX_DEVICES || !sdl_get_keyboard_name(i))
         {
-          printf("keyboard not found: %s %d\n", r_device_name, r_device_id);
+          gprintf("keyboard not found: %s %d\n", r_device_name, r_device_id);
           ret = 1;
         }
       }

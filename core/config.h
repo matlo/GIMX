@@ -11,6 +11,8 @@
 #include <SDL/SDL.h>
 #include "sixaxis.h"
 
+#define gprintf(...) if(display) printf(__VA_ARGS__)
+
 #define MAX_CONTROLLERS 7
 #define MAX_CONFIGURATIONS 8
 #define MAX_DEVICES 256
