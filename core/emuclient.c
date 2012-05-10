@@ -39,6 +39,7 @@
 #include "serial_con.h"
 #include "gpp_con.h"
 #include "display.h"
+#include "emuclient.h"
 
 #include <locale.h>
 
@@ -174,6 +175,7 @@ int main(int argc, char *argv[])
     else if (!strcmp(argv[i], "--check"))
     {
       check_config = 1;
+      display = 1;
     }
     else if (!strcmp(argv[i], "--joystick"))
     {
@@ -214,9 +216,9 @@ int main(int argc, char *argv[])
 //#endif
   }
 
-  if (display == 1)
+  if (!check_config)
   {
-    printf("max_axis_value: %d\n", max_axis_value);//needed by sixstatus...
+    gprintf("max_axis_value: %d\n", max_axis_value);//needed by sixstatus...
   }
 
   if(curses)
@@ -239,10 +241,10 @@ int main(int argc, char *argv[])
   {
     err(1, "can't init sdl");
   }
-  else if(display)
+  else if(!check_config)
   {
     /* Needed by gimx-status */
-    printf("sdl initialized\n");
+    gprintf("sdl initialized\n");
   }
 
   if(grab)

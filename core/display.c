@@ -5,11 +5,13 @@
  *      Author: matlo
  */
 
-#include <ncurses.h>
 #include <string.h>
 #include <stdlib.h>
 #ifdef WIN32
 #include <windows.h>
+#include <curses.h>
+#else
+#include <ncurses.h>
 #endif
 
 #include "display.h"

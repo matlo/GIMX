@@ -17,6 +17,7 @@ install: all
 	cp -u -f /mingw/bin/libxml2.dll setup
 	cp -u -f /mingw/bin/SDL.dll setup
 	cp -u -f /mingw/bin/zlib1.dll setup
+	cp -u -f /mingw/bin/libpdcurses.dll setup
 	cp -u -f core/emuclient.exe setup
 	cp -u -f config/gimx-config.exe setup
 	cp -u -f serial/gimx-serial.exe setup
