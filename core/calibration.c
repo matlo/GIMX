@@ -13,18 +13,12 @@
 #include "config.h"
 #include "sdl_tools.h"
 #include "config_writter.h"
+#include "emuclient.h"
 
 #define DEFAULT_MULTIPLIER_STEP 0.01
 #define EXPONENT_STEP 0.01
 #define DURATION 500000 //1s
 #define STEPS 720
-
-extern int refresh;
-extern int mean_axis_value;
-extern double axis_scale;
-extern double frequency_scale;
-extern int display;
-extern char* config_file;
 
 int current_mouse = 0;
 int current_conf = 0;
@@ -218,9 +212,13 @@ static void display_calibration()
     if (mcal->dzs)
     {
       if (*mcal->dzs == E_SHAPE_CIRCLE)
+      {
         gprintf(" Circle\n");
+      }
       else
+      {
         gprintf(" Rectangle\n");
+      }
     }
     else
     {

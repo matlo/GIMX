@@ -15,6 +15,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include "emuclient.h"
 
 /*
  * The serial connection.
@@ -34,7 +35,7 @@ int lin_serial_connect(char* portname)
   struct termios options;
   int ret = 0;
 
-  printf("connecting to %s\n", portname);
+  gprintf("connecting to %s\n", portname);
 
   if ((serial = open(portname, O_RDWR | O_NOCTTY | O_NDELAY)) < 0)
   {
@@ -59,7 +60,7 @@ int lin_serial_connect(char* portname)
     }
     else
     {
-      printf("connected\n");
+      gprintf("connected\n");
     }
   }
 

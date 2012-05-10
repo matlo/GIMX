@@ -8,11 +8,7 @@
 #include "gpp/pcprog.h"
 #include "config.h"
 #include "dump.h"
-
-extern int display;
-
-extern s_controller controller[MAX_CONTROLLERS];
-extern struct sixaxis_state state[MAX_CONTROLLERS];
+#include "emuclient.h"
 
 int gpp_connect()
 {

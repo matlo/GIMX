@@ -10,20 +10,7 @@
 #include <sys/time.h>
 #include "sdl_tools.h"
 #include "calibration.h"
-
-extern struct sixaxis_state state[MAX_CONTROLLERS];
-extern s_controller controller[MAX_CONTROLLERS];
-extern int display;
-
-extern int current_mouse;
-extern e_current_cal current_cal;
-
-extern double axis_scale;
-extern double frequency_scale;
-extern int mean_axis_value;
-extern int refresh;
-extern int postpone_count;
-extern int subpos;
+#include "emuclient.h"
 
 /*
  * This tells what's the current config of each controller.

@@ -8,6 +8,7 @@
  */
 #include "sdl_tools.h"
 #include "config.h"
+#include "emuclient.h"
 
 #ifndef WIN32
 #define SCREEN_WIDTH  8

@@ -90,6 +90,10 @@ struct sixaxis_process_t {
 
 extern struct sixaxis_assemble_t sixaxis_assemble[];
 extern struct sixaxis_process_t sixaxis_process[];
+extern char bdaddr_src[18];
+extern int sixaxis_number;
+extern const int digital_order[17];
+extern const int analog_order[12];
 
 void sixaxis_init(struct sixaxis_state *state);
 int sixaxis_periodic_report(struct sixaxis_state *state);

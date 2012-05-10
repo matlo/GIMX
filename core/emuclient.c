@@ -86,7 +86,7 @@ struct sixaxis_state state[MAX_CONTROLLERS];
 s_controller controller[MAX_CONTROLLERS] =
 { };
 
-extern int merge_all_devices;
+int merge_all_devices;
 
 int main(int argc, char *argv[])
 {

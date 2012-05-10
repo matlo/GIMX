@@ -65,9 +65,7 @@ static int debug = 0;
 static const char *hid_report_name[] = { 
     "reserved", "input", "output", "feature" };
 
-extern char bdaddr_src[18];
 int device_number;
-extern int sixaxis_number;
 
 #define CTRL 17
 #define DATA 19

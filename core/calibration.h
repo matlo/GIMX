@@ -8,6 +8,10 @@
 #ifndef CALIBRATION_H_
 #define CALIBRATION_H_
 
+extern int mouse_controller[MAX_DEVICES];
+extern int current_mouse;
+extern e_current_cal current_cal;
+
 void cal_button(int, int);
 void cal_key(int, int, int);
 inline s_mouse_cal* cal_get_mouse(int, int);

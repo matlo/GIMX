@@ -10,6 +10,8 @@
 
 #include <SDL/SDL.h>
 
+extern int merge_all_devices;
+
 int sdl_initialize();
 void sdl_grab_toggle();
 void sdl_grab();

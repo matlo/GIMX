@@ -18,6 +18,7 @@
 #endif
 #include "config.h"
 #include "dump.h"
+#include "emuclient.h"
 
 /*
  * Controller are listening from TCP_PORT to TCP_PORT+MAX_CONTROLLERS-1
@@ -28,10 +29,6 @@
  * Sockets to controllers.
  */
 static int sockfd[MAX_CONTROLLERS];
-
-extern s_controller controller[MAX_CONTROLLERS];
-extern struct sixaxis_state state[MAX_CONTROLLERS];
-extern int display;
 
 /*
  * Connect to all responding controllers.

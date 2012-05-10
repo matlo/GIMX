@@ -8,6 +8,7 @@
 #include <limits.h>
 
 #include "../directories.h"
+#include "emuclient.h"
 
 /*
  * These variables are used to read the configuration.
@@ -17,10 +18,6 @@ static unsigned int r_config_id;
 static e_device_type r_device_type;
 static int r_device_id;
 static char r_device_name[128];
-
-extern int merge_all_devices;
-
-extern char* homedir;
 
 static int ProcessEventElement(xmlNode * a_node)
 {

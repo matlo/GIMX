@@ -14,6 +14,7 @@
 #include <dirent.h>
 #include "conversion.h"
 #include <math.h>
+#include "emuclient.h"
 
 #ifdef WIN32
 #include <sys/stat.h>
@@ -43,9 +44,6 @@ typedef struct {
 } s_macro_arg;
 
 s_macro_arg macro_arg;
-
-extern char* homedir;
-extern int refresh;
 
 /*
  * This table is used to store all the macros that are read from script files at the initialization of the process.

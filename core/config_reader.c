@@ -14,24 +14,13 @@
 #include <dirent.h>
 #include <libxml/xmlreader.h>
 #include <iconv.h>
-
+#include "emuclient.h"
 #include "../directories.h"
 
 #ifdef WIN32
 #include <sys/stat.h>
 #define LINE_MAX 1024
 #endif
-
-#ifndef WIN32
-extern char* homedir;
-#endif
-
-extern int mean_axis_value;
-extern double axis_scale;
-extern int merge_all_devices;
-extern int check_config;
-
-extern int display;
 
 /*
  * These variables are used to read the configuration.
@@ -1140,10 +1129,6 @@ static int read_file(char* file_path)
 
   return ret;
 }
-
-extern int mouse_controller[MAX_DEVICES];
-
-extern int current_mouse;
 
 static void read_calibration()
 {

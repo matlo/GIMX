@@ -14,6 +14,8 @@
 #include <stdio.h>
 #include "config.h"
 #include "dump.h"
+#include "emuclient.h"
+#include "sixaxis.h"
 
 /*
  * These defines are exclusive.
@@ -22,17 +24,6 @@
 #define PS2 0
 #define PS3 0
 #define X360 0
-
-/*
- * Imported from emuclient.c
- */
-extern int max_axis_value;
-extern int mean_axis_value;
-
-extern s_controller controller[MAX_CONTROLLERS];
-extern struct sixaxis_state state[MAX_CONTROLLERS];
-
-extern int display;
 
 /*
  * Connect to a serial port.
@@ -156,9 +147,6 @@ static void _360pad_serial_send()
     lin_serial_send(&report, sizeof(report));
 #endif
 }
-
-extern const int digital_order[17];
-extern const int analog_order[12];
 
 static void sixaxis_serial_send()
 {
