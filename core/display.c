@@ -12,6 +12,7 @@
 #include <curses.h>
 #else
 #include <ncurses.h>
+#include <sys/time.h>
 #endif
 
 #include "display.h"
@@ -69,6 +70,12 @@ WINDOW *lstick, *rstick, *wbuttons;
 
 int cross[2][2] = { {STICK_X_L / 2, STICK_Y_L / 2}, {STICK_X_L / 2, STICK_Y_L / 2} };
 
+#ifndef WIN32
+struct timeval t0, t1;
+#else
+LARGE_INTEGER t0, t1, freq;
+#endif
+
 void display_init()
 {
   initscr();
@@ -84,28 +91,34 @@ void display_init()
   init_pair(2, COLOR_WHITE, COLOR_WHITE);
   init_pair(3, COLOR_BLACK, COLOR_RED);
 
-  refresh();
+  wrefresh(stdscr);//first call clears the screen
+
+  mvaddstr(1, LSTICK_X_P + 1, "Left stick");
+  mvaddstr(1, RSTICK_X_P + 1, "Right stick");
+  mvaddstr(1, BUTTON_X_P + 1, "Buttons");
 
   lstick = newwin(STICK_Y_L, STICK_X_L, LSTICK_Y_P, LSTICK_X_P);
   box(lstick, 0 , 0);
-  wrefresh(lstick);
-
-  mvprintw(1, LSTICK_X_P + 1, "Left stick");
-  refresh();
+  wnoutrefresh(lstick);
 
   rstick = newwin(STICK_Y_L, STICK_X_L, RSTICK_Y_P, RSTICK_X_P);
   box(rstick, 0 , 0);
-  wrefresh(rstick);
-
-  mvprintw(1, RSTICK_X_P + 1, "Right stick");
-  refresh();
+  wnoutrefresh(rstick);
 
   wbuttons = newwin(BUTTON_Y_L, BUTTON_X_L, BUTTON_Y_P, BUTTON_X_P);
   box(wbuttons, 0 , 0);
-  wrefresh(wbuttons);
+  wnoutrefresh(wbuttons);
 
-  mvprintw(1, BUTTON_X_P + 1, "Buttons");
-  refresh();
+  mvaddstr(LINES-1, 1, "Refresh rate: ");
+
+  doupdate();
+
+#ifndef WIN32
+  gettimeofday(&t0, NULL);
+#else
+  QueryPerformanceCounter(&t0);
+  QueryPerformanceFrequency(&freq);
+#endif
 }
 
 void display_end()
@@ -114,12 +127,35 @@ void display_end()
 }
 
 int last_button_nb = 0;
+int cpt = 0;
 
 void display_run(int axes[4], int max_axis, int buttons[BUTTON_NB], int max_button)
 {
   int i;
   int d;
   char label[LABEL_LENGTH + 7];
+  char rate[sizeof("Refresh rate")];
+  int tdiff;
+
+  cpt++;
+
+#ifndef WIN32
+  gettimeofday(&t1, NULL);
+
+  tdiff = (t1.tv_sec * 1000000 + t1.tv_usec) - (t0.tv_sec * 1000000 + t0.tv_usec);
+#else
+  QueryPerformanceCounter(&t1);
+
+  tdiff = (t1.QuadPart - t0.QuadPart) * 1000000 / freq.QuadPart;
+#endif
+
+  if(tdiff > 500000)
+  {
+    sprintf(rate, "%4d Hz", cpt*2);
+    mvaddstr(LINES-1, 15, rate);
+    t0 = t1;
+    cpt = 0;
+  }
 
   d = 0;
 

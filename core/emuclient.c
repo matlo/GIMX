@@ -68,7 +68,7 @@ char* portname = NULL;
 
 char* keygen = NULL;
 
-int refresh = DEFAULT_REFRESH_PERIOD; //Âµs
+int refresh = DEFAULT_REFRESH_PERIOD; //µs
 int postpone_count = DEFAULT_POSTPONE_COUNT;
 int max_axis_value = DEFAULT_MAX_AXIS_VALUE;
 int mean_axis_value = DEFAULT_MAX_AXIS_VALUE / 2;
@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
     }
     else if (!strcmp(argv[i], "--refresh"))
     {
-      refresh = atoi(argv[++i]) * 1000;
+      refresh = atof(argv[++i]) * 1000;
       postpone_count = 3 * DEFAULT_REFRESH_PERIOD / refresh;
     }
     else if (!strcmp(argv[i], "--precision"))
