@@ -38,6 +38,8 @@
 #include "../shared/updater/updater.h"
 #include "../shared/configupdater/configupdater.h"
 
+#include <wx/arrstr.h>
+
 using namespace std;
 
 #ifdef WIN32
@@ -558,14 +560,14 @@ void serialFrame::OnAbout(wxCommandEvent& event)
 
 void serialFrame::OnButtonStartClick(wxCommandEvent& event)
 {
-    string command = "";
+    wxString command;
+    wxArrayString output, errors;
     string filename = "";
     wxString dpi;
-    int refresh;
+    double refresh;
     ostringstream ios;
     double frequency;
     wxString wxfrequency;
-    wxString configname;
 
     if(ChoiceConfig->GetStringSelection().IsEmpty())
     {
@@ -588,64 +590,48 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
       return;
     }
 
-#ifdef WIN32
-    command.append("emuclient.exe");
-#else
-    if(CheckBoxTerminal->IsChecked())
+#ifndef WIN32
+    if(CheckBoxTerminal->IsChecked() || CheckBoxGui->IsChecked())
     {
-        command.append("gnome-terminal -e \"");
+        command.Append(_("gnome-terminal -x "));
     }
-    else
-    {
-        command.append("/bin/bash -c \"");
-    }
-    command.append(" emuclient");
 #endif
+    command.Append(_("emuclient"));
     if(ControllerType->GetStringSelection() == _("Joystick"))
     {
-      command.append(" --joystick");
+      command.Append(_(" --joystick"));
     }
     else if(ControllerType->GetStringSelection() == _("GPP"))
     {
-      command.append(" --GPP");
+      command.Append(_(" --GPP"));
     }
     else if(ControllerType->GetStringSelection() == _("360 pad"))
     {
-      command.append(" --360pad");
+      command.Append(_(" --360pad"));
     }
     else if(ControllerType->GetStringSelection() == _("Sixaxis"))
     {
-      command.append(" --Sixaxis");
+      command.Append(_(" --Sixaxis"));
     }
     else if(ControllerType->GetStringSelection() == _("PS2 pad"))
     {
-      command.append(" --PS2pad");
+      command.Append(_(" --PS2pad"));
     }
     if(ControllerType->GetStringSelection() == _("Joystick"))
     {
-      command.append(" --precision 16");
+      command.Append(_(" --precision 16"));
     }
     else
     {
-      command.append(" --precision 8");
+      command.Append(_(" --precision 8"));
     }
     if(!CheckBoxGrab->IsChecked())
     {
-        command.append(" --nograb");
+        command.Append(_(" --nograb"));
     }
-    command.append(" --config ");
-#ifdef WIN32
-    command.append("\"");
-#endif
-    configname = ChoiceConfig->GetStringSelection();
-#ifndef WIN32
-    configname.Replace(_(" "), _("\\ "));
-#endif
-    command.append(configname.mb_str());
-#ifdef WIN32
-    command.append("\"");
-#endif
-    command.append(" --refresh ");
+    command.Append(_(" --config \""));
+    command.Append(ChoiceConfig->GetStringSelection());
+    command.Append(_("\" --refresh "));
     wxfrequency = ComboBoxFrequency->GetValue();
     if(wxfrequency.ToDouble(&frequency))
     {
@@ -656,39 +642,27 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
       refresh = 10;
     }
     ios << refresh;
-    command.append(ios.str());
+    command.Append(wxString(ios.str().c_str(), wxConvUTF8));
     if(CheckBoxForceUpdates->IsChecked())
     {
-        command.append(" --force-updates");
+        command.Append(_(" --force-updates"));
     }
     if(CheckBoxSubpositions->IsChecked())
     {
-        command.append(" --subpos");
+        command.Append(_(" --subpos"));
     }
     if(ControllerType->GetStringSelection() != _("GPP"))
     {
-      command.append(" --serial");
-      command.append(" --port ");
+      command.Append(_(" --serial"));
+      command.Append(_(" --port "));
 #ifndef WIN32
-      command.append("/dev/");
+      command.Append(_("/dev/"));
 #endif
-      command.append(ComboBoxDevice->GetValue().mb_str());
+      command.Append(ComboBoxDevice->GetValue());
     }
-    if(CheckBoxGui->IsChecked())
-    {
-        command.append(" --status | gimx-status");
-    }
-    else if(CheckBoxTerminal->IsChecked())
-    {
-        command.append(" --status");
-    }
-#ifndef WIN32
-    command.append("\"");
-#endif
+    
+    //cout << command.c_str() << endl;
 
-    //cout << command << endl;
-
-    ButtonStart->Disable();
 #ifndef WIN32
     filename.append(homedir);
     filename.append(OPT_DIR);
@@ -737,12 +711,30 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
         outfile4.close();
     }
 
-    if(system(command.c_str()) != 0)
+#ifndef WIN32
+    if(CheckBoxTerminal->IsChecked())
     {
-        wxMessageBox( wxT("Connection error!\nPlease check the USB to serial device!"), wxT("Error"), wxICON_ERROR);
+        command.Append(_(" --status"));
+    }
+    else if(CheckBoxGui->IsChecked())
+    {
+      command.Append(_(" --curses"));
+    }
+#endif
+
+    StatusBar1->SetStatusText(_("Press Shift+Esc to exit."));
+
+    if(wxExecute(command, output, errors, wxEXEC_SYNC))
+    {
+      wxString error;
+      for(unsigned int i=0; i<output.GetCount(); ++i)
+      {
+        error.Append(output[i]);
+      }
+      wxMessageBox( error, wxT("Error"), wxICON_ERROR);
     }
 
-    ButtonStart->Enable();
+    StatusBar1->SetStatusText(_(""));
 }
 
 void serialFrame::OnCheckBoxGuiClick(wxCommandEvent& event)
@@ -768,19 +760,10 @@ void serialFrame::OnCheckBoxCalibrate(wxCommandEvent& event)
     }
 }
 
-#ifdef WIN32
-#define CHECK_FILE "check_result"
-#else
-#define CHECK_FILE "/tmp/check_result"
-#endif
-
 void serialFrame::OnButtonCheckClick1(wxCommandEvent& event)
 {
-    string command = "";
-    string filename = "";
-    string result = "";
-    string line = "";
-    wxString configname;
+    wxString command;
+    wxArrayString output, errors;
 
     if(ChoiceConfig->GetStringSelection().IsEmpty())
     {
@@ -788,153 +771,62 @@ void serialFrame::OnButtonCheckClick1(wxCommandEvent& event)
       return;
     }
 
-#ifdef WIN32
-    command.append("emuclient.exe");
-#else
-    command.append("emuclient");
-#endif
-    command.append(" --config ");
-#ifdef WIN32
-    command.append("\"");
-#endif
-    configname = ChoiceConfig->GetStringSelection();
-#ifndef WIN32
-    configname.Replace(_(" "), _("\\ "));
-#endif
-    command.append(configname.mb_str());
-#ifdef WIN32
-    command.append("\"");
-#endif
-    command.append(" --check --nograb > ");
-    command.append(CHECK_FILE);
+    command.Append(_("emuclient --config \""));
+    command.Append(ChoiceConfig->GetStringSelection());
+    command.Append(_("\" --check"));
     
-    if(system(command.c_str()) != 0)
+    if(wxExecute(command, output, errors, wxEXEC_SYNC))
     {
-        wxMessageBox( wxT("Can't check the config file!"), wxT("Error"), wxICON_ERROR);
+      wxString error;
+      for(unsigned int i=0; i<errors.GetCount(); ++i)
+      {
+        error.Append(errors[i]);
+      }
+      wxMessageBox( error, wxT("Error"), wxICON_ERROR);
     }
     else
     {
-        ifstream infile (CHECK_FILE);
-        if ( infile.is_open() )
+      wxString info;
+      for(unsigned int i=0; i<output.GetCount(); ++i)
+      {
+        if(!info.Contains(output[i]))
         {
-            if( infile.good() )
-            {
-                while(getline (infile,line))
-                {
-                    if(result.find(line) == string::npos)
-                    {
-                        result.append(line);
-                        result.append("\n");
-                    }
-                }
-                if(result.empty())
-                {
-                    result.append("This config seems OK!\n");
-                }
-                wxMessageBox( wxString(result.c_str(), wxConvUTF8), wxT("Info"), wxICON_INFORMATION);
-            }
-            infile.close();
+          info.Append(_("\n"));
+          info.Append(output[i]);
         }
+      }
+      if(info.IsEmpty())
+      {
+        info.Append(_("This config seems OK!\n"));
+      }
+      wxMessageBox( info, wxT("Info"), wxICON_INFORMATION);
     }
-    remove(CHECK_FILE);
 }
 
 void serialFrame::OnMenuEditConfig(wxCommandEvent& event)
 {
-  string command = "";
-#ifdef WIN32
-  command.append("gimx-config.exe -f ");
-  command.append("\"");
-  command.append(ChoiceConfig->GetStringSelection().mb_str());
-  command.append("\"");
+  wxString command = _("gimx-config -f \"");
+  command.Append(ChoiceConfig->GetStringSelection());
+  command.Append(_("\""));
 
-  STARTUPINFOA startupInfo =
-  { 0};
-  startupInfo.cb = sizeof(startupInfo);
-  PROCESS_INFORMATION processInformation;
-
-  char* cmd = strdup(command.c_str());
-
-  BOOL result = CreateProcessA(
-      "gimx-config.exe",
-      cmd,
-      NULL,
-      NULL,
-      FALSE,
-      NORMAL_PRIORITY_CLASS,
-      NULL,
-      NULL,
-      &startupInfo,
-      &processInformation
-  );
-
-  free(cmd);
-
-  if(result == 0)
-  {
-    wxMessageBox( wxT("Error editing the config file!"), wxT("Error"), wxICON_ERROR);
-  }
-#else
-  command.append("gimx-config");
-  command.append(" -f ");
-  command.append(ChoiceConfig->GetStringSelection().mb_str());
-  command.append(" &");
-
-  if (system(command.c_str()) != 0)
+  if (!wxExecute(command, wxEXEC_ASYNC))
   {
     wxMessageBox(wxT("Error editing the config file!"), wxT("Error"),
         wxICON_ERROR);
   }
-#endif
 }
 
 void serialFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
 {
-  string command = "";
-#ifdef WIN32
-  command.append("gimx-fpsconfig.exe -f ");
-  command.append("\"");
-  command.append(ChoiceConfig->GetStringSelection().mb_str());
-  command.append("\"");
+  wxString command = _("gimx-fpsconfig -f \"");
+  command.Append(ChoiceConfig->GetStringSelection());
+  command.Append(_("\""));
 
-  STARTUPINFOA startupInfo =
-  { 0};
-  startupInfo.cb = sizeof(startupInfo);
-  PROCESS_INFORMATION processInformation;
-
-  char* cmd = strdup(command.c_str());
-
-  BOOL result = CreateProcessA(
-      "gimx-fpsconfig.exe",
-      cmd,
-      NULL,
-      NULL,
-      FALSE,
-      NORMAL_PRIORITY_CLASS,
-      NULL,
-      NULL,
-      &startupInfo,
-      &processInformation
-  );
-
-  free(cmd);
-
-  if(result == 0)
-  {
-    wxMessageBox( wxT("Error editing the config file!"), wxT("Error"), wxICON_ERROR);
-  }
-#else
-  command.append("gimx-fpsconfig");
-  command.append(" -f ");
-  command.append(ChoiceConfig->GetStringSelection().mb_str());
-  command.append(" &");
-
-  if (system(command.c_str()) != 0)
+  if (!wxExecute(command, wxEXEC_ASYNC))
   {
     wxMessageBox(wxT("Error editing the config file!"), wxT("Error"),
         wxICON_ERROR);
   }
-#endif
 }
 
 void serialFrame::OnMenuRefresh(wxCommandEvent& event)
@@ -984,7 +876,7 @@ void serialFrame::OnControllerTypeSelect(wxCommandEvent& event)
 
 void serialFrame::OnButtonSpoofClick(wxCommandEvent& event)
 {
-    string command = "";
+    wxString command = _("usbspoof -p ");
 
     if(ComboBoxDevice->GetValue().IsEmpty())
     {
@@ -1000,14 +892,12 @@ void serialFrame::OnButtonSpoofClick(wxCommandEvent& event)
             "3. Make sure the adapter is NOT connected to the 360.\n"
             "4. Press OK, and connect the adapter to the 360 after 2-3 seconds."), wxT("Info"), wxICON_INFORMATION);
       }
-#ifdef WIN32
-      command.append("usbspoof.exe -p ");
-#else
-      command.append("usbspoof -p /dev/");
+#ifndef WIN32
+      command.Append(_("/dev/"));
 #endif
-      command.append(ComboBoxDevice->GetValue().mb_str());
+      command.Append(ComboBoxDevice->GetValue());
 
-      if(system(command.c_str()) != 0)
+      if(wxExecute(command, wxEXEC_SYNC))
       {
         spoofed = false;
         wxMessageBox( wxT("Spoof error!\nPlease try again!"), wxT("Error"), wxICON_ERROR);
