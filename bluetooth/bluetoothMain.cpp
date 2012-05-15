@@ -35,6 +35,8 @@
 #include "../shared/updater/updater.h"
 #include "../shared/configupdater/configupdater.h"
 
+#include <wx/arrstr.h>
+
 using namespace std;
 
 #define OPT_DIR "/.sixemugui/"
@@ -452,6 +454,10 @@ void bluetoothFrame::refresh()
     readDongles();
     read_filenames(Choice4);
     Choice4->SetSelection(Choice4->FindString(previous));
+    if(Choice4->GetSelection() < 0)
+    {
+      Choice4->SetSelection(0);
+    }
     if(Choice1->GetCount() == 0)
     {
         wxMessageBox( wxT("No Sixaxis Detected!\nSixaxis usb wire plugged?"), wxT("Error"), wxICON_ERROR);
@@ -1106,9 +1112,9 @@ void bluetoothFrame::OnButton1Click(wxCommandEvent& event)
 
 void bluetoothFrame::OnButton3Click(wxCommandEvent& event)
 {
-    string command = "";
+    wxString command;
+    wxArrayString output, errors;
     string filename = "";
-    wxString configname;
 
     if(Choice4->GetStringSelection().IsEmpty())
     {
@@ -1116,42 +1122,34 @@ void bluetoothFrame::OnButton3Click(wxCommandEvent& event)
       return;
     }
 
-    if(CheckBox3->IsChecked())
+    if(CheckBox3->IsChecked() || CheckBox2->IsChecked())
     {
-        command.append("gnome-terminal -e \"");
+        command.Append(_("gnome-terminal -x "));
     }
-    else
-    {
-        command.append("/bin/bash -c \"");
-    }
-    command.append(" emuclient");
+    command.Append(_("emuclient"));
     if(!CheckBox1->IsChecked())
     {
-        command.append(" --nograb");
+        command.Append(_(" --nograb"));
     }
     if(CheckBox6->IsChecked())
     {
-        command.append(" --force-updates");
+        command.Append(_(" --force-updates"));
     }
     if(CheckBox7->IsChecked())
     {
-        command.append(" --subpos");
+        command.Append(_(" --subpos"));
     }
-    command.append(" --config ");
-    configname = Choice4->GetStringSelection();
-    configname.Replace(_(" "), _("\\ "));
-    command.append(configname.mb_str());
+    command.Append(_(" --config \""));
+    command.Append(Choice4->GetStringSelection());
+    command.Append(_("\""));
     if(CheckBox2->IsChecked())
     {
-        command.append(" --status | gimx-status");
+        command.Append(_(" --curses"));
     }
     else if(CheckBox3->IsChecked())
     {
-        command.append(" --status");
+        command.Append(_(" --status"));
     }
-    command.append("\"");
-
-    //cout << command << endl;
 
     Button3->Disable();
     filename.append(homedir);
@@ -1163,7 +1161,20 @@ void bluetoothFrame::OnButton3Click(wxCommandEvent& event)
         outfile << Choice4->GetStringSelection().mb_str() << endl;
         outfile.close();
     }
-    g_spawn_command_line_sync (command.c_str(), NULL, NULL, NULL, NULL);
+
+    StatusBar1->SetStatusText(_("Press Shift+Esc to exit."));
+
+    if(wxExecute(command, output, errors, wxEXEC_SYNC))
+    {
+      wxString error;
+      for(unsigned int i=0; i<output.GetCount(); ++i)
+      {
+        error.Append(output[i]);
+      }
+      wxMessageBox( error, wxT("Error"), wxICON_ERROR);
+    }
+
+    StatusBar1->SetStatusText(_(""));
     Button3->Enable();
 }
 
@@ -1233,19 +1244,10 @@ void bluetoothFrame::OnCheckBoxCalibrate(wxCommandEvent& event)
     }
 }
 
-#ifdef WIN32
-#define CHECK_FILE "check_result"
-#else
-#define CHECK_FILE "/tmp/check_result"
-#endif
-
 void bluetoothFrame::OnButton4Click(wxCommandEvent& event)
 {
-  string command = "";
-  string filename = "";
-  string result = "";
-  string line = "";
-  wxString configname;
+  wxString command;
+  wxArrayString output, errors;
 
   if(Choice4->GetStringSelection().IsEmpty())
   {
@@ -1253,90 +1255,60 @@ void bluetoothFrame::OnButton4Click(wxCommandEvent& event)
     return;
   }
 
-#ifdef WIN32
-  command.append("emuclient.exe");
-#else
-  command.append("emuclient");
-#endif
-  command.append(" --config ");
-  configname = Choice4->GetStringSelection();
-  configname.Replace(_(" "), _("\\ "));
-  command.append(configname.mb_str());
-  command.append(" --check --nograb > ");
-  command.append(CHECK_FILE);
+  command.Append(_("emuclient --config \""));
+  command.Append(Choice4->GetStringSelection());
+  command.Append(_("\" --check"));
 
-  if(system(command.c_str()) != 0)
+  if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
-      wxMessageBox( wxT("Can't check the config file!"), wxT("Error"), wxICON_ERROR);
+    wxString error;
+    for(unsigned int i=0; i<errors.GetCount(); ++i)
+    {
+      error.Append(errors[i]);
+    }
+    wxMessageBox( error, wxT("Error"), wxICON_ERROR);
   }
   else
   {
-      ifstream infile (CHECK_FILE);
-      if ( infile.is_open() )
+    wxString info;
+    for(unsigned int i=0; i<output.GetCount(); ++i)
+    {
+      if(!info.Contains(output[i]))
       {
-          if( infile.good() )
-          {
-              while(getline (infile,line))
-              {
-                  if(result.find(line) == string::npos)
-                  {
-                      result.append(line);
-                      result.append("\n");
-                  }
-              }
-              if(result.empty())
-              {
-                  result.append("This config seems OK!\n");
-              }
-              wxMessageBox( wxString(result.c_str(), wxConvUTF8), wxT("Info"), wxICON_INFORMATION);
-          }
-          infile.close();
+        info.Append(_("\n"));
+        info.Append(output[i]);
       }
-
-      command.erase();
-      command.append("rm ");
-      command.append(CHECK_FILE);
-      if(system(command.c_str()) != 0)
-      {
-          wxMessageBox( wxT("Error checking the config file!"), wxT("Error"), wxICON_ERROR);
-      }
+    }
+    if(info.IsEmpty())
+    {
+      info.Append(_("This config seems OK!\n"));
+    }
+    wxMessageBox( info, wxT("Info"), wxICON_INFORMATION);
   }
 }
 
 void bluetoothFrame::OnMenuEditConfig(wxCommandEvent& event)
 {
-    string command = "";
-#ifdef WIN32
-    command.append("gimx-config.exe");
-#else
-    command.append("gimx-config");
-#endif
-    command.append(" -f ");
-    command.append(Choice4->GetStringSelection().mb_str());
-    command.append(" &");
+  wxString command = _("gimx-config -f \"");
+  command.Append(Choice4->GetStringSelection());
+  command.Append(_("\""));
 
-    if(system(command.c_str()) != 0)
-    {
-        wxMessageBox( wxT("Error editing the config file!"), wxT("Error"), wxICON_ERROR);
-    }
+  if (!wxExecute(command, wxEXEC_ASYNC))
+  {
+    wxMessageBox(wxT("Error editing the config file!"), wxT("Error"), wxICON_ERROR);
+  }
 }
 
 void bluetoothFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
 {
-    string command = "";
-#ifdef WIN32
-    command.append("gimx-fpsconfig.exe");
-#else
-    command.append("gimx-fpsconfig");
-#endif
-    command.append(" -f ");
-    command.append(Choice4->GetStringSelection().mb_str());
-    command.append(" &");
+  wxString command = _("gimx-fpsconfig -f \"");
+  command.Append(Choice4->GetStringSelection());
+  command.Append(_("\""));
 
-    if(system(command.c_str()) != 0)
-    {
-        wxMessageBox( wxT("Error editing the config file!"), wxT("Error"), wxICON_ERROR);
-    }
+  if (!wxExecute(command, wxEXEC_ASYNC))
+  {
+    wxMessageBox(wxT("Error editing the config file!"), wxT("Error"), wxICON_ERROR);
+  }
 }
 
 void bluetoothFrame::OnMenuUpdate(wxCommandEvent& event)
