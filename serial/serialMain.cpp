@@ -120,6 +120,7 @@ static void read_devices(wxComboBox* choice)
   char portname[16];
   wchar_t szCOM[16];
   int i;
+  wxString previous = choice->GetStringSelection();
 
   choice->Clear();
 
@@ -134,12 +135,22 @@ static void read_devices(wxComboBox* choice)
     }
     CloseHandle(hSerial);
   }
+
+  if(previous != wxEmptyString)
+  {
+    choice->SetSelection(choice->FindString(previous));
+  }
+  if(choice->GetSelection() < 0)
+  {
+    choice->SetSelection(0);
+  }
 }
 #else
 static void read_devices(wxComboBox* choice)
 {
   string filename = "";
   string line = "";
+  wxString previous = choice->GetStringSelection();
 
   filename.append(homedir);
   filename.append(OPT_DIR);
@@ -183,6 +194,15 @@ static void read_devices(wxComboBox* choice)
       }
     }
   }
+
+  if(previous != wxEmptyString)
+  {
+    choice->SetSelection(choice->FindString(previous));
+  }
+  if(choice->GetSelection() < 0)
+  {
+    choice->SetSelection(0);
+  }
 }
 #endif
 
@@ -190,6 +210,7 @@ static void read_filenames(wxChoice* choice)
 {
   string filename = "";
   string line = "";
+  wxString previous = choice->GetStringSelection();
 
   /* Read the last config used so as to auto-select it. */
 #ifndef WIN32
@@ -238,6 +259,15 @@ static void read_filenames(wxChoice* choice)
     {
       choice->Append(file);
     }
+  }
+
+  if(previous != wxEmptyString)
+  {
+    choice->SetSelection(choice->FindString(previous));
+  }
+  if(choice->GetSelection() < 0)
+  {
+    choice->SetSelection(0);
   }
 }
 
@@ -507,9 +537,8 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
 
     started = false;
 
-    read_filenames(ChoiceConfig);
+    refresh();
     read_frequency(ComboBoxFrequency);
-    read_devices(ComboBoxDevice);
     read_controller_type(ControllerType);
     wxCommandEvent event;
     OnControllerTypeSelect(event);
@@ -711,7 +740,6 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
         outfile4.close();
     }
 
-#ifndef WIN32
     if(CheckBoxTerminal->IsChecked())
     {
         command.Append(_(" --status"));
@@ -720,10 +748,16 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
     {
       command.Append(_(" --curses"));
     }
-#endif
 
     StatusBar1->SetStatusText(_("Press Shift+Esc to exit."));
 
+#ifdef WIN32
+    if(CheckBoxTerminal->IsChecked() || CheckBoxGui->IsChecked())
+    {
+        wxShell(command);
+    }
+    else
+#endif
     if(wxExecute(command, output, errors, wxEXEC_SYNC))
     {
       wxString error;
@@ -735,6 +769,7 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
     }
 
     StatusBar1->SetStatusText(_(""));
+    SetFocus();
 }
 
 void serialFrame::OnCheckBoxGuiClick(wxCommandEvent& event)
@@ -829,16 +864,19 @@ void serialFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
   }
 }
 
+void serialFrame::refresh()
+{
+    read_filenames(ChoiceConfig);
+    read_devices(ComboBoxDevice);
+    if(ComboBoxDevice->GetCount() == 0)
+    {
+        wxMessageBox( wxT("No Serial Port Detected!\n"), wxT("Error"), wxICON_ERROR);
+    }
+}
+
 void serialFrame::OnMenuRefresh(wxCommandEvent& event)
 {
-    wxString previous = ChoiceConfig->GetStringSelection();
-    ChoiceConfig->Clear();
-    read_filenames(ChoiceConfig);
-    ChoiceConfig->SetSelection(ChoiceConfig->FindString(previous));
-    previous = ComboBoxDevice->GetStringSelection();
-    ComboBoxDevice->Clear();
-    read_devices(ComboBoxDevice);
-    ComboBoxDevice->SetSelection(ComboBoxDevice->FindString(previous));
+    refresh();
 }
 
 void serialFrame::OnControllerTypeSelect(wxCommandEvent& event)

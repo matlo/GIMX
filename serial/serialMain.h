@@ -55,6 +55,8 @@ class serialFrame: public wxFrame
         void OnMenuGetConfigs(wxCommandEvent& event);
         //*)
 
+        void refresh();
+
         //(*Identifiers(serialFrame)
         static const long ID_STATICTEXT3;
         static const long ID_COMBOBOX1;
