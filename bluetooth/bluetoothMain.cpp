@@ -123,77 +123,48 @@ BEGIN_EVENT_TABLE(bluetoothFrame,wxFrame)
     //*)
 END_EVENT_TABLE()
 
-static int readCommandResults(const char * argv[], int nb_params, wxString params[], int nb_repeat, wxString results[])
+static int readCommandResults(wxString command, int nb_params, wxString params[], int nb_repeat, wxString results[])
 {
-    int exit_status = 0;
-    char* out = NULL;
-    GError *error = NULL;
-    gboolean test;
-    char* line;
-    char* end;
     int ret = 0;
-    char c_param[256];
+    wxArrayString output, errors;
+    unsigned int j = 0;
+    int pos;
 
-    test = g_spawn_sync(NULL, (gchar**)argv, NULL, (GSpawnFlags)G_SPAWN_SEARCH_PATH, NULL, NULL, &out, NULL, &exit_status, &error);
-
-    if(test)
+    if(!wxExecute(command, output, errors, wxEXEC_SYNC))
     {
-        line = out;
-
-        printf("%s\n", out);
-
-        for(int i=0; i<nb_params*nb_repeat; ++i)
+      for(int i=0; i<nb_params*nb_repeat && ret != -1; ++i)
+      {
+        for(; j<output.GetCount(); ++j)
         {
-            strncpy(c_param, params[i%nb_params].mb_str(), sizeof(c_param));
-
-            if((line = strstr(line, c_param)))
-            {
-                if((end = strstr(line, "\n")))
-                {
-                    *end = '\0';
-                }
-                results[i] = wxString(line+strlen(c_param), wxConvUTF8);
-                line=end+1;
-            }
-            else
-            {
-                if(nb_repeat == 1)
-                {
-                    ret = -1;
-                }
-                break;
-            }
+          pos = output[j].Find(params[i%nb_params]);
+          if(pos != wxNOT_FOUND)
+          {
+            results[i] = output[j].Mid(pos+params[i%nb_params].Length());
+            break;
+          }
         }
+        if(j == output.GetCount() && nb_repeat == 1)
+        {
+          ret = -1;
+        }
+      }
     }
     else
     {
-        ret = -1;
+      ret = -1;
     }
-
-    if(out) g_free(out);
-    if(error) g_free(error);
 
     return ret;
 }
-
-static char hci[7];
-static char bad[18];
-
-static const char *sixaxis_device[] = { "sixaddr", NULL };
-
-static const char *hciconfig_all[] = { "hciconfig", "-a", hci, NULL };
-static const char *hciconfig_revision[] = { "hcirevision", hci, NULL };
-
-static const char *bdaddr[] = { "bdaddr", "-i", hci, NULL };
-static const char *bdaddr_modify[] = { "bdaddr", "-r", "-i", hci, bad, NULL };
 
 void bluetoothFrame::readSixaxis()
 {
     wxString params[2] = {_("Current Bluetooth master: "), _("Current Bluetooth Device Address: ")};
     wxString results[14];
     unsigned int j;
+    wxString command = _("sixaddr");
 
-    int res = readCommandResults(sixaxis_device, 2, params, 7, results);
+    int res = readCommandResults(command, 2, params, 7, results);
 
     if(res != -1)
     {
@@ -216,6 +187,15 @@ void bluetoothFrame::readSixaxis()
               Choice1->Append(results[i+1].MakeUpper());
             }
         }
+
+        if(Choice1->GetSelection() < 0)
+        {
+            Choice1->SetSelection(0);
+        }
+        if(Choice2->GetSelection() < 0)
+        {
+            Choice2->SetSelection(Choice1->GetSelection());
+        }
     }
 }
 
@@ -226,11 +206,18 @@ void bluetoothFrame::readDongles()
     wxString params2[1] = {_("Chip version: ")};
     wxString results2[1];
     int res;
+    wxString previous = Choice3->GetStringSelection();
+
+    Choice3->Clear();
+    Choice5->Clear();
+    Choice6->Clear();
+    Choice7->Clear();
 
     for(int i=0; i<256; ++i)
     {
-        snprintf(hci, sizeof(hci), "hci%d", i);
-        res = readCommandResults(hciconfig_all, 3, params1, 1, results1);
+        wxString command = _("hciconfig -a hci") + wxString::Format(wxT("%i"), i);
+
+        res = readCommandResults(command, 3, params1, 1, results1);
 
         if(res != -1)
         {
@@ -240,7 +227,8 @@ void bluetoothFrame::readDongles()
 
             Choice6->Append(results1[2]);
 
-            res = readCommandResults(hciconfig_revision, 1, params2, 1, results2);
+            command = _("hcirevision hci") + wxString::Format(wxT("%i"), i);
+            res = readCommandResults(command, 1, params2, 1, results2);
 
             if(res != -1)
             {
@@ -256,11 +244,20 @@ void bluetoothFrame::readDongles()
             break;
         }
     }
+
+    int sel = Choice3->FindString(previous);
+    if(sel < 0)
+    {
+      sel = 0;
+    }
+    Choice3->SetSelection(sel);
+    Choice5->SetSelection(sel);
+    Choice6->SetSelection(sel);
+    Choice7->SetSelection(sel);
 }
 
 int bluetoothFrame::setDongleAddress()
 {
-    int i;
     int j = 0;
     unsigned int k;
     wxString params1[1] = {_("Address changed - ")};
@@ -289,11 +286,8 @@ int bluetoothFrame::setDongleAddress()
         }
     }
 
-    i = Choice3->GetSelection();
-    snprintf(hci, sizeof(hci), "hci%d", i);
-    strncpy( bad, Choice1->GetStringSelection().mb_str(), 18 );
-
-    res = readCommandResults(bdaddr_modify, 1, params1, 1, results1);
+    wxString command = _("bdaddr -r -i hci") + wxString::Format(wxT("%i"), Choice3->GetSelection()) + _(" ") + Choice1->GetStringSelection();
+    res = readCommandResults(command, 1, params1, 1, results1);
 
     if(res != -1)
     {
@@ -301,7 +295,8 @@ int bluetoothFrame::setDongleAddress()
     }
 
     //wait up to 5s for the device to come back
-    while(readCommandResults(bdaddr, 1, params2, 1, results2) == -1 && j<50)
+    command = _("bdaddr -i hci") + wxString::Format(wxT("%i"), Choice3->GetSelection());
+    while(readCommandResults(command, 1, params2, 1, results2) == -1 && j<50)
     {
         usleep(100000);
         j++;
@@ -324,6 +319,7 @@ static void read_filenames(wxChoice* choice)
 {
   string filename = "";
   string line = "";
+  wxString previous = choice->GetStringSelection();
 
   /* Read the last config used so as to auto-select it. */
 #ifndef WIN32
@@ -372,6 +368,15 @@ static void read_filenames(wxChoice* choice)
     {
       choice->Append(file);
     }
+  }
+
+  if(previous != wxEmptyString)
+  {
+    choice->SetSelection(choice->FindString(previous));
+  }
+  if(choice->GetSelection() < 0)
+  {
+    choice->SetSelection(0);
   }
 }
 
@@ -444,48 +449,16 @@ static void readStartUpdates(wxMenuItem* menuItem)
 
 void bluetoothFrame::refresh()
 {
-    wxString previous = Choice4->GetStringSelection();
-    Choice4->Clear();
-    Choice3->Clear();
-    Choice5->Clear();
-    Choice6->Clear();
-    Choice7->Clear();
     readSixaxis();
     readDongles();
     read_filenames(Choice4);
-    Choice4->SetSelection(Choice4->FindString(previous));
-    if(Choice4->GetSelection() < 0)
-    {
-      Choice4->SetSelection(0);
-    }
     if(Choice1->GetCount() == 0)
     {
         wxMessageBox( wxT("No Sixaxis Detected!\nSixaxis usb wire plugged?"), wxT("Error"), wxICON_ERROR);
     }
-    else
-    {
-        if(Choice1->GetSelection() < 0)
-        {
-            Choice1->SetSelection(0);
-        }
-        if(Choice2->GetSelection() < 0)
-        {
-            Choice2->SetSelection(Choice1->GetSelection());
-        }
-    }
     if(Choice3->GetCount() == 0)
     {
         wxMessageBox( wxT("No Bluetooth Dongle Detected!"), wxT("Error"), wxICON_ERROR);
-    }
-    else
-    {
-        if(Choice3->GetSelection() < 0)
-        {
-            Choice3->SetSelection(0);
-            Choice5->SetSelection(0);
-            Choice6->SetSelection(0);
-            Choice7->SetSelection(0);
-        }
     }
 }
 
