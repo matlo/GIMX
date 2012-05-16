@@ -793,7 +793,9 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
   }
   else
   {
+    StatusBar1->SetStatusText(_("Press a button."));
     evcatch.run("", "button");
+    StatusBar1->SetStatusText(wxEmptyString);
     ((wxButton*) event.GetEventObject())->SetLabel(wxString(evcatch.GetEventId().c_str(), wxConvUTF8));
 
     bindex = getButtonIndex((wxButton*) event.GetEventObject());

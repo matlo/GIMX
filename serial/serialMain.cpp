@@ -769,7 +769,7 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
       wxMessageBox( error, wxT("Error"), wxICON_ERROR);
     }
 
-    StatusBar1->SetStatusText(_(""));
+    StatusBar1->SetStatusText(wxEmptyString);
     SetFocus();
 }
 

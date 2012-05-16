@@ -1193,7 +1193,18 @@ void configFrame::OnButtonTabEventTypeSelect(wxCommandEvent& event)
 
 void configFrame::auto_detect(wxStaticText* device_type, wxStaticText* device_name, wxStaticText* device_id, wxString event_type, wxStaticText* event_id)
 {
+    wxString msg;
+    if(event_type == _("button"))
+    {
+      msg = _("Press a button.");
+    }
+    else
+    {
+      msg = _("Move an axis.");
+    }
+    StatusBar1->SetStatusText(msg);
     evcatch.run("", string(event_type.mb_str()));
+    StatusBar1->SetStatusText(wxEmptyString);
 
     device_type->SetLabel(wxString(evcatch.GetDeviceType().c_str(), wxConvUTF8));
 
@@ -2153,7 +2164,10 @@ void configFrame::replaceDevice(wxString wx_device_type)
 
     if(MenuItemMultipleMiceAndKeyboards->IsChecked())
     {
+        wxString msg = _("Press a ") + wx_device_type + _(" button.");
+        StatusBar1->SetStatusText(msg);
 	      evcatch.run(device_type, "button");
+        StatusBar1->SetStatusText(wxEmptyString);
         device_name = evcatch.GetDeviceName();
         device_id = evcatch.GetDeviceId();
     }
@@ -2272,7 +2286,9 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
 
             if(MenuItemMultipleMiceAndKeyboards->IsChecked())
             {
+                StatusBar1->SetStatusText(_("Press a mouse button."));
                 evcatch.run(device_type, "button");
+                StatusBar1->SetStatusText(wxEmptyString);
                 device_name = evcatch.GetDeviceName();
                 device_id = evcatch.GetDeviceId();
             }
