@@ -2,8 +2,8 @@
 #include <unistd.h>
 #include <sstream>
 
-#define SCREEN_WIDTH  320
-#define SCREEN_HEIGHT 240
+#define SCREEN_WIDTH  1
+#define SCREEN_HEIGHT 1
 #define EVENT_BUFFER_SIZE 32
 
 #define MAX_ARG_LENGTH 32
@@ -359,7 +359,7 @@ void event_catcher::init()
 	  }
 	}
 
-    screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 0, SDL_HWSURFACE | SDL_ANYFORMAT);
+    screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 0, SDL_HWSURFACE | SDL_ANYFORMAT | SDL_NOFRAME);
     if (screen == NULL)
     {
         fprintf(stderr, "Unable to create video surface: %s\n", SDL_GetError());
