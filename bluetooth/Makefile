@@ -9,10 +9,10 @@ bindir=$(prefix)/bin
 
 BINS=gimx-bluetooth
 
-INC = 
+INC = -I../shared/configeditor/include -I../../libsdl/include
 CFLAGS += `pkg-config --cflags glib-2.0` `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
 LIBDIR =
-LIB = `wx-config --libs` `pkg-config --libs glib-2.0`
+LIB = ../shared/configeditor/configeditor.a  -L../../libsdl/lib -lSDL -lxml2 `wx-config --libs` `pkg-config --libs glib-2.0`
 LDFLAGS = -s
 
 DEP = 

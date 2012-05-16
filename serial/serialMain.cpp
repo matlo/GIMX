@@ -37,6 +37,7 @@
 #include "../directories.h"
 #include "../shared/updater/updater.h"
 #include "../shared/configupdater/configupdater.h"
+#include <ConfigurationFile.h>
 
 #include <wx/arrstr.h>
 
@@ -797,44 +798,36 @@ void serialFrame::OnCheckBoxCalibrate(wxCommandEvent& event)
 
 void serialFrame::OnButtonCheckClick1(wxCommandEvent& event)
 {
-    wxString command;
-    wxArrayString output, errors;
-
     if(ChoiceConfig->GetStringSelection().IsEmpty())
     {
       wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
       return;
     }
 
-    command.Append(_("emuclient --config \""));
-    command.Append(ChoiceConfig->GetStringSelection());
-    command.Append(_("\" --check"));
-    
-    if(wxExecute(command, output, errors, wxEXEC_SYNC))
+    string file;
+#ifndef WIN32
+    file.append(homedir);
+    file.append(APP_DIR);
+#endif
+    file.append(CONFIG_DIR);
+    file.append(ChoiceConfig->GetStringSelection().mb_str());
+
+    ConfigurationFile configFile;
+    event_catcher evcatch;
+    configFile.SetEvCatch(&evcatch);
+    int ret = configFile.ReadConfigFile(file);
+
+    if(ret < 0)
     {
-      wxString error;
-      for(unsigned int i=0; i<errors.GetCount(); ++i)
-      {
-        error.Append(errors[i]);
-      }
-      wxMessageBox( error, wxT("Error"), wxICON_ERROR);
+      wxMessageBox(wxString(configFile.GetError().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
+    }
+    else if(ret > 0)
+    {
+      wxMessageBox(wxString(configFile.GetInfo().c_str(), wxConvUTF8), wxT("Info"), wxICON_INFORMATION);
     }
     else
     {
-      wxString info;
-      for(unsigned int i=0; i<output.GetCount(); ++i)
-      {
-        if(!info.Contains(output[i]))
-        {
-          info.Append(_("\n"));
-          info.Append(output[i]);
-        }
-      }
-      if(info.IsEmpty())
-      {
-        info.Append(_("This config seems OK!\n"));
-      }
-      wxMessageBox( info, wxT("Info"), wxICON_INFORMATION);
+      wxMessageBox( _("This config seems OK!\n"), wxT("Info"), wxICON_INFORMATION);
     }
 }
 
