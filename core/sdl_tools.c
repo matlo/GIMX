@@ -10,13 +10,8 @@
 #include "config.h"
 #include "emuclient.h"
 
-#ifndef WIN32
-#define SCREEN_WIDTH  8
-#define SCREEN_HEIGHT 8
-#else
-#define SCREEN_WIDTH  128
-#define SCREEN_HEIGHT 8
-#endif
+#define SCREEN_WIDTH  1
+#define SCREEN_HEIGHT 1
 #define TITLE "Sixaxis Control"
 #define BT_SIXAXIS_NAME "PLAYSTATION(R)3 Controller"
 
@@ -55,7 +50,7 @@ int sdl_initialize()
 
   /* Init video */
   screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 0,
-      SDL_HWSURFACE | SDL_ANYFORMAT);
+      SDL_HWSURFACE | SDL_ANYFORMAT | SDL_NOFRAME);
   if (screen == NULL)
   {
     fprintf(stderr, "Unable to create video surface: %s\n", SDL_GetError());
