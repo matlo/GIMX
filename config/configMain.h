@@ -127,6 +127,7 @@ class configFrame: public wxFrame
         void OnMenuMultipleMK(wxCommandEvent& event);
         void OnTextCtrl(wxCommandEvent& event);
         void OnMenuUpdate(wxCommandEvent& event);
+        void OnMenuAutoBindControls(wxCommandEvent& event);
         //*)
         void DeleteSelectedRows(wxGrid* grid);
         void DeleteLinkedRows(wxGrid* grid, int row);
@@ -272,6 +273,7 @@ class configFrame: public wxFrame
         static const long ID_MENUITEM16;
         static const long ID_MENUITEM24;
         static const long ID_MENUITEM25;
+        static const long ID_MENUITEM27;
         static const long ID_MENUITEM26;
         static const long idMenuAbout;
         static const long ID_STATUSBAR1;
@@ -415,6 +417,7 @@ class configFrame: public wxFrame
         wxChoice* AxisTabAxisId;
         wxMenuItem* MenuUpdate;
         wxStaticText* StaticTextDeadZonePanelOverall;
+        wxMenuItem* MenuAutoBindControls;
         wxStaticText* ButtonTabDeviceName;
         //*)
 

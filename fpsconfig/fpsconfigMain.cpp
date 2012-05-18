@@ -129,6 +129,7 @@ const long fpsconfigFrame::ID_MENUITEM2 = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM3 = wxNewId();
 const long fpsconfigFrame::idMenuQuit = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM6 = wxNewId();
+const long fpsconfigFrame::ID_MENUITEM7 = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM5 = wxNewId();
 const long fpsconfigFrame::idMenuAbout = wxNewId();
 const long fpsconfigFrame::ID_STATUSBAR1 = wxNewId();
@@ -347,6 +348,8 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     MenuAdvanced = new wxMenu();
     MenuEditLabels = new wxMenuItem(MenuAdvanced, ID_MENUITEM6, _("Edit Labels"), wxEmptyString, wxITEM_CHECK);
     MenuAdvanced->Append(MenuEditLabels);
+    MenuAutoBindControls = new wxMenuItem(MenuAdvanced, ID_MENUITEM7, _("Auto-bind controls"), wxEmptyString, wxITEM_NORMAL);
+    MenuAdvanced->Append(MenuAutoBindControls);
     MenuBar1->Append(MenuAdvanced, _("Advanced"));
     MenuHelp = new wxMenu();
     MenuUpdate = new wxMenuItem(MenuHelp, ID_MENUITEM5, _("Update"), wxEmptyString, wxITEM_NORMAL);
@@ -415,6 +418,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuSave);
     Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuSaveAs);
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnQuit);
+    Connect(ID_MENUITEM7,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuAutoBindControls);
     Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuUpdate);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnAbout);
     //*)
@@ -1682,5 +1686,31 @@ void fpsconfigFrame::OnButtonConvertSensitivityClick(wxCommandEvent& event)
     current_dpi = dest_value;
     SpinCtrlDPI->SetValue(dest_value);
 
+  }
+}
+
+void fpsconfigFrame::OnMenuAutoBindControls(wxCommandEvent& event)
+{
+  if(configFile.GetFilePath().empty())
+  {
+    wxMessageBox( wxT("No config opened!"), wxT("Error"), wxICON_ERROR);
+    return;
+  }
+
+  wxFileDialog FileDialog(this, _("Select the reference config."), default_directory, wxEmptyString, _T("XML files (*.xml)|*.xml"), wxFD_DEFAULT_STYLE);
+
+  if ( FileDialog.ShowModal() != wxID_OK ) return;
+
+  wxString FileName = FileDialog.GetPath();
+  if ( FileName.IsEmpty() ) return;
+
+  if(configFile.AutoBind(string(FileName.mb_str())) < 0)
+  {
+    wxMessageBox(wxT("Can't auto-bind controls!"), wxT("Error"), wxICON_ERROR);
+  }
+  else
+  {
+    LoadConfig();
+    wxMessageBox(wxT("Auto-bind done!"), wxT("Info"), wxICON_INFORMATION);
   }
 }

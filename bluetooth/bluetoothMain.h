@@ -60,6 +60,7 @@ class bluetoothFrame: public wxFrame
         void OnMenuUpdate(wxCommandEvent& event);
         void OnMenuStartUpdates(wxCommandEvent& event);
         void OnMenuGetConfigs(wxCommandEvent& event);
+        void OnMenuAutoBindControls(wxCommandEvent& event);
         //*)
 
         void readSixaxis();
@@ -104,6 +105,7 @@ class bluetoothFrame: public wxFrame
         static const long ID_PANEL1;
         static const long ID_MENUITEM3;
         static const long ID_MENUITEM4;
+        static const long ID_MENUITEM8;
         static const long ID_MENUITEM1;
         static const long ID_MENUITEM2;
         static const long idMenuQuit;
@@ -158,6 +160,7 @@ class bluetoothFrame: public wxFrame
         wxChoice* Choice1;
         wxChoice* Choice2;
         wxMenuItem* MenuUpdate;
+        wxMenuItem* MenuAutoBindControls;
         //*)
 
         wxString m_SelectedSixaxis;

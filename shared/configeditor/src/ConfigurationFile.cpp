@@ -136,8 +136,6 @@ int ConfigurationFile::AutoBind(string refFilePath)
         }
       }
     }
-
-    ret = WriteConfigFile();
   }
 
   return ret;

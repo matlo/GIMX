@@ -99,6 +99,7 @@ const long serialFrame::ID_BUTTON3 = wxNewId();
 const long serialFrame::ID_PANEL1 = wxNewId();
 const long serialFrame::ID_MENUITEM1 = wxNewId();
 const long serialFrame::ID_MENUITEM2 = wxNewId();
+const long serialFrame::ID_MENUITEM7 = wxNewId();
 const long serialFrame::ID_MENUITEM3 = wxNewId();
 const long serialFrame::idMenuQuit = wxNewId();
 const long serialFrame::ID_MENUITEM6 = wxNewId();
@@ -462,6 +463,8 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     Menu1->Append(MenuEditConfig);
     MenuEditFpsConfig = new wxMenuItem(Menu1, ID_MENUITEM2, _("Edit fps config"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuEditFpsConfig);
+    MenuAutoBindControls = new wxMenuItem(Menu1, ID_MENUITEM7, _("Auto-bind controls"), wxEmptyString, wxITEM_NORMAL);
+    Menu1->Append(MenuAutoBindControls);
     MenuRefresh = new wxMenuItem(Menu1, ID_MENUITEM3, _("Refresh\tF5"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuRefresh);
     MenuItem1 = new wxMenuItem(Menu1, idMenuQuit, _("Quit\tAlt-F4"), _("Quit the application"), wxITEM_NORMAL);
@@ -495,6 +498,7 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&serialFrame::OnButtonStartClick);
     Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnMenuEditConfig);
     Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnMenuEditFpsConfig);
+    Connect(ID_MENUITEM7,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnMenuAutoBindControls);
     Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnMenuRefresh);
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnQuit);
     Connect(ID_MENUITEM6,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnMenuGetConfigs);
@@ -553,7 +557,7 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     started = true;
 
     Refresh();
-	
+
     if(ChoiceConfig->IsEmpty())
     {
       int answer = wxMessageBox(_("No config found! Download configs?"), _("Confirm"), wxYES_NO);
@@ -690,7 +694,7 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
 #endif
       command.Append(ComboBoxDevice->GetValue());
     }
-    
+
     //cout << command.c_str() << endl;
 
 #ifndef WIN32
@@ -833,6 +837,12 @@ void serialFrame::OnButtonCheckClick1(wxCommandEvent& event)
 
 void serialFrame::OnMenuEditConfig(wxCommandEvent& event)
 {
+  if(ChoiceConfig->GetStringSelection().IsEmpty())
+  {
+    wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
+    return;
+  }
+
   wxString command = _("gimx-config -f \"");
   command.Append(ChoiceConfig->GetStringSelection());
   command.Append(_("\""));
@@ -846,6 +856,12 @@ void serialFrame::OnMenuEditConfig(wxCommandEvent& event)
 
 void serialFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
 {
+  if(ChoiceConfig->GetStringSelection().IsEmpty())
+  {
+    wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
+    return;
+  }
+
   wxString command = _("gimx-fpsconfig -f \"");
   command.Append(ChoiceConfig->GetStringSelection());
   command.Append(_("\""));
@@ -1060,5 +1076,53 @@ void serialFrame::OnMenuGetConfigs(wxCommandEvent& event)
   {
     wxMessageBox(wxT("Can't retrieve config list!"), wxT("Error"), wxICON_ERROR);
     return;
+  }
+}
+
+void serialFrame::OnMenuAutoBindControls(wxCommandEvent& event)
+{
+  if(ChoiceConfig->GetStringSelection().IsEmpty())
+  {
+    wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
+    return;
+  }
+
+  string dir;
+#ifndef WIN32
+  dir.append(homedir);
+  dir.append(APP_DIR);
+#endif
+  dir.append(CONFIG_DIR);
+
+  wxArrayString choices;
+
+  for(unsigned int i=0; i<ChoiceConfig->GetCount(); i++)
+  {
+    choices.Add(wxString(ChoiceConfig->GetString(i), wxConvUTF8));
+  }
+
+  wxSingleChoiceDialog dialog(this, wxT("Select the reference config."), wxT("Auto-bind controls"), choices);
+
+  if (dialog.ShowModal() == wxID_OK)
+  {
+    ConfigurationFile configFile;
+
+    int ret = configFile.ReadConfigFile(dir + string(ChoiceConfig->GetStringSelection().mb_str()));
+
+    if(ret < 0)
+    {
+      wxMessageBox(wxString(configFile.GetError().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
+      return;
+    }
+
+    if(configFile.AutoBind(dir + string(dialog.GetStringSelection().mb_str())) < 0)
+    {
+      wxMessageBox(wxT("Can't auto-bind controls!"), wxT("Error"), wxICON_ERROR);
+    }
+    else
+    {
+      configFile.WriteConfigFile();
+      wxMessageBox(wxT("Auto-bind done!"), wxT("Info"), wxICON_INFORMATION);
+    }
   }
 }

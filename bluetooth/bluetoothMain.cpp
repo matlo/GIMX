@@ -109,6 +109,7 @@ const long bluetoothFrame::ID_BUTTON3 = wxNewId();
 const long bluetoothFrame::ID_PANEL1 = wxNewId();
 const long bluetoothFrame::ID_MENUITEM3 = wxNewId();
 const long bluetoothFrame::ID_MENUITEM4 = wxNewId();
+const long bluetoothFrame::ID_MENUITEM8 = wxNewId();
 const long bluetoothFrame::ID_MENUITEM1 = wxNewId();
 const long bluetoothFrame::ID_MENUITEM2 = wxNewId();
 const long bluetoothFrame::idMenuQuit = wxNewId();
@@ -494,7 +495,7 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer11;
     wxMenu* Menu2;
     wxStaticBoxSizer* StaticBoxSizer5;
-    
+
     Create(parent, wxID_ANY, _("Gimx-bluetooth"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     SetClientSize(wxSize(675,525));
     Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxSize(0,0), wxTAB_TRAVERSAL, _T("ID_PANEL1"));
@@ -636,6 +637,8 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     Menu1->Append(MenuItem5);
     MenuItem6 = new wxMenuItem(Menu1, ID_MENUITEM4, _("Edit fps config"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuItem6);
+    MenuAutoBindControls = new wxMenuItem(Menu1, ID_MENUITEM8, _("Auto-bind controls"), wxEmptyString, wxITEM_NORMAL);
+    Menu1->Append(MenuAutoBindControls);
     MenuItem3 = new wxMenuItem(Menu1, ID_MENUITEM1, _("Refresh\tF5"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuItem3);
     MenuItem4 = new wxMenuItem(Menu1, ID_MENUITEM2, _("Save"), wxEmptyString, wxITEM_NORMAL);
@@ -661,7 +664,7 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     StatusBar1->SetStatusStyles(2,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
     SingleInstanceChecker1.Create(_T("gimx-bluetooth_") + wxGetUserId() + _T("_Guard"));
-    
+
     Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnSelectSixaxisBdaddr);
     Connect(ID_CHOICE2,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnSelectPS3Bdaddr);
     Connect(ID_CHOICE3,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnSelectBtDongle);
@@ -678,6 +681,7 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&bluetoothFrame::OnButton3Click);
     Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnMenuEditConfig);
     Connect(ID_MENUITEM4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnMenuEditFpsConfig);
+    Connect(ID_MENUITEM8,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnMenuAutoBindControls);
     Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnSelectRefresh);
     Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnSave);
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnQuit);
@@ -1255,6 +1259,12 @@ void bluetoothFrame::OnButton4Click(wxCommandEvent& event)
 
 void bluetoothFrame::OnMenuEditConfig(wxCommandEvent& event)
 {
+  if(Choice4->GetStringSelection().IsEmpty())
+  {
+    wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
+    return;
+  }
+
   wxString command = _("gimx-config -f \"");
   command.Append(Choice4->GetStringSelection());
   command.Append(_("\""));
@@ -1267,6 +1277,12 @@ void bluetoothFrame::OnMenuEditConfig(wxCommandEvent& event)
 
 void bluetoothFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
 {
+  if(Choice4->GetStringSelection().IsEmpty())
+  {
+    wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
+    return;
+  }
+
   wxString command = _("gimx-fpsconfig -f \"");
   command.Append(Choice4->GetStringSelection());
   command.Append(_("\""));
@@ -1394,5 +1410,53 @@ void bluetoothFrame::OnMenuGetConfigs(wxCommandEvent& event)
   {
     wxMessageBox(wxT("Can't retrieve config list!"), wxT("Error"), wxICON_ERROR);
     return;
+  }
+}
+
+void bluetoothFrame::OnMenuAutoBindControls(wxCommandEvent& event)
+{
+  if(Choice4->GetStringSelection().IsEmpty())
+  {
+    wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
+    return;
+  }
+
+  string dir;
+#ifndef WIN32
+  dir.append(homedir);
+  dir.append(APP_DIR);
+#endif
+  dir.append(CONFIG_DIR);
+
+  wxArrayString choices;
+
+  for(unsigned int i=0; i<Choice4->GetCount(); i++)
+  {
+    choices.Add(wxString(Choice4->GetString(i), wxConvUTF8));
+  }
+
+  wxSingleChoiceDialog dialog(this, wxT("Select the reference config."), wxT("Auto-bind controls"), choices);
+
+  if (dialog.ShowModal() == wxID_OK)
+  {
+    ConfigurationFile configFile;
+
+    int ret = configFile.ReadConfigFile(dir + string(Choice4->GetStringSelection().mb_str()));
+
+    if(ret < 0)
+    {
+      wxMessageBox(wxString(configFile.GetError().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
+      return;
+    }
+
+    if(configFile.AutoBind(dir + string(dialog.GetStringSelection().mb_str())) < 0)
+    {
+      wxMessageBox(wxT("Can't auto-bind controls!"), wxT("Error"), wxICON_ERROR);
+    }
+    else
+    {
+      configFile.WriteConfigFile();
+      wxMessageBox(wxT("Auto-bind done!"), wxT("Info"), wxICON_INFORMATION);
+    }
   }
 }

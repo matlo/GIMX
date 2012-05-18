@@ -1294,8 +1294,11 @@
 				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM25" variable="MenuItemLinkControls" member="yes">
 					<label>Link controls</label>
-					<checked>1</checked>
 					<checkable>1</checkable>
+				</object>
+				<object class="wxMenuItem" name="ID_MENUITEM27" variable="MenuAutoBindControls" member="yes">
+					<label>Auto-bind controls</label>
+					<handler function="OnMenuAutoBindControls" entry="EVT_MENU" />
 				</object>
 			</object>
 			<object class="wxMenu" variable="MenuHelp" member="no">

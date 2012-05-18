@@ -191,6 +191,7 @@ const long configFrame::ID_MENUITEM15 = wxNewId();
 const long configFrame::ID_MENUITEM16 = wxNewId();
 const long configFrame::ID_MENUITEM24 = wxNewId();
 const long configFrame::ID_MENUITEM25 = wxNewId();
+const long configFrame::ID_MENUITEM27 = wxNewId();
 const long configFrame::ID_MENUITEM26 = wxNewId();
 const long configFrame::idMenuAbout = wxNewId();
 const long configFrame::ID_STATUSBAR1 = wxNewId();
@@ -725,7 +726,8 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     MenuAdvanced->Append(MenuItemMultipleMiceAndKeyboards);
     MenuItemLinkControls = new wxMenuItem(MenuAdvanced, ID_MENUITEM25, _("Link controls"), wxEmptyString, wxITEM_CHECK);
     MenuAdvanced->Append(MenuItemLinkControls);
-    MenuItemLinkControls->Check(true);
+    MenuAutoBindControls = new wxMenuItem(MenuAdvanced, ID_MENUITEM27, _("Auto-bind controls"), wxEmptyString, wxITEM_NORMAL);
+    MenuAdvanced->Append(MenuAutoBindControls);
     MenuBar1->Append(MenuAdvanced, _("Advanced"));
     MenuHelp = new wxMenu();
     MenuUpdate = new wxMenuItem(MenuHelp, ID_MENUITEM26, _("Update"), wxEmptyString, wxITEM_NORMAL);
@@ -801,6 +803,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM15,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration7);
     Connect(ID_MENUITEM16,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration8);
     Connect(ID_MENUITEM24,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuMultipleMK);
+    Connect(ID_MENUITEM27,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuAutoBindControls);
     Connect(ID_MENUITEM26,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuUpdate);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnAbout);
     //*)
@@ -2928,5 +2931,31 @@ void configFrame::OnMenuUpdate(wxCommandEvent& event)
   else
   {
     wxMessageBox(wxT("GIMX is up-to-date!"), wxT("Info"), wxICON_INFORMATION);
+  }
+}
+
+void configFrame::OnMenuAutoBindControls(wxCommandEvent& event)
+{
+  if(configFile.GetFilePath().empty())
+  {
+    wxMessageBox( wxT("No config opened!"), wxT("Error"), wxICON_ERROR);
+    return;
+  }
+
+  wxFileDialog FileDialog(this, _("Select the reference config."), default_directory, wxEmptyString, _T("XML files (*.xml)|*.xml"), wxFD_DEFAULT_STYLE);
+
+  if ( FileDialog.ShowModal() != wxID_OK ) return;
+
+  wxString FileName = FileDialog.GetPath();
+  if ( FileName.IsEmpty() ) return;
+
+  if(configFile.AutoBind(string(FileName.mb_str())) < 0)
+  {
+    wxMessageBox(wxT("Can't auto-bind controls!"), wxT("Error"), wxICON_ERROR);
+  }
+  else
+  {
+    load_current();
+    wxMessageBox(wxT("Auto-bind done!"), wxT("Info"), wxICON_INFORMATION);
   }
 }
