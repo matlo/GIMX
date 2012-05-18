@@ -934,7 +934,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         if(!buttons[i].GetDevice()->GetType().empty())
         {
             found = false;
-            for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end() && !found && !found; it++)
+            for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end() && !found; it++)
             {
                 if(it->GetButton() == buttons[i].GetButton())
                 {
