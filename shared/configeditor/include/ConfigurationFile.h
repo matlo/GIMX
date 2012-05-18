@@ -24,6 +24,7 @@ class ConfigurationFile
         Controller* GetController(unsigned int i) { return m_Controllers+i; }
         void SetController(Controller val, unsigned int i) { m_Controllers[i] = val; }
         void SetEvCatch(event_catcher* e) { m_evcatch = e; }
+        int AutoBind(string refFilePath);
     protected:
     private:
         string m_FilePath;
