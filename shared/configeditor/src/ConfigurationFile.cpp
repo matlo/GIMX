@@ -1,6 +1,8 @@
 #include "ConfigurationFile.h"
 #include <XmlReader.h>
 #include <XmlWritter.h>
+#include <cctype>
+#include <algorithm>
 
 ConfigurationFile::ConfigurationFile()
 {
@@ -87,15 +89,22 @@ int ConfigurationFile::AutoBind(string refFilePath)
         for(list<ButtonMapper>::iterator it2 = buttonMappers2->begin(); it2!=buttonMappers2->end(); it2++)
         {
           string label2 = it2->GetLabel();
+
+          transform(label2.begin(), label2.end(), label2.begin(), (int(*)(int)) tolower);
+
           if(!label2.empty())
           {
             for(std::list<ButtonMapper>::iterator it1 = buttonMappers1->begin(); it1!=buttonMappers1->end(); it1++)
             {
-             if(it1->GetLabel() == label2)
-             {
-               it2->SetEvent(*it1->GetEvent());
-               break;
-             }
+              string label1 = it1->GetLabel();
+
+              transform(label1.begin(), label1.end(), label1.begin(), (int(*)(int)) tolower);
+
+              if(label1 == label2)
+              {
+                it2->SetEvent(*it1->GetEvent());
+                break;
+              }
             }
           }
         }
@@ -106,22 +115,29 @@ int ConfigurationFile::AutoBind(string refFilePath)
         for(list<AxisMapper>::iterator it2 = axisMappers2->begin(); it2!=axisMappers2->end(); it2++)
         {
           string label2 = it2->GetLabel();
+
+          transform(label2.begin(), label2.end(), label2.begin(), (int(*)(int)) tolower);
+
           if(!label2.empty())
           {
             for(std::list<AxisMapper>::iterator it1 = axisMappers1->begin(); it1!=axisMappers1->end(); it1++)
             {
-             if(it1->GetLabel() == label2)
-             {
-               it2->SetEvent(*it1->GetEvent());
-               break;
-             }
+              string label1 = it1->GetLabel();
+
+              transform(label1.begin(), label1.end(), label1.begin(), (int(*)(int)) tolower);
+
+              if(label1 == label2)
+              {
+                it2->SetEvent(*it1->GetEvent());
+                break;
+              }
             }
           }
         }
       }
     }
 
-    ret = configFile2.WriteConfigFile();
+    ret = configFile.WriteConfigFile();
   }
 
   return ret;
