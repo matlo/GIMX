@@ -19,14 +19,18 @@
 
 #define CROSS_CHAR '*'
 
+#ifndef WIN32
 #define STICK_Y_L 11
+#else
+#define STICK_Y_L 13
+#endif
 #define STICK_X_L 21
 
 //#define BUTTON_Y_L 3
 //#define BUTTON_X_L 3
 
 #define BUTTON_Y_L STICK_Y_L
-#define BUTTON_X_L 17
+#define BUTTON_X_L 16
 
 #define LSTICK_Y_P 2
 #define LSTICK_X_P 2
@@ -173,7 +177,7 @@ void display_run(int axes[4], int max_axis, int buttons[BUTTON_NB], int max_butt
       break;
     }
   }
-  snprintf(label, sizeof(label), "%22s", "");
+  snprintf(label, sizeof(label), "%14s", "");
   for(i=d; i<last_button_nb; ++i)
   {
     mvwaddstr(wbuttons, 1 + i, 1, label);
