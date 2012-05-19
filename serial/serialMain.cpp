@@ -463,7 +463,7 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     Menu1->Append(MenuEditConfig);
     MenuEditFpsConfig = new wxMenuItem(Menu1, ID_MENUITEM2, _("Edit fps config"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuEditFpsConfig);
-    MenuAutoBindControls = new wxMenuItem(Menu1, ID_MENUITEM7, _("Auto-bind controls"), wxEmptyString, wxITEM_NORMAL);
+    MenuAutoBindControls = new wxMenuItem(Menu1, ID_MENUITEM7, _("Auto-bind & convert"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuAutoBindControls);
     MenuRefresh = new wxMenuItem(Menu1, ID_MENUITEM3, _("Refresh\tF5"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuRefresh);
@@ -756,12 +756,13 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
 
     StatusBar1->SetStatusText(_("Press Shift+Esc to exit."));
 
+    int flags = wxEXEC_SYNC;
+
 #ifdef WIN32
     if(CheckBoxTerminal->IsChecked() || CheckBoxGui->IsChecked())
     {
-        wxShell(command);
+        flags |= wxEXEC_NOHIDE;
     }
-    else
 #endif
     if(wxExecute(command, output, errors, wxEXEC_SYNC))
     {
@@ -1121,6 +1122,7 @@ void serialFrame::OnMenuAutoBindControls(wxCommandEvent& event)
     }
     else
     {
+      configFile.ConvertSensitivity(dir + string(dialog.GetStringSelection().mb_str()));
       configFile.WriteConfigFile();
       wxMessageBox(wxT("Auto-bind done!"), wxT("Info"), wxICON_INFORMATION);
     }

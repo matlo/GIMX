@@ -3,6 +3,9 @@
 #include <XmlWritter.h>
 #include <cctype>
 #include <algorithm>
+#include <sstream>
+#include <math.h>
+#include <iomanip>
 
 ConfigurationFile::ConfigurationFile()
 {
@@ -73,12 +76,12 @@ int ConfigurationFile::AutoBind(string refFilePath)
   {
     for(int i=0; i<MAX_CONTROLLERS; ++i)
     {
-      Controller* controller1 = configFile.GetController(i);
-      Controller* controller2 = GetController(i);
+      Controller* refController = configFile.GetController(i);
+      Controller* controller = GetController(i);
       for(int j=0; j<MAX_CONFIGURATIONS; ++j)
       {
-        Configuration* config1 = controller1->GetConfiguration(j);
-        Configuration* config2 = controller2->GetConfiguration(j);
+        Configuration* config1 = refController->GetConfiguration(j);
+        Configuration* config2 = controller->GetConfiguration(j);
 
         config2->SetTrigger(*config1->GetTrigger());
         config2->SetIntensityList(*config1->GetIntensityList());
@@ -139,4 +142,51 @@ int ConfigurationFile::AutoBind(string refFilePath)
   }
 
   return ret;
+}
+
+int ConfigurationFile::ConvertSensitivity(string refFilePath)
+{
+  ConfigurationFile configFile;
+
+  int ret = configFile.ReadConfigFile(refFilePath);
+
+  if(ret >= 0)
+  {
+    for(int i=0; i<MAX_CONTROLLERS; ++i)
+    {
+      Controller* refController = configFile.GetController(i);
+      Controller* controller = GetController(i);
+
+      int dpi1 = refController->GetMouseDPI();
+      int dpi2 = controller->GetMouseDPI();
+
+      if(dpi1 && dpi2 && dpi1 != dpi2)
+      {
+        for(int k=0; k<MAX_CONFIGURATIONS; ++k)
+        {
+          Configuration* config = controller->GetConfiguration(k);
+
+          list<AxisMapper>* axisMappers = config->GetAxisMapperList();
+
+          for(list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); it++)
+          {
+            if(it->GetDevice()->GetType() == "mouse" && it->GetEvent()->GetType() == "axis")
+            {
+                double val = atof(it->GetEvent()->GetMultiplier().c_str());
+                double exp = atof(it->GetEvent()->GetExponent().c_str());
+                val = val * pow((double)dpi2 / dpi1, exp);
+                ostringstream ios;
+                ios << setprecision(2) << val;
+                it->GetEvent()->SetMultiplier(ios.str());
+            }
+          }
+        }
+
+        controller->SetMouseDPI(dpi1);
+      }
+    }
+  }
+
+  return ret;
+
 }

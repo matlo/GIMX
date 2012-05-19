@@ -495,7 +495,7 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer11;
     wxMenu* Menu2;
     wxStaticBoxSizer* StaticBoxSizer5;
-
+    
     Create(parent, wxID_ANY, _("Gimx-bluetooth"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     SetClientSize(wxSize(675,525));
     Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxSize(0,0), wxTAB_TRAVERSAL, _T("ID_PANEL1"));
@@ -637,7 +637,7 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     Menu1->Append(MenuItem5);
     MenuItem6 = new wxMenuItem(Menu1, ID_MENUITEM4, _("Edit fps config"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuItem6);
-    MenuAutoBindControls = new wxMenuItem(Menu1, ID_MENUITEM8, _("Auto-bind controls"), wxEmptyString, wxITEM_NORMAL);
+    MenuAutoBindControls = new wxMenuItem(Menu1, ID_MENUITEM8, _("Auto-bind & convert"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuAutoBindControls);
     MenuItem3 = new wxMenuItem(Menu1, ID_MENUITEM1, _("Refresh\tF5"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuItem3);
@@ -664,7 +664,7 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     StatusBar1->SetStatusStyles(2,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
     SingleInstanceChecker1.Create(_T("gimx-bluetooth_") + wxGetUserId() + _T("_Guard"));
-
+    
     Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnSelectSixaxisBdaddr);
     Connect(ID_CHOICE2,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnSelectPS3Bdaddr);
     Connect(ID_CHOICE3,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnSelectBtDongle);
@@ -1455,6 +1455,7 @@ void bluetoothFrame::OnMenuAutoBindControls(wxCommandEvent& event)
     }
     else
     {
+      configFile.ConvertSensitivity(dir + string(dialog.GetStringSelection().mb_str()));
       configFile.WriteConfigFile();
       wxMessageBox(wxT("Auto-bind done!"), wxT("Info"), wxICON_INFORMATION);
     }

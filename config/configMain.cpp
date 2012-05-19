@@ -15,6 +15,8 @@
 #include <SDL/SDL.h>
 #include "wx/numdlg.h"
 #include <math.h>
+#include <sstream>
+#include <iomanip>
 
 //(*InternalHeaders(configFrame)
 #include <wx/intl.h>
@@ -2307,19 +2309,18 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
               axisMappers = config->GetAxisMapperList();
               for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); it++)
               {
-                if(it->GetDevice()->GetType() == device_type
-                    || (MenuItemMultipleMiceAndKeyboards->IsChecked() && it->GetDevice()->GetName() == device_name && it->GetDevice()->GetId() == device_id)
-                )
+                if(it->GetDevice()->GetType() == "mouse" && it->GetEvent()->GetType() == "axis")
                 {
-                    double val, exp;
-                    wxString sval = wxString(it->GetEvent()->GetMultiplier().c_str(), wxConvUTF8);
-                    wxString sexp = wxString(it->GetEvent()->GetExponent().c_str(), wxConvUTF8);
-                    if(sval.ToDouble(&val) && sexp.ToDouble(&exp))
-                    {
-                        val = val * pow((double)old_value / new_value, exp);
-                        sval.Printf(wxT("%.2f"), val);
-                        it->GetEvent()->SetMultiplier(string(sval.mb_str()));
-                    }
+                  if(MenuItemMultipleMiceAndKeyboards->IsChecked() && (it->GetDevice()->GetName() != device_name || it->GetDevice()->GetId() != device_id))
+                  {
+                    continue;
+                  }
+                  double val = atof(it->GetEvent()->GetMultiplier().c_str());
+                  double exp = atof(it->GetEvent()->GetExponent().c_str());
+                  val = val * pow((double)old_value / new_value, exp);
+                  ostringstream ios;
+                  ios << setprecision(2) << val;
+                  it->GetEvent()->SetMultiplier(ios.str());
                 }
               }
             }

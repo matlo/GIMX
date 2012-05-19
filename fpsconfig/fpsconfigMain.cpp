@@ -1008,8 +1008,10 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     if(found == false)
     {
         axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "x", "rstick x",
-            sDzHf, string(TextCtrlSensitivityHipFire->GetValue().mb_str()), string(TextCtrlAccelerationHipFire->GetValue().mb_str()),
-            string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str()), sBsHf, string(TextCtrlFilterHipFire->GetValue().mb_str()), "Aiming"));
+            sDzHf, string(TextCtrlSensitivityHipFire->GetValue().mb_str()),
+            string(TextCtrlAccelerationHipFire->GetValue().mb_str()),
+            string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str()),
+            sBsHf, string(TextCtrlFilterHipFire->GetValue().mb_str()), "Aiming - x axis"));
     }
     wsmx = TextCtrlSensitivityHipFire->GetValue();
     wsxyratio = TextCtrlXyRatioHipFire->GetValue();
@@ -1041,7 +1043,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "y", "rstick y",
             sDzHf, string(wsmy.mb_str()), string(TextCtrlAccelerationHipFire->GetValue().mb_str()),
             string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str()),
-            sBsHf, string(TextCtrlFilterHipFire->GetValue().mb_str()), "Aiming"));
+            sBsHf, string(TextCtrlFilterHipFire->GetValue().mb_str()), "Aiming - y axis"));
     }
     /*
      * Save ADS config.
@@ -1137,7 +1139,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
       axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "x", "rstick x",
           sDzADS, string(TextCtrlSensitivityADS->GetValue().mb_str()), string(TextCtrlAccelerationADS->GetValue().mb_str()),
           string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str()),
-          sBsADS, string(TextCtrlFilterADS->GetValue().mb_str()), "Aiming"));
+          sBsADS, string(TextCtrlFilterADS->GetValue().mb_str()), "Aiming - x axis"));
     }
     wsmx = TextCtrlSensitivityADS->GetValue();
     wsxyratio = TextCtrlXyRatioADS->GetValue();
@@ -1169,7 +1171,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "y", "rstick y",
             sDzADS, string(wsmy.mb_str()), string(TextCtrlAccelerationADS->GetValue().mb_str()),
             string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str()),
-            sBsADS, string(TextCtrlFilterADS->GetValue().mb_str()), "Aiming"));
+            sBsADS, string(TextCtrlFilterADS->GetValue().mb_str()), "Aiming - y axis"));
     }
 
     if(configFile.WriteConfigFile() < 0)
