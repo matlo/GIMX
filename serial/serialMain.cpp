@@ -624,12 +624,12 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
       return;
     }
 
-#ifndef WIN32
     if(CheckBoxTerminal->IsChecked() || CheckBoxGui->IsChecked())
     {
-        command.Append(_("gnome-terminal -x "));
-    }
+#ifndef WIN32
+      command.Append(_("gnome-terminal -x "));
 #endif
+    }
     command.Append(_("emuclient"));
     if(ControllerType->GetStringSelection() == _("Joystick"))
     {
@@ -758,13 +758,15 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
 
     int flags = wxEXEC_SYNC;
 
-#ifdef WIN32
     if(CheckBoxTerminal->IsChecked() || CheckBoxGui->IsChecked())
     {
         flags |= wxEXEC_NOHIDE;
+        if(wxExecute(command, flags))
+        {
+          wxMessageBox( wxT("emuclient error"), wxT("Error"), wxICON_ERROR);
+        }
     }
-#endif
-    if(wxExecute(command, output, errors, wxEXEC_SYNC))
+    else if(wxExecute(command, output, errors, flags))
     {
       wxString error;
       for(unsigned int i=0; i<output.GetCount(); ++i)
