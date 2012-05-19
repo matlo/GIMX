@@ -463,7 +463,7 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     Menu1->Append(MenuEditConfig);
     MenuEditFpsConfig = new wxMenuItem(Menu1, ID_MENUITEM2, _("Edit fps config"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuEditFpsConfig);
-    MenuAutoBindControls = new wxMenuItem(Menu1, ID_MENUITEM7, _("Auto-bind & convert"), wxEmptyString, wxITEM_NORMAL);
+    MenuAutoBindControls = new wxMenuItem(Menu1, ID_MENUITEM7, _("Auto-bind and convert"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuAutoBindControls);
     MenuRefresh = new wxMenuItem(Menu1, ID_MENUITEM3, _("Refresh\tF5"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuRefresh);
@@ -1104,7 +1104,7 @@ void serialFrame::OnMenuAutoBindControls(wxCommandEvent& event)
     choices.Add(wxString(ChoiceConfig->GetString(i), wxConvUTF8));
   }
 
-  wxSingleChoiceDialog dialog(this, wxT("Select the reference config."), wxT("Auto-bind controls"), choices);
+  wxSingleChoiceDialog dialog(this, wxT("Select the reference config."), wxT("Auto-bind and convert"), choices);
 
   if (dialog.ShowModal() == wxID_OK)
   {
@@ -1126,7 +1126,7 @@ void serialFrame::OnMenuAutoBindControls(wxCommandEvent& event)
     {
       configFile.ConvertSensitivity(dir + string(dialog.GetStringSelection().mb_str()));
       configFile.WriteConfigFile();
-      wxMessageBox(wxT("Auto-bind done!"), wxT("Info"), wxICON_INFORMATION);
+      wxMessageBox(wxT("Done!"), wxT("Info"), wxICON_INFORMATION);
     }
   }
 }

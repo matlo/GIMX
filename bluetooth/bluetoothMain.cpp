@@ -637,7 +637,7 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     Menu1->Append(MenuItem5);
     MenuItem6 = new wxMenuItem(Menu1, ID_MENUITEM4, _("Edit fps config"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuItem6);
-    MenuAutoBindControls = new wxMenuItem(Menu1, ID_MENUITEM8, _("Auto-bind & convert"), wxEmptyString, wxITEM_NORMAL);
+    MenuAutoBindControls = new wxMenuItem(Menu1, ID_MENUITEM8, _("Auto-bind and convert"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuAutoBindControls);
     MenuItem3 = new wxMenuItem(Menu1, ID_MENUITEM1, _("Refresh\tF5"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuItem3);
@@ -1435,7 +1435,7 @@ void bluetoothFrame::OnMenuAutoBindControls(wxCommandEvent& event)
     choices.Add(wxString(Choice4->GetString(i), wxConvUTF8));
   }
 
-  wxSingleChoiceDialog dialog(this, wxT("Select the reference config."), wxT("Auto-bind controls"), choices);
+  wxSingleChoiceDialog dialog(this, wxT("Select the reference config."), wxT("Auto-bind and convert"), choices);
 
   if (dialog.ShowModal() == wxID_OK)
   {
@@ -1457,7 +1457,7 @@ void bluetoothFrame::OnMenuAutoBindControls(wxCommandEvent& event)
     {
       configFile.ConvertSensitivity(dir + string(dialog.GetStringSelection().mb_str()));
       configFile.WriteConfigFile();
-      wxMessageBox(wxT("Auto-bind done!"), wxT("Info"), wxICON_INFORMATION);
+      wxMessageBox(wxT("Done!"), wxT("Info"), wxICON_INFORMATION);
     }
   }
 }

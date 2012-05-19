@@ -329,7 +329,7 @@
 					<handler function="OnMenuEditFpsConfig" entry="EVT_MENU" />
 				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM7" variable="MenuAutoBindControls" member="yes">
-					<label>Auto-bind &amp; convert</label>
+					<label>Auto-bind and convert</label>
 					<handler function="OnMenuAutoBindControls" entry="EVT_MENU" />
 				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM3" variable="MenuRefresh" member="yes">
