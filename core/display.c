@@ -130,7 +130,7 @@ void display_calibration()
   {
     wattron(wcal, COLOR_PAIR(1));
   }
-  clrtoeol();
+  wclrtoeol(wcal);
   mvwaddstr(wcal, 2, 1, "Dead zone:");
   if(current_cal == DZX)
   {
@@ -195,7 +195,7 @@ void display_calibration()
   {
     wattron(wcal, COLOR_PAIR(1));
   }
-  clrtoeol();
+  wclrtoeol(wcal);
   mvwaddstr(wcal, 3, 1, "Acceleration:");
   if(current_cal == TEST)
   {
@@ -244,7 +244,7 @@ void display_calibration()
   {
     wattron(wcal, COLOR_PAIR(1));
   }
-  clrtoeol();
+  wclrtoeol(wcal);
   mvwaddstr(wcal, 4, 1, "Sensitivity:");
   if(current_cal == MX)
   {
@@ -264,7 +264,7 @@ void display_calibration()
   {
     wattron(wcal, COLOR_PAIR(1));
   }
-  clrtoeol();
+  wclrtoeol(wcal);
   mvwaddstr(wcal, 5, 1, "X/Y: ");
   if(current_cal == RD || current_cal == VEL)
   {
@@ -316,7 +316,7 @@ void display_calibration()
   {
     wattron(wcal, COLOR_PAIR(1));
   }
-  clrtoeol();
+  wclrtoeol(wcal);
   wnoutrefresh(wcal);
 }
 
