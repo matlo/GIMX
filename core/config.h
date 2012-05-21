@@ -85,23 +85,6 @@ typedef enum
     E_SHAPE_RECTANGLE
 }e_shape;
 
-typedef enum
-{
-  NONE,
-  MC,
-  CC,
-  MX,
-  MY,
-  DZX,
-  DZY,
-  DZS,
-  RD,
-  VEL,
-  EX,
-  EY,
-  TEST
-}e_current_cal;
-
 typedef struct
 {
   int change;

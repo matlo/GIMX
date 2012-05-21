@@ -149,7 +149,7 @@ SDLKey process_line(const char* line, SDLKey macro) {
             (*pt)[(*pt)->size - 1].event.key.keysym.sym = key;
             (*pt)[(*pt)->size - 1].delay = 0;
       
-            delay_nb = ceil((double)DEFAULT_DELAY / (refresh/1000));      
+            delay_nb = ceil((double)DEFAULT_DELAY / (refresh_rate/1000));
             for(i=0; i<delay_nb; ++i)
             {
               allocate_element(pt);
@@ -164,7 +164,7 @@ SDLKey process_line(const char* line, SDLKey macro) {
         }
     } else if (!strncmp(command, "DELAY", strlen("DELAY"))) {
         if ((*pt)) {
-            delay_nb = ceil((double)atoi(argument) / (refresh/1000));
+            delay_nb = ceil((double)atoi(argument) / (refresh_rate/1000));
             for(i=0; i<delay_nb; ++i)
             {
               allocate_element(pt);
@@ -195,7 +195,7 @@ void dump_scripts() {
                 }
                 else if(delay_nb)
                 {
-                    printf("DELAY %d\n", delay_nb*(refresh/1000));
+                    printf("DELAY %d\n", delay_nb*(refresh_rate/1000));
                     delay_nb = 0;
                 }
                 if (p_element->event.type == SDL_KEYDOWN) {

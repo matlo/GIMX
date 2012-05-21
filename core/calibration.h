@@ -8,8 +8,28 @@
 #ifndef CALIBRATION_H_
 #define CALIBRATION_H_
 
+#include "config.h"
+
+typedef enum
+{
+  NONE,
+  MC,
+  CC,
+  MX,
+  MY,
+  DZX,
+  DZY,
+  DZS,
+  RD,
+  VEL,
+  EX,
+  EY,
+  TEST
+}e_current_cal;
+
 extern int mouse_controller[MAX_DEVICES];
 extern int current_mouse;
+extern int current_conf;
 extern e_current_cal current_cal;
 
 void cal_button(int, int);

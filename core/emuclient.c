@@ -68,7 +68,7 @@ char* portname = NULL;
 
 char* keygen = NULL;
 
-int refresh = DEFAULT_REFRESH_PERIOD; //µs
+int refresh_rate = DEFAULT_REFRESH_PERIOD; //ï¿½s
 int postpone_count = DEFAULT_POSTPONE_COUNT;
 int max_axis_value = DEFAULT_MAX_AXIS_VALUE;
 int mean_axis_value = DEFAULT_MAX_AXIS_VALUE / 2;
@@ -152,8 +152,8 @@ int main(int argc, char *argv[])
     }
     else if (!strcmp(argv[i], "--refresh"))
     {
-      refresh = atof(argv[++i]) * 1000;
-      postpone_count = 3 * DEFAULT_REFRESH_PERIOD / refresh;
+      refresh_rate = atof(argv[++i]) * 1000;
+      postpone_count = 3 * DEFAULT_REFRESH_PERIOD / refresh_rate;
     }
     else if (!strcmp(argv[i], "--precision"))
     {
@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
   }
 
   axis_scale = (double) max_axis_value / DEFAULT_MAX_AXIS_VALUE;
-  frequency_scale = (double) DEFAULT_REFRESH_PERIOD / refresh;
+  frequency_scale = (double) DEFAULT_REFRESH_PERIOD / refresh_rate;
 
   initialize_macros();
 
@@ -414,11 +414,11 @@ int main(int argc, char *argv[])
 #ifndef WIN32
     gettimeofday(&t1, NULL);
 
-    time_to_sleep = refresh - ((t1.tv_sec * 1000000 + t1.tv_usec) - (t0.tv_sec * 1000000 + t0.tv_usec));
+    time_to_sleep = refresh_rate - ((t1.tv_sec * 1000000 + t1.tv_usec) - (t0.tv_sec * 1000000 + t0.tv_usec));
 #else
     QueryPerformanceCounter(&t1);
 
-    time_to_sleep = refresh - (t1.QuadPart - t0.QuadPart) * 1000000 / freq.QuadPart;
+    time_to_sleep = refresh_rate - (t1.QuadPart - t0.QuadPart) * 1000000 / freq.QuadPart;
 #endif
 
     if (time_to_sleep > 0)
@@ -428,7 +428,7 @@ int main(int argc, char *argv[])
     else
 
     {
-      //printf("processing time higher than %dus: %dus!!\n", refresh, refresh - time_to_sleep);
+      gprintf("processing time higher than %dus: %dus!!\n", refresh_rate, refresh_rate - time_to_sleep);
     }
   }
 

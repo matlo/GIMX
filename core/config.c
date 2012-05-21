@@ -471,7 +471,7 @@ void cfg_trigger_lookup(SDL_Event* e)
       next_config[i] = selected;
       if(!up)
       {
-        config_delay[i] = triggers[i][selected].delay / (refresh / 1000);
+        config_delay[i] = triggers[i][selected].delay / (refresh_rate / 1000);
       }
       else
       {

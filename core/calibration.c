@@ -7,6 +7,7 @@
  *  License: GPLv3
  */
 
+#include "calibration.h"
 #include <SDL/SDL.h>
 #include <unistd.h>
 #include <math.h>
@@ -14,6 +15,7 @@
 #include "sdl_tools.h"
 #include "config_writter.h"
 #include "emuclient.h"
+#include "display.h"
 
 #define DEFAULT_MULTIPLIER_STEP 0.01
 #define EXPONENT_STEP 0.01
@@ -75,6 +77,11 @@ static void translation_test()
 
   s_mouse_cal* mc = cal_get_mouse(current_mouse, current_conf);
 
+  if(!mc->dzx || !mc->mx || !mc->ex)
+  {
+    return;
+  }
+
   dpi = mc->dpi;
   dz = *mc->dzx;
   mul = *mc->mx;
@@ -105,7 +112,7 @@ static void translation_test()
 
   if (dots <= 0)
   {
-    delay = DURATION / refresh;
+    delay = DURATION / refresh_rate;
     step *= 2;
     direction *= -1;
     if (direction > 0)
@@ -130,6 +137,11 @@ static void circle_test()
   SDL_Event mouse_evt = { };
   s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
   int step;
+
+  if(!mcal->ex)
+  {
+    return;
+  }
 
   int dpi = mcal->dpi;
 
@@ -164,7 +176,7 @@ void calibration_test()
 /*
  * Display calibration info.
  */
-static void display_calibration()
+static void cal_display()
 {
   s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
 
@@ -255,6 +267,7 @@ void cal_key(int device_id, int sym, int down)
 {
   SDL_Event evt_quit = { };
   s_mouse_control* mc = cfg_get_mouse_control(current_mouse);
+  e_current_cal prev = current_cal;
 
   switch (sym)
   {
@@ -294,164 +307,149 @@ void cal_key(int device_id, int sym, int down)
       }
       break;
     case SDLK_F1:
-      if (down && (rctrl || lctrl))
+      if (down)
       {
-        if (current_cal == NONE)
+        if(rctrl || lctrl)
         {
-          current_cal = MC;
-          gprintf("mouse selection\n");
-          display_calibration();
+          if (current_cal == NONE)
+          {
+            if(!merge_all_devices)
+            {
+              current_cal = MC;
+              gprintf("mouse selection\n");
+            }
+            else
+            {
+              current_cal = CC;
+              gprintf("config selection\n");
+            }
+          }
+          else
+          {
+            current_cal = NONE;
+            if (cfgw_modify_file(config_file))
+            {
+              gprintf("error writting the config file %s\n", config_file);
+            }
+            gprintf("calibration done\n");
+          }
         }
         else
         {
-          current_cal = NONE;
-          if (cfgw_modify_file(config_file))
+          if(!merge_all_devices)
           {
-            gprintf("error writting the config file %s\n", config_file);
+            current_cal = MC;
+            gprintf("mouse selection\n");
           }
-          gprintf("calibration done\n");
         }
       }
       break;
     case SDLK_F2:
       if (down && current_cal != NONE)
       {
-        if (current_cal == CC)
-        {
-          current_cal = MC;
-          gprintf("mouse selection\n");
-        }
-        else if (current_cal >= MC)
-        {
-          current_cal = CC;
-          gprintf("config selection\n");
-        }
-      }
-      break;
-    case SDLK_F3:
-      if (down && current_cal != NONE)
-      {
-        if (current_conf >= 0 && current_mouse >= 0)
-        {
-          gprintf("calibrating multiplier x\n");
-          current_cal = MX;
-        }
-      }
-      break;
-    case SDLK_F4:
-      if (down && current_cal != NONE)
-      {
-        if (current_conf >= 0 && current_mouse >= 0)
-        {
-          gprintf("calibrating x/y ratio\n");
-          current_cal = MY;
-        }
-      }
-      break;
-    case SDLK_F5:
-      if (down && current_cal != NONE)
-      {
-        if (current_conf >= 0 && current_mouse >= 0)
-        {
-          gprintf("calibrating dead zone x\n");
-          current_cal = DZX;
-          mc->merge_x[mc->index] = 1;
-          mc->merge_y[mc->index] = 0;
-          mc->change = 1;
-        }
-      }
-      break;
-    case SDLK_F6:
-      if (down && current_cal != NONE)
-      {
-        if (current_conf >= 0 && current_mouse >= 0)
-        {
-          gprintf("calibrating dead zone y\n");
-          current_cal = DZY;
-          mc->merge_x[mc->index] = 0;
-          mc->merge_y[mc->index] = 1;
-          mc->change = 1;
-        }
-      }
-      break;
-    case SDLK_F7:
-      if (down && current_cal != NONE)
-      {
-        if (current_conf >= 0 && current_mouse >= 0)
-        {
-          gprintf("calibrating dead zone shape\n");
-          current_cal = DZS;
-          mc->merge_x[mc->index] = 1;
-          mc->merge_y[mc->index] = 1;
-          mc->change = 1;
-        }
-      }
-      break;
-    case SDLK_F8:
-      if (down && current_cal != NONE)
-      {
-        if (current_conf >= 0 && current_mouse >= 0)
-        {
-          gprintf("calibrating exponent x\n");
-          current_cal = EX;
-        }
+        current_cal = CC;
+        gprintf("config selection\n");
       }
       break;
     case SDLK_F9:
       if (down && current_cal != NONE)
       {
-        if (current_conf >= 0 && current_mouse >= 0)
-        {
-          gprintf("calibrating exponent y\n");
-          current_cal = EY;
-        }
-      }
-      break;
-    case SDLK_F10:
-      if (down && current_cal != NONE)
-      {
-        if (current_conf >= 0 && current_mouse >= 0)
-        {
-          if(current_cal != RD && current_cal != VEL)
-          {
-            circle_step = 0;
-          }
-          gprintf("adjusting circle test radius\n");
-          current_cal = RD;
-        }
-      }
-      break;
-    case SDLK_F11:
-      if (down && current_cal != NONE)
-      {
-        if (current_conf >= 0 && current_mouse >= 0)
-        {
-          if(current_cal != RD && current_cal != VEL)
-          {
-            circle_step = 0;
-          }
-          gprintf("adjusting circle test velocity\n");
-          current_cal = VEL;
-        }
+        gprintf("calibrating multiplier x\n");
+        current_cal = MX;
       }
       break;
     case SDLK_F12:
       if (down && current_cal != NONE)
       {
-        if (current_conf >= 0 && current_mouse >= 0)
-        {
-          if(current_cal != TEST)
-          {
-            distance = 0.1; //0.1 inches
-            dots = 0;
-            direction = 1;
-            step = 1;
-          }
-          gprintf("translation test started\n");
-          current_cal = TEST;
-        }
+        gprintf("calibrating x/y ratio\n");
+        current_cal = MY;
       }
       break;
+    case SDLK_F3:
+      if (down && current_cal != NONE)
+      {
+        gprintf("calibrating dead zone x\n");
+        current_cal = DZX;
+        mc->merge_x[mc->index] = 1;
+        mc->merge_y[mc->index] = 0;
+        mc->change = 1;
+      }
+      break;
+    case SDLK_F4:
+      if (down && current_cal != NONE)
+      {
+        gprintf("calibrating dead zone y\n");
+        current_cal = DZY;
+        mc->merge_x[mc->index] = 0;
+        mc->merge_y[mc->index] = 1;
+        mc->change = 1;
+      }
+      break;
+    case SDLK_F5:
+      if (down && current_cal != NONE)
+      {
+        gprintf("calibrating dead zone shape\n");
+        current_cal = DZS;
+        mc->merge_x[mc->index] = 1;
+        mc->merge_y[mc->index] = 1;
+        mc->change = 1;
+      }
+      break;
+    case SDLK_F7:
+      if (down && current_cal != NONE)
+      {
+        gprintf("calibrating exponent x\n");
+        current_cal = EX;
+      }
+      break;
+    case SDLK_F8:
+      if (down && current_cal != NONE)
+      {
+        gprintf("calibrating exponent y\n");
+        current_cal = EY;
+      }
+      break;
+    case SDLK_F10:
+      if (down && current_cal != NONE)
+      {
+        if(current_cal != RD && current_cal != VEL)
+        {
+          circle_step = 0;
+        }
+        gprintf("adjusting circle test radius\n");
+        current_cal = RD;
+      }
+      break;
+    case SDLK_F11:
+      if (down && current_cal != NONE)
+      {
+        if(current_cal != RD && current_cal != VEL)
+        {
+          circle_step = 0;
+        }
+        gprintf("adjusting circle test velocity\n");
+        current_cal = VEL;
+      }
+      break;
+    case SDLK_F6:
+      if (down && current_cal != NONE)
+      {
+        if(current_cal != TEST)
+        {
+          distance = 0.1; //0.1 inches
+          dots = 0;
+          direction = 1;
+          step = 1;
+        }
+        gprintf("translation test started\n");
+        current_cal = TEST;
+      }
+      break;
+  }
+
+  if(prev != current_cal)
+  {
+    display_calibration();
   }
 
   /*
@@ -523,9 +521,9 @@ void cal_button(int which, int button)
           if (mcal->dzx)
           {
             *mcal->dzx += 1;
-            if (*mcal->dzx > mean_axis_value)
+            if (*mcal->dzx > mean_axis_value / axis_scale)
             {
-              *mcal->dzx = mean_axis_value;
+              *mcal->dzx = mean_axis_value / axis_scale;
             }
             mc->merge_x[mc->index] = 1;
             mc->merge_y[mc->index] = 0;
@@ -536,9 +534,9 @@ void cal_button(int which, int button)
           if (mcal->dzy)
           {
             *mcal->dzy += 1;
-            if (*mcal->dzy > mean_axis_value)
+            if (*mcal->dzy > mean_axis_value / axis_scale)
             {
-              *mcal->dzy = mean_axis_value;
+              *mcal->dzy = mean_axis_value / axis_scale;
             }
             mc->merge_x[mc->index] = 0;
             mc->merge_y[mc->index] = 1;
@@ -584,6 +582,10 @@ void cal_button(int which, int button)
           break;
         case NONE:
           break;
+      }
+      if(current_cal != NONE)
+      {
+        display_calibration();
       }
       break;
     case SDL_BUTTON_WHEELDOWN:
@@ -691,10 +693,14 @@ void cal_button(int which, int button)
         case NONE:
           break;
       }
+      if(current_cal != NONE)
+      {
+        display_calibration();
+      }
+      break;
+    default:
       break;
   }
-
-  display_calibration();
 }
 
 /*

@@ -14,7 +14,7 @@
 extern char* homedir;
 #endif
 
-extern int refresh;
+extern int refresh_rate;
 extern int mean_axis_value;
 extern int max_axis_value;
 extern double axis_scale;
