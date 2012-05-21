@@ -112,14 +112,14 @@ void display_calibration()
     {
       wattron(wcal, COLOR_PAIR(4));
     }
-    snprintf(line, COLS, " %s (%d) (F1)", sdl_get_mouse_name(current_mouse), sdl_get_mouse_virtual_id(current_mouse));
+    snprintf(line, COLS, " %s (%d) (F1) ", sdl_get_mouse_name(current_mouse), sdl_get_mouse_virtual_id(current_mouse));
     waddstr(wcal, line);
     if(current_cal == MC)
     {
       wattron(wcal, COLOR_PAIR(1));
     }
   }
-  waddstr(wcal, " Profile: ");
+  waddstr(wcal, "Profile: ");
   if(current_cal == CC)
   {
     wattron(wcal, COLOR_PAIR(4));
