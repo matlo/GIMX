@@ -428,7 +428,10 @@ int main(int argc, char *argv[])
     else
 
     {
-      gprintf("processing time higher than %dus: %dus!!\n", refresh_rate, refresh_rate - time_to_sleep);
+      if(!curses)
+      {
+        printf("processing time higher than %dus: %dus!!\n", refresh_rate, refresh_rate - time_to_sleep);
+      }
     }
   }
 
