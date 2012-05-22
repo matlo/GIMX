@@ -90,7 +90,6 @@ const long serialFrame::ID_STATICTEXT2 = wxNewId();
 const long serialFrame::ID_CHECKBOX5 = wxNewId();
 const long serialFrame::ID_CHECKBOX6 = wxNewId();
 const long serialFrame::ID_CHECKBOX1 = wxNewId();
-const long serialFrame::ID_CHECKBOX4 = wxNewId();
 const long serialFrame::ID_CHECKBOX2 = wxNewId();
 const long serialFrame::ID_CHECKBOX3 = wxNewId();
 const long serialFrame::ID_CHOICE4 = wxNewId();
@@ -419,13 +418,10 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer5->Add(FlexGridSizer2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer8 = new wxFlexGridSizer(2, 2, 0, 0);
     StaticBoxSizer5 = new wxStaticBoxSizer(wxVERTICAL, Panel1, _("Mouse"));
-    FlexGridSizer10 = new wxFlexGridSizer(1, 2, 0, 0);
+    FlexGridSizer10 = new wxFlexGridSizer(1, 1, 0, 0);
     CheckBoxGrab = new wxCheckBox(Panel1, ID_CHECKBOX1, _("grab"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX1"));
     CheckBoxGrab->SetValue(true);
     FlexGridSizer10->Add(CheckBoxGrab, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    CheckBoxCalibrate = new wxCheckBox(Panel1, ID_CHECKBOX4, _("calibrate"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX4"));
-    CheckBoxCalibrate->SetValue(false);
-    FlexGridSizer10->Add(CheckBoxCalibrate, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer5->Add(FlexGridSizer10, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer8->Add(StaticBoxSizer5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer6 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("Output"));
@@ -491,7 +487,6 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     
     Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&serialFrame::OnControllerTypeSelect);
     Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&serialFrame::OnButtonSpoofClick);
-    Connect(ID_CHECKBOX4,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&serialFrame::OnCheckBoxCalibrate);
     Connect(ID_CHECKBOX2,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&serialFrame::OnCheckBoxGuiClick);
     Connect(ID_CHECKBOX3,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&serialFrame::OnCheckBoxTerminalClick);
     Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&serialFrame::OnButtonCheckClick1);
@@ -788,19 +783,6 @@ void serialFrame::OnCheckBoxGuiClick(wxCommandEvent& event)
 void serialFrame::OnCheckBoxTerminalClick(wxCommandEvent& event)
 {
     CheckBoxGui->SetValue(false);
-}
-
-void serialFrame::OnCheckBoxCalibrate(wxCommandEvent& event)
-{
-    if(CheckBoxCalibrate->IsChecked())
-    {
-        CheckBoxGui->SetValue(true);
-        CheckBoxTerminal->SetValue(false);
-    }
-    else
-    {
-        CheckBoxGui->SetValue(false);
-    }
 }
 
 void serialFrame::OnButtonCheckClick1(wxCommandEvent& event)

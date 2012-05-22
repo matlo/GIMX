@@ -53,7 +53,6 @@ class bluetoothFrame: public wxFrame
         void OnCheckBox2Click(wxCommandEvent& event);
         void OnCheckBox3Click(wxCommandEvent& event);
         void OnChoice8Select(wxCommandEvent& event);
-        void OnCheckBoxCalibrate(wxCommandEvent& event);
         void OnButton4Click(wxCommandEvent& event);
         void OnMenuEditConfig(wxCommandEvent& event);
         void OnMenuEditFpsConfig(wxCommandEvent& event);
@@ -94,7 +93,6 @@ class bluetoothFrame: public wxFrame
         static const long ID_STATICTEXT13;
         static const long ID_STATICTEXT14;
         static const long ID_CHECKBOX1;
-        static const long ID_CHECKBOX4;
         static const long ID_CHECKBOX2;
         static const long ID_CHECKBOX3;
         static const long ID_CHECKBOX6;
@@ -149,7 +147,6 @@ class bluetoothFrame: public wxFrame
         wxStatusBar* StatusBar1;
         wxChoice* Choice4;
         wxMenuItem* MenuItem6;
-        wxCheckBox* CheckBox4;
         wxChoice* Choice6;
         wxMenuItem* MenuGetConfigs;
         wxCheckBox* CheckBox7;

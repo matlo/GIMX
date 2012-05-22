@@ -317,21 +317,12 @@
 														<label>Mouse</label>
 														<object class="sizeritem">
 															<object class="wxFlexGridSizer" variable="FlexGridSizer10" member="no">
-																<cols>2</cols>
+																<cols>1</cols>
 																<rows>1</rows>
 																<object class="sizeritem">
 																	<object class="wxCheckBox" name="ID_CHECKBOX1" variable="CheckBox1" member="yes">
 																		<label>grab</label>
 																		<checked>1</checked>
-																	</object>
-																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																	<border>5</border>
-																	<option>1</option>
-																</object>
-																<object class="sizeritem">
-																	<object class="wxCheckBox" name="ID_CHECKBOX4" variable="CheckBox4" member="yes">
-																		<label>calibrate</label>
-																		<handler function="OnCheckBoxCalibrate" entry="EVT_CHECKBOX" />
 																	</object>
 																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																	<border>5</border>

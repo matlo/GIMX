@@ -43,7 +43,6 @@ class serialFrame: public wxFrame
         void OnCheckBoxGuiClick(wxCommandEvent& event);
         void OnCheckBoxTerminalClick(wxCommandEvent& event);
         void OnChoice8Select(wxCommandEvent& event);
-        void OnCheckBoxCalibrate(wxCommandEvent& event);
         void OnButtonCheckClick1(wxCommandEvent& event);
         void OnMenuEditConfig(wxCommandEvent& event);
         void OnMenuEditFpsConfig(wxCommandEvent& event);
@@ -71,7 +70,6 @@ class serialFrame: public wxFrame
         static const long ID_CHECKBOX5;
         static const long ID_CHECKBOX6;
         static const long ID_CHECKBOX1;
-        static const long ID_CHECKBOX4;
         static const long ID_CHECKBOX2;
         static const long ID_CHECKBOX3;
         static const long ID_CHOICE4;
@@ -91,7 +89,6 @@ class serialFrame: public wxFrame
         //*)
 
         //(*Declarations(serialFrame)
-        wxCheckBox* CheckBoxCalibrate;
         wxMenuItem* MenuRefresh;
         wxMenuItem* MenuEditFpsConfig;
         wxStaticText* StaticText2;

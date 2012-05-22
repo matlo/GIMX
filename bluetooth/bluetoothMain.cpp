@@ -98,7 +98,6 @@ const long bluetoothFrame::ID_STATICTEXT12 = wxNewId();
 const long bluetoothFrame::ID_STATICTEXT13 = wxNewId();
 const long bluetoothFrame::ID_STATICTEXT14 = wxNewId();
 const long bluetoothFrame::ID_CHECKBOX1 = wxNewId();
-const long bluetoothFrame::ID_CHECKBOX4 = wxNewId();
 const long bluetoothFrame::ID_CHECKBOX2 = wxNewId();
 const long bluetoothFrame::ID_CHECKBOX3 = wxNewId();
 const long bluetoothFrame::ID_CHECKBOX6 = wxNewId();
@@ -585,13 +584,10 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer5 = new wxFlexGridSizer(3, 1, 0, 0);
     FlexGridSizer8 = new wxFlexGridSizer(2, 2, 0, 0);
     StaticBoxSizer5 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("Mouse"));
-    FlexGridSizer10 = new wxFlexGridSizer(1, 2, 0, 0);
+    FlexGridSizer10 = new wxFlexGridSizer(1, 1, 0, 0);
     CheckBox1 = new wxCheckBox(Panel1, ID_CHECKBOX1, _("grab"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX1"));
     CheckBox1->SetValue(true);
     FlexGridSizer10->Add(CheckBox1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    CheckBox4 = new wxCheckBox(Panel1, ID_CHECKBOX4, _("calibrate"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX4"));
-    CheckBox4->SetValue(false);
-    FlexGridSizer10->Add(CheckBox4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer5->Add(FlexGridSizer10, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer8->Add(StaticBoxSizer5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer6 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("Output"));
@@ -674,7 +670,6 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&bluetoothFrame::OnButton2Click);
     Connect(ID_CHOICE8,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnChoice8Select);
     Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&bluetoothFrame::OnButton1Click);
-    Connect(ID_CHECKBOX4,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&bluetoothFrame::OnCheckBoxCalibrate);
     Connect(ID_CHECKBOX2,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&bluetoothFrame::OnCheckBox2Click);
     Connect(ID_CHECKBOX3,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&bluetoothFrame::OnCheckBox3Click);
     Connect(ID_BUTTON4,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&bluetoothFrame::OnButton4Click);
@@ -1206,19 +1201,6 @@ void bluetoothFrame::OnChoice8Select(wxCommandEvent& event)
     else
     {
         Button1->SetLabel(_("Start"));
-    }
-}
-
-void bluetoothFrame::OnCheckBoxCalibrate(wxCommandEvent& event)
-{
-    if(CheckBox4->IsChecked())
-    {
-        CheckBox2->SetValue(true);
-        CheckBox3->SetValue(false);
-    }
-    else
-    {
-        CheckBox2->SetValue(false);
     }
 }
 
