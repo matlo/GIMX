@@ -57,6 +57,7 @@ class serialFrame: public wxFrame
         //*)
 
         void refresh();
+        void autoBindControls(wxArrayString configs);
 
         //(*Identifiers(serialFrame)
         static const long ID_STATICTEXT3;

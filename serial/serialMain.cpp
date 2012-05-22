@@ -1046,6 +1046,7 @@ void serialFrame::OnMenuGetConfigs(wxCommandEvent& event)
     if (dialog.ShowModal() == wxID_OK)
     {
       wxArrayInt selections = dialog.GetSelections();
+      wxArrayString configs;
 
       for ( size_t n = 0; n < selections.GetCount(); n++ )
       {
@@ -1060,6 +1061,7 @@ void serialFrame::OnMenuGetConfigs(wxCommandEvent& event)
           }
         }
         cl_sel.push_back(sel);
+        configs.Add(choices[selections[n]]);
       }
 
       if(u.getconfigs(&cl_sel) < 0)
@@ -1072,6 +1074,15 @@ void serialFrame::OnMenuGetConfigs(wxCommandEvent& event)
 	    {
 	      ChoiceConfig->SetSelection(ChoiceConfig->FindString(wxString(cl_sel.front().c_str(), wxConvUTF8)));
 	      wxMessageBox(wxT("Download is complete!"), wxT("Info"), wxICON_INFORMATION);
+	      if(!ChoiceConfig->IsEmpty())
+	      {
+	        int answer = wxMessageBox(_("Auto-bind and convert?"), _("Confirm"), wxYES_NO);
+          if (answer == wxNO)
+          {
+           return;
+          }
+          autoBindControls(configs);
+	      }
       }
     }
   }
@@ -1079,6 +1090,60 @@ void serialFrame::OnMenuGetConfigs(wxCommandEvent& event)
   {
     wxMessageBox(wxT("Can't retrieve config list!"), wxT("Error"), wxICON_ERROR);
     return;
+  }
+}
+
+void serialFrame::autoBindControls(wxArrayString configs)
+{
+  string dir;
+#ifndef WIN32
+  dir.append(homedir);
+  dir.append(APP_DIR);
+#endif
+  dir.append(CONFIG_DIR);
+
+  wxString ref_config;
+
+  wxArrayString ref_configs;
+  for(unsigned int i=0; i<ChoiceConfig->GetCount(); i++)
+  {
+    ref_configs.Add(ChoiceConfig->GetString(i));
+  }
+
+  wxSingleChoiceDialog dialog(this, wxT("Select the reference config."), wxT("Auto-bind and convert"), ref_configs);
+
+  if (dialog.ShowModal() == wxID_OK)
+  {
+    for(unsigned int j=0; j<configs.GetCount(); ++j)
+    {
+      ConfigurationFile configFile;
+      ref_config = configs[j];
+
+      int ret = configFile.ReadConfigFile(dir + string(ref_config.mb_str()));
+
+      if(ret < 0)
+      {
+        wxMessageBox(wxT("Can't read config: ") + ref_config + wxString(configFile.GetError().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
+        return;
+      }
+
+      if(configFile.AutoBind(dir + string(dialog.GetStringSelection().mb_str())) < 0)
+      {
+        wxMessageBox(wxT("Can't auto-bind controls for config: ") + ref_config, wxT("Error"), wxICON_ERROR);
+      }
+      else
+      {
+        configFile.ConvertSensitivity(dir + string(dialog.GetStringSelection().mb_str()));
+        if(configFile.WriteConfigFile() < 0)
+        {
+          wxMessageBox(wxT("Can't write config: ") + ref_config, wxT("Error"), wxICON_ERROR);
+        }
+        else
+        {
+          wxMessageBox(wxT("Done!"), wxT("Info"), wxICON_INFORMATION);
+        }
+      }
+    }
   }
 }
 
@@ -1090,43 +1155,8 @@ void serialFrame::OnMenuAutoBindControls(wxCommandEvent& event)
     return;
   }
 
-  string dir;
-#ifndef WIN32
-  dir.append(homedir);
-  dir.append(APP_DIR);
-#endif
-  dir.append(CONFIG_DIR);
+  wxArrayString configs;
+  configs.Add(ChoiceConfig->GetStringSelection());
 
-  wxArrayString choices;
-
-  for(unsigned int i=0; i<ChoiceConfig->GetCount(); i++)
-  {
-    choices.Add(wxString(ChoiceConfig->GetString(i), wxConvUTF8));
-  }
-
-  wxSingleChoiceDialog dialog(this, wxT("Select the reference config."), wxT("Auto-bind and convert"), choices);
-
-  if (dialog.ShowModal() == wxID_OK)
-  {
-    ConfigurationFile configFile;
-
-    int ret = configFile.ReadConfigFile(dir + string(ChoiceConfig->GetStringSelection().mb_str()));
-
-    if(ret < 0)
-    {
-      wxMessageBox(wxString(configFile.GetError().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
-      return;
-    }
-
-    if(configFile.AutoBind(dir + string(dialog.GetStringSelection().mb_str())) < 0)
-    {
-      wxMessageBox(wxT("Can't auto-bind controls!"), wxT("Error"), wxICON_ERROR);
-    }
-    else
-    {
-      configFile.ConvertSensitivity(dir + string(dialog.GetStringSelection().mb_str()));
-      configFile.WriteConfigFile();
-      wxMessageBox(wxT("Done!"), wxT("Info"), wxICON_INFORMATION);
-    }
-  }
+  autoBindControls(configs);
 }

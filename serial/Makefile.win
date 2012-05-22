@@ -6,7 +6,7 @@ LIBDIR =
 LIB = ../shared/configeditor/configeditor.a -lSDL -llibxml2 `wx-config --libs`
 LDFLAGS = -s 
 
-DEP = 
+DEP = ../shared/configeditor/configeditor.a
 OBJ = serial.rc.o serialApp.o serialMain.o
 OUT = gimx-serial.exe
 

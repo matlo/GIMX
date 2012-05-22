@@ -6,6 +6,7 @@
 #include <sstream>
 #include <math.h>
 #include <iomanip>
+#include <iterator>
 
 ConfigurationFile::ConfigurationFile()
 {
@@ -66,77 +67,89 @@ int ConfigurationFile::WriteConfigFile()
     return writer.WriteConfigFile();
 }
 
+list<string> &split(const string &s, char delim, list<string> &elems)
+{
+  stringstream ss(s);
+  string item;
+  while (getline(ss, item, delim))
+  {
+    while (item.find(" ") == 0)
+    {
+      item = item.substr(1);
+    }
+    elems.push_back(item);
+  }
+  return elems;
+}
+
+list<string> split(const string &s, char delim)
+{
+  list < string > elems;
+  return split(s, delim, elems);
+}
+
+template <class T>
+static void AutoBindMappers(list<T>* refMappers, list<T>* modMappers)
+{
+  for(typename list<T>::iterator itModMappers = modMappers->begin(); itModMappers!=modMappers->end(); itModMappers++)
+  {
+    string modLabel = itModMappers->GetLabel();
+
+    transform(modLabel.begin(), modLabel.end(), modLabel.begin(), (int(*)(int)) tolower);
+
+    list<string> modTokens = split(modLabel, ',');
+
+    for(list<string>::iterator itModTokens = modTokens.begin(); itModTokens != modTokens.end(); itModTokens++)
+    {
+      if(!itModTokens->empty())
+      {
+        typename list<T>::iterator itRefMappers;
+        for(itRefMappers = refMappers->begin(); itRefMappers!=refMappers->end(); itRefMappers++)
+        {
+          string refLabel = itRefMappers->GetLabel();
+
+          transform(refLabel.begin(), refLabel.end(), refLabel.begin(), (int(*)(int)) tolower);
+
+          list<string> refTokens = split(refLabel, ',');
+
+          if(find(refTokens.begin(), refTokens.end(), *itModTokens) != refTokens.end())
+          {
+            itModMappers->SetEvent(*itRefMappers->GetEvent());
+            break;
+          }
+        }
+        if(itRefMappers != refMappers->end())
+        {
+          break;
+        }
+      }
+    }
+  }
+}
+
 int ConfigurationFile::AutoBind(string refFilePath)
 {
-  ConfigurationFile configFile;
+  ConfigurationFile refConfigFile;
 
-  int ret = configFile.ReadConfigFile(refFilePath);
+  int ret = refConfigFile.ReadConfigFile(refFilePath);
 
   if(ret >= 0)
   {
     for(int i=0; i<MAX_CONTROLLERS; ++i)
     {
-      Controller* refController = configFile.GetController(i);
-      Controller* controller = GetController(i);
+      Controller* refController = refConfigFile.GetController(i);
+      Controller* modController = GetController(i);
       for(int j=0; j<MAX_CONFIGURATIONS; ++j)
       {
-        Configuration* config1 = refController->GetConfiguration(j);
-        Configuration* config2 = controller->GetConfiguration(j);
+        Configuration* refConfig = refController->GetConfiguration(j);
+        Configuration* modConfig = modController->GetConfiguration(j);
 
-        config2->SetTrigger(*config1->GetTrigger());
-        config2->SetIntensityList(*config1->GetIntensityList());
+        modConfig->SetTrigger(*refConfig->GetTrigger());
+        modConfig->SetIntensityList(*refConfig->GetIntensityList());
 
-        list<ButtonMapper>* buttonMappers1 = config1->GetButtonMapperList();
-        list<ButtonMapper>* buttonMappers2 = config2->GetButtonMapperList();
+        AutoBindMappers<ButtonMapper>(refConfig->GetButtonMapperList(), modConfig->GetButtonMapperList());
 
-        for(list<ButtonMapper>::iterator it2 = buttonMappers2->begin(); it2!=buttonMappers2->end(); it2++)
-        {
-          string label2 = it2->GetLabel();
-
-          transform(label2.begin(), label2.end(), label2.begin(), (int(*)(int)) tolower);
-
-          if(!label2.empty())
-          {
-            for(std::list<ButtonMapper>::iterator it1 = buttonMappers1->begin(); it1!=buttonMappers1->end(); it1++)
-            {
-              string label1 = it1->GetLabel();
-
-              transform(label1.begin(), label1.end(), label1.begin(), (int(*)(int)) tolower);
-
-              if(label1 == label2)
-              {
-                it2->SetEvent(*it1->GetEvent());
-                break;
-              }
-            }
-          }
-        }
-
-        list<AxisMapper>* axisMappers1 = config1->GetAxisMapperList();
-        list<AxisMapper>* axisMappers2 = config2->GetAxisMapperList();
-
-        for(list<AxisMapper>::iterator it2 = axisMappers2->begin(); it2!=axisMappers2->end(); it2++)
-        {
-          string label2 = it2->GetLabel();
-
-          transform(label2.begin(), label2.end(), label2.begin(), (int(*)(int)) tolower);
-
-          if(!label2.empty())
-          {
-            for(std::list<AxisMapper>::iterator it1 = axisMappers1->begin(); it1!=axisMappers1->end(); it1++)
-            {
-              string label1 = it1->GetLabel();
-
-              transform(label1.begin(), label1.end(), label1.begin(), (int(*)(int)) tolower);
-
-              if(label1 == label2)
-              {
-                it2->SetEvent(*it1->GetEvent());
-                break;
-              }
-            }
-          }
-        }
+        AutoBindMappers<AxisMapper>(refConfig->GetAxisMapperList(), modConfig->GetAxisMapperList());
       }
     }
   }
@@ -146,43 +159,43 @@ int ConfigurationFile::AutoBind(string refFilePath)
 
 int ConfigurationFile::ConvertSensitivity(string refFilePath)
 {
-  ConfigurationFile configFile;
+  ConfigurationFile refConfigFile;
 
-  int ret = configFile.ReadConfigFile(refFilePath);
+  int ret = refConfigFile.ReadConfigFile(refFilePath);
 
   if(ret >= 0)
   {
     for(int i=0; i<MAX_CONTROLLERS; ++i)
     {
-      Controller* refController = configFile.GetController(i);
-      Controller* controller = GetController(i);
+      Controller* refController = refConfigFile.GetController(i);
+      Controller* modController = GetController(i);
 
-      int dpi1 = refController->GetMouseDPI();
-      int dpi2 = controller->GetMouseDPI();
+      int refdpi = refController->GetMouseDPI();
+      int dpi = modController->GetMouseDPI();
 
-      if(dpi1 && dpi2 && dpi1 != dpi2)
+      if(refdpi && dpi && refdpi != dpi)
       {
         for(int k=0; k<MAX_CONFIGURATIONS; ++k)
         {
-          Configuration* config = controller->GetConfiguration(k);
+          Configuration* modConfig = modController->GetConfiguration(k);
 
-          list<AxisMapper>* axisMappers = config->GetAxisMapperList();
+          list<AxisMapper>* modAxisMappers = modConfig->GetAxisMapperList();
 
-          for(list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); it++)
+          for(list<AxisMapper>::iterator itModAxisMappers = modAxisMappers->begin(); itModAxisMappers!=modAxisMappers->end(); itModAxisMappers++)
           {
-            if(it->GetDevice()->GetType() == "mouse" && it->GetEvent()->GetType() == "axis")
+            if(itModAxisMappers->GetDevice()->GetType() == "mouse" && itModAxisMappers->GetEvent()->GetType() == "axis")
             {
-                double val = atof(it->GetEvent()->GetMultiplier().c_str());
-                double exp = atof(it->GetEvent()->GetExponent().c_str());
-                val = val * pow((double)dpi2 / dpi1, exp);
+                double val = atof(itModAxisMappers->GetEvent()->GetMultiplier().c_str());
+                double exp = atof(itModAxisMappers->GetEvent()->GetExponent().c_str());
+                val = val * pow((double)dpi / refdpi, exp);
                 ostringstream ios;
                 ios << setprecision(2) << val;
-                it->GetEvent()->SetMultiplier(ios.str());
+                itModAxisMappers->GetEvent()->SetMultiplier(ios.str());
             }
           }
         }
 
-        controller->SetMouseDPI(dpi1);
+        modController->SetMouseDPI(refdpi);
       }
     }
   }
