@@ -1,4 +1,4 @@
-DIRS=shared core config serial status fpsconfig
+DIRS=shared core config serial fpsconfig
 
 all:
 	+for i in $(DIRS); do cd $$i; make -f Makefile.win all; cd ..; done
@@ -12,7 +12,6 @@ install: all
 	mkdir -p setup/macros
 	cp -u -f /mingw/bin/libgcc_s_dw2-1.dll setup
 	cp -u -f /mingw/bin/libiconv-2.dll setup
-	cp -u -f /mingw/bin/libpthread-2.dll setup
 	cp -u -f /mingw/bin/libstdc++-6.dll setup
 	cp -u -f /mingw/bin/libxml2.dll setup
 	cp -u -f /mingw/bin/SDL.dll setup
@@ -21,7 +20,6 @@ install: all
 	cp -u -f core/emuclient.exe setup
 	cp -u -f config/gimx-config.exe setup
 	cp -u -f serial/gimx-serial.exe setup
-	cp -u -f status/gimx-status.exe setup
 	cp -u -f fpsconfig/gimx-fpsconfig.exe setup
 	cp -u -f /mingw/local/bin/wget-1.11.4.exe setup/wget.exe
 	cp -u -f /etc/wgetrc setup/wget.ini
