@@ -89,6 +89,8 @@ s_controller controller[MAX_CONTROLLERS] =
 
 int merge_all_devices;
 
+int proc_time = 0;
+
 int main(int argc, char *argv[])
 {
   int grab = 1;
@@ -216,11 +218,6 @@ int main(int argc, char *argv[])
 //#endif
   }
 
-  if (!check_config)
-  {
-    gprintf("max_axis_value: %d\n", max_axis_value);//needed by sixstatus...
-  }
-
   if(curses)
   {
     display_init();
@@ -240,11 +237,6 @@ int main(int argc, char *argv[])
   if (!sdl_initialize())
   {
     err(1, "can't init sdl");
-  }
-  else if(!check_config)
-  {
-    /* Needed by gimx-status */
-    gprintf("sdl initialized\n");
   }
 
   if(grab)
@@ -421,6 +413,8 @@ int main(int argc, char *argv[])
     time_to_sleep = refresh_rate - (t1.QuadPart - t0.QuadPart) * 1000000 / freq.QuadPart;
 #endif
 
+    proc_time += refresh_rate - time_to_sleep;
+
     if (time_to_sleep > 0)
     {
       usleep(time_to_sleep);
@@ -435,7 +429,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  printf("Exiting\n");
+  gprintf("Exiting\n");
 
 EXIT:
   free_macros();

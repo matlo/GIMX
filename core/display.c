@@ -387,7 +387,7 @@ void display_run(int axes[4], int max_axis, int buttons[BUTTON_NB], int max_butt
   int i;
   int d;
   char label[LABEL_LENGTH + 7];
-  char rate[sizeof("Refresh rate")];
+  char rate[COLS];
   int tdiff;
 
   cpt++;
@@ -404,10 +404,11 @@ void display_run(int axes[4], int max_axis, int buttons[BUTTON_NB], int max_butt
 
   if(tdiff > RATE_PERIOD)
   {
-    sprintf(rate, "%4d Hz", cpt*1000000/RATE_PERIOD);
-    mvaddstr(LINES-1, 15, rate);
+    sprintf(rate, "Refresh rate: %4dHz Processing time: %4dus    ", cpt*1000000/RATE_PERIOD, proc_time/cpt);
+    mvaddstr(LINES-1, 1, rate);
     t0 = t1;
     cpt = 0;
+    proc_time = 0;
   }
 
   d = 0;

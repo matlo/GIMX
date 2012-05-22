@@ -26,6 +26,7 @@ extern struct sixaxis_state state[MAX_CONTROLLERS];
 extern s_controller controller[MAX_CONTROLLERS];
 extern int postpone_count;
 extern int subpos;
+extern int proc_time;
 
 #define gprintf(...) if(display) printf(__VA_ARGS__)
 
