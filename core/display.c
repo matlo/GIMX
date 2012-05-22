@@ -317,6 +317,7 @@ void display_calibration()
     wattron(wcal, COLOR_PAIR(1));
   }
   wclrtoeol(wcal);
+  box(wcal, 0 , 0);
   wnoutrefresh(wcal);
 }
 
