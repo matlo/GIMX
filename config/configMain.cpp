@@ -728,6 +728,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     MenuAdvanced->Append(MenuItemMultipleMiceAndKeyboards);
     MenuItemLinkControls = new wxMenuItem(MenuAdvanced, ID_MENUITEM25, _("Link controls"), wxEmptyString, wxITEM_CHECK);
     MenuAdvanced->Append(MenuItemLinkControls);
+    MenuItemLinkControls->Check(true);
     MenuAutoBindControls = new wxMenuItem(MenuAdvanced, ID_MENUITEM27, _("Auto-bind controls"), wxEmptyString, wxITEM_NORMAL);
     MenuAdvanced->Append(MenuAutoBindControls);
     MenuBar1->Append(MenuAdvanced, _("Advanced"));
