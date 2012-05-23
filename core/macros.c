@@ -38,17 +38,10 @@ typedef struct {
     char macro[MAX_NAME_LENGTH];
 } s_macro_event_delay;
 
-typedef struct {
-  int keyboard_id;
-  s_macro_event_delay* macro;
-} s_macro_arg;
-
-s_macro_arg macro_arg;
-
 /*
  * This table is used to store all the macros that are read from script files at the initialization of the process.
  */
-s_macro_event_delay* macro_table[SDLK_LAST];
+s_macro_event_delay* macro_table[3][SDLK_LAST][2];
 
 /*
  * Initializes macro_table.
@@ -64,7 +57,7 @@ void initialize_macro_table() {
 void free_macros() {
     s_macro_event_delay** pt;
 
-    for (pt = macro_table; pt < macro_table + SDLK_LAST; pt++) {
+    for (pt = &(macro_table[0][0][0]); pt < &(macro_table[0][0][0])+(sizeof(macro_table)/sizeof(s_macro_event_delay*)); pt++) {
         free(*pt);
     }
 }
@@ -83,30 +76,86 @@ void allocate_element(s_macro_event_delay** pt) {
  * If line is a macro definition and the macro is already defined, returns SDLK_UNKNOWN.
  * If macro is SDLK_UNKNOWN and if line is not a macro definition, nothing is done.
  */
-SDLKey process_line(const char* line, SDLKey macro) {
+void process_line(const char* line, int* dtype, int* button, int* down) {
     char command[LINE_MAX];
     char argument[LINE_MAX];
-    SDLKey key;
+    int rbutton;
     int delay_nb;
     s_macro_event_delay** pt = NULL;
     int ret;
     int i;
 
-    if (macro != SDLK_UNKNOWN) {
-        pt = macro_table + macro;
+    if (*dtype >= 0) {
+        pt = &macro_table[*dtype][*button][*down];
     }
 
     ret = sscanf(line, "%s %s", command, argument);
 
-    if(ret < 2)
-    {
+    if(ret < 2) {
         /* invalid line */
-        return macro;
+        return;
     }
 
-    if (!strncmp(command, "MACRO", strlen("MACRO"))) {
-        macro = get_key_from_buffer(argument);
-        pt = macro_table + macro;
+    if (strstr(line, "MACRO")) {
+        if(strstr(line, "KEYDOWN"))
+        {
+          ret = sscanf(line, "%*s %*s %s", argument);
+          if(ret == 1)
+          {
+            if((rbutton = get_key_from_buffer(argument)))
+            {
+              *dtype = 0;
+              *button = rbutton;
+              *down = 1;
+            }
+          }
+        }
+        else if(strstr(line, "KEYUP"))
+        {
+          ret = sscanf(line, "%*s %*s %s", argument);
+          if(ret == 1)
+          {
+            if((rbutton = get_key_from_buffer(argument)))
+            {
+              *dtype = 0;
+              *button = rbutton;
+              *down = 0;
+            }
+          }
+        }
+        else if(strstr(line, "MBUTTONDOWN"))
+        {
+          ret = sscanf(line, "%*s %*s %s", argument);
+          if(ret == 1)
+          {
+            if((rbutton = get_mouse_event_id_from_buffer(argument)))
+            {
+              *dtype = 1;
+              *button = rbutton;
+              *down = 1;
+            }
+          }
+        }
+        else if(strstr(line, "MBUTTONUP"))
+        {
+          ret = sscanf(line, "%*s %*s %s", argument);
+          if(ret == 1)
+          {
+            if((rbutton = get_mouse_event_id_from_buffer(argument)))
+            {
+              *dtype = 1;
+              *button = rbutton;
+              *down = 0;
+            }
+          }
+        }
+        
+        if(*dtype < 0)
+        {
+          return;
+        }
+
+        pt = &(macro_table[*dtype][*button][*down]);
 
         if (!*pt) {
             (*pt) = calloc(1, sizeof(s_macro_event_delay));
@@ -114,39 +163,42 @@ SDLKey process_line(const char* line, SDLKey macro) {
             strncpy((*pt)->macro, argument, MAX_NAME_LENGTH);
         } else {
             printf("Macro %s defined twice!\n", argument);
-            macro = SDLK_UNKNOWN;
+            *dtype = -1;
         }
-    } else if (!strncmp(command, "KEYDOWN", strlen("KEYDOWN"))) {
-        if ((*pt)) {
-            key = get_key_from_buffer(argument);
+        return;
+    }
+    
+    if (!strncmp(command, "KEYDOWN", strlen("KEYDOWN"))) {
+        if (*pt) {
+            rbutton = get_key_from_buffer(argument);
 
             allocate_element(pt);
 
             (*pt)[(*pt)->size - 1].event.type = SDL_KEYDOWN;
             (*pt)[(*pt)->size - 1].event.key.state = SDL_KEYDOWN;
-            (*pt)[(*pt)->size - 1].event.key.keysym.sym = key;
+            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
             (*pt)[(*pt)->size - 1].delay = 0;
         }
     } else if (!strncmp(command, "KEYUP", strlen("KEYUP"))) {
-        if ((*pt)) {
-            key = get_key_from_buffer(argument);
+        if (*pt) {
+            rbutton = get_key_from_buffer(argument);
 
             allocate_element(pt);
 
             (*pt)[(*pt)->size - 1].event.type = SDL_KEYUP;
             (*pt)[(*pt)->size - 1].event.key.state = SDL_KEYUP;
-            (*pt)[(*pt)->size - 1].event.key.keysym.sym = key;
+            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
             (*pt)[(*pt)->size - 1].delay = 0;
         }
     } else if (!strncmp(command, "KEY", strlen("KEY"))) {
-        if ((*pt)) {
-            key = get_key_from_buffer(argument);
+        if (*pt) {
+            rbutton = get_key_from_buffer(argument);
 
             allocate_element(pt);
 
             (*pt)[(*pt)->size - 1].event.type = SDL_KEYDOWN;
             (*pt)[(*pt)->size - 1].event.key.state = SDL_KEYDOWN;
-            (*pt)[(*pt)->size - 1].event.key.keysym.sym = key;
+            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
             (*pt)[(*pt)->size - 1].delay = 0;
       
             delay_nb = ceil((double)DEFAULT_DELAY / (refresh_rate/1000));
@@ -160,10 +212,105 @@ SDLKey process_line(const char* line, SDLKey macro) {
 
             (*pt)[(*pt)->size - 1].event.type = SDL_KEYUP;
             (*pt)[(*pt)->size - 1].event.key.state = SDL_KEYUP;
-            (*pt)[(*pt)->size - 1].event.key.keysym.sym = key;
+            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
         }
-    } else if (!strncmp(command, "DELAY", strlen("DELAY"))) {
-        if ((*pt)) {
+    }
+    else if (!strncmp(command, "MBUTTONDOWN", strlen("MBUTTONDOWN"))) {
+        if (*pt) {
+            rbutton = get_mouse_event_id_from_buffer(argument);
+
+            allocate_element(pt);
+
+            (*pt)[(*pt)->size - 1].event.type = SDL_MOUSEBUTTONDOWN;
+            (*pt)[(*pt)->size - 1].event.key.state = SDL_MOUSEBUTTONDOWN;
+            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
+            (*pt)[(*pt)->size - 1].delay = 0;
+        }
+    } else if (!strncmp(command, "MBUTTONUP", strlen("MBUTTONUP"))) {
+        if (*pt) {
+            rbutton = get_mouse_event_id_from_buffer(argument);
+
+            allocate_element(pt);
+
+            (*pt)[(*pt)->size - 1].event.type = SDL_MOUSEBUTTONUP;
+            (*pt)[(*pt)->size - 1].event.key.state = SDL_MOUSEBUTTONUP;
+            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
+            (*pt)[(*pt)->size - 1].delay = 0;
+        }
+    } else if (!strncmp(command, "MBUTTON", strlen("MBUTTON"))) {
+        if (*pt) {
+            rbutton = get_mouse_event_id_from_buffer(argument);
+
+            allocate_element(pt);
+
+            (*pt)[(*pt)->size - 1].event.type = SDL_MOUSEBUTTONDOWN;
+            (*pt)[(*pt)->size - 1].event.key.state = SDL_MOUSEBUTTONDOWN;
+            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
+            (*pt)[(*pt)->size - 1].delay = 0;
+      
+            delay_nb = ceil((double)DEFAULT_DELAY / (refresh_rate/1000));
+            for(i=0; i<delay_nb; ++i)
+            {
+              allocate_element(pt);
+              (*pt)[(*pt)->size - 1].delay = 1;
+            }
+
+            allocate_element(pt);
+
+            (*pt)[(*pt)->size - 1].event.type = SDL_MOUSEBUTTONUP;
+            (*pt)[(*pt)->size - 1].event.key.state = SDL_MOUSEBUTTONUP;
+            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
+        }
+    }
+    else if (!strncmp(command, "JBUTTONDOWN", strlen("JBUTTONDOWN"))) {
+        if (*pt) {
+            rbutton = atoi(argument);
+
+            allocate_element(pt);
+
+            (*pt)[(*pt)->size - 1].event.type = SDL_JOYBUTTONDOWN;
+            (*pt)[(*pt)->size - 1].event.key.state = SDL_JOYBUTTONDOWN;
+            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
+            (*pt)[(*pt)->size - 1].delay = 0;
+        }
+    } else if (!strncmp(command, "JBUTTONUP", strlen("JBUTTONUP"))) {
+        if (*pt) {
+            rbutton = atoi(argument);
+
+            allocate_element(pt);
+
+            (*pt)[(*pt)->size - 1].event.type = SDL_JOYBUTTONUP;
+            (*pt)[(*pt)->size - 1].event.key.state = SDL_JOYBUTTONUP;
+            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
+            (*pt)[(*pt)->size - 1].delay = 0;
+        }
+    } else if (!strncmp(command, "JBUTTON", strlen("JBUTTON"))) {
+        if (*pt) {
+            rbutton = atoi(argument);
+
+            allocate_element(pt);
+
+            (*pt)[(*pt)->size - 1].event.type = SDL_JOYBUTTONDOWN;
+            (*pt)[(*pt)->size - 1].event.key.state = SDL_JOYBUTTONDOWN;
+            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
+            (*pt)[(*pt)->size - 1].delay = 0;
+
+            delay_nb = ceil((double)DEFAULT_DELAY / (refresh_rate/1000));
+            for(i=0; i<delay_nb; ++i)
+            {
+              allocate_element(pt);
+              (*pt)[(*pt)->size - 1].delay = 1;
+            }
+
+            allocate_element(pt);
+
+            (*pt)[(*pt)->size - 1].event.type = SDL_JOYBUTTONUP;
+            (*pt)[(*pt)->size - 1].event.key.state = SDL_JOYBUTTONUP;
+            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
+        }
+    }
+    else if (!strncmp(command, "DELAY", strlen("DELAY"))) {
+        if (*pt) {
             delay_nb = ceil((double)atoi(argument) / (refresh_rate/1000));
             for(i=0; i<delay_nb; ++i)
             {
@@ -173,13 +320,13 @@ SDLKey process_line(const char* line, SDLKey macro) {
         }
     }
 
-    return macro;
+    return;
 }
 
 /*
  * Displays macro_table.
  */
-void dump_scripts() {
+/*void dump_scripts() {
     s_macro_event_delay** p_table;
     s_macro_event_delay* p_element;
     int delay_nb;
@@ -209,14 +356,14 @@ void dump_scripts() {
             printf("\n");
         }
     }
-}
+}*/
 
 /*
  * Reads macros from script files.
  */
 void read_macros() {
 
-    SDLKey macro = SDLK_UNKNOWN;
+    int dtype = -1, button, down;
     char line[LINE_MAX];
     DIR *dirp;
     FILE* fp;
@@ -278,8 +425,8 @@ void read_macros() {
       } else {
           while (fgets(line, LINE_MAX, fp)) {
               if (line[0] != '#') {
-                  macro = process_line(line, macro);
-                  if(macro == SDLK_UNKNOWN)
+                  process_line(line, &dtype, &button, &down);
+                  if(dtype < 0)
                   {
                       break;
                   }
@@ -306,8 +453,10 @@ void initialize_macros() {
 
 typedef struct
 {
-  int keyboard_id;
-  SDLKey key;
+  int dtype;
+  int did;
+  int button;
+  int down;
   int index;
 } s_running_macro;
 
@@ -315,18 +464,21 @@ typedef struct
  * This table contains pending macros.
  * Dynamically allocated.
  */
-s_running_macro* running_macro = NULL;
-unsigned int running_macro_nb = 0;
+s_running_macro* running_macro = { NULL };
+unsigned int running_macro_nb;
 
 /*
  * Unregister a macro.
  */
-static int macro_delete(int keyboard_id, SDLKey key)
+static int macro_delete(int dtype, int did, int button, int down)
 {
   int i;
   for(i=0; i<running_macro_nb; ++i)
   {
-    if(running_macro[i].keyboard_id == keyboard_id && running_macro[i].key == key)
+    if(running_macro[i].dtype == dtype
+    && running_macro[i].did == did 
+    && running_macro[i].button == button 
+    && running_macro[i].down == down)
     {
       memcpy(running_macro+i, running_macro+i+1, (running_macro_nb-i-1)*sizeof(s_running_macro));
       running_macro_nb--;
@@ -345,7 +497,7 @@ static int macro_delete(int keyboard_id, SDLKey key)
 /*
  * Register a new macro.
  */
-static void macro_add(int keyboard_id, SDLKey key)
+static void macro_add(int dtype, int did, int button, int down)
 {
   running_macro_nb++;
   running_macro = realloc(running_macro, running_macro_nb*sizeof(s_running_macro));
@@ -354,21 +506,23 @@ static void macro_add(int keyboard_id, SDLKey key)
     fprintf(stderr, "macro_add: can't realloc!\n");
     exit(-1);
   }
-  running_macro[running_macro_nb-1].keyboard_id = keyboard_id;
-  running_macro[running_macro_nb-1].key = key;
+  running_macro[running_macro_nb-1].dtype = dtype;
+  running_macro[running_macro_nb-1].did = did;
+  running_macro[running_macro_nb-1].button = button;
+  running_macro[running_macro_nb-1].down = down;
   running_macro[running_macro_nb-1].index = 0;
 }
 
 /*
  * Start or stop a macro.
  */
-void macro_lookup(int keyboard_id, SDLKey key)
+void macro_lookup(int dtype, int did, int button, int down)
 {
-  if(macro_table[key])
+  if(macro_table[dtype][button][down])
   {
-    if(!macro_delete(keyboard_id, key))
+    if(!macro_delete(dtype, did, button, down))
     {
-      macro_add(keyboard_id, key);
+      macro_add(dtype, did, button, down);
     }
   }
 }
@@ -383,17 +537,17 @@ void macro_process()
   s_macro_event_delay* p_macro_table;
   for(i=0; i<running_macro_nb; ++i)
   {
-    if(running_macro[i].index < macro_table[running_macro[i].key]->size)
+    if(running_macro[i].index < macro_table[running_macro[i].dtype][running_macro[i].button][running_macro[i].down]->size)
     {
       running_macro[i].index++;
     
-      while(running_macro[i].index < macro_table[running_macro[i].key]->size)
+      while(running_macro[i].index < macro_table[running_macro[i].dtype][running_macro[i].button][running_macro[i].down]->size)
       {
-        p_macro_table = macro_table[running_macro[i].key] + running_macro[i].index;
+        p_macro_table = macro_table[running_macro[i].dtype][running_macro[i].button][running_macro[i].down] + running_macro[i].index;
         event = p_macro_table->event;
         if(event.type != SDL_NOEVENT)
         {
-            event.key.which = running_macro[i].keyboard_id;
+            event.key.which = running_macro[i].did;
             SDL_PushEvent(&event);
         }
         if(!p_macro_table->delay)
@@ -406,9 +560,9 @@ void macro_process()
         }
       }
     }
-    if(running_macro[i].index >= macro_table[running_macro[i].key]->size)
+    if(running_macro[i].index >= macro_table[running_macro[i].dtype][running_macro[i].button][running_macro[i].down]->size)
     {
-      macro_delete(running_macro[i].keyboard_id, running_macro[i].key);
+      macro_delete(running_macro[i].dtype, running_macro[i].did, running_macro[i].button, running_macro[i].down);
       i--;
     }
   }

@@ -350,13 +350,18 @@ int main(int argc, char *argv[])
           break;
         case SDL_KEYDOWN:
           cal_key(event->key.which, event->key.keysym.sym, 1);
-          macro_lookup(event->key.which, event->key.keysym.sym);
+          macro_lookup(0, event->key.which, event->key.keysym.sym, 1);
           break;
         case SDL_KEYUP:
           cal_key(event->key.which, event->key.keysym.sym, 0);
+          macro_lookup(0, event->key.which, event->key.keysym.sym, 0);
           break;
         case SDL_MOUSEBUTTONDOWN:
           cal_button(event->button.which, event->button.button);
+          macro_lookup(1, event->button.which, event->button.button, 1);
+          break;
+        case SDL_MOUSEBUTTONUP:
+          macro_lookup(1, event->button.which, event->button.button, 0);
           break;
       }
 
