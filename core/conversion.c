@@ -397,7 +397,7 @@ const char* get_chars_from_key(SDLKey key)
   return arg_key_table[0].arg;
 }
 
-const char* buttons[] =
+const char* buttons[MOUSE_BUTTONS_MAX] =
 {
     "UNDEFINED",
     "BUTTON_LEFT",

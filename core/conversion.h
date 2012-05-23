@@ -18,6 +18,8 @@
 #define MOUSE_AXIS_X "x"
 #define MOUSE_AXIS_Y "y"
 
+#define MOUSE_BUTTONS_MAX 15
+
 typedef struct {
     int baindex;
     int tavalue;
