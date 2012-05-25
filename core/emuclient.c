@@ -266,9 +266,12 @@ int main(int argc, char *argv[])
 
   if(serial)
   {
-    if (serial_connect(portname) < 0)
+    if(strcmp(portname, "none"))
     {
-      err(1, "serial_connect");
+      if (serial_connect(portname) < 0)
+      {
+        err(1, "serial_connect");
+      }
     }
   }
   else if(ctype == C_TYPE_GPP)
