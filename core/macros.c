@@ -160,7 +160,7 @@ void process_line(const char* line, int* dtype, int* button, int* down) {
           {
             if((rbutton = atoi(argument)) >= 0)
             {
-              *dtype = 1;
+              *dtype = 2;
               *button = rbutton;
               *down = 1;
             }
@@ -173,7 +173,7 @@ void process_line(const char* line, int* dtype, int* button, int* down) {
           {
             if((rbutton = atoi(argument)) >= 0)
             {
-              *dtype = 1;
+              *dtype = 2;
               *button = rbutton;
               *down = 0;
             }
@@ -204,7 +204,7 @@ void process_line(const char* line, int* dtype, int* button, int* down) {
             (*pt)->size = 1;
             strncpy((*pt)->macro, argument, MAX_NAME_LENGTH);
         } else {
-            printf("Macro %s defined twice!\n", argument);
+            gprintf("Macro %s defined twice!\n", argument);
             *dtype = -1;
         }
         return;

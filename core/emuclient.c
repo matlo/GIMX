@@ -366,6 +366,12 @@ int main(int argc, char *argv[])
         case SDL_MOUSEBUTTONUP:
           macro_lookup(1, event->button.which, event->button.button, 0);
           break;
+        case SDL_JOYBUTTONDOWN:
+          macro_lookup(2, event->jbutton.which, event->jbutton.button, 1);
+          break;
+        case SDL_JOYBUTTONUP:
+          macro_lookup(2, event->jbutton.which, event->jbutton.button, 0);
+          break;
       }
 
     }

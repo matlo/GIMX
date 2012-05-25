@@ -728,7 +728,6 @@ void cfg_process_event(SDL_Event* event)
   e_shape shape;
   int value = 0;
   unsigned int nb_controls = 0;
-  SDL_Event event_jb;
   double mx;
   double my;
   double residue;
@@ -750,56 +749,57 @@ void cfg_process_event(SDL_Event* event)
     switch(event->type)
     {
       case SDL_JOYHATMOTION:
-      event_jb.jbutton.which = event->jhat.which;
+      event->jbutton.which = event->jhat.which;
       nb_buttons = sdl_get_joystick_buttons(event->jhat.which);
       if(event->jhat.value & SDL_HAT_UP)
       {
-        event_jb.jbutton.type = SDL_JOYBUTTONDOWN;
-        event_jb.jbutton.button=nb_buttons+4*event->jhat.hat;
-        cfg_process_event(&event_jb);
+        event->jbutton.type = SDL_JOYBUTTONDOWN;
+        event->jbutton.button=nb_buttons+4*event->jhat.hat;
+        cfg_process_event(event);
       }
       else
       {
-        event_jb.jbutton.type = SDL_JOYBUTTONUP;
-        event_jb.jbutton.button=nb_buttons+4*event->jhat.hat;
-        cfg_process_event(&event_jb);
+        event->jbutton.type = SDL_JOYBUTTONUP;
+        event->jbutton.button=nb_buttons+4*event->jhat.hat;
+        cfg_process_event(event);
       }
       if(event->jhat.value & SDL_HAT_RIGHT)
       {
-        event_jb.jbutton.type = SDL_JOYBUTTONDOWN;
-        event_jb.jbutton.button=nb_buttons+4*event->jhat.hat+1;
-        cfg_process_event(&event_jb);
+        event->jbutton.type = SDL_JOYBUTTONDOWN;
+        event->jbutton.button=nb_buttons+4*event->jhat.hat+1;
+        cfg_process_event(event);
       }
       else
       {
-        event_jb.jbutton.type = SDL_JOYBUTTONUP;
-        event_jb.jbutton.button=nb_buttons+4*event->jhat.hat+1;
-        cfg_process_event(&event_jb);
+        event->jbutton.type = SDL_JOYBUTTONUP;
+        event->jbutton.button=nb_buttons+4*event->jhat.hat+1;
+        cfg_process_event(event);
       }
       if(event->jhat.value & SDL_HAT_DOWN)
       {
-        event_jb.jbutton.type = SDL_JOYBUTTONDOWN;
-        event_jb.jbutton.button=nb_buttons+4*event->jhat.hat+2;
-        cfg_process_event(&event_jb);
+        event->jbutton.type = SDL_JOYBUTTONDOWN;
+        event->jbutton.button=nb_buttons+4*event->jhat.hat+2;
+        cfg_process_event(event);
       }
       else
       {
-        event_jb.jbutton.type = SDL_JOYBUTTONUP;
-        event_jb.jbutton.button=nb_buttons+4*event->jhat.hat+2;
-        cfg_process_event(&event_jb);
+        event->jbutton.type = SDL_JOYBUTTONUP;
+        event->jbutton.button=nb_buttons+4*event->jhat.hat+2;
+        cfg_process_event(event);
       }
       if(event->jhat.value & SDL_HAT_LEFT)
       {
-        event_jb.jbutton.type = SDL_JOYBUTTONDOWN;
-        event_jb.jbutton.button=nb_buttons+4*event->jhat.hat+3;
-        cfg_process_event(&event_jb);
+        event->jbutton.type = SDL_JOYBUTTONDOWN;
+        event->jbutton.button=nb_buttons+4*event->jhat.hat+3;
+        cfg_process_event(event);
       }
       else
       {
-        event_jb.jbutton.type = SDL_JOYBUTTONUP;
-        event_jb.jbutton.button=nb_buttons+4*event->jhat.hat+3;
-        cfg_process_event(&event_jb);
+        event->jbutton.type = SDL_JOYBUTTONUP;
+        event->jbutton.button=nb_buttons+4*event->jhat.hat+3;
+        cfg_process_event(event);
       }
+      return;
       break;
       case SDL_JOYBUTTONDOWN:
       case SDL_JOYBUTTONUP:
