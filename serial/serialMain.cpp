@@ -1051,20 +1051,20 @@ void serialFrame::OnMenuGetConfigs(wxCommandEvent& event)
         wxMessageBox(wxT("Can't retrieve configs!"), wxT("Error"), wxICON_ERROR);
         return;
       }
-      read_filenames(ChoiceConfig);
+      
       if(!cl_sel.empty())
 	    {
-	      ChoiceConfig->SetSelection(ChoiceConfig->FindString(wxString(cl_sel.front().c_str(), wxConvUTF8)));
 	      wxMessageBox(wxT("Download is complete!"), wxT("Info"), wxICON_INFORMATION);
 	      if(!ChoiceConfig->IsEmpty())
 	      {
 	        int answer = wxMessageBox(_("Auto-bind and convert?"), _("Confirm"), wxYES_NO);
-          if (answer == wxNO)
+          if (answer == wxYES)
           {
-           return;
+            autoBindControls(configs);
           }
-          autoBindControls(configs);
 	      }
+        read_filenames(ChoiceConfig);
+        ChoiceConfig->SetSelection(ChoiceConfig->FindString(wxString(cl_sel.front().c_str(), wxConvUTF8)));
       }
     }
   }
