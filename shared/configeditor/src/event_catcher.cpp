@@ -371,7 +371,7 @@ void event_catcher::init()
     {
         name = SDL_JoystickName(i);
         joystickName[i] = string(name?name:"");
-        if(joystickName[i].find(BT_SIXAXIS_NAME) != string::npos)
+        if(joystickName[i].find(BT_SIXAXIS_NAME) == 0)
         {
           joystickName[i] = BT_SIXAXIS_NAME;
         }
@@ -533,7 +533,6 @@ void event_catcher::clean()
 
 void event_catcher::run(string device_type, string event_type)
 {
-    stringstream ss1, ss2;
     done = 0;
     SDL_Event events[EVENT_BUFFER_SIZE];
     SDL_Event* event;
@@ -584,6 +583,7 @@ void event_catcher::run(string device_type, string event_type)
                     if(event_type == "button")
                     {
                         m_DeviceType = "keyboard";
+                        stringstream ss1;
                         ss1 << keyboardVirtualIndex[event->key.which];
                         m_DeviceId = ss1.str();
                         m_DeviceName = keyboardName[event->key.which];
@@ -601,6 +601,7 @@ void event_catcher::run(string device_type, string event_type)
                     if(event_type == "button")
                     {
                         m_DeviceType = "mouse";
+                        stringstream ss1;
                         ss1 << mouseVirtualIndex[event->button.which];
                         m_DeviceId = ss1.str();
                         m_DeviceName = mouseName[event->button.which];
@@ -618,11 +619,14 @@ void event_catcher::run(string device_type, string event_type)
                     if(event_type == "button")
                     {
                         m_DeviceType = "joystick";
+                        stringstream ss1;
                         ss1 << joystickVirtualIndex[event->jbutton.which];
                         m_DeviceId = ss1.str();
                         m_DeviceName = joystickName[event->jbutton.which];
                         m_EventType = "button";
-                        ss2 << event->jbutton.button;
+                        int ib = event->jbutton.button;
+                        stringstream ss2;
+                        ss2 << ib;
                         m_EventId = ss2.str();
                         done = 1;
                     }
@@ -635,31 +639,40 @@ void event_catcher::run(string device_type, string event_type)
                     if(event_type == "button")
                     {
                         m_DeviceType = "joystick";
+                        stringstream ss1;
                         ss1 << joystickVirtualIndex[event->jhat.which];
                         m_DeviceId = ss1.str();
                         m_DeviceName = joystickName[event->jhat.which];
                         m_EventType = "button";
                         if(event->jhat.value & SDL_HAT_UP)
                         {
-                          ss2 << joystickNbButton[event->jhat.which]+4*event->jhat.hat;
+                          int ib = joystickNbButton[event->jhat.which]+4*event->jhat.hat;
+                          stringstream ss2;
+                          ss2 << ib;
                           m_EventId = ss2.str();
                           done = 1;
                         }
                         else if(event->jhat.value & SDL_HAT_RIGHT)
                         {
-                          ss2 << joystickNbButton[event->jhat.which]+4*event->jhat.hat+1;
+                          int ib = joystickNbButton[event->jhat.which]+4*event->jhat.hat+1;
+                          stringstream ss2;
+                          ss2 << ib;
                           m_EventId = ss2.str();
                           done = 1;
                         }
                         else if(event->jhat.value & SDL_HAT_DOWN)
                         {
-                          ss2 << joystickNbButton[event->jhat.which]+4*event->jhat.hat+2;
+                          int ib = joystickNbButton[event->jhat.which]+4*event->jhat.hat+2;
+                          stringstream ss2;
+                          ss2 << ib;
                           m_EventId = ss2.str();
                           done = 1;
                         }
                         else if(event->jhat.value & SDL_HAT_LEFT)
                         {
-                          ss2 << joystickNbButton[event->jhat.which]+4*event->jhat.hat+3;
+                          int ib = joystickNbButton[event->jhat.which]+4*event->jhat.hat+3;
+                          stringstream ss2;
+                          ss2 << ib;
                           m_EventId = ss2.str();
                           done = 1;
                         }
@@ -675,6 +688,7 @@ void event_catcher::run(string device_type, string event_type)
                         if(abs(event->motion.xrel) > 5 || abs(event->motion.yrel) > 5)
                         {
                             m_DeviceType = "mouse";
+                            stringstream ss1;
                             ss1 << mouseVirtualIndex[event->motion.which];
                             m_DeviceId = ss1.str();
                             m_DeviceName = mouseName[event->button.which];
@@ -695,6 +709,7 @@ void event_catcher::run(string device_type, string event_type)
                         if(event->motion.xrel > 5 || event->motion.yrel > 5)
                         {
                             m_DeviceType = "mouse";
+                            stringstream ss1;
                             ss1 << mouseVirtualIndex[event->motion.which];
                             m_DeviceId = ss1.str();
                             m_EventType = "axis";
@@ -714,6 +729,7 @@ void event_catcher::run(string device_type, string event_type)
                         if(event->motion.xrel < -5 || event->motion.yrel < -5)
                         {
                             m_DeviceType = "mouse";
+                            stringstream ss1;
                             ss1 << mouseVirtualIndex[event->motion.which];
                             m_DeviceId = ss1.str();
                             m_DeviceName = mouseName[event->button.which];
@@ -742,16 +758,23 @@ void event_catcher::run(string device_type, string event_type)
                     {
                         event->jaxis.value = (event->jaxis.value + 32767) / 2;
                     }
+                    if(joystickSixaxis[event->jaxis.which] && event->jaxis.axis >= 23)
+                    {
+                        break;
+                    }
                     if(event_type == "axis")
                     {
                         if(abs(event->jaxis.value) > 10000)
                         {
                             m_DeviceType = "joystick";
+                            stringstream ss1;
                             ss1 << joystickVirtualIndex[event->jaxis.which];
                             m_DeviceId = ss1.str();
                             m_DeviceName = joystickName[event->jaxis.which];
                             m_EventType = "axis";
-                            ss2 << event->jaxis.axis;
+                            int ia = event->jaxis.axis;
+                            stringstream ss2;
+                            ss2 << ia;
                             m_EventId = ss2.str();
                             done = 1;
                         }
@@ -761,11 +784,14 @@ void event_catcher::run(string device_type, string event_type)
                         if(event->jaxis.value > 10000)
                         {
                             m_DeviceType = "joystick";
+                            stringstream ss1;
                             ss1 << joystickVirtualIndex[event->jaxis.which];
                             m_DeviceId = ss1.str();
                             m_DeviceName = joystickName[event->jaxis.which];
                             m_EventType = "axis";
-                            ss2 << event->jaxis.axis;
+                            int ia = event->jaxis.axis;
+                            stringstream ss2;
+                            ss2 << ia;
                             m_EventId = ss2.str();
                             done = 1;
                         }
@@ -775,11 +801,14 @@ void event_catcher::run(string device_type, string event_type)
                         if(event->jaxis.value < -10000)
                         {
                             m_DeviceType = "joystick";
+                            stringstream ss1;
                             ss1 << joystickVirtualIndex[event->jaxis.which];
                             m_DeviceId = ss1.str();
                             m_DeviceName = joystickName[event->jaxis.which];
                             m_EventType = "axis";
-                            ss2 << event->jaxis.axis;
+                            int ia = event->jaxis.axis;
+                            stringstream ss2;
+                            ss2 << ia;
                             m_EventId = ss2.str();
                             done = 1;
                         }
