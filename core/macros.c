@@ -40,6 +40,9 @@ typedef struct {
 
 /*
  * This table is used to store all the macros that are read from script files at the initialization of the process.
+ * index 1: the device type, keyboard=0, mouse=1, joystick=2
+ * index 2: the key or button id
+ * index 3: key down=1, key up=0
  */
 s_macro_event_delay* macro_table[3][SDLK_LAST][2];
 
@@ -72,9 +75,10 @@ void allocate_element(s_macro_event_delay** pt) {
 
 /*
  * Processes a line of a script file (macro definition or command).
- * Returns the macro index in macro_table.
- * If line is a macro definition and the macro is already defined, returns SDLK_UNKNOWN.
- * If macro is SDLK_UNKNOWN and if line is not a macro definition, nothing is done.
+ * If line is a valid macro definition, *dtype, *button and *down are set.
+ * If line is a not a valid macro definition (already defined or wrong arguments), *dtype is set to -1.
+ * If *dtype >= 0 and  if line is a valid command, macro_table[*dtype][*button][*down] is modified.
+ * If *dtype == -1 and if line is not a macro definition, nothing is done.
  */
 void process_line(const char* line, int* dtype, int* button, int* down) {
     char command[LINE_MAX];
@@ -96,7 +100,7 @@ void process_line(const char* line, int* dtype, int* button, int* down) {
         return;
     }
 
-    if (strstr(line, "MACRO")) {
+    if (!strncmp(command, "MACRO", strlen("MACRO"))) {
         if(strstr(line, "KEYDOWN"))
         {
           ret = sscanf(line, "%*s %*s %s", argument);
@@ -149,6 +153,44 @@ void process_line(const char* line, int* dtype, int* button, int* down) {
             }
           }
         }
+        else if(strstr(line, "JBUTTONDOWN"))
+        {
+          ret = sscanf(line, "%*s %*s %s", argument);
+          if(ret == 1)
+          {
+            if((rbutton = atoi(argument)) >= 0)
+            {
+              *dtype = 1;
+              *button = rbutton;
+              *down = 1;
+            }
+          }
+        }
+        else if(strstr(line, "JBUTTONUP"))
+        {
+          ret = sscanf(line, "%*s %*s %s", argument);
+          if(ret == 1)
+          {
+            if((rbutton = atoi(argument)) >= 0)
+            {
+              *dtype = 1;
+              *button = rbutton;
+              *down = 0;
+            }
+          }
+        }
+        else
+        {
+          /*
+           * For compatibility with previous macro files.
+           */
+          if((rbutton = get_key_from_buffer(argument)))
+          {
+            *dtype = 0;
+            *button = rbutton;
+            *down = 1;
+          }
+        }
         
         if(*dtype < 0)
         {
@@ -175,7 +217,6 @@ void process_line(const char* line, int* dtype, int* button, int* down) {
             allocate_element(pt);
 
             (*pt)[(*pt)->size - 1].event.type = SDL_KEYDOWN;
-            (*pt)[(*pt)->size - 1].event.key.state = SDL_KEYDOWN;
             (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
             (*pt)[(*pt)->size - 1].delay = 0;
         }
@@ -186,7 +227,6 @@ void process_line(const char* line, int* dtype, int* button, int* down) {
             allocate_element(pt);
 
             (*pt)[(*pt)->size - 1].event.type = SDL_KEYUP;
-            (*pt)[(*pt)->size - 1].event.key.state = SDL_KEYUP;
             (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
             (*pt)[(*pt)->size - 1].delay = 0;
         }
@@ -197,7 +237,6 @@ void process_line(const char* line, int* dtype, int* button, int* down) {
             allocate_element(pt);
 
             (*pt)[(*pt)->size - 1].event.type = SDL_KEYDOWN;
-            (*pt)[(*pt)->size - 1].event.key.state = SDL_KEYDOWN;
             (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
             (*pt)[(*pt)->size - 1].delay = 0;
       
@@ -211,8 +250,8 @@ void process_line(const char* line, int* dtype, int* button, int* down) {
             allocate_element(pt);
 
             (*pt)[(*pt)->size - 1].event.type = SDL_KEYUP;
-            (*pt)[(*pt)->size - 1].event.key.state = SDL_KEYUP;
             (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
+            (*pt)[(*pt)->size - 1].delay = 0;
         }
     }
     else if (!strncmp(command, "MBUTTONDOWN", strlen("MBUTTONDOWN"))) {
@@ -222,8 +261,7 @@ void process_line(const char* line, int* dtype, int* button, int* down) {
             allocate_element(pt);
 
             (*pt)[(*pt)->size - 1].event.type = SDL_MOUSEBUTTONDOWN;
-            (*pt)[(*pt)->size - 1].event.key.state = SDL_MOUSEBUTTONDOWN;
-            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
+            (*pt)[(*pt)->size - 1].event.button.button = rbutton;
             (*pt)[(*pt)->size - 1].delay = 0;
         }
     } else if (!strncmp(command, "MBUTTONUP", strlen("MBUTTONUP"))) {
@@ -233,8 +271,7 @@ void process_line(const char* line, int* dtype, int* button, int* down) {
             allocate_element(pt);
 
             (*pt)[(*pt)->size - 1].event.type = SDL_MOUSEBUTTONUP;
-            (*pt)[(*pt)->size - 1].event.key.state = SDL_MOUSEBUTTONUP;
-            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
+            (*pt)[(*pt)->size - 1].event.button.button = rbutton;
             (*pt)[(*pt)->size - 1].delay = 0;
         }
     } else if (!strncmp(command, "MBUTTON", strlen("MBUTTON"))) {
@@ -244,8 +281,7 @@ void process_line(const char* line, int* dtype, int* button, int* down) {
             allocate_element(pt);
 
             (*pt)[(*pt)->size - 1].event.type = SDL_MOUSEBUTTONDOWN;
-            (*pt)[(*pt)->size - 1].event.key.state = SDL_MOUSEBUTTONDOWN;
-            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
+            (*pt)[(*pt)->size - 1].event.button.button = rbutton;
             (*pt)[(*pt)->size - 1].delay = 0;
       
             delay_nb = ceil((double)DEFAULT_DELAY / (refresh_rate/1000));
@@ -258,8 +294,8 @@ void process_line(const char* line, int* dtype, int* button, int* down) {
             allocate_element(pt);
 
             (*pt)[(*pt)->size - 1].event.type = SDL_MOUSEBUTTONUP;
-            (*pt)[(*pt)->size - 1].event.key.state = SDL_MOUSEBUTTONUP;
-            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
+            (*pt)[(*pt)->size - 1].event.button.button = rbutton;
+            (*pt)[(*pt)->size - 1].delay = 0;
         }
     }
     else if (!strncmp(command, "JBUTTONDOWN", strlen("JBUTTONDOWN"))) {
@@ -269,8 +305,7 @@ void process_line(const char* line, int* dtype, int* button, int* down) {
             allocate_element(pt);
 
             (*pt)[(*pt)->size - 1].event.type = SDL_JOYBUTTONDOWN;
-            (*pt)[(*pt)->size - 1].event.key.state = SDL_JOYBUTTONDOWN;
-            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
+            (*pt)[(*pt)->size - 1].event.jbutton.button = rbutton;
             (*pt)[(*pt)->size - 1].delay = 0;
         }
     } else if (!strncmp(command, "JBUTTONUP", strlen("JBUTTONUP"))) {
@@ -280,8 +315,7 @@ void process_line(const char* line, int* dtype, int* button, int* down) {
             allocate_element(pt);
 
             (*pt)[(*pt)->size - 1].event.type = SDL_JOYBUTTONUP;
-            (*pt)[(*pt)->size - 1].event.key.state = SDL_JOYBUTTONUP;
-            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
+            (*pt)[(*pt)->size - 1].event.jbutton.button = rbutton;
             (*pt)[(*pt)->size - 1].delay = 0;
         }
     } else if (!strncmp(command, "JBUTTON", strlen("JBUTTON"))) {
@@ -291,8 +325,7 @@ void process_line(const char* line, int* dtype, int* button, int* down) {
             allocate_element(pt);
 
             (*pt)[(*pt)->size - 1].event.type = SDL_JOYBUTTONDOWN;
-            (*pt)[(*pt)->size - 1].event.key.state = SDL_JOYBUTTONDOWN;
-            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
+            (*pt)[(*pt)->size - 1].event.jbutton.button = rbutton;
             (*pt)[(*pt)->size - 1].delay = 0;
 
             delay_nb = ceil((double)DEFAULT_DELAY / (refresh_rate/1000));
@@ -305,8 +338,8 @@ void process_line(const char* line, int* dtype, int* button, int* down) {
             allocate_element(pt);
 
             (*pt)[(*pt)->size - 1].event.type = SDL_JOYBUTTONUP;
-            (*pt)[(*pt)->size - 1].event.key.state = SDL_JOYBUTTONUP;
-            (*pt)[(*pt)->size - 1].event.key.keysym.sym = rbutton;
+            (*pt)[(*pt)->size - 1].event.jbutton.button = rbutton;
+            (*pt)[(*pt)->size - 1].delay = 0;
         }
     }
     else if (!strncmp(command, "DELAY", strlen("DELAY"))) {
