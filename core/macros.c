@@ -406,6 +406,7 @@ void read_macros() {
     unsigned int i;
     unsigned int nb_filenames = 0;
     char** filenames = NULL;
+    char** filenames_realloc;
 #ifdef WIN32
     struct stat buf;
 #endif
@@ -427,10 +428,13 @@ void read_macros() {
 #ifndef WIN32
       if (d->d_type == DT_REG)
       {
-        nb_filenames++;
-        filenames = realloc(filenames, nb_filenames*sizeof(char*));
-        filenames[nb_filenames-1] = calloc(strlen(d->d_name)+1, sizeof(char));
-        strncpy(filenames[nb_filenames-1], d->d_name, strlen(d->d_name));
+        filenames_realloc = realloc(filenames, (nb_filenames+1)*sizeof(char*));
+        if(filenames_realloc)
+        {
+          filenames = filenames_realloc;
+          nb_filenames++;
+          filenames[nb_filenames-1] = strdup(d->d_name);
+        }
       }
 #else
       snprintf(file_path, sizeof(file_path), "%s/%s", dir_path, d->d_name);
@@ -438,10 +442,13 @@ void read_macros() {
       {
         if(S_ISREG(buf.st_mode))
         {
-          nb_filenames++;
-          filenames = realloc(filenames, nb_filenames*sizeof(char*));
-          filenames[nb_filenames-1] = calloc(strlen(d->d_name)+1, sizeof(char));
-          strncpy(filenames[nb_filenames-1], d->d_name, strlen(d->d_name));
+          filenames_realloc = realloc(filenames, (nb_filenames+1)*sizeof(char*));
+          if(filenames_realloc)
+          {
+            filenames = filenames_realloc;
+            nb_filenames++;
+            filenames[nb_filenames-1] = strdup(d->d_name);
+          }
         }
       }
 #endif
@@ -505,6 +512,7 @@ unsigned int running_macro_nb;
  */
 static int macro_delete(int dtype, int did, int button, int down)
 {
+  s_running_macro* running_macro_realloc;
   int i;
   for(i=0; i<running_macro_nb; ++i)
   {
@@ -514,8 +522,12 @@ static int macro_delete(int dtype, int did, int button, int down)
     && running_macro[i].down == down)
     {
       memcpy(running_macro+i, running_macro+i+1, (running_macro_nb-i-1)*sizeof(s_running_macro));
-      running_macro_nb--;
-      running_macro = realloc(running_macro, running_macro_nb*sizeof(s_running_macro));
+      running_macro_realloc = realloc(running_macro, (running_macro_nb-1)*sizeof(s_running_macro));
+      if(running_macro_realloc)
+      {
+        running_macro = running_macro_realloc;
+        running_macro_nb--;
+      }
       if(running_macro_nb && !running_macro)
       {
         fprintf(stderr, "macro_delete: can't realloc!\n");
