@@ -34,6 +34,8 @@ int main()
         sleep(2);
         system(command2);
       }
+
+      fclose(fp);
     }
     
     sleep(1);
