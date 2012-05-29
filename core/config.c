@@ -721,7 +721,7 @@ void cfg_process_event(SDL_Event* event)
   unsigned int config;
   unsigned int c_id;
   unsigned int control;
-  unsigned int threshold;
+  int threshold;
   double multiplier;
   double exp;
   int dead_zone;
