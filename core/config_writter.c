@@ -270,7 +270,7 @@ static int ProcessConfigurationElement(xmlNode * a_node)
   {
     r_config_id--;
 
-    if (r_config_id >= MAX_CONFIGURATIONS || r_config_id < 0)
+    if (r_config_id >= MAX_CONFIGURATIONS)
     {
       printf("bad configuration id: %d\n", r_config_id);
       ret = -1;
@@ -311,7 +311,7 @@ static int ProcessControllerElement(xmlNode * a_node)
   {
     r_controller_id--;
 
-    if (r_controller_id >= MAX_CONTROLLERS || r_controller_id < 0)
+    if (r_controller_id >= MAX_CONTROLLERS)
     {
       printf("bad controller id: %d\n", r_controller_id);
       ret = -1;
