@@ -330,3 +330,13 @@ inline int sdl_get_device_id(SDL_Event* e)
 
   return device_id;
 }
+
+inline void sdl_pump_events()
+{
+  SDL_PumpEvents();
+}
+
+inline int sdl_peep_events(SDL_Event *events, int numevents, SDL_eventaction action, Uint32 mask)
+{
+  return SDL_PeepEvents(events, numevents, action, mask);
+}

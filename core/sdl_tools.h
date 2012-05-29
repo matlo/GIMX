@@ -29,4 +29,7 @@ inline int sdl_get_joystick_virtual_id(int);
 inline int sdl_get_joystick_buttons(int);
 int sdl_is_sixaxis(int);
 
+inline void sdl_pump_events();
+inline int sdl_peep_events(SDL_Event*, int, SDL_eventaction, Uint32);
+
 #endif /* SDL_TOOLS_H_ */
