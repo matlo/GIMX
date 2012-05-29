@@ -334,7 +334,7 @@ void cal_key(int device_id, int sym, int down)
             gprintf("calibration done\n");
           }
         }
-        else
+        else if(current_cal != NONE)
         {
           if(!merge_all_devices)
           {
