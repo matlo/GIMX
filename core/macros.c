@@ -458,7 +458,7 @@ void read_macros() {
 
     for(i=0; i<nb_filenames; ++i)
     {
-      snprintf(file_path, sizeof(file_path), "%s/%s", dir_path, filenames[i]);
+      snprintf(file_path, sizeof(file_path), "%s%s", dir_path, filenames[i]);
       fp = fopen(file_path, "r");
       if (!fp) {
           fprintf(stderr, "Can not find '%s'\n", file_path);
