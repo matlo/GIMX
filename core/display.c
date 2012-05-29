@@ -381,6 +381,7 @@ void display_end()
 
 int last_button_nb = 0;
 int cpt = 0;
+int cpt_total = 0;
 
 void display_run(int axes[4], int max_axis, int buttons[BUTTON_NB], int max_button)
 {
@@ -404,7 +405,11 @@ void display_run(int axes[4], int max_axis, int buttons[BUTTON_NB], int max_butt
 
   if(tdiff > RATE_PERIOD)
   {
-    sprintf(rate, "Refresh rate: %4dHz Processing time: %4dus    ", cpt*1000000/RATE_PERIOD, proc_time/cpt);
+    cpt_total += cpt;
+    sprintf(rate, "Processing time: current=%dus average=%dus worst=%dus", proc_time/cpt, proc_time_total/cpt_total, proc_time_worst);
+    mvaddstr(LINES-2, 1, rate);
+    clrtoeol();
+    sprintf(rate, "Refresh rate: %dHz  ", cpt*1000000/RATE_PERIOD);
     mvaddstr(LINES-1, 1, rate);
     t0 = t1;
     cpt = 0;
