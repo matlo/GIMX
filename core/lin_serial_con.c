@@ -20,7 +20,7 @@
 /*
  * The serial connection.
  */
-int serial;
+static int serial = -1;
 
 /*
  * The baud rate in bps.
