@@ -503,7 +503,7 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
     ss >> config_index;
     config_index--;
 
-    if(config_index >= MAX_CONFIGURATIONS || config_index < 0)
+    if(config_index >= MAX_CONFIGURATIONS)
     {
         string message("bad configuration id: " + id);
         throw invalid_argument(message);
@@ -623,7 +623,7 @@ void XmlReader::ProcessControllerElement(xmlNode * a_node)
     ss1 >> controller_index;
     controller_index--;
 
-    if(controller_index >= MAX_CONTROLLERS || controller_index < 0)
+    if(controller_index >= MAX_CONTROLLERS)
     {
         string message("bad controller id: " + id);
         throw invalid_argument(message);
