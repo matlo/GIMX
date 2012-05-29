@@ -68,10 +68,10 @@ char* portname = NULL;
 
 char* keygen = NULL;
 
-int refresh_rate = DEFAULT_REFRESH_PERIOD; //�s
+int refresh_rate = DEFAULT_REFRESH_PERIOD; //microseconds
 int postpone_count = DEFAULT_POSTPONE_COUNT;
 int max_axis_value = DEFAULT_MAX_AXIS_VALUE;
-int mean_axis_value = DEFAULT_MAX_AXIS_VALUE / 2;
+int mean_axis_value = DEFAULT_MAX_AXIS_VALUE / 2 + 1;
 double axis_scale = DEFAULT_AXIS_SCALE;
 double frequency_scale;
 int subpos = 0;
@@ -90,6 +90,8 @@ s_controller controller[MAX_CONTROLLERS] =
 int merge_all_devices;
 
 int proc_time = 0;
+int proc_time_worst = 0;
+int proc_time_total = 0;
 
 int main(int argc, char *argv[])
 {
@@ -109,6 +111,7 @@ int main(int argc, char *argv[])
   e_controller_type ctype = C_TYPE_JOYSTICK;
   int daxes[4];
   int dbuttons[SB_MAX];
+  int ptl;
 
 #ifndef WIN32
   /*
@@ -160,7 +163,7 @@ int main(int argc, char *argv[])
     else if (!strcmp(argv[i], "--precision"))
     {
       max_axis_value = (1 << atoi(argv[++i])) - 1;
-      mean_axis_value = max_axis_value / 2;
+      mean_axis_value = max_axis_value / 2 + 1;
     }
     else if (!strcmp(argv[i], "--serial"))
     {
@@ -319,10 +322,11 @@ int main(int argc, char *argv[])
 	  calibration_test();
     
     if(!keygen)
-      SDL_PumpEvents();
+    {
+      sdl_pump_events();
+    } 
 
-    num_evt = SDL_PeepEvents(events, sizeof(events) / sizeof(events[0]),
-        SDL_GETEVENT, SDL_ALLEVENTS);
+    num_evt = sdl_peep_events(events, sizeof(events) / sizeof(events[0]), SDL_GETEVENT, SDL_ALLEVENTS);
 
     if (num_evt == EVENT_BUFFER_SIZE)
     {
@@ -427,14 +431,19 @@ int main(int argc, char *argv[])
     time_to_sleep = refresh_rate - (t1.QuadPart - t0.QuadPart) * 1000000 / freq.QuadPart;
 #endif
 
-    proc_time += refresh_rate - time_to_sleep;
+    ptl = refresh_rate - time_to_sleep;
+    proc_time += ptl;
+    proc_time_total += ptl;
+    if(ptl > proc_time_worst && proc_time_total > 50000)
+    {
+      proc_time_worst = ptl;
+    }
 
     if (time_to_sleep > 0)
     {
       usleep(time_to_sleep);
     }
     else
-
     {
       if(!curses)
       {
