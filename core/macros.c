@@ -523,15 +523,10 @@ static int macro_delete(int dtype, int did, int button, int down)
     {
       memcpy(running_macro+i, running_macro+i+1, (running_macro_nb-i-1)*sizeof(s_running_macro));
       running_macro_realloc = realloc(running_macro, (running_macro_nb-1)*sizeof(s_running_macro));
-      if(running_macro_realloc)
+      if(running_macro_realloc || !(running_macro_nb-1))
       {
         running_macro = running_macro_realloc;
         running_macro_nb--;
-      }
-      if(running_macro_nb && !running_macro)
-      {
-        fprintf(stderr, "macro_delete: can't realloc!\n");
-        exit(-1);
       }
       return 1;
     }
@@ -544,18 +539,17 @@ static int macro_delete(int dtype, int did, int button, int down)
  */
 static void macro_add(int dtype, int did, int button, int down)
 {
-  running_macro_nb++;
-  running_macro = realloc(running_macro, running_macro_nb*sizeof(s_running_macro));
-  if(!running_macro)
+  s_running_macro* running_macro_realloc = realloc(running_macro, (running_macro_nb+1)*sizeof(s_running_macro));
+  if(running_macro_realloc)
   {
-    fprintf(stderr, "macro_add: can't realloc!\n");
-    exit(-1);
+    running_macro = running_macro_realloc;
+    running_macro_nb++;
+    running_macro[running_macro_nb-1].dtype = dtype;
+    running_macro[running_macro_nb-1].did = did;
+    running_macro[running_macro_nb-1].button = button;
+    running_macro[running_macro_nb-1].down = down;
+    running_macro[running_macro_nb-1].index = 0;
   }
-  running_macro[running_macro_nb-1].dtype = dtype;
-  running_macro[running_macro_nb-1].did = did;
-  running_macro[running_macro_nb-1].button = button;
-  running_macro[running_macro_nb-1].down = down;
-  running_macro[running_macro_nb-1].index = 0;
 }
 
 /*
