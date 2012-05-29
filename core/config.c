@@ -350,17 +350,11 @@ void cfg_intensity_lookup(SDL_Event* e)
   {
     if(update_intensity(&left_intensity[i][current_config[i]], device_type, device_id, button_id, i, current_config[i], 0))
     {
-      if (display)
-      {
-        printf("controller %d configuration %d left intensity: %.0f\n", i, current_config[i], left_intensity[i][current_config[i]].value);
-      }
+      gprintf("controller %d configuration %d left intensity: %.0f\n", i, current_config[i], left_intensity[i][current_config[i]].value);
     }
     if(update_intensity(&right_intensity[i][current_config[i]], device_type, device_id, button_id, i, current_config[i], 1))
     {
-      if (display)
-      {
-        printf("controller %d configuration %d left intensity: %.0f\n", i, current_config[i], right_intensity[i][current_config[i]].value);
-      }
+      gprintf("controller %d configuration %d right intensity: %.0f\n", i, current_config[i], right_intensity[i][current_config[i]].value);
     }
   }
 }
