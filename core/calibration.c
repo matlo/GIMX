@@ -449,7 +449,14 @@ void cal_key(int device_id, int sym, int down)
 
   if(prev != current_cal)
   {
-    display_calibration();
+    if(curses)
+    {
+      display_calibration();
+    }
+    else
+    {
+      cal_display();
+    }
   }
 
   /*
@@ -585,7 +592,14 @@ void cal_button(int which, int button)
       }
       if(current_cal != NONE)
       {
-        display_calibration();
+        if(curses)
+        {
+          display_calibration();
+        }
+        else
+        {
+          cal_display();
+        }
       }
       break;
     case SDL_BUTTON_WHEELDOWN:
@@ -695,7 +709,14 @@ void cal_button(int which, int button)
       }
       if(current_cal != NONE)
       {
-        display_calibration();
+        if(curses)
+        {
+          display_calibration();
+        }
+        else
+        {
+          cal_display();
+        }
       }
       break;
     default:
