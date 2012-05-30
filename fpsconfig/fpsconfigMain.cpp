@@ -190,7 +190,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     wxMenuItem* MenuItemQuit;
     wxMenu* MenuFile;
     wxMenuBar* MenuBar1;
-
+    
     Create(parent, wxID_ANY, _("Gimx-fpsconfig"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     SetClientSize(wxSize(614,423));
     SetBackgroundColour(wxColour(255,255,255));
@@ -324,9 +324,9 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     TextCtrlXyRatioHipFire->SetToolTip(_("x/y ratio (Hip Fire)"));
     TextCtrlXyRatioADS = new wxTextCtrl(Panel1, ID_TEXTCTRL25, _("1.00"), wxPoint(438,352), wxSize(50,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL25"));
     TextCtrlXyRatioADS->SetToolTip(_("x/y ratio (ADS)"));
-    SpinCtrlDPI = new wxSpinCtrl(Panel1, ID_SPINCTRL9, _T("0"), wxPoint(24,256), wxSize(64,-1), 0, 0, 9900, 0, _T("ID_SPINCTRL9"));
+    SpinCtrlDPI = new wxSpinCtrl(Panel1, ID_SPINCTRL9, _T("0"), wxPoint(24,256), wxSize(64,-1), 0, 0, 20000, 0, _T("ID_SPINCTRL9"));
     SpinCtrlDPI->SetValue(_T("0"));
-    SpinCtrlDPI->SetToolTip(_("Set your mouse DPI if you are building a new config with unknown calibration parameters.\nTo use someone else\'s calibration parameters: set the parameters and the corresponding DPI, tick the box below, and set the new DPI."));
+    SpinCtrlDPI->SetToolTip(_("Enter your mouse DPI value."));
     StaticText8 = new wxStaticText(Panel1, ID_STATICTEXT8, _("Mouse DPI"), wxPoint(24,240), wxDefaultSize, 0, _T("ID_STATICTEXT8"));
     StaticTextSmoothing = new wxStaticText(Panel1, ID_STATICTEXT9, _("Smoothing"), wxPoint(514,296), wxDefaultSize, 0, _T("ID_STATICTEXT9"));
     StaticTextSmoothing->SetToolTip(_("Mouse smoothing"));
@@ -365,7 +365,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     StatusBar1->SetStatusStyles(1,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
     FileDialog1 = new wxFileDialog(this, _("Select file"), wxEmptyString, wxEmptyString, wxFileSelectorDefaultWildcardStr, wxFD_DEFAULT_STYLE, wxDefaultPosition, wxDefaultSize, _T("wxFileDialog"));
-
+    
     Connect(ID_SPINCTRL8,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnSpinCtrlChange);
     Connect(ID_SPINCTRL7,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnSpinCtrlChange);
     Connect(ID_SPINCTRL6,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnSpinCtrlChange);
@@ -881,6 +881,9 @@ void fpsconfigFrame::OnMenuNew(wxCommandEvent& event)
     TextCtrlXyRatioHipFire->SetValue(_("1.00"));
     TextCtrlXyRatioADS->SetValue(_("1.00"));
 
+    SpinCtrlDPI->Enable(true);
+    SpinCtrlDPI->SetToolTip(_("Enter your mouse DPI value."));
+
     configFile = ConfigurationFile();
 
     MenuItemSave->Enable(false);
@@ -1194,6 +1197,16 @@ void fpsconfigFrame::LoadConfig()
 
   current_dpi = configFile.GetController(0)->GetMouseDPI();
   SpinCtrlDPI->SetValue(current_dpi);
+  if(current_dpi)
+  {
+    SpinCtrlDPI->Enable(false);
+    SpinCtrlDPI->UnsetToolTip();
+  }
+  else
+  {
+    SpinCtrlDPI->Enable(true);
+    SpinCtrlDPI->SetToolTip(_("Enter your mouse DPI value."));
+  }
 
   defaultMouseName = "";
   defaultKeyboardName = "";

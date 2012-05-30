@@ -399,10 +399,10 @@
 			</object>
 			<object class="wxSpinCtrl" name="ID_SPINCTRL9" variable="SpinCtrlDPI" member="yes">
 				<value>0</value>
-				<max>9900</max>
+				<max>20000</max>
 				<pos>24,256</pos>
 				<size>64,-1</size>
-				<tooltip>Set your mouse DPI if you are building a new config with unknown calibration parameters.&#x0A;To use someone else&apos;s calibration parameters: set the parameters and the corresponding DPI, tick the box below, and set the new DPI.</tooltip>
+				<tooltip>Enter your mouse DPI value.</tooltip>
 				<handler function="OnMouseDPIChange" entry="EVT_SPINCTRL" />
 			</object>
 			<object class="wxStaticText" name="ID_STATICTEXT8" variable="StaticText8" member="yes">
