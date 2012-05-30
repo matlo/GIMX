@@ -1,7 +1,7 @@
 1 ICON "serial.ico"
 1 VERSIONINFO
-FILEVERSION   0,30,0,0
-PRODUCTVERSION  0,30,0,0
+FILEVERSION   0,40,0,0
+PRODUCTVERSION  0,40,0,0
 BEGIN
   BLOCK "StringFileInfo"
   BEGIN
@@ -9,12 +9,12 @@ BEGIN
   BEGIN
     VALUE "CompanyName", "MatLauLab"
     VALUE "FileDescription", "GIMX launcher"
-    VALUE "FileVersion", "0.30"
+    VALUE "FileVersion", "0.40"
     VALUE "InternalName", "gimx-serial"
     VALUE "LegalCopyright", "Matlo GNU GPL"
     VALUE "OriginalFilename", "gimx-serial.exe"
     VALUE "ProductName", "gimx-serial"
-    VALUE "ProductVersion", "0.30"
+    VALUE "ProductVersion", "0.40"
   END
   END
   BLOCK "VarFileInfo"
