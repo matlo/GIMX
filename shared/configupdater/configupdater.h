@@ -1,5 +1,5 @@
 
-#define CONFIGS_URL "http://diyps3controller.googlecode.com/svn/trunk/GIMX/core/config/"
+#define CONFIGS_URL "http://diyps3controller.googlecode.com/svn/trunk/configurations/"
 
 #ifdef WIN32
 #define CONFIGS_FILE "configs"
