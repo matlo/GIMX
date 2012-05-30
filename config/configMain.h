@@ -81,21 +81,6 @@ class configFrame: public wxFrame
         void OnAxisTabAutoDetectClick(wxCommandEvent& event);
         void OnButtonDeleteClick(wxCommandEvent& event);
         void OnMenuOpen(wxCommandEvent& event);
-        void OnMenuItemController1(wxCommandEvent& event);
-        void OnMenuItemController2(wxCommandEvent& event);
-        void OnMenuItemController3(wxCommandEvent& event);
-        void OnMenuItemController4(wxCommandEvent& event);
-        void OnMenuItemController5(wxCommandEvent& event);
-        void OnMenuItemController6(wxCommandEvent& event);
-        void OnMenuItemController7(wxCommandEvent& event);
-        void OnMenuItemConfiguration1(wxCommandEvent& event);
-        void OnMenuItemConfiguration2(wxCommandEvent& event);
-        void OnMenuItemConfiguration3(wxCommandEvent& event);
-        void OnMenuItemConfiguration4(wxCommandEvent& event);
-        void OnMenuItemConfiguration5(wxCommandEvent& event);
-        void OnMenuItemConfiguration6(wxCommandEvent& event);
-        void OnMenuItemConfiguration7(wxCommandEvent& event);
-        void OnMenuItemConfiguration8(wxCommandEvent& event);
         void OnMenuItemExpert(wxCommandEvent& event);
         void OnMenuSave(wxCommandEvent& event);
         void OnMenuSaveAs(wxCommandEvent& event);
@@ -128,6 +113,8 @@ class configFrame: public wxFrame
         void OnTextCtrl(wxCommandEvent& event);
         void OnMenuUpdate(wxCommandEvent& event);
         void OnMenuAutoBindControls(wxCommandEvent& event);
+        void OnMenuItemController(wxCommandEvent& event);
+        void OnMenuItemConfiguration(wxCommandEvent& event);
         //*)
         void DeleteSelectedRows(wxGrid* grid);
         void DeleteLinkedRows(wxGrid* grid, int row);

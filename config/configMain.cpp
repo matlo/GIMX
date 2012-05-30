@@ -790,21 +790,21 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM20,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuReplaceMouse);
     Connect(ID_MENUITEM22,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuReplaceMouseDPI);
     Connect(ID_MENUITEM21,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuReplaceKeyboard);
-    Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController1);
-    Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController2);
-    Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController3);
-    Connect(ID_MENUITEM4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController4);
-    Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController5);
-    Connect(ID_MENUITEM6,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController6);
-    Connect(ID_MENUITEM7,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController7);
-    Connect(ID_MENUITEM8,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration1);
-    Connect(ID_MENUITEM9,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration2);
-    Connect(ID_MENUITEM10,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration3);
-    Connect(ID_MENUITEM11,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration4);
-    Connect(ID_MENUITEM13,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration5);
-    Connect(ID_MENUITEM14,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration6);
-    Connect(ID_MENUITEM15,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration7);
-    Connect(ID_MENUITEM16,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration8);
+    Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController);
+    Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController);
+    Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController);
+    Connect(ID_MENUITEM4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController);
+    Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController);
+    Connect(ID_MENUITEM6,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController);
+    Connect(ID_MENUITEM7,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController);
+    Connect(ID_MENUITEM8,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration);
+    Connect(ID_MENUITEM9,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration);
+    Connect(ID_MENUITEM10,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration);
+    Connect(ID_MENUITEM11,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration);
+    Connect(ID_MENUITEM13,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration);
+    Connect(ID_MENUITEM14,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration);
+    Connect(ID_MENUITEM15,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration);
+    Connect(ID_MENUITEM16,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration);
     Connect(ID_MENUITEM24,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuMultipleMK);
     Connect(ID_MENUITEM27,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuAutoBindControls);
     Connect(ID_MENUITEM26,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuUpdate);
@@ -1583,10 +1583,37 @@ void configFrame::OnMenuOpen(wxCommandEvent& event)
     Button7->Enable();
 }
 
-void configFrame::OnMenuItemController1(wxCommandEvent& event)
+void configFrame::OnMenuItemController(wxCommandEvent& event)
 {
     save_current();
-    currentController = 0;
+    if(MenuController1->IsChecked())
+    {
+      currentController = 0;
+    }
+    else if(MenuController2->IsChecked())
+    {
+      currentController = 1;
+    }
+    else if(MenuController3->IsChecked())
+    {
+      currentController = 2;
+    }
+    else if(MenuController4->IsChecked())
+    {
+      currentController = 3;
+    }
+    else if(MenuController5->IsChecked())
+    {
+      currentController = 4;
+    }
+    else if(MenuController6->IsChecked())
+    {
+      currentController = 5;
+    }
+    else if(MenuController7->IsChecked())
+    {
+      currentController = 6;
+    }
     currentConfiguration = 0;
     MenuConfiguration->Check(ID_MENUITEM8, true);
     load_current();
@@ -1599,212 +1626,50 @@ void configFrame::OnMenuItemController1(wxCommandEvent& event)
     refresh_gui();
 }
 
-void configFrame::OnMenuItemController2(wxCommandEvent& event)
-{
-    save_current();
-    currentController = 1;
-    currentConfiguration = 0;
-    MenuConfiguration->Check(ID_MENUITEM8, true);
-    load_current();
-    ButtonTabModify->SetLabel(_("Modify"));
-    Button5->SetLabel(_("Modify"));
-    Button3->Enable();
-    ButtonTabAdd->Enable();
-    ButtonTabRemove->Enable();
-    Button7->Enable();
-    refresh_gui();
-}
 
-void configFrame::OnMenuItemController3(wxCommandEvent& event)
+void configFrame::OnMenuItemConfiguration(wxCommandEvent& event)
 {
-    save_current();
-    currentController = 2;
+  save_current();
+  if(MenuConfiguration1->IsChecked())
+  {
     currentConfiguration = 0;
-    MenuConfiguration->Check(ID_MENUITEM8, true);
-    load_current();
-    ButtonTabModify->SetLabel(_("Modify"));
-    Button5->SetLabel(_("Modify"));
-    Button3->Enable();
-    ButtonTabAdd->Enable();
-    ButtonTabRemove->Enable();
-    Button7->Enable();
-    refresh_gui();
-}
-
-void configFrame::OnMenuItemController4(wxCommandEvent& event)
-{
-    save_current();
-    currentController = 3;
-    currentConfiguration = 0;
-    MenuConfiguration->Check(ID_MENUITEM8, true);
-    load_current();
-    ButtonTabModify->SetLabel(_("Modify"));
-    Button5->SetLabel(_("Modify"));
-    Button3->Enable();
-    ButtonTabAdd->Enable();
-    ButtonTabRemove->Enable();
-    Button7->Enable();
-    refresh_gui();
-}
-
-void configFrame::OnMenuItemController5(wxCommandEvent& event)
-{
-    save_current();
-    currentController = 4;
-    currentConfiguration = 0;
-    MenuConfiguration->Check(ID_MENUITEM8, true);
-    load_current();
-    ButtonTabModify->SetLabel(_("Modify"));
-    Button5->SetLabel(_("Modify"));
-    Button3->Enable();
-    ButtonTabAdd->Enable();
-    ButtonTabRemove->Enable();
-    Button7->Enable();
-    refresh_gui();
-}
-
-void configFrame::OnMenuItemController6(wxCommandEvent& event)
-{
-    save_current();
-    currentController = 5;
-    currentConfiguration = 0;
-    MenuConfiguration->Check(ID_MENUITEM8, true);
-    load_current();
-    ButtonTabModify->SetLabel(_("Modify"));
-    Button5->SetLabel(_("Modify"));
-    Button3->Enable();
-    ButtonTabAdd->Enable();
-    ButtonTabRemove->Enable();
-    Button7->Enable();
-    refresh_gui();
-}
-
-void configFrame::OnMenuItemController7(wxCommandEvent& event)
-{
-    save_current();
-    currentController = 6;
-    currentConfiguration = 0;
-    MenuConfiguration->Check(ID_MENUITEM8, true);
-    load_current();
-    ButtonTabModify->SetLabel(_("Modify"));
-    Button5->SetLabel(_("Modify"));
-    Button3->Enable();
-    ButtonTabAdd->Enable();
-    ButtonTabRemove->Enable();
-    Button7->Enable();
-    refresh_gui();
-}
-
-void configFrame::OnMenuItemConfiguration1(wxCommandEvent& event)
-{
-    save_current();
-    currentConfiguration = 0;
-    load_current();
-    ButtonTabModify->SetLabel(_("Modify"));
-    Button5->SetLabel(_("Modify"));
-    Button3->Enable();
-    ButtonTabAdd->Enable();
-    ButtonTabRemove->Enable();
-    Button7->Enable();
-    refresh_gui();
-}
-
-void configFrame::OnMenuItemConfiguration2(wxCommandEvent& event)
-{
-    save_current();
+  }
+  else if(MenuConfiguration2->IsChecked())
+  {
     currentConfiguration = 1;
-    load_current();
-    ButtonTabModify->SetLabel(_("Modify"));
-    Button5->SetLabel(_("Modify"));
-    Button3->Enable();
-    ButtonTabAdd->Enable();
-    ButtonTabRemove->Enable();
-    Button7->Enable();
-    refresh_gui();
-}
-
-void configFrame::OnMenuItemConfiguration3(wxCommandEvent& event)
-{
-    save_current();
+  }
+  else if(MenuConfiguration3->IsChecked())
+  {
     currentConfiguration = 2;
-    load_current();
-    ButtonTabModify->SetLabel(_("Modify"));
-    Button5->SetLabel(_("Modify"));
-    Button3->Enable();
-    ButtonTabAdd->Enable();
-    ButtonTabRemove->Enable();
-    Button7->Enable();
-    refresh_gui();
-}
-
-void configFrame::OnMenuItemConfiguration4(wxCommandEvent& event)
-{
-    save_current();
+  }
+  else if(MenuConfiguration4->IsChecked())
+  {
     currentConfiguration = 3;
-    load_current();
-    ButtonTabModify->SetLabel(_("Modify"));
-    Button5->SetLabel(_("Modify"));
-    Button3->Enable();
-    ButtonTabAdd->Enable();
-    ButtonTabRemove->Enable();
-    Button7->Enable();
-    refresh_gui();
-}
-
-void configFrame::OnMenuItemConfiguration5(wxCommandEvent& event)
-{
-    save_current();
+  }
+  else if(MenuConfiguration5->IsChecked())
+  {
     currentConfiguration = 4;
-    load_current();
-    ButtonTabModify->SetLabel(_("Modify"));
-    Button5->SetLabel(_("Modify"));
-    Button3->Enable();
-    ButtonTabAdd->Enable();
-    ButtonTabRemove->Enable();
-    Button7->Enable();
-    refresh_gui();
-}
-
-void configFrame::OnMenuItemConfiguration6(wxCommandEvent& event)
-{
-    save_current();
+  }
+  else if(MenuConfiguration6->IsChecked())
+  {
     currentConfiguration = 5;
-    load_current();
-    ButtonTabModify->SetLabel(_("Modify"));
-    Button5->SetLabel(_("Modify"));
-    Button3->Enable();
-    ButtonTabAdd->Enable();
-    ButtonTabRemove->Enable();
-    Button7->Enable();
-    refresh_gui();
-}
-
-void configFrame::OnMenuItemConfiguration7(wxCommandEvent& event)
-{
-    save_current();
+  }
+  else if(MenuConfiguration7->IsChecked())
+  {
     currentConfiguration = 6;
-    load_current();
-    ButtonTabModify->SetLabel(_("Modify"));
-    Button5->SetLabel(_("Modify"));
-    Button3->Enable();
-    ButtonTabAdd->Enable();
-    ButtonTabRemove->Enable();
-    Button7->Enable();
-    refresh_gui();
-}
-
-void configFrame::OnMenuItemConfiguration8(wxCommandEvent& event)
-{
-    save_current();
+  }
+  else if(MenuConfiguration8->IsChecked())
+  {
     currentConfiguration = 7;
-    load_current();
-    ButtonTabModify->SetLabel(_("Modify"));
-    Button5->SetLabel(_("Modify"));
-    Button3->Enable();
-    ButtonTabAdd->Enable();
-    ButtonTabRemove->Enable();
-    Button7->Enable();
-    refresh_gui();
+  }
+  load_current();
+  ButtonTabModify->SetLabel(_("Modify"));
+  Button5->SetLabel(_("Modify"));
+  Button3->Enable();
+  ButtonTabAdd->Enable();
+  ButtonTabRemove->Enable();
+  Button7->Enable();
+  refresh_gui();
 }
 
 void configFrame::OnMenuSave(wxCommandEvent& event)
@@ -2268,7 +2133,7 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
 
     if(!old_value)
     {
-      wxNumberEntryDialog dialog1(this, wxT(""), wxT("Enter a number:"), wxT("Source mouse DPI"), 2000, 100, 10000);
+      wxNumberEntryDialog dialog1(this, wxT(""), wxT("Enter a number:"), wxT("Source mouse DPI"), 2000, 100, 20000);
 
       if(dialog1.ShowModal() == wxID_OK)
       {
@@ -2279,7 +2144,7 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
 
     if (old_value)
     {
-        wxNumberEntryDialog dialog2(this, wxT(""), wxT("Enter a number:"), wxT("Destination mouse DPI"), old_value, 100, 10000);
+        wxNumberEntryDialog dialog2(this, wxT(""), wxT("Enter a number:"), wxT("Destination mouse DPI"), old_value, 100, 20000);
 
         if (dialog2.ShowModal() == wxID_OK)
         {
@@ -2961,3 +2826,4 @@ void configFrame::OnMenuAutoBindControls(wxCommandEvent& event)
     wxMessageBox(wxT("Auto-bind done!"), wxT("Info"), wxICON_INFORMATION);
   }
 }
+
