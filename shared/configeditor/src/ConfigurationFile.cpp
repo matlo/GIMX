@@ -114,6 +114,7 @@ static void AutoBindMappers(list<T>* refMappers, list<T>* modMappers)
 
           if(find(refTokens.begin(), refTokens.end(), *itModTokens) != refTokens.end())
           {
+            itModMappers->SetDevice(*itRefMappers->GetDevice());
             itModMappers->SetEvent(*itRefMappers->GetEvent());
             break;
           }
