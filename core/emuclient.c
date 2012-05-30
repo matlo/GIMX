@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
 
   if(serial)
   {
-    if(strcmp(portname, "none"))
+    if(!strstr(portname, "none"))
     {
       if (serial_connect(portname) < 0)
       {
