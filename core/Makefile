@@ -10,7 +10,7 @@ INC=-I../../libsdl/include -I/usr/include/libxml2
 all: gpp $(BINS)
 
 clean:
-	rm -f $(BINS) *~ *.o
+	rm -f $(BINS) *~ *.o */*.o
 
 emu: emu.o sixaxis.o dump.o l2cap_con.o bt_utils.o
 	$(CC) -o $@ $^ -lbluetooth
