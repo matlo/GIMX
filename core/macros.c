@@ -15,6 +15,7 @@
 #include "conversion.h"
 #include <math.h>
 #include "emuclient.h"
+#include "sdl_tools.h"
 
 #ifdef WIN32
 #include <sys/stat.h>
@@ -37,6 +38,44 @@ typedef struct {
     int size;
     char macro[MAX_NAME_LENGTH];
 } s_macro_event_delay;
+
+/*
+ * These tables are used to retrieve a device id for an event with a different device type than the trigger.
+ */
+int controller_device[3][MAX_CONTROLLERS];
+int device_controller[3][MAX_DEVICES];
+
+void macro_set_controller_device(int controller, int device_type, int device_id)
+{
+  if(controller < 0 || controller >= MAX_CONTROLLERS
+  || device_type < 0 || device_type >= 3
+  || device_id < 0 || device_type > MAX_DEVICES)
+  {
+    fprintf(stderr, "set_controller_device error\n");
+    return;
+  }
+  if(controller_device[device_type][controller] < 0)
+  {
+    controller_device[device_type][controller] = device_id;
+    device_controller[device_type][device_id] = controller;
+  }
+  else if(controller_device[device_type][controller] != device_id)
+  {
+    gprintf("macros are not not available for: ");
+    if(device_type == 0)
+    {
+      gprintf("keyboard %s (%d)\n", sdl_get_keyboard_name(device_id), sdl_get_keyboard_virtual_id(device_id));
+    }
+    else if(device_type == 1)
+    {
+      gprintf("mouse %s (%d)\n", sdl_get_mouse_name(device_id), sdl_get_mouse_virtual_id(device_id));    
+    }
+    else if(device_type == 2)
+    {
+      gprintf("joystick %s (%d)\n", sdl_get_joystick_name(device_id), sdl_get_joystick_virtual_id(device_id));    
+    }
+  }
+}
 
 /*
  * This table is used to store all the macros that are read from script files at the initialization of the process.
@@ -487,6 +526,18 @@ void read_macros() {
  * Initializes macro_table and reads macros from macro files.
  */
 void initialize_macros() {
+    int i, j;
+    for(j=0; j<3; ++j)
+    {
+      for(i=0; i<MAX_CONTROLLERS; ++i)
+      {
+        controller_device[j][i] = -1;
+      }
+      for(i=0; i<MAX_DEVICES; ++i)
+      {
+        device_controller[j][i] = -1;
+      }
+    }
     initialize_macro_table();
     read_macros();
 }
@@ -584,10 +635,30 @@ void macro_process()
       {
         p_macro_table = macro_table[running_macro[i].dtype][running_macro[i].button][running_macro[i].down] + running_macro[i].index;
         event = p_macro_table->event;
-        if(event.type != SDL_NOEVENT)
+        int dtype = E_DEVICE_TYPE_UNKNOWN;
+        switch(event.type)
         {
-            event.key.which = running_macro[i].did;
+          case SDL_KEYDOWN:
+          case SDL_KEYUP:
+            dtype = E_DEVICE_TYPE_KEYBOARD;
+          break;
+          case SDL_MOUSEBUTTONDOWN:
+          case SDL_MOUSEBUTTONUP:
+            dtype = E_DEVICE_TYPE_MOUSE;
+          break;
+          case SDL_JOYBUTTONDOWN:
+          case SDL_JOYBUTTONUP:
+            dtype = E_DEVICE_TYPE_JOYSTICK;
+          break;
+        }
+        if(dtype != E_DEVICE_TYPE_UNKNOWN)
+        {
+          int controller = device_controller[running_macro[i].dtype][running_macro[i].did];
+          if(controller >= 0)
+          {
+            event.key.which = controller_device[dtype-1][controller];
             SDL_PushEvent(&event);
+          }
         }
         if(!p_macro_table->delay)
         {

@@ -44,9 +44,14 @@ s_mouse_cal mouse_cal[MAX_DEVICES][MAX_CONFIGURATIONS] = {};
 
 int mouse_controller[MAX_DEVICES];
 
-inline int cal_get_controller(int controller)
+inline int cal_get_controller(int mouse)
 {
-  return mouse_controller[controller];
+  return mouse_controller[mouse];
+}
+
+void cal_set_controller(int mouse, int controller)
+{
+  mouse_controller[mouse] = controller;
 }
 
 void cal_init()

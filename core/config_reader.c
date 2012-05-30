@@ -16,6 +16,7 @@
 #include <iconv.h>
 #include "emuclient.h"
 #include "../directories.h"
+#include "macros.h"
 
 #ifdef WIN32
 #include <sys/stat.h>
@@ -530,6 +531,7 @@ static int ProcessAxisElement(xmlNode * a_node)
       {
         case E_EVENT_TYPE_BUTTON:
           p_mapper->button = r_event_id;
+          macro_set_controller_device(r_controller_id, r_device_type-1, r_device_id);
           break;
         case E_EVENT_TYPE_AXIS:
           p_mapper->axis = r_event_id;
@@ -634,6 +636,7 @@ static int ProcessButtonElement(xmlNode * a_node)
       {
         case E_EVENT_TYPE_BUTTON:
           p_mapper->button = r_event_id;
+          macro_set_controller_device(r_controller_id, r_device_type-1, r_device_id);
           break;
         case E_EVENT_TYPE_AXIS_DOWN:
         case E_EVENT_TYPE_AXIS_UP:
@@ -1158,7 +1161,7 @@ static void read_calibration()
           if(p_mapper->axis == 0)
           {
             found = 1;
-            mouse_controller[i] = j;
+            cal_set_controller(i, j);
             mcal->mx = &p_mapper->multiplier;
             mcal->ex = &p_mapper->exponent;
             mcal->dzx = &p_mapper->dead_zone;
@@ -1172,7 +1175,7 @@ static void read_calibration()
           else
           {
             found = 1;
-            mouse_controller[i] = j;
+            cal_set_controller(i, j);
             mcal->my = &p_mapper->multiplier;
             mcal->ey = &p_mapper->exponent;
             mcal->dzy = &p_mapper->dead_zone;
