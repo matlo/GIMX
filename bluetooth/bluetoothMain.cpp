@@ -1395,6 +1395,60 @@ void bluetoothFrame::OnMenuGetConfigs(wxCommandEvent& event)
   }
 }
 
+void bluetoothFrame::autoBindControls(wxArrayString configs)
+{
+  string dir;
+#ifndef WIN32
+  dir.append(homedir);
+  dir.append(APP_DIR);
+#endif
+  dir.append(CONFIG_DIR);
+
+  wxString ref_config;
+
+  wxArrayString ref_configs;
+  for(unsigned int i=0; i<Choice4->GetCount(); i++)
+  {
+    ref_configs.Add(Choice4->GetString(i));
+  }
+
+  wxSingleChoiceDialog dialog(this, wxT("Select the reference config."), wxT("Auto-bind and convert"), ref_configs);
+
+  if (dialog.ShowModal() == wxID_OK)
+  {
+    for(unsigned int j=0; j<configs.GetCount(); ++j)
+    {
+      ConfigurationFile configFile;
+      ref_config = configs[j];
+
+      int ret = configFile.ReadConfigFile(dir + string(ref_config.mb_str()));
+
+      if(ret < 0)
+      {
+        wxMessageBox(wxT("Can't read config: ") + ref_config + wxString(configFile.GetError().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
+        return;
+      }
+
+      if(configFile.AutoBind(dir + string(dialog.GetStringSelection().mb_str())) < 0)
+      {
+        wxMessageBox(wxT("Can't auto-bind controls for config: ") + ref_config, wxT("Error"), wxICON_ERROR);
+      }
+      else
+      {
+        configFile.ConvertSensitivity(dir + string(dialog.GetStringSelection().mb_str()));
+        if(configFile.WriteConfigFile() < 0)
+        {
+          wxMessageBox(wxT("Can't write config: ") + ref_config, wxT("Error"), wxICON_ERROR);
+        }
+        else
+        {
+          wxMessageBox(wxT("Done!"), wxT("Info"), wxICON_INFORMATION);
+        }
+      }
+    }
+  }
+}
+
 void bluetoothFrame::OnMenuAutoBindControls(wxCommandEvent& event)
 {
   if(Choice4->GetStringSelection().IsEmpty())
@@ -1403,43 +1457,9 @@ void bluetoothFrame::OnMenuAutoBindControls(wxCommandEvent& event)
     return;
   }
 
-  string dir;
-#ifndef WIN32
-  dir.append(homedir);
-  dir.append(APP_DIR);
-#endif
-  dir.append(CONFIG_DIR);
+  wxArrayString configs;
+  configs.Add(Choice4->GetStringSelection());
 
-  wxArrayString choices;
-
-  for(unsigned int i=0; i<Choice4->GetCount(); i++)
-  {
-    choices.Add(wxString(Choice4->GetString(i), wxConvUTF8));
-  }
-
-  wxSingleChoiceDialog dialog(this, wxT("Select the reference config."), wxT("Auto-bind and convert"), choices);
-
-  if (dialog.ShowModal() == wxID_OK)
-  {
-    ConfigurationFile configFile;
-
-    int ret = configFile.ReadConfigFile(dir + string(Choice4->GetStringSelection().mb_str()));
-
-    if(ret < 0)
-    {
-      wxMessageBox(wxString(configFile.GetError().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
-      return;
-    }
-
-    if(configFile.AutoBind(dir + string(dialog.GetStringSelection().mb_str())) < 0)
-    {
-      wxMessageBox(wxT("Can't auto-bind controls!"), wxT("Error"), wxICON_ERROR);
-    }
-    else
-    {
-      configFile.ConvertSensitivity(dir + string(dialog.GetStringSelection().mb_str()));
-      configFile.WriteConfigFile();
-      wxMessageBox(wxT("Done!"), wxT("Info"), wxICON_INFORMATION);
-    }
-  }
+  autoBindControls(configs);
 }
+
