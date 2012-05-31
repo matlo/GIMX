@@ -66,6 +66,7 @@ class bluetoothFrame: public wxFrame
         void readDongles();
         int setDongleAddress();
         void refresh();
+        void autoBindControls(wxArrayString configs);
 
         //(*Identifiers(bluetoothFrame)
         static const long ID_STATICTEXT1;
