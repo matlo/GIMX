@@ -412,7 +412,7 @@
 													<object class="wxStaticBoxSizer" variable="StaticBoxSizer8" member="no">
 														<label>Config</label>
 														<object class="sizeritem">
-															<object class="wxChoice" name="ID_CHOICE4" variable="Choice4" member="yes" />
+															<object class="wxChoice" name="ID_CHOICE4" variable="ChoiceConfig" member="yes" />
 															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 															<border>5</border>
 															<option>1</option>

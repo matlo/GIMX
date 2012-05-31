@@ -452,7 +452,7 @@ void bluetoothFrame::refresh()
 {
     readSixaxis();
     readDongles();
-    read_filenames(Choice4);
+    read_filenames(ChoiceConfig);
     if(Choice1->GetCount() == 0)
     {
         wxMessageBox( wxT("No Sixaxis Detected!\nSixaxis usb wire plugged?"), wxT("Error"), wxICON_ERROR);
@@ -611,8 +611,8 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer5->Add(FlexGridSizer13, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer9 = new wxFlexGridSizer(1, 2, 0, 0);
     StaticBoxSizer8 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("Config"));
-    Choice4 = new wxChoice(Panel1, ID_CHOICE4, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE4"));
-    StaticBoxSizer8->Add(Choice4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ChoiceConfig = new wxChoice(Panel1, ID_CHOICE4, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE4"));
+    StaticBoxSizer8->Add(ChoiceConfig, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer9->Add(StaticBoxSizer8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer14 = new wxFlexGridSizer(2, 1, 0, 0);
     Button4 = new wxButton(Panel1, ID_BUTTON4, _("Check"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON4"));
@@ -745,7 +745,7 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
 
     refresh();
 
-    if(Choice4->IsEmpty())
+    if(ChoiceConfig->IsEmpty())
     {
       int answer = wxMessageBox(_("No config found! Download configs?"), _("Confirm"), wxYES_NO);
       if (answer == wxYES)
@@ -1089,7 +1089,7 @@ void bluetoothFrame::OnButton3Click(wxCommandEvent& event)
     wxArrayString output, errors;
     string filename = "";
 
-    if(Choice4->GetStringSelection().IsEmpty())
+    if(ChoiceConfig->GetStringSelection().IsEmpty())
     {
       wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
       return;
@@ -1113,7 +1113,7 @@ void bluetoothFrame::OnButton3Click(wxCommandEvent& event)
         command.Append(_(" --subpos"));
     }
     command.Append(_(" --config \""));
-    command.Append(Choice4->GetStringSelection());
+    command.Append(ChoiceConfig->GetStringSelection());
     command.Append(_("\""));
     if(CheckBox2->IsChecked())
     {
@@ -1131,7 +1131,7 @@ void bluetoothFrame::OnButton3Click(wxCommandEvent& event)
     ofstream outfile (filename.c_str(), ios_base::trunc);
     if(outfile.is_open())
     {
-        outfile << Choice4->GetStringSelection().mb_str() << endl;
+        outfile << ChoiceConfig->GetStringSelection().mb_str() << endl;
         outfile.close();
     }
 
@@ -1206,7 +1206,7 @@ void bluetoothFrame::OnChoice8Select(wxCommandEvent& event)
 
 void bluetoothFrame::OnButton4Click(wxCommandEvent& event)
 {
-  if(Choice4->GetStringSelection().IsEmpty())
+  if(ChoiceConfig->GetStringSelection().IsEmpty())
   {
     wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
     return;
@@ -1218,7 +1218,7 @@ void bluetoothFrame::OnButton4Click(wxCommandEvent& event)
   file.append(APP_DIR);
 #endif
   file.append(CONFIG_DIR);
-  file.append(Choice4->GetStringSelection().mb_str());
+  file.append(ChoiceConfig->GetStringSelection().mb_str());
 
   ConfigurationFile configFile;
   event_catcher evcatch;
@@ -1241,14 +1241,14 @@ void bluetoothFrame::OnButton4Click(wxCommandEvent& event)
 
 void bluetoothFrame::OnMenuEditConfig(wxCommandEvent& event)
 {
-  if(Choice4->GetStringSelection().IsEmpty())
+  if(ChoiceConfig->GetStringSelection().IsEmpty())
   {
     wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
     return;
   }
 
   wxString command = _("gimx-config -f \"");
-  command.Append(Choice4->GetStringSelection());
+  command.Append(ChoiceConfig->GetStringSelection());
   command.Append(_("\""));
 
   if (!wxExecute(command, wxEXEC_ASYNC))
@@ -1259,14 +1259,14 @@ void bluetoothFrame::OnMenuEditConfig(wxCommandEvent& event)
 
 void bluetoothFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
 {
-  if(Choice4->GetStringSelection().IsEmpty())
+  if(ChoiceConfig->GetStringSelection().IsEmpty())
   {
     wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
     return;
   }
 
   wxString command = _("gimx-fpsconfig -f \"");
-  command.Append(Choice4->GetStringSelection());
+  command.Append(ChoiceConfig->GetStringSelection());
   command.Append(_("\""));
 
   if (!wxExecute(command, wxEXEC_ASYNC))
@@ -1359,6 +1359,7 @@ void bluetoothFrame::OnMenuGetConfigs(wxCommandEvent& event)
     if (dialog.ShowModal() == wxID_OK)
     {
       wxArrayInt selections = dialog.GetSelections();
+      wxArrayString configs;
 
       for ( size_t n = 0; n < selections.GetCount(); n++ )
       {
@@ -1373,6 +1374,7 @@ void bluetoothFrame::OnMenuGetConfigs(wxCommandEvent& event)
           }
         }
         cl_sel.push_back(sel);
+        configs.Add(choices[selections[n]]);
       }
 
       if(u.getconfigs(&cl_sel) < 0)
@@ -1380,11 +1382,19 @@ void bluetoothFrame::OnMenuGetConfigs(wxCommandEvent& event)
         wxMessageBox(wxT("Can't retrieve configs!"), wxT("Error"), wxICON_ERROR);
         return;
       }
-      read_filenames(Choice4);
       if(!cl_sel.empty())
       {
-        Choice4->SetSelection(Choice4->FindString(wxString(cl_sel.front().c_str(), wxConvUTF8)));
         wxMessageBox(wxT("Download is complete!"), wxT("Info"), wxICON_INFORMATION);
+        if(!ChoiceConfig->IsEmpty())
+        {
+          int answer = wxMessageBox(_("Auto-bind and convert?"), _("Confirm"), wxYES_NO);
+          if (answer == wxYES)
+          {
+            autoBindControls(configs);
+          }
+        }
+        read_filenames(ChoiceConfig);
+        ChoiceConfig->SetSelection(ChoiceConfig->FindString(wxString(cl_sel.front().c_str(), wxConvUTF8)));
       }
     }
   }
@@ -1407,9 +1417,9 @@ void bluetoothFrame::autoBindControls(wxArrayString configs)
   wxString ref_config;
 
   wxArrayString ref_configs;
-  for(unsigned int i=0; i<Choice4->GetCount(); i++)
+  for(unsigned int i=0; i<ChoiceConfig->GetCount(); i++)
   {
-    ref_configs.Add(Choice4->GetString(i));
+    ref_configs.Add(ChoiceConfig->GetString(i));
   }
 
   wxSingleChoiceDialog dialog(this, wxT("Select the reference config."), wxT("Auto-bind and convert"), ref_configs);
@@ -1451,14 +1461,14 @@ void bluetoothFrame::autoBindControls(wxArrayString configs)
 
 void bluetoothFrame::OnMenuAutoBindControls(wxCommandEvent& event)
 {
-  if(Choice4->GetStringSelection().IsEmpty())
+  if(ChoiceConfig->GetStringSelection().IsEmpty())
   {
     wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
     return;
   }
 
   wxArrayString configs;
-  configs.Add(Choice4->GetStringSelection());
+  configs.Add(ChoiceConfig->GetStringSelection());
 
   autoBindControls(configs);
 }

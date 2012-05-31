@@ -40,7 +40,6 @@ class bluetoothFrame: public wxFrame
         void OnChoice2Select(wxCommandEvent& event);
         void OnSelectPS3Bdaddr(wxCommandEvent& event);
         void OnSelectBtDongle(wxCommandEvent& event);
-        void OnChoice4Select(wxCommandEvent& event);
         void OnSelectRefresh(wxCommandEvent& event);
         void OnButton2Click(wxCommandEvent& event);
         void OnChoice5Select(wxCommandEvent& event);
@@ -146,7 +145,7 @@ class bluetoothFrame: public wxFrame
         wxStaticText* StaticText5;
         wxStaticText* StaticText7;
         wxStatusBar* StatusBar1;
-        wxChoice* Choice4;
+        wxChoice* ChoiceConfig;
         wxMenuItem* MenuItem6;
         wxChoice* Choice6;
         wxMenuItem* MenuGetConfigs;
