@@ -1349,7 +1349,7 @@ void bluetoothFrame::OnMenuGetConfigs(wxCommandEvent& event)
   {
     wxArrayString choices;
 
-    for(list<string>::iterator it = cl->begin(); it != cl->end(); it++)
+    for(list<string>::iterator it = cl->begin(); it != cl->end(); ++it)
     {
       choices.Add(wxString(it->c_str(), wxConvUTF8));
     }
