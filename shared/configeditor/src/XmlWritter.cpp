@@ -58,9 +58,9 @@ void XmlWritter::CreateAxisMapNode(xmlNodePtr parent_node)
     xmlNodePtr am_node;
 
     xmlNodePtr node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_AXIS_MAP, NULL);
-    std::list<AxisMapper>* am_list = m_ConfigurationFile->GetController(m_CurrentController)->GetConfiguration(m_CurrentConfiguration)->GetAxisMapperList();
+    list<AxisMapper>* am_list = m_ConfigurationFile->GetController(m_CurrentController)->GetConfiguration(m_CurrentConfiguration)->GetAxisMapperList();
 
-    for(std::list<AxisMapper>::iterator it = am_list->begin(); it!=am_list->end(); it++)
+    for(list<AxisMapper>::iterator it = am_list->begin(); it!=am_list->end(); ++it)
     {
         am_node = xmlNewChild(node, NULL, BAD_CAST X_NODE_AXIS, NULL);
 
@@ -78,9 +78,9 @@ void XmlWritter::CreateButtonMapNode(xmlNodePtr parent_node)
     xmlNodePtr bm_node;
 
     xmlNodePtr node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_BUTTON_MAP, NULL);
-    std::list<ButtonMapper>* bm_list = m_ConfigurationFile->GetController(m_CurrentController)->GetConfiguration(m_CurrentConfiguration)->GetButtonMapperList();
+    list<ButtonMapper>* bm_list = m_ConfigurationFile->GetController(m_CurrentController)->GetConfiguration(m_CurrentConfiguration)->GetButtonMapperList();
 
-    for(std::list<ButtonMapper>::iterator it = bm_list->begin(); it!=bm_list->end(); it++)
+    for(list<ButtonMapper>::iterator it = bm_list->begin(); it!=bm_list->end(); ++it)
     {
         bm_node = xmlNewChild(node, NULL, BAD_CAST X_NODE_BUTTON, NULL);
 
@@ -122,9 +122,9 @@ void XmlWritter::CreateIntensityNodes(xmlNodePtr parent_node)
 
     xmlNodePtr pnode = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_INTENSITY_LIST, NULL);
 
-    std::list<Intensity>* i_list = m_ConfigurationFile->GetController(m_CurrentController)->GetConfiguration(m_CurrentConfiguration)->GetIntensityList();
+    list<Intensity>* i_list = m_ConfigurationFile->GetController(m_CurrentController)->GetConfiguration(m_CurrentConfiguration)->GetIntensityList();
 
-    for(std::list<Intensity>::iterator it = i_list->begin(); it!=i_list->end(); it++)
+    for(list<Intensity>::iterator it = i_list->begin(); it!=i_list->end(); ++it)
     {
 #ifndef WIN32
       snprintf(steps, sizeof(steps), "%hhu", it->GetSteps());
