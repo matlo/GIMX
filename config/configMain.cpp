@@ -29,6 +29,8 @@
 #include <wx/filename.h>
 #include <wx/dir.h>
 
+#include <algorithm>
+
 #include "../shared/updater/updater.h"
 #include "../directories.h"
 
@@ -124,7 +126,7 @@ const long configFrame::ID_STATICTEXT40 = wxNewId();
 const long configFrame::ID_TEXTCTRL3 = wxNewId();
 const long configFrame::ID_BUTTON8 = wxNewId();
 const long configFrame::ID_CHOICE5 = wxNewId();
-const long configFrame::ID_TEXTCTRL4 = wxNewId();
+const long configFrame::ID_COMBOBOX1 = wxNewId();
 const long configFrame::ID_GRID1 = wxNewId();
 const long configFrame::ID_BUTTON4 = wxNewId();
 const long configFrame::ID_BUTTON6 = wxNewId();
@@ -156,7 +158,7 @@ const long configFrame::ID_TEXTCTRL10 = wxNewId();
 const long configFrame::ID_CHOICE1 = wxNewId();
 const long configFrame::ID_TEXTCTRL1 = wxNewId();
 const long configFrame::ID_TEXTCTRL2 = wxNewId();
-const long configFrame::ID_TEXTCTRL5 = wxNewId();
+const long configFrame::ID_COMBOBOX2 = wxNewId();
 const long configFrame::ID_GRID2 = wxNewId();
 const long configFrame::ID_BUTTON3 = wxNewId();
 const long configFrame::ID_BUTTON7 = wxNewId();
@@ -280,6 +282,56 @@ void configFrame::fillButtonChoice(wxChoice* choice)
     choice->Append(_("select"));
     choice->Append(_("PS"));
     choice->SetSelection(choice->FindString(previous));
+}
+
+// comparison, not case sensitive.
+bool compare_nocase (string first, string second)
+{
+  unsigned int i=0;
+  while ( (i<first.length()) && (i<second.length()) )
+  {
+    if (tolower(first[i])<tolower(second[i])) return true;
+    else if (tolower(first[i])>tolower(second[i])) return false;
+    ++i;
+  }
+  if (first.length()<second.length()) return true;
+  else return false;
+}
+
+void configFrame::readLabels()
+{
+  wxDir dir(default_directory);
+  list<string> button_labels;
+  list<string> axis_labels;
+
+  if(!dir.IsOpened())
+  {
+    cout << "Warning: can't open " << string(default_directory.mb_str()) << endl;
+    return;
+  }
+
+  wxString file;
+  wxString filepath;
+  wxString filespec = wxT("*.xml");
+
+  for (bool cont = dir.GetFirst(&file, filespec, wxDIR_FILES); cont;  cont = dir.GetNext(&file))
+  {
+    filepath = default_directory + file;
+    ConfigurationFile::GetLabels(string(filepath.mb_str()), button_labels, axis_labels);
+  }
+
+  button_labels.sort(compare_nocase);
+  axis_labels.sort(compare_nocase);
+
+  for(list<string>::iterator it = button_labels.begin(); it != button_labels.end(); ++it)
+  {
+    ButtonTabLabel->Append(wxString(it->c_str(), wxConvUTF8));
+  }
+
+  for(list<string>::iterator it = axis_labels.begin(); it != axis_labels.end(); ++it)
+  {
+    AxisTabLabel->Append(wxString(it->c_str(), wxConvUTF8));
+  }
 }
 
 configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
@@ -500,7 +552,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     FlexGridSizer1->Add(ButtonTabAutoDetect, 1, wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL, 5);
     ButtonTabButtonId = new wxChoice(PanelButton, ID_CHOICE5, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE5"));
     FlexGridSizer1->Add(ButtonTabButtonId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    ButtonTabLabel = new wxTextCtrl(PanelButton, ID_TEXTCTRL4, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TEXTCTRL4"));
+    ButtonTabLabel = new wxComboBox(PanelButton, ID_COMBOBOX1, wxEmptyString, wxDefaultPosition, wxSize(150,-1), 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX1"));
     FlexGridSizer1->Add(ButtonTabLabel, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer9->Add(FlexGridSizer1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer8 = new wxFlexGridSizer(1, 2, 0, 0);
@@ -608,7 +660,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     AxisTabFilter->SetToolTip(_("Filter [0.00..1.00]"));
     FlexGridSizer11->Add(AxisTabFilter, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer3->Add(FlexGridSizer11, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    AxisTabLabel = new wxTextCtrl(PanelAxis, ID_TEXTCTRL5, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TEXTCTRL5"));
+    AxisTabLabel = new wxComboBox(PanelAxis, ID_COMBOBOX2, wxEmptyString, wxDefaultPosition, wxSize(150,-1), 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX2"));
     FlexGridSizer3->Add(AxisTabLabel, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer5->Add(FlexGridSizer3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer4 = new wxFlexGridSizer(1, 2, 0, 0);
@@ -832,7 +884,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     }
 
     default_directory.Append(wxFileName::GetHomeDir());
-    default_directory.Append(_("/.emuclient/"));
+    default_directory.Append(_(APP_DIR));
 
 	/* Init user's config directory */
     if(system("mkdir -p ~/.emuclient/config"))
@@ -887,9 +939,11 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
       }
       else
       {
-        wxMessageBox( wxT("Cannot open config file: ") + wxString(file, wxConvUTF8), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( wxT("Cannot open config file: ") + file, wxT("Error"), wxICON_ERROR);
       }
     }
+
+    readLabels();
 }
 
 configFrame::~configFrame()
@@ -1050,7 +1104,7 @@ void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
         }
         else
         {
-          it++;
+          ++it;
         }
       }
     }
@@ -1089,7 +1143,7 @@ void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
         }
         else
         {
-          it++;
+          ++it;
         }
       }
     }
@@ -1457,7 +1511,7 @@ void configFrame::load_current()
     RSDeadZone->SetValue(0);
     RSSteps->SetValue(1);
     RSShape->SetSelection(0);
-    for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
+    for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); ++it)
     {
       if(it->GetControl() == "left_stick")
       {
@@ -1491,7 +1545,7 @@ void configFrame::load_current()
     //Load ButtonMappers
     GridPanelButton->DeleteRows(0, GridPanelButton->GetNumberRows());
     buttonMappers = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetButtonMapperList();
-    for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); it++)
+    for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); ++it)
     {
         GridPanelButton->InsertRows();
         GridPanelButton->SetCellValue(0, 0, wxString(it->GetDevice()->GetType().c_str(),wxConvUTF8));
@@ -1507,7 +1561,7 @@ void configFrame::load_current()
     //Load AxisMappers
     GridPanelAxis->DeleteRows(0, GridPanelAxis->GetNumberRows());
     axisMappers = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetAxisMapperList();
-    for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); it++)
+    for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
     {
         GridPanelAxis->InsertRows();
         GridPanelAxis->SetCellValue(0, 0, wxString(it->GetDevice()->GetType().c_str(),wxConvUTF8));
@@ -1797,7 +1851,7 @@ void configFrame::updateButtonConfigurations()
       Configuration* config = controller->GetConfiguration(k);
 
       buttonMappers = config->GetButtonMapperList();
-      for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); it++)
+      for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); ++it)
       {
           if(it->GetDevice()->GetType() == string(GridPanelButton->GetCellValue(grid1mod, 0).mb_str())
               && it->GetDevice()->GetName() == string(GridPanelButton->GetCellValue(grid1mod, 1).mb_str())
@@ -1941,7 +1995,7 @@ void configFrame::updateAxisConfigurations()
       Configuration* config = controller->GetConfiguration(k);
 
       axisMappers = config->GetAxisMapperList();
-      for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); it++)
+      for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
       {
           if(it->GetDevice()->GetType() == string(GridPanelAxis->GetCellValue(grid2mod, 0).mb_str())
               && it->GetDevice()->GetName() == string(GridPanelAxis->GetCellValue(grid2mod, 1).mb_str())
@@ -2060,7 +2114,7 @@ void configFrame::replaceDevice(wxString wx_device_type)
       }
 
       intensityList = config->GetIntensityList();
-      for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
+      for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); ++it)
       {
           if(it->GetDeviceUp()->GetType() == device_type)
           {
@@ -2075,7 +2129,7 @@ void configFrame::replaceDevice(wxString wx_device_type)
       }
 
       buttonMappers = config->GetButtonMapperList();
-      for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); it++)
+      for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); ++it)
       {
           if(it->GetDevice()->GetType() == device_type)
           {
@@ -2084,7 +2138,7 @@ void configFrame::replaceDevice(wxString wx_device_type)
           }
       }
       axisMappers = config->GetAxisMapperList();
-      for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); it++)
+      for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
       {
         if(it->GetDevice()->GetType() == device_type)
         {
@@ -2173,7 +2227,7 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
               Configuration* config = controller->GetConfiguration(k);
 
               axisMappers = config->GetAxisMapperList();
-              for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); it++)
+              for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
               {
                 if(it->GetDevice()->GetType() == "mouse" && it->GetEvent()->GetType() == "axis")
                 {
@@ -2222,7 +2276,7 @@ void configFrame::OnLSIncAutoDetectClick(wxCommandEvent& event)
 
       std::list<Intensity>* intensityList = config->GetIntensityList();
 
-      for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
+      for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); ++it)
       {
         if(it->GetControl() == "left_stick")
         {
@@ -2264,7 +2318,7 @@ void configFrame::OnLSIncDeleteClick(wxCommandEvent& event)
 
       std::list<Intensity>* intensityList = config->GetIntensityList();
 
-      for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
+      for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); ++it)
       {
         if(it->GetControl() == "left_stick")
         {
@@ -2313,7 +2367,7 @@ void configFrame::OnRSIncAutoDetectClick1(wxCommandEvent& event)
 
       std::list<Intensity>* intensityList = config->GetIntensityList();
 
-      for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
+      for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); ++it)
       {
         if(it->GetControl() == "right_stick")
         {
@@ -2355,7 +2409,7 @@ void configFrame::OnRSIncDeleteClick(wxCommandEvent& event)
 
       std::list<Intensity>* intensityList = config->GetIntensityList();
 
-      for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
+      for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); ++it)
       {
         if(it->GetControl() == "right_stick")
         {
@@ -2426,7 +2480,7 @@ void configFrame::OnLSDecAutoDetectClick(wxCommandEvent& event)
 
       std::list<Intensity>* intensityList = config->GetIntensityList();
 
-      for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
+      for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); ++it)
       {
         if(it->GetControl() == "left_stick")
         {
@@ -2468,7 +2522,7 @@ void configFrame::OnLSDecDeleteClick(wxCommandEvent& event)
 
       std::list<Intensity>* intensityList = config->GetIntensityList();
 
-      for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
+      for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); ++it)
       {
         if(it->GetControl() == "left_stick")
         {
@@ -2517,7 +2571,7 @@ void configFrame::OnRSDecAutoDetectClick(wxCommandEvent& event)
 
       std::list<Intensity>* intensityList = config->GetIntensityList();
 
-      for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
+      for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); ++it)
       {
         if(it->GetControl() == "right_stick")
         {
@@ -2559,7 +2613,7 @@ void configFrame::OnRSDecDeleteClick(wxCommandEvent& event)
 
       std::list<Intensity>* intensityList = config->GetIntensityList();
 
-      for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); it++)
+      for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); ++it)
       {
         if(it->GetControl() == "right_stick")
         {

@@ -24,6 +24,7 @@
 #include <wx/choice.h>
 #include <wx/button.h>
 #include <wx/frame.h>
+#include <wx/combobox.h>
 #include <wx/statusbr.h>
 //*)
 
@@ -126,6 +127,7 @@ class configFrame: public wxFrame
         void updateButtonConfigurations();
         void updateAxisConfigurations();
         wxString isAlreadyUsed(wxString device_type, wxString device_name, wxString device_id, wxString event_type, wxString event_id, int gridIndex1, int gridIndex2);
+        void readLabels();
 
         //(*Identifiers(configFrame)
         static const long ID_STATICTEXT35;
@@ -191,7 +193,7 @@ class configFrame: public wxFrame
         static const long ID_TEXTCTRL3;
         static const long ID_BUTTON8;
         static const long ID_CHOICE5;
-        static const long ID_TEXTCTRL4;
+        static const long ID_COMBOBOX1;
         static const long ID_GRID1;
         static const long ID_BUTTON4;
         static const long ID_BUTTON6;
@@ -223,7 +225,7 @@ class configFrame: public wxFrame
         static const long ID_CHOICE1;
         static const long ID_TEXTCTRL1;
         static const long ID_TEXTCTRL2;
-        static const long ID_TEXTCTRL5;
+        static const long ID_COMBOBOX2;
         static const long ID_GRID2;
         static const long ID_BUTTON3;
         static const long ID_BUTTON7;
@@ -274,6 +276,7 @@ class configFrame: public wxFrame
         wxStaticText* StaticTextAccelPanelAxis;
         wxButton* RSIncDelete;
         wxMenuItem* MenuController4;
+        wxComboBox* ButtonTabLabel;
         wxTextCtrl* AxisTabAcceleration;
         wxMenuItem* MenuItemSetMouseDPI;
         wxStaticText* StaticTextDeadZonePanelAxis;
@@ -291,7 +294,6 @@ class configFrame: public wxFrame
         wxStaticText* RSIncDeviceName;
         wxButton* ButtonTabAutoDetect;
         wxStaticText* ButtonTabDeviceType;
-        wxTextCtrl* ButtonTabLabel;
         wxMenuItem* MenuController1;
         wxMenuItem* MenuController5;
         wxStaticText* LSIncButtonId;
@@ -334,7 +336,6 @@ class configFrame: public wxFrame
         wxStaticText* LSIncDeviceId;
         wxStaticText* StaticTextDeviceTypePanelAxis;
         wxStaticText* LSDecButtonId;
-        wxTextCtrl* AxisTabLabel;
         wxButton* RSDecDelete;
         wxStaticText* ProfileTriggerButtonId;
         wxMenuItem* MenuConfiguration2;
@@ -369,6 +370,7 @@ class configFrame: public wxFrame
         wxPanel* PanelAxis;
         wxMenuItem* MenuItemReplaceKeyboard;
         wxMenuItem* MenuItemNew;
+        wxComboBox* AxisTabLabel;
         wxMenuItem* MenuConfiguration8;
         wxMenuItem* MenuConfiguration4;
         wxButton* ButtonTabRemove;

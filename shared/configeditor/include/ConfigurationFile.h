@@ -26,6 +26,8 @@ class ConfigurationFile
         void SetEvCatch(event_catcher* e) { m_evcatch = e; }
         int AutoBind(string refFilePath);
         int ConvertSensitivity(string refFilePath);
+        void GetLabels(list<string>&, list<string>&);
+        static void GetLabels(string, list<string>&, list<string>&);
     protected:
     private:
         string m_FilePath;

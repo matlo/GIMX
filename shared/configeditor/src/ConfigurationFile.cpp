@@ -77,6 +77,10 @@ list<string> &split(const string &s, char delim, list<string> &elems)
     {
       item = item.substr(1);
     }
+    while (item.rfind(" ") == item.size()-1)
+    {
+      item.replace(item.size()-1, 1, "");
+    }
     elems.push_back(item);
   }
   return elems;
@@ -91,7 +95,7 @@ list<string> split(const string &s, char delim)
 template <class T>
 static void AutoBindMappers(list<T>* refMappers, list<T>* modMappers)
 {
-  for(typename list<T>::iterator itModMappers = modMappers->begin(); itModMappers!=modMappers->end(); itModMappers++)
+  for(typename list<T>::iterator itModMappers = modMappers->begin(); itModMappers!=modMappers->end(); ++itModMappers)
   {
     string modLabel = itModMappers->GetLabel();
 
@@ -99,12 +103,12 @@ static void AutoBindMappers(list<T>* refMappers, list<T>* modMappers)
 
     list<string> modTokens = split(modLabel, ',');
 
-    for(list<string>::iterator itModTokens = modTokens.begin(); itModTokens != modTokens.end(); itModTokens++)
+    for(list<string>::iterator itModTokens = modTokens.begin(); itModTokens != modTokens.end(); ++itModTokens)
     {
       if(!itModTokens->empty())
       {
         typename list<T>::iterator itRefMappers;
-        for(itRefMappers = refMappers->begin(); itRefMappers!=refMappers->end(); itRefMappers++)
+        for(itRefMappers = refMappers->begin(); itRefMappers!=refMappers->end(); ++itRefMappers)
         {
           string refLabel = itRefMappers->GetLabel();
 
@@ -182,7 +186,7 @@ int ConfigurationFile::ConvertSensitivity(string refFilePath)
 
           list<AxisMapper>* modAxisMappers = modConfig->GetAxisMapperList();
 
-          for(list<AxisMapper>::iterator itModAxisMappers = modAxisMappers->begin(); itModAxisMappers!=modAxisMappers->end(); itModAxisMappers++)
+          for(list<AxisMapper>::iterator itModAxisMappers = modAxisMappers->begin(); itModAxisMappers!=modAxisMappers->end(); ++itModAxisMappers)
           {
             if(itModAxisMappers->GetDevice()->GetType() == "mouse" && itModAxisMappers->GetEvent()->GetType() == "axis")
             {
@@ -203,4 +207,68 @@ int ConfigurationFile::ConvertSensitivity(string refFilePath)
 
   return ret;
 
+}
+
+void ConfigurationFile::GetLabels(list<string>& button_labels, list<string>& axis_labels)
+{
+  for(int i=0; i<MAX_CONTROLLERS; ++i)
+  {
+    Controller* controller = GetController(i);
+
+    for(int k=0; k<MAX_CONFIGURATIONS; ++k)
+    {
+      Configuration* config = controller->GetConfiguration(k);
+
+      list<ButtonMapper>* buttonMappers = config->GetButtonMapperList();
+
+      for(list<ButtonMapper>::iterator itButtonMappers = buttonMappers->begin(); itButtonMappers!=buttonMappers->end(); ++itButtonMappers)
+      {
+        string label = itButtonMappers->GetLabel();
+        if(!label.empty())
+        {
+          list<string> tokens = split(label, ',');
+          for(list<string>::iterator tk_it = tokens.begin(); tk_it != tokens.end(); ++tk_it)
+          {
+            if(!tk_it->empty())
+            {
+              if(find(button_labels.begin(), button_labels.end(), *tk_it) == button_labels.end())
+              {
+                button_labels.push_back(*tk_it);
+              }
+            }
+          }
+        }
+      }
+
+      list<AxisMapper>* axisMappers = config->GetAxisMapperList();
+
+      for(list<AxisMapper>::iterator itAxisMappers = axisMappers->begin(); itAxisMappers!=axisMappers->end(); ++itAxisMappers)
+      {
+        string label = itAxisMappers->GetLabel();
+        if(!label.empty())
+        {
+          list<string> tokens = split(label, ',');
+          for(list<string>::iterator tk_it = tokens.begin(); tk_it != tokens.end(); ++tk_it)
+          {
+            if(!tk_it->empty())
+            {
+              if(find(axis_labels.begin(), axis_labels.end(), *tk_it) == axis_labels.end())
+              {
+                axis_labels.push_back(*tk_it);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+void ConfigurationFile::GetLabels(string file, list<string>& button_labels, list<string>& axis_labels)
+{
+  ConfigurationFile configFile;
+  if(configFile.ReadConfigFile(file) >= 0)
+  {
+    configFile.GetLabels(button_labels, axis_labels);
+  }
 }
