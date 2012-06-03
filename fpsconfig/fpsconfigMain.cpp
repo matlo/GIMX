@@ -941,7 +941,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         if(!buttons[i].GetDevice()->GetType().empty())
         {
             found = false;
-            for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end() && !found; it++)
+            for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end() && !found; ++it)
             {
                 if(it->GetButton() == buttons[i].GetButton())
                 {
@@ -975,7 +975,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         if(!axes[i].GetDevice()->GetType().empty())
         {
             found = false;
-            for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; it++)
+            for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; ++it)
             {
                 if(it->GetAxis() == axes[i].GetAxis())
                 {
@@ -995,7 +995,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         }
     }
     found = false;
-    for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; it++)
+    for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; ++it)
     {
         if(it->GetDevice()->GetType() == "mouse" && it->GetEvent()->GetType() == "axis" && it->GetEvent()->GetId() == "x" && it->GetAxis() == "rstick x")
         {
@@ -1028,7 +1028,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     }
     wsmy = wxString::Format(wxT("%.02f"), my);
     found = false;
-    for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; it++)
+    for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; ++it)
     {
         if(it->GetDevice()->GetType() == "mouse" && it->GetEvent()->GetType() == "axis" && it->GetEvent()->GetId() == "y" && it->GetAxis() == "rstick y")
         {
@@ -1070,7 +1070,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         if(!buttons[i].GetDevice()->GetType().empty())
         {
             found = false;
-            for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end() && !found; it++)
+            for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end() && !found; ++it)
             {
                 if(it->GetButton() == buttons[i].GetButton())
                 {
@@ -1104,7 +1104,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         if(!axes[i].GetDevice()->GetType().empty())
         {
             found = false;
-            for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; it++)
+            for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; ++it)
             {
                 if(it->GetAxis() == axes[i].GetAxis())
                 {
@@ -1124,7 +1124,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         }
     }
     found = false;
-    for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; it++)
+    for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; ++it)
     {
         if(it->GetDevice()->GetType() == "mouse" && it->GetEvent()->GetType() == "axis" && it->GetEvent()->GetId() == "x" && it->GetAxis() == "rstick x")
         {
@@ -1156,7 +1156,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     }
     wsmy = wxString::Format(wxT("%.02f"), my);
     found = false;
-    for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; it++)
+    for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; ++it)
     {
         if(it->GetDevice()->GetType() == "mouse" && it->GetEvent()->GetType() == "axis" && it->GetEvent()->GetId() == "y" && it->GetAxis() == "rstick y")
         {
@@ -1226,7 +1226,7 @@ void fpsconfigFrame::LoadConfig()
       }
   }
   buttonMappers = configFile.GetController(0)->GetConfiguration(0)->GetButtonMapperList();
-  for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); it++)
+  for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); ++it)
   {
       button = getButtonButton(it->GetButton());
 
@@ -1285,7 +1285,7 @@ void fpsconfigFrame::LoadConfig()
   mx = 0;
   my = 0;
   axisMappers = configFile.GetController(0)->GetConfiguration(0)->GetAxisMapperList();
-  for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); it++)
+  for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
   {
       button = getAxisButton(it->GetAxis());
 
@@ -1383,7 +1383,7 @@ void fpsconfigFrame::LoadConfig()
   mx = 0;
   my = 0;
   axisMappers = configFile.GetController(0)->GetConfiguration(1)->GetAxisMapperList();
-  for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); it++)
+  for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
   {
       button = getAxisButton(it->GetAxis());
 
