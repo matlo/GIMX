@@ -608,6 +608,7 @@ static void macro_add(int dtype, int did, int button, int down)
  */
 void macro_lookup(int dtype, int did, int button, int down)
 {
+  did = merge_all_devices ? 0 : did;
   if(macro_table[dtype][button][down])
   {
     if(!macro_delete(dtype, did, button, down))
