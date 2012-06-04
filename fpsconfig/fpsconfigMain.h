@@ -77,6 +77,7 @@ class fpsconfigFrame: public wxFrame
         wxButton* getAxisButton(string blabel);
 
         void LoadConfig();
+        void readLabels();        
 
         //(*Identifiers(fpsconfigFrame)
         static const long ID_SPINCTRL8;
@@ -213,8 +214,6 @@ class fpsconfigFrame: public wxFrame
         wxMenuItem* MenuAutoBindControls;
         //*)
 
-        wxTextEntryDialog* textDialog;
-
         event_catcher evcatch;
         ConfigurationFile configFile;
 
@@ -229,6 +228,9 @@ class fpsconfigFrame: public wxFrame
         string defaultKeyboardName;
 
         wxString default_directory;
+
+        wxArrayString b_labels;
+        wxArrayString a_labels;
 
         DECLARE_EVENT_TABLE()
 };

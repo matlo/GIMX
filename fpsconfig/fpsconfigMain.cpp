@@ -30,6 +30,7 @@
 
 #include <locale.h>
 #include <wx/filename.h>
+#include <wx/dir.h>
 
 #include "../shared/updater/updater.h"
 #include "../directories.h"
@@ -66,6 +67,48 @@ wxString wxbuildinfo(wxbuildinfoformat format)
 
     return wxbuild;
 }
+
+class wxComboBoxDialog: public wxDialog
+{
+public:
+ 
+	wxComboBoxDialog ( wxWindow * parent, const wxString & title, const wxString& value, const wxArrayString& choices ) : wxDialog( parent, -1, title, wxDefaultPosition, wxSize(150, 75), wxDEFAULT_DIALOG_STYLE)
+  {
+    vbox = new wxBoxSizer(wxVERTICAL);
+    
+    comboBox = new wxComboBox(this, -1, value, wxDefaultPosition, wxDefaultSize, choices, wxTE_PROCESS_ENTER);
+    
+    vbox->Add(comboBox, 1, wxALIGN_CENTER | wxEXPAND);
+    
+    hbox = new wxBoxSizer(wxHORIZONTAL);
+    
+    bOK = new wxButton( this, wxID_OK, _("OK"));
+    bCancel = new wxButton( this, wxID_CANCEL, _("Cancel"));
+    
+    hbox->Add(bOK, 1, wxALIGN_CENTER | wxEXPAND);
+    hbox->Add(bCancel, 1, wxALIGN_CENTER | wxEXPAND);
+    
+    vbox->Add(hbox, 1, wxALIGN_CENTER | wxEXPAND);
+    
+    SetSizer(vbox);
+
+    Connect(comboBox->GetId(), wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( wxComboBoxDialog::OnComboBoxEnter ) );
+
+    comboBox->SetFocus();
+  }
+
+	wxString GetValue() { return comboBox->GetValue(); }
+  
+  void OnComboBoxEnter( wxCommandEvent &event ) { EndModal(wxID_OK); }
+  
+protected:
+
+  wxBoxSizer* hbox;
+  wxBoxSizer* vbox;
+  wxComboBox* comboBox;
+  wxButton* bOK;
+  wxButton* bCancel;
+};
 
 //(*IdInit(fpsconfigFrame)
 const long fpsconfigFrame::ID_SPINCTRL8 = wxNewId();
@@ -423,8 +466,6 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnAbout);
     //*)
 
-    textDialog = new wxTextEntryDialog(this, _("Edit Label"));
-
     wxMemoryInputStream istream(background_png, sizeof background_png);
     wxImage background_img(istream, wxBITMAP_TYPE_PNG);
     wxBackgroundBitmap* ToolBarBackground = new wxBackgroundBitmap(wxBitmap(background_img));
@@ -483,6 +524,8 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     }
 
 	  wxToolTip::SetDelay(0);
+    
+    readLabels();
 }
 
 fpsconfigFrame::~fpsconfigFrame()
@@ -746,6 +789,8 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 {
   e_button_index bindex = bi_undef;
   e_axis_index aindex = ai_undef;
+  wxString value;
+  wxArrayString* as = NULL;
 
   ((wxButton*) event.GetEventObject())->Enable(false);
 
@@ -755,7 +800,8 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 
     if (bindex != bi_undef)
     {
-      textDialog->SetValue(wxString(buttons[bindex].GetLabel().c_str(), wxConvUTF8));
+      value = wxString(buttons[bindex].GetLabel().c_str(), wxConvUTF8);
+      as = &b_labels;
     }
     else
     {
@@ -763,15 +809,23 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 
       if (aindex != ai_undef)
       {
-        textDialog->SetValue(wxString(axes[aindex].GetLabel().c_str(), wxConvUTF8));
+        value = wxString(axes[aindex].GetLabel().c_str(), wxConvUTF8);
+        as = &a_labels;
       }
     }
 
-    if (textDialog->ShowModal() == wxID_OK)
+    if(!as)
+    {
+      return;
+    }
+    
+    wxComboBoxDialog dialog ( this, _("Edit Label"), value, *as);
+
+    if (dialog.ShowModal() == wxID_OK)
     {
       if (bindex != bi_undef)
       {
-        buttons[bindex].SetLabel(string(textDialog->GetValue().mb_str()));
+        buttons[bindex].SetLabel(string(dialog.GetValue().mb_str()));
         string tt(buttons[bindex].GetEvent()->GetId());
         if (!buttons[bindex].GetLabel().empty())
         {
@@ -783,7 +837,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
       }
       else if (aindex != ai_undef)
       {
-        axes[aindex].SetLabel(string(textDialog->GetValue().mb_str()));
+        axes[aindex].SetLabel(string(dialog.GetValue().mb_str()));
         string tt(axes[aindex].GetEvent()->GetId());
         if (!axes[aindex].GetLabel().empty())
         {
@@ -1727,5 +1781,54 @@ void fpsconfigFrame::OnMenuAutoBindControls(wxCommandEvent& event)
   {
     LoadConfig();
     wxMessageBox(wxT("Auto-bind done!"), wxT("Info"), wxICON_INFORMATION);
+  }
+}
+// comparison, not case sensitive.
+bool compare_nocase (string first, string second)
+{
+  unsigned int i=0;
+  while ( (i<first.length()) && (i<second.length()) )
+  {
+    if (tolower(first[i])<tolower(second[i])) return true;
+    else if (tolower(first[i])>tolower(second[i])) return false;
+    ++i;
+  }
+  if (first.length()<second.length()) return true;
+  else return false;
+}
+
+void fpsconfigFrame::readLabels()
+{
+  wxDir dir(default_directory);
+  list<string> blabels;
+  list<string> alabels;
+
+  if(!dir.IsOpened())
+  {
+    cout << "Warning: can't open " << string(default_directory.mb_str()) << endl;
+    return;
+  }
+
+  wxString file;
+  wxString filepath;
+  wxString filespec = wxT("*.xml");
+
+  for (bool cont = dir.GetFirst(&file, filespec, wxDIR_FILES); cont;  cont = dir.GetNext(&file))
+  {
+    filepath = default_directory + file;
+    ConfigurationFile::GetLabels(string(filepath.mb_str()), blabels, alabels);
+  }
+
+  blabels.sort(compare_nocase);
+  alabels.sort(compare_nocase);
+
+  for(list<string>::iterator it = blabels.begin(); it != blabels.end(); ++it)
+  {
+    b_labels.Add(wxString(it->c_str(), wxConvUTF8));
+  }
+
+  for(list<string>::iterator it = alabels.begin(); it != alabels.end(); ++it)
+  {
+    a_labels.Add(wxString(it->c_str(), wxConvUTF8));
   }
 }
