@@ -866,8 +866,23 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
       string tt(buttons[bindex].GetEvent()->GetId());
       if (!buttons[bindex].GetLabel().empty())
       {
+        string l = buttons[bindex].GetLabel();
+        size_t pos = l.find(", not found");
+        size_t size = sizeof(", not found");
+        if(pos == string::npos)
+        {
+          pos = l.find(", duplicate");
+          size = sizeof(", duplicate");
+        }
+        if(pos != string::npos)
+        {
+          l.replace(pos, size, "");
+          buttons[bindex].SetLabel(l);
+          wxButton tmp;
+          ((wxButton*) event.GetEventObject())->SetBackgroundColour(tmp.GetBackgroundColour());
+        }
         tt.append(" [");
-        tt.append(buttons[bindex].GetLabel());
+        tt.append(l);
         tt.append("]");
       }
       ((wxButton*) event.GetEventObject())->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
@@ -884,8 +899,23 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
         string tt(axes[aindex].GetEvent()->GetId());
         if (!axes[aindex].GetLabel().empty())
         {
+          string l = axes[aindex].GetLabel();
+          size_t pos = l.find(", not found");
+          size_t size = sizeof(", not found");
+          if(pos == string::npos)
+          {
+            pos = l.find(", duplicate");
+            size = sizeof(", duplicate");
+          }
+          if(pos != string::npos)
+          {
+            l.replace(pos, size, "");
+            axes[aindex].SetLabel(l);
+            wxButton tmp;
+            ((wxButton*) event.GetEventObject())->SetBackgroundColour(tmp.GetBackgroundColour());
+          }
           tt.append(" [");
-          tt.append(axes[aindex].GetLabel());
+          tt.append(l);
           tt.append("]");
         }
         ((wxButton*) event.GetEventObject())->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
@@ -1301,16 +1331,24 @@ void fpsconfigFrame::LoadConfig()
           continue;
       }
 
-      buttons[bindex] = *it;
-      button->SetLabel(wxString(it->GetEvent()->GetId().c_str(), wxConvUTF8));
-      string tt(it->GetEvent()->GetId());
-      if(!it->GetLabel().empty())
+      if(button->GetLabel().empty())
       {
-          tt.append(" [");
-          tt.append(it->GetLabel());
-          tt.append("]");
+        buttons[bindex] = *it;
+        button->SetLabel(wxString(it->GetEvent()->GetId().c_str(), wxConvUTF8));
+        string tt(it->GetEvent()->GetId());
+        if(!it->GetLabel().empty())
+        {
+            tt.append(" [");
+            tt.append(it->GetLabel());
+            tt.append("]");
+            if(tt.find(", not found") != string::npos  || tt.find(", duplicate") != string::npos)
+            {
+              button->SetBackgroundColour(wxColour (255, 0, 0));
+            }
+        }
+        button->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
       }
-      button->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
+      
       if(!it->GetDevice()->GetName().empty())
       {
           if(it->GetDevice()->GetType() == "mouse")
@@ -1423,6 +1461,10 @@ void fpsconfigFrame::LoadConfig()
                   tt.append(" [");
                   tt.append(it->GetLabel());
                   tt.append("]");
+                  if(tt.find(", not found") != string::npos || tt.find(", duplicate") != string::npos)
+                  {
+                    button->SetBackgroundColour(wxColour (255, 0, 0));
+                  }
               }
               button->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
           }
