@@ -2,7 +2,6 @@ include ../Makedefs
 
 prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
-confdir=$(DESTDIR)/etc/emuclient
 BINS=emu emuclient sixaddr bdaddr hcirevision usbspoof
 LIB=-L../../libsdl/lib -lSDL -lxml2 -lXi -lm -lncurses
 INC=-I../../libsdl/include -I/usr/include/libxml2
@@ -46,15 +45,10 @@ install: all
 	mkdir -p $(bindir)
 	for i in $(BINS); do cp $$i $(bindir)/; done
 	for i in $(BINS); do chmod ug+s $(bindir)/$$i; done
-	mkdir -p $(confdir)/config
-	mkdir -p $(confdir)/macros
-	cp config/* $(confdir)/config
-	cp macros/* $(confdir)/macros
 
 uninstall:
 	-for i in $(BINS); do rm $(bindir)/$$i; done
 	-rmdir $(bindir)
 	-rmdir $(prefix)
-	-rm -rf $(confdir)
 
 really-clean: clean uninstall
