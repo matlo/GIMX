@@ -73,6 +73,10 @@ list<string> &split(const string &s, char delim, list<string> &elems)
   string item;
   while (getline(ss, item, delim))
   {
+    if(item.empty())
+    {
+      continue;
+    }
     while (item.find(" ") == 0)
     {
       item = item.substr(1);
@@ -97,6 +101,7 @@ static void AutoBindMappers(list<T>* refMappers, list<T>* modMappers)
 {
   for(typename list<T>::iterator itModMappers = modMappers->begin(); itModMappers!=modMappers->end(); ++itModMappers)
   {
+    bool bound = false;
     string modLabel = itModMappers->GetLabel();
 
     transform(modLabel.begin(), modLabel.end(), modLabel.begin(), (int(*)(int)) tolower);
@@ -120,14 +125,30 @@ static void AutoBindMappers(list<T>* refMappers, list<T>* modMappers)
           {
             itModMappers->SetDevice(*itRefMappers->GetDevice());
             itModMappers->SetEvent(*itRefMappers->GetEvent());
+            if(itRefMappers->GetLabel().find(", found") != string::npos)
+            {
+              if(itModMappers->GetLabel().find(", duplicate") == string::npos)
+              {
+                itModMappers->SetLabel(itModMappers->GetLabel() + ", duplicate");
+              }
+            }
+            else
+            {
+              itRefMappers->SetLabel(itRefMappers->GetLabel() + ", found");
+            }
             break;
           }
         }
         if(itRefMappers != refMappers->end())
         {
+          bound = true;
           break;
         }
       }
+    }
+    if(!bound && !itModMappers->GetLabel().empty() && itModMappers->GetLabel().find(", not found") == string::npos)
+    {
+      itModMappers->SetLabel(itModMappers->GetLabel() + ", not found");
     }
   }
 }
