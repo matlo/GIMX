@@ -231,7 +231,19 @@ void ConfigurationFile::GetLabels(list<string>& button_labels, list<string>& axi
           {
             if(!tk_it->empty())
             {
-              if(find(button_labels.begin(), button_labels.end(), *tk_it) == button_labels.end())
+              string tk = *tk_it;
+              transform(tk.begin(), tk.end(), tk.begin(), (int(*)(int)) tolower);
+              list<string>::iterator bl_it;
+              for(bl_it = button_labels.begin(); bl_it != button_labels.end(); ++bl_it)
+              {
+                string bl = *bl_it;
+                transform(bl.begin(), bl.end(), bl.begin(), (int(*)(int)) tolower);
+                if(tk == bl)
+                {
+                  break;
+                }
+              }
+              if(bl_it == button_labels.end())
               {
                 button_labels.push_back(*tk_it);
               }
@@ -252,7 +264,19 @@ void ConfigurationFile::GetLabels(list<string>& button_labels, list<string>& axi
           {
             if(!tk_it->empty())
             {
-              if(find(axis_labels.begin(), axis_labels.end(), *tk_it) == axis_labels.end())
+              string tk = *tk_it;
+              transform(tk.begin(), tk.end(), tk.begin(), (int(*)(int)) tolower);
+              list<string>::iterator al_it;
+              for(al_it = axis_labels.begin(); al_it != axis_labels.end(); ++al_it)
+              {
+                string al = *al_it;
+                transform(al.begin(), al.end(), al.begin(), (int(*)(int)) tolower);
+                if(al == tk)
+                {
+                  break;
+                }
+              }
+              if(al_it == axis_labels.end())
               {
                 axis_labels.push_back(*tk_it);
               }
