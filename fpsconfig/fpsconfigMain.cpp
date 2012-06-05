@@ -1336,6 +1336,8 @@ void fpsconfigFrame::LoadConfig()
         buttons[bindex] = *it;
         button->SetLabel(wxString(it->GetEvent()->GetId().c_str(), wxConvUTF8));
         string tt(it->GetEvent()->GetId());
+        wxButton bt;
+        wxColour colour = bt.GetBackgroundColour();
         if(!it->GetLabel().empty())
         {
             tt.append(" [");
@@ -1343,9 +1345,10 @@ void fpsconfigFrame::LoadConfig()
             tt.append("]");
             if(tt.find(", not found") != string::npos  || tt.find(", duplicate") != string::npos)
             {
-              button->SetBackgroundColour(wxColour (255, 0, 0));
+              colour = wxColour (255, 0, 0);
             }
         }
+        button->SetBackgroundColour(colour);
         button->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
       }
       
@@ -1456,6 +1459,8 @@ void fpsconfigFrame::LoadConfig()
               axes[aindex] = *it;
               button->SetLabel(wxString(it->GetEvent()->GetId().c_str(), wxConvUTF8));
               string tt(it->GetEvent()->GetId());
+              wxButton bt;
+              wxColour colour = bt.GetBackgroundColour();
               if(!it->GetLabel().empty())
               {
                   tt.append(" [");
@@ -1463,9 +1468,10 @@ void fpsconfigFrame::LoadConfig()
                   tt.append("]");
                   if(tt.find(", not found") != string::npos || tt.find(", duplicate") != string::npos)
                   {
-                    button->SetBackgroundColour(wxColour (255, 0, 0));
+                    colour = wxColour (255, 0, 0);
                   }
               }
+              button->SetBackgroundColour(colour);
               button->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
           }
       }
