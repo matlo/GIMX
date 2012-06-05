@@ -370,7 +370,7 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     
     Create(parent, wxID_ANY, _("Gimx-serial"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     SetClientSize(wxSize(412,470));
-    Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxSize(0,0), wxTAB_TRAVERSAL, _T("ID_PANEL1"));
+    Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL, _T("ID_PANEL1"));
     FlexGridSizer1 = new wxFlexGridSizer(2, 1, 0, 0);
     StaticBoxSizer2 = new wxStaticBoxSizer(wxVERTICAL, Panel1, _("USB to serial"));
     FlexGridSizer3 = new wxFlexGridSizer(1, 2, 0, 0);
@@ -1084,7 +1084,7 @@ void serialFrame::autoBindControls(wxArrayString configs)
 #endif
   dir.append(CONFIG_DIR);
 
-  wxString ref_config;
+  wxString mod_config;
 
   wxArrayString ref_configs;
   for(unsigned int i=0; i<ChoiceConfig->GetCount(); i++)
@@ -1099,30 +1099,30 @@ void serialFrame::autoBindControls(wxArrayString configs)
     for(unsigned int j=0; j<configs.GetCount(); ++j)
     {
       ConfigurationFile configFile;
-      ref_config = configs[j];
+      mod_config = configs[j];
 
-      int ret = configFile.ReadConfigFile(dir + string(ref_config.mb_str()));
+      int ret = configFile.ReadConfigFile(dir + string(mod_config.mb_str()));
 
       if(ret < 0)
       {
-        wxMessageBox(wxT("Can't read config: ") + ref_config + wxString(configFile.GetError().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
+        wxMessageBox(wxT("Can't read config: ") + mod_config + wxString(configFile.GetError().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
         return;
       }
 
       if(configFile.AutoBind(dir + string(dialog.GetStringSelection().mb_str())) < 0)
       {
-        wxMessageBox(wxT("Can't auto-bind controls for config: ") + ref_config, wxT("Error"), wxICON_ERROR);
+        wxMessageBox(wxT("Can't auto-bind controls for config: ") + mod_config, wxT("Error"), wxICON_ERROR);
       }
       else
       {
         configFile.ConvertSensitivity(dir + string(dialog.GetStringSelection().mb_str()));
         if(configFile.WriteConfigFile() < 0)
         {
-          wxMessageBox(wxT("Can't write config: ") + ref_config, wxT("Error"), wxICON_ERROR);
+          wxMessageBox(wxT("Can't write config: ") + mod_config, wxT("Error"), wxICON_ERROR);
         }
         else
         {
-          wxMessageBox(wxT("Done!"), wxT("Info"), wxICON_INFORMATION);
+          wxMessageBox(wxT("Auto bind done for ") + mod_config, wxT("Info"), wxICON_INFORMATION);
         }
       }
     }

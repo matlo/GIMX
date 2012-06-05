@@ -5,7 +5,7 @@
 		<size>412,470</size>
 		<id_arg>0</id_arg>
 		<object class="wxPanel" name="ID_PANEL1" variable="Panel1" member="yes">
-			<size>0,0</size>
+			<size>-1,-1</size>
 			<object class="wxFlexGridSizer" variable="FlexGridSizer1" member="no">
 				<cols>1</cols>
 				<rows>2</rows>
