@@ -1414,7 +1414,7 @@ void bluetoothFrame::autoBindControls(wxArrayString configs)
 #endif
   dir.append(CONFIG_DIR);
 
-  wxString ref_config;
+  wxString mod_config;
 
   wxArrayString ref_configs;
   for(unsigned int i=0; i<ChoiceConfig->GetCount(); i++)
@@ -1429,26 +1429,26 @@ void bluetoothFrame::autoBindControls(wxArrayString configs)
     for(unsigned int j=0; j<configs.GetCount(); ++j)
     {
       ConfigurationFile configFile;
-      ref_config = configs[j];
+      mod_config = configs[j];
 
-      int ret = configFile.ReadConfigFile(dir + string(ref_config.mb_str()));
+      int ret = configFile.ReadConfigFile(dir + string(mod_config.mb_str()));
 
       if(ret < 0)
       {
-        wxMessageBox(wxT("Can't read config: ") + ref_config + wxString(configFile.GetError().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
+        wxMessageBox(wxT("Can't read config: ") + mod_config + wxString(configFile.GetError().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
         return;
       }
 
       if(configFile.AutoBind(dir + string(dialog.GetStringSelection().mb_str())) < 0)
       {
-        wxMessageBox(wxT("Can't auto-bind controls for config: ") + ref_config, wxT("Error"), wxICON_ERROR);
+        wxMessageBox(wxT("Can't auto-bind controls for config: ") + mod_config, wxT("Error"), wxICON_ERROR);
       }
       else
       {
         configFile.ConvertSensitivity(dir + string(dialog.GetStringSelection().mb_str()));
         if(configFile.WriteConfigFile() < 0)
         {
-          wxMessageBox(wxT("Can't write config: ") + ref_config, wxT("Error"), wxICON_ERROR);
+          wxMessageBox(wxT("Can't write config: ") + mod_config, wxT("Error"), wxICON_ERROR);
         }
         else
         {
