@@ -863,6 +863,9 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnAbout);
     //*)
 
+    GridPanelButton->SetSelectionMode(wxGrid::wxGridSelectRows);
+    GridPanelAxis->SetSelectionMode(wxGrid::wxGridSelectRows);
+
     fillButtonChoice(ButtonTabButtonId);
     fillAxisAxisChoice(AxisTabAxisId);
 
@@ -920,7 +923,17 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
 
       if(::wxFileExists(wxfile))
       {
-        configFile.ReadConfigFile(string(wxfile.mb_str()));
+        int ret = configFile.ReadConfigFile(string(wxfile.mb_str()));
+
+        if(ret < 0)
+        {
+          wxMessageBox(wxString(configFile.GetError().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
+        }
+        else if(ret > 0)
+        {
+          wxMessageBox(wxString(configFile.GetInfo().c_str(), wxConvUTF8), wxT("Info"), wxICON_INFORMATION);
+        }
+
         MenuItemMultipleMiceAndKeyboards->Check(configFile.MultipleMK());
         if(MenuItemMultipleMiceAndKeyboards->IsChecked())
         {
@@ -1150,11 +1163,29 @@ void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
   }
 }
 
+static wxArrayInt GetGridSelectedRows(wxGrid* grid)
+{
+  wxArrayInt array = grid->GetSelectedRows();
+  if(array.IsEmpty())
+  {
+    wxGridCellCoordsArray topLeft = grid->GetSelectionBlockTopLeft();
+    wxGridCellCoordsArray bottomRight = grid->GetSelectionBlockBottomRight();
+    if(!topLeft.IsEmpty() && !bottomRight.IsEmpty())
+    {
+      for(int i=topLeft[0].GetRow(); i<bottomRight[0].GetRow()+1; ++i)
+      {
+        array.Add(i);
+      }
+    }
+  }
+  return array;
+}
+
 void configFrame::DeleteSelectedRows(wxGrid* grid)
 {
     unsigned int first;
     unsigned int nbRows;
-    wxArrayInt array = grid->GetSelectedRows();
+    wxArrayInt array = GetGridSelectedRows(grid);
 
     if(array.GetCount())
     {
@@ -1172,7 +1203,7 @@ void configFrame::DeleteSelectedRows(wxGrid* grid)
           DeleteLinkedRows(grid, array.Item(0));
         }
         grid->DeleteRows(array.Item(0), 1);
-        array = grid->GetSelectedRows();
+        array = GetGridSelectedRows(grid);
     }
 
     nbRows = grid->GetNumberRows();
@@ -1556,6 +1587,20 @@ void configFrame::load_current()
         GridPanelButton->SetCellValue(0, 5, wxString(it->GetEvent()->GetThreshold().c_str(),wxConvUTF8));
         GridPanelButton->SetCellValue(0, 6, wxString(it->GetButton().c_str(),wxConvUTF8));
         GridPanelButton->SetCellValue(0, 7, wxString(it->GetLabel().c_str(),wxConvUTF8));
+        if(it->GetLabel().find(", not found") != string::npos || it->GetLabel().find(", duplicate") != string::npos )
+        {
+          for(int i=0; i<GridPanelButton->GetNumberCols(); ++i)
+          {
+            GridPanelButton->SetCellBackgroundColour(0, i, wxColour(255, 0, 0));
+          }
+        }
+        else
+        {
+          for(int i=0; i<GridPanelButton->GetNumberCols(); ++i)
+          {
+            GridPanelButton->SetCellBackgroundColour(0, i, GridPanelButton->GetDefaultCellBackgroundColour());
+          }
+        }
     }
     GridPanelButton->AutoSizeColumns();
     //Load AxisMappers
@@ -1577,6 +1622,20 @@ void configFrame::load_current()
         GridPanelAxis->SetCellValue(0, 10, wxString(it->GetEvent()->GetBufferSize().c_str(),wxConvUTF8));
         GridPanelAxis->SetCellValue(0, 11, wxString(it->GetEvent()->GetFilter().c_str(),wxConvUTF8));
         GridPanelAxis->SetCellValue(0, 12, wxString(it->GetLabel().c_str(),wxConvUTF8));
+        if(it->GetLabel().find(", not found") != string::npos || it->GetLabel().find(", duplicate") != string::npos )
+        {
+          for(int i=0; i<GridPanelAxis->GetNumberCols(); ++i)
+          {
+            GridPanelAxis->SetCellBackgroundColour(0, i, wxColour(255, 0, 0));
+          }
+        }
+        else
+        {
+          for(int i=0; i<GridPanelAxis->GetNumberCols(); ++i)
+          {
+            GridPanelAxis->SetCellBackgroundColour(0, i, GridPanelAxis->GetDefaultCellBackgroundColour());
+          }
+        }
     }
     GridPanelAxis->AutoSizeColumns();
 }
@@ -1764,7 +1823,7 @@ void configFrame::OnMenuSaveAs(wxCommandEvent& event)
 
 void configFrame::OnButtonModifyButton(wxCommandEvent& event)
 {
-    wxArrayInt array = GridPanelButton->GetSelectedRows();
+    wxArrayInt array = GetGridSelectedRows(GridPanelButton);
     int count = array.GetCount();
 
     if(ButtonTabModify->GetLabel() == _("Modify"))
@@ -1829,6 +1888,23 @@ void configFrame::OnButtonModifyButton(wxCommandEvent& event)
         GridPanelButton->SetCellValue(grid1mod, 4, ButtonTabEventId->GetLabel());
         GridPanelButton->SetCellValue(grid1mod, 5, ButtonTabThreshold->GetValue());
         GridPanelButton->SetCellValue(grid1mod, 6, ButtonTabButtonId->GetStringSelection());
+        string l = string(ButtonTabLabel->GetValue().mb_str());
+        size_t pos = l.find(", not found");
+        size_t size = sizeof(", not found");
+        if(pos == string::npos)
+        {
+          pos = l.find(", duplicate");
+          size = sizeof(", duplicate");
+        }
+        if(pos != string::npos)
+        {
+          l.replace(pos, size, "");
+          ButtonTabLabel->SetValue(wxString(l.c_str(), wxConvUTF8));
+          for(int i=0; i<GridPanelButton->GetNumberCols(); ++i)
+          {
+            GridPanelButton->SetCellBackgroundColour(grid1mod, i, GridPanelButton->GetDefaultCellBackgroundColour());
+          }
+        }
         GridPanelButton->SetCellValue(grid1mod, 7, ButtonTabLabel->GetValue());
         ButtonTabAdd->Enable();
         ButtonTabRemove->Enable();
@@ -1875,7 +1951,7 @@ void configFrame::updateButtonConfigurations()
 
 void configFrame::OnButtonModifyAxis(wxCommandEvent& event)
 {
-    wxArrayInt array = GridPanelAxis->GetSelectedRows();
+    wxArrayInt array = GetGridSelectedRows(GridPanelAxis);
     int count = array.GetCount();
 
     if(Button5->GetLabel() == _("Modify"))
@@ -1973,6 +2049,23 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event)
         GridPanelAxis->SetCellValue(grid2mod, 9, AxisTabShape->GetStringSelection());
         GridPanelAxis->SetCellValue(grid2mod, 10, AxisTabBufferSize->GetValue());
         GridPanelAxis->SetCellValue(grid2mod, 11, AxisTabFilter->GetValue());
+        string l = string(AxisTabLabel->GetValue().mb_str());
+        size_t pos = l.find(", not found");
+        size_t size = sizeof(", not found");
+        if(pos == string::npos)
+        {
+          pos = l.find(", duplicate");
+          size = sizeof(", duplicate");
+        }
+        if(pos != string::npos)
+        {
+          l.replace(pos, size, "");
+          AxisTabLabel->SetValue(wxString(l.c_str(), wxConvUTF8));
+          for(int i=0; i<GridPanelAxis->GetNumberCols(); ++i)
+          {
+            GridPanelAxis->SetCellBackgroundColour(grid2mod, i, GridPanelAxis->GetDefaultCellBackgroundColour());
+          }
+        }
         GridPanelAxis->SetCellValue(grid2mod, 12, AxisTabLabel->GetValue());
         Button3->Enable();
         Button7->Enable();

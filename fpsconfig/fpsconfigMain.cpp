@@ -940,6 +940,8 @@ void fpsconfigFrame::OnMenuNew(wxCommandEvent& event)
         {
             button->SetLabel(wxEmptyString);
             button->UnsetToolTip();
+            wxButton tmp;
+            button->SetBackgroundColour(tmp.GetBackgroundColour());
         }
     }
 
@@ -951,6 +953,8 @@ void fpsconfigFrame::OnMenuNew(wxCommandEvent& event)
         {
             button->SetLabel(wxEmptyString);
             button->UnsetToolTip();
+            wxButton tmp;
+            button->SetBackgroundColour(tmp.GetBackgroundColour());
         }
     }
 

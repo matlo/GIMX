@@ -80,6 +80,8 @@ class XmlReader
         event_catcher* m_evtcatch;
         string m_info;
         string m_error;
+        bool m_name_empty;
+        bool m_name_nempty;
 };
 
 #endif // XMLREADER_H

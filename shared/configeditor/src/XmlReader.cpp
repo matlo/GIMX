@@ -117,22 +117,22 @@ void XmlReader::ProcessDeviceElement(xmlNode * a_node)
 
     if(name.empty())
     {
-        info.append(EMPTY_NAME_MSG);
-
-        if(m_info.find(info) == string::npos)
-        {
-            m_info.append(info);
-        }
+      m_name_empty = true;
     }
-    else if(m_evtcatch && !m_evtcatch->check_device(type, name, id))
+    else
     {
+      m_name_nempty = true;
+            
+      if(m_evtcatch && !m_evtcatch->check_device(type, name, id))
+      {
         info.append(type + " not found: " + name + " (" + id + ")\n");
 
         if(m_info.find(info) == string::npos)
         {
             m_info.append(info);
         }
-    }    
+      }
+    } 
 
     m_TempDevice.SetType(type);
     m_TempDevice.SetId(id);
@@ -704,6 +704,8 @@ int XmlReader::ReadConfigFile(string filePath)
 
     m_info.clear();
     m_error.clear();
+    m_name_empty = false;
+    m_name_nempty = false;
 
     if(m_evtcatch)
     {
@@ -751,6 +753,11 @@ int XmlReader::ReadConfigFile(string filePath)
     if(m_evtcatch)
     {
       m_evtcatch->clean();
+    }
+
+    if(m_name_empty && m_name_nempty)
+    {
+      m_info.append(EMPTY_NAME_MSG);
     }
 
     if(!ret && !m_info.empty())
