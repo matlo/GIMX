@@ -110,7 +110,7 @@ static void AutoBindMappers(list<T>* refMappers, list<T>* modMappers)
 
     for(list<string>::iterator itModTokens = modTokens.begin(); itModTokens != modTokens.end(); ++itModTokens)
     {
-      if(!itModTokens->empty())
+      if(!itModTokens->empty() && *itModTokens != "not found" && *itModTokens != "duplicate")
       {
         typename list<T>::iterator itRefMappers;
         for(itRefMappers = refMappers->begin(); itRefMappers!=refMappers->end(); ++itRefMappers)
@@ -283,7 +283,7 @@ void ConfigurationFile::GetLabels(list<string>& button_labels, list<string>& axi
           list<string> tokens = split(label, ',');
           for(list<string>::iterator tk_it = tokens.begin(); tk_it != tokens.end(); ++tk_it)
           {
-            if(!tk_it->empty())
+            if(!tk_it->empty() && *tk_it != "not found" && *tk_it != "duplicate")
             {
               string tk = *tk_it;
               transform(tk.begin(), tk.end(), tk.begin(), (int(*)(int)) tolower);
