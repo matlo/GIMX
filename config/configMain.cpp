@@ -1877,10 +1877,6 @@ void configFrame::OnButtonModifyButton(wxCommandEvent& event)
           }
         }
 
-        if(MenuItemLinkControls->IsChecked())
-        {
-          updateButtonConfigurations();
-        }
         GridPanelButton->SetCellValue(grid1mod, 0, ButtonTabDeviceType->GetLabel());
         GridPanelButton->SetCellValue(grid1mod, 1, ButtonTabDeviceName->GetLabel());
         GridPanelButton->SetCellValue(grid1mod, 2, ButtonTabDeviceId->GetLabel());
@@ -1906,6 +1902,10 @@ void configFrame::OnButtonModifyButton(wxCommandEvent& event)
           }
         }
         GridPanelButton->SetCellValue(grid1mod, 7, ButtonTabLabel->GetValue());
+        if(MenuItemLinkControls->IsChecked())
+        {
+          updateButtonConfigurations();
+        }
         ButtonTabAdd->Enable();
         ButtonTabRemove->Enable();
         ButtonTabModify->SetLabel(_("Modify"));
@@ -2033,10 +2033,6 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event)
           }
         }
 
-        if(MenuItemLinkControls->IsChecked())
-        {
-          updateAxisConfigurations();
-        }
         GridPanelAxis->SetCellValue(grid2mod, 0, AxisTabDeviceType->GetLabel());
         GridPanelAxis->SetCellValue(grid2mod, 1, AxisTabDeviceName->GetLabel());
         GridPanelAxis->SetCellValue(grid2mod, 2, AxisTabDeviceId->GetLabel());
@@ -2067,6 +2063,10 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event)
           }
         }
         GridPanelAxis->SetCellValue(grid2mod, 12, AxisTabLabel->GetValue());
+        if(MenuItemLinkControls->IsChecked())
+        {
+          updateAxisConfigurations();
+        }
         Button3->Enable();
         Button7->Enable();
         Button5->SetLabel(_("Modify"));

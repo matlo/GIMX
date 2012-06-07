@@ -686,14 +686,7 @@ void XmlReader::ProcessRootElement(xmlNode * a_node)
 
 bool XmlReader::MultipleMK()
 {
-    if(m_info.find(EMPTY_NAME_MSG) != string::npos)
-    {
-      return false;
-    }
-    else
-    {
-      return true;
-    }
+    return !m_name_empty;
 }
 
 int XmlReader::ReadConfigFile(string filePath)
