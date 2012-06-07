@@ -5,7 +5,9 @@ LIB=
 INC=-I/usr/include/ -Iinclude -I/usr/include/libxml2 -I../../../libsdl/include
 
 all: $(OBJ)
-	ar rcs configeditor.a $(OBJ)
+	ar rcsD configeditor.a.new $(OBJ)
+	diff -N configeditor.a.new configeditor.a > /dev/null || mv configeditor.a.new configeditor.a
+	rm -f configeditor.a.new
 
 src/%.o: src/%.cpp
 	$(CC) $(CFLAGS) $(INC) -o $@ -c $< $(LIB)
