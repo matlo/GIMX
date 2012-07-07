@@ -6,6 +6,7 @@
 #include <event_catcher.h>
 
 #define MAX_CONTROLLERS 7
+#define MAX_DPI 20000
 
 class ConfigurationFile
 {

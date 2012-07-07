@@ -36,32 +36,6 @@
 
 using namespace std;
 
-//helper functions
-enum wxbuildinfoformat {
-    short_f, long_f };
-
-wxString wxbuildinfo(wxbuildinfoformat format)
-{
-    wxString wxbuild(wxVERSION_STRING);
-
-    if (format == long_f )
-    {
-#if defined(__WXMSW__)
-        wxbuild << _T("-Windows");
-#elif defined(__UNIX__)
-        wxbuild << _T("-Linux");
-#endif
-
-#if wxUSE_UNICODE
-        wxbuild << _T("-Unicode build");
-#else
-        wxbuild << _T("-ANSI build");
-#endif // wxUSE_UNICODE
-    }
-
-    return wxbuild;
-}
-
 //(*IdInit(configFrame)
 const long configFrame::ID_STATICTEXT35 = wxNewId();
 const long configFrame::ID_STATICTEXT27 = wxNewId();
@@ -2280,7 +2254,7 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
 
     if(!old_value)
     {
-      wxNumberEntryDialog dialog1(this, wxT(""), wxT("Enter a number:"), wxT("Source mouse DPI"), 2000, 100, 20000);
+      wxNumberEntryDialog dialog1(this, wxT(""), wxT("Enter a number:"), wxT("Source mouse DPI"), 2000, 100, MAX_DPI);
 
       if(dialog1.ShowModal() == wxID_OK)
       {
@@ -2291,7 +2265,7 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
 
     if (old_value)
     {
-        wxNumberEntryDialog dialog2(this, wxT(""), wxT("Enter a number:"), wxT("Destination mouse DPI"), old_value, 100, 20000);
+        wxNumberEntryDialog dialog2(this, wxT(""), wxT("Enter a number:"), wxT("Destination mouse DPI"), old_value, 100, MAX_DPI);
 
         if (dialog2.ShowModal() == wxID_OK)
         {
@@ -2734,7 +2708,7 @@ void configFrame::OnRSDecDeleteClick(wxCommandEvent& event)
 
 void configFrame::OnMenuSetMouseDPI(wxCommandEvent& event)
 {
-    wxNumberEntryDialog dialog1(this, wxT(""), wxT("Enter a number:"), wxT("Mouse DPI value"), configFile.GetController(currentController)->GetMouseDPI(), 0, 10000);
+    wxNumberEntryDialog dialog1(this, wxT(""), wxT("Enter a number:"), wxT("Mouse DPI value"), configFile.GetController(currentController)->GetMouseDPI(), 0, MAX_DPI);
     if (dialog1.ShowModal() == wxID_OK)
     {
        configFile.GetController(currentController)->SetMouseDPI(dialog1.GetValue());

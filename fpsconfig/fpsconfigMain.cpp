@@ -42,32 +42,6 @@
 
 using namespace std;
 
-//helper functions
-enum wxbuildinfoformat {
-    short_f, long_f };
-
-wxString wxbuildinfo(wxbuildinfoformat format)
-{
-    wxString wxbuild(wxVERSION_STRING);
-
-    if (format == long_f )
-    {
-#if defined(__WXMSW__)
-        wxbuild << _T("-Windows");
-#elif defined(__UNIX__)
-        wxbuild << _T("-Linux");
-#endif
-
-#if wxUSE_UNICODE
-        wxbuild << _T("-Unicode build");
-#else
-        wxbuild << _T("-ANSI build");
-#endif // wxUSE_UNICODE
-    }
-
-    return wxbuild;
-}
-
 class wxComboBoxDialog: public wxDialog
 {
 public:
@@ -1778,7 +1752,7 @@ void fpsconfigFrame::OnButtonConvertSensitivityClick(wxCommandEvent& event)
     return;
   }
 
-  wxNumberEntryDialog dialog(this, wxT(""), wxT("Enter a number:"), wxT("Destination mouse DPI"), current_dpi, 100, 10000);
+  wxNumberEntryDialog dialog(this, wxT(""), wxT("Enter a number:"), wxT("Destination mouse DPI"), current_dpi, 100, MAX_DPI);
 
   if (dialog.ShowModal() == wxID_OK)
   {
