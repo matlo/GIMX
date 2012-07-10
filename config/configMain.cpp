@@ -1251,7 +1251,14 @@ void configFrame::OnButtonTabEventTypeSelect(wxCommandEvent& event)
     else
     {
         ButtonTabThreshold->Enable();
-        ButtonTabThreshold->SetValue(_("10"));
+        if(ButtonTabEventType->GetStringSelection() == _("axis down"))
+        {
+          ButtonTabThreshold->SetValue(_("-10"));
+        }
+        else if(ButtonTabEventType->GetStringSelection() == _("axis up"))
+        {
+          ButtonTabThreshold->SetValue(_("10"));
+        }
     }
     refresh_gui();
 }
@@ -1342,7 +1349,14 @@ void configFrame::OnButtonTabAutoDetectClick(wxCommandEvent& event)
     else
     {
         ButtonTabThreshold->Enable();
-        ButtonTabThreshold->SetValue(_("10"));
+        if(ButtonTabEventType->GetStringSelection() == _("axis down"))
+        {
+          ButtonTabThreshold->SetValue(_("-10"));
+        }
+        else if(ButtonTabEventType->GetStringSelection() == _("axis up"))
+        {
+          ButtonTabThreshold->SetValue(_("10"));
+        }
     }
 
     fillButtonChoice(ButtonTabButtonId);
@@ -1820,6 +1834,15 @@ void configFrame::OnButtonModifyButton(wxCommandEvent& event)
         ButtonTabEventType->SetSelection(ButtonTabEventType->FindString(GridPanelButton->GetCellValue(grid1mod, 3)));
         ButtonTabEventId->SetLabel(GridPanelButton->GetCellValue(grid1mod, 4));
         ButtonTabThreshold->SetValue(GridPanelButton->GetCellValue(grid1mod, 5));
+        if(ButtonTabEventType->GetStringSelection() == _("button"))
+        {
+            ButtonTabThreshold->Disable();
+            ButtonTabThreshold->SetValue(wxEmptyString);
+        }
+        else
+        {
+            ButtonTabThreshold->Enable();
+        }
         fillButtonChoice(ButtonTabButtonId);
         ButtonTabButtonId->SetSelection(ButtonTabButtonId->FindString(GridPanelButton->GetCellValue(grid1mod, 6)));
         ButtonTabLabel->SetValue(GridPanelButton->GetCellValue(grid1mod, 7));

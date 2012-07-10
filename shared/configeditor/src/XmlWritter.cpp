@@ -27,7 +27,7 @@ void XmlWritter::CreateEventNode(xmlNodePtr parent_node, Event* event)
     xmlNodePtr e_node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_EVENT, NULL);
     xmlNewProp(e_node, BAD_CAST X_ATTR_TYPE, BAD_CAST (const char*) event->GetType().c_str());
     xmlNewProp(e_node, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) event->GetId().c_str());
-    if(event->GetType() == "axis")
+    if(event->GetType().find("axis") != string::npos)
     {
         if(strcmp((const char*) parent_node->name, X_NODE_AXIS))
         {

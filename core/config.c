@@ -496,7 +496,7 @@ void cfg_config_activation()
           {
             gettimeofday(&tv, NULL);
 
-            printf("%d %ld.%06ld controller %d is switched from configuration %d to %d\n", i, tv.tv_sec, tv.tv_usec, i, current_config[i], next_config[i]);
+            gprintf("%d %ld.%06ld controller %d is switched from configuration %d to %d\n", i, tv.tv_sec, tv.tv_usec, i, current_config[i], next_config[i]);
           }
           previous_config[i] = current_config[i];
           current_config[i] = next_config[i];

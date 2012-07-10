@@ -322,6 +322,16 @@ static int ProcessEventElement(xmlNode * a_node)
   {
     r_event_type = E_EVENT_TYPE_BUTTON;
   }
+  else if (!strncmp(type, X_ATTR_VALUE_AXIS_DOWN, strlen(X_ATTR_VALUE_AXIS_DOWN)))
+  {
+    r_event_type = E_EVENT_TYPE_AXIS_DOWN;
+    ret = GetIntProp(a_node, X_ATTR_THRESHOLD, &r_threshold);
+  }
+  else if (!strncmp(type, X_ATTR_VALUE_AXIS_UP, strlen(X_ATTR_VALUE_AXIS_UP)))
+  {
+    r_event_type = E_EVENT_TYPE_AXIS_UP;
+    ret = GetIntProp(a_node, X_ATTR_THRESHOLD, &r_threshold);
+  }
   else if (!strncmp(type, X_ATTR_VALUE_AXIS, strlen(X_ATTR_VALUE_AXIS)))
   {
     r_event_type = E_EVENT_TYPE_AXIS;
@@ -356,16 +366,6 @@ static int ProcessEventElement(xmlNode * a_node)
     GetUnsignedIntProp(a_node, X_ATTR_BUFFERSIZE, &r_buffer_size);
     r_filter = 0;//default value
     GetDoubleProp(a_node, X_ATTR_FILTER, &r_filter);
-  }
-  else if (!strncmp(type, X_ATTR_VALUE_AXIS_DOWN, strlen(X_ATTR_VALUE_AXIS_DOWN)))
-  {
-    r_event_type = E_EVENT_TYPE_AXIS_DOWN;
-    ret = GetIntProp(a_node, X_ATTR_THRESHOLD, &r_threshold);
-  }
-  else if (!strncmp(type, X_ATTR_VALUE_AXIS_UP, strlen(X_ATTR_VALUE_AXIS_UP)))
-  {
-    r_event_type = E_EVENT_TYPE_AXIS_UP;
-    ret = GetIntProp(a_node, X_ATTR_THRESHOLD, &r_threshold);
   }
 
   ret = GetEventId(a_node, X_ATTR_ID);
@@ -409,6 +409,8 @@ static s_mapper** get_mapper_table()
           pp_mapper = cfg_get_mouse_buttons(r_device_id, r_controller_id, r_config_id);
           break;
         case E_EVENT_TYPE_AXIS:
+        case E_EVENT_TYPE_AXIS_UP:
+        case E_EVENT_TYPE_AXIS_DOWN:
           pp_mapper = cfg_get_mouse_axes(r_device_id, r_controller_id, r_config_id);
           break;
         default:
@@ -422,6 +424,8 @@ static s_mapper** get_mapper_table()
           pp_mapper = cfg_get_joystick_buttons(r_device_id, r_controller_id, r_config_id);
           break;
         case E_EVENT_TYPE_AXIS:
+        case E_EVENT_TYPE_AXIS_UP:
+        case E_EVENT_TYPE_AXIS_DOWN:
           pp_mapper = cfg_get_joystick_axes(r_device_id, r_controller_id, r_config_id);
           break;
         default:
