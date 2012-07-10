@@ -727,6 +727,7 @@ void cfg_process_event(SDL_Event* event)
   double residue;
   s_mouse_control* mc;
   int nb_buttons;
+  unsigned char hat;
 
   /*
    * 'which' should always be at that place
@@ -745,52 +746,53 @@ void cfg_process_event(SDL_Event* event)
       case SDL_JOYHATMOTION:
       event->jbutton.which = event->jhat.which;
       nb_buttons = sdl_get_joystick_buttons(event->jhat.which);
+      hat = event->jhat.hat;
       if(event->jhat.value & SDL_HAT_UP)
       {
         event->jbutton.type = SDL_JOYBUTTONDOWN;
-        event->jbutton.button=nb_buttons+4*event->jhat.hat;
+        event->jbutton.button=nb_buttons+4*hat;
         cfg_process_event(event);
       }
       else
       {
         event->jbutton.type = SDL_JOYBUTTONUP;
-        event->jbutton.button=nb_buttons+4*event->jhat.hat;
+        event->jbutton.button=nb_buttons+4*hat;
         cfg_process_event(event);
       }
       if(event->jhat.value & SDL_HAT_RIGHT)
       {
         event->jbutton.type = SDL_JOYBUTTONDOWN;
-        event->jbutton.button=nb_buttons+4*event->jhat.hat+1;
+        event->jbutton.button=nb_buttons+4*hat+1;
         cfg_process_event(event);
       }
       else
       {
         event->jbutton.type = SDL_JOYBUTTONUP;
-        event->jbutton.button=nb_buttons+4*event->jhat.hat+1;
+        event->jbutton.button=nb_buttons+4*hat+1;
         cfg_process_event(event);
       }
       if(event->jhat.value & SDL_HAT_DOWN)
       {
         event->jbutton.type = SDL_JOYBUTTONDOWN;
-        event->jbutton.button=nb_buttons+4*event->jhat.hat+2;
+        event->jbutton.button=nb_buttons+4*hat+2;
         cfg_process_event(event);
       }
       else
       {
         event->jbutton.type = SDL_JOYBUTTONUP;
-        event->jbutton.button=nb_buttons+4*event->jhat.hat+2;
+        event->jbutton.button=nb_buttons+4*hat+2;
         cfg_process_event(event);
       }
       if(event->jhat.value & SDL_HAT_LEFT)
       {
         event->jbutton.type = SDL_JOYBUTTONDOWN;
-        event->jbutton.button=nb_buttons+4*event->jhat.hat+3;
+        event->jbutton.button=nb_buttons+4*hat+3;
         cfg_process_event(event);
       }
       else
       {
         event->jbutton.type = SDL_JOYBUTTONUP;
-        event->jbutton.button=nb_buttons+4*event->jhat.hat+3;
+        event->jbutton.button=nb_buttons+4*hat+3;
         cfg_process_event(event);
       }
       return;
