@@ -422,7 +422,7 @@ void display_run(int axes[4], int max_axis, int buttons[BUTTON_NB], int max_butt
   {
     if(buttons[i])
     {
-      snprintf(label, sizeof(label), "%8s - %d", buts[i], buttons[i]);
+      snprintf(label, sizeof(label), "%8s - %3d", buts[i], buttons[i]);
       mvwaddstr(wbuttons, 1 + d, 1, label);
       d++;
     }
