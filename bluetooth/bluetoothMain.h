@@ -24,12 +24,16 @@
 #include <wx/statusbr.h>
 //*)
 
+#include <wx/process.h>
+
 class bluetoothFrame: public wxFrame
 {
     public:
 
         bluetoothFrame(wxWindow* parent,wxWindowID id = -1);
         virtual ~bluetoothFrame();
+
+        void OnProcessTerminated(wxProcess *process, int status);
 
     private:
 

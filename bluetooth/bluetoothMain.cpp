@@ -1083,6 +1083,27 @@ void bluetoothFrame::OnButton1Click(wxCommandEvent& event)
     }
 }
 
+class MyProcess : public wxProcess
+{
+public:
+    MyProcess(bluetoothFrame *parent, const wxString& cmd)
+        : wxProcess(parent), m_cmd(cmd)
+    {
+        m_parent = parent;
+    }
+
+    void OnTerminate(int pid, int status);
+
+protected:
+    bluetoothFrame *m_parent;
+    wxString m_cmd;
+};
+
+void MyProcess::OnTerminate(int pid, int status)
+{
+    m_parent->OnProcessTerminated(this, status);
+}
+
 void bluetoothFrame::OnButton3Click(wxCommandEvent& event)
 {
     wxString command;
@@ -1097,7 +1118,7 @@ void bluetoothFrame::OnButton3Click(wxCommandEvent& event)
 
     if(CheckBox3->IsChecked() || CheckBox2->IsChecked())
     {
-        command.Append(_("gnome-terminal -x "));
+        command.Append(_("xterm -e "));
     }
     command.Append(_("emuclient"));
     if(!CheckBox1->IsChecked())
@@ -1124,7 +1145,6 @@ void bluetoothFrame::OnButton3Click(wxCommandEvent& event)
         command.Append(_(" --status"));
     }
 
-    Button3->Disable();
     filename.append(homedir);
     filename.append(OPT_DIR);
     filename.append("default");
@@ -1137,20 +1157,33 @@ void bluetoothFrame::OnButton3Click(wxCommandEvent& event)
 
     StatusBar1->SetStatusText(_("Press Shift+Esc to exit."));
 
-    if(wxExecute(command, output, errors, wxEXEC_SYNC))
+    Button3->Enable(false);
+
+    int flags = wxEXEC_ASYNC;
+
+    if(CheckBox3->IsChecked() || CheckBox2->IsChecked())
     {
-      wxString error;
-      for(unsigned int i=0; i<output.GetCount(); ++i)
-      {
-        error.Append(output[i]);
-      }
-      wxMessageBox( error, wxT("Error"), wxICON_ERROR);
+        flags |= wxEXEC_NOHIDE;
     }
 
-    StatusBar1->SetStatusText(_(""));
-    Button3->Enable();
+    MyProcess *process = new MyProcess(this, command);
+
+    if(!wxExecute(command, flags, process))
+    {
+      wxMessageBox( wxT("can't start emuclient!"), wxT("Error"), wxICON_ERROR);
+    }
 }
 
+void bluetoothFrame::OnProcessTerminated(wxProcess *process, int status)
+{
+    Button3->Enable(true);
+    StatusBar1->SetStatusText(wxEmptyString);
+
+    if(status)
+    {
+      wxMessageBox( wxT("emuclient error"), wxT("Error"), wxICON_ERROR);
+    }
+}
 
 void bluetoothFrame::OnSave(wxCommandEvent& event)
 {
