@@ -25,12 +25,16 @@
 #include <wx/statusbr.h>
 //*)
 
+#include <wx/process.h>
+
 class serialFrame: public wxFrame
 {
     public:
 
         serialFrame(wxWindow* parent,wxWindowID id = -1);
         virtual ~serialFrame();
+
+        void OnProcessTerminated(wxProcess *process, int status);
 
     private:
 

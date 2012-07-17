@@ -50,34 +50,6 @@ using namespace std;
 char* homedir;
 #endif
 
-//helper functions
-enum wxbuildinfoformat
-{
-    short_f, long_f
-};
-
-wxString wxbuildinfo(wxbuildinfoformat format)
-{
-    wxString wxbuild(wxVERSION_STRING);
-
-    if (format == long_f )
-    {
-#if defined(__WXMSW__)
-        wxbuild << _T("-Windows");
-#elif defined(__UNIX__)
-        wxbuild << _T("-Linux");
-#endif
-
-#if wxUSE_UNICODE
-        wxbuild << _T("-Unicode build");
-#else
-        wxbuild << _T("-ANSI build");
-#endif // wxUSE_UNICODE
-    }
-
-    return wxbuild;
-}
-
 //(*IdInit(serialFrame)
 const long serialFrame::ID_STATICTEXT3 = wxNewId();
 const long serialFrame::ID_COMBOBOX1 = wxNewId();
@@ -587,6 +559,27 @@ void serialFrame::OnAbout(wxCommandEvent& event)
   wxAboutBox(info);
 }
 
+class MyProcess : public wxProcess
+{
+public:
+    MyProcess(serialFrame *parent, const wxString& cmd)
+        : wxProcess(parent), m_cmd(cmd)
+    {
+        m_parent = parent;
+    }
+
+    void OnTerminate(int pid, int status);
+
+protected:
+    serialFrame *m_parent;
+    wxString m_cmd;
+};
+
+void MyProcess::OnTerminate(int pid, int status)
+{
+    m_parent->OnProcessTerminated(this, status);
+}
+
 void serialFrame::OnButtonStartClick(wxCommandEvent& event)
 {
     wxString command;
@@ -619,12 +612,12 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
       return;
     }
 
+#ifndef WIN32
     if(CheckBoxTerminal->IsChecked() || CheckBoxGui->IsChecked())
     {
-#ifndef WIN32
-      command.Append(_("gnome-terminal -x "));
-#endif
+      command.Append(_("xterm -e "));
     }
+#endif
     command.Append(_("emuclient"));
     if(ControllerType->GetStringSelection() == _("Joystick"))
     {
@@ -751,27 +744,33 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
 
     StatusBar1->SetStatusText(_("Press Shift+Esc to exit."));
 
-    int flags = wxEXEC_SYNC;
+    ButtonStart->Enable(false);
+    
+    int flags = wxEXEC_ASYNC;
 
     if(CheckBoxTerminal->IsChecked() || CheckBoxGui->IsChecked())
     {
         flags |= wxEXEC_NOHIDE;
-        if(wxExecute(command, flags))
-        {
-          wxMessageBox( wxT("emuclient error"), wxT("Error"), wxICON_ERROR);
-        }
-    }
-    else if(wxExecute(command, output, errors, flags))
-    {
-      wxString error;
-      for(unsigned int i=0; i<output.GetCount(); ++i)
-      {
-        error.Append(output[i]);
-      }
-      wxMessageBox( error, wxT("Error"), wxICON_ERROR);
     }
 
+    MyProcess *process = new MyProcess(this, command);
+
+    if(!wxExecute(command, flags, process))
+    {
+      wxMessageBox( wxT("can't start emuclient!"), wxT("Error"), wxICON_ERROR);
+    }
+}
+
+void serialFrame::OnProcessTerminated(wxProcess *process, int status)
+{
+    ButtonStart->Enable(true);
     StatusBar1->SetStatusText(wxEmptyString);
+
+    if(status)
+    {
+      wxMessageBox( wxT("emuclient error"), wxT("Error"), wxICON_ERROR);
+    }
+
     SetFocus();
 }
 
