@@ -1116,10 +1116,8 @@ void bluetoothFrame::OnButton3Click(wxCommandEvent& event)
       return;
     }
 
-    if(CheckBox3->IsChecked() || CheckBox2->IsChecked())
-    {
-        command.Append(_("xterm -e "));
-    }
+    command.Append(_("xterm -e "));
+
     command.Append(_("emuclient"));
     if(!CheckBox1->IsChecked())
     {
@@ -1159,16 +1157,9 @@ void bluetoothFrame::OnButton3Click(wxCommandEvent& event)
 
     Button3->Enable(false);
 
-    int flags = wxEXEC_ASYNC;
-
-    if(CheckBox3->IsChecked() || CheckBox2->IsChecked())
-    {
-        flags |= wxEXEC_NOHIDE;
-    }
-
     MyProcess *process = new MyProcess(this, command);
 
-    if(!wxExecute(command, flags, process))
+    if(!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process))
     {
       wxMessageBox( wxT("can't start emuclient!"), wxT("Error"), wxICON_ERROR);
     }
