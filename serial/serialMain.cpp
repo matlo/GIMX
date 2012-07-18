@@ -613,10 +613,7 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
     }
 
 #ifndef WIN32
-    if(CheckBoxTerminal->IsChecked() || CheckBoxGui->IsChecked())
-    {
-      command.Append(_("xterm -e "));
-    }
+    command.Append(_("xterm -e "));
 #endif
     command.Append(_("emuclient"));
     if(ControllerType->GetStringSelection() == _("Joystick"))
@@ -746,16 +743,9 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
 
     ButtonStart->Enable(false);
     
-    int flags = wxEXEC_ASYNC;
-
-    if(CheckBoxTerminal->IsChecked() || CheckBoxGui->IsChecked())
-    {
-        flags |= wxEXEC_NOHIDE;
-    }
-
     MyProcess *process = new MyProcess(this, command);
 
-    if(!wxExecute(command, flags, process))
+    if(!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process))
     {
       wxMessageBox( wxT("can't start emuclient!"), wxT("Error"), wxICON_ERROR);
     }
