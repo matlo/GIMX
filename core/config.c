@@ -240,6 +240,11 @@ static void update_stick(s_intensity* intensity, int control, int ts)
 {
   int value = intensity->value;
 
+  if(intensity->down_button == -1 && intensity->up_button == -1)
+  {
+    return;
+  }
+
   if (intensity->shape == E_SHAPE_CIRCLE)
   {
     if (state[control].user.axis[ts][0] && state[control].user.axis[ts][1])
