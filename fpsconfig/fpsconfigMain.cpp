@@ -828,6 +828,14 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
     StatusBar1->SetStatusText(_("Press a button."));
     evcatch.run("", "button");
     StatusBar1->SetStatusText(wxEmptyString);
+
+    if(evcatch.GetDeviceType() == "joystick")
+    {
+      wxMessageBox(wxT("Joystick controls are only supported through gimx-config."), wxT("Info"), wxICON_INFORMATION);
+      ((wxButton*) event.GetEventObject())->Enable(true);
+      return;
+    }
+
     ((wxButton*) event.GetEventObject())->SetLabel(wxString(evcatch.GetEventId().c_str(), wxConvUTF8));
 
     bindex = getButtonIndex((wxButton*) event.GetEventObject());
@@ -1308,6 +1316,11 @@ void fpsconfigFrame::LoadConfig()
       {
           continue;
       }
+      
+      if(it->GetDevice()->GetType() == "joystick")
+      {
+        continue;
+      }
 
       if(button->GetLabel().empty())
       {
@@ -1430,6 +1443,11 @@ void fpsconfigFrame::LoadConfig()
           if(!axes[aindex].GetEvent()->GetId().empty())
           {
               continue;
+          }
+          
+          if(it->GetDevice()->GetType() == "joystick")
+          {
+            continue;
           }
 
           if(button->GetLabel().empty())
