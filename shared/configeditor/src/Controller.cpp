@@ -30,3 +30,15 @@ Controller& Controller::operator=(const Controller& rhs)
     }
     return *this;
 }
+
+bool Controller::IsEmpty()
+{
+  for(int i =0; i<MAX_CONFIGURATIONS; ++i)
+  {
+    if(!m_Configurations[i].IsEmpty())
+    {
+      return false;
+    }
+  }
+  return true;
+}

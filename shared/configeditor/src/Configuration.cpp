@@ -25,3 +25,24 @@ Configuration& Configuration::operator=(const Configuration& rhs)
     m_AxisMappers = rhs.m_AxisMappers;
     return *this;
 }
+
+bool Configuration::IsEmpty()
+{
+  if(m_Trigger.GetDevice()->GetType().size())
+  {
+    return false;
+  }
+  if(m_IntensityList.size())
+  {
+    return false;
+  }
+  if(m_ButtonMappers.size())
+  {
+    return false;
+  }
+  if(m_AxisMappers.size())
+  {
+    return false;
+  }
+  return true;
+}

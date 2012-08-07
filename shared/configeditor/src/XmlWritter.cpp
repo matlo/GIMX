@@ -171,10 +171,15 @@ void XmlWritter::CreateConfigurationNodes(xmlNodePtr parent_node)
     xmlNodePtr node;
     char id[2];
     int i;
-
+        
     for(i=0; i<MAX_CONFIGURATIONS; ++i)
     {
         m_CurrentConfiguration = i;
+        
+        if(m_ConfigurationFile->GetController(m_CurrentController)->GetConfiguration(m_CurrentConfiguration)->IsEmpty())
+        {
+          continue;
+        }
 
         node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_CONFIGURATION, NULL);
 
@@ -206,6 +211,11 @@ void XmlWritter::CreateControllerNodes(xmlNodePtr parent_node)
     for(i=0; i<MAX_CONTROLLERS; ++i)
     {
         m_CurrentController = i;
+        
+        if(m_ConfigurationFile->GetController(m_CurrentController)->IsEmpty())
+        {
+          continue;
+        }
 
         node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_CONTROLLER, NULL);
 

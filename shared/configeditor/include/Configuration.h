@@ -24,6 +24,7 @@ class Configuration
         std::list<AxisMapper>* GetAxisMapperList() { return &m_AxisMappers; }
         void SetButtonMappers(std::list<ButtonMapper> bml) { m_ButtonMappers = bml; }
         void SetAxisMappers(std::list<AxisMapper> aml) { m_AxisMappers = aml; }
+        bool IsEmpty();
     protected:
     private:
         Trigger m_Trigger;

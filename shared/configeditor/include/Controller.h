@@ -16,6 +16,7 @@ class Controller
         void SetConfiguration(Configuration val, unsigned int i) { m_Configurations[i] = val; }
         unsigned int GetMouseDPI() { return m_MouseDPI; }
         void SetMouseDPI(unsigned int val) { m_MouseDPI = val; }
+        bool IsEmpty();
     protected:
     private:
         unsigned int m_MouseDPI;
