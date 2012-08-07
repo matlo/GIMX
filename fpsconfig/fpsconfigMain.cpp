@@ -1298,6 +1298,11 @@ void fpsconfigFrame::LoadConfig()
   buttonMappers = configFile.GetController(0)->GetConfiguration(0)->GetButtonMapperList();
   for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); ++it)
   {
+      if(it->GetDevice()->GetType() == "joystick")
+      {
+        continue;
+      }
+      
       button = getButtonButton(it->GetButton());
 
       if(button == NULL)
@@ -1315,11 +1320,6 @@ void fpsconfigFrame::LoadConfig()
       if(!buttons[bindex].GetEvent()->GetId().empty())
       {
           continue;
-      }
-      
-      if(it->GetDevice()->GetType() == "joystick")
-      {
-        continue;
       }
 
       if(button->GetLabel().empty())
@@ -1373,6 +1373,11 @@ void fpsconfigFrame::LoadConfig()
   axisMappers = configFile.GetController(0)->GetConfiguration(0)->GetAxisMapperList();
   for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
   {
+      if(it->GetDevice()->GetType() == "joystick")
+      {
+        continue;
+      }
+      
       button = getAxisButton(it->GetAxis());
 
       if(button == NULL)
@@ -1444,11 +1449,6 @@ void fpsconfigFrame::LoadConfig()
           {
               continue;
           }
-          
-          if(it->GetDevice()->GetType() == "joystick")
-          {
-            continue;
-          }
 
           if(button->GetLabel().empty())
           {
@@ -1483,6 +1483,11 @@ void fpsconfigFrame::LoadConfig()
   axisMappers = configFile.GetController(0)->GetConfiguration(1)->GetAxisMapperList();
   for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
   {
+      if(it->GetDevice()->GetType() == "joystick")
+      {
+        continue;
+      }
+      
       button = getAxisButton(it->GetAxis());
 
       if(button == NULL)
