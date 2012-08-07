@@ -20,7 +20,15 @@ int8 gppcprog_connect() {
     
     // Connect to GPP
     r = (uint8) rawhid_open(1, 0x2508, 0x0001, 0xFFAB, 0x0200);
-    if(r <= 0) return(r);
+    if(r <= 0)
+    {
+      r = (uint8) rawhid_open(1, 0x2508, 0x0002, 0xFFAB, 0x0200);
+      if(r <= 0)
+      {
+       
+        return(r);
+      }
+    }
     gppcprog_connected_flag = 1;
     
     // Enter Capture Mode
