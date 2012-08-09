@@ -194,6 +194,14 @@ void configFrame::fillButtonAxisChoice(wxChoice* choice)
     choice->Append(_("lstick right"));
     choice->Append(_("lstick up"));
     choice->Append(_("lstick down"));
+    choice->Append(_("acc x +"));
+    choice->Append(_("acc x -"));
+    choice->Append(_("acc y +"));
+    choice->Append(_("acc y -"));
+    choice->Append(_("acc z +"));
+    choice->Append(_("acc z -"));
+    choice->Append(_("gyro +"));
+    choice->Append(_("gyro -"));
     choice->Append(_("up"));
     choice->Append(_("down"));
     choice->Append(_("right"));
@@ -218,6 +226,10 @@ void configFrame::fillAxisAxisChoice(wxChoice* choice)
     choice->Append(_("rstick y"));
     choice->Append(_("lstick x"));
     choice->Append(_("lstick y"));
+    choice->Append(_("acc x"));
+    choice->Append(_("acc y"));
+    choice->Append(_("acc z"));
+    choice->Append(_("gyro"));
     choice->Append(_("up"));
     choice->Append(_("down"));
     choice->Append(_("right"));
