@@ -743,7 +743,7 @@ void update_dbutton_axis(s_mapper* mapper, int c_id, int axis)
   /*
    * Specific code for issue 15.
    */
-  if(axis >= sa_lstick_x && axis <= sa_rstick_y)
+  if(axis >= sa_lstick_x && axis <= sa_gyro)
   {
     if(mapper->controller_axis_value > 0)
     {
@@ -766,7 +766,7 @@ void update_ubutton_axis(s_mapper* mapper, int c_id, int axis)
   {
     update_stick(c_id, axis);
   }
-  if(axis >= sa_lstick_x && axis <= sa_rstick_y)
+  if(axis >= sa_lstick_x && axis <= sa_gyro)
   {
     if(mapper->controller_axis_value > 0)
     {
