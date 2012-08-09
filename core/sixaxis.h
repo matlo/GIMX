@@ -19,37 +19,21 @@
 
 #define DEFAULT_REFRESH_PERIOD 10000 //=10ms
 
-struct sixaxis_button {
-    /* It's possible for a button to report as being pressed
-          but still have a zero value */
-    bool pressed;
-    /* 0 to 255 */
-    uint8_t value;
-};
-
-struct sixaxis_axis {
-    /* -max_axis_value to max_axis_value */
-    int x;
-    int y;
-};
-
-struct sixaxis_accelerometer {
-    /* -512 to 511 */
-    int x;
-    int y;
-    int z;
-    int gyro;
-};
-
-typedef enum sixaxis_button_index {
-    sb_select = 0, sb_start, sb_ps,
-    sb_up, sb_right, sb_down, sb_left,
-    sb_triangle, sb_circle, sb_cross, sb_square,
-    sb_l1, sb_r1,
-    sb_l2, sb_r2,
-    sb_l3, sb_r3,
-    SB_MAX
-} e_sixaxis_button_index;
+typedef enum sixaxis_axis_index {
+    sa_lstick_x = 0, sa_lstick_y,
+    sa_rstick_x, sa_rstick_y,
+    sa_acc_x,
+    sa_acc_y,
+    sa_acc_z,
+    sa_gyro,
+    sa_select, sa_start, sa_ps,
+    sa_up, sa_right, sa_down, sa_left,
+    sa_triangle, sa_circle, sa_cross, sa_square,
+    sa_l1, sa_r1,
+    sa_l2, sa_r2,
+    sa_l3, sa_r3,
+    SA_MAX
+} e_sixaxis_axis_index;
 
 enum led_state_t { LED_OFF = 0, LED_FLASH, LED_ON };
 
@@ -66,9 +50,7 @@ struct sixaxis_state_sys {
 
 struct sixaxis_state_user {
     /*** Values provided by the user (controller): */
-    struct sixaxis_button button[SB_MAX];
-    int axis[TS_MAX][TS_AXIS_MAX];
-    struct sixaxis_accelerometer accel;
+    int axis[SA_MAX];
 };
 
 struct sixaxis_state {
@@ -99,8 +81,6 @@ void sixaxis_init(struct sixaxis_state *state);
 int sixaxis_periodic_report(struct sixaxis_state *state);
 
 int assemble_input_01(uint8_t*, int, struct sixaxis_state*);
-
-int get_button_index_from_name(const char*);
 
 int clamp(int, int, int);
 

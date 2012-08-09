@@ -21,6 +21,8 @@
 #include "sdl_tools.h"
 #include "emuclient.h"
 
+#include "conversion.h"
+
 #define CROSS_CHAR '*'
 #define SHIFT_ESC "Press Shift+Esc to exit."
 
@@ -58,27 +60,6 @@
 
 #define LABEL_LENGTH sizeof("triangle")
 #define BUTTON_LENGTH LABEL_LENGTH + sizeof(" - 255") + 1
-
-char* buts[BUTTON_NB] =
-{
-  "select",
-  "start",
-  "ps",
-  "up",
-  "right",
-  "down",
-  "left",
-  "triangle",
-  "circle",
-  "cross",
-  "square",
-  "l1",
-  "r1",
-  "l2",
-  "r2",
-  "l3",
-  "r3",
-};
 
 WINDOW *lstick, *rstick, *wbuttons, *wcal;
 
@@ -383,7 +364,7 @@ int last_button_nb = 0;
 int cpt = 0;
 int cpt_total = 0;
 
-void display_run(int axes[4], int max_axis, int buttons[BUTTON_NB], int max_button)
+void display_run(int axis[], int max_axis, int max_button)
 {
   int i;
   int d;
@@ -418,11 +399,11 @@ void display_run(int axes[4], int max_axis, int buttons[BUTTON_NB], int max_butt
 
   d = 0;
 
-  for(i=0; i<BUTTON_NB; ++i)
+  for(i=sa_select; i<SA_MAX; ++i)
   {
-    if(buttons[i])
+    if(axis[i])
     {
-      snprintf(label, sizeof(label), "%8s - %3d", buts[i], buttons[i]);
+      snprintf(label, sizeof(label), "%8s - %3d", get_axis_name(i), axis[i]);
       mvwaddstr(wbuttons, 1 + d, 1, label);
       d++;
     }
@@ -440,8 +421,8 @@ void display_run(int axes[4], int max_axis, int buttons[BUTTON_NB], int max_butt
   last_button_nb = d;
 
   mvwaddch(lstick, cross[0][1], cross[0][0], ' ');
-  cross[0][0] = STICK_X_L / 2 + (double)axes[0] / max_axis * (STICK_X_L / 2 - 1);
-  cross[0][1] = STICK_Y_L / 2 + (double)axes[1] / max_axis * (STICK_Y_L / 2 - 1);
+  cross[0][0] = STICK_X_L / 2 + (double)axis[sa_lstick_x] / max_axis * (STICK_X_L / 2 - 1);
+  cross[0][1] = STICK_Y_L / 2 + (double)axis[sa_lstick_y] / max_axis * (STICK_Y_L / 2 - 1);
   if(cross[0][0] <= 0 || cross[0][0] >= STICK_X_L-1 || cross[0][1] <= 0 || cross[0][1] >= STICK_Y_L-1)
   {
     mvwaddch(lstick, cross[0][1], cross[0][0], CROSS_CHAR | COLOR_PAIR(3));
@@ -453,8 +434,8 @@ void display_run(int axes[4], int max_axis, int buttons[BUTTON_NB], int max_butt
   wnoutrefresh(lstick);
 
   mvwaddch(rstick, cross[1][1], cross[1][0], ' ');
-  cross[1][0] = STICK_X_L / 2 + (double)axes[2] / max_axis * (STICK_X_L / 2 - 1);
-  cross[1][1] = STICK_Y_L / 2 + (double)axes[3] / max_axis * (STICK_Y_L / 2 - 1);
+  cross[1][0] = STICK_X_L / 2 + (double)axis[sa_rstick_x] / max_axis * (STICK_X_L / 2 - 1);
+  cross[1][1] = STICK_Y_L / 2 + (double)axis[sa_rstick_y] / max_axis * (STICK_Y_L / 2 - 1);
   if(cross[1][0] <= 0 || cross[1][0] >= STICK_X_L-1 || cross[1][1] <= 0 || cross[1][1] >= STICK_Y_L-1)
   {
     mvwaddch(rstick, cross[1][1], cross[1][0], CROSS_CHAR | COLOR_PAIR(3));

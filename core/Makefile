@@ -11,7 +11,7 @@ all: gpp $(BINS)
 clean:
 	rm -f $(BINS) *~ *.o */*.o
 
-emu: emu.o sixaxis.o dump.o l2cap_con.o bt_utils.o
+emu: emu.o sixaxis.o dump.o l2cap_con.o bt_utils.o conversion.o
 	$(CC) -o $@ $^ -lbluetooth
 	
 emu-serial: emu-serial.o sixaxis.o dump.o

@@ -37,8 +37,7 @@ static s_trigger triggers[MAX_CONTROLLERS][MAX_CONFIGURATIONS];
 /*
  * This lists controller stick intensity modifiers.
  */
-static s_intensity left_intensity[MAX_CONTROLLERS][MAX_CONFIGURATIONS];
-static s_intensity right_intensity[MAX_CONTROLLERS][MAX_CONFIGURATIONS];
+static s_intensity axis_intensity[MAX_CONTROLLERS][MAX_CONFIGURATIONS][SA_MAX];
 
 /*
  * This lists controls of each controller configuration for all keyboards.
@@ -93,14 +92,9 @@ inline s_trigger* cfg_get_trigger(int controller, int config)
   return &(triggers[controller][config]);
 }
 
-inline s_intensity* cfg_get_left_intensity(int controller, int config)
+inline s_intensity* cfg_get_axis_intensity(int controller, int config, int axis)
 {
-  return &(left_intensity[controller][config]);
-}
-
-inline s_intensity* cfg_get_right_intensity(int controller, int config)
-{
-  return &(right_intensity[controller][config]);
+  return &(axis_intensity[controller][config][axis]);
 }
 
 int cfg_is_joystick_used(int id)
@@ -235,9 +229,21 @@ void cfg_process_motion()
 
 /*
  * This updates the stick according to the intensity shape.
+ * It only does something for axes in {sa_lstick_x, sa_lstick_y, sa_rstick_x, sa_rstick_y}
  */
-static void update_stick(s_intensity* intensity, int control, int ts)
+static void update_stick(int c_id, int axis)
 {
+  if(axis > sa_rstick_y)
+  {
+    return;
+  }
+  
+  if(axis & 1)
+  {
+    axis = axis - 1;
+  }
+  
+  s_intensity* intensity = &axis_intensity[c_id][current_config[c_id]][axis];
   int value = intensity->value;
 
   if(intensity->down_button == -1 && intensity->up_button == -1)
@@ -247,41 +253,43 @@ static void update_stick(s_intensity* intensity, int control, int ts)
 
   if (intensity->shape == E_SHAPE_CIRCLE)
   {
-    if (state[control].user.axis[ts][0] && state[control].user.axis[ts][1])
+    if (state[c_id].user.axis[axis] && state[c_id].user.axis[axis+1])
     {
       value = sqrt(value * value / 2);
     }
   }
 
-  if (state[control].user.axis[ts][0] > 0)
+  if (state[c_id].user.axis[axis] > 0)
   {
-    state[control].user.axis[ts][0] = round(value);
-    controller[control].send_command = 1;
+    state[c_id].user.axis[axis] = round(value);
+    controller[c_id].send_command = 1;
   }
-  else if (state[control].user.axis[ts][0] < 0)
+  else if (state[c_id].user.axis[axis] < 0)
   {
-    state[control].user.axis[ts][0] = -round(value);
-    controller[control].send_command = 1;
+    state[c_id].user.axis[axis] = -round(value);
+    controller[c_id].send_command = 1;
   }
-  if (state[control].user.axis[ts][1] > 0)
+  if (state[c_id].user.axis[axis+1] > 0)
   {
-    state[control].user.axis[ts][1] = round(value);
-    controller[control].send_command = 1;
+    state[c_id].user.axis[axis+1] = round(value);
+    controller[c_id].send_command = 1;
   }
-  else if (state[control].user.axis[ts][1] < 0)
+  else if (state[c_id].user.axis[axis+1] < 0)
   {
-    state[control].user.axis[ts][1] = -round(value);
-    controller[control].send_command = 1;
+    state[c_id].user.axis[axis+1] = -round(value);
+    controller[c_id].send_command = 1;
   }
 
 }
 
 /*
- * Update a stick intensity.
+ * Update an axis intensity.
  */
-static int update_intensity(s_intensity* intensity, int device_type, int device_id, int button, int control, int config, int ts)
+static int update_intensity(int device_type, int device_id, int button, int c_id, int axis)
 {
   int ret = 0;
+  
+  s_intensity* intensity = &axis_intensity[c_id][current_config[c_id]][axis];
 
   if (intensity->device_up_type == device_type && device_id == intensity->device_up_id && button == intensity->up_button)
   {
@@ -298,7 +306,6 @@ static int update_intensity(s_intensity* intensity, int device_type, int device_
             + intensity->step;
       }
     }
-    update_stick(intensity, control, ts);
     ret = 1;
   }
   else if (intensity->device_down_type == device_type && device_id == intensity->device_down_id && button == intensity->down_button)
@@ -315,20 +322,18 @@ static int update_intensity(s_intensity* intensity, int device_type, int device_
         intensity->value = mean_axis_value;
       }
     }
-    update_stick(intensity, control, ts);
     ret = 1;
   }
-
 
   return ret;
 }
 
 /*
- * Check if stick intensities need to be updated.
+ * Check if axis intensities need to be updated.
  */
 void cfg_intensity_lookup(SDL_Event* e)
 {
-  int i;
+  int c_id, a_id;
   int device_type;
   int button_id;
   unsigned int device_id = sdl_get_device_id(e);
@@ -351,15 +356,15 @@ void cfg_intensity_lookup(SDL_Event* e)
       return;
   }
 
-  for(i=0; i<MAX_CONTROLLERS; ++i)
+  for(c_id=0; c_id<MAX_CONTROLLERS; ++c_id)
   {
-    if(update_intensity(&left_intensity[i][current_config[i]], device_type, device_id, button_id, i, current_config[i], 0))
+    for(a_id=0; a_id<SA_MAX; ++a_id)
     {
-      gprintf("controller %d configuration %d left intensity: %.0f\n", i, current_config[i], left_intensity[i][current_config[i]].value);
-    }
-    if(update_intensity(&right_intensity[i][current_config[i]], device_type, device_id, button_id, i, current_config[i], 1))
-    {
-      gprintf("controller %d configuration %d right intensity: %.0f\n", i, current_config[i], right_intensity[i][current_config[i]].value);
+      if(update_intensity(device_type, device_id, button_id, c_id, a_id))
+      {
+        update_stick(c_id, a_id);
+        gprintf("controller %d configuration %d axis %s intensity: %.0f\n", c_id, current_config[c_id], get_axis_name(a_id), axis_intensity[c_id][current_config[c_id]][a_id].value);
+      }
     }
   }
 }
@@ -486,7 +491,7 @@ void cfg_trigger_lookup(SDL_Event* e)
  */
 void cfg_config_activation()
 {
-  int i;
+  int i, j;
   struct timeval tv;
 
   for(i=0; i<MAX_CONTROLLERS; ++i)
@@ -505,8 +510,10 @@ void cfg_config_activation()
           }
           previous_config[i] = current_config[i];
           current_config[i] = next_config[i];
-          update_stick(&left_intensity[i][current_config[i]], i, 0);
-          update_stick(&right_intensity[i][current_config[i]], i, 1);
+          for(j=0; j<SA_MAX; ++j)
+          {
+            update_stick(i, j);
+          }
         }
         next_config[i] = -1;
       }
@@ -605,7 +612,7 @@ static int postpone_event(unsigned int device, SDL_Event* event)
   return ret;
 }
 
-static double mouse2axis(int device, struct sixaxis_state* state, int which, double x, double y, int ts, int ts_axis, double exp, double multiplier, int dead_zone, e_shape shape)
+static double mouse2axis(int device, struct sixaxis_state* state, int which, double x, double y, int axis, double exp, double multiplier, int dead_zone, e_shape shape)
 {
   double z = 0;
   double dz = dead_zone;
@@ -627,11 +634,11 @@ static double mouse2axis(int device, struct sixaxis_state* state, int which, dou
     {
       if(val > 0)
       {
-        state->user.axis[ts][ts_axis] = dz;
+        state->user.axis[axis] = dz;
       }
       else
       {
-        state->user.axis[ts][ts_axis] = -dz;
+        state->user.axis[axis] = -dz;
       }
       return 0;
     }
@@ -647,11 +654,11 @@ static double mouse2axis(int device, struct sixaxis_state* state, int which, dou
     {
       if(val > 0)
       {
-        state->user.axis[ts][ts_axis] = dz;
+        state->user.axis[axis] = dz;
       }
       else
       {
-        state->user.axis[ts][ts_axis] = -dz;
+        state->user.axis[axis] = -dz;
       }
       return 0;
     }
@@ -668,27 +675,27 @@ static double mouse2axis(int device, struct sixaxis_state* state, int which, dou
 
   if(z > 0)
   {
-    state->user.axis[ts][ts_axis] = dz + z;
+    state->user.axis[axis] = dz + z;
     /*
-     * max stick position => no residue
+     * max axis position => no residue
      */
-    if(state->user.axis[ts][ts_axis] < mean_axis_value)
+    if(state->user.axis[axis] < mean_axis_value)
     {
-      ztrunk = state->user.axis[ts][ts_axis] - dz;
+      ztrunk = state->user.axis[axis] - dz;
     }
   }
   else if(z < 0)
   {
-    state->user.axis[ts][ts_axis] = z - dz;
+    state->user.axis[axis] = z - dz;
     /*
-     * max stick position => no residue
+     * max axis position => no residue
      */
-    if(state->user.axis[ts][ts_axis] > -mean_axis_value)
+    if(state->user.axis[axis] > -mean_axis_value)
     {
-      ztrunk = state->user.axis[ts][ts_axis] + dz;
+      ztrunk = state->user.axis[axis] + dz;
     }
   }
-  else state->user.axis[ts][ts_axis] = 0;
+  else state->user.axis[axis] = 0;
 
   if(val != 0 && ztrunk != 0)
   {
@@ -707,6 +714,85 @@ static double mouse2axis(int device, struct sixaxis_state* state, int which, dou
   return motion_residue;
 }
 
+void update_dbutton_axis(s_mapper* mapper, int c_id, int axis)
+{
+  s_intensity* intensity = &axis_intensity[c_id][current_config[c_id]][axis];
+  int value = intensity->value;
+  if(mapper->controller_axis_value < 0)
+  {
+    /*
+     * Button to zero-centered axis.
+     */
+    state[c_id].user.axis[axis] = - value;
+  }
+  else if(mapper->controller_axis_value > 0)
+  {
+    /*
+     * Button to zero-centered axis.
+     */
+    state[c_id].user.axis[axis] = value;
+  }
+  else
+  {
+    /*
+     * Button to non-centered axis.
+     */
+    state[c_id].user.axis[axis] = value;
+  }
+  update_stick(c_id, axis);
+  /*
+   * Specific code for issue 15.
+   */
+  if(axis >= sa_lstick_x && axis <= sa_rstick_y)
+  {
+    if(mapper->controller_axis_value > 0)
+    {
+      controller[c_id].ts_axis[axis][0] = 1;
+    }
+    else if(mapper->controller_axis_value < 0)
+    {
+      controller[c_id].ts_axis[axis][1] = 1;
+    }
+  }
+}
+
+void update_ubutton_axis(s_mapper* mapper, int c_id, int axis)
+{
+  int dir, odir;
+  s_intensity* intensity = &axis_intensity[c_id][current_config[c_id]][axis];
+  int value = intensity->value;
+  state[c_id].user.axis[axis] = 0;
+  if(mapper->controller_axis_value)
+  {
+    update_stick(c_id, axis);
+  }
+  if(axis >= sa_lstick_x && axis <= sa_rstick_y)
+  {
+    if(mapper->controller_axis_value > 0)
+    {
+      dir = 0;
+      odir = 1;
+    }
+    else
+    {
+      dir = 1;
+      odir = 0;
+    }
+    controller[c_id].ts_axis[axis][dir] = 0;
+    if(controller[c_id].ts_axis[axis][odir] == 1)
+    {
+      if(mapper->controller_axis_value < 0)
+      {
+        state[c_id].user.axis[axis] = value;
+      }
+      else
+      {
+        state[c_id].user.axis[axis] = -value;
+      }
+    }
+  }
+}
+
 /*
  * Updates the state table.
  * Too long function, but not hard to understand.
@@ -714,9 +800,7 @@ static double mouse2axis(int device, struct sixaxis_state* state, int which, dou
 void cfg_process_event(SDL_Event* event)
 {
   s_mapper* mapper;
-  int button;
-  int ts;
-  unsigned int ts_axis;
+  unsigned int axis;
   unsigned int config;
   unsigned int c_id;
   unsigned int control;
@@ -850,34 +934,13 @@ void cfg_process_event(SDL_Event* event)
           /*
            * Check that it's the right button.
            */
-          if(!mapper || mapper->button != event->jbutton.button)
+          if(mapper->button != event->jbutton.button)
           {
-            continue;
-          }
-          controller[c_id].send_command = 1;
-          /*
-           * Button to button.
-           */
-          button = mapper->controller_button;
-          if(button >= 0)
-          {
-            state[c_id].user.button[button].pressed = 1;
-            state[c_id].user.button[button].value = 255;
-          }
-          /*
-           * Button to axis.
-           */
-          ts = mapper->controller_thumbstick;
-          ts_axis = mapper->controller_thumbstick_axis;
-          if(ts >= 0)
-          {
-            if(mapper->controller_thumbstick_axis_value < 0)
+            controller[c_id].send_command = 1;
+            axis = mapper->controller_axis;
+            if(axis >= 0)
             {
-              state[c_id].user.axis[ts][ts_axis] = -mean_axis_value;
-            }
-            else
-            {
-              state[c_id].user.axis[ts][ts_axis] = mean_axis_value;
+              update_dbutton_axis(mapper, c_id, axis);
             }
           }
           break;
@@ -886,28 +949,14 @@ void cfg_process_event(SDL_Event* event)
           /*
            * Check that it's the right button.
            */
-          if(!mapper || mapper->button != event->jbutton.button)
+          if(mapper->button != event->jbutton.button)
           {
-            continue;
-          }
-          controller[c_id].send_command = 1;
-          /*
-           * Button to button.
-           */
-          button = mapper->controller_button;
-          if(button >= 0)
-          {
-            state[c_id].user.button[button].pressed = 0;
-            state[c_id].user.button[button].value = 0;
-          }
-          /*
-           * Button to axis.
-           */
-          ts = mapper->controller_thumbstick;
-          ts_axis = mapper->controller_thumbstick_axis;
-          if(ts >= 0)
-          {
-            state[c_id].user.axis[ts][ts_axis] = 0;
+            controller[c_id].send_command = 1;
+            axis = mapper->controller_axis;
+            if(axis >= 0)
+            {
+              update_ubutton_axis(mapper, c_id, axis);
+            }
           }
           break;
         case SDL_JOYAXISMOTION:
@@ -915,84 +964,52 @@ void cfg_process_event(SDL_Event* event)
           /*
            * Check that it's the right axis.
            */
-          if(!mapper || mapper->axis != event->jaxis.axis)
+          if(mapper->axis != event->jaxis.axis)
           {
             continue;
           }
           controller[c_id].send_command = 1;
-          /*
-           * Axis to button.
-           */
-          button = mapper->controller_button;
-          threshold = mapper->threshold;
-          if(button >= 0)
-          {
-            if(threshold > 0 && event->jaxis.value > threshold)
-            {
-              state[c_id].user.button[button].pressed = 1;
-              state[c_id].user.button[button].value = 255;
-            }
-            else if(threshold < 0 && event->jaxis.value < threshold)
-            {
-              state[c_id].user.button[button].pressed = 1;
-              state[c_id].user.button[button].value = 255;
-            }
-            else
-            {
-              state[c_id].user.button[button].pressed = 0;
-              state[c_id].user.button[button].value = 0;
-            }
-          }
-          /*
-           * Axis to button axis.
-           */
-          button = mapper->controller_button_axis;
+          axis = mapper->controller_axis;
           multiplier = mapper->multiplier;
           exp = mapper->exponent;
           dead_zone = mapper->dead_zone;
-          if(button >= 0)
+          if(axis >= 0)
           {
-            value = event->jaxis.value;
-            if(value)
+            if(mapper->controller_axis_value)
             {
-              value = value/abs(value)*multiplier*pow(abs(value), exp);
-            }
-            if(value > 0)
-            {
-              value += dead_zone;
-              state[c_id].user.button[button].pressed = 1;
-              state[c_id].user.button[button].value = clamp(0, value , 255);
+              multiplier *= axis_scale;
+              value = event->jaxis.value;
+              if(value)
+              {
+                value = value/abs(value)*multiplier*pow(abs(value), exp);
+              }
+              if(value > 0)
+              {
+                value += dead_zone;
+              }
+              else if(value < 0)
+              {
+                value -= dead_zone;
+              }
+              state[c_id].user.axis[axis] = clamp(-mean_axis_value, value , mean_axis_value);
             }
             else
             {
-              state[c_id].user.button[button].pressed = 0;
-              state[c_id].user.button[button].value = 0;
+              value = event->jaxis.value;
+              if(value)
+              {
+                value = value/abs(value)*multiplier*pow(abs(value), exp);
+              }
+              if(value > 0)
+              {
+                value += dead_zone;
+                state[c_id].user.axis[axis] = clamp(0, value , 255);
+              }
+              else
+              {
+                state[c_id].user.axis[axis] = 0;
+              }
             }
-          }
-          /*
-           * Axis to axis.
-           */
-          ts = mapper->controller_thumbstick;
-          ts_axis = mapper->controller_thumbstick_axis;
-          multiplier = mapper->multiplier * axis_scale;
-          exp = mapper->exponent;
-          dead_zone = mapper->dead_zone;
-          if(ts >= 0)
-          {
-            value = event->jaxis.value;
-            if(value)
-            {
-              value = value/abs(value)*multiplier*pow(abs(value), exp);
-            }
-            if(value > 0)
-            {
-              value += dead_zone;
-            }
-            else if(value < 0)
-            {
-              value -= dead_zone;
-            }
-            state[c_id].user.axis[ts][ts_axis] = clamp(-mean_axis_value, value , mean_axis_value);
           }
           break;
         case SDL_KEYDOWN:
@@ -1000,68 +1017,15 @@ void cfg_process_event(SDL_Event* event)
           /*
            * Check that it's the right button.
            */
-          if(!mapper || mapper->button != event->key.keysym.sym)
+          if(mapper->button != event->key.keysym.sym)
           {
             continue;
           }
           controller[c_id].send_command = 1;
-          /*
-           * Button to button.
-           */
-          button = mapper->controller_button;
-          if(button >= 0)
+          axis = mapper->controller_axis;
+          if(axis >= 0)
           {
-            state[c_id].user.button[button].pressed = 1;
-            state[c_id].user.button[button].value = 255;
-          }
-          /*
-           * Button to axis.
-           */
-          ts = mapper->controller_thumbstick;
-          ts_axis = mapper->controller_thumbstick_axis;
-          if(ts >= 0)
-          {
-            if(mapper->controller_thumbstick_axis_value < 0)
-            {
-              if(ts == 0)
-              {
-                state[c_id].user.axis[ts][ts_axis] = - left_intensity[c_id][config].value;
-              }
-              else
-              {
-                state[c_id].user.axis[ts][ts_axis] = - right_intensity[c_id][config].value;
-              }
-            }
-            else
-            {
-              if(ts == 0)
-              {
-                state[c_id].user.axis[ts][ts_axis] = left_intensity[c_id][config].value;
-              }
-              else
-              {
-                state[c_id].user.axis[ts][ts_axis] = right_intensity[c_id][config].value;
-              }
-            }
-            if(ts == 0)
-            {
-              update_stick(&left_intensity[c_id][config], c_id, ts);
-            }
-            else
-            {
-              update_stick(&left_intensity[c_id][config], c_id, ts);
-            }
-            /*
-             * Specific code for issue 15.
-             */
-            if(mapper->controller_thumbstick_axis_value > 0)
-            {
-              controller[c_id].ts_axis[ts][ts_axis][0] = 1;
-            }
-            else if(mapper->controller_thumbstick_axis_value < 0)
-            {
-              controller[c_id].ts_axis[ts][ts_axis][1] = 1;
-            }
+            update_dbutton_axis(mapper, c_id, axis);
           }
           break;
         case SDL_KEYUP:
@@ -1069,69 +1033,15 @@ void cfg_process_event(SDL_Event* event)
           /*
            * Check that it's the right button.
            */
-          if(!mapper || mapper->button != event->key.keysym.sym)
+          if(mapper->button != event->key.keysym.sym)
           {
             continue;
           }
           controller[c_id].send_command = 1;
-          /*
-           * Button to button.
-           */
-          button = mapper->controller_button;
-          if(button >= 0)
+          axis = mapper->controller_axis;
+          if(axis >= 0)
           {
-            state[c_id].user.button[button].pressed = 0;
-            state[c_id].user.button[button].value = 0;
-          }
-          /*
-           * Button to axis.
-           */
-          ts = mapper->controller_thumbstick;
-          ts_axis = mapper->controller_thumbstick_axis;
-          if(ts >= 0)
-          {
-            state[c_id].user.axis[ts][ts_axis] = 0;
-            /*
-             * Specific code for issue 15.
-             */
-            if(mapper->controller_thumbstick_axis_value > 0)
-            {
-              controller[c_id].ts_axis[ts][ts_axis][0] = 0;
-              if(controller[c_id].ts_axis[ts][ts_axis][1] == 1)
-              {
-                if(mapper->controller_thumbstick_axis_value < 0)
-                {
-                  state[c_id].user.axis[ts][ts_axis] = mean_axis_value;
-                }
-                else
-                {
-                  state[c_id].user.axis[ts][ts_axis] = -mean_axis_value;
-                }
-              }
-            }
-            else if(mapper->controller_thumbstick_axis_value < 0)
-            {
-              controller[c_id].ts_axis[ts][ts_axis][1] = 0;
-              if(controller[c_id].ts_axis[ts][ts_axis][0] == 1)
-              {
-                if(mapper->controller_thumbstick_axis_value < 0)
-                {
-                  state[c_id].user.axis[ts][ts_axis] = mean_axis_value;
-                }
-                else
-                {
-                  state[c_id].user.axis[ts][ts_axis] = -mean_axis_value;
-                }
-              }
-            }
-            if(ts == 0)
-            {
-              update_stick(&left_intensity[c_id][config], c_id, ts);
-            }
-            else
-            {
-              update_stick(&left_intensity[c_id][config], c_id, ts);
-            }
+            update_ubutton_axis(mapper, c_id, axis);
           }
           break;
         case SDL_MOUSEMOTION:
@@ -1139,11 +1049,7 @@ void cfg_process_event(SDL_Event* event)
           /*
            * Check the mouse axis.
            */
-          if(!mapper)
-          {
-            continue;
-          }
-          else if (mapper->axis == AXIS_X)
+          if (mapper->axis == AXIS_X)
           {
             value = event->motion.xrel;
           }
@@ -1151,61 +1057,62 @@ void cfg_process_event(SDL_Event* event)
           {
             value = event->motion.yrel;
           }
-          controller[c_id].send_command = 1;
-          /*
-           * Axis to button.
-           */
-          button = mapper->controller_button;
-          threshold = mapper->threshold;
-          if(button >= 0)
+          else
           {
-            //TODO: many sixaxis buttons are axis too... value may have other values than 0 and 255!
-            if(threshold > 0 && value > threshold)
+            continue;
+          }
+          controller[c_id].send_command = 1;
+          axis = mapper->controller_axis;
+          if(axis >= 0)
+          {
+            multiplier = mapper->multiplier;
+            if(mapper->controller_axis_value || multiplier)
             {
-              state[c_id].user.button[button].pressed = 1;
-              state[c_id].user.button[button].value = 255;
-            }
-            else if(threshold < 0 && value < threshold)
-            {
-              state[c_id].user.button[button].pressed = 1;
-              state[c_id].user.button[button].value = 255;
+              /*
+               * Axis to zero-centered axis.
+               */
+              exp = mapper->exponent;
+              dead_zone = mapper->dead_zone;
+              shape = mapper->shape;
+              mc = mouse_control + device;
+              if(mc->change)
+              {
+                mx = mc->x;
+                my = mc->y;
+              }
+              else
+              {
+                mx = 0;
+                my = 0;
+              }
+              residue = mouse2axis(device, state+c_id, mapper->axis, mx, my, axis, exp, multiplier, dead_zone, shape);
+              if(mapper->axis == AXIS_X)
+              {
+                mc->residue_x = residue;
+              }
+              else if(mapper->axis == AXIS_Y)
+              {
+                mc->residue_y = residue;
+              }
             }
             else
             {
-              state[c_id].user.button[button].pressed = 0;
-              state[c_id].user.button[button].value = 0;
-            }
-          }
-          /*
-           * Axis to axis.
-           */
-          ts = mapper->controller_thumbstick;
-          ts_axis = mapper->controller_thumbstick_axis;
-          multiplier = mapper->multiplier;
-          exp = mapper->exponent;
-          dead_zone = mapper->dead_zone;
-          shape = mapper->shape;
-          mc = mouse_control + device;
-          if(mc->change)
-          {
-            mx = mc->x;
-            my = mc->y;
-          }
-          else
-          {
-            mx = 0;
-            my = 0;
-          }
-          if(ts >= 0)
-          {
-            residue = mouse2axis(device, state+c_id, mapper->axis, mx, my, ts, ts_axis, exp, multiplier, dead_zone, shape);
-            if(mapper->axis == AXIS_X)
-            {
-              mc->residue_x = residue;
-            }
-            else if(mapper->axis == AXIS_Y)
-            {
-              mc->residue_y = residue;
+              /*
+               * Axis to non-centered axis.
+               */
+              threshold = mapper->threshold;
+              if(threshold > 0 && value > threshold)
+              {
+                state[c_id].user.axis[axis] = 255;
+              }
+              else if(threshold < 0 && value < threshold)
+              {
+                state[c_id].user.axis[axis] = 255;
+              }
+              else
+              {
+                state[c_id].user.axis[axis] = 0;
+              }
             }
           }
           break;
@@ -1214,35 +1121,15 @@ void cfg_process_event(SDL_Event* event)
           /*
            * Check that it's the right button.
            */
-          if(!mapper || mapper->button != event->button.button)
+          if(mapper->button != event->button.button)
           {
             continue;
           }
           controller[c_id].send_command = 1;
-          /*
-           * Button to button.
-           */
-          button = mapper->controller_button;
-          if(button >= 0)
+          axis = mapper->controller_axis;
+          if(axis >= 0)
           {
-            state[c_id].user.button[button].pressed = 1;
-            state[c_id].user.button[button].value = 255;
-          }
-          /*
-           * Button to axis.
-           */
-          ts = mapper->controller_thumbstick;
-          ts_axis = mapper->controller_thumbstick_axis;
-          if(ts >= 0)
-          {
-            if(mapper->controller_thumbstick_axis_value < 0)
-            {
-              state[c_id].user.axis[ts][ts_axis] = -mean_axis_value;
-            }
-            else
-            {
-              state[c_id].user.axis[ts][ts_axis] = mean_axis_value;
-            }
+            update_dbutton_axis(mapper, c_id, axis);
           }
           break;
         case SDL_MOUSEBUTTONUP:
@@ -1250,7 +1137,7 @@ void cfg_process_event(SDL_Event* event)
           /*
            * Check that it's the right button.
            */
-          if(!mapper || mapper->button != event->button.button)
+          if(mapper->button != event->button.button)
           {
             continue;
           }
@@ -1262,23 +1149,10 @@ void cfg_process_event(SDL_Event* event)
             return; //no need to do something more
           }
           controller[c_id].send_command = 1;
-          /*
-           * Button to button.
-           */
-          button = mapper->controller_button;
-          if(button >= 0)
+          axis = mapper->controller_axis;
+          if(axis >= 0)
           {
-            state[c_id].user.button[button].pressed = 0;
-            state[c_id].user.button[button].value = 0;
-          }
-          /*
-           * Button to axis.
-           */
-          ts = mapper->controller_thumbstick;
-          ts_axis = mapper->controller_thumbstick_axis;
-          if(ts >= 0)
-          {
-            state[c_id].user.axis[ts][ts_axis] = 0;
+            update_ubutton_axis(mapper, c_id, axis);
           }
           break;
       }

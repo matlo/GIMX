@@ -3,26 +3,7 @@
 #include <sys/time.h>
 #include "dump.h"
 #include "sixaxis.h"
-
-static const char *sixaxis_button_name[SB_MAX] = {
-    [sb_select] = "select",
-    [sb_start] = "start",
-    [sb_ps] = "ps",
-    [sb_up] = "up",
-    [sb_right] = "right",
-    [sb_down] = "down",
-    [sb_left] = "left",
-    [sb_triangle] = "triangle",
-    [sb_circle] = "circle",
-    [sb_cross] = "cross",
-    [sb_square] = "square",
-    [sb_l1] = "l1",
-    [sb_r1] = "r1",
-    [sb_l2] = "l2",
-    [sb_r2] = "r2",
-    [sb_l3] = "l3",
-    [sb_r3] = "r3"
-};
+#include "conversion.h"
 
 void sixaxis_dump_state(struct sixaxis_state *state, int id)
 {
@@ -73,19 +54,10 @@ void sixaxis_dump_state(struct sixaxis_state *state, int id)
     /* rumble state */
     printf(" { %02x %02x }", sys->rumble[0], sys->rumble[1]);
 
-    /* stick positions */
-    printf(" axis (%d,%d) (%d,%d)",
-           user->axis[0][0], user->axis[0][1],
-           user->axis[1][0], user->axis[1][1]);
-
-    /* accelerometer data */
-    printf(" acc (%d,%d,%d,%d)",
-           user->accel.x, user->accel.y, user->accel.z, user->accel.gyro);
-
-    /* button state and values */
-    for (i = 0; i < SB_MAX; i++) {
-        if (user->button[i].pressed)
-            printf(" %s-%02x", sixaxis_button_name[i], user->button[i].value);
+    /* axis values */
+    for (i = 0; i < SA_MAX; i++) {
+        if (user->axis[i])
+            printf(", %s (%d)", get_axis_name(i), user->axis[i]);
     }
 
     printf("\n");

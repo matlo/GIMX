@@ -124,7 +124,7 @@ typedef struct
 {
   int change;
   int send_command;
-  int ts_axis[TS_MAX][TS_AXIS_MAX][2]; //issue 15
+  int ts_axis[SA_MAX][2]; //issue 15
 } s_controller;
 
 typedef struct
@@ -141,11 +141,8 @@ typedef struct
   unsigned int buffer_size;
   double filter;
 
-  int controller_button;
-  int controller_button_axis;
-  int controller_thumbstick;
-  int controller_thumbstick_axis;
-  int controller_thumbstick_axis_value; //only for button to axis mapping
+  int controller_axis;
+  int controller_axis_value; //only for button to axis mapping
 }s_mapper;
 
 typedef struct
@@ -181,8 +178,7 @@ int cfg_is_joystick_used(int);
 void cfg_process_motion_event(SDL_Event*);
 void cfg_process_motion();
 inline s_trigger* cfg_get_trigger(int, int);
-inline s_intensity* cfg_get_left_intensity(int, int);
-inline s_intensity* cfg_get_right_intensity(int, int);
+inline s_intensity* cfg_get_axis_intensity(int, int, int);
 inline s_mapper** cfg_get_joystick_axes(int, int, int);
 inline s_mapper** cfg_get_joystick_buttons(int, int, int);
 inline s_mapper** cfg_get_mouse_axes(int, int, int);

@@ -21,13 +21,12 @@
 #define MOUSE_BUTTONS_MAX 15
 
 typedef struct {
-    int baindex;
-    int tavalue;
-    int tindex;
-    int taindex;
+    int value;
+    int index;
 } s_axis_index;
 
 SDLKey get_key_from_buffer(const char*);
+const char* get_axis_name(int);
 int get_button_index_from_name(const char*);
 s_axis_index get_axis_index_from_name(const char*);
 const char* get_chars_from_key(SDLKey);

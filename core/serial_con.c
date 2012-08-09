@@ -43,98 +43,98 @@ static void _360pad_serial_send()
   { .type = 0x00, .size = 0x14 };
   int axis_value;
 
-  if (state[0].user.button[sb_up].pressed)
+  if (state[0].user.axis[sa_up])
   {
     report.buttons |= 0x0001;
   }
-  if (state[0].user.button[sb_down].pressed)
+  if (state[0].user.axis[sa_down])
   {
     report.buttons |= 0x0002;
   }
-  if (state[0].user.button[sb_left].pressed)
+  if (state[0].user.axis[sa_left])
   {
     report.buttons |= 0x0004;
   }
-  if (state[0].user.button[sb_right].pressed)
+  if (state[0].user.axis[sa_right])
   {
     report.buttons |= 0x0008;
   }
 
-  if (state[0].user.button[sb_start].pressed)
+  if (state[0].user.axis[sa_start])
   {
     report.buttons |= 0x0010;
   }
-  if (state[0].user.button[sb_select].pressed)
+  if (state[0].user.axis[sa_select])
   {
     report.buttons |= 0x0020;
   }
-  if (state[0].user.button[sb_l3].pressed)
+  if (state[0].user.axis[sa_l3])
   {
     report.buttons |= 0x0040;
   }
-  if (state[0].user.button[sb_r3].pressed)
+  if (state[0].user.axis[sa_r3])
   {
     report.buttons |= 0x0080;
   }
 
-  if (state[0].user.button[sb_l1].pressed)
+  if (state[0].user.axis[sa_l1])
   {
     report.buttons |= 0x0100;
   }
-  if (state[0].user.button[sb_r1].pressed)
+  if (state[0].user.axis[sa_r1])
   {
     report.buttons |= 0x0200;
   }
-  if (state[0].user.button[sb_ps].pressed)
+  if (state[0].user.axis[sa_ps])
   {
     report.buttons |= 0x0400;
   }
 
-  if (state[0].user.button[sb_cross].pressed)
+  if (state[0].user.axis[sa_cross])
   {
     report.buttons |= 0x1000;
   }
-  if (state[0].user.button[sb_circle].pressed)
+  if (state[0].user.axis[sa_circle])
   {
     report.buttons |= 0x2000;
   }
-  if (state[0].user.button[sb_square].pressed)
+  if (state[0].user.axis[sa_square])
   {
     report.buttons |= 0x4000;
   }
-  if (state[0].user.button[sb_triangle].pressed)
+  if (state[0].user.axis[sa_triangle])
   {
     report.buttons |= 0x8000;
   }
 
-  if (state[0].user.button[sb_l2].pressed)
+  if (state[0].user.axis[sa_l2])
   {
     report.ltrigger = 0xFF;
   }
-  if (state[0].user.button[sb_r2].pressed)
+  if (state[0].user.axis[sa_r2])
   {
     report.rtrigger = 0xFF;
   }
 
-  axis_value = state[0].user.axis[0][0];
+  axis_value = state[0].user.axis[sa_lstick_x];
   report.xaxis = clamp(-128, axis_value, 127) << 8;
   if(axis_value > 127)
   {
     report.xaxis |= 0xFF;
   }
-  axis_value = - state[0].user.axis[0][1];
+  axis_value = - state[0].user.axis[sa_lstick_y];
   report.yaxis = clamp(-128, axis_value, 127) << 8;
   if(axis_value > 127)
   {
     report.yaxis |= 0xFF;
   }
-  axis_value = state[0].user.axis[1][0];
+  axis_value = state[0].user.axis[sa_rstick_x];
   report.zaxis = clamp(-128, axis_value, 127) << 8;
   if(axis_value > 127)
   {
     report.zaxis |= 0xFF;
   }
-  axis_value = -state[0].user.axis[1][1];
+  axis_value = -state[0].user.axis[sa_rstick_y];
   report.taxis = clamp(-128, axis_value, 127) << 8;
   if(axis_value > 127)
   {
@@ -171,17 +171,17 @@ static void sixaxis_serial_send()
   for (i = 0; i < 17; i++) {
       int byte = 2 + (i / 8);
       int offset = i % 8;
-      if (state[0].user.button[digital_order[i]].pressed)
+      if (state[0].user.axis[digital_order[i]])
           buf[byte] |= (1 << offset);
   }
 
-  buf[6] = clamp(0, state[0].user.axis[0][0] + mean_axis_value, max_axis_value);
-  buf[7] = clamp(0, state[0].user.axis[0][1] + mean_axis_value, max_axis_value);
-  buf[8] = clamp(0, state[0].user.axis[1][0] + mean_axis_value, max_axis_value);
-  buf[9] = clamp(0, state[0].user.axis[1][1] + mean_axis_value, max_axis_value);
+  buf[6] = clamp(0, state[0].user.axis[sa_lstick_x] + mean_axis_value, max_axis_value);
+  buf[7] = clamp(0, state[0].user.axis[sa_lstick_y] + mean_axis_value, max_axis_value);
+  buf[8] = clamp(0, state[0].user.axis[sa_rstick_x] + mean_axis_value, max_axis_value);
+  buf[9] = clamp(0, state[0].user.axis[sa_rstick_y] + mean_axis_value, max_axis_value);
 
   for (i = 0; i < 12; i++)
-      buf[14 + i] = state[0].user.button[analog_order[i]].value;
+      buf[14 + i] = state[0].user.axis[analog_order[i]];
 
 #ifdef WIN32
   win_serial_send(buf, sizeof(buf));
@@ -195,69 +195,69 @@ static void joystick_serial_send()
   s_report_data data =
   { };
 
-  data.X = clamp(0, state[0].user.axis[0][0] + mean_axis_value, max_axis_value);
-  data.Y = clamp(0, state[0].user.axis[0][1] + mean_axis_value, max_axis_value);
-  data.Z = clamp(0, state[0].user.axis[1][0] + mean_axis_value, max_axis_value);
-  data.Rz = clamp(0, state[0].user.axis[1][1] + mean_axis_value, max_axis_value);
+  data.X = clamp(0, state[0].user.axis[sa_lstick_x] + mean_axis_value, max_axis_value);
+  data.Y = clamp(0, state[0].user.axis[sa_lstick_y] + mean_axis_value, max_axis_value);
+  data.Z = clamp(0, state[0].user.axis[sa_rstick_x] + mean_axis_value, max_axis_value);
+  data.Rz = clamp(0, state[0].user.axis[sa_rstick_y] + mean_axis_value, max_axis_value);
 
-  if (state[0].user.button[sb_square].pressed)
+  if (state[0].user.axis[sa_square])
   {
     data.Bt |= 0x0001;
   }
-  if (state[0].user.button[sb_cross].pressed)
+  if (state[0].user.axis[sa_cross])
   {
     data.Bt |= 0x0002;
   }
-  if (state[0].user.button[sb_circle].pressed)
+  if (state[0].user.axis[sa_circle])
   {
     data.Bt |= 0x0004;
   }
-  if (state[0].user.button[sb_triangle].pressed)
+  if (state[0].user.axis[sa_triangle])
   {
     data.Bt |= 0x0008;
   }
 
-  if (state[0].user.button[sb_select].pressed)
+  if (state[0].user.axis[sa_select])
   {
     data.Bt |= 0x0100;
   }
-  if (state[0].user.button[sb_start].pressed)
+  if (state[0].user.axis[sa_start])
   {
     data.Bt |= 0x0200;
   }
-  if (state[0].user.button[sb_l3].pressed)
+  if (state[0].user.axis[sa_l3])
   {
     data.Bt |= 0x0400;
   }
-  if (state[0].user.button[sb_r3].pressed)
+  if (state[0].user.axis[sa_r3])
   {
     data.Bt |= 0x0800;
   }
 
-  if (state[0].user.button[sb_l1].pressed)
+  if (state[0].user.axis[sa_l1])
   {
     data.Bt |= 0x0010;
   }
-  if (state[0].user.button[sb_r1].pressed)
+  if (state[0].user.axis[sa_r1])
   {
     data.Bt |= 0x0020;
   }
-  if (state[0].user.button[sb_l2].pressed)
+  if (state[0].user.axis[sa_l2])
   {
     data.Bt |= 0x0040;
   }
-  if (state[0].user.button[sb_r2].pressed)
+  if (state[0].user.axis[sa_r2])
   {
     data.Bt |= 0x0080;
   }
 
-  if (state[0].user.button[sb_right].pressed)
+  if (state[0].user.axis[sa_right])
   {
-    if (state[0].user.button[sb_down].pressed)
+    if (state[0].user.axis[sa_down])
     {
       data.Hat = 0x0003;
     }
-    else if (state[0].user.button[sb_up].pressed)
+    else if (state[0].user.axis[sa_up])
     {
       data.Hat = 0x0001;
     }
@@ -266,13 +266,13 @@ static void joystick_serial_send()
       data.Hat = 0x0002;
     }
   }
-  else if (state[0].user.button[sb_left].pressed)
+  else if (state[0].user.axis[sa_left])
   {
-    if (state[0].user.button[sb_down].pressed)
+    if (state[0].user.axis[sa_down])
     {
       data.Hat = 0x0005;
     }
-    else if (state[0].user.button[sb_up].pressed)
+    else if (state[0].user.axis[sa_up])
     {
       data.Hat = 0x0007;
     }
@@ -281,11 +281,11 @@ static void joystick_serial_send()
       data.Hat = 0x0006;
     }
   }
-  else if (state[0].user.button[sb_down].pressed)
+  else if (state[0].user.axis[sa_down])
   {
     data.Hat = 0x0004;
   }
-  else if (state[0].user.button[sb_up].pressed)
+  else if (state[0].user.axis[sa_up])
   {
     data.Hat = 0x0000;
   }
@@ -306,75 +306,75 @@ static void ps2_serial_send()
   s_report_data2 data =
   { .head = 0x5A, .Bt1 = 0xFF, .Bt2 = 0xFF };
 
-  data.X = clamp(0, state[0].user.axis[0][0] + mean_axis_value, max_axis_value);
-  data.Y = clamp(0, state[0].user.axis[0][1] + mean_axis_value, max_axis_value);
-  data.Z = clamp(0, state[0].user.axis[1][0] + mean_axis_value, max_axis_value);
-  data.Rz = clamp(0, state[0].user.axis[1][1] + mean_axis_value, max_axis_value);
+  data.X = clamp(0, state[0].user.axis[sa_lstick_x] + mean_axis_value, max_axis_value);
+  data.Y = clamp(0, state[0].user.axis[sa_lstick_y] + mean_axis_value, max_axis_value);
+  data.Z = clamp(0, state[0].user.axis[sa_rstick_x] + mean_axis_value, max_axis_value);
+  data.Rz = clamp(0, state[0].user.axis[sa_rstick_y] + mean_axis_value, max_axis_value);
 
-  if (state[0].user.button[sb_square].pressed)
+  if (state[0].user.axis[sa_square])
   {
     data.Bt2 &= ~0x80;
   }
-  if (state[0].user.button[sb_cross].pressed)
+  if (state[0].user.axis[sa_cross])
   {
     data.Bt2 &= ~0x40;
   }
-  if (state[0].user.button[sb_circle].pressed)
+  if (state[0].user.axis[sa_circle])
   {
     data.Bt2 &= ~0x20;
   }
-  if (state[0].user.button[sb_triangle].pressed)
+  if (state[0].user.axis[sa_triangle])
   {
     data.Bt2 &= ~0x10;
   }
 
-  if (state[0].user.button[sb_select].pressed)
+  if (state[0].user.axis[sa_select])
   {
     data.Bt1 &= ~0x01;
   }
-  if (state[0].user.button[sb_start].pressed)
+  if (state[0].user.axis[sa_start])
   {
     data.Bt1 &= ~0x08;
   }
-  if (state[0].user.button[sb_l3].pressed)
+  if (state[0].user.axis[sa_l3])
   {
     data.Bt1 &= ~0x02;
   }
-  if (state[0].user.button[sb_r3].pressed)
+  if (state[0].user.axis[sa_r3])
   {
     data.Bt1 &= ~0x04;
   }
 
-  if (state[0].user.button[sb_l1].pressed)
+  if (state[0].user.axis[sa_l1])
   {
     data.Bt2 &= ~0x04;
   }
-  if (state[0].user.button[sb_r1].pressed)
+  if (state[0].user.axis[sa_r1])
   {
     data.Bt2 &= ~0x08;
   }
-  if (state[0].user.button[sb_l2].pressed)
+  if (state[0].user.axis[sa_l2])
   {
     data.Bt2 &= ~0x01;
   }
-  if (state[0].user.button[sb_r2].pressed)
+  if (state[0].user.axis[sa_r2])
   {
     data.Bt2 &= ~0x02;
   }
 
-  if (state[0].user.button[sb_up].pressed)
+  if (state[0].user.axis[sa_up])
   {
     data.Bt1 &= ~0x10;
   }
-  if (state[0].user.button[sb_right].pressed)
+  if (state[0].user.axis[sa_right])
   {
     data.Bt1 &= ~0x20;
   }
-  if (state[0].user.button[sb_down].pressed)
+  if (state[0].user.axis[sa_down])
   {
     data.Bt1 &= ~0x40;
   }
-  if (state[0].user.button[sb_left].pressed)
+  if (state[0].user.axis[sa_left])
   {
     data.Bt1 &= ~0x80;
   }

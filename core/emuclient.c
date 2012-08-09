@@ -109,8 +109,6 @@ int main(int argc, char *argv[])
 #endif
   int time_to_sleep;
   e_controller_type ctype = C_TYPE_JOYSTICK;
-  int daxes[4];
-  int dbuttons[SB_MAX];
   int ptl;
 
 #ifndef WIN32
@@ -410,15 +408,7 @@ int main(int argc, char *argv[])
 #endif
     if(curses)
     {
-      daxes[0] = state[0].user.axis[0][0];
-      daxes[1] = state[0].user.axis[0][1];
-      daxes[2] = state[0].user.axis[1][0];
-      daxes[3] = state[0].user.axis[1][1];
-      for(i=0; i<SB_MAX; ++i)
-      {
-        dbuttons[i] = state[0].user.button[i].value;
-      }
-      display_run(daxes, mean_axis_value, dbuttons, 255);
+      display_run(state[0].user.axis, mean_axis_value, 255);
     }
 
 #ifndef WIN32

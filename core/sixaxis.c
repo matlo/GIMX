@@ -30,16 +30,16 @@ int sixaxis_periodic_report(struct sixaxis_state *state)
 }
 
 const int digital_order[17] = {
-    sb_select, sb_l3, sb_r3, sb_start,
-    sb_up, sb_right, sb_down, sb_left,
-    sb_l2, sb_r2, sb_l1, sb_r1,
-    sb_triangle, sb_circle, sb_cross, sb_square,
-    sb_ps };
+    sa_select, sa_l3, sa_r3, sa_start,
+    sa_up, sa_right, sa_down, sa_left,
+    sa_l2, sa_r2, sa_l1, sa_r1,
+    sa_triangle, sa_circle, sa_cross, sa_square,
+    sa_ps };
 
 const int analog_order[12] = {
-    sb_up, sb_right, sb_down, sb_left,
-    sb_l2, sb_r2, sb_l1, sb_r1,
-    sb_triangle, sb_circle, sb_cross, sb_square };
+    sa_up, sa_right, sa_down, sa_left,
+    sa_l2, sa_r2, sa_l1, sa_r1,
+    sa_triangle, sa_circle, sa_cross, sa_square };
 
 /* Main input report from Sixaxis -- assemble it */
 int assemble_input_01(uint8_t *buf, int maxlen, struct sixaxis_state *state)
@@ -54,19 +54,19 @@ int assemble_input_01(uint8_t *buf, int maxlen, struct sixaxis_state *state)
     for (i = 0; i < 17; i++) {
         int byte = 1 + (i / 8);
         int offset = i % 8;
-        if (u->button[digital_order[i]].pressed)
+        if (u->axis[digital_order[i]])
             buf[byte] |= (1 << offset);
     }
 
     /* Axes */
-    buf[5] = clamp(0, u->axis[0][0] + 128, 255);
-    buf[6] = clamp(0, u->axis[0][1] + 128, 255);
-    buf[7] = clamp(0, u->axis[1][0] + 128, 255);
-    buf[8] = clamp(0, u->axis[1][1] + 128, 255);
+    buf[5] = clamp(0, u->axis[sa_lstick_x] + 128, 255);
+    buf[6] = clamp(0, u->axis[sa_lstick_y] + 128, 255);
+    buf[7] = clamp(0, u->axis[sa_rstick_x] + 128, 255);
+    buf[8] = clamp(0, u->axis[sa_rstick_y] + 128, 255);
 
     /* Analog button state */
     for (i = 0; i < 12; i++)
-        buf[13 + i] = u->button[analog_order[i]].value;
+        buf[13 + i] = u->axis[analog_order[i]];
 
     /* Charging status? */
     buf[28] = 0x03;
@@ -89,10 +89,10 @@ int assemble_input_01(uint8_t *buf, int maxlen, struct sixaxis_state *state)
     buf[39] = 0x9e;
 
     /* Accelerometers */
-    *(uint16_t *)&buf[40] = htons(clamp(0, u->accel.x + 512, 1023));
-    *(uint16_t *)&buf[42] = htons(clamp(0, u->accel.y + 512, 1023));
-    *(uint16_t *)&buf[44] = htons(clamp(0, u->accel.z + 512, 1023));
-    *(uint16_t *)&buf[46] = htons(clamp(0, u->accel.gyro + 512, 1023));
+    *(uint16_t *)&buf[40] = htons(clamp(0, u->axis[sa_acc_x] + 512, 1023));
+    *(uint16_t *)&buf[42] = htons(clamp(0, u->axis[sa_acc_y] + 512, 1023));
+    *(uint16_t *)&buf[44] = htons(clamp(0, u->axis[sa_acc_z] + 512, 1023));
+    *(uint16_t *)&buf[46] = htons(clamp(0, u->axis[sa_gyro] + 512, 1023));
 
     return 48;
 }
@@ -109,26 +109,26 @@ int process_input_01(const uint8_t *buf, int len, struct sixaxis_state *state)
         int byte = 1 + (i / 8);
         int offset = i % 8;
         if (buf[byte] & (1 << offset))
-            u->button[digital_order[i]].pressed = 1;
+            u->axis[digital_order[i]] = 255;
         else
-            u->button[digital_order[i]].pressed = 0;
+            u->axis[digital_order[i]] = 0;
     }
 
     /* Axes */
-    u->axis[0][0] = buf[5] - 128;
-    u->axis[0][1] = buf[6] - 128;
-    u->axis[1][0] = buf[7] - 128;
-    u->axis[1][1] = buf[8] - 128;
+    u->axis[sa_lstick_x] = buf[5] - 128;
+    u->axis[sa_lstick_y] = buf[6] - 128;
+    u->axis[sa_rstick_x] = buf[7] - 128;
+    u->axis[sa_rstick_y] = buf[8] - 128;
 
     /* Analog button state */
     for (i = 0; i < 12; i++)
-        u->button[analog_order[i]].value = buf[13 + i];
+        u->axis[analog_order[i]] = buf[13 + i];
 
     /* Accelerometers */
-    u->accel.x = ntohs(*(uint16_t *)&buf[40]) - 512;
-    u->accel.y = ntohs(*(uint16_t *)&buf[42]) - 512;
-    u->accel.z = ntohs(*(uint16_t *)&buf[44]) - 512;
-    u->accel.gyro = ntohs(*(uint16_t *)&buf[46]) - 512;
+    u->axis[sa_acc_x] = ntohs(*(uint16_t *)&buf[40]) - 512;
+    u->axis[sa_acc_y] = ntohs(*(uint16_t *)&buf[42]) - 512;
+    u->axis[sa_acc_z] = ntohs(*(uint16_t *)&buf[44]) - 512;
+    u->axis[sa_gyro] = ntohs(*(uint16_t *)&buf[46]) - 512;
 
     return 0;
 }

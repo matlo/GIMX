@@ -525,11 +525,8 @@ static int ProcessAxisElement(xmlNode * a_node)
 
       p_mapper = p_mapper+p_mapper->nb_mappers-1;
 
-      p_mapper->controller_button = -1;
-      p_mapper->controller_button_axis = aindex.baindex;
-      p_mapper->controller_thumbstick_axis_value = aindex.tavalue;
-      p_mapper->controller_thumbstick = aindex.tindex;
-      p_mapper->controller_thumbstick_axis = aindex.taindex;
+      p_mapper->controller_axis_value = aindex.value;
+      p_mapper->controller_axis = aindex.index;
 
       switch(r_event_type)
       {
@@ -560,7 +557,7 @@ static int ProcessButtonElement(xmlNode * a_node)
   int ret = 0;
   xmlNode* cur_node = NULL;
   char* bid;
-  e_sixaxis_button_index bindex = 0;
+  e_sixaxis_axis_index bindex = 0;
   s_mapper* p_mapper = NULL;
   s_mapper** pp_mapper = NULL;
 
@@ -633,8 +630,8 @@ static int ProcessButtonElement(xmlNode * a_node)
 
       p_mapper = p_mapper + p_mapper->nb_mappers - 1;
 
-      p_mapper->controller_button = bindex;
-      p_mapper->controller_thumbstick = -1;
+      p_mapper->controller_axis_value = 0;
+      p_mapper->controller_axis = bindex;
 
       switch (r_event_type)
       {
@@ -857,6 +854,7 @@ static int ProcessIntensityListElement(xmlNode * a_node)
   xmlNode* cur_node = NULL;
   int ret = 0;
   char* control;
+  s_intensity* intensity;
 
   for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
   {
@@ -867,11 +865,15 @@ static int ProcessIntensityListElement(xmlNode * a_node)
         control = (char*) xmlGetProp(cur_node, (xmlChar*) X_ATTR_CONTROL);
         if(!strcmp(control, "left_stick"))
         {
-          ret = ProcessIntensityElement(cur_node, cfg_get_left_intensity(r_controller_id, r_config_id));
+          intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, sa_lstick_x);
+          ret = ProcessIntensityElement(cur_node, intensity);
+          memcpy(cfg_get_axis_intensity(r_controller_id, r_config_id, sa_lstick_y), intensity, sizeof(s_intensity));
         }
         else if(!strcmp(control, "right_stick"))
         {
-          ret = ProcessIntensityElement(cur_node, cfg_get_right_intensity(r_controller_id, r_config_id));
+          intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, sa_rstick_x);
+          ret = ProcessIntensityElement(cur_node, intensity);
+          memcpy(cfg_get_axis_intensity(r_controller_id, r_config_id, sa_rstick_y), intensity, sizeof(s_intensity));          
         }
         xmlFree(control);
       }
@@ -890,6 +892,7 @@ static int ProcessConfigurationElement(xmlNode * a_node)
   int ret = 0;
   xmlNode* cur_node = NULL;
   s_intensity* intensity;
+  int i;
 
   ret = GetUnsignedIntProp(a_node, X_ATTR_ID, &r_config_id);
 
@@ -928,23 +931,38 @@ static int ProcessConfigurationElement(xmlNode * a_node)
     printf("missing trigger element");
     ret = -1;
   }
-
-  intensity = cfg_get_left_intensity(r_controller_id, r_config_id);
-  intensity->device_up_id = -1;
-  intensity->device_down_id = -1;
-  intensity->up_button = -1;
-  intensity->down_button = -1;
-  intensity->value = mean_axis_value;
-  intensity->shape = E_SHAPE_RECTANGLE;
-
-  intensity = cfg_get_right_intensity(r_controller_id, r_config_id);
-  intensity->device_up_id = -1;
-  intensity->device_down_id = -1;
-  intensity->up_button = -1;
-  intensity->down_button = -1;
-  intensity->value = mean_axis_value;
-  intensity->shape = E_SHAPE_RECTANGLE;
-
+  
+  for(i=sa_lstick_x; i<=sa_rstick_y; ++i)
+  {
+    intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, i);
+    intensity->device_up_id = -1;
+    intensity->device_down_id = -1;
+    intensity->up_button = -1;
+    intensity->down_button = -1;
+    intensity->value = mean_axis_value;
+    intensity->shape = E_SHAPE_RECTANGLE;
+  }
+  for(i=sa_acc_x; i<=sa_gyro; ++i)
+  {
+    intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, i);
+    intensity->device_up_id = -1;
+    intensity->device_down_id = -1;
+    intensity->up_button = -1;
+    intensity->down_button = -1;
+    intensity->value = 512;
+    intensity->shape = E_SHAPE_RECTANGLE;
+  }  
+  for(i=sa_select; i<SA_MAX; ++i)
+  {
+    intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, i);
+    intensity->device_up_id = -1;
+    intensity->device_down_id = -1;
+    intensity->up_button = -1;
+    intensity->down_button = -1;
+    intensity->value = 255;
+    intensity->shape = E_SHAPE_RECTANGLE;
+  }
+  
   for (cur_node = cur_node->next; cur_node; cur_node = cur_node->next)
   {
     if (cur_node->type == XML_ELEMENT_NODE)
