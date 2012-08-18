@@ -936,12 +936,13 @@ void cfg_process_event(SDL_Event* event)
            */
           if(mapper->button != event->jbutton.button)
           {
-            controller[c_id].send_command = 1;
-            axis = mapper->controller_axis;
-            if(axis >= 0)
-            {
-              update_dbutton_axis(mapper, c_id, axis);
-            }
+            continue;
+          }
+          controller[c_id].send_command = 1;
+          axis = mapper->controller_axis;
+          if(axis >= 0)
+          {
+            update_dbutton_axis(mapper, c_id, axis);
           }
           break;
         case SDL_JOYBUTTONUP:
@@ -951,12 +952,13 @@ void cfg_process_event(SDL_Event* event)
            */
           if(mapper->button != event->jbutton.button)
           {
-            controller[c_id].send_command = 1;
-            axis = mapper->controller_axis;
-            if(axis >= 0)
-            {
-              update_ubutton_axis(mapper, c_id, axis);
-            }
+            continue;
+          }
+          controller[c_id].send_command = 1;
+          axis = mapper->controller_axis;
+          if(axis >= 0)
+          {
+            update_ubutton_axis(mapper, c_id, axis);
           }
           break;
         case SDL_JOYAXISMOTION:
