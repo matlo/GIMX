@@ -408,7 +408,7 @@ int main(int argc, char *argv[])
 #endif
     if(curses)
     {
-      display_run(state[0].user.axis, mean_axis_value, 255);
+      display_run(state[0].user.axis, mean_axis_value);
     }
 
 #ifndef WIN32

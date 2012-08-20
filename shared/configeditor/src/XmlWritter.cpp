@@ -126,6 +126,11 @@ void XmlWritter::CreateIntensityNodes(xmlNodePtr parent_node)
 
     for(list<Intensity>::iterator it = i_list->begin(); it!=i_list->end(); ++it)
     {
+      if(it->GetDirection() != "+" && it->GetDirection() != "-")
+      {
+        continue;
+      }
+      
 #ifndef WIN32
       snprintf(steps, sizeof(steps), "%hhu", it->GetSteps());
       snprintf(dead_zone, sizeof(dead_zone), "%hhu", it->GetDeadZone());
@@ -144,25 +149,24 @@ void XmlWritter::CreateIntensityNodes(xmlNodePtr parent_node)
 
       xmlNewProp(node, BAD_CAST X_ATTR_STEPS, BAD_CAST (const char*) steps);
 
-      xmlNodePtr nodeup = xmlNewChild(node, NULL, BAD_CAST X_NODE_UP, NULL);
+      xmlNodePtr nodedir = NULL;
+      
+      if(it->GetDirection() == "+")
+      {
+        nodedir = xmlNewChild(node, NULL, BAD_CAST X_NODE_UP, NULL);
+      }
+      else if(it->GetDirection() == "-")
+      {
+        nodedir = xmlNewChild(node, NULL, BAD_CAST X_NODE_DOWN, NULL);
+      }
 
-      xmlNewProp(nodeup, BAD_CAST X_ATTR_TYPE, BAD_CAST (const char*) it->GetDeviceUp()->GetType().c_str());
+      xmlNewProp(nodedir, BAD_CAST X_ATTR_TYPE, BAD_CAST (const char*) it->GetDevice()->GetType().c_str());
 
-      xmlNewProp(nodeup, BAD_CAST X_ATTR_NAME, BAD_CAST (const char*) it->GetDeviceUp()->GetName().c_str());
+      xmlNewProp(nodedir, BAD_CAST X_ATTR_NAME, BAD_CAST (const char*) it->GetDevice()->GetName().c_str());
 
-      xmlNewProp(nodeup, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) it->GetDeviceUp()->GetId().c_str());
+      xmlNewProp(nodedir, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) it->GetDevice()->GetId().c_str());
 
-      xmlNewProp(nodeup, BAD_CAST X_ATTR_BUTTON_ID, BAD_CAST (const char*) it->GetEventUp()->GetId().c_str());
-
-      xmlNodePtr nodedown = xmlNewChild(node, NULL, BAD_CAST X_NODE_DOWN, NULL);
-
-      xmlNewProp(nodedown, BAD_CAST X_ATTR_TYPE, BAD_CAST (const char*) it->GetDeviceDown()->GetType().c_str());
-
-      xmlNewProp(nodedown, BAD_CAST X_ATTR_NAME, BAD_CAST (const char*) it->GetDeviceDown()->GetName().c_str());
-
-      xmlNewProp(nodedown, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) it->GetDeviceDown()->GetId().c_str());
-
-      xmlNewProp(nodedown, BAD_CAST X_ATTR_BUTTON_ID, BAD_CAST (const char*) it->GetEventDown()->GetId().c_str());
+      xmlNewProp(nodedir, BAD_CAST X_ATTR_BUTTON_ID, BAD_CAST (const char*) it->GetEvent()->GetId().c_str());
     }
 }
 

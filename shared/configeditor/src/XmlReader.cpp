@@ -408,63 +408,54 @@ void XmlReader::ProcessIntensityElement(xmlNode * a_node)
         {
             if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_UP))
             {
-              prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_TYPE);
-              device_type = string(prop?prop:"");
-              xmlFree(prop);
-              prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_ID);
-              device_id = string(prop?prop:"");
-              xmlFree(prop);
-              prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_NAME);
-              device_name = string(prop?prop:"");
-              xmlFree(prop);
-              prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_BUTTON_ID);
-              button_id = string(prop?prop:"");
-              xmlFree(prop);
-
-              m_TempIntensity.SetDeviceUp(Device(device_type, device_id, device_name));
-              m_TempIntensity.SetEventUp(Event(button_id));
-              break;
+              m_TempIntensity.SetDirection("+");
+            }
+            else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_DOWN))
+            {
+              m_TempIntensity.SetDirection("-");
             }
             else
             {
-                string message(string("bad element name: ") + string((char*)cur_node->name));
-                throw invalid_argument(message);
+              string message(string("bad element name: ") + string((char*)cur_node->name));
+              throw invalid_argument(message);
             }
-        }
-    }
+            
+            prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_TYPE);
+            device_type = string(prop?prop:"");
+            xmlFree(prop);
+            prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_ID);
+            device_id = string(prop?prop:"");
+            xmlFree(prop);
+            prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_NAME);
+            device_name = string(prop?prop:"");
+            xmlFree(prop);
+            prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_BUTTON_ID);
+            button_id = string(prop?prop:"");
+            xmlFree(prop);
 
-    for (cur_node = cur_node->next; cur_node; cur_node = cur_node->next)
-    {
-        if (cur_node->type == XML_ELEMENT_NODE)
-        {
-            if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_DOWN))
+            m_TempIntensity.SetDevice(Device(device_type, device_id, device_name));
+            m_TempIntensity.SetEvent(Event(button_id));
+            
+            if(control == "left_stick")
             {
-              prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_TYPE);
-              device_type = string(prop?prop:"");
-              xmlFree(prop);
-              prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_ID);
-              device_id = string(prop?prop:"");
-              xmlFree(prop);
-              prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_NAME);
-              device_name = string(prop?prop:"");
-              xmlFree(prop);
-              prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_BUTTON_ID);
-              button_id = string(prop?prop:"");
-              xmlFree(prop);
-
-              m_TempIntensity.SetDeviceDown(Device(device_type, device_id, device_name));
-              m_TempIntensity.SetEventDown(Event(button_id));
-              break;
+              m_TempIntensity.SetControl("lstick x");
+              m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
+              m_TempIntensity.SetControl("lstick y");
+              m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
+            }
+            else if(control == "right_stick")
+            {
+              m_TempIntensity.SetControl("rstick x");
+              m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
+              m_TempIntensity.SetControl("rstick y");
+              m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
             }
             else
             {
-                string message(string("bad element name: ") + string((char*)cur_node->name));
-                throw invalid_argument(message);
+              m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
             }
         }
     }
-
-    m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
 }
 
 void XmlReader::ProcessIntensityListElement(xmlNode * a_node)

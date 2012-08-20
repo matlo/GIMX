@@ -233,25 +233,23 @@ void cfg_process_motion()
  */
 static void update_stick(int c_id, int axis)
 {
-  if(axis > sa_rstick_y)
+  if(axis < sa_acc_x)
   {
-    return;
-  }
-  
-  if(axis & 1)
-  {
-    axis = axis - 1;
+    if(axis & 1)
+    {
+      axis = axis - 1;
+    }
   }
   
   s_intensity* intensity = &axis_intensity[c_id][current_config[c_id]][axis];
-  int value = intensity->value;
+  double value = intensity->value;
 
   if(intensity->down_button == -1 && intensity->up_button == -1)
   {
     return;
   }
 
-  if (intensity->shape == E_SHAPE_CIRCLE)
+  if (axis < sa_acc_x && intensity->shape == E_SHAPE_CIRCLE)
   {
     if (state[c_id].user.axis[axis] && state[c_id].user.axis[axis+1])
     {
@@ -294,16 +292,15 @@ static int update_intensity(int device_type, int device_id, int button, int c_id
   if (intensity->device_up_type == device_type && device_id == intensity->device_up_id && button == intensity->up_button)
   {
     intensity->value += intensity->step;
-    if (intensity->value > mean_axis_value)
+    if (intensity->value > intensity->max_value)
     {
       if (intensity->down_button != -1)
       {
-        intensity->value = mean_axis_value;
+        intensity->value = intensity->max_value;
       }
       else
       {
-        intensity->value = (double) intensity->dead_zone
-            + intensity->step;
+        intensity->value = (double) intensity->dead_zone + intensity->step;
       }
     }
     ret = 1;
@@ -319,7 +316,7 @@ static int update_intensity(int device_type, int device_id, int button, int c_id
       }
       else
       {
-        intensity->value = mean_axis_value;
+        intensity->value = intensity->max_value;
       }
     }
     ret = 1;
@@ -619,6 +616,11 @@ static double mouse2axis(int device, struct sixaxis_state* state, int which, dou
   double motion_residue = 0;
   double ztrunk = 0;
   double val = 0;
+  int max_axis = 255;
+  if(axis < sa_acc_x)
+  {
+    max_axis = mean_axis_value;
+  }
 
   multiplier *= axis_scale;
   dz *= axis_scale;
@@ -679,7 +681,7 @@ static double mouse2axis(int device, struct sixaxis_state* state, int which, dou
     /*
      * max axis position => no residue
      */
-    if(state->user.axis[axis] < mean_axis_value)
+    if(state->user.axis[axis] < max_axis)
     {
       ztrunk = state->user.axis[axis] - dz;
     }
@@ -690,7 +692,7 @@ static double mouse2axis(int device, struct sixaxis_state* state, int which, dou
     /*
      * max axis position => no residue
      */
-    if(state->user.axis[axis] > -mean_axis_value)
+    if(state->user.axis[axis] > -max_axis)
     {
       ztrunk = state->user.axis[axis] + dz;
     }
@@ -817,6 +819,7 @@ void cfg_process_event(SDL_Event* event)
   s_mouse_control* mc;
   int nb_buttons;
   unsigned char hat;
+  int max_axis = 255;
 
   /*
    * 'which' should always be at that place
@@ -993,7 +996,11 @@ void cfg_process_event(SDL_Event* event)
               {
                 value -= dead_zone;
               }
-              state[c_id].user.axis[axis] = clamp(-mean_axis_value, value , mean_axis_value);
+              if(axis < sa_acc_x)
+              {
+                max_axis = mean_axis_value;
+              }
+              state[c_id].user.axis[axis] = clamp(-max_axis, value , max_axis);
             }
             else
             {

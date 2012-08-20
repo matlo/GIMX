@@ -10,7 +10,7 @@
 
 void display_init();
 void display_end();
-void display_run(int axes[], int max_axis, int max_button);
+void display_run(int axes[], int max_axis);
 void display_calibration();
 
 #endif /* DISPLAY_H_ */

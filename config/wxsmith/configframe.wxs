@@ -14,6 +14,7 @@
 							<object class="wxFlexGridSizer" variable="FlexGridSizer10" member="no">
 								<cols>1</cols>
 								<rows>2</rows>
+								<growablerows>1</growablerows>
 								<object class="sizeritem">
 									<object class="wxStaticBoxSizer" variable="StaticBoxSizer1" member="no">
 										<label>Profile trigger</label>
@@ -109,210 +110,207 @@
 								</object>
 								<object class="sizeritem">
 									<object class="wxStaticBoxSizer" variable="StaticBoxSizer2" member="no">
-										<label>Stick intensity</label>
+										<label>Axis intensity</label>
 										<object class="sizeritem">
-											<object class="wxFlexGridSizer" variable="FlexGridSizer18" member="no">
+											<object class="wxFlexGridSizer" variable="FlexGridSizer19" member="no">
 												<cols>1</cols>
 												<rows>2</rows>
+												<growablerows>1</growablerows>
 												<object class="sizeritem">
-													<object class="wxStaticBoxSizer" variable="StaticBoxSizer3" member="no">
-														<label>Left</label>
+													<object class="wxFlexGridSizer" variable="FlexGridSizer20" member="no">
+														<cols>10</cols>
+														<rows>2</rows>
 														<object class="sizeritem">
-															<object class="wxFlexGridSizer" variable="FlexGridSizer12" member="no">
-																<cols>5</cols>
-																<rows>2</rows>
-																<object class="sizeritem">
-																	<object class="wxStaticBoxSizer" variable="StaticBoxSizer5" member="no">
-																		<label>Increase</label>
-																		<object class="sizeritem">
-																			<object class="wxFlexGridSizer" variable="FlexGridSizer14" member="no">
-																				<cols>6</cols>
-																				<rows>2</rows>
-																				<object class="sizeritem">
-																					<object class="wxStaticText" name="ID_STATICTEXT58" variable="LSIncDeviceType" member="yes">
-																						<label></label>
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxStaticText" name="ID_STATICTEXT59" variable="LSIncDeviceName" member="yes">
-																						<label></label>
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxStaticText" name="ID_STATICTEXT60" variable="LSIncDeviceId" member="yes">
-																						<label></label>
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxStaticText" name="ID_STATICTEXT61" variable="LSIncButtonId" member="yes">
-																						<label></label>
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxButton" name="ID_BUTTON13" variable="LSIncAutoDetect" member="yes">
-																						<label>Auto detect</label>
-																						<handler function="OnLSIncAutoDetectClick" entry="EVT_BUTTON" />
-																					</object>
-																					<flag>wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxButton" name="ID_BUTTON14" variable="LSIncDelete" member="yes">
-																						<label>Delete</label>
-																						<handler function="OnLSIncDeleteClick" entry="EVT_BUTTON" />
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																			</object>
-																			<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																			<border>5</border>
-																			<option>1</option>
-																		</object>
-																	</object>
-																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																	<border>5</border>
-																	<option>1</option>
-																</object>
-																<object class="sizeritem">
-																	<object class="wxStaticText" name="ID_STATICTEXT24" variable="StaticTextDeadZonePanelAxis" member="yes">
-																		<label>Dead zone</label>
-																	</object>
-																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																	<border>5</border>
-																	<option>1</option>
-																</object>
-																<object class="sizeritem">
-																	<object class="wxSpinCtrl" name="ID_SPINCTRL3" variable="LSDeadzone" member="yes">
-																		<value>0</value>
-																		<max>127</max>
-																		<size>60,-1</size>
-																		<handler function="OnLSDeadzoneChange" entry="EVT_SPINCTRL" />
-																	</object>
-																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																	<border>5</border>
-																	<option>1</option>
-																</object>
-																<object class="sizeritem">
-																	<object class="wxStaticText" name="ID_STATICTEXT62" variable="StaticTextStepsPanelOverall" member="yes">
-																		<label>Steps:</label>
-																	</object>
-																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																	<border>5</border>
-																	<option>1</option>
-																</object>
-																<object class="sizeritem">
-																	<object class="wxSpinCtrl" name="ID_SPINCTRL1" variable="LSSteps" member="yes">
-																		<value>1</value>
-																		<min>1</min>
-																		<max>127</max>
-																		<size>60,-1</size>
-																	</object>
-																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																	<border>5</border>
-																	<option>1</option>
-																</object>
-																<object class="sizeritem">
-																	<object class="wxStaticBoxSizer" variable="StaticBoxSizer6" member="no">
-																		<label>Decrease</label>
-																		<object class="sizeritem">
-																			<object class="wxFlexGridSizer" variable="FlexGridSizer15" member="no">
-																				<cols>6</cols>
-																				<rows>1</rows>
-																				<object class="sizeritem">
-																					<object class="wxStaticText" name="ID_STATICTEXT67" variable="LSDecDeviceType" member="yes">
-																						<label></label>
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxStaticText" name="ID_STATICTEXT68" variable="LSDecDeviceName" member="yes">
-																						<label></label>
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxStaticText" name="ID_STATICTEXT69" variable="LSDecDeviceId" member="yes">
-																						<label></label>
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxStaticText" name="ID_STATICTEXT70" variable="LSDecButtonId" member="yes">
-																						<label></label>
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxButton" name="ID_BUTTON15" variable="LSDecAutoDetect" member="yes">
-																						<label>Auto detect</label>
-																						<handler function="OnLSDecAutoDetectClick" entry="EVT_BUTTON" />
-																					</object>
-																					<flag>wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxButton" name="ID_BUTTON16" variable="LSDecDelete" member="yes">
-																						<label>Delete</label>
-																						<handler function="OnLSDecDeleteClick" entry="EVT_BUTTON" />
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																			</object>
-																			<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																			<border>5</border>
-																			<option>1</option>
-																		</object>
-																	</object>
-																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																	<border>5</border>
-																	<option>1</option>
-																</object>
-																<object class="sizeritem">
-																	<object class="wxStaticText" name="ID_STATICTEXT19" variable="StaticTextShapePanelOverall" member="yes">
-																		<label>Shape</label>
-																	</object>
-																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																	<border>5</border>
-																	<option>1</option>
-																</object>
-																<object class="sizeritem">
-																	<object class="wxChoice" name="ID_CHOICE2" variable="LSShape" member="yes">
-																		<content>
-																			<item>Circle</item>
-																			<item>Rectangle</item>
-																		</content>
-																		<selection>0</selection>
-																	</object>
-																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																	<border>5</border>
-																	<option>1</option>
-																</object>
+															<object class="wxStaticText" name="ID_STATICTEXT65" variable="StaticText13" member="yes">
+																<label>Device type</label>
+															</object>
+															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<border>5</border>
+															<option>1</option>
+														</object>
+														<object class="sizeritem">
+															<object class="wxStaticText" name="ID_STATICTEXT66" variable="StaticText14" member="yes">
+																<label>Device name</label>
+															</object>
+															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<border>5</border>
+															<option>1</option>
+														</object>
+														<object class="sizeritem">
+															<object class="wxStaticText" name="ID_STATICTEXT71" variable="StaticText15" member="yes">
+																<label>Device id</label>
+															</object>
+															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<border>5</border>
+															<option>1</option>
+														</object>
+														<object class="sizeritem">
+															<object class="wxStaticText" name="ID_STATICTEXT72" variable="StaticText16" member="yes">
+																<label>Button id</label>
+															</object>
+															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<border>5</border>
+															<option>1</option>
+														</object>
+														<object class="sizeritem">
+															<object class="wxStaticText" name="ID_STATICTEXT73" variable="StaticText17" member="yes">
+																<label></label>
+															</object>
+															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<border>5</border>
+															<option>1</option>
+														</object>
+														<object class="sizeritem">
+															<object class="wxStaticText" name="ID_STATICTEXT74" variable="StaticText18" member="yes">
+																<label>Direction</label>
+															</object>
+															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<border>5</border>
+															<option>1</option>
+														</object>
+														<object class="sizeritem">
+															<object class="wxStaticText" name="ID_STATICTEXT53" variable="StaticText6" member="yes">
+																<label>DZ</label>
+																<tooltip>Dead zone</tooltip>
+															</object>
+															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<border>5</border>
+															<option>1</option>
+														</object>
+														<object class="sizeritem">
+															<object class="wxStaticText" name="ID_STATICTEXT1" variable="StaticText2" member="yes">
+																<label>Shape</label>
+															</object>
+															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<border>5</border>
+															<option>1</option>
+														</object>
+														<object class="sizeritem">
+															<object class="wxStaticText" name="ID_STATICTEXT54" variable="StaticText7" member="yes">
+																<label>Steps</label>
+															</object>
+															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<border>5</border>
+															<option>1</option>
+														</object>
+														<object class="sizeritem">
+															<object class="wxStaticText" name="ID_STATICTEXT55" variable="StaticText8" member="yes">
+																<label>Axis</label>
+															</object>
+															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<border>5</border>
+															<option>1</option>
+														</object>
+														<object class="sizeritem">
+															<object class="wxStaticText" name="ID_STATICTEXT45" variable="IntensityDeviceType" member="yes">
+																<label></label>
+															</object>
+															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<border>5</border>
+															<option>1</option>
+														</object>
+														<object class="sizeritem">
+															<object class="wxStaticText" name="ID_STATICTEXT46" variable="IntensityDeviceName" member="yes">
+																<label></label>
+															</object>
+															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<border>5</border>
+															<option>1</option>
+														</object>
+														<object class="sizeritem">
+															<object class="wxStaticText" name="ID_STATICTEXT47" variable="IntensityDeviceId" member="yes">
+																<label></label>
+															</object>
+															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<border>5</border>
+															<option>1</option>
+														</object>
+														<object class="sizeritem">
+															<object class="wxStaticText" name="ID_STATICTEXT52" variable="IntensityButtonId" member="yes">
+																<label></label>
+															</object>
+															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<border>5</border>
+															<option>1</option>
+														</object>
+														<object class="sizeritem">
+															<object class="wxButton" name="ID_BUTTON19" variable="IntensityAutoDetect" member="yes">
+																<label>Auto detect</label>
+																<handler function="OnIntensityAutoDetectClick" entry="EVT_BUTTON" />
+															</object>
+															<flag>wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL</flag>
+															<border>5</border>
+															<option>1</option>
+														</object>
+														<object class="sizeritem">
+															<object class="wxChoice" name="ID_CHOICE9" variable="IntensityDirection" member="yes">
+																<content>
+																	<item>+</item>
+																	<item>-</item>
+																</content>
+																<selection>0</selection>
+															</object>
+															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<border>5</border>
+															<option>1</option>
+														</object>
+														<object class="sizeritem">
+															<object class="wxSpinCtrl" name="ID_SPINCTRL6" variable="IntensityDeadZone" member="yes">
+																<value>32</value>
+																<max>127</max>
+																<size>50,-1</size>
+															</object>
+															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<border>5</border>
+															<option>1</option>
+														</object>
+														<object class="sizeritem">
+															<object class="wxChoice" name="ID_CHOICE2" variable="IntensityShape" member="yes">
+																<content>
+																	<item>Circle</item>
+																	<item>Rectangle</item>
+																</content>
+																<selection>0</selection>
+															</object>
+															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<border>5</border>
+															<option>1</option>
+														</object>
+														<object class="sizeritem">
+															<object class="wxSpinCtrl" name="ID_SPINCTRL7" variable="IntensitySteps" member="yes">
+																<value>3</value>
+																<min>1</min>
+																<max>127</max>
+																<size>50,-1</size>
+															</object>
+															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<border>5</border>
+															<option>1</option>
+														</object>
+														<object class="sizeritem">
+															<object class="wxChoice" name="ID_CHOICE6" variable="IntensityAxis" member="yes">
+																<content>
+																	<item>lstick x</item>
+																	<item>lstick y</item>
+																	<item>rstick x</item>
+																	<item>rstick y</item>
+																	<item>acc x</item>
+																	<item>acc y</item>
+																	<item>acc z</item>
+																	<item>gyro</item>
+																	<item>up</item>
+																	<item>down</item>
+																	<item>right</item>
+																	<item>left</item>
+																	<item>r1</item>
+																	<item>r2</item>
+																	<item>l1</item>
+																	<item>l2</item>
+																	<item>circle</item>
+																	<item>square</item>
+																	<item>cross</item>
+																	<item>triangle</item>
+																</content>
 															</object>
 															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 															<border>5</border>
@@ -324,221 +322,78 @@
 													<option>1</option>
 												</object>
 												<object class="sizeritem">
-													<object class="wxStaticBoxSizer" variable="StaticBoxSizer4" member="no">
-														<label>Right</label>
+													<object class="wxFlexGridSizer" variable="FlexGridSizer21" member="no">
+														<cols>2</cols>
+														<rows>1</rows>
 														<object class="sizeritem">
-															<object class="wxFlexGridSizer" variable="FlexGridSizer16" member="no">
-																<cols>5</cols>
+															<object class="wxGrid" name="ID_GRID3" variable="GridIntensity" member="yes">
+																<cols>9</cols>
+																<readonly>1</readonly>
+																<labelcolwidth>25</labelcolwidth>
+																<collabels>
+																	<item>Device type</item>
+																	<item>Device name</item>
+																	<item>Device id</item>
+																	<item>Button id</item>
+																	<item>Direction</item>
+																	<item>Dead zone</item>
+																	<item>Shape</item>
+																	<item>Steps</item>
+																	<item>Axis</item>
+																</collabels>
+																<style>wxVSCROLL</style>
+															</object>
+															<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<border>5</border>
+														</object>
+														<object class="sizeritem">
+															<object class="wxFlexGridSizer" variable="FlexGridSizer22" member="no">
+																<cols>1</cols>
 																<rows>2</rows>
 																<object class="sizeritem">
-																	<object class="wxStaticBoxSizer" variable="StaticBoxSizer7" member="no">
-																		<label>Increase</label>
-																		<object class="sizeritem">
-																			<object class="wxFlexGridSizer" variable="FlexGridSizer2" member="no">
-																				<cols>6</cols>
-																				<rows>2</rows>
-																				<object class="sizeritem">
-																					<object class="wxStaticText" name="ID_STATICTEXT48" variable="RSIncDeviceType" member="yes">
-																						<label></label>
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxStaticText" name="ID_STATICTEXT49" variable="RSIncDeviceName" member="yes">
-																						<label></label>
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxStaticText" name="ID_STATICTEXT50" variable="RSIncDeviceId" member="yes">
-																						<label></label>
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxStaticText" name="ID_STATICTEXT51" variable="RSIncButtonId" member="yes">
-																						<label></label>
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxButton" name="ID_BUTTON11" variable="RSIncAutoDetect" member="yes">
-																						<label>Auto detect</label>
-																						<handler function="OnRSIncAutoDetectClick1" entry="EVT_BUTTON" />
-																					</object>
-																					<flag>wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxButton" name="ID_BUTTON12" variable="RSIncDelete" member="yes">
-																						<label>Delete</label>
-																						<handler function="OnRSIncDeleteClick" entry="EVT_BUTTON" />
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																			</object>
-																			<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																			<border>5</border>
-																			<option>1</option>
-																		</object>
+																	<object class="wxButton" name="ID_BUTTON21" variable="IntensityAdd" member="yes">
+																		<label>Add</label>
+																		<handler function="OnIntensityAddClick" entry="EVT_BUTTON" />
 																	</object>
 																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																	<border>5</border>
 																	<option>1</option>
 																</object>
 																<object class="sizeritem">
-																	<object class="wxStaticText" name="ID_STATICTEXT26" variable="StaticTextDeadZonePanelOverall" member="yes">
-																		<label>Dead zone</label>
+																	<object class="wxButton" name="ID_BUTTON22" variable="IntensityRemove" member="yes">
+																		<label>Remove</label>
+																		<handler function="OnIntensityRemoveClick" entry="EVT_BUTTON" />
 																	</object>
 																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																	<border>5</border>
 																	<option>1</option>
 																</object>
 																<object class="sizeritem">
-																	<object class="wxSpinCtrl" name="ID_SPINCTRL4" variable="RSDeadZone" member="yes">
-																		<value>0</value>
-																		<max>127</max>
-																		<size>60,-1</size>
-																		<handler function="OnRSDeadZoneChange" entry="EVT_SPINCTRL" />
-																	</object>
-																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																	<border>5</border>
-																	<option>1</option>
-																</object>
-																<object class="sizeritem">
-																	<object class="wxStaticText" name="ID_STATICTEXT25" variable="StaticTextSteps2PanelOverall" member="yes">
-																		<label>Steps:</label>
-																	</object>
-																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																	<border>5</border>
-																	<option>1</option>
-																</object>
-																<object class="sizeritem">
-																	<object class="wxSpinCtrl" name="ID_SPINCTRL2" variable="RSSteps" member="yes">
-																		<value>1</value>
-																		<min>1</min>
-																		<max>127</max>
-																		<size>60,-1</size>
-																	</object>
-																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																	<border>5</border>
-																	<option>1</option>
-																</object>
-																<object class="sizeritem">
-																	<object class="wxStaticBoxSizer" variable="StaticBoxSizer8" member="no">
-																		<label>Decrease</label>
-																		<object class="sizeritem">
-																			<object class="wxFlexGridSizer" variable="FlexGridSizer17" member="no">
-																				<cols>6</cols>
-																				<rows>1</rows>
-																				<object class="sizeritem">
-																					<object class="wxStaticText" name="ID_STATICTEXT1" variable="RSDecDeviceType" member="yes">
-																						<label></label>
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxStaticText" name="ID_STATICTEXT2" variable="RSDecDeviceName" member="yes">
-																						<label></label>
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxStaticText" name="ID_STATICTEXT3" variable="RSDecDeviceId" member="yes">
-																						<label></label>
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxStaticText" name="ID_STATICTEXT9" variable="RSDecButtonId" member="yes">
-																						<label></label>
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxButton" name="ID_BUTTON17" variable="RSDecAutoDetect" member="yes">
-																						<label>Auto detect</label>
-																						<handler function="OnRSDecAutoDetectClick" entry="EVT_BUTTON" />
-																					</object>
-																					<flag>wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																				<object class="sizeritem">
-																					<object class="wxButton" name="ID_BUTTON18" variable="RSDecDelete" member="yes">
-																						<label>Delete</label>
-																						<handler function="OnRSDecDeleteClick" entry="EVT_BUTTON" />
-																					</object>
-																					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																					<border>5</border>
-																					<option>1</option>
-																				</object>
-																			</object>
-																			<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																			<border>5</border>
-																			<option>1</option>
-																		</object>
-																	</object>
-																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																	<border>5</border>
-																	<option>1</option>
-																</object>
-																<object class="sizeritem">
-																	<object class="wxStaticText" name="ID_STATICTEXT23" variable="StaticTextShape2PanelOverall" member="yes">
-																		<label>Shape</label>
-																	</object>
-																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																	<border>5</border>
-																	<option>1</option>
-																</object>
-																<object class="sizeritem">
-																	<object class="wxChoice" name="ID_CHOICE3" variable="RSShape" member="yes">
-																		<content>
-																			<item>Circle</item>
-																			<item>Rectangle</item>
-																		</content>
-																		<selection>0</selection>
+																	<object class="wxButton" name="ID_BUTTON23" variable="IntensityModify" member="yes">
+																		<label>Modify</label>
+																		<handler function="OnIntensityModifyClick" entry="EVT_BUTTON" />
 																	</object>
 																	<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																	<border>5</border>
 																	<option>1</option>
 																</object>
 															</object>
-															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+															<flag>wxALL|wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL</flag>
 															<border>5</border>
 															<option>1</option>
 														</object>
 													</object>
-													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+													<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 													<border>5</border>
 													<option>1</option>
 												</object>
 											</object>
-											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+											<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 											<border>5</border>
 											<option>1</option>
 										</object>
 									</object>
-									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+									<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 									<border>5</border>
 									<option>1</option>
 								</object>
@@ -1298,7 +1153,6 @@
 				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM25" variable="MenuItemLinkControls" member="yes">
 					<label>Link controls</label>
-					<checked>1</checked>
 					<checkable>1</checkable>
 				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM27" variable="MenuAutoBindControls" member="yes">

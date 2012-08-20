@@ -364,7 +364,7 @@ int last_button_nb = 0;
 int cpt = 0;
 int cpt_total = 0;
 
-void display_run(int axis[], int max_axis, int max_button)
+void display_run(int axis[], int max_axis)
 {
   int i;
   int d;

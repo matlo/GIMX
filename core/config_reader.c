@@ -780,7 +780,7 @@ static int ProcessUpDownElement(xmlNode * a_node, int* device_type, int* device_
   return ret;
 }
 
-static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity)
+static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity, int axis)
 {
   xmlNode* cur_node = NULL;
   int ret = 0;
@@ -814,7 +814,18 @@ static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity)
 
     if(ret != -1)
     {
-      intensity->dead_zone = dz * axis_scale;
+      if(axis < sa_acc_x)
+      {
+        intensity->dead_zone = dz * axis_scale;
+      }
+      else if(axis < sa_select)
+      {
+        intensity->dead_zone = dz * 4;
+      }
+      else
+      {
+        intensity->dead_zone = dz * 2;
+      }
 
       shape = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_SHAPE);
       if(shape)
@@ -840,7 +851,7 @@ static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity)
 
         if(ret != -1)
         {
-          intensity->step = (double)(mean_axis_value - intensity->dead_zone) / steps;
+          intensity->step = (double)(intensity->value - intensity->dead_zone) / steps;
         }
       }
     }
@@ -855,6 +866,7 @@ static int ProcessIntensityListElement(xmlNode * a_node)
   int ret = 0;
   char* control;
   s_intensity* intensity;
+  int axis;
 
   for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
   {
@@ -866,14 +878,23 @@ static int ProcessIntensityListElement(xmlNode * a_node)
         if(!strcmp(control, "left_stick"))
         {
           intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, sa_lstick_x);
-          ret = ProcessIntensityElement(cur_node, intensity);
+          ret = ProcessIntensityElement(cur_node, intensity, sa_lstick_x);
           memcpy(cfg_get_axis_intensity(r_controller_id, r_config_id, sa_lstick_y), intensity, sizeof(s_intensity));
         }
         else if(!strcmp(control, "right_stick"))
         {
           intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, sa_rstick_x);
-          ret = ProcessIntensityElement(cur_node, intensity);
-          memcpy(cfg_get_axis_intensity(r_controller_id, r_config_id, sa_rstick_y), intensity, sizeof(s_intensity));          
+          ret = ProcessIntensityElement(cur_node, intensity, sa_rstick_x);
+          memcpy(cfg_get_axis_intensity(r_controller_id, r_config_id, sa_rstick_y), intensity, sizeof(s_intensity));
+        }
+        else
+        {
+          axis = get_button_index_from_name(control);
+          if(axis >= 0)
+          {
+            intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, axis);
+            ret = ProcessIntensityElement(cur_node, intensity, axis);
+          }
         }
         xmlFree(control);
       }
@@ -940,6 +961,7 @@ static int ProcessConfigurationElement(xmlNode * a_node)
     intensity->up_button = -1;
     intensity->down_button = -1;
     intensity->value = mean_axis_value;
+    intensity->max_value = mean_axis_value;
     intensity->shape = E_SHAPE_RECTANGLE;
   }
   for(i=sa_acc_x; i<=sa_gyro; ++i)
@@ -949,7 +971,8 @@ static int ProcessConfigurationElement(xmlNode * a_node)
     intensity->device_down_id = -1;
     intensity->up_button = -1;
     intensity->down_button = -1;
-    intensity->value = 512;
+    intensity->value = 511;
+    intensity->max_value = 511;
     intensity->shape = E_SHAPE_RECTANGLE;
   }  
   for(i=sa_select; i<SA_MAX; ++i)
@@ -960,6 +983,7 @@ static int ProcessConfigurationElement(xmlNode * a_node)
     intensity->up_button = -1;
     intensity->down_button = -1;
     intensity->value = 255;
+    intensity->max_value = 255;
     intensity->shape = E_SHAPE_RECTANGLE;
   }
   

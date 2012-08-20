@@ -166,6 +166,7 @@ typedef struct
   e_shape shape;
   double step;
   double value;
+  double max_value;
 }s_intensity;
 
 void cfg_trigger_init();
