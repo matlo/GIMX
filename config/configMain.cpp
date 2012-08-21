@@ -2624,7 +2624,7 @@ void configFrame::OnIntensityRemoveClick(wxCommandEvent& event)
 
 void configFrame::updateIntensityConfigurations()
 {
-    int k;
+    /*int k;
 
     std::list<Intensity>* intensities;
 
@@ -2650,7 +2650,7 @@ void configFrame::updateIntensityConfigurations()
               it->SetControl(string(GridIntensity->GetCellValue(grid3mod, 8).mb_str()));
           }
       }
-    }
+    }*/
 }
 
 void configFrame::OnIntensityModifyClick(wxCommandEvent& event)
