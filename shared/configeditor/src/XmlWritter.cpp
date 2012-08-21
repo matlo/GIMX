@@ -126,7 +126,7 @@ void XmlWritter::CreateIntensityNodes(xmlNodePtr parent_node)
 
     for(list<Intensity>::iterator it = i_list->begin(); it!=i_list->end(); ++it)
     {
-      if(it->GetDirection() != "+" && it->GetDirection() != "-")
+      if(it->GetDirection() != "Increase" && it->GetDirection() != "Decrease")
       {
         continue;
       }
@@ -151,11 +151,11 @@ void XmlWritter::CreateIntensityNodes(xmlNodePtr parent_node)
 
       xmlNodePtr nodedir = NULL;
       
-      if(it->GetDirection() == "+")
+      if(it->GetDirection() == "Increase")
       {
         nodedir = xmlNewChild(node, NULL, BAD_CAST X_NODE_UP, NULL);
       }
-      else if(it->GetDirection() == "-")
+      else if(it->GetDirection() == "Decrease")
       {
         nodedir = xmlNewChild(node, NULL, BAD_CAST X_NODE_DOWN, NULL);
       }

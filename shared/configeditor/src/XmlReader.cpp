@@ -408,11 +408,11 @@ void XmlReader::ProcessIntensityElement(xmlNode * a_node)
         {
             if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_UP))
             {
-              m_TempIntensity.SetDirection("+");
+              m_TempIntensity.SetDirection("Increase");
             }
             else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_DOWN))
             {
-              m_TempIntensity.SetDirection("-");
+              m_TempIntensity.SetDirection("Decrease");
             }
             else
             {
@@ -438,16 +438,12 @@ void XmlReader::ProcessIntensityElement(xmlNode * a_node)
             
             if(control == "left_stick")
             {
-              m_TempIntensity.SetControl("lstick x");
-              m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
-              m_TempIntensity.SetControl("lstick y");
+              m_TempIntensity.SetControl("lstick");
               m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
             }
             else if(control == "right_stick")
             {
-              m_TempIntensity.SetControl("rstick x");
-              m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
-              m_TempIntensity.SetControl("rstick y");
+              m_TempIntensity.SetControl("rstick");
               m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
             }
             else
