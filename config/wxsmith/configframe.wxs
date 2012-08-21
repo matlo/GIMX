@@ -245,10 +245,11 @@
 														<object class="sizeritem">
 															<object class="wxChoice" name="ID_CHOICE9" variable="IntensityDirection" member="yes">
 																<content>
-																	<item>+</item>
-																	<item>-</item>
+																	<item>Increase</item>
+																	<item>Decrease</item>
 																</content>
 																<selection>0</selection>
+																<size>70,-1</size>
 															</object>
 															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 															<border>5</border>
@@ -266,11 +267,7 @@
 														</object>
 														<object class="sizeritem">
 															<object class="wxChoice" name="ID_CHOICE2" variable="IntensityShape" member="yes">
-																<content>
-																	<item>Circle</item>
-																	<item>Rectangle</item>
-																</content>
-																<selection>0</selection>
+																<size>75,-1</size>
 															</object>
 															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 															<border>5</border>
@@ -290,6 +287,8 @@
 														<object class="sizeritem">
 															<object class="wxChoice" name="ID_CHOICE6" variable="IntensityAxis" member="yes">
 																<content>
+																	<item>lstick</item>
+																	<item>rstick</item>
 																	<item>lstick x</item>
 																	<item>lstick y</item>
 																	<item>rstick x</item>
@@ -311,6 +310,7 @@
 																	<item>cross</item>
 																	<item>triangle</item>
 																</content>
+																<handler function="OnIntensityAxisSelect" entry="EVT_CHOICE" />
 															</object>
 															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 															<border>5</border>
@@ -1153,6 +1153,7 @@
 				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM25" variable="MenuItemLinkControls" member="yes">
 					<label>Link controls</label>
+					<checked>1</checked>
 					<checkable>1</checkable>
 				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM27" variable="MenuAutoBindControls" member="yes">

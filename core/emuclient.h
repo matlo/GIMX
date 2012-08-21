@@ -31,6 +31,8 @@ extern int proc_time;
 extern int proc_time_worst;
 extern int proc_time_total;
 
+int get_max_axis_value(int);
+
 #define gprintf(...) if(display) printf(__VA_ARGS__)
 
 #endif /* EMUCLIENT_H_ */

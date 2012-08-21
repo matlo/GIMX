@@ -93,6 +93,22 @@ int proc_time = 0;
 int proc_time_worst = 0;
 int proc_time_total = 0;
 
+int get_max_axis_value(int axis)
+{
+  if(axis < sa_acc_x)
+  {
+    return max_axis_value;
+  }
+  else if(axis < sa_select)
+  {
+    return 512;
+  }
+  else
+  {
+    return 255;
+  }
+}
+
 int main(int argc, char *argv[])
 {
   int grab = 1;
@@ -408,7 +424,7 @@ int main(int argc, char *argv[])
 #endif
     if(curses)
     {
-      display_run(state[0].user.axis, mean_axis_value);
+      display_run(state[0].user.axis);
     }
 
 #ifndef WIN32

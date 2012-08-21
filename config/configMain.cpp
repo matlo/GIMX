@@ -334,7 +334,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     wxStaticBoxSizer* StaticBoxSizer1;
     wxFlexGridSizer* FlexGridSizer1;
     wxFlexGridSizer* FlexGridSizer11;
-
+    
     Create(parent, wxID_ANY, _("Gimx-config"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     GridSizer1 = new wxGridSizer(1, 1, 0, 0);
     Notebook1 = new wxNotebook(this, ID_NOTEBOOK1, wxDefaultPosition, wxSize(-1,570), 0, _T("ID_NOTEBOOK1"));
@@ -400,21 +400,21 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     FlexGridSizer20->Add(IntensityButtonId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     IntensityAutoDetect = new wxButton(PanelOverall, ID_BUTTON19, _("Auto detect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON19"));
     FlexGridSizer20->Add(IntensityAutoDetect, 1, wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL, 5);
-    IntensityDirection = new wxChoice(PanelOverall, ID_CHOICE9, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE9"));
-    IntensityDirection->SetSelection( IntensityDirection->Append(_("+")) );
-    IntensityDirection->Append(_("-"));
+    IntensityDirection = new wxChoice(PanelOverall, ID_CHOICE9, wxDefaultPosition, wxSize(70,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE9"));
+    IntensityDirection->SetSelection( IntensityDirection->Append(_("Increase")) );
+    IntensityDirection->Append(_("Decrease"));
     FlexGridSizer20->Add(IntensityDirection, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     IntensityDeadZone = new wxSpinCtrl(PanelOverall, ID_SPINCTRL6, _T("32"), wxDefaultPosition, wxSize(50,-1), 0, 0, 127, 32, _T("ID_SPINCTRL6"));
     IntensityDeadZone->SetValue(_T("32"));
     FlexGridSizer20->Add(IntensityDeadZone, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    IntensityShape = new wxChoice(PanelOverall, ID_CHOICE2, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE2"));
-    IntensityShape->SetSelection( IntensityShape->Append(_("Circle")) );
-    IntensityShape->Append(_("Rectangle"));
+    IntensityShape = new wxChoice(PanelOverall, ID_CHOICE2, wxDefaultPosition, wxSize(75,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE2"));
     FlexGridSizer20->Add(IntensityShape, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     IntensitySteps = new wxSpinCtrl(PanelOverall, ID_SPINCTRL7, _T("3"), wxDefaultPosition, wxSize(50,-1), 0, 1, 127, 3, _T("ID_SPINCTRL7"));
     IntensitySteps->SetValue(_T("3"));
     FlexGridSizer20->Add(IntensitySteps, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     IntensityAxis = new wxChoice(PanelOverall, ID_CHOICE6, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE6"));
+    IntensityAxis->Append(_("lstick"));
+    IntensityAxis->Append(_("rstick"));
     IntensityAxis->Append(_("lstick x"));
     IntensityAxis->Append(_("lstick y"));
     IntensityAxis->Append(_("rstick x"));
@@ -739,6 +739,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     MenuAdvanced->Append(MenuItemMultipleMiceAndKeyboards);
     MenuItemLinkControls = new wxMenuItem(MenuAdvanced, ID_MENUITEM25, _("Link controls"), wxEmptyString, wxITEM_CHECK);
     MenuAdvanced->Append(MenuItemLinkControls);
+    MenuItemLinkControls->Check(true);
     MenuAutoBindControls = new wxMenuItem(MenuAdvanced, ID_MENUITEM27, _("Auto-bind controls"), wxEmptyString, wxITEM_NORMAL);
     MenuAdvanced->Append(MenuAutoBindControls);
     MenuBar1->Append(MenuAdvanced, _("Advanced"));
@@ -758,10 +759,11 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     FileDialog1 = new wxFileDialog(this, _("Select file"), wxEmptyString, wxEmptyString, _("XML files (*.xml)|*.xml"), wxFD_DEFAULT_STYLE|wxFD_OPEN, wxDefaultPosition, wxDefaultSize, _T("wxFileDialog"));
     GridSizer1->Fit(this);
     GridSizer1->SetSizeHints(this);
-
+    
     Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonAutoDetectClick);
     Connect(ID_BUTTON10,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonDeleteTrigger);
     Connect(ID_BUTTON19,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnIntensityAutoDetectClick);
+    Connect(ID_CHOICE6,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&configFrame::OnIntensityAxisSelect);
     Connect(ID_BUTTON21,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnIntensityAddClick);
     Connect(ID_BUTTON22,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnIntensityRemoveClick);
     Connect(ID_BUTTON23,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnIntensityModifyClick);
@@ -1433,7 +1435,7 @@ void configFrame::save_current()
     intensityList->erase(intensityList->begin(), intensityList->end());
     for(int i=0; i<GridIntensity->GetNumberRows(); i++)
     {
-      intensityList->push_back(Intensity(string(GridIntensity->GetCellValue(i, 8).mb_str()), string(GridIntensity->GetCellValue(i, 0).mb_str()),
+      intensityList->push_front(Intensity(string(GridIntensity->GetCellValue(i, 8).mb_str()), string(GridIntensity->GetCellValue(i, 0).mb_str()),
           string(GridIntensity->GetCellValue(i, 2).mb_str()), string(GridIntensity->GetCellValue(i, 1).mb_str()), string(GridIntensity->GetCellValue(i, 3).mb_str()), string(GridIntensity->GetCellValue(i, 4).mb_str()),
           wxAtoi(GridIntensity->GetCellValue(i, 5)), wxAtoi(GridIntensity->GetCellValue(i, 7)), string(GridIntensity->GetCellValue(i, 6).mb_str())));
     }
@@ -1824,13 +1826,6 @@ void configFrame::OnButtonModifyButton(wxCommandEvent& event)
           }
         }
 
-        GridPanelButton->SetCellValue(grid1mod, 0, ButtonTabDeviceType->GetLabel());
-        GridPanelButton->SetCellValue(grid1mod, 1, ButtonTabDeviceName->GetLabel());
-        GridPanelButton->SetCellValue(grid1mod, 2, ButtonTabDeviceId->GetLabel());
-        GridPanelButton->SetCellValue(grid1mod, 3, ButtonTabEventType->GetStringSelection());
-        GridPanelButton->SetCellValue(grid1mod, 4, ButtonTabEventId->GetLabel());
-        GridPanelButton->SetCellValue(grid1mod, 5, ButtonTabThreshold->GetValue());
-        GridPanelButton->SetCellValue(grid1mod, 6, ButtonTabButtonId->GetStringSelection());
         string l = string(ButtonTabLabel->GetValue().mb_str());
         size_t pos = l.find(", not found");
         size_t size = sizeof(", not found");
@@ -1848,11 +1843,21 @@ void configFrame::OnButtonModifyButton(wxCommandEvent& event)
             GridPanelButton->SetCellBackgroundColour(grid1mod, i, GridPanelButton->GetDefaultCellBackgroundColour());
           }
         }
-        GridPanelButton->SetCellValue(grid1mod, 7, ButtonTabLabel->GetValue());
+
         if(MenuItemLinkControls->IsChecked())
         {
           updateButtonConfigurations();
         }
+
+        GridPanelButton->SetCellValue(grid1mod, 0, ButtonTabDeviceType->GetLabel());
+        GridPanelButton->SetCellValue(grid1mod, 1, ButtonTabDeviceName->GetLabel());
+        GridPanelButton->SetCellValue(grid1mod, 2, ButtonTabDeviceId->GetLabel());
+        GridPanelButton->SetCellValue(grid1mod, 3, ButtonTabEventType->GetStringSelection());
+        GridPanelButton->SetCellValue(grid1mod, 4, ButtonTabEventId->GetLabel());
+        GridPanelButton->SetCellValue(grid1mod, 5, ButtonTabThreshold->GetValue());
+        GridPanelButton->SetCellValue(grid1mod, 6, ButtonTabButtonId->GetStringSelection());
+        GridPanelButton->SetCellValue(grid1mod, 7, ButtonTabLabel->GetValue());
+
         ButtonTabAdd->Enable();
         ButtonTabRemove->Enable();
         ButtonTabModify->SetLabel(_("Modify"));
@@ -1980,18 +1985,6 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event)
           }
         }
 
-        GridPanelAxis->SetCellValue(grid2mod, 0, AxisTabDeviceType->GetLabel());
-        GridPanelAxis->SetCellValue(grid2mod, 1, AxisTabDeviceName->GetLabel());
-        GridPanelAxis->SetCellValue(grid2mod, 2, AxisTabDeviceId->GetLabel());
-        GridPanelAxis->SetCellValue(grid2mod, 3, AxisTabEventType->GetStringSelection());
-        GridPanelAxis->SetCellValue(grid2mod, 4, AxisTabEventId->GetLabel());
-        GridPanelAxis->SetCellValue(grid2mod, 5, AxisTabAxisId->GetStringSelection());
-        GridPanelAxis->SetCellValue(grid2mod, 6, AxisTabDeadZone->GetValue());
-        GridPanelAxis->SetCellValue(grid2mod, 7, AxisTabSensitivity->GetValue());
-        GridPanelAxis->SetCellValue(grid2mod, 8, AxisTabAcceleration->GetValue());
-        GridPanelAxis->SetCellValue(grid2mod, 9, AxisTabShape->GetStringSelection());
-        GridPanelAxis->SetCellValue(grid2mod, 10, AxisTabBufferSize->GetValue());
-        GridPanelAxis->SetCellValue(grid2mod, 11, AxisTabFilter->GetValue());
         string l = string(AxisTabLabel->GetValue().mb_str());
         size_t pos = l.find(", not found");
         size_t size = sizeof(", not found");
@@ -2009,11 +2002,26 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event)
             GridPanelAxis->SetCellBackgroundColour(grid2mod, i, GridPanelAxis->GetDefaultCellBackgroundColour());
           }
         }
-        GridPanelAxis->SetCellValue(grid2mod, 12, AxisTabLabel->GetValue());
+
         if(MenuItemLinkControls->IsChecked())
         {
           updateAxisConfigurations();
         }
+
+        GridPanelAxis->SetCellValue(grid2mod, 0, AxisTabDeviceType->GetLabel());
+        GridPanelAxis->SetCellValue(grid2mod, 1, AxisTabDeviceName->GetLabel());
+        GridPanelAxis->SetCellValue(grid2mod, 2, AxisTabDeviceId->GetLabel());
+        GridPanelAxis->SetCellValue(grid2mod, 3, AxisTabEventType->GetStringSelection());
+        GridPanelAxis->SetCellValue(grid2mod, 4, AxisTabEventId->GetLabel());
+        GridPanelAxis->SetCellValue(grid2mod, 5, AxisTabAxisId->GetStringSelection());
+        GridPanelAxis->SetCellValue(grid2mod, 6, AxisTabDeadZone->GetValue());
+        GridPanelAxis->SetCellValue(grid2mod, 7, AxisTabSensitivity->GetValue());
+        GridPanelAxis->SetCellValue(grid2mod, 8, AxisTabAcceleration->GetValue());
+        GridPanelAxis->SetCellValue(grid2mod, 9, AxisTabShape->GetStringSelection());
+        GridPanelAxis->SetCellValue(grid2mod, 10, AxisTabBufferSize->GetValue());
+        GridPanelAxis->SetCellValue(grid2mod, 11, AxisTabFilter->GetValue());
+        GridPanelAxis->SetCellValue(grid2mod, 12, AxisTabLabel->GetValue());
+
         Button3->Enable();
         Button7->Enable();
         Button5->SetLabel(_("Modify"));
@@ -2584,34 +2592,7 @@ void configFrame::OnIntensityAddClick(wxCommandEvent& event)
   steps << IntensitySteps->GetValue();
   GridIntensity->SetCellValue(0, 7, steps);
   GridIntensity->SetCellValue(0, 8, IntensityAxis->GetStringSelection());
-  
-  wxString axis = IntensityAxis->GetStringSelection();
-  if(axis.Find(_("stick")) != wxNOT_FOUND)
-  {
-    if(!axis.Replace(_("x"), _("y")))
-    {
-      axis.Replace(_("y"), _("x"));
-    }
-    int answer = wxMessageBox(_("Add ") + axis + _("?"), _("Confirm"), wxYES_NO);
-    if (answer == wxYES)
-    {
-      GridIntensity->InsertRows();
-      GridIntensity->SetCellValue(0, 0, IntensityDeviceType->GetLabel());
-      GridIntensity->SetCellValue(0, 1, IntensityDeviceName->GetLabel());
-      GridIntensity->SetCellValue(0, 2, IntensityDeviceId->GetLabel());
-      GridIntensity->SetCellValue(0, 3, IntensityButtonId->GetLabel());
-      GridIntensity->SetCellValue(0, 4, IntensityDirection->GetStringSelection());
-      wxString dz;
-      dz << IntensityDeadZone->GetValue();
-      GridIntensity->SetCellValue(0, 5, dz);
-      GridIntensity->SetCellValue(0, 6, IntensityShape->GetStringSelection());
-      wxString steps;
-      steps << IntensitySteps->GetValue();
-      GridIntensity->SetCellValue(0, 7, steps);
-      GridIntensity->SetCellValue(0, 8, axis);
-    }
-  }
-  
+
   GridIntensity->AutoSizeColumns();
   refresh_gui();
 }
@@ -2622,9 +2603,9 @@ void configFrame::OnIntensityRemoveClick(wxCommandEvent& event)
   refresh_gui();
 }
 
-void configFrame::updateIntensityConfigurations()
+void configFrame::updateIntensityConfigurations(Intensity* oldI, Intensity* newI)
 {
-    /*int k;
+    int k;
 
     std::list<Intensity>* intensities;
 
@@ -2634,23 +2615,19 @@ void configFrame::updateIntensityConfigurations()
     {
       Configuration* config = controller->GetConfiguration(k);
 
-      intensities = config->GetButtonMapperList();
+      intensities = config->GetIntensityList();
       for(std::list<Intensity>::iterator it = intensities->begin(); it!=intensities->end(); ++it)
       {
-          if(it->GetDevice()->GetType() == string(GridIntensity->GetCellValue(grid3mod, 0).mb_str())
-              && it->GetDevice()->GetName() == string(GridIntensity->GetCellValue(grid3mod, 1).mb_str())
-              && it->GetDevice()->GetId() == string(GridIntensity->GetCellValue(grid3mod, 2).mb_str())
-              && it->GetEvent()->GetId() == string(GridIntensity->GetCellValue(grid3mod, 3).mb_str())
-              && it->GetControl() == string(GridIntensity->GetCellValue(grid3mod, 8).mb_str()))
+          if(it->GetDevice()->GetType() == oldI->GetDevice()->GetType()
+              && it->GetDevice()->GetName() == oldI->GetDevice()->GetName()
+              && it->GetDevice()->GetId() == oldI->GetDevice()->GetId()
+              && it->GetEvent()->GetId() == oldI->GetEvent()->GetId()
+              && it->GetControl() == oldI->GetControl())
           {
-              it->GetDevice()->SetType(string(IntensityDeviceType->GetLabel().mb_str()));
-              it->GetDevice()->SetId(string(IntensityDeviceId->GetLabel().mb_str()));
-              it->GetDevice()->SetName(string(IntensityDeviceName->GetLabel().mb_str()));
-              it->GetEvent()->SetId(string(IntensityButtonId->GetLabel().mb_str()));
-              it->SetControl(string(GridIntensity->GetCellValue(grid3mod, 8).mb_str()));
+              *it = *newI;
           }
       }
-    }*/
+    }
 }
 
 void configFrame::OnIntensityModifyClick(wxCommandEvent& event)
@@ -2670,8 +2647,12 @@ void configFrame::OnIntensityModifyClick(wxCommandEvent& event)
           wxMessageBox( wxT("Please select a SINGLE line of the table."), wxT("Info"), wxICON_INFORMATION);
           return;
       }
+      
       grid3mod = array.Item(0);
-
+      
+      IntensityAxis->SetSelection(IntensityAxis->FindString(GridIntensity->GetCellValue(grid3mod, 8)));
+      OnIntensityAxisSelect(event);
+      
       IntensityDeviceType->SetLabel(GridIntensity->GetCellValue(grid3mod, 0));
       IntensityDeviceName->SetLabel(GridIntensity->GetCellValue(grid3mod, 1));
       IntensityDeviceId->SetLabel(GridIntensity->GetCellValue(grid3mod, 2));
@@ -2680,7 +2661,6 @@ void configFrame::OnIntensityModifyClick(wxCommandEvent& event)
       IntensityDeadZone->SetValue(wxAtoi(GridIntensity->GetCellValue(grid3mod, 5)));
       IntensityShape->SetSelection(IntensityShape->FindString(GridIntensity->GetCellValue(grid3mod, 6)));
       IntensitySteps->SetValue(wxAtoi(GridIntensity->GetCellValue(grid3mod, 7)));
-      IntensityAxis->SetSelection(IntensityAxis->FindString(GridIntensity->GetCellValue(grid3mod, 8)));
       IntensityAdd->Disable();
       IntensityRemove->Disable();
       IntensityModify->SetLabel(_("Apply"));
@@ -2709,6 +2689,10 @@ void configFrame::OnIntensityModifyClick(wxCommandEvent& event)
         }
       }
 
+      Intensity oldI(string(GridIntensity->GetCellValue(grid3mod, 8).mb_str()), string(GridIntensity->GetCellValue(grid3mod, 0).mb_str()),
+          string(GridIntensity->GetCellValue(grid3mod, 2).mb_str()), string(GridIntensity->GetCellValue(grid3mod, 1).mb_str()), string(GridIntensity->GetCellValue(grid3mod, 3).mb_str()), string(GridIntensity->GetCellValue(grid3mod, 4).mb_str()),
+          wxAtoi(GridIntensity->GetCellValue(grid3mod, 5)), wxAtoi(GridIntensity->GetCellValue(grid3mod, 7)), string(GridIntensity->GetCellValue(grid3mod, 6).mb_str()));
+
       GridIntensity->SetCellValue(grid3mod, 0, IntensityDeviceType->GetLabel());
       GridIntensity->SetCellValue(grid3mod, 1, IntensityDeviceName->GetLabel());
       GridIntensity->SetCellValue(grid3mod, 2, IntensityDeviceId->GetLabel());
@@ -2722,14 +2706,37 @@ void configFrame::OnIntensityModifyClick(wxCommandEvent& event)
       steps << IntensitySteps->GetValue();
       GridIntensity->SetCellValue(grid3mod, 7, steps);
       GridIntensity->SetCellValue(grid3mod, 8, IntensityAxis->GetStringSelection());
+
+      Intensity newI(string(GridIntensity->GetCellValue(grid3mod, 8).mb_str()), string(GridIntensity->GetCellValue(grid3mod, 0).mb_str()),
+          string(GridIntensity->GetCellValue(grid3mod, 2).mb_str()), string(GridIntensity->GetCellValue(grid3mod, 1).mb_str()), string(GridIntensity->GetCellValue(grid3mod, 3).mb_str()), string(GridIntensity->GetCellValue(grid3mod, 4).mb_str()),
+          wxAtoi(GridIntensity->GetCellValue(grid3mod, 5)), wxAtoi(GridIntensity->GetCellValue(grid3mod, 7)), string(GridIntensity->GetCellValue(grid3mod, 6).mb_str()));
+
       if(MenuItemLinkControls->IsChecked())
       {
-        updateIntensityConfigurations();
+        updateIntensityConfigurations(&oldI, &newI);
       }
+
       IntensityAdd->Enable();
       IntensityRemove->Enable();
       IntensityModify->SetLabel(_("Modify"));
   }
   GridIntensity->AutoSizeColumns();
   refresh_gui();
+}
+
+void configFrame::OnIntensityAxisSelect(wxCommandEvent& event)
+{
+  if(IntensityAxis->GetStringSelection() == _("lstick") || IntensityAxis->GetStringSelection() == _("rstick"))
+  {
+    if(IntensityShape->IsEmpty())
+    {
+      IntensityShape->Clear();
+      IntensityShape->SetSelection( IntensityShape->Append(_("Circle")) );
+      IntensityShape->Append(_("Rectangle"));
+    }
+  }
+  else
+  {
+    IntensityShape->Clear();
+  }
 }

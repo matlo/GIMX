@@ -98,6 +98,7 @@ class configFrame: public wxFrame
         void OnIntensityModifyClick(wxCommandEvent& event);
         void OnIntensityAddClick(wxCommandEvent& event);
         void OnIntensityRemoveClick(wxCommandEvent& event);
+        void OnIntensityAxisSelect(wxCommandEvent& event);
         //*)
         void DeleteSelectedRows(wxGrid* grid);
         void DeleteLinkedRows(wxGrid* grid, int row);
@@ -108,7 +109,7 @@ class configFrame: public wxFrame
         void auto_detect(wxStaticText* device_type, wxStaticText* device_name, wxStaticText* device_id, wxString event_type, wxStaticText* event_id);
         void updateButtonConfigurations();
         void updateAxisConfigurations();
-        void updateIntensityConfigurations();
+        void updateIntensityConfigurations(Intensity* oldI, Intensity* newI);
         wxString isAlreadyUsed(wxString device_type, wxString device_name, wxString device_id, wxString event_type, wxString event_id, int gridIndex1, int gridIndex2, int gridIndex3);
         void readLabels();
 

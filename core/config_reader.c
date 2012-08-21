@@ -875,13 +875,13 @@ static int ProcessIntensityListElement(xmlNode * a_node)
       if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_INTENSITY))
       {
         control = (char*) xmlGetProp(cur_node, (xmlChar*) X_ATTR_CONTROL);
-        if(!strcmp(control, "left_stick"))
+        if(!strcmp(control, "left_stick") || !strcmp(control, "lstick"))
         {
           intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, sa_lstick_x);
           ret = ProcessIntensityElement(cur_node, intensity, sa_lstick_x);
           memcpy(cfg_get_axis_intensity(r_controller_id, r_config_id, sa_lstick_y), intensity, sizeof(s_intensity));
         }
-        else if(!strcmp(control, "right_stick"))
+        else if(!strcmp(control, "right_stick") || !strcmp(control, "rstick"))
         {
           intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, sa_rstick_x);
           ret = ProcessIntensityElement(cur_node, intensity, sa_rstick_x);
@@ -953,37 +953,15 @@ static int ProcessConfigurationElement(xmlNode * a_node)
     ret = -1;
   }
   
-  for(i=sa_lstick_x; i<=sa_rstick_y; ++i)
+  for(i=sa_lstick_x; i<=SA_MAX; ++i)
   {
     intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, i);
     intensity->device_up_id = -1;
     intensity->device_down_id = -1;
     intensity->up_button = -1;
     intensity->down_button = -1;
-    intensity->value = mean_axis_value;
-    intensity->max_value = mean_axis_value;
-    intensity->shape = E_SHAPE_RECTANGLE;
-  }
-  for(i=sa_acc_x; i<=sa_gyro; ++i)
-  {
-    intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, i);
-    intensity->device_up_id = -1;
-    intensity->device_down_id = -1;
-    intensity->up_button = -1;
-    intensity->down_button = -1;
-    intensity->value = 511;
-    intensity->max_value = 511;
-    intensity->shape = E_SHAPE_RECTANGLE;
-  }  
-  for(i=sa_select; i<SA_MAX; ++i)
-  {
-    intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, i);
-    intensity->device_up_id = -1;
-    intensity->device_down_id = -1;
-    intensity->up_button = -1;
-    intensity->down_button = -1;
-    intensity->value = 255;
-    intensity->max_value = 255;
+    intensity->value = get_max_axis_value(i);
+    intensity->max_value = get_max_axis_value(i);
     intensity->shape = E_SHAPE_RECTANGLE;
   }
   

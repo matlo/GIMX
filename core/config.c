@@ -267,17 +267,19 @@ static void update_stick(int c_id, int axis)
     state[c_id].user.axis[axis] = -round(value);
     controller[c_id].send_command = 1;
   }
-  if (state[c_id].user.axis[axis+1] > 0)
+  if (axis < sa_acc_x)
   {
-    state[c_id].user.axis[axis+1] = round(value);
-    controller[c_id].send_command = 1;
+    if (state[c_id].user.axis[axis+1] > 0)
+    {
+      state[c_id].user.axis[axis+1] = round(value);
+      controller[c_id].send_command = 1;
+    }
+    else if (state[c_id].user.axis[axis+1] < 0)
+    {
+      state[c_id].user.axis[axis+1] = -round(value);
+      controller[c_id].send_command = 1;
+    }
   }
-  else if (state[c_id].user.axis[axis+1] < 0)
-  {
-    state[c_id].user.axis[axis+1] = -round(value);
-    controller[c_id].send_command = 1;
-  }
-
 }
 
 /*
@@ -616,11 +618,7 @@ static double mouse2axis(int device, struct sixaxis_state* state, int which, dou
   double motion_residue = 0;
   double ztrunk = 0;
   double val = 0;
-  int max_axis = 255;
-  if(axis < sa_acc_x)
-  {
-    max_axis = mean_axis_value;
-  }
+  int max_axis = get_max_axis_value(axis);
 
   multiplier *= axis_scale;
   dz *= axis_scale;
@@ -996,10 +994,7 @@ void cfg_process_event(SDL_Event* event)
               {
                 value -= dead_zone;
               }
-              if(axis < sa_acc_x)
-              {
-                max_axis = mean_axis_value;
-              }
+              max_axis = get_max_axis_value(axis);
               state[c_id].user.axis[axis] = clamp(-max_axis, value , max_axis);
             }
             else

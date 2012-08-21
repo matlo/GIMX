@@ -364,7 +364,7 @@ int last_button_nb = 0;
 int cpt = 0;
 int cpt_total = 0;
 
-void display_run(int axis[], int max_axis)
+void display_run(int axis[])
 {
   int i;
   int d;
@@ -399,11 +399,11 @@ void display_run(int axis[], int max_axis)
 
   d = 0;
 
-  for(i=sa_select; i<SA_MAX; ++i)
+  for(i=sa_acc_x; i<SA_MAX; ++i)
   {
     if(axis[i])
     {
-      snprintf(label, sizeof(label), "%8s - %3d", get_axis_name(i), axis[i]);
+      snprintf(label, sizeof(label), "%8s: %4d", get_axis_name(i), axis[i]);
       mvwaddstr(wbuttons, 1 + d, 1, label);
       d++;
     }
@@ -421,8 +421,8 @@ void display_run(int axis[], int max_axis)
   last_button_nb = d;
 
   mvwaddch(lstick, cross[0][1], cross[0][0], ' ');
-  cross[0][0] = STICK_X_L / 2 + (double)axis[sa_lstick_x] / max_axis * (STICK_X_L / 2 - 1);
-  cross[0][1] = STICK_Y_L / 2 + (double)axis[sa_lstick_y] / max_axis * (STICK_Y_L / 2 - 1);
+  cross[0][0] = STICK_X_L / 2 + (double)axis[sa_lstick_x] / get_max_axis_value(sa_lstick_x) * (STICK_X_L / 2 - 1);
+  cross[0][1] = STICK_Y_L / 2 + (double)axis[sa_lstick_y] / get_max_axis_value(sa_lstick_y) * (STICK_Y_L / 2 - 1);
   if(cross[0][0] <= 0 || cross[0][0] >= STICK_X_L-1 || cross[0][1] <= 0 || cross[0][1] >= STICK_Y_L-1)
   {
     mvwaddch(lstick, cross[0][1], cross[0][0], CROSS_CHAR | COLOR_PAIR(3));
@@ -434,8 +434,8 @@ void display_run(int axis[], int max_axis)
   wnoutrefresh(lstick);
 
   mvwaddch(rstick, cross[1][1], cross[1][0], ' ');
-  cross[1][0] = STICK_X_L / 2 + (double)axis[sa_rstick_x] / max_axis * (STICK_X_L / 2 - 1);
-  cross[1][1] = STICK_Y_L / 2 + (double)axis[sa_rstick_y] / max_axis * (STICK_Y_L / 2 - 1);
+  cross[1][0] = STICK_X_L / 2 + (double)axis[sa_rstick_x] / get_max_axis_value(sa_rstick_x) * (STICK_X_L / 2 - 1);
+  cross[1][1] = STICK_Y_L / 2 + (double)axis[sa_rstick_y] / get_max_axis_value(sa_rstick_y) * (STICK_Y_L / 2 - 1);
   if(cross[1][0] <= 0 || cross[1][0] >= STICK_X_L-1 || cross[1][1] <= 0 || cross[1][1] >= STICK_Y_L-1)
   {
     mvwaddch(rstick, cross[1][1], cross[1][0], CROSS_CHAR | COLOR_PAIR(3));
