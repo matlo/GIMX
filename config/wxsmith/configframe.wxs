@@ -289,10 +289,6 @@
 																<content>
 																	<item>lstick</item>
 																	<item>rstick</item>
-																	<item>lstick x</item>
-																	<item>lstick y</item>
-																	<item>rstick x</item>
-																	<item>rstick y</item>
 																	<item>acc x</item>
 																	<item>acc y</item>
 																	<item>acc z</item>

@@ -415,10 +415,6 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     IntensityAxis = new wxChoice(PanelOverall, ID_CHOICE6, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE6"));
     IntensityAxis->Append(_("lstick"));
     IntensityAxis->Append(_("rstick"));
-    IntensityAxis->Append(_("lstick x"));
-    IntensityAxis->Append(_("lstick y"));
-    IntensityAxis->Append(_("rstick x"));
-    IntensityAxis->Append(_("rstick y"));
     IntensityAxis->Append(_("acc x"));
     IntensityAxis->Append(_("acc y"));
     IntensityAxis->Append(_("acc z"));
