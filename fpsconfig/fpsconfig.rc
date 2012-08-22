@@ -1,7 +1,7 @@
 1 ICON "fpsconfig.ico"
 1 VERSIONINFO
-FILEVERSION   0,42,0,0
-PRODUCTVERSION  0,42,0,0
+FILEVERSION   0,50,0,0
+PRODUCTVERSION  0,50,0,0
 BEGIN
   BLOCK "StringFileInfo"
   BEGIN
@@ -9,12 +9,12 @@ BEGIN
   BEGIN
     VALUE "CompanyName", "MatLauLab"
     VALUE "FileDescription", "FPS config editor for GIMX"
-    VALUE "FileVersion", "0.42"
+    VALUE "FileVersion", "0.50"
     VALUE "InternalName", "gimx-fpsconfig"
     VALUE "LegalCopyright", "Matlo GNU GPL"
     VALUE "OriginalFilename", "gimx-fpsconfig.exe"
     VALUE "ProductName", "gimx-fpsconfig"
-    VALUE "ProductVersion", "0.42"
+    VALUE "ProductVersion", "0.50"
   END
   END
   BLOCK "VarFileInfo"
