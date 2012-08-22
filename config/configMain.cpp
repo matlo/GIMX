@@ -400,9 +400,9 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     FlexGridSizer20->Add(IntensityButtonId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     IntensityAutoDetect = new wxButton(PanelOverall, ID_BUTTON19, _("Auto detect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON19"));
     FlexGridSizer20->Add(IntensityAutoDetect, 1, wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL, 5);
-    IntensityDirection = new wxChoice(PanelOverall, ID_CHOICE9, wxDefaultPosition, wxSize(70,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE9"));
-    IntensityDirection->SetSelection( IntensityDirection->Append(_("Increase")) );
-    IntensityDirection->Append(_("Decrease"));
+    IntensityDirection = new wxChoice(PanelOverall, ID_CHOICE9, wxDefaultPosition, wxSize(100,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE9"));
+    IntensityDirection->Append(_("Increase"));
+    IntensityDirection->SetSelection( IntensityDirection->Append(_("Decrease")) );
     FlexGridSizer20->Add(IntensityDirection, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     IntensityDeadZone = new wxSpinCtrl(PanelOverall, ID_SPINCTRL6, _T("32"), wxDefaultPosition, wxSize(50,-1), 0, 0, 127, 32, _T("ID_SPINCTRL6"));
     IntensityDeadZone->SetValue(_T("32"));

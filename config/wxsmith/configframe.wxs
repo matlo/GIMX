@@ -248,8 +248,8 @@
 																	<item>Increase</item>
 																	<item>Decrease</item>
 																</content>
-																<selection>0</selection>
-																<size>70,-1</size>
+																<selection>1</selection>
+																<size>100,-1</size>
 															</object>
 															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 															<border>5</border>
