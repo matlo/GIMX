@@ -764,7 +764,7 @@ void bluetoothFrame::OnAbout(wxCommandEvent& event)
   wxAboutDialogInfo info;
   info.SetName(wxTheApp->GetAppName());
   info.SetVersion(wxT(INFO_VERSION));
-  wxString text = wxString(wxTINFO_DESCR)) + wxString(wxT("\n")) + wxString(wxTINFO_YEAR)) + wxString(wxT(" ")) + wxString(wxTINFO_DEV)) + wxString(wxT(" ")) + wxString(wxTINFO_LICENCE));
+  wxString text = wxString(wxT(INFO_DESCR)) + wxString(wxT("\n")) + wxString(wxT(INFO_YEAR)) + wxString(wxT(" ")) + wxString(wxT(INFO_DEV)) + wxString(wxT(" ")) + wxString(wxT(INFO_LICENCE));
   info.SetDescription(text);
   info.SetWebSite(wxT(INFO_WEB));
 
