@@ -54,7 +54,7 @@ void configApp::OnInitCmdLine(wxCmdLineParser& parser)
 
 bool configApp::OnCmdLineParsed(wxCmdLineParser& parser)
 {
-    parser.Found(_("f"), &file);
+    parser.Found(wxT("f"), &file);
 
     return true;
 }
