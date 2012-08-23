@@ -21,6 +21,9 @@ IMPLEMENT_APP(bluetoothApp);
 
 bool bluetoothApp::OnInit()
 {
+    wxLocale* locale = new wxLocale(wxLANGUAGE_DEFAULT);
+    locale->AddCatalog(wxT("gimx-bluetooth"));
+
     //(*AppInitialize
     bool wxsOK = true;
     wxInitAllImageHandlers();
