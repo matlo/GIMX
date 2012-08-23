@@ -49,9 +49,7 @@
 #define DEFAULT_AXIS_SCALE 1
 
 #ifndef WIN32
-char* homedir = "";
-//#else
-//char* ip = "";
+char* homedir;
 #endif
 
 #ifdef WIN32

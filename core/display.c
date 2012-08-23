@@ -59,7 +59,7 @@
 #define BUTTON_W LABEL_LENGTH + BUTTON_X_L + 2
 
 #define LABEL_LENGTH sizeof("triangle")
-#define BUTTON_LENGTH LABEL_LENGTH + sizeof(" - 255") + 1
+#define BUTTON_LENGTH LABEL_LENGTH + sizeof(": 255")
 
 WINDOW *lstick, *rstick, *wbuttons, *wcal;
 
@@ -368,7 +368,7 @@ void display_run(int axis[])
 {
   int i;
   int d;
-  char label[LABEL_LENGTH + 7];
+  char label[BUTTON_LENGTH];
   char rate[COLS];
   int tdiff;
 
@@ -413,7 +413,8 @@ void display_run(int axis[])
       break;
     }
   }
-  snprintf(label, sizeof(label), "%14s", "");
+  memset(label, ' ', sizeof(label));
+  label[sizeof(label)-1] = '\0';
   for(i=d; i<last_button_nb; ++i)
   {
     mvwaddstr(wbuttons, 1 + i, 1, label);
