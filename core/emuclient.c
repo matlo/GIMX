@@ -97,7 +97,7 @@ int get_max_axis_value(int axis)
 {
   if(axis < sa_acc_x)
   {
-    return max_axis_value;
+    return mean_axis_value;
   }
   else if(axis < sa_select)
   {
