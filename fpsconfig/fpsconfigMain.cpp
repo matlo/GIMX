@@ -460,16 +460,16 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     }
 
     default_directory.Append(wxFileName::GetHomeDir());
-    default_directory.Append(_("/.emuclient/"));
+    default_directory.Append(wxT("/.emuclient/"));
 
 	  /* Init user's config directory. */
     if(system("mkdir -p ~/.emuclient/config"))
     {
-        wxMessageBox( wxT("Can't init ~/.emuclient/config!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( _("Can't init ~/.emuclient/config!"), _("Error"), wxICON_ERROR);
     }
 #endif
 
-    default_directory.Append(_(CONFIG_DIR));
+    default_directory.Append(wxT(CONFIG_DIR));
 
     FileDialog1->SetDirectory(default_directory);
 
@@ -493,7 +493,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
       }
       else
       {
-        wxMessageBox( wxT("Cannot open config file: ") + wxString(file, wxConvUTF8), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( _("Cannot open config file: ") + wxString(file, wxConvUTF8), _("Error"), wxICON_ERROR);
       }
     }
 
@@ -518,7 +518,7 @@ void fpsconfigFrame::OnAbout(wxCommandEvent& event)
   wxAboutDialogInfo info;
   info.SetName(wxTheApp->GetAppName());
   info.SetVersion(wxT(INFO_VERSION));
-  wxString text = wxString(_(INFO_DESCR)) + wxString(_("\n")) + wxString(_(INFO_YEAR)) + wxString(_(" ")) + wxString(_(INFO_DEV)) + wxString(_(" ")) + wxString(_(INFO_LICENCE));
+  wxString text = wxString(wxT(INFO_DESCR)) + wxString(wxT("\n")) + wxString(wxT(INFO_YEAR)) + wxString(wxT(" ")) + wxString(wxT(INFO_DEV)) + wxString(wxT(" ")) + wxString(wxT(INFO_LICENCE));
   info.SetDescription(text);
   info.SetWebSite(wxT(INFO_WEB));
 
@@ -831,7 +831,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 
     if(evcatch.GetDeviceType() == "joystick")
     {
-      wxMessageBox(wxT("Joystick controls are only supported through gimx-config."), wxT("Info"), wxICON_INFORMATION);
+      wxMessageBox(_("Joystick controls are only supported through gimx-config."), _("Info"), wxICON_INFORMATION);
       ((wxButton*) event.GetEventObject())->Enable(true);
       return;
     }
@@ -944,12 +944,12 @@ void fpsconfigFrame::OnMenuNew(wxCommandEvent& event)
     SpinCtrlDeadZoneADS->SetValue(20);
     ChoiceDeadZoneShapeADS->SetSelection(0);
     ChoiceDeadZoneShapeHipFire->SetSelection(0);
-    TextCtrlSensitivityHipFire->SetValue(_("1.00"));
-    TextCtrlSensitivityADS->SetValue(_("1.00"));
-    TextCtrlAccelerationHipFire->SetValue(_("1.00"));
-    TextCtrlAccelerationADS->SetValue(_("1.00"));
-    TextCtrlXyRatioHipFire->SetValue(_("1.00"));
-    TextCtrlXyRatioADS->SetValue(_("1.00"));
+    TextCtrlSensitivityHipFire->SetValue(wxT("1.00"));
+    TextCtrlSensitivityADS->SetValue(wxT("1.00"));
+    TextCtrlAccelerationHipFire->SetValue(wxT("1.00"));
+    TextCtrlAccelerationADS->SetValue(wxT("1.00"));
+    TextCtrlXyRatioHipFire->SetValue(wxT("1.00"));
+    TextCtrlXyRatioADS->SetValue(wxT("1.00"));
 
     SpinCtrlDPI->Enable(true);
     SpinCtrlDPI->SetToolTip(_("Enter your mouse DPI value."));
@@ -1249,7 +1249,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
 
     if(configFile.WriteConfigFile() < 0)
     {
-      wxMessageBox(wxT("Can't save ") + wxString(configFile.GetFilePath().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
+      wxMessageBox(_("Can't save ") + wxString(configFile.GetFilePath().c_str(), wxConvUTF8), _("Error"), wxICON_ERROR);
     }
 }
 
@@ -1580,7 +1580,7 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
         return;
     }
 
-    if(str.Replace(_(","), _(".")))
+    if(str.Replace(wxT(","), wxT(".")))
     {
         text->SetValue(str);
     }
@@ -1589,11 +1589,11 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
     {
         if (text == TextCtrlFilterHipFire || text == TextCtrlFilterADS)
         {
-            text->SetValue(_("0.00"));
+            text->SetValue(wxT("0.00"));
         }
         else
         {
-            text->SetValue(_("1.00"));
+            text->SetValue(wxT("1.00"));
         }
     }
     else
@@ -1605,13 +1605,13 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
             {
                 value = 100;
                 ivalue = value * 100;
-                text->SetValue(_("100.00"));
+                text->SetValue(wxT("100.00"));
             }
             else if(value < -100)
             {
                 value = -100;
                 ivalue = value * 100;
-                text->SetValue(_("-100.00"));
+                text->SetValue(wxT("-100.00"));
             }
             SpinCtrlSensitivityHipFire->SetValue(ivalue);
             values[0] = value;
@@ -1622,13 +1622,13 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
             {
                 value = 100;
                 ivalue = value * 100;
-                text->SetValue(_("100.00"));
+                text->SetValue(wxT("100.00"));
             }
             else if(value < -100)
             {
                 value = -100;
                 ivalue = value * 100;
-                text->SetValue(_("-100.00"));
+                text->SetValue(wxT("-100.00"));
             }
             SpinCtrlSensitivityADS->SetValue(ivalue);
             values[1] = value;
@@ -1639,13 +1639,13 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
             {
                 value = 2;
                 ivalue = value * 100;
-                text->SetValue(_("2.00"));
+                text->SetValue(wxT("2.00"));
             }
             else if(value < 0)
             {
                 value = 0;
                 ivalue = value * 100;
-                text->SetValue(_("0.00"));
+                text->SetValue(wxT("0.00"));
             }
             SpinCtrlAccelerationHipFire->SetValue(ivalue);
             values[2] = value;
@@ -1656,13 +1656,13 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
             {
                 value = 2;
                 ivalue = value * 100;
-                text->SetValue(_("2.00"));
+                text->SetValue(wxT("2.00"));
             }
             else if(value < 0)
             {
                 value = 0;
                 ivalue = value * 100;
-                text->SetValue(_("0.00"));
+                text->SetValue(wxT("0.00"));
             }
             SpinCtrlAccelerationADS->SetValue(ivalue);
             values[3] = value;
@@ -1683,13 +1683,13 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
             {
                 value = 1;
                 ivalue = value * 100;
-                text->SetValue(_("1.00"));
+                text->SetValue(wxT("1.00"));
             }
             else if(value < 0)
             {
                 value = 0;
                 ivalue = value * 100;
-                text->SetValue(_("0.00"));
+                text->SetValue(wxT("0.00"));
             }
             SpinCtrlFilterHipFire->SetValue(ivalue);
             values[6] = value;
@@ -1700,13 +1700,13 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
             {
                 value = 1;
                 ivalue = value * 100;
-                text->SetValue(_("1.00"));
+                text->SetValue(wxT("1.00"));
             }
             else if(value < 0)
             {
                 value = 0;
                 ivalue = value * 100;
-                text->SetValue(_("0.00"));
+                text->SetValue(wxT("0.00"));
             }
             SpinCtrlFilterADS->SetValue(ivalue);
             values[7] = value;
@@ -1752,16 +1752,16 @@ void fpsconfigFrame::OnMenuUpdate(wxCommandEvent& event)
     }
     if (u.update() < 0)
     {
-      wxMessageBox(wxT("Can't retrieve update file!"), wxT("Error"), wxICON_ERROR);
+      wxMessageBox(_("Can't retrieve update file!"), _("Error"), wxICON_ERROR);
     }
   }
   else if (ret < 0)
   {
-    wxMessageBox(wxT("Can't check version!"), wxT("Error"), wxICON_ERROR);
+    wxMessageBox(_("Can't check version!"), _("Error"), wxICON_ERROR);
   }
   else
   {
-    wxMessageBox(wxT("GIMX is up-to-date!"), wxT("Info"), wxICON_INFORMATION);
+    wxMessageBox(_("GIMX is up-to-date!"), _("Info"), wxICON_INFORMATION);
   }
 }
 
@@ -1775,7 +1775,7 @@ void fpsconfigFrame::OnButtonConvertSensitivityClick(wxCommandEvent& event)
     return;
   }
 
-  wxNumberEntryDialog dialog(this, wxT(""), wxT("Enter a number:"), wxT("Destination mouse DPI"), current_dpi, 100, MAX_DPI);
+  wxNumberEntryDialog dialog(this, wxT(""), _("Enter a number:"), _("Destination mouse DPI"), current_dpi, 100, MAX_DPI);
 
   if (dialog.ShowModal() == wxID_OK)
   {
@@ -1811,7 +1811,7 @@ void fpsconfigFrame::OnMenuAutoBindControls(wxCommandEvent& event)
 {
   if(configFile.GetFilePath().empty())
   {
-    wxMessageBox( wxT("No config opened!"), wxT("Error"), wxICON_ERROR);
+    wxMessageBox( _("No config opened!"), _("Error"), wxICON_ERROR);
     return;
   }
 
@@ -1824,12 +1824,12 @@ void fpsconfigFrame::OnMenuAutoBindControls(wxCommandEvent& event)
 
   if(configFile.AutoBind(string(FileName.mb_str())) < 0)
   {
-    wxMessageBox(wxT("Can't auto-bind controls!"), wxT("Error"), wxICON_ERROR);
+    wxMessageBox(_("Can't auto-bind controls!"), _("Error"), wxICON_ERROR);
   }
   else
   {
     LoadConfig();
-    wxMessageBox(wxT("Auto-bind done!"), wxT("Info"), wxICON_INFORMATION);
+    wxMessageBox(_("Auto-bind done!"), _("Info"), wxICON_INFORMATION);
   }
 }
 // comparison, not case sensitive.

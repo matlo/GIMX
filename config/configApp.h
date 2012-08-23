@@ -27,7 +27,7 @@ class configApp : public wxApp
 
 static const wxCmdLineEntryDesc g_cmdLineDesc [] =
 {
-     { wxCMD_LINE_OPTION, wxT("f"), wxT("file"), wxT("specifies a file to open"),
+     { wxCMD_LINE_OPTION, wxT("f"), _("file"), _("specifies a file to open"),
          wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL },
 
      { wxCMD_LINE_NONE }

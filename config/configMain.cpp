@@ -174,34 +174,34 @@ void configFrame::fillButtonAxisChoice(wxChoice* choice)
     wxString previous = choice->GetStringSelection();
     choice->Clear();
     choice->SetSelection(choice->Append(wxEmptyString));
-    choice->Append(_("rstick left"));
-    choice->Append(_("rstick right"));
-    choice->Append(_("rstick up"));
-    choice->Append(_("rstick down"));
-    choice->Append(_("lstick left"));
-    choice->Append(_("lstick right"));
-    choice->Append(_("lstick up"));
-    choice->Append(_("lstick down"));
-    choice->Append(_("acc x +"));
-    choice->Append(_("acc x -"));
-    choice->Append(_("acc y +"));
-    choice->Append(_("acc y -"));
-    choice->Append(_("acc z +"));
-    choice->Append(_("acc z -"));
-    choice->Append(_("gyro +"));
-    choice->Append(_("gyro -"));
-    choice->Append(_("up"));
-    choice->Append(_("down"));
-    choice->Append(_("right"));
-    choice->Append(_("left"));
-    choice->Append(_("r1"));
-    choice->Append(_("r2"));
-    choice->Append(_("l1"));
-    choice->Append(_("l2"));
-    choice->Append(_("circle"));
-    choice->Append(_("square"));
-    choice->Append(_("cross"));
-    choice->Append(_("triangle"));
+    choice->Append(wxT("rstick left"));
+    choice->Append(wxT("rstick right"));
+    choice->Append(wxT("rstick up"));
+    choice->Append(wxT("rstick down"));
+    choice->Append(wxT("lstick left"));
+    choice->Append(wxT("lstick right"));
+    choice->Append(wxT("lstick up"));
+    choice->Append(wxT("lstick down"));
+    choice->Append(wxT("acc x +"));
+    choice->Append(wxT("acc x -"));
+    choice->Append(wxT("acc y +"));
+    choice->Append(wxT("acc y -"));
+    choice->Append(wxT("acc z +"));
+    choice->Append(wxT("acc z -"));
+    choice->Append(wxT("gyro +"));
+    choice->Append(wxT("gyro -"));
+    choice->Append(wxT("up"));
+    choice->Append(wxT("down"));
+    choice->Append(wxT("right"));
+    choice->Append(wxT("left"));
+    choice->Append(wxT("r1"));
+    choice->Append(wxT("r2"));
+    choice->Append(wxT("l1"));
+    choice->Append(wxT("l2"));
+    choice->Append(wxT("circle"));
+    choice->Append(wxT("square"));
+    choice->Append(wxT("cross"));
+    choice->Append(wxT("triangle"));
     choice->SetSelection(choice->FindString(previous));
 }
 
@@ -210,26 +210,26 @@ void configFrame::fillAxisAxisChoice(wxChoice* choice)
     wxString previous = choice->GetStringSelection();
     choice->Clear();
     choice->SetSelection(choice->Append(wxEmptyString));
-    choice->Append(_("rstick x"));
-    choice->Append(_("rstick y"));
-    choice->Append(_("lstick x"));
-    choice->Append(_("lstick y"));
-    choice->Append(_("acc x"));
-    choice->Append(_("acc y"));
-    choice->Append(_("acc z"));
-    choice->Append(_("gyro"));
-    choice->Append(_("up"));
-    choice->Append(_("down"));
-    choice->Append(_("right"));
-    choice->Append(_("left"));
-    choice->Append(_("r1"));
-    choice->Append(_("r2"));
-    choice->Append(_("l1"));
-    choice->Append(_("l2"));
-    choice->Append(_("circle"));
-    choice->Append(_("square"));
-    choice->Append(_("cross"));
-    choice->Append(_("triangle"));
+    choice->Append(wxT("rstick x"));
+    choice->Append(wxT("rstick y"));
+    choice->Append(wxT("lstick x"));
+    choice->Append(wxT("lstick y"));
+    choice->Append(wxT("acc x"));
+    choice->Append(wxT("acc y"));
+    choice->Append(wxT("acc z"));
+    choice->Append(wxT("gyro"));
+    choice->Append(wxT("up"));
+    choice->Append(wxT("down"));
+    choice->Append(wxT("right"));
+    choice->Append(wxT("left"));
+    choice->Append(wxT("r1"));
+    choice->Append(wxT("r2"));
+    choice->Append(wxT("l1"));
+    choice->Append(wxT("l2"));
+    choice->Append(wxT("circle"));
+    choice->Append(wxT("square"));
+    choice->Append(wxT("cross"));
+    choice->Append(wxT("triangle"));
     choice->SetSelection(choice->FindString(previous));
 }
 
@@ -238,23 +238,23 @@ void configFrame::fillButtonChoice(wxChoice* choice)
     wxString previous = choice->GetStringSelection();
     choice->Clear();
     choice->SetSelection(choice->Append(wxEmptyString));
-    choice->Append(_("up"));
-    choice->Append(_("down"));
-    choice->Append(_("right"));
-    choice->Append(_("left"));
-    choice->Append(_("r1"));
-    choice->Append(_("r2"));
-    choice->Append(_("r3"));
-    choice->Append(_("l1"));
-    choice->Append(_("l2"));
-    choice->Append(_("l3"));
-    choice->Append(_("circle"));
-    choice->Append(_("square"));
-    choice->Append(_("cross"));
-    choice->Append(_("triangle"));
-    choice->Append(_("start"));
-    choice->Append(_("select"));
-    choice->Append(_("PS"));
+    choice->Append(wxT("up"));
+    choice->Append(wxT("down"));
+    choice->Append(wxT("right"));
+    choice->Append(wxT("left"));
+    choice->Append(wxT("r1"));
+    choice->Append(wxT("r2"));
+    choice->Append(wxT("r3"));
+    choice->Append(wxT("l1"));
+    choice->Append(wxT("l2"));
+    choice->Append(wxT("l3"));
+    choice->Append(wxT("circle"));
+    choice->Append(wxT("square"));
+    choice->Append(wxT("cross"));
+    choice->Append(wxT("triangle"));
+    choice->Append(wxT("start"));
+    choice->Append(wxT("select"));
+    choice->Append(wxT("PS"));
     choice->SetSelection(choice->FindString(previous));
 }
 
@@ -837,16 +837,16 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     }
 
     default_directory.Append(wxFileName::GetHomeDir());
-    default_directory.Append(_(APP_DIR));
+    default_directory.Append(wxT(APP_DIR));
 
 	/* Init user's config directory */
     if(system("mkdir -p ~/.emuclient/config"))
     {
-        wxMessageBox( wxT("Can't init ~/.emuclient/config!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( _("Can't init ~/.emuclient/config!"), _("Error"), wxICON_ERROR);
     }
 #endif
 
-    default_directory.Append(_(CONFIG_DIR));
+    default_directory.Append(wxT(CONFIG_DIR));
 
     FileDialog1->SetDirectory(default_directory);
 
@@ -878,11 +878,11 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
 
         if(ret < 0)
         {
-          wxMessageBox(wxString(configFile.GetError().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
+          wxMessageBox(wxString(configFile.GetError().c_str(), wxConvUTF8), _("Error"), wxICON_ERROR);
         }
         else if(ret > 0)
         {
-          wxMessageBox(wxString(configFile.GetInfo().c_str(), wxConvUTF8), wxT("Info"), wxICON_INFORMATION);
+          wxMessageBox(wxString(configFile.GetInfo().c_str(), wxConvUTF8), _("Info"), wxICON_INFORMATION);
         }
 
         MenuItemMultipleMiceAndKeyboards->Check(configFile.MultipleMK());
@@ -903,7 +903,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
       }
       else
       {
-        wxMessageBox( wxT("Cannot open config file: ") + file, wxT("Error"), wxICON_ERROR);
+        wxMessageBox( _("Cannot open config file: ") + file, _("Error"), wxICON_ERROR);
       }
     }
 
@@ -926,7 +926,7 @@ void configFrame::OnAbout(wxCommandEvent& event)
   wxAboutDialogInfo info;
   info.SetName(wxTheApp->GetAppName());
   info.SetVersion(wxT(INFO_VERSION));
-  wxString text = wxString(_(INFO_DESCR)) + wxString(_("\n")) + wxString(_(INFO_YEAR)) + wxString(_(" ")) + wxString(_(INFO_DEV)) + wxString(_(" ")) + wxString(_(INFO_LICENCE));
+  wxString text = wxString(wxT(INFO_DESCR)) + wxString(wxT("\n")) + wxString(wxT(INFO_YEAR)) + wxString(wxT(" ")) + wxString(wxT(INFO_DEV)) + wxString(wxT(" ")) + wxString(wxT(INFO_LICENCE));
   info.SetDescription(text);
   info.SetWebSite(wxT(INFO_WEB));
 
@@ -960,12 +960,12 @@ void configFrame::OnButtonAddPanelButton(wxCommandEvent& event)
 {
     if(ButtonTabEventId->GetLabel().IsEmpty())
     {
-        wxMessageBox( wxT("Please detect an Event!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( _("Please detect an Event!"), _("Error"), wxICON_ERROR);
         return;
     }
     if(ButtonTabButtonId->GetStringSelection().IsEmpty())
     {
-        wxMessageBox( wxT("Please select a Button!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( _("Please select a Button!"), _("Error"), wxICON_ERROR);
         return;
     }
 
@@ -997,12 +997,12 @@ void configFrame::OnButtonAddPanelAxis(wxCommandEvent& event)
 {
     if(AxisTabEventId->GetLabel().IsEmpty())
     {
-        wxMessageBox( wxT("Please detect an Event!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( _("Please detect an Event!"), _("Error"), wxICON_ERROR);
         return;
     }
     if(AxisTabAxisId->GetStringSelection().IsEmpty())
     {
-        wxMessageBox( wxT("Please select an Axis!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( _("Please select an Axis!"), _("Error"), wxICON_ERROR);
         return;
     }
 
@@ -1223,7 +1223,7 @@ void configFrame::OnButtonTabEventTypeSelect(wxCommandEvent& event)
     ButtonTabDeviceId->SetLabel(wxEmptyString);
     ButtonTabEventId->SetLabel(wxEmptyString);
 
-    if(ButtonTabEventType->GetStringSelection() == _("button"))
+    if(ButtonTabEventType->GetStringSelection() == wxT("button"))
     {
         ButtonTabThreshold->Disable();
         ButtonTabThreshold->SetValue(wxEmptyString);
@@ -1231,13 +1231,13 @@ void configFrame::OnButtonTabEventTypeSelect(wxCommandEvent& event)
     else
     {
         ButtonTabThreshold->Enable();
-        if(ButtonTabEventType->GetStringSelection() == _("axis down"))
+        if(ButtonTabEventType->GetStringSelection() == wxT("axis down"))
         {
-          ButtonTabThreshold->SetValue(_("-10"));
+          ButtonTabThreshold->SetValue(wxT("-10"));
         }
-        else if(ButtonTabEventType->GetStringSelection() == _("axis up"))
+        else if(ButtonTabEventType->GetStringSelection() == wxT("axis up"))
         {
-          ButtonTabThreshold->SetValue(_("10"));
+          ButtonTabThreshold->SetValue(wxT("10"));
         }
     }
     refresh_gui();
@@ -1246,7 +1246,7 @@ void configFrame::OnButtonTabEventTypeSelect(wxCommandEvent& event)
 void configFrame::auto_detect(wxStaticText* device_type, wxStaticText* device_name, wxStaticText* device_id, wxString event_type, wxStaticText* event_id)
 {
     wxString msg;
-    if(event_type == _("button"))
+    if(event_type == wxT("button"))
     {
       msg = _("Press a button.");
     }
@@ -1268,7 +1268,7 @@ void configFrame::auto_detect(wxStaticText* device_type, wxStaticText* device_na
     else
     {
       device_name->SetLabel(wxEmptyString);
-      device_id->SetLabel(_("0"));
+      device_id->SetLabel(wxT("0"));
     }
 
     event_id->SetLabel( wxString(evcatch.GetEventId().c_str(), wxConvUTF8));
@@ -1285,7 +1285,7 @@ void configFrame::OnButtonAutoDetectClick(wxCommandEvent& event)
     Device* dev;
     Event* ev;
 
-    auto_detect(ProfileTriggerDeviceType, ProfileTriggerDeviceName, ProfileTriggerDeviceId, _("button"), ProfileTriggerButtonId);
+    auto_detect(ProfileTriggerDeviceType, ProfileTriggerDeviceName, ProfileTriggerDeviceId, wxT("button"), ProfileTriggerButtonId);
 
     if(!old_device_type.empty() && MenuItemLinkControls->IsChecked())
     {
@@ -1329,13 +1329,13 @@ void configFrame::OnButtonTabAutoDetectClick(wxCommandEvent& event)
     else
     {
         ButtonTabThreshold->Enable();
-        if(ButtonTabEventType->GetStringSelection() == _("axis down"))
+        if(ButtonTabEventType->GetStringSelection() == wxT("axis down"))
         {
-          ButtonTabThreshold->SetValue(_("-10"));
+          ButtonTabThreshold->SetValue(wxT("-10"));
         }
-        else if(ButtonTabEventType->GetStringSelection() == _("axis up"))
+        else if(ButtonTabEventType->GetStringSelection() == wxT("axis up"))
         {
-          ButtonTabThreshold->SetValue(_("10"));
+          ButtonTabThreshold->SetValue(wxT("10"));
         }
     }
 
@@ -1377,28 +1377,28 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
       	  AxisTabDeadZone->Enable();
           AxisTabSensitivity->Enable();
           AxisTabAcceleration->Enable();
-          AxisTabAcceleration->SetValue(_("1.00"));
+          AxisTabAcceleration->SetValue(wxT("1.00"));
           AxisTabShape->Enable();
           AxisTabShape->SetSelection(1);
           if(evcatch.GetDeviceType() == "mouse")
           {
-              AxisTabDeadZone->SetValue(_("20"));
-              AxisTabSensitivity->SetValue(_("1.00"));
+              AxisTabDeadZone->SetValue(wxT("20"));
+              AxisTabSensitivity->SetValue(wxT("1.00"));
               AxisTabBufferSize->Enable();
-              AxisTabBufferSize->SetValue(_("1"));
+              AxisTabBufferSize->SetValue(wxT("1"));
               AxisTabFilter->Enable();
-              AxisTabFilter->SetValue(_("0.00"));
+              AxisTabFilter->SetValue(wxT("0.00"));
           }
           else if(evcatch.GetDeviceType() == "joystick")
           {
-              AxisTabDeadZone->SetValue(_("0"));
-              if(!AxisTabAxisId->GetStringSelection().Contains(_("stick")))
+              AxisTabDeadZone->SetValue(wxT("0"));
+              if(!AxisTabAxisId->GetStringSelection().Contains(wxT("stick")))
               {
-                  AxisTabAcceleration->SetValue(_("0.008"));
+                  AxisTabAcceleration->SetValue(wxT("0.008"));
               }
               else
               {
-                  AxisTabAcceleration->SetValue(_("0.004"));
+                  AxisTabAcceleration->SetValue(wxT("0.004"));
               }
         	    AxisTabBufferSize->Disable();
               AxisTabBufferSize->SetValue(wxEmptyString);
@@ -1586,11 +1586,11 @@ void configFrame::OnMenuOpen(wxCommandEvent& event)
 
     if(ret < 0)
     {
-      wxMessageBox(wxString(configFile.GetError().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
+      wxMessageBox(wxString(configFile.GetError().c_str(), wxConvUTF8), _("Error"), wxICON_ERROR);
     }
     else if(ret > 0)
     {
-      wxMessageBox(wxString(configFile.GetInfo().c_str(), wxConvUTF8), wxT("Info"), wxICON_INFORMATION);
+      wxMessageBox(wxString(configFile.GetInfo().c_str(), wxConvUTF8), _("Info"), wxICON_INFORMATION);
     }
 
     MenuItemMultipleMiceAndKeyboards->Check(configFile.MultipleMK());
@@ -1724,7 +1724,7 @@ void configFrame::OnMenuSave(wxCommandEvent& event)
     save_current();
     if(configFile.WriteConfigFile() < 0)
     {
-      wxMessageBox(wxT("Can't save ") + wxString(configFile.GetFilePath().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
+      wxMessageBox(_("Can't save ") + wxString(configFile.GetFilePath().c_str(), wxConvUTF8), _("Error"), wxICON_ERROR);
     }
     ButtonTabModify->SetLabel(_("Modify"));
     Button5->SetLabel(_("Modify"));
@@ -1739,7 +1739,7 @@ void configFrame::OnMenuSave(wxCommandEvent& event)
 
 void configFrame::OnMenuSaveAs(wxCommandEvent& event)
 {
-    wxFileDialog saveFileDialog(this, _T("Save Config file"), _T(""), _T(""), _T("XML files (*.xml)|*.xml"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    wxFileDialog saveFileDialog(this, _("Save Config file"), wxT(""), wxT(""), _("XML files (*.xml)|*.xml"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 
     saveFileDialog.SetDirectory(default_directory);
     saveFileDialog.SetFilename(FileDialog1->GetFilename());
@@ -1766,12 +1766,12 @@ void configFrame::OnButtonModifyButton(wxCommandEvent& event)
     {
         if(count == 0)
         {
-            wxMessageBox( wxT("Please select a line of the table."), wxT("Info"), wxICON_INFORMATION);
+            wxMessageBox( _("Please select a line of the table."), _("Info"), wxICON_INFORMATION);
             return;
         }
         else if(count > 1)
         {
-            wxMessageBox( wxT("Please select a SINGLE line of the table."), wxT("Info"), wxICON_INFORMATION);
+            wxMessageBox( _("Please select a SINGLE line of the table."), _("Info"), wxICON_INFORMATION);
             return;
         }
         grid1mod = array.Item(0);
@@ -1782,7 +1782,7 @@ void configFrame::OnButtonModifyButton(wxCommandEvent& event)
         ButtonTabEventType->SetSelection(ButtonTabEventType->FindString(GridPanelButton->GetCellValue(grid1mod, 3)));
         ButtonTabEventId->SetLabel(GridPanelButton->GetCellValue(grid1mod, 4));
         ButtonTabThreshold->SetValue(GridPanelButton->GetCellValue(grid1mod, 5));
-        if(ButtonTabEventType->GetStringSelection() == _("button"))
+        if(ButtonTabEventType->GetStringSelection() == wxT("button"))
         {
             ButtonTabThreshold->Disable();
             ButtonTabThreshold->SetValue(wxEmptyString);
@@ -1802,12 +1802,12 @@ void configFrame::OnButtonModifyButton(wxCommandEvent& event)
     {
         if (ButtonTabEventId->GetLabel().IsEmpty())
         {
-          wxMessageBox(wxT("Please detect an Event!"), wxT("Error"), wxICON_ERROR);
+          wxMessageBox(_("Please detect an Event!"), _("Error"), wxICON_ERROR);
           return;
         }
         if(ButtonTabButtonId->GetStringSelection().IsEmpty())
         {
-            wxMessageBox( wxT("Please select a Button!"), wxT("Error"), wxICON_ERROR);
+            wxMessageBox( _("Please select a Button!"), _("Error"), wxICON_ERROR);
             return;
         }
 
@@ -1906,12 +1906,12 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event)
     {
         if(count == 0)
         {
-            wxMessageBox( wxT("Please select a line of the table."), wxT("Info"), wxICON_INFORMATION);
+            wxMessageBox( _("Please select a line of the table."), _("Info"), wxICON_INFORMATION);
             return;
         }
         else if(count > 1)
         {
-            wxMessageBox( wxT("Please select a SINGLE line of the table."), wxT("Info"), wxICON_INFORMATION);
+            wxMessageBox( _("Please select a SINGLE line of the table."), _("Info"), wxICON_INFORMATION);
             return;
         }
         grid2mod = array.Item(0);
@@ -1927,7 +1927,7 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event)
         AxisTabBufferSize->SetValue(GridPanelAxis->GetCellValue(grid2mod, 10));
         AxisTabFilter->SetValue(GridPanelAxis->GetCellValue(grid2mod, 11));
         AxisTabLabel->SetValue(GridPanelAxis->GetCellValue(grid2mod, 12));
-        if(AxisTabEventType->GetStringSelection() == _("button"))
+        if(AxisTabEventType->GetStringSelection() == wxT("button"))
         {
             AxisTabDeadZone->Disable();
             AxisTabSensitivity->Disable();
@@ -1945,7 +1945,7 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event)
             AxisTabAcceleration->Enable();
             AxisTabShape->SetSelection(AxisTabShape->FindString(GridPanelAxis->GetCellValue(grid2mod, 9)));
             AxisTabShape->Enable();
-			      if(AxisTabDeviceType->GetLabel() == _("mouse"))
+			      if(AxisTabDeviceType->GetLabel() == wxT("mouse"))
 			      {
                 AxisTabBufferSize->Enable();
                 AxisTabFilter->Enable();
@@ -1961,12 +1961,12 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event)
     {
         if (AxisTabEventId->GetLabel().IsEmpty())
         {
-          wxMessageBox(wxT("Please detect an Event!"), wxT("Error"), wxICON_ERROR);
+          wxMessageBox(_("Please detect an Event!"), _("Error"), wxICON_ERROR);
           return;
         }
         if(AxisTabAxisId->GetStringSelection().IsEmpty())
         {
-            wxMessageBox( wxT("Please select an Axis!"), wxT("Error"), wxICON_ERROR);
+            wxMessageBox( _("Please select an Axis!"), _("Error"), wxICON_ERROR);
             return;
         }
 
@@ -2062,7 +2062,7 @@ void configFrame::updateAxisConfigurations()
 
 void configFrame::OnAxisTabShapeSelect(wxCommandEvent& event)
 {
-    if(AxisTabEventType->GetStringSelection() == _("axis"))
+    if(AxisTabEventType->GetStringSelection() == wxT("axis"))
     {
         if(AxisTabShape->GetStringSelection().IsEmpty())
         {
@@ -2200,7 +2200,7 @@ void configFrame::OnMenuReplaceMouse(wxCommandEvent& event)
     {
      return;
     }
-    replaceDevice(_("mouse"));
+    replaceDevice(wxT("mouse"));
 }
 
 void configFrame::OnMenuReplaceKeyboard(wxCommandEvent& event)
@@ -2210,7 +2210,7 @@ void configFrame::OnMenuReplaceKeyboard(wxCommandEvent& event)
     {
      return;
     }
-    replaceDevice(_("keyboard"));
+    replaceDevice(wxT("keyboard"));
 }
 
 void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
@@ -2228,7 +2228,7 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
 
     if(!old_value)
     {
-      wxNumberEntryDialog dialog1(this, wxT(""), wxT("Enter a number:"), wxT("Source mouse DPI"), 2000, 100, MAX_DPI);
+      wxNumberEntryDialog dialog1(this, wxT(""), _("Enter a number:"), _("Source mouse DPI"), 2000, 100, MAX_DPI);
 
       if(dialog1.ShowModal() == wxID_OK)
       {
@@ -2239,7 +2239,7 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
 
     if (old_value)
     {
-        wxNumberEntryDialog dialog2(this, wxT(""), wxT("Enter a number:"), wxT("Destination mouse DPI"), old_value, 100, MAX_DPI);
+        wxNumberEntryDialog dialog2(this, wxT(""), _("Enter a number:"), _("Destination mouse DPI"), old_value, 100, MAX_DPI);
 
         if (dialog2.ShowModal() == wxID_OK)
         {
@@ -2303,7 +2303,7 @@ void configFrame::OnIntensityAutoDetectClick(wxCommandEvent& event)
   string old_device_id = string(IntensityDeviceId->GetLabel().mb_str());
   string old_event_id = string(IntensityButtonId->GetLabel().mb_str());
 
-  auto_detect(IntensityDeviceType, IntensityDeviceName, IntensityDeviceId, _("button"), IntensityButtonId);
+  auto_detect(IntensityDeviceType, IntensityDeviceName, IntensityDeviceId, wxT("button"), IntensityButtonId);
 
   IntensityAutoDetect->Enable(true);
 
@@ -2323,7 +2323,7 @@ void configFrame::OnIntensityDeadZoneChange(wxSpinEvent& event)
 
 void configFrame::OnMenuSetMouseDPI(wxCommandEvent& event)
 {
-    wxNumberEntryDialog dialog1(this, wxT(""), wxT("Enter a number:"), wxT("Mouse DPI value"), configFile.GetController(currentController)->GetMouseDPI(), 0, MAX_DPI);
+    wxNumberEntryDialog dialog1(this, wxT(""), _("Enter a number:"), _("Mouse DPI value"), configFile.GetController(currentController)->GetMouseDPI(), 0, MAX_DPI);
     if (dialog1.ShowModal() == wxID_OK)
     {
        configFile.GetController(currentController)->SetMouseDPI(dialog1.GetValue());
@@ -2345,7 +2345,7 @@ void configFrame::OnTextCtrl(wxCommandEvent& event)
         return;
     }
 
-    if(str.Replace(_(","), _(".")))
+    if(str.Replace(wxT(","), wxT(".")))
     {
         text->SetValue(str);
     }
@@ -2354,67 +2354,67 @@ void configFrame::OnTextCtrl(wxCommandEvent& event)
     {
         if(!str.ToLong(&lvalue))
         {
-            text->SetValue(_("20"));
+            text->SetValue(wxT("20"));
         }
         else if(lvalue < 0)
         {
-            text->SetValue(_("0"));
+            text->SetValue(wxT("0"));
         }
         else if(lvalue > 64)
         {
-            text->SetValue(_("64"));
+            text->SetValue(wxT("64"));
         }
     }
     else if(text == AxisTabSensitivity)
     {
         if(!str.ToDouble(&value))
         {
-            text->SetValue(_("1.00"));
+            text->SetValue(wxT("1.00"));
         }
     }
     else if(text == AxisTabAcceleration)
     {
         if(!str.ToDouble(&value))
         {
-            text->SetValue(_("1.00"));
+            text->SetValue(wxT("1.00"));
         }
         else if(value < 0)
         {
-            text->SetValue(_("0.00"));
+            text->SetValue(wxT("0.00"));
         }
         else if(value > 2)
         {
-            text->SetValue(_("2.00"));
+            text->SetValue(wxT("2.00"));
         }
     }
     else if(text == AxisTabBufferSize)
     {
         if(!str.ToLong(&lvalue))
         {
-            text->SetValue(_("1"));
+            text->SetValue(wxT("1"));
         }
         else if(lvalue < 1)
         {
-            text->SetValue(_("1"));
+            text->SetValue(wxT("1"));
         }
         else if(lvalue > 30)
         {
-            text->SetValue(_("30"));
+            text->SetValue(wxT("30"));
         }
     }
     else if(text == AxisTabFilter)
     {
         if(!str.ToDouble(&value))
         {
-            text->SetValue(_("0.00"));
+            text->SetValue(wxT("0.00"));
         }
         else if(value < 0)
         {
-            text->SetValue(_("0.00"));
+            text->SetValue(wxT("0.00"));
         }
         else if(value > 1)
         {
-            text->SetValue(_("1.00"));
+            text->SetValue(wxT("1.00"));
         }
     }
 }
@@ -2455,7 +2455,7 @@ wxString configFrame::isAlreadyUsed(wxString device_type, wxString device_name, 
     }
   }
 
-  if(event_type == _("button"))
+  if(event_type == wxT("button"))
   {
     for(int i=0; i<GridIntensity->GetNumberRows(); i++)
     {
@@ -2489,8 +2489,8 @@ void configFrame::OnMenuMultipleMK(wxCommandEvent& event)
         MenuItemReplaceMouse->Enable(false);
         MenuItemReplaceKeyboard->Enable(false);
     }
-    replaceDevice(_("mouse"));
-    replaceDevice(_("keyboard"));
+    replaceDevice(wxT("mouse"));
+    replaceDevice(wxT("keyboard"));
 }
 
 void configFrame::OnMenuUpdate(wxCommandEvent& event)
@@ -2510,16 +2510,16 @@ void configFrame::OnMenuUpdate(wxCommandEvent& event)
     }
     if (u.update() < 0)
     {
-      wxMessageBox(wxT("Can't retrieve update file!"), wxT("Error"), wxICON_ERROR);
+      wxMessageBox(_("Can't retrieve update file!"), _("Error"), wxICON_ERROR);
     }
   }
   else if (ret < 0)
   {
-    wxMessageBox(wxT("Can't check version!"), wxT("Error"), wxICON_ERROR);
+    wxMessageBox(_("Can't check version!"), _("Error"), wxICON_ERROR);
   }
   else
   {
-    wxMessageBox(wxT("GIMX is up-to-date!"), wxT("Info"), wxICON_INFORMATION);
+    wxMessageBox(_("GIMX is up-to-date!"), _("Info"), wxICON_INFORMATION);
   }
 }
 
@@ -2527,7 +2527,7 @@ void configFrame::OnMenuAutoBindControls(wxCommandEvent& event)
 {
   if(configFile.GetFilePath().empty())
   {
-    wxMessageBox( wxT("No config opened!"), wxT("Error"), wxICON_ERROR);
+    wxMessageBox( _("No config opened!"), _("Error"), wxICON_ERROR);
     return;
   }
 
@@ -2540,12 +2540,12 @@ void configFrame::OnMenuAutoBindControls(wxCommandEvent& event)
 
   if(configFile.AutoBind(string(FileName.mb_str())) < 0)
   {
-    wxMessageBox(wxT("Can't auto-bind controls!"), wxT("Error"), wxICON_ERROR);
+    wxMessageBox(_("Can't auto-bind controls!"), _("Error"), wxICON_ERROR);
   }
   else
   {
     load_current();
-    wxMessageBox(wxT("Auto-bind done!"), wxT("Info"), wxICON_INFORMATION);
+    wxMessageBox(_("Auto-bind done!"), _("Info"), wxICON_INFORMATION);
   }
 }
 
@@ -2554,16 +2554,16 @@ void configFrame::OnIntensityAddClick(wxCommandEvent& event)
 {
   if(IntensityButtonId->GetLabel().IsEmpty())
   {
-      wxMessageBox( wxT("Please detect a button!"), wxT("Error"), wxICON_ERROR);
+      wxMessageBox( _("Please detect a button!"), _("Error"), wxICON_ERROR);
       return;
   }
   if(IntensityAxis->GetStringSelection().IsEmpty())
   {
-      wxMessageBox( wxT("Please select an axis!"), wxT("Error"), wxICON_ERROR);
+      wxMessageBox( _("Please select an axis!"), _("Error"), wxICON_ERROR);
       return;
   }
 
-  wxString check = isAlreadyUsed(IntensityDeviceType->GetLabel(), IntensityDeviceName->GetLabel(), IntensityDeviceId->GetLabel(), _("button"), IntensityButtonId->GetLabel(), -1, -1, -1);
+  wxString check = isAlreadyUsed(IntensityDeviceType->GetLabel(), IntensityDeviceName->GetLabel(), IntensityDeviceId->GetLabel(), wxT("button"), IntensityButtonId->GetLabel(), -1, -1, -1);
 
   if(!check.IsEmpty())
   {
@@ -2635,12 +2635,12 @@ void configFrame::OnIntensityModifyClick(wxCommandEvent& event)
   {
       if(count == 0)
       {
-          wxMessageBox( wxT("Please select a line of the table."), wxT("Info"), wxICON_INFORMATION);
+          wxMessageBox( _("Please select a line of the table."), _("Info"), wxICON_INFORMATION);
           return;
       }
       else if(count > 1)
       {
-          wxMessageBox( wxT("Please select a SINGLE line of the table."), wxT("Info"), wxICON_INFORMATION);
+          wxMessageBox( _("Please select a SINGLE line of the table."), _("Info"), wxICON_INFORMATION);
           return;
       }
       
@@ -2665,16 +2665,16 @@ void configFrame::OnIntensityModifyClick(wxCommandEvent& event)
   {
       if (IntensityButtonId->GetLabel().IsEmpty())
       {
-        wxMessageBox(wxT("Please detect an Event!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox(_("Please detect an Event!"), _("Error"), wxICON_ERROR);
         return;
       }
       if(IntensityAxis->GetStringSelection().IsEmpty())
       {
-          wxMessageBox( wxT("Please select a Button!"), wxT("Error"), wxICON_ERROR);
+          wxMessageBox( _("Please select a Button!"), _("Error"), wxICON_ERROR);
           return;
       }
 
-      wxString check = isAlreadyUsed(IntensityDeviceType->GetLabel(), IntensityDeviceName->GetLabel(), IntensityDeviceId->GetLabel(), _("button"), IntensityButtonId->GetLabel(), -1, -1, grid3mod);
+      wxString check = isAlreadyUsed(IntensityDeviceType->GetLabel(), IntensityDeviceName->GetLabel(), IntensityDeviceId->GetLabel(), wxT("button"), IntensityButtonId->GetLabel(), -1, -1, grid3mod);
 
       if(!check.IsEmpty())
       {
@@ -2722,13 +2722,13 @@ void configFrame::OnIntensityModifyClick(wxCommandEvent& event)
 
 void configFrame::OnIntensityAxisSelect(wxCommandEvent& event)
 {
-  if(IntensityAxis->GetStringSelection() == _("lstick") || IntensityAxis->GetStringSelection() == _("rstick"))
+  if(IntensityAxis->GetStringSelection() == wxT("lstick") || IntensityAxis->GetStringSelection() == wxT("rstick"))
   {
     if(IntensityShape->IsEmpty())
     {
       IntensityShape->Clear();
-      IntensityShape->SetSelection( IntensityShape->Append(_("Circle")) );
-      IntensityShape->Append(_("Rectangle"));
+      IntensityShape->SetSelection( IntensityShape->Append(wxT("Circle")) );
+      IntensityShape->Append(wxT("Rectangle"));
     }
   }
   else

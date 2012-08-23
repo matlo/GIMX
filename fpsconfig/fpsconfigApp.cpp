@@ -46,7 +46,7 @@ void fpsconfigApp::OnInitCmdLine(wxCmdLineParser& parser)
 
 bool fpsconfigApp::OnCmdLineParsed(wxCmdLineParser& parser)
 {
-    parser.Found(_("f"), &file);
+    parser.Found(wxT("f"), &file);
 
     return true;
 }

@@ -155,7 +155,7 @@ static void read_devices(wxComboBox* choice)
 
   for (bool cont = dir.GetFirst(&file, filespec, wxDIR_FILES); cont;  cont = dir.GetNext(&file))
   {
-    if(file.StartsWith(_("ttyUSB")) || file.StartsWith(_("ttyACM")))
+    if(file.StartsWith(wxT("ttyUSB")) || file.StartsWith(wxT("ttyACM")))
     {
       if(!line.empty() && wxString(line.c_str(), wxConvUTF8) == file)
       {
@@ -483,7 +483,7 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
 
     if(SingleInstanceChecker1.IsAnotherRunning())
     {
-        wxMessageBox( wxT("gimx-serial is already running!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( _("gimx-serial is already running!"), _("Error"), wxICON_ERROR);
         exit(-1);
     }
 
@@ -495,15 +495,15 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
 	  /* Init user's config directory. */
     if(system("mkdir -p ~/.sixemugui-serial"))
     {
-        wxMessageBox( wxT("Can't init ~/.sixemugui-serial directory!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( _("Can't init ~/.sixemugui-serial directory!"), _("Error"), wxICON_ERROR);
     }
     if(system("mkdir -p ~/.emuclient/config"))
     {
-        wxMessageBox( wxT("Can't init ~/.emuclient/config!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( _("Can't init ~/.emuclient/config!"), _("Error"), wxICON_ERROR);
     }
     if(system("mkdir -p ~/.emuclient/macros"))
     {
-        wxMessageBox( wxT("Can't init ~/.emuclient/macros!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( _("Can't init ~/.emuclient/macros!"), _("Error"), wxICON_ERROR);
     }
 #endif
 
@@ -533,7 +533,7 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
         wxCommandEvent event;
         OnMenuGetConfigs(event);
       }
-    }
+    }    
 }
 
 serialFrame::~serialFrame()
@@ -552,7 +552,7 @@ void serialFrame::OnAbout(wxCommandEvent& event)
   wxAboutDialogInfo info;
   info.SetName(wxTheApp->GetAppName());
   info.SetVersion(wxT(INFO_VERSION));
-  wxString text = wxString(_(INFO_DESCR)) + wxString(_("\n")) + wxString(_(INFO_YEAR)) + wxString(_(" ")) + wxString(_(INFO_DEV)) + wxString(_(" ")) + wxString(_(INFO_LICENCE));
+  wxString text = wxString(wxT(INFO_DESCR)) + wxString(wxT("\n")) + wxString(wxT(INFO_YEAR)) + wxString(wxT(" ")) + wxString(wxT(INFO_DEV)) + wxString(wxT(" ")) + wxString(wxT(INFO_LICENCE));
   info.SetDescription(text);
   info.SetWebSite(wxT(INFO_WEB));
 
@@ -593,7 +593,7 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
 
     if(ChoiceConfig->GetStringSelection().IsEmpty())
     {
-      wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
+      wxMessageBox( _("No config selected!"), _("Error"), wxICON_ERROR);
       return;
     }
 
@@ -601,56 +601,56 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
     {
       if(ComboBoxDevice->GetValue().IsEmpty())
       {
-        wxMessageBox( wxT("No USB to serial device selected!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( _("No USB to serial device selected!"), _("Error"), wxICON_ERROR);
         return;
       }
     }
 
     if(ControllerType->GetStringSelection() == _("360 pad") && !spoofed)
     {
-      wxMessageBox( wxT("Spoof the 360 controller first!"), wxT("Error"), wxICON_ERROR);
+      wxMessageBox( _("Spoof the 360 controller first!"), _("Error"), wxICON_ERROR);
       return;
     }
 
 #ifndef WIN32
-    command.Append(_("xterm -e "));
+    command.Append(wxT("xterm -e "));
 #endif
-    command.Append(_("emuclient"));
+    command.Append(wxT("emuclient"));
     if(ControllerType->GetStringSelection() == _("Joystick"))
     {
-      command.Append(_(" --joystick"));
+      command.Append(wxT(" --joystick"));
     }
     else if(ControllerType->GetStringSelection() == _("GPP"))
     {
-      command.Append(_(" --GPP"));
+      command.Append(wxT(" --GPP"));
     }
     else if(ControllerType->GetStringSelection() == _("360 pad"))
     {
-      command.Append(_(" --360pad"));
+      command.Append(wxT(" --360pad"));
     }
     else if(ControllerType->GetStringSelection() == _("Sixaxis"))
     {
-      command.Append(_(" --Sixaxis"));
+      command.Append(wxT(" --Sixaxis"));
     }
     else if(ControllerType->GetStringSelection() == _("PS2 pad"))
     {
-      command.Append(_(" --PS2pad"));
+      command.Append(wxT(" --PS2pad"));
     }
     if(ControllerType->GetStringSelection() == _("Joystick"))
     {
-      command.Append(_(" --precision 16"));
+      command.Append(wxT(" --precision 16"));
     }
     else
     {
-      command.Append(_(" --precision 8"));
+      command.Append(wxT(" --precision 8"));
     }
     if(!CheckBoxGrab->IsChecked())
     {
-        command.Append(_(" --nograb"));
+        command.Append(wxT(" --nograb"));
     }
-    command.Append(_(" --config \""));
+    command.Append(wxT(" --config \""));
     command.Append(ChoiceConfig->GetStringSelection());
-    command.Append(_("\" --refresh "));
+    command.Append(wxT("\" --refresh "));
     wxfrequency = ComboBoxFrequency->GetValue();
     if(wxfrequency.ToDouble(&frequency))
     {
@@ -664,18 +664,18 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
     command.Append(wxString(ios.str().c_str(), wxConvUTF8));
     if(CheckBoxForceUpdates->IsChecked())
     {
-        command.Append(_(" --force-updates"));
+        command.Append(wxT(" --force-updates"));
     }
     if(CheckBoxSubpositions->IsChecked())
     {
-        command.Append(_(" --subpos"));
+        command.Append(wxT(" --subpos"));
     }
     if(ControllerType->GetStringSelection() != _("GPP"))
     {
-      command.Append(_(" --serial"));
-      command.Append(_(" --port "));
+      command.Append(wxT(" --serial"));
+      command.Append(wxT(" --port "));
 #ifndef WIN32
-      command.Append(_("/dev/"));
+      command.Append(wxT("/dev/"));
 #endif
       command.Append(ComboBoxDevice->GetValue());
     }
@@ -732,11 +732,11 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
 
     if(CheckBoxTerminal->IsChecked())
     {
-        command.Append(_(" --status"));
+        command.Append(wxT(" --status"));
     }
     else if(CheckBoxGui->IsChecked())
     {
-      command.Append(_(" --curses"));
+      command.Append(wxT(" --curses"));
     }
 
     StatusBar1->SetStatusText(_("Press Shift+Esc to exit."));
@@ -747,7 +747,7 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
 
     if(!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process))
     {
-      wxMessageBox( wxT("can't start emuclient!"), wxT("Error"), wxICON_ERROR);
+      wxMessageBox( _("can't start emuclient!"), _("Error"), wxICON_ERROR);
     }
 }
 
@@ -758,7 +758,7 @@ void serialFrame::OnProcessTerminated(wxProcess *process, int status)
 
     if(status)
     {
-      wxMessageBox( wxT("emuclient error"), wxT("Error"), wxICON_ERROR);
+      wxMessageBox( _("emuclient error"), _("Error"), wxICON_ERROR);
     }
 
     SetFocus();
@@ -778,7 +778,7 @@ void serialFrame::OnButtonCheckClick1(wxCommandEvent& event)
 {
     if(ChoiceConfig->GetStringSelection().IsEmpty())
     {
-      wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
+      wxMessageBox( _("No config selected!"), _("Error"), wxICON_ERROR);
       return;
     }
 
@@ -797,15 +797,15 @@ void serialFrame::OnButtonCheckClick1(wxCommandEvent& event)
 
     if(ret < 0)
     {
-      wxMessageBox(wxString(configFile.GetError().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
+      wxMessageBox(wxString(configFile.GetError().c_str(), wxConvUTF8), _("Error"), wxICON_ERROR);
     }
     else if(ret > 0)
     {
-      wxMessageBox(wxString(configFile.GetInfo().c_str(), wxConvUTF8), wxT("Info"), wxICON_INFORMATION);
+      wxMessageBox(wxString(configFile.GetInfo().c_str(), wxConvUTF8), _("Info"), wxICON_INFORMATION);
     }
     else
     {
-      wxMessageBox( _("This config seems OK!\n"), wxT("Info"), wxICON_INFORMATION);
+      wxMessageBox( _("This config seems OK!\n"), _("Info"), wxICON_INFORMATION);
     }
 }
 
@@ -813,17 +813,17 @@ void serialFrame::OnMenuEditConfig(wxCommandEvent& event)
 {
   if(ChoiceConfig->GetStringSelection().IsEmpty())
   {
-    wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
+    wxMessageBox( _("No config selected!"), _("Error"), wxICON_ERROR);
     return;
   }
 
-  wxString command = _("gimx-config -f \"");
+  wxString command = wxT("gimx-config -f \"");
   command.Append(ChoiceConfig->GetStringSelection());
-  command.Append(_("\""));
+  command.Append(wxT("\""));
 
   if (!wxExecute(command, wxEXEC_ASYNC))
   {
-    wxMessageBox(wxT("Error editing the config file!"), wxT("Error"),
+    wxMessageBox(_("Error editing the config file!"), _("Error"),
         wxICON_ERROR);
   }
 }
@@ -832,17 +832,17 @@ void serialFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
 {
   if(ChoiceConfig->GetStringSelection().IsEmpty())
   {
-    wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
+    wxMessageBox( _("No config selected!"), _("Error"), wxICON_ERROR);
     return;
   }
 
-  wxString command = _("gimx-fpsconfig -f \"");
+  wxString command = wxT("gimx-fpsconfig -f \"");
   command.Append(ChoiceConfig->GetStringSelection());
-  command.Append(_("\""));
+  command.Append(wxT("\""));
 
   if (!wxExecute(command, wxEXEC_ASYNC))
   {
-    wxMessageBox(wxT("Error editing the config file!"), wxT("Error"),
+    wxMessageBox(_("Error editing the config file!"), _("Error"),
         wxICON_ERROR);
   }
 }
@@ -853,7 +853,7 @@ void serialFrame::refresh()
     read_devices(ComboBoxDevice);
     if(ComboBoxDevice->GetCount() == 0)
     {
-        wxMessageBox( wxT("No Serial Port Detected!\n"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( _("No Serial Port Detected!\n"), _("Error"), wxICON_ERROR);
     }
 }
 
@@ -897,11 +897,11 @@ void serialFrame::OnControllerTypeSelect(wxCommandEvent& event)
 
 void serialFrame::OnButtonSpoofClick(wxCommandEvent& event)
 {
-    wxString command = _("usbspoof -p ");
+    wxString command = wxT("usbspoof -p ");
 
     if(ComboBoxDevice->GetValue().IsEmpty())
     {
-      wxMessageBox( wxT("No USB to serial device selected!"), wxT("Error"), wxICON_ERROR);
+      wxMessageBox( _("No USB to serial device selected!"), _("Error"), wxICON_ERROR);
       return;
     }
 
@@ -911,22 +911,22 @@ void serialFrame::OnButtonSpoofClick(wxCommandEvent& event)
         wxMessageBox( _("1. Make sure a single genuine 360 controller is connected to the PC.\n"
             "2. Make sure the adapter is connected to the PC.\n"
             "3. Make sure the adapter is NOT connected to the 360.\n"
-            "4. Press OK, and connect the adapter to the 360 after 2-3 seconds."), wxT("Info"), wxICON_INFORMATION);
+            "4. Press OK, and connect the adapter to the 360 after 2-3 seconds."), _("Info"), wxICON_INFORMATION);
       }
 #ifndef WIN32
-      command.Append(_("/dev/"));
+      command.Append(wxT("/dev/"));
 #endif
       command.Append(ComboBoxDevice->GetValue());
 
       if(wxExecute(command, wxEXEC_SYNC))
       {
         spoofed = false;
-        wxMessageBox( wxT("Spoof error!\nPlease try again!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox( _("Spoof error!\nPlease try again!"), _("Error"), wxICON_ERROR);
         return;
       }
       else
       {
-        wxMessageBox( _("Spoof successful!"), wxT("Info"), wxICON_INFORMATION);
+        wxMessageBox( _("Spoof successful!"), _("Info"), wxICON_INFORMATION);
         spoofed = true;
         ButtonSpoof->Enable(false);
       }
@@ -950,7 +950,7 @@ void serialFrame::OnMenuUpdate(wxCommandEvent& event)
     }
     if (u.update() < 0)
     {
-      wxMessageBox(wxT("Can't retrieve update file!"), wxT("Error"), wxICON_ERROR);
+      wxMessageBox(_("Can't retrieve update file!"), _("Error"), wxICON_ERROR);
     }
     else
     {
@@ -959,11 +959,11 @@ void serialFrame::OnMenuUpdate(wxCommandEvent& event)
   }
   else if (ret < 0)
   {
-    wxMessageBox(wxT("Can't check version!"), wxT("Error"), wxICON_ERROR);
+    wxMessageBox(_("Can't check version!"), _("Error"), wxICON_ERROR);
   }
   else if(started)
   {
-    wxMessageBox(wxT("GIMX is up-to-date!"), wxT("Info"), wxICON_INFORMATION);
+    wxMessageBox(_("GIMX is up-to-date!"), _("Info"), wxICON_INFORMATION);
   }
 }
 
@@ -1012,7 +1012,7 @@ void serialFrame::OnMenuGetConfigs(wxCommandEvent& event)
       choices.Add(wxString(it->c_str(), wxConvUTF8));
     }
 
-    wxMultiChoiceDialog dialog(this, wxT("Select the files to download."), wxT("Config download"), choices);
+    wxMultiChoiceDialog dialog(this, _("Select the files to download."), _("Config download"), choices);
 
     if (dialog.ShowModal() == wxID_OK)
     {
@@ -1037,13 +1037,13 @@ void serialFrame::OnMenuGetConfigs(wxCommandEvent& event)
 
       if(u.getconfigs(&cl_sel) < 0)
       {
-        wxMessageBox(wxT("Can't retrieve configs!"), wxT("Error"), wxICON_ERROR);
+        wxMessageBox(_("Can't retrieve configs!"), _("Error"), wxICON_ERROR);
         return;
       }
       
       if(!cl_sel.empty())
 	    {
-	      wxMessageBox(wxT("Download is complete!"), wxT("Info"), wxICON_INFORMATION);
+	      wxMessageBox(_("Download is complete!"), _("Info"), wxICON_INFORMATION);
 	      if(!ChoiceConfig->IsEmpty())
 	      {
 	        int answer = wxMessageBox(_("Auto-bind and convert?"), _("Confirm"), wxYES_NO);
@@ -1059,7 +1059,7 @@ void serialFrame::OnMenuGetConfigs(wxCommandEvent& event)
   }
   else
   {
-    wxMessageBox(wxT("Can't retrieve config list!"), wxT("Error"), wxICON_ERROR);
+    wxMessageBox(_("Can't retrieve config list!"), _("Error"), wxICON_ERROR);
     return;
   }
 }
@@ -1081,7 +1081,7 @@ void serialFrame::autoBindControls(wxArrayString configs)
     ref_configs.Add(ChoiceConfig->GetString(i));
   }
 
-  wxSingleChoiceDialog dialog(this, wxT("Select the reference config."), wxT("Auto-bind and convert"), ref_configs);
+  wxSingleChoiceDialog dialog(this, _("Select the reference config."), _("Auto-bind and convert"), ref_configs);
 
   if (dialog.ShowModal() == wxID_OK)
   {
@@ -1094,24 +1094,24 @@ void serialFrame::autoBindControls(wxArrayString configs)
 
       if(ret < 0)
       {
-        wxMessageBox(wxT("Can't read config: ") + mod_config + wxString(configFile.GetError().c_str(), wxConvUTF8), wxT("Error"), wxICON_ERROR);
+        wxMessageBox(_("Can't read config: ") + mod_config + wxString(configFile.GetError().c_str(), wxConvUTF8), _("Error"), wxICON_ERROR);
         return;
       }
 
       if(configFile.AutoBind(dir + string(dialog.GetStringSelection().mb_str())) < 0)
       {
-        wxMessageBox(wxT("Can't auto-bind controls for config: ") + mod_config, wxT("Error"), wxICON_ERROR);
+        wxMessageBox(_("Can't auto-bind controls for config: ") + mod_config, _("Error"), wxICON_ERROR);
       }
       else
       {
         configFile.ConvertSensitivity(dir + string(dialog.GetStringSelection().mb_str()));
         if(configFile.WriteConfigFile() < 0)
         {
-          wxMessageBox(wxT("Can't write config: ") + mod_config, wxT("Error"), wxICON_ERROR);
+          wxMessageBox(_("Can't write config: ") + mod_config, _("Error"), wxICON_ERROR);
         }
         else
         {
-          wxMessageBox(wxT("Auto bind done for ") + mod_config, wxT("Info"), wxICON_INFORMATION);
+          wxMessageBox(_("Auto bind done for ") + mod_config, _("Info"), wxICON_INFORMATION);
         }
       }
     }
@@ -1122,7 +1122,7 @@ void serialFrame::OnMenuAutoBindControls(wxCommandEvent& event)
 {
   if(ChoiceConfig->GetStringSelection().IsEmpty())
   {
-    wxMessageBox( wxT("No config selected!"), wxT("Error"), wxICON_ERROR);
+    wxMessageBox( _("No config selected!"), _("Error"), wxICON_ERROR);
     return;
   }
 
