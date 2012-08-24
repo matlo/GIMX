@@ -1,0 +1,1351 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: GIMX 0.50\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-08-24 19:48+0100\n"
+"PO-Revision-Date: 2012-08-24 19:53+0100\n"
+"Last-Translator: Matlo <mat.lau@laposte.net>\n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../bluetooth/bluetoothMain.cpp:244
+msgid "Please select a Sixaxis Address!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:244
+#: ../bluetooth/bluetoothMain.cpp:249
+#: ../bluetooth/bluetoothMain.cpp:257
+#: ../bluetooth/bluetoothMain.cpp:280
+#: ../bluetooth/bluetoothMain.cpp:393
+#: ../bluetooth/bluetoothMain.cpp:430
+#: ../bluetooth/bluetoothMain.cpp:434
+#: ../bluetooth/bluetoothMain.cpp:663
+#: ../bluetooth/bluetoothMain.cpp:693
+#: ../bluetooth/bluetoothMain.cpp:697
+#: ../bluetooth/bluetoothMain.cpp:701
+#: ../bluetooth/bluetoothMain.cpp:802
+#: ../bluetooth/bluetoothMain.cpp:999
+#: ../bluetooth/bluetoothMain.cpp:1004
+#: ../bluetooth/bluetoothMain.cpp:1087
+#: ../bluetooth/bluetoothMain.cpp:1136
+#: ../bluetooth/bluetoothMain.cpp:1147
+#: ../bluetooth/bluetoothMain.cpp:1177
+#: ../bluetooth/bluetoothMain.cpp:1207
+#: ../bluetooth/bluetoothMain.cpp:1226
+#: ../bluetooth/bluetoothMain.cpp:1242
+#: ../bluetooth/bluetoothMain.cpp:1252
+#: ../bluetooth/bluetoothMain.cpp:1260
+#: ../bluetooth/bluetoothMain.cpp:1270
+#: ../bluetooth/bluetoothMain.cpp:1291
+#: ../bluetooth/bluetoothMain.cpp:1300
+#: ../bluetooth/bluetoothMain.cpp:1378
+#: ../bluetooth/bluetoothMain.cpp:1399
+#: ../bluetooth/bluetoothMain.cpp:1434
+#: ../bluetooth/bluetoothMain.cpp:1440
+#: ../bluetooth/bluetoothMain.cpp:1447
+#: ../bluetooth/bluetoothMain.cpp:1462
+msgid "Error"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:249
+msgid "Please select a Bluetooth Dongle!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:257
+msgid "Address already used!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:267
+#: ../bluetooth/bluetoothMain.cpp:285
+msgid "Success"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:280
+msgid "Read address after set: ko!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:285
+msgid "Read address after set: seems ok!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:393
+msgid "Cannot open file: "
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:430
+msgid ""
+"No Sixaxis Detected!\n"
+"Sixaxis usb wire plugged?"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:434
+msgid "No Bluetooth Dongle Detected!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:470
+msgid "Gimx-bluetooth"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:475
+msgid "Sixaxis"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:477
+#: ../bluetooth/bluetoothMain.cpp:489
+msgid "Address"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:481
+msgid "PS3 address"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:487
+msgid "Dongle"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:493
+msgid "Name"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:497
+msgid "Manufacturer"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:501
+msgid "Chip version"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:507
+msgid "Set Dongle Address"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:513
+msgid "emu"
+msgstr "emu"
+
+#: ../bluetooth/bluetoothMain.cpp:514
+msgid ""
+"Autostart\n"
+"emuclient"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:519
+#: ../bluetooth/bluetoothMain.cpp:531
+msgid "0"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:520
+#: ../bluetooth/bluetoothMain.cpp:534
+msgid "1"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:521
+#: ../bluetooth/bluetoothMain.cpp:537
+msgid "2"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:522
+#: ../bluetooth/bluetoothMain.cpp:540
+msgid "3"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:523
+#: ../bluetooth/bluetoothMain.cpp:543
+msgid "4"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:524
+#: ../bluetooth/bluetoothMain.cpp:546
+msgid "5"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:525
+#: ../bluetooth/bluetoothMain.cpp:549
+msgid "6"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:527
+#: ../bluetooth/bluetoothMain.cpp:592
+#: ../bluetooth/bluetoothMain.cpp:1015
+#: ../bluetooth/bluetoothMain.cpp:1199
+msgid "Start"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:555
+msgid "emuclient"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:558
+msgid "Mouse"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:560
+msgid "grab"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:565
+msgid "Output"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:567
+msgid "gui"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:570
+msgid "terminal"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:577
+msgid "Force updates"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:580
+msgid "Subpositions"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:585
+msgid "Config"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:590
+msgid "Check"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:604
+msgid "Edit config"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:606
+msgid "Edit fps config"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:608
+#: ../bluetooth/bluetoothMain.cpp:1421
+msgid "Auto-bind and convert"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:610
+msgid "Refresh\tF5"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:612
+msgid "Save"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:614
+msgid "Quit\tAlt-F4"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:614
+msgid "Quit the application"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:616
+msgid "&File"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:618
+msgid "Get configs"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:620
+msgid "Update"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:622
+msgid "Check updates at startup"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:624
+msgid "About\tF1"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:624
+msgid "Show info about this application"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:626
+msgid "Help"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:663
+msgid "gimx-bluetooth is already running!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:680
+msgid "It's not recommended to run as root user. Continue?"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:680
+#: ../bluetooth/bluetoothMain.cpp:722
+#: ../bluetooth/bluetoothMain.cpp:749
+#: ../bluetooth/bluetoothMain.cpp:806
+#: ../bluetooth/bluetoothMain.cpp:1284
+#: ../bluetooth/bluetoothMain.cpp:1366
+#: ../bluetooth/bluetoothMain.cpp:1386
+msgid "Confirm"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:693
+msgid "Can't init ~/.sixemugui directory!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:697
+msgid "Can't init ~/.emuclient/config!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:701
+msgid "Can't init ~/.emuclient/macros!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:722
+msgid "No config found! Download configs?"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:749
+msgid "Emu processes will be killed!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:802
+msgid "This dongle is in use!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:806
+msgid "Did you saved your dongle address?"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:813
+msgid "Please save it!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:813
+#: ../bluetooth/bluetoothMain.cpp:993
+#: ../bluetooth/bluetoothMain.cpp:1230
+#: ../bluetooth/bluetoothMain.cpp:1234
+#: ../bluetooth/bluetoothMain.cpp:1304
+#: ../bluetooth/bluetoothMain.cpp:1383
+#: ../bluetooth/bluetoothMain.cpp:1451
+msgid "Info"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:950
+#: ../bluetooth/bluetoothMain.cpp:1195
+msgid "Stop"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:993
+msgid ""
+"Connected!\n"
+"Start emuclient now."
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:999
+msgid ""
+"Connection error!\n"
+"Did you set the dongle address?\n"
+"If yes, try another dongle!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1004
+msgid "This dongle is already used!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1087
+#: ../bluetooth/bluetoothMain.cpp:1207
+#: ../bluetooth/bluetoothMain.cpp:1242
+#: ../bluetooth/bluetoothMain.cpp:1260
+#: ../bluetooth/bluetoothMain.cpp:1462
+msgid "No config selected!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1128
+msgid "Press Shift+Esc to exit."
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1136
+msgid "can't start emuclient!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1147
+msgid "emuclient error"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1177
+msgid "Cannot open config directory!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1234
+msgid "This config seems OK!\n"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1252
+#: ../bluetooth/bluetoothMain.cpp:1270
+msgid "Error editing the config file!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1284
+msgid ""
+"Update available.\n"
+"Start installation?"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1291
+msgid "Can't retrieve update file!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1300
+msgid "Can't check version!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1304
+msgid "GIMX is up-to-date!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1353
+msgid "Select the files to download."
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1353
+msgid "Config download"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1366
+msgid "Overwrite local file: "
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1366
+msgid "?"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1378
+msgid "Can't retrieve configs!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1383
+msgid "Download is complete!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1386
+msgid "Auto-bind and convert?"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1399
+msgid "Can't retrieve config list!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1421
+msgid "Select the reference config."
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1434
+msgid "Can't read config: "
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1440
+msgid "Can't auto-bind controls for config: "
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1447
+msgid "Can't write config: "
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:1451
+msgid "Done!"
+msgstr ""
+
+#: ../config/configMain.cpp:338
+msgid "Gimx-config"
+msgstr ""
+
+#: ../config/configMain.cpp:344
+msgid "Profile trigger"
+msgstr ""
+
+#: ../config/configMain.cpp:354
+#: ../config/configMain.cpp:401
+#: ../config/configMain.cpp:506
+#: ../config/configMain.cpp:586
+msgid "Auto detect"
+msgstr ""
+
+#: ../config/configMain.cpp:356
+msgid "Switch back"
+msgstr ""
+
+#: ../config/configMain.cpp:359
+msgid "Delay (ms):"
+msgstr ""
+
+#: ../config/configMain.cpp:364
+msgid "Delete"
+msgstr ""
+
+#: ../config/configMain.cpp:368
+msgid "Axis intensity"
+msgstr ""
+
+#: ../config/configMain.cpp:372
+#: ../config/configMain.cpp:442
+#: ../config/configMain.cpp:472
+#: ../config/configMain.cpp:519
+#: ../config/configMain.cpp:545
+#: ../config/configMain.cpp:628
+msgid "Device type"
+msgstr ""
+
+#: ../config/configMain.cpp:374
+#: ../config/configMain.cpp:443
+#: ../config/configMain.cpp:474
+#: ../config/configMain.cpp:520
+#: ../config/configMain.cpp:547
+#: ../config/configMain.cpp:629
+msgid "Device name"
+msgstr ""
+
+#: ../config/configMain.cpp:376
+#: ../config/configMain.cpp:444
+#: ../config/configMain.cpp:476
+#: ../config/configMain.cpp:521
+#: ../config/configMain.cpp:549
+#: ../config/configMain.cpp:630
+msgid "Device id"
+msgstr ""
+
+#: ../config/configMain.cpp:378
+#: ../config/configMain.cpp:445
+#: ../config/configMain.cpp:525
+msgid "Button id"
+msgstr ""
+
+#: ../config/configMain.cpp:382
+#: ../config/configMain.cpp:446
+msgid "Direction"
+msgstr ""
+
+#: ../config/configMain.cpp:384
+#: ../config/configMain.cpp:559
+#: ../fpsconfig/fpsconfigMain.cpp:264
+msgid "DZ"
+msgstr ""
+
+#: ../config/configMain.cpp:385
+#: ../config/configMain.cpp:447
+#: ../config/configMain.cpp:560
+#: ../config/configMain.cpp:634
+#: ../fpsconfig/fpsconfigMain.cpp:265
+msgid "Dead zone"
+msgstr ""
+
+#: ../config/configMain.cpp:387
+#: ../config/configMain.cpp:448
+#: ../config/configMain.cpp:568
+#: ../config/configMain.cpp:637
+#: ../fpsconfig/fpsconfigMain.cpp:260
+msgid "Shape"
+msgstr ""
+
+#: ../config/configMain.cpp:389
+#: ../config/configMain.cpp:449
+msgid "Steps"
+msgstr ""
+
+#: ../config/configMain.cpp:391
+#: ../config/configMain.cpp:450
+#: ../config/configMain.cpp:557
+#: ../config/configMain.cpp:658
+msgid "Axis"
+msgstr ""
+
+#: ../config/configMain.cpp:404
+msgid "Increase"
+msgstr ""
+
+#: ../config/configMain.cpp:405
+msgid "Decrease"
+msgstr ""
+
+#: ../config/configMain.cpp:416
+msgid "lstick"
+msgstr "lstick"
+
+#: ../config/configMain.cpp:417
+msgid "rstick"
+msgstr "rstick"
+
+#: ../config/configMain.cpp:418
+msgid "acc x"
+msgstr "acc x"
+
+#: ../config/configMain.cpp:419
+msgid "acc y"
+msgstr "acc y"
+
+#: ../config/configMain.cpp:420
+msgid "acc z"
+msgstr "acc z"
+
+#: ../config/configMain.cpp:421
+msgid "gyro"
+msgstr "gyro"
+
+#: ../config/configMain.cpp:422
+msgid "up"
+msgstr "up"
+
+#: ../config/configMain.cpp:423
+msgid "down"
+msgstr "down"
+
+#: ../config/configMain.cpp:424
+msgid "right"
+msgstr "right"
+
+#: ../config/configMain.cpp:425
+msgid "left"
+msgstr "left"
+
+#: ../config/configMain.cpp:426
+msgid "r1"
+msgstr "r1"
+
+#: ../config/configMain.cpp:427
+msgid "r2"
+msgstr "r2"
+
+#: ../config/configMain.cpp:428
+msgid "l1"
+msgstr "l1"
+
+#: ../config/configMain.cpp:429
+msgid "l2"
+msgstr "l2"
+
+#: ../config/configMain.cpp:430
+msgid "circle"
+msgstr "circle"
+
+#: ../config/configMain.cpp:431
+msgid "square"
+msgstr "square"
+
+#: ../config/configMain.cpp:432
+msgid "cross"
+msgstr "cross"
+
+#: ../config/configMain.cpp:433
+msgid "triangle"
+msgstr "triangle"
+
+#: ../config/configMain.cpp:455
+#: ../config/configMain.cpp:531
+#: ../config/configMain.cpp:645
+msgid "Add"
+msgstr ""
+
+#: ../config/configMain.cpp:457
+#: ../config/configMain.cpp:533
+#: ../config/configMain.cpp:647
+msgid "Remove"
+msgstr ""
+
+#: ../config/configMain.cpp:459
+#: ../config/configMain.cpp:535
+#: ../config/configMain.cpp:649
+#: ../config/configMain.cpp:948
+#: ../config/configMain.cpp:949
+#: ../config/configMain.cpp:954
+#: ../config/configMain.cpp:1615
+#: ../config/configMain.cpp:1616
+#: ../config/configMain.cpp:1621
+#: ../config/configMain.cpp:1660
+#: ../config/configMain.cpp:1661
+#: ../config/configMain.cpp:1666
+#: ../config/configMain.cpp:1709
+#: ../config/configMain.cpp:1710
+#: ../config/configMain.cpp:1715
+#: ../config/configMain.cpp:1729
+#: ../config/configMain.cpp:1730
+#: ../config/configMain.cpp:1735
+#: ../config/configMain.cpp:1765
+#: ../config/configMain.cpp:1859
+#: ../config/configMain.cpp:1905
+#: ../config/configMain.cpp:2023
+#: ../config/configMain.cpp:2085
+#: ../config/configMain.cpp:2086
+#: ../config/configMain.cpp:2087
+#: ../config/configMain.cpp:2105
+#: ../config/configMain.cpp:2106
+#: ../config/configMain.cpp:2107
+#: ../config/configMain.cpp:2642
+#: ../config/configMain.cpp:2725
+msgid "Modify"
+msgstr ""
+
+#: ../config/configMain.cpp:478
+#: ../config/configMain.cpp:522
+#: ../config/configMain.cpp:551
+#: ../config/configMain.cpp:631
+msgid "Event type"
+msgstr ""
+
+#: ../config/configMain.cpp:480
+#: ../config/configMain.cpp:523
+#: ../config/configMain.cpp:553
+#: ../config/configMain.cpp:632
+msgid "Event id"
+msgstr ""
+
+#: ../config/configMain.cpp:482
+#: ../config/configMain.cpp:524
+msgid "Threshold"
+msgstr ""
+
+#: ../config/configMain.cpp:486
+#: ../config/configMain.cpp:657
+msgid "Button"
+msgstr ""
+
+#: ../config/configMain.cpp:488
+#: ../config/configMain.cpp:526
+#: ../config/configMain.cpp:572
+#: ../config/configMain.cpp:640
+msgid "Label"
+msgstr ""
+
+#: ../config/configMain.cpp:497
+#: ../config/configMain.cpp:582
+#: ../config/configMain.cpp:1208
+msgid "button"
+msgstr "button"
+
+#: ../config/configMain.cpp:498
+msgid "axis up"
+msgstr "axis up"
+
+#: ../config/configMain.cpp:499
+msgid "axis down"
+msgstr "axis down"
+
+#: ../config/configMain.cpp:562
+#: ../fpsconfig/fpsconfigMain.cpp:266
+msgid "Sens."
+msgstr ""
+
+#: ../config/configMain.cpp:563
+#: ../config/configMain.cpp:635
+#: ../fpsconfig/fpsconfigMain.cpp:267
+msgid "Sensitivity"
+msgstr ""
+
+#: ../config/configMain.cpp:565
+#: ../fpsconfig/fpsconfigMain.cpp:268
+msgid "Accel."
+msgstr ""
+
+#: ../config/configMain.cpp:566
+#: ../config/configMain.cpp:636
+#: ../fpsconfig/fpsconfigMain.cpp:269
+msgid "Acceleration"
+msgstr ""
+
+#: ../config/configMain.cpp:570
+#: ../fpsconfig/fpsconfigMain.cpp:348
+msgid "Smoothing"
+msgstr ""
+
+#: ../config/configMain.cpp:581
+msgid "axis"
+msgstr "axis"
+
+#: ../config/configMain.cpp:592
+msgid "Dead zone [0..64]"
+msgstr ""
+
+#: ../config/configMain.cpp:596
+msgid "Sensitivity [-100.00..100.00]"
+msgstr ""
+
+#: ../config/configMain.cpp:600
+msgid "Acceleration [0.00..2.00]"
+msgstr ""
+
+#: ../config/configMain.cpp:604
+#: ../fpsconfig/fpsconfigMain.cpp:333
+#: ../fpsconfig/fpsconfigMain.cpp:337
+msgid "Circle"
+msgstr "Circle"
+
+#: ../config/configMain.cpp:605
+#: ../fpsconfig/fpsconfigMain.cpp:334
+#: ../fpsconfig/fpsconfigMain.cpp:338
+msgid "Rectangle"
+msgstr "Rectangle"
+
+#: ../config/configMain.cpp:611
+msgid "Buffer size [1..30]"
+msgstr ""
+
+#: ../config/configMain.cpp:615
+msgid "Filter [0.00..1.00]"
+msgstr ""
+
+#: ../config/configMain.cpp:633
+msgid "Axis id"
+msgstr ""
+
+#: ../config/configMain.cpp:638
+msgid "Buffer Size"
+msgstr ""
+
+#: ../config/configMain.cpp:639
+msgid "Filter"
+msgstr ""
+
+#: ../config/configMain.cpp:656
+msgid "Overall"
+msgstr ""
+
+#: ../config/configMain.cpp:663
+msgid "New\tCtrl-N"
+msgstr ""
+
+#: ../config/configMain.cpp:663
+msgid "Create a new configuration"
+msgstr ""
+
+#: ../config/configMain.cpp:665
+msgid "Open\tCtrl-O"
+msgstr ""
+
+#: ../config/configMain.cpp:665
+msgid "Open a configuration file"
+msgstr ""
+
+#: ../config/configMain.cpp:667
+msgid "Save\tCtrl-S"
+msgstr ""
+
+#: ../config/configMain.cpp:667
+msgid "Save configuration"
+msgstr ""
+
+#: ../config/configMain.cpp:670
+msgid "Save As..."
+msgstr ""
+
+#: ../config/configMain.cpp:670
+msgid "Save configuration to specified file"
+msgstr ""
+
+#: ../config/configMain.cpp:677
+msgid "Copy Profile"
+msgstr ""
+
+#: ../config/configMain.cpp:679
+msgid "Copy Controller"
+msgstr ""
+
+#: ../config/configMain.cpp:682
+msgid "Paste Profile"
+msgstr ""
+
+#: ../config/configMain.cpp:684
+msgid "Paste Controller"
+msgstr ""
+
+#: ../config/configMain.cpp:687
+msgid "Set Mouse DPI"
+msgstr ""
+
+#: ../config/configMain.cpp:690
+msgid "Replace Mouse"
+msgstr ""
+
+#: ../config/configMain.cpp:693
+msgid "Convert mouse sensitivity"
+msgstr ""
+
+#: ../config/configMain.cpp:695
+msgid "Replace Keyboard"
+msgstr ""
+
+#: ../config/configMain.cpp:698
+msgid "Edit"
+msgstr ""
+
+#: ../config/configMain.cpp:712
+#: ../config/configMain.cpp:728
+msgid "7"
+msgstr ""
+
+#: ../config/configMain.cpp:714
+#: ../serial/serialMain.cpp:359
+msgid "Controller"
+msgstr ""
+
+#: ../config/configMain.cpp:730
+msgid "8"
+msgstr ""
+
+#: ../config/configMain.cpp:732
+msgid "Profile"
+msgstr ""
+
+#: ../config/configMain.cpp:734
+msgid "Multiple Mice and Keyboards"
+msgstr ""
+
+#: ../config/configMain.cpp:736
+msgid "Link controls"
+msgstr ""
+
+#: ../config/configMain.cpp:739
+#: ../fpsconfig/fpsconfigMain.cpp:368
+msgid "Auto-bind controls"
+msgstr ""
+
+#: ../config/configMain.cpp:741
+#: ../fpsconfig/fpsconfigMain.cpp:370
+msgid "Advanced"
+msgstr ""
+
+#: ../config/configMain.cpp:755
+#: ../fpsconfig/fpsconfigMain.cpp:384
+msgid "Select file"
+msgstr ""
+
+#: ../config/configMain.cpp:755
+#: ../config/configMain.cpp:1742
+#: ../fpsconfig/fpsconfigMain.cpp:964
+#: ../fpsconfig/fpsconfigMain.cpp:1818
+msgid "XML files (*.xml)|*.xml"
+msgstr ""
+
+#: ../config/configMain.cpp:906
+#: ../fpsconfig/fpsconfigMain.cpp:496
+msgid "Cannot open config file: "
+msgstr ""
+
+#: ../config/configMain.cpp:963
+#: ../config/configMain.cpp:1000
+#: ../config/configMain.cpp:1805
+#: ../config/configMain.cpp:1964
+#: ../config/configMain.cpp:2676
+msgid "Please detect an Event!"
+msgstr ""
+
+#: ../config/configMain.cpp:968
+#: ../config/configMain.cpp:1810
+#: ../config/configMain.cpp:2681
+msgid "Please select a Button!"
+msgstr ""
+
+#: ../config/configMain.cpp:1005
+#: ../config/configMain.cpp:1969
+msgid "Please select an Axis!"
+msgstr ""
+
+#: ../config/configMain.cpp:1251
+#: ../fpsconfig/fpsconfigMain.cpp:828
+msgid "Press a button."
+msgstr ""
+
+#: ../config/configMain.cpp:1255
+msgid "Move an axis."
+msgstr ""
+
+#: ../config/configMain.cpp:1727
+#: ../fpsconfig/fpsconfigMain.cpp:1252
+msgid "Can't save "
+msgstr ""
+
+#: ../config/configMain.cpp:1742
+#: ../fpsconfig/fpsconfigMain.cpp:964
+msgid "Save config file"
+msgstr ""
+
+#: ../config/configMain.cpp:1769
+#: ../config/configMain.cpp:1909
+#: ../config/configMain.cpp:2646
+msgid "Please select a line of the table."
+msgstr ""
+
+#: ../config/configMain.cpp:1774
+#: ../config/configMain.cpp:1914
+#: ../config/configMain.cpp:2651
+msgid "Please select a SINGLE line of the table."
+msgstr ""
+
+#: ../config/configMain.cpp:1799
+#: ../config/configMain.cpp:1958
+#: ../config/configMain.cpp:2670
+msgid "Apply"
+msgstr ""
+
+#: ../config/configMain.cpp:2141
+#: ../config/configMain.cpp:2263
+msgid "Press a mouse button."
+msgstr ""
+
+#: ../config/configMain.cpp:2145
+msgid "Press a keyboard key."
+msgstr ""
+
+#: ../config/configMain.cpp:2206
+msgid ""
+"This will replace the mouse in the current controller.\n"
+"Continue?"
+msgstr ""
+
+#: ../config/configMain.cpp:2216
+msgid ""
+"This will replace the keyboard in the current controller.\n"
+"Continue?"
+msgstr ""
+
+#: ../config/configMain.cpp:2239
+#: ../config/configMain.cpp:2250
+#: ../config/configMain.cpp:2334
+#: ../fpsconfig/fpsconfigMain.cpp:1778
+msgid "Enter a number:"
+msgstr ""
+
+#: ../config/configMain.cpp:2239
+msgid "Source mouse DPI"
+msgstr ""
+
+#: ../config/configMain.cpp:2250
+#: ../fpsconfig/fpsconfigMain.cpp:1778
+msgid "Destination mouse DPI"
+msgstr ""
+
+#: ../config/configMain.cpp:2334
+msgid "Mouse DPI value"
+msgstr ""
+
+#: ../config/configMain.cpp:2445
+msgid ""
+"This control is already used in the current profile (Button tab).\n"
+"Continue?"
+msgstr ""
+
+#: ../config/configMain.cpp:2462
+msgid ""
+"This control is already used in the current profile (Axis tab).\n"
+"Continue?"
+msgstr ""
+
+#: ../config/configMain.cpp:2480
+msgid ""
+"This control is already used in the current profile (Overall tab).\n"
+"Continue?"
+msgstr ""
+
+#: ../config/configMain.cpp:2538
+#: ../fpsconfig/fpsconfigMain.cpp:1814
+msgid "No config opened!"
+msgstr ""
+
+#: ../config/configMain.cpp:2551
+#: ../fpsconfig/fpsconfigMain.cpp:1827
+msgid "Can't auto-bind controls!"
+msgstr ""
+
+#: ../config/configMain.cpp:2565
+msgid "Please detect a button!"
+msgstr ""
+
+#: ../config/configMain.cpp:2570
+msgid "Please select an axis!"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:59
+msgid "OK"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:60
+msgid "Cancel"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:211
+msgid "Gimx-fpsconfig"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:237
+msgid "Buffer size (Hip Fire)"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:240
+msgid "Buffer size (ADS)"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:243
+msgid "Dead zone (Hip Fire)"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:246
+msgid "Dead zone (ADS)"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:247
+#: ../fpsconfig/fpsconfigMain.cpp:249
+#: ../fpsconfig/fpsconfigMain.cpp:251
+#: ../fpsconfig/fpsconfigMain.cpp:257
+#: ../fpsconfig/fpsconfigMain.cpp:340
+#: ../fpsconfig/fpsconfigMain.cpp:342
+msgid "1.00"
+msgstr "1.00"
+
+#: ../fpsconfig/fpsconfigMain.cpp:248
+msgid "Sensitivity (ADS)"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:250
+msgid "Sensitivity (Hip Fire)"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:252
+msgid "Acceleration (ADS)"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:253
+#: ../fpsconfig/fpsconfigMain.cpp:255
+msgid "0.00"
+msgstr "0.00"
+
+#: ../fpsconfig/fpsconfigMain.cpp:254
+msgid "Filter (Hip Fire)"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:256
+msgid "Filter (ADS)"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:258
+msgid "Acceleration (Hip Fire)"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:259
+msgid "Hip Fire"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:261
+msgid "Dead zone shape"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:262
+msgid "ADS"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:263
+msgid "Aiming Down the Sights"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:270
+msgid "x/y"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:271
+msgid "x/y ratio"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:335
+msgid "Dead zone shape (Hip Fire)"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:339
+msgid "Dead zone shape (ADS)"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:341
+msgid "x/y ratio (Hip Fire)"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:343
+msgid "x/y ratio (ADS)"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:346
+#: ../fpsconfig/fpsconfigMain.cpp:955
+#: ../fpsconfig/fpsconfigMain.cpp:1278
+msgid "Enter your mouse DPI value."
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:347
+msgid "Mouse DPI"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:349
+msgid "Mouse smoothing"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:350
+msgid ""
+"Convert\n"
+"sensitivity"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:353
+msgid "New\tCtrl+N"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:355
+msgid "Open\tCtrl+O"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:357
+msgid "Save\tCtrl+S"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:360
+msgid "Save As"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:366
+msgid "Edit Labels"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:796
+msgid "Edit Label"
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:834
+msgid "Joystick controls are only supported through gimx-config."
+msgstr ""
+
+#: ../fpsconfig/fpsconfigMain.cpp:1832
+msgid "Auto-bind done!"
+msgstr ""
+
+#: ../serial/serialMain.cpp:343
+msgid "Gimx-serial"
+msgstr ""
+
+#: ../serial/serialMain.cpp:347
+msgid "USB to serial"
+msgstr ""
+
+#: ../serial/serialMain.cpp:349
+msgid "Device"
+msgstr ""
+
+#: ../serial/serialMain.cpp:362
+#: ../serial/serialMain.cpp:619
+#: ../serial/serialMain.cpp:639
+msgid "Joystick"
+msgstr "Joystick"
+
+#: ../serial/serialMain.cpp:363
+#: ../serial/serialMain.cpp:600
+#: ../serial/serialMain.cpp:623
+#: ../serial/serialMain.cpp:673
+#: ../serial/serialMain.cpp:875
+msgid "GPP"
+msgstr "GPP"
+
+#: ../serial/serialMain.cpp:364
+#: ../serial/serialMain.cpp:635
+#: ../serial/serialMain.cpp:883
+msgid "PS2 pad"
+msgstr "PS2 pad"
+
+#: ../serial/serialMain.cpp:366
+msgid "Spoof"
+msgstr ""
+
+#: ../serial/serialMain.cpp:371
+msgid "Update frequency "
+msgstr ""
+
+#: ../serial/serialMain.cpp:374
+msgid "62.5"
+msgstr "62.5"
+
+#: ../serial/serialMain.cpp:375
+msgid "100"
+msgstr "100"
+
+#: ../serial/serialMain.cpp:376
+msgid "125"
+msgstr "125"
+
+#: ../serial/serialMain.cpp:377
+msgid "250"
+msgstr "250"
+
+#: ../serial/serialMain.cpp:379
+msgid "Hz"
+msgstr ""
+
+#: ../serial/serialMain.cpp:386
+msgid "Subposition"
+msgstr ""
+
+#: ../serial/serialMain.cpp:478
+#: ../serial/serialMain.cpp:609
+#: ../serial/serialMain.cpp:627
+#: ../serial/serialMain.cpp:867
+#: ../serial/serialMain.cpp:908
+msgid "360 pad"
+msgstr "360 pad"
+
+#: ../serial/serialMain.cpp:486
+msgid "gimx-serial is already running!"
+msgstr ""
+
+#: ../serial/serialMain.cpp:498
+msgid "Can't init ~/.sixemugui-serial directory!"
+msgstr ""
+
+#: ../serial/serialMain.cpp:604
+#: ../serial/serialMain.cpp:904
+msgid "No USB to serial device selected!"
+msgstr ""
+
+#: ../serial/serialMain.cpp:611
+msgid "Spoof the 360 controller first!"
+msgstr ""
+
+#: ../serial/serialMain.cpp:856
+msgid "No Serial Port Detected!\n"
+msgstr ""
+
+#: ../serial/serialMain.cpp:911
+msgid ""
+"1. Make sure a single genuine 360 controller is connected to the PC.\n"
+"2. Make sure the adapter is connected to the PC.\n"
+"3. Make sure the adapter is NOT connected to the 360.\n"
+"4. Press OK, and connect the adapter to the 360 after 2-3 seconds."
+msgstr ""
+
+#: ../serial/serialMain.cpp:924
+msgid ""
+"Spoof error!\n"
+"Please try again!"
+msgstr ""
+
+#: ../serial/serialMain.cpp:929
+msgid "Spoof successful!"
+msgstr ""
+
+#: ../serial/serialMain.cpp:1114
+msgid "Auto bind done for "
+msgstr ""
+
+#: ../config/configApp.h:30
+#: ../fpsconfig/fpsconfigApp.h:29
+msgid "file"
+msgstr ""
+
+#: ../config/configApp.h:30
+#: ../fpsconfig/fpsconfigApp.h:29
+msgid "specifies a file to open"
+msgstr ""
+
