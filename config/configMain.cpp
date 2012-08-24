@@ -1739,7 +1739,7 @@ void configFrame::OnMenuSave(wxCommandEvent& event)
 
 void configFrame::OnMenuSaveAs(wxCommandEvent& event)
 {
-    wxFileDialog saveFileDialog(this, _("Save Config file"), wxT(""), wxT(""), _("XML files (*.xml)|*.xml"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    wxFileDialog saveFileDialog(this, _("Save config file"), wxT(""), wxT(""), _("XML files (*.xml)|*.xml"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 
     saveFileDialog.SetDirectory(default_directory);
     saveFileDialog.SetFilename(FileDialog1->GetFilename());
