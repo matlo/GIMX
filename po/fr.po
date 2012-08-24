@@ -1382,18 +1382,3 @@ msgstr "fichier"
 #: ../fpsconfig/fpsconfigApp.h:29
 msgid "specifies a file to open"
 msgstr "spécifie un fichier à ouvrir"
-
-#~ msgid "Continue?"
-#~ msgstr "Continuer ?"
-
-#~ msgid "This control is already used in the current profile"
-#~ msgstr "Ce contrôle est déjà utilisé dans le profil courant"
-
-#~ msgid " (Button tab).\n"
-#~ msgstr " (onglet Bouton).\n"
-
-#~ msgid " (Axis tab).\n"
-#~ msgstr " (onglet Axe).\n"
-
-#~ msgid " (Overall tab).\n"
-#~ msgstr " (onglet Général).\n"
