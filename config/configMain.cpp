@@ -2135,7 +2135,15 @@ void configFrame::replaceDevice(wxString wx_device_type)
 
     if(MenuItemMultipleMiceAndKeyboards->IsChecked())
     {
-        wxString msg = _("Press a ") + wx_device_type + _(" button.");
+        wxString msg;
+        if(wx_device_type == wxT("mouse"))
+        {
+          msg = _("Press a mouse button.");
+        }
+        else
+        {
+          msg = _("Press a keyboard key.");
+        }
         StatusBar1->SetStatusText(msg);
 	      evcatch.run(device_type, "button");
         StatusBar1->SetStatusText(wxEmptyString);
@@ -2545,7 +2553,7 @@ void configFrame::OnMenuAutoBindControls(wxCommandEvent& event)
   else
   {
     load_current();
-    wxMessageBox(_("Auto-bind done!"), _("Info"), wxICON_INFORMATION);
+    wxMessageBox(_("Done!"), _("Info"), wxICON_INFORMATION);
   }
 }
 

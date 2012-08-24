@@ -22,7 +22,10 @@ IMPLEMENT_APP(bluetoothApp);
 bool bluetoothApp::OnInit()
 {
     wxLocale* locale = new wxLocale(wxLANGUAGE_DEFAULT);
-    locale->AddCatalog(wxT("gimx-bluetooth"));
+#ifdef WIN32
+    locale->AddCatalogLookupPathPrefix(wxT("share/locale"));
+#endif
+    locale->AddCatalog(wxT("gimx"));
 
     //(*AppInitialize
     bool wxsOK = true;
