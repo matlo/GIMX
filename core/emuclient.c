@@ -41,8 +41,6 @@
 #include "display.h"
 #include "emuclient.h"
 
-#include <locale.h>
-
 #define EVENT_BUFFER_SIZE 256
 #define DEFAULT_POSTPONE_COUNT 3
 #define DEFAULT_MAX_AXIS_VALUE 255
@@ -125,6 +123,16 @@ int main(int argc, char *argv[])
   e_controller_type ctype = C_TYPE_JOYSTICK;
   int ptl;
 
+  setlocale( LC_ALL, "" );
+#ifndef WIN32
+  bindtextdomain( "gimx", "/usr/share/locale" );
+#else
+  bindtextdomain( "gimx", "share/locale" );
+#endif
+  textdomain( "gimx" );
+
+  setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
+  
 #ifndef WIN32
   /*
    * Set highest priority & scheduler policy.
@@ -136,8 +144,6 @@ int main(int argc, char *argv[])
 
   setlinebuf(stdout);
   homedir = getpwuid(getuid())->pw_dir;
-
-  setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 #else
   SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
   SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
@@ -451,12 +457,12 @@ int main(int argc, char *argv[])
     {
       if(!curses)
       {
-        printf("processing time higher than %dus: %dus!!\n", refresh_rate, refresh_rate - time_to_sleep);
+        printf(_("processing time higher than %dus: %dus!!\n"), refresh_rate, refresh_rate - time_to_sleep);
       }
     }
   }
 
-  gprintf("Exiting\n");
+  gprintf(_("Exiting\n"));
 
 EXIT:
   free_macros();

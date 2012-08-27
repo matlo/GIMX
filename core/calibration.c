@@ -187,81 +187,81 @@ static void cal_display()
 
   if (current_cal != NONE)
   {
-    gprintf("calibrating mouse %s (%d)\n", sdl_get_mouse_name(current_mouse), sdl_get_mouse_virtual_id(current_mouse));
-    gprintf("calibrating conf %d\n", current_conf + 1);
-    gprintf("multiplier_x:");
+    gprintf(_("calibrating mouse %s (%d)\n"), sdl_get_mouse_name(current_mouse), sdl_get_mouse_virtual_id(current_mouse));
+    gprintf(_("calibrating conf %d\n"), current_conf + 1);
+    gprintf(_("sensibility:"));
     if (mcal->mx)
     {
       gprintf(" %.2f\n", *mcal->mx);
     }
     else
     {
-      gprintf(" NA\n");
+      gprintf(_(" NA\n"));
     }
-    gprintf("x/y_ratio:");
+    gprintf(_("x/y ratio:"));
     if (mcal->mx && mcal->my)
     {
       gprintf(" %.2f\n", *mcal->my / *mcal->mx);
     }
     else
     {
-      gprintf(" NA\n");
+      gprintf(_(" NA\n"));
     }
-    gprintf("dead_zone_x:");
+    gprintf(_("dead zone x:"));
     if (mcal->dzx)
     {
       gprintf(" %d\n", *mcal->dzx);
     }
     else
     {
-      gprintf(" NA\n");
+      gprintf(_(" NA\n"));
     }
-    gprintf("dead_zone_y:");
+    gprintf(_("dead zone y:"));
     if (mcal->dzy)
     {
       gprintf(" %d\n", *mcal->dzy);
     }
     else
     {
-      gprintf(" NA\n");
+      gprintf(_(" NA\n"));
     }
-    gprintf("shape:");
+    gprintf(_("shape:"));
     if (mcal->dzs)
     {
       if (*mcal->dzs == E_SHAPE_CIRCLE)
       {
-        gprintf(" Circle\n");
+        gprintf(_(" Circle\n"));
       }
       else
       {
-        gprintf(" Rectangle\n");
+        gprintf(_(" Rectangle\n"));
       }
     }
     else
     {
-      gprintf(" NA\n");
+      gprintf(_(" NA\n"));
     }
-    gprintf("exponent_x:");
+    gprintf(_("acceleration x:"));
     if (mcal->ex)
     {
       gprintf(" %.2f\n", *mcal->ex);
     }
     else
     {
-      gprintf(" NA\n");
+      gprintf(_(" NA\n"));
     }
-    gprintf("exponent_y:");
+    gprintf(_("acceleration y:"));
     if (mcal->ey)
     {
       gprintf(" %.2f\n", *mcal->ey);
     }
     else
     {
-      gprintf(" NA\n");
+      gprintf(_(" NA\n"));
     }
-    gprintf("radius: %d\n", mcal->rd);
-    gprintf("velocity: %d\n", mcal->vel);
-    gprintf("time: %d\n", test_time);
+    gprintf(_("radius: %d\n"), mcal->rd);
+    gprintf(_("velocity: %d\n"), mcal->vel);
+    gprintf(_("time: %d\n"), test_time);
   }
 }
 
@@ -321,12 +321,12 @@ void cal_key(int device_id, int sym, int down)
             if(!merge_all_devices)
             {
               current_cal = MC;
-              gprintf("mouse selection\n");
+              gprintf(_("mouse selection\n"));
             }
             else
             {
               current_cal = CC;
-              gprintf("config selection\n");
+              gprintf(_("config selection\n"));
             }
           }
           else
@@ -334,9 +334,9 @@ void cal_key(int device_id, int sym, int down)
             current_cal = NONE;
             if (cfgw_modify_file(config_file))
             {
-              gprintf("error writting the config file %s\n", config_file);
+              gprintf(_("error writting the config file %s\n"), config_file);
             }
-            gprintf("calibration done\n");
+            gprintf(_("calibration done\n"));
           }
         }
         else if(current_cal != NONE)
@@ -344,7 +344,7 @@ void cal_key(int device_id, int sym, int down)
           if(!merge_all_devices)
           {
             current_cal = MC;
-            gprintf("mouse selection\n");
+            gprintf(_("mouse selection\n"));
           }
         }
       }
@@ -353,27 +353,27 @@ void cal_key(int device_id, int sym, int down)
       if (down && current_cal != NONE)
       {
         current_cal = CC;
-        gprintf("config selection\n");
+        gprintf(_("config selection\n"));
       }
       break;
     case SDLK_F9:
       if (down && current_cal != NONE)
       {
-        gprintf("calibrating multiplier x\n");
+        gprintf(_("calibrating sensitivity\n"));
         current_cal = MX;
       }
       break;
     case SDLK_F12:
       if (down && current_cal != NONE)
       {
-        gprintf("calibrating x/y ratio\n");
+        gprintf(_("calibrating x/y ratio\n"));
         current_cal = MY;
       }
       break;
     case SDLK_F3:
       if (down && current_cal != NONE)
       {
-        gprintf("calibrating dead zone x\n");
+        gprintf(_("calibrating dead zone x\n"));
         current_cal = DZX;
         mc->merge_x[mc->index] = 1;
         mc->merge_y[mc->index] = 0;
@@ -383,7 +383,7 @@ void cal_key(int device_id, int sym, int down)
     case SDLK_F4:
       if (down && current_cal != NONE)
       {
-        gprintf("calibrating dead zone y\n");
+        gprintf(_("calibrating dead zone y\n"));
         current_cal = DZY;
         mc->merge_x[mc->index] = 0;
         mc->merge_y[mc->index] = 1;
@@ -393,7 +393,7 @@ void cal_key(int device_id, int sym, int down)
     case SDLK_F5:
       if (down && current_cal != NONE)
       {
-        gprintf("calibrating dead zone shape\n");
+        gprintf(_("calibrating dead zone shape\n"));
         current_cal = DZS;
         mc->merge_x[mc->index] = 1;
         mc->merge_y[mc->index] = 1;
@@ -403,14 +403,14 @@ void cal_key(int device_id, int sym, int down)
     case SDLK_F7:
       if (down && current_cal != NONE)
       {
-        gprintf("calibrating exponent x\n");
+        gprintf(_("calibrating acceleration x\n"));
         current_cal = EX;
       }
       break;
     case SDLK_F8:
       if (down && current_cal != NONE)
       {
-        gprintf("calibrating exponent y\n");
+        gprintf(_("calibrating acceleration y\n"));
         current_cal = EY;
       }
       break;
@@ -421,7 +421,7 @@ void cal_key(int device_id, int sym, int down)
         {
           circle_step = 0;
         }
-        gprintf("adjusting circle test radius\n");
+        gprintf(_("adjusting circle test radius\n"));
         current_cal = RD;
       }
       break;
@@ -432,7 +432,7 @@ void cal_key(int device_id, int sym, int down)
         {
           circle_step = 0;
         }
-        gprintf("adjusting circle test velocity\n");
+        gprintf(_("adjusting circle test velocity\n"));
         current_cal = VEL;
       }
       break;
@@ -446,7 +446,7 @@ void cal_key(int device_id, int sym, int down)
           direction = 1;
           step = 1;
         }
-        gprintf("translation test started\n");
+        gprintf(_("translation test started\n"));
         current_cal = TEST;
       }
       break;

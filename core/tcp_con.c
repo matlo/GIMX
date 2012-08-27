@@ -69,7 +69,7 @@ int tcp_connect(void)
       else
       {
         ret = 1;
-        gprintf("connected to emu %d\n", i);
+        gprintf(_("connected to emu %d\n"), i);
       }
 
 #ifdef WIN32
@@ -107,7 +107,7 @@ void tcp_send(int force_update)
     {
       if (assemble_input_01(buf, sizeof(buf), state + i) < 0)
       {
-        gprintf("can't assemble\n");
+        gprintf(_("can't assemble\n"));
       }
       send_single(i, (const char*)buf, 48);
 

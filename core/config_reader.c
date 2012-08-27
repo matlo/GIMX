@@ -63,11 +63,7 @@ int GetDeviceName(xmlNode* a_node)
     cd = iconv_open("ISO-8859-1//TRANSLIT", "UTF-8");
     input = prop;
     in = strlen(prop) + 1;
-#ifndef WIN32
     iconv(cd, (char**)&input, &in, (char**)&output, &out);
-#else
-    iconv(cd, (const char**)&input, &in, (char**)&output, &out);
-#endif
     iconv_close(cd);
   }
   else
@@ -109,7 +105,7 @@ static int GetDeviceId(xmlNode* a_node)
       }
       if(i == MAX_DEVICES || !sdl_get_joystick_name(i))
       {
-        gprintf("joystick not found: %s %d\n", r_device_name, r_device_id);
+        gprintf(_("joystick not found: %s %d\n"), r_device_name, r_device_id);
         ret = 1;
       }
     }
@@ -121,7 +117,7 @@ static int GetDeviceId(xmlNode* a_node)
     {
       if(!merge_all_devices)
       {
-        gprintf("A device name is empty. Multiple mice and keyboards are not managed.\n");
+        gprintf(_("A device name is empty. Multiple mice and keyboards are not managed.\n"));
       }
       merge_all_devices = 1;
     }
@@ -142,7 +138,7 @@ static int GetDeviceId(xmlNode* a_node)
         }
         if(i == MAX_DEVICES || !sdl_get_mouse_name(i))
         {
-          gprintf("mouse not found: %s %d\n", r_device_name, r_device_id);
+          gprintf(_("mouse not found: %s %d\n"), r_device_name, r_device_id);
           ret = 1;
         }
       }
@@ -161,7 +157,7 @@ static int GetDeviceId(xmlNode* a_node)
         }
         if(i == MAX_DEVICES || !sdl_get_keyboard_name(i))
         {
-          gprintf("keyboard not found: %s %d\n", r_device_name, r_device_id);
+          gprintf(_("keyboard not found: %s %d\n"), r_device_name, r_device_id);
           ret = 1;
         }
       }

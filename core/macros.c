@@ -61,18 +61,18 @@ void macro_set_controller_device(int controller, int device_type, int device_id)
   }
   else if(controller_device[device_type][controller] != device_id)
   {
-    gprintf("macros are not not available for: ");
+    gprintf(_("macros are not not available for: "));
     if(device_type == 0)
     {
-      gprintf("keyboard %s (%d)\n", sdl_get_keyboard_name(device_id), sdl_get_keyboard_virtual_id(device_id));
+      gprintf(_("keyboard %s (%d)\n"), sdl_get_keyboard_name(device_id), sdl_get_keyboard_virtual_id(device_id));
     }
     else if(device_type == 1)
     {
-      gprintf("mouse %s (%d)\n", sdl_get_mouse_name(device_id), sdl_get_mouse_virtual_id(device_id));    
+      gprintf(_("mouse %s (%d)\n"), sdl_get_mouse_name(device_id), sdl_get_mouse_virtual_id(device_id));    
     }
     else if(device_type == 2)
     {
-      gprintf("joystick %s (%d)\n", sdl_get_joystick_name(device_id), sdl_get_joystick_virtual_id(device_id));    
+      gprintf(_("joystick %s (%d)\n"), sdl_get_joystick_name(device_id), sdl_get_joystick_virtual_id(device_id));    
     }
   }
 }
@@ -243,7 +243,7 @@ void process_line(const char* line, int* dtype, int* button, int* down) {
             (*pt)->size = 1;
             strncpy((*pt)->macro, argument, MAX_NAME_LENGTH);
         } else {
-            gprintf("Macro %s defined twice!\n", argument);
+            gprintf(_("Macro %s defined twice!\n"), argument);
             *dtype = -1;
         }
         return;

@@ -10,6 +10,10 @@
 
 #include "config.h"
 
+#include <libintl.h>
+#include <locale.h>
+#define _(STRING)    gettext(STRING)
+
 #ifndef WIN32
 extern char* homedir;
 #endif

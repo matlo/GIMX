@@ -24,7 +24,7 @@
 #include "conversion.h"
 
 #define CROSS_CHAR '*'
-#define SHIFT_ESC "Press Shift+Esc to exit."
+#define SHIFT_ESC _("Press Shift+Esc to exit.")
 
 #define RATE_PERIOD 500000 //ms
 
@@ -78,11 +78,11 @@ void display_calibration()
 
   if(current_cal == NONE)
   {
-    mvaddstr(CAL_Y_P, CAL_X_P + 1, "Mouse calibration (Ctrl+F1 to edit)");
+    mvaddstr(CAL_Y_P, CAL_X_P + 1, _("Mouse calibration (Ctrl+F1 to edit)"));
   }
   else
   {
-    mvaddstr(CAL_Y_P, CAL_X_P + 1, "Mouse calibration (Ctrl+F1 to save)(mouse wheel to change values)");
+    mvaddstr(CAL_Y_P, CAL_X_P + 1, _("Mouse calibration (Ctrl+F1 to save)(mouse wheel to change values)"));
   }
   clrtoeol();
   wmove(wcal, 1, 1);
@@ -100,7 +100,7 @@ void display_calibration()
       wattron(wcal, COLOR_PAIR(1));
     }
   }
-  waddstr(wcal, "Profile: ");
+  waddstr(wcal, _("Profile: "));
   if(current_cal == CC)
   {
     wattron(wcal, COLOR_PAIR(4));
@@ -112,7 +112,7 @@ void display_calibration()
     wattron(wcal, COLOR_PAIR(1));
   }
   wclrtoeol(wcal);
-  mvwaddstr(wcal, 2, 1, "Dead zone:");
+  mvwaddstr(wcal, 2, 1, _("Dead zone:"));
   if(current_cal == DZX)
   {
     wattron(wcal, COLOR_PAIR(4));
@@ -125,7 +125,7 @@ void display_calibration()
   }
   else
   {
-    waddstr(wcal, "N/A");
+    waddstr(wcal, _("N/A"));
   }
   waddstr(wcal, " (F3)");
   if(current_cal == DZX)
@@ -144,7 +144,7 @@ void display_calibration()
   }
   else
   {
-    waddstr(wcal, "N/A");
+    waddstr(wcal, _("N/A"));
   }
   waddstr(wcal, " (F4)");
   if(current_cal == DZY)
@@ -155,21 +155,21 @@ void display_calibration()
   {
     wattron(wcal, COLOR_PAIR(4));
   }
-  waddstr(wcal, " shape=");
+  waddstr(wcal, _(" shape="));
   if(mcal->dzs)
   {
     if (*mcal->dzs == E_SHAPE_CIRCLE)
     {
-      waddstr(wcal, "circle");
+      waddstr(wcal, _("circle"));
     }
     else
     {
-      waddstr(wcal, "rectangle");
+      waddstr(wcal, _("rectangle"));
     }
   }
   else
   {
-    waddstr(wcal, " N/A");
+    waddstr(wcal, _(" N/A"));
   }
   waddstr(wcal, " (F5)");
   if(current_cal == DZS)
@@ -177,12 +177,12 @@ void display_calibration()
     wattron(wcal, COLOR_PAIR(1));
   }
   wclrtoeol(wcal);
-  mvwaddstr(wcal, 3, 1, "Acceleration:");
+  mvwaddstr(wcal, 3, 1, _("Acceleration:"));
   if(current_cal == TEST)
   {
     wattron(wcal, COLOR_PAIR(4));
   }
-  waddstr(wcal, " test (F6)");
+  waddstr(wcal, _(" test (F6)"));
   if(current_cal == TEST)
   {
     wattron(wcal, COLOR_PAIR(1));
@@ -199,7 +199,7 @@ void display_calibration()
   }
   else
   {
-    waddstr(wcal, "N/A");
+    waddstr(wcal, _("N/A"));
   }
   waddstr(wcal, " (F7)");
   if(current_cal == EX)
@@ -218,7 +218,7 @@ void display_calibration()
   }
   else
   {
-    waddstr(wcal, "N/A");
+    waddstr(wcal, _("N/A"));
   }
   waddstr(wcal, " (F8)");
   if(current_cal == EY)
@@ -226,7 +226,7 @@ void display_calibration()
     wattron(wcal, COLOR_PAIR(1));
   }
   wclrtoeol(wcal);
-  mvwaddstr(wcal, 4, 1, "Sensitivity:");
+  mvwaddstr(wcal, 4, 1, _("Sensitivity:"));
   if(current_cal == MX)
   {
     wattron(wcal, COLOR_PAIR(4));
@@ -238,7 +238,7 @@ void display_calibration()
   }
   else
   {
-    waddstr(wcal, " N/A");
+    waddstr(wcal, _(" N/A"));
   }
   waddstr(wcal, " (F9)");
   if(current_cal == MX)
@@ -251,7 +251,7 @@ void display_calibration()
   {
     wattron(wcal, COLOR_PAIR(4));
   }
-  waddstr(wcal, " circle test");
+  waddstr(wcal, _(" circle test"));
   if(current_cal == RD || current_cal == VEL)
   {
     wattron(wcal, COLOR_PAIR(1));
@@ -261,7 +261,7 @@ void display_calibration()
   {
     wattron(wcal, COLOR_PAIR(4));
   }
-  snprintf(line, COLS, "radius=%d (F10)", mcal->rd);
+  snprintf(line, COLS, _("radius=%d (F10)"), mcal->rd);
   waddstr(wcal, line);
   if(current_cal == RD)
   {
@@ -272,7 +272,7 @@ void display_calibration()
   {
     wattron(wcal, COLOR_PAIR(4));
   }
-  snprintf(line, COLS, "velocity=%d (F11)", mcal->vel);
+  snprintf(line, COLS, _("velocity=%d (F11)"), mcal->vel);
   waddstr(wcal, line);
   if(current_cal == VEL)
   {
@@ -282,7 +282,7 @@ void display_calibration()
   {
     wattron(wcal, COLOR_PAIR(4));
   }
-  waddstr(wcal, " ratio=");
+  waddstr(wcal, _(" ratio="));
   if(mcal->mx && mcal->my)
   {
     snprintf(line, COLS, "%.2f", *mcal->my / *mcal->mx);
@@ -290,7 +290,7 @@ void display_calibration()
   }
   else
   {
-    waddstr(wcal, "N/A");
+    waddstr(wcal, _("N/A"));
   }
   waddstr(wcal, " (F12)");
   if(current_cal == MY)
@@ -319,10 +319,10 @@ void display_init()
   init_pair(4, COLOR_RED, COLOR_BLACK);
 
   wrefresh(stdscr);//first call clears the screen
-
-  mvaddstr(1, LSTICK_X_P + 1, "Left stick");
-  mvaddstr(1, RSTICK_X_P + 1, "Right stick");
-  mvaddstr(1, BUTTON_X_P + 1, "Buttons");
+  
+  mvaddstr(1, LSTICK_X_P + 1, _("Left stick"));
+  mvaddstr(1, RSTICK_X_P + 1, _("Right stick"));
+  mvaddstr(1, BUTTON_X_P + 1, _("Buttons"));
 
   lstick = newwin(STICK_Y_L, STICK_X_L, LSTICK_Y_P, LSTICK_X_P);
   box(lstick, 0 , 0);
@@ -336,14 +336,14 @@ void display_init()
   box(wbuttons, 0 , 0);
   wnoutrefresh(wbuttons);
 
-  mvaddstr(CAL_Y_P, CAL_X_P + 1, "Mouse calibration (Ctrl+F1 to edit)");
+  mvaddstr(CAL_Y_P, CAL_X_P + 1, _("Mouse calibration (Ctrl+F1 to edit)"));
 
   wcal = newwin(7, COLS-3, CAL_Y_P + 1, CAL_X_P);
   box(wcal, 0 , 0);
   wnoutrefresh(wcal);
 
-  mvaddstr(LINES-1, 1, "Refresh rate: ");
-  mvaddstr(LINES-1, COLS-sizeof(SHIFT_ESC), SHIFT_ESC);
+  mvaddstr(LINES-1, 1, _("Refresh rate: "));
+  mvaddstr(LINES-1, COLS-strlen(SHIFT_ESC), SHIFT_ESC);
 
   doupdate();
 
@@ -387,10 +387,10 @@ void display_run(int axis[])
   if(tdiff > RATE_PERIOD)
   {
     cpt_total += cpt;
-    sprintf(rate, "Processing time: current=%dus average=%dus worst=%dus", proc_time/cpt, proc_time_total/cpt_total, proc_time_worst);
+    sprintf(rate, _("Processing time: current=%dus average=%dus worst=%dus"), proc_time/cpt, proc_time_total/cpt_total, proc_time_worst);
     mvaddstr(LINES-2, 1, rate);
     clrtoeol();
-    sprintf(rate, "Refresh rate: %dHz  ", cpt*1000000/RATE_PERIOD);
+    sprintf(rate, _("Refresh rate: %dHz  "), cpt*1000000/RATE_PERIOD);
     mvaddstr(LINES-1, 1, rate);
     t0 = t1;
     cpt = 0;

@@ -362,7 +362,7 @@ void cfg_intensity_lookup(SDL_Event* e)
       if(update_intensity(device_type, device_id, button_id, c_id, a_id))
       {
         update_stick(c_id, a_id);
-        gprintf("controller %d configuration %d axis %s intensity: %.0f\n", c_id, current_config[c_id], get_axis_name(a_id), axis_intensity[c_id][current_config[c_id]][a_id].value);
+        gprintf(_("controller %d configuration %d axis %s intensity: %.0f\n"), c_id, current_config[c_id], get_axis_name(a_id), axis_intensity[c_id][current_config[c_id]][a_id].value);
       }
     }
   }
@@ -505,7 +505,7 @@ void cfg_config_activation()
           {
             gettimeofday(&tv, NULL);
 
-            gprintf("%d %ld.%06ld controller %d is switched from configuration %d to %d\n", i, tv.tv_sec, tv.tv_usec, i, current_config[i], next_config[i]);
+            gprintf(_("%d %ld.%06ld controller %d is switched from configuration %d to %d\n"), i, tv.tv_sec, tv.tv_usec, i, current_config[i], next_config[i]);
           }
           previous_config[i] = current_config[i];
           current_config[i] = next_config[i];

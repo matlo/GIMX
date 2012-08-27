@@ -35,11 +35,11 @@ int lin_serial_connect(char* portname)
   struct termios options;
   int ret = 0;
 
-  gprintf("connecting to %s\n", portname);
+  gprintf(_("connecting to %s\n"), portname);
 
   if ((serial = open(portname, O_RDWR | O_NOCTTY | O_NDELAY)) < 0)
   {
-    printf("can't connect to %s\n", portname);
+    printf(_("can't connect to %s\n"), portname);
     ret = -1;
   }
   else
@@ -55,12 +55,12 @@ int lin_serial_connect(char* portname)
     options.c_oflag &= ~OPOST;
     if(tcsetattr(serial, TCSANOW, &options) < 0)
     {
-      printf("can't set serial port options\n");
+      printf(_("can't set serial port options\n"));
       ret = -1;
     }
     else
     {
-      gprintf("connected\n");
+      gprintf(_("connected\n"));
     }
   }
 
