@@ -16,7 +16,7 @@ install: all
 	cp -u -f /mingw/bin/libxml2.dll setup
 	cp -u -f /mingw/bin/SDL.dll setup
 	cp -u -f /mingw/bin/zlib1.dll setup
-	cp -u -f /mingw/bin/libpdcurses.dll setup
+	cp -u -f /mingw/bin/libpdcursesw.dll setup
 	cp -u -f core/emuclient.exe setup
 	cp -u -f config/gimx-config.exe setup
 	cp -u -f serial/gimx-serial.exe setup
@@ -25,9 +25,8 @@ install: all
 	cp -u -f /etc/wgetrc setup/wget.ini
 	mkdir -p setup/share/locale
 	for translation in po/*.po; \
-	do \
-	  po=$$(basename $${translation} .po); \
-	  echo $$po; \
-	  mkdir -p setup/share/locale/$$po/LC_MESSAGES; \
-	  msgfmt -o setup/share/locale/$$po/LC_MESSAGES/gimx.mo po/$$po.po; \
-	done
+  do \
+    po=$$(basename $${translation} .po); \
+    mkdir -p setup/share/locale/$$po/LC_MESSAGES; \
+    msgfmt -o setup/share/locale/$$po/LC_MESSAGES/gimx.mo po/$$po.po; \
+  done

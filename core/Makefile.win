@@ -1,7 +1,7 @@
 include ../Makedefs
 
 BINS=emuclient usbspoof
-LIB=-lmingw32 -lSDLmain -lSDL -llibxml2 -lws2_32 -liconv -lhid -lsetupapi -lpdcurses
+LIB=-lmingw32 -lSDLmain -lSDL -llibxml2 -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl
 INC=
 
 all: gpp $(BINS)
