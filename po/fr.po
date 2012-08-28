@@ -444,7 +444,7 @@ msgstr "Adresse"
 
 #: ../bluetooth/bluetoothMain.cpp:481
 msgid "PS3 address"
-msgstr "Adresse de la PS3"
+msgstr "PS3"
 
 #: ../bluetooth/bluetoothMain.cpp:487
 msgid "Dongle"
