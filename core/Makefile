@@ -3,7 +3,7 @@ include ../Makedefs
 prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
 BINS=emu emuclient sixaddr bdaddr hcirevision usbspoof
-LIB=-L../../libsdl/lib -lSDL -lxml2 -lXi -lm -lncurses
+LIB=-L../../libsdl/lib -lSDL -lxml2 -lXi -lm -lncursesw
 INC=-I../../libsdl/include -I/usr/include/libxml2
 
 all: gpp $(BINS)
