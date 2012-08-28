@@ -464,7 +464,7 @@ msgstr "Version de la puce"
 
 #: ../bluetooth/bluetoothMain.cpp:507
 msgid "Set Dongle Address"
-msgstr "Ecrire l'adresse du dongle"
+msgstr "Ecrire l'adresse"
 
 #: ../bluetooth/bluetoothMain.cpp:513
 msgid "emu"
