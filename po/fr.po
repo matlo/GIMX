@@ -460,7 +460,7 @@ msgstr "Fabriquant"
 
 #: ../bluetooth/bluetoothMain.cpp:501
 msgid "Chip version"
-msgstr "Version de la puce"
+msgstr "Version"
 
 #: ../bluetooth/bluetoothMain.cpp:507
 msgid "Set Dongle Address"
