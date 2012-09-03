@@ -433,22 +433,25 @@ void XmlReader::ProcessIntensityElement(xmlNode * a_node)
             button_id = string(prop?prop:"");
             xmlFree(prop);
 
-            m_TempIntensity.SetDevice(Device(device_type, device_id, device_name));
-            m_TempIntensity.SetEvent(Event(button_id));
-            
-            if(control == "left_stick")
+            if(!button_id.empty())
             {
-              m_TempIntensity.SetControl("lstick");
-              m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
-            }
-            else if(control == "right_stick")
-            {
-              m_TempIntensity.SetControl("rstick");
-              m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
-            }
-            else
-            {
-              m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
+              m_TempIntensity.SetDevice(Device(device_type, device_id, device_name));
+              m_TempIntensity.SetEvent(Event(button_id));
+              
+              if(control == "left_stick")
+              {
+                m_TempIntensity.SetControl("lstick");
+                m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
+              }
+              else if(control == "right_stick")
+              {
+                m_TempIntensity.SetControl("rstick");
+                m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
+              }
+              else
+              {
+                m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
+              }
             }
         }
     }

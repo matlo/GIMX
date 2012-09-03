@@ -40,7 +40,23 @@
 
 #include <sstream>
 
+#include <libintl.h>
+
 using namespace std;
+
+string reverse_gettext(string str)
+{
+  if(str == gettext("Circle"))
+  {
+    return "Circle";
+  }
+  if(str == gettext("Rectangle"))
+  {
+    return "Rectangle";
+  }
+
+  return str;
+}
 
 class wxComboBoxDialog: public wxDialog
 {
@@ -445,6 +461,13 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     wxBackgroundBitmap* ToolBarBackground = new wxBackgroundBitmap(wxBitmap(background_img));
     Panel1->PushEventHandler(ToolBarBackground);
 
+    setlocale( LC_ALL, "" );
+#ifndef WIN32
+      bindtextdomain( "gimx", "/usr/share/locale" );
+#else
+      bindtextdomain( "gimx", "share/locale" );
+#endif
+    textdomain( "gimx" );
     setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 
     default_directory = wxEmptyString;
@@ -1072,7 +1095,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             it->GetEvent()->SetDeadZone(sDzHf);
             it->GetEvent()->SetMultiplier(string(TextCtrlSensitivityHipFire->GetValue().mb_str()));
             it->GetEvent()->SetExponent(string(TextCtrlAccelerationHipFire->GetValue().mb_str()));
-            it->GetEvent()->SetShape(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str()));
+            it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str())));
             it->GetEvent()->SetBufferSize(sBsHf);
             it->GetEvent()->SetFilter(string(TextCtrlFilterHipFire->GetValue().mb_str()));
             found = true;
@@ -1083,7 +1106,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "x", "rstick x",
             sDzHf, string(TextCtrlSensitivityHipFire->GetValue().mb_str()),
             string(TextCtrlAccelerationHipFire->GetValue().mb_str()),
-            string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str()),
+            reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str())),
             sBsHf, string(TextCtrlFilterHipFire->GetValue().mb_str()), "Aiming - x axis"));
     }
     wsmx = TextCtrlSensitivityHipFire->GetValue();
@@ -1105,7 +1128,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             it->GetEvent()->SetDeadZone(sDzHf);
             it->GetEvent()->SetMultiplier(string(wsmy.mb_str()));
             it->GetEvent()->SetExponent(string(TextCtrlAccelerationHipFire->GetValue().mb_str()));
-            it->GetEvent()->SetShape(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str()));
+            it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str())));
             it->GetEvent()->SetBufferSize(sBsHf);
             it->GetEvent()->SetFilter(string(TextCtrlFilterHipFire->GetValue().mb_str()));
             found = true;
@@ -1115,7 +1138,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     {
         axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "y", "rstick y",
             sDzHf, string(wsmy.mb_str()), string(TextCtrlAccelerationHipFire->GetValue().mb_str()),
-            string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str()),
+            reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str())),
             sBsHf, string(TextCtrlFilterHipFire->GetValue().mb_str()), "Aiming - y axis"));
     }
     /*
@@ -1201,7 +1224,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             it->GetEvent()->SetDeadZone(sDzADS);
             it->GetEvent()->SetMultiplier(string(TextCtrlSensitivityADS->GetValue().mb_str()));
             it->GetEvent()->SetExponent(string(TextCtrlAccelerationADS->GetValue().mb_str()));
-            it->GetEvent()->SetShape(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str()));
+            it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str())));
             it->GetEvent()->SetBufferSize(sBsADS);
             it->GetEvent()->SetFilter(string(TextCtrlFilterADS->GetValue().mb_str()));
             found = true;
@@ -1211,7 +1234,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     {
       axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "x", "rstick x",
           sDzADS, string(TextCtrlSensitivityADS->GetValue().mb_str()), string(TextCtrlAccelerationADS->GetValue().mb_str()),
-          string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str()),
+          reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str())),
           sBsADS, string(TextCtrlFilterADS->GetValue().mb_str()), "Aiming - x axis"));
     }
     wsmx = TextCtrlSensitivityADS->GetValue();
@@ -1233,7 +1256,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             it->GetEvent()->SetDeadZone(sDzADS);
             it->GetEvent()->SetMultiplier(string(wsmy.mb_str()));
             it->GetEvent()->SetExponent(string(TextCtrlAccelerationADS->GetValue().mb_str()));
-            it->GetEvent()->SetShape(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str()));
+            it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str())));
             it->GetEvent()->SetBufferSize(sBsADS);
             it->GetEvent()->SetFilter(string(TextCtrlFilterADS->GetValue().mb_str()));
             found = true;
@@ -1243,7 +1266,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     {
         axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "y", "rstick y",
             sDzADS, string(wsmy.mb_str()), string(TextCtrlAccelerationADS->GetValue().mb_str()),
-            string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str()),
+            reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str())),
             sBsADS, string(TextCtrlFilterADS->GetValue().mb_str()), "Aiming - y axis"));
     }
 
@@ -1385,7 +1408,7 @@ void fpsconfigFrame::LoadConfig()
           if(it->GetAxis() == "rstick x")
           {
               SpinCtrlDeadZoneHipFire->SetValue(wxAtoi(wxString(it->GetEvent()->GetDeadZone().c_str(), wxConvUTF8)));
-              ChoiceDeadZoneShapeHipFire->SetStringSelection(wxString(it->GetEvent()->GetShape().c_str(), wxConvUTF8));
+              ChoiceDeadZoneShapeHipFire->SetStringSelection(wxString(gettext(it->GetEvent()->GetShape().c_str()), wxConvUTF8));
 
               SpinCtrlBufferSizeHipFire->SetValue(wxAtoi(wxString(it->GetEvent()->GetBufferSize().c_str(), wxConvUTF8)));
 
@@ -1495,7 +1518,7 @@ void fpsconfigFrame::LoadConfig()
           if(it->GetAxis() == "rstick x")
           {
               SpinCtrlDeadZoneADS->SetValue(wxAtoi(wxString(it->GetEvent()->GetDeadZone().c_str(), wxConvUTF8)));
-              ChoiceDeadZoneShapeADS->SetStringSelection(wxString(it->GetEvent()->GetShape().c_str(), wxConvUTF8));
+              ChoiceDeadZoneShapeADS->SetStringSelection(wxString(gettext(it->GetEvent()->GetShape().c_str()), wxConvUTF8));
 
               SpinCtrlBufferSizeADS->SetValue(wxAtoi(wxString(it->GetEvent()->GetBufferSize().c_str(), wxConvUTF8)));
 

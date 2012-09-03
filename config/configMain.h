@@ -102,9 +102,6 @@ class configFrame: public wxFrame
         //*)
         void DeleteSelectedRows(wxGrid* grid);
         void DeleteLinkedRows(wxGrid* grid, int row);
-        void fillButtonAxisChoice(wxChoice* choice);
-        void fillAxisAxisChoice(wxChoice* choice);
-        void fillButtonChoice(wxChoice* choice);
         void replaceDevice(wxString wx_device_type);
         void auto_detect(wxStaticText* device_type, wxStaticText* device_name, wxStaticText* device_id, wxString event_type, wxStaticText* event_id);
         void updateButtonConfigurations();

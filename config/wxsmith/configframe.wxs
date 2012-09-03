@@ -286,26 +286,6 @@
 														</object>
 														<object class="sizeritem">
 															<object class="wxChoice" name="ID_CHOICE6" variable="IntensityAxis" member="yes">
-																<content>
-																	<item>lstick</item>
-																	<item>rstick</item>
-																	<item>acc x</item>
-																	<item>acc y</item>
-																	<item>acc z</item>
-																	<item>gyro</item>
-																	<item>up</item>
-																	<item>down</item>
-																	<item>right</item>
-																	<item>left</item>
-																	<item>r1</item>
-																	<item>r2</item>
-																	<item>l1</item>
-																	<item>l2</item>
-																	<item>circle</item>
-																	<item>square</item>
-																	<item>cross</item>
-																	<item>triangle</item>
-																</content>
 																<handler function="OnIntensityAxisSelect" entry="EVT_CHOICE" />
 															</object>
 															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
