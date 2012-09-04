@@ -1251,6 +1251,43 @@ void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
       }
     }
   }
+  else if(grid == GridIntensity)
+  {
+    string old_device_type = string(GridIntensity->GetCellValue(row, 0).mb_str());
+    string old_device_name = string(GridIntensity->GetCellValue(row, 1).mb_str());
+    string old_device_id = string(GridIntensity->GetCellValue(row, 2).mb_str());
+    string old_event_id = string(GridIntensity->GetCellValue(row, 3).mb_str());
+    string old_axis_id = string(GridIntensity->GetCellValue(row, 8).mb_str());
+  
+    Controller* controller = configFile.GetController(currentController);
+
+    for(unsigned int k=0; k<MAX_CONFIGURATIONS; ++k)
+    {
+      if(k == currentConfiguration)
+      {
+        continue;
+      }
+      
+      Configuration* config = controller->GetConfiguration(k);
+
+      std::list<Intensity>* intensities = config->GetIntensityList();
+      for(std::list<Intensity>::iterator it = intensities->begin(); it!=intensities->end(); )
+      {
+          if(it->GetDevice()->GetType() == reverse_gettext(old_device_type)
+              && it->GetDevice()->GetName() == old_device_name
+              && it->GetDevice()->GetId() == old_device_id
+              && it->GetEvent()->GetId() == old_event_id
+              && it->GetControl() == old_axis_id)
+        {
+          it = intensities ->erase(it);
+        }
+        else
+        {
+          ++it;
+        }
+      }
+    }
+  }
 }
 
 /*
