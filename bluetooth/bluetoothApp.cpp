@@ -43,6 +43,5 @@ bool bluetoothApp::OnInit()
 
 int bluetoothApp::OnExit()
 {
-    g_spawn_command_line_sync ("killall emu", NULL, NULL, NULL, NULL);
     return 0;
 }
