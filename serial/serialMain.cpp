@@ -371,10 +371,6 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     StaticText1 = new wxStaticText(Panel1, ID_STATICTEXT1, _("Update frequency "), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
     FlexGridSizer6->Add(StaticText1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ComboBoxFrequency = new wxComboBox(Panel1, ID_COMBOBOX2, wxEmptyString, wxDefaultPosition, wxSize(75,-1), 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX2"));
-    ComboBoxFrequency->Append(_("62.5"));
-    ComboBoxFrequency->Append(_("100"));
-    ComboBoxFrequency->Append(_("125"));
-    ComboBoxFrequency->SetSelection( ComboBoxFrequency->Append(_("250")) );
     FlexGridSizer6->Add(ComboBoxFrequency, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText2 = new wxStaticText(Panel1, ID_STATICTEXT2, _("Hz"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
     FlexGridSizer6->Add(StaticText2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -473,6 +469,11 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnMenuStartupUpdates);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnAbout);
     //*)
+    
+    ComboBoxFrequency->Append(wxT("62.5"));
+    ComboBoxFrequency->Append(wxT("100"));
+    ComboBoxFrequency->Append(wxT("125"));
+    ComboBoxFrequency->SetSelection( ComboBoxFrequency->Append(wxT("250")) );
 
 #ifndef WIN32
     ControllerType->Append(_("360 pad"));

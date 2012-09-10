@@ -108,13 +108,6 @@
 												</object>
 												<object class="sizeritem">
 													<object class="wxComboBox" name="ID_COMBOBOX2" variable="ComboBoxFrequency" member="yes">
-														<content>
-															<item>62.5</item>
-															<item>100</item>
-															<item>125</item>
-															<item>250</item>
-														</content>
-														<selection>3</selection>
 														<size>75,-1</size>
 													</object>
 													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
