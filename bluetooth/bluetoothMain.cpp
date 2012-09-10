@@ -732,13 +732,7 @@ bluetoothFrame::~bluetoothFrame()
 {
     //(*Destroy(bluetoothFrame)
     //*)
-}
-
-void bluetoothFrame::OnQuit(wxCommandEvent& event)
-{
-    int answer;
     int i;
-
     for(i=0; i<7; ++i)
     {
         if(dongle[i] >= 0) break;
@@ -746,16 +740,12 @@ void bluetoothFrame::OnQuit(wxCommandEvent& event)
 
     if(i < 7)
     {
-        answer = wxMessageBox(_("Emu processes will be killed!"), _("Confirm"), wxNO | wxCANCEL);
-        if (answer == wxYES)
-        {
-            g_spawn_command_line_sync ("killall emu", NULL, NULL, NULL, NULL);
-        }
-        else
-        {
-            return;
-        }
+        g_spawn_command_line_sync ("killall emu", NULL, NULL, NULL, NULL);
     }
+}
+
+void bluetoothFrame::OnQuit(wxCommandEvent& event)
+{    
     Close();
 }
 
@@ -1079,7 +1069,6 @@ void MyProcess::OnTerminate(int pid, int status)
 void bluetoothFrame::OnButton3Click(wxCommandEvent& event)
 {
     wxString command;
-    wxArrayString output, errors;
     string filename = "";
 
     if(ChoiceConfig->GetStringSelection().IsEmpty())
@@ -1151,7 +1140,6 @@ void bluetoothFrame::OnProcessTerminated(wxProcess *process, int status)
 void bluetoothFrame::OnSave(wxCommandEvent& event)
 {
     string filename;
-    string line;
     string device;
     string master;
     unsigned int i;
@@ -1174,7 +1162,7 @@ void bluetoothFrame::OnSave(wxCommandEvent& event)
     }
     else
     {
-        wxMessageBox( _("Cannot open config directory!"), _("Error"), wxICON_ERROR);
+        wxMessageBox( _("Cannot open file: ") + wxString(filename.c_str(), wxConvUTF8), _("Error"), wxICON_ERROR);
     }
 }
 
