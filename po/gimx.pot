@@ -346,442 +346,436 @@ msgstr ""
 msgid "Refresh rate: %dHz  "
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:270
-#: ../bluetooth/bluetoothMain.cpp:304
-#: ../bluetooth/bluetoothMain.cpp:474
-#: ../bluetooth/bluetoothMain.cpp:1264
-msgid "Cannot open file: "
-msgstr ""
-
-#: ../bluetooth/bluetoothMain.cpp:270
-#: ../bluetooth/bluetoothMain.cpp:304
-#: ../bluetooth/bluetoothMain.cpp:319
-#: ../bluetooth/bluetoothMain.cpp:324
-#: ../bluetooth/bluetoothMain.cpp:330
-#: ../bluetooth/bluetoothMain.cpp:355
-#: ../bluetooth/bluetoothMain.cpp:474
-#: ../bluetooth/bluetoothMain.cpp:511
-#: ../bluetooth/bluetoothMain.cpp:515
-#: ../bluetooth/bluetoothMain.cpp:744
-#: ../bluetooth/bluetoothMain.cpp:774
-#: ../bluetooth/bluetoothMain.cpp:778
-#: ../bluetooth/bluetoothMain.cpp:782
-#: ../bluetooth/bluetoothMain.cpp:899
-#: ../bluetooth/bluetoothMain.cpp:1088
-#: ../bluetooth/bluetoothMain.cpp:1093
-#: ../bluetooth/bluetoothMain.cpp:1175
-#: ../bluetooth/bluetoothMain.cpp:1224
-#: ../bluetooth/bluetoothMain.cpp:1235
-#: ../bluetooth/bluetoothMain.cpp:1264
-#: ../bluetooth/bluetoothMain.cpp:1294
-#: ../bluetooth/bluetoothMain.cpp:1313
-#: ../bluetooth/bluetoothMain.cpp:1329
-#: ../bluetooth/bluetoothMain.cpp:1339
-#: ../bluetooth/bluetoothMain.cpp:1347
-#: ../bluetooth/bluetoothMain.cpp:1357
-#: ../bluetooth/bluetoothMain.cpp:1378
-#: ../bluetooth/bluetoothMain.cpp:1387
-#: ../bluetooth/bluetoothMain.cpp:1465
-#: ../bluetooth/bluetoothMain.cpp:1486
-#: ../bluetooth/bluetoothMain.cpp:1521
-#: ../bluetooth/bluetoothMain.cpp:1527
-#: ../bluetooth/bluetoothMain.cpp:1534
-#: ../bluetooth/bluetoothMain.cpp:1549
-msgid "Error"
-msgstr ""
-
-#: ../bluetooth/bluetoothMain.cpp:319
+#: ../bluetooth/bluetoothMain.cpp:244
 msgid "Please select a Sixaxis Address!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:324
+#: ../bluetooth/bluetoothMain.cpp:244
+#: ../bluetooth/bluetoothMain.cpp:249
+#: ../bluetooth/bluetoothMain.cpp:257
+#: ../bluetooth/bluetoothMain.cpp:280
+#: ../bluetooth/bluetoothMain.cpp:393
+#: ../bluetooth/bluetoothMain.cpp:430
+#: ../bluetooth/bluetoothMain.cpp:434
+#: ../bluetooth/bluetoothMain.cpp:663
+#: ../bluetooth/bluetoothMain.cpp:693
+#: ../bluetooth/bluetoothMain.cpp:697
+#: ../bluetooth/bluetoothMain.cpp:701
+#: ../bluetooth/bluetoothMain.cpp:792
+#: ../bluetooth/bluetoothMain.cpp:989
+#: ../bluetooth/bluetoothMain.cpp:994
+#: ../bluetooth/bluetoothMain.cpp:1076
+#: ../bluetooth/bluetoothMain.cpp:1125
+#: ../bluetooth/bluetoothMain.cpp:1136
+#: ../bluetooth/bluetoothMain.cpp:1165
+#: ../bluetooth/bluetoothMain.cpp:1195
+#: ../bluetooth/bluetoothMain.cpp:1214
+#: ../bluetooth/bluetoothMain.cpp:1230
+#: ../bluetooth/bluetoothMain.cpp:1240
+#: ../bluetooth/bluetoothMain.cpp:1248
+#: ../bluetooth/bluetoothMain.cpp:1258
+#: ../bluetooth/bluetoothMain.cpp:1279
+#: ../bluetooth/bluetoothMain.cpp:1288
+#: ../bluetooth/bluetoothMain.cpp:1366
+#: ../bluetooth/bluetoothMain.cpp:1387
+#: ../bluetooth/bluetoothMain.cpp:1422
+#: ../bluetooth/bluetoothMain.cpp:1428
+#: ../bluetooth/bluetoothMain.cpp:1435
+#: ../bluetooth/bluetoothMain.cpp:1450
+msgid "Error"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:249
 msgid "Please select a Bluetooth Dongle!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:330
+#: ../bluetooth/bluetoothMain.cpp:257
 msgid "Address already used!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:341
-#: ../bluetooth/bluetoothMain.cpp:363
-#: ../bluetooth/bluetoothMain.cpp:365
+#: ../bluetooth/bluetoothMain.cpp:267
+#: ../bluetooth/bluetoothMain.cpp:285
 msgid "Success"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:355
+#: ../bluetooth/bluetoothMain.cpp:280
 msgid "Read address after set: ko!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:363
+#: ../bluetooth/bluetoothMain.cpp:285
 msgid "Read address after set: seems ok!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:365
-msgid ""
-"The addresses have been saved in ~/.emuclient/bdaddrs.\n"
-"The dongle address will be automatically set on next startup."
+#: ../bluetooth/bluetoothMain.cpp:393
+#: ../bluetooth/bluetoothMain.cpp:1165
+msgid "Cannot open file: "
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:511
+#: ../bluetooth/bluetoothMain.cpp:430
 msgid ""
 "No Sixaxis Detected!\n"
 "Sixaxis usb wire plugged?"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:515
+#: ../bluetooth/bluetoothMain.cpp:434
 msgid "No Bluetooth Dongle Detected!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:551
+#: ../bluetooth/bluetoothMain.cpp:470
 msgid "Gimx-bluetooth"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:556
+#: ../bluetooth/bluetoothMain.cpp:475
 msgid "Sixaxis"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:558
-#: ../bluetooth/bluetoothMain.cpp:570
+#: ../bluetooth/bluetoothMain.cpp:477
+#: ../bluetooth/bluetoothMain.cpp:489
 msgid "Address"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:562
+#: ../bluetooth/bluetoothMain.cpp:481
 msgid "PS3 address"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:568
+#: ../bluetooth/bluetoothMain.cpp:487
 msgid "Dongle"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:574
+#: ../bluetooth/bluetoothMain.cpp:493
 msgid "Name"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:578
+#: ../bluetooth/bluetoothMain.cpp:497
 msgid "Manufacturer"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:582
+#: ../bluetooth/bluetoothMain.cpp:501
 msgid "Chip version"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:588
+#: ../bluetooth/bluetoothMain.cpp:507
 msgid "Set Dongle Address"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:594
+#: ../bluetooth/bluetoothMain.cpp:513
 msgid "emu"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:595
+#: ../bluetooth/bluetoothMain.cpp:514
 msgid ""
 "Autostart\n"
 "emuclient"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:600
-#: ../bluetooth/bluetoothMain.cpp:612
+#: ../bluetooth/bluetoothMain.cpp:519
+#: ../bluetooth/bluetoothMain.cpp:531
 msgid "0"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:601
-#: ../bluetooth/bluetoothMain.cpp:615
+#: ../bluetooth/bluetoothMain.cpp:520
+#: ../bluetooth/bluetoothMain.cpp:534
 msgid "1"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:602
-#: ../bluetooth/bluetoothMain.cpp:618
+#: ../bluetooth/bluetoothMain.cpp:521
+#: ../bluetooth/bluetoothMain.cpp:537
 msgid "2"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:603
-#: ../bluetooth/bluetoothMain.cpp:621
+#: ../bluetooth/bluetoothMain.cpp:522
+#: ../bluetooth/bluetoothMain.cpp:540
 msgid "3"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:604
-#: ../bluetooth/bluetoothMain.cpp:624
+#: ../bluetooth/bluetoothMain.cpp:523
+#: ../bluetooth/bluetoothMain.cpp:543
 msgid "4"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:605
-#: ../bluetooth/bluetoothMain.cpp:627
+#: ../bluetooth/bluetoothMain.cpp:524
+#: ../bluetooth/bluetoothMain.cpp:546
 msgid "5"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:606
-#: ../bluetooth/bluetoothMain.cpp:630
+#: ../bluetooth/bluetoothMain.cpp:525
+#: ../bluetooth/bluetoothMain.cpp:549
 msgid "6"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:608
-#: ../bluetooth/bluetoothMain.cpp:673
-#: ../bluetooth/bluetoothMain.cpp:1104
-#: ../bluetooth/bluetoothMain.cpp:1286
+#: ../bluetooth/bluetoothMain.cpp:527
+#: ../bluetooth/bluetoothMain.cpp:592
+#: ../bluetooth/bluetoothMain.cpp:1005
+#: ../bluetooth/bluetoothMain.cpp:1187
 msgid "Start"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:636
+#: ../bluetooth/bluetoothMain.cpp:555
 msgid "emuclient"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:639
+#: ../bluetooth/bluetoothMain.cpp:558
 msgid "Mouse"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:641
+#: ../bluetooth/bluetoothMain.cpp:560
 msgid "grab"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:646
+#: ../bluetooth/bluetoothMain.cpp:565
 msgid "Output"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:648
+#: ../bluetooth/bluetoothMain.cpp:567
 msgid "gui"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:651
+#: ../bluetooth/bluetoothMain.cpp:570
 msgid "terminal"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:658
+#: ../bluetooth/bluetoothMain.cpp:577
 msgid "Force updates"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:661
+#: ../bluetooth/bluetoothMain.cpp:580
 msgid "Subpositions"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:666
+#: ../bluetooth/bluetoothMain.cpp:585
 msgid "Config"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:671
+#: ../bluetooth/bluetoothMain.cpp:590
 msgid "Check"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:685
+#: ../bluetooth/bluetoothMain.cpp:604
 msgid "Edit config"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:687
+#: ../bluetooth/bluetoothMain.cpp:606
 msgid "Edit fps config"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:689
-#: ../bluetooth/bluetoothMain.cpp:1508
+#: ../bluetooth/bluetoothMain.cpp:608
+#: ../bluetooth/bluetoothMain.cpp:1409
 msgid "Auto-bind and convert"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:691
+#: ../bluetooth/bluetoothMain.cpp:610
 msgid "Refresh\tF5"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:693
+#: ../bluetooth/bluetoothMain.cpp:612
 msgid "Save"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:695
+#: ../bluetooth/bluetoothMain.cpp:614
 msgid "Quit\tAlt-F4"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:695
+#: ../bluetooth/bluetoothMain.cpp:614
 msgid "Quit the application"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:697
+#: ../bluetooth/bluetoothMain.cpp:616
 msgid "&File"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:699
+#: ../bluetooth/bluetoothMain.cpp:618
 msgid "Get configs"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:701
+#: ../bluetooth/bluetoothMain.cpp:620
 msgid "Update"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:703
+#: ../bluetooth/bluetoothMain.cpp:622
 msgid "Check updates at startup"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:705
+#: ../bluetooth/bluetoothMain.cpp:624
 msgid "About\tF1"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:705
+#: ../bluetooth/bluetoothMain.cpp:624
 msgid "Show info about this application"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:707
+#: ../bluetooth/bluetoothMain.cpp:626
 msgid "Help"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:744
+#: ../bluetooth/bluetoothMain.cpp:663
 msgid "gimx-bluetooth is already running!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:761
+#: ../bluetooth/bluetoothMain.cpp:680
 msgid "It's not recommended to run as root user. Continue?"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:761
-#: ../bluetooth/bluetoothMain.cpp:805
-#: ../bluetooth/bluetoothMain.cpp:845
-#: ../bluetooth/bluetoothMain.cpp:1371
-#: ../bluetooth/bluetoothMain.cpp:1453
-#: ../bluetooth/bluetoothMain.cpp:1473
+#: ../bluetooth/bluetoothMain.cpp:680
+#: ../bluetooth/bluetoothMain.cpp:722
+#: ../bluetooth/bluetoothMain.cpp:796
+#: ../bluetooth/bluetoothMain.cpp:1272
+#: ../bluetooth/bluetoothMain.cpp:1354
+#: ../bluetooth/bluetoothMain.cpp:1374
 msgid "Confirm"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:774
+#: ../bluetooth/bluetoothMain.cpp:693
 msgid "Can't init ~/.sixemugui directory!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:778
+#: ../bluetooth/bluetoothMain.cpp:697
 msgid "Can't init ~/.emuclient/config!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:782
+#: ../bluetooth/bluetoothMain.cpp:701
 msgid "Can't init ~/.emuclient/macros!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:805
+#: ../bluetooth/bluetoothMain.cpp:722
 msgid "No config found! Download configs?"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:845
-msgid "Emu processes will be killed!"
-msgstr ""
-
-#: ../bluetooth/bluetoothMain.cpp:899
+#: ../bluetooth/bluetoothMain.cpp:792
 msgid "This dongle is in use!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1039
-#: ../bluetooth/bluetoothMain.cpp:1282
+#: ../bluetooth/bluetoothMain.cpp:796
+msgid "Did you saved your dongle address?"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:803
+msgid "Please save it!"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:803
+#: ../bluetooth/bluetoothMain.cpp:983
+#: ../bluetooth/bluetoothMain.cpp:1218
+#: ../bluetooth/bluetoothMain.cpp:1222
+#: ../bluetooth/bluetoothMain.cpp:1292
+#: ../bluetooth/bluetoothMain.cpp:1371
+#: ../bluetooth/bluetoothMain.cpp:1439
+msgid "Info"
+msgstr ""
+
+#: ../bluetooth/bluetoothMain.cpp:940
+#: ../bluetooth/bluetoothMain.cpp:1183
 msgid "Stop"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1082
+#: ../bluetooth/bluetoothMain.cpp:983
 msgid ""
 "Connected!\n"
 "Start emuclient now."
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1082
-#: ../bluetooth/bluetoothMain.cpp:1317
-#: ../bluetooth/bluetoothMain.cpp:1321
-#: ../bluetooth/bluetoothMain.cpp:1391
-#: ../bluetooth/bluetoothMain.cpp:1470
-#: ../bluetooth/bluetoothMain.cpp:1538
-msgid "Info"
-msgstr ""
-
-#: ../bluetooth/bluetoothMain.cpp:1088
+#: ../bluetooth/bluetoothMain.cpp:989
 msgid ""
 "Connection error!\n"
 "Did you set the dongle address?\n"
 "If yes, try another dongle!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1093
+#: ../bluetooth/bluetoothMain.cpp:994
 msgid "This dongle is already used!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1175
-#: ../bluetooth/bluetoothMain.cpp:1294
-#: ../bluetooth/bluetoothMain.cpp:1329
-#: ../bluetooth/bluetoothMain.cpp:1347
-#: ../bluetooth/bluetoothMain.cpp:1549
+#: ../bluetooth/bluetoothMain.cpp:1076
+#: ../bluetooth/bluetoothMain.cpp:1195
+#: ../bluetooth/bluetoothMain.cpp:1230
+#: ../bluetooth/bluetoothMain.cpp:1248
+#: ../bluetooth/bluetoothMain.cpp:1450
 msgid "No config selected!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1224
+#: ../bluetooth/bluetoothMain.cpp:1125
 msgid "can't start emuclient!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1235
+#: ../bluetooth/bluetoothMain.cpp:1136
 msgid "emuclient error"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1321
+#: ../bluetooth/bluetoothMain.cpp:1222
 msgid "This config seems OK!\n"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1339
-#: ../bluetooth/bluetoothMain.cpp:1357
+#: ../bluetooth/bluetoothMain.cpp:1240
+#: ../bluetooth/bluetoothMain.cpp:1258
 msgid "Error editing the config file!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1371
+#: ../bluetooth/bluetoothMain.cpp:1272
 msgid ""
 "Update available.\n"
 "Start installation?"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1378
+#: ../bluetooth/bluetoothMain.cpp:1279
 msgid "Can't retrieve update file!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1387
+#: ../bluetooth/bluetoothMain.cpp:1288
 msgid "Can't check version!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1391
+#: ../bluetooth/bluetoothMain.cpp:1292
 msgid "GIMX is up-to-date!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1440
+#: ../bluetooth/bluetoothMain.cpp:1341
 msgid "Select the files to download."
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1440
+#: ../bluetooth/bluetoothMain.cpp:1341
 msgid "Config download"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1453
+#: ../bluetooth/bluetoothMain.cpp:1354
 msgid "Overwrite local file: "
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1453
+#: ../bluetooth/bluetoothMain.cpp:1354
 msgid "?"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1465
+#: ../bluetooth/bluetoothMain.cpp:1366
 msgid "Can't retrieve configs!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1470
+#: ../bluetooth/bluetoothMain.cpp:1371
 msgid "Download is complete!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1473
+#: ../bluetooth/bluetoothMain.cpp:1374
 msgid "Auto-bind and convert?"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1486
+#: ../bluetooth/bluetoothMain.cpp:1387
 msgid "Can't retrieve config list!"
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1508
+#: ../bluetooth/bluetoothMain.cpp:1409
 msgid "Select the reference config."
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1521
+#: ../bluetooth/bluetoothMain.cpp:1422
 msgid "Can't read config: "
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1527
+#: ../bluetooth/bluetoothMain.cpp:1428
 msgid "Can't auto-bind controls for config: "
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1534
+#: ../bluetooth/bluetoothMain.cpp:1435
 msgid "Can't write config: "
 msgstr ""
 
-#: ../bluetooth/bluetoothMain.cpp:1538
+#: ../bluetooth/bluetoothMain.cpp:1439
 msgid "Done!"
 msgstr ""
 
@@ -1574,3 +1568,4 @@ msgstr ""
 #: ../fpsconfig/fpsconfigApp.h:29
 msgid "specifies a file to open"
 msgstr ""
+
