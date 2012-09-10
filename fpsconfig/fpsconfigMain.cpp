@@ -260,17 +260,17 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     SpinCtrlDeadZoneADS = new wxSpinCtrl(Panel1, ID_SPINCTRL2, _T("20"), wxPoint(184,352), wxSize(44,-1), 0, 0, 64, 20, _T("ID_SPINCTRL2"));
     SpinCtrlDeadZoneADS->SetValue(_T("20"));
     SpinCtrlDeadZoneADS->SetToolTip(_("Dead zone (ADS)"));
-    TextCtrlSensitivityADS = new wxTextCtrl(Panel1, ID_TEXTCTRL24, _("1.00"), wxPoint(312,352), wxSize(50,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL24"));
+    TextCtrlSensitivityADS = new wxTextCtrl(Panel1, ID_TEXTCTRL24, wxEmptyString, wxPoint(312,352), wxSize(50,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL24"));
     TextCtrlSensitivityADS->SetToolTip(_("Sensitivity (ADS)"));
-    TextCtrlSensitivityHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL4, _("1.00"), wxPoint(312,320), wxSize(50,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL4"));
+    TextCtrlSensitivityHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL4, wxEmptyString, wxPoint(312,320), wxSize(50,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL4"));
     TextCtrlSensitivityHipFire->SetToolTip(_("Sensitivity (Hip Fire)"));
-    TextCtrlAccelerationADS = new wxTextCtrl(Panel1, ID_TEXTCTRL26, _("1.00"), wxPoint(380,352), wxSize(40,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL26"));
+    TextCtrlAccelerationADS = new wxTextCtrl(Panel1, ID_TEXTCTRL26, wxEmptyString, wxPoint(380,352), wxSize(40,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL26"));
     TextCtrlAccelerationADS->SetToolTip(_("Acceleration (ADS)"));
-    TextCtrlFilterHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL2, _("0.00"), wxPoint(550,320), wxSize(40,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL2"));
+    TextCtrlFilterHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL2, wxEmptyString, wxPoint(550,320), wxSize(40,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL2"));
     TextCtrlFilterHipFire->SetToolTip(_("Filter (Hip Fire)"));
-    TextCtrlFilterADS = new wxTextCtrl(Panel1, ID_TEXTCTRL3, _("0.00"), wxPoint(550,352), wxSize(40,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL3"));
+    TextCtrlFilterADS = new wxTextCtrl(Panel1, ID_TEXTCTRL3, wxEmptyString, wxPoint(550,352), wxSize(40,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL3"));
     TextCtrlFilterADS->SetToolTip(_("Filter (ADS)"));
-    TextCtrlAccelerationHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL22, _("1.00"), wxPoint(380,320), wxSize(40,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL22"));
+    TextCtrlAccelerationHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL22, wxEmptyString, wxPoint(380,320), wxSize(40,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL22"));
     TextCtrlAccelerationHipFire->SetToolTip(_("Acceleration (Hip Fire)"));
     StaticTextHipFire = new wxStaticText(Panel1, ID_STATICTEXT1, _("Hip Fire"), wxPoint(120,328), wxDefaultSize, 0, _T("ID_STATICTEXT1"));
     StaticTextShape = new wxStaticText(Panel1, ID_STATICTEXT7, _("Shape"), wxPoint(246,296), wxDefaultSize, 0, _T("ID_STATICTEXT7"));
@@ -353,9 +353,9 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     ChoiceDeadZoneShapeADS->SetSelection( ChoiceDeadZoneShapeADS->Append(_("Circle")) );
     ChoiceDeadZoneShapeADS->Append(_("Rectangle"));
     ChoiceDeadZoneShapeADS->SetToolTip(_("Dead zone shape (ADS)"));
-    TextCtrlXyRatioHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL1, _("1.00"), wxPoint(438,320), wxSize(50,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL1"));
+    TextCtrlXyRatioHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL1, wxEmptyString, wxPoint(438,320), wxSize(50,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL1"));
     TextCtrlXyRatioHipFire->SetToolTip(_("x/y ratio (Hip Fire)"));
-    TextCtrlXyRatioADS = new wxTextCtrl(Panel1, ID_TEXTCTRL25, _("1.00"), wxPoint(438,352), wxSize(50,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL25"));
+    TextCtrlXyRatioADS = new wxTextCtrl(Panel1, ID_TEXTCTRL25, wxEmptyString, wxPoint(438,352), wxSize(50,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL25"));
     TextCtrlXyRatioADS->SetToolTip(_("x/y ratio (ADS)"));
     SpinCtrlDPI = new wxSpinCtrl(Panel1, ID_SPINCTRL9, _T("0"), wxPoint(24,256), wxSize(64,-1), 0, 0, 20000, 0, _T("ID_SPINCTRL9"));
     SpinCtrlDPI->SetValue(_T("0"));
@@ -455,6 +455,15 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuUpdate);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnAbout);
     //*)
+    
+    TextCtrlSensitivityHipFire->SetValue(wxT("1.00"));
+    TextCtrlSensitivityADS->SetValue(wxT("1.00"));
+    TextCtrlAccelerationHipFire->SetValue(wxT("1.00"));
+    TextCtrlAccelerationADS->SetValue(wxT("1.00"));
+    TextCtrlXyRatioHipFire->SetValue(wxT("1.00"));
+    TextCtrlXyRatioADS->SetValue(wxT("1.00"));
+    TextCtrlFilterHipFire->SetValue(wxT("0.00"));
+    TextCtrlFilterADS->SetValue(wxT("0.00"));
 
     wxMemoryInputStream istream(background_png, sizeof background_png);
     wxImage background_img(istream, wxBITMAP_TYPE_PNG);
