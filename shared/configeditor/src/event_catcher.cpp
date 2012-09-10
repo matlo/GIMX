@@ -691,7 +691,7 @@ void event_catcher::run(string device_type, string event_type)
                             stringstream ss1;
                             ss1 << mouseVirtualIndex[event->motion.which];
                             m_DeviceId = ss1.str();
-                            m_DeviceName = mouseName[event->button.which];
+                            m_DeviceName = mouseName[event->motion.which];
                             m_EventType = "axis";
                             done = 1;
                             if(abs(event->motion.xrel) > abs(event->motion.yrel))
@@ -712,6 +712,7 @@ void event_catcher::run(string device_type, string event_type)
                             stringstream ss1;
                             ss1 << mouseVirtualIndex[event->motion.which];
                             m_DeviceId = ss1.str();
+                            m_DeviceName = mouseName[event->motion.which];
                             m_EventType = "axis";
                             done = 1;
                             if(event->motion.xrel > event->motion.yrel)
@@ -732,7 +733,7 @@ void event_catcher::run(string device_type, string event_type)
                             stringstream ss1;
                             ss1 << mouseVirtualIndex[event->motion.which];
                             m_DeviceId = ss1.str();
-                            m_DeviceName = mouseName[event->button.which];
+                            m_DeviceName = mouseName[event->motion.which];
                             m_EventType = "axis";
                             done = 1;
                             if(event->motion.xrel < event->motion.yrel)
