@@ -455,15 +455,6 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuUpdate);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnAbout);
     //*)
-    
-    TextCtrlSensitivityHipFire->SetValue(wxT("1.00"));
-    TextCtrlSensitivityADS->SetValue(wxT("1.00"));
-    TextCtrlAccelerationHipFire->SetValue(wxT("1.00"));
-    TextCtrlAccelerationADS->SetValue(wxT("1.00"));
-    TextCtrlXyRatioHipFire->SetValue(wxT("1.00"));
-    TextCtrlXyRatioADS->SetValue(wxT("1.00"));
-    TextCtrlFilterHipFire->SetValue(wxT("0.00"));
-    TextCtrlFilterADS->SetValue(wxT("0.00"));
 
     wxMemoryInputStream istream(background_png, sizeof background_png);
     wxImage background_img(istream, wxBITMAP_TYPE_PNG);
@@ -478,6 +469,15 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
 #endif
     textdomain( "gimx" );
     setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
+
+    TextCtrlSensitivityHipFire->SetValue(wxT("1.00"));
+    TextCtrlSensitivityADS->SetValue(wxT("1.00"));
+    TextCtrlAccelerationHipFire->SetValue(wxT("1.00"));
+    TextCtrlAccelerationADS->SetValue(wxT("1.00"));
+    TextCtrlXyRatioHipFire->SetValue(wxT("1.00"));
+    TextCtrlXyRatioADS->SetValue(wxT("1.00"));
+    TextCtrlFilterHipFire->SetValue(wxT("0.00"));
+    TextCtrlFilterADS->SetValue(wxT("0.00"));
 
     default_directory = wxEmptyString;
 
