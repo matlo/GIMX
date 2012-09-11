@@ -216,6 +216,19 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
 {
     unsigned int i;
 
+    /*
+     * Use the system locale.
+     * Messages will be translated if a translation file is available.
+     */
+    setlocale( LC_ALL, "" );
+#ifndef WIN32
+    bindtextdomain( "gimx", "/usr/share/locale" );
+#else
+    bindtextdomain( "gimx", "share/locale" );
+#endif
+    textdomain( "gimx" );
+    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
+
     //(*Initialize(fpsconfigFrame)
     wxMenu* MenuHelp;
     wxMenuItem* MenuItemAbout;
@@ -460,15 +473,6 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     wxImage background_img(istream, wxBITMAP_TYPE_PNG);
     wxBackgroundBitmap* ToolBarBackground = new wxBackgroundBitmap(wxBitmap(background_img));
     Panel1->PushEventHandler(ToolBarBackground);
-
-    setlocale( LC_ALL, "" );
-#ifndef WIN32
-      bindtextdomain( "gimx", "/usr/share/locale" );
-#else
-      bindtextdomain( "gimx", "share/locale" );
-#endif
-    textdomain( "gimx" );
-    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 
     TextCtrlSensitivityHipFire->SetValue(wxT("1.00"));
     TextCtrlSensitivityADS->SetValue(wxT("1.00"));

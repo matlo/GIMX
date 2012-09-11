@@ -418,6 +418,19 @@ void configFrame::readLabels()
  */
 configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
 {
+    /*
+     * Use the system locale.
+     * Messages will be translated if a translation file is available.
+     */
+    setlocale( LC_ALL, "" );
+#ifndef WIN32
+    bindtextdomain( "gimx", "/usr/share/locale" );
+#else
+    bindtextdomain( "gimx", "share/locale" );
+#endif
+    textdomain( "gimx" );
+    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
+
     //(*Initialize(configFrame)
     wxStaticBoxSizer* StaticBoxSizer2;
     wxMenu* MenuHelp;
@@ -940,19 +953,6 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM26,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuUpdate);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnAbout);
     //*)
-
-    /*
-     * Use the system locale.
-     * Messages will be translated if a translation file is available.
-     */
-    setlocale( LC_ALL, "" );
-  #ifndef WIN32
-    bindtextdomain( "gimx", "/usr/share/locale" );
-  #else
-    bindtextdomain( "gimx", "share/locale" );
-  #endif
-    textdomain( "gimx" );
-    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 
     GridPanelButton->SetSelectionMode(wxGrid::wxGridSelectRows);
     GridPanelAxis->SetSelectionMode(wxGrid::wxGridSelectRows);
