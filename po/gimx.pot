@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GIMX 0.50\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-11 19:33+0100\n"
-"PO-Revision-Date: 2012-09-11 19:34+0100\n"
+"POT-Creation-Date: 2012-09-11 22:00+0100\n"
+"PO-Revision-Date: 2012-09-11 22:01+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: \n"
@@ -258,7 +258,7 @@ msgid "Mouse calibration (Ctrl+F1 to save)(mouse wheel to change values)"
 msgstr ""
 
 #: ../core/display.c:103
-msgid "Profile: "
+msgid "Profile:"
 msgstr ""
 
 #: ../core/display.c:115
@@ -333,7 +333,7 @@ msgid "Buttons"
 msgstr ""
 
 #: ../core/display.c:345
-msgid "Refresh rate: "
+msgid "Refresh rate:"
 msgstr ""
 
 #: ../core/display.c:390

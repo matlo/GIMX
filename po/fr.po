@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GIMX 0.50\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-11 19:33+0100\n"
-"PO-Revision-Date: 2012-09-11 19:34+0100\n"
+"POT-Creation-Date: 2012-09-11 21:58+0100\n"
+"PO-Revision-Date: 2012-09-11 22:00+0100\n"
 "Last-Translator: Matlo <mat.lau@laposte.net>\n"
 "Language-Team: Matlo <mat.lau@laposte.net>\n"
 "Language: fr\n"
@@ -57,7 +57,7 @@ msgstr "Sortie\n"
 
 #: ../core/macros.c:64
 msgid "macros are not not available for: "
-msgstr "les macros ne sont pas disponibles pour :"
+msgstr "les macros ne sont pas disponibles pour : "
 
 #: ../core/macros.c:67
 #, c-format
@@ -258,11 +258,11 @@ msgstr "Calibration de la souris (Ctrl+F1 pour éditer)"
 
 #: ../core/display.c:85
 msgid "Mouse calibration (Ctrl+F1 to save)(mouse wheel to change values)"
-msgstr "Calibration de la souris (Ctrl+F1 pour sauver)(molette de la souris pour changer les valeurs)"
+msgstr "Calibration de la souris (Ctrl+F1 pour sauver)(molette pour modifier)"
 
 #: ../core/display.c:103
-msgid "Profile: "
-msgstr "Profil:"
+msgid "Profile:"
+msgstr "Profil :"
 
 #: ../core/display.c:115
 msgid "Dead zone:"
@@ -282,7 +282,7 @@ msgstr " forme="
 
 #: ../core/display.c:163
 msgid "circle"
-msgstr "circle"
+msgstr "cercle"
 
 #: ../core/display.c:167
 msgid "rectangle"
@@ -295,7 +295,7 @@ msgstr "ND"
 
 #: ../core/display.c:180
 msgid "Acceleration:"
-msgstr "Accélération:"
+msgstr "Accélération :"
 
 #: ../core/display.c:185
 msgid " test (F6)"
@@ -303,7 +303,7 @@ msgstr " test (F6)"
 
 #: ../core/display.c:229
 msgid "Sensitivity:"
-msgstr "Sensibilité:"
+msgstr "Sensibilité :"
 
 #: ../core/display.c:254
 msgid " circle test"
@@ -336,8 +336,8 @@ msgid "Buttons"
 msgstr "Boutons"
 
 #: ../core/display.c:345
-msgid "Refresh rate: "
-msgstr "Taux de rafraichissement:"
+msgid "Refresh rate:"
+msgstr "Taux de rafraîchissement :"
 
 #: ../core/display.c:390
 #, c-format
@@ -347,7 +347,7 @@ msgstr "Temps de calcul : courant=%dus moyen=%dus pire=%dus"
 #: ../core/display.c:393
 #, c-format
 msgid "Refresh rate: %dHz  "
-msgstr "Taux de rafraichissement : %dHz"
+msgstr "Taux de rafraîchissement : %dHz"
 
 #: ../bluetooth/bluetoothMain.cpp:244
 msgid "Please select a Sixaxis Address!"
@@ -751,7 +751,7 @@ msgstr "Téléchargement de configs"
 
 #: ../bluetooth/bluetoothMain.cpp:1354
 msgid "Overwrite local file: "
-msgstr "Ecraser le fichier local :"
+msgstr "Ecraser le fichier local : "
 
 #: ../bluetooth/bluetoothMain.cpp:1354
 msgid "?"
@@ -779,15 +779,15 @@ msgstr "Sélectionner la config de référence."
 
 #: ../bluetooth/bluetoothMain.cpp:1422
 msgid "Can't read config: "
-msgstr "Impossible de lire la config :"
+msgstr "Impossible de lire la config : "
 
 #: ../bluetooth/bluetoothMain.cpp:1428
 msgid "Can't auto-bind controls for config: "
-msgstr "Impossible d'auto-affecter les contrôles pour la config :"
+msgstr "Impossible d'auto-affecter les contrôles pour la config : "
 
 #: ../bluetooth/bluetoothMain.cpp:1435
 msgid "Can't write config: "
-msgstr "Impossible d'écrire la config :"
+msgstr "Impossible d'écrire la config : "
 
 #: ../bluetooth/bluetoothMain.cpp:1439
 msgid "Done!"
