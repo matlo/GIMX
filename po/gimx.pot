@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GIMX 0.50\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-10 19:16+0100\n"
-"PO-Revision-Date: 2012-09-10 19:16+0100\n"
+"POT-Creation-Date: 2012-09-11 19:33+0100\n"
+"PO-Revision-Date: 2012-09-11 19:34+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: \n"
@@ -780,30 +780,30 @@ msgid "Done!"
 msgstr ""
 
 #: ../config/configMain.cpp:172
-#: ../config/configMain.cpp:545
+#: ../config/configMain.cpp:558
 msgid "Increase"
 msgstr ""
 
 #: ../config/configMain.cpp:176
-#: ../config/configMain.cpp:546
+#: ../config/configMain.cpp:559
 msgid "Decrease"
 msgstr ""
 
 #: ../config/configMain.cpp:180
-#: ../config/configMain.cpp:731
+#: ../config/configMain.cpp:744
 #: ../config/configMain.cpp:3169
 #: ../fpsconfig/fpsconfigMain.cpp:49
-#: ../fpsconfig/fpsconfigMain.cpp:349
-#: ../fpsconfig/fpsconfigMain.cpp:353
+#: ../fpsconfig/fpsconfigMain.cpp:362
+#: ../fpsconfig/fpsconfigMain.cpp:366
 msgid "Circle"
 msgstr ""
 
 #: ../config/configMain.cpp:184
-#: ../config/configMain.cpp:732
+#: ../config/configMain.cpp:745
 #: ../config/configMain.cpp:3170
 #: ../fpsconfig/fpsconfigMain.cpp:53
-#: ../fpsconfig/fpsconfigMain.cpp:350
-#: ../fpsconfig/fpsconfigMain.cpp:354
+#: ../fpsconfig/fpsconfigMain.cpp:363
+#: ../fpsconfig/fpsconfigMain.cpp:367
 msgid "Rectangle"
 msgstr ""
 
@@ -817,28 +817,28 @@ msgid "keyboard"
 msgstr ""
 
 #: ../config/configMain.cpp:196
-#: ../config/configMain.cpp:684
+#: ../config/configMain.cpp:697
 #: ../config/configMain.cpp:2376
 msgid "axis"
 msgstr ""
 
 #: ../config/configMain.cpp:200
-#: ../config/configMain.cpp:610
+#: ../config/configMain.cpp:623
 #: ../config/configMain.cpp:1470
 #: ../config/configMain.cpp:1585
 msgid "axis up"
 msgstr ""
 
 #: ../config/configMain.cpp:204
-#: ../config/configMain.cpp:611
+#: ../config/configMain.cpp:624
 #: ../config/configMain.cpp:1466
 #: ../config/configMain.cpp:1581
 msgid "axis down"
 msgstr ""
 
 #: ../config/configMain.cpp:208
-#: ../config/configMain.cpp:609
-#: ../config/configMain.cpp:685
+#: ../config/configMain.cpp:622
+#: ../config/configMain.cpp:698
 #: ../config/configMain.cpp:1437
 #: ../config/configMain.cpp:1458
 #: ../config/configMain.cpp:1491
@@ -852,112 +852,112 @@ msgstr ""
 msgid "button"
 msgstr ""
 
-#: ../config/configMain.cpp:468
+#: ../config/configMain.cpp:481
 msgid "Gimx-config"
 msgstr ""
 
-#: ../config/configMain.cpp:474
+#: ../config/configMain.cpp:487
 msgid "Profile trigger"
 msgstr ""
 
-#: ../config/configMain.cpp:476
-#: ../config/configMain.cpp:510
-#: ../config/configMain.cpp:566
-#: ../config/configMain.cpp:596
-#: ../config/configMain.cpp:645
-#: ../config/configMain.cpp:671
-#: ../config/configMain.cpp:756
+#: ../config/configMain.cpp:489
+#: ../config/configMain.cpp:523
+#: ../config/configMain.cpp:579
+#: ../config/configMain.cpp:609
+#: ../config/configMain.cpp:658
+#: ../config/configMain.cpp:684
+#: ../config/configMain.cpp:769
 #: ../serial/serialMain.cpp:349
 msgid "Device"
 msgstr ""
 
-#: ../config/configMain.cpp:486
-#: ../config/configMain.cpp:520
-#: ../config/configMain.cpp:569
-#: ../config/configMain.cpp:626
-#: ../config/configMain.cpp:651
-#: ../config/configMain.cpp:785
+#: ../config/configMain.cpp:499
+#: ../config/configMain.cpp:533
+#: ../config/configMain.cpp:582
+#: ../config/configMain.cpp:639
+#: ../config/configMain.cpp:664
+#: ../config/configMain.cpp:798
 msgid "Button"
 msgstr ""
 
-#: ../config/configMain.cpp:492
-#: ../config/configMain.cpp:529
-#: ../config/configMain.cpp:620
-#: ../config/configMain.cpp:694
+#: ../config/configMain.cpp:505
+#: ../config/configMain.cpp:542
+#: ../config/configMain.cpp:633
+#: ../config/configMain.cpp:707
 msgid "Auto detect"
 msgstr ""
 
-#: ../config/configMain.cpp:494
+#: ../config/configMain.cpp:507
 msgid "Switch back"
 msgstr ""
 
-#: ../config/configMain.cpp:497
+#: ../config/configMain.cpp:510
 msgid "Delay (ms):"
 msgstr ""
 
-#: ../config/configMain.cpp:502
+#: ../config/configMain.cpp:515
 msgid "Delete"
 msgstr ""
 
-#: ../config/configMain.cpp:506
+#: ../config/configMain.cpp:519
 msgid "Axis intensity"
 msgstr ""
 
-#: ../config/configMain.cpp:533
-#: ../config/configMain.cpp:570
+#: ../config/configMain.cpp:546
+#: ../config/configMain.cpp:583
 msgid "Direction"
 msgstr ""
 
-#: ../config/configMain.cpp:535
-#: ../config/configMain.cpp:700
-#: ../fpsconfig/fpsconfigMain.cpp:280
+#: ../config/configMain.cpp:548
+#: ../config/configMain.cpp:713
+#: ../fpsconfig/fpsconfigMain.cpp:293
 msgid "DZ"
 msgstr ""
 
-#: ../config/configMain.cpp:536
-#: ../config/configMain.cpp:571
-#: ../config/configMain.cpp:701
-#: ../config/configMain.cpp:762
-#: ../fpsconfig/fpsconfigMain.cpp:281
+#: ../config/configMain.cpp:549
+#: ../config/configMain.cpp:584
+#: ../config/configMain.cpp:714
+#: ../config/configMain.cpp:775
+#: ../fpsconfig/fpsconfigMain.cpp:294
 msgid "Dead zone"
 msgstr ""
 
-#: ../config/configMain.cpp:538
-#: ../config/configMain.cpp:572
-#: ../config/configMain.cpp:709
-#: ../config/configMain.cpp:765
-#: ../fpsconfig/fpsconfigMain.cpp:276
+#: ../config/configMain.cpp:551
+#: ../config/configMain.cpp:585
+#: ../config/configMain.cpp:722
+#: ../config/configMain.cpp:778
+#: ../fpsconfig/fpsconfigMain.cpp:289
 msgid "Shape"
 msgstr ""
 
-#: ../config/configMain.cpp:540
-#: ../config/configMain.cpp:573
+#: ../config/configMain.cpp:553
+#: ../config/configMain.cpp:586
 msgid "Steps"
 msgstr ""
 
-#: ../config/configMain.cpp:542
-#: ../config/configMain.cpp:574
-#: ../config/configMain.cpp:698
-#: ../config/configMain.cpp:761
-#: ../config/configMain.cpp:786
+#: ../config/configMain.cpp:555
+#: ../config/configMain.cpp:587
+#: ../config/configMain.cpp:711
+#: ../config/configMain.cpp:774
+#: ../config/configMain.cpp:799
 msgid "Axis"
 msgstr ""
 
-#: ../config/configMain.cpp:579
-#: ../config/configMain.cpp:657
-#: ../config/configMain.cpp:773
+#: ../config/configMain.cpp:592
+#: ../config/configMain.cpp:670
+#: ../config/configMain.cpp:786
 msgid "Add"
 msgstr ""
 
-#: ../config/configMain.cpp:581
-#: ../config/configMain.cpp:659
-#: ../config/configMain.cpp:775
+#: ../config/configMain.cpp:594
+#: ../config/configMain.cpp:672
+#: ../config/configMain.cpp:788
 msgid "Remove"
 msgstr ""
 
-#: ../config/configMain.cpp:583
-#: ../config/configMain.cpp:661
-#: ../config/configMain.cpp:777
+#: ../config/configMain.cpp:596
+#: ../config/configMain.cpp:674
+#: ../config/configMain.cpp:790
 #: ../config/configMain.cpp:1106
 #: ../config/configMain.cpp:1107
 #: ../config/configMain.cpp:1112
@@ -988,202 +988,202 @@ msgstr ""
 msgid "Modify"
 msgstr ""
 
-#: ../config/configMain.cpp:606
-#: ../config/configMain.cpp:648
-#: ../config/configMain.cpp:681
-#: ../config/configMain.cpp:759
+#: ../config/configMain.cpp:619
+#: ../config/configMain.cpp:661
+#: ../config/configMain.cpp:694
+#: ../config/configMain.cpp:772
 msgid "Event"
 msgstr ""
 
-#: ../config/configMain.cpp:624
-#: ../config/configMain.cpp:650
+#: ../config/configMain.cpp:637
+#: ../config/configMain.cpp:663
 msgid "Threshold"
 msgstr ""
 
-#: ../config/configMain.cpp:628
-#: ../config/configMain.cpp:652
-#: ../config/configMain.cpp:713
-#: ../config/configMain.cpp:768
+#: ../config/configMain.cpp:641
+#: ../config/configMain.cpp:665
+#: ../config/configMain.cpp:726
+#: ../config/configMain.cpp:781
 msgid "Label"
 msgstr ""
 
-#: ../config/configMain.cpp:703
-#: ../fpsconfig/fpsconfigMain.cpp:282
+#: ../config/configMain.cpp:716
+#: ../fpsconfig/fpsconfigMain.cpp:295
 msgid "Sens."
 msgstr ""
 
-#: ../config/configMain.cpp:704
-#: ../config/configMain.cpp:763
-#: ../fpsconfig/fpsconfigMain.cpp:283
+#: ../config/configMain.cpp:717
+#: ../config/configMain.cpp:776
+#: ../fpsconfig/fpsconfigMain.cpp:296
 msgid "Sensitivity"
 msgstr ""
 
-#: ../config/configMain.cpp:706
-#: ../fpsconfig/fpsconfigMain.cpp:284
+#: ../config/configMain.cpp:719
+#: ../fpsconfig/fpsconfigMain.cpp:297
 msgid "Accel."
 msgstr ""
 
-#: ../config/configMain.cpp:707
-#: ../config/configMain.cpp:764
-#: ../fpsconfig/fpsconfigMain.cpp:285
+#: ../config/configMain.cpp:720
+#: ../config/configMain.cpp:777
+#: ../fpsconfig/fpsconfigMain.cpp:298
 msgid "Acceleration"
 msgstr ""
 
-#: ../config/configMain.cpp:711
-#: ../fpsconfig/fpsconfigMain.cpp:364
+#: ../config/configMain.cpp:724
+#: ../fpsconfig/fpsconfigMain.cpp:377
 msgid "Smoothing"
 msgstr ""
 
-#: ../config/configMain.cpp:719
+#: ../config/configMain.cpp:732
 msgid "Dead zone [0..64]"
 msgstr ""
 
-#: ../config/configMain.cpp:723
+#: ../config/configMain.cpp:736
 msgid "Sensitivity [-100.00..100.00]"
 msgstr ""
 
-#: ../config/configMain.cpp:727
+#: ../config/configMain.cpp:740
 msgid "Acceleration [0.00..2.00]"
 msgstr ""
 
-#: ../config/configMain.cpp:738
+#: ../config/configMain.cpp:751
 msgid "Buffer size [1..30]"
 msgstr ""
 
-#: ../config/configMain.cpp:742
+#: ../config/configMain.cpp:755
 msgid "Filter [0.00..1.00]"
 msgstr ""
 
-#: ../config/configMain.cpp:766
+#: ../config/configMain.cpp:779
 msgid "Buffer Size"
 msgstr ""
 
-#: ../config/configMain.cpp:767
+#: ../config/configMain.cpp:780
 msgid "Filter"
 msgstr ""
 
-#: ../config/configMain.cpp:784
+#: ../config/configMain.cpp:797
 msgid "Overall"
 msgstr ""
 
-#: ../config/configMain.cpp:791
+#: ../config/configMain.cpp:804
 msgid "New\tCtrl-N"
 msgstr ""
 
-#: ../config/configMain.cpp:791
+#: ../config/configMain.cpp:804
 msgid "Create a new configuration"
 msgstr ""
 
-#: ../config/configMain.cpp:793
+#: ../config/configMain.cpp:806
 msgid "Open\tCtrl-O"
 msgstr ""
 
-#: ../config/configMain.cpp:793
+#: ../config/configMain.cpp:806
 msgid "Open a configuration file"
 msgstr ""
 
-#: ../config/configMain.cpp:795
+#: ../config/configMain.cpp:808
 msgid "Save\tCtrl-S"
 msgstr ""
 
-#: ../config/configMain.cpp:795
+#: ../config/configMain.cpp:808
 msgid "Save configuration"
 msgstr ""
 
-#: ../config/configMain.cpp:798
+#: ../config/configMain.cpp:811
 msgid "Save As..."
 msgstr ""
 
-#: ../config/configMain.cpp:798
+#: ../config/configMain.cpp:811
 msgid "Save configuration to specified file"
 msgstr ""
 
-#: ../config/configMain.cpp:805
+#: ../config/configMain.cpp:818
 msgid "Copy Profile"
 msgstr ""
 
-#: ../config/configMain.cpp:807
+#: ../config/configMain.cpp:820
 msgid "Copy Controller"
 msgstr ""
 
-#: ../config/configMain.cpp:810
+#: ../config/configMain.cpp:823
 msgid "Paste Profile"
 msgstr ""
 
-#: ../config/configMain.cpp:812
+#: ../config/configMain.cpp:825
 msgid "Paste Controller"
 msgstr ""
 
-#: ../config/configMain.cpp:815
+#: ../config/configMain.cpp:828
 msgid "Set Mouse DPI"
 msgstr ""
 
-#: ../config/configMain.cpp:818
+#: ../config/configMain.cpp:831
 msgid "Replace Mouse"
 msgstr ""
 
-#: ../config/configMain.cpp:821
+#: ../config/configMain.cpp:834
 msgid "Convert mouse sensitivity"
 msgstr ""
 
-#: ../config/configMain.cpp:823
+#: ../config/configMain.cpp:836
 msgid "Replace Keyboard"
 msgstr ""
 
-#: ../config/configMain.cpp:826
+#: ../config/configMain.cpp:839
 msgid "Edit"
 msgstr ""
 
-#: ../config/configMain.cpp:840
-#: ../config/configMain.cpp:856
+#: ../config/configMain.cpp:853
+#: ../config/configMain.cpp:869
 msgid "7"
 msgstr ""
 
-#: ../config/configMain.cpp:842
+#: ../config/configMain.cpp:855
 #: ../serial/serialMain.cpp:359
 msgid "Controller"
 msgstr ""
 
-#: ../config/configMain.cpp:858
+#: ../config/configMain.cpp:871
 msgid "8"
 msgstr ""
 
-#: ../config/configMain.cpp:860
+#: ../config/configMain.cpp:873
 msgid "Profile"
 msgstr ""
 
-#: ../config/configMain.cpp:862
+#: ../config/configMain.cpp:875
 msgid "Multiple Mice and Keyboards"
 msgstr ""
 
-#: ../config/configMain.cpp:864
+#: ../config/configMain.cpp:877
 msgid "Link controls"
 msgstr ""
 
-#: ../config/configMain.cpp:867
-#: ../fpsconfig/fpsconfigMain.cpp:384
+#: ../config/configMain.cpp:880
+#: ../fpsconfig/fpsconfigMain.cpp:397
 msgid "Auto-bind controls"
 msgstr ""
 
-#: ../config/configMain.cpp:869
-#: ../fpsconfig/fpsconfigMain.cpp:386
+#: ../config/configMain.cpp:882
+#: ../fpsconfig/fpsconfigMain.cpp:399
 msgid "Advanced"
 msgstr ""
 
-#: ../config/configMain.cpp:883
-#: ../fpsconfig/fpsconfigMain.cpp:400
+#: ../config/configMain.cpp:896
+#: ../fpsconfig/fpsconfigMain.cpp:413
 msgid "Select file"
 msgstr ""
 
-#: ../config/configMain.cpp:883
+#: ../config/configMain.cpp:896
 #: ../config/configMain.cpp:2021
-#: ../fpsconfig/fpsconfigMain.cpp:996
-#: ../fpsconfig/fpsconfigMain.cpp:1850
+#: ../fpsconfig/fpsconfigMain.cpp:1000
+#: ../fpsconfig/fpsconfigMain.cpp:1854
 msgid "XML files (*.xml)|*.xml"
 msgstr ""
 
 #: ../config/configMain.cpp:1046
-#: ../fpsconfig/fpsconfigMain.cpp:528
+#: ../fpsconfig/fpsconfigMain.cpp:532
 msgid "Cannot open config file: "
 msgstr ""
 
@@ -1207,7 +1207,7 @@ msgid "Please select an Axis!"
 msgstr ""
 
 #: ../config/configMain.cpp:1493
-#: ../fpsconfig/fpsconfigMain.cpp:860
+#: ../fpsconfig/fpsconfigMain.cpp:864
 msgid "Press a button."
 msgstr ""
 
@@ -1216,12 +1216,12 @@ msgid "Move an axis."
 msgstr ""
 
 #: ../config/configMain.cpp:2002
-#: ../fpsconfig/fpsconfigMain.cpp:1284
+#: ../fpsconfig/fpsconfigMain.cpp:1288
 msgid "Can't save "
 msgstr ""
 
 #: ../config/configMain.cpp:2021
-#: ../fpsconfig/fpsconfigMain.cpp:996
+#: ../fpsconfig/fpsconfigMain.cpp:1000
 msgid "Save config file"
 msgstr ""
 
@@ -1267,7 +1267,7 @@ msgstr ""
 #: ../config/configMain.cpp:2591
 #: ../config/configMain.cpp:2602
 #: ../config/configMain.cpp:2691
-#: ../fpsconfig/fpsconfigMain.cpp:1810
+#: ../fpsconfig/fpsconfigMain.cpp:1814
 msgid "Enter a number:"
 msgstr ""
 
@@ -1276,7 +1276,7 @@ msgid "Source mouse DPI"
 msgstr ""
 
 #: ../config/configMain.cpp:2602
-#: ../fpsconfig/fpsconfigMain.cpp:1810
+#: ../fpsconfig/fpsconfigMain.cpp:1814
 msgid "Destination mouse DPI"
 msgstr ""
 
@@ -1303,12 +1303,12 @@ msgid ""
 msgstr ""
 
 #: ../config/configMain.cpp:2946
-#: ../fpsconfig/fpsconfigMain.cpp:1846
+#: ../fpsconfig/fpsconfigMain.cpp:1850
 msgid "No config opened!"
 msgstr ""
 
 #: ../config/configMain.cpp:2959
-#: ../fpsconfig/fpsconfigMain.cpp:1859
+#: ../fpsconfig/fpsconfigMain.cpp:1863
 msgid "Can't auto-bind controls!"
 msgstr ""
 
@@ -1328,139 +1328,139 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:227
+#: ../fpsconfig/fpsconfigMain.cpp:240
 msgid "Gimx-fpsconfig"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:253
+#: ../fpsconfig/fpsconfigMain.cpp:266
 msgid "Buffer size (Hip Fire)"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:256
+#: ../fpsconfig/fpsconfigMain.cpp:269
 msgid "Buffer size (ADS)"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:259
+#: ../fpsconfig/fpsconfigMain.cpp:272
 msgid "Dead zone (Hip Fire)"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:262
+#: ../fpsconfig/fpsconfigMain.cpp:275
 msgid "Dead zone (ADS)"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:264
+#: ../fpsconfig/fpsconfigMain.cpp:277
 msgid "Sensitivity (ADS)"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:266
+#: ../fpsconfig/fpsconfigMain.cpp:279
 msgid "Sensitivity (Hip Fire)"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:268
+#: ../fpsconfig/fpsconfigMain.cpp:281
 msgid "Acceleration (ADS)"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:270
+#: ../fpsconfig/fpsconfigMain.cpp:283
 msgid "Filter (Hip Fire)"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:272
+#: ../fpsconfig/fpsconfigMain.cpp:285
 msgid "Filter (ADS)"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:274
+#: ../fpsconfig/fpsconfigMain.cpp:287
 msgid "Acceleration (Hip Fire)"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:275
+#: ../fpsconfig/fpsconfigMain.cpp:288
 msgid "Hip Fire"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:277
+#: ../fpsconfig/fpsconfigMain.cpp:290
 msgid "Dead zone shape"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:278
+#: ../fpsconfig/fpsconfigMain.cpp:291
 msgid "ADS"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:279
+#: ../fpsconfig/fpsconfigMain.cpp:292
 msgid "Aiming Down the Sights"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:286
+#: ../fpsconfig/fpsconfigMain.cpp:299
 msgid "x/y"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:287
+#: ../fpsconfig/fpsconfigMain.cpp:300
 msgid "x/y ratio"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:351
+#: ../fpsconfig/fpsconfigMain.cpp:364
 msgid "Dead zone shape (Hip Fire)"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:355
+#: ../fpsconfig/fpsconfigMain.cpp:368
 msgid "Dead zone shape (ADS)"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:357
+#: ../fpsconfig/fpsconfigMain.cpp:370
 msgid "x/y ratio (Hip Fire)"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:359
+#: ../fpsconfig/fpsconfigMain.cpp:372
 msgid "x/y ratio (ADS)"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:362
-#: ../fpsconfig/fpsconfigMain.cpp:987
-#: ../fpsconfig/fpsconfigMain.cpp:1310
+#: ../fpsconfig/fpsconfigMain.cpp:375
+#: ../fpsconfig/fpsconfigMain.cpp:991
+#: ../fpsconfig/fpsconfigMain.cpp:1314
 msgid "Enter your mouse DPI value."
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:363
+#: ../fpsconfig/fpsconfigMain.cpp:376
 msgid "Mouse DPI"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:365
+#: ../fpsconfig/fpsconfigMain.cpp:378
 msgid "Mouse smoothing"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:366
+#: ../fpsconfig/fpsconfigMain.cpp:379
 msgid ""
 "Convert\n"
 "sensitivity"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:369
+#: ../fpsconfig/fpsconfigMain.cpp:382
 msgid "New\tCtrl+N"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:371
+#: ../fpsconfig/fpsconfigMain.cpp:384
 msgid "Open\tCtrl+O"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:373
+#: ../fpsconfig/fpsconfigMain.cpp:386
 msgid "Save\tCtrl+S"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:376
+#: ../fpsconfig/fpsconfigMain.cpp:389
 msgid "Save As"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:382
+#: ../fpsconfig/fpsconfigMain.cpp:395
 msgid "Edit Labels"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:828
+#: ../fpsconfig/fpsconfigMain.cpp:832
 msgid "Edit Label"
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:866
+#: ../fpsconfig/fpsconfigMain.cpp:870
 msgid "Joystick controls are only supported through gimx-config."
 msgstr ""
 
-#: ../fpsconfig/fpsconfigMain.cpp:1864
+#: ../fpsconfig/fpsconfigMain.cpp:1868
 msgid "Auto-bind done!"
 msgstr ""
 
