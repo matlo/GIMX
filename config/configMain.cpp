@@ -941,16 +941,6 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnAbout);
     //*)
 
-    GridPanelButton->SetSelectionMode(wxGrid::wxGridSelectRows);
-    GridPanelAxis->SetSelectionMode(wxGrid::wxGridSelectRows);
-
-    fillButtonChoice(ButtonTabButtonId);
-    fillAxisAxisChoice(AxisTabAxisId);
-    fillIntensityAxisChoice(IntensityAxis);
-
-    currentController = 0;
-    currentConfiguration = 0;
-
     /*
      * Use the system locale.
      * Messages will be translated if a translation file is available.
@@ -963,6 +953,16 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
   #endif
     textdomain( "gimx" );
     setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
+
+    GridPanelButton->SetSelectionMode(wxGrid::wxGridSelectRows);
+    GridPanelAxis->SetSelectionMode(wxGrid::wxGridSelectRows);
+
+    fillButtonChoice(ButtonTabButtonId);
+    fillAxisAxisChoice(AxisTabAxisId);
+    fillIntensityAxisChoice(IntensityAxis);
+
+    currentController = 0;
+    currentConfiguration = 0;
 
     default_directory = wxEmptyString;
 
