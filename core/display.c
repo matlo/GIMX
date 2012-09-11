@@ -100,12 +100,12 @@ void display_calibration()
       wattron(wcal, COLOR_PAIR(1));
     }
   }
-  waddstr(wcal, _("Profile: "));
+  waddstr(wcal, _("Profile:"));
   if(current_cal == CC)
   {
     wattron(wcal, COLOR_PAIR(4));
   }
-  snprintf(line, COLS, "%d (F2)", current_conf + 1);
+  snprintf(line, COLS, " %d (F2)", current_conf + 1);
   waddstr(wcal, line);
   if(current_cal == CC)
   {
@@ -246,7 +246,7 @@ void display_calibration()
     wattron(wcal, COLOR_PAIR(1));
   }
   wclrtoeol(wcal);
-  mvwaddstr(wcal, 5, 1, "X/Y: ");
+  mvwaddstr(wcal, 5, 1, "X/Y:");
   if(current_cal == RD || current_cal == VEL)
   {
     wattron(wcal, COLOR_PAIR(4));
@@ -342,7 +342,7 @@ void display_init()
   box(wcal, 0 , 0);
   wnoutrefresh(wcal);
 
-  mvaddstr(LINES-1, 1, _("Refresh rate: "));
+  mvaddstr(LINES-1, 1, _("Refresh rate:"));
   mvaddstr(LINES-1, COLS-strlen(SHIFT_ESC), SHIFT_ESC);
 
   doupdate();
