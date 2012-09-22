@@ -1,9 +1,7 @@
-/* Sixaxis emulator
-
-   Copyright (c) 2012 Mathieu Laurendeau
-
-   License: GPLv3
-*/
+/*
+ Copyright (c) 2012 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
+ */
 
 #include "wx_pch.h"
 #include "configMain.h"

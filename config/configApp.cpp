@@ -1,11 +1,7 @@
-/***************************************************************
- * Name:      configApp.cpp
- * Purpose:   Code for Application Class
- * Author:    Matlo (mat.lau@laposte.net)
- * Created:   2010-11-09
- * Copyright: Matlo (http://diy-machine.blogspot.com/)
- * License:
- **************************************************************/
+/*
+ Copyright (c) 2010 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
+ */
 
 #include "wx_pch.h"
 #include "configApp.h"

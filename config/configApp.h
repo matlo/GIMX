@@ -1,11 +1,7 @@
-/***************************************************************
- * Name:      configApp.h
- * Purpose:   Defines Application Class
- * Author:    Matlo (mat.lau@laposte.net)
- * Created:   2010-11-09
- * Copyright: Matlo (http://diy-machine.blogspot.com/)
- * License:
- **************************************************************/
+/*
+ Copyright (c) 2010 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
+ */
 
 #ifndef CONFIGAPP_H
 #define CONFIGAPP_H
