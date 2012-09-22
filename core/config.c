@@ -1,3 +1,8 @@
+/*
+ Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
+ */
+
 #include <sys/types.h>
 #include <stdio.h>
 #include <string.h>

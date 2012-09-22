@@ -1,10 +1,6 @@
 /*
- * win_serial.c
- *
- *  Created on: 28 mai 2011
- *      Author: Matlo
- *  
- *  License: GPLv3
+ Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #include "win_serial_con.h"

@@ -1,8 +1,6 @@
 /*
- * config.h
- *
- *  Created on: 30 oct. 2010
- *      Author: matlo
+ Copyright (c) 2010 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #ifndef CONFIG_H_

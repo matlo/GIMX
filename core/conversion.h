@@ -1,8 +1,6 @@
 /*
- * conversion.h
- *
- *  Created on: 8 janv. 2011
- *      Author: matlo
+ Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #ifndef CONVERSION_H_

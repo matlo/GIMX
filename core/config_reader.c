@@ -1,8 +1,6 @@
 /*
- * config_reader.c
- *
- *  Created on: 6 mai 2011
- *      Author: matlo
+ Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #include "config_reader.h"

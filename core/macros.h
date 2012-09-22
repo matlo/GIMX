@@ -1,3 +1,7 @@
+/*
+ Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
+ */
 
 #ifndef MACROS_H
 #define MACROS_H

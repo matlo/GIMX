@@ -1,8 +1,6 @@
 /*
- * config_writter.h
- *
- *  Created on: 3 mai 2011
- *      Author: matlo
+ Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #ifndef CONFIG_WRITTER_H_

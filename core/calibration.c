@@ -1,10 +1,6 @@
 /*
- * calibration.c
- *
- *  Created on: 1 juin 2011
- *      Author: Matlo
- *
- *  License: GPLv3
+ Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #include "calibration.h"

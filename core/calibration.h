@@ -1,8 +1,6 @@
 /*
- * calibration.h
- *
- *  Created on: 1 juin 2011
- *      Author: Matlo
+ Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #ifndef CALIBRATION_H_

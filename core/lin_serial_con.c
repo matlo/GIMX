@@ -1,10 +1,6 @@
 /*
- * lin_serial_con.c
- *
- *  Created on: 9 juin 2011
- *      Author: matlo
-
- *  License: GPLv3
+ Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #include "lin_serial_con.h"

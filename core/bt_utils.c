@@ -1,9 +1,7 @@
-/* Sixaxis emulator
-
-   Copyright (c) 2010 Mathieu Laurendeau
-
-   License: GPLv3
-*/
+/*
+ Copyright (c) 2010 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
+ */
 
 #include <bluetooth/bluetooth.h>
 

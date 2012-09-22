@@ -1,8 +1,6 @@
 /*
- * display.h
- *
- *  Created on: 6 mai 2012
- *      Author: matlo
+ Copyright (c) 2012 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #ifndef DISPLAY_H_

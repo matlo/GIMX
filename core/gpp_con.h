@@ -1,8 +1,6 @@
 /*
- * gpp_con.h
- *
- *  Created on: 28 janv. 2012
- *      Author: matlo
+ Copyright (c) 2012 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #ifndef GPP_CON_H_

@@ -1,10 +1,8 @@
-/* Sixaxis emulator
-
-   Copyright (c) 2010 Mathieu Laurendeau
-
-   Copyright (c) 2009 Jim Paris <jim@jtan.com>
-   License: GPLv3
-*/
+/*
+ Copyright (c) 2010 Mathieu Laurendeau
+ Copyright (c) 2009 Jim Paris <jim@jtan.com>
+ License: GPLv3
+ */
 
 #define _GNU_SOURCE
 #include <stdio.h>

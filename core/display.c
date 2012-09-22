@@ -1,8 +1,6 @@
 /*
- * display.c
- *
- *  Created on: 19 avr. 2012
- *      Author: matlo
+ Copyright (c) 2012 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #include <string.h>

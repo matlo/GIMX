@@ -1,3 +1,8 @@
+/*
+ Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
+ */
+
 #include "sixaxis.h"
 #include <string.h>
 #include <stdio.h>

@@ -1,8 +1,6 @@
 /*
- * tcp_con.h
- *
- *  Created on: 28 mai 2011
- *      Author: Matlo
+ Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #ifndef TCP_CON_H_

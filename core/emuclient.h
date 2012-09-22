@@ -1,8 +1,6 @@
 /*
- * emuclient.h
- *
- *  Created on: 10 mai 2012
- *      Author: matlo
+ Copyright (c) 2012 Mathieu Laurendeau
+ License: GPLv3
  */
 
 #ifndef EMUCLIENT_H_

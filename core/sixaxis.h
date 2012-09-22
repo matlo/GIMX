@@ -1,3 +1,8 @@
+/*
+ Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
+ */
+
 #ifndef SIXAXIS_H
 #define SIXAXIS_H
  
