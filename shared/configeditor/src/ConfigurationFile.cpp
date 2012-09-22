@@ -1,3 +1,8 @@
+/*
+ Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
+ */
+
 #include "ConfigurationFile.h"
 #include <XmlReader.h>
 #include <XmlWritter.h>

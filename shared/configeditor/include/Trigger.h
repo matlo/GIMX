@@ -1,3 +1,8 @@
+/*
+ Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
+ */
+
 #ifndef TRIGGER_H
 #define TRIGGER_H
 

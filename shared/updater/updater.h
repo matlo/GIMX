@@ -1,3 +1,7 @@
+/*
+ Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
+ */
 
 #define VERSION_URL "http://gimx.fr/download/version"
 
