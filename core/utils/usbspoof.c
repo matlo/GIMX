@@ -1,4 +1,9 @@
 /*
+ Copyright (c) 2012 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
+ */
+
+/*
  * gcc -g -o usbspoof usbspoof.c -lusb
  */
 

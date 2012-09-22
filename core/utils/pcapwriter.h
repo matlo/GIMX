@@ -1,8 +1,6 @@
 /*
- * pcapwriter.h
- *
- *  Created on: 11 janv. 2012
- *      Author: matlo
+ Copyright (c) 2012 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #ifndef PCAPWRITER_H_
