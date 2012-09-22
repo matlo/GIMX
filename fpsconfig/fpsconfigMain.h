@@ -1,11 +1,7 @@
-/***************************************************************
- * Name:      fpsconfigMain.h
- * Purpose:   Defines Application Frame
- * Author:    Matlo (mat.lau@laposte.net)
- * Created:   2011-08-06
- * Copyright: Matlo (http://diy-machine.blogspot.com/)
- * License:
- **************************************************************/
+/*
+ Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
+ */
 
 #ifndef FPSCONFIGMAIN_H
 #define FPSCONFIGMAIN_H
