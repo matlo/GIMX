@@ -72,6 +72,18 @@ void gpp_send(int force_update)
     axis_value = state[0].user.axis[sa_rstick_y] * 100 / 127;
     output[PS3_RY] = clamp(-100, axis_value, 100);
 
+    axis_value = state[0].user.axis[sa_acc_x] * 100 / 511;
+    output[PS3_ACCX] = clamp(-100, axis_value, 100);
+
+    axis_value = state[0].user.axis[sa_acc_y] * 100 / 511;
+    output[PS3_ACCY] = clamp(-100, axis_value, 100);
+
+    axis_value = state[0].user.axis[sa_acc_z] * 100 / 511;
+    output[PS3_ACCZ] = clamp(-100, axis_value, 100);
+
+    axis_value = state[0].user.axis[sa_gyro] * 100 / 511;
+    output[PS3_GYRO] = clamp(-100, axis_value, 100);
+
     gpppcprog_output(output);
   }
 }
