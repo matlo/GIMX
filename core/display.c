@@ -420,8 +420,8 @@ void display_run(int axis[])
   last_button_nb = d;
 
   mvwaddch(lstick, cross[0][1], cross[0][0], ' ');
-  cross[0][0] = STICK_X_L / 2 + (double)axis[sa_lstick_x] / get_max_axis_value(sa_lstick_x) * (STICK_X_L / 2 - 1);
-  cross[0][1] = STICK_Y_L / 2 + (double)axis[sa_lstick_y] / get_max_axis_value(sa_lstick_y) * (STICK_Y_L / 2 - 1);
+  cross[0][0] = STICK_X_L / 2 + (double)axis[sa_lstick_x] / get_max_signed(sa_lstick_x) * (STICK_X_L / 2 - 1);
+  cross[0][1] = STICK_Y_L / 2 + (double)axis[sa_lstick_y] / get_max_signed(sa_lstick_y) * (STICK_Y_L / 2 - 1);
   if(cross[0][0] <= 0 || cross[0][0] >= STICK_X_L-1 || cross[0][1] <= 0 || cross[0][1] >= STICK_Y_L-1)
   {
     mvwaddch(lstick, cross[0][1], cross[0][0], CROSS_CHAR | COLOR_PAIR(3));
@@ -433,8 +433,8 @@ void display_run(int axis[])
   wnoutrefresh(lstick);
 
   mvwaddch(rstick, cross[1][1], cross[1][0], ' ');
-  cross[1][0] = STICK_X_L / 2 + (double)axis[sa_rstick_x] / get_max_axis_value(sa_rstick_x) * (STICK_X_L / 2 - 1);
-  cross[1][1] = STICK_Y_L / 2 + (double)axis[sa_rstick_y] / get_max_axis_value(sa_rstick_y) * (STICK_Y_L / 2 - 1);
+  cross[1][0] = STICK_X_L / 2 + (double)axis[sa_rstick_x] / get_max_signed(sa_rstick_x) * (STICK_X_L / 2 - 1);
+  cross[1][1] = STICK_Y_L / 2 + (double)axis[sa_rstick_y] / get_max_signed(sa_rstick_y) * (STICK_Y_L / 2 - 1);
   if(cross[1][0] <= 0 || cross[1][0] >= STICK_X_L-1 || cross[1][1] <= 0 || cross[1][1] >= STICK_Y_L-1)
   {
     mvwaddch(rstick, cross[1][1], cross[1][0], CROSS_CHAR | COLOR_PAIR(3));

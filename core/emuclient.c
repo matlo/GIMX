@@ -65,8 +65,6 @@ char* keygen = NULL;
 int refresh_rate = DEFAULT_REFRESH_PERIOD; //microseconds
 int postpone_count = DEFAULT_POSTPONE_COUNT;
 int max_axis_value = DEFAULT_MAX_AXIS_VALUE;
-int mean_axis_value = DEFAULT_MAX_AXIS_VALUE / 2 + 1;
-double axis_scale = DEFAULT_AXIS_SCALE;
 double frequency_scale;
 int subpos = 0;
 
@@ -87,20 +85,39 @@ int proc_time = 0;
 int proc_time_worst = 0;
 int proc_time_total = 0;
 
-int get_max_axis_value(int axis)
+static int max_unsigned_axis_value[SA_MAX] = {};
+
+inline int get_max_unsigned(int axis)
 {
-  if(axis < sa_acc_x)
+  return max_unsigned_axis_value[axis];
+}
+
+inline int get_max_signed(int axis)
+{
+  if(axis < sa_select)
   {
-    return mean_axis_value;
-  }
-  else if(axis < sa_select)
-  {
-    return 512;
+    /*
+     * relative axis
+     */
+    return get_max_unsigned(axis) / 2 + 1;
   }
   else
   {
-    return 255;
+    /*
+     * absolute axis
+     */
+    return get_max_unsigned(axis);
   }
+}
+
+inline int get_mean_unsigned(int axis)
+{
+  return get_max_unsigned(axis) / 2 + 1;
+}
+
+inline double get_axis_scale(int axis)
+{
+  return (double) get_max_unsigned(axis) / DEFAULT_MAX_AXIS_VALUE;
 }
 
 int main(int argc, char *argv[])
@@ -149,6 +166,15 @@ int main(int argc, char *argv[])
   QueryPerformanceFrequency(&freq);
 #endif
 
+  for(i = 0; i < SA_MAX; ++i)
+  {
+    max_unsigned_axis_value[i] = DEFAULT_MAX_AXIS_VALUE;
+  }
+  max_unsigned_axis_value[sa_acc_x] = 1023;
+  max_unsigned_axis_value[sa_acc_y] = 1023;
+  max_unsigned_axis_value[sa_acc_z] = 1023;
+  max_unsigned_axis_value[sa_gyro]  = 1023;
+
   for (i = 1; i < argc; ++i)
   {
     if (!strcmp(argv[i], "--nograb"))
@@ -176,11 +202,6 @@ int main(int argc, char *argv[])
       refresh_rate = atof(argv[++i]) * 1000;
       postpone_count = 3 * DEFAULT_REFRESH_PERIOD / refresh_rate;
     }
-    else if (!strcmp(argv[i], "--precision"))
-    {
-      max_axis_value = (1 << atoi(argv[++i])) - 1;
-      mean_axis_value = max_axis_value / 2 + 1;
-    }
     else if (!strcmp(argv[i], "--serial"))
     {
       serial = 1;
@@ -201,6 +222,10 @@ int main(int argc, char *argv[])
     else if (!strcmp(argv[i], "--joystick"))
     {
       ctype = C_TYPE_JOYSTICK;
+      max_unsigned_axis_value[sa_lstick_x] = 65535;
+      max_unsigned_axis_value[sa_lstick_y] = 65535;
+      max_unsigned_axis_value[sa_rstick_x] = 65535;
+      max_unsigned_axis_value[sa_rstick_y] = 65535;
     }
     else if (!strcmp(argv[i], "--360pad"))
     {
@@ -242,7 +267,6 @@ int main(int argc, char *argv[])
     display_init();
   }
 
-  axis_scale = (double) max_axis_value / DEFAULT_MAX_AXIS_VALUE;
   frequency_scale = (double) DEFAULT_REFRESH_PERIOD / refresh_rate;
 
   initialize_macros();

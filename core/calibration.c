@@ -118,7 +118,7 @@ static void translation_test()
     direction *= -1;
     if (direction > 0)
     {
-      if ((dz - mul + mul * pow(step * 2 * frequency_scale, exp)) * axis_scale > mean_axis_value)
+      if ((dz - mul + mul * pow(step * 2 * frequency_scale, exp)) * get_axis_scale(sa_rstick_x) > get_mean_unsigned(sa_rstick_x))
       {
         step = 1;
         distance = 0.1;
@@ -529,9 +529,9 @@ void cal_button(int which, int button)
           if (mcal->dzx)
           {
             *mcal->dzx += 1;
-            if (*mcal->dzx > mean_axis_value / axis_scale)
+            if (*mcal->dzx > get_mean_unsigned(sa_rstick_x) / get_axis_scale(sa_rstick_x))
             {
-              *mcal->dzx = mean_axis_value / axis_scale;
+              *mcal->dzx = get_mean_unsigned(sa_rstick_x) / get_axis_scale(sa_rstick_x);
             }
             mc->merge_x[mc->index] = 1;
             mc->merge_y[mc->index] = 0;
@@ -542,9 +542,9 @@ void cal_button(int which, int button)
           if (mcal->dzy)
           {
             *mcal->dzy += 1;
-            if (*mcal->dzy > mean_axis_value / axis_scale)
+            if (*mcal->dzy > get_mean_unsigned(sa_rstick_x) / get_axis_scale(sa_rstick_x))
             {
-              *mcal->dzy = mean_axis_value / axis_scale;
+              *mcal->dzy = get_mean_unsigned(sa_rstick_x) / get_axis_scale(sa_rstick_x);
             }
             mc->merge_x[mc->index] = 0;
             mc->merge_y[mc->index] = 1;

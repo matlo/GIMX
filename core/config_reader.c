@@ -810,7 +810,7 @@ static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity, int
     {
       if(axis < sa_acc_x)
       {
-        intensity->dead_zone = dz * axis_scale;
+        intensity->dead_zone = dz * get_axis_scale(sa_rstick_x);
       }
       else if(axis < sa_select)
       {
@@ -954,8 +954,8 @@ static int ProcessConfigurationElement(xmlNode * a_node)
     intensity->device_down_id = -1;
     intensity->up_button = -1;
     intensity->down_button = -1;
-    intensity->value = get_max_axis_value(i);
-    intensity->max_value = get_max_axis_value(i);
+    intensity->value = get_max_signed(i);
+    intensity->max_value = get_max_signed(i);
     intensity->shape = E_SHAPE_RECTANGLE;
   }
   

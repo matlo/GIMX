@@ -18,8 +18,6 @@ extern char* homedir;
 
 extern int refresh_rate;
 extern int mean_axis_value;
-extern int max_axis_value;
-extern double axis_scale;
 extern double frequency_scale;
 extern int display;
 extern int curses;
@@ -33,7 +31,10 @@ extern int proc_time;
 extern int proc_time_worst;
 extern int proc_time_total;
 
-int get_max_axis_value(int);
+inline int get_max_signed(int);
+inline int get_max_unsigned(int);
+inline int get_mean_unsigned(int);
+inline double get_axis_scale(int);
 
 #define gprintf(...) if(display) printf(__VA_ARGS__)
 

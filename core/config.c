@@ -623,10 +623,10 @@ static double mouse2axis(int device, struct sixaxis_state* state, int which, dou
   double motion_residue = 0;
   double ztrunk = 0;
   double val = 0;
-  int max_axis = get_max_axis_value(axis);
+  int max_axis = get_max_signed(axis);
 
-  multiplier *= axis_scale;
-  dz *= axis_scale;
+  multiplier *= get_axis_scale(axis);
+  dz *= get_axis_scale(axis);
 
   if(which == AXIS_X)
   {
@@ -985,7 +985,7 @@ void cfg_process_event(SDL_Event* event)
           {
             if(mapper->controller_axis_value)
             {
-              multiplier *= axis_scale;
+              multiplier *= get_axis_scale(axis);
               value = event->jaxis.value;
               if(value)
               {
@@ -999,7 +999,7 @@ void cfg_process_event(SDL_Event* event)
               {
                 value -= dead_zone;
               }
-              max_axis = get_max_axis_value(axis);
+              max_axis = get_max_signed(axis);
               state[c_id].user.axis[axis] = clamp(-max_axis, value , max_axis);
             }
             else

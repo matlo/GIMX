@@ -12,14 +12,7 @@
 #include "dump.h"
 #include "emuclient.h"
 #include "sixaxis.h"
-
-/*
- * These defines are exclusive.
- */
-#define JS 1
-#define PS2 0
-#define PS3 0
-#define X360 0
+#include <arpa/inet.h>
 
 /*
  * Connect to a serial port.
@@ -171,13 +164,18 @@ static void sixaxis_serial_send()
           buf[byte] |= (1 << offset);
   }
 
-  buf[6] = clamp(0, state[0].user.axis[sa_lstick_x] + mean_axis_value, max_axis_value);
-  buf[7] = clamp(0, state[0].user.axis[sa_lstick_y] + mean_axis_value, max_axis_value);
-  buf[8] = clamp(0, state[0].user.axis[sa_rstick_x] + mean_axis_value, max_axis_value);
-  buf[9] = clamp(0, state[0].user.axis[sa_rstick_y] + mean_axis_value, max_axis_value);
+  buf[6] = clamp(0, state[0].user.axis[sa_lstick_x] + 128, 255);
+  buf[7] = clamp(0, state[0].user.axis[sa_lstick_y] + 128, 255);
+  buf[8] = clamp(0, state[0].user.axis[sa_rstick_x] + 128, 255);
+  buf[9] = clamp(0, state[0].user.axis[sa_rstick_y] + 128, 255);
 
   for (i = 0; i < 12; i++)
       buf[14 + i] = state[0].user.axis[analog_order[i]];
+
+  *(uint16_t *)&buf[41] = htons(clamp(0, state[0].user.axis[sa_acc_x] + 512, 1023));
+  *(uint16_t *)&buf[43] = htons(clamp(0, state[0].user.axis[sa_acc_y] + 512, 1023));
+  *(uint16_t *)&buf[45] = htons(clamp(0, state[0].user.axis[sa_acc_z] + 512, 1023));
+  *(uint16_t *)&buf[47] = htons(clamp(0, state[0].user.axis[sa_gyro] + 512, 1023));
 
 #ifdef WIN32
   win_serial_send(buf, sizeof(buf));
@@ -191,10 +189,10 @@ static void joystick_serial_send()
   s_report_data data =
   { };
 
-  data.X = clamp(0, state[0].user.axis[sa_lstick_x] + mean_axis_value, max_axis_value);
-  data.Y = clamp(0, state[0].user.axis[sa_lstick_y] + mean_axis_value, max_axis_value);
-  data.Z = clamp(0, state[0].user.axis[sa_rstick_x] + mean_axis_value, max_axis_value);
-  data.Rz = clamp(0, state[0].user.axis[sa_rstick_y] + mean_axis_value, max_axis_value);
+  data.X = clamp(0, state[0].user.axis[sa_lstick_x] + 32768, 65535);
+  data.Y = clamp(0, state[0].user.axis[sa_lstick_y] + 32768, 65535);
+  data.Z = clamp(0, state[0].user.axis[sa_rstick_x] + 32768, 65535);
+  data.Rz = clamp(0, state[0].user.axis[sa_rstick_y] + 32768, 65535);
 
   if (state[0].user.axis[sa_square])
   {
@@ -302,10 +300,10 @@ static void ps2_serial_send()
   s_report_data2 data =
   { .head = 0x5A, .Bt1 = 0xFF, .Bt2 = 0xFF };
 
-  data.X = clamp(0, state[0].user.axis[sa_lstick_x] + mean_axis_value, max_axis_value);
-  data.Y = clamp(0, state[0].user.axis[sa_lstick_y] + mean_axis_value, max_axis_value);
-  data.Z = clamp(0, state[0].user.axis[sa_rstick_x] + mean_axis_value, max_axis_value);
-  data.Rz = clamp(0, state[0].user.axis[sa_rstick_y] + mean_axis_value, max_axis_value);
+  data.X = clamp(0, state[0].user.axis[sa_lstick_x] + 128, 255);
+  data.Y = clamp(0, state[0].user.axis[sa_lstick_y] + 128, 255);
+  data.Z = clamp(0, state[0].user.axis[sa_rstick_x] + 128, 255);
+  data.Rz = clamp(0, state[0].user.axis[sa_rstick_y] + 128, 255);
 
   if (state[0].user.axis[sa_square])
   {
