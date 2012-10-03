@@ -12,7 +12,9 @@
 #include "dump.h"
 #include "emuclient.h"
 #include "sixaxis.h"
+#ifndef WIN32
 #include <arpa/inet.h>
+#endif
 
 /*
  * Connect to a serial port.
