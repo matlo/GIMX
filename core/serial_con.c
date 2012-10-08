@@ -413,7 +413,6 @@ void serial_send(e_controller_type ctype, int force_update)
       if (display)
       {
         sixaxis_dump_state(state, 0);
-        //mmap_dump(state);
       }
 
       controller[0].send_command = 0;

@@ -39,7 +39,6 @@
 #include "display.h"
 #include "emuclient.h"
 
-#define EVENT_BUFFER_SIZE 256
 #define DEFAULT_POSTPONE_COUNT 3
 #define DEFAULT_MAX_AXIS_VALUE 255
 #define DEFAULT_AXIS_SCALE 1
@@ -68,7 +67,6 @@ int max_axis_value = DEFAULT_MAX_AXIS_VALUE;
 double frequency_scale;
 int subpos = 0;
 
-int serial = 0;
 int done = 0;
 int display = 0;
 int curses = 0;
@@ -135,7 +133,7 @@ int main(int argc, char *argv[])
   LARGE_INTEGER t0, t1, freq;
 #endif
   int time_to_sleep;
-  e_controller_type ctype = C_TYPE_JOYSTICK;
+  e_controller_type ctype = C_TYPE_DEFAULT;
   int ptl;
 
   setlocale( LC_ALL, "" );
@@ -201,10 +199,6 @@ int main(int argc, char *argv[])
     {
       refresh_rate = atof(argv[++i]) * 1000;
       postpone_count = 3 * DEFAULT_REFRESH_PERIOD / refresh_rate;
-    }
-    else if (!strcmp(argv[i], "--serial"))
-    {
-      serial = 1;
     }
     else if (!strcmp(argv[i], "--subpos"))
     {
@@ -307,29 +301,27 @@ int main(int argc, char *argv[])
     sdl_release_unused();
   }
 
-  if(serial)
+  switch(ctype)
   {
-    if(!strstr(portname, "none"))
-    {
-      if (serial_connect(portname) < 0)
+    case C_TYPE_DEFAULT:
+      if(tcp_connect() < 0)
+      {
+        err(1, "tcp_connect");
+      }
+      break;
+    case C_TYPE_GPP:
+      if (gpp_connect() < 0)
+      {
+        err(1, "gpp_connect");
+      }
+      break;
+    default:
+      if(!strstr(portname, "none") && serial_connect(portname) < 0)
       {
         err(1, "serial_connect");
       }
-    }
+      break;
   }
-  else if(ctype == C_TYPE_GPP)
-  {
-    if (gpp_connect() < 0)
-    {
-      err(1, "gpp_connect");
-    }
-  }
-#ifndef WIN32
-  else if(tcp_connect() < 0)
-  {
-    err(1, "tcp_connect");
-  }
-#endif
 
   if(keygen)
   {
@@ -367,6 +359,8 @@ int main(int argc, char *argv[])
     } 
 
     num_evt = sdl_peep_events(events, sizeof(events) / sizeof(events[0]), SDL_GETEVENT, SDL_ALLEVENTS);
+
+    num_evt = sdl_preprocess_events(events, num_evt);
 
     if (num_evt == EVENT_BUFFER_SIZE)
     {
@@ -424,20 +418,18 @@ int main(int argc, char *argv[])
 
     cfg_config_activation();
 
-    if(serial)
+    switch(ctype)
     {
-      serial_send(ctype, force_updates);
+      case C_TYPE_DEFAULT:
+        tcp_send(force_updates);
+        break;
+      case C_TYPE_GPP:
+        gpp_send(force_updates);
+        break;
+      default:
+        serial_send(ctype, force_updates);
+        break;
     }
-    else if(ctype == C_TYPE_GPP)
-    {
-      gpp_send(force_updates);
-    }
-#ifndef WIN32
-    else
-    {
-      tcp_send(force_updates);
-    }
-#endif
 
 #ifdef WIN32
     /*
@@ -490,13 +482,17 @@ EXIT:
   free_macros();
   free_config();
   sdl_quit();
-  if(serial)
+  switch(ctype)
   {
-    serial_close();
-  }
-  else if(ctype == C_TYPE_GPP)
-  {
-    gpp_disconnect();
+    case C_TYPE_DEFAULT:
+      tcp_close();
+      break;
+    case C_TYPE_GPP:
+      gpp_disconnect();
+      break;
+    default:
+      serial_close();
+      break;
   }
 
   xmlCleanupParser();

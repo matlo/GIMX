@@ -820,14 +820,8 @@ void cfg_process_event(SDL_Event* event)
   double my;
   double residue;
   s_mouse_control* mc;
-  int nb_buttons;
-  unsigned char hat;
   int max_axis = 255;
 
-  /*
-   * 'which' should always be at that place
-   * There is no need to check the value, since it's stored as an uint8_t, and MAX_DEVICES is 256.
-   */
   unsigned int device = sdl_get_device_id(event);
 
   for(c_id=0; c_id<MAX_CONTROLLERS; ++c_id)
@@ -838,60 +832,6 @@ void cfg_process_event(SDL_Event* event)
 
     switch(event->type)
     {
-      case SDL_JOYHATMOTION:
-      event->jbutton.which = event->jhat.which;
-      nb_buttons = sdl_get_joystick_buttons(event->jhat.which);
-      hat = event->jhat.hat;
-      if(event->jhat.value & SDL_HAT_UP)
-      {
-        event->jbutton.type = SDL_JOYBUTTONDOWN;
-        event->jbutton.button=nb_buttons+4*hat;
-        cfg_process_event(event);
-      }
-      else
-      {
-        event->jbutton.type = SDL_JOYBUTTONUP;
-        event->jbutton.button=nb_buttons+4*hat;
-        cfg_process_event(event);
-      }
-      if(event->jhat.value & SDL_HAT_RIGHT)
-      {
-        event->jbutton.type = SDL_JOYBUTTONDOWN;
-        event->jbutton.button=nb_buttons+4*hat+1;
-        cfg_process_event(event);
-      }
-      else
-      {
-        event->jbutton.type = SDL_JOYBUTTONUP;
-        event->jbutton.button=nb_buttons+4*hat+1;
-        cfg_process_event(event);
-      }
-      if(event->jhat.value & SDL_HAT_DOWN)
-      {
-        event->jbutton.type = SDL_JOYBUTTONDOWN;
-        event->jbutton.button=nb_buttons+4*hat+2;
-        cfg_process_event(event);
-      }
-      else
-      {
-        event->jbutton.type = SDL_JOYBUTTONUP;
-        event->jbutton.button=nb_buttons+4*hat+2;
-        cfg_process_event(event);
-      }
-      if(event->jhat.value & SDL_HAT_LEFT)
-      {
-        event->jbutton.type = SDL_JOYBUTTONDOWN;
-        event->jbutton.button=nb_buttons+4*hat+3;
-        cfg_process_event(event);
-      }
-      else
-      {
-        event->jbutton.type = SDL_JOYBUTTONUP;
-        event->jbutton.button=nb_buttons+4*hat+3;
-        cfg_process_event(event);
-      }
-      return;
-      break;
       case SDL_JOYBUTTONDOWN:
       case SDL_JOYBUTTONUP:
       if(joystick_buttons[device][c_id][config])

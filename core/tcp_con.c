@@ -16,6 +16,7 @@
 #include "config.h"
 #include "dump.h"
 #include "emuclient.h"
+#include <unistd.h>
 
 /*
  * Controller are listening from TCP_PORT to TCP_PORT+MAX_CONTROLLERS-1
@@ -80,6 +81,22 @@ int tcp_connect(void)
     }
 
     return ret;
+}
+
+/*
+ * Close all connections.
+ */
+void tcp_close()
+{
+  int i;
+
+  for(i=0; i<MAX_CONTROLLERS; ++i)
+  {
+    if(sockfd[i] > -1)
+    {
+      close(sockfd[i]);
+    }
+  }
 }
 
 

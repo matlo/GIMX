@@ -6,6 +6,7 @@
 #include "sdl_tools.h"
 #include "config.h"
 #include "emuclient.h"
+#include <math.h>
 
 #define SCREEN_WIDTH  1
 #define SCREEN_HEIGHT 1
@@ -21,6 +22,9 @@ char* mouseName[MAX_DEVICES] = {};
 int mouseVirtualIndex[MAX_DEVICES] = {};
 char* keyboardName[MAX_DEVICES] = {};
 int keyboardVirtualIndex[MAX_DEVICES] = {};
+
+int joystickNbHat[MAX_DEVICES] = {};
+unsigned char* joystickHat[MAX_DEVICES] = {};
 
 static SDL_Surface *screen = NULL;
 static int grab = 0;
@@ -78,6 +82,16 @@ int sdl_initialize()
       joystickVirtualIndex[i] = 0;
     }
     joystickNbButton[i] = SDL_JoystickNumButtons(joysticks[i]);
+    joystickNbHat[i] = SDL_JoystickNumHats(joysticks[i]);
+    if(joystickNbHat[i] > 0)
+    {
+      joystickHat[i] = calloc(joystickNbHat[i], sizeof(unsigned char));
+      if(!joystickHat[i])
+      {
+        fprintf(stderr, "Unable to allocate %d bytes for joystick hats.\n", joystickNbHat[i]*sizeof(unsigned char));
+        return 0;
+      }
+    }
     if (!strcmp(joystickName[i], "Sony PLAYSTATION(R)3 Controller")
         || !strcmp(joystickName[i], "Sony Navigation Controller"))
     {
@@ -210,6 +224,7 @@ void sdl_quit()
     if(joystickName[i])
     {
       free(joystickName[i]);
+      free(joystickHat[i]);
       SDL_JoystickClose(joysticks[i]);
     }
   }
@@ -290,6 +305,28 @@ inline int sdl_get_joystick_buttons(int id)
   return 0;
 }
 
+inline int sdl_get_joystick_hat_button(SDL_Event* event, unsigned char hat_dir)
+{
+  return sdl_get_joystick_buttons(event->jhat.which) + 4*event->jhat.hat + log2(hat_dir);
+}
+
+inline unsigned char sdl_get_joystick_hat(SDL_Event* event)
+{
+  if(event->jhat.which >= 0 && event->jhat.hat < joystickNbHat[event->jhat.which])
+  {
+    return joystickHat[event->jhat.which][event->jhat.hat];
+  }
+  return 0;
+}
+
+inline void sdl_set_joystick_hat(SDL_Event* event)
+{
+  if(event->jhat.which >= 0 && event->jhat.hat < joystickNbHat[event->jhat.which])
+  {
+    joystickHat[event->jhat.which][event->jhat.hat] = event->jhat.value;
+  }
+}
+
 inline int sdl_is_sixaxis(int id)
 {
   if(id >= 0)
@@ -304,6 +341,10 @@ inline int sdl_is_sixaxis(int id)
  */
 inline int sdl_get_device_id(SDL_Event* e)
 {
+  /*
+   * 'which' should always be at that place
+   * There is no need to check the value, since it's stored as an uint8_t, and MAX_DEVICES is 256.
+   */
   unsigned int device_id = ((SDL_KeyboardEvent*)e)->which;
 
   switch(e->type)
@@ -336,4 +377,78 @@ inline void sdl_pump_events()
 inline int sdl_peep_events(SDL_Event *events, int numevents, SDL_eventaction action, Uint32 mask)
 {
   return SDL_PeepEvents(events, numevents, action, mask);
+}
+
+/*
+ * This function translates joystick hat events into joystick button events.
+ * The joystick button events are inserted just before the joystick hat events.
+ */
+inline int sdl_preprocess_events(SDL_Event *events, int numevents)
+{
+  SDL_Event* event;
+  unsigned char hat_dir;
+
+  if(numevents == EVENT_BUFFER_SIZE)
+  {
+    return EVENT_BUFFER_SIZE;
+  }
+
+  for (event = events; event < events + numevents; ++event)
+  {
+    switch (event->type)
+    {
+      case SDL_JOYHATMOTION:
+        /*
+         * Check what hat directions changed.
+         * The new hat state is compared to the previous one.
+         */
+        for(hat_dir=1; hat_dir < 16 && event < events + numevents; hat_dir*=2)
+        {
+          if(event->jhat.value & hat_dir)
+          {
+            if(!(sdl_get_joystick_hat(event) & hat_dir))
+            {
+              /*
+               * The hat direction is pressed.
+               */
+              memmove(event+1, event, (events + numevents - event)*sizeof(SDL_Event));
+              event->type = SDL_JOYBUTTONDOWN;
+              event->jbutton.which = (event+1)->jhat.which;
+              event->jbutton.button = sdl_get_joystick_hat_button((event+1), hat_dir);
+              event++;
+              numevents++;
+            }
+          }
+          else
+          {
+            if(sdl_get_joystick_hat(event) & hat_dir)
+            {
+              /*
+               * The hat direction is released.
+               */
+              memmove(event+1, event, (events + numevents - event)*sizeof(SDL_Event));
+              event->type = SDL_JOYBUTTONUP;
+              event->jbutton.which = (event+1)->jhat.which;
+              event->jbutton.button = sdl_get_joystick_hat_button((event+1), hat_dir);
+              event++;
+              numevents++;
+            }
+          }
+        }
+        /*
+         * Save the new hat state.
+         */
+        sdl_set_joystick_hat(event);
+        /*
+         * Remove the joystick hat event.
+         */
+        memmove(event, event+1, (events + numevents - event - 1)*sizeof(SDL_Event));
+        event--;
+        numevents--;
+        break;
+      default:
+        break;
+    }
+  }
+  return numevents;
 }
