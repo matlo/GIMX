@@ -12,6 +12,10 @@
 #else
 #include <winsock2.h>
 #define MSG_DONTWAIT 0
+#define err(retval, ...) \
+fprintf(stderr, __VA_ARGS__); \
+fprintf(stderr, "Undefined error: %d\n", errno); \
+exit(retval);
 #endif
 #include "config.h"
 #include "dump.h"

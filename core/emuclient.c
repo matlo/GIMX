@@ -11,7 +11,6 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <pwd.h>
-#include "tcp_con.h"
 #include <sys/resource.h>
 #include <sched.h>
 #else
@@ -36,6 +35,7 @@
 #include <libxml/parser.h>
 #include "serial_con.h"
 #include "gpp_con.h"
+#include "tcp_con.h"
 #include "display.h"
 #include "emuclient.h"
 
@@ -60,6 +60,8 @@ char* config_file = NULL;
 char* portname = NULL;
 
 char* keygen = NULL;
+
+char* ip = NULL;
 
 int refresh_rate = DEFAULT_REFRESH_PERIOD; //microseconds
 int postpone_count = DEFAULT_POSTPONE_COUNT;
@@ -248,12 +250,10 @@ int main(int argc, char *argv[])
         curses = 1;
       }
     }
-//#ifdef WIN32
-//    else if (!strcmp(argv[i], "--ip") && i < argc)
-//    {
-//      ip = argv[++i];
-//    }
-//#endif
+    else if (!strcmp(argv[i], "--ip") && i < argc)
+    {
+      ip = argv[++i];
+    }
   }
 
   if(curses)

@@ -22,6 +22,7 @@ extern double frequency_scale;
 extern int display;
 extern int curses;
 extern char* config_file;
+extern char* ip;
 extern int check_config;
 extern struct sixaxis_state state[MAX_CONTROLLERS];
 extern s_controller controller[MAX_CONTROLLERS];
