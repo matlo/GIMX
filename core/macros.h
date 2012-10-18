@@ -8,12 +8,13 @@
 
 #include <SDL/SDL.h>
 
-void macro_lookup(int, int, int, int);
+void macro_lookup(SDL_Event* event);
 void macro_process();
 
 void macro_set_controller_device(int, int, int);
 
-void initialize_macros();
+void macros_init();
+void macros_read();
 void free_macros();
 
 SDLKey get_key_from_buffer(const char*);

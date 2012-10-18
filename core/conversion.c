@@ -433,6 +433,15 @@ const char* buttons[MOUSE_BUTTONS_MAX] =
     "BUTTON_X9"
 };
 
+const char* get_chars_from_button(int but)
+{
+  if(but > 0 && but < MOUSE_BUTTONS_MAX)
+  {
+    return buttons[but];
+  }
+  return NULL;
+}
+
 unsigned int get_mouse_event_id_from_buffer(const char* event_id)
 {
   unsigned int r_event_id = 0;

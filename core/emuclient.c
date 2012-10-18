@@ -263,8 +263,6 @@ int main(int argc, char *argv[])
 
   frequency_scale = (double) DEFAULT_REFRESH_PERIOD / refresh_rate;
 
-  initialize_macros();
-
   for (i = 0; i < MAX_CONTROLLERS; ++i)
   {
     sixaxis_init(state + i);
@@ -281,6 +279,8 @@ int main(int argc, char *argv[])
     usleep(1000000);
     sdl_grab();
   }
+  
+  macros_init();
 
   if (read == 1)
   {
@@ -300,6 +300,12 @@ int main(int argc, char *argv[])
 
     sdl_release_unused();
   }
+  else
+  {
+    err(1, "no config file");
+  }
+
+  macros_read();
 
   switch(ctype)
   {
@@ -391,27 +397,13 @@ int main(int argc, char *argv[])
           break;
         case SDL_KEYDOWN:
           cal_key(event->key.which, event->key.keysym.sym, 1);
-          macro_lookup(0, event->key.which, event->key.keysym.sym, 1);
           break;
         case SDL_KEYUP:
           cal_key(event->key.which, event->key.keysym.sym, 0);
-          macro_lookup(0, event->key.which, event->key.keysym.sym, 0);
-          break;
-        case SDL_MOUSEBUTTONDOWN:
-          cal_button(event->button.which, event->button.button);
-          macro_lookup(1, event->button.which, event->button.button, 1);
-          break;
-        case SDL_MOUSEBUTTONUP:
-          macro_lookup(1, event->button.which, event->button.button, 0);
-          break;
-        case SDL_JOYBUTTONDOWN:
-          macro_lookup(2, event->jbutton.which, event->jbutton.button, 1);
-          break;
-        case SDL_JOYBUTTONUP:
-          macro_lookup(2, event->jbutton.which, event->jbutton.button, 0);
           break;
       }
-
+      
+      macro_lookup(event);
     }
 
     cfg_process_motion();

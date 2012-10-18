@@ -28,6 +28,7 @@ const char* get_axis_name(int);
 int get_button_index_from_name(const char*);
 s_axis_index get_axis_index_from_name(const char*);
 const char* get_chars_from_key(SDLKey);
+const char* get_chars_from_button(int);
 unsigned int get_mouse_event_id_from_buffer(const char*);
 
 #endif /* CONVERSION_H_ */

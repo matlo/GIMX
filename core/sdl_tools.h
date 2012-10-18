@@ -26,7 +26,7 @@ inline int sdl_get_keyboard_virtual_id(int);
 inline int sdl_get_device_id(SDL_Event*);
 inline char* sdl_get_joystick_name(int);
 inline int sdl_get_joystick_virtual_id(int);
-inline int sdl_get_joystick_buttons(int);
+inline int sdl_get_max_joystick_buttons();
 inline int sdl_preprocess_events(SDL_Event*, int);
 int sdl_is_sixaxis(int);
 
