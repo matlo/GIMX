@@ -18,10 +18,14 @@
 
 #include <limits.h>
 
+#ifndef __ARM_ARCH_6__
 #if ( __WORDSIZE == 64 )
 #define DOWNLOAD_URL "http://gimx.fr/download/gimx-ubuntu-64bits.html"
 #else
 #define DOWNLOAD_URL "http://gimx.fr/download/gimx-ubuntu-32bits.html"
+#endif
+#else
+#define DOWNLOAD_URL "http://gimx.fr/download/gimx-raspbian.html"
 #endif
 
 #endif
