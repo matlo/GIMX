@@ -296,22 +296,6 @@ inline int sdl_get_keyboard_virtual_id(int id)
   return 0;
 }
 
-inline int sdl_get_max_joystick_buttons()
-{
-  int i;
-  int max = 0;
-  int nb_buttons;
-  for(i=0; i<MAX_DEVICES && sdl_get_joystick_name(i); ++i)
-  {
-    nb_buttons = joystickNbButton[i] + 4*joystickNbHat[i];
-    if(nb_buttons > max)
-    {
-      max = nb_buttons;
-    }
-  }  
-  return nb_buttons;
-}
-
 inline int sdl_get_joystick_hat_button(SDL_Event* event, unsigned char hat_dir)
 {
   return joystickNbButton[event->jhat.which] + 4*event->jhat.hat + log2(hat_dir);

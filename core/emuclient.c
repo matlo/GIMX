@@ -395,6 +395,9 @@ int main(int argc, char *argv[])
         case SDL_QUIT:
           done = 1;
           break;
+        case SDL_MOUSEBUTTONDOWN:
+          cal_button(event->button.which, event->button.button);
+          break;
         case SDL_KEYDOWN:
           cal_key(event->key.which, event->key.keysym.sym, 1);
           break;

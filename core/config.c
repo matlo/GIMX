@@ -140,14 +140,11 @@ void cfg_process_motion_event(SDL_Event* event)
   }
 }
 
-#define MOTION_NB 1
-#define RATIO 1
-int weight;
-int divider;
-
 void cfg_process_motion()
 {
   int i, j, k;
+  int weight;
+  int divider;
   s_mouse_control* mc;
   s_mouse_cal* mcal;
   SDL_Event mouse_evt = { };
