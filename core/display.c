@@ -9,7 +9,7 @@
 #include <windows.h>
 #include <curses.h>
 #else
-#include <ncurses.h>
+#include <ncursesw/ncurses.h>
 #include <sys/time.h>
 #endif
 
