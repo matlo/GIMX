@@ -1,7 +1,7 @@
 1 ICON "config.ico"
 1 VERSIONINFO
-FILEVERSION   0,50,0,0
-PRODUCTVERSION  0,50,0,0
+FILEVERSION   0,51,0,0
+PRODUCTVERSION  0,51,0,0
 BEGIN
   BLOCK "StringFileInfo"
   BEGIN
@@ -9,12 +9,12 @@ BEGIN
   BEGIN
     VALUE "CompanyName", "MatLauLab"
     VALUE "FileDescription", "Config editor for GIMX"
-    VALUE "FileVersion", "0.50"
+    VALUE "FileVersion", "0.51"
     VALUE "InternalName", "gimx-config"
     VALUE "LegalCopyright", "Matlo GNU GPL"
     VALUE "OriginalFilename", "gimx-config.exe"
     VALUE "ProductName", "gimx-config"
-    VALUE "ProductVersion", "0.50"
+    VALUE "ProductVersion", "0.51"
   END
   END
   BLOCK "VarFileInfo"
