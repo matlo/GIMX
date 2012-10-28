@@ -704,7 +704,7 @@ void macros_read()
 {
   read_macros();
   active_triggered_init();
-  dump_scripts();
+  //dump_scripts();
 }
 
 static void macro_unalloc(int index)
