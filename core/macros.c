@@ -251,7 +251,7 @@ static void get_event(const char* line)
   int delay_nb;
   int i;
   
-  if(!*pcurrent)
+  if(pcurrent && !*pcurrent)
   {
     return;
   }
@@ -392,7 +392,7 @@ void get_trigger(const char* line)
   int rbutton;
   char argument[3][LINE_MAX];
   
-  if(!*pcurrent)
+  if(pcurrent && !*pcurrent)
   {
     return;
   }
@@ -561,6 +561,50 @@ void dump_scripts() {
     }
 }
 
+static char** macros = NULL;
+static unsigned int nb_macros = 0;
+static unsigned char configs_txt_present = 0;
+
+static void read_configs_txt(const char* dir_path)
+{
+  char** macros_realloc = NULL;
+  char line[LINE_MAX];
+  char config[PATH_MAX];
+  char macro[PATH_MAX];
+  char file_path[PATH_MAX];
+  FILE* fp;
+  int ret;
+
+  snprintf(file_path, sizeof(file_path), "%s%s", dir_path, "configs.txt");
+  fp = fopen(file_path, "r");
+  if (fp)
+  {
+    configs_txt_present = 1;
+    while (fgets(line, LINE_MAX, fp)) {
+      if (line[0] != '#') {
+        ret = sscanf(line, "%s %s", config, macro);
+
+        if(ret < 2) {
+          /* invalid line */
+          return;
+        }
+
+        if(!strcmp(config, config_file))
+        {
+          macros_realloc = realloc(macros, (nb_macros+1)*sizeof(char*));
+          if(macros_realloc)
+          {
+            macros = macros_realloc;
+            macros[nb_macros] = strdup(macro);
+            nb_macros++;
+          }
+        }
+      }
+    }
+    fclose(fp);
+  }
+}
+
 /*
  * Reads macros from script files.
  */
@@ -571,7 +615,7 @@ static void read_macros() {
     char dir_path[PATH_MAX];
     char file_path[PATH_MAX];
     struct dirent *d;
-    unsigned int i;
+    unsigned int i, j;
     unsigned int nb_filenames = 0;
     char** filenames = NULL;
     char** filenames_realloc;
@@ -624,8 +668,26 @@ static void read_macros() {
 
     closedir(dirp);
 
+    read_configs_txt(dir_path);
+
     for(i=0; i<nb_filenames; ++i)
     {
+      if(configs_txt_present)
+      {
+        for(j=0; j<nb_macros; ++j)
+        {
+          if(!strcmp(macros[j], filenames[i]))
+          {
+            break;
+          }
+        }
+        if(j == nb_macros)
+        {
+          continue; //skip this macro file.
+        }
+      }
+      //else: no configs.txt => read all macros.
+
       snprintf(file_path, sizeof(file_path), "%s%s", dir_path, filenames[i]);
       fp = fopen(file_path, "r");
       if (!fp) {
@@ -646,6 +708,12 @@ static void read_macros() {
       free(filenames[i]);
     }
     free(filenames);
+
+    for(i=0; i<nb_macros; ++i)
+    {
+      free(macros[i]);
+    }
+    free(macros);
 }
 
 /*
