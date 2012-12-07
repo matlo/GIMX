@@ -63,9 +63,6 @@ inline int get_max_signed(int);
 inline int get_max_unsigned(int);
 inline int get_mean_unsigned(int);
 inline double get_axis_scale(int);
-inline e_controller_type get_controller_type();
-inline const char* get_keygen();
-inline int get_force_updates();
 
 #define gprintf(...) if(emuclient_params.status) printf(__VA_ARGS__)
 

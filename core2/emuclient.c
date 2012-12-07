@@ -81,21 +81,6 @@ s_emuclient_params emuclient_params =
 
 int done = 0;
 
-inline int get_force_updates()
-{
-  return emuclient_params.force_updates;
-}
-
-inline const char* get_keygen()
-{
-  return emuclient_params.keygen;
-}
-
-inline e_controller_type get_controller_type()
-{
-  return emuclient_params.ctype;
-}
-
 struct sixaxis_state state[MAX_CONTROLLERS];
 s_controller controller[MAX_CONTROLLERS] =
 { };

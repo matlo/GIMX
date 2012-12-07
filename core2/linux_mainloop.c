@@ -22,16 +22,10 @@ void mainloop()
   SDL_Event events[EVENT_BUFFER_SIZE];
   int num_evt;
   SDL_Event* event;
-  e_controller_type ctype = get_controller_type();
 
   while (!done)
   {
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-
-    //printf("%ld.%06ld\n", tv.tv_sec, tv.tv_usec);
-
-    if(!get_keygen())
+    if(!emuclient_params.keygen)
     {
       sdl_pump_events();
     }
@@ -40,16 +34,16 @@ void mainloop()
 
     cfg_config_activation();
 
-    switch(ctype)
+    switch(emuclient_params.ctype)
     {
       case C_TYPE_DEFAULT:
-        tcp_send(get_force_updates());
+        tcp_send(emuclient_params.force_updates);
         break;
       case C_TYPE_GPP:
-        gpp_send(get_force_updates());
+        gpp_send(emuclient_params.force_updates);
         break;
       default:
-        serial_send(ctype, get_force_updates());
+        serial_send(emuclient_params.ctype, emuclient_params.force_updates);
         break;
     }
 
