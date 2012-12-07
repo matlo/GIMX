@@ -40,10 +40,7 @@ emuclient: emuclient.o\
        linux/mainloop.o\
        linux/events.o\
        linux/conversion.o\
-       linux/timer.o\
-       gpp/hid_LINUX.o\
-       gpp/pcprog.o\
-       gpp_con.o
+       linux/timer.o
 	$(CC) -o $@ $^ $(LIB) -lrt
 
 sixaddr: utils/sixaddr.c
