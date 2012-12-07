@@ -6,7 +6,7 @@ BINS=emu emuclient sixaddr bdaddr hcirevision usbspoof
 LIB=-lxml2 -lm -lncursesw
 INC=-Iinclude -I../../libsdl/include -I/usr/include/libxml2
 
-all: lin gpp $(BINS)
+all: gpp $(BINS)
 
 clean:
 	rm -f $(BINS) *~ *.o */*.o
@@ -40,21 +40,11 @@ emuclient: emuclient.o\
        linux/mainloop.o\
        linux/events.o\
        linux/conversion.o\
-       linux/timer.o
+       linux/timer.o\
+       gpp/hid_LINUX.o\
+       gpp/pcprog.o\
+       gpp_con.o
 	$(CC) -o $@ $^ $(LIB) -lrt
-
-gpp:
-	$(CC) $(CFLAGS) -o gpp/hid_LINUX.o -c gpp/hid_LINUX.c
-	$(CC) $(CFLAGS) -o gpp/pcprog.o -c gpp/pcprog.c
-	$(CC) $(CFLAGS) -o gpp_con.o -c gpp_con.c
-
-lin:
-	$(CC) $(CFLAGS) $(INC) -o linux/prio.o -c linux/prio.c
-	$(CC) $(CFLAGS) $(INC) -o linux/serial.o -c linux/serial.c
-	$(CC) $(CFLAGS) $(INC) -o linux/mainloop.o -c linux/mainloop.c
-	$(CC) $(CFLAGS) $(INC) -o linux/events.o -c linux/events.c
-	$(CC) $(CFLAGS) $(INC) -o linux/conversion.o -c linux/conversion.c
-	$(CC) $(CFLAGS) $(INC) -o linux/timer.o -c linux/timer.c
 
 sixaddr: utils/sixaddr.c
 	$(CC) -o $@ $^ -lusb
