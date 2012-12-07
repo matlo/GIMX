@@ -3,7 +3,7 @@
  License: GPLv3
  */
 
-#include "lin_serial_con.h"
+#include <serial.h>
 #include <stdio.h>
 #include <termios.h>
 #include <unistd.h>
@@ -26,7 +26,7 @@ static int serial = -1;
 /*
  * Connect to a serial port.
  */
-int lin_serial_connect(char* portname)
+int serial_connect(char* portname)
 {
   struct termios options;
   int ret = 0;
@@ -66,12 +66,12 @@ int lin_serial_connect(char* portname)
 /*
  * Send a usb report to the serial port.
  */
-int lin_serial_send(void* pdata, unsigned int size)
+int serial_send(void* pdata, unsigned int size)
 {
   return write(serial, (uint8_t*)pdata, size);
 }
 
-void lin_serial_close()
+void serial_close()
 {
   close(serial);
 }

@@ -1,5 +1,7 @@
 
+#ifndef WIN32
 #include <linux/input.h>
+#endif
 #include <SDL/SDL.h>
 
 #define MAX_DEVICES 256
@@ -16,4 +18,3 @@ extern char* keynames[MAX_KEYNAMES];
 void ev_init();
 void ev_quit();
 char* ev_get_name(unsigned char, int);
-void SDL_ProcessEvent(SDL_Event* event);

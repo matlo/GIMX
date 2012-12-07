@@ -1,13 +1,14 @@
 /*
- Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
- License: GPLv3
+ * report.h
+ *
+ *  Created on: 7 déc. 2012
+ *      Author: matlo
  */
 
-#ifndef SERIAL_CON_H_
-#define SERIAL_CON_H_
+#ifndef REPORT_H_
+#define REPORT_H_
 
-#include <stdint.h>
-#include "emuclient.h"
+#include <emuclient.h>
 
 /*
  * The usb report structure to send over the serial connection.
@@ -20,7 +21,7 @@ typedef struct
   int16_t Rz;
   uint16_t Hat;
   uint16_t Bt;
-} s_report_data;
+} s_report_joystick;
 
 typedef struct
 {
@@ -31,7 +32,7 @@ typedef struct
   int8_t Rz;
   int8_t X;
   int8_t Y;
-} s_report_data2;
+} s_report_ps2;
 
 typedef struct
 {
@@ -47,8 +48,14 @@ typedef struct
   uint8_t unused[6];
 } s_report_360;
 
-int serial_connect(char*);
-void serial_send(e_controller_type, int);
-void serial_close();
+typedef union
+{
+  s_report_joystick js;
+  s_report_ps2 ps2;
+  s_report_360 x360;
+  unsigned char buf[50];
+} s_report;
 
-#endif /* SERIAL_CON_H_ */
+unsigned int report_build(s_report* report, e_controller_type type);
+
+#endif /* REPORT_H_ */

@@ -32,4 +32,6 @@ int sdl_is_sixaxis(int);
 inline void sdl_pump_events();
 inline int sdl_peep_events(SDL_Event*, int, SDL_eventaction, Uint32);
 
+void sdl_process_event(SDL_Event* event);
+
 #endif /* SDL_TOOLS_H_ */

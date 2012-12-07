@@ -9,6 +9,7 @@
 #include "macros.h"
 #include "display.h"
 #include "events.h"
+#include <timer.h>
 
 static int done = 0;
 
@@ -22,6 +23,8 @@ void mainloop()
   SDL_Event events[EVENT_BUFFER_SIZE];
   int num_evt;
   SDL_Event* event;
+    
+  timer_start();
 
   while (!done)
   {
@@ -43,7 +46,7 @@ void mainloop()
         gpp_send(emuclient_params.force_updates);
         break;
       default:
-        serial_send(emuclient_params.ctype, emuclient_params.force_updates);
+        serial_con_send(emuclient_params.ctype, emuclient_params.force_updates);
         break;
     }
 
@@ -65,7 +68,9 @@ void mainloop()
 
     for (event = events; event < events + num_evt; ++event)
     {
-      SDL_ProcessEvent(event);
+      sdl_process_event(event);
     }
   }
+    
+  timer_close();
 }

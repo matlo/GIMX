@@ -30,7 +30,7 @@ int connector_init(e_controller_type t, char* port)
       }
       break;
     default:
-      if(!strstr(port, "none") && serial_connect(port) < 0)
+      if(!strstr(port, "none") && serial_con_connect(port) < 0)
       {
         ret = -1;
       }
@@ -50,7 +50,7 @@ void connector_clean()
       gpp_disconnect();
       break;
     default:
-      serial_close();
+      serial_con_close();
       break;
   }
 }

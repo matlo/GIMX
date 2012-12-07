@@ -3,9 +3,10 @@
  License: GPLv3
  */
 
-#include "win_serial_con.h"
+#include <serial.h>
 #include <windows.h>
 #include <stdio.h>
+#include <stdint.h>
 
 /*
  * The serial connection.
@@ -20,7 +21,7 @@ static int baudrate = 500000;
 /*
  * Connect to a serial port.
  */
-int win_serial_connect(char* portname)
+int serial_connect(char* portname)
 {
   int ret = 0;
   DWORD accessdirection = /*GENERIC_READ |*/GENERIC_WRITE;
@@ -63,7 +64,7 @@ int win_serial_connect(char* portname)
 /*
  * Send a usb report to the serial port.
  */
-void win_serial_send(void* pdata, unsigned int size)
+void serial_send(void* pdata, unsigned int size)
 {
   DWORD dwBytesWrite = 0;
 
@@ -73,7 +74,7 @@ void win_serial_send(void* pdata, unsigned int size)
 /*
  * Close the serial port.
  */
-void win_serial_close()
+void serial_close()
 {
   CloseHandle(serial);
 }

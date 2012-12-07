@@ -2,11 +2,13 @@
  Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
-#include "sdl_tools.h"
-#include "config.h"
-#include "emuclient.h"
+#include <sdl_tools.h>
+#include <config.h>
+#include <emuclient.h>
 #include <math.h>
-#include "events.h"
+#include <events.h>
+#include <macros.h>
+#include <calibration.h>
 
 #define SCREEN_WIDTH  1
 #define SCREEN_HEIGHT 1
@@ -40,29 +42,50 @@ int sdl_initialize()
   int j;
   const char* name;
 
+#ifndef WIN32
   ev_init();
+  
+  i = 0;
+  while ((name = SDL_JoystickName(i)))
+  {
+   joystickName[i] = strdup(name);
 
+   for (j = i - 1; j >= 0; --j)
+   {
+     if (!strcmp(joystickName[i], joystickName[j]))
+     {
+       joystickVirtualIndex[i] = joystickVirtualIndex[j] + 1;
+       break;
+     }
+   }
+   if (j < 0)
+   {
+     joystickVirtualIndex[i] = 0;
+   }
+   i++;
+  }
+#else
   /* Init SDL */
-//  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0)
-//  {
-//    fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
-//    return 0;
-//  }
-//
-//  SDL_WM_SetCaption(TITLE, TITLE);
-//
-//  /* Init video */
-//  screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 0,
-//      SDL_HWSURFACE | SDL_ANYFORMAT | SDL_NOFRAME);
-//  if (screen == NULL)
-//  {
-//    fprintf(stderr, "Unable to create video surface: %s\n", SDL_GetError());
-//    return 0;
-//  }
-//
-//  SDL_ShowCursor(SDL_DISABLE);
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0)
+  {
+   fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
+   return 0;
+  }
 
-  /*while ((joysticks[i] = SDL_JoystickOpen(i)))
+  SDL_WM_SetCaption(TITLE, TITLE);
+
+  /* Init video */
+  screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 0,
+     SDL_HWSURFACE | SDL_ANYFORMAT | SDL_NOFRAME);
+  if (screen == NULL)
+  {
+   fprintf(stderr, "Unable to create video surface: %s\n", SDL_GetError());
+   return 0;
+  }
+
+  SDL_ShowCursor(SDL_DISABLE);
+
+  while ((joysticks[i] = SDL_JoystickOpen(i)))
   {
     joystickName[i] = strdup(SDL_JoystickName(i));
 
@@ -100,26 +123,8 @@ int sdl_initialize()
       joystickSixaxis[i] = 1;
     }
     i++;
-  }*/
-  i = 0;
-  while ((name = SDL_JoystickName(i)))
-  {
-   joystickName[i] = strdup(name);
-
-   for (j = i - 1; j >= 0; --j)
-   {
-     if (!strcmp(joystickName[i], joystickName[j]))
-     {
-       joystickVirtualIndex[i] = joystickVirtualIndex[j] + 1;
-       break;
-     }
-   }
-   if (j < 0)
-   {
-     joystickVirtualIndex[i] = 0;
-   }
-   i++;
   }
+#endif
   i = 0;
   while ((name = SDL_GetMouseName(i)))
   {
@@ -177,7 +182,9 @@ void sdl_release_unused()
       gprintf(_("close unused joystick: %s\n"), joystickName[i]);
       free(joystickName[i]);
       joystickName[i] = NULL;
+#ifdef WIN32
       SDL_JoystickClose(joysticks[i]);
+#endif
     }
     else
     {
@@ -187,7 +194,9 @@ void sdl_release_unused()
   if(none)
   {
     gprintf(_("close joystick subsystem\n"));
+#ifdef WIN32
     SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+#endif
   }
 }
 
@@ -245,7 +254,9 @@ void sdl_quit()
     {
       free(joystickName[i]);
       free(joystickHat[i]);
+#ifdef WIN32
       SDL_JoystickClose(joysticks[i]);
+#endif
     }
   }
   sdl_free_mouse_keyboard_names();
@@ -455,4 +466,37 @@ inline int sdl_preprocess_events(SDL_Event *events, int numevents)
     }
   }
   return numevents;
+}
+
+void sdl_process_event(SDL_Event* event)
+{
+  if (event->type != SDL_MOUSEMOTION)
+  {
+    if (!cal_skip_event(event))
+    {
+      cfg_process_event(event);
+    }
+  }
+  else
+  {
+    cfg_process_motion_event(event);
+  }
+
+  cfg_trigger_lookup(event);
+  cfg_intensity_lookup(event);
+
+  switch (event->type)
+  {
+    case SDL_MOUSEBUTTONDOWN:
+      cal_button(event->button.which, event->button.button);
+      break;
+    case SDL_KEYDOWN:
+      cal_key(event->key.which, event->key.keysym.sym, 1);
+      break;
+    case SDL_KEYUP:
+      cal_key(event->key.which, event->key.keysym.sym, 0);
+      break;
+  }
+
+  macro_lookup(event);
 }

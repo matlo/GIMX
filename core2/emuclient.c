@@ -4,6 +4,9 @@
  License: GPLv3
  */
 
+#include <prio.h>
+#include <timer.h>
+
 #ifndef WIN32
 #include <termio.h>
 #include <sys/ioctl.h>
@@ -12,7 +15,6 @@
 #include <sys/socket.h>
 #include <pwd.h>
 #include <sys/resource.h>
-#include <sched.h>
 #else
 #include <windows.h>
 #endif
@@ -38,8 +40,7 @@
 #include "tcp_con.h"
 #include "display.h"
 #include "emuclient.h"
-#include <sys/timerfd.h>
-#include "linux_mainloop.h"
+#include "mainloop.h"
 #include "connector.h"
 #include "args.h"
 
@@ -91,17 +92,6 @@ int proc_time = 0;
 int proc_time_worst = 0;
 int proc_time_total = 0;
 
-/* TIMER */
-#include <signal.h>
-#include <time.h>
-#include <stdio.h>
-
-#define PERIOD_SIG      SIGRTMIN
-#define PERIOD_SEC      0
-#define PERIOD_NSEC     emuclient_params.refresh_rate*1000 // 4ms
-
-/* TIMER */
-
 static int max_unsigned_axis_value[SA_MAX] = {};
 
 inline int get_max_unsigned(int axis)
@@ -137,43 +127,10 @@ inline double get_axis_scale(int axis)
   return (double) get_max_unsigned(axis) / DEFAULT_MAX_AXIS_VALUE;
 }
 
-int tfd = -1;
-
-static int start_timer()
-{
-  struct itimerspec new_value =
-  {
-      .it_interval = {.tv_sec = PERIOD_SEC, .tv_nsec = PERIOD_NSEC },
-      .it_value =    {.tv_sec = PERIOD_SEC, .tv_nsec = PERIOD_NSEC },
-  };
-
-  tfd = timerfd_create(CLOCK_REALTIME, 0);
-  if(tfd < 0)
-  {
-    fprintf(stderr, "timerfd_create");
-    return -1;
-  }
-  if(timerfd_settime(tfd, 0, &new_value, NULL))
-  {
-    fprintf(stderr, "timerfd_settime");
-    close(tfd);
-    return -1;
-  }
-  return 0;
-}
-
-static void close_timer()
-{
-  close(tfd);
-}
-
 int main(int argc, char *argv[])
 {
   SDL_Event kgevent = {.type = SDL_KEYDOWN};
   int i;
-#ifdef WIN32
-  LARGE_INTEGER t0, t1, freq;
-#endif
 
   setlocale( LC_ALL, "" );
 #ifndef WIN32
@@ -185,23 +142,7 @@ int main(int argc, char *argv[])
 
   setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
   
-#ifndef WIN32
-  /*
-   * Set highest priority & scheduler policy.
-   */
-  struct sched_param p = {.sched_priority = 99};
-
-  sched_setscheduler(0, SCHED_FIFO, &p);
-  //setpriority(PRIO_PROCESS, getpid(), -20); only useful with SCHED_OTHER
-
-  setlinebuf(stdout);
-  emuclient_params.homedir = getpwuid(getuid())->pw_dir;
-#else
-  SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
-  SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
-
-  QueryPerformanceFrequency(&freq);
-#endif
+  set_prio();
 
   for(i = 0; i < SA_MAX; ++i)
   {
@@ -284,13 +225,9 @@ int main(int argc, char *argv[])
 
   cfg_trigger_init();
 
-  start_timer();
-
   mainloop();
 
   gprintf(_("Exiting\n"));
-
-  close_timer();
 
   free_macros();
   free_config();

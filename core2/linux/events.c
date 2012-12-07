@@ -1,31 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <dirent.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/select.h>
-#include <sys/time.h>
 #include <termios.h>
-#include <signal.h>
-
 #include <sys/select.h>
-#include <sched.h>
-
 #include <SDL/SDL.h>
-
 #include "events.h"
 #include "emuclient.h"
-#include "calibration.h"
-#include "macros.h"
-#include "config.h"
-
+#include <timer.h>
 #include <sys/signalfd.h>
-
 #include <math.h>
+#include <sdl_tools.h>
 
 #define MAX_EVENTS 256
 
@@ -212,6 +198,10 @@ int read_device_type(int index, int fd)
             if(joystickAxisShift[j_num][i])
             {
               joystickAxisScale[j_num][i] = (double) 32767 / joystickAxisShift[j_num][i];
+            }
+            else
+            {
+              joystickAxisScale[j_num][i] = 1;
             }
             //printf("%d %.04f %.04f\n", i, joystickAxisShift[j_num][i], joystickAxisScale[j_num][i]);
           }
@@ -419,6 +409,8 @@ void SDL_PumpEvents(void)
   struct input_event ie[MAX_EVENTS];
   SDL_Event evt;
 
+  int tfd = timer_getfd();
+  
   while(1)
   {
     FD_ZERO(&rfds);
@@ -573,13 +565,13 @@ void SDL_PumpEvents(void)
                 {
                   eprintf("event from device: %s\n", device_name[i]);
                   eprintf("type: %d code: %d value: %d\n", ie[j].type, ie[j].code, ie[j].value);
-                  SDL_ProcessEvent(&evt);
+                  sdl_process_event(&evt);
                   if(evt.type == SDL_MOUSEBUTTONDOWN)
                   {
                     if(evt.button.button >= 8 && evt.button.button <= 11)
                     {
                       evt.type = SDL_MOUSEBUTTONUP;
-                      SDL_ProcessEvent(&evt);
+                      sdl_process_event(&evt);
                     }
                   }
                 }
@@ -617,37 +609,4 @@ void SDL_PumpEvents(void)
       }
     }
   }
-}
-
-void SDL_ProcessEvent(SDL_Event* event)
-{
-  if (event->type != SDL_MOUSEMOTION)
-  {
-    if (!cal_skip_event(event))
-    {
-      cfg_process_event(event);
-    }
-  }
-  else
-  {
-    cfg_process_motion_event(event);
-  }
-
-  cfg_trigger_lookup(event);
-  cfg_intensity_lookup(event);
-
-  switch (event->type)
-  {
-    case SDL_MOUSEBUTTONDOWN:
-      cal_button(event->button.which, event->button.button);
-      break;
-    case SDL_KEYDOWN:
-      cal_key(event->key.which, event->key.keysym.sym, 1);
-      break;
-    case SDL_KEYUP:
-      cal_key(event->key.which, event->key.keysym.sym, 0);
-      break;
-  }
-
-  macro_lookup(event);
 }

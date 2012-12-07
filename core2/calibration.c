@@ -14,7 +14,7 @@
 #include "display.h"
 
 #include "events.h"
-#include "linux_mainloop.h"
+#include "mainloop.h"
 
 #define DEFAULT_MULTIPLIER_STEP 0.01
 #define EXPONENT_STEP 0.01
@@ -110,7 +110,7 @@ static void translation_test()
   mouse_evt.motion.xrel = direction * step;
   mouse_evt.motion.which = current_mouse;
   mouse_evt.type = SDL_MOUSEMOTION;
-  SDL_ProcessEvent(&mouse_evt);
+  sdl_process_event(&mouse_evt);
 
   dots -= step;
 
@@ -159,7 +159,7 @@ static void circle_test()
   mouse_evt.motion.yrel = round(mcal->rd * pow((double) dpi / 5700, *mcal->ex) * (sin(circle_step * 2 * pi / STEPS) - sin((circle_step - step) * 2 * pi / STEPS)));
   mouse_evt.motion.which = current_mouse;
   mouse_evt.type = SDL_MOUSEMOTION;
-  SDL_ProcessEvent(&mouse_evt);
+  sdl_process_event(&mouse_evt);
 
   circle_step += step;
   circle_step = circle_step % STEPS;

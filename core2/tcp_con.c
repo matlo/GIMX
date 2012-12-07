@@ -65,7 +65,7 @@ int tcp_connect(void)
       addr.sin_family = AF_INET;
       addr.sin_port = htons(TCP_PORT+i);
 #ifdef WIN32
-      addr.sin_addr.s_addr = inet_addr(ip);
+      addr.sin_addr.s_addr = inet_addr(emuclient_params.ip);
 #else
       addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 #endif

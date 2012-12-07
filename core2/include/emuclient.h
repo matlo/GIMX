@@ -6,7 +6,7 @@
 #ifndef EMUCLIENT_H_
 #define EMUCLIENT_H_
 
-#include "config.h"
+#include <config.h>
 
 #include <libintl.h>
 #include <locale.h>
@@ -56,8 +56,6 @@ extern s_controller controller[MAX_CONTROLLERS];
 extern int proc_time;
 extern int proc_time_worst;
 extern int proc_time_total;
-
-extern int tfd;
 
 inline int get_max_signed(int);
 inline int get_max_unsigned(int);
