@@ -44,6 +44,7 @@ int sdl_initialize()
 
 #ifndef WIN32
   ev_init();
+  js_init();
   
   i = 0;
   while ((name = SDL_JoystickName(i)))

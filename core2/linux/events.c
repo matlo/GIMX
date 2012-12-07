@@ -12,8 +12,11 @@
 #include <sys/signalfd.h>
 #include <math.h>
 #include <sdl_tools.h>
+#include <linux/joystick.h>
 
 #define MAX_EVENTS 256
+
+#define AXMAP_SIZE (ABS_MAX + 1)
 
 #define eprintf(...) if(debug) printf(__VA_ARGS__)
 
@@ -83,11 +86,6 @@ int SDL_PeepEvents(SDL_Event *events, int numevents, SDL_eventaction action, Uin
   return j;
 }
 
-const char *SDL_JoystickName(int id)
-{
-  return ev_get_name(DEVTYPE_JOYSTICK, id);
-}
-
 SDL_GrabMode SDL_WM_GrabInput(SDL_GrabMode mode)
 {
   if(mode == SDL_GRAB_ON)
@@ -119,32 +117,34 @@ int device_fd[MAX_DEVICES];
 int device_id[MAX_DEVICES][DEVTYPE_NB];
 char* device_name[MAX_DEVICES] = {0};
 
+int joystick_fd[MAX_DEVICES];
+int joystick_id[MAX_DEVICES];
+char* joystick_name[MAX_DEVICES] = {0};
+
 int k_num = 0;
 int m_num = 0;
 int j_num = 0;
 
-unsigned short joystickButtonIds[MAX_DEVICES][KEY_MAX-BTN_JOYSTICK] = {{0}};
+//unsigned short joystickButtonIds[MAX_DEVICES][KEY_MAX-BTN_JOYSTICK] = {{0}};
 unsigned short joystickButtonNb[MAX_DEVICES] = {0};
 int joystickHatValue[MAX_DEVICES][ABS_HAT3Y-ABS_HAT0X] = {{0}};
-double joystickAxisScale[MAX_DEVICES][ABS_MAX] = {{0}};
-double joystickAxisShift[MAX_DEVICES][ABS_MAX] = {{0}};
-unsigned short joystickAxisIds[MAX_DEVICES][ABS_MAX] = {{0}};
-unsigned short joystickAxisNb[MAX_DEVICES] = {0};
+uint8_t joystickAxMap[MAX_DEVICES][AXMAP_SIZE] = {{0}};
 
 int max_device_id = 0;
+int max_joystick_id = 0;
 
 int read_device_type(int index, int fd)
 {
   char name[1024]                             = {0};
   unsigned long key_bitmask[NLONGS(KEY_CNT)] = {0};
   unsigned long rel_bitmask[NLONGS(REL_CNT)] = {0};
-  unsigned long abs_bitmask[NLONGS(ABS_CNT)] = {0};
-  struct input_absinfo absinfo;
+  //unsigned long abs_bitmask[NLONGS(ABS_CNT)] = {0};
+  //struct input_absinfo absinfo;
   int i, len;
   int has_rel_axes = 0;
-  int has_abs_axes = 0;
+  //int has_abs_axes = 0;
   int has_keys = 0;
-  int has_joy_keys = 0;
+  //int has_joy_keys = 0;
   int has_scroll = 0;
 
   if (ioctl(fd, EVIOCGNAME(sizeof(name) - 1), name) < 0) {
@@ -158,11 +158,11 @@ int read_device_type(int index, int fd)
     return -1;
   }
 
-  len = ioctl(fd, EVIOCGBIT(EV_ABS, sizeof(abs_bitmask)), abs_bitmask);
+  /*len = ioctl(fd, EVIOCGBIT(EV_ABS, sizeof(abs_bitmask)), abs_bitmask);
   if (len < 0) {
     fprintf(stderr, "ioctl EVIOCGBIT failed: %s\n", strerror(errno));
     return -1;
-  }
+  }*/
 
   len = ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(key_bitmask)), key_bitmask);
   if (len < 0) {
@@ -184,7 +184,7 @@ int read_device_type(int index, int fd)
           has_scroll = 1;
       }
   }
-  //printf("%s\n", name);
+  /*printf("%s\n", name);
   for (i = 0; i < ABS_MAX; i++) {
       if (BitIsSet(abs_bitmask, i)) {
           has_abs_axes = 1;
@@ -194,16 +194,24 @@ int read_device_type(int index, int fd)
           }
           if(i < ABS_MISC)
           {
-            joystickAxisShift[j_num][i] = (double) (absinfo.maximum - absinfo.minimum) / 2;
-            if(joystickAxisShift[j_num][i])
+            if(absinfo.minimum > 0)
             {
-              joystickAxisScale[j_num][i] = (double) 32767 / joystickAxisShift[j_num][i];
+              joystickAxisShift[j_num][i] = (double) (absinfo.maximum - absinfo.minimum) / 2;
+            }
+            else
+            {
+              joystickAxisShift[j_num][i] = (double) (absinfo.maximum + absinfo.minimum) / 2;
+            }
+            int rad = absinfo.maximum - joystickAxisShift[j_num][i];
+            if(rad)
+            {
+              joystickAxisScale[j_num][i] = (double) 32767 / rad;
             }
             else
             {
               joystickAxisScale[j_num][i] = 1;
             }
-            //printf("%d %.04f %.04f\n", i, joystickAxisShift[j_num][i], joystickAxisScale[j_num][i]);
+            printf("%d %.04f %.04f\n", i, joystickAxisShift[j_num][i], joystickAxisScale[j_num][i]);
           }
           else
           {
@@ -211,15 +219,15 @@ int read_device_type(int index, int fd)
           }
           joystickAxisIds[j_num][i] = joystickAxisNb[j_num];
           joystickAxisNb[j_num]++;
-          /*printf("%d %d (min:%d max:%d flat:%d fuzz:%d)\n",
+          printf("%d %d (min:%d max:%d flat:%d fuzz:%d)\n",
               i,
               absinfo.value,
               absinfo.minimum,
               absinfo.maximum,
               absinfo.flat,
-              absinfo.fuzz);*/
+              absinfo.fuzz);
       }
-  }
+  }*/
 
   for (i = 0; i < BTN_MISC; i++) {
       if (BitIsSet(key_bitmask, i)) {
@@ -227,15 +235,15 @@ int read_device_type(int index, int fd)
           break;
       }
   }
-  for (i = BTN_JOYSTICK; i < KEY_MAX; i++) {
+  /*for (i = BTN_JOYSTICK; i < KEY_MAX; i++) {
       if (BitIsSet(key_bitmask, i)) {
           has_joy_keys = 1;
           joystickButtonIds[j_num][i-BTN_JOYSTICK] = joystickButtonNb[j_num];
           joystickButtonNb[j_num]++;
       }
-  }
+  }*/
 
-  if(!has_rel_axes && !has_keys && !has_scroll && !has_abs_axes && !has_joy_keys)
+  if(!has_rel_axes && !has_keys && !has_scroll/* && !has_abs_axes && !has_joy_keys*/)
   {
     return -1;
   }
@@ -252,12 +260,12 @@ int read_device_type(int index, int fd)
     device_id[index][1] = m_num;
     m_num++;
   }
-  if(has_abs_axes || has_joy_keys)
+  /*if(has_abs_axes || has_joy_keys)
   {
     device_type[index] |= DEVTYPE_JOYSTICK;
     device_id[index][2] = j_num;
     j_num++;
-  }
+  }*/
 
   device_name[index] = strdup(name);
 
@@ -279,9 +287,71 @@ void display_devices()
     {
       eprintf("mouse %d is named [%s]\n", i, name);
     }
-    if((name = ev_get_name(DEVTYPE_JOYSTICK, i)))
+  }
+  for(i=0; i<=max_joystick_id; ++i)
+  {
+    if((name = joystick_name[i]))
     {
       eprintf("joystick %d is named [%s]\n", i, name);
+    }
+  }
+}
+
+void js_init()
+{
+  int i;
+  int fd;
+  char joystick[sizeof("/dev/input/js255")];
+  char name[1024] = {0};
+
+  for(i=0; i<MAX_DEVICES; ++i)
+  {
+    joystick_fd[i] = -1;
+    joystick_id[i] = -1;
+  }
+
+  for(i=0; i<MAX_DEVICES; ++i)
+  {
+    sprintf(joystick, "/dev/input/js%d", i);
+    if((fd = open (joystick, O_RDONLY | O_NONBLOCK)) != -1)
+    {
+      if (ioctl(fd, JSIOCGNAME(sizeof(name) - 1), name) < 0) {
+        fprintf(stderr, "ioctl EVIOCGNAME failed: %s\n", strerror(errno));
+        close(fd);
+        continue;
+      }
+      //printf("%s\n", name);
+      unsigned char buttons;
+      if (ioctl (fd, JSIOCGBUTTONS, &buttons) >= 0 && ioctl (fd, JSIOCGAXMAP, &joystickAxMap[i]) >= 0)
+      {
+        joystick_name[i] = strdup(name);
+        joystick_fd[i] = fd;
+        joystickButtonNb[i] = buttons;
+        max_joystick_id = i;
+        joystick_id[i] = j_num;
+        j_num++;
+        //printf("js=%d id=%d nb_buttons=%d\n", i, joystick_id[i], joystickButtonNb[i]);
+      }
+      else
+      {
+        close(fd);
+      }
+    }
+  }
+}
+
+void js_quit()
+{
+  int i;
+  for(i=0; i<MAX_DEVICES; ++i)
+  {
+    if(joystick_name[i])
+    {
+      free(joystick_name[i]);
+    }
+    if(joystick_fd[i] > -1)
+    {
+      close(joystick_fd[i]);
     }
   }
 }
@@ -368,6 +438,22 @@ void ev_quit()
 void SDL_Quit(void)
 {
   ev_quit();
+  js_quit();
+}
+
+const char *SDL_JoystickName(int index)
+{
+  int i;
+  int nb = 0;
+  for(i=0; i<MAX_DEVICES; ++i)
+  {
+    if(joystick_id[i] == index)
+    {
+      return joystick_name[i];
+    }
+    nb++;
+  }
+  return NULL;
 }
 
 char* ev_get_name(unsigned char devtype, int index)
@@ -407,6 +493,7 @@ void SDL_PumpEvents(void)
   int r;
 
   struct input_event ie[MAX_EVENTS];
+  struct js_event je[MAX_EVENTS];
   SDL_Event evt;
 
   int tfd = timer_getfd();
@@ -424,6 +511,17 @@ void SDL_PumpEvents(void)
         if(nfds > -1 && device_fd[i] > nfds)
         {
           nfds = device_fd[i]+1;
+        }
+      }
+    }
+    for(i=0; i<=max_joystick_id; ++i)
+    {
+      if(joystick_fd[i] > -1)
+      {
+        FD_SET(joystick_fd[i], &rfds);
+        if(nfds > -1 && joystick_fd[i] > nfds)
+        {
+          nfds = joystick_fd[i]+1;
         }
       }
     }
@@ -477,7 +575,7 @@ void SDL_PumpEvents(void)
                     }
                   }
                 }
-                if((device_type[i] & DEVTYPE_JOYSTICK))
+                /*if((device_type[i] & DEVTYPE_JOYSTICK))
                 {
                   if(ie[j].type == EV_KEY)
                   {
@@ -522,7 +620,7 @@ void SDL_PumpEvents(void)
                       evt.jaxis.value = (ie[j].value - joystickAxisShift[device_id[i][2]][ie[j].code]) * joystickAxisScale[device_id[i][2]][ie[j].code];
                     }
                   }
-                }
+                }*/
                 if(device_type[i] & DEVTYPE_MOUSE)
                 {
                   if(ie[j].type == EV_KEY)
@@ -574,6 +672,81 @@ void SDL_PumpEvents(void)
                       sdl_process_event(&evt);
                     }
                   }
+                }
+              }
+              if(r < 0 && errno != EAGAIN)
+              {
+                //printf("%d %s %d\n", device_fd[i], ev_get_name(device_type[i], i), errno);
+                close(device_fd[i]);
+                device_fd[i] = -1;
+                //display_devices();
+              }
+            }
+          }
+        }
+      }
+      for(i=0; i<=max_joystick_id; ++i)
+      {
+        if(joystick_fd[i] > -1)
+        {
+          if(FD_ISSET(joystick_fd[i], &rfds))
+          {
+            if((r = read(joystick_fd[i], je, sizeof(je))) > 0)
+            {
+              for(j=0; j<r/sizeof(je[0]); ++j)
+              {
+                memset(&evt, 0x00, sizeof(evt));
+
+                if(je[j].type & JS_EVENT_BUTTON)
+                {
+                  evt.jbutton.which = joystick_id[i];
+                  evt.type = je[j].value ? SDL_JOYBUTTONDOWN : SDL_JOYBUTTONUP;
+                  evt.jbutton.button = je[j].number;
+                }
+                else if(je[j].type & JS_EVENT_AXIS)
+                {
+                  int axis = joystickAxMap[i][je[j].number];
+                  if(axis >= ABS_HAT0X && axis <= ABS_HAT3Y)
+                  {
+                    evt.type = je[j].value ? SDL_JOYBUTTONDOWN : SDL_JOYBUTTONUP;
+                    int button;
+                    int value;
+                    axis -= ABS_HAT0X;
+                    if(!je[j].value)
+                    {
+                      value = joystickHatValue[i][axis];
+                      joystickHatValue[i][axis] = 0;
+                    }
+                    else
+                    {
+                      value = je[j].value/32767;
+                      joystickHatValue[i][axis] = value;
+                    }
+                    button = axis + value + 2*(axis/2);
+                    if(button < 4*(axis/2))
+                    {
+                      button += 4;
+                    }
+                    evt.jbutton.which = joystick_id[i];
+                    evt.jbutton.button = button + joystickButtonNb[i];
+                  }
+                  else
+                  {
+                    evt.type = SDL_JOYAXISMOTION;
+                    evt.jaxis.which = joystick_id[i];
+                    evt.jaxis.axis = je[j].number;
+                    evt.jaxis.value = je[j].value;
+                  }
+                }
+
+                /*
+                 * Process evt.
+                 */
+                if(evt.type != SDL_NOEVENT)
+                {
+                  eprintf("event from joystick: %s\n", joystick_name[i]);
+                  eprintf("type: %d number: %d value: %d\n", je[j].type, je[j].number, je[j].value);
+                  sdl_process_event(&evt);
                 }
               }
               if(r < 0 && errno != EAGAIN)

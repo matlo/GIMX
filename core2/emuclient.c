@@ -142,6 +142,12 @@ int main(int argc, char *argv[])
 
   setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
   
+#ifndef WIN32
+  setlinebuf(stdout);
+
+  emuclient_params.homedir = getpwuid(getuid())->pw_dir;
+#endif
+
   set_prio();
 
   for(i = 0; i < SA_MAX; ++i)
@@ -176,15 +182,15 @@ int main(int argc, char *argv[])
     memset(controller + i, 0x00, sizeof(s_controller));
   }
 
+  if (!sdl_initialize())
+  {
+    err(1, "can't init sdl");
+  }
+
   if(emuclient_params.grab)
   {
     usleep(1000000);
     sdl_grab();
-  }
-
-  if (!sdl_initialize())
-  {
-    err(1, "can't init sdl");
   }
 
   macros_init();
