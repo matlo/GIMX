@@ -1,3 +1,8 @@
+/*
+ Copyright (c) 2010 Mathieu Laurendeau
+ License: GPLv3
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

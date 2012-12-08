@@ -1,8 +1,6 @@
 /*
- * connector.c
- *
- *  Created on: 5 déc. 2012
- *      Author: matlo
+ Copyright (c) 2012 Mathieu Laurendeau
+ License: GPLv3
  */
 
 #include "connector.h"

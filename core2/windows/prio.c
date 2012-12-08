@@ -1,3 +1,7 @@
+/*
+ Copyright (c) 2010 Mathieu Laurendeau
+ License: GPLv3
+ */
 
 #include <windows.h>
 
