@@ -615,31 +615,23 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
     command.Append(wxT("emuclient"));
     if(ControllerType->GetStringSelection() == _("Joystick"))
     {
-      command.Append(wxT(" --joystick"));
+      command.Append(wxT(" --type joystick"));
     }
     else if(ControllerType->GetStringSelection() == _("GPP"))
     {
-      command.Append(wxT(" --GPP"));
+      command.Append(wxT(" --type GPP"));
     }
     else if(ControllerType->GetStringSelection() == _("360 pad"))
     {
-      command.Append(wxT(" --360pad"));
+      command.Append(wxT(" --type 360pad"));
     }
     else if(ControllerType->GetStringSelection() == _("Sixaxis"))
     {
-      command.Append(wxT(" --Sixaxis"));
+      command.Append(wxT(" --type Sixaxis"));
     }
     else if(ControllerType->GetStringSelection() == _("PS2 pad"))
     {
-      command.Append(wxT(" --PS2pad"));
-    }
-    if(ControllerType->GetStringSelection() == _("Joystick"))
-    {
-      command.Append(wxT(" --precision 16"));
-    }
-    else
-    {
-      command.Append(wxT(" --precision 8"));
+      command.Append(wxT(" --type PS2pad"));
     }
     if(!CheckBoxGrab->IsChecked())
     {
@@ -669,7 +661,6 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
     }
     if(ControllerType->GetStringSelection() != _("GPP"))
     {
-      command.Append(wxT(" --serial"));
       command.Append(wxT(" --port "));
 #ifndef WIN32
       command.Append(wxT("/dev/"));
