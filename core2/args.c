@@ -16,7 +16,7 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
   {
     /* These options set a flag. */
     {"nograb",         no_argument, &params->grab,           0},
-    {"status",         no_argument, &params->status,        1},
+    {"status",         no_argument, &params->status,         1},
     {"subpos",         no_argument, &params->subpos,         1},
     {"force-updates",  no_argument, &params->force_updates,  1},
     {"curses",         no_argument, &params->curses,         1},
