@@ -472,7 +472,10 @@ void cal_key(int device_id, int sym, int down)
     }
     else
     {
-      emuclient_params.status = 1;
+      if(!emuclient_params.curses)
+      {
+        emuclient_params.status = 1;
+      }
     }
   }
 
