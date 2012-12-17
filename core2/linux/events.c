@@ -91,19 +91,6 @@ int SDL_PeepEvents(SDL_Event *events, int numevents, SDL_eventaction action, Uin
   return j;
 }
 
-SDL_GrabMode SDL_WM_GrabInput(SDL_GrabMode mode)
-{
-  if(mode == SDL_GRAB_ON)
-  {
-    grab = 1;
-  }
-  else
-  {
-    grab = 0;
-  }
-  return mode;
-}
-
 void SDL_FreeSurface (SDL_Surface *surface)
 {
 
@@ -137,6 +124,27 @@ uint8_t joystickAxMap[MAX_DEVICES][AXMAP_SIZE] = {{0}};
 
 int max_device_id = 0;
 int max_joystick_id = 0;
+
+SDL_GrabMode SDL_WM_GrabInput(SDL_GrabMode mode)
+{
+  int i;
+  grab = mode;
+  for(i=0; i<MAX_DEVICES; ++i)
+  {
+    if(device_fd[i] > -1)
+    {
+      if(mode == SDL_GRAB_OFF)
+      {
+        ioctl(device_fd[i], EVIOCGRAB, (void *)0);
+      }
+      else
+      {
+        ioctl(device_fd[i], EVIOCGRAB, (void *)1);
+      }
+    }
+  }
+  return mode;
+}
 
 int read_device_type(int index, int fd)
 {
