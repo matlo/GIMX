@@ -216,7 +216,7 @@ int main(int argc, char *argv[])
       check_config = 1;
       display = 1;
     }
-    else if (!strcmp(argv[i], "--ctype") && i < argc)
+    else if (!strcmp(argv[i], "--type") && i < argc)
     {
       actype = argv[++i];
     }
