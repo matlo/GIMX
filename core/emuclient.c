@@ -136,6 +136,7 @@ int main(int argc, char *argv[])
 #endif
   int time_to_sleep;
   e_controller_type ctype = C_TYPE_DEFAULT;
+  char* actype = NULL;
   int ptl;
 
   setlocale( LC_ALL, "" );
@@ -215,29 +216,9 @@ int main(int argc, char *argv[])
       check_config = 1;
       display = 1;
     }
-    else if (!strcmp(argv[i], "--joystick"))
+    else if (!strcmp(argv[i], "--ctype") && i < argc)
     {
-      ctype = C_TYPE_JOYSTICK;
-      max_unsigned_axis_value[sa_lstick_x] = 65535;
-      max_unsigned_axis_value[sa_lstick_y] = 65535;
-      max_unsigned_axis_value[sa_rstick_x] = 65535;
-      max_unsigned_axis_value[sa_rstick_y] = 65535;
-    }
-    else if (!strcmp(argv[i], "--360pad"))
-    {
-      ctype = C_TYPE_360_PAD;
-    }
-    else if (!strcmp(argv[i], "--Sixaxis"))
-    {
-      ctype = C_TYPE_SIXAXIS;
-    }
-    else if (!strcmp(argv[i], "--PS2pad"))
-    {
-      ctype = C_TYPE_PS2_PAD;
-    }
-    else if (!strcmp(argv[i], "--GPP"))
-    {
-      ctype = C_TYPE_GPP;
+      actype = argv[++i];
     }
     else if (!strcmp(argv[i], "--keygen") && i < argc)
     {
@@ -253,6 +234,34 @@ int main(int argc, char *argv[])
     else if (!strcmp(argv[i], "--ip") && i < argc)
     {
       ip = argv[++i];
+    }
+  }
+  
+  if(actype != NULL)
+  {
+    if (!strcmp(actype, "joystick"))
+    {
+      ctype = C_TYPE_JOYSTICK;
+      max_unsigned_axis_value[sa_lstick_x] = 65535;
+      max_unsigned_axis_value[sa_lstick_y] = 65535;
+      max_unsigned_axis_value[sa_rstick_x] = 65535;
+      max_unsigned_axis_value[sa_rstick_y] = 65535;
+    }
+    else if (!strcmp(actype, "360pad"))
+    {
+      ctype = C_TYPE_360_PAD;
+    }
+    else if (!strcmp(actype, "Sixaxis"))
+    {
+      ctype = C_TYPE_SIXAXIS;
+    }
+    else if (!strcmp(actype, "PS2pad"))
+    {
+      ctype = C_TYPE_PS2_PAD;
+    }
+    else if (!strcmp(actype, "GPP"))
+    {
+      ctype = C_TYPE_GPP;
     }
   }
 
