@@ -1257,7 +1257,7 @@ int read_config_file(const char* file)
 
   if(read_file(file_path) == -1)
   {
-    printf("Bad config file: %s\n", file_path);
+    fprintf(stderr, "Bad config file: %s\n", file_path);
     return -1;
   }
 

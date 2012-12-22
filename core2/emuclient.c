@@ -7,6 +7,7 @@
 #include <prio.h>
 #include <timer.h>
 #include <signal.h>
+#include <errno.h>
 
 #ifndef WIN32
 #include <termio.h>
@@ -51,14 +52,6 @@
 #define DEFAULT_POSTPONE_COUNT 3
 #define DEFAULT_MAX_AXIS_VALUE 255
 #define DEFAULT_AXIS_SCALE 1
-
-#ifdef WIN32
-static void err(int eval, const char *fmt)
-{
-  fprintf(stderr, fmt);
-  exit(eval);
-}
-#endif
 
 s_emuclient_params emuclient_params =
 {
@@ -190,7 +183,9 @@ int main(int argc, char *argv[])
 
   if (!sdl_initialize())
   {
-    err(1, "can't init sdl");
+    fprintf(stderr, "sdl_initialize: %s\n", strerror(errno));
+    goto QUIT;
+
   }
 
   if(emuclient_params.grab)
@@ -203,7 +198,8 @@ int main(int argc, char *argv[])
 
   if(read_config_file(emuclient_params.config_file) < 0)
   {
-
+    fprintf(stderr, "read_config_file error: %s\n", strerror(errno));
+    goto QUIT;
   }
 
   if(merge_all_devices)
@@ -219,7 +215,8 @@ int main(int argc, char *argv[])
 
   if(connector_init(emuclient_params.ctype, emuclient_params.portname) < 0)
   {
-    err(1, "connector_init");
+    fprintf(stderr, "connector_init: %s\n", strerror(errno));
+    goto QUIT;
   }
 
   if(emuclient_params.keygen)
@@ -231,7 +228,8 @@ int main(int argc, char *argv[])
     }
     else
     {
-      err(1, "Unknown key name for argument --keygen!");
+      fprintf(stderr, "Unknown key name for argument --keygen: '%s'\n", emuclient_params.keygen);
+      goto QUIT;
     }
   }
 
@@ -240,6 +238,8 @@ int main(int argc, char *argv[])
   mainloop();
 
   gprintf(_("Exiting\n"));
+
+  QUIT:
 
   free_macros();
   free_config();
