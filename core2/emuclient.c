@@ -6,6 +6,7 @@
 
 #include <prio.h>
 #include <timer.h>
+#include <signal.h>
 
 #ifndef WIN32
 #include <termio.h>
@@ -80,8 +81,6 @@ s_emuclient_params emuclient_params =
   .subpos = 0,
 };
 
-int done = 0;
-
 struct sixaxis_state state[MAX_CONTROLLERS];
 s_controller controller[MAX_CONTROLLERS] =
 { };
@@ -127,10 +126,17 @@ inline double get_axis_scale(int axis)
   return (double) get_max_unsigned(axis) / DEFAULT_MAX_AXIS_VALUE;
 }
 
+void terminate(int sig)
+{
+  set_done();
+}
+
 int main(int argc, char *argv[])
 {
   SDL_Event kgevent = {.type = SDL_KEYDOWN};
   int i;
+
+  (void) signal(SIGINT, terminate);
 
   setlocale( LC_ALL, "" );
 #ifndef WIN32
