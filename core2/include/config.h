@@ -6,9 +6,8 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-#include <SDL/SDL.h>
 #include "sixaxis.h"
-#include "conversion.h"
+#include <events.h>
 
 #define MAX_CONTROLLERS 7
 #define MAX_CONFIGURATIONS 8

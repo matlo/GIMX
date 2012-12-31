@@ -87,4 +87,13 @@ int assemble_input_01(uint8_t*, int, struct sixaxis_state*);
 
 int clamp(int, int, int);
 
+typedef struct {
+    int value;
+    int index;
+} s_axis_index;
+
+const char* get_axis_name(int);
+int get_button_index_from_name(const char*);
+s_axis_index get_axis_index_from_name(const char*);
+
 #endif
