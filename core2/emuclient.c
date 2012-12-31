@@ -5,7 +5,6 @@
  */
 
 #include <prio.h>
-#include <timer.h>
 #include <signal.h>
 #include <errno.h>
 

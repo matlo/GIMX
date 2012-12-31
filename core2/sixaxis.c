@@ -290,3 +290,111 @@ struct sixaxis_process_t sixaxis_process[] = {
     { HID_TYPE_FEATURE, 0xf4, process_feature_f4 },
     { 0 }
 };
+
+#define MAX_NAME_LENGTH 32
+
+static const char *axis_name[SA_MAX] = {
+    [sa_lstick_x] = "lstick x",
+    [sa_lstick_y] = "lstick y",
+    [sa_rstick_x] = "rstick x",
+    [sa_rstick_y] = "rstick y",
+    [sa_acc_x] = "acc x",
+    [sa_acc_y] = "acc y",
+    [sa_acc_z] = "acc z",
+    [sa_gyro] = "gyro",
+    [sa_select] = "select",
+    [sa_start] = "start",
+    [sa_ps] = "PS",
+    [sa_up] = "up",
+    [sa_right] = "right",
+    [sa_down] = "down",
+    [sa_left] = "left",
+    [sa_triangle] = "triangle",
+    [sa_circle] = "circle",
+    [sa_cross] = "cross",
+    [sa_square] = "square",
+    [sa_l1] = "l1",
+    [sa_r1] = "r1",
+    [sa_l2] = "l2",
+    [sa_r2] = "r2",
+    [sa_l3] = "l3",
+    [sa_r3] = "r3"
+};
+
+const char* get_axis_name(int index)
+{
+  return axis_name[index];
+}
+
+int get_button_index_from_name(const char* name)
+{
+  int i;
+  for(i=0; i<SA_MAX; ++i)
+  {
+    if(!strncmp(axis_name[i], name, MAX_NAME_LENGTH))
+    {
+      return i;
+    }
+  }
+  return -1;
+}
+
+typedef struct {
+    char name[MAX_NAME_LENGTH];
+    s_axis_index aindex;
+} s_axis_name_index;
+
+s_axis_name_index axis_name_index[] =
+{
+    {.name="rstick x",     {.value=-1,  .index=sa_rstick_x}},
+    {.name="rstick y",     {.value=-1,  .index=sa_rstick_y}},
+    {.name="lstick x",     {.value=-1,  .index=sa_lstick_x}},
+    {.name="lstick y",     {.value=-1,  .index=sa_lstick_y}},
+    {.name="rstick left",  {.value=-1,  .index=sa_rstick_x}},
+    {.name="rstick right", {.value= 1,  .index=sa_rstick_x}},
+    {.name="rstick up",    {.value=-1,  .index=sa_rstick_y}},
+    {.name="rstick down",  {.value= 1,  .index=sa_rstick_y}},
+    {.name="lstick left",  {.value=-1,  .index=sa_lstick_x}},
+    {.name="lstick right", {.value= 1,  .index=sa_lstick_x}},
+    {.name="lstick up",    {.value=-1,  .index=sa_lstick_y}},
+    {.name="lstick down",  {.value= 1,  .index=sa_lstick_y}},
+    {.name="acc x",        {.value=-1,  .index=sa_acc_x}},
+    {.name="acc y",        {.value=-1,  .index=sa_acc_y}},
+    {.name="acc z",        {.value=-1,  .index=sa_acc_z}},
+    {.name="gyro",         {.value=-1,  .index=sa_gyro}},
+    {.name="acc x -",      {.value=-1,  .index=sa_acc_x}},
+    {.name="acc y -",      {.value=-1,  .index=sa_acc_y}},
+    {.name="acc z -",      {.value=-1,  .index=sa_acc_z}},
+    {.name="gyro -",       {.value=-1,  .index=sa_gyro}},
+    {.name="acc x +",      {.value= 1,  .index=sa_acc_x}},
+    {.name="acc y +",      {.value= 1,  .index=sa_acc_y}},
+    {.name="acc z +",      {.value= 1,  .index=sa_acc_z}},
+    {.name="gyro +",       {.value= 1,  .index=sa_gyro}},
+    {.name="up",           {.value= 0,  .index=sa_up}},
+    {.name="down",         {.value= 0,  .index=sa_down}},
+    {.name="right",        {.value= 0,  .index=sa_right}},
+    {.name="left",         {.value= 0,  .index=sa_left}},
+    {.name="r1",           {.value= 0,  .index=sa_r1}},
+    {.name="r2",           {.value= 0,  .index=sa_r2}},
+    {.name="l1",           {.value= 0,  .index=sa_l1}},
+    {.name="l2",           {.value= 0,  .index=sa_l2}},
+    {.name="circle",       {.value= 0,  .index=sa_circle}},
+    {.name="square",       {.value= 0,  .index=sa_square}},
+    {.name="cross",        {.value= 0,  .index=sa_cross}},
+    {.name="triangle",     {.value= 0,  .index=sa_triangle}},
+};
+
+s_axis_index get_axis_index_from_name(const char* name)
+{
+  int i;
+  s_axis_index none = {-1, -1};
+  for(i=0; i<sizeof(axis_name_index)/sizeof(s_axis_name_index); ++i)
+  {
+    if(!strncmp(axis_name_index[i].name, name, MAX_NAME_LENGTH))
+    {
+      return axis_name_index[i].aindex;
+    }
+  }
+  return none;
+}
+

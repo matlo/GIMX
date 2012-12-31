@@ -63,6 +63,11 @@ int sdl_initialize()
    {
      joystickVirtualIndex[i] = 0;
    }
+   if (!strcmp(joystickName[i], "Sony PLAYSTATION(R)3 Controller")
+       || !strcmp(joystickName[i], "Sony Navigation Controller"))
+   {
+     joystickSixaxis[i] = 1;
+   }
    i++;
   }
 #else

@@ -3,15 +3,15 @@ include ../Makedefs
 prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
 BINS=emu emuclient sixaddr bdaddr hcirevision usbspoof
-LIB=-lxml2 -lm -lncursesw
-INC=-Iinclude -I../../libsdl/include -I/usr/include/libxml2
+LIB=../shared/event/event.a -lxml2 -lm -lncursesw
+INC=-Iinclude -I../shared/event/include -I../../libsdl/include -I/usr/include/libxml2
 
 all: gpp $(BINS)
 
 clean:
 	rm -f $(BINS) *~ *.o */*.o
 
-emu: emu.o sixaxis.o dump.o l2cap_con.o bt_utils.o linux/conversion.o
+emu: emu.o sixaxis.o dump.o l2cap_con.o bt_utils.o
 	$(CC) $(INC) -o $@ $^ -lbluetooth
 
 emu-serial: emu-serial.o sixaxis.o dump.o
@@ -37,10 +37,7 @@ emuclient: emuclient.o\
        gpp/hid_LINUX.o\
        linux/prio.o\
        linux/serial.o\
-       linux/mainloop.o\
-       linux/events.o\
-       linux/conversion.o\
-       linux/timer.o
+       linux/mainloop.o
 	$(CC) -o $@ $^ $(LIB) -lrt
 
 sixaddr: utils/sixaddr.c
