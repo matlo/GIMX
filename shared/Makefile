@@ -1,4 +1,4 @@
-DIRS=updater configupdater configeditor
+DIRS=event updater configupdater configeditor
 
 all:
 	+for i in $(DIRS); do cd $$i; make all; cd ..; done
