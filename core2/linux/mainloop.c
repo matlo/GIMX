@@ -12,7 +12,7 @@
 #include "tcp_con.h"
 #include "macros.h"
 #include "display.h"
-#include "events.h"
+#include <events.h>
 #include <timer.h>
 
 static int done = 0;
@@ -27,8 +27,9 @@ void mainloop()
   SDL_Event events[EVENT_BUFFER_SIZE];
   int num_evt;
   SDL_Event* event;
+  struct timespec period = {.tv_sec = 0, .tv_nsec = emuclient_params.refresh_rate*1000};
     
-  timer_start();
+  timer_start(&period);
 
   while (!done)
   {
