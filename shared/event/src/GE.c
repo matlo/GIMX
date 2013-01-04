@@ -2,6 +2,7 @@
  Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
+
 #include <GE.h>
 #include <math.h>
 #include <events.h>

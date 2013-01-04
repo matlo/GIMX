@@ -1,8 +1,6 @@
 /*
- * events.c
- *
- *  Created on: 2 janv. 2013
- *      Author: matlo
+ Copyright (c) 2012 Mathieu Laurendeau
+ License: GPLv3
  */
 
 #include <SDL/SDL.h>
