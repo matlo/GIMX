@@ -1644,11 +1644,11 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
               AxisTabDeadZone->SetValue(wxT("0"));
               if(!AxisTabAxisId->GetStringSelection().Contains(wxT("stick")))
               {
-                  AxisTabAcceleration->SetValue(wxT("0.008"));
+                  AxisTabSensitivity->SetValue(wxT("0.008"));
               }
               else
               {
-                  AxisTabAcceleration->SetValue(wxT("0.004"));
+                  AxisTabSensitivity->SetValue(wxT("0.004"));
               }
         	    AxisTabBufferSize->Disable();
               AxisTabBufferSize->SetValue(wxEmptyString);
