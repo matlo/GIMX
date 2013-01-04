@@ -98,6 +98,7 @@ static int GetDeviceId(xmlNode* a_node)
           if (r_device_id == GE_JoystickVirtualId(i))
           {
             r_device_id = i;
+            GE_SetJoystickUsed(i);
             break;
           }
         }

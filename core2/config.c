@@ -131,7 +131,7 @@ inline s_mouse_control* cfg_get_mouse_control(int id)
 
 void cfg_process_motion_event(GE_Event* event)
 {
-  s_mouse_control* mc = cfg_get_mouse_control(GE_get_device_id(event));
+  s_mouse_control* mc = cfg_get_mouse_control(GE_GetDeviceId(event));
   if(mc)
   {
     mc->merge_x[mc->index] += event->motion.xrel;
@@ -337,7 +337,7 @@ void cfg_intensity_lookup(GE_Event* e)
   int c_id, a_id;
   int device_type;
   int button_id;
-  unsigned int device_id = GE_get_device_id(e);
+  unsigned int device_id = GE_GetDeviceId(e);
 
   switch( e->type )
   {
@@ -394,7 +394,7 @@ void cfg_trigger_lookup(GE_Event* e)
   int up = 0;
   int selected;
   int current;
-  unsigned int device_id = GE_get_device_id(e);
+  unsigned int device_id = GE_GetDeviceId(e);
 
   switch( e->type )
   {
@@ -780,7 +780,7 @@ void cfg_process_event(GE_Event* event)
   s_mouse_control* mc;
   int max_axis = 255;
 
-  unsigned int device = GE_get_device_id(event);
+  unsigned int device = GE_GetDeviceId(event);
 
   for(c_id=0; c_id<MAX_CONTROLLERS; ++c_id)
   {
@@ -798,7 +798,7 @@ void cfg_process_event(GE_Event* event)
       }
       break;
       case GE_JOYAXISMOTION:
-      if(GE_is_sixaxis(device) && event->jaxis.axis > 3)
+      if(GE_IsSixaxis(device) && event->jaxis.axis > 3)
       {
         event->jaxis.value = (event->jaxis.value + 32767) / 2;
       }

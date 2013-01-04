@@ -799,7 +799,7 @@ static int macro_delete(GE_Event* event)
   {
     if(!compare_events(&running_macro[i].event, event))
     {
-      if(GE_get_device_id(&running_macro[i].event) == GE_get_device_id(event))
+      if(GE_GetDeviceId(&running_macro[i].event) == GE_GetDeviceId(event))
       {
         macro_unalloc(i);
         return 1;
@@ -908,7 +908,7 @@ void macro_process()
         event = p_macro_table->event;
         dtype1 = get_event_device_type(&event);
         dtype2 = get_event_device_type(&running_macro[i].event);
-        did = GE_get_device_id(&running_macro[i].event);
+        did = GE_GetDeviceId(&running_macro[i].event);
         if(dtype1 != E_DEVICE_TYPE_UNKNOWN && dtype2 != E_DEVICE_TYPE_UNKNOWN && did >= 0)
         {
           int controller = device_controller[dtype2-1][did];
