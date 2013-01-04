@@ -542,7 +542,7 @@ static int postpone_event(unsigned int device, GE_Event* event)
   {
     if (mc->postpone[event->button.button] < emuclient_params.postpone_count)
     {
-      SDL_PushEvent(event);
+      GE_PushEvent(event);
       mc->postpone[event->button.button]++;
       ret = 1;
     }
@@ -563,7 +563,7 @@ static int postpone_event(unsigned int device, GE_Event* event)
         /* do not postpone the event if it has to trigger a switch back */
         if(!triggers[i][next_config[i]].switch_back)
         {
-          SDL_PushEvent(event);
+          GE_PushEvent(event);
           ret = 1;
           break;
         }

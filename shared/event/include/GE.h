@@ -128,6 +128,7 @@ int GE_is_sixaxis(int);
 
 inline void GE_pump_events();
 inline int GE_peep_events(GE_Event*, int);
+inline int GE_PushEvent(GE_Event*);
 
 void GE_process_event(GE_Event* event);
 

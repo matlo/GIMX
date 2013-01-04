@@ -922,7 +922,7 @@ void macro_process()
             did = 0;
           }
           event.key.which = did;
-          SDL_PushEvent(&event);
+          GE_PushEvent(&event);
         }
         if(event.type != GE_NOEVENT)
         {

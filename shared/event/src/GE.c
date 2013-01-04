@@ -365,6 +365,11 @@ inline int GE_get_device_id(GE_Event* e)
   return device_id;
 }
 
+inline int GE_PushEvent(GE_Event *event)
+{
+  return ev_push_event(event);
+}
+
 inline void GE_pump_events()
 {
   ev_pump_events();
