@@ -39,9 +39,14 @@ int ev_init()
   return 1;
 }
 
+void ev_set_caption (const char *title, const char *icon)
+{
+  SDL_WM_SetCaption(title, icon);
+}
+
 void ev_quit(void)
 {
-
+  SDL_Quit();
 }
 
 const char* ev_joystick_name(int id)

@@ -107,29 +107,36 @@ typedef union GE_Event {
 
 #define EVENT_BUFFER_SIZE 256
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int merge_all_devices;
 
 int GE_initialize();
+void GE_SetCaption(const char*, const char*);
 void GE_grab_toggle();
 void GE_grab();
 void GE_release_unused();
 void GE_quit();
 void GE_free_mouse_keyboard_names();
 
-inline char* GE_MouseName(int);
-inline char* GE_KeyboardName(int);
-inline int GE_MouseVirtualId(int);
-inline int GE_KeyboardVirtualId(int);
-inline int GE_get_device_id(GE_Event*);
-inline char* GE_JoystickName(int);
-inline int GE_JoystickVirtualId(int);
-inline int GE_preprocess_events(GE_Event*, int);
-int GE_is_sixaxis(int);
+char* GE_MouseName(int);
+char* GE_KeyboardName(int);
+int GE_MouseVirtualId(int);
+int GE_KeyboardVirtualId(int);
+int GE_GetDeviceId(GE_Event*);
+char* GE_JoystickName(int);
+int GE_JoystickVirtualId(int);
+void GE_SetJoystickUsed(int);
+int GE_IsSixaxis(int);
 
-inline void GE_pump_events();
-inline int GE_peep_events(GE_Event*, int);
-inline int GE_PushEvent(GE_Event*);
+void GE_PumpEvents();
+int GE_PeepEvents(GE_Event*, int);
+int GE_PushEvent(GE_Event*);
 
-void GE_process_event(GE_Event* event);
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* GE_H_ */

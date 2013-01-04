@@ -19,6 +19,8 @@ extern char* keynames[MAX_KEYNAMES];
 int ev_init();
 void ev_quit();
 
+void ev_set_caption (const char*, const char*);
+
 const char* ev_joystick_name(int);
 const char* ev_mouse_name(int);
 const char* ev_keyboard_name(int);

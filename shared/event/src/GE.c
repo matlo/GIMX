@@ -17,6 +17,7 @@ SDL_Joystick* joysticks[MAX_DEVICES] = {};
 
 char* joystickName[MAX_DEVICES] = {};
 int joystickVirtualIndex[MAX_DEVICES] = {};
+int joystickUsed[MAX_DEVICES] = {};
 int joystickNbButton[MAX_DEVICES] = {};
 int joystickSixaxis[MAX_DEVICES] = {};
 char* mouseName[MAX_DEVICES] = {};
@@ -153,6 +154,11 @@ int GE_initialize()
   return 1;
 }
 
+void GE_SetCaption (const char *title, const char *icon)
+{
+  ev_set_caption(title, icon);
+}
+
 /*
  * Release unused stuff.
  * It currently releases unused joysticks, and closes the joystick subsystem if none is used.
@@ -163,7 +169,7 @@ void GE_release_unused()
   int none = 1;
   for(i=0; i<MAX_DEVICES && joystickName[i]; ++i)
   {
-    if(!cfg_is_joystick_used(i))
+    if(!joystickUsed[i])
     {
       free(joystickName[i]);
       joystickName[i] = NULL;
@@ -247,7 +253,7 @@ void GE_quit()
   ev_quit();
 }
 
-inline char* GE_MouseName(int id)
+char* GE_MouseName(int id)
 {
   if(id >= 0)
   {
@@ -256,7 +262,7 @@ inline char* GE_MouseName(int id)
   return NULL;
 }
 
-inline char* GE_KeyboardName(int id)
+char* GE_KeyboardName(int id)
 {
   if(id >= 0)
   {
@@ -265,7 +271,7 @@ inline char* GE_KeyboardName(int id)
   return NULL;
 }
 
-inline char* GE_JoystickName(int id)
+char* GE_JoystickName(int id)
 {
   if(id >= 0)
   {
@@ -274,7 +280,7 @@ inline char* GE_JoystickName(int id)
   return NULL;
 }
 
-inline int GE_JoystickVirtualId(int id)
+int GE_JoystickVirtualId(int id)
 {
   if(id >= 0)
   {
@@ -283,7 +289,15 @@ inline int GE_JoystickVirtualId(int id)
   return 0;
 }
 
-inline int GE_MouseVirtualId(int id)
+void GE_SetJoystickUsed(int id)
+{
+  if(id >= 0)
+  {
+    joystickUsed[id] = 1;
+  }
+}
+
+int GE_MouseVirtualId(int id)
 {
   if(id >= 0)
   {
@@ -292,7 +306,7 @@ inline int GE_MouseVirtualId(int id)
   return 0;
 }
 
-inline int GE_KeyboardVirtualId(int id)
+int GE_KeyboardVirtualId(int id)
 {
   if(id >= 0)
   {
@@ -301,12 +315,12 @@ inline int GE_KeyboardVirtualId(int id)
   return 0;
 }
 
-inline int GE_JoystickHatButton(GE_Event* event, unsigned char hat_dir)
+int GE_JoystickHatButton(GE_Event* event, unsigned char hat_dir)
 {
   return joystickNbButton[event->jhat.which] + 4*event->jhat.hat + log2(hat_dir);
 }
 
-static inline unsigned char get_joystick_hat(GE_Event* event)
+static unsigned char get_joystick_hat(GE_Event* event)
 {
   if(event->jhat.which >= 0 && event->jhat.hat < joystickNbHat[event->jhat.which])
   {
@@ -315,7 +329,7 @@ static inline unsigned char get_joystick_hat(GE_Event* event)
   return 0;
 }
 
-static inline void set_joystick_hat(GE_Event* event)
+static void set_joystick_hat(GE_Event* event)
 {
   if(event->jhat.which >= 0 && event->jhat.hat < joystickNbHat[event->jhat.which])
   {
@@ -323,7 +337,7 @@ static inline void set_joystick_hat(GE_Event* event)
   }
 }
 
-inline int GE_is_sixaxis(int id)
+int GE_IsSixaxis(int id)
 {
   if(id >= 0)
   {
@@ -335,7 +349,7 @@ inline int GE_is_sixaxis(int id)
 /*
  * Returns the device id of a given event.
  */
-inline int GE_get_device_id(GE_Event* e)
+int GE_GetDeviceId(GE_Event* e)
 {
   /*
    * 'which' should always be at that place
@@ -365,26 +379,21 @@ inline int GE_get_device_id(GE_Event* e)
   return device_id;
 }
 
-inline int GE_PushEvent(GE_Event *event)
+int GE_PushEvent(GE_Event *event)
 {
   return ev_push_event(event);
 }
 
-inline void GE_pump_events()
+void GE_PumpEvents()
 {
   ev_pump_events();
-}
-
-inline int GE_peep_events(GE_Event *events, int numevents)
-{
-  return ev_peep_events(events, numevents);
 }
 
 /*
  * This function translates joystick hat events into joystick button events.
  * The joystick button events are inserted just before the joystick hat events.
  */
-inline int GE_preprocess_events(GE_Event *events, int numevents)
+static int preprocess_events(GE_Event *events, int numevents)
 {
   GE_Event* event;
   unsigned char hat_dir;
@@ -452,4 +461,11 @@ inline int GE_preprocess_events(GE_Event *events, int numevents)
     }
   }
   return numevents;
+}
+
+int GE_PeepEvents(GE_Event *events, int numevents)
+{
+  int nb = ev_peep_events(events, numevents);
+
+  return preprocess_events(events, nb);
 }
