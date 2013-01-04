@@ -46,12 +46,10 @@ void mainloop()
     
     if(!emuclient_params.keygen)
     {
-      GE_pump_events();
+      GE_PumpEvents();
     } 
 
-    num_evt = GE_peep_events(events, sizeof(events) / sizeof(events[0]));
-
-    num_evt = GE_preprocess_events(events, num_evt);
+    num_evt = GE_PeepEvents(events, sizeof(events) / sizeof(events[0]));
 
     if (num_evt == EVENT_BUFFER_SIZE)
     {
