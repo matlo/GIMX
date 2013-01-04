@@ -33,12 +33,6 @@ void mainloop()
   int ptl;
   
   QueryPerformanceFrequency(&freq);
-    
-  if(emuclient_params.grab)
-  {
-    usleep(1000000);
-    GE_grab();
-  }
 
   while (!done)
   {
