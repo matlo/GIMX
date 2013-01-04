@@ -8,14 +8,33 @@
 
 #include <stdint.h>
 
-#ifndef WIN32
-#define GE_GETEVENT 0
-#define GE_ALLEVENT 0
+#ifdef WIN32
+#include <SDL/SDL.h>
+#define KEY_LEFTCTRL   SDLK_LCTRL
+#define KEY_RIGHTCTRL  SDLK_RCTRL
+#define KEY_LEFTSHIFT  SDLK_LSHIFT
+#define KEY_RIGHTSHIFT SDLK_RSHIFT
+#define KEY_LEFTALT    SDLK_LALT
+#define KEY_RIGHTALT   SDLK_MODE
+#define KEY_ESC        SDLK_ESCAPE
+#define KEY_F1         SDLK_F1
+#define KEY_F2         SDLK_F2
+#define KEY_F3         SDLK_F3
+#define KEY_F4         SDLK_F4
+#define KEY_F5         SDLK_F5
+#define KEY_F6         SDLK_F6
+#define KEY_F7         SDLK_F7
+#define KEY_F8         SDLK_F8
+#define KEY_F9         SDLK_F9
+#define KEY_F10        SDLK_F10
+#define KEY_F11        SDLK_F11
+#define KEY_F12        SDLK_F12
+#else
+#include <linux/input.h>
+#endif
+
 #define GE_GRAB_OFF 0
 #define GE_GRAB_ON 1
-
-#define GE_RELEASED  0
-#define GE_PRESSED 1
 
 typedef enum {
        GE_NOEVENT = 0,     /**< Unused (do not remove) */
@@ -25,10 +44,10 @@ typedef enum {
        GE_MOUSEBUTTONDOWN,   /**< Mouse button pressed */
        GE_MOUSEBUTTONUP,   /**< Mouse button released */
        GE_JOYAXISMOTION,   /**< Joystick axis motion */
-       GE_JOYBALLMOTION,   /**< Joystick trackball motion */
        GE_JOYHATMOTION,    /**< Joystick hat position change */
        GE_JOYBUTTONDOWN,   /**< Joystick button pressed */
        GE_JOYBUTTONUP,     /**< Joystick button released */
+       GE_QUIT,     /**< Joystick button released */
 } GE_EventType;
 
 typedef struct GE_KeyboardEvent {
@@ -85,9 +104,6 @@ typedef union GE_Event {
   GE_JoyHatEvent jhat;
   GE_JoyButtonEvent jbutton;
 } GE_Event;
-#else
-#include <SDL/SDL.h>
-#endif
 
 #define EVENT_BUFFER_SIZE 256
 

@@ -3,23 +3,16 @@
  License: GPLv3
  */
 #include <GE.h>
-//#include <config.h>
-//#include <emuclient.h>
 #include <math.h>
 #include <events.h>
 #include <string.h>
 #include <stdlib.h>
-//#include <macros.h>
-//#include <calibration.h>
 
-#define SCREEN_WIDTH  1
-#define SCREEN_HEIGHT 1
-#define TITLE "Sixaxis Control"
 #define BT_SIXAXIS_NAME "PLAYSTATION(R)3 Controller"
 
 #ifdef WIN32
+#include <SDL/SDL.h>
 SDL_Joystick* joysticks[MAX_DEVICES] = {};
-static SDL_Surface *screen = NULL;
 #endif
 
 char* joystickName[MAX_DEVICES] = {};
@@ -106,7 +99,7 @@ int GE_initialize()
       joystickHat[i] = calloc(joystickNbHat[i], sizeof(unsigned char));
       if(!joystickHat[i])
       {
-        fprintf(stderr, "Unable to allocate %lu bytes for joystick hats.\n", joystickNbHat[i]*sizeof(unsigned char));
+        fprintf(stderr, "Unable to allocate %u bytes for joystick hats.\n", joystickNbHat[i]*sizeof(unsigned char));
         return 0;
       }
     }

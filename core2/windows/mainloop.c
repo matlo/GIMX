@@ -83,9 +83,6 @@ void mainloop()
 
       switch (event->type)
       {
-        case GE_QUIT:
-          done = 1;
-          break;
         case GE_MOUSEBUTTONDOWN:
           cal_button(event->button.which, event->button.button);
           break;

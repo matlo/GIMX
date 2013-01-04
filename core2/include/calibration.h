@@ -8,30 +8,6 @@
 
 #include "config.h"
 
-#ifdef WIN32
-#define KEY_LEFTCTRL   SDLK_LCTRL
-#define KEY_RIGHTCTRL  SDLK_RCTRL
-#define KEY_LEFTSHIFT  SDLK_LSHIFT
-#define KEY_RIGHTSHIFT SDLK_RSHIFT
-#define KEY_LEFTALT    SDLK_LALT
-#define KEY_RIGHTALT   SDLK_MODE
-#define KEY_ESC        SDLK_ESCAPE
-#define KEY_F1         SDLK_F1
-#define KEY_F2         SDLK_F2
-#define KEY_F3         SDLK_F3
-#define KEY_F4         SDLK_F4
-#define KEY_F5         SDLK_F5
-#define KEY_F6         SDLK_F6
-#define KEY_F7         SDLK_F7
-#define KEY_F8         SDLK_F8
-#define KEY_F9         SDLK_F9
-#define KEY_F10        SDLK_F10
-#define KEY_F11        SDLK_F11
-#define KEY_F12        SDLK_F12
-#else
-#include <linux/input.h>
-#endif
-
 typedef enum
 {
   NONE,

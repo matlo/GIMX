@@ -8,6 +8,12 @@
 #include <SDL/SDL.h>
 #include <GE.h>
 
+#define SCREEN_WIDTH  1
+#define SCREEN_HEIGHT 1
+#define TITLE "Sixaxis Control"
+
+static SDL_Surface *screen = NULL;
+
 int ev_init()
 {
   /* Init SDL */
@@ -30,23 +36,27 @@ int ev_init()
 
   SDL_ShowCursor(SDL_DISABLE);
 
+  return 1;
 }
 
-void ev_quit();
-
-const char* ev_joystick_name(int)
+void ev_quit(void)
 {
 
+}
+
+const char* ev_joystick_name(int id)
+{
+  return NULL;
 }
 
 const char* ev_mouse_name(int id)
 {
-  return SDL_GetMouseName(id));
+  return SDL_GetMouseName(id);
 }
 
 const char* ev_keyboard_name(int id)
 {
-  return SDL_GetKeyboardName(id));
+  return SDL_GetKeyboardName(id);
 }
 
 void ev_grab_input(int mode)
