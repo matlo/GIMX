@@ -67,6 +67,10 @@ void ev_grab_input(int mode)
   SDL_WM_GrabInput(mode);
 }
 
+void ev_set_callback(void (*fp)(GE_Event*))
+{
+}
+
 void ev_pump_events()
 {
   SDL_PumpEvents();
