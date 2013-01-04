@@ -4,7 +4,7 @@
  */
 
 #include <sys/time.h>
-#include "sdl_tools.h"
+#include <GE.h>
 #include "emuclient.h"
 #include "calibration.h"
 #include "serial_con.h"
@@ -12,8 +12,9 @@
 #include "tcp_con.h"
 #include "macros.h"
 #include "display.h"
-#include <events.h>
+//#include <events.h>
 #include <timer.h>
+#include <stdio.h>
 
 static int done = 0;
 
@@ -24,9 +25,9 @@ void set_done()
 
 void mainloop()
 {
-  SDL_Event events[EVENT_BUFFER_SIZE];
+  GE_Event events[EVENT_BUFFER_SIZE];
   int num_evt;
-  SDL_Event* event;
+  GE_Event* event;
   struct timespec period = {.tv_sec = 0, .tv_nsec = emuclient_params.refresh_rate*1000};
     
   timer_start(&period);
@@ -35,7 +36,7 @@ void mainloop()
   {
     if(!emuclient_params.keygen)
     {
-      sdl_pump_events();
+      GE_pump_events();
     }
 
     cfg_process_motion();
@@ -64,7 +65,7 @@ void mainloop()
 
     macro_process();
 
-    num_evt = sdl_peep_events(events, sizeof(events) / sizeof(events[0]), SDL_GETEVENT, SDL_ALLEVENTS);
+    num_evt = GE_peep_events(events, sizeof(events) / sizeof(events[0]));
 
     if (num_evt == EVENT_BUFFER_SIZE)
     {
@@ -73,7 +74,7 @@ void mainloop()
 
     for (event = events; event < events + num_evt; ++event)
     {
-      sdl_process_event(event);
+      process_event(event);
     }
   }
     

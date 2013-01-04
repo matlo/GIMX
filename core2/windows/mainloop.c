@@ -4,7 +4,7 @@
  */
 
 #include <sys/time.h>
-#include "sdl_tools.h"
+#include <GE.h>
 #include "emuclient.h"
 #include "calibration.h"
 #include "serial_con.h"
@@ -25,9 +25,9 @@ void set_done()
 
 void mainloop()
 {
-  SDL_Event events[EVENT_BUFFER_SIZE];
+  GE_Event events[EVENT_BUFFER_SIZE];
   int num_evt;
-  SDL_Event* event;
+  GE_Event* event;
   LARGE_INTEGER t0, t1, freq;
   int time_to_sleep;
   int ptl;
@@ -37,7 +37,7 @@ void mainloop()
   if(emuclient_params.grab)
   {
     usleep(1000000);
-    sdl_grab();
+    GE_grab();
   }
 
   while (!done)
@@ -52,12 +52,12 @@ void mainloop()
     
     if(!emuclient_params.keygen)
     {
-      sdl_pump_events();
+      GE_pump_events();
     } 
 
-    num_evt = sdl_peep_events(events, sizeof(events) / sizeof(events[0]), SDL_GETEVENT, SDL_ALLEVENTS);
+    num_evt = GE_peep_events(events, sizeof(events) / sizeof(events[0]));
 
-    num_evt = sdl_preprocess_events(events, num_evt);
+    num_evt = GE_preprocess_events(events, num_evt);
 
     if (num_evt == EVENT_BUFFER_SIZE)
     {
@@ -66,7 +66,7 @@ void mainloop()
 
     for (event = events; event < events + num_evt; ++event)
     {
-      if (event->type != SDL_MOUSEMOTION)
+      if (event->type != GE_MOUSEMOTION)
       {
         if (!cal_skip_event(event))
         {
@@ -83,17 +83,17 @@ void mainloop()
 
       switch (event->type)
       {
-        case SDL_QUIT:
+        case GE_QUIT:
           done = 1;
           break;
-        case SDL_MOUSEBUTTONDOWN:
+        case GE_MOUSEBUTTONDOWN:
           cal_button(event->button.which, event->button.button);
           break;
-        case SDL_KEYDOWN:
-          cal_key(event->key.which, event->key.keysym.sym, 1);
+        case GE_KEYDOWN:
+          cal_key(event->key.which, event->key.keysym, 1);
           break;
-        case SDL_KEYUP:
-          cal_key(event->key.which, event->key.keysym.sym, 0);
+        case GE_KEYUP:
+          cal_key(event->key.which, event->key.keysym, 0);
           break;
       }
       

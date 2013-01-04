@@ -16,7 +16,7 @@
 #include "display.h"
 
 #include "calibration.h"
-#include "sdl_tools.h"
+#include <GE.h>
 #include "emuclient.h"
 
 #include "conversion.h"
@@ -91,7 +91,7 @@ void display_calibration()
     {
       wattron(wcal, COLOR_PAIR(4));
     }
-    snprintf(line, COLS, " %s (%d) (F1) ", sdl_get_mouse_name(current_mouse), sdl_get_mouse_virtual_id(current_mouse));
+    snprintf(line, COLS, " %s (%d) (F1) ", GE_MouseName(current_mouse), GE_MouseVirtualId(current_mouse));
     waddstr(wcal, line);
     if(current_cal == MC)
     {

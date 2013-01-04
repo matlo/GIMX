@@ -1,16 +1,16 @@
 include ../../Makedefs
 
-OBJ=src/linux/events.o src/linux/conversion.o src/linux/timer.o
+OBJ=src/linux/events.o src/linux/conversion.o src/linux/timer.o src/GE.o
 LIB=
-INC=-I/usr/include/ -Iinclude -I../../../libsdl/include
+INC=-I/usr/include/ -Iinclude
 
 all: $(OBJ)
-	ar rcsD event.a.new $(OBJ)
-	diff -N event.a.new event.a > /dev/null || mv event.a.new event.a
-	rm -f event.a.new
+	ar rcsD GE.a.new $(OBJ)
+	diff -N GE.a.new GE.a > /dev/null || mv GE.a.new GE.a
+	rm -f GE.a.new
 
 src/%.o: src/%.c
 	$(CC) $(CFLAGS) $(INC) -o $@ -c $< $(LIB)
 
 clean:
-	rm -f $(OBJ) event.a
+	rm -f $(OBJ) GE.a

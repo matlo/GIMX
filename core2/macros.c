@@ -3,16 +3,17 @@
  License: GPLv3
  */
 
-#include <SDL/SDL.h>
 #include <limits.h>
 #include "macros.h"
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <dirent.h>
 #include "conversion.h"
 #include <math.h>
 #include "emuclient.h"
-#include "sdl_tools.h"
+#include <GE.h>
 #include "events.h"
 
 #ifdef WIN32
@@ -32,7 +33,7 @@
 
 typedef struct
 {
-  SDL_Event event;
+  GE_Event event;
   int macro;
   int index;
 } s_running_macro;
@@ -51,7 +52,7 @@ static int controller_device[3][MAX_CONTROLLERS];
 static int device_controller[3][MAX_DEVICES];
 
 typedef struct {
-    SDL_Event event;
+  GE_Event event;
     /*
      * Below elements are only significant for the first entry.
      */
@@ -85,35 +86,35 @@ void allocate_element(s_macro_event** pt) {
     memset((*pt) + (*pt)->size - 1, 0x00, sizeof(s_macro_event));
 }
 
-int compare_events(SDL_Event* e1, SDL_Event* e2)
+int compare_events(GE_Event* e1, GE_Event* e2)
 {
   int ret = 1;
   if(e1->type == e2->type)
   {
     switch(e1->type)
     {
-      case SDL_KEYDOWN:
-      case SDL_KEYUP:
-        if(e1->key.keysym.sym == e2->key.keysym.sym)
+      case GE_KEYDOWN:
+      case GE_KEYUP:
+        if(e1->key.keysym == e2->key.keysym)
         {
           ret = 0;
         }
         break;
-      case SDL_MOUSEBUTTONDOWN:
-      case SDL_MOUSEBUTTONUP:
+      case GE_MOUSEBUTTONDOWN:
+      case GE_MOUSEBUTTONUP:
         if(e1->button.button == e2->button.button)
         {
           ret = 0;
         }
         break;
-      case SDL_JOYBUTTONDOWN:
-      case SDL_JOYBUTTONUP:
+      case GE_JOYBUTTONDOWN:
+      case GE_JOYBUTTONUP:
         if(e1->jbutton.button == e2->jbutton.button)
         {
           ret = 0;
         }
         break;
-      case SDL_NOEVENT:
+      case GE_NOEVENT:
         ret = 0;
         break;
       default:
@@ -154,42 +155,42 @@ static s_macro_event** get_macro(const char* line)
       {
         if((rbutton = get_key_from_buffer(argument[2])))
         {
-          etype = SDL_KEYDOWN;
+          etype = GE_KEYDOWN;
         }
       }
       else if(!strncmp(argument[1], "KEYUP", strlen("KEYUP")))
       {
         if((rbutton = get_key_from_buffer(argument[2])))
         {
-          etype = SDL_KEYUP;
+          etype = GE_KEYUP;
         }
       }
       else if(!strncmp(argument[1], "MBUTTONDOWN", strlen ("MBUTTONDOWN")))
       {
         if((rbutton = get_mouse_event_id_from_buffer(argument[2])))
         {
-          etype = SDL_MOUSEBUTTONDOWN;
+          etype = GE_MOUSEBUTTONDOWN;
         }
       }
       else if(!strncmp(argument[1], "MBUTTONUP", strlen("MBUTTONUP")))
       {
         if((rbutton = get_mouse_event_id_from_buffer(argument[2])))
         {
-          etype = SDL_MOUSEBUTTONUP;
+          etype = GE_MOUSEBUTTONUP;
         }
       }
       else if(!strncmp(argument[1], "JBUTTONDOWN", strlen("JBUTTONDOWN")))
       {
         if((rbutton = atoi(argument[2])) >= 0)
         {
-          etype = SDL_JOYBUTTONDOWN;
+          etype = GE_JOYBUTTONDOWN;
         }
       }
       else if(!strncmp(argument[1], "JBUTTONUP", strlen("JBUTTONUP")))
       {
         if((rbutton = atoi(argument[2])) >= 0)
         {
-          etype = SDL_JOYBUTTONUP;
+          etype = GE_JOYBUTTONUP;
         }
       }
     }
@@ -200,7 +201,7 @@ static s_macro_event** get_macro(const char* line)
        */
       if((rbutton = get_key_from_buffer(argument[1])))
       {
-        etype = SDL_KEYDOWN;
+        etype = GE_KEYDOWN;
       }
     }
     
@@ -220,16 +221,16 @@ static s_macro_event** get_macro(const char* line)
     (*pt)[1].event.type = etype;
     switch(etype)
     {
-      case SDL_KEYDOWN:
-      case SDL_KEYUP:
-        (*pt)[1].event.key.keysym.sym = rbutton;
+      case GE_KEYDOWN:
+      case GE_KEYUP:
+        (*pt)[1].event.key.keysym = rbutton;
       break;
-      case SDL_MOUSEBUTTONDOWN:
-      case SDL_MOUSEBUTTONUP:
+      case GE_MOUSEBUTTONDOWN:
+      case GE_MOUSEBUTTONUP:
         (*pt)[1].event.button.button = rbutton;
       break;
-      case SDL_JOYBUTTONDOWN:
-      case SDL_JOYBUTTONUP:
+      case GE_JOYBUTTONDOWN:
+      case GE_JOYBUTTONUP:
         (*pt)[1].event.jbutton.button = rbutton;
       break;
     }
@@ -270,8 +271,8 @@ static void get_event(const char* line)
 
     allocate_element(pcurrent);
 
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = SDL_KEYDOWN;
-    (*pcurrent)[(*pcurrent)->size - 1].event.key.keysym.sym = rbutton;
+    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_KEYDOWN;
+    (*pcurrent)[(*pcurrent)->size - 1].event.key.keysym = rbutton;
   }
   else if (!strncmp(argument[0], "KEYUP", strlen("KEYUP")))
   {
@@ -279,8 +280,8 @@ static void get_event(const char* line)
 
     allocate_element(pcurrent);
 
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = SDL_KEYUP;
-    (*pcurrent)[(*pcurrent)->size - 1].event.key.keysym.sym = rbutton;
+    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_KEYUP;
+    (*pcurrent)[(*pcurrent)->size - 1].event.key.keysym = rbutton;
   }
   else if (!strncmp(argument[0], "KEY", strlen("KEY")))
   {
@@ -288,8 +289,8 @@ static void get_event(const char* line)
 
     allocate_element(pcurrent);
 
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = SDL_KEYDOWN;
-    (*pcurrent)[(*pcurrent)->size - 1].event.key.keysym.sym = rbutton;
+    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_KEYDOWN;
+    (*pcurrent)[(*pcurrent)->size - 1].event.key.keysym = rbutton;
 
     delay_nb = ceil((double)DEFAULT_DELAY / (emuclient_params.refresh_rate/1000));
     for(i=0; i<delay_nb; ++i)
@@ -299,8 +300,8 @@ static void get_event(const char* line)
 
     allocate_element(pcurrent);
 
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = SDL_KEYUP;
-    (*pcurrent)[(*pcurrent)->size - 1].event.key.keysym.sym = rbutton;
+    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_KEYUP;
+    (*pcurrent)[(*pcurrent)->size - 1].event.key.keysym = rbutton;
   }
   else if (!strncmp(argument[0], "MBUTTONDOWN", strlen("MBUTTONDOWN")))
   {
@@ -308,7 +309,7 @@ static void get_event(const char* line)
 
     allocate_element(pcurrent);
 
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = SDL_MOUSEBUTTONDOWN;
+    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_MOUSEBUTTONDOWN;
     (*pcurrent)[(*pcurrent)->size - 1].event.button.button = rbutton;
   }
   else if (!strncmp(argument[0], "MBUTTONUP", strlen("MBUTTONUP")))
@@ -317,7 +318,7 @@ static void get_event(const char* line)
 
     allocate_element(pcurrent);
 
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = SDL_MOUSEBUTTONUP;
+    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_MOUSEBUTTONUP;
     (*pcurrent)[(*pcurrent)->size - 1].event.button.button = rbutton;
   }
   else if (!strncmp(argument[0], "MBUTTON", strlen("MBUTTON")))
@@ -326,7 +327,7 @@ static void get_event(const char* line)
 
     allocate_element(pcurrent);
 
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = SDL_MOUSEBUTTONDOWN;
+    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_MOUSEBUTTONDOWN;
     (*pcurrent)[(*pcurrent)->size - 1].event.button.button = rbutton;
 
     delay_nb = ceil((double)DEFAULT_DELAY / (emuclient_params.refresh_rate/1000));
@@ -337,7 +338,7 @@ static void get_event(const char* line)
 
     allocate_element(pcurrent);
 
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = SDL_MOUSEBUTTONUP;
+    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_MOUSEBUTTONUP;
     (*pcurrent)[(*pcurrent)->size - 1].event.button.button = rbutton;
   }
   else if (!strncmp(argument[0], "JBUTTONDOWN", strlen("JBUTTONDOWN")))
@@ -346,7 +347,7 @@ static void get_event(const char* line)
 
     allocate_element(pcurrent);
 
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = SDL_JOYBUTTONDOWN;
+    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_JOYBUTTONDOWN;
     (*pcurrent)[(*pcurrent)->size - 1].event.jbutton.button = rbutton;
   }
   else if (!strncmp(argument[0], "JBUTTONUP", strlen("JBUTTONUP")))
@@ -355,7 +356,7 @@ static void get_event(const char* line)
 
     allocate_element(pcurrent);
 
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = SDL_JOYBUTTONUP;
+    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_JOYBUTTONUP;
     (*pcurrent)[(*pcurrent)->size - 1].event.jbutton.button = rbutton;
   }
   else if (!strncmp(argument[0], "JBUTTON", strlen("JBUTTON"))) {
@@ -363,7 +364,7 @@ static void get_event(const char* line)
 
     allocate_element(pcurrent);
 
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = SDL_JOYBUTTONDOWN;
+    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_JOYBUTTONDOWN;
     (*pcurrent)[(*pcurrent)->size - 1].event.jbutton.button = rbutton;
 
     delay_nb = ceil((double)DEFAULT_DELAY / (emuclient_params.refresh_rate/1000));
@@ -374,7 +375,7 @@ static void get_event(const char* line)
 
     allocate_element(pcurrent);
 
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = SDL_JOYBUTTONUP;
+    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_JOYBUTTONUP;
     (*pcurrent)[(*pcurrent)->size - 1].event.jbutton.button = rbutton;
   }
   else if (!strncmp(argument[0], "DELAY", strlen("DELAY")))
@@ -413,42 +414,42 @@ void get_trigger(const char* line)
       {
         if((rbutton = get_key_from_buffer(argument[2])))
         {
-          etype = SDL_KEYDOWN;
+          etype = GE_KEYDOWN;
         }
       }
       else if(!strncmp(argument[1], "KEYUP", strlen("KEYUP")))
       {
         if((rbutton = get_key_from_buffer(argument[2])))
         {
-          etype = SDL_KEYUP;
+          etype = GE_KEYUP;
         }
       }
       else if(!strncmp(argument[1], "MBUTTONDOWN", strlen ("MBUTTONDOWN")))
       {
         if((rbutton = get_mouse_event_id_from_buffer(argument[2])))
         {
-          etype = SDL_MOUSEBUTTONDOWN;
+          etype = GE_MOUSEBUTTONDOWN;
         }
       }
       else if(!strncmp(argument[1], "MBUTTONUP", strlen("MBUTTONUP")))
       {
         if((rbutton = get_mouse_event_id_from_buffer(argument[2])))
         {
-          etype = SDL_MOUSEBUTTONUP;
+          etype = GE_MOUSEBUTTONUP;
         }
       }
       else if(!strncmp(argument[1], "JBUTTONDOWN", strlen("JBUTTONDOWN")))
       {
         if((rbutton = atoi(argument[2])) >= 0)
         {
-          etype = SDL_JOYBUTTONDOWN;
+          etype = GE_JOYBUTTONDOWN;
         }
       }
       else if(!strncmp(argument[1], "JBUTTONUP", strlen("JBUTTONUP")))
       {
         if((rbutton = atoi(argument[2])) >= 0)
         {
-          etype = SDL_JOYBUTTONUP;
+          etype = GE_JOYBUTTONUP;
         }
       }
     }
@@ -459,7 +460,7 @@ void get_trigger(const char* line)
        */
       if((rbutton = get_key_from_buffer(argument[1])))
       {
-        etype = SDL_KEYDOWN;
+        etype = GE_KEYDOWN;
       }
     }
     
@@ -471,16 +472,16 @@ void get_trigger(const char* line)
     (*pcurrent)[0].event.type = etype;
     switch(etype)
     {
-      case SDL_KEYDOWN:
-      case SDL_KEYUP:
-        (*pcurrent)[0].event.key.keysym.sym = rbutton;
+      case GE_KEYDOWN:
+      case GE_KEYUP:
+        (*pcurrent)[0].event.key.keysym = rbutton;
       break;
-      case SDL_MOUSEBUTTONDOWN:
-      case SDL_MOUSEBUTTONUP:
+      case GE_MOUSEBUTTONDOWN:
+      case GE_MOUSEBUTTONUP:
         (*pcurrent)[0].event.button.button = rbutton;
       break;
-      case SDL_JOYBUTTONDOWN:
-      case SDL_JOYBUTTONUP:
+      case GE_JOYBUTTONDOWN:
+      case GE_JOYBUTTONUP:
         (*pcurrent)[0].event.jbutton.button = rbutton;
       break;
     }
@@ -537,22 +538,22 @@ void dump_scripts() {
                 }
                 switch(p_element->event.type)
                 {
-                  case SDL_KEYDOWN:
-                    printf("KEYDOWN %s\n", get_chars_from_key(p_element->event.key.keysym.sym));
+                  case GE_KEYDOWN:
+                    printf("KEYDOWN %s\n", get_chars_from_key(p_element->event.key.keysym));
                     break;
-                  case SDL_KEYUP:
-                    printf("KEYUP %s\n", get_chars_from_key(p_element->event.key.keysym.sym));
+                  case GE_KEYUP:
+                    printf("KEYUP %s\n", get_chars_from_key(p_element->event.key.keysym));
                     break;
-                  case SDL_MOUSEBUTTONDOWN:
+                  case GE_MOUSEBUTTONDOWN:
                     printf("MBUTTONDOWN %s\n", get_chars_from_button(p_element->event.button.button));
                     break;
-                  case SDL_MOUSEBUTTONUP:
+                  case GE_MOUSEBUTTONUP:
                     printf("MBUTTONUP %s\n", get_chars_from_button(p_element->event.button.button));
                     break;
-                  case SDL_JOYBUTTONDOWN:
+                  case GE_JOYBUTTONDOWN:
                     printf("JBUTTONDOWN %d\n", p_element->event.jbutton.button);
                     break;
-                  case SDL_JOYBUTTONUP:
+                  case GE_JOYBUTTONUP:
                     printf("JBUTTONUP %d\n", p_element->event.jbutton.button);
                     break;
                 }
@@ -738,10 +739,10 @@ void macros_init() {
 static void active_triggered_init()
 {
   int i;
-  SDL_Event e = {.type = SDL_NOEVENT};
+  GE_Event e = {.type = GE_NOEVENT};
   for(i=0; i<macro_table_nb; ++i)
   {
-    if(macro_table[i][0].event.type == SDL_NOEVENT)
+    if(macro_table[i][0].event.type == GE_NOEVENT)
     {
       /*
        * No trigger => macro is always active.
@@ -750,7 +751,7 @@ static void active_triggered_init()
     }
     else if(compare_events(&e, &macro_table[i][0].event))
     {
-      if(e.type == SDL_NOEVENT)
+      if(e.type == GE_NOEVENT)
       {
         /*
          * First triggered macro => active at startup.
@@ -791,14 +792,14 @@ static void macro_unalloc(int index)
 /*
  * Unregister a macro.
  */
-static int macro_delete(SDL_Event* event)
+static int macro_delete(GE_Event* event)
 {
   int i;
   for(i=0; i<running_macro_nb; ++i)
   {
     if(!compare_events(&running_macro[i].event, event))
     {
-      if(sdl_get_device_id(&running_macro[i].event) == sdl_get_device_id(event))
+      if(GE_get_device_id(&running_macro[i].event) == GE_get_device_id(event))
       {
         macro_unalloc(i);
         return 1;
@@ -811,7 +812,7 @@ static int macro_delete(SDL_Event* event)
 /*
  * Register a new macro.
  */
-static void macro_add(SDL_Event* event, int macro)
+static void macro_add(GE_Event* event, int macro)
 {
   s_running_macro* running_macro_realloc = realloc(running_macro, (running_macro_nb+1)*sizeof(s_running_macro));
   if(running_macro_realloc)
@@ -827,12 +828,12 @@ static void macro_add(SDL_Event* event, int macro)
 /*
  * Start or stop a macro.
  */
-void macro_lookup(SDL_Event* event)
+void macro_lookup(GE_Event* event)
 {
   int i, j;
   for(i=0; i<macro_table_nb; ++i)
   {
-    if(macro_table[i][0].event.type != SDL_NOEVENT)
+    if(macro_table[i][0].event.type != GE_NOEVENT)
     {
       if(!compare_events(event, &macro_table[i][0].event) 
          && !macro_table[i][0].active)
@@ -840,7 +841,7 @@ void macro_lookup(SDL_Event* event)
         macro_table[i][0].active = 1;
         for(j=0; j<macro_table_nb; ++j)
         {
-          if(macro_table[j][0].event.type == SDL_NOEVENT)
+          if(macro_table[j][0].event.type == GE_NOEVENT)
           {
             continue;
           }
@@ -866,20 +867,20 @@ void macro_lookup(SDL_Event* event)
   }
 }
 
-int get_event_device_type(SDL_Event* ev)
+int get_event_device_type(GE_Event* ev)
 {
   switch(ev->type)
   {
-    case SDL_KEYDOWN:
-    case SDL_KEYUP:
+    case GE_KEYDOWN:
+    case GE_KEYUP:
       return E_DEVICE_TYPE_KEYBOARD;
     break;
-    case SDL_MOUSEBUTTONDOWN:
-    case SDL_MOUSEBUTTONUP:
+    case GE_MOUSEBUTTONDOWN:
+    case GE_MOUSEBUTTONUP:
       return E_DEVICE_TYPE_MOUSE;
     break;
-    case SDL_JOYBUTTONDOWN:
-    case SDL_JOYBUTTONUP:
+    case GE_JOYBUTTONDOWN:
+    case GE_JOYBUTTONUP:
       return E_DEVICE_TYPE_JOYSTICK;
     break;
   }
@@ -893,7 +894,7 @@ void macro_process()
 {
   int i;
   int dtype1, dtype2, did;
-  SDL_Event event;
+  GE_Event event;
   s_macro_event* p_macro_table;
   for(i=0; i<running_macro_nb; ++i)
   {
@@ -907,7 +908,7 @@ void macro_process()
         event = p_macro_table->event;
         dtype1 = get_event_device_type(&event);
         dtype2 = get_event_device_type(&running_macro[i].event);
-        did = sdl_get_device_id(&running_macro[i].event);
+        did = GE_get_device_id(&running_macro[i].event);
         if(dtype1 != E_DEVICE_TYPE_UNKNOWN && dtype2 != E_DEVICE_TYPE_UNKNOWN && did >= 0)
         {
           int controller = device_controller[dtype2-1][did];
@@ -923,7 +924,7 @@ void macro_process()
           event.key.which = did;
           SDL_PushEvent(&event);
         }
-        if(event.type != SDL_NOEVENT)
+        if(event.type != GE_NOEVENT)
         {
           running_macro[i].index++;
         }
@@ -960,15 +961,15 @@ void macro_set_controller_device(int controller, int device_type, int device_id)
     gprintf(_("macros are not not available for: "));
     if(device_type == 0)
     {
-      gprintf(_("keyboard %s (%d)\n"), sdl_get_keyboard_name(device_id), sdl_get_keyboard_virtual_id(device_id));
+      gprintf(_("keyboard %s (%d)\n"), GE_KeyboardName(device_id), GE_KeyboardVirtualId(device_id));
     }
     else if(device_type == 1)
     {
-      gprintf(_("mouse %s (%d)\n"), sdl_get_mouse_name(device_id), sdl_get_mouse_virtual_id(device_id));    
+      gprintf(_("mouse %s (%d)\n"), GE_MouseName(device_id), GE_MouseVirtualId(device_id));
     }
     else if(device_type == 2)
     {
-      gprintf(_("joystick %s (%d)\n"), sdl_get_joystick_name(device_id), sdl_get_joystick_virtual_id(device_id));    
+      gprintf(_("joystick %s (%d)\n"), GE_JoystickName(device_id), GE_JoystickVirtualId(device_id));
     }
   }
 }

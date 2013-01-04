@@ -4,11 +4,13 @@
  */
 
 #include "calibration.h"
-#include <SDL/SDL.h>
+#include <GE.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 #include <math.h>
 #include "config.h"
-#include "sdl_tools.h"
 #include "config_writter.h"
 #include "emuclient.h"
 #include "display.h"
@@ -77,7 +79,7 @@ static void translation_test()
   double mul;
   double exp;
 
-  SDL_Event mouse_evt = { };
+  GE_Event mouse_evt = { };
 
   s_mouse_cal* mc = cal_get_mouse(current_mouse, current_conf);
 
@@ -109,8 +111,8 @@ static void translation_test()
 
   mouse_evt.motion.xrel = direction * step;
   mouse_evt.motion.which = current_mouse;
-  mouse_evt.type = SDL_MOUSEMOTION;
-  sdl_process_event(&mouse_evt);
+  mouse_evt.type = GE_MOUSEMOTION;
+  process_event(&mouse_evt);
 
   dots -= step;
 
@@ -138,7 +140,7 @@ static int circle_step = 0;
 
 static void circle_test()
 {
-  SDL_Event mouse_evt = { };
+  GE_Event mouse_evt = { };
   s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
   int step;
 
@@ -158,8 +160,8 @@ static void circle_test()
   mouse_evt.motion.xrel = round(mcal->rd * pow((double) dpi / 5700, *mcal->ex) * (cos(circle_step * 2 * pi / STEPS) - cos((circle_step - step) * 2 * pi / STEPS)));
   mouse_evt.motion.yrel = round(mcal->rd * pow((double) dpi / 5700, *mcal->ex) * (sin(circle_step * 2 * pi / STEPS) - sin((circle_step - step) * 2 * pi / STEPS)));
   mouse_evt.motion.which = current_mouse;
-  mouse_evt.type = SDL_MOUSEMOTION;
-  sdl_process_event(&mouse_evt);
+  mouse_evt.type = GE_MOUSEMOTION;
+  process_event(&mouse_evt);
 
   circle_step += step;
   circle_step = circle_step % STEPS;
@@ -186,7 +188,7 @@ static void cal_display()
 
   if (current_cal != NONE)
   {
-    gprintf(_("calibrating mouse %s (%d)\n"), sdl_get_mouse_name(current_mouse), sdl_get_mouse_virtual_id(current_mouse));
+    gprintf(_("calibrating mouse %s (%d)\n"), GE_MouseName(current_mouse), GE_MouseVirtualId(current_mouse));
     gprintf(_("calibrating conf %d\n"), current_conf + 1);
     gprintf(_("sensibility:"));
     if (mcal->mx)
@@ -481,7 +483,7 @@ void cal_key(int device_id, int sym, int down)
 
   if (lalt && ralt)
   {
-    sdl_grab_toggle();
+    GE_grab_toggle();
   }
 }
 
@@ -501,7 +503,7 @@ void cal_button(int which, int button)
       {
         case MC:
           current_mouse += 1;
-          if (!sdl_get_mouse_name(current_mouse))
+          if (!GE_MouseName(current_mouse))
           {
             current_mouse -= 1;
           }
@@ -732,9 +734,9 @@ void cal_button(int which, int button)
 /*
  * If calibration is on, all mouse wheel events are skipped.
  */
-int cal_skip_event(SDL_Event* event)
+int cal_skip_event(GE_Event* event)
 {
   return current_cal != NONE
-      && event->type == SDL_MOUSEBUTTONDOWN
+      && event->type == GE_MOUSEBUTTONDOWN
       && (event->button.button >= 8 || event->button.button <= 9);
 }

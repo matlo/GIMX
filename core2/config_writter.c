@@ -3,10 +3,11 @@
  License: GPLv3
  */
 
+#include <string.h>
 #include "config.h"
 #include "config_reader.h"
 #include "conversion.h"
-#include "sdl_tools.h"
+#include <GE.h>
 #include "calibration.h"
 #include <libxml/xmlreader.h>
 #include <libxml/xmlwriter.h>
@@ -160,18 +161,18 @@ static int ProcessDeviceElement(xmlNode * a_node)
       }
       else
       {
-        for (i = 0; i < MAX_DEVICES && sdl_get_mouse_name(i); ++i)
+        for (i = 0; i < MAX_DEVICES && GE_MouseName(i); ++i)
         {
-          if (!strcmp(r_device_name, sdl_get_mouse_name(i)))
+          if (!strcmp(r_device_name, GE_MouseName(i)))
           {
-            if (r_device_id == sdl_get_mouse_virtual_id(i))
+            if (r_device_id == GE_MouseVirtualId(i))
             {
               r_device_id = i;
               break;
             }
           }
         }
-        if(i == MAX_DEVICES || !sdl_get_mouse_name(i))
+        if(i == MAX_DEVICES || !GE_MouseName(i))
         {
           r_device_id = -1;
         }

@@ -3,6 +3,7 @@
  License: GPLv3
  */
 
+#include <string.h>
 #include <report.h>
 
 #ifndef WIN32

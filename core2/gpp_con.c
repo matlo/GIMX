@@ -3,6 +3,7 @@
  License: GPLv3
  */
 
+#include <string.h>
 #include "gpp/pcprog.h"
 #include "config.h"
 #include "dump.h"

@@ -3,6 +3,9 @@
  License: GPLv3
  */
 
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include "args.h"
 #include "emuclient.h"
 #include <getopt.h>

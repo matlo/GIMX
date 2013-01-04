@@ -13,7 +13,7 @@
 #include "conversion.h"
 #include <unistd.h>
 #include <sys/time.h>
-#include "sdl_tools.h"
+#include <GE.h>
 #include "calibration.h"
 #include "emuclient.h"
 
@@ -129,9 +129,9 @@ inline s_mouse_control* cfg_get_mouse_control(int id)
   return NULL;
 }
 
-void cfg_process_motion_event(SDL_Event* event)
+void cfg_process_motion_event(GE_Event* event)
 {
-  s_mouse_control* mc = cfg_get_mouse_control(sdl_get_device_id(event));
+  s_mouse_control* mc = cfg_get_mouse_control(GE_get_device_id(event));
   if(mc)
   {
     mc->merge_x[mc->index] += event->motion.xrel;
@@ -147,7 +147,7 @@ void cfg_process_motion()
   int divider;
   s_mouse_control* mc;
   s_mouse_cal* mcal;
-  SDL_Event mouse_evt = { };
+  GE_Event mouse_evt = { };
   /*
    * Process a single (merged) motion event for each mouse.
    */
@@ -213,7 +213,7 @@ void cfg_process_motion()
       }
 
       mouse_evt.motion.which = i;
-      mouse_evt.type = SDL_MOUSEMOTION;
+      mouse_evt.type = GE_MOUSEMOTION;
       cfg_process_event(&mouse_evt);
     }
     mc->index++;
@@ -332,24 +332,24 @@ static int update_intensity(int device_type, int device_id, int button, int c_id
 /*
  * Check if axis intensities need to be updated.
  */
-void cfg_intensity_lookup(SDL_Event* e)
+void cfg_intensity_lookup(GE_Event* e)
 {
   int c_id, a_id;
   int device_type;
   int button_id;
-  unsigned int device_id = sdl_get_device_id(e);
+  unsigned int device_id = GE_get_device_id(e);
 
   switch( e->type )
   {
-    case SDL_JOYBUTTONDOWN:
+    case GE_JOYBUTTONDOWN:
       device_type = E_DEVICE_TYPE_JOYSTICK;
       button_id = e->jbutton.button;
       break;
-    case SDL_KEYDOWN:
+    case GE_KEYDOWN:
       device_type = E_DEVICE_TYPE_KEYBOARD;
-      button_id = e->key.keysym.sym;
+      button_id = e->key.keysym;
       break;
-    case SDL_MOUSEBUTTONDOWN:
+    case GE_MOUSEBUTTONDOWN:
       device_type = E_DEVICE_TYPE_MOUSE;
       button_id = e->button.button;
       break;
@@ -386,7 +386,7 @@ void cfg_trigger_init()
 /*
  * Check if current configurations of controllers need to be updated.
  */
-void cfg_trigger_lookup(SDL_Event* e)
+void cfg_trigger_lookup(GE_Event* e)
 {
   int i, j;
   int device_type;
@@ -394,25 +394,25 @@ void cfg_trigger_lookup(SDL_Event* e)
   int up = 0;
   int selected;
   int current;
-  unsigned int device_id = sdl_get_device_id(e);
+  unsigned int device_id = GE_get_device_id(e);
 
   switch( e->type )
   {
-    case SDL_JOYBUTTONUP:
+    case GE_JOYBUTTONUP:
       up = 1;
-    case SDL_JOYBUTTONDOWN:
+    case GE_JOYBUTTONDOWN:
       device_type = E_DEVICE_TYPE_JOYSTICK;
       button = e->jbutton.button;
       break;
-    case SDL_KEYUP:
+    case GE_KEYUP:
       up = 1;
-    case SDL_KEYDOWN:
+    case GE_KEYDOWN:
       device_type = E_DEVICE_TYPE_KEYBOARD;
-      button = e->key.keysym.sym;
+      button = e->key.keysym;
       break;
-    case SDL_MOUSEBUTTONUP:
+    case GE_MOUSEBUTTONUP:
       up = 1;
-    case SDL_MOUSEBUTTONDOWN:
+    case GE_MOUSEBUTTONDOWN:
       device_type = E_DEVICE_TYPE_MOUSE;
       button = e->button.button;
       break;
@@ -527,13 +527,13 @@ void cfg_config_activation()
 }
 
 /*
- * Specific stuff to postpone some SDL_MOUSEBUTTONUP events
- * that come too quickly after corresponding SDL_MOUSEBUTTONDOWN events.
+ * Specific stuff to postpone some GE_MOUSEBUTTONUP events
+ * that come too quickly after corresponding GE_MOUSEBUTTONDOWN events.
  * If we don't do that, the PS3 will miss events.
  * 
  * This function also postpones mouse button up events in case a delayed config toggle is triggered.
  */
-static int postpone_event(unsigned int device, SDL_Event* event)
+static int postpone_event(unsigned int device, GE_Event* event)
 {
   int i;
   int ret = 0;
@@ -760,7 +760,7 @@ void update_ubutton_axis(s_mapper* mapper, int c_id, int axis)
  * Updates the state table.
  * Too long function, but not hard to understand.
  */
-void cfg_process_event(SDL_Event* event)
+void cfg_process_event(GE_Event* event)
 {
   s_mapper* mapper;
   unsigned int axis;
@@ -780,7 +780,7 @@ void cfg_process_event(SDL_Event* event)
   s_mouse_control* mc;
   int max_axis = 255;
 
-  unsigned int device = sdl_get_device_id(event);
+  unsigned int device = GE_get_device_id(event);
 
   for(c_id=0; c_id<MAX_CONTROLLERS; ++c_id)
   {
@@ -790,15 +790,15 @@ void cfg_process_event(SDL_Event* event)
 
     switch(event->type)
     {
-      case SDL_JOYBUTTONDOWN:
-      case SDL_JOYBUTTONUP:
+      case GE_JOYBUTTONDOWN:
+      case GE_JOYBUTTONUP:
       if(joystick_buttons[device][c_id][config])
       {
         nb_controls = joystick_buttons[device][c_id][config]->nb_mappers;
       }
       break;
-      case SDL_JOYAXISMOTION:
-      if(sdl_is_sixaxis(device) && event->jaxis.axis > 3)
+      case GE_JOYAXISMOTION:
+      if(GE_is_sixaxis(device) && event->jaxis.axis > 3)
       {
         event->jaxis.value = (event->jaxis.value + 32767) / 2;
       }
@@ -807,21 +807,21 @@ void cfg_process_event(SDL_Event* event)
         nb_controls = joystick_axes[device][c_id][config]->nb_mappers;
       }
       break;
-      case SDL_KEYDOWN:
-      case SDL_KEYUP:
+      case GE_KEYDOWN:
+      case GE_KEYUP:
       if(keyboard_buttons[device][c_id][config])
       {
         nb_controls = keyboard_buttons[device][c_id][config]->nb_mappers;
       }
       break;
-      case SDL_MOUSEBUTTONDOWN:
-      case SDL_MOUSEBUTTONUP:
+      case GE_MOUSEBUTTONDOWN:
+      case GE_MOUSEBUTTONUP:
       if(mouse_buttons[device][c_id][config])
       {
         nb_controls = mouse_buttons[device][c_id][config]->nb_mappers;
       }
       break;
-      case SDL_MOUSEMOTION:
+      case GE_MOUSEMOTION:
       if(mouse_axes[device][c_id][config])
       {
         nb_controls = mouse_axes[device][c_id][config]->nb_mappers;
@@ -833,7 +833,7 @@ void cfg_process_event(SDL_Event* event)
     {
       switch(event->type)
       {
-        case SDL_JOYBUTTONDOWN:
+        case GE_JOYBUTTONDOWN:
           mapper = joystick_buttons[device][c_id][config]+control;
           /*
            * Check that it's the right button.
@@ -849,7 +849,7 @@ void cfg_process_event(SDL_Event* event)
             update_dbutton_axis(mapper, c_id, axis);
           }
           break;
-        case SDL_JOYBUTTONUP:
+        case GE_JOYBUTTONUP:
           mapper = joystick_buttons[device][c_id][config]+control;
           /*
            * Check that it's the right button.
@@ -865,7 +865,7 @@ void cfg_process_event(SDL_Event* event)
             update_ubutton_axis(mapper, c_id, axis);
           }
           break;
-        case SDL_JOYAXISMOTION:
+        case GE_JOYAXISMOTION:
           mapper = joystick_axes[device][c_id][config]+control;
           /*
            * Check that it's the right axis.
@@ -919,12 +919,12 @@ void cfg_process_event(SDL_Event* event)
             }
           }
           break;
-        case SDL_KEYDOWN:
+        case GE_KEYDOWN:
           mapper = keyboard_buttons[device][c_id][config]+control;
           /*
            * Check that it's the right button.
            */
-          if(mapper->button != event->key.keysym.sym)
+          if(mapper->button != event->key.keysym)
           {
             continue;
           }
@@ -935,12 +935,12 @@ void cfg_process_event(SDL_Event* event)
             update_dbutton_axis(mapper, c_id, axis);
           }
           break;
-        case SDL_KEYUP:
+        case GE_KEYUP:
           mapper = keyboard_buttons[device][c_id][config]+control;
           /*
            * Check that it's the right button.
            */
-          if(mapper->button != event->key.keysym.sym)
+          if(mapper->button != event->key.keysym)
           {
             continue;
           }
@@ -951,7 +951,7 @@ void cfg_process_event(SDL_Event* event)
             update_ubutton_axis(mapper, c_id, axis);
           }
           break;
-        case SDL_MOUSEMOTION:
+        case GE_MOUSEMOTION:
           mapper = mouse_axes[device][c_id][config]+control;
           /*
            * Check the mouse axis.
@@ -1023,7 +1023,7 @@ void cfg_process_event(SDL_Event* event)
             }
           }
           break;
-        case SDL_MOUSEBUTTONDOWN:
+        case GE_MOUSEBUTTONDOWN:
           mapper = mouse_buttons[device][c_id][config]+control;
           /*
            * Check that it's the right button.
@@ -1039,7 +1039,7 @@ void cfg_process_event(SDL_Event* event)
             update_dbutton_axis(mapper, c_id, axis);
           }
           break;
-        case SDL_MOUSEBUTTONUP:
+        case GE_MOUSEBUTTONUP:
           mapper = mouse_buttons[device][c_id][config]+control;
           /*
            * Check that it's the right button.

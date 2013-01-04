@@ -17,6 +17,8 @@
 #include "dump.h"
 #include "emuclient.h"
 #include <unistd.h>
+#include <stdio.h>
+#include <string.h>
 
 /*
  * Controller are listening from TCP_PORT to TCP_PORT+MAX_CONTROLLERS-1

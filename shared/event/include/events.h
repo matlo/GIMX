@@ -2,10 +2,7 @@
 #ifndef EVENTS_H_
 #define EVENTS_H_
 
-#ifndef WIN32
-#include <linux/input.h>
-#endif
-#include <SDL/SDL.h>
+#include <GE.h>
 
 #define MAX_DEVICES 256
 
@@ -19,11 +16,18 @@
 
 extern char* keynames[MAX_KEYNAMES];
 
-void ev_init();
+int ev_init();
 void ev_quit();
-char* ev_get_name(unsigned char, int);
 
-void js_init();
-void js_quit();
+const char* ev_joystick_name(int);
+const char* ev_mouse_name(int);
+const char* ev_keyboard_name(int);
+
+void ev_grab_input(int);
+
+void ev_pump_events();
+int ev_push_event(GE_Event*);
+
+int ev_peep_events(GE_Event*, int);
 
 #endif /* EVENTS_H_ */

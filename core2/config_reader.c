@@ -3,10 +3,11 @@
  License: GPLv3
  */
 
+#include <string.h>
 #include "config_reader.h"
 #include "config.h"
 #include "conversion.h"
-#include "sdl_tools.h"
+#include <GE.h>
 #include "calibration.h"
 #include <limits.h>
 #include <dirent.h>
@@ -90,18 +91,18 @@ static int GetDeviceId(xmlNode* a_node)
   {
     if(r_device_type == E_DEVICE_TYPE_JOYSTICK)
     {
-      for (i = 0; i < MAX_DEVICES && sdl_get_joystick_name(i); ++i)
+      for (i = 0; i < MAX_DEVICES && GE_JoystickName(i); ++i)
       {
-        if (!strcmp(r_device_name, sdl_get_joystick_name(i)))
+        if (!strcmp(r_device_name, GE_JoystickName(i)))
         {
-          if (r_device_id == sdl_get_joystick_virtual_id(i))
+          if (r_device_id == GE_JoystickVirtualId(i))
           {
             r_device_id = i;
             break;
           }
         }
       }
-      if(i == MAX_DEVICES || !sdl_get_joystick_name(i))
+      if(i == MAX_DEVICES || !GE_JoystickName(i))
       {
         gprintf(_("joystick not found: %s %d\n"), r_device_name, r_device_id);
         ret = 1;
@@ -123,18 +124,18 @@ static int GetDeviceId(xmlNode* a_node)
     {
       if(r_device_type == E_DEVICE_TYPE_MOUSE)
       {
-        for (i = 0; i < MAX_DEVICES && sdl_get_mouse_name(i); ++i)
+        for (i = 0; i < MAX_DEVICES && GE_MouseName(i); ++i)
         {
-          if (!strcmp(r_device_name, sdl_get_mouse_name(i)))
+          if (!strcmp(r_device_name, GE_MouseName(i)))
           {
-            if (r_device_id == sdl_get_mouse_virtual_id(i))
+            if (r_device_id == GE_MouseVirtualId(i))
             {
               r_device_id = i;
               break;
             }
           }
         }
-        if(i == MAX_DEVICES || !sdl_get_mouse_name(i))
+        if(i == MAX_DEVICES || !GE_MouseName(i))
         {
           gprintf(_("mouse not found: %s %d\n"), r_device_name, r_device_id);
           ret = 1;
@@ -142,18 +143,18 @@ static int GetDeviceId(xmlNode* a_node)
       }
       else if(r_device_type == E_DEVICE_TYPE_KEYBOARD)
       {
-        for (i = 0; i < MAX_DEVICES && sdl_get_keyboard_name(i); ++i)
+        for (i = 0; i < MAX_DEVICES && GE_KeyboardName(i); ++i)
         {
-          if (!strcmp(r_device_name, sdl_get_keyboard_name(i)))
+          if (!strcmp(r_device_name, GE_KeyboardName(i)))
           {
-            if (r_device_id == sdl_get_keyboard_virtual_id(i))
+            if (r_device_id == GE_KeyboardVirtualId(i))
             {
               r_device_id = i;
               break;
             }
           }
         }
-        if(i == MAX_DEVICES || !sdl_get_keyboard_name(i))
+        if(i == MAX_DEVICES || !GE_KeyboardName(i))
         {
           gprintf(_("keyboard not found: %s %d\n"), r_device_name, r_device_id);
           ret = 1;

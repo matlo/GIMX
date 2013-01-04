@@ -28,6 +28,8 @@
 #define KEY_F10        SDLK_F10
 #define KEY_F11        SDLK_F11
 #define KEY_F12        SDLK_F12
+#else
+#include <linux/input.h>
 #endif
 
 typedef enum
@@ -54,7 +56,7 @@ extern e_current_cal current_cal;
 void cal_button(int, int);
 void cal_key(int, int, int);
 inline s_mouse_cal* cal_get_mouse(int, int);
-int cal_skip_event(SDL_Event*);
+int cal_skip_event(GE_Event*);
 void cal_init();
 inline int cal_get_controller(int);
 inline void cal_set_controller(int, int);

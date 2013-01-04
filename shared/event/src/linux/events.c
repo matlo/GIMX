@@ -10,14 +10,14 @@
 #include <fcntl.h>
 #include <termios.h>
 #include <sys/select.h>
-#include <SDL/SDL.h>
 #include "events.h"
-//#include "emuclient.h"
 #include <timer.h>
 #include <sys/signalfd.h>
 #include <math.h>
-//#include <sdl_tools.h>
+#include <GE.h>
+#include <linux/input.h>
 #include <linux/joystick.h>
+#include <string.h>
 
 #define MAX_EVENTS 256
 
@@ -28,11 +28,11 @@
 int debug = 0;
 static int grab = 0;
 
-SDL_Event evqueue[MAX_EVENTS];
+GE_Event evqueue[MAX_EVENTS];
 unsigned char evqueue_index_first = 0;
 unsigned char evqueue_index_last = 0;
 
-int SDL_PushEvent(SDL_Event* ev)
+int ev_push_event(GE_Event* ev)
 {
   int ret = -1;
   eprintf("first: %d last: %d\n", evqueue_index_first, evqueue_index_last);
@@ -57,7 +57,7 @@ int SDL_PushEvent(SDL_Event* ev)
   return ret;
 }
 
-int SDL_PeepEvents(SDL_Event *events, int numevents, SDL_eventaction action, Uint32 mask)
+int ev_peep_events(GE_Event *events, int numevents)
 {
   int i;
   int j = 0;
@@ -91,11 +91,6 @@ int SDL_PeepEvents(SDL_Event *events, int numevents, SDL_eventaction action, Uin
   return j;
 }
 
-void SDL_FreeSurface (SDL_Surface *surface)
-{
-
-}
-
 #define LONG_BITS (sizeof(long) * 8)
 #define NLONGS(x) (((x) + LONG_BITS - 1) / LONG_BITS)
 
@@ -125,15 +120,14 @@ uint8_t joystickAxMap[MAX_DEVICES][AXMAP_SIZE] = {{0}};
 int max_device_id = 0;
 int max_joystick_id = 0;
 
-SDL_GrabMode SDL_WM_GrabInput(SDL_GrabMode mode)
+void ev_grab_input(int mode)
 {
   int i;
-  grab = mode;
   for(i=0; i<MAX_DEVICES; ++i)
   {
     if(device_fd[i] > -1)
     {
-      if(mode == SDL_GRAB_OFF)
+      if(mode == GE_GRAB_OFF)
       {
         ioctl(device_fd[i], EVIOCGRAB, (void *)0);
       }
@@ -143,10 +137,9 @@ SDL_GrabMode SDL_WM_GrabInput(SDL_GrabMode mode)
       }
     }
   }
-  return mode;
 }
 
-int read_device_type(int index, int fd)
+static int read_device_type(int index, int fd)
 {
   char name[1024]                             = {0};
   unsigned long key_bitmask[NLONGS(KEY_CNT)] = {0};
@@ -285,18 +278,36 @@ int read_device_type(int index, int fd)
   return 0;
 }
 
-void display_devices()
+static char* evdev_get_name(unsigned char devtype, int index)
+{
+  int i;
+  int nb = 0;
+  for(i=0; i<MAX_DEVICES; ++i)
+  {
+    if(device_type[i] & devtype)
+    {
+      if(index == nb)
+      {
+        return device_name[i];
+      }
+      nb++;
+    }
+  }
+  return NULL;
+}
+
+static void display_devices()
 {
   int i;
   char* name;
 
   for(i=0; i<=max_device_id; ++i)
   {
-    if((name = ev_get_name(DEVTYPE_KEYBOARD, i)))
+    if((name = evdev_get_name(DEVTYPE_KEYBOARD, i)))
     {
       eprintf("keyboard %d is named [%s]\n", i, name);
     }
-    if((name = ev_get_name(DEVTYPE_MOUSE, i)))
+    if((name = evdev_get_name(DEVTYPE_MOUSE, i)))
     {
       eprintf("mouse %d is named [%s]\n", i, name);
     }
@@ -310,7 +321,7 @@ void display_devices()
   }
 }
 
-void js_init()
+static void jsdev_init()
 {
   int i;
   int fd;
@@ -353,7 +364,7 @@ void js_init()
   }
 }
 
-void js_quit()
+static void jsdev_quit()
 {
   int i;
   for(i=0; i<MAX_DEVICES; ++i)
@@ -369,7 +380,7 @@ void js_quit()
   }
 }
 
-void ev_init()
+static void evdev_init()
 {
   int i, j;
   int fd;
@@ -419,7 +430,15 @@ void ev_init()
   display_devices();
 }
 
-void ev_quit()
+int ev_init()
+{
+  evdev_init();
+  jsdev_init();
+
+  return 1;
+}
+
+static void evdev_quit()
 {
   int i;
   for(i=0; i<MAX_DEVICES; ++i)
@@ -448,63 +467,43 @@ void ev_quit()
   }
 }
 
-void SDL_Quit(void)
+void ev_quit(void)
 {
-  ev_quit();
-  js_quit();
+  evdev_quit();
+  jsdev_quit();
 }
 
-const char *SDL_JoystickName(int index)
+const char* ev_joystick_name(int index)
 {
   int i;
-  int nb = 0;
   for(i=0; i<MAX_DEVICES; ++i)
   {
     if(joystick_id[i] == index)
     {
       return joystick_name[i];
     }
-    nb++;
   }
   return NULL;
 }
 
-char* ev_get_name(unsigned char devtype, int index)
+const char* ev_mouse_name(int id)
 {
-  int i;
-  int nb = 0;
-  for(i=0; i<MAX_DEVICES; ++i)
-  {
-    if(device_type[i] & devtype)
-    {
-      if(index == nb)
-      {
-        return device_name[i];
-      }
-      nb++;
-    }
-  }
-  return NULL;
+  return evdev_get_name(DEVTYPE_MOUSE, id);
 }
 
-const char* SDL_GetMouseName(int id)
+const char* ev_keyboard_name(int id)
 {
-  return ev_get_name(DEVTYPE_MOUSE, id);
+  return evdev_get_name(DEVTYPE_KEYBOARD, id);
 }
 
-const char* SDL_GetKeyboardName(int id)
-{
-  return ev_get_name(DEVTYPE_KEYBOARD, id);
-}
+void (*event_callback)(GE_Event*) = NULL;
 
-void (*event_callback)(SDL_Event*) = NULL;
-
-void SDL_SetEventCallback(void (*fp)(SDL_Event*))
+void ev_set_callback(void (*fp)(GE_Event*))
 {
   event_callback = fp;
 }
 
-void SDL_PumpEvents(void)
+void ev_pump_events(void)
 {
   int i, j;
 
@@ -514,11 +513,11 @@ void SDL_PumpEvents(void)
 
   struct input_event ie[MAX_EVENTS];
   struct js_event je[MAX_EVENTS];
-  SDL_Event evt;
+  GE_Event evt;
 
   if(event_callback == NULL)
   {
-    fprintf(stderr, "SDL_SetEventCallback should be called first!\n");
+    fprintf(stderr, "ev_set_callback should be called first!\n");
     return;
   }
 
@@ -599,8 +598,8 @@ void SDL_PumpEvents(void)
                   {
                     if(ie[j].code > 0 && ie[j].code < MAX_KEYNAMES)
                     {
-                      evt.type = ie[j].value ? SDL_KEYDOWN : SDL_KEYUP;
-                      evt.key.keysym.sym = ie[j].code;
+                      evt.type = ie[j].value ? GE_KEYDOWN : GE_KEYUP;
+                      evt.key.keysym = ie[j].code;
                     }
                   }
                 }
@@ -611,7 +610,7 @@ void SDL_PumpEvents(void)
                     if(ie[j].code >= BTN_JOYSTICK && ie[j].code < KEY_MAX)
                     {
                       evt.jbutton.which = device_id[i][2];
-                      evt.type = ie[j].value ? SDL_JOYBUTTONDOWN : SDL_JOYBUTTONUP;
+                      evt.type = ie[j].value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
                       evt.jbutton.button = joystickButtonIds[device_id[i][2]][ie[j].code-BTN_JOYSTICK];
                     }
                   }
@@ -619,7 +618,7 @@ void SDL_PumpEvents(void)
                   {
                     if(ie[j].code >= ABS_HAT0X && ie[j].code <= ABS_HAT3Y)
                     {
-                      evt.type = ie[j].value ? SDL_JOYBUTTONDOWN : SDL_JOYBUTTONUP;
+                      evt.type = ie[j].value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
                       int button;
                       int value;
                       int axis = ie[j].code-ABS_HAT0X;
@@ -643,7 +642,7 @@ void SDL_PumpEvents(void)
                     }
                     else
                     {
-                      evt.type = SDL_JOYAXISMOTION;
+                      evt.type = GE_JOYAXISMOTION;
                       evt.jaxis.which = device_id[i][2];
                       evt.jaxis.axis = joystickAxisIds[device_id[i][2]][ie[j].code];
                       evt.jaxis.value = (ie[j].value - joystickAxisShift[device_id[i][2]][ie[j].code]) * joystickAxisScale[device_id[i][2]][ie[j].code];
@@ -656,7 +655,7 @@ void SDL_PumpEvents(void)
                   {
                     if(ie[j].code >= BTN_LEFT && ie[j].code <= BTN_TASK)
                     {
-                      evt.type = ie[j].value ? SDL_MOUSEBUTTONDOWN : SDL_MOUSEBUTTONUP;
+                      evt.type = ie[j].value ? GE_MOUSEBUTTONDOWN : GE_MOUSEBUTTONUP;
                       evt.button.button = ie[j].code - BTN_MOUSE;
                     }
                   }
@@ -664,22 +663,22 @@ void SDL_PumpEvents(void)
                   {
                     if(ie[j].code == 0)
                     {
-                      evt.type = SDL_MOUSEMOTION;
+                      evt.type = GE_MOUSEMOTION;
                       evt.motion.xrel = ie[j].value;
                     }
                     else if(ie[j].code == 1)
                     {
-                      evt.type = SDL_MOUSEMOTION;
+                      evt.type = GE_MOUSEMOTION;
                       evt.motion.yrel = ie[j].value;
                     }
                     else if(ie[j].code == 8)
                     {
-                      evt.type = SDL_MOUSEBUTTONDOWN;
+                      evt.type = GE_MOUSEBUTTONDOWN;
                       evt.button.button = (ie[j].value > 0) ? 8 : 9;
                     }
                     else if(ie[j].code == 6)
                     {
-                      evt.type = SDL_MOUSEBUTTONDOWN;
+                      evt.type = GE_MOUSEBUTTONDOWN;
                       evt.button.button = (ie[j].value > 0) ? 10 : 11;
                     }
                   }
@@ -688,18 +687,18 @@ void SDL_PumpEvents(void)
                 /*
                  * Process evt.
                  */
-                if(evt.type != SDL_NOEVENT)
+                if(evt.type != GE_NOEVENT)
                 {
                   eprintf("event from device: %s\n", device_name[i]);
                   eprintf("type: %d code: %d value: %d\n", ie[j].type, ie[j].code, ie[j].value);
                   if(tfd > -1)
                   {
                     event_callback(&evt);
-                    if(evt.type == SDL_MOUSEBUTTONDOWN)
+                    if(evt.type == GE_MOUSEBUTTONDOWN)
                     {
                       if(evt.button.button >= 8 && evt.button.button <= 11)
                       {
-                        evt.type = SDL_MOUSEBUTTONUP;
+                        evt.type = GE_MOUSEBUTTONUP;
                         event_callback(&evt);
                       }
                     }
@@ -737,7 +736,7 @@ void SDL_PumpEvents(void)
                 if(je[j].type & JS_EVENT_BUTTON)
                 {
                   evt.jbutton.which = joystick_id[i];
-                  evt.type = je[j].value ? SDL_JOYBUTTONDOWN : SDL_JOYBUTTONUP;
+                  evt.type = je[j].value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
                   evt.jbutton.button = je[j].number;
                 }
                 else if(je[j].type & JS_EVENT_AXIS)
@@ -745,7 +744,7 @@ void SDL_PumpEvents(void)
                   int axis = joystickAxMap[i][je[j].number];
                   if(axis >= ABS_HAT0X && axis <= ABS_HAT3Y)
                   {
-                    evt.type = je[j].value ? SDL_JOYBUTTONDOWN : SDL_JOYBUTTONUP;
+                    evt.type = je[j].value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
                     int button;
                     int value;
                     axis -= ABS_HAT0X;
@@ -769,7 +768,7 @@ void SDL_PumpEvents(void)
                   }
                   else
                   {
-                    evt.type = SDL_JOYAXISMOTION;
+                    evt.type = GE_JOYAXISMOTION;
                     evt.jaxis.which = joystick_id[i];
                     evt.jaxis.axis = je[j].number;
                     evt.jaxis.value = je[j].value;
@@ -779,7 +778,7 @@ void SDL_PumpEvents(void)
                 /*
                  * Process evt.
                  */
-                if(evt.type != SDL_NOEVENT)
+                if(evt.type != GE_NOEVENT)
                 {
                   eprintf("event from joystick: %s\n", joystick_name[i]);
                   eprintf("type: %d number: %d value: %d\n", je[j].type, je[j].number, je[j].value);

@@ -3,8 +3,8 @@ include ../Makedefs
 prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
 BINS=emu emuclient sixaddr bdaddr hcirevision usbspoof
-LIB=../shared/event/event.a -lxml2 -lm -lncursesw
-INC=-Iinclude -I../shared/event/include -I../../libsdl/include -I/usr/include/libxml2
+LIB=../shared/event/GE.a -lxml2 -lm -lncursesw
+INC=-Iinclude -I../shared/event/include -I/usr/include/libxml2
 
 all: gpp $(BINS)
 
@@ -26,7 +26,6 @@ emuclient: emuclient.o\
        config.o\
        config_writter.o\
        config_reader.o\
-       sdl_tools.o\
        calibration.o\
        connector.o\
        serial_con.o\

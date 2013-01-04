@@ -26,7 +26,7 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "sdl_tools.h"
+#include <GE.h>
 #include "sixaxis.h"
 #include "dump.h"
 #include "macros.h"
@@ -123,9 +123,42 @@ void terminate(int sig)
   set_done();
 }
 
+void process_event(GE_Event* event)
+{
+  if (event->type != GE_MOUSEMOTION)
+  {
+    if (!cal_skip_event(event))
+    {
+      cfg_process_event(event);
+    }
+  }
+  else
+  {
+    cfg_process_motion_event(event);
+  }
+
+  cfg_trigger_lookup(event);
+  cfg_intensity_lookup(event);
+
+  switch (event->type)
+  {
+    case GE_MOUSEBUTTONDOWN:
+      cal_button(event->button.which, event->button.button);
+      break;
+    case GE_KEYDOWN:
+      cal_key(event->key.which, event->key.keysym, 1);
+      break;
+    case GE_KEYUP:
+      cal_key(event->key.which, event->key.keysym, 0);
+      break;
+  }
+
+  macro_lookup(event);
+}
+
 int main(int argc, char *argv[])
 {
-  SDL_Event kgevent = {.type = SDL_KEYDOWN};
+  GE_Event kgevent = {.type = GE_KEYDOWN};
   int i;
 
   (void) signal(SIGINT, terminate);
@@ -180,9 +213,9 @@ int main(int argc, char *argv[])
     memset(controller + i, 0x00, sizeof(s_controller));
   }
 
-  if (!sdl_initialize())
+  if (!GE_initialize())
   {
-    fprintf(stderr, "sdl_initialize: %s\n", strerror(errno));
+    fprintf(stderr, "GE_initialize: %s\n", strerror(errno));
     goto QUIT;
 
   }
@@ -190,7 +223,7 @@ int main(int argc, char *argv[])
   if(emuclient_params.grab)
   {
     usleep(1000000);
-    sdl_grab();
+    GE_grab();
   }
 
   macros_init();
@@ -204,11 +237,11 @@ int main(int argc, char *argv[])
   if(merge_all_devices)
   {
     free_config();
-    sdl_free_mouse_keyboard_names();
+    GE_free_mouse_keyboard_names();
     read_config_file(emuclient_params.config_file);
   }
 
-  sdl_release_unused();
+  GE_release_unused();
 
   macros_read();
 
@@ -220,8 +253,8 @@ int main(int argc, char *argv[])
 
   if(emuclient_params.keygen)
   {
-    kgevent.key.keysym.sym = get_key_from_buffer(emuclient_params.keygen);
-    if(kgevent.key.keysym.sym != SDLK_UNKNOWN)
+    kgevent.key.keysym = get_key_from_buffer(emuclient_params.keygen);
+    if(kgevent.key.keysym)
     {
       macro_lookup(&kgevent);
     }
@@ -242,7 +275,7 @@ int main(int argc, char *argv[])
 
   free_macros();
   free_config();
-  sdl_quit();
+  GE_quit();
   connector_clean();
 
   xmlCleanupParser();

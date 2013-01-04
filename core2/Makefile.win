@@ -18,7 +18,6 @@ emuclient: emuclient.o\
        config.o\
        config_writter.o\
        config_reader.o\
-       sdl_tools.o\
        calibration.o\
        connector.o\
        serial_con.o\
@@ -29,8 +28,7 @@ emuclient: emuclient.o\
        gpp/hid_WINDOWS.o\
        windows/prio.o\
        windows/serial.o\
-       windows/mainloop.o\
-       windows/conversion.o
+       windows/mainloop.o
 	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LIB)
 
 usbspoof: utils/usbspoof.c utils/pcapwriter.c

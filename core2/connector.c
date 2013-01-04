@@ -3,6 +3,7 @@
  License: GPLv3
  */
 
+#include <string.h>
 #include "connector.h"
 #include "tcp_con.h"
 #include "serial_con.h"

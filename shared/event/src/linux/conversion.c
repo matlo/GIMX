@@ -7,12 +7,6 @@
 #include <string.h>
 #include "events.h"
 
-typedef struct
-{
-  char arg[MAX_NAME_LENGTH];
-  SDLKey key;
-} s_arg_key;
-
 char* keynames[249] =
 {
     "RESERVED",
@@ -269,7 +263,7 @@ char* keynames[249] =
 /*
  * This function gives a key code from a char string.
  */
-SDLKey get_key_from_buffer(const char* buffer)
+uint16_t get_key_from_buffer(const char* buffer)
 {
   int i;
 
@@ -287,7 +281,7 @@ SDLKey get_key_from_buffer(const char* buffer)
 /*
  * This function gives a char string from a key code.
  */
-const char* get_chars_from_key(SDLKey key)
+const char* get_chars_from_key(uint16_t key)
 {
   if(key > 0 && key < MAX_KEYNAMES)
   {

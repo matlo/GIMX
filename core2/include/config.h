@@ -165,13 +165,13 @@ typedef struct
 }s_intensity;
 
 void cfg_trigger_init();
-void cfg_trigger_lookup(SDL_Event*);
+void cfg_trigger_lookup(GE_Event*);
 void cfg_config_activation();
-void cfg_intensity_lookup(SDL_Event*);
-void cfg_process_event(SDL_Event*);
+void cfg_intensity_lookup(GE_Event*);
+void cfg_process_event(GE_Event*);
 inline s_mouse_control* cfg_get_mouse_control(int);
 int cfg_is_joystick_used(int);
-void cfg_process_motion_event(SDL_Event*);
+void cfg_process_motion_event(GE_Event*);
 void cfg_process_motion();
 inline s_trigger* cfg_get_trigger(int, int);
 inline s_intensity* cfg_get_axis_intensity(int, int, int);
