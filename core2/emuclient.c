@@ -123,7 +123,7 @@ void terminate(int sig)
   set_done();
 }
 
-void process_event(GE_Event* event)
+int process_event(GE_Event* event)
 {
   if (event->type != GE_MOUSEMOTION)
   {
@@ -154,6 +154,8 @@ void process_event(GE_Event* event)
   }
 
   macro_lookup(event);
+
+  return 0;
 }
 
 int main(int argc, char *argv[])
@@ -222,7 +224,6 @@ int main(int argc, char *argv[])
 
   if(emuclient_params.grab)
   {
-    usleep(1000000);
     GE_grab();
   }
 

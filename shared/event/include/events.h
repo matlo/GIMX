@@ -26,7 +26,7 @@ const char* ev_mouse_name(int);
 const char* ev_keyboard_name(int);
 
 void ev_grab_input(int);
-
+void ev_set_callback(int (*)(GE_Event*));
 void ev_pump_events();
 int ev_push_event(GE_Event*);
 

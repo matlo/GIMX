@@ -8,8 +8,16 @@
 
 #include <time.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int timer_getfd();
 int timer_start(struct timespec* period);
 void timer_close();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* TIMER_H_ */

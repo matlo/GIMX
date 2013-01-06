@@ -131,6 +131,7 @@ int GE_JoystickVirtualId(int);
 void GE_SetJoystickUsed(int);
 int GE_IsSixaxis(int);
 
+void GE_SetCallback(int (*)(GE_Event*));
 void GE_PumpEvents();
 int GE_PeepEvents(GE_Event*, int);
 int GE_PushEvent(GE_Event*);

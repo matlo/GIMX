@@ -28,6 +28,24 @@
 int debug = 0;
 static int grab = 0;
 
+unsigned char device_type[MAX_DEVICES];
+int device_fd[MAX_DEVICES];
+int device_id[MAX_DEVICES][DEVTYPE_NB];
+char* device_name[MAX_DEVICES];
+int k_num;
+int m_num;
+int max_device_id;
+
+int joystick_fd[MAX_DEVICES];
+int joystick_id[MAX_DEVICES];
+char* joystick_name[MAX_DEVICES];
+//unsigned short joystick_button_ids[MAX_DEVICES][KEY_MAX-BTN_JOYSTICK] = {{0}};
+unsigned short joystick_button_nb[MAX_DEVICES] = {0};
+int joystick_hat_value[MAX_DEVICES][ABS_HAT3Y-ABS_HAT0X] = {{0}};
+uint8_t joystick_ax_map[MAX_DEVICES][AXMAP_SIZE] = {{0}};
+int j_num;
+int max_joystick_id;
+
 GE_Event evqueue[MAX_EVENTS];
 unsigned char evqueue_index_first = 0;
 unsigned char evqueue_index_last = 0;
@@ -91,35 +109,6 @@ int ev_peep_events(GE_Event *events, int numevents)
   return j;
 }
 
-#define LONG_BITS (sizeof(long) * 8)
-#define NLONGS(x) (((x) + LONG_BITS - 1) / LONG_BITS)
-
-static inline int BitIsSet(const unsigned long *array, int bit)
-{
-    return !!(array[bit / LONG_BITS] & (1LL << (bit % LONG_BITS)));
-}
-
-unsigned char device_type[MAX_DEVICES] = {0};
-int device_fd[MAX_DEVICES];
-int device_id[MAX_DEVICES][DEVTYPE_NB];
-char* device_name[MAX_DEVICES] = {0};
-
-int joystick_fd[MAX_DEVICES];
-int joystick_id[MAX_DEVICES];
-char* joystick_name[MAX_DEVICES] = {0};
-
-int k_num = 0;
-int m_num = 0;
-int j_num = 0;
-
-//unsigned short joystickButtonIds[MAX_DEVICES][KEY_MAX-BTN_JOYSTICK] = {{0}};
-unsigned short joystickButtonNb[MAX_DEVICES] = {0};
-int joystickHatValue[MAX_DEVICES][ABS_HAT3Y-ABS_HAT0X] = {{0}};
-uint8_t joystickAxMap[MAX_DEVICES][AXMAP_SIZE] = {{0}};
-
-int max_device_id = 0;
-int max_joystick_id = 0;
-
 void ev_grab_input(int mode)
 {
   int i;
@@ -137,6 +126,14 @@ void ev_grab_input(int mode)
       }
     }
   }
+}
+
+#define LONG_BITS (sizeof(long) * 8)
+#define NLONGS(x) (((x) + LONG_BITS - 1) / LONG_BITS)
+
+static inline int BitIsSet(const unsigned long *array, int bit)
+{
+    return !!(array[bit / LONG_BITS] & (1LL << (bit % LONG_BITS)));
 }
 
 static int read_device_type(int index, int fd)
@@ -244,8 +241,8 @@ static int read_device_type(int index, int fd)
   /*for (i = BTN_JOYSTICK; i < KEY_MAX; i++) {
       if (BitIsSet(key_bitmask, i)) {
           has_joy_keys = 1;
-          joystickButtonIds[j_num][i-BTN_JOYSTICK] = joystickButtonNb[j_num];
-          joystickButtonNb[j_num]++;
+          joystick_button_ids[j_num][i-BTN_JOYSTICK] = joystick_button_nb[j_num];
+          joystick_button_nb[j_num]++;
       }
   }*/
 
@@ -282,7 +279,7 @@ static char* evdev_get_name(unsigned char devtype, int index)
 {
   int i;
   int nb = 0;
-  for(i=0; i<MAX_DEVICES; ++i)
+  for(i=0; i<=max_device_id; ++i)
   {
     if(device_type[i] & devtype)
     {
@@ -328,6 +325,13 @@ static void jsdev_init()
   char joystick[sizeof("/dev/input/js255")];
   char name[1024] = {0};
 
+  j_num = 0;
+  max_joystick_id = -1;
+  memset(joystick_name, 0x00, sizeof(joystick_name));
+  memset(joystick_button_nb, 0x00, sizeof(joystick_button_nb));
+  memset(joystick_hat_value, 0x00, sizeof(joystick_hat_value));
+  memset(joystick_ax_map, 0x00, sizeof(joystick_ax_map));
+
   for(i=0; i<MAX_DEVICES; ++i)
   {
     joystick_fd[i] = -1;
@@ -346,15 +350,15 @@ static void jsdev_init()
       }
       //printf("%s\n", name);
       unsigned char buttons;
-      if (ioctl (fd, JSIOCGBUTTONS, &buttons) >= 0 && ioctl (fd, JSIOCGAXMAP, &joystickAxMap[i]) >= 0)
+      if (ioctl (fd, JSIOCGBUTTONS, &buttons) >= 0 && ioctl (fd, JSIOCGAXMAP, &joystick_ax_map[i]) >= 0)
       {
         joystick_name[i] = strdup(name);
         joystick_fd[i] = fd;
-        joystickButtonNb[i] = buttons;
+        joystick_button_nb[i] = buttons;
         max_joystick_id = i;
         joystick_id[i] = j_num;
         j_num++;
-        //printf("js=%d id=%d nb_buttons=%d\n", i, joystick_id[i], joystickButtonNb[i]);
+        //printf("js=%d id=%d nb_buttons=%d\n", i, joystick_id[i], joystick_button_nb[i]);
       }
       else
       {
@@ -367,7 +371,7 @@ static void jsdev_init()
 static void jsdev_quit()
 {
   int i;
-  for(i=0; i<MAX_DEVICES; ++i)
+  for(i=0; i<=max_joystick_id; ++i)
   {
     if(joystick_name[i])
     {
@@ -388,6 +392,7 @@ static void evdev_init()
 
   /*
    * Avoid the enter key from being still pressed after the process exit.
+   * todo: find a proper fix
    */
   sleep(1);
 
@@ -395,6 +400,12 @@ static void evdev_init()
   tcgetattr(STDOUT_FILENO, &term);
   term.c_lflag &= ~ECHO;
   tcsetattr(STDOUT_FILENO, TCSANOW, &term);
+
+  memset(device_type, 0x00, sizeof(device_type));
+  memset(device_name, 0x00, sizeof(device_name));
+  max_device_id = -1;
+  k_num = 0;
+  m_num = 0;
 
   for(i=0; i<MAX_DEVICES; ++i)
   {
@@ -435,6 +446,9 @@ int ev_init()
   evdev_init();
   jsdev_init();
 
+  evqueue_index_first = 0;
+  evqueue_index_last = 0;
+
   return 1;
 }
 
@@ -446,7 +460,7 @@ void ev_set_caption (const char *title, const char *icon)
 static void evdev_quit()
 {
   int i;
-  for(i=0; i<MAX_DEVICES; ++i)
+  for(i=0; i<=max_device_id; ++i)
   {
     if(device_name[i])
     {
@@ -481,7 +495,7 @@ void ev_quit(void)
 const char* ev_joystick_name(int index)
 {
   int i;
-  for(i=0; i<MAX_DEVICES; ++i)
+  for(i=0; i<=max_joystick_id; ++i)
   {
     if(joystick_id[i] == index)
     {
@@ -501,9 +515,9 @@ const char* ev_keyboard_name(int id)
   return evdev_get_name(DEVTYPE_KEYBOARD, id);
 }
 
-void (*event_callback)(GE_Event*) = NULL;
+int (*event_callback)(GE_Event*) = NULL;
 
-void ev_set_callback(void (*fp)(GE_Event*))
+void ev_set_callback(int (*fp)(GE_Event*))
 {
   event_callback = fp;
 }
@@ -604,6 +618,7 @@ void ev_pump_events(void)
                     if(ie[j].code > 0 && ie[j].code < MAX_KEYNAMES)
                     {
                       evt.type = ie[j].value ? GE_KEYDOWN : GE_KEYUP;
+                      evt.key.which = device_id[i][0];
                       evt.key.keysym = ie[j].code;
                     }
                   }
@@ -616,7 +631,7 @@ void ev_pump_events(void)
                     {
                       evt.jbutton.which = device_id[i][2];
                       evt.type = ie[j].value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-                      evt.jbutton.button = joystickButtonIds[device_id[i][2]][ie[j].code-BTN_JOYSTICK];
+                      evt.jbutton.button = joystick_button_ids[device_id[i][2]][ie[j].code-BTN_JOYSTICK];
                     }
                   }
                   else if(ie[j].type == EV_ABS)
@@ -629,13 +644,13 @@ void ev_pump_events(void)
                       int axis = ie[j].code-ABS_HAT0X;
                       if(!ie[j].value)
                       {
-                        value = joystickHatValue[device_id[i][2]][axis];
-                        joystickHatValue[device_id[i][2]][axis] = 0;
+                        value = joystick_hat_value[device_id[i][2]][axis];
+                        joystick_hat_value[device_id[i][2]][axis] = 0;
                       }
                       else
                       {
                         value = ie[j].value;
-                        joystickHatValue[device_id[i][2]][axis] = value;
+                        joystick_hat_value[device_id[i][2]][axis] = value;
                       }
                       button = axis + value + 2*(axis/2);
                       if(button < 4*(axis/2))
@@ -643,7 +658,7 @@ void ev_pump_events(void)
                         button += 4;
                       }
                       evt.jbutton.which = device_id[i][2];
-                      evt.jbutton.button = button + joystickButtonNb[device_id[i][2]];
+                      evt.jbutton.button = button + joystick_button_nb[device_id[i][2]];
                     }
                     else
                     {
@@ -661,6 +676,7 @@ void ev_pump_events(void)
                     if(ie[j].code >= BTN_LEFT && ie[j].code <= BTN_TASK)
                     {
                       evt.type = ie[j].value ? GE_MOUSEBUTTONDOWN : GE_MOUSEBUTTONUP;
+                      evt.button.which = device_id[i][1];
                       evt.button.button = ie[j].code - BTN_MOUSE;
                     }
                   }
@@ -669,21 +685,25 @@ void ev_pump_events(void)
                     if(ie[j].code == 0)
                     {
                       evt.type = GE_MOUSEMOTION;
+                      evt.motion.which = device_id[i][1];
                       evt.motion.xrel = ie[j].value;
                     }
                     else if(ie[j].code == 1)
                     {
                       evt.type = GE_MOUSEMOTION;
+                      evt.motion.which = device_id[i][1];
                       evt.motion.yrel = ie[j].value;
                     }
                     else if(ie[j].code == 8)
                     {
                       evt.type = GE_MOUSEBUTTONDOWN;
+                      evt.button.which = device_id[i][1];
                       evt.button.button = (ie[j].value > 0) ? 8 : 9;
                     }
                     else if(ie[j].code == 6)
                     {
                       evt.type = GE_MOUSEBUTTONDOWN;
+                      evt.button.which = device_id[i][1];
                       evt.button.button = (ie[j].value > 0) ? 10 : 11;
                     }
                   }
@@ -740,13 +760,13 @@ void ev_pump_events(void)
 
                 if(je[j].type & JS_EVENT_BUTTON)
                 {
-                  evt.jbutton.which = joystick_id[i];
                   evt.type = je[j].value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+                  evt.jbutton.which = joystick_id[i];
                   evt.jbutton.button = je[j].number;
                 }
                 else if(je[j].type & JS_EVENT_AXIS)
                 {
-                  int axis = joystickAxMap[i][je[j].number];
+                  int axis = joystick_ax_map[i][je[j].number];
                   if(axis >= ABS_HAT0X && axis <= ABS_HAT3Y)
                   {
                     evt.type = je[j].value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
@@ -755,13 +775,13 @@ void ev_pump_events(void)
                     axis -= ABS_HAT0X;
                     if(!je[j].value)
                     {
-                      value = joystickHatValue[i][axis];
-                      joystickHatValue[i][axis] = 0;
+                      value = joystick_hat_value[i][axis];
+                      joystick_hat_value[i][axis] = 0;
                     }
                     else
                     {
                       value = je[j].value/32767;
-                      joystickHatValue[i][axis] = value;
+                      joystick_hat_value[i][axis] = value;
                     }
                     button = axis + value + 2*(axis/2);
                     if(button < 4*(axis/2))
@@ -769,7 +789,7 @@ void ev_pump_events(void)
                       button += 4;
                     }
                     evt.jbutton.which = joystick_id[i];
-                    evt.jbutton.button = button + joystickButtonNb[i];
+                    evt.jbutton.button = button + joystick_button_nb[i];
                   }
                   else
                   {

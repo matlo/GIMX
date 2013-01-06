@@ -32,6 +32,8 @@ void mainloop()
     
   timer_start(&period);
 
+  GE_SetCallback(process_event);
+
   while (!done)
   {
     if(!emuclient_params.keygen)

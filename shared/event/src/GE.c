@@ -244,7 +244,9 @@ void GE_quit()
     if(joystickName[i])
     {
       free(joystickName[i]);
+      joystickName[i] = NULL;
       free(joystickHat[i]);
+      joystickHat[i] = NULL;
 #ifdef WIN32
       SDL_JoystickClose(joysticks[i]);
 #endif
@@ -383,6 +385,11 @@ int GE_GetDeviceId(GE_Event* e)
 int GE_PushEvent(GE_Event *event)
 {
   return ev_push_event(event);
+}
+
+void GE_SetCallback(int (*fp)(GE_Event*))
+{
+  ev_set_callback(fp);
 }
 
 void GE_PumpEvents()
