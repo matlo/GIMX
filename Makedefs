@@ -9,4 +9,4 @@ CPP = g++
 LD = g++
 AR = ar
 
-CFLAGS=-Wall -O2
+CFLAGS=-Wall -O3#0 -g

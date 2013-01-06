@@ -3,10 +3,10 @@ include ../Makedefs
 INC =  -I../shared/configeditor/include
 CFLAGS += `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
 LIBDIR =
-LIB = ../shared/configeditor/configeditor.a -lSDL -llibxml2 `wx-config --libs` -lintl
+LIB = ../shared/configeditor/configeditor.a ../shared/event/GE.a -lSDL -llibxml2 `wx-config --libs` -lintl
 LDFLAGS = -s 
 
-DEP = ../shared/configeditor/configeditor.a
+DEP = ../shared/configeditor/configeditor.a ../shared/event/GE.a
 OBJ = serial.rc.o serialApp.o serialMain.o
 OUT = gimx-serial.exe
 

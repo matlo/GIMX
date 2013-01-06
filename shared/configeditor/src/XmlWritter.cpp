@@ -5,6 +5,7 @@
 
 #include "XmlWritter.h"
 #include <string>
+#include <string.h>
 
 using namespace std;
 

@@ -697,7 +697,11 @@ int XmlReader::ReadConfigFile(string filePath)
 
     if(m_evtcatch)
     {
-      m_evtcatch->init();
+      if(m_evtcatch->init() < 0)
+      {
+        m_error = "can't read inputs!";
+        return -1;
+      }
     }
 
     /*

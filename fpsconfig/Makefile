@@ -3,13 +3,13 @@ include ../Makedefs
 prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
 
-INC = -I/usr/include/libxml2 -I../../libsdl/include -I../shared/configeditor/include
+INC = -I/usr/include/libxml2 -I../shared/event/include -I../shared/configeditor/include
 CFLAGS += `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
 LIBDIR =
-LIB = ../shared/configeditor/configeditor.a -L../../libsdl/lib -lSDL -lxml2 `wx-config --libs`
+LIB =../shared/configeditor/configeditor.a ../shared/event/GE.a -lxml2 `wx-config --libs`
 LDFLAGS = -s
 
-DEP = ../shared/configeditor/configeditor.a
+DEP = ../shared/configeditor/configeditor.a ../shared/event/GE.a
 OBJ = fpsconfigMain.o fpsconfigApp.o
 OUT = gimx-fpsconfig
 

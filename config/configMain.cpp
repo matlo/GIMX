@@ -8,7 +8,6 @@
 #include <wx/msgdlg.h>
 #include <stdio.h>
 #include <sys/types.h>
-#include <SDL/SDL.h>
 #include "wx/numdlg.h"
 #include <math.h>
 #include <sstream>
