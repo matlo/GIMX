@@ -392,9 +392,12 @@ static void evdev_init()
 
   /*
    * Avoid the enter key from being still pressed after the process exit.
-   * todo: find a proper fix
+   * This is only done if the process is launched in a terminal.
    */
-  sleep(1);
+  if(isatty(stdin))
+  {
+    sleep(1);
+  }
 
   struct termios term;
   tcgetattr(STDOUT_FILENO, &term);
@@ -438,7 +441,6 @@ static void evdev_init()
       }
     }
   }
-  display_devices();
 }
 
 int ev_init()
@@ -555,7 +557,7 @@ void ev_pump_events(void)
       if(device_fd[i] > -1)
       {
         FD_SET(device_fd[i], &rfds);
-        if(nfds > -1 && device_fd[i] > nfds)
+        if(nfds > -1 && device_fd[i] >= nfds)
         {
           nfds = device_fd[i]+1;
         }
@@ -566,7 +568,7 @@ void ev_pump_events(void)
       if(joystick_fd[i] > -1)
       {
         FD_SET(joystick_fd[i], &rfds);
-        if(nfds > -1 && joystick_fd[i] > nfds)
+        if(nfds > -1 && joystick_fd[i] >= nfds)
         {
           nfds = joystick_fd[i]+1;
         }
@@ -756,6 +758,11 @@ void ev_pump_events(void)
             {
               for(j=0; j<r/sizeof(je[0]); ++j)
               {
+                if(je[j].type & JS_EVENT_INIT)
+                {
+                  continue;
+                }
+
                 memset(&evt, 0x00, sizeof(evt));
 
                 if(je[j].type & JS_EVENT_BUTTON)
