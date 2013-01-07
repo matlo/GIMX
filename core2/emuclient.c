@@ -224,6 +224,9 @@ int main(int argc, char *argv[])
 
   if(emuclient_params.grab)
   {
+#ifdef WIN32
+    usleep(1000000);
+#endif
     GE_grab();
   }
 
