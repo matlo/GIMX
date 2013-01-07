@@ -124,7 +124,7 @@ void event_catcher::clean()
 {
     GE_quit();
 }
-#include <stdio.h>
+
 void event_catcher::run(string device_type, string event_type)
 {
     GE_Event events[EVENT_BUFFER_SIZE];
@@ -140,13 +140,7 @@ void event_catcher::run(string device_type, string event_type)
 
     init();
 
-/*#ifndef WIN32
-    usleep(250000);
-#endif*/
-
     GE_grab();
-
-    //SDL_ShowCursor(SDL_DISABLE);
 
     done = 0;
 
