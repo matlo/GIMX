@@ -38,7 +38,7 @@ int GE_initialize()
   int j;
   const char* name;
 
-  if(!ev_init())
+  if (!ev_init())
   {
     return 0;
   }
@@ -46,15 +46,15 @@ int GE_initialize()
   i = 0;
   while ((name = ev_joystick_name(i)))
   {
-    if (!strncmp(joystickName[i], BT_SIXAXIS_NAME, sizeof(BT_SIXAXIS_NAME) - 1))
+    if (!strncmp(name, BT_SIXAXIS_NAME, sizeof(BT_SIXAXIS_NAME) - 1))
     {
-	  /*
-	   * Rename QtSixA devices.
-	   */
+      /*
+       * Rename QtSixA devices.
+       */
       name = "Sony PLAYSTATION(R)3 Controller";
     }
-	
-	joystickName[i] = strdup(name);    
+
+    joystickName[i] = strdup(name);
 
     for (j = i - 1; j >= 0; --j)
     {
@@ -68,9 +68,9 @@ int GE_initialize()
     {
       joystickVirtualIndex[i] = 0;
     }
-	for(j=0; j<sizeof(sixaxis_names)/sizeof(sixaxis_names[0]); ++j)
-	{
-      if(!strcmp(joystickName[i], sixaxis_names[j]))
+    for (j = 0; j < sizeof(sixaxis_names) / sizeof(sixaxis_names[0]); ++j)
+    {
+      if (!strcmp(joystickName[i], sixaxis_names[j]))
       {
         joystickSixaxis[i] = 1;
       }
@@ -126,9 +126,9 @@ int GE_initialize()
 void GE_release_unused()
 {
   int i;
-  for(i=0; i<MAX_DEVICES && joystickName[i]; ++i)
+  for (i = 0; i < MAX_DEVICES && joystickName[i]; ++i)
   {
-    if(!joystickUsed[i])
+    if (!joystickUsed[i])
     {
       free(joystickName[i]);
       joystickName[i] = NULL;
@@ -187,7 +187,7 @@ void GE_quit()
 
   for (i = 0; i < MAX_DEVICES; ++i)
   {
-    if(joystickName[i])
+    if (joystickName[i])
     {
       free(joystickName[i]);
       joystickName[i] = NULL;
@@ -200,7 +200,7 @@ void GE_quit()
 
 char* GE_MouseName(int id)
 {
-  if(id >= 0)
+  if (id >= 0)
   {
     return mouseName[id];
   }
@@ -209,7 +209,7 @@ char* GE_MouseName(int id)
 
 char* GE_KeyboardName(int id)
 {
-  if(id >= 0)
+  if (id >= 0)
   {
     return keyboardName[id];
   }
@@ -218,7 +218,7 @@ char* GE_KeyboardName(int id)
 
 char* GE_JoystickName(int id)
 {
-  if(id >= 0)
+  if (id >= 0)
   {
     return joystickName[id];
   }
@@ -227,7 +227,7 @@ char* GE_JoystickName(int id)
 
 int GE_JoystickVirtualId(int id)
 {
-  if(id >= 0)
+  if (id >= 0)
   {
     return joystickVirtualIndex[id];
   }
@@ -236,7 +236,7 @@ int GE_JoystickVirtualId(int id)
 
 void GE_SetJoystickUsed(int id)
 {
-  if(id >= 0)
+  if (id >= 0)
   {
     joystickUsed[id] = 1;
   }
@@ -244,7 +244,7 @@ void GE_SetJoystickUsed(int id)
 
 int GE_MouseVirtualId(int id)
 {
-  if(id >= 0)
+  if (id >= 0)
   {
     return mouseVirtualIndex[id];
   }
@@ -253,7 +253,7 @@ int GE_MouseVirtualId(int id)
 
 int GE_KeyboardVirtualId(int id)
 {
-  if(id >= 0)
+  if (id >= 0)
   {
     return keyboardVirtualIndex[id];
   }
@@ -262,7 +262,7 @@ int GE_KeyboardVirtualId(int id)
 
 int GE_IsSixaxis(int id)
 {
-  if(id >= 0)
+  if (id >= 0)
   {
     return joystickSixaxis[id];
   }
@@ -278,25 +278,25 @@ int GE_GetDeviceId(GE_Event* e)
    * 'which' should always be at that place
    * There is no need to check the value, since it's stored as an uint8_t, and MAX_DEVICES is 256.
    */
-  unsigned int device_id = ((GE_KeyboardEvent*)e)->which;
+  unsigned int device_id = ((GE_KeyboardEvent*) e)->which;
 
-  switch(e->type)
+  switch (e->type)
   {
     case GE_JOYHATMOTION:
     case GE_JOYBUTTONDOWN:
     case GE_JOYBUTTONUP:
     case GE_JOYAXISMOTION:
-    break;
+      break;
     case GE_KEYDOWN:
     case GE_KEYUP:
     case GE_MOUSEBUTTONDOWN:
     case GE_MOUSEBUTTONUP:
     case GE_MOUSEMOTION:
-      if(merge_all_devices)
+      if (merge_all_devices)
       {
         device_id = 0;
       }
-    break;
+      break;
   }
 
   return device_id;
@@ -307,7 +307,7 @@ int GE_PushEvent(GE_Event *event)
   return ev_push_event(event);
 }
 
-void GE_SetCallback(int (*fp)(GE_Event*))
+void GE_SetCallback(int(*fp)(GE_Event*))
 {
   ev_set_callback(fp);
 }

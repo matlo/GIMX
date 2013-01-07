@@ -58,6 +58,7 @@ int ev_init()
         return 0;
       }
     }
+    i++;
   }
   
   j_num = j_max;
