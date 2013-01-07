@@ -368,6 +368,11 @@ static void jsdev_init()
   }
 }
 
+void ev_joystick_close(int id)
+{
+
+}
+
 static void jsdev_quit()
 {
   int i;
