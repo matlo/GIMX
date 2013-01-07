@@ -4,37 +4,33 @@
  */
 
 #include <GE.h>
-#include <math.h>
 #include <events.h>
 #include <string.h>
 #include <stdlib.h>
 
 #define BT_SIXAXIS_NAME "PLAYSTATION(R)3 Controller"
 
-#ifdef WIN32
-#include <SDL/SDL.h>
-SDL_Joystick* joysticks[MAX_DEVICES] = {};
-#endif
+static char* sixaxis_names[] =
+{
+  "Sony PLAYSTATION(R)3 Controller",
+  "Sony Navigation Controller"
+};
 
 char* joystickName[MAX_DEVICES] = {};
 int joystickVirtualIndex[MAX_DEVICES] = {};
 int joystickUsed[MAX_DEVICES] = {};
-int joystickNbButton[MAX_DEVICES] = {};
 int joystickSixaxis[MAX_DEVICES] = {};
 char* mouseName[MAX_DEVICES] = {};
 int mouseVirtualIndex[MAX_DEVICES] = {};
 char* keyboardName[MAX_DEVICES] = {};
 int keyboardVirtualIndex[MAX_DEVICES] = {};
 
-int joystickNbHat[MAX_DEVICES] = {};
-unsigned char* joystickHat[MAX_DEVICES] = {};
-
 static int grab = 0;
 
 int merge_all_devices = 0;
 
 /*
- * Initializes the SDL library.
+ * Initializes the library.
  */
 int GE_initialize()
 {
@@ -47,40 +43,18 @@ int GE_initialize()
     return 0;
   }
 
-#ifndef WIN32
   i = 0;
   while ((name = ev_joystick_name(i)))
   {
-   joystickName[i] = strdup(name);
-
-   for (j = i - 1; j >= 0; --j)
-   {
-     if (!strcmp(joystickName[i], joystickName[j]))
-     {
-       joystickVirtualIndex[i] = joystickVirtualIndex[j] + 1;
-       break;
-     }
-   }
-   if (j < 0)
-   {
-     joystickVirtualIndex[i] = 0;
-   }
-   if (!strcmp(joystickName[i], "Sony PLAYSTATION(R)3 Controller")
-       || !strcmp(joystickName[i], "Sony Navigation Controller"))
-   {
-     joystickSixaxis[i] = 1;
-   }
-   i++;
-  }
-#else
-  while ((joysticks[i] = SDL_JoystickOpen(i)))
-  {
-    joystickName[i] = strdup(SDL_JoystickName(i));
-
     if (!strncmp(joystickName[i], BT_SIXAXIS_NAME, sizeof(BT_SIXAXIS_NAME) - 1))
     {
-      joystickName[i][sizeof(BT_SIXAXIS_NAME) - 1] = '\0';
+	  /*
+	   * Rename QtSixA devices.
+	   */
+      name = "Sony PLAYSTATION(R)3 Controller";
     }
+	
+	joystickName[i] = strdup(name);    
 
     for (j = i - 1; j >= 0; --j)
     {
@@ -94,25 +68,15 @@ int GE_initialize()
     {
       joystickVirtualIndex[i] = 0;
     }
-    joystickNbButton[i] = SDL_JoystickNumButtons(joysticks[i]);
-    joystickNbHat[i] = SDL_JoystickNumHats(joysticks[i]);
-    if(joystickNbHat[i] > 0)
-    {
-      joystickHat[i] = calloc(joystickNbHat[i], sizeof(unsigned char));
-      if(!joystickHat[i])
+	for(j=0; j<sizeof(sixaxis_names)/sizeof(sixaxis_names[0]); ++j)
+	{
+      if(!strcmp(joystickName[i], sixaxis_names[j]))
       {
-        fprintf(stderr, "Unable to allocate %u bytes for joystick hats.\n", joystickNbHat[i]*sizeof(unsigned char));
-        return 0;
+        joystickSixaxis[i] = 1;
       }
-    }
-    if (!strcmp(joystickName[i], "Sony PLAYSTATION(R)3 Controller")
-        || !strcmp(joystickName[i], "Sony Navigation Controller"))
-    {
-      joystickSixaxis[i] = 1;
     }
     i++;
   }
-#endif
   i = 0;
   while ((name = ev_mouse_name(i)))
   {
@@ -155,11 +119,6 @@ int GE_initialize()
   return 1;
 }
 
-void GE_SetCaption (const char *title, const char *icon)
-{
-  ev_set_caption(title, icon);
-}
-
 /*
  * Release unused stuff.
  * It currently releases unused joysticks, and closes the joystick subsystem if none is used.
@@ -167,27 +126,14 @@ void GE_SetCaption (const char *title, const char *icon)
 void GE_release_unused()
 {
   int i;
-  int none = 1;
   for(i=0; i<MAX_DEVICES && joystickName[i]; ++i)
   {
     if(!joystickUsed[i])
     {
       free(joystickName[i]);
       joystickName[i] = NULL;
-#ifdef WIN32
-      SDL_JoystickClose(joysticks[i]);
-#endif
+      ev_joystick_close(i);
     }
-    else
-    {
-      none = 0;
-    }
-  }
-  if(none)
-  {
-#ifdef WIN32
-    SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-#endif
   }
 }
 
@@ -245,11 +191,7 @@ void GE_quit()
     {
       free(joystickName[i]);
       joystickName[i] = NULL;
-      free(joystickHat[i]);
-      joystickHat[i] = NULL;
-#ifdef WIN32
-      SDL_JoystickClose(joysticks[i]);
-#endif
+      ev_joystick_close(i);
     }
   }
   GE_free_mouse_keyboard_names();
@@ -318,28 +260,6 @@ int GE_KeyboardVirtualId(int id)
   return 0;
 }
 
-int GE_JoystickHatButton(GE_Event* event, unsigned char hat_dir)
-{
-  return joystickNbButton[event->jhat.which] + 4*event->jhat.hat + log2(hat_dir);
-}
-
-static unsigned char get_joystick_hat(GE_Event* event)
-{
-  if(event->jhat.which >= 0 && event->jhat.hat < joystickNbHat[event->jhat.which])
-  {
-    return joystickHat[event->jhat.which][event->jhat.hat];
-  }
-  return 0;
-}
-
-static void set_joystick_hat(GE_Event* event)
-{
-  if(event->jhat.which >= 0 && event->jhat.hat < joystickNbHat[event->jhat.which])
-  {
-    joystickHat[event->jhat.which][event->jhat.hat] = event->jhat.value;
-  }
-}
-
 int GE_IsSixaxis(int id)
 {
   if(id >= 0)
@@ -397,83 +317,7 @@ void GE_PumpEvents()
   ev_pump_events();
 }
 
-/*
- * This function translates joystick hat events into joystick button events.
- * The joystick button events are inserted just before the joystick hat events.
- */
-static int preprocess_events(GE_Event *events, int numevents)
-{
-  GE_Event* event;
-  unsigned char hat_dir;
-
-  if(numevents == EVENT_BUFFER_SIZE)
-  {
-    return EVENT_BUFFER_SIZE;
-  }
-
-  for (event = events; event < events + numevents; ++event)
-  {
-    switch (event->type)
-    {
-      case GE_JOYHATMOTION:
-        /*
-         * Check what hat directions changed.
-         * The new hat state is compared to the previous one.
-         */
-        for(hat_dir=1; hat_dir < 16 && event < events + numevents; hat_dir*=2)
-        {
-          if(event->jhat.value & hat_dir)
-          {
-            if(!(get_joystick_hat(event) & hat_dir))
-            {
-              /*
-               * The hat direction is pressed.
-               */
-              memmove(event+1, event, (events + numevents - event)*sizeof(GE_Event));
-              event->type = GE_JOYBUTTONDOWN;
-              event->jbutton.which = (event+1)->jhat.which;
-              event->jbutton.button = GE_JoystickHatButton((event+1), hat_dir);
-              event++;
-              numevents++;
-            }
-          }
-          else
-          {
-            if(get_joystick_hat(event) & hat_dir)
-            {
-              /*
-               * The hat direction is released.
-               */
-              memmove(event+1, event, (events + numevents - event)*sizeof(GE_Event));
-              event->type = GE_JOYBUTTONUP;
-              event->jbutton.which = (event+1)->jhat.which;
-              event->jbutton.button = GE_JoystickHatButton((event+1), hat_dir);
-              event++;
-              numevents++;
-            }
-          }
-        }
-        /*
-         * Save the new hat state.
-         */
-        set_joystick_hat(event);
-        /*
-         * Remove the joystick hat event.
-         */
-        memmove(event, event+1, (events + numevents - event - 1)*sizeof(GE_Event));
-        event--;
-        numevents--;
-        break;
-      default:
-        break;
-    }
-  }
-  return numevents;
-}
-
 int GE_PeepEvents(GE_Event *events, int numevents)
 {
-  int nb = ev_peep_events(events, numevents);
-
-  return preprocess_events(events, nb);
+  return ev_peep_events(events, numevents);
 }

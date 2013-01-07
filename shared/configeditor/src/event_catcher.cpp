@@ -21,32 +21,11 @@ event_catcher::~event_catcher()
     //dtor
 }
 
-#define BT_SIXAXIS_NAME "PLAYSTATION(R)3 Controller"
-
 int event_catcher::init()
 {
     if(!GE_initialize())
     {
       return -1;
-    }
-    else
-    {
-      if(!m_DeviceType.empty())
-      {
-        string title = "Press a " + m_DeviceType + " button";
-        GE_SetCaption(title.c_str(), title.c_str());
-      }
-      else
-      {
-        if(m_EventType == "button")
-        {
-          GE_SetCaption("Press a button...", "Press a button...");
-        }
-        else
-        {
-          GE_SetCaption("Move an axis...", "Move an axis...");
-        }
-      }
     }
 
     return 0;
@@ -145,11 +124,7 @@ void event_catcher::run(string device_type, string event_type)
     done = 0;
 
     GE_SetCallback(GE_PushEvent);
-
-    /*struct timespec period = {.tv_sec = 0, .tv_nsec = 10000000};
-
-    timer_start(&period);*/
-
+	
 #ifdef WIN32
     /*
      * Purge events (launching the event catcher generates a mouse motion).

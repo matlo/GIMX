@@ -5,6 +5,8 @@
 
 #include <SDL/SDL.h>
 #include <GE.h>
+#include <events.h>
+#include <math.h>
 
 #define SCREEN_WIDTH  1
 #define SCREEN_HEIGHT 1
@@ -12,16 +14,24 @@
 
 static SDL_Surface *screen = NULL;
 
+static SDL_Joystick* joysticks[MAX_DEVICES] = {};
+static int j_num;
+static int j_max;
+
+int joystickNbButton[MAX_DEVICES] = {};
+int joystickNbHat[MAX_DEVICES] = {};
+unsigned char* joystickHat[MAX_DEVICES] = {};
+
 int ev_init()
 {
+  int i;
+  
   /* Init SDL */
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0)
   {
    fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
    return 0;
   }
-
-  SDL_WM_SetCaption(TITLE, TITLE);
 
   /* Init video */
   screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 0,
@@ -31,25 +41,61 @@ int ev_init()
    fprintf(stderr, "Unable to create video surface: %s\n", SDL_GetError());
    return 0;
   }
-
-  SDL_ShowCursor(SDL_DISABLE);
+  
+  j_max = 0;
+  i = 0;
+  while((joysticks[i] = SDL_JoystickOpen(i)))
+  {
+    j_max++;
+    joystickNbButton[i] = SDL_JoystickNumButtons(joysticks[i]);
+    joystickNbHat[i] = SDL_JoystickNumHats(joysticks[i]);
+    if(joystickNbHat[i] > 0)
+    {
+      joystickHat[i] = calloc(joystickNbHat[i], sizeof(unsigned char));
+      if(!joystickHat[i])
+      {
+        fprintf(stderr, "Unable to allocate %u bytes for joystick hats.\n", joystickNbHat[i]*sizeof(unsigned char));
+        return 0;
+      }
+    }
+  }
+  
+  j_num = j_max;
 
   return 1;
 }
 
-void ev_set_caption (const char *title, const char *icon)
-{
-  SDL_WM_SetCaption(title, icon);
-}
-
 void ev_quit(void)
 {
+  int i;
+  for(i=0; i<j_max; ++i)
+  {
+    ev_joystick_close(i);
+  }
   SDL_Quit();
+  
+  SDL_WarpMouse(100, 100);
 }
 
 const char* ev_joystick_name(int id)
 {
-  return NULL;
+  return SDL_JoystickName(id);
+}
+
+void ev_joystick_close(int id)
+{
+  if(joysticks[id])
+  {
+    SDL_JoystickClose(joysticks[id]);
+    joysticks[id] = NULL;
+    free(joystickHat[id]);
+    joystickHat[id] = NULL;
+    j_num--;
+    if(j_num == 0)
+    {
+      SDL_QuitSubSystem(SDL_INIT_JOYSTICK);    
+    }
+  }
 }
 
 const char* ev_mouse_name(int id)
@@ -65,9 +111,11 @@ const char* ev_keyboard_name(int id)
 void ev_grab_input(int mode)
 {
   SDL_WM_GrabInput(mode);
+
+  SDL_ShowCursor(SDL_DISABLE);
 }
 
-void ev_set_callback(void (*fp)(GE_Event*))
+void ev_set_callback(int (*fp)(GE_Event*))
 {
 }
 
@@ -195,6 +243,110 @@ static inline void convert_s2g(SDL_Event* se, GE_Event* ge)
   }
 }
 
+static int joystick_hat_button(GE_Event* event, unsigned char hat_dir)
+{
+  return joystickNbButton[event->jhat.which] + 4*event->jhat.hat + log2(hat_dir);
+}
+
+static unsigned char get_joystick_hat(GE_Event* event)
+{
+  if(event->jhat.which >= 0 && event->jhat.hat < joystickNbHat[event->jhat.which])
+  {
+    return joystickHat[event->jhat.which][event->jhat.hat];
+  }
+  return 0;
+}
+
+static void set_joystick_hat(GE_Event* event)
+{
+  if(event->jhat.which >= 0 && event->jhat.hat < joystickNbHat[event->jhat.which])
+  {
+    joystickHat[event->jhat.which][event->jhat.hat] = event->jhat.value;
+  }
+}
+
+/*
+ * This function translates joystick hat events into joystick button events.
+ * The joystick button events are inserted just before the joystick hat events.
+ */
+static int preprocess_events(GE_Event *events, int numevents)
+{
+  GE_Event* event;
+  unsigned char hat_dir;
+
+  if(numevents == EVENT_BUFFER_SIZE)
+  {
+    return EVENT_BUFFER_SIZE;
+  }
+
+  for (event = events; event < events + numevents; ++event)
+  {
+    switch (event->type)
+    {
+      case GE_JOYHATMOTION:
+        /*
+         * Check what hat directions changed.
+         * The new hat state is compared to the previous one.
+         */
+        for(hat_dir=1; hat_dir < 16 && event < events + numevents; hat_dir*=2)
+        {
+          if(event->jhat.value & hat_dir)
+          {
+            if(!(get_joystick_hat(event) & hat_dir))
+            {
+              /*
+               * The hat direction is pressed.
+               */
+              memmove(event+1, event, (events + numevents - event)*sizeof(GE_Event));
+              event->type = GE_JOYBUTTONDOWN;
+              event->jbutton.which = (event+1)->jhat.which;
+              event->jbutton.button = joystick_hat_button((event+1), hat_dir);
+              event++;
+              numevents++;
+              if(numevents == EVENT_BUFFER_SIZE)
+              {
+                return EVENT_BUFFER_SIZE;
+              }
+            }
+          }
+          else
+          {
+            if(get_joystick_hat(event) & hat_dir)
+            {
+              /*
+               * The hat direction is released.
+               */
+              memmove(event+1, event, (events + numevents - event)*sizeof(GE_Event));
+              event->type = GE_JOYBUTTONUP;
+              event->jbutton.which = (event+1)->jhat.which;
+              event->jbutton.button = joystick_hat_button((event+1), hat_dir);
+              event++;
+              numevents++;
+              if(numevents == EVENT_BUFFER_SIZE)
+              {
+                return EVENT_BUFFER_SIZE;
+              }
+            }
+          }
+        }
+        /*
+         * Save the new hat state.
+         */
+        set_joystick_hat(event);
+        /*
+         * Remove the joystick hat event.
+         */
+        memmove(event, event+1, (events + numevents - event - 1)*sizeof(GE_Event));
+        event--;
+        numevents--;
+        break;
+      default:
+        break;
+    }
+  }
+  return numevents;
+}
+
 static SDL_Event events[EVENT_BUFFER_SIZE];
 
 int ev_peep_events(GE_Event* ev, int size)
@@ -212,6 +364,6 @@ int ev_peep_events(GE_Event* ev, int size)
   {
     convert_s2g(events+i, ev+i);
   }
-
-  return nb;
+  
+  return preprocess_events(ev, nb);
 }

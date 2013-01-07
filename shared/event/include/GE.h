@@ -114,7 +114,6 @@ extern "C" {
 extern int merge_all_devices;
 
 int GE_initialize();
-void GE_SetCaption(const char*, const char*);
 void GE_grab_toggle();
 void GE_grab();
 void GE_release_unused();
