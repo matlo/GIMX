@@ -5,7 +5,6 @@
 
 #include "wx_pch.h"
 #include "configApp.h"
-#include <libxml/parser.h>
 
 //(*AppHeaders
 #include "configMain.h"
@@ -42,8 +41,6 @@ bool configApp::OnInit()
 
 int configApp::OnExit()
 {
-  xmlCleanupParser();
-
   return 0;
 }
 
