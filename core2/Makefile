@@ -5,6 +5,7 @@ bindir=$(prefix)/bin
 BINS=emu emuclient sixaddr bdaddr hcirevision usbspoof
 LIB=../shared/event/GE.a -lxml2 -lm -lncursesw
 INC=-Iinclude -I../shared/event/include -I/usr/include/libxml2
+DEP=../shared/event/GE.a
 
 all: gpp $(BINS)
 
@@ -17,7 +18,8 @@ emu: emu.o sixaxis.o dump.o l2cap_con.o bt_utils.o
 emu-serial: emu-serial.o sixaxis.o dump.o
 	$(CC) -o $@ $^
 
-emuclient: emuclient.o\
+emuclient:  $(DEP)\
+       emuclient.o\
        args.o\
        display.o\
        sixaxis.o\
