@@ -519,7 +519,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
 
       if(::wxFileExists(wxfile))
       {
-        configFile.ReadConfigFile(string(wxfile.mb_str()));
+        configFile.ReadConfigFile(string(wxfile.mb_str(wxConvUTF8)));
         LoadConfig();
         FileDialog1->SetFilename(file);
       }
@@ -831,7 +831,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
     {
       if (bindex != bi_undef)
       {
-        buttons[bindex].SetLabel(string(dialog.GetValue().mb_str()));
+        buttons[bindex].SetLabel(string(dialog.GetValue().mb_str(wxConvUTF8)));
         string tt(buttons[bindex].GetEvent()->GetId());
         if (!buttons[bindex].GetLabel().empty())
         {
@@ -843,7 +843,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
       }
       else if (aindex != ai_undef)
       {
-        axes[aindex].SetLabel(string(dialog.GetValue().mb_str()));
+        axes[aindex].SetLabel(string(dialog.GetValue().mb_str(wxConvUTF8)));
         string tt(axes[aindex].GetEvent()->GetId());
         if (!axes[aindex].GetLabel().empty())
         {
@@ -1004,7 +1004,7 @@ void fpsconfigFrame::OnMenuSaveAs(wxCommandEvent& event)
 
     if ( FileName.IsEmpty() ) return;
 
-    configFile.SetFilePath(string(FileName.mb_str()));
+    configFile.SetFilePath(string(FileName.mb_str(wxConvUTF8)));
 
     OnMenuSave(event);
 }
@@ -1102,21 +1102,21 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         if(it->GetDevice()->GetType() == "mouse" && it->GetEvent()->GetType() == "axis" && it->GetEvent()->GetId() == "x" && it->GetAxis() == "rstick x")
         {
             it->GetEvent()->SetDeadZone(sDzHf);
-            it->GetEvent()->SetMultiplier(string(TextCtrlSensitivityHipFire->GetValue().mb_str()));
-            it->GetEvent()->SetExponent(string(TextCtrlAccelerationHipFire->GetValue().mb_str()));
-            it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str())));
+            it->GetEvent()->SetMultiplier(string(TextCtrlSensitivityHipFire->GetValue().mb_str(wxConvUTF8)));
+            it->GetEvent()->SetExponent(string(TextCtrlAccelerationHipFire->GetValue().mb_str(wxConvUTF8)));
+            it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))));
             it->GetEvent()->SetBufferSize(sBsHf);
-            it->GetEvent()->SetFilter(string(TextCtrlFilterHipFire->GetValue().mb_str()));
+            it->GetEvent()->SetFilter(string(TextCtrlFilterHipFire->GetValue().mb_str(wxConvUTF8)));
             found = true;
         }
     }
     if(found == false)
     {
         axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "x", "rstick x",
-            sDzHf, string(TextCtrlSensitivityHipFire->GetValue().mb_str()),
-            string(TextCtrlAccelerationHipFire->GetValue().mb_str()),
-            reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str())),
-            sBsHf, string(TextCtrlFilterHipFire->GetValue().mb_str()), "Aiming - x axis"));
+            sDzHf, string(TextCtrlSensitivityHipFire->GetValue().mb_str(wxConvUTF8)),
+            string(TextCtrlAccelerationHipFire->GetValue().mb_str(wxConvUTF8)),
+            reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))),
+            sBsHf, string(TextCtrlFilterHipFire->GetValue().mb_str(wxConvUTF8)), "Aiming - x axis"));
     }
     wsmx = TextCtrlSensitivityHipFire->GetValue();
     wsxyratio = TextCtrlXyRatioHipFire->GetValue();
@@ -1135,20 +1135,20 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         if(it->GetDevice()->GetType() == "mouse" && it->GetEvent()->GetType() == "axis" && it->GetEvent()->GetId() == "y" && it->GetAxis() == "rstick y")
         {
             it->GetEvent()->SetDeadZone(sDzHf);
-            it->GetEvent()->SetMultiplier(string(wsmy.mb_str()));
-            it->GetEvent()->SetExponent(string(TextCtrlAccelerationHipFire->GetValue().mb_str()));
-            it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str())));
+            it->GetEvent()->SetMultiplier(string(wsmy.mb_str(wxConvUTF8)));
+            it->GetEvent()->SetExponent(string(TextCtrlAccelerationHipFire->GetValue().mb_str(wxConvUTF8)));
+            it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))));
             it->GetEvent()->SetBufferSize(sBsHf);
-            it->GetEvent()->SetFilter(string(TextCtrlFilterHipFire->GetValue().mb_str()));
+            it->GetEvent()->SetFilter(string(TextCtrlFilterHipFire->GetValue().mb_str(wxConvUTF8)));
             found = true;
         }
     }
     if(found == false)
     {
         axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "y", "rstick y",
-            sDzHf, string(wsmy.mb_str()), string(TextCtrlAccelerationHipFire->GetValue().mb_str()),
-            reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str())),
-            sBsHf, string(TextCtrlFilterHipFire->GetValue().mb_str()), "Aiming - y axis"));
+            sDzHf, string(wsmy.mb_str(wxConvUTF8)), string(TextCtrlAccelerationHipFire->GetValue().mb_str(wxConvUTF8)),
+            reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))),
+            sBsHf, string(TextCtrlFilterHipFire->GetValue().mb_str(wxConvUTF8)), "Aiming - y axis"));
     }
     /*
      * Save ADS config.
@@ -1231,20 +1231,20 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         if(it->GetDevice()->GetType() == "mouse" && it->GetEvent()->GetType() == "axis" && it->GetEvent()->GetId() == "x" && it->GetAxis() == "rstick x")
         {
             it->GetEvent()->SetDeadZone(sDzADS);
-            it->GetEvent()->SetMultiplier(string(TextCtrlSensitivityADS->GetValue().mb_str()));
-            it->GetEvent()->SetExponent(string(TextCtrlAccelerationADS->GetValue().mb_str()));
-            it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str())));
+            it->GetEvent()->SetMultiplier(string(TextCtrlSensitivityADS->GetValue().mb_str(wxConvUTF8)));
+            it->GetEvent()->SetExponent(string(TextCtrlAccelerationADS->GetValue().mb_str(wxConvUTF8)));
+            it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))));
             it->GetEvent()->SetBufferSize(sBsADS);
-            it->GetEvent()->SetFilter(string(TextCtrlFilterADS->GetValue().mb_str()));
+            it->GetEvent()->SetFilter(string(TextCtrlFilterADS->GetValue().mb_str(wxConvUTF8)));
             found = true;
         }
     }
     if(found == false)
     {
       axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "x", "rstick x",
-          sDzADS, string(TextCtrlSensitivityADS->GetValue().mb_str()), string(TextCtrlAccelerationADS->GetValue().mb_str()),
-          reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str())),
-          sBsADS, string(TextCtrlFilterADS->GetValue().mb_str()), "Aiming - x axis"));
+          sDzADS, string(TextCtrlSensitivityADS->GetValue().mb_str(wxConvUTF8)), string(TextCtrlAccelerationADS->GetValue().mb_str(wxConvUTF8)),
+          reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))),
+          sBsADS, string(TextCtrlFilterADS->GetValue().mb_str(wxConvUTF8)), "Aiming - x axis"));
     }
     wsmx = TextCtrlSensitivityADS->GetValue();
     wsxyratio = TextCtrlXyRatioADS->GetValue();
@@ -1263,20 +1263,20 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         if(it->GetDevice()->GetType() == "mouse" && it->GetEvent()->GetType() == "axis" && it->GetEvent()->GetId() == "y" && it->GetAxis() == "rstick y")
         {
             it->GetEvent()->SetDeadZone(sDzADS);
-            it->GetEvent()->SetMultiplier(string(wsmy.mb_str()));
-            it->GetEvent()->SetExponent(string(TextCtrlAccelerationADS->GetValue().mb_str()));
-            it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str())));
+            it->GetEvent()->SetMultiplier(string(wsmy.mb_str(wxConvUTF8)));
+            it->GetEvent()->SetExponent(string(TextCtrlAccelerationADS->GetValue().mb_str(wxConvUTF8)));
+            it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))));
             it->GetEvent()->SetBufferSize(sBsADS);
-            it->GetEvent()->SetFilter(string(TextCtrlFilterADS->GetValue().mb_str()));
+            it->GetEvent()->SetFilter(string(TextCtrlFilterADS->GetValue().mb_str(wxConvUTF8)));
             found = true;
         }
     }
     if(found == false)
     {
         axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "y", "rstick y",
-            sDzADS, string(wsmy.mb_str()), string(TextCtrlAccelerationADS->GetValue().mb_str()),
-            reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str())),
-            sBsADS, string(TextCtrlFilterADS->GetValue().mb_str()), "Aiming - y axis"));
+            sDzADS, string(wsmy.mb_str(wxConvUTF8)), string(TextCtrlAccelerationADS->GetValue().mb_str(wxConvUTF8)),
+            reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))),
+            sBsADS, string(TextCtrlFilterADS->GetValue().mb_str(wxConvUTF8)), "Aiming - y axis"));
     }
 
     if(configFile.WriteConfigFile() < 0)
@@ -1592,7 +1592,7 @@ void fpsconfigFrame::OnMenuOpen(wxCommandEvent& event)
     wxString FileName = FileDialog1->GetPath();
     if ( FileName.IsEmpty() ) return;
 
-    configFile.ReadConfigFile(string(FileName.mb_str()));
+    configFile.ReadConfigFile(string(FileName.mb_str(wxConvUTF8)));
 
     LoadConfig();
 }
@@ -1854,7 +1854,7 @@ void fpsconfigFrame::OnMenuAutoBindControls(wxCommandEvent& event)
   wxString FileName = FileDialog.GetPath();
   if ( FileName.IsEmpty() ) return;
 
-  if(configFile.AutoBind(string(FileName.mb_str())) < 0)
+  if(configFile.AutoBind(string(FileName.mb_str(wxConvUTF8))) < 0)
   {
     wxMessageBox(_("Can't auto-bind controls!"), _("Error"), wxICON_ERROR);
   }
@@ -1886,7 +1886,7 @@ void fpsconfigFrame::readLabels()
 
   if(!dir.IsOpened())
   {
-    cout << "Warning: can't open " << string(default_directory.mb_str()) << endl;
+    cout << "Warning: can't open " << string(default_directory.mb_str(wxConvUTF8)) << endl;
     return;
   }
 
@@ -1897,7 +1897,7 @@ void fpsconfigFrame::readLabels()
   for (bool cont = dir.GetFirst(&file, filespec, wxDIR_FILES); cont;  cont = dir.GetNext(&file))
   {
     filepath = default_directory + file;
-    ConfigurationFile::GetLabels(string(filepath.mb_str()), blabels, alabels);
+    ConfigurationFile::GetLabels(string(filepath.mb_str(wxConvUTF8)), blabels, alabels);
   }
 
   blabels.sort(compare_nocase);
