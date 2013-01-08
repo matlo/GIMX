@@ -58,35 +58,7 @@ void mainloop()
 
     for (event = events; event < events + num_evt; ++event)
     {
-      if (event->type != GE_MOUSEMOTION)
-      {
-        if (!cal_skip_event(event))
-        {
-          cfg_process_event(event);
-        }
-      }
-      else
-      {
-        cfg_process_motion_event(event);
-      }
-
-      cfg_trigger_lookup(event);
-      cfg_intensity_lookup(event);
-
-      switch (event->type)
-      {
-        case GE_MOUSEBUTTONDOWN:
-          cal_button(event->button.which, event->button.button);
-          break;
-        case GE_KEYDOWN:
-          cal_key(event->key.which, event->key.keysym, 1);
-          break;
-        case GE_KEYUP:
-          cal_key(event->key.which, event->key.keysym, 0);
-          break;
-      }
-      
-      macro_lookup(event);
+      process_event(event);
     }
 
     cfg_process_motion();
