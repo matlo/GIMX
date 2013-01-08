@@ -7,7 +7,6 @@ INC = -I../shared/configeditor/include
 CFLAGS += `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
 LIBDIR =
 LIB = ../shared/configeditor/configeditor.a ../shared/event/GE.a -lxml2 `wx-config --libs`
-LDFLAGS = -s
 
 DEP = ../shared/configeditor/configeditor.a ../shared/event/GE.a
 OBJ = configMain.o configApp.o

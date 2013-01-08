@@ -10,3 +10,4 @@ LD = g++
 AR = ar
 
 CFLAGS=-Wall -O3#0 -g
+LDFLAGS = -s
