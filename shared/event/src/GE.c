@@ -8,6 +8,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <iconv.h>
+
 #define BT_SIXAXIS_NAME "PLAYSTATION(R)3 Controller"
 
 static char* sixaxis_names[] =
@@ -28,6 +30,20 @@ int keyboardVirtualIndex[MAX_DEVICES] = {};
 static int grab = 0;
 
 int merge_all_devices = 0;
+
+static const char* _8BIT_to_UTF8(const char* _8bit)
+{
+  iconv_t cd;
+  char* input = (char*)_8bit;
+  size_t in = strlen(input) + 1;
+  static char output[256];
+  char* poutput = output;
+  size_t out = sizeof(output);
+  cd = iconv_open ("UTF-8", "ISO-8859-1");
+  iconv(cd, &input, &in, &poutput, &out);
+  iconv_close(cd);
+  return output;
+}
 
 /*
  * Initializes the library.
@@ -54,7 +70,7 @@ int GE_initialize()
       name = "Sony PLAYSTATION(R)3 Controller";
     }
 
-    joystickName[i] = strdup(name);
+    joystickName[i] = strdup(_8BIT_to_UTF8(name));
 
     for (j = i - 1; j >= 0; --j)
     {
@@ -80,7 +96,7 @@ int GE_initialize()
   i = 0;
   while ((name = ev_mouse_name(i)))
   {
-    mouseName[i] = strdup(name);
+    mouseName[i] = strdup(_8BIT_to_UTF8(name));
 
     for (j = i - 1; j >= 0; --j)
     {
@@ -99,7 +115,7 @@ int GE_initialize()
   i = 0;
   while ((name = ev_keyboard_name(i)))
   {
-    keyboardName[i] = strdup(name);
+    keyboardName[i] = strdup(_8BIT_to_UTF8(name));
 
     for (j = i - 1; j >= 0; --j)
     {

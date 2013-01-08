@@ -678,7 +678,7 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
     ofstream outfile (filename.c_str(), ios_base::trunc);
     if(outfile.is_open())
     {
-        outfile << ChoiceConfig->GetStringSelection().mb_str() << endl;
+        outfile << ChoiceConfig->GetStringSelection().mb_str(wxConvUTF8) << endl;
         outfile.close();
     }
     filename.erase();
@@ -690,7 +690,7 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
     ofstream outfile2 (filename.c_str(), ios_base::trunc);
     if(outfile2.is_open())
     {
-        outfile2 << ComboBoxFrequency->GetValue().mb_str() << endl;
+        outfile2 << ComboBoxFrequency->GetValue().mb_str(wxConvUTF8) << endl;
         outfile2.close();
     }
     filename.erase();
@@ -702,7 +702,7 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
     ofstream outfile3 (filename.c_str(), ios_base::trunc);
     if(outfile3.is_open())
     {
-        outfile3 << ComboBoxDevice->GetValue().mb_str() << endl;
+        outfile3 << ComboBoxDevice->GetValue().mb_str(wxConvUTF8) << endl;
         outfile3.close();
     }
     filename.erase();
@@ -714,7 +714,7 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
     ofstream outfile4 (filename.c_str(), ios_base::trunc);
     if(outfile4.is_open())
     {
-        outfile4 << ControllerType->GetStringSelection().mb_str() << endl;
+        outfile4 << ControllerType->GetStringSelection().mb_str(wxConvUTF8) << endl;
         outfile4.close();
     }
 
@@ -776,7 +776,7 @@ void serialFrame::OnButtonCheckClick1(wxCommandEvent& event)
     file.append(APP_DIR);
 #endif
     file.append(CONFIG_DIR);
-    file.append(ChoiceConfig->GetStringSelection().mb_str());
+    file.append(ChoiceConfig->GetStringSelection().mb_str(wxConvUTF8));
 
     ConfigurationFile configFile;
     event_catcher evcatch;
@@ -1009,7 +1009,7 @@ void serialFrame::OnMenuGetConfigs(wxCommandEvent& event)
 
       for ( size_t n = 0; n < selections.GetCount(); n++ )
       {
-        string sel = string(choices[selections[n]].mb_str());
+        string sel = string(choices[selections[n]].mb_str(wxConvUTF8));
         wxString wxfile = wxString(dir.c_str(), wxConvUTF8) + choices[selections[n]];
         if (::wxFileExists(wxfile))
         {
@@ -1078,7 +1078,7 @@ void serialFrame::autoBindControls(wxArrayString configs)
       ConfigurationFile configFile;
       mod_config = configs[j];
 
-      int ret = configFile.ReadConfigFile(dir + string(mod_config.mb_str()));
+      int ret = configFile.ReadConfigFile(dir + string(mod_config.mb_str(wxConvUTF8)));
 
       if(ret < 0)
       {
@@ -1086,13 +1086,13 @@ void serialFrame::autoBindControls(wxArrayString configs)
         return;
       }
 
-      if(configFile.AutoBind(dir + string(dialog.GetStringSelection().mb_str())) < 0)
+      if(configFile.AutoBind(dir + string(dialog.GetStringSelection().mb_str(wxConvUTF8))) < 0)
       {
         wxMessageBox(_("Can't auto-bind controls for config: ") + mod_config, _("Error"), wxICON_ERROR);
       }
       else
       {
-        configFile.ConvertSensitivity(dir + string(dialog.GetStringSelection().mb_str()));
+        configFile.ConvertSensitivity(dir + string(dialog.GetStringSelection().mb_str(wxConvUTF8)));
         if(configFile.WriteConfigFile() < 0)
         {
           wxMessageBox(_("Can't write config: ") + mod_config, _("Error"), wxICON_ERROR);

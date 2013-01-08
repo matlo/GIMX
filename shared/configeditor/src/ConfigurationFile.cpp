@@ -322,3 +322,15 @@ void ConfigurationFile::GetLabels(string file, list<string>& button_labels, list
     configFile.GetLabels(button_labels, axis_labels);
   }
 }
+
+bool ConfigurationFile::IsEmpty()
+{
+  for(int i =0; i<MAX_CONTROLLERS; ++i)
+  {
+    if(!m_Controllers[i].IsEmpty())
+    {
+      return false;
+    }
+  }
+  return true;
+}

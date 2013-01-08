@@ -3,13 +3,15 @@ include ../Makedefs
 BINS=emuclient usbspoof
 LIB=../shared/event/GE.a -lmingw32 -lSDLmain -lSDL -llibxml2 -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl
 INC=-Iinclude -I../shared/event/include
+DEP=../shared/event/GE.a
 
 all: gpp $(BINS)
 
 clean:
 	rm -f $(BINS) *~ *.o *.exe */*.o
 
-emuclient: emuclient.o\
+emuclient: $(DEP)\
+	   emuclient.o\
        args.o\
        display.o\
        sixaxis.o\

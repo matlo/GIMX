@@ -913,7 +913,7 @@ void bluetoothFrame::OnButton1Click(wxCommandEvent& event)
             /*
              * Update variables to be read by the thread.
              */
-            strncpy(emu_bdaddr, Choice2->GetStringSelection().mb_str(), 18 );
+            strncpy(emu_bdaddr, Choice2->GetStringSelection().mb_str(wxConvUTF8), 18 );
             snprintf(bt_device, 4, "%d", d_id);
             snprintf(controller, 2, "%d", c_id);
             /*
@@ -1106,7 +1106,7 @@ void bluetoothFrame::OnButton3Click(wxCommandEvent& event)
     ofstream outfile (filename.c_str(), ios_base::trunc);
     if(outfile.is_open())
     {
-        outfile << ChoiceConfig->GetStringSelection().mb_str() << endl;
+        outfile << ChoiceConfig->GetStringSelection().mb_str(wxConvUTF8) << endl;
         outfile.close();
     }
 
@@ -1150,8 +1150,8 @@ void bluetoothFrame::OnSave(wxCommandEvent& event)
     {
         for(i=0; i<Choice1->GetCount(); ++i)
         {
-            device = string(Choice1->GetString(i).mb_str());
-            master = string(Choice2->GetString(i).mb_str());
+            device = string(Choice1->GetString(i).mb_str(wxConvUTF8));
+            master = string(Choice2->GetString(i).mb_str(wxConvUTF8));
             outfile << device << " " << master << endl;
         }
         outfile.close();
@@ -1198,7 +1198,7 @@ void bluetoothFrame::OnButton4Click(wxCommandEvent& event)
   file.append(APP_DIR);
 #endif
   file.append(CONFIG_DIR);
-  file.append(ChoiceConfig->GetStringSelection().mb_str());
+  file.append(ChoiceConfig->GetStringSelection().mb_str(wxConvUTF8));
 
   ConfigurationFile configFile;
   event_catcher evcatch;
@@ -1343,7 +1343,7 @@ void bluetoothFrame::OnMenuGetConfigs(wxCommandEvent& event)
 
       for ( size_t n = 0; n < selections.GetCount(); n++ )
       {
-        string sel = string(choices[selections[n]].mb_str());
+        string sel = string(choices[selections[n]].mb_str(wxConvUTF8));
         wxString wxfile = wxString(dir.c_str(), wxConvUTF8) + choices[selections[n]];
         if (::wxFileExists(wxfile))
         {
@@ -1411,7 +1411,7 @@ void bluetoothFrame::autoBindControls(wxArrayString configs)
       ConfigurationFile configFile;
       mod_config = configs[j];
 
-      int ret = configFile.ReadConfigFile(dir + string(mod_config.mb_str()));
+      int ret = configFile.ReadConfigFile(dir + string(mod_config.mb_str(wxConvUTF8)));
 
       if(ret < 0)
       {
@@ -1419,13 +1419,13 @@ void bluetoothFrame::autoBindControls(wxArrayString configs)
         return;
       }
 
-      if(configFile.AutoBind(dir + string(dialog.GetStringSelection().mb_str())) < 0)
+      if(configFile.AutoBind(dir + string(dialog.GetStringSelection().mb_str(wxConvUTF8))) < 0)
       {
         wxMessageBox(_("Can't auto-bind controls for config: ") + mod_config, _("Error"), wxICON_ERROR);
       }
       else
       {
-        configFile.ConvertSensitivity(dir + string(dialog.GetStringSelection().mb_str()));
+        configFile.ConvertSensitivity(dir + string(dialog.GetStringSelection().mb_str(wxConvUTF8)));
         if(configFile.WriteConfigFile() < 0)
         {
           wxMessageBox(_("Can't write config: ") + mod_config, _("Error"), wxICON_ERROR);

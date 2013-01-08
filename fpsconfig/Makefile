@@ -3,10 +3,10 @@ include ../Makedefs
 prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
 
-INC = -I/usr/include/libxml2 -I../shared/event/include -I../shared/configeditor/include
+INC = -I../shared/configeditor/include
 CFLAGS += `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
 LIBDIR =
-LIB =../shared/configeditor/configeditor.a ../shared/event/GE.a -lxml2 `wx-config --libs`
+LIB =../shared/configeditor/configeditor.a ../shared/event/GE.a -lxml2 `wx-config --libs` -liconv
 LDFLAGS = -s
 
 DEP = ../shared/configeditor/configeditor.a ../shared/event/GE.a

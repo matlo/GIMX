@@ -34,6 +34,7 @@ class ConfigurationFile
         int ConvertSensitivity(string refFilePath);
         void GetLabels(list<string>&, list<string>&);
         static void GetLabels(string, list<string>&, list<string>&);
+        bool IsEmpty();
     protected:
     private:
         string m_FilePath;
