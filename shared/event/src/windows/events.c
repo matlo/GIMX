@@ -155,7 +155,7 @@ static inline void convert_g2s(SDL_Event* se, GE_Event* ge)
     se->jbutton.button = ge->jbutton.button;
     break;
   case GE_JOYBUTTONUP:
-    se->type = SDL_JOYBUTTONDOWN;
+    se->type = SDL_JOYBUTTONUP;
     se->jbutton.which = ge->jbutton.which;
     se->jbutton.button = ge->jbutton.button;
     break;
@@ -219,7 +219,7 @@ static inline void convert_s2g(SDL_Event* se, GE_Event* ge)
     ge->jbutton.button = se->jbutton.button;
     break;
   case SDL_JOYBUTTONUP:
-    ge->type = GE_JOYBUTTONDOWN;
+    ge->type = GE_JOYBUTTONUP;
     ge->jbutton.which = se->jbutton.which;
     ge->jbutton.button = se->jbutton.button;
     break;
