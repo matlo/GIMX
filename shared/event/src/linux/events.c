@@ -399,7 +399,7 @@ static void evdev_init()
    * Avoid the enter key from being still pressed after the process exit.
    * This is only done if the process is launched in a terminal.
    */
-  if(isatty(stdin))
+  if(isatty(fileno(stdin)))
   {
     sleep(1);
   }
