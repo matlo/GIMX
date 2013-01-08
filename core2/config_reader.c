@@ -41,6 +41,20 @@ static unsigned int r_config_dpi[MAX_CONTROLLERS];
 static unsigned int r_buffer_size;
 static double r_filter;
 
+const char* _UTF8_to_8BIT(const char* _utf8)
+{
+  iconv_t cd;
+  char* input = (char*)_utf8;
+  size_t in = strlen(input) + 1;
+  static char output[256];
+  char* poutput = output;
+  size_t out = sizeof(output);
+  cd = iconv_open ("ISO-8859-1//TRANSLIT", "UTF-8");
+  iconv(cd, &input, &in, &poutput, &out);
+  iconv_close(cd);
+  return output;
+}
+
 /*
  * Get the device name and store it into r_device_name.
  * OK, return 0
@@ -50,26 +64,18 @@ int GetDeviceName(xmlNode* a_node)
 {
   int ret = 0;
   char* prop;
-  iconv_t cd;
-  char* input;
-  size_t in;
-  char* output = r_device_name;
-  size_t out = sizeof(r_device_name);
 
   prop = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_NAME);
   if(prop)
   {
-    cd = iconv_open("ISO-8859-1//TRANSLIT", "UTF-8");
-    input = prop;
-    in = strlen(prop) + 1;
-    iconv(cd, (char**)&input, &in, (char**)&output, &out);
-    iconv_close(cd);
+    strcpy(r_device_name, prop);
   }
   else
   {
     ret = -1;
   }
   xmlFree(prop);
+
 
   return ret;
 }
@@ -105,7 +111,7 @@ static int GetDeviceId(xmlNode* a_node)
       }
       if(i == MAX_DEVICES || !GE_JoystickName(i))
       {
-        gprintf(_("joystick not found: %s %d\n"), r_device_name, r_device_id);
+        gprintf(_("joystick not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), r_device_id);
         ret = 1;
       }
     }
@@ -138,7 +144,7 @@ static int GetDeviceId(xmlNode* a_node)
         }
         if(i == MAX_DEVICES || !GE_MouseName(i))
         {
-          gprintf(_("mouse not found: %s %d\n"), r_device_name, r_device_id);
+          gprintf(_("mouse not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), r_device_id);
           ret = 1;
         }
       }
@@ -157,7 +163,7 @@ static int GetDeviceId(xmlNode* a_node)
         }
         if(i == MAX_DEVICES || !GE_KeyboardName(i))
         {
-          gprintf(_("keyboard not found: %s %d\n"), r_device_name, r_device_id);
+          gprintf(_("keyboard not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), r_device_id);
           ret = 1;
         }
       }
