@@ -24,6 +24,11 @@ int timer_start(struct timespec* period)
       .it_interval = *period,
       .it_value = *period,
   };
+  
+  if(tfd != -1)
+  {
+    return -1;
+  }
 
   tfd = timerfd_create(CLOCK_REALTIME, 0);
   if(tfd < 0)

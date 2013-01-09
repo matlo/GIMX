@@ -7,7 +7,7 @@
 #define CONFIG_H_
 
 #include "sixaxis.h"
-#include <events.h>
+#include <GE.h>
 
 #define MAX_CONTROLLERS 7
 #define MAX_CONFIGURATIONS 8

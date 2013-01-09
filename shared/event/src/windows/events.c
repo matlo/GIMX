@@ -83,6 +83,9 @@ const char* ev_joystick_name(int id)
   return SDL_JoystickName(id);
 }
 
+/*
+ * Close a joystick, and close the joystick subsystem if none is used anymore.
+ */
 void ev_joystick_close(int id)
 {
   if(joysticks[id])

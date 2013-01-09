@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 int timer_getfd();
-int timer_start(struct timespec* period);
+int timer_start(struct timespec*);
 void timer_close();
 
 #ifdef __cplusplus

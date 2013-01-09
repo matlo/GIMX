@@ -3,7 +3,6 @@
  License: GPLv3
  */
 
-#include <sys/time.h>
 #include <GE.h>
 #include "emuclient.h"
 #include "calibration.h"
@@ -12,7 +11,6 @@
 #include "tcp_con.h"
 #include "macros.h"
 #include "display.h"
-#include "events.h"
 #include <windows.h>
 #include <unistd.h>
 

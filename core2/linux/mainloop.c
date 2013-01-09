@@ -3,7 +3,6 @@
  License: GPLv3
  */
 
-#include <sys/time.h>
 #include <GE.h>
 #include "emuclient.h"
 #include "calibration.h"
@@ -12,8 +11,6 @@
 #include "tcp_con.h"
 #include "macros.h"
 #include "display.h"
-//#include <events.h>
-#include <timer.h>
 #include <stdio.h>
 
 static int done = 0;
@@ -30,7 +27,7 @@ void mainloop()
   GE_Event* event;
   struct timespec period = {.tv_sec = 0, .tv_nsec = emuclient_params.refresh_rate*1000};
     
-  timer_start(&period);
+  GE_TimerStart(&period);
 
   GE_SetCallback(process_event);
 
@@ -73,12 +70,12 @@ void mainloop()
     {
       printf("buffer too small!!!\n");
     }
-
+    
     for (event = events; event < events + num_evt; ++event)
     {
       process_event(event);
     }
   }
     
-  timer_close();
+  GE_TimerClose();
 }

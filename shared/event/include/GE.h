@@ -8,6 +8,9 @@
 
 #include <stdint.h>
 
+#define MAX_KEYNAMES 249
+#define MOUSE_BUTTONS_MAX 12
+
 #ifdef WIN32
 #include <SDL/SDL.h>
 #define KEY_LEFTCTRL   SDLK_LCTRL
@@ -31,6 +34,7 @@
 #define KEY_F12        SDLK_F12
 #else
 #include <linux/input.h>
+#include <sys/time.h>
 #endif
 
 #define GE_GRAB_OFF 0
@@ -130,7 +134,12 @@ int GE_JoystickVirtualId(int);
 void GE_SetJoystickUsed(int);
 int GE_IsSixaxis(int);
 
-void GE_SetCallback(int (*)(GE_Event*));
+
+#ifndef WIN32
+void GE_SetCallback(int(*)(GE_Event*));
+void GE_TimerStart(struct timespec*);
+void GE_TimerClose();
+#endif
 void GE_PumpEvents();
 int GE_PeepEvents(GE_Event*, int);
 int GE_PushEvent(GE_Event*);

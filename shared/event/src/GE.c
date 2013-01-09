@@ -7,8 +7,10 @@
 #include <events.h>
 #include <string.h>
 #include <stdlib.h>
-
 #include <iconv.h>
+#ifndef WIN32
+#include <timer.h>
+#endif
 
 #define BT_SIXAXIS_NAME "PLAYSTATION(R)3 Controller"
 
@@ -46,7 +48,10 @@ static const char* _8BIT_to_UTF8(const char* _8bit)
 }
 
 /*
- * Initializes the library.
+ * \bried Initializes the GE library.
+ *
+ * \return 1 if successful
+ *         0 in case of error
  */
 int GE_initialize()
 {
@@ -136,8 +141,7 @@ int GE_initialize()
 }
 
 /*
- * Release unused stuff.
- * It currently releases unused joysticks, and closes the joystick subsystem if none is used.
+ * \brief Release unused stuff. It currently only releases unused joysticks.
  */
 void GE_release_unused()
 {
@@ -154,7 +158,7 @@ void GE_release_unused()
 }
 
 /*
- * Grab/Release the mouse.
+ * \brief Grab/Release the mouse cursor (Windows) or grab/release all keyboard and mouse event devices (Linux).
  */
 void GE_grab_toggle()
 {
@@ -171,7 +175,7 @@ void GE_grab_toggle()
 }
 
 /*
- * Grab the mouse.
+ * \brief Grab the mouse.
  */
 void GE_grab()
 {
@@ -179,6 +183,9 @@ void GE_grab()
   grab = 1;
 }
 
+/*
+ * \brief Free the mouse and keyboard names.
+ */
 void GE_free_mouse_keyboard_names()
 {
   int i;
@@ -195,7 +202,7 @@ void GE_free_mouse_keyboard_names()
 }
 
 /*
- * Free allocated data.
+ * \brief Quit the GE library (free allocated data, release devices...).
  */
 void GE_quit()
 {
@@ -214,71 +221,125 @@ void GE_quit()
   ev_quit();
 }
 
+/*
+ * \brief Get the mouse name for a given index.
+ * 
+ * \param id  the mouse index (in the [0..MAX_DEVICES[ range).
+ * 
+ * \return the mouse name if present, NULL otherwise.
+ */
 char* GE_MouseName(int id)
 {
-  if (id >= 0)
+  if (id >= 0 && id < MAX_DEVICES)
   {
     return mouseName[id];
   }
   return NULL;
 }
 
+/*
+ * \brief Get the keyboard name for a given index.
+ * 
+ * \param id  the keyboard index (in the [0..MAX_DEVICES[ range)
+ * 
+ * \return the keyboard name if present, NULL otherwise.
+ */
 char* GE_KeyboardName(int id)
 {
-  if (id >= 0)
+  if (id >= 0 && id < MAX_DEVICES)
   {
     return keyboardName[id];
   }
   return NULL;
 }
 
+/*
+ * \brief Get the joystick name for a given index.
+ * 
+ * \param id  the joystick index (in the [0..MAX_DEVICES[ range)
+ * 
+ * \return the joystick name if present, NULL otherwise.
+ */
 char* GE_JoystickName(int id)
 {
-  if (id >= 0)
+  if (id >= 0 && id < MAX_DEVICES)
   {
     return joystickName[id];
   }
   return NULL;
 }
 
+/*
+ * \brief Get the joystick virtual id for a given index.
+ * 
+ * \param id  the joystick index (in the [0..MAX_DEVICES[ range)
+ * 
+ * \return the joystick name if present, NULL otherwise.
+ */
 int GE_JoystickVirtualId(int id)
 {
-  if (id >= 0)
+  if (id >= 0 && id < MAX_DEVICES)
   {
     return joystickVirtualIndex[id];
   }
   return 0;
 }
 
+/*
+ * \brief Set a joystick to the "used" state, so that a call to GE_release_unused will keep it open.
+ * 
+ * \param id  the joystick index (in the [0..MAX_DEVICES[ range)
+ */
 void GE_SetJoystickUsed(int id)
 {
-  if (id >= 0)
+  if (id >= 0 && id < MAX_DEVICES)
   {
     joystickUsed[id] = 1;
   }
 }
 
+/*
+ * \brief Get the mouse virtual id for a given index.
+ * 
+ * \param id  the mouse index (in the [0..MAX_DEVICES[ range)
+ * 
+ * \return the mouse name if present, NULL otherwise.
+ */
 int GE_MouseVirtualId(int id)
 {
-  if (id >= 0)
+  if (id >= 0 && id < MAX_DEVICES)
   {
     return mouseVirtualIndex[id];
   }
   return 0;
 }
 
+/*
+ * \brief Get the keyboard virtual id for a given index.
+ * 
+ * \param id  the keyboard index (in the [0..MAX_DEVICES[ range)
+ * 
+ * \return the keyboard name if present, NULL otherwise.
+ */
 int GE_KeyboardVirtualId(int id)
 {
-  if (id >= 0)
+  if (id >= 0 && id < MAX_DEVICES)
   {
     return keyboardVirtualIndex[id];
   }
   return 0;
 }
 
+/*
+ * \brief Tell if a joystick is a sixaxis / dualshock / navigation controller given its index.
+ * 
+ * \param id  the joystick index (in the [0..MAX_DEVICES[ range)
+ * 
+ * \return 1 if it is such a joystick, 0 otherwise.
+ */
 int GE_IsSixaxis(int id)
 {
-  if (id >= 0)
+  if (id >= 0 && id < MAX_DEVICES)
   {
     return joystickSixaxis[id];
   }
@@ -286,7 +347,11 @@ int GE_IsSixaxis(int id)
 }
 
 /*
- * Returns the device id of a given event.
+ * \brief Returns the device id corresponding to a given event.
+ * 
+ * \param e  the event
+ *
+ * \return the device id.
  */
 int GE_GetDeviceId(GE_Event* e)
 {
@@ -318,21 +383,69 @@ int GE_GetDeviceId(GE_Event* e)
   return device_id;
 }
 
+/*
+ * \brief Push an event into the event queue.
+ * 
+ * \param e  the event
+ *
+ * \return the device id.
+ */
 int GE_PushEvent(GE_Event *event)
 {
   return ev_push_event(event);
 }
 
+#ifndef WIN32
+/*
+ * \brief Set a callback function for processing events (Linux only).
+ *
+ * \param fp  the callback function
+ */
 void GE_SetCallback(int(*fp)(GE_Event*))
 {
   ev_set_callback(fp);
 }
 
+/*
+ * \brief Start a timer to make GE_PumpEvents return periodically (Linux only).
+ * 
+ * \param period  the period of the timer.
+ */
+void GE_TimerStart(struct timespec* period)
+{
+  timer_start(period);
+}
+
+/*
+ * \brief Stop the timer (Linux only).
+ */
+void GE_TimerClose()
+{
+  timer_close();
+}
+#endif
+
+/*
+ * \brief Get events from devices.
+ *        In Linux:
+ *        - it is mandatory to call GE_SetCallback once before calling this function.
+ *        - if GE_TimerStart wasn't previously called, this function will block undefinitely.
+ *        In Windows:
+ *        - this function queues all pending events and returns.
+ */
 void GE_PumpEvents()
 {
   ev_pump_events();
 }
 
+/*
+ * \brief Get all events from the event queue.
+ * 
+ * \param events  the buffer to store the events
+ * \param numevents  the max number of events to retrieve
+ * 
+ * \return the number of retrieved events.
+ */
 int GE_PeepEvents(GE_Event *events, int numevents)
 {
   return ev_peep_events(events, numevents);

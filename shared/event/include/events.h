@@ -11,9 +11,6 @@
 #define DEVTYPE_JOYSTICK 0x04
 #define DEVTYPE_NB       3
 
-#define MAX_KEYNAMES 249
-#define MOUSE_BUTTONS_MAX 12
-
 extern char* keynames[MAX_KEYNAMES];
 
 int ev_init();

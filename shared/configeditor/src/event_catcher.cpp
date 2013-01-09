@@ -123,7 +123,9 @@ void event_catcher::run(string device_type, string event_type)
 
     done = 0;
 
+#ifndef WIN32
     GE_SetCallback(GE_PushEvent);
+#endif
 	
 #ifdef WIN32
     /*
