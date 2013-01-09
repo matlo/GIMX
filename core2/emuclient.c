@@ -4,53 +4,33 @@
  License: GPLv3
  */
 
-#include <prio.h>
-#include <signal.h>
-#include <errno.h>
+#include <stdio.h> //fprintf
+#include <locale.h> //internationalization
+#include <prio.h> //to set the thread priority
+#include <signal.h> //to catch SIGINT
+#include <errno.h> //to print errors
+#include <string.h> //to print errors
 
 #ifndef WIN32
-#include <termio.h>
-#include <sys/ioctl.h>
-#include <err.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <pwd.h>
-#include <sys/resource.h>
+#include <pwd.h> //to get the homedir
+#include <sys/types.h> //to get the homedir
+#include <unistd.h> //to get the homedir
 #else
 #include <windows.h>
+#include <unistd.h> //usleep
 #endif
-#include <unistd.h>
-#include <fcntl.h>
-#include <ctype.h>
-#include <string.h>
-#include <sys/types.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <GE.h>
-#include "sixaxis.h"
-#include "dump.h"
-#include "macros.h"
-#include "config.h"
-#include "config_writter.h"
-#include "config_reader.h"
-#include <sys/time.h>
-#include "calibration.h"
-#include <libxml/parser.h>
-#include "serial_con.h"
-#include "gpp_con.h"
-#include "tcp_con.h"
-#include "display.h"
+
 #include "emuclient.h"
+#include "macros.h"
+#include "config_reader.h"
+#include "calibration.h"
+#include "display.h"
 #include "mainloop.h"
 #include "connector.h"
 #include "args.h"
 
-#include <locale.h>
-
-#define EVENT_BUFFER_SIZE 256
-#define DEFAULT_POSTPONE_COUNT 3
+#define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
 #define DEFAULT_MAX_AXIS_VALUE 255
-#define DEFAULT_AXIS_SCALE 1
 
 s_emuclient_params emuclient_params =
 {
