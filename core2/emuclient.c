@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
   if(merge_all_devices)
   {
     free_config();
-    GE_free_mouse_keyboard_names();
+    GE_FreeMKames();
     read_config_file(emuclient_params.config_file);
   }
 

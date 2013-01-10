@@ -122,7 +122,7 @@ void GE_grab_toggle();
 void GE_grab();
 void GE_release_unused();
 void GE_quit();
-void GE_free_mouse_keyboard_names();
+void GE_FreeMKames();
 
 char* GE_MouseName(int);
 char* GE_KeyboardName(int);

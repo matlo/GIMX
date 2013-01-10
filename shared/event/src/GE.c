@@ -186,7 +186,7 @@ void GE_grab()
 /*
  * \brief Free the mouse and keyboard names.
  */
-void GE_free_mouse_keyboard_names()
+void GE_FreeMKames()
 {
   int i;
   for (i = 0; i < MAX_DEVICES && mouseName[i]; ++i)
@@ -217,7 +217,7 @@ void GE_quit()
       ev_joystick_close(i);
     }
   }
-  GE_free_mouse_keyboard_names();
+  GE_FreeMKames();
   ev_quit();
 }
 
