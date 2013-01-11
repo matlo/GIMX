@@ -5,7 +5,7 @@ LIB=../shared/event/GE.a -lmingw32 -lSDLmain -lSDL -llibxml2 -lws2_32 -liconv -l
 INC=-Iinclude -I../shared/event/include
 DEP=../shared/event/GE.a
 
-all: gpp $(BINS)
+all: $(BINS)
 
 clean:
 	rm -f $(BINS) *~ *.o *.exe */*.o
@@ -35,11 +35,6 @@ emuclient: $(DEP)\
 
 usbspoof: utils/usbspoof.c utils/pcapwriter.c
 	$(CC) -o $@ $^ -lusb-1.0 -lwinmm
-
-gpp:
-	$(CC) $(CFLAGS) -o gpp/hid_WINDOWS.o -c gpp/hid_LINUX.c
-	$(CC) $(CFLAGS) -o gpp/pcprog.o -c gpp/pcprog.c
-	$(CC) $(CFLAGS) -o gpp_con.o -c gpp_con.c
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(INC) -o $@ -c $< 

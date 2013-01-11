@@ -7,7 +7,7 @@ LIB=../shared/event/GE.a -lxml2 -lm -lncursesw
 INC=-Iinclude -I../shared/event/include -I/usr/include/libxml2
 DEP=../shared/event/GE.a
 
-all: gpp $(BINS)
+all: $(BINS)
 
 clean:
 	rm -f $(BINS) *~ *.o */*.o
