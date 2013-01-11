@@ -4,76 +4,54 @@
  License: GPLv3
  */
 
+#include <stdio.h> //fprintf
+#include <locale.h> //internationalization
+#include <prio.h> //to set the thread priority
+#include <signal.h> //to catch SIGINT
+#include <errno.h> //to print errors
+#include <string.h> //to print errors
+
 #ifndef WIN32
-#include <termio.h>
-#include <sys/ioctl.h>
-#include <err.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <pwd.h>
-#include <sys/resource.h>
-#include <sched.h>
+#include <pwd.h> //to get the homedir
+#include <sys/types.h> //to get the homedir
+#include <unistd.h> //to get the homedir
 #else
 #include <windows.h>
+#include <unistd.h> //usleep
 #endif
-#include <unistd.h>
-#include <fcntl.h>
-#include <ctype.h>
-#include <string.h>
-#include <sys/types.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include "sdl_tools.h"
-#include "sixaxis.h"
-#include "dump.h"
-#include "macros.h"
-#include "config.h"
-#include "config_writter.h"
-#include "config_reader.h"
-#include <sys/time.h>
-#include "calibration.h"
-#include <libxml/parser.h>
-#include "serial_con.h"
-#include "gpp_con.h"
-#include "tcp_con.h"
-#include "display.h"
+
 #include "emuclient.h"
+#include "macros.h"
+#include "config_reader.h"
+#include "calibration.h"
+#include "display.h"
+#include "mainloop.h"
+#include "connector.h"
+#include "args.h"
 
-#define DEFAULT_POSTPONE_COUNT 3
+#define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
 #define DEFAULT_MAX_AXIS_VALUE 255
-#define DEFAULT_AXIS_SCALE 1
 
-#ifndef WIN32
-char* homedir;
-#endif
-
-#ifdef WIN32
-static void err(int eval, const char *fmt)
+s_emuclient_params emuclient_params =
 {
-  fprintf(stderr, fmt);
-  exit(eval);
-}
+   .ctype = C_TYPE_DEFAULT,
+#ifndef WIN32
+  .homedir = NULL,
 #endif
-
-char* config_file = NULL;
-
-char* portname = NULL;
-
-char* keygen = NULL;
-
-char* ip = NULL;
-
-int refresh_rate = DEFAULT_REFRESH_PERIOD; //microseconds
-int postpone_count = DEFAULT_POSTPONE_COUNT;
-int max_axis_value = DEFAULT_MAX_AXIS_VALUE;
-double frequency_scale;
-int subpos = 0;
-
-int done = 0;
-int display = 0;
-int curses = 0;
-int force_updates = 0;
-int check_config = 0;
+  .portname = NULL,
+  .force_updates = 0,
+  .keygen = NULL,
+  .grab = 1,
+  .refresh_rate = DEFAULT_REFRESH_PERIOD,
+  .max_axis_value = DEFAULT_MAX_AXIS_VALUE,
+  .frequency_scale = 1,
+  .status = 0,
+  .curses = 0,
+  .config_file = NULL,
+  .ip = NULL,
+  .postpone_count = DEFAULT_POSTPONE_COUNT,
+  .subpos = 0,
+};
 
 struct sixaxis_state state[MAX_CONTROLLERS];
 s_controller controller[MAX_CONTROLLERS] =
@@ -120,24 +98,52 @@ inline double get_axis_scale(int axis)
   return (double) get_max_unsigned(axis) / DEFAULT_MAX_AXIS_VALUE;
 }
 
+void terminate(int sig)
+{
+  set_done();
+}
+
+int process_event(GE_Event* event)
+{
+  if (event->type != GE_MOUSEMOTION)
+  {
+    if (!cal_skip_event(event))
+    {
+      cfg_process_event(event);
+    }
+  }
+  else
+  {
+    cfg_process_motion_event(event);
+  }
+
+  cfg_trigger_lookup(event);
+  cfg_intensity_lookup(event);
+
+  switch (event->type)
+  {
+    case GE_MOUSEBUTTONDOWN:
+      cal_button(event->button.which, event->button.button);
+      break;
+    case GE_KEYDOWN:
+      cal_key(event->key.which, event->key.keysym, 1);
+      break;
+    case GE_KEYUP:
+      cal_key(event->key.which, event->key.keysym, 0);
+      break;
+  }
+
+  macro_lookup(event);
+
+  return 0;
+}
+
 int main(int argc, char *argv[])
 {
-  int grab = 1;
-  SDL_Event events[EVENT_BUFFER_SIZE];
-  SDL_Event* event;
-  SDL_Event kgevent = {.type = SDL_KEYDOWN};
+  GE_Event kgevent = {.type = GE_KEYDOWN};
   int i;
-  int num_evt;
-  int read = 0;
-#ifndef WIN32
-  struct timeval t0, t1;
-#else
-  LARGE_INTEGER t0, t1, freq;
-#endif
-  int time_to_sleep;
-  e_controller_type ctype = C_TYPE_DEFAULT;
-  char* actype = NULL;
-  int ptl;
+
+  (void) signal(SIGINT, terminate);
 
   setlocale( LC_ALL, "" );
 #ifndef WIN32
@@ -150,22 +156,12 @@ int main(int argc, char *argv[])
   setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
   
 #ifndef WIN32
-  /*
-   * Set highest priority & scheduler policy.
-   */
-  struct sched_param p = {.sched_priority = 99};
-
-  sched_setscheduler(0, SCHED_FIFO, &p);
-  //setpriority(PRIO_PROCESS, getpid(), -20); only useful with SCHED_OTHER
-
   setlinebuf(stdout);
-  homedir = getpwuid(getuid())->pw_dir;
-#else
-  SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
-  SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
 
-  QueryPerformanceFrequency(&freq);
+  emuclient_params.homedir = getpwuid(getuid())->pw_dir;
 #endif
+
+  set_prio();
 
   for(i = 0; i < SA_MAX; ++i)
   {
@@ -176,101 +172,22 @@ int main(int argc, char *argv[])
   max_unsigned_axis_value[sa_acc_z] = 1023;
   max_unsigned_axis_value[sa_gyro]  = 1023;
 
-  for (i = 1; i < argc; ++i)
+  args_read(argc, argv, &emuclient_params);
+
+  if (emuclient_params.ctype == C_TYPE_JOYSTICK)
   {
-    if (!strcmp(argv[i], "--nograb"))
-    {
-      grab = 0;
-    }
-    else if (!strcmp(argv[i], "--config") && i < argc)
-    {
-      config_file = argv[++i];
-      read = 1;
-    }
-    else if (!strcmp(argv[i], "--port") && i < argc)
-    {
-      portname = argv[++i];
-    }
-    else if (!strcmp(argv[i], "--status"))
-    {
-      if(!curses)
-      {
-        display = 1;
-      }
-    }
-    else if (!strcmp(argv[i], "--refresh"))
-    {
-      refresh_rate = atof(argv[++i]) * 1000;
-      postpone_count = 3 * DEFAULT_REFRESH_PERIOD / refresh_rate;
-    }
-    else if (!strcmp(argv[i], "--subpos"))
-    {
-      subpos = 1;
-    }
-    else if (!strcmp(argv[i], "--force-updates"))
-    {
-      force_updates = 1;
-    }
-    else if (!strcmp(argv[i], "--check"))
-    {
-      check_config = 1;
-      display = 1;
-    }
-    else if (!strcmp(argv[i], "--type") && i < argc)
-    {
-      actype = argv[++i];
-    }
-    else if (!strcmp(argv[i], "--keygen") && i < argc)
-    {
-      keygen = argv[++i];
-    }
-    else if (!strcmp(argv[i], "--curses"))
-    {
-      if(!display)
-      {
-        curses = 1;
-      }
-    }
-    else if (!strcmp(argv[i], "--ip") && i < argc)
-    {
-      ip = argv[++i];
-    }
-  }
-  
-  if(actype != NULL)
-  {
-    if (!strcmp(actype, "joystick"))
-    {
-      ctype = C_TYPE_JOYSTICK;
-      max_unsigned_axis_value[sa_lstick_x] = 65535;
-      max_unsigned_axis_value[sa_lstick_y] = 65535;
-      max_unsigned_axis_value[sa_rstick_x] = 65535;
-      max_unsigned_axis_value[sa_rstick_y] = 65535;
-    }
-    else if (!strcmp(actype, "360pad"))
-    {
-      ctype = C_TYPE_360_PAD;
-    }
-    else if (!strcmp(actype, "Sixaxis"))
-    {
-      ctype = C_TYPE_SIXAXIS;
-    }
-    else if (!strcmp(actype, "PS2pad"))
-    {
-      ctype = C_TYPE_PS2_PAD;
-    }
-    else if (!strcmp(actype, "GPP"))
-    {
-      ctype = C_TYPE_GPP;
-    }
+    max_unsigned_axis_value[sa_lstick_x] = 65535;
+    max_unsigned_axis_value[sa_lstick_y] = 65535;
+    max_unsigned_axis_value[sa_rstick_x] = 65535;
+    max_unsigned_axis_value[sa_rstick_y] = 65535;
   }
 
-  if(curses)
+  if(emuclient_params.curses)
   {
     display_init();
   }
 
-  frequency_scale = (double) DEFAULT_REFRESH_PERIOD / refresh_rate;
+  emuclient_params.frequency_scale = (double) DEFAULT_REFRESH_PERIOD / emuclient_params.refresh_rate;
 
   for (i = 0; i < MAX_CONTROLLERS; ++i)
   {
@@ -278,230 +195,76 @@ int main(int argc, char *argv[])
     memset(controller + i, 0x00, sizeof(s_controller));
   }
 
-  if (!sdl_initialize())
+  if (!GE_initialize())
   {
-    err(1, "can't init sdl");
+    fprintf(stderr, "GE_initialize: %s\n", strerror(errno));
+    goto QUIT;
+
   }
 
-  if(grab)
+  if(emuclient_params.grab)
   {
+#ifdef WIN32
     usleep(1000000);
-    sdl_grab();
+#endif
+    GE_grab();
   }
-  
+
   macros_init();
 
-  if (read == 1)
+  if(read_config_file(emuclient_params.config_file) < 0)
   {
-    read_config_file(config_file);
-
-    if(check_config)
-    {
-      goto EXIT;
-    }
-
-    if(merge_all_devices)
-    {
-      free_config();
-      sdl_free_mk();
-      read_config_file(config_file);
-    }
-
-    sdl_release_unused();
+    fprintf(stderr, "read_config_file error: %s\n", strerror(errno));
+    goto QUIT;
   }
-  else
+
+  if(merge_all_devices)
   {
-    err(1, "no config file");
+    free_config();
+    GE_FreeMKames();
+    read_config_file(emuclient_params.config_file);
   }
+
+  GE_release_unused();
 
   macros_read();
 
-  switch(ctype)
+  if(connector_init(emuclient_params.ctype, emuclient_params.portname) < 0)
   {
-    case C_TYPE_DEFAULT:
-      if(tcp_connect() < 0)
-      {
-        err(1, "tcp_connect");
-      }
-      break;
-    case C_TYPE_GPP:
-      if (gpp_connect() < 0)
-      {
-        err(1, "gpp_connect");
-      }
-      break;
-    default:
-      if(!strstr(portname, "none") && serial_connect(portname) < 0)
-      {
-        err(1, "serial_connect");
-      }
-      break;
+    fprintf(stderr, "connector_init: %s\n", strerror(errno));
+    goto QUIT;
   }
 
-  if(keygen)
+  if(emuclient_params.keygen)
   {
-    kgevent.key.keysym.sym = get_key_from_buffer(keygen);
-    if(kgevent.key.keysym.sym != SDLK_UNKNOWN)
+    kgevent.key.keysym = get_key_from_buffer(emuclient_params.keygen);
+    if(kgevent.key.keysym)
     {
-      SDL_PushEvent(&kgevent);
+      macro_lookup(&kgevent);
     }
     else
     {
-      err(1, "Unknown key name for argument --keygen!");
+      fprintf(stderr, "Unknown key name for argument --keygen: '%s'\n", emuclient_params.keygen);
+      goto QUIT;
     }
   }
 
   cfg_trigger_init();
 
-  done = 0;
-  while (!done)
-  {
-#ifndef WIN32
-    gettimeofday(&t0, NULL);
-#else
-    QueryPerformanceCounter(&t0);
-#endif
-
-    /*
-     * These two functions generate events.
-     */
-    macro_process();
-	  calibration_test();
-    
-    if(!keygen)
-    {
-      sdl_pump_events();
-    } 
-
-    num_evt = sdl_peep_events(events, sizeof(events) / sizeof(events[0]), SDL_GETEVENT, SDL_ALLEVENTS);
-
-    num_evt = sdl_preprocess_events(events, num_evt);
-
-    if (num_evt == EVENT_BUFFER_SIZE)
-    {
-      printf("buffer too small!!!\n");
-    }
-
-    for (event = events; event < events + num_evt; ++event)
-    {
-      if (event->type != SDL_MOUSEMOTION)
-      {
-        if (!cal_skip_event(event))
-        {
-          cfg_process_event(event);
-        }
-      }
-      else
-      {
-        cfg_process_motion_event(event);
-      }
-
-      cfg_trigger_lookup(event);
-      cfg_intensity_lookup(event);
-
-      switch (event->type)
-      {
-        case SDL_QUIT:
-          done = 1;
-          break;
-        case SDL_MOUSEBUTTONDOWN:
-          cal_button(event->button.which, event->button.button);
-          break;
-        case SDL_KEYDOWN:
-          cal_key(event->key.which, event->key.keysym.sym, 1);
-          break;
-        case SDL_KEYUP:
-          cal_key(event->key.which, event->key.keysym.sym, 0);
-          break;
-      }
-      
-      macro_lookup(event);
-    }
-
-    cfg_process_motion();
-
-    cfg_config_activation();
-
-    switch(ctype)
-    {
-      case C_TYPE_DEFAULT:
-        tcp_send(force_updates);
-        break;
-      case C_TYPE_GPP:
-        gpp_send(force_updates);
-        break;
-      default:
-        serial_send(ctype, force_updates);
-        break;
-    }
-
-#ifdef WIN32
-    /*
-     * There is no setlinebuf(stdout) in windows.
-     */
-    if(display)
-    {
-      fflush(stdout);
-    }
-#endif
-    if(curses)
-    {
-      display_run(state[0].user.axis);
-    }
-
-#ifndef WIN32
-    gettimeofday(&t1, NULL);
-
-    time_to_sleep = refresh_rate - ((t1.tv_sec * 1000000 + t1.tv_usec) - (t0.tv_sec * 1000000 + t0.tv_usec));
-#else
-    QueryPerformanceCounter(&t1);
-
-    time_to_sleep = refresh_rate - (t1.QuadPart - t0.QuadPart) * 1000000 / freq.QuadPart;
-#endif
-
-    ptl = refresh_rate - time_to_sleep;
-    proc_time += ptl;
-    proc_time_total += ptl;
-    if(ptl > proc_time_worst && proc_time_total > 50000)
-    {
-      proc_time_worst = ptl;
-    }
-
-    if (time_to_sleep > 0)
-    {
-      usleep(time_to_sleep);
-    }
-    else
-    {
-      if(!curses)
-      {
-        printf(_("processing time higher than %dus: %dus!!\n"), refresh_rate, refresh_rate - time_to_sleep);
-      }
-    }
-  }
+  mainloop();
 
   gprintf(_("Exiting\n"));
 
-EXIT:
+  QUIT:
+
   free_macros();
   free_config();
-  sdl_quit();
-  switch(ctype)
-  {
-    case C_TYPE_DEFAULT:
-      tcp_close();
-      break;
-    case C_TYPE_GPP:
-      gpp_disconnect();
-      break;
-    default:
-      serial_close();
-      break;
-  }
+  GE_quit();
+  connector_clean();
 
   xmlCleanupParser();
 
-  if(curses)
+  if(emuclient_params.curses)
   {
     display_end();
   }

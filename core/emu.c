@@ -59,6 +59,7 @@ void timeradd(struct timeval *a, struct timeval *b, struct timeval *res)
 #endif
 
 static int debug = 0;
+int display = 0;
 
 static const char *hid_report_name[] = { 
     "reserved", "input", "output", "feature" };
@@ -266,7 +267,7 @@ int tcplisten(int port)
 int tcpaccept(int server)
 {
     struct sockaddr_in addr;
-    size_t addrlen = sizeof(struct sockaddr_in);
+    socklen_t addrlen = sizeof(struct sockaddr_in);
     int fd;
     fd = accept(server, (struct sockaddr *)&addr, &addrlen);
     if (fd == -1)
@@ -290,7 +291,7 @@ void handle_control(int tcpc, const unsigned char *buf, size_t len,
 
     if(len > 48)
     {
-        printf("%d tcp packets merged\n", len/48);
+        printf("%zu tcp packets merged\n", len/48);
     }
 
     while(len >= 48)

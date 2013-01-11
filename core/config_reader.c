@@ -3,10 +3,11 @@
  License: GPLv3
  */
 
+#include <string.h>
 #include "config_reader.h"
 #include "config.h"
 #include "conversion.h"
-#include "sdl_tools.h"
+#include <GE.h>
 #include "calibration.h"
 #include <limits.h>
 #include <dirent.h>
@@ -40,6 +41,20 @@ static unsigned int r_config_dpi[MAX_CONTROLLERS];
 static unsigned int r_buffer_size;
 static double r_filter;
 
+const char* _UTF8_to_8BIT(const char* _utf8)
+{
+  iconv_t cd;
+  char* input = (char*)_utf8;
+  size_t in = strlen(input) + 1;
+  static char output[256];
+  char* poutput = output;
+  size_t out = sizeof(output);
+  cd = iconv_open ("ISO-8859-1//TRANSLIT", "UTF-8");
+  iconv(cd, &input, &in, &poutput, &out);
+  iconv_close(cd);
+  return output;
+}
+
 /*
  * Get the device name and store it into r_device_name.
  * OK, return 0
@@ -49,26 +64,18 @@ int GetDeviceName(xmlNode* a_node)
 {
   int ret = 0;
   char* prop;
-  iconv_t cd;
-  char* input;
-  size_t in;
-  char* output = r_device_name;
-  size_t out = sizeof(r_device_name);
 
   prop = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_NAME);
   if(prop)
   {
-    cd = iconv_open("ISO-8859-1//TRANSLIT", "UTF-8");
-    input = prop;
-    in = strlen(prop) + 1;
-    iconv(cd, (char**)&input, &in, (char**)&output, &out);
-    iconv_close(cd);
+    strcpy(r_device_name, prop);
   }
   else
   {
     ret = -1;
   }
   xmlFree(prop);
+
 
   return ret;
 }
@@ -90,24 +97,25 @@ static int GetDeviceId(xmlNode* a_node)
   {
     if(r_device_type == E_DEVICE_TYPE_JOYSTICK)
     {
-      for (i = 0; i < MAX_DEVICES && sdl_get_joystick_name(i); ++i)
+      for (i = 0; i < MAX_DEVICES && GE_JoystickName(i); ++i)
       {
-        if (!strcmp(r_device_name, sdl_get_joystick_name(i)))
+        if (!strcmp(r_device_name, GE_JoystickName(i)))
         {
-          if (r_device_id == sdl_get_joystick_virtual_id(i))
+          if (r_device_id == GE_JoystickVirtualId(i))
           {
             r_device_id = i;
+            GE_SetJoystickUsed(i);
             break;
           }
         }
       }
-      if(i == MAX_DEVICES || !sdl_get_joystick_name(i))
+      if(i == MAX_DEVICES || !GE_JoystickName(i))
       {
-        gprintf(_("joystick not found: %s %d\n"), r_device_name, r_device_id);
+        gprintf(_("joystick not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), r_device_id);
         ret = 1;
       }
     }
-    else if(merge_all_devices && !check_config)
+    else if(merge_all_devices)
     {
       r_device_id = 0;
     }
@@ -123,39 +131,39 @@ static int GetDeviceId(xmlNode* a_node)
     {
       if(r_device_type == E_DEVICE_TYPE_MOUSE)
       {
-        for (i = 0; i < MAX_DEVICES && sdl_get_mouse_name(i); ++i)
+        for (i = 0; i < MAX_DEVICES && GE_MouseName(i); ++i)
         {
-          if (!strcmp(r_device_name, sdl_get_mouse_name(i)))
+          if (!strcmp(r_device_name, GE_MouseName(i)))
           {
-            if (r_device_id == sdl_get_mouse_virtual_id(i))
+            if (r_device_id == GE_MouseVirtualId(i))
             {
               r_device_id = i;
               break;
             }
           }
         }
-        if(i == MAX_DEVICES || !sdl_get_mouse_name(i))
+        if(i == MAX_DEVICES || !GE_MouseName(i))
         {
-          gprintf(_("mouse not found: %s %d\n"), r_device_name, r_device_id);
+          gprintf(_("mouse not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), r_device_id);
           ret = 1;
         }
       }
       else if(r_device_type == E_DEVICE_TYPE_KEYBOARD)
       {
-        for (i = 0; i < MAX_DEVICES && sdl_get_keyboard_name(i); ++i)
+        for (i = 0; i < MAX_DEVICES && GE_KeyboardName(i); ++i)
         {
-          if (!strcmp(r_device_name, sdl_get_keyboard_name(i)))
+          if (!strcmp(r_device_name, GE_KeyboardName(i)))
           {
-            if (r_device_id == sdl_get_keyboard_virtual_id(i))
+            if (r_device_id == GE_KeyboardVirtualId(i))
             {
               r_device_id = i;
               break;
             }
           }
         }
-        if(i == MAX_DEVICES || !sdl_get_keyboard_name(i))
+        if(i == MAX_DEVICES || !GE_KeyboardName(i))
         {
-          gprintf(_("keyboard not found: %s %d\n"), r_device_name, r_device_id);
+          gprintf(_("keyboard not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), r_device_id);
           ret = 1;
         }
       }
@@ -1245,21 +1253,23 @@ void free_config()
 /*
  * This function loads a config file.
  */
-void read_config_file(const char* file)
+int read_config_file(const char* file)
 {
   char file_path[PATH_MAX];
 
 #ifndef WIN32
-  snprintf(file_path, sizeof(file_path), "%s%s%s%s", homedir, APP_DIR, CONFIG_DIR, file);
+  snprintf(file_path, sizeof(file_path), "%s%s%s%s", emuclient_params.homedir, APP_DIR, CONFIG_DIR, file);
 #else
   snprintf(file_path, sizeof(file_path), "%s%s", CONFIG_DIR, file);
 #endif
 
   if(read_file(file_path) == -1)
   {
-    printf("Bad config file: %s\n", file_path);
-    exit(-1);
+    fprintf(stderr, "Bad config file: %s\n", file_path);
+    return -1;
   }
 
   read_calibration();
+
+  return 0;
 }

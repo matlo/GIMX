@@ -4,14 +4,19 @@
  */
 
 #include "calibration.h"
-#include <SDL/SDL.h>
+#include <GE.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 #include <math.h>
 #include "config.h"
-#include "sdl_tools.h"
 #include "config_writter.h"
 #include "emuclient.h"
 #include "display.h"
+
+#include "events.h"
+#include "mainloop.h"
 
 #define DEFAULT_MULTIPLIER_STEP 0.01
 #define EXPONENT_STEP 0.01
@@ -74,7 +79,7 @@ static void translation_test()
   double mul;
   double exp;
 
-  SDL_Event mouse_evt = { };
+  GE_Event mouse_evt = { };
 
   s_mouse_cal* mc = cal_get_mouse(current_mouse, current_conf);
 
@@ -106,19 +111,19 @@ static void translation_test()
 
   mouse_evt.motion.xrel = direction * step;
   mouse_evt.motion.which = current_mouse;
-  mouse_evt.type = SDL_MOUSEMOTION;
-  SDL_PushEvent(&mouse_evt);
+  mouse_evt.type = GE_MOUSEMOTION;
+  process_event(&mouse_evt);
 
   dots -= step;
 
   if (dots <= 0)
   {
-    delay = DURATION / refresh_rate;
+    delay = DURATION / emuclient_params.refresh_rate;
     step *= 2;
     direction *= -1;
     if (direction > 0)
     {
-      if ((dz - mul + mul * pow(step * 2 * frequency_scale, exp)) * get_axis_scale(sa_rstick_x) > get_mean_unsigned(sa_rstick_x))
+      if ((dz - mul + mul * pow(step * 2 * emuclient_params.frequency_scale, exp)) * get_axis_scale(sa_rstick_x) > get_mean_unsigned(sa_rstick_x))
       {
         step = 1;
         distance = 0.1;
@@ -135,7 +140,7 @@ static int circle_step = 0;
 
 static void circle_test()
 {
-  SDL_Event mouse_evt = { };
+  GE_Event mouse_evt = { };
   s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
   int step;
 
@@ -155,8 +160,8 @@ static void circle_test()
   mouse_evt.motion.xrel = round(mcal->rd * pow((double) dpi / 5700, *mcal->ex) * (cos(circle_step * 2 * pi / STEPS) - cos((circle_step - step) * 2 * pi / STEPS)));
   mouse_evt.motion.yrel = round(mcal->rd * pow((double) dpi / 5700, *mcal->ex) * (sin(circle_step * 2 * pi / STEPS) - sin((circle_step - step) * 2 * pi / STEPS)));
   mouse_evt.motion.which = current_mouse;
-  mouse_evt.type = SDL_MOUSEMOTION;
-  SDL_PushEvent(&mouse_evt);
+  mouse_evt.type = GE_MOUSEMOTION;
+  process_event(&mouse_evt);
 
   circle_step += step;
   circle_step = circle_step % STEPS;
@@ -183,7 +188,7 @@ static void cal_display()
 
   if (current_cal != NONE)
   {
-    gprintf(_("calibrating mouse %s (%d)\n"), sdl_get_mouse_name(current_mouse), sdl_get_mouse_virtual_id(current_mouse));
+    gprintf(_("calibrating mouse %s (%d)\n"), GE_MouseName(current_mouse), GE_MouseVirtualId(current_mouse));
     gprintf(_("calibrating conf %d\n"), current_conf + 1);
     gprintf(_("sensibility:"));
     if (mcal->mx)
@@ -266,48 +271,46 @@ static void cal_display()
  */
 void cal_key(int device_id, int sym, int down)
 {
-  SDL_Event evt_quit = { };
   s_mouse_control* mc = cfg_get_mouse_control(current_mouse);
   e_current_cal prev = current_cal;
 
   switch (sym)
   {
-    case SDLK_LCTRL:
+    case KEY_LEFTCTRL:
       lctrl = down ? 1 : 0;
       break;
-    case SDLK_RCTRL:
+    case KEY_RIGHTCTRL:
       rctrl = down ? 1 : 0;
       break;
 
-    case SDLK_LSHIFT:
+    case KEY_LEFTSHIFT:
       lshift = down ? 1 : 0;
       break;
-    case SDLK_RSHIFT:
+    case KEY_RIGHTSHIFT:
       rshift = down ? 1 : 0;
       break;
 
-    case SDLK_LALT:
+    case KEY_LEFTALT:
       lalt = down ? 1 : 0;
       break;
-    case SDLK_MODE:
+    case KEY_RIGHTALT:
       ralt = down ? 1 : 0;
       break;
   }
 
   switch (sym)
   {
-    case SDLK_ESCAPE:
+    case KEY_ESC:
       if(current_cal != NONE)
       {
         current_cal = NONE;
       }
       if(lshift)
       {
-        evt_quit.quit.type = SDL_QUIT;
-        SDL_PushEvent(&evt_quit);
+        set_done();
       }
       break;
-    case SDLK_F1:
+    case KEY_F1:
       if (down)
       {
         if(rctrl || lctrl)
@@ -328,9 +331,9 @@ void cal_key(int device_id, int sym, int down)
           else
           {
             current_cal = NONE;
-            if (cfgw_modify_file(config_file))
+            if (cfgw_modify_file(emuclient_params.config_file))
             {
-              gprintf(_("error writting the config file %s\n"), config_file);
+              gprintf(_("error writting the config file %s\n"), emuclient_params.config_file);
             }
             gprintf(_("calibration done\n"));
           }
@@ -345,28 +348,28 @@ void cal_key(int device_id, int sym, int down)
         }
       }
       break;
-    case SDLK_F2:
+    case KEY_F2:
       if (down && current_cal != NONE)
       {
         current_cal = CC;
         gprintf(_("config selection\n"));
       }
       break;
-    case SDLK_F9:
+    case KEY_F9:
       if (down && current_cal != NONE)
       {
         gprintf(_("calibrating sensitivity\n"));
         current_cal = MX;
       }
       break;
-    case SDLK_F12:
+    case KEY_F12:
       if (down && current_cal != NONE)
       {
         gprintf(_("calibrating x/y ratio\n"));
         current_cal = MY;
       }
       break;
-    case SDLK_F3:
+    case KEY_F3:
       if (down && current_cal != NONE)
       {
         gprintf(_("calibrating dead zone x\n"));
@@ -376,7 +379,7 @@ void cal_key(int device_id, int sym, int down)
         mc->change = 1;
       }
       break;
-    case SDLK_F4:
+    case KEY_F4:
       if (down && current_cal != NONE)
       {
         gprintf(_("calibrating dead zone y\n"));
@@ -386,7 +389,7 @@ void cal_key(int device_id, int sym, int down)
         mc->change = 1;
       }
       break;
-    case SDLK_F5:
+    case KEY_F5:
       if (down && current_cal != NONE)
       {
         gprintf(_("calibrating dead zone shape\n"));
@@ -396,21 +399,21 @@ void cal_key(int device_id, int sym, int down)
         mc->change = 1;
       }
       break;
-    case SDLK_F7:
+    case KEY_F7:
       if (down && current_cal != NONE)
       {
         gprintf(_("calibrating acceleration x\n"));
         current_cal = EX;
       }
       break;
-    case SDLK_F8:
+    case KEY_F8:
       if (down && current_cal != NONE)
       {
         gprintf(_("calibrating acceleration y\n"));
         current_cal = EY;
       }
       break;
-    case SDLK_F10:
+    case KEY_F10:
       if (down && current_cal != NONE)
       {
         if(current_cal != RD && current_cal != VEL)
@@ -421,7 +424,7 @@ void cal_key(int device_id, int sym, int down)
         current_cal = RD;
       }
       break;
-    case SDLK_F11:
+    case KEY_F11:
       if (down && current_cal != NONE)
       {
         if(current_cal != RD && current_cal != VEL)
@@ -432,7 +435,7 @@ void cal_key(int device_id, int sym, int down)
         current_cal = VEL;
       }
       break;
-    case SDLK_F6:
+    case KEY_F6:
       if (down && current_cal != NONE)
       {
         if(current_cal != TEST)
@@ -450,7 +453,7 @@ void cal_key(int device_id, int sym, int down)
 
   if(prev != current_cal)
   {
-    if(curses)
+    if(emuclient_params.curses)
     {
       display_calibration();
     }
@@ -465,19 +468,22 @@ void cal_key(int device_id, int sym, int down)
    */
   if (lshift && rshift)
   {
-    if (display)
+    if (emuclient_params.status)
     {
-      display = 0;
+      emuclient_params.status = 0;
     }
     else
     {
-      display = 1;
+      if(!emuclient_params.curses)
+      {
+        emuclient_params.status = 1;
+      }
     }
   }
 
   if (lalt && ralt)
   {
-    sdl_grab_toggle();
+    GE_grab_toggle();
   }
 }
 
@@ -492,12 +498,12 @@ void cal_button(int which, int button)
 
   switch (button)
   {
-    case SDL_BUTTON_WHEELUP:
+    case 8:
       switch (current_cal)
       {
         case MC:
           current_mouse += 1;
-          if (!sdl_get_mouse_name(current_mouse))
+          if (!GE_MouseName(current_mouse))
           {
             current_mouse -= 1;
           }
@@ -593,7 +599,7 @@ void cal_button(int which, int button)
       }
       if(current_cal != NONE)
       {
-        if(curses)
+        if(emuclient_params.curses)
         {
           display_calibration();
         }
@@ -603,7 +609,7 @@ void cal_button(int which, int button)
         }
       }
       break;
-    case SDL_BUTTON_WHEELDOWN:
+    case 9:
       switch (current_cal)
       {
         case MC:
@@ -710,7 +716,7 @@ void cal_button(int which, int button)
       }
       if(current_cal != NONE)
       {
-        if(curses)
+        if(emuclient_params.curses)
         {
           display_calibration();
         }
@@ -728,9 +734,9 @@ void cal_button(int which, int button)
 /*
  * If calibration is on, all mouse wheel events are skipped.
  */
-int cal_skip_event(SDL_Event* event)
+int cal_skip_event(GE_Event* event)
 {
   return current_cal != NONE
-      && event->type == SDL_MOUSEBUTTONDOWN
-      && (event->button.button == SDL_BUTTON_WHEELDOWN || event->button.button == SDL_BUTTON_WHEELUP);
+      && event->type == GE_MOUSEBUTTONDOWN
+      && (event->button.button >= 8 || event->button.button <= 9);
 }

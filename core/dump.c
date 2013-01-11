@@ -8,7 +8,6 @@
 #include <sys/time.h>
 #include "dump.h"
 #include "sixaxis.h"
-#include "conversion.h"
 
 void sixaxis_dump_state(struct sixaxis_state *state, int id)
 {

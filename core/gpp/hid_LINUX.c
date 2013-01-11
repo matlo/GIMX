@@ -36,7 +36,7 @@ int rawhid_recv(int num, void *buf, int len, int timeout)
   if (num < 0 || num >= nrhd)
   {
     fprintf(stderr, "Device not opened\n");
-    exit(-1);
+    return -1;
   }
   FD_ZERO(&rfds);
   FD_SET(rhd[num], &rfds);
@@ -72,7 +72,7 @@ int rawhid_send(int num, void *buf, int len, int timeout)
   if (num < 0 || num >= nrhd)
   {
     fprintf(stderr, "Device not opened\n");
-    exit(-1);
+    return -1;
   }
   FD_ZERO(&wfds);
   FD_SET(rhd[num], &wfds);
@@ -109,7 +109,7 @@ int rawhid_open(int max, int vid, int pid, int usage_page, int usage)
   if(nrhd > 0)
   {
     fprintf(stderr, "Device alread opened\n");
-    exit(-1);
+    return -1;
   }
   
   for(i=0; i<HIDRAW_MAX_DEVICES; ++i)

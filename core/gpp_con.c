@@ -3,6 +3,7 @@
  License: GPLv3
  */
 
+#include <string.h>
 #include "gpp/pcprog.h"
 #include "config.h"
 #include "dump.h"
@@ -31,7 +32,7 @@ void gpp_send(int force_update)
   {
     if(controller[0].send_command)
     {
-      if (display)
+      if (emuclient_params.status)
       {
         sixaxis_dump_state(state, 0);
         //mmap_dump(state);

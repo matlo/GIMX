@@ -1,16 +1,37 @@
 include ../Makedefs
 
 BINS=emuclient usbspoof
-LIB=-lmingw32 -lSDLmain -lSDL -llibxml2 -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl
-INC=
+LIB=../shared/event/GE.a -lmingw32 -lSDLmain -lSDL -llibxml2 -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl
+INC=-Iinclude -I../shared/event/include
+DEP=../shared/event/GE.a
 
 all: gpp $(BINS)
 
 clean:
 	rm -f $(BINS) *~ *.o *.exe */*.o
 
-emuclient: emuclient.o display.o sixaxis.o dump.o macros.o config.o conversion.o config_writter.o config_reader.o sdl_tools.o win_serial_con.o calibration.o win_serial_con.o serial_con.o tcp_con.o gpp/hid_WINDOWS.o gpp/pcprog.o gpp_con.o
-	$(CC) -o $@ $^ $(LIB)
+emuclient: $(DEP)\
+	   emuclient.o\
+       args.o\
+       display.o\
+       sixaxis.o\
+       dump.o\
+       macros.o\
+       config.o\
+       config_writter.o\
+       config_reader.o\
+       calibration.o\
+       connector.o\
+       serial_con.o\
+       report.o\
+       tcp_con.o\
+       gpp/pcprog.o\
+       gpp_con.o\
+       gpp/hid_WINDOWS.o\
+       windows/prio.o\
+       windows/serial.o\
+       windows/mainloop.o
+	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LIB)
 
 usbspoof: utils/usbspoof.c utils/pcapwriter.c
 	$(CC) -o $@ $^ -lusb-1.0 -lwinmm

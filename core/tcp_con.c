@@ -12,15 +12,13 @@
 #else
 #include <winsock2.h>
 #define MSG_DONTWAIT 0
-#define err(retval, ...) \
-fprintf(stderr, __VA_ARGS__); \
-fprintf(stderr, "Undefined error: %d\n", errno); \
-exit(retval);
 #endif
 #include "config.h"
 #include "dump.h"
 #include "emuclient.h"
 #include <unistd.h>
+#include <stdio.h>
+#include <string.h>
 
 /*
  * Controller are listening from TCP_PORT to TCP_PORT+MAX_CONTROLLERS-1
@@ -48,25 +46,34 @@ int tcp_connect(void)
       WSADATA wsadata;
 
       if (WSAStartup(MAKEWORD(1,1), &wsadata) == SOCKET_ERROR)
-        err(1, "WSAStartup");
+      {
+        fprintf(stderr, "WSAStartup");
+        return -1;
+      }
 
       if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-        err(1, "socket");
+      {
+        fprintf(stderr, "socket");
+        return -1;
+      }
 #else
       if ((fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
-        err(1, "socket");
+      {
+        fprintf(stderr, "socket");
+        return -1;
+      }
 #endif
       memset(&addr, 0, sizeof(addr));
       addr.sin_family = AF_INET;
       addr.sin_port = htons(TCP_PORT+i);
 #ifdef WIN32
-      addr.sin_addr.s_addr = inet_addr(ip);
+      addr.sin_addr.s_addr = inet_addr(emuclient_params.ip);
 #else
       addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 #endif
       if (connect(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0)
       {
-        fd = 0;
+        fd = -1;
       }
       else
       {
@@ -131,7 +138,7 @@ void tcp_send(int force_update)
 
       if (controller[i].send_command)
       {
-        if(display)
+        if(emuclient_params.status)
         {
           sixaxis_dump_state(state + i, i);
         }
