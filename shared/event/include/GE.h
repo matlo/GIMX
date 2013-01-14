@@ -111,6 +111,12 @@ typedef union GE_Event {
 
 #define EVENT_BUFFER_SIZE 256
 
+#define AXIS_X 0
+#define AXIS_Y 1
+
+#define MOUSE_AXIS_X "x"
+#define MOUSE_AXIS_Y "y"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -134,6 +140,10 @@ int GE_JoystickVirtualId(int);
 void GE_SetJoystickUsed(int);
 int GE_IsSixaxis(int);
 
+const char* GE_MouseButtonName(int);
+int GE_MouseButtonId(const char*);
+const char* GE_KeyName(uint16_t);
+uint16_t GE_KeyId(const char*);
 
 #ifndef WIN32
 void GE_SetCallback(int(*)(GE_Event*));

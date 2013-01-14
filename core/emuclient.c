@@ -199,7 +199,6 @@ int main(int argc, char *argv[])
   {
     fprintf(stderr, "GE_initialize: %s\n", strerror(errno));
     goto QUIT;
-
   }
 
   if(emuclient_params.grab)
@@ -237,7 +236,7 @@ int main(int argc, char *argv[])
 
   if(emuclient_params.keygen)
   {
-    kgevent.key.keysym = get_key_from_buffer(emuclient_params.keygen);
+    kgevent.key.keysym = GE_KeyId(emuclient_params.keygen);
     if(kgevent.key.keysym)
     {
       macro_lookup(&kgevent);

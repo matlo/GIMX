@@ -17,6 +17,4 @@ void macros_init();
 void macros_read();
 void free_macros();
 
-uint16_t get_key_from_buffer(const char*);
-
 #endif

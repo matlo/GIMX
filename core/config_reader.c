@@ -6,7 +6,6 @@
 #include <string.h>
 #include "config_reader.h"
 #include "config.h"
-#include "conversion.h"
 #include <GE.h>
 #include "calibration.h"
 #include <limits.h>
@@ -232,13 +231,13 @@ static int GetEventId(xmlNode * a_node, char* attr_label)
     switch(r_device_type)
     {
       case E_DEVICE_TYPE_KEYBOARD:
-        r_event_id = get_key_from_buffer(event_id);
+        r_event_id = GE_KeyId(event_id);
         break;
       case E_DEVICE_TYPE_JOYSTICK:
         r_event_id = atoi(event_id);
         break;
       case E_DEVICE_TYPE_MOUSE:
-        r_event_id = get_mouse_event_id_from_buffer(event_id);
+        r_event_id = GE_MouseButtonId(event_id);
         break;
       default:
         ret = -1;

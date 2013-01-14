@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
-#include "conversion.h"
 #include <math.h>
 #include "emuclient.h"
 #include <GE.h>
@@ -153,28 +152,28 @@ static s_macro_event** get_macro(const char* line)
     {    
       if(!strncmp(argument[1], "KEYDOWN", strlen("KEYDOWN")))
       {
-        if((rbutton = get_key_from_buffer(argument[2])))
+        if((rbutton = GE_KeyId(argument[2])))
         {
           etype = GE_KEYDOWN;
         }
       }
       else if(!strncmp(argument[1], "KEYUP", strlen("KEYUP")))
       {
-        if((rbutton = get_key_from_buffer(argument[2])))
+        if((rbutton = GE_KeyId(argument[2])))
         {
           etype = GE_KEYUP;
         }
       }
       else if(!strncmp(argument[1], "MBUTTONDOWN", strlen ("MBUTTONDOWN")))
       {
-        if((rbutton = get_mouse_event_id_from_buffer(argument[2])))
+        if((rbutton = GE_MouseButtonId(argument[2])))
         {
           etype = GE_MOUSEBUTTONDOWN;
         }
       }
       else if(!strncmp(argument[1], "MBUTTONUP", strlen("MBUTTONUP")))
       {
-        if((rbutton = get_mouse_event_id_from_buffer(argument[2])))
+        if((rbutton = GE_MouseButtonId(argument[2])))
         {
           etype = GE_MOUSEBUTTONUP;
         }
@@ -199,7 +198,7 @@ static s_macro_event** get_macro(const char* line)
       /*
        * For compatibility with previous macro files.
        */
-      if((rbutton = get_key_from_buffer(argument[1])))
+      if((rbutton = GE_KeyId(argument[1])))
       {
         etype = GE_KEYDOWN;
       }
@@ -267,7 +266,7 @@ static void get_event(const char* line)
   
   if (!strncmp(argument[0], "KEYDOWN", strlen("KEYDOWN")))
   {
-    rbutton = get_key_from_buffer(argument[1]);
+    rbutton = GE_KeyId(argument[1]);
 
     allocate_element(pcurrent);
 
@@ -276,7 +275,7 @@ static void get_event(const char* line)
   }
   else if (!strncmp(argument[0], "KEYUP", strlen("KEYUP")))
   {
-    rbutton = get_key_from_buffer(argument[1]);
+    rbutton = GE_KeyId(argument[1]);
 
     allocate_element(pcurrent);
 
@@ -285,7 +284,7 @@ static void get_event(const char* line)
   }
   else if (!strncmp(argument[0], "KEY", strlen("KEY")))
   {
-    rbutton = get_key_from_buffer(argument[1]);
+    rbutton = GE_KeyId(argument[1]);
 
     allocate_element(pcurrent);
 
@@ -305,7 +304,7 @@ static void get_event(const char* line)
   }
   else if (!strncmp(argument[0], "MBUTTONDOWN", strlen("MBUTTONDOWN")))
   {
-    rbutton = get_mouse_event_id_from_buffer(argument[1]);
+    rbutton = GE_MouseButtonId(argument[1]);
 
     allocate_element(pcurrent);
 
@@ -314,7 +313,7 @@ static void get_event(const char* line)
   }
   else if (!strncmp(argument[0], "MBUTTONUP", strlen("MBUTTONUP")))
   {
-    rbutton = get_mouse_event_id_from_buffer(argument[1]);
+    rbutton = GE_MouseButtonId(argument[1]);
 
     allocate_element(pcurrent);
 
@@ -323,7 +322,7 @@ static void get_event(const char* line)
   }
   else if (!strncmp(argument[0], "MBUTTON", strlen("MBUTTON")))
   {
-    rbutton = get_mouse_event_id_from_buffer(argument[1]);
+    rbutton = GE_MouseButtonId(argument[1]);
 
     allocate_element(pcurrent);
 
@@ -412,28 +411,28 @@ void get_trigger(const char* line)
     {
       if(!strncmp(argument[1], "KEYDOWN", strlen("KEYDOWN")))
       {
-        if((rbutton = get_key_from_buffer(argument[2])))
+        if((rbutton = GE_KeyId(argument[2])))
         {
           etype = GE_KEYDOWN;
         }
       }
       else if(!strncmp(argument[1], "KEYUP", strlen("KEYUP")))
       {
-        if((rbutton = get_key_from_buffer(argument[2])))
+        if((rbutton = GE_KeyId(argument[2])))
         {
           etype = GE_KEYUP;
         }
       }
       else if(!strncmp(argument[1], "MBUTTONDOWN", strlen ("MBUTTONDOWN")))
       {
-        if((rbutton = get_mouse_event_id_from_buffer(argument[2])))
+        if((rbutton = GE_MouseButtonId(argument[2])))
         {
           etype = GE_MOUSEBUTTONDOWN;
         }
       }
       else if(!strncmp(argument[1], "MBUTTONUP", strlen("MBUTTONUP")))
       {
-        if((rbutton = get_mouse_event_id_from_buffer(argument[2])))
+        if((rbutton = GE_MouseButtonId(argument[2])))
         {
           etype = GE_MOUSEBUTTONUP;
         }
@@ -458,7 +457,7 @@ void get_trigger(const char* line)
       /*
        * For compatibility with previous macro files.
        */
-      if((rbutton = get_key_from_buffer(argument[1])))
+      if((rbutton = GE_KeyId(argument[1])))
       {
         etype = GE_KEYDOWN;
       }
@@ -539,16 +538,16 @@ void dump_scripts() {
                 switch(p_element->event.type)
                 {
                   case GE_KEYDOWN:
-                    printf("KEYDOWN %s\n", get_chars_from_key(p_element->event.key.keysym));
+                    printf("KEYDOWN %s\n", GE_KeyName(p_element->event.key.keysym));
                     break;
                   case GE_KEYUP:
-                    printf("KEYUP %s\n", get_chars_from_key(p_element->event.key.keysym));
+                    printf("KEYUP %s\n", GE_KeyName(p_element->event.key.keysym));
                     break;
                   case GE_MOUSEBUTTONDOWN:
-                    printf("MBUTTONDOWN %s\n", get_chars_from_button(p_element->event.button.button));
+                    printf("MBUTTONDOWN %s\n", GE_MouseButtonName(p_element->event.button.button));
                     break;
                   case GE_MOUSEBUTTONUP:
-                    printf("MBUTTONUP %s\n", get_chars_from_button(p_element->event.button.button));
+                    printf("MBUTTONUP %s\n", GE_MouseButtonName(p_element->event.button.button));
                     break;
                   case GE_JOYBUTTONDOWN:
                     printf("JBUTTONDOWN %d\n", p_element->event.jbutton.button);

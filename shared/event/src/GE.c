@@ -5,6 +5,7 @@
 
 #include <GE.h>
 #include <events.h>
+#include <conversion.h>
 #include <string.h>
 #include <stdlib.h>
 #include <iconv.h>
@@ -449,4 +450,52 @@ void GE_PumpEvents()
 int GE_PeepEvents(GE_Event *events, int numevents)
 {
   return ev_peep_events(events, numevents);
+}
+
+/*
+ * \brief Get the button name for a given button id.
+ *
+ * \param button  the button id
+ *
+ * \return the button name
+ */
+const char* GE_MouseButtonName(int button)
+{
+  return get_chars_from_button(button);
+}
+
+/*
+ * \brief Get the button id for a given button name.
+ *
+ * \param name  the button name
+ *
+ * \return the button id
+ */
+int GE_MouseButtonId(const char* name)
+{
+  return get_mouse_event_id_from_buffer(name);
+}
+
+/*
+ * \brief Get the key name for a given key id.
+ *
+ * \param key  the key id
+ *
+ * \return the key name
+ */
+const char* GE_KeyName(uint16_t key)
+{
+  return get_chars_from_key(key);
+}
+
+/*
+ * \brief Get the key id for a given key name.
+ *
+ * \param name  the key name
+ *
+ * \return the key id
+ */
+uint16_t GE_KeyId(const char* name)
+{
+  return get_mouse_event_id_from_buffer(name);
 }

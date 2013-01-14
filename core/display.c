@@ -19,8 +19,6 @@
 #include <GE.h>
 #include "emuclient.h"
 
-#include "conversion.h"
-
 #define CROSS_CHAR '*'
 #define SHIFT_ESC _("Press Shift+Esc to exit.")
 

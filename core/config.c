@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include "sixaxis.h"
 #include <math.h>
-#include "conversion.h"
 #include <unistd.h>
 #include <sys/time.h>
 #include <GE.h>
