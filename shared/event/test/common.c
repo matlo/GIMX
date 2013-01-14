@@ -45,20 +45,20 @@ int process_event(GE_Event* event)
   switch(event->type)
   {
     case GE_KEYDOWN:
-      printf("Keyboard: %s - key down: %d\n", GE_KeyboardName(event->key.which), event->key.keysym);
+      printf("Keyboard: %s - key down: %s\n", GE_KeyboardName(event->key.which), GE_KeyName(event->key.keysym));
       if(event->key.keysym == KEY_ESC)
       {
         done = 1;
       }
       break;
     case GE_KEYUP:
-      printf("Keyboard: %s - key up: %d\n", GE_KeyboardName(event->key.which), event->key.keysym);
+      printf("Keyboard: %s - key up: %s\n", GE_KeyboardName(event->key.which), GE_KeyName(event->key.keysym));
       break;
     case GE_MOUSEBUTTONDOWN:
-      printf("Mouse: %s - button down: %d\n", GE_MouseName(event->button.which), event->button.button);
+      printf("Mouse: %s - button down: %s\n", GE_MouseName(event->button.which), GE_MouseButtonName(event->button.button));
       break;
     case GE_MOUSEBUTTONUP:
-      printf("Mouse: %s - button up: %d\n", GE_MouseName(event->button.which), event->button.button);
+      printf("Mouse: %s - button up: %s\n", GE_MouseName(event->button.which), GE_MouseButtonName(event->button.button));
       break;
     case GE_MOUSEMOTION:
       if(event->motion.xrel)
