@@ -60,6 +60,8 @@ int main(int argc, char* argv[])
        }
      }
      
+     //do something periodically
+
      QueryPerformanceCounter(&t1);
 
      time_to_sleep = PERIOD - (t1.QuadPart - t0.QuadPart) * 1000000 / freq.QuadPart;
