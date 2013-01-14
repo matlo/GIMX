@@ -16,6 +16,8 @@
 
 #include "common.h"
 
+#define PERIOD 10000//µs
+
 static void terminate(int sig)
 {
   done = 1;
@@ -26,6 +28,10 @@ int main(int argc, char* argv[])
   int num_evt;
   GE_Event events[EVENT_BUFFER_SIZE];
   GE_Event* event;
+  LARGE_INTEGER t0, t1, freq;
+  int time_to_sleep;
+
+  QueryPerformanceFrequency(&freq);
   
   if (!GE_initialize())
   {
@@ -39,6 +45,8 @@ int main(int argc, char* argv[])
 
   while(!done)
   {
+    QueryPerformanceCounter(&t0);
+
     GE_PumpEvents();
 
     num_evt = GE_PeepEvents(events, sizeof(events) / sizeof(events[0]));
@@ -51,7 +59,13 @@ int main(int argc, char* argv[])
        }
      }
      
-     usleep(1000);
+     QueryPerformanceCounter(&t1);
+
+     time_to_sleep = PERIOD - (t1.QuadPart - t0.QuadPart) * 1000000 / freq.QuadPart;
+
+     printf("%d\n", time_to_sleep);
+
+     usleep(time_to_sleep);
   }
 
   GE_quit();
