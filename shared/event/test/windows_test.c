@@ -6,6 +6,7 @@
  */
 
 
+#include <windows.h>
 #include <GE.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,7 +17,7 @@
 
 #include "common.h"
 
-#define PERIOD 10000//µs
+#define PERIOD 10000//microseconds
 
 static void terminate(int sig)
 {
@@ -62,8 +63,6 @@ int main(int argc, char* argv[])
      QueryPerformanceCounter(&t1);
 
      time_to_sleep = PERIOD - (t1.QuadPart - t0.QuadPart) * 1000000 / freq.QuadPart;
-
-     printf("%d\n", time_to_sleep);
 
      usleep(time_to_sleep);
   }
