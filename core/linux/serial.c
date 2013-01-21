@@ -79,6 +79,7 @@ void serial_close()
 
 #else
 #include <sys/mman.h>
+#include <stdlib.h>
 
 #define BCM2708_BASE    0x20000000                      // 0x7e000000
 #define AUX_BASE        (BCM2708_BASE + 0x215000)       // 0x7e215000
@@ -148,7 +149,7 @@ static volatile unsigned long *mapMem (unsigned long armAddr, unsigned int memSi
   }
 
   // Now map it
-  map = (unsigned char *) mmap (
+  map = (char *) mmap (
     (caddr_t) mem,              /* start */
     memSize,                    /* length */
     PROT_READ|PROT_WRITE,       /* prot */
@@ -222,7 +223,7 @@ int serial_send(void* pdata, unsigned int size)
   int i;
   for(i=0; i<size; ++i)
   {
-    sendByte(pdata[i]);
+    sendByte(((char*)pdata)[i]);
   }
   return size;
 }
