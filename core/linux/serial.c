@@ -82,6 +82,7 @@ void serial_close()
 #include <stdlib.h>
 
 #define BCM2708_BASE    0x20000000                      // 0x7e000000
+#define GPIO_BASE       (BCM2708_BASE + 0x200000)       // 0x7e200000
 #define AUX_BASE        (BCM2708_BASE + 0x215000)       // 0x7e215000
 
 #define PAGE_SIZE       0x1000  // 4K
@@ -192,6 +193,42 @@ static int initUART()
   return 0;
 }
 
+// GPIO setup macros.
+// Always use INP_GPIO(x) before using OUT_GPIO(x) or SET_GPIO_ALT(x,y)
+#define INP_GPIO(g) *(mGPIO+((g)/10)) &= ~(7<<(((g)%10)*3))
+#define OUT_GPIO(g) *(mGPIO+((g)/10)) |=  (1<<(((g)%10)*3))
+#define SET_GPIO_ALT(g,a) *(mGPIO+(((g)/10))) |= (((a)<=3?(a)+4:(a)==4?3:2)<<(((g)%10)*3))
+
+enum eGPIOPinsUsed {
+  kBufferDirectionPin   = 23,
+  kScopeTriggerPin      = 18,
+  kUART1TxPin           = 14,
+  kUART1RxPin           = 15,
+  kUART1CTSPin          = 16,
+  kUART1RTSPin          = 17
+};
+
+volatile unsigned long *mGPIO;
+
+static int initGPIO() {
+  // Map the GPIO and Aux memory
+  mGPIO = mapMem ( GPIO_BASE, 0x1000 );
+
+  // UART1 = Mini-UART, UART0 - PL011
+  // Set GPIO15 and 16 for UART1 to ALT5 Mini-Uart
+  INP_GPIO ( kBufferDirectionPin );
+  OUT_GPIO ( kBufferDirectionPin );
+  INP_GPIO ( kScopeTriggerPin );
+  OUT_GPIO ( kScopeTriggerPin );
+  INP_GPIO ( kUART1TxPin );
+  SET_GPIO_ALT ( kUART1TxPin, 5 );
+  INP_GPIO ( kUART1RxPin );
+  SET_GPIO_ALT ( kUART1RxPin, 5 );
+  INP_GPIO ( kUART1RTSPin);
+  SET_GPIO_ALT ( kUART1RTSPin, 5 );
+  return 0;
+}
+
 #define FIFO_FULL 8
 
 static void sendByte (unsigned char byte)
@@ -210,6 +247,7 @@ int serial_connect(char* portname)
 {
   if(!mAux)
   {
+    initGPIO();
     return initUART();
   }
   return -1;
