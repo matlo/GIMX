@@ -497,5 +497,5 @@ const char* GE_KeyName(uint16_t key)
  */
 uint16_t GE_KeyId(const char* name)
 {
-  return get_mouse_event_id_from_buffer(name);
+  return get_key_from_buffer(name);
 }
