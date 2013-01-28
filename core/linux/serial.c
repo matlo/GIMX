@@ -73,7 +73,7 @@ int spi_connect(char* portname)
 
   unsigned int speed = SPI_BAUDRATE;
 
-  if((fd = open(portname, O_RDWR)) < 0)
+  if((fd = open(portname, O_RDWR | O_NDELAY)) < 0)
   {
     printf(_("can't connect to %s\n"), portname);
     ret = -1;
