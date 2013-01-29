@@ -72,6 +72,7 @@ int spi_connect(char* portname)
   int ret = 0;
 
   unsigned int speed = SPI_BAUDRATE;
+  unsigned char bits = 8 ;
 
   if((fd = open(portname, O_RDWR | O_NDELAY)) < 0)
   {
@@ -81,6 +82,18 @@ int spi_connect(char* portname)
   else if(ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed) < 0)
   {
     printf(_("can't set spi port speed\n"));
+    close(fd);
+    ret = -1;
+  }
+  else if(ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits) < 0)
+  {
+    printf(_("can't set bits per word written\n"));
+    close(fd);
+    ret = -1;
+  }
+  else if(ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &bits) < 0)
+  {
+    printf(_("can't set bits per word read\n"));
     close(fd);
     ret = -1;
   }
