@@ -12,6 +12,7 @@
 #include <Intensity.h>
 #include <ButtonMapper.h>
 #include <AxisMapper.h>
+#include <MouseOptions.h>
 #include <list>
 
 class Configuration
@@ -25,6 +26,8 @@ class Configuration
         void SetTrigger(Trigger val) { m_Trigger = val; }
         std::list<Intensity>* GetIntensityList() { return &m_IntensityList; }
         void SetIntensityList(std::list<Intensity> val) { m_IntensityList = val; }
+        std::list<MouseOptions>* GetMouseOptionsList() { return &m_MouseOptionsList; }
+        void SetMouseOptionsList(std::list<MouseOptions> val) { m_MouseOptionsList = val; }
         std::list<ButtonMapper>* GetButtonMapperList() { return &m_ButtonMappers; }
         std::list<AxisMapper>* GetAxisMapperList() { return &m_AxisMappers; }
         void SetButtonMappers(std::list<ButtonMapper> bml) { m_ButtonMappers = bml; }
@@ -34,6 +37,7 @@ class Configuration
     private:
         Trigger m_Trigger;
         std::list<Intensity> m_IntensityList;
+        std::list<MouseOptions> m_MouseOptionsList;
         std::list<ButtonMapper> m_ButtonMappers;
         std::list<AxisMapper> m_AxisMappers;
 };

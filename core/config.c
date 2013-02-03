@@ -173,43 +173,37 @@ void cfg_process_motion()
         }
       }
 
-      if(mcal->bsx)
+      mc->x = 0;
+      weight = 1;
+      divider = 0;
+      for(j=0; j<mcal->buffer_size; ++j)
       {
-        mc->x = 0;
-        weight = 1;
-        divider = 0;
-        for(j=0; j<*mcal->bsx; ++j)
+        k = mc->index - j;
+        if (k < 0)
         {
-          k = mc->index - j;
-          if (k < 0)
-          {
-            k += MAX_BUFFERSIZE;
-          }
-          mc->x += (mc->merge_x[k]*weight);
-          divider += weight;
-          weight *= *mcal->fix;
+          k += MAX_BUFFERSIZE;
         }
-        mc->x /= divider;
+        mc->x += (mc->merge_x[k]*weight);
+        divider += weight;
+        weight *= mcal->filter;
       }
+      mc->x /= divider;
 
-      if(mcal->bsy)
+      mc->y = 0;
+      weight = 1;
+      divider = 0;
+      for(j=0; j<mcal->buffer_size; ++j)
       {
-        mc->y = 0;
-        weight = 1;
-        divider = 0;
-        for(j=0; j<*mcal->bsy; ++j)
+        k = mc->index - j;
+        if (k < 0)
         {
-          k = mc->index - j;
-          if (k < 0)
-          {
-            k += MAX_BUFFERSIZE;
-          }
-          mc->y += (mc->merge_y[k]*weight);
-          divider += weight;
-          weight *= *mcal->fiy;
+          k += MAX_BUFFERSIZE;
         }
-        mc->y /= divider;
+        mc->y += (mc->merge_y[k]*weight);
+        divider += weight;
+        weight *= mcal->filter;
       }
+      mc->y /= divider;
 
       mouse_evt.motion.which = i;
       mouse_evt.type = GE_MOUSEMOTION;

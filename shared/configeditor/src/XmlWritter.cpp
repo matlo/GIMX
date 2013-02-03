@@ -45,8 +45,6 @@ void XmlWritter::CreateEventNode(xmlNodePtr parent_node, Event* event)
             xmlNewProp(e_node, BAD_CAST X_ATTR_MULTIPLIER, BAD_CAST (const char*) event->GetMultiplier().c_str());
             xmlNewProp(e_node, BAD_CAST X_ATTR_EXPONENT, BAD_CAST (const char*) event->GetExponent().c_str());
             xmlNewProp(e_node, BAD_CAST X_ATTR_SHAPE, BAD_CAST (const char*) event->GetShape().c_str());
-            xmlNewProp(e_node, BAD_CAST X_ATTR_BUFFERSIZE, BAD_CAST (const char*) event->GetBufferSize().c_str());
-            xmlNewProp(e_node, BAD_CAST X_ATTR_FILTER, BAD_CAST (const char*) event->GetFilter().c_str());
         }
     }
 }
@@ -119,6 +117,26 @@ void XmlWritter::CreateTriggerNode(xmlNodePtr parent_node)
 
     snprintf(delay, sizeof(delay), "%hu", trigger->GetDelay());
     xmlNewProp(node, BAD_CAST X_ATTR_DELAY, BAD_CAST (const char*) delay);
+}
+
+void XmlWritter::CreateMouseOptionsNodes(xmlNodePtr parent_node)
+{
+    xmlNodePtr pnode = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_MOUSEOPTIONS_LIST, NULL);
+
+    list<MouseOptions>* i_list = m_ConfigurationFile->GetController(m_CurrentController)->GetConfiguration(m_CurrentConfiguration)->GetMouseOptionsList();
+
+    for(list<MouseOptions>::iterator it = i_list->begin(); it!=i_list->end(); ++it)
+    {
+      xmlNodePtr nodemo = xmlNewChild(pnode, NULL, BAD_CAST X_NODE_MOUSE, NULL);
+
+      xmlNewProp(nodemo, BAD_CAST X_ATTR_NAME, BAD_CAST (const char*) it->GetMouse()->GetName().c_str());
+      xmlNewProp(nodemo, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) it->GetMouse()->GetId().c_str());
+
+      xmlNewProp(nodemo, BAD_CAST X_ATTR_MODE, BAD_CAST (const char*) it->GetMode().c_str());
+
+      xmlNewProp(nodemo, BAD_CAST X_ATTR_BUFFERSIZE, BAD_CAST (const char*) it->GetBufferSize().c_str());
+      xmlNewProp(nodemo, BAD_CAST X_ATTR_FILTER, BAD_CAST (const char*) it->GetFilter().c_str());
+    }
 }
 
 void XmlWritter::CreateIntensityNodes(xmlNodePtr parent_node)
@@ -202,6 +220,8 @@ void XmlWritter::CreateConfigurationNodes(xmlNodePtr parent_node)
         xmlNewProp(node, BAD_CAST X_ATTR_ID, BAD_CAST id);
 
         CreateTriggerNode(node);
+
+        CreateMouseOptionsNodes(node);
 
         CreateIntensityNodes(node);
 

@@ -13,7 +13,7 @@ class AxisMapper
 {
     public:
         AxisMapper();
-        AxisMapper(string dtype, string did, string dname, string etype, string eid, string axis, string deadZone, string multiplier, string exponent, string shape, string buffersize, string filter, string label);
+        AxisMapper(string dtype, string did, string dname, string etype, string eid, string axis, string deadZone, string multiplier, string exponent, string shape, string label);
         virtual ~AxisMapper();
         AxisMapper(const AxisMapper& other);
         AxisMapper& operator=(const AxisMapper& other);

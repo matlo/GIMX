@@ -1,6 +1,6 @@
 include ../../Makedefs
 
-OBJ=src/event_catcher.o src/XmlWritter.o src/XmlReader.o src/Trigger.o src/Intensity.o src/Event.o src/Device.o src/Controller.o src/ConfigurationFile.o src/Configuration.o src/ButtonMapper.o src/AxisMapper.o
+OBJ=src/event_catcher.o src/XmlWritter.o src/XmlReader.o src/Trigger.o src/Intensity.o src/Event.o src/Device.o src/Controller.o src/ConfigurationFile.o src/Configuration.o src/ButtonMapper.o src/AxisMapper.o src/MouseOptions.o
 LIB=
 INC=-I/usr/include/ -I../event/include -Iinclude -I/usr/include/libxml2
 

@@ -13,8 +13,8 @@ Intensity::Intensity()
 }
 
 Intensity::Intensity(string control,
-    string dtype1, string did1, string dname1, string eid1,
-    string direction, unsigned char dead_zone, unsigned char steps, string shape):
+    string dtype1, string dname1, string did1, string eid1,
+    string direction, unsigned char dead_zone, string shape, unsigned char steps):
     m_Control(control),
     m_Device(dtype1, did1, dname1), m_Event(eid1),
     m_direction(direction),

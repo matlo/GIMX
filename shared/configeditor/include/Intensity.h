@@ -14,8 +14,8 @@ class Intensity
     public:
         Intensity();
         Intensity(string control,
-            string dtype1, string did1, string dname1, string eid1,
-            string direction, unsigned char dead_zone, unsigned char steps, string Shape);
+            string dtype1, string dname1, string did1, string eid1,
+            string direction, unsigned char dead_zone, string Shape, unsigned char steps);
         virtual ~Intensity();
         Intensity(const Intensity& other);
         Intensity& operator=(const Intensity& other);

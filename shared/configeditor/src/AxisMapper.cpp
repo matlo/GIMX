@@ -10,8 +10,8 @@ AxisMapper::AxisMapper()
     //ctor
 }
 
-AxisMapper::AxisMapper(string dtype, string did, string dname, string etype, string eid, string axis, string deadZone, string multiplier, string exponent, string shape, string buffersize, string filter, string label):
-m_Device(dtype, did, dname), m_Event(etype, eid, deadZone, multiplier, exponent, shape, buffersize, filter), m_Axis(axis), m_Label(label)
+AxisMapper::AxisMapper(string dtype, string did, string dname, string etype, string eid, string axis, string deadZone, string multiplier, string exponent, string shape, string label):
+m_Device(dtype, did, dname), m_Event(etype, eid, deadZone, multiplier, exponent, shape), m_Axis(axis), m_Label(label)
 {
     //ctor
 }

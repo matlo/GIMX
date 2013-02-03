@@ -98,8 +98,38 @@ void XmlReader::ProcessEventElement(xmlNode * a_node)
     m_TempEvent.SetMultiplier(multiplier);
     m_TempEvent.SetExponent(exponent);
     m_TempEvent.SetShape(shape);
-    m_TempEvent.SetBufferSize(bufferSize);
-    m_TempEvent.SetFilter(filter);
+
+    /*
+     * Compatibility with GIMX < 1.0 configs.
+     */
+    if(!filter.empty() && m_TempDevice.GetType() == "mouse")
+    {
+      AddMouseOptions(&m_TempDevice, bufferSize, filter);
+    }
+}
+
+void XmlReader::CheckDevice(string type, string name, string id)
+{
+  string info = "";
+
+  if(name.empty())
+  {
+    m_name_empty = true;
+  }
+  else
+  {
+    m_name_nempty = true;
+
+    if(m_evtcatch && !m_evtcatch->check_device(type, name, id))
+    {
+      info.append(type + " not found: " + name + " (" + id + ")\n");
+
+      if(m_info.find(info) == string::npos)
+      {
+          m_info.append(info);
+      }
+    }
+  }
 }
 
 void XmlReader::ProcessDeviceElement(xmlNode * a_node)
@@ -107,7 +137,6 @@ void XmlReader::ProcessDeviceElement(xmlNode * a_node)
     string type;
     string id;
     string name;
-    string info = "";
     char* prop;
 
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_TYPE);
@@ -120,28 +149,35 @@ void XmlReader::ProcessDeviceElement(xmlNode * a_node)
     name = string(prop?prop:"");
     xmlFree(prop);
 
-    if(name.empty())
-    {
-      m_name_empty = true;
-    }
-    else
-    {
-      m_name_nempty = true;
-            
-      if(m_evtcatch && !m_evtcatch->check_device(type, name, id))
-      {
-        info.append(type + " not found: " + name + " (" + id + ")\n");
-
-        if(m_info.find(info) == string::npos)
-        {
-            m_info.append(info);
-        }
-      }
-    } 
+    CheckDevice(type, name, id);
 
     m_TempDevice.SetType(type);
     m_TempDevice.SetId(id);
     m_TempDevice.SetName(name);
+}
+
+void XmlReader::AddMouseOptions(Device* device, string buffersize, string filter)
+{
+    list<MouseOptions>* mo_list = m_TempConfiguration.GetMouseOptionsList();
+
+    list<MouseOptions>::iterator it;
+
+    for(it = mo_list->begin(); it!=mo_list->end(); ++it)
+    {
+      if(it->GetMouse()->GetName() == device->GetName() && it->GetMouse()->GetId() == device->GetId())
+      {
+        break;
+      }
+    }
+
+    if(it == mo_list->end())
+    {
+      m_TempMouseOptions.SetMouse(*device);
+      m_TempMouseOptions.SetMode("Aiming");
+      m_TempMouseOptions.SetBufferSize(buffersize);
+      m_TempMouseOptions.SetFilter(filter);
+      mo_list->push_back(m_TempMouseOptions);
+    }
 }
 
 void XmlReader::ProcessAxisElement(xmlNode * a_node)
@@ -348,6 +384,9 @@ void XmlReader::ProcessTriggerElement(xmlNode * a_node)
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_NAME);
     device_name = string(prop?prop:"");
     xmlFree(prop);
+
+    CheckDevice(device_type, device_name, device_id);
+
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_BUTTON_ID);
     button_id = string(prop?prop:"");
     xmlFree(prop);
@@ -375,7 +414,60 @@ void XmlReader::ProcessTriggerElement(xmlNode * a_node)
     m_TempConfiguration.SetTrigger(m_TempTrigger);
 }
 
+void XmlReader::ProcessMouseOptionsElement(xmlNode * node)
+{
+    string device_id1;
+    string device_name1;
+    string mode;
+    string buffer;
+    string filter;
+    char * prop;
 
+    prop = (char*)xmlGetProp(node, (xmlChar*) X_ATTR_ID);
+    device_id1 = string(prop?prop:"");
+    xmlFree(prop);
+    prop = (char*)xmlGetProp(node, (xmlChar*) X_ATTR_NAME);
+    device_name1 = string(prop?prop:"");
+    xmlFree(prop);
+    CheckDevice("mouse", device_name1, device_id1);
+    m_TempMouseOptions.SetMouse(Device("mouse", device_id1, device_name1));
+
+    prop = (char*)xmlGetProp(node, (xmlChar*) X_ATTR_MODE);
+    mode = string(prop?prop:"");
+    xmlFree(prop);
+    m_TempMouseOptions.SetMode(mode);
+
+    prop = (char*)xmlGetProp(node, (xmlChar*) X_ATTR_BUFFERSIZE);
+    buffer = string(prop?prop:"");
+    xmlFree(prop);
+    m_TempMouseOptions.SetBufferSize(buffer);
+    prop = (char*)xmlGetProp(node, (xmlChar*) X_ATTR_FILTER);
+    filter = string(prop?prop:"");
+    xmlFree(prop);
+    m_TempMouseOptions.SetFilter(filter);
+
+    m_TempConfiguration.GetMouseOptionsList()->push_back(m_TempMouseOptions);
+}
+
+void XmlReader::ProcessMouseOptionsListElement(xmlNode * a_node)
+{
+  xmlNode* cur_node = NULL;
+
+  for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
+  {
+      if (cur_node->type == XML_ELEMENT_NODE)
+      {
+          if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_MOUSE))
+          {
+              ProcessMouseOptionsElement(cur_node);
+          }
+          else
+          {
+              break;
+          }
+      }
+  }
+}
 
 void XmlReader::ProcessIntensityElement(xmlNode * a_node)
 {
@@ -504,8 +596,6 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
         throw invalid_argument(message);
     }
 
-    cur_node = a_node->children;
-
     for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
     {
         if (cur_node->type == XML_ELEMENT_NODE)
@@ -529,9 +619,26 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
         throw invalid_argument(message);
     }
 
-    m_TempConfiguration.GetIntensityList()->clear();
+    m_TempConfiguration.GetMouseOptionsList()->clear();
 
     for (cur_node = cur_node->next; cur_node; cur_node = cur_node->next)
+    {
+        if (cur_node->type == XML_ELEMENT_NODE)
+        {
+            if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_MOUSEOPTIONS_LIST))
+            {
+                ProcessMouseOptionsListElement(cur_node);
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
+    m_TempConfiguration.GetIntensityList()->clear();
+
+    for (cur_node = cur_node->prev; cur_node; cur_node = cur_node->next)
     {
         if (cur_node->type == XML_ELEMENT_NODE)
         {
@@ -546,9 +653,7 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
         }
     }
 
-    cur_node = cur_node->prev;
-
-    for (cur_node = cur_node->next; cur_node; cur_node = cur_node->next)
+    for (cur_node = cur_node->prev; cur_node; cur_node = cur_node->next)
     {
         if (cur_node->type == XML_ELEMENT_NODE)
         {

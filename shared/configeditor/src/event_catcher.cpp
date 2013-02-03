@@ -6,7 +6,6 @@
 #include "event_catcher.h"
 #include <unistd.h>
 #include <sstream>
-#include <conversion.h>
 #include <timer.h>
 #include <GE.h>
 #include <stdlib.h>
@@ -119,6 +118,9 @@ void event_catcher::run(string device_type, string event_type)
 
     init();
 
+#ifdef WIN32
+    usleep(1000000);
+#endif
     GE_grab();
 
     done = 0;
@@ -158,7 +160,7 @@ void event_catcher::run(string device_type, string event_type)
                         m_DeviceId = ss1.str();
                         m_DeviceName = GE_KeyboardName(event->key.which);
                         m_EventType = "button";
-                        event_id = get_chars_from_key(event->key.keysym);
+                        event_id = GE_KeyName(event->key.keysym);
                         m_EventId = event_id;
                         done = 1;
                     }
@@ -176,7 +178,7 @@ void event_catcher::run(string device_type, string event_type)
                         m_DeviceId = ss1.str();
                         m_DeviceName = GE_MouseName(event->button.which);
                         m_EventType = "button";
-                        event_id = get_chars_from_button(event->button.button);
+                        event_id = GE_MouseButtonName(event->button.button);
                         m_EventId = event_id;
                         done = 1;
                     }

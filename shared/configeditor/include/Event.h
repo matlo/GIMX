@@ -14,10 +14,10 @@ class Event
 {
     public:
         Event();
-        Event(string type, string id, string threshold, string deadZone, string multiplier, string exponent, string shape, string buffersize, string filter);
+        Event(string type, string id, string threshold, string deadZone, string multiplier, string exponent, string shape);
         Event(string type, string id, string threshold);
         Event(string type, string id);
-        Event(string type, string id, string deadZone, string multiplier, string exponent, string shape, string buffersize, string filter);
+        Event(string type, string id, string deadZone, string multiplier, string exponent, string shape);
         Event(string id);
         virtual ~Event();
         Event(const Event& other);
@@ -36,10 +36,6 @@ class Event
         void SetExponent(string val) { m_Exponent = val; }
         string GetShape() { return m_Shape; }
         void SetShape(string val) { m_Shape = val; }
-        string GetBufferSize() { return m_BufferSize; }
-        void SetBufferSize(string val) { m_BufferSize = val; }
-        string GetFilter() { return m_Filter; }
-        void SetFilter(string val) { m_Filter = val; }
     protected:
     private:
         string m_Type;
@@ -49,8 +45,6 @@ class Event
         string m_Multiplier;
         string m_Exponent;
         string m_Shape;
-        string m_BufferSize;
-        string m_Filter;
 };
 
 #endif // EVENT_H

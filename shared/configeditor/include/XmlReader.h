@@ -15,6 +15,8 @@
 #define X_NODE_CONFIGURATION "configuration"
 
 #define X_NODE_TRIGGER "trigger"
+#define X_NODE_MOUSEOPTIONS "mouse_options"
+#define X_NODE_MOUSEOPTIONS_LIST "mouse_options_list"
 #define X_NODE_INTENSITY "intensity"
 #define X_NODE_INTENSITY_LIST "intensity_list"
 #define X_NODE_BUTTON_MAP "button_map"
@@ -47,6 +49,13 @@
 
 #define X_ATTR_LABEL "label"
 
+#define X_NODE_MOUSE "mouse"
+#define X_NODE_MODE "mode"
+#define X_NODE_TOGGLE "toggle"
+#define X_NODE_SMOOTHING "smoothing"
+
+#define X_ATTR_MODE "mode"
+
 class XmlReader
 {
     public:
@@ -64,6 +73,9 @@ class XmlReader
         void ProcessControllerElement(xmlNode * a_node);
         void ProcessConfigurationElement(xmlNode * a_node);
         void ProcessTriggerElement(xmlNode * a_node);
+        void ProcessMouseOptionsElement(xmlNode * a_node);
+        void ProcessMouseOptionsListElement(xmlNode * a_node);
+        void AddMouseOptions(Device* device, string buffersize, string filter);
         void ProcessIntensityElement(xmlNode * a_node);
         void ProcessIntensityListElement(xmlNode * a_node);
         void ProcessButtonMapElement(xmlNode * a_node);
@@ -71,12 +83,14 @@ class XmlReader
         void ProcessButtonElement(xmlNode * a_node);
         void ProcessAxisElement(xmlNode * a_node);
         void ProcessDeviceElement(xmlNode * a_node);
+        void CheckDevice(string type, string name, string id);
         void ProcessEventElement(xmlNode * a_node);
         Event m_TempEvent;
         Device m_TempDevice;
         ButtonMapper m_TempButtonMapper;
         AxisMapper m_TempAxisMapper;
         Trigger m_TempTrigger;
+        MouseOptions m_TempMouseOptions;
         Intensity m_TempIntensity;
         Configuration m_TempConfiguration;
         Controller m_TempController;

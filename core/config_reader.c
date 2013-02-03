@@ -459,6 +459,7 @@ static int ProcessAxisElement(xmlNode * a_node)
   xmlNode* cur_node = NULL;
   s_mapper** pp_mapper = NULL;
   s_mapper* p_mapper = NULL;
+  s_mouse_cal* mcal;
   s_axis_index aindex;
   char* aid;
 
@@ -541,8 +542,15 @@ static int ProcessAxisElement(xmlNode * a_node)
           p_mapper->multiplier = r_multiplier;
           p_mapper->exponent = r_exponent;
           p_mapper->shape = r_shape;
-          p_mapper->buffer_size = r_buffer_size;
-          p_mapper->filter = r_filter;
+          if(r_device_type == E_DEVICE_TYPE_MOUSE)
+          {
+            mcal = cal_get_mouse(r_device_id, r_config_id);
+            if(!mcal->buffer_size)
+            {
+              mcal->buffer_size = r_buffer_size;
+              mcal->filter = r_filter;
+            }
+          }
           break;
         default:
           break;
@@ -909,6 +917,74 @@ static int ProcessIntensityListElement(xmlNode * a_node)
   return ret;
 }
 
+static int ProcessMouseOptionsListElement(xmlNode * a_node)
+{
+  xmlNode* cur_node = NULL;
+  int ret = 0;
+  char* prop;
+  e_mouse_mode mode;
+  s_mouse_cal* mcal;
+
+  for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
+  {
+    if (cur_node->type == XML_ELEMENT_NODE)
+    {
+      if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_MOUSE))
+      {
+        r_device_type = E_DEVICE_TYPE_MOUSE;
+
+        ret = GetDeviceName(a_node);
+
+        if(ret != -1)
+        {
+          ret = GetDeviceId(a_node);
+
+          prop = (char*) xmlGetProp(cur_node, (xmlChar*) X_ATTR_MODE);
+          if(prop)
+          {
+            if (!strncmp(prop, X_ATTR_VALUE_AIMING, strlen(X_ATTR_VALUE_AIMING)))
+            {
+              mode = E_MOUSE_MODE_AIMING;
+            }
+            else if (!strncmp(prop, X_ATTR_VALUE_DRIVING, strlen(X_ATTR_VALUE_DRIVING)))
+            {
+              mode = E_MOUSE_MODE_DRIVING;
+            }
+            else
+            {
+              ret = -1;
+            }
+
+            if(ret != -1)
+            {
+              mcal = cal_get_mouse(r_device_id, r_config_id);
+              mcal->mode = mode;
+
+              ret = GetUnsignedIntProp(a_node, X_ATTR_BUFFERSIZE, &mcal->buffer_size);
+
+              if(ret != -1)
+              {
+                ret = GetDoubleProp(a_node, X_ATTR_FILTER, &mcal->filter);
+              }
+            }
+          }
+          else
+          {
+            ret = -1;
+          }
+          xmlFree(prop);
+        }
+      }
+      else
+      {
+        break;
+      }
+    }
+  }
+
+  return ret;
+}
+
 static int ProcessConfigurationElement(xmlNode * a_node)
 {
   int ret = 0;
@@ -954,6 +1030,23 @@ static int ProcessConfigurationElement(xmlNode * a_node)
     ret = -1;
   }
   
+  for (cur_node = cur_node->next; cur_node; cur_node = cur_node->next)
+  {
+    if (cur_node->type == XML_ELEMENT_NODE)
+    {
+      if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_MOUSE_OPTIONS_LIST))
+      {
+        ret = ProcessMouseOptionsListElement(cur_node);
+        break;
+      }
+      else
+      {
+        cur_node = cur_node->prev;
+        break;
+      }
+    }
+  }
+
   for(i=sa_lstick_x; i<=SA_MAX; ++i)
   {
     intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, i);
@@ -965,7 +1058,7 @@ static int ProcessConfigurationElement(xmlNode * a_node)
     intensity->max_value = get_max_signed(i);
     intensity->shape = E_SHAPE_RECTANGLE;
   }
-  
+
   for (cur_node = cur_node->next; cur_node; cur_node = cur_node->next)
   {
     if (cur_node->type == XML_ELEMENT_NODE)
@@ -1194,8 +1287,6 @@ static void read_calibration()
             mcal->rd = DEFAULT_RADIUS;
             mcal->vel = DEFAULT_VELOCITY;
             mcal->dpi = r_config_dpi[j];
-            mcal->bsx = &p_mapper->buffer_size;
-            mcal->fix = &p_mapper->filter;
           }
           else
           {
@@ -1204,8 +1295,6 @@ static void read_calibration()
             mcal->my = &p_mapper->multiplier;
             mcal->ey = &p_mapper->exponent;
             mcal->dzy = &p_mapper->dead_zone;
-            mcal->bsy = &p_mapper->buffer_size;
-            mcal->fiy = &p_mapper->filter;
           }
         }
       }

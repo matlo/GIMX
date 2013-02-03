@@ -50,6 +50,7 @@ string reverse_gettext(string str)
   {
     return "Rectangle";
   }
+  //todo: add other stuff?
 
   return str;
 }
@@ -481,6 +482,11 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
 
     default_directory = wxEmptyString;
 
+    defaultMouseName = "";
+    defaultMouseId = "0";
+    defaultKeyboardName = "";
+    defaultKeyboardId = "0";
+
 #ifndef WIN32
     if(!getuid())
     {
@@ -868,13 +874,32 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
       return;
     }
 
+    string device_name = "";
+    string device_id = "0";
+    if(evcatch.GetDeviceType() == "keyboard")
+    {
+      if(!defaultKeyboardName.empty())
+      {
+        device_name = defaultKeyboardName;
+        device_id = defaultKeyboardId;
+      }
+    }
+    else if(evcatch.GetDeviceType() == "mouse")
+    {
+      if(!defaultMouseName.empty())
+      {
+        device_name = defaultMouseName;
+        device_id = defaultMouseId;
+      }
+    }
+
     ((wxButton*) event.GetEventObject())->SetLabel(wxString(evcatch.GetEventId().c_str(), wxConvUTF8));
 
     bindex = getButtonIndex((wxButton*) event.GetEventObject());
 
     if (bindex != bi_undef)
     {
-      buttons[bindex].SetDevice(Device(evcatch.GetDeviceType(), "0", ""));
+      buttons[bindex].SetDevice(Device(evcatch.GetDeviceType(), device_id, device_name));
       buttons[bindex].SetEvent(Event("button", evcatch.GetEventId()));
       buttons[bindex].SetButton(button_labels[bindex]);
       string tt(buttons[bindex].GetEvent()->GetId());
@@ -907,7 +932,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 
       if (aindex != ai_undef)
       {
-        axes[aindex].SetDevice(Device(evcatch.GetDeviceType(), "0", ""));
+        axes[aindex].SetDevice(Device(evcatch.GetDeviceType(), device_id, device_name));
         axes[aindex].SetEvent(Event("button", evcatch.GetEventId()));
         axes[aindex].SetAxis(axis_labels[aindex]);
         string tt(axes[aindex].GetEvent()->GetId());
@@ -943,6 +968,11 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 void fpsconfigFrame::OnMenuNew(wxCommandEvent& event)
 {
     FileDialog1->SetFilename(wxEmptyString);
+
+    defaultMouseName = "";
+    defaultMouseId = "0";
+    defaultKeyboardName = "";
+    defaultKeyboardId = "0";
 
     wxButton* button;
 
@@ -982,6 +1012,10 @@ void fpsconfigFrame::OnMenuNew(wxCommandEvent& event)
     TextCtrlAccelerationADS->SetValue(wxT("1.00"));
     TextCtrlXyRatioHipFire->SetValue(wxT("1.00"));
     TextCtrlXyRatioADS->SetValue(wxT("1.00"));
+    SpinCtrlBufferSizeHipFire->SetValue(1);
+    SpinCtrlBufferSizeADS->SetValue(1);
+    TextCtrlFilterHipFire->SetValue(wxT("0.00"));
+    TextCtrlFilterADS->SetValue(wxT("0.00"));
 
     SpinCtrlDPI->Enable(true);
     SpinCtrlDPI->SetToolTip(_("Enter your mouse DPI value."));
@@ -1047,20 +1081,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             {
                 if(it->GetButton() == buttons[i].GetButton())
                 {
-                    it->SetEvent(*buttons[i].GetEvent());
-                    it->SetLabel(buttons[i].GetLabel());
-                    if(it->GetDevice()->GetType() != buttons[i].GetDevice()->GetType())
-                    {
-                        it->SetDevice(*buttons[i].GetDevice());
-                        if(it->GetDevice()->GetType() == "mouse")
-                        {
-                          it->GetDevice()->SetName(defaultMouseName);
-                        }
-                        else if(it->GetDevice()->GetType() == "keyboard")
-                        {
-                          it->GetDevice()->SetName(defaultKeyboardName);
-                        }
-                    }
+                    *it = buttons[i];
                     found = true;
                 }
             }
@@ -1081,12 +1102,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             {
                 if(it->GetAxis() == axes[i].GetAxis())
                 {
-                  it->SetEvent(*axes[i].GetEvent());
-                  it->SetLabel(axes[i].GetLabel());
-                  if(it->GetDevice()->GetType() != axes[i].GetDevice()->GetType())
-                  {
-                    it->SetDevice(*axes[i].GetDevice());
-                  }
+                  *it = axes[i];
                   found = true;
                 }
             }
@@ -1105,18 +1121,52 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             it->GetEvent()->SetMultiplier(string(TextCtrlSensitivityHipFire->GetValue().mb_str(wxConvUTF8)));
             it->GetEvent()->SetExponent(string(TextCtrlAccelerationHipFire->GetValue().mb_str(wxConvUTF8)));
             it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))));
-            it->GetEvent()->SetBufferSize(sBsHf);
-            it->GetEvent()->SetFilter(string(TextCtrlFilterHipFire->GetValue().mb_str(wxConvUTF8)));
+
+            std::list<MouseOptions>* mouseOptions = configFile.GetController(0)->GetConfiguration(0)->GetMouseOptionsList();
+            std::list<MouseOptions>::iterator it2;
+            for(it2 = mouseOptions->begin(); it2!=mouseOptions->end(); ++it2)
+            {
+              if(it2->GetMouse()->GetName() == it->GetDevice()->GetName()
+                 && it2->GetMouse()->GetId() == it->GetDevice()->GetId())
+              {
+                it2->SetBufferSize(sBsHf);
+                it2->SetFilter(string(TextCtrlFilterHipFire->GetValue().mb_str(wxConvUTF8)));
+                break;
+              }
+            }
+            if(it2==mouseOptions->end())
+            {
+              mouseOptions->push_back(MouseOptions(it->GetDevice()->GetId(), it->GetDevice()->GetName(),
+                  "Aiming", sBsHf, string(TextCtrlFilterHipFire->GetValue().mb_str(wxConvUTF8))));
+            }
+
             found = true;
         }
     }
     if(found == false)
     {
-        axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "x", "rstick x",
+        axisMappers->push_front(AxisMapper("mouse", defaultMouseId, defaultMouseName, "axis", "x", "rstick x",
             sDzHf, string(TextCtrlSensitivityHipFire->GetValue().mb_str(wxConvUTF8)),
             string(TextCtrlAccelerationHipFire->GetValue().mb_str(wxConvUTF8)),
-            reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))),
-            sBsHf, string(TextCtrlFilterHipFire->GetValue().mb_str(wxConvUTF8)), "Aiming - x axis"));
+            reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))), "Aiming - x axis"));
+
+        std::list<MouseOptions>* mouseOptions = configFile.GetController(0)->GetConfiguration(0)->GetMouseOptionsList();
+        std::list<MouseOptions>::iterator it2;
+        for(it2 = mouseOptions->begin(); it2!=mouseOptions->end(); ++it2)
+        {
+          if(it2->GetMouse()->GetName() == defaultMouseName
+             && it2->GetMouse()->GetId() == defaultMouseId)
+          {
+            it2->SetBufferSize(sBsHf);
+            it2->SetFilter(string(TextCtrlFilterHipFire->GetValue().mb_str(wxConvUTF8)));
+            break;
+          }
+        }
+        if(it2==mouseOptions->end())
+        {
+          mouseOptions->push_back(MouseOptions(defaultMouseId, defaultMouseName, "Aiming",
+              sBsHf, string(TextCtrlFilterHipFire->GetValue().mb_str(wxConvUTF8))));
+        }
     }
     wsmx = TextCtrlSensitivityHipFire->GetValue();
     wsxyratio = TextCtrlXyRatioHipFire->GetValue();
@@ -1138,17 +1188,14 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             it->GetEvent()->SetMultiplier(string(wsmy.mb_str(wxConvUTF8)));
             it->GetEvent()->SetExponent(string(TextCtrlAccelerationHipFire->GetValue().mb_str(wxConvUTF8)));
             it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))));
-            it->GetEvent()->SetBufferSize(sBsHf);
-            it->GetEvent()->SetFilter(string(TextCtrlFilterHipFire->GetValue().mb_str(wxConvUTF8)));
             found = true;
         }
     }
     if(found == false)
     {
-        axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "y", "rstick y",
+        axisMappers->push_front(AxisMapper("mouse", defaultMouseId, defaultMouseName, "axis", "y", "rstick y",
             sDzHf, string(wsmy.mb_str(wxConvUTF8)), string(TextCtrlAccelerationHipFire->GetValue().mb_str(wxConvUTF8)),
-            reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))),
-            sBsHf, string(TextCtrlFilterHipFire->GetValue().mb_str(wxConvUTF8)), "Aiming - y axis"));
+            reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))), "Aiming - y axis"));
     }
     /*
      * Save ADS config.
@@ -1159,8 +1206,8 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         || configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetSwitchBack() != "yes")
     {
         configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetType("mouse");
-        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetName("");
-        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetId("0");
+        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetName(defaultMouseName);
+        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetId(defaultMouseId);
         configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetEvent()->SetId("BUTTON_RIGHT");
         configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->SetSwitchBack("yes");
         configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->SetDelay(0);
@@ -1176,20 +1223,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             {
                 if(it->GetButton() == buttons[i].GetButton())
                 {
-                    it->SetEvent(*buttons[i].GetEvent());
-                    it->SetLabel(buttons[i].GetLabel());
-                    if(it->GetDevice()->GetType() != buttons[i].GetDevice()->GetType())
-                    {
-                        it->SetDevice(*buttons[i].GetDevice());
-                        if(it->GetDevice()->GetType() == "mouse")
-                        {
-                          it->GetDevice()->SetName(defaultMouseName);
-                        }
-                        else if(it->GetDevice()->GetType() == "keyboard")
-                        {
-                          it->GetDevice()->SetName(defaultKeyboardName);
-                        }
-                    }
+                    *it = buttons[i];
                     found = true;
                 }
             }
@@ -1210,12 +1244,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             {
                 if(it->GetAxis() == axes[i].GetAxis())
                 {
-                  it->SetEvent(*axes[i].GetEvent());
-                  it->SetLabel(axes[i].GetLabel());
-                  if(it->GetDevice()->GetType() != axes[i].GetDevice()->GetType())
-                  {
-                    it->SetDevice(*axes[i].GetDevice());
-                  }
+                  *it = axes[i];
                   found = true;
                 }
             }
@@ -1234,17 +1263,51 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             it->GetEvent()->SetMultiplier(string(TextCtrlSensitivityADS->GetValue().mb_str(wxConvUTF8)));
             it->GetEvent()->SetExponent(string(TextCtrlAccelerationADS->GetValue().mb_str(wxConvUTF8)));
             it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))));
-            it->GetEvent()->SetBufferSize(sBsADS);
-            it->GetEvent()->SetFilter(string(TextCtrlFilterADS->GetValue().mb_str(wxConvUTF8)));
+
+            std::list<MouseOptions>* mouseOptions = configFile.GetController(0)->GetConfiguration(1)->GetMouseOptionsList();
+            std::list<MouseOptions>::iterator it2;
+            for(it2 = mouseOptions->begin(); it2!=mouseOptions->end(); ++it2)
+            {
+              if(it2->GetMouse()->GetName() == it->GetDevice()->GetName()
+                 && it2->GetMouse()->GetId() == it->GetDevice()->GetId())
+              {
+                it2->SetBufferSize(sBsADS);
+                it2->SetFilter(string(TextCtrlFilterADS->GetValue().mb_str(wxConvUTF8)));
+                break;
+              }
+            }
+            if(it2==mouseOptions->end())
+            {
+              mouseOptions->push_back(MouseOptions(it->GetDevice()->GetId(), it->GetDevice()->GetName(),
+                  "Aiming", sBsADS, string(TextCtrlFilterADS->GetValue().mb_str(wxConvUTF8))));
+            }
+
             found = true;
         }
     }
     if(found == false)
     {
-      axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "x", "rstick x",
+      axisMappers->push_front(AxisMapper("mouse", defaultMouseId, defaultMouseName, "axis", "x", "rstick x",
           sDzADS, string(TextCtrlSensitivityADS->GetValue().mb_str(wxConvUTF8)), string(TextCtrlAccelerationADS->GetValue().mb_str(wxConvUTF8)),
-          reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))),
-          sBsADS, string(TextCtrlFilterADS->GetValue().mb_str(wxConvUTF8)), "Aiming - x axis"));
+          reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))), "Aiming - x axis"));
+
+      std::list<MouseOptions>* mouseOptions = configFile.GetController(0)->GetConfiguration(1)->GetMouseOptionsList();
+      std::list<MouseOptions>::iterator it2;
+      for(it2 = mouseOptions->begin(); it2!=mouseOptions->end(); ++it2)
+      {
+        if(it2->GetMouse()->GetName() == defaultMouseName
+           && it2->GetMouse()->GetId() == defaultMouseId)
+        {
+          it2->SetBufferSize(sBsADS);
+          it2->SetFilter(string(TextCtrlFilterADS->GetValue().mb_str(wxConvUTF8)));
+          break;
+        }
+      }
+      if(it2==mouseOptions->end())
+      {
+        mouseOptions->push_back(MouseOptions(defaultMouseId, defaultMouseName, "Aiming",
+            sBsADS, string(TextCtrlFilterADS->GetValue().mb_str(wxConvUTF8))));
+      }
     }
     wsmx = TextCtrlSensitivityADS->GetValue();
     wsxyratio = TextCtrlXyRatioADS->GetValue();
@@ -1266,17 +1329,14 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             it->GetEvent()->SetMultiplier(string(wsmy.mb_str(wxConvUTF8)));
             it->GetEvent()->SetExponent(string(TextCtrlAccelerationADS->GetValue().mb_str(wxConvUTF8)));
             it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))));
-            it->GetEvent()->SetBufferSize(sBsADS);
-            it->GetEvent()->SetFilter(string(TextCtrlFilterADS->GetValue().mb_str(wxConvUTF8)));
             found = true;
         }
     }
     if(found == false)
     {
-        axisMappers->push_front(AxisMapper("mouse", "0", "", "axis", "y", "rstick y",
+        axisMappers->push_front(AxisMapper("mouse", defaultMouseId, defaultMouseName, "axis", "y", "rstick y",
             sDzADS, string(wsmy.mb_str(wxConvUTF8)), string(TextCtrlAccelerationADS->GetValue().mb_str(wxConvUTF8)),
-            reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))),
-            sBsADS, string(TextCtrlFilterADS->GetValue().mb_str(wxConvUTF8)), "Aiming - y axis"));
+            reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))), "Aiming - y axis"));
     }
 
     if(configFile.WriteConfigFile() < 0)
@@ -1289,6 +1349,7 @@ void fpsconfigFrame::LoadConfig()
 {
   std::list<ButtonMapper>* buttonMappers;
   std::list<AxisMapper>* axisMappers;
+  std::list<MouseOptions>* mouseOptions;
   e_button_index bindex;
   e_axis_index aindex;
   wxButton* button;
@@ -1311,7 +1372,9 @@ void fpsconfigFrame::LoadConfig()
   }
 
   defaultMouseName = "";
+  defaultMouseId = "0";
   defaultKeyboardName = "";
+  defaultKeyboardId = "0";
 
   /*
    * Load Hip Fire config.
@@ -1379,11 +1442,19 @@ void fpsconfigFrame::LoadConfig()
       {
           if(it->GetDevice()->GetType() == "mouse")
           {
-              defaultMouseName = it->GetDevice()->GetName();
+              if(defaultMouseName.empty())
+              {
+                defaultMouseName = it->GetDevice()->GetName();
+                defaultMouseId = it->GetDevice()->GetId();
+              }
           }
           else if(it->GetDevice()->GetType() == "keyboard")
           {
-              defaultKeyboardName = it->GetDevice()->GetName();
+              if(defaultKeyboardName.empty())
+              {
+                defaultKeyboardName = it->GetDevice()->GetName();
+                defaultKeyboardId = it->GetDevice()->GetId();
+              }
           }
       }
   }
@@ -1419,14 +1490,23 @@ void fpsconfigFrame::LoadConfig()
               SpinCtrlDeadZoneHipFire->SetValue(wxAtoi(wxString(it->GetEvent()->GetDeadZone().c_str(), wxConvUTF8)));
               ChoiceDeadZoneShapeHipFire->SetStringSelection(wxString(gettext(it->GetEvent()->GetShape().c_str()), wxConvUTF8));
 
-              SpinCtrlBufferSizeHipFire->SetValue(wxAtoi(wxString(it->GetEvent()->GetBufferSize().c_str(), wxConvUTF8)));
-
-              wsf = wxString(it->GetEvent()->GetFilter().c_str(), wxConvUTF8);
-
-              if(wsf.ToDouble(&f))
+              mouseOptions = configFile.GetController(0)->GetConfiguration(0)->GetMouseOptionsList();
+              for(std::list<MouseOptions>::iterator it2 = mouseOptions->begin(); it2!=mouseOptions->end(); ++it2)
               {
-                TextCtrlFilterHipFire->SetValue(wsf);
-                SpinCtrlFilterHipFire->SetValue(f*100);
+                if(it2->GetMouse()->GetName() == it->GetDevice()->GetName()
+                   && it2->GetMouse()->GetId() == it->GetDevice()->GetId())
+                {
+                  SpinCtrlBufferSizeHipFire->SetValue(wxAtoi(wxString(it2->GetBufferSize().c_str(), wxConvUTF8)));
+
+                  wsf = wxString(it2->GetFilter().c_str(), wxConvUTF8);
+
+                  if(wsf.ToDouble(&f))
+                  {
+                    TextCtrlFilterHipFire->SetValue(wsf);
+                    SpinCtrlFilterHipFire->SetValue(f*100);
+                  }
+                  break;
+                }
               }
 
               wsmx = wxString(it->GetEvent()->GetMultiplier().c_str(), wxConvUTF8);
@@ -1529,14 +1609,23 @@ void fpsconfigFrame::LoadConfig()
               SpinCtrlDeadZoneADS->SetValue(wxAtoi(wxString(it->GetEvent()->GetDeadZone().c_str(), wxConvUTF8)));
               ChoiceDeadZoneShapeADS->SetStringSelection(wxString(gettext(it->GetEvent()->GetShape().c_str()), wxConvUTF8));
 
-              SpinCtrlBufferSizeADS->SetValue(wxAtoi(wxString(it->GetEvent()->GetBufferSize().c_str(), wxConvUTF8)));
-
-              wsf = wxString(it->GetEvent()->GetFilter().c_str(), wxConvUTF8);
-
-              if(wsf.ToDouble(&f))
+              mouseOptions = configFile.GetController(0)->GetConfiguration(1)->GetMouseOptionsList();
+              for(std::list<MouseOptions>::iterator it2 = mouseOptions->begin(); it2!=mouseOptions->end(); ++it2)
               {
-                TextCtrlFilterADS->SetValue(wsf);
-                SpinCtrlFilterADS->SetValue(f*100);
+                if(it2->GetMouse()->GetName() == it->GetDevice()->GetName()
+                   && it2->GetMouse()->GetId() == it->GetDevice()->GetId())
+                {
+                  SpinCtrlBufferSizeADS->SetValue(wxAtoi(wxString(it2->GetBufferSize().c_str(), wxConvUTF8)));
+
+                  wsf = wxString(it2->GetFilter().c_str(), wxConvUTF8);
+
+                  if(wsf.ToDouble(&f))
+                  {
+                    TextCtrlFilterADS->SetValue(wsf);
+                    SpinCtrlFilterADS->SetValue(f*100);
+                  }
+                  break;
+                }
               }
 
               wsmx = wxString(it->GetEvent()->GetMultiplier().c_str(), wxConvUTF8);

@@ -60,6 +60,19 @@
 #define X_ATTR_VALUE_YES "yes"
 #define X_ATTR_VALUE_NO "no"
 
+#define X_NODE_MOUSE_OPTIONS_LIST "mouse_options_list"
+#define X_NODE_MOUSE "mouse"
+#define X_ATTR_MODE "mode"
+#define X_ATTR_VALUE_AIMING "Aiming"
+#define X_ATTR_VALUE_DRIVING "Driving"
+
+typedef enum
+{
+  E_MOUSE_MODE_UNKNOWN,
+  E_MOUSE_MODE_AIMING,
+  E_MOUSE_MODE_DRIVING
+}e_mouse_mode;
+
 typedef enum
 {
   E_DEVICE_TYPE_UNKNOWN,
@@ -108,10 +121,9 @@ typedef struct
   int* dzx;
   int* dzy;
   e_shape* dzs;
-  unsigned int* bsx;
-  double* fix;
-  unsigned int* bsy;
-  double* fiy;
+  unsigned int buffer_size;
+  double filter;
+  e_mouse_mode mode;
   int dpi;
 }s_mouse_cal;
 
@@ -133,8 +145,6 @@ typedef struct
   double exponent;
   e_shape shape;
   int dead_zone;
-  unsigned int buffer_size;
-  double filter;
 
   int controller_axis;
   int controller_axis_value; //only for button to axis mapping

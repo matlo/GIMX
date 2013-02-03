@@ -222,6 +222,8 @@ class fpsconfigFrame: public wxFrame
 		
         string defaultMouseName;
         string defaultKeyboardName;
+        string defaultMouseId;
+        string defaultKeyboardId;
 
         wxString default_directory;
 
