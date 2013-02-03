@@ -154,6 +154,10 @@ void cfg_process_motion()
   {
     mc = cfg_get_mouse_control(i);
     mcal = cal_get_mouse(i, current_config[cal_get_controller(i)]);
+    if(!mc->change && mcal->mode == E_MOUSE_MODE_DRIVING)
+    {
+      continue;
+    }
     if (mc->changed || mc->change)
     {
       if (emuclient_params.subpos)
