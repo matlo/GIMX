@@ -237,6 +237,14 @@ static string reverse_gettext(string str)
   {
     return "button";
   }
+  if(str == gettext("Aiming"))
+  {
+    return "Aiming";
+  }
+  if(str == gettext("Driving"))
+  {
+    return "Driving";
+  }
 
   return str;
 }
@@ -3551,7 +3559,10 @@ void configFrame::updateMouseOptionsConfigurations(MouseOptions* oldM, MouseOpti
       for(std::list<MouseOptions>::iterator it = mouseOptions->begin(); it!=mouseOptions->end(); ++it)
       {
           if( it->GetMouse()->GetName() == oldM->GetMouse()->GetName()
-              && it->GetMouse()->GetId() == oldM->GetMouse()->GetId())
+              && it->GetMouse()->GetId() == oldM->GetMouse()->GetId()
+              && it->GetMode() == oldM->GetMode()
+              && it->GetBufferSize() == oldM->GetBufferSize()
+              && it->GetFilter() == oldM->GetFilter())
           {
               *it = *newM;
           }
@@ -3593,7 +3604,7 @@ void configFrame::OnMouseOptionsModifyClick(wxCommandEvent& event)
       }
       MouseOptionsName->SetLabel(wxString(name.c_str(), wxConvUTF8));
       MouseOptionsId->SetLabel(GridMouseOption->GetCellValue(grid4mod, 1));
-      MouseOptionsInitMode->SetLabel(GridMouseOption->GetCellValue(grid4mod, 2));
+      MouseOptionsInitMode->SetSelection(MouseOptionsInitMode->FindString(GridMouseOption->GetCellValue(grid4mod, 2)));
       MouseOptionsBuffer->SetValue(GridMouseOption->GetCellValue(grid4mod, 3));
       MouseOptionsFilter->SetValue(GridMouseOption->GetCellValue(grid4mod, 4));
       MouseOptionsAdd->Disable();
