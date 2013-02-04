@@ -50,7 +50,6 @@ string reverse_gettext(string str)
   {
     return "Rectangle";
   }
-  //todo: add other stuff?
 
   return str;
 }
