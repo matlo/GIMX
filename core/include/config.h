@@ -68,8 +68,7 @@
 
 typedef enum
 {
-  E_MOUSE_MODE_UNKNOWN,
-  E_MOUSE_MODE_AIMING,
+  E_MOUSE_MODE_AIMING = 0, //default mode
   E_MOUSE_MODE_DRIVING
 }e_mouse_mode;
 

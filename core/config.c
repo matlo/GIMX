@@ -156,6 +156,7 @@ void cfg_process_motion()
     mcal = cal_get_mouse(i, current_config[cal_get_controller(i)]);
     if(!mc->change && mcal->mode == E_MOUSE_MODE_DRIVING)
     {
+      //no auto-center
       continue;
     }
     if (mc->changed || mc->change)
@@ -571,7 +572,7 @@ static int postpone_event(unsigned int device, GE_Event* event)
   return ret;
 }
 
-static double mouse2axis(int device, struct sixaxis_state* state, int which, double x, double y, int axis, double exp, double multiplier, int dead_zone, e_shape shape)
+static double mouse2axis(int device, struct sixaxis_state* state, int which, double x, double y, int axis, double exp, double multiplier, int dead_zone, e_shape shape, e_mouse_mode mode)
 {
   double z = 0;
   double dz = dead_zone;
@@ -632,30 +633,37 @@ static double mouse2axis(int device, struct sixaxis_state* state, int which, dou
      */
     dz = dz - multiplier;// * pow(1, exp);
   }
-
-  if(z > 0)
+  
+  if(mode == E_MOUSE_MODE_AIMING)
   {
-    state->user.axis[axis] = dz + z;
-    /*
-     * max axis position => no residue
-     */
-    if(state->user.axis[axis] < max_axis)
+    if(z > 0)
     {
-      ztrunk = state->user.axis[axis] - dz;
+      state->user.axis[axis] = dz + z;
+      /*
+       * max axis position => no residue
+       */
+      if(state->user.axis[axis] < max_axis)
+      {
+        ztrunk = state->user.axis[axis] - dz;
+      }
     }
+    else if(z < 0)
+    {
+      state->user.axis[axis] = z - dz;
+      /*
+       * max axis position => no residue
+       */
+      if(state->user.axis[axis] > -max_axis)
+      {
+        ztrunk = state->user.axis[axis] + dz;
+      }
+    }
+    else state->user.axis[axis] = 0;
   }
-  else if(z < 0)
+  else
   {
-    state->user.axis[axis] = z - dz;
-    /*
-     * max axis position => no residue
-     */
-    if(state->user.axis[axis] > -max_axis)
-    {
-      ztrunk = state->user.axis[axis] + dz;
-    }
+    state->user.axis[axis] = clamp(-max_axis, state->user.axis[axis] + z, max_axis);
   }
-  else state->user.axis[axis] = 0;
 
   if(val != 0 && ztrunk != 0)
   {
@@ -776,6 +784,7 @@ void cfg_process_event(GE_Event* event)
   double residue;
   s_mouse_control* mc;
   int max_axis = 255;
+  e_mouse_mode mode;
 
   unsigned int device = GE_GetDeviceId(event);
 
@@ -989,7 +998,8 @@ void cfg_process_event(GE_Event* event)
                 mx = 0;
                 my = 0;
               }
-              residue = mouse2axis(device, state+c_id, mapper->axis, mx, my, axis, exp, multiplier, dead_zone, shape);
+              mode = cal_get_mouse(device, config)->mode;
+              residue = mouse2axis(device, state+c_id, mapper->axis, mx, my, axis, exp, multiplier, dead_zone, shape, mode);
               if(mapper->axis == AXIS_X)
               {
                 mc->residue_x = residue;
