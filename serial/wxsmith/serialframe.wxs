@@ -242,6 +242,7 @@
 														<object class="sizeritem">
 															<object class="wxChoice" name="ID_CHOICE4" variable="ChoiceConfig" member="yes">
 																<size>225,-1</size>
+																<style>wxCB_SORT</style>
 															</object>
 															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 															<border>5</border>
