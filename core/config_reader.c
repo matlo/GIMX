@@ -933,11 +933,11 @@ static int ProcessMouseOptionsListElement(xmlNode * a_node)
       {
         r_device_type = E_DEVICE_TYPE_MOUSE;
 
-        ret = GetDeviceName(a_node);
+        ret = GetDeviceName(cur_node);
 
         if(ret != -1)
         {
-          ret = GetDeviceId(a_node);
+          ret = GetDeviceId(cur_node);
 
           prop = (char*) xmlGetProp(cur_node, (xmlChar*) X_ATTR_MODE);
           if(prop)
@@ -960,11 +960,11 @@ static int ProcessMouseOptionsListElement(xmlNode * a_node)
               mcal = cal_get_mouse(r_device_id, r_config_id);
               mcal->mode = mode;
 
-              ret = GetUnsignedIntProp(a_node, X_ATTR_BUFFERSIZE, &mcal->buffer_size);
+              ret = GetUnsignedIntProp(cur_node, X_ATTR_BUFFERSIZE, &mcal->buffer_size);
 
               if(ret != -1)
               {
-                ret = GetDoubleProp(a_node, X_ATTR_FILTER, &mcal->filter);
+                ret = GetDoubleProp(cur_node, X_ATTR_FILTER, &mcal->filter);
               }
             }
           }
@@ -1270,6 +1270,10 @@ static void read_calibration()
       {
         pp_mapper = cfg_get_mouse_axes(i, j, k);
         mcal = cal_get_mouse(i, k);
+        /*if(*pp_mapper)
+        {
+          printf("mouse %u - profile %u - mode %u - bs %u - f %.02f\n", i, k, mcal->mode, mcal->buffer_size, mcal->filter);
+        }*/
         for(p_mapper = *pp_mapper; p_mapper && p_mapper<*pp_mapper+(*pp_mapper)->nb_mappers; p_mapper++)
         {
           if(current_mouse < 0)
