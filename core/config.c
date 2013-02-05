@@ -580,6 +580,7 @@ static double mouse2axis(int device, struct sixaxis_state* state, int which, dou
   double ztrunk = 0;
   double val = 0;
   int max_axis = get_max_signed(axis);
+  int new_state;
 
   multiplier *= get_axis_scale(axis);
   dz *= get_axis_scale(axis);
@@ -662,7 +663,16 @@ static double mouse2axis(int device, struct sixaxis_state* state, int which, dou
   }
   else
   {
-    state->user.axis[axis] = clamp(-max_axis, state->user.axis[axis] + z, max_axis);
+    new_state = state->user.axis[axis] + z;
+    if(new_state > 0 && new_state < dz)
+    {
+      new_state -= (2*dz);
+    }
+    if(new_state < 0 && new_state > -dz)
+    {
+      new_state += (2*dz);
+    }
+    state->user.axis[axis] = clamp(-max_axis, new_state, max_axis);
   }
 
   if(val != 0 && ztrunk != 0)
