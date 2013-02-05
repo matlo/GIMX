@@ -836,6 +836,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
     {
       if (bindex != bi_undef)
       {
+        old_buttons[bindex] = buttons[bindex];
         buttons[bindex].SetLabel(string(dialog.GetValue().mb_str(wxConvUTF8)));
         string tt(buttons[bindex].GetEvent()->GetId());
         if (!buttons[bindex].GetLabel().empty())
@@ -845,9 +846,14 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
           tt.append("]");
         }
         ((wxButton*) event.GetEventObject())->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
+        if(old_buttons[bindex].GetButton().empty())
+        {
+          old_buttons[bindex] = buttons[bindex];
+        }
       }
       else if (aindex != ai_undef)
       {
+        old_axes[aindex] = axes[aindex];
         axes[aindex].SetLabel(string(dialog.GetValue().mb_str(wxConvUTF8)));
         string tt(axes[aindex].GetEvent()->GetId());
         if (!axes[aindex].GetLabel().empty())
@@ -857,6 +863,10 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
           tt.append("]");
         }
         ((wxButton*) event.GetEventObject())->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
+        if(old_axes[aindex].GetAxis().empty())
+        {
+          old_axes[aindex] = axes[aindex];
+        }
       }
     }
   }
@@ -898,6 +908,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 
     if (bindex != bi_undef)
     {
+      old_buttons[bindex] = buttons[bindex];
       buttons[bindex].SetDevice(Device(evcatch.GetDeviceType(), device_id, device_name));
       buttons[bindex].SetEvent(Event("button", evcatch.GetEventId()));
       buttons[bindex].SetButton(button_labels[bindex]);
@@ -924,6 +935,10 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
         tt.append("]");
       }
       ((wxButton*) event.GetEventObject())->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
+      if(old_buttons[bindex].GetButton().empty())
+      {
+        old_buttons[bindex] = buttons[bindex];
+      }
     }
     else
     {
@@ -931,6 +946,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 
       if (aindex != ai_undef)
       {
+        old_axes[aindex] = axes[aindex];
         axes[aindex].SetDevice(Device(evcatch.GetDeviceType(), device_id, device_name));
         axes[aindex].SetEvent(Event("button", evcatch.GetEventId()));
         axes[aindex].SetAxis(axis_labels[aindex]);
@@ -957,6 +973,10 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
           tt.append("]");
         }
         ((wxButton*) event.GetEventObject())->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
+        if(old_axes[aindex].GetAxis().empty())
+        {
+          old_axes[aindex] = axes[aindex];
+        }
       }
     }
   }
@@ -978,6 +998,7 @@ void fpsconfigFrame::OnMenuNew(wxCommandEvent& event)
     for(int i=bi_select; i<BI_MAX; i++)
     {
         buttons[i] = ButtonMapper();
+        old_buttons[i] = ButtonMapper();
         button = getButtonButton(button_labels[i]);
         if(button != NULL)
         {
@@ -991,6 +1012,7 @@ void fpsconfigFrame::OnMenuNew(wxCommandEvent& event)
     for(int i=ai_ls_up; i<AI_MAX; i++)
     {
         axes[i] = AxisMapper();
+        old_axes[i] = AxisMapper();
         button = getAxisButton(axis_labels[i]);
         if(button != NULL)
         {
@@ -1078,13 +1100,13 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             found = false;
             for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end() && !found; ++it)
             {
-                if(it->GetButton() == buttons[i].GetButton())
+                if(old_buttons[i] == *it)
                 {
                     *it = buttons[i];
                     found = true;
                 }
             }
-            if(found == false)
+            if(found == false && !old_buttons[i].GetButton().empty())
             {
                 buttonMappers->push_front(buttons[i]);
             }
@@ -1099,13 +1121,13 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             found = false;
             for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; ++it)
             {
-                if(it->GetAxis() == axes[i].GetAxis())
+                if(old_axes[i] == *it)
                 {
                   *it = axes[i];
                   found = true;
                 }
             }
-            if(found == false)
+            if(found == false && !old_buttons[i].GetButton().empty())
             {
                 axisMappers->push_front(axes[i]);
             }
@@ -1135,7 +1157,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             }
             if(it2==mouseOptions->end())
             {
-              mouseOptions->push_back(MouseOptions(it->GetDevice()->GetId(), it->GetDevice()->GetName(),
+              mouseOptions->push_back(MouseOptions(it->GetDevice()->GetName(), it->GetDevice()->GetId(),
                   "Aiming", sBsHf, string(TextCtrlFilterHipFire->GetValue().mb_str(wxConvUTF8))));
             }
 
@@ -1163,7 +1185,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         }
         if(it2==mouseOptions->end())
         {
-          mouseOptions->push_back(MouseOptions(defaultMouseId, defaultMouseName, "Aiming",
+          mouseOptions->push_back(MouseOptions(defaultMouseName, defaultMouseId, "Aiming",
               sBsHf, string(TextCtrlFilterHipFire->GetValue().mb_str(wxConvUTF8))));
         }
     }
@@ -1220,13 +1242,13 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             found = false;
             for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end() && !found; ++it)
             {
-                if(it->GetButton() == buttons[i].GetButton())
+                if(old_buttons[i] == *it)
                 {
                     *it = buttons[i];
                     found = true;
                 }
             }
-            if(found == false)
+            if(found == false && !old_buttons[i].GetButton().empty())
             {
                 buttonMappers->push_front(buttons[i]);
             }
@@ -1241,13 +1263,13 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             found = false;
             for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end() && !found; ++it)
             {
-                if(it->GetAxis() == axes[i].GetAxis())
+                if(old_axes[i] == *it)
                 {
-                  *it = axes[i];
-                  found = true;
+                    *it = axes[i];
+                    found = true;
                 }
             }
-            if(found == false)
+            if(found == false && !old_axes[i].GetAxis().empty())
             {
                 axisMappers->push_front(axes[i]);
             }
@@ -1277,7 +1299,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             }
             if(it2==mouseOptions->end())
             {
-              mouseOptions->push_back(MouseOptions(it->GetDevice()->GetId(), it->GetDevice()->GetName(),
+              mouseOptions->push_back(MouseOptions(it->GetDevice()->GetName(), it->GetDevice()->GetId(),
                   "Aiming", sBsADS, string(TextCtrlFilterADS->GetValue().mb_str(wxConvUTF8))));
             }
 
@@ -1304,7 +1326,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
       }
       if(it2==mouseOptions->end())
       {
-        mouseOptions->push_back(MouseOptions(defaultMouseId, defaultMouseName, "Aiming",
+        mouseOptions->push_back(MouseOptions(defaultMouseName, defaultMouseId, "Aiming",
             sBsADS, string(TextCtrlFilterADS->GetValue().mb_str(wxConvUTF8))));
       }
     }
@@ -1346,12 +1368,13 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
 
 void fpsconfigFrame::LoadConfig()
 {
-  std::list<ButtonMapper>* buttonMappers;
+  std::list<ButtonMapper>* buttonMappers[2];
   std::list<AxisMapper>* axisMappers;
   std::list<MouseOptions>* mouseOptions;
   e_button_index bindex;
   e_axis_index aindex;
   wxButton* button;
+  bool warn = false;
 
   double mx, my, exp, f;
   double xyratio;
@@ -1382,6 +1405,7 @@ void fpsconfigFrame::LoadConfig()
   for(int i=bi_select; i<BI_MAX; i++)
   {
       buttons[i] = ButtonMapper();
+      old_buttons[i] = ButtonMapper();
       button = getButtonButton(button_labels[i]);
       if(button != NULL)
       {
@@ -1389,8 +1413,10 @@ void fpsconfigFrame::LoadConfig()
           button->UnsetToolTip();
       }
   }
-  buttonMappers = configFile.GetController(0)->GetConfiguration(0)->GetButtonMapperList();
-  for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); ++it)
+  buttonMappers[0] = configFile.GetController(0)->GetConfiguration(0)->GetButtonMapperList();
+  buttonMappers[1] = configFile.GetController(0)->GetConfiguration(1)->GetButtonMapperList();
+  //todo: compare
+  for(std::list<ButtonMapper>::iterator it = buttonMappers[0]->begin(); it!=buttonMappers[0]->end(); ++it)
   {
       if(it->GetDevice()->GetType() == "joystick")
       {
@@ -1461,6 +1487,7 @@ void fpsconfigFrame::LoadConfig()
   for(int i=ai_ls_up; i<AI_MAX; i++)
   {
       axes[i] = AxisMapper();
+      old_axes[i] = AxisMapper();
       button = getAxisButton(axis_labels[i]);
       if(button != NULL)
       {
@@ -1666,6 +1693,11 @@ void fpsconfigFrame::LoadConfig()
               }
           }
       }
+  }
+
+  if(warn)
+  {
+    wxMessageBox(_("Profiles 1 & 2 do not contain the same bindings.\nEditing this conf with gimx-fpsconfig can mess the bindings."), _("Info"), wxICON_INFORMATION);
   }
 
   MenuItemSave->Enable(true);

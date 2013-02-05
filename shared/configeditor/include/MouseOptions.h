@@ -18,6 +18,7 @@ class MouseOptions
         virtual ~MouseOptions();
         MouseOptions(const MouseOptions& other);
         MouseOptions& operator=(const MouseOptions& other);
+        bool operator==(const MouseOptions &other) const;
         Device* GetMouse() { return &m_Mouse; }
         void SetMouse(Device val) { m_Mouse = val; }
         string GetMode() { return m_Mode; }

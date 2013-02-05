@@ -214,7 +214,9 @@ class fpsconfigFrame: public wxFrame
         ConfigurationFile configFile;
 
         ButtonMapper buttons[BI_MAX];
+        ButtonMapper old_buttons[BI_MAX];
         AxisMapper axes[AI_MAX];
+        AxisMapper old_axes[AI_MAX];
 
         unsigned int current_dpi;
 

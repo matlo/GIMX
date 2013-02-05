@@ -39,3 +39,10 @@ Device& Device::operator=(const Device& rhs)
 
     return *this;
 }
+
+bool Device::operator==(const Device &other) const
+{
+    return m_Type == other.m_Type
+    && m_Id == other.m_Id
+    && m_Name == other.m_Name;
+}

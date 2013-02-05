@@ -19,6 +19,7 @@ class Intensity
         virtual ~Intensity();
         Intensity(const Intensity& other);
         Intensity& operator=(const Intensity& other);
+        bool operator==(const Intensity &other) const;
         Device* GetDevice() { return &m_Device; }
         void SetDevice(Device val) { m_Device = val; }
         Event* GetEvent() { return &m_Event; }

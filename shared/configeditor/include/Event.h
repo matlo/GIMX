@@ -22,6 +22,7 @@ class Event
         virtual ~Event();
         Event(const Event& other);
         Event& operator=(const Event& other);
+        bool operator==(const Event &other) const;
         string GetType() { return m_Type; }
         void SetType(string val) { m_Type = val; }
         string GetId() { return m_Id; }

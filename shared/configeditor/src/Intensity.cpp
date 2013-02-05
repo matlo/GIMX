@@ -53,3 +53,14 @@ Intensity& Intensity::operator=(const Intensity& rhs)
     m_steps = rhs.m_steps;
     return *this;
 }
+
+bool Intensity::operator==(const Intensity &other) const
+{
+    return m_Device == other.m_Device
+    && m_Event == other.m_Event
+    && m_direction == other.m_direction
+    && m_Control == other.m_Control
+    && m_dead_zone == other.m_dead_zone
+    && m_shape == other.m_shape
+    && m_steps == other.m_steps;
+}

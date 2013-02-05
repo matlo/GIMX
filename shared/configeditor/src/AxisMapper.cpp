@@ -27,12 +27,20 @@ m_Device(other.m_Device), m_Event(other.m_Event), m_Axis(other.m_Axis), m_Label(
     //copy ctor
 }
 
-AxisMapper& AxisMapper::operator=(const AxisMapper& rhs)
+AxisMapper& AxisMapper::operator=(const AxisMapper& other)
 {
-    if (this == &rhs) return *this; // handle self assignment
-    m_Device = rhs.m_Device;
-    m_Event = rhs.m_Event;
-    m_Axis = rhs.m_Axis;
-    m_Label = rhs.m_Label;
+    if (this == &other) return *this; // handle self assignment
+    m_Device = other.m_Device;
+    m_Event = other.m_Event;
+    m_Axis = other.m_Axis;
+    m_Label = other.m_Label;
     return *this;
+}
+
+bool AxisMapper::operator==(const AxisMapper &other) const
+{
+    return m_Device == other.m_Device
+    && m_Event == other.m_Event
+    && m_Axis == other.m_Axis
+    && m_Label == other.m_Label;
 }

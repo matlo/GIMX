@@ -18,6 +18,7 @@ class Device
         virtual ~Device();
         Device(const Device& other);
         Device& operator=(const Device& other);
+        bool operator==(const Device &other) const;
         string GetType() { return m_Type; }
         void SetType(string val) { m_Type = val; }
         string GetId() { return m_Id; }

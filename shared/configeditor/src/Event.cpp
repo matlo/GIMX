@@ -64,3 +64,14 @@ Event& Event::operator=(const Event& rhs)
     m_Shape = rhs.m_Shape;
     return *this;
 }
+
+bool Event::operator==(const Event &other) const
+{
+    return m_Type == other.m_Type
+    && m_Id == other.m_Id
+    && m_Threshold == other.m_Threshold
+    && m_DeadZone == other.m_DeadZone
+    && m_Multiplier == other.m_Multiplier
+    && m_Exponent == other.m_Exponent
+    && m_Shape == other.m_Shape;
+}

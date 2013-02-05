@@ -17,6 +17,7 @@ class Trigger
         virtual ~Trigger();
         Trigger(const Trigger& other);
         Trigger& operator=(const Trigger& other);
+        bool operator==(const Trigger &other) const;
         Device* GetDevice() { return &m_Device; }
         void SetDevice(Device val) { m_Device = val; }
         Event* GetEvent() { return &m_Event; }

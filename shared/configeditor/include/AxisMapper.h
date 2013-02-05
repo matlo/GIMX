@@ -17,6 +17,7 @@ class AxisMapper
         virtual ~AxisMapper();
         AxisMapper(const AxisMapper& other);
         AxisMapper& operator=(const AxisMapper& other);
+        bool operator==(const AxisMapper &other) const;
         Device* GetDevice() { return &m_Device; }
         void SetDevice(Device val) { m_Device = val; }
         Event* GetEvent() { return &m_Event; }

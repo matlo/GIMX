@@ -17,6 +17,7 @@ class ButtonMapper
         virtual ~ButtonMapper();
         ButtonMapper(const ButtonMapper& other);
         ButtonMapper& operator=(const ButtonMapper& other);
+        bool operator==(const ButtonMapper &other) const;
         Device* GetDevice() { return &m_Device; }
         void SetDevice(Device val) { m_Device = val; }
         Event* GetEvent() { return &m_Event; }

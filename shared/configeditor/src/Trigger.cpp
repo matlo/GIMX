@@ -43,3 +43,11 @@ Trigger& Trigger::operator=(const Trigger& rhs)
     m_Delay = rhs.m_Delay;
     return *this;
 }
+
+bool Trigger::operator==(const Trigger &other) const
+{
+    return m_Device == other.m_Device
+    && m_Event == other.m_Event
+    && m_SwitchBack == other.m_SwitchBack
+    && m_Delay == other.m_Delay;
+}

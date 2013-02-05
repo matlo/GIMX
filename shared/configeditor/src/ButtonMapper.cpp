@@ -36,3 +36,11 @@ ButtonMapper& ButtonMapper::operator=(const ButtonMapper& rhs)
     m_Label = rhs.m_Label;
     return *this;
 }
+
+bool ButtonMapper::operator==(const ButtonMapper &other) const
+{
+    return m_Device == other.m_Device
+    && m_Event == other.m_Event
+    && m_Button == other.m_Button
+    && m_Label == other.m_Label;
+}

@@ -43,3 +43,11 @@ MouseOptions& MouseOptions::operator=(const MouseOptions& rhs)
     m_Filter = rhs.m_Filter;
     return *this;
 }
+
+bool MouseOptions::operator==(const MouseOptions &other) const
+{
+    return m_Mouse == other.m_Mouse
+    && m_Mode == other.m_Mode
+    && m_BufferSize == other.m_BufferSize
+    && m_Filter == other.m_Filter;
+}
