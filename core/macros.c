@@ -891,7 +891,7 @@ int get_event_device_type(GE_Event* ev)
  */
 void macro_process()
 {
-  int i;
+  int i, j;
   int dtype1, dtype2, did;
   GE_Event event;
   s_macro_event* p_macro_table;
@@ -914,6 +914,14 @@ void macro_process()
           if(controller < 0)
           {
             controller = 0;
+            for(j=0; j<MAX_CONTROLLERS; ++j)
+            {
+              if(controller_device[dtype1-1][j] >= 0)
+              {
+                controller = j;
+                break;
+              }
+            }
           }
           did = controller_device[dtype1-1][controller];
           if(did < 0)
