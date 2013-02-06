@@ -149,7 +149,7 @@ int updater::update()
     return -1;
   }
 #else
-  cmd.append("gnome-open ");
+  cmd.append("xdg-open ");
   cmd.append(download_file);
   cmd.append("&");
   
