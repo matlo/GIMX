@@ -1415,7 +1415,29 @@ void fpsconfigFrame::LoadConfig()
   }
   buttonMappers[0] = configFile.GetController(0)->GetConfiguration(0)->GetButtonMapperList();
   buttonMappers[1] = configFile.GetController(0)->GetConfiguration(1)->GetButtonMapperList();
-  //todo: compare
+  if(buttonMappers[0]->size() != buttonMappers[1]->size())
+  {
+    warn = true;
+  }
+  else
+  {
+    for(std::list<ButtonMapper>::iterator it1 = buttonMappers[0]->begin(); it1!=buttonMappers[0]->end(); ++it1)
+    {
+      std::list<ButtonMapper>::iterator it2;
+      for(it2 = buttonMappers[1]->begin(); it2!=buttonMappers[1]->end(); ++it2)
+      {
+        if(*it1 == *it2)
+        {
+          break;
+        }
+      }
+      if(it2 == buttonMappers[1]->end())
+      {
+        warn = true;
+        break;
+      }
+    }
+  }
   for(std::list<ButtonMapper>::iterator it = buttonMappers[0]->begin(); it!=buttonMappers[0]->end(); ++it)
   {
       if(it->GetDevice()->GetType() == "joystick")
