@@ -1369,7 +1369,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
 void fpsconfigFrame::LoadConfig()
 {
   std::list<ButtonMapper>* buttonMappers[2];
-  std::list<AxisMapper>* axisMappers;
+  std::list<AxisMapper>* axisMappers[2];
   std::list<MouseOptions>* mouseOptions;
   e_button_index bindex;
   e_axis_index aindex;
@@ -1521,8 +1521,36 @@ void fpsconfigFrame::LoadConfig()
   wsmy.erase();
   mx = 0;
   my = 0;
-  axisMappers = configFile.GetController(0)->GetConfiguration(0)->GetAxisMapperList();
-  for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
+  axisMappers[0] = configFile.GetController(0)->GetConfiguration(0)->GetAxisMapperList();
+  axisMappers[1] = configFile.GetController(0)->GetConfiguration(1)->GetAxisMapperList();
+  if(axisMappers[0]->size() != axisMappers[1]->size())
+  {
+    warn = true;
+  }
+  else
+  {
+    for(std::list<AxisMapper>::iterator it1 = axisMappers[0]->begin(); it1!=axisMappers[0]->end(); ++it1)
+    {
+      if(it1->GetEvent()->GetType() != "button")
+      {
+        continue;
+      }
+      std::list<AxisMapper>::iterator it2;
+      for(it2 = axisMappers[1]->begin(); it2!=axisMappers[1]->end(); ++it2)
+      {
+        if(*it1 == *it2)
+        {
+          break;
+        }
+      }
+      if(it2 == axisMappers[1]->end())
+      {
+        warn = true;
+        break;
+      }
+    }
+  }
+  for(std::list<AxisMapper>::iterator it = axisMappers[0]->begin(); it!=axisMappers[0]->end(); ++it)
   {
       if(it->GetDevice()->GetType() == "joystick")
       {
@@ -1640,8 +1668,7 @@ void fpsconfigFrame::LoadConfig()
   wsmy.erase();
   mx = 0;
   my = 0;
-  axisMappers = configFile.GetController(0)->GetConfiguration(1)->GetAxisMapperList();
-  for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
+  for(std::list<AxisMapper>::iterator it = axisMappers[1]->begin(); it!=axisMappers[1]->end(); ++it)
   {
       if(it->GetDevice()->GetType() == "joystick")
       {
