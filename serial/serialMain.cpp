@@ -99,8 +99,23 @@ static void read_devices(wxComboBox* choice)
     hSerial = CreateFile(szCOM, accessdirection, 0, 0, OPEN_EXISTING, 0, 0);
     if (hSerial != INVALID_HANDLE_VALUE)
     {
-      snprintf(portname, sizeof(portname), "COM%d", i);
-      choice->SetSelection(choice->Append(wxString(portname, wxConvUTF8)));
+      DCB oldDcbSerialParams = { 0 };
+      oldDcbSerialParams.DCBlength = sizeof(oldDcbSerialParams);
+      if (GetCommState(hSerial, &oldDcbSerialParams))
+      {
+        DCB newDcbSerialParams;
+        memcpy(&newDcbSerialParams, &oldDcbSerialParams, sizeof(newDcbSerialParams));
+        newDcbSerialParams.BaudRate = 500000;
+        newDcbSerialParams.ByteSize = 8;
+        newDcbSerialParams.StopBits = ONESTOPBIT;
+        newDcbSerialParams.Parity = NOPARITY;
+        if (SetCommState(hSerial, &newDcbSerialParams))//test port parameters
+        {
+          snprintf(portname, sizeof(portname), "COM%d", i);
+          choice->SetSelection(choice->Append(wxString(portname, wxConvUTF8)));
+        }
+        SetCommState(hSerial, &oldDcbSerialParams);//restore port parameters, do not care about any error
+      }
     }
     CloseHandle(hSerial);
   }
