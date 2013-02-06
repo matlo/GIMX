@@ -237,12 +237,9 @@ static void read_filenames(wxChoice* choice)
   {
     if(!line.empty() && wxString(line.c_str(), wxConvUTF8) == file)
     {
-      choice->SetSelection(choice->Append(file));
+      previous = file;
     }
-    else
-    {
-      choice->Append(file);
-    }
+    choice->Append(file);
   }
 
   if(previous != wxEmptyString)
@@ -545,7 +542,7 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
         wxCommandEvent event;
         OnMenuGetConfigs(event);
       }
-    }    
+    }
 }
 
 serialFrame::~serialFrame()
