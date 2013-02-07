@@ -8,8 +8,6 @@ clean:
 
 install: all
 	mkdir -p setup
-	mkdir -p setup/config
-	mkdir -p setup/macros
 	cp -u -f /mingw/bin/libgcc_s_dw2-1.dll setup
 	cp -u -f /mingw/bin/libiconv-2.dll setup
 	cp -u -f /mingw/bin/libstdc++-6.dll setup

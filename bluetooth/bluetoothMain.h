@@ -59,6 +59,7 @@ class bluetoothFrame: public wxFrame
         void OnMenuStartUpdates(wxCommandEvent& event);
         void OnMenuGetConfigs(wxCommandEvent& event);
         void OnMenuAutoBindControls(wxCommandEvent& event);
+        void OnMenuOpenConfigDirectory(wxCommandEvent& event);
         //*)
 
         void readSixaxis();
@@ -106,6 +107,7 @@ class bluetoothFrame: public wxFrame
         static const long ID_MENUITEM8;
         static const long ID_MENUITEM1;
         static const long ID_MENUITEM2;
+        static const long ID_MENUITEM9;
         static const long idMenuQuit;
         static const long ID_MENUITEM7;
         static const long ID_MENUITEM5;
@@ -130,6 +132,7 @@ class bluetoothFrame: public wxFrame
         wxStaticText* StaticText8;
         wxStaticText* StaticText11;
         wxCheckBox* CheckBox3;
+        wxChoice* ChoiceConfig;
         wxCheckBox* CheckBox2;
         wxCheckBox* CheckBox6;
         wxPanel* Panel1;
@@ -145,7 +148,6 @@ class bluetoothFrame: public wxFrame
         wxStaticText* StaticText5;
         wxStaticText* StaticText7;
         wxStatusBar* StatusBar1;
-        wxChoice* ChoiceConfig;
         wxMenuItem* MenuItem6;
         wxChoice* Choice6;
         wxMenuItem* MenuGetConfigs;

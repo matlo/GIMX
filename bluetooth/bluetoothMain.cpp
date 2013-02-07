@@ -79,6 +79,7 @@ const long bluetoothFrame::ID_MENUITEM4 = wxNewId();
 const long bluetoothFrame::ID_MENUITEM8 = wxNewId();
 const long bluetoothFrame::ID_MENUITEM1 = wxNewId();
 const long bluetoothFrame::ID_MENUITEM2 = wxNewId();
+const long bluetoothFrame::ID_MENUITEM9 = wxNewId();
 const long bluetoothFrame::idMenuQuit = wxNewId();
 const long bluetoothFrame::ID_MENUITEM7 = wxNewId();
 const long bluetoothFrame::ID_MENUITEM5 = wxNewId();
@@ -438,6 +439,7 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     //(*Initialize(bluetoothFrame)
     wxStaticBoxSizer* StaticBoxSizer2;
     wxFlexGridSizer* FlexGridSizer4;
+    wxMenuItem* MenuItem7;
     wxMenuItem* MenuItem2;
     wxStaticBoxSizer* StaticBoxSizer4;
     wxFlexGridSizer* FlexGridSizer10;
@@ -462,7 +464,7 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer11;
     wxMenu* Menu2;
     wxStaticBoxSizer* StaticBoxSizer5;
-    
+
     Create(parent, wxID_ANY, _("Gimx-bluetooth"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     SetClientSize(wxSize(675,525));
     Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxSize(0,0), wxTAB_TRAVERSAL, _T("ID_PANEL1"));
@@ -607,6 +609,8 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     Menu1->Append(MenuItem3);
     MenuItem4 = new wxMenuItem(Menu1, ID_MENUITEM2, _("Save"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuItem4);
+    MenuItem7 = new wxMenuItem(Menu1, ID_MENUITEM9, _("Open config directory"), wxEmptyString, wxITEM_NORMAL);
+    Menu1->Append(MenuItem7);
     MenuItem1 = new wxMenuItem(Menu1, idMenuQuit, _("Quit\tAlt-F4"), _("Quit the application"), wxITEM_NORMAL);
     Menu1->Append(MenuItem1);
     MenuBar1->Append(Menu1, _("&File"));
@@ -628,7 +632,7 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     StatusBar1->SetStatusStyles(2,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
     SingleInstanceChecker1.Create(_T("gimx-bluetooth_") + wxGetUserId() + _T("_Guard"));
-    
+
     Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnSelectSixaxisBdaddr);
     Connect(ID_CHOICE2,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnSelectPS3Bdaddr);
     Connect(ID_CHOICE3,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnSelectBtDongle);
@@ -647,6 +651,7 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM8,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnMenuAutoBindControls);
     Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnSelectRefresh);
     Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnSave);
+    Connect(ID_MENUITEM9,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnMenuOpenConfigDirectory);
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnQuit);
     Connect(ID_MENUITEM7,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnMenuGetConfigs);
     Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnMenuUpdate);
@@ -741,7 +746,7 @@ bluetoothFrame::~bluetoothFrame()
 }
 
 void bluetoothFrame::OnQuit(wxCommandEvent& event)
-{    
+{
     Close();
 }
 
@@ -1453,3 +1458,13 @@ void bluetoothFrame::OnMenuAutoBindControls(wxCommandEvent& event)
   autoBindControls(configs);
 }
 
+
+void bluetoothFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event)
+{
+#ifdef WIN32
+  userConfigDir.Replace(wxT("/"), wxT("\\"));
+  wxExecute(wxT("explorer ") + userConfigDir, wxEXEC_ASYNC, NULL);
+#else
+  wxExecute(wxT("xdg-open ") + userConfigDir, wxEXEC_ASYNC, NULL);
+#endif
+}
