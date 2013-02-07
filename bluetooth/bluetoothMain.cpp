@@ -1461,10 +1461,8 @@ void bluetoothFrame::OnMenuAutoBindControls(wxCommandEvent& event)
 
 void bluetoothFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event)
 {
-#ifdef WIN32
-  userConfigDir.Replace(wxT("/"), wxT("\\"));
-  wxExecute(wxT("explorer ") + userConfigDir, wxEXEC_ASYNC, NULL);
-#else
+  wxString userConfigDir(homedir, wxConvUTF8);
+  userConfigDir.Append(wxT(APP_DIR));
+  userConfigDir.Append(wxT(CONFIG_DIR));
   wxExecute(wxT("xdg-open ") + userConfigDir, wxEXEC_ASYNC, NULL);
-#endif
 }
