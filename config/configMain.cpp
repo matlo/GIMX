@@ -14,8 +14,8 @@
 #include <iomanip>
 
 //(*InternalHeaders(configFrame)
-#include <wx/string.h>
 #include <wx/intl.h>
+#include <wx/string.h>
 //*)
 
 #include <wx/aboutdlg.h>
@@ -30,6 +30,7 @@
 #include "../directories.h"
 
 #include <libintl.h>
+#include <wx/stdpaths.h>
 
 /*
  * This macro works around the gettext("") non-empty string result.
@@ -150,6 +151,7 @@ const long configFrame::idMenuNew = wxNewId();
 const long configFrame::idMenuOpen = wxNewId();
 const long configFrame::idMenuSave = wxNewId();
 const long configFrame::idMenuSaveAs = wxNewId();
+const long configFrame::ID_MENUITEM28 = wxNewId();
 const long configFrame::idMenuQuit = wxNewId();
 const long configFrame::ID_MENUITEM12 = wxNewId();
 const long configFrame::ID_MENUITEM18 = wxNewId();
@@ -468,68 +470,69 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 
     //(*Initialize(configFrame)
-    wxFlexGridSizer* FlexGridSizer30;
-    wxFlexGridSizer* FlexGridSizer46;
-    wxFlexGridSizer* FlexGridSizer21;
-    wxFlexGridSizer* FlexGridSizer28;
-    wxMenuItem* MenuItem1;
-    wxFlexGridSizer* FlexGridSizer8;
-    wxGridSizer* GridSizer1;
-    wxStaticBoxSizer* StaticBoxSizer10;
-    wxFlexGridSizer* FlexGridSizer1;
-    wxFlexGridSizer* FlexGridSizer2;
-    wxFlexGridSizer* FlexGridSizer25;
-    wxFlexGridSizer* FlexGridSizer15;
-    wxStaticBoxSizer* StaticBoxSizer7;
-    wxStaticBoxSizer* StaticBoxSizer5;
-    wxFlexGridSizer* FlexGridSizer17;
-    wxFlexGridSizer* FlexGridSizer29;
-    wxFlexGridSizer* FlexGridSizer11;
-    wxFlexGridSizer* FlexGridSizer19;
-    wxFlexGridSizer* FlexGridSizer48;
-    wxFlexGridSizer* FlexGridSizer47;
-    wxStaticBoxSizer* StaticBoxSizer12;
-    wxFlexGridSizer* FlexGridSizer41;
-    wxFlexGridSizer* FlexGridSizer7;
-    wxFlexGridSizer* FlexGridSizer4;
-    wxFlexGridSizer* FlexGridSizer9;
-    wxFlexGridSizer* FlexGridSizer26;
-    wxFlexGridSizer* FlexGridSizer14;
-    wxStaticBoxSizer* StaticBoxSizer3;
-    wxFlexGridSizer* FlexGridSizer6;
-    wxFlexGridSizer* FlexGridSizer33;
-    wxFlexGridSizer* FlexGridSizer27;
-    wxFlexGridSizer* FlexGridSizer37;
-    wxFlexGridSizer* FlexGridSizer42;
-    wxFlexGridSizer* FlexGridSizer3;
-    wxFlexGridSizer* FlexGridSizer22;
-    wxStaticBoxSizer* StaticBoxSizer8;
-    wxFlexGridSizer* FlexGridSizer31;
-    wxFlexGridSizer* FlexGridSizer43;
-    wxStaticBoxSizer* StaticBoxSizer4;
-    wxStaticBoxSizer* StaticBoxSizer9;
-    wxStaticBoxSizer* StaticBoxSizer6;
-    wxFlexGridSizer* FlexGridSizer16;
-    wxFlexGridSizer* FlexGridSizer34;
-    wxFlexGridSizer* FlexGridSizer23;
-    wxFlexGridSizer* FlexGridSizer10;
-    wxFlexGridSizer* FlexGridSizer13;
-    wxMenuBar* MenuBar1;
-    wxMenuItem* MenuItemAbout;
-    wxFlexGridSizer* FlexGridSizer18;
-    wxFlexGridSizer* FlexGridSizer49;
-    wxFlexGridSizer* FlexGridSizer36;
-    wxFlexGridSizer* FlexGridSizer12;
-    wxMenuItem* MenuItemOpen;
-    wxFlexGridSizer* FlexGridSizer45;
-    wxFlexGridSizer* FlexGridSizer35;
-    wxFlexGridSizer* FlexGridSizer44;
-    wxFlexGridSizer* FlexGridSizer5;
-    wxFlexGridSizer* FlexGridSizer24;
     wxMenu* MenuHelp;
-    wxFlexGridSizer* FlexGridSizer32;
+    wxFlexGridSizer* FlexGridSizer4;
+    wxFlexGridSizer* FlexGridSizer45;
+    wxFlexGridSizer* FlexGridSizer47;
+    wxMenuItem* MenuItemAbout;
+    wxFlexGridSizer* FlexGridSizer16;
+    wxFlexGridSizer* FlexGridSizer24;
+    wxFlexGridSizer* FlexGridSizer19;
+    wxStaticBoxSizer* StaticBoxSizer12;
+    wxFlexGridSizer* FlexGridSizer23;
+    wxFlexGridSizer* FlexGridSizer41;
+    wxMenuItem* MenuItem2;
+    wxStaticBoxSizer* StaticBoxSizer4;
+    wxFlexGridSizer* FlexGridSizer10;
+    wxFlexGridSizer* FlexGridSizer3;
+    wxFlexGridSizer* FlexGridSizer27;
+    wxMenuItem* MenuItem1;
+    wxFlexGridSizer* FlexGridSizer44;
+    wxFlexGridSizer* FlexGridSizer37;
+    wxFlexGridSizer* FlexGridSizer5;
+    wxFlexGridSizer* FlexGridSizer25;
+    wxFlexGridSizer* FlexGridSizer22;
+    wxFlexGridSizer* FlexGridSizer9;
+    wxFlexGridSizer* FlexGridSizer2;
+    wxStaticBoxSizer* StaticBoxSizer9;
+    wxFlexGridSizer* FlexGridSizer7;
+    wxStaticBoxSizer* StaticBoxSizer7;
+    wxMenuItem* MenuItemOpen;
+    wxStaticBoxSizer* StaticBoxSizer10;
+    wxFlexGridSizer* FlexGridSizer29;
+    wxFlexGridSizer* FlexGridSizer34;
+    wxStaticBoxSizer* StaticBoxSizer8;
+    wxStaticBoxSizer* StaticBoxSizer3;
+    wxGridSizer* GridSizer1;
+    wxFlexGridSizer* FlexGridSizer49;
+    wxStaticBoxSizer* StaticBoxSizer6;
+    wxFlexGridSizer* FlexGridSizer15;
+    wxFlexGridSizer* FlexGridSizer18;
+    wxFlexGridSizer* FlexGridSizer8;
+    wxFlexGridSizer* FlexGridSizer21;
+    wxFlexGridSizer* FlexGridSizer14;
     wxFlexGridSizer* FlexGridSizer20;
-    
+    wxFlexGridSizer* FlexGridSizer13;
+    wxFlexGridSizer* FlexGridSizer12;
+    wxFlexGridSizer* FlexGridSizer35;
+    wxFlexGridSizer* FlexGridSizer36;
+    wxMenuBar* MenuBar1;
+    wxFlexGridSizer* FlexGridSizer6;
+    wxFlexGridSizer* FlexGridSizer48;
+    wxFlexGridSizer* FlexGridSizer46;
+    wxFlexGridSizer* FlexGridSizer1;
+    wxFlexGridSizer* FlexGridSizer33;
+    wxFlexGridSizer* FlexGridSizer43;
+    wxFlexGridSizer* FlexGridSizer11;
+    wxFlexGridSizer* FlexGridSizer17;
+    wxStaticBoxSizer* StaticBoxSizer5;
+    wxFlexGridSizer* FlexGridSizer32;
+    wxFlexGridSizer* FlexGridSizer42;
+    wxFlexGridSizer* FlexGridSizer31;
+    wxFlexGridSizer* FlexGridSizer28;
+    wxFlexGridSizer* FlexGridSizer26;
+    wxFlexGridSizer* FlexGridSizer30;
+
     Create(parent, wxID_ANY, _("Gimx-config"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     GridSizer1 = new wxGridSizer(1, 1, 0, 0);
     Notebook1 = new wxNotebook(this, ID_NOTEBOOK1, wxDefaultPosition, wxSize(1280,570), 0, _T("ID_NOTEBOOK1"));
@@ -982,6 +985,8 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     MenuItemSave->Enable(false);
     MenuItemSaveAs = new wxMenuItem(MenuFile, idMenuSaveAs, _("Save As..."), _("Save configuration to specified file"), wxITEM_NORMAL);
     MenuFile->Append(MenuItemSaveAs);
+    MenuItem2 = new wxMenuItem(MenuFile, ID_MENUITEM28, _("Open config directory"), wxEmptyString, wxITEM_NORMAL);
+    MenuFile->Append(MenuItem2);
     MenuFile->AppendSeparator();
     MenuItem1 = new wxMenuItem(MenuFile, idMenuQuit, _("Quit\tAlt-F4"), _("Quit the application"), wxITEM_NORMAL);
     MenuFile->Append(MenuItem1);
@@ -1068,7 +1073,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     FileDialog1 = new wxFileDialog(this, _("Select file"), wxEmptyString, wxEmptyString, _("XML files (*.xml)|*.xml"), wxFD_DEFAULT_STYLE|wxFD_OPEN, wxDefaultPosition, wxDefaultSize, _T("wxFileDialog"));
     GridSizer1->Fit(this);
     GridSizer1->SetSizeHints(this);
-    
+
     Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonAutoDetectClick);
     Connect(ID_BUTTON10,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonDeleteTrigger);
     Connect(ID_BUTTON11,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnMouseOptionsAutoDetectClick);
@@ -1102,6 +1107,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(idMenuOpen,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuOpen);
     Connect(idMenuSave,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuSave);
     Connect(idMenuSaveAs,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuSaveAs);
+    Connect(ID_MENUITEM28,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuOpenConfigDirectory);
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnQuit);
     Connect(ID_MENUITEM12,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemCopyConfiguration);
     Connect(ID_MENUITEM18,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemCopyController);
@@ -1155,19 +1161,28 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
         exit(0);
       }
     }
-
-    /* Retrieve config/ directory location */
-    default_directory.Append(wxFileName::GetHomeDir());
-    default_directory.Append(wxT(APP_DIR));
-
-	  /* Init user's config directory */
-    if(system("mkdir -p ~/.emuclient/config"))
-    {
-        wxMessageBox( _("Can't init ~/.emuclient/config!"), _("Error"), wxICON_ERROR);
-    }
 #endif
 
+    /* Retrieve config/ directory location */
+    default_directory = wxStandardPaths::Get().GetUserConfigDir();
+    default_directory.Append(wxT(APP_DIR));
+    if(!wxDir::Exists(default_directory))
+    {
+      if(!wxMkdir(default_directory))
+      {
+        wxMessageBox( _("Can't init directory: ") + default_directory, _("Error"), wxICON_ERROR);
+        exit(-1);
+      }
+    }
     default_directory.Append(wxT(CONFIG_DIR));
+    if(!wxDir::Exists(default_directory))
+    {
+      if(!wxMkdir(default_directory))
+      {
+        wxMessageBox( _("Can't init directory: ") + default_directory, _("Error"), wxICON_ERROR);
+        exit(-1);
+      }
+    }
 
     FileDialog1->SetDirectory(default_directory);
 
@@ -3656,4 +3671,14 @@ void configFrame::OnMouseOptionsModifyClick(wxCommandEvent& event)
   }
   GridMouseOption->AutoSizeColumns();
   refresh_gui();
+}
+
+void configFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event)
+{
+#ifdef WIN32
+  default_directory.Replace(wxT("/"), wxT("\\"));
+  wxExecute(wxT("explorer ") + default_directory, wxEXEC_ASYNC, NULL);
+#else
+  wxExecute(wxT("xdg-open ") + default_directory, wxEXEC_ASYNC, NULL);
+#endif
 }

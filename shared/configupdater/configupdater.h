@@ -4,12 +4,7 @@
  */
 
 #define CONFIGS_URL "http://diyps3controller.googlecode.com/svn/trunk/configurations/"
-
-#ifdef WIN32
 #define CONFIGS_FILE "configs"
-#else
-#define CONFIGS_FILE "/tmp/configs"
-#endif
 
 #include <string>
 #include <list>

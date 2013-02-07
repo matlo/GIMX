@@ -53,6 +53,7 @@ class serialFrame: public wxFrame
         void OnMenuStartupUpdates(wxCommandEvent& event);
         void OnMenuGetConfigs(wxCommandEvent& event);
         void OnMenuAutoBindControls(wxCommandEvent& event);
+        void OnMenuOpenConfigDirectory(wxCommandEvent& event);
         //*)
 
         void refresh();
@@ -78,6 +79,7 @@ class serialFrame: public wxFrame
         static const long ID_PANEL1;
         static const long ID_MENUITEM1;
         static const long ID_MENUITEM2;
+        static const long ID_MENUITEM8;
         static const long ID_MENUITEM7;
         static const long ID_MENUITEM3;
         static const long idMenuQuit;

@@ -313,6 +313,10 @@
 					<label>Edit fps config</label>
 					<handler function="OnMenuEditFpsConfig" entry="EVT_MENU" />
 				</object>
+				<object class="wxMenuItem" name="ID_MENUITEM8" variable="MenuItem3" member="no">
+					<label>Open config directory</label>
+					<handler function="OnMenuOpenConfigDirectory" entry="EVT_MENU" />
+				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM7" variable="MenuAutoBindControls" member="yes">
 					<label>Auto-bind and convert</label>
 					<handler function="OnMenuAutoBindControls" entry="EVT_MENU" />

@@ -1349,11 +1349,7 @@ int read_config_file(const char* file)
 {
   char file_path[PATH_MAX];
 
-#ifndef WIN32
   snprintf(file_path, sizeof(file_path), "%s%s%s%s", emuclient_params.homedir, APP_DIR, CONFIG_DIR, file);
-#else
-  snprintf(file_path, sizeof(file_path), "%s%s", CONFIG_DIR, file);
-#endif
 
   if(read_file(file_path) == -1)
   {

@@ -73,10 +73,13 @@ list<string>* configupdater::getconfiglist()
     return NULL;
   }
   
+  string abs_configs_file = configs_dir;
+  abs_configs_file.append(configs_file);
+  
   string cmd = WGET_CMD;
   cmd.append(configs_url);
   cmd.append(" -O ");
-  cmd.append(configs_file);
+  cmd.append(abs_configs_file);
   
   if(exec(cmd))
   {
@@ -84,7 +87,7 @@ list<string>* configupdater::getconfiglist()
   }
   
   ifstream infile;  
-  infile.open(configs_file.c_str());
+  infile.open(abs_configs_file.c_str());
   
   while (infile.good())
   {
@@ -100,7 +103,7 @@ list<string>* configupdater::getconfiglist()
 
   infile.close();
   
-  remove(configs_file.c_str());
+  remove(abs_configs_file.c_str());
 
   return &configlist;
 }

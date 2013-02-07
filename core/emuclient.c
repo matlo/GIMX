@@ -17,6 +17,7 @@
 #include <unistd.h> //to get the homedir
 #else
 #include <windows.h>
+#include <shlobj.h> //to get the homedir
 #include <unistd.h> //usleep
 #endif
 
@@ -35,9 +36,7 @@
 s_emuclient_params emuclient_params =
 {
    .ctype = C_TYPE_DEFAULT,
-#ifndef WIN32
   .homedir = NULL,
-#endif
   .portname = NULL,
   .force_updates = 0,
   .keygen = NULL,
@@ -159,6 +158,14 @@ int main(int argc, char *argv[])
   setlinebuf(stdout);
 
   emuclient_params.homedir = getpwuid(getuid())->pw_dir;
+#else
+  static char path[MAX_PATH];
+  if(SHGetFolderPath( NULL, CSIDL_APPDATA , NULL, 0, path ))
+  {
+    fprintf(stderr, "Can't get the user directory.\n");
+    goto QUIT;
+  }
+  emuclient_params.homedir = path;
 #endif
 
   set_prio();

@@ -36,15 +36,16 @@
 #include <ConfigurationFile.h>
 
 #include <wx/arrstr.h>
+#include <wx/stdpaths.h>
 
 using namespace std;
 
 #ifdef WIN32
 #define MAX_PORT_ID 32
-#else
-#define OPT_DIR "/.sixemugui-serial/"
-char* homedir;
 #endif
+
+wxString userConfigDir;
+wxString userDataDir;
 
 //(*IdInit(serialFrame)
 const long serialFrame::ID_STATICTEXT3 = wxNewId();
@@ -66,6 +67,7 @@ const long serialFrame::ID_BUTTON3 = wxNewId();
 const long serialFrame::ID_PANEL1 = wxNewId();
 const long serialFrame::ID_MENUITEM1 = wxNewId();
 const long serialFrame::ID_MENUITEM2 = wxNewId();
+const long serialFrame::ID_MENUITEM8 = wxNewId();
 const long serialFrame::ID_MENUITEM7 = wxNewId();
 const long serialFrame::ID_MENUITEM3 = wxNewId();
 const long serialFrame::idMenuQuit = wxNewId();
@@ -132,13 +134,12 @@ static void read_devices(wxComboBox* choice)
 #else
 static void read_devices(wxComboBox* choice)
 {
-  string filename = "";
+  string filename;
   string line = "";
   wxString previous = choice->GetStringSelection();
 
-  filename.append(homedir);
-  filename.append(OPT_DIR);
-  filename.append("config");
+  filename = string(userDataDir.mb_str(wxConvUTF8));
+  filename.append("/config");
   ifstream infile (filename.c_str());
   if ( infile.is_open() )
   {
@@ -192,16 +193,13 @@ static void read_devices(wxComboBox* choice)
 
 static void read_filenames(wxChoice* choice)
 {
-  string filename = "";
+  string filename;
   string line = "";
   wxString previous = choice->GetStringSelection();
 
   /* Read the last config used so as to auto-select it. */
-#ifndef WIN32
-  filename.append(homedir);
-  filename.append(OPT_DIR);
-#endif
-  filename.append("default");
+  filename = string(userDataDir.mb_str(wxConvUTF8));
+  filename.append("/default");
   ifstream infile (filename.c_str());
   if ( infile.is_open() )
   {
@@ -215,18 +213,10 @@ static void read_filenames(wxChoice* choice)
   choice->Clear();
 
   /* Read all config file names. */
-  string ds;
-#ifndef WIN32
-  ds.append(homedir);
-  ds.append(APP_DIR);
-#endif
-  ds.append(CONFIG_DIR);
-
-  wxDir dir(wxString(ds.c_str(), wxConvUTF8));
+  wxDir dir(userConfigDir);
 
   if(!dir.IsOpened())
   {
-    cout << "Warning: can't open " << ds << endl;
     return;
   }
 
@@ -254,14 +244,11 @@ static void read_filenames(wxChoice* choice)
 
 static void read_frequency(wxComboBox* choice)
 {
-  string filename = "";
+  string filename;
   string line = "";
 
-#ifndef WIN32
-  filename.append(homedir);
-  filename.append(OPT_DIR);
-#endif
-  filename.append("frequency");
+  filename = string(userDataDir.mb_str(wxConvUTF8));
+  filename.append("/frequency");
   ifstream infile (filename.c_str());
   if ( infile.is_open() )
   {
@@ -276,14 +263,11 @@ static void read_frequency(wxComboBox* choice)
 
 static void read_controller_type(wxChoice* choice)
 {
-  string filename = "";
+  string filename;
   string line = "";
 
-#ifndef WIN32
-  filename.append(homedir);
-  filename.append(OPT_DIR);
-#endif
-  filename.append("controller");
+  filename = string(userDataDir.mb_str(wxConvUTF8));
+  filename.append("/controller");
   ifstream infile (filename.c_str());
   if ( infile.is_open() )
   {
@@ -298,14 +282,11 @@ static void read_controller_type(wxChoice* choice)
 
 static void readStartUpdates(wxMenuItem* menuItem)
 {
-  string filename = "";
+  string filename;
   string line = "";
 
-#ifndef WIN32
-  filename.append(homedir);
-  filename.append(OPT_DIR);
-#endif
-  filename.append("startUpdates");
+  filename = string(userDataDir.mb_str(wxConvUTF8));
+  filename.append("/startUpdates");
   ifstream infile (filename.c_str());
   if ( infile.is_open() )
   {
@@ -336,6 +317,7 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer2;
     wxMenu* Menu1;
     wxFlexGridSizer* FlexGridSizer7;
+    wxMenuItem* MenuItem3;
     wxStaticBoxSizer* StaticBoxSizer8;
     wxStaticBoxSizer* StaticBoxSizer6;
     wxFlexGridSizer* FlexGridSizer8;
@@ -435,6 +417,8 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     Menu1->Append(MenuEditConfig);
     MenuEditFpsConfig = new wxMenuItem(Menu1, ID_MENUITEM2, _("Edit fps config"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuEditFpsConfig);
+    MenuItem3 = new wxMenuItem(Menu1, ID_MENUITEM8, _("Open config directory"), wxEmptyString, wxITEM_NORMAL);
+    Menu1->Append(MenuItem3);
     MenuAutoBindControls = new wxMenuItem(Menu1, ID_MENUITEM7, _("Auto-bind and convert"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuAutoBindControls);
     MenuRefresh = new wxMenuItem(Menu1, ID_MENUITEM3, _("Refresh\tF5"), wxEmptyString, wxITEM_NORMAL);
@@ -469,6 +453,7 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&serialFrame::OnButtonStartClick);
     Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnMenuEditConfig);
     Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnMenuEditFpsConfig);
+    Connect(ID_MENUITEM8,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnMenuOpenConfigDirectory);
     Connect(ID_MENUITEM7,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnMenuAutoBindControls);
     Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnMenuRefresh);
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnQuit);
@@ -477,7 +462,7 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnMenuStartupUpdates);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnAbout);
     //*)
-    
+
     ComboBoxFrequency->Append(wxT("62.5"));
     ComboBoxFrequency->Append(wxT("100"));
     ComboBoxFrequency->Append(wxT("125"));
@@ -498,23 +483,35 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
 
     setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 
-#ifndef WIN32
-    homedir = getpwuid(getuid())->pw_dir;
+    userDataDir = wxStandardPaths::Get().GetUserDataDir();
+    if(!wxDir::Exists(userDataDir))
+    {
+      if(!wxMkdir(userDataDir))
+      {
+        wxMessageBox( _("Can't init directory: ") + userDataDir, _("Error"), wxICON_ERROR);
+        exit(-1);
+      }
+    }
 
-	  /* Init user's config directory. */
-    if(system("mkdir -p ~/.sixemugui-serial"))
+    userConfigDir = wxStandardPaths::Get().GetUserConfigDir();
+    userConfigDir.Append(wxT(APP_DIR));
+    if(!wxDir::Exists(userConfigDir))
     {
-        wxMessageBox( _("Can't init ~/.sixemugui-serial directory!"), _("Error"), wxICON_ERROR);
+      if(!wxMkdir(userConfigDir))
+      {
+        wxMessageBox( _("Can't init directory: ") + userConfigDir, _("Error"), wxICON_ERROR);
+        exit(-1);
+      }
     }
-    if(system("mkdir -p ~/.emuclient/config"))
+    userConfigDir.Append(wxT(CONFIG_DIR));
+    if(!wxDir::Exists(userConfigDir))
     {
-        wxMessageBox( _("Can't init ~/.emuclient/config!"), _("Error"), wxICON_ERROR);
+      if(!wxMkdir(userConfigDir))
+      {
+        wxMessageBox( _("Can't init directory: ") + userConfigDir, _("Error"), wxICON_ERROR);
+        exit(-1);
+      }
     }
-    if(system("mkdir -p ~/.emuclient/macros"))
-    {
-        wxMessageBox( _("Can't init ~/.emuclient/macros!"), _("Error"), wxICON_ERROR);
-    }
-#endif
 
     started = false;
 
@@ -593,7 +590,7 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
 {
     wxString command;
     wxArrayString output, errors;
-    string filename = "";
+    string filename;
     wxString dpi;
     double refresh;
     ostringstream ios;
@@ -682,47 +679,32 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
 
     //cout << command.c_str() << endl;
 
-#ifndef WIN32
-    filename.append(homedir);
-    filename.append(OPT_DIR);
-#endif
-    filename.append("default");
+    filename = userDataDir.mb_str(wxConvUTF8);
+    filename.append("/default");
     ofstream outfile (filename.c_str(), ios_base::trunc);
     if(outfile.is_open())
     {
         outfile << ChoiceConfig->GetStringSelection().mb_str(wxConvUTF8) << endl;
         outfile.close();
     }
-    filename.erase();
-#ifndef WIN32
-    filename.append(homedir);
-    filename.append(OPT_DIR);
-#endif
-    filename.append("frequency");
+    filename = userDataDir.mb_str(wxConvUTF8);
+    filename.append("/frequency");
     ofstream outfile2 (filename.c_str(), ios_base::trunc);
     if(outfile2.is_open())
     {
         outfile2 << ComboBoxFrequency->GetValue().mb_str(wxConvUTF8) << endl;
         outfile2.close();
     }
-    filename.erase();
-#ifndef WIN32
-    filename.append(homedir);
-    filename.append(OPT_DIR);
-#endif
-    filename.append("config");
+    filename = userDataDir.mb_str(wxConvUTF8);
+    filename.append("/config");
     ofstream outfile3 (filename.c_str(), ios_base::trunc);
     if(outfile3.is_open())
     {
         outfile3 << ComboBoxDevice->GetValue().mb_str(wxConvUTF8) << endl;
         outfile3.close();
     }
-    filename.erase();
-#ifndef WIN32
-    filename.append(homedir);
-    filename.append(OPT_DIR);
-#endif
-    filename.append("controller");
+    filename = userDataDir.mb_str(wxConvUTF8);
+    filename.append("/controller");
     ofstream outfile4 (filename.c_str(), ios_base::trunc);
     if(outfile4.is_open())
     {
@@ -742,7 +724,7 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
     StatusBar1->SetStatusText(_("Press Shift+Esc to exit."));
 
     ButtonStart->Enable(false);
-    
+
     MyProcess *process = new MyProcess(this, command);
 
     if(!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process))
@@ -782,12 +764,7 @@ void serialFrame::OnButtonCheckClick1(wxCommandEvent& event)
       return;
     }
 
-    string file;
-#ifndef WIN32
-    file.append(homedir);
-    file.append(APP_DIR);
-#endif
-    file.append(CONFIG_DIR);
+    string file = string(userConfigDir.mb_str(wxConvUTF8));
     file.append(ChoiceConfig->GetStringSelection().mb_str(wxConvUTF8));
 
     ConfigurationFile configFile;
@@ -969,12 +946,8 @@ void serialFrame::OnMenuUpdate(wxCommandEvent& event)
 
 void serialFrame::OnMenuStartupUpdates(wxCommandEvent& event)
 {
-  string filename;
-#ifndef WIN32
-  filename.append(homedir);
-  filename.append(OPT_DIR);
-#endif
-  filename.append("startUpdates");
+  string filename = string(userDataDir.mb_str(wxConvUTF8));
+  filename.append("/startUpdates");
   ofstream outfile (filename.c_str(), ios_base::trunc);
   if(outfile.is_open())
   {
@@ -992,12 +965,7 @@ void serialFrame::OnMenuStartupUpdates(wxCommandEvent& event)
 
 void serialFrame::OnMenuGetConfigs(wxCommandEvent& event)
 {
-  string dir;
-#ifndef WIN32
-  dir.append(homedir);
-  dir.append(APP_DIR);
-#endif
-  dir.append(CONFIG_DIR);
+  string dir = string(userConfigDir.mb_str(wxConvUTF8));
   configupdater u(CONFIGS_URL, CONFIGS_FILE, dir);
 
   list<string>* cl = u.getconfiglist();
@@ -1040,7 +1008,7 @@ void serialFrame::OnMenuGetConfigs(wxCommandEvent& event)
         wxMessageBox(_("Can't retrieve configs!"), _("Error"), wxICON_ERROR);
         return;
       }
-      
+
       if(!cl_sel.empty())
 	    {
 	      wxMessageBox(_("Download is complete!"), _("Info"), wxICON_INFORMATION);
@@ -1066,12 +1034,7 @@ void serialFrame::OnMenuGetConfigs(wxCommandEvent& event)
 
 void serialFrame::autoBindControls(wxArrayString configs)
 {
-  string dir;
-#ifndef WIN32
-  dir.append(homedir);
-  dir.append(APP_DIR);
-#endif
-  dir.append(CONFIG_DIR);
+  string dir = string(userConfigDir.mb_str(wxConvUTF8));
 
   wxString mod_config;
 
@@ -1130,4 +1093,14 @@ void serialFrame::OnMenuAutoBindControls(wxCommandEvent& event)
   configs.Add(ChoiceConfig->GetStringSelection());
 
   autoBindControls(configs);
+}
+
+void serialFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event)
+{
+#ifdef WIN32
+  userConfigDir.Replace(wxT("/"), wxT("\\"));
+  wxExecute(wxT("explorer ") + userConfigDir, wxEXEC_ASYNC, NULL);
+#else
+  wxExecute(wxT("xdg-open ") + userConfigDir, wxEXEC_ASYNC, NULL);
+#endif
 }

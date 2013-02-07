@@ -37,6 +37,7 @@
 #include <sstream>
 
 #include <libintl.h>
+#include <wx/stdpaths.h>
 
 using namespace std;
 
@@ -57,25 +58,25 @@ string reverse_gettext(string str)
 class wxComboBoxDialog: public wxDialog
 {
 public:
- 
+
 	wxComboBoxDialog ( wxWindow * parent, const wxString & title, const wxString& value, const wxArrayString& choices ) : wxDialog( parent, -1, title, wxDefaultPosition, wxSize(150, 75), wxDEFAULT_DIALOG_STYLE)
   {
     vbox = new wxBoxSizer(wxVERTICAL);
-    
+
     comboBox = new wxComboBox(this, -1, value, wxDefaultPosition, wxDefaultSize, choices, wxTE_PROCESS_ENTER);
-    
+
     vbox->Add(comboBox, 1, wxALIGN_CENTER | wxEXPAND);
-    
+
     hbox = new wxBoxSizer(wxHORIZONTAL);
-    
+
     bOK = new wxButton( this, wxID_OK, _("OK"));
     bCancel = new wxButton( this, wxID_CANCEL, _("Cancel"));
-    
+
     hbox->Add(bOK, 1, wxALIGN_CENTER | wxEXPAND);
     hbox->Add(bCancel, 1, wxALIGN_CENTER | wxEXPAND);
-    
+
     vbox->Add(hbox, 1, wxALIGN_CENTER | wxEXPAND);
-    
+
     SetSizer(vbox);
 
     Connect(comboBox->GetId(), wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( wxComboBoxDialog::OnComboBoxEnter ) );
@@ -84,9 +85,9 @@ public:
   }
 
 	wxString GetValue() { return comboBox->GetValue(); }
-  
+
   void OnComboBoxEnter( wxCommandEvent &event ) { EndModal(wxID_OK); }
-  
+
 protected:
 
   wxBoxSizer* hbox;
@@ -156,6 +157,7 @@ const long fpsconfigFrame::ID_MENUITEM1 = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM4 = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM2 = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM3 = wxNewId();
+const long fpsconfigFrame::ID_MENUITEM8 = wxNewId();
 const long fpsconfigFrame::idMenuQuit = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM6 = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM7 = wxNewId();
@@ -228,11 +230,12 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     //(*Initialize(fpsconfigFrame)
     wxMenu* MenuHelp;
     wxMenuItem* MenuItemAbout;
+    wxMenuItem* MenuItem1;
     wxMenu* MenuAdvanced;
     wxMenuItem* MenuItemQuit;
     wxMenu* MenuFile;
     wxMenuBar* MenuBar1;
-    
+
     Create(parent, wxID_ANY, _("Gimx-fpsconfig"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     SetClientSize(wxSize(614,423));
     SetBackgroundColour(wxColour(255,255,255));
@@ -384,6 +387,8 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     MenuItemSave->Enable(false);
     MenuItemSaveAs = new wxMenuItem(MenuFile, ID_MENUITEM3, _("Save As"), wxEmptyString, wxITEM_NORMAL);
     MenuFile->Append(MenuItemSaveAs);
+    MenuItem1 = new wxMenuItem(MenuFile, ID_MENUITEM8, _("Open config directory"), wxEmptyString, wxITEM_NORMAL);
+    MenuFile->Append(MenuItem1);
     MenuItemQuit = new wxMenuItem(MenuFile, idMenuQuit, _("Quit\tAlt-F4"), _("Quit the application"), wxITEM_NORMAL);
     MenuFile->Append(MenuItemQuit);
     MenuBar1->Append(MenuFile, _("&File"));
@@ -407,7 +412,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     StatusBar1->SetStatusStyles(1,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
     FileDialog1 = new wxFileDialog(this, _("Select file"), wxEmptyString, wxEmptyString, wxFileSelectorDefaultWildcardStr, wxFD_DEFAULT_STYLE, wxDefaultPosition, wxDefaultSize, _T("wxFileDialog"));
-    
+
     Connect(ID_SPINCTRL8,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnSpinCtrlChange);
     Connect(ID_SPINCTRL7,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnSpinCtrlChange);
     Connect(ID_SPINCTRL6,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnSpinCtrlChange);
@@ -459,6 +464,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuOpen);
     Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuSave);
     Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuSaveAs);
+    Connect(ID_MENUITEM8,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuOpenConfigDirectory);
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnQuit);
     Connect(ID_MENUITEM7,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuAutoBindControls);
     Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuUpdate);
@@ -495,18 +501,28 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
         exit(0);
       }
     }
-
-    default_directory.Append(wxFileName::GetHomeDir());
-    default_directory.Append(wxT("/.emuclient/"));
-
-	  /* Init user's config directory. */
-    if(system("mkdir -p ~/.emuclient/config"))
-    {
-        wxMessageBox( _("Can't init ~/.emuclient/config!"), _("Error"), wxICON_ERROR);
-    }
 #endif
 
+    /* Retrieve config/ directory location */
+    default_directory = wxStandardPaths::Get().GetUserConfigDir();
+    default_directory.Append(wxT(APP_DIR));
+    if(!wxDir::Exists(default_directory))
+    {
+      if(!wxMkdir(default_directory))
+      {
+        wxMessageBox( _("Can't init directory: ") + default_directory, _("Error"), wxICON_ERROR);
+        exit(-1);
+      }
+    }
     default_directory.Append(wxT(CONFIG_DIR));
+    if(!wxDir::Exists(default_directory))
+    {
+      if(!wxMkdir(default_directory))
+      {
+        wxMessageBox( _("Can't init directory: ") + default_directory, _("Error"), wxICON_ERROR);
+        exit(-1);
+      }
+    }
 
     FileDialog1->SetDirectory(default_directory);
 
@@ -535,7 +551,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     }
 
 	  wxToolTip::SetDelay(0);
-    
+
     readLabels();
 }
 
@@ -829,7 +845,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
     {
       return;
     }
-    
+
     wxComboBoxDialog dialog ( this, _("Edit Label"), value, *as);
 
     if (dialog.ShowModal() == wxID_OK)
@@ -1444,7 +1460,7 @@ void fpsconfigFrame::LoadConfig()
       {
         continue;
       }
-      
+
       button = getButtonButton(it->GetButton());
 
       if(button == NULL)
@@ -1484,7 +1500,7 @@ void fpsconfigFrame::LoadConfig()
         button->SetBackgroundColour(colour);
         button->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
       }
-      
+
       if(!it->GetDevice()->GetName().empty())
       {
           if(it->GetDevice()->GetType() == "mouse")
@@ -1556,7 +1572,7 @@ void fpsconfigFrame::LoadConfig()
       {
         continue;
       }
-      
+
       button = getAxisButton(it->GetAxis());
 
       if(button == NULL)
@@ -1674,7 +1690,7 @@ void fpsconfigFrame::LoadConfig()
       {
         continue;
       }
-      
+
       button = getAxisButton(it->GetAxis());
 
       if(button == NULL)
@@ -2081,4 +2097,14 @@ void fpsconfigFrame::readLabels()
   {
     a_labels.Add(wxString(it->c_str(), wxConvUTF8));
   }
+}
+
+void fpsconfigFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event)
+{
+#ifdef WIN32
+  default_directory.Replace(wxT("/"), wxT("\\"));
+  wxExecute(wxT("explorer ") + default_directory, wxEXEC_ASYNC, NULL);
+#else
+  wxExecute(wxT("xdg-open ") + default_directory, wxEXEC_ASYNC, NULL);
+#endif
 }

@@ -12,10 +12,6 @@
 #include <locale.h>
 #define _(STRING)    gettext(STRING)
 
-#ifndef WIN32
-extern char* homedir;
-#endif
-
 #define DEFAULT_REFRESH_PERIOD 10000 //=10ms
 
 typedef enum
@@ -31,9 +27,7 @@ typedef enum
 typedef struct
 {
   e_controller_type ctype;
-#ifndef WIN32
   char* homedir;
-#endif
   char* portname;
   int force_updates;
   char* keygen;

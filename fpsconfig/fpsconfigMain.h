@@ -65,6 +65,7 @@ class fpsconfigFrame: public wxFrame
         void OnMenuEditLabels(wxCommandEvent& event);
         void OnButtonConvertSensitivityClick(wxCommandEvent& event);
         void OnMenuAutoBindControls(wxCommandEvent& event);
+        void OnMenuOpenConfigDirectory(wxCommandEvent& event);
         //*)
 
         e_button_index getButtonIndex(wxButton* button);
@@ -135,6 +136,7 @@ class fpsconfigFrame: public wxFrame
         static const long ID_MENUITEM4;
         static const long ID_MENUITEM2;
         static const long ID_MENUITEM3;
+        static const long ID_MENUITEM8;
         static const long idMenuQuit;
         static const long ID_MENUITEM6;
         static const long ID_MENUITEM7;
