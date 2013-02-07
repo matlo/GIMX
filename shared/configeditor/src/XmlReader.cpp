@@ -112,6 +112,11 @@ void XmlReader::CheckDevice(string type, string name, string id)
 {
   string info = "";
 
+  if(type.empty())
+  {
+    return;
+  }
+
   if(name.empty())
   {
     m_name_empty = true;
