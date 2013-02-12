@@ -13,6 +13,11 @@
 
 #include <glib.h>
 
+#ifndef WIN32
+void gtk_init_hack(void) __attribute__((constructor));
+void gtk_init_hack(void) { setregid(getegid(), -1); }  // This will always run before main()
+#endif
+
 IMPLEMENT_APP(bluetoothApp);
 
 bool bluetoothApp::OnInit()
