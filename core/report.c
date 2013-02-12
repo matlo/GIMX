@@ -19,6 +19,8 @@ static unsigned int _360pad_report_build(s_report_360* report)
   report->type = 0x00;
   report->size = 0x14;
 
+  report->buttons = 0x0000;
+  
   if (state[0].user.axis[sa_up])
   {
     report->buttons |= 0x0001;
