@@ -172,6 +172,8 @@ static unsigned int joystick_report_build(s_report_joystick* report)
   report->Z = clamp(0, state[0].user.axis[sa_rstick_x] + 32768, 65535);
   report->Rz = clamp(0, state[0].user.axis[sa_rstick_y] + 32768, 65535);
 
+  report->Bt = 0x0000;
+  
   if (state[0].user.axis[sa_square])
   {
     report->Bt |= 0x0001;
