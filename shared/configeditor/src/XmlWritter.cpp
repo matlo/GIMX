@@ -7,6 +7,11 @@
 #include <string>
 #include <string.h>
 
+#ifndef WIN32
+#include <pwd.h> //to get the user & group id
+#include <unistd.h>
+#endif
+
 using namespace std;
 
 XmlWritter::XmlWritter()
@@ -286,6 +291,14 @@ int XmlWritter::WriteConfigFile()
      * Dumping document to stdio or file
      */
     ret = xmlSaveFormatFileEnc(m_ConfigurationFile->GetFilePath().c_str(), doc, "UTF-8", 1);
+
+#ifndef WIN32
+    if(ret != -1 
+    && chown(m_ConfigurationFile->GetFilePath().c_str(), getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid) < 0)
+    {
+      ret = -1;
+    }
+#endif
 
     /*free the document */
     xmlFreeDoc(doc);

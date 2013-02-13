@@ -13,6 +13,8 @@
 #include <windows.h>
 #define WGET_CMD "wget.exe -q -w 0 -t 1 -T 10 "
 #else
+#include <pwd.h> //to get the user & group id
+#include <unistd.h>
 #define WGET_CMD "wget -q -w 0 -t 1 -T 10 "
 #endif
 
@@ -112,17 +114,24 @@ int configupdater::getconfigs(list<string>* cl)
 {
   for(list<string>::iterator it = cl->begin(); it != cl->end(); ++it)
   {
+    string file = configs_dir + *it;
+
     string cmd = WGET_CMD;
     cmd.append(configs_url);
     cmd.append(*it);
     cmd.append(" -O ");
-    cmd.append(configs_dir);
-    cmd.append(*it);
+    cmd.append(file);
     
     if(exec(cmd))
     {
       return -1;
     }
+#ifndef WIN32
+    if(chown(file.c_str(), getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid) < 0)
+    {
+      return -1;
+    }
+#endif
   }
   
   return 0;
