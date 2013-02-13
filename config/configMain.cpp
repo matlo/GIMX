@@ -3476,7 +3476,7 @@ void configFrame::OnMouseOptionsAutoDetectClick(wxCommandEvent& event)
 {
   MouseOptionsAutoDetect->Enable(false);
 
-  MouseOptionsType->SetLabel(_(""));
+  MouseOptionsType->SetLabel(wxT(""));
 
   while(MouseOptionsType->GetLabel() != _("mouse"))
   {
