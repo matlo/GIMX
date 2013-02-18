@@ -7,6 +7,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstdio>
+#include <vector>
+#include <sstream>
 #include "updater.h"
 
 #ifdef WIN32
@@ -64,9 +66,28 @@ static int exec(string command)
 #endif
 }
 
+static vector<string> &split(const string &s, char delim, vector<string> &elems)
+{
+  stringstream ss(s);
+  string item;
+  while (getline(ss, item, delim))
+  {
+    elems.push_back(item);
+  }
+  return elems;
+}
+
+static vector<string> split(const string &s, char delim)
+{
+  vector < string > elems;
+  return split(s, delim, elems);
+}
+
 int updater::checkversion()
 {
   string v;
+  int major, minor;
+  int old_major, old_minor;
   
   if(version_url.empty() || version_file.empty() || version.empty())
   {
@@ -99,7 +120,25 @@ int updater::checkversion()
   
   remove(version_file.c_str());
 
-  return v > version;
+  vector<string> elems = split(v, '.');
+  if (elems.size() != 2)
+  {
+    return -1;
+  }
+
+  major = atoi(elems[0].c_str());
+  minor = atoi(elems[1].c_str());
+
+  vector<string> old_elems = split(version, '.');
+  if (old_elems.size() != 2)
+  {
+    return -1;
+  }
+
+  old_major = atoi(old_elems[0].c_str());
+  old_minor = atoi(old_elems[1].c_str());
+
+  return major >= old_major && minor > old_minor;
 }
 
 int updater::update()
