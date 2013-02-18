@@ -8,7 +8,7 @@ CFLAGS += `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
 LIBDIR =
 LIB = ../shared/configeditor/configeditor.a ../shared/event/GE.a -lxml2 `wx-config --libs`
 
-DEP = ../shared/configeditor/configeditor.a ../shared/event/GE.a
+DEP = ../shared/configeditor/configeditor.a ../shared/event/GE.a ../shared/updater/updater.o
 OBJ = configMain.o configApp.o
 OUT = gimx-config
 

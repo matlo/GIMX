@@ -10,7 +10,7 @@ CFLAGS += `pkg-config --cflags glib-2.0` `wx-config --cflags` -Winvalid-pch -inc
 LIBDIR =
 LIB = ../shared/configeditor/configeditor.a ../shared/event/GE.a -lxml2 `wx-config --libs` `pkg-config --libs glib-2.0`
 
-DEP = ../shared/configeditor/configeditor.a ../shared/event/GE.a
+DEP = ../shared/configeditor/configeditor.a ../shared/event/GE.a ../shared/updater/updater.o ../shared/configupdater/configupdater.o
 OBJ = bluetoothApp.o bluetoothMain.o
 OUT = gimx-bluetooth
 
