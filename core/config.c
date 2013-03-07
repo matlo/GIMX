@@ -798,6 +798,21 @@ void cfg_process_event(GE_Event* event)
 
   unsigned int device = GE_GetDeviceId(event);
 
+  switch(event->type)
+  {
+    case GE_JOYAXISMOTION:
+      if (GE_IsSixaxis(device) && event->jaxis.axis > 3)
+      {
+      	/*
+      	 * Shift and scale pressure-sensitive buttons.
+      	 */
+        event->jaxis.value = (event->jaxis.value + 32767) / 2;
+      }
+      break;
+    default:
+      break;
+  }
+
   for(c_id=0; c_id<MAX_CONTROLLERS; ++c_id)
   {
     config = current_config[c_id];
@@ -814,10 +829,6 @@ void cfg_process_event(GE_Event* event)
       }
       break;
       case GE_JOYAXISMOTION:
-      if(GE_IsSixaxis(device) && event->jaxis.axis > 3)
-      {
-        event->jaxis.value = (event->jaxis.value + 32767) / 2;
-      }
       if(joystick_axes[device][c_id][config])
       {
         nb_controls = joystick_axes[device][c_id][config]->nb_mappers;
