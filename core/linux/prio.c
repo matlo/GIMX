@@ -10,8 +10,8 @@ void set_prio()
   /*
    * Set highest priority & scheduler policy.
    */
-  struct sched_param p = {.sched_priority = 99};
+  struct sched_param p =
+  { .sched_priority = sched_get_priority_max(SCHED_FIFO) };
 
   sched_setscheduler(0, SCHED_FIFO, &p);
-  //setpriority(PRIO_PROCESS, getpid(), -20); only useful with SCHED_OTHER
 }
