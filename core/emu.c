@@ -27,6 +27,7 @@
 #include <sys/types.h>
 #include "sixaxis.h"
 #include "dump.h"
+#include <prio.h>
 
 #ifdef WIN32
 #define SHUT_RDWR SD_BOTH
@@ -334,14 +335,7 @@ int main(int argc, char *argv[])
 #endif
 
 #ifndef WIN32
-    /*
-     * Set highest priority & scheduler policy.
-     */
-    struct sched_param p = {.sched_priority = 99};
-
-    sched_setscheduler(0, SCHED_FIFO, &p);
-    
-    //setpriority(PRIO_PROCESS, getpid(), -20); only useful with SCHED_OTHER
+    set_prio();
 
     setlinebuf(stdout);
 #endif
