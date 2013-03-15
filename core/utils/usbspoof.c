@@ -200,14 +200,7 @@ static void serial_port_init()
   tcgetattr(fd, &options);
   cfsetispeed(&options, BAUDRATE);
   cfsetospeed(&options, BAUDRATE);
-  options.c_cflag |= (CLOCAL | CREAD);
-  options.c_cflag &= ~PARENB;
-  options.c_cflag &= ~CSTOPB;
-  options.c_cflag &= ~CSIZE;
-  options.c_cflag |= CS8;
-  options.c_oflag &= ~OPOST;
-  options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
-  options.c_iflag &= ~(IXON | IXOFF | IXANY);
+  cfmakeraw(&options);
   if(tcsetattr(fd, TCSANOW, &options) < 0)
   {
     printf("can't set serial port options\n");
