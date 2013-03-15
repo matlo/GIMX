@@ -8,6 +8,6 @@
 
 int tcp_connect(void);
 void tcp_close(void);
-void tcp_send(int);
+int tcp_send(int);
 
 #endif /* TCP_CON_H_ */

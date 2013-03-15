@@ -8,7 +8,7 @@
 
 int gpp_connect();
 
-void gpp_send(int);
+int gpp_send(int);
 
 void gpp_disconnect();
 

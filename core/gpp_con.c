@@ -23,10 +23,11 @@ int gpp_connect()
   return 0;
 }
 
-void gpp_send(int force_update)
+int gpp_send(int force_update)
 {
   char output[REP_IO_COUNT];
   int axis_value;
+  int ret = 0;
 
   if (force_update || controller[0].send_command)
   {
@@ -85,8 +86,13 @@ void gpp_send(int force_update)
     axis_value = state[0].user.axis[sa_gyro] * 100 / 511;
     output[PS3_GYRO] = clamp(-100, axis_value, 100);
 
-    gpppcprog_output(output);
+    if(!gpppcprog_output(output))
+    {
+      ret = -1;
+    }
   }
+
+  return ret;
 }
 
 void gpp_disconnect()

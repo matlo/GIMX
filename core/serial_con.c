@@ -20,15 +20,16 @@ int serial_con_connect(char* portname)
 /*
  * Send a usb report to the serial port.
  */
-void serial_con_send(e_controller_type ctype, int force_update)
+int serial_con_send(e_controller_type ctype, int force_update)
 {
   unsigned int size;
   s_report report;
+  int ret = 0;
   if (force_update || controller[0].send_command)
   {
     size = report_build(&report, ctype);
     
-    serial_send(&report, size);
+    ret = serial_send(&report, size);
 
     if(controller[0].send_command)
     {
@@ -40,6 +41,7 @@ void serial_con_send(e_controller_type ctype, int force_update)
       controller[0].send_command = 0;
     }
   }
+  return ret;
 }
 
 void serial_con_close()

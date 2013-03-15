@@ -57,6 +57,8 @@ struct sixaxis_state_user {
 };
 
 struct sixaxis_state {
+    char bdaddr_src[18];
+    char bdaddr_dst[18];
     struct sixaxis_state_sys sys;
     struct sixaxis_state_user user;
 };

@@ -29,6 +29,8 @@
 #include "dump.h"
 #include <prio.h>
 
+#define FLUSH_TIMEOUT 11250 //=11.25ms
+
 #ifdef WIN32
 #define SHUT_RDWR SD_BOTH
 
@@ -234,6 +236,16 @@ int process(int psm, const unsigned char *buf, int len,
             {
               printf("write error");
             }
+
+            if(report == 0xf4)
+            {
+              bdaddr_t dest_addr;
+              str2ba(state->bdaddr_dst, &dest_addr);
+              if(l2cap_set_flush_timeout(&dest_addr, FLUSH_TIMEOUT) < 0)
+              {
+                printf("can't set flush timeout for %s\n", state->bdaddr_dst);
+              }
+            }
         }
         break;
 
@@ -357,6 +369,9 @@ int main(int argc, char *argv[])
         fprintf(stderr, "usage: %s <ps3-mac-address> <bt device number> <sixaxis number>\n", *argv);
         return 1;
     }
+
+    strncpy(state.bdaddr_dst, bdaddr_dest, sizeof(state.bdaddr_dst));
+
 #ifndef WIN32
     if (argc > 2)
     {
@@ -378,7 +393,7 @@ int main(int argc, char *argv[])
         printf("default sixaxis number 0 is used\n");
     }
 
-    if(device_number < 0 || get_device_bdaddr(device_number, bdaddr_src) < 0)
+    if(device_number < 0 || get_device_bdaddr(device_number, state.bdaddr_src) < 0)
     {
         fprintf(stderr, "bad bt device number\n");
         fprintf(stderr, "usage: %s <ps3-mac-address>  <bt device number> <sixaxis number>\n", *argv);
@@ -396,13 +411,13 @@ int main(int argc, char *argv[])
 
 #endif
     /* Connect to PS3 */
-    printf("connecting with hci%d = %s to %s psm %d\n", device_number, bdaddr_src, bdaddr_dest, CTRL);
-    if ((ctrl = l2cap_connect(bdaddr_src, bdaddr_dest, CTRL)) < 0) {
+    printf("connecting with hci%d = %s to %s psm %d\n", device_number, state.bdaddr_src, bdaddr_dest, CTRL);
+    if ((ctrl = l2cap_connect(state.bdaddr_src, bdaddr_dest, CTRL)) < 0) {
         printf("can't connect to control psm\n");//needed by sixemugui
         err(1, "can't connect to control psm");
     }
-    printf("connecting with hci%d = %s to %s psm %d\n", device_number, bdaddr_src, bdaddr_dest, DATA);
-    if ((data = l2cap_connect(bdaddr_src, bdaddr_dest, DATA)) < 0) {
+    printf("connecting with hci%d = %s to %s psm %d\n", device_number, state.bdaddr_src, bdaddr_dest, DATA);
+    if ((data = l2cap_connect(state.bdaddr_src, bdaddr_dest, DATA)) < 0) {
         shutdown(ctrl, SHUT_RDWR);
         close(ctrl);
         printf("can't connect to data psm\n");//needed by sixemugui

@@ -29,6 +29,7 @@ void mainloop()
   LARGE_INTEGER t0, t1, freq;
   int time_to_sleep;
   int ptl;
+  int ret;
   
   QueryPerformanceFrequency(&freq);
 
@@ -66,14 +67,19 @@ void mainloop()
     switch(emuclient_params.ctype)
     {
       case C_TYPE_DEFAULT:
-        tcp_send(emuclient_params.force_updates);
+        ret = tcp_send(emuclient_params.force_updates);
         break;
       case C_TYPE_GPP:
-        gpp_send(emuclient_params.force_updates);
+        ret = gpp_send(emuclient_params.force_updates);
         break;
       default:
-        serial_con_send(emuclient_params.ctype, emuclient_params.force_updates);
+        ret = serial_con_send(emuclient_params.ctype, emuclient_params.force_updates);
         break;
+    }
+
+    if(ret < 0)
+    {
+      done = 1;
     }
 
     /*

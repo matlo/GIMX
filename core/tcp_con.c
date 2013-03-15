@@ -111,20 +111,26 @@ void tcp_close()
 }
 
 
-int send_single(int c_id, const char* buf, int length)
+static int tcp_send_single(int c_id, const char* buf, int length)
 {
-  if(!sockfd[c_id]) return 0;
-
-  return send(sockfd[c_id], buf, length, MSG_DONTWAIT);
+  if(sockfd[c_id] < 0)
+  {
+    return 0;
+  }
+  else
+  {
+    return send(sockfd[c_id], buf, length, MSG_DONTWAIT);
+  }
 }
 
 /*
  * Send a command to each controller that has its status changed.
  */
-void tcp_send(int force_update)
+int tcp_send(int force_update)
 {
   int i;
   unsigned char buf[48];
+  int ret = 0;
 
   for (i = 0; i < MAX_CONTROLLERS; ++i)
   {
@@ -134,7 +140,11 @@ void tcp_send(int force_update)
       {
         gprintf(_("can't assemble\n"));
       }
-      send_single(i, (const char*)buf, 48);
+      if(tcp_send_single(i, (const char*)buf, 48) < 0)
+      {
+        gprintf(_("can't send\n"));
+        ret = -1;
+      }
 
       if (controller[i].send_command)
       {
@@ -147,5 +157,7 @@ void tcp_send(int force_update)
       }
     }
   }
+
+  return ret;
 }
 

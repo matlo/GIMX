@@ -12,7 +12,7 @@
 #include <locale.h>
 #define _(STRING)    gettext(STRING)
 
-#define DEFAULT_REFRESH_PERIOD 10000 //=10ms
+#define DEFAULT_REFRESH_PERIOD 11250 //=11.25ms
 
 typedef enum
 {

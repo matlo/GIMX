@@ -10,7 +10,7 @@
 #include "emuclient.h"
 
 int serial_con_connect(char*);
-void serial_con_send(e_controller_type, int);
+int serial_con_send(e_controller_type, int);
 void serial_con_close();
 
 #endif /* SERIAL_CON_H_ */

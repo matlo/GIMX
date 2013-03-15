@@ -181,8 +181,6 @@ int assemble_feature_ef(uint8_t *buf, int maxlen, struct sixaxis_state *state)
     return len;
 }
 
-char bdaddr_src[18];
-
 /* Unknown */
 int assemble_feature_f2(uint8_t *buf, int maxlen, struct sixaxis_state *state)
 {
@@ -193,7 +191,7 @@ int assemble_feature_f2(uint8_t *buf, int maxlen, struct sixaxis_state *state)
         0x09
     };
 #ifndef WIN32 //remove compilation warnings
-    sscanf(bdaddr_src, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", data+3, data+4, data+5, data+6, data+7, data+8);
+    sscanf(state->bdaddr_src, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", data+3, data+4, data+5, data+6, data+7, data+8);
 #endif
     int len = sizeof(data);
     if (len > maxlen) return -1;
