@@ -111,12 +111,12 @@ int l2cap_connect(const char *bdaddr_src, const char *bdaddr_dest, int psm)
         return -4;
     }
 
-    int f = BT_FLUSHABLE_ON;
+    /*int f = BT_FLUSHABLE_ON;
     if (setsockopt(fd, SOL_BLUETOOTH, BT_FLUSHABLE, &f, sizeof(f)) < 0)
     {
       close(fd);
       return -5;
-    }
+    }*/
 
     return fd;
 }
