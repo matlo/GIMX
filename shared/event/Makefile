@@ -2,7 +2,7 @@ include ../../Makedefs
 
 OBJ=src/linux/events.o src/linux/conversion.o src/linux/timer.o src/GE.o
 LIB=
-INC=-I/usr/include/ -Iinclude
+INC=-I/usr/include/ -Iinclude -Isrc
 
 all: $(OBJ)
 	ar rcsD GE.a.new $(OBJ)

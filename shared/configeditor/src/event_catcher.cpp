@@ -6,7 +6,6 @@
 #include "event_catcher.h"
 #include <unistd.h>
 #include <sstream>
-#include <timer.h>
 #include <GE.h>
 #include <stdlib.h>
 

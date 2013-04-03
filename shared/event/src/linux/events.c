@@ -684,29 +684,29 @@ void ev_pump_events(void)
                   }
                   else if(ie[j].type == EV_REL)
                   {
-                    if(ie[j].code == 0)
+                    if(ie[j].code == REL_X)
                     {
                       evt.type = GE_MOUSEMOTION;
                       evt.motion.which = device_id[i][1];
                       evt.motion.xrel = ie[j].value;
                     }
-                    else if(ie[j].code == 1)
+                    else if(ie[j].code == REL_Y)
                     {
                       evt.type = GE_MOUSEMOTION;
                       evt.motion.which = device_id[i][1];
                       evt.motion.yrel = ie[j].value;
                     }
-                    else if(ie[j].code == 8)
+                    else if(ie[j].code == REL_WHEEL)
                     {
                       evt.type = GE_MOUSEBUTTONDOWN;
                       evt.button.which = device_id[i][1];
-                      evt.button.button = (ie[j].value > 0) ? 8 : 9;
+                      evt.button.button = (ie[j].value > 0) ? GE_BTN_WHEELUP : GE_BTN_WHEELDOWN;
                     }
-                    else if(ie[j].code == 6)
+                    else if(ie[j].code == REL_HWHEEL)
                     {
                       evt.type = GE_MOUSEBUTTONDOWN;
                       evt.button.which = device_id[i][1];
-                      evt.button.button = (ie[j].value > 0) ? 10 : 11;
+                      evt.button.button = (ie[j].value > 0) ? GE_BTN_WHEELRIGHT : GE_BTN_WHEELLEFT;
                     }
                   }
                 }
@@ -723,7 +723,7 @@ void ev_pump_events(void)
                     event_callback(&evt);
                     if(evt.type == GE_MOUSEBUTTONDOWN)
                     {
-                      if(evt.button.button >= 8 && evt.button.button <= 11)
+                      if(ie[j].code == REL_WHEEL || ie[j].code == REL_HWHEEL)
                       {
                         evt.type = GE_MOUSEBUTTONUP;
                         event_callback(&evt);
