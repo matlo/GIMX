@@ -13,7 +13,6 @@
 #include <math.h>
 #include "emuclient.h"
 #include <GE.h>
-#include "events.h"
 #include "../directories.h"
 
 #ifdef WIN32

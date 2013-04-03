@@ -14,8 +14,6 @@
 #include "config_writter.h"
 #include "emuclient.h"
 #include "display.h"
-
-#include "events.h"
 #include "mainloop.h"
 
 #define DEFAULT_MULTIPLIER_STEP 0.01
@@ -276,31 +274,31 @@ void cal_key(int device_id, int sym, int down)
 
   switch (sym)
   {
-    case KEY_LEFTCTRL:
+    case GE_KEY_LEFTCTRL:
       lctrl = down ? 1 : 0;
       break;
-    case KEY_RIGHTCTRL:
+    case GE_KEY_RIGHTCTRL:
       rctrl = down ? 1 : 0;
       break;
 
-    case KEY_LEFTSHIFT:
+    case GE_KEY_LEFTSHIFT:
       lshift = down ? 1 : 0;
       break;
-    case KEY_RIGHTSHIFT:
+    case GE_KEY_RIGHTSHIFT:
       rshift = down ? 1 : 0;
       break;
 
-    case KEY_LEFTALT:
+    case GE_KEY_LEFTALT:
       lalt = down ? 1 : 0;
       break;
-    case KEY_RIGHTALT:
+    case GE_KEY_RIGHTALT:
       ralt = down ? 1 : 0;
       break;
   }
 
   switch (sym)
   {
-    case KEY_ESC:
+    case GE_KEY_ESC:
       if(current_cal != NONE)
       {
         current_cal = NONE;
@@ -310,7 +308,7 @@ void cal_key(int device_id, int sym, int down)
         set_done();
       }
       break;
-    case KEY_F1:
+    case GE_KEY_F1:
       if (down)
       {
         if(rctrl || lctrl)
@@ -348,28 +346,28 @@ void cal_key(int device_id, int sym, int down)
         }
       }
       break;
-    case KEY_F2:
+    case GE_KEY_F2:
       if (down && current_cal != NONE)
       {
         current_cal = CC;
         gprintf(_("config selection\n"));
       }
       break;
-    case KEY_F9:
+    case GE_KEY_F9:
       if (down && current_cal != NONE)
       {
         gprintf(_("calibrating sensitivity\n"));
         current_cal = MX;
       }
       break;
-    case KEY_F12:
+    case GE_KEY_F12:
       if (down && current_cal != NONE)
       {
         gprintf(_("calibrating x/y ratio\n"));
         current_cal = MY;
       }
       break;
-    case KEY_F3:
+    case GE_KEY_F3:
       if (down && current_cal != NONE)
       {
         gprintf(_("calibrating dead zone x\n"));
@@ -379,7 +377,7 @@ void cal_key(int device_id, int sym, int down)
         mc->change = 1;
       }
       break;
-    case KEY_F4:
+    case GE_KEY_F4:
       if (down && current_cal != NONE)
       {
         gprintf(_("calibrating dead zone y\n"));
@@ -389,7 +387,7 @@ void cal_key(int device_id, int sym, int down)
         mc->change = 1;
       }
       break;
-    case KEY_F5:
+    case GE_KEY_F5:
       if (down && current_cal != NONE)
       {
         gprintf(_("calibrating dead zone shape\n"));
@@ -399,21 +397,21 @@ void cal_key(int device_id, int sym, int down)
         mc->change = 1;
       }
       break;
-    case KEY_F7:
+    case GE_KEY_F7:
       if (down && current_cal != NONE)
       {
         gprintf(_("calibrating acceleration x\n"));
         current_cal = EX;
       }
       break;
-    case KEY_F8:
+    case GE_KEY_F8:
       if (down && current_cal != NONE)
       {
         gprintf(_("calibrating acceleration y\n"));
         current_cal = EY;
       }
       break;
-    case KEY_F10:
+    case GE_KEY_F10:
       if (down && current_cal != NONE)
       {
         if(current_cal != RD && current_cal != VEL)
@@ -424,7 +422,7 @@ void cal_key(int device_id, int sym, int down)
         current_cal = RD;
       }
       break;
-    case KEY_F11:
+    case GE_KEY_F11:
       if (down && current_cal != NONE)
       {
         if(current_cal != RD && current_cal != VEL)
@@ -435,7 +433,7 @@ void cal_key(int device_id, int sym, int down)
         current_cal = VEL;
       }
       break;
-    case KEY_F6:
+    case GE_KEY_F6:
       if (down && current_cal != NONE)
       {
         if(current_cal != TEST)
@@ -498,7 +496,7 @@ void cal_button(int which, int button)
 
   switch (button)
   {
-    case 8:
+    case GE_BTN_WHEELUP:
       switch (current_cal)
       {
         case MC:
@@ -609,7 +607,7 @@ void cal_button(int which, int button)
         }
       }
       break;
-    case 9:
+    case GE_BTN_WHEELDOWN:
       switch (current_cal)
       {
         case MC:
