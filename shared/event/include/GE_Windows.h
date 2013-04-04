@@ -13,13 +13,64 @@
 #define GE_BTN_WHEELUP     4
 #define GE_BTN_WHEELDOWN   5
 
+#define GE_KEY_ESC  SDLK_ESCAPE
+#define GE_KEY_1  SDLK_1
+#define GE_KEY_2  SDLK_2
+#define GE_KEY_3  SDLK_3
+#define GE_KEY_4  SDLK_4
+#define GE_KEY_5  SDLK_5
+#define GE_KEY_6  SDLK_6
+#define GE_KEY_7  SDLK_7
+#define GE_KEY_8  SDLK_8
+#define GE_KEY_9  SDLK_9
+#define GE_KEY_0  SDLK_0
+#define GE_KEY_MINUS  SDLK_MINUS
+#define GE_KEY_EQUAL  SDLK_EQUALS
+#define GE_KEY_BACKSPACE  SDLK_BACKSPACE
+#define GE_KEY_TAB  SDLK_TAB
+#define GE_KEY_Q  SDLK_q
+#define GE_KEY_W  SDLK_w
+#define GE_KEY_E  SDLK_e
+#define GE_KEY_R  SDLK_r
+#define GE_KEY_T  SDLK_t
+#define GE_KEY_Y  SDLK_y
+#define GE_KEY_U  SDLK_u
+#define GE_KEY_I  SDLK_i
+#define GE_KEY_O  SDLK_o
+#define GE_KEY_P  SDLK_p
+#define GE_KEY_LEFTBRACE  SDLK_LEFTBRACKET
+#define GE_KEY_RIGHTBRACE   SDLK_RIGHTBRACKET
+#define GE_KEY_ENTER  SDLK_RETURN
 #define GE_KEY_LEFTCTRL   SDLK_LCTRL
-#define GE_KEY_RIGHTCTRL  SDLK_RCTRL
+#define GE_KEY_A  SDLK_a
+#define GE_KEY_S  SDLK_s
+#define GE_KEY_D  SDLK_d
+#define GE_KEY_F  SDLK_f
+#define GE_KEY_G  SDLK_g
+#define GE_KEY_H  SDLK_h
+#define GE_KEY_J  SDLK_j
+#define GE_KEY_K  SDLK_k
+#define GE_KEY_L  SDLK_l
+#define GE_KEY_SEMICOLON  SDLK_SEMICOLON
+#define GE_KEY_APOSTROPHE   SDLK_UNKNOWN //todo
+#define GE_KEY_GRAVE  SDLK_UNKNOWN //todo
 #define GE_KEY_LEFTSHIFT  SDLK_LSHIFT
-#define GE_KEY_RIGHTSHIFT SDLK_RSHIFT
-#define GE_KEY_LEFTALT    SDLK_LALT
-#define GE_KEY_RIGHTALT   SDLK_MODE
-#define GE_KEY_ESC        SDLK_ESCAPE
+#define GE_KEY_BACKSLASH  SDLK_BACKSLASH
+#define GE_KEY_Z  SDLK_z
+#define GE_KEY_X  SDLK_x
+#define GE_KEY_C  SDLK_c
+#define GE_KEY_V  SDLK_v
+#define GE_KEY_B  SDLK_b
+#define GE_KEY_N  SDLK_n
+#define GE_KEY_M  SDLK_m
+#define GE_KEY_COMMA  SDLK_COMMA
+#define GE_KEY_DOT  SDLK_PERIOD
+#define GE_KEY_SLASH  SDLK_SLASH
+#define GE_KEY_RIGHTSHIFT   SDLK_RSHIFT
+#define GE_KEY_KPASTERISK   SDLK_ASTERISK
+#define GE_KEY_LEFTALT  SDLK_LALT
+#define GE_KEY_SPACE  SDLK_SPACE
+#define GE_KEY_CAPSLOCK   SDLK_CAPSLOCK
 #define GE_KEY_F1         SDLK_F1
 #define GE_KEY_F2         SDLK_F2
 #define GE_KEY_F3         SDLK_F3
@@ -30,11 +81,194 @@
 #define GE_KEY_F8         SDLK_F8
 #define GE_KEY_F9         SDLK_F9
 #define GE_KEY_F10        SDLK_F10
+#define GE_KEY_NUMLOCK  SDLK_NUMLOCK
+#define GE_KEY_SCROLLLOCK   SDLK_SCROLLOCK
+#define GE_KEY_KP7  SDLK_KP7
+#define GE_KEY_KP8  SDLK_KP8
+#define GE_KEY_KP9  SDLK_KP9
+#define GE_KEY_KPMINUS  SDLK_KP_MINUS
+#define GE_KEY_KP4  SDLK_KP4
+#define GE_KEY_KP5  SDLK_KP5
+#define GE_KEY_KP6  SDLK_KP6
+#define GE_KEY_KPPLUS   SDLK_KP_PLUS
+#define GE_KEY_KP1  SDLK_KP1
+#define GE_KEY_KP2  SDLK_KP2
+#define GE_KEY_KP3  SDLK_KP3
+#define GE_KEY_KP0  SDLK_KP0
+#define GE_KEY_KPDOT  SDLK_KP_PERIOD
+
+#define GE_KEY_ZENKAKUHANKAKU   KEY_ZENKAKUHANKAKU //todo
+#define GE_KEY_102ND  KEY_102ND //todo
 #define GE_KEY_F11        SDLK_F11
 #define GE_KEY_F12        SDLK_F12
+#define GE_KEY_RO   KEY_RO //todo
+#define GE_KEY_KATAKANA   KEY_KATAKANA //todo
+#define GE_KEY_HIRAGANA   KEY_HIRAGANA //todo
+#define GE_KEY_HENKAN   KEY_HENKAN //todo
+#define GE_KEY_KATAKANAHIRAGANA   KEY_KATAKANAHIRAGANA //todo
+#define GE_KEY_MUHENKAN   KEY_MUHENKAN //todo
+#define GE_KEY_KPJPCOMMA  KEY_KPJPCOMMA //todo
+#define GE_KEY_KPENTER  SDLK_KP_ENTER
+#define GE_KEY_RIGHTCTRL  SDLK_RCTRL
+#define GE_KEY_KPSLASH  SDLK_KP_DIVIDE
+#define GE_KEY_SYSRQ  SDLK_SYSREQ
+#define GE_KEY_RIGHTALT   SDLK_RALT
+#define GE_KEY_LINEFEED   KEY_LINEFEED //todo
+#define GE_KEY_HOME   SDLK_HOME
+#define GE_KEY_UP   SDLK_UP
+#define GE_KEY_PAGEUP   SDLK_PAGEUP
+#define GE_KEY_LEFT   SDLK_LEFT
+#define GE_KEY_RIGHT  SDLK_RIGHT
+#define GE_KEY_END  SDLK_END
+#define GE_KEY_DOWN   SDLK_DOWN
+#define GE_KEY_PAGEDOWN   SDLK_PAGEDOWN
+#define GE_KEY_INSERT   SDLK_INSERT
+#define GE_KEY_DELETE   SDLK_DELETE
+#define GE_KEY_MACRO  KEY_MACRO //todo
+#define GE_KEY_MUTE   KEY_MUTE //todo
+#define GE_KEY_VOLUMEDOWN   KEY_VOLUMEDOWN //todo
+#define GE_KEY_VOLUMEUP   KEY_VOLUMEUP //todo
+#define GE_KEY_POWER  KEY_POWER //todo
+#define GE_KEY_KPEQUAL  KEY_KPEQUAL //todo
+#define GE_KEY_KPPLUSMINUS  KEY_KPPLUSMINUS //todo
+#define GE_KEY_PAUSE  SDLK_PAUSE
+#define GE_KEY_SCALE  KEY_SCALE //todo
 
-/*
- * todo: add all keys!
- */
+#define GE_KEY_KPCOMMA  KEY_KPCOMMA //todo
+#define GE_KEY_HANGEUL  KEY_HANGEUL //todo
+#define GE_KEY_HANGUEL  KEY_HANGEUL //todo
+#define GE_KEY_HANJA  KEY_HANJA //todo
+#define GE_KEY_YEN  KEY_YEN //todo
+#define GE_KEY_LEFTMETA   KEY_LEFTMETA //todo
+#define GE_KEY_RIGHTMETA  KEY_RIGHTMETA //todo
+#define GE_KEY_COMPOSE  KEY_COMPOSE //todo
+
+#define GE_KEY_STOP   KEY_STOP //todo
+#define GE_KEY_AGAIN  KEY_AGAIN //todo
+#define GE_KEY_PROPS  KEY_PROPS //todo
+#define GE_KEY_UNDO   SDLK_UNDO
+#define GE_KEY_FRONT  KEY_FRONT //todo
+#define GE_KEY_COPY   KEY_COPY //todo
+#define GE_KEY_OPEN   KEY_OPEN //todo
+#define GE_KEY_PASTE  KEY_PASTE //todo
+#define GE_KEY_FIND   KEY_FIND //todo
+#define GE_KEY_CUT  KEY_CUT //todo
+#define GE_KEY_HELP   SDLK_HELP
+#define GE_KEY_MENU   SDLK_MENU
+#define GE_KEY_CALC   KEY_CALC //todo
+#define GE_KEY_SETUP  KEY_SETUP //todo
+#define GE_KEY_SLEEP  KEY_SLEEP //todo
+#define GE_KEY_WAKEUP   KEY_WAKEUP //todo
+#define GE_KEY_FILE   KEY_FILE //todo
+#define GE_KEY_SENDFILE   KEY_SENDFILE //todo
+#define GE_KEY_DELETEFILE   KEY_DELETEFILE //todo
+#define GE_KEY_XFER   KEY_XFER //todo
+#define GE_KEY_PROG1  KEY_PROG1 //todo
+#define GE_KEY_PROG2  KEY_PROG2 //todo
+#define GE_KEY_WWW  KEY_WWW //todo
+#define GE_KEY_MSDOS  KEY_MSDOS //todo
+#define GE_KEY_COFFEE   KEY_COFFEE //todo
+#define GE_KEY_SCREENLOCK   KEY_COFFEE //todo
+#define GE_KEY_DIRECTION  KEY_DIRECTION //todo
+#define GE_KEY_CYCLEWINDOWS   KEY_CYCLEWINDOWS //todo
+#define GE_KEY_MAIL   KEY_MAIL //todo
+#define GE_KEY_BOOKMARKS  KEY_BOOKMARKS //todo
+#define GE_KEY_COMPUTER   KEY_COMPUTER //todo
+#define GE_KEY_BACK   KEY_BACK //todo
+#define GE_KEY_FORWARD  KEY_FORWARD //todo
+#define GE_KEY_CLOSECD  KEY_CLOSECD //todo
+#define GE_KEY_EJECTCD  KEY_EJECTCD //todo
+#define GE_KEY_EJECTCLOSECD   KEY_EJECTCLOSECD //todo
+#define GE_KEY_NEXTSONG   KEY_NEXTSONG //todo
+#define GE_KEY_PLAYPAUSE  KEY_PLAYPAUSE //todo
+#define GE_KEY_PREVIOUSSONG   KEY_PREVIOUSSONG //todo
+#define GE_KEY_STOPCD   KEY_STOPCD //todo
+#define GE_KEY_RECORD   KEY_RECORD //todo
+#define GE_KEY_REWIND   KEY_REWIND //todo
+#define GE_KEY_PHONE  KEY_PHONE //todo
+#define GE_KEY_ISO  KEY_ISO //todo
+#define GE_KEY_CONFIG   KEY_CONFIG //todo
+#define GE_KEY_HOMEPAGE   KEY_HOMEPAGE //todo
+#define GE_KEY_REFRESH  KEY_REFRESH //todo
+#define GE_KEY_EXIT   KEY_EXIT //todo
+#define GE_KEY_MOVE   KEY_MOVE //todo
+#define GE_KEY_EDIT   KEY_EDIT //todo
+#define GE_KEY_SCROLLUP   KEY_SCROLLUP //todo
+#define GE_KEY_SCROLLDOWN   KEY_SCROLLDOWN //todo
+#define GE_KEY_KPLEFTPAREN  KEY_KPLEFTPAREN //todo
+#define GE_KEY_KPRIGHTPAREN   KEY_KPRIGHTPAREN //todo
+#define GE_KEY_NEW  KEY_NEW //todo
+#define GE_KEY_REDO   KEY_REDO //todo
+
+#define GE_KEY_F13  SDLK_F13
+#define GE_KEY_F14  SDLK_F14
+#define GE_KEY_F15  SDLK_F15
+#define GE_KEY_F16  SDLK_F16
+#define GE_KEY_F17  SDLK_F17
+#define GE_KEY_F18  SDLK_F18
+#define GE_KEY_F19  SDLK_F19
+#define GE_KEY_F20  SDLK_F20
+#define GE_KEY_F21  SDLK_F21
+#define GE_KEY_F22  SDLK_F22
+#define GE_KEY_F23  SDLK_F23
+#define GE_KEY_F24  SDLK_F24
+
+#define GE_KEY_PLAYCD   KEY_PLAYCD //todo
+#define GE_KEY_PAUSECD  KEY_PAUSECD //todo
+#define GE_KEY_PROG3  KEY_PROG3 //todo
+#define GE_KEY_PROG4  KEY_PROG4 //todo
+#define GE_KEY_DASHBOARD  KEY_DASHBOARD //todo
+#define GE_KEY_SUSPEND  KEY_SUSPEND //todo
+#define GE_KEY_CLOSE  KEY_CLOSE //todo
+#define GE_KEY_PLAY   KEY_PLAY //todo
+#define GE_KEY_FASTFORWARD  KEY_FASTFORWARD //todo
+#define GE_KEY_BASSBOOST  KEY_BASSBOOST //todo
+#define GE_KEY_PRINT  SDLK_PRINT
+#define GE_KEY_HP   KEY_HP //todo
+#define GE_KEY_CAMERA   KEY_CAMERA //todo
+#define GE_KEY_SOUND  KEY_SOUND //todo
+#define GE_KEY_QUESTION   KEY_QUESTION //todo
+#define GE_KEY_EMAIL  KEY_EMAIL //todo
+#define GE_KEY_CHAT   KEY_CHAT //todo
+#define GE_KEY_SEARCH   KEY_SEARCH //todo
+#define GE_KEY_CONNECT  KEY_CONNECT //todo
+#define GE_KEY_FINANCE  KEY_FINANCE //todo
+#define GE_KEY_SPORT  KEY_SPORT //todo
+#define GE_KEY_SHOP   KEY_SHOP //todo
+#define GE_KEY_ALTERASE   KEY_ALTERASE //todo
+#define GE_KEY_CANCEL   KEY_CANCEL //todo
+#define GE_KEY_BRIGHTNESSDOWN   KEY_BRIGHTNESSDOWN //todo
+#define GE_KEY_BRIGHTNESSUP   KEY_BRIGHTNESSUP //todo
+#define GE_KEY_MEDIA  KEY_MEDIA //todo
+
+#define GE_KEY_SWITCHVIDEOMODE  KEY_SWITCHVIDEOMODE //todo
+#define GE_KEY_KBDILLUMTOGGLE   KEY_KBDILLUMTOGGLE //todo
+#define GE_KEY_KBDILLUMDOWN   KEY_KBDILLUMDOWN //todo
+#define GE_KEY_KBDILLUMUP   KEY_KBDILLUMUP //todo
+
+#define GE_KEY_SEND   KEY_SEND //todo
+#define GE_KEY_REPLY  KEY_REPLY //todo
+#define GE_KEY_FORWARDMAIL  KEY_FORWARDMAIL //todo
+#define GE_KEY_SAVE   KEY_SAVE //todo
+#define GE_KEY_DOCUMENTS  KEY_DOCUMENTS //todo
+
+#define GE_KEY_BATTERY  KEY_BATTERY //todo
+
+#define GE_KEY_BLUETOOTH  KEY_BLUETOOTH //todo
+#define GE_KEY_WLAN   KEY_WLAN //todo
+#define GE_KEY_UWB  KEY_UWB //todo
+
+#define GE_KEY_UNKNOWN  SDLK_UNKNOWN
+
+#define GE_KEY_VIDEO_NEXT   KEY_VIDEO_NEXT //todo
+#define GE_KEY_VIDEO_PREV   KEY_VIDEO_PREV //todo
+#define GE_KEY_BRIGHTNESS_CYCLE   KEY_BRIGHTNESS_CYCLE //todo
+#define GE_KEY_BRIGHTNESS_ZERO  KEY_BRIGHTNESS_ZERO //todo
+#define GE_KEY_DISPLAY_OFF  KEY_DISPLAY_OFF //todo
+
+#define GE_KEY_WIMAX  KEY_WIMAX //todo
+#define GE_KEY_RFKILL   KEY_RFKILL //todo
+
+#define GE_KEY_MICMUTE  KEY_MICMUTE //todo
 
 #endif /* GE_WINDOWS_H_ */
