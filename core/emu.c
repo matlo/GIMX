@@ -237,7 +237,7 @@ int process(int psm, const unsigned char *buf, int len,
               printf("write error");
             }
 
-            if(report == 0xf4)
+            /*if(report == 0xf4)
             {
               bdaddr_t dest_addr;
               str2ba(state->bdaddr_dst, &dest_addr);
@@ -245,7 +245,7 @@ int process(int psm, const unsigned char *buf, int len,
               {
                 printf("can't set flush timeout for %s\n", state->bdaddr_dst);
               }
-            }
+            }*/
         }
         break;
 
@@ -560,6 +560,13 @@ int main(int argc, char *argv[])
                     close(tcps);
                     tcps = -1;
                 }
+                
+                bdaddr_t dest_addr;
+                str2ba(state.bdaddr_dst, &dest_addr);
+                if(l2cap_set_flush_timeout(&dest_addr, FLUSH_TIMEOUT) < 0)
+                {
+                  printf("can't set flush timeout for %s\n", state.bdaddr_dst);
+                }
             }
         }
 
@@ -604,7 +611,7 @@ int main(int argc, char *argv[])
     if (tcps > 0)
         close(tcps);
     if (tcpc > 0)
-        close(tcps);
+        close(tcpc);
 
     return 0;
 }
