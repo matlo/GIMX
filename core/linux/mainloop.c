@@ -6,9 +6,7 @@
 #include <GE.h>
 #include "emuclient.h"
 #include "calibration.h"
-#include "serial_con.h"
-#include "gpp_con.h"
-#include "tcp_con.h"
+#include "connector.h"
 #include "macros.h"
 #include "display.h"
 #include <stdio.h>
@@ -25,7 +23,6 @@ void mainloop()
   GE_Event events[EVENT_BUFFER_SIZE];
   int num_evt;
   GE_Event* event;
-  int ret;
   struct timespec period = {.tv_sec = 0, .tv_nsec = emuclient_params.refresh_rate*1000};
     
   GE_TimerStart(&period);
@@ -43,20 +40,7 @@ void mainloop()
 
     cfg_config_activation();
 
-    switch(emuclient_params.ctype)
-    {
-      case C_TYPE_DEFAULT:
-        ret = tcp_send(emuclient_params.force_updates);
-        break;
-      case C_TYPE_GPP:
-        ret = gpp_send(emuclient_params.force_updates);
-        break;
-      default:
-        ret = serial_con_send(emuclient_params.ctype, emuclient_params.force_updates);
-        break;
-    }
-
-    if(ret < 0)
+    if(connector_send() < 0)
     {
       done = 1;
     }

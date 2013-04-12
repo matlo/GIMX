@@ -6,9 +6,7 @@
 #include <GE.h>
 #include "emuclient.h"
 #include "calibration.h"
-#include "serial_con.h"
-#include "gpp_con.h"
-#include "tcp_con.h"
+#include "connector.h"
 #include "macros.h"
 #include "display.h"
 #include <windows.h>
@@ -29,7 +27,6 @@ void mainloop()
   LARGE_INTEGER t0, t1, freq;
   int time_to_sleep;
   int ptl;
-  int ret;
   
   QueryPerformanceFrequency(&freq);
 
@@ -64,20 +61,7 @@ void mainloop()
 
     cfg_config_activation();
 
-    switch(emuclient_params.ctype)
-    {
-      case C_TYPE_DEFAULT:
-        ret = tcp_send(emuclient_params.force_updates);
-        break;
-      case C_TYPE_GPP:
-        ret = gpp_send(emuclient_params.force_updates);
-        break;
-      default:
-        ret = serial_con_send(emuclient_params.ctype, emuclient_params.force_updates);
-        break;
-    }
-
-    if(ret < 0)
+    if(connector_send() < 0)
     {
       done = 1;
     }

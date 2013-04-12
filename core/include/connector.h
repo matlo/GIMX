@@ -8,10 +8,9 @@
 #ifndef CONNECTOR_H_
 #define CONNECTOR_H_
 
-#include "emuclient.h"
-
-int connector_init(e_controller_type t, char* port);
+int connector_init();
 void connector_clean();
+int connector_send();
 
 
 #endif /* CONNECTOR_H_ */
