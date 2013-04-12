@@ -418,14 +418,14 @@ void get_trigger(const char* line)
       }
       else if(!strncmp(argument[1], "MBUTTONDOWN", strlen ("MBUTTONDOWN")))
       {
-        if((rbutton = GE_MouseButtonId(argument[2])))
+        if((rbutton = GE_MouseButtonId(argument[2])) >= 0)
         {
           etype = GE_MOUSEBUTTONDOWN;
         }
       }
       else if(!strncmp(argument[1], "MBUTTONUP", strlen("MBUTTONUP")))
       {
-        if((rbutton = GE_MouseButtonId(argument[2])))
+        if((rbutton = GE_MouseButtonId(argument[2])) >= 0)
         {
           etype = GE_MOUSEBUTTONUP;
         }
