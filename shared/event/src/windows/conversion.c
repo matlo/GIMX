@@ -335,9 +335,9 @@ const char* get_chars_from_button(int but)
   return NULL;
 }
 
-unsigned int get_mouse_event_id_from_buffer(const char* event_id)
+int get_mouse_event_id_from_buffer(const char* event_id)
 {
-  unsigned int r_event_id = 0;
+  unsigned int r_event_id = -1;
   int i;
 
   if (!strncmp(event_id, MOUSE_AXIS_X, sizeof(MOUSE_AXIS_X)))

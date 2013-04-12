@@ -159,14 +159,14 @@ static s_macro_event** get_macro(const char* line)
       }
       else if(!strncmp(argument[1], "MBUTTONDOWN", strlen ("MBUTTONDOWN")))
       {
-        if((rbutton = GE_MouseButtonId(argument[2])))
+        if((rbutton = GE_MouseButtonId(argument[2])) >= 0)
         {
           etype = GE_MOUSEBUTTONDOWN;
         }
       }
       else if(!strncmp(argument[1], "MBUTTONUP", strlen("MBUTTONUP")))
       {
-        if((rbutton = GE_MouseButtonId(argument[2])))
+        if((rbutton = GE_MouseButtonId(argument[2])) >= 0)
         {
           etype = GE_MOUSEBUTTONUP;
         }
@@ -245,7 +245,7 @@ static void get_event(const char* line)
   int delay_nb;
   int i;
   
-  if(pcurrent && !*pcurrent)
+  if(!pcurrent || !*pcurrent)
   {
     return;
   }
@@ -491,13 +491,38 @@ void process_line(const char* line)
     {
       pcurrent = pt;
     }
-    else
+    else if(pcurrent)
     {
       get_trigger(line);
       get_event(line);
     }
 
     return;
+}
+
+void dump_event(GE_Event* event)
+{
+  switch(event->type)
+  {
+    case GE_KEYDOWN:
+      printf("KEYDOWN %s\n", GE_KeyName(event->key.keysym));
+      break;
+    case GE_KEYUP:
+      printf("KEYUP %s\n", GE_KeyName(event->key.keysym));
+      break;
+    case GE_MOUSEBUTTONDOWN:
+      printf("MBUTTONDOWN %s\n", GE_MouseButtonName(event->button.button));
+      break;
+    case GE_MOUSEBUTTONUP:
+      printf("MBUTTONUP %s\n", GE_MouseButtonName(event->button.button));
+      break;
+    case GE_JOYBUTTONDOWN:
+      printf("JBUTTONDOWN %d\n", event->jbutton.button);
+      break;
+    case GE_JOYBUTTONUP:
+      printf("JBUTTONUP %d\n", event->jbutton.button);
+      break;
+  }
 }
 
 /*
@@ -511,43 +536,28 @@ void dump_scripts() {
     for (p_table = macro_table; p_table < macro_table + macro_table_nb; p_table++) {
         if (*p_table) {
             delay_nb = 0;
-            for (p_element = *p_table; p_element && p_element < *p_table + (*p_table)->size; p_element++) {
-                if(p_element == *p_table && p_element->event.type)
-                {
-                  printf("%d TRIGGER ", p_element->active);
-                }
-                else if(p_element == *p_table+1)
+            for (p_element = *p_table+1; p_element && p_element < *p_table + (*p_table)->size; p_element++) {
+                if(p_element == *p_table+1)
                 {
                   printf("MACRO ");
+                  dump_event(&p_element->event);
+                  if((*p_table)->event.type)
+                  {
+                    printf("TRIGGER ");
+                    dump_event(&(*p_table)->event);
+                  }
                 }
-                if (!p_element->event.type) {
-                    delay_nb++;
-                }
-                else if(delay_nb)
+                else
                 {
-                    printf("DELAY %d\n", delay_nb*(emuclient_params.refresh_rate/1000));
-                    delay_nb = 0;
-                }
-                switch(p_element->event.type)
-                {
-                  case GE_KEYDOWN:
-                    printf("KEYDOWN %s\n", GE_KeyName(p_element->event.key.keysym));
-                    break;
-                  case GE_KEYUP:
-                    printf("KEYUP %s\n", GE_KeyName(p_element->event.key.keysym));
-                    break;
-                  case GE_MOUSEBUTTONDOWN:
-                    printf("MBUTTONDOWN %s\n", GE_MouseButtonName(p_element->event.button.button));
-                    break;
-                  case GE_MOUSEBUTTONUP:
-                    printf("MBUTTONUP %s\n", GE_MouseButtonName(p_element->event.button.button));
-                    break;
-                  case GE_JOYBUTTONDOWN:
-                    printf("JBUTTONDOWN %d\n", p_element->event.jbutton.button);
-                    break;
-                  case GE_JOYBUTTONUP:
-                    printf("JBUTTONUP %d\n", p_element->event.jbutton.button);
-                    break;
+                  if (!p_element->event.type) {
+                      delay_nb++;
+                  }
+                  else if(delay_nb)
+                  {
+                      printf("DELAY %d\n", delay_nb*(emuclient_params.refresh_rate/1000));
+                      delay_nb = 0;
+                  }
+                  dump_event(&p_element->event);
                 }
             }
             printf("\n");
