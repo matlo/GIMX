@@ -512,6 +512,10 @@ int main(int argc, char *argv[])
                     fprintf(stderr, "error processing ctrl");
                     break;
                 }
+                else if(state.sys.shutdown)
+                {
+                  running = 0;
+                }
         }
 #ifndef WIN32
         if (pfd[1].revents & POLLIN)

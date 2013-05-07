@@ -43,6 +43,7 @@ enum led_state_t { LED_OFF = 0, LED_FLASH, LED_ON };
 struct sixaxis_state_sys {
     /*** Values provided by the system (PS3): */
     int reporting_enabled;
+    int shutdown;
     int feature_ef_byte_6;
 
     /* led[0] is the spare */
