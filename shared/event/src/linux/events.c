@@ -111,19 +111,22 @@ int ev_peep_events(GE_Event *events, int numevents)
 
 void ev_grab_input(int mode)
 {
+  int one = 1;
+  int* enable;
   int i;
+  if(mode == GE_GRAB_OFF)
+  {
+    enable = NULL;
+  }
+  else
+  {
+    enable = &one;
+  }
   for(i=0; i<MAX_DEVICES; ++i)
   {
     if(device_fd[i] > -1)
     {
-      if(mode == GE_GRAB_OFF)
-      {
-        ioctl(device_fd[i], EVIOCGRAB, (void *)0);
-      }
-      else
-      {
-        ioctl(device_fd[i], EVIOCGRAB, (void *)1);
-      }
+      ioctl(device_fd[i], EVIOCGRAB, enable);
     }
   }
 }
