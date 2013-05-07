@@ -507,6 +507,7 @@ int main(int argc, char *argv[])
         {
             len = l2cap_recv(ctrl, buf, 1024);
             if (len > 0)
+            {
                 if (process(CTRL, buf, len,
                         ctrl, data, &state) == -1) {
                     fprintf(stderr, "error processing ctrl");
@@ -516,6 +517,7 @@ int main(int argc, char *argv[])
                 {
                   running = 0;
                 }
+            }
         }
 #ifndef WIN32
         if (pfd[1].revents & POLLIN)
