@@ -1,11 +1,5 @@
-
-have_upper_makedefs := $(wildcard ../../Makedefs)
- 
-ifeq ($(strip $(have_upper_makedefs)),)
 include Makedefs
-else
-include ../../Makedefs
-endif
+-include ../../Makedefs
 
 OBJ=src/linux/events.o src/linux/conversion.o src/linux/timer.o src/GE.o
 LIB=

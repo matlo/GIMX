@@ -1,4 +1,5 @@
-include ../../../Makedefs
+include ../Makedefs
+-include ../../../Makedefs
 
 BINS=linux_test
 OBJ=linux_test.o common.o
