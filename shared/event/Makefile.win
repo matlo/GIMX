@@ -1,4 +1,11 @@
+
+have_upper_makedefs := $(wildcard ../../Makedefs)
+ 
+ifeq ($(strip $(have_upper_makedefs)),)
+include Makedefs
+else
 include ../../Makedefs
+endif
 
 OBJ=src/windows/events.o src/windows/conversion.o src/GE.o
 LIB=
