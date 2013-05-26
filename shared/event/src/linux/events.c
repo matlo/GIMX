@@ -111,14 +111,10 @@ int ev_peep_events(GE_Event *events, int numevents)
 
 void ev_grab_input(int mode)
 {
-  int one = 1;
-  int* enable;
   int i;
-  if(mode == GE_GRAB_OFF)
-  {
-    enable = NULL;
-  }
-  else
+  int one = 1;
+  int* enable = NULL;
+  if(mode == GE_GRAB_ON)
   {
     enable = &one;
   }
