@@ -46,7 +46,7 @@ int process_event(GE_Event* event)
   {
     case GE_KEYDOWN:
       printf("Keyboard: %s - key down: %s\n", GE_KeyboardName(event->key.which), GE_KeyName(event->key.keysym));
-      if(event->key.keysym == KEY_ESC)
+      if(event->key.keysym == GE_KEY_ESC)
       {
         done = 1;
       }
