@@ -7,9 +7,6 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#define PERIOD_SEC      0
-#define PERIOD_NSEC     emuclient_params.refresh_rate*1000 // 4ms
-
 int tfd = -1;
 
 int timer_getfd()
