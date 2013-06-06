@@ -1,23 +1,39 @@
 include ../Makedefs
 
+ifneq ($(OS),Windows_NT)
 prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
+endif
 
 INC = -I../shared/configeditor/include
 CFLAGS += `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
 LIBDIR =
-LIB = ../shared/configeditor/configeditor.a ../shared/event/GE.a -lxml2 `wx-config --libs`
+LIB = ../shared/configeditor/configeditor.a ../shared/event/GE.a `wx-config --libs`
+ifneq ($(OS),Windows_NT)
+LIB = -lxml2
+else
+LIB = -lSDL -llibxml2 -lintl -liconv
+endif
 
 DEP = ../shared/configeditor/configeditor.a ../shared/event/GE.a ../shared/updater/updater.o
 OBJ = configMain.o configApp.o
+ifneq ($(OS),Windows_NT)
 OUT = gimx-config
-
 BINS = $(OUT)
+else
+OBJ += config.rc.o
+OUT = gimx-config.exe
+endif
 
 all: $(OUT)
 
 $(OUT): $(OBJ) $(DEP)
 	$(LD) $(LDFLAGS) $(LIBDIR) -o $(OUT) $(OBJ) ../shared/updater/updater.o $(LIB)
+
+ifeq ($(OS),Windows_NT)
+config.rc.o: config.rc
+	WINDRES $^ -o $@
+endif
 
 %.o: %.cpp
 	$(CPP) $(CFLAGS) $(INC) -c -o $@ $<
@@ -27,6 +43,7 @@ clean:
 
 .PHONY: clean
 
+ifneq ($(OS),Windows_NT)
 install: all
 	mkdir -p $(prefix)
 	mkdir -p $(bindir)
@@ -44,3 +61,4 @@ uninstall:
 	-rm $(prefix)/share/pixmaps/gimx-config.png
 
 really-clean: clean uninstall
+endif
