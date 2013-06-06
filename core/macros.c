@@ -240,8 +240,10 @@ static s_macro_event** get_macro(const char* line)
  */
 static void get_event(const char* line)
 {
-  char argument[2][LINE_MAX];
+  char argument[3][LINE_MAX];
   int rbutton;
+  int raxis;
+  int rvalue;
   int delay_nb;
   int i;
   
@@ -250,7 +252,7 @@ static void get_event(const char* line)
     return;
   }
   
-  int ret = sscanf(line, "%s %s", argument[0], argument[1]);
+  int ret = sscanf(line, "%s %s %s", argument[0], argument[1], argument[2]);
   
   if(ret < 2) {
     /* invalid line */
@@ -376,6 +378,46 @@ static void get_event(const char* line)
     for(i=0; i<delay_nb; ++i)
     {
       allocate_element(pcurrent);
+    }
+  }
+  else if (!strncmp(argument[0], "JAXIS", strlen("JAXIS")))
+  {
+    if(ret < 3)
+    {
+      /* invalid line */
+      return;
+    }
+
+    raxis = atoi(argument[1]);
+    rvalue = atoi(argument[2]);
+
+    allocate_element(pcurrent);
+
+    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_JOYAXISMOTION;
+    (*pcurrent)[(*pcurrent)->size - 1].event.jaxis.axis = raxis;
+    (*pcurrent)[(*pcurrent)->size - 1].event.jaxis.value = rvalue;
+  }
+  else if (!strncmp(argument[0], "MAXIS", strlen("MAXIS")))
+  {
+    if(ret < 3)
+    {
+      /* invalid line */
+      return;
+    }
+
+    raxis = atoi(argument[1]);
+    rvalue = atoi(argument[2]);
+
+    allocate_element(pcurrent);
+
+    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_MOUSEMOTION;
+    if(raxis == AXIS_X)
+    {
+      (*pcurrent)[(*pcurrent)->size - 1].event.motion.xrel = rvalue;
+    }
+    else if(raxis == AXIS_Y)
+    {
+      (*pcurrent)[(*pcurrent)->size - 1].event.motion.yrel = rvalue;
     }
   }
 }
@@ -516,11 +558,24 @@ void dump_event(GE_Event* event)
     case GE_MOUSEBUTTONUP:
       printf("MBUTTONUP %s\n", GE_MouseButtonName(event->button.button));
       break;
+    case GE_MOUSEMOTION:
+      if(event->motion.xrel)
+      {
+        printf("MAXIS 0 %d\n", event->motion.xrel);
+      }
+      else if(event->motion.yrel)
+      {
+        printf("MAXIS 1 %d\n", event->motion.yrel);
+      }
+      break;
     case GE_JOYBUTTONDOWN:
       printf("JBUTTONDOWN %d\n", event->jbutton.button);
       break;
     case GE_JOYBUTTONUP:
       printf("JBUTTONUP %d\n", event->jbutton.button);
+      break;
+    case GE_JOYAXISMOTION:
+      printf("JAXIS %d %d\n", event->jaxis.axis, event->jaxis.value);
       break;
   }
 }
@@ -876,10 +931,12 @@ int get_event_device_type(GE_Event* ev)
     break;
     case GE_MOUSEBUTTONDOWN:
     case GE_MOUSEBUTTONUP:
+    case GE_MOUSEMOTION:
       return E_DEVICE_TYPE_MOUSE;
     break;
     case GE_JOYBUTTONDOWN:
     case GE_JOYBUTTONUP:
+    case GE_JOYAXISMOTION:
       return E_DEVICE_TYPE_JOYSTICK;
     break;
   }
