@@ -10,9 +10,9 @@ CFLAGS += `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
 LIBDIR =
 LIB = ../shared/configeditor/configeditor.a ../shared/event/GE.a `wx-config --libs`
 ifneq ($(OS),Windows_NT)
-LIB = -lxml2
+LIB += -lxml2
 else
-LIB = -lSDL -llibxml2 -lintl -liconv
+LIB += -lSDL -llibxml2 -lintl -liconv
 endif
 
 DEP = ../shared/configeditor/configeditor.a ../shared/event/GE.a ../shared/updater/updater.o
