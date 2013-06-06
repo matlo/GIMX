@@ -1,7 +1,12 @@
 include Makedefs
 -include ../../Makedefs
 
-OBJ=src/linux/events.o src/linux/conversion.o src/linux/timer.o src/GE.o
+OBJ = src/GE.o
+ifneq ($(OS),Windows_NT)
+OBJ += src/linux/events.o src/linux/conversion.o src/linux/timer.o
+else
+OBJ += src/windows/events.o src/windows/conversion.o
+endif
 LIB=
 INC=-I/usr/include/ -Iinclude -Isrc
 
