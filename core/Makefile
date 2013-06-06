@@ -1,24 +1,35 @@
 include ../Makedefs
 
+ifneq ($(OS),Windows_NT)
 prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
-BINS=emu emuclient sixaddr bdaddr hcirevision usbspoof
-LIB=../shared/event/GE.a -lxml2 -lm -lncursesw
-INC=-Iinclude -I../shared/event/include -I/usr/include/libxml2
+endif
+
+BINS=emuclient
+ifneq ($(OS),Windows_NT)
+BINS+= emu sixaddr bdaddr hcirevision usbspoof
+OUT=$(BINS)
+else
+OUT=emuclient.exe
+endif
+LIB=../shared/event/GE.a
+ifneq ($(OS),Windows_NT)
+LIB+= -lxml2 -lm -lncursesw
+else
+LIB+= -lmingw32 -lSDLmain -lSDL -llibxml2 -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl
+endif
+INC=-Iinclude -I../shared/event/include
+ifneq ($(OS),Windows_NT)
+INC += -I/usr/include/libxml2
+endif
 DEP=../shared/event/GE.a
 
 all: $(BINS)
 
 clean:
-	rm -f $(BINS) *~ *.o */*.o
+	rm -f $(OUT) *~ *.o */*.o
 
-emu: emu.o sixaxis.o dump.o l2cap_con.o bt_utils.o linux/prio.o
-	$(CC) $(INC) -o $@ $^ -lbluetooth
-
-emu-serial: emu-serial.o sixaxis.o dump.o
-	$(CC) -o $@ $^
-
-emuclient:  $(DEP)\
+EMUCLIENT_OBJ = \
        emuclient.o\
        args.o\
        display.o\
@@ -34,12 +45,28 @@ emuclient:  $(DEP)\
        report.o\
        tcp_con.o\
        gpp/pcprog.o\
-       gpp_con.o\
+       gpp_con.o
+
+ifneq ($(OS),Windows_NT)
+EMUCLIENT_OBJ += \
        gpp/hid_LINUX.o\
        linux/prio.o\
        linux/serial.o\
        linux/mainloop.o
-	$(CC) -o $@ $^ $(LIB) -lrt
+else
+EMUCLIENT_OBJ += \
+       gpp/hid_WINDOWS.o\
+       windows/prio.o\
+       windows/serial.o\
+       windows/mainloop.o
+endif
+
+emuclient: $(DEP) $(EMUCLIENT_OBJ)
+	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LIB)
+
+ifneq ($(OS),Windows_NT)
+emu: emu.o sixaxis.o dump.o l2cap_con.o bt_utils.o linux/prio.o
+	$(CC) $(INC) -o $@ $^ -lbluetooth
 
 sixaddr: utils/sixaddr.c
 	$(CC) -o $@ $^ -lusb
@@ -52,10 +79,12 @@ bdaddr: utils/bdaddr.c utils/oui.c
 
 hcirevision: hcirevision.c
 	$(CC) -o $@ $^
+endif
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(INC) -o $@ -c $< 
 
+ifneq ($(OS),Windows_NT)
 install: all
 	mkdir -p $(prefix)
 	mkdir -p $(bindir)
@@ -68,3 +97,4 @@ uninstall:
 	-rmdir $(prefix)
 
 really-clean: clean uninstall
+endif
