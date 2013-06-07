@@ -1,9 +1,0 @@
-DIRS=updater configupdater configeditor
-
-all:
-	+cd event; make -f Makefile.win all; cd ..
-	+for i in $(DIRS); do cd $$i; make all; cd ..; done
-
-clean:
-	+cd event; make -f Makefile.win clean; cd ..
-	+for i in $(DIRS); do cd $$i; make clean; cd ..; done
