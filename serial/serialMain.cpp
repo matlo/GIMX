@@ -350,6 +350,7 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer12->Add(StaticText4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ControllerType = new wxChoice(Panel1, ID_CHOICE1, wxDefaultPosition, wxSize(100,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
     ControllerType->SetSelection( ControllerType->Append(_("Joystick")) );
+    ControllerType->Append(_("Sixaxis"));
     ControllerType->Append(_("GPP"));
     ControllerType->Append(_("PS2 pad"));
     FlexGridSizer12->Add(ControllerType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -470,7 +471,6 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
 
 #ifndef WIN32
     ControllerType->Append(_("360 pad"));
-    /*ControllerType->Append(_("Sixaxis"));*/
 #endif
 
     spoofed = false;

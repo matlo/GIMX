@@ -53,7 +53,7 @@ typedef union
   s_report_joystick js;
   s_report_ps2 ps2;
   s_report_360 x360;
-  unsigned char buf[50];
+  unsigned char sixaxis[49];
 } s_report;
 
 unsigned int report_build(s_report* report, e_controller_type type);

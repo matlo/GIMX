@@ -122,10 +122,10 @@ static unsigned int _360pad_report_build(s_report_360* report)
   return sizeof(*report);
 }
 
-static unsigned int sixaxis_report_build(unsigned char buf[50])
+static unsigned int sixaxis_report_build(unsigned char buf[49])
 {
   int i;
-  unsigned char tmp[50] =
+  unsigned char tmp[49] =
   {
       0x01,0x00,0x00,0x00,
       0x00, //0x01 = PS3 button
@@ -164,7 +164,7 @@ static unsigned int sixaxis_report_build(unsigned char buf[50])
   *(uint16_t *)&buf[45] = htons(clamp(0, state[0].user.axis[sa_acc_z] + 512, 1023));
   *(uint16_t *)&buf[47] = htons(clamp(0, state[0].user.axis[sa_gyro] + 512, 1023));
   
-  return sizeof(buf);
+  return sizeof(tmp);
 }
 
 static unsigned int joystick_report_build(s_report_joystick* report)
@@ -367,7 +367,7 @@ unsigned int report_build(s_report* report, e_controller_type type)
 		ret = _360pad_report_build(&report->x360);
 		break;
 	  case C_TYPE_SIXAXIS:
-		ret = sixaxis_report_build(report->buf);
+		ret = sixaxis_report_build(report->sixaxis);
 		break;
 	  case C_TYPE_PS2_PAD:
 		ret = ps2_report_build(&report->ps2);
