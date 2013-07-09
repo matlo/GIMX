@@ -21,6 +21,7 @@ typedef enum
   C_TYPE_SIXAXIS,
   C_TYPE_PS2_PAD,
   C_TYPE_GPP,
+  C_TYPE_XBOX_PAD,
   C_TYPE_DEFAULT
 } e_controller_type;
 

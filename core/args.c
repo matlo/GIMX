@@ -104,6 +104,10 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
         {
           params->ctype = C_TYPE_GPP;
         }
+        else if (!strcmp(optarg, "XboxPad"))
+        {
+          params->ctype = C_TYPE_XBOX_PAD;
+        }
         break;
 
       case '?':

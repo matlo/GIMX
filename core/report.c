@@ -122,6 +122,86 @@ static unsigned int _360pad_report_build(s_report_360* report)
   return sizeof(*report);
 }
 
+static unsigned int XboxPad_report_build(s_report_xbox* report)
+{
+  int axis_value;
+
+  report->type = 0x00;
+  report->size = 0x14;
+
+  report->buttons = 0x00;
+
+  if (state[0].user.axis[sa_up])
+  {
+    report->buttons |= 0x01;
+  }
+  if (state[0].user.axis[sa_down])
+  {
+    report->buttons |= 0x02;
+  }
+  if (state[0].user.axis[sa_left])
+  {
+    report->buttons |= 0x04;
+  }
+  if (state[0].user.axis[sa_right])
+  {
+    report->buttons |= 0x08;
+  }
+
+  if (state[0].user.axis[sa_start])
+  {
+    report->buttons |= 0x10;
+  }
+  if (state[0].user.axis[sa_select])
+  {
+    report->buttons |= 0x20;
+  }
+  if (state[0].user.axis[sa_l3])
+  {
+    report->buttons |= 0x40;
+  }
+  if (state[0].user.axis[sa_r3])
+  {
+    report->buttons |= 0x80;
+  }
+
+  report->ltrigger = state[0].user.axis[sa_l2];
+  report->rtrigger = state[0].user.axis[sa_r2];
+  report->btnA = state[0].user.axis[sa_cross];
+  report->btnB = state[0].user.axis[sa_circle];
+  report->btnX = state[0].user.axis[sa_square];
+  report->btnY = state[0].user.axis[sa_triangle];
+  report->btnWhite = state[0].user.axis[sa_l1];
+  report->btnBlack = state[0].user.axis[sa_r1];
+
+  axis_value = state[0].user.axis[sa_lstick_x];
+  report->xaxis = clamp(-128, axis_value, 127) << 8;
+  if(axis_value > 127)
+  {
+    report->xaxis |= 0xFF;
+  }
+  axis_value = - state[0].user.axis[sa_lstick_y];
+  report->yaxis = clamp(-128, axis_value, 127) << 8;
+  if(axis_value > 127)
+  {
+    report->yaxis |= 0xFF;
+  }
+  axis_value = state[0].user.axis[sa_rstick_x];
+  report->zaxis = clamp(-128, axis_value, 127) << 8;
+  if(axis_value > 127)
+  {
+    report->zaxis |= 0xFF;
+  }
+  axis_value = -state[0].user.axis[sa_rstick_y];
+  report->taxis = clamp(-128, axis_value, 127) << 8;
+  if(axis_value > 127)
+  {
+    report->taxis |= 0xFF;
+  }
+
+  return sizeof(*report);
+}
+
 static unsigned int sixaxis_report_build(unsigned char buf[49])
 {
   int i;
@@ -366,6 +446,9 @@ unsigned int report_build(s_report* report, e_controller_type type)
 	  case C_TYPE_360_PAD:
 		ret = _360pad_report_build(&report->x360);
 		break;
+    case C_TYPE_XBOX_PAD:
+    ret = XboxPad_report_build(&report->xbox);
+    break;
 	  case C_TYPE_SIXAXIS:
 		ret = sixaxis_report_build(report->sixaxis);
 		break;

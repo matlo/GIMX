@@ -48,11 +48,32 @@ typedef struct
   uint8_t unused[6];
 } s_report_360;
 
+typedef struct
+{
+  uint8_t type; //0x00
+  uint8_t size;     //0x14
+  uint8_t buttons;
+  uint8_t ununsed2; //0x00
+  uint8_t btnA;
+  uint8_t btnB;
+  uint8_t btnX;
+  uint8_t btnY;
+  uint8_t btnBlack;
+  uint8_t btnWhite;
+  uint8_t ltrigger;
+  uint8_t rtrigger;
+  uint16_t xaxis;
+  uint16_t yaxis;
+  uint16_t zaxis;
+  uint16_t taxis;
+} s_report_xbox;
+
 typedef union
 {
   s_report_joystick js;
   s_report_ps2 ps2;
   s_report_360 x360;
+  s_report_xbox xbox;
   unsigned char sixaxis[49];
 } s_report;
 

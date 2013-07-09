@@ -353,6 +353,7 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     ControllerType->Append(_("Sixaxis"));
     ControllerType->Append(_("GPP"));
     ControllerType->Append(_("PS2 pad"));
+    ControllerType->Append(_("Xbox pad"));
     FlexGridSizer12->Add(ControllerType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ButtonSpoof = new wxButton(Panel1, ID_BUTTON2, _("Spoof"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON2"));
     ButtonSpoof->Disable();
@@ -641,6 +642,10 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
     else if(ControllerType->GetStringSelection() == _("PS2 pad"))
     {
       command.Append(wxT(" --type PS2pad"));
+    }
+    else if(ControllerType->GetStringSelection() == _("Xbox pad"))
+    {
+      command.Append(wxT(" --type XboxPad"));
     }
     if(!CheckBoxGrab->IsChecked())
     {
