@@ -846,9 +846,15 @@ void serialFrame::OnMenuRefresh(wxCommandEvent& event)
 
 void serialFrame::OnControllerTypeSelect(wxCommandEvent& event)
 {
-    if(!spoofed && (ControllerType->GetStringSelection() == _("360 pad")))
+    ComboBoxFrequency->SetSelection(3);
+    ComboBoxFrequency->Enable(true);
+
+    if(ControllerType->GetStringSelection() == _("360 pad"))
     {
-      ButtonSpoof->Enable(true);
+      if(!spoofed)
+      {
+        ButtonSpoof->Enable(true);
+      }
     }
     else
     {
@@ -866,14 +872,6 @@ void serialFrame::OnControllerTypeSelect(wxCommandEvent& event)
     {
       ComboBoxFrequency->SetSelection(0);
       ComboBoxFrequency->Enable(false);
-    }
-    else
-    {
-      if(started)
-      {
-        ComboBoxFrequency->SetSelection(3);
-      }
-      ComboBoxFrequency->Enable(true);
     }
 }
 
