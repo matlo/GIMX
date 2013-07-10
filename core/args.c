@@ -78,8 +78,16 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
 
       case 'r':
         params->refresh_rate = atof(optarg) * 1000;
-        params->postpone_count = 3 * DEFAULT_REFRESH_PERIOD / params->refresh_rate;
-        printf("option -r with value `%s'\n", optarg);
+        if(params->refresh_rate)
+        {
+          params->postpone_count = 3 * DEFAULT_REFRESH_PERIOD / params->refresh_rate;
+          printf("option -r with value `%s'\n", optarg);
+        }
+        else
+        {
+          fprintf(stderr, "Bad refresh period: %s\n", optarg);
+          ret = -1;
+        }
         break;
 
       case 't':
@@ -134,6 +142,39 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
     printf("force_updates flag is set\n");
   if(params->curses)
     printf("curses flag is set\n");
+
+  int min_refresh_perdiod = 0;
+
+  switch(params->ctype)
+  {
+    case C_TYPE_DEFAULT:
+      min_refresh_perdiod = MIN_DEFAULT_REFRESH_PERIOD;
+      break;
+    case C_TYPE_JOYSTICK:
+      min_refresh_perdiod = MIN_JOYSTICK_REFRESH_PERIOD;
+      break;
+    case C_TYPE_360_PAD:
+      min_refresh_perdiod = MIN_360_PAD_REFRESH_PERIOD;
+      break;
+    case C_TYPE_GPP:
+      min_refresh_perdiod = MIN_GPP_REFRESH_PERIOD;
+      break;
+    case C_TYPE_SIXAXIS:
+      min_refresh_perdiod = MIN_SIXAXIS_REFRESH_PERIOD;
+      break;
+    case C_TYPE_PS2_PAD:
+      min_refresh_perdiod = MIN_PS2_PAD_REFRESH_PERIOD;
+      break;
+    case C_TYPE_XBOX_PAD:
+      min_refresh_perdiod = MIN_XBOX_PAD_REFRESH_PERIOD;
+      break;
+  }
+
+  if(params->refresh_rate < min_refresh_perdiod)
+  {
+    fprintf(stderr, "Refresh period should be at least %.02fms\n", (double)min_refresh_perdiod/1000);
+    ret = -1;
+  }
 
   return ret;
 }

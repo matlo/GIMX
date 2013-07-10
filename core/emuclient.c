@@ -179,7 +179,11 @@ int main(int argc, char *argv[])
   max_unsigned_axis_value[sa_acc_z] = 1023;
   max_unsigned_axis_value[sa_gyro]  = 1023;
 
-  args_read(argc, argv, &emuclient_params);
+  if(args_read(argc, argv, &emuclient_params) < 0)
+  {
+    fprintf(stderr, "Wrong argument.\n");
+    goto QUIT;
+  }
 
   if (emuclient_params.ctype == C_TYPE_JOYSTICK)
   {
