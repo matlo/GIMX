@@ -516,9 +516,10 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
 
     started = false;
 
-    refresh();
     read_frequency(ComboBoxFrequency);
     read_controller_type(ControllerType);
+    refresh();
+    
     wxCommandEvent event;
     OnControllerTypeSelect(event);
 
