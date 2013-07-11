@@ -833,7 +833,7 @@ void serialFrame::refresh()
 {
     read_filenames(ChoiceConfig);
     read_devices(ComboBoxDevice);
-    if(ComboBoxDevice->GetCount() == 0)
+    if(ComboBoxDevice->GetCount() == 0 && ControllerType->GetStringSelection() != _("GPP"))
     {
         wxMessageBox( _("No Serial Port Detected!\n"), _("Error"), wxICON_ERROR);
     }
