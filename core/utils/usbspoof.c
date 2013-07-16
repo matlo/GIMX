@@ -32,6 +32,8 @@
 
 #include <errno.h>
 
+#define STANDARD_REQUESTS 0
+
 #define SPOOF_TIMEOUT 15
 #define USB_REQ_TIMEOUT 1000
 
@@ -346,6 +348,12 @@ int main(int argc, char *argv[])
 
   serial_port_init();
 
+  unsigned char start = 1;
+  if(write(fd, &start, sizeof(start)) < sizeof(start))
+  {
+    perror("write");
+  }
+
 #ifndef WIN32
   signal (SIGALRM, catch_alarm);
   alarm (SPOOF_TIMEOUT);
@@ -426,7 +434,7 @@ int main(int argc, char *argv[])
             continue;
           }*/
 
-          if(!(creq.header.bRequestType & REQTYPE_VENDOR))
+          if(!STANDARD_REQUESTS && !(creq.header.bRequestType & REQTYPE_VENDOR))
           {
             if(verbose || debug)
             {
@@ -587,7 +595,7 @@ int main(int argc, char *argv[])
             continue;
           }*/
 
-          if(!(creq.header.bRequestType & REQTYPE_VENDOR))
+          if(!STANDARD_REQUESTS && !(creq.header.bRequestType & REQTYPE_VENDOR))
           {
             if(verbose || debug)
             {
