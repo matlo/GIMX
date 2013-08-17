@@ -85,14 +85,8 @@ static unsigned int _360pad_report_build(s_report_360* report)
     report->buttons |= 0x8000;
   }
 
-  if (state[0].user.axis[sa_l2])
-  {
-    report->ltrigger = 0xFF;
-  }
-  if (state[0].user.axis[sa_r2])
-  {
-    report->rtrigger = 0xFF;
-  }
+  report->ltrigger = clamp(0, state[0].user.axis[sa_l2], 255);
+  report->rtrigger = clamp(0, state[0].user.axis[sa_r2], 255);
 
   axis_value = state[0].user.axis[sa_lstick_x];
   report->xaxis = clamp(-128, axis_value, 127) << 8;
