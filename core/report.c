@@ -165,14 +165,14 @@ static unsigned int XboxPad_report_build(s_report_xbox* report)
     report->buttons |= 0x80;
   }
 
-  report->ltrigger = state[0].user.axis[sa_l2];
-  report->rtrigger = state[0].user.axis[sa_r2];
-  report->btnA = state[0].user.axis[sa_cross];
-  report->btnB = state[0].user.axis[sa_circle];
-  report->btnX = state[0].user.axis[sa_square];
-  report->btnY = state[0].user.axis[sa_triangle];
-  report->btnWhite = state[0].user.axis[sa_l1];
-  report->btnBlack = state[0].user.axis[sa_r1];
+  report->ltrigger = clamp(0, state[0].user.axis[sa_l2], 255);
+  report->rtrigger = clamp(0, state[0].user.axis[sa_r2], 255);
+  report->btnA = clamp(0, state[0].user.axis[sa_cross], 255);
+  report->btnB = clamp(0, state[0].user.axis[sa_circle], 255);
+  report->btnX = clamp(0, state[0].user.axis[sa_square], 255);
+  report->btnY = clamp(0, state[0].user.axis[sa_triangle], 255);
+  report->btnWhite = clamp(0, state[0].user.axis[sa_l1], 255);
+  report->btnBlack = clamp(0, state[0].user.axis[sa_r1], 255);
 
   axis_value = state[0].user.axis[sa_lstick_x];
   report->xaxis = clamp(-128, axis_value, 127) << 8;
