@@ -536,7 +536,10 @@ static int postpone_event(unsigned int device, GE_Event* event)
   int i;
   int ret = 0;
   s_mouse_control* mc = mouse_control + device;
-  if (event->button.button >= 8 && event->button.button <= 11)
+  if (event->button.button == GE_BTN_WHEELUP
+   || event->button.button == GE_BTN_WHEELDOWN
+   || event->button.button == GE_BTN_WHEELRIGHT
+   || event->button.button == GE_BTN_WHEELLEFT)
   {
     if (mc->postpone[event->button.button] < emuclient_params.postpone_count)
     {
