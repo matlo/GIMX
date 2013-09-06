@@ -819,7 +819,7 @@ static void active_triggered_init()
       /*
        * Trigger is the same as first triggered macro => active at startup.
        */
-      macro_table[i][0].active = 1;      
+      macro_table[i][0].active = 1;
     }
   }
 }
@@ -889,10 +889,16 @@ void macro_lookup(GE_Event* event)
   {
     if(macro_table[i][0].event.type != GE_NOEVENT)
     {
+      /*
+       * Check if macro has to be activated.
+       */
       if(!compare_events(event, &macro_table[i][0].event) 
          && !macro_table[i][0].active)
       {
         macro_table[i][0].active = 1;
+        /*
+         * Disable macros that have a different activation trigger.
+         */
         for(j=0; j<macro_table_nb; ++j)
         {
           if(macro_table[j][0].event.type == GE_NOEVENT)
@@ -905,13 +911,15 @@ void macro_lookup(GE_Event* event)
             macro_table[j][0].active = 0;
           }
         }
-        break;
       }
     }
     if(!compare_events(event, &macro_table[i][1].event))
     {
       if(macro_table[i][0].active)
       {
+        /*
+         * Start or stop a macro.
+         */
         if(!macro_delete(event))
         {
           macro_add(event, i);
