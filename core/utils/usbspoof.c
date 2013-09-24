@@ -60,6 +60,7 @@ static HANDLE serial;
 #endif
 
 static int spoof = 0;
+static int response = 0;
 static int debug = 0;
 static int verbose = 0;
 static int libusb_debug = 0;
@@ -149,7 +150,7 @@ static void usb_init_spoof()
   {
 	  fatal("libusb_reset_device");
 	}
-#ifndef WIN32
+  /*#ifndef WIN32
   if(libusb_detach_kernel_driver(devh, ITFNUM) < 0)
   {
     //fatal("libusb_detach_kernel_driver");
@@ -162,7 +163,7 @@ static void usb_init_spoof()
     {
       perror("usb_claim_interface");
     }
-  }
+  }*/
 
   usb_header.bus_id = libusb_get_bus_number(libusb_get_device(devh));
   usb_header.device_address = libusb_get_device_address(libusb_get_device(devh));
@@ -422,12 +423,6 @@ int main(int argc, char *argv[])
             pcapwriter_write(&usb_header, 0, NULL);
           }
 
-          if(creq.header.wValue == 0x5b17)
-          {
-            spoof = 1;
-            printf("spoof started\n");
-          }
-
           /*if(!spoof)
           {
             p_data = (unsigned char*)&creq.header;
@@ -441,6 +436,12 @@ int main(int argc, char *argv[])
               printf("--> standard requests are not forwarded\n");
               printf("\n");
             }
+            p_data = (unsigned char*)&creq.header;
+            continue;
+          }
+
+          if(response > 1)
+          {
             p_data = (unsigned char*)&creq.header;
             continue;
           }
@@ -506,6 +507,21 @@ int main(int argc, char *argv[])
             }
           }
 
+          if(creq.header.wValue == 0x5b17)
+          {
+            spoof = 1;
+            printf("spoof started\n");
+          }
+          else if(creq.header.wValue == 0x5c10)
+          {
+            if(response)
+            {
+              printf("spoof successful\n");
+              break;
+            }
+            ++response;
+          }
+
           p_data = (unsigned char*)&creq.header;
 
           if(verbose || debug)
@@ -528,12 +544,12 @@ int main(int argc, char *argv[])
             printf("bRequestType: 0x%02x bRequest: 0x%02x wValue: 0x%04x wIndex: 0x%04x wLength: 0x%04x\n", creq.header.bRequestType, creq.header.bRequest, creq.header.wValue, creq.header.wIndex, creq.header.wLength);
           }
 
-          if(creq.header.wValue == 0x001e)
+          /*if(creq.header.wValue == 0x001e)
           {
             spoof = 1;
             printf("spoof successful\n");
             break;
-          }
+          }*/
 
 #ifndef WIN32
           ret = read(fd, p_data, creq.header.wLength);
@@ -606,6 +622,12 @@ int main(int argc, char *argv[])
             continue;
           }
 
+          if(response > 1)
+          {
+            p_data = (unsigned char*)&creq.header;
+            continue;
+          }
+
           /*
            * Forward the request to the 360 controller.
            * No need to forward anything back to the serial port.
@@ -654,6 +676,10 @@ int main(int argc, char *argv[])
   }
   printf("exiting\n");
 #ifndef WIN32
+  /*
+   * tcdrain(fd) does not work, and there does not seem to be a better work-around.
+   */
+  usleep(500000);
   close(fd);
 #else
   timeEndPeriod(1000);
