@@ -301,6 +301,11 @@ static unsigned int joystick_report_build(s_report_joystick* report)
     report->Bt |= 0x0080;
   }
 
+  if (state[0].user.axis[sa_ps])
+  {
+    report->Bt |= 0x1000;
+  }
+
   if (state[0].user.axis[sa_right])
   {
     if (state[0].user.axis[sa_down])
