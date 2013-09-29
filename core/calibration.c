@@ -736,5 +736,5 @@ int cal_skip_event(GE_Event* event)
 {
   return current_cal != NONE
       && event->type == GE_MOUSEBUTTONDOWN
-      && (event->button.button >= 8 || event->button.button <= 9);
+      && (event->button.button == GE_BTN_WHEELUP || event->button.button == GE_BTN_WHEELDOWN);
 }
