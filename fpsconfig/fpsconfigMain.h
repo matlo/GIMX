@@ -7,16 +7,16 @@
 #define FPSCONFIGMAIN_H
 
 //(*Headers(fpsconfigFrame)
-#include <wx/stattext.h>
-#include <wx/menu.h>
-#include <wx/textctrl.h>
 #include <wx/spinctrl.h>
-#include <wx/panel.h>
-#include <wx/filedlg.h>
-#include <wx/choice.h>
 #include <wx/button.h>
-#include <wx/frame.h>
+#include <wx/menu.h>
+#include <wx/filedlg.h>
+#include <wx/panel.h>
 #include <wx/statusbr.h>
+#include <wx/frame.h>
+#include <wx/stattext.h>
+#include <wx/textctrl.h>
+#include <wx/choice.h>
 //*)
 
 #include <event_catcher.h>
@@ -146,70 +146,71 @@ class fpsconfigFrame: public wxFrame
         //*)
 
         //(*Declarations(fpsconfigFrame)
-        wxButton* stickdown;
-        wxTextCtrl* TextCtrlFilterADS;
-        wxMenuItem* MenuItemSave;
-        wxButton* l1;
-        wxButton* r3;
-        wxSpinCtrl* SpinCtrlAccelerationADS;
-        wxMenuItem* MenuItemSaveAs;
-        wxButton* stickright;
-        wxStaticText* StaticTextADS;
-        wxStaticText* StaticTextHipFire;
-        wxButton* start;
-        wxButton* stickleft;
-        wxMenuItem* MenuEditLabels;
-        wxButton* ButtonConvertSensitivity;
-        wxSpinCtrl* SpinCtrlDeadZoneHipFire;
-        wxButton* select;
-        wxStaticText* StaticText8;
         wxButton* down;
-        wxSpinCtrl* SpinCtrlBufferSizeADS;
-        wxButton* stickup;
-        wxPanel* Panel1;
         wxSpinCtrl* SpinCtrlFilterHipFire;
-        wxTextCtrl* TextCtrlSensitivityHipFire;
-        wxTextCtrl* TextCtrlFilterHipFire;
-        wxFileDialog* FileDialog1;
+        wxButton* left;
+        wxMenuItem* MenuItemSaveAs;
+        wxStaticText* StaticTextAccel;
         wxSpinCtrl* SpinCtrlSensitivityHipFire;
+        wxButton* ps;
+        wxPanel* Panel1;
+        wxButton* circle;
+        wxTextCtrl* TextCtrlSensitivityADS;
+        wxMenuItem* MenuEditLabels;
+        wxStatusBar* StatusBar1;
+        wxButton* start;
+        wxMenuItem* MenuAutoBindControls;
+        wxTextCtrl* TextCtrlXyRatioADS;
+        wxButton* right;
+        wxChoice* ChoiceDeadZoneShapeHipFire;
+        wxChoice* ChoiceDeadZoneShapeADS;
+        wxSpinCtrl* SpinCtrlBufferSizeADS;
+        wxStaticText* StaticTextShape;
+        wxMenuItem* MenuItemSave;
+        wxButton* r1;
+        wxSpinCtrl* SpinCtrlBufferSizeHipFire;
+        wxSpinCtrl* SpinCtrlXyRatioADS;
         wxStaticText* StaticTextSmoothing;
-        wxMenuItem* MenuItemOpen;
+        wxButton* square;
+        wxSpinCtrl* SpinCtrlDeadZoneHipFire;
+        wxMenuItem* MenuUpdate;
         wxButton* r2;
         wxButton* l2;
-        wxStaticText* StaticTextSens;
-        wxStaticText* StaticTextDZ;
-        wxSpinCtrl* SpinCtrlFilterADS;
-        wxTextCtrl* TextCtrlAccelerationHipFire;
-        wxSpinCtrl* SpinCtrlDeadZoneADS;
-        wxTextCtrl* TextCtrlSensitivityADS;
-        wxStatusBar* StatusBar1;
-        wxTextCtrl* TextCtrlAccelerationADS;
-        wxButton* left;
-        wxButton* triangle;
-        wxMenuItem* MenuItemNew;
-        wxSpinCtrl* SpinCtrlDPI;
-        wxButton* cross;
-        wxButton* square;
-        wxChoice* ChoiceDeadZoneShapeADS;
-        wxSpinCtrl* SpinCtrlXyRatioHipFire;
-        wxChoice* ChoiceDeadZoneShapeHipFire;
-        wxSpinCtrl* SpinCtrlBufferSizeHipFire;
-        wxTextCtrl* TextCtrlXyRatioADS;
-        wxButton* ps;
-        wxSpinCtrl* SpinCtrlSensitivityADS;
+        wxButton* r3;
+        wxStaticText* StaticTextHipFire;
+        wxButton* l1;
         wxSpinCtrl* SpinCtrlAccelerationHipFire;
+        wxButton* ButtonConvertSensitivity;
+        wxTextCtrl* TextCtrlFilterHipFire;
+        wxMenuItem* MenuItemNew;
+        wxStaticText* StaticText8;
+        wxSpinCtrl* SpinCtrlSensitivityADS;
+        wxFileDialog* FileDialog1;
+        wxStaticText* StaticTextDZ;
         wxButton* l3;
-        wxButton* up;
-        wxButton* r1;
-        wxStaticText* StaticTextXy;
+        wxSpinCtrl* SpinCtrlXyRatioHipFire;
         wxTextCtrl* TextCtrlXyRatioHipFire;
-        wxStaticText* StaticTextAccel;
-        wxSpinCtrl* SpinCtrlXyRatioADS;
-        wxMenuItem* MenuUpdate;
-        wxButton* right;
-        wxStaticText* StaticTextShape;
-        wxButton* circle;
-        wxMenuItem* MenuAutoBindControls;
+        wxSpinCtrl* SpinCtrlDeadZoneADS;
+        wxButton* up;
+        wxButton* stickright;
+        wxSpinCtrl* SpinCtrlAccelerationADS;
+        wxStaticText* StaticTextSens;
+        wxButton* stickup;
+        wxTextCtrl* TextCtrlSensitivityHipFire;
+        wxButton* select;
+        wxButton* cross;
+        wxStaticText* StaticTextADS;
+        wxTextCtrl* TextCtrlAccelerationADS;
+        wxSpinCtrl* SpinCtrlDPI;
+        wxButton* stickdown;
+        wxButton* stickleft;
+        wxMenuItem* MenuItemOpen;
+        wxSpinCtrl* SpinCtrlFilterADS;
+        wxButton* triangle;
+        wxTextCtrl* TextCtrlFilterADS;
+        wxTextCtrl* TextCtrlAccelerationHipFire;
+        wxMenuItem* MenuItemOpenConfigDirectory;
+        wxStaticText* StaticTextXy;
         //*)
 
         event_catcher evcatch;

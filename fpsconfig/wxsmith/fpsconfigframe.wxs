@@ -435,8 +435,9 @@
 					<label>Save As</label>
 					<handler function="OnMenuSaveAs" entry="EVT_MENU" />
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM8" variable="MenuItem1" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM8" variable="MenuItemOpenConfigDirectory" member="yes">
 					<label>Open config directory</label>
+					<handler function="OnMenuOpenConfigDirectory" entry="EVT_MENU" />
 				</object>
 				<object class="wxMenuItem" name="idMenuQuit" variable="MenuItemQuit" member="no">
 					<label>Quit</label>

@@ -13,9 +13,9 @@
 #endif
 
 //(*InternalHeaders(fpsconfigFrame)
-#include <wx/font.h>
-#include <wx/intl.h>
 #include <wx/string.h>
+#include <wx/intl.h>
+#include <wx/font.h>
 //*)
 
 #include "background.png.cpp"
@@ -228,13 +228,12 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 
     //(*Initialize(fpsconfigFrame)
-    wxMenu* MenuHelp;
-    wxMenuItem* MenuItemAbout;
-    wxMenuItem* MenuItem1;
+    wxMenu* MenuFile;
     wxMenu* MenuAdvanced;
     wxMenuItem* MenuItemQuit;
-    wxMenu* MenuFile;
     wxMenuBar* MenuBar1;
+    wxMenuItem* MenuItemAbout;
+    wxMenu* MenuHelp;
 
     Create(parent, wxID_ANY, _("Gimx-fpsconfig"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     SetClientSize(wxSize(614,423));
@@ -387,8 +386,8 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     MenuItemSave->Enable(false);
     MenuItemSaveAs = new wxMenuItem(MenuFile, ID_MENUITEM3, _("Save As"), wxEmptyString, wxITEM_NORMAL);
     MenuFile->Append(MenuItemSaveAs);
-    MenuItem1 = new wxMenuItem(MenuFile, ID_MENUITEM8, _("Open config directory"), wxEmptyString, wxITEM_NORMAL);
-    MenuFile->Append(MenuItem1);
+    MenuItemOpenConfigDirectory = new wxMenuItem(MenuFile, ID_MENUITEM8, _("Open config directory"), wxEmptyString, wxITEM_NORMAL);
+    MenuFile->Append(MenuItemOpenConfigDirectory);
     MenuItemQuit = new wxMenuItem(MenuFile, idMenuQuit, _("Quit\tAlt-F4"), _("Quit the application"), wxITEM_NORMAL);
     MenuFile->Append(MenuItemQuit);
     MenuBar1->Append(MenuFile, _("&File"));
