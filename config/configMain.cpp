@@ -14,8 +14,8 @@
 #include <iomanip>
 
 //(*InternalHeaders(configFrame)
-#include <wx/intl.h>
 #include <wx/string.h>
+#include <wx/intl.h>
 //*)
 
 #include <wx/aboutdlg.h>
@@ -470,75 +470,72 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 
     //(*Initialize(configFrame)
-    wxMenu* MenuHelp;
-    wxFlexGridSizer* FlexGridSizer4;
-    wxFlexGridSizer* FlexGridSizer45;
-    wxFlexGridSizer* FlexGridSizer47;
-    wxMenuItem* MenuItemAbout;
-    wxFlexGridSizer* FlexGridSizer16;
-    wxFlexGridSizer* FlexGridSizer24;
-    wxFlexGridSizer* FlexGridSizer19;
-    wxStaticBoxSizer* StaticBoxSizer12;
-    wxFlexGridSizer* FlexGridSizer23;
-    wxFlexGridSizer* FlexGridSizer41;
-    wxMenuItem* MenuItem2;
-    wxStaticBoxSizer* StaticBoxSizer4;
-    wxFlexGridSizer* FlexGridSizer10;
-    wxFlexGridSizer* FlexGridSizer3;
-    wxFlexGridSizer* FlexGridSizer27;
-    wxMenuItem* MenuItem1;
-    wxFlexGridSizer* FlexGridSizer44;
-    wxFlexGridSizer* FlexGridSizer37;
-    wxFlexGridSizer* FlexGridSizer5;
-    wxFlexGridSizer* FlexGridSizer25;
-    wxFlexGridSizer* FlexGridSizer22;
-    wxFlexGridSizer* FlexGridSizer9;
-    wxFlexGridSizer* FlexGridSizer2;
-    wxStaticBoxSizer* StaticBoxSizer9;
-    wxFlexGridSizer* FlexGridSizer7;
-    wxStaticBoxSizer* StaticBoxSizer7;
-    wxMenuItem* MenuItemOpen;
-    wxStaticBoxSizer* StaticBoxSizer10;
-    wxFlexGridSizer* FlexGridSizer29;
-    wxFlexGridSizer* FlexGridSizer34;
-    wxStaticBoxSizer* StaticBoxSizer8;
-    wxStaticBoxSizer* StaticBoxSizer3;
-    wxGridSizer* GridSizer1;
-    wxFlexGridSizer* FlexGridSizer49;
-    wxStaticBoxSizer* StaticBoxSizer6;
-    wxFlexGridSizer* FlexGridSizer15;
-    wxFlexGridSizer* FlexGridSizer18;
-    wxFlexGridSizer* FlexGridSizer8;
-    wxFlexGridSizer* FlexGridSizer21;
-    wxFlexGridSizer* FlexGridSizer14;
-    wxFlexGridSizer* FlexGridSizer20;
-    wxFlexGridSizer* FlexGridSizer13;
-    wxFlexGridSizer* FlexGridSizer12;
-    wxFlexGridSizer* FlexGridSizer35;
-    wxFlexGridSizer* FlexGridSizer36;
-    wxMenuBar* MenuBar1;
-    wxFlexGridSizer* FlexGridSizer6;
-    wxFlexGridSizer* FlexGridSizer48;
-    wxFlexGridSizer* FlexGridSizer46;
-    wxFlexGridSizer* FlexGridSizer1;
-    wxFlexGridSizer* FlexGridSizer33;
-    wxFlexGridSizer* FlexGridSizer43;
-    wxFlexGridSizer* FlexGridSizer11;
-    wxFlexGridSizer* FlexGridSizer17;
-    wxStaticBoxSizer* StaticBoxSizer5;
-    wxFlexGridSizer* FlexGridSizer32;
-    wxFlexGridSizer* FlexGridSizer42;
-    wxFlexGridSizer* FlexGridSizer31;
-    wxFlexGridSizer* FlexGridSizer28;
-    wxFlexGridSizer* FlexGridSizer26;
     wxFlexGridSizer* FlexGridSizer30;
+    wxFlexGridSizer* FlexGridSizer46;
+    wxFlexGridSizer* FlexGridSizer21;
+    wxFlexGridSizer* FlexGridSizer28;
+    wxMenuItem* MenuItem1;
+    wxFlexGridSizer* FlexGridSizer8;
+    wxGridSizer* GridSizer1;
+    wxStaticBoxSizer* StaticBoxSizer10;
+    wxFlexGridSizer* FlexGridSizer1;
+    wxFlexGridSizer* FlexGridSizer2;
+    wxFlexGridSizer* FlexGridSizer25;
+    wxFlexGridSizer* FlexGridSizer15;
+    wxStaticBoxSizer* StaticBoxSizer7;
+    wxStaticBoxSizer* StaticBoxSizer5;
+    wxFlexGridSizer* FlexGridSizer17;
+    wxGridSizer* GridSizer3;
+    wxFlexGridSizer* FlexGridSizer29;
+    wxFlexGridSizer* FlexGridSizer11;
+    wxFlexGridSizer* FlexGridSizer19;
+    wxFlexGridSizer* FlexGridSizer48;
+    wxFlexGridSizer* FlexGridSizer47;
+    wxStaticBoxSizer* StaticBoxSizer12;
+    wxFlexGridSizer* FlexGridSizer41;
+    wxFlexGridSizer* FlexGridSizer7;
+    wxFlexGridSizer* FlexGridSizer4;
+    wxFlexGridSizer* FlexGridSizer9;
+    wxFlexGridSizer* FlexGridSizer14;
+    wxStaticBoxSizer* StaticBoxSizer3;
+    wxFlexGridSizer* FlexGridSizer6;
+    wxFlexGridSizer* FlexGridSizer33;
+    wxFlexGridSizer* FlexGridSizer27;
+    wxFlexGridSizer* FlexGridSizer37;
+    wxFlexGridSizer* FlexGridSizer42;
+    wxFlexGridSizer* FlexGridSizer3;
+    wxFlexGridSizer* FlexGridSizer22;
+    wxStaticBoxSizer* StaticBoxSizer8;
+    wxFlexGridSizer* FlexGridSizer31;
+    wxFlexGridSizer* FlexGridSizer43;
+    wxStaticBoxSizer* StaticBoxSizer4;
+    wxStaticBoxSizer* StaticBoxSizer9;
+    wxStaticBoxSizer* StaticBoxSizer6;
+    wxFlexGridSizer* FlexGridSizer16;
+    wxFlexGridSizer* FlexGridSizer34;
+    wxFlexGridSizer* FlexGridSizer23;
+    wxFlexGridSizer* FlexGridSizer13;
+    wxMenuBar* MenuBar1;
+    wxMenuItem* MenuItemAbout;
+    wxFlexGridSizer* FlexGridSizer18;
+    wxFlexGridSizer* FlexGridSizer49;
+    wxFlexGridSizer* FlexGridSizer36;
+    wxFlexGridSizer* FlexGridSizer12;
+    wxMenuItem* MenuItemOpen;
+    wxFlexGridSizer* FlexGridSizer45;
+    wxFlexGridSizer* FlexGridSizer35;
+    wxFlexGridSizer* FlexGridSizer44;
+    wxFlexGridSizer* FlexGridSizer5;
+    wxFlexGridSizer* FlexGridSizer24;
+    wxMenu* MenuHelp;
+    wxFlexGridSizer* FlexGridSizer32;
+    wxFlexGridSizer* FlexGridSizer20;
 
     Create(parent, wxID_ANY, _("Gimx-config"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     GridSizer1 = new wxGridSizer(1, 1, 0, 0);
-    Notebook1 = new wxNotebook(this, ID_NOTEBOOK1, wxDefaultPosition, wxSize(1280,570), 0, _T("ID_NOTEBOOK1"));
+    Notebook1 = new wxNotebook(this, ID_NOTEBOOK1, wxDefaultPosition, wxDefaultSize, 0, _T("ID_NOTEBOOK1"));
     PanelOverall = new wxPanel(Notebook1, ID_PANEL1, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL1"));
-    FlexGridSizer10 = new wxFlexGridSizer(2, 1, 0, 0);
-    FlexGridSizer10->AddGrowableRow(1);
+    GridSizer3 = new wxGridSizer(1, 1, 0, 0);
     Notebook2 = new wxNotebook(PanelOverall, ID_NOTEBOOK2, wxDefaultPosition, wxDefaultSize, 0, _T("ID_NOTEBOOK2"));
     PanelTrigger = new wxPanel(Notebook2, ID_PANEL4, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL4"));
     FlexGridSizer13 = new wxFlexGridSizer(1, 1, 0, 0);
@@ -580,10 +577,8 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     FlexGridSizer13->Fit(PanelTrigger);
     FlexGridSizer13->SetSizeHints(PanelTrigger);
     PanelMouseOptions = new wxPanel(Notebook2, ID_PANEL5, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL5"));
-    FlexGridSizer26 = new wxFlexGridSizer(1, 1, 0, 0);
     FlexGridSizer31 = new wxFlexGridSizer(2, 1, 0, 0);
-    FlexGridSizer31->AddGrowableRow(1);
-    FlexGridSizer32 = new wxFlexGridSizer(1, 10, 0, 0);
+    FlexGridSizer32 = new wxFlexGridSizer(1, 6, 0, 0);
     StaticBoxSizer12 = new wxStaticBoxSizer(wxHORIZONTAL, PanelMouseOptions, _("Mouse"));
     FlexGridSizer33 = new wxFlexGridSizer(1, 4, 0, 0);
     MouseOptionsType = new wxStaticText(PanelMouseOptions, ID_STATICTEXT3, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT3"));
@@ -651,14 +646,12 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     FlexGridSizer42->Add(MouseOptionsModify, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer37->Add(FlexGridSizer42, 1, wxALL|wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL, 5);
     FlexGridSizer31->Add(FlexGridSizer37, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer26->Add(FlexGridSizer31, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    PanelMouseOptions->SetSizer(FlexGridSizer26);
-    FlexGridSizer26->Fit(PanelMouseOptions);
-    FlexGridSizer26->SetSizeHints(PanelMouseOptions);
+    PanelMouseOptions->SetSizer(FlexGridSizer31);
+    FlexGridSizer31->Fit(PanelMouseOptions);
+    FlexGridSizer31->SetSizeHints(PanelMouseOptions);
     PanelIntensity = new wxPanel(Notebook2, ID_PANEL6, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL6"));
-    FlexGridSizer15 = new wxFlexGridSizer(0, 3, 0, 0);
+    FlexGridSizer15 = new wxFlexGridSizer(1, 1, 0, 0);
     FlexGridSizer19 = new wxFlexGridSizer(2, 1, 0, 0);
-    FlexGridSizer19->AddGrowableRow(1);
     FlexGridSizer20 = new wxFlexGridSizer(1, 7, 0, 0);
     FlexGridSizer45 = new wxFlexGridSizer(2, 1, 0, 0);
     StaticText8 = new wxStaticText(PanelIntensity, ID_STATICTEXT55, _("Axis"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT55"));
@@ -702,14 +695,14 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     FlexGridSizer25->Add(StaticText2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText7 = new wxStaticText(PanelIntensity, ID_STATICTEXT54, _("Steps"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT54"));
     FlexGridSizer25->Add(StaticText7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    IntensityDirection = new wxChoice(PanelIntensity, ID_CHOICE9, wxDefaultPosition, wxSize(100,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE9"));
+    IntensityDirection = new wxChoice(PanelIntensity, ID_CHOICE9, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE9"));
     IntensityDirection->Append(_("Increase"));
     IntensityDirection->SetSelection( IntensityDirection->Append(_("Decrease")) );
     FlexGridSizer25->Add(IntensityDirection, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     IntensityDeadZone = new wxSpinCtrl(PanelIntensity, ID_SPINCTRL6, _T("32"), wxDefaultPosition, wxSize(50,-1), 0, 0, 127, 32, _T("ID_SPINCTRL6"));
     IntensityDeadZone->SetValue(_T("32"));
     FlexGridSizer25->Add(IntensityDeadZone, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    IntensityShape = new wxChoice(PanelIntensity, ID_CHOICE2, wxDefaultPosition, wxSize(75,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE2"));
+    IntensityShape = new wxChoice(PanelIntensity, ID_CHOICE2, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE2"));
     FlexGridSizer25->Add(IntensityShape, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     IntensitySteps = new wxSpinCtrl(PanelIntensity, ID_SPINCTRL7, _T("3"), wxDefaultPosition, wxSize(50,-1), 0, 1, 127, 3, _T("ID_SPINCTRL7"));
     IntensitySteps->SetValue(_T("3"));
@@ -742,20 +735,19 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     FlexGridSizer43->Add(IntensityModify, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer22->Add(FlexGridSizer43, 1, wxALL|wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL, 5);
     FlexGridSizer19->Add(FlexGridSizer22, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer15->Add(FlexGridSizer19, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer15->Add(FlexGridSizer19, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     PanelIntensity->SetSizer(FlexGridSizer15);
     FlexGridSizer15->Fit(PanelIntensity);
     FlexGridSizer15->SetSizeHints(PanelIntensity);
     Notebook2->AddPage(PanelTrigger, _("Profile trigger"), false);
     Notebook2->AddPage(PanelMouseOptions, _("Mouse options"), false);
     Notebook2->AddPage(PanelIntensity, _("Axis intensity"), false);
-    FlexGridSizer10->Add(Notebook2, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    PanelOverall->SetSizer(FlexGridSizer10);
-    FlexGridSizer10->Fit(PanelOverall);
-    FlexGridSizer10->SetSizeHints(PanelOverall);
+    GridSizer3->Add(Notebook2, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    PanelOverall->SetSizer(GridSizer3);
+    GridSizer3->Fit(PanelOverall);
+    GridSizer3->SetSizeHints(PanelOverall);
     PanelButton = new wxPanel(Notebook1, ID_PANEL2, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL2"));
     FlexGridSizer9 = new wxFlexGridSizer(2, 1, 0, 0);
-    FlexGridSizer9->AddGrowableRow(1);
     FlexGridSizer1 = new wxFlexGridSizer(1, 9, 0, 0);
     StaticBoxSizer3 = new wxStaticBoxSizer(wxHORIZONTAL, PanelButton, _("Device"));
     FlexGridSizer12 = new wxFlexGridSizer(1, 3, 0, 0);
@@ -807,12 +799,12 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     FlexGridSizer47 = new wxFlexGridSizer(2, 1, 0, 0);
     StaticTextLabel = new wxStaticText(PanelButton, ID_STATICTEXT34, _("Label"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT34"));
     FlexGridSizer47->Add(StaticTextLabel, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    ButtonTabLabel = new wxComboBox(PanelButton, ID_COMBOBOX1, wxEmptyString, wxDefaultPosition, wxSize(150,-1), 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX1"));
+    ButtonTabLabel = new wxComboBox(PanelButton, ID_COMBOBOX1, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX1"));
     FlexGridSizer47->Add(ButtonTabLabel, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer1->Add(FlexGridSizer47, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer9->Add(FlexGridSizer1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer8 = new wxFlexGridSizer(1, 2, 0, 0);
-    GridPanelButton = new wxGrid(PanelButton, ID_GRID1, wxDefaultPosition, wxDefaultSize, 0, _T("ID_GRID1"));
+    GridPanelButton = new wxGrid(PanelButton, ID_GRID1, wxDefaultPosition, wxDefaultSize, wxVSCROLL, _T("ID_GRID1"));
     GridPanelButton->CreateGrid(0,8);
     GridPanelButton->EnableEditing(false);
     GridPanelButton->EnableGridLines(true);
@@ -843,8 +835,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     FlexGridSizer9->SetSizeHints(PanelButton);
     PanelAxis = new wxPanel(Notebook1, ID_PANEL3, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL3"));
     FlexGridSizer5 = new wxFlexGridSizer(2, 1, 0, 0);
-    FlexGridSizer5->AddGrowableRow(1);
-    FlexGridSizer3 = new wxFlexGridSizer(2, 9, 0, 0);
+    FlexGridSizer3 = new wxFlexGridSizer(1, 9, 0, 0);
     StaticBoxSizer7 = new wxStaticBoxSizer(wxHORIZONTAL, PanelAxis, _("Device"));
     FlexGridSizer27 = new wxFlexGridSizer(1, 3, 0, 0);
     AxisTabDeviceType = new wxStaticText(PanelAxis, ID_STATICTEXT41, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT41"));
@@ -932,12 +923,12 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     FlexGridSizer49 = new wxFlexGridSizer(2, 1, 0, 0);
     StaticText1 = new wxStaticText(PanelAxis, ID_STATICTEXT44, _("Label"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT44"));
     FlexGridSizer49->Add(StaticText1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    AxisTabLabel = new wxComboBox(PanelAxis, ID_COMBOBOX2, wxEmptyString, wxDefaultPosition, wxSize(150,-1), 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX2"));
+    AxisTabLabel = new wxComboBox(PanelAxis, ID_COMBOBOX2, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX2"));
     FlexGridSizer49->Add(AxisTabLabel, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer3->Add(FlexGridSizer49, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer5->Add(FlexGridSizer3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer4 = new wxFlexGridSizer(1, 2, 0, 0);
-    GridPanelAxis = new wxGrid(PanelAxis, ID_GRID2, wxDefaultPosition, wxDefaultSize, 0, _T("ID_GRID2"));
+    GridPanelAxis = new wxGrid(PanelAxis, ID_GRID2, wxDefaultPosition, wxDefaultSize, wxVSCROLL, _T("ID_GRID2"));
     GridPanelAxis->CreateGrid(0,11);
     GridPanelAxis->EnableEditing(false);
     GridPanelAxis->EnableGridLines(true);
@@ -956,7 +947,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     GridPanelAxis->SetColLabelValue(10, _("Label"));
     GridPanelAxis->SetDefaultCellFont( GridPanelAxis->GetFont() );
     GridPanelAxis->SetDefaultCellTextColour( GridPanelAxis->GetForegroundColour() );
-    FlexGridSizer4->Add(GridPanelAxis, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    FlexGridSizer4->Add(GridPanelAxis, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer7 = new wxFlexGridSizer(2, 1, 0, 0);
     Button3 = new wxButton(PanelAxis, ID_BUTTON3, _("Add"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON3"));
     FlexGridSizer7->Add(Button3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -2107,13 +2098,20 @@ void configFrame::load_current()
  */
 void configFrame::refresh_gui()
 {
-    PanelOverall->Layout();
-    PanelTrigger->Layout();
+    /*PanelTrigger->Layout();
     PanelMouseOptions->Layout();
     PanelIntensity->Layout();
+    PanelOverall->Layout();
     PanelButton->Layout();
-    PanelAxis->Layout();
-    Refresh();
+    PanelAxis->Layout();*/
+    PanelTrigger->Fit();
+    PanelMouseOptions->Fit();
+    PanelIntensity->Fit();
+    PanelOverall->Fit();
+    PanelButton->Fit();
+    PanelAxis->Fit();
+    //Refresh();
+    Fit();
 }
 
 /*

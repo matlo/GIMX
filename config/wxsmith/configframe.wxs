@@ -8,13 +8,11 @@
 			<rows>1</rows>
 			<object class="sizeritem">
 				<object class="wxNotebook" name="ID_NOTEBOOK1" variable="Notebook1" member="yes">
-					<size>1280,570</size>
 					<object class="notebookpage">
 						<object class="wxPanel" name="ID_PANEL1" variable="PanelOverall" member="yes">
-							<object class="wxFlexGridSizer" variable="FlexGridSizer10" member="no">
+							<object class="wxGridSizer" variable="GridSizer3" member="no">
 								<cols>1</cols>
-								<rows>2</rows>
-								<growablerows>1</growablerows>
+								<rows>1</rows>
 								<object class="sizeritem">
 									<object class="wxNotebook" name="ID_NOTEBOOK2" variable="Notebook2" member="yes">
 										<object class="notebookpage">
@@ -165,75 +163,31 @@
 										</object>
 										<object class="notebookpage">
 											<object class="wxPanel" name="ID_PANEL5" variable="PanelMouseOptions" member="yes">
-												<object class="wxFlexGridSizer" variable="FlexGridSizer26" member="no">
+												<object class="wxFlexGridSizer" variable="FlexGridSizer31" member="no">
 													<cols>1</cols>
-													<rows>1</rows>
+													<rows>2</rows>
 													<object class="sizeritem">
-														<object class="wxFlexGridSizer" variable="FlexGridSizer31" member="no">
-															<cols>1</cols>
-															<rows>2</rows>
-															<growablerows>1</growablerows>
+														<object class="wxFlexGridSizer" variable="FlexGridSizer32" member="no">
+															<cols>6</cols>
+															<rows>1</rows>
 															<object class="sizeritem">
-																<object class="wxFlexGridSizer" variable="FlexGridSizer32" member="no">
-																	<cols>10</cols>
-																	<rows>1</rows>
+																<object class="wxStaticBoxSizer" variable="StaticBoxSizer12" member="no">
+																	<label>Mouse</label>
 																	<object class="sizeritem">
-																		<object class="wxStaticBoxSizer" variable="StaticBoxSizer12" member="no">
-																			<label>Mouse</label>
+																		<object class="wxFlexGridSizer" variable="FlexGridSizer33" member="no">
+																			<cols>4</cols>
+																			<rows>1</rows>
 																			<object class="sizeritem">
-																				<object class="wxFlexGridSizer" variable="FlexGridSizer33" member="no">
-																					<cols>4</cols>
-																					<rows>1</rows>
-																					<object class="sizeritem">
-																						<object class="wxStaticText" name="ID_STATICTEXT3" variable="MouseOptionsType" member="yes">
-																							<label></label>
-																							<hidden>1</hidden>
-																						</object>
-																						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																						<border>5</border>
-																						<option>1</option>
-																					</object>
-																					<object class="sizeritem">
-																						<object class="wxStaticText" name="ID_STATICTEXT4" variable="MouseOptionsName" member="yes">
-																							<label></label>
-																						</object>
-																						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																						<border>5</border>
-																						<option>1</option>
-																					</object>
-																					<object class="sizeritem">
-																						<object class="wxStaticText" name="ID_STATICTEXT5" variable="MouseOptionsId" member="yes">
-																							<label></label>
-																						</object>
-																						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																						<border>5</border>
-																						<option>1</option>
-																					</object>
-																					<object class="sizeritem">
-																						<object class="wxStaticText" name="ID_STATICTEXT14" variable="MouseOptionsButton" member="yes">
-																							<label></label>
-																							<hidden>1</hidden>
-																						</object>
-																						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																						<border>5</border>
-																						<option>1</option>
-																					</object>
+																				<object class="wxStaticText" name="ID_STATICTEXT3" variable="MouseOptionsType" member="yes">
+																					<label></label>
+																					<hidden>1</hidden>
 																				</object>
 																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																				<border>5</border>
 																				<option>1</option>
 																			</object>
-																		</object>
-																		<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																		<border>5</border>
-																		<option>1</option>
-																	</object>
-																	<object class="sizeritem">
-																		<object class="wxFlexGridSizer" variable="FlexGridSizer34" member="no">
-																			<cols>1</cols>
-																			<rows>2</rows>
 																			<object class="sizeritem">
-																				<object class="wxStaticText" name="ID_STATICTEXT9" variable="StaticText11" member="yes">
+																				<object class="wxStaticText" name="ID_STATICTEXT4" variable="MouseOptionsName" member="yes">
 																					<label></label>
 																				</object>
 																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -241,105 +195,139 @@
 																				<option>1</option>
 																			</object>
 																			<object class="sizeritem">
-																				<object class="wxButton" name="ID_BUTTON11" variable="MouseOptionsAutoDetect" member="yes">
-																					<label>Auto detect</label>
-																					<handler function="OnMouseOptionsAutoDetectClick" entry="EVT_BUTTON" />
+																				<object class="wxStaticText" name="ID_STATICTEXT5" variable="MouseOptionsId" member="yes">
+																					<label></label>
 																				</object>
-																				<flag>wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL</flag>
+																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																				<border>5</border>
+																				<option>1</option>
+																			</object>
+																			<object class="sizeritem">
+																				<object class="wxStaticText" name="ID_STATICTEXT14" variable="MouseOptionsButton" member="yes">
+																					<label></label>
+																					<hidden>1</hidden>
+																				</object>
+																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																				<border>5</border>
 																				<option>1</option>
 																			</object>
 																		</object>
-																		<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																		<border>5</border>
 																		<option>1</option>
 																	</object>
+																</object>
+																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+															<object class="sizeritem">
+																<object class="wxFlexGridSizer" variable="FlexGridSizer34" member="no">
+																	<cols>1</cols>
+																	<rows>2</rows>
 																	<object class="sizeritem">
-																		<object class="wxStaticLine" name="ID_STATICLINE1" variable="StaticLine1" member="yes">
-																			<size>-1,50</size>
-																			<style>wxLI_VERTICAL</style>
+																		<object class="wxStaticText" name="ID_STATICTEXT9" variable="StaticText11" member="yes">
+																			<label></label>
 																		</object>
 																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																		<border>5</border>
 																		<option>1</option>
 																	</object>
 																	<object class="sizeritem">
-																		<object class="wxFlexGridSizer" variable="FlexGridSizer35" member="no">
-																			<cols>1</cols>
-																			<rows>2</rows>
-																			<object class="sizeritem">
-																				<object class="wxStaticText" name="ID_STATICTEXT10" variable="StaticText12" member="yes">
-																					<label>Mode</label>
-																				</object>
-																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																				<border>5</border>
-																				<option>1</option>
-																			</object>
-																			<object class="sizeritem">
-																				<object class="wxChoice" name="ID_CHOICE3" variable="MouseOptionsInitMode" member="yes">
-																					<content>
-																						<item>Aiming</item>
-																						<item>Driving</item>
-																					</content>
-																					<selection>0</selection>
-																					<size>100,-1</size>
-																				</object>
-																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																				<border>5</border>
-																				<option>1</option>
-																			</object>
+																		<object class="wxButton" name="ID_BUTTON11" variable="MouseOptionsAutoDetect" member="yes">
+																			<label>Auto detect</label>
+																			<handler function="OnMouseOptionsAutoDetectClick" entry="EVT_BUTTON" />
 																		</object>
-																		<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<flag>wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL</flag>
 																		<border>5</border>
 																		<option>1</option>
 																	</object>
+																</object>
+																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+															<object class="sizeritem">
+																<object class="wxStaticLine" name="ID_STATICLINE1" variable="StaticLine1" member="yes">
+																	<size>-1,50</size>
+																	<style>wxLI_VERTICAL</style>
+																</object>
+																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+															<object class="sizeritem">
+																<object class="wxFlexGridSizer" variable="FlexGridSizer35" member="no">
+																	<cols>1</cols>
+																	<rows>2</rows>
 																	<object class="sizeritem">
-																		<object class="wxStaticLine" name="ID_STATICLINE2" variable="StaticLine2" member="yes">
-																			<size>-1,50</size>
-																			<style>wxLI_VERTICAL</style>
+																		<object class="wxStaticText" name="ID_STATICTEXT10" variable="StaticText12" member="yes">
+																			<label>Mode</label>
 																		</object>
 																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																		<border>5</border>
 																		<option>1</option>
 																	</object>
 																	<object class="sizeritem">
-																		<object class="wxFlexGridSizer" variable="FlexGridSizer36" member="no">
-																			<cols>1</cols>
-																			<rows>2</rows>
+																		<object class="wxChoice" name="ID_CHOICE3" variable="MouseOptionsInitMode" member="yes">
+																			<content>
+																				<item>Aiming</item>
+																				<item>Driving</item>
+																			</content>
+																			<selection>0</selection>
+																			<size>100,-1</size>
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																</object>
+																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+															<object class="sizeritem">
+																<object class="wxStaticLine" name="ID_STATICLINE2" variable="StaticLine2" member="yes">
+																	<size>-1,50</size>
+																	<style>wxLI_VERTICAL</style>
+																</object>
+																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+															<object class="sizeritem">
+																<object class="wxFlexGridSizer" variable="FlexGridSizer36" member="no">
+																	<cols>1</cols>
+																	<rows>2</rows>
+																	<object class="sizeritem">
+																		<object class="wxStaticText" name="ID_STATICTEXT26" variable="StaticText24" member="yes">
+																			<label>Smoothing</label>
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																	<object class="sizeritem">
+																		<object class="wxFlexGridSizer" variable="FlexGridSizer41" member="no">
+																			<cols>2</cols>
+																			<rows>1</rows>
 																			<object class="sizeritem">
-																				<object class="wxStaticText" name="ID_STATICTEXT26" variable="StaticText24" member="yes">
-																					<label>Smoothing</label>
+																				<object class="wxTextCtrl" name="ID_TEXTCTRL7" variable="MouseOptionsBuffer" member="yes">
+																					<value>1</value>
+																					<size>27,-1</size>
+																					<tooltip>Buffer size [1..30]</tooltip>
+																					<handler function="OnTextCtrl" entry="EVT_TEXT" />
 																				</object>
 																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																				<border>5</border>
 																				<option>1</option>
 																			</object>
 																			<object class="sizeritem">
-																				<object class="wxFlexGridSizer" variable="FlexGridSizer41" member="no">
-																					<cols>2</cols>
-																					<rows>1</rows>
-																					<object class="sizeritem">
-																						<object class="wxTextCtrl" name="ID_TEXTCTRL7" variable="MouseOptionsBuffer" member="yes">
-																							<value>1</value>
-																							<size>27,-1</size>
-																							<tooltip>Buffer size [1..30]</tooltip>
-																							<handler function="OnTextCtrl" entry="EVT_TEXT" />
-																						</object>
-																						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																						<border>5</border>
-																						<option>1</option>
-																					</object>
-																					<object class="sizeritem">
-																						<object class="wxTextCtrl" name="ID_TEXTCTRL11" variable="MouseOptionsFilter" member="yes">
-																							<value>0.00</value>
-																							<size>41,-1</size>
-																							<tooltip>Filter [0.00..1.00]</tooltip>
-																							<handler function="OnTextCtrl" entry="EVT_TEXT" />
-																						</object>
-																						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																						<border>5</border>
-																						<option>1</option>
-																					</object>
+																				<object class="wxTextCtrl" name="ID_TEXTCTRL11" variable="MouseOptionsFilter" member="yes">
+																					<value>0.00</value>
+																					<size>41,-1</size>
+																					<tooltip>Filter [0.00..1.00]</tooltip>
+																					<handler function="OnTextCtrl" entry="EVT_TEXT" />
 																				</object>
 																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																				<border>5</border>
@@ -355,69 +343,69 @@
 																<border>5</border>
 																<option>1</option>
 															</object>
+														</object>
+														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+														<border>5</border>
+														<option>1</option>
+													</object>
+													<object class="sizeritem">
+														<object class="wxFlexGridSizer" variable="FlexGridSizer37" member="no">
+															<cols>2</cols>
+															<rows>1</rows>
 															<object class="sizeritem">
-																<object class="wxFlexGridSizer" variable="FlexGridSizer37" member="no">
-																	<cols>2</cols>
-																	<rows>1</rows>
+																<object class="wxGrid" name="ID_GRID4" variable="GridMouseOption" member="yes">
+																	<cols>5</cols>
+																	<readonly>1</readonly>
+																	<collabels>
+																		<item>Mouse</item>
+																		<item></item>
+																		<item>Mode</item>
+																		<item>Buffer size</item>
+																		<item>Filter</item>
+																	</collabels>
+																	<style>wxVSCROLL</style>
+																</object>
+																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+															</object>
+															<object class="sizeritem">
+																<object class="wxFlexGridSizer" variable="FlexGridSizer42" member="no">
+																	<cols>1</cols>
+																	<rows>2</rows>
 																	<object class="sizeritem">
-																		<object class="wxGrid" name="ID_GRID4" variable="GridMouseOption" member="yes">
-																			<cols>5</cols>
-																			<readonly>1</readonly>
-																			<collabels>
-																				<item>Mouse</item>
-																				<item></item>
-																				<item>Mode</item>
-																				<item>Buffer size</item>
-																				<item>Filter</item>
-																			</collabels>
-																			<style>wxVSCROLL</style>
+																		<object class="wxButton" name="ID_BUTTON12" variable="MouseOptionsAdd" member="yes">
+																			<label>Add</label>
+																			<handler function="OnMouseOptionsAddClick" entry="EVT_BUTTON" />
 																		</object>
-																		<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																		<border>5</border>
+																		<option>1</option>
 																	</object>
 																	<object class="sizeritem">
-																		<object class="wxFlexGridSizer" variable="FlexGridSizer42" member="no">
-																			<cols>1</cols>
-																			<rows>2</rows>
-																			<object class="sizeritem">
-																				<object class="wxButton" name="ID_BUTTON12" variable="MouseOptionsAdd" member="yes">
-																					<label>Add</label>
-																					<handler function="OnMouseOptionsAddClick" entry="EVT_BUTTON" />
-																				</object>
-																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																				<border>5</border>
-																				<option>1</option>
-																			</object>
-																			<object class="sizeritem">
-																				<object class="wxButton" name="ID_BUTTON13" variable="MouseOptionsRemove" member="yes">
-																					<label>Remove</label>
-																					<handler function="OnMouseOptionsRemoveClick" entry="EVT_BUTTON" />
-																				</object>
-																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																				<border>5</border>
-																				<option>1</option>
-																			</object>
-																			<object class="sizeritem">
-																				<object class="wxButton" name="ID_BUTTON14" variable="MouseOptionsModify" member="yes">
-																					<label>Modify</label>
-																					<handler function="OnMouseOptionsModifyClick" entry="EVT_BUTTON" />
-																				</object>
-																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-																				<border>5</border>
-																				<option>1</option>
-																			</object>
+																		<object class="wxButton" name="ID_BUTTON13" variable="MouseOptionsRemove" member="yes">
+																			<label>Remove</label>
+																			<handler function="OnMouseOptionsRemoveClick" entry="EVT_BUTTON" />
 																		</object>
-																		<flag>wxALL|wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL</flag>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																	<object class="sizeritem">
+																		<object class="wxButton" name="ID_BUTTON14" variable="MouseOptionsModify" member="yes">
+																			<label>Modify</label>
+																			<handler function="OnMouseOptionsModifyClick" entry="EVT_BUTTON" />
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																		<border>5</border>
 																		<option>1</option>
 																	</object>
 																</object>
-																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<flag>wxALL|wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL</flag>
 																<border>5</border>
 																<option>1</option>
 															</object>
 														</object>
-														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+														<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 														<border>5</border>
 														<option>1</option>
 													</object>
@@ -428,12 +416,12 @@
 										<object class="notebookpage">
 											<object class="wxPanel" name="ID_PANEL6" variable="PanelIntensity" member="yes">
 												<object class="wxFlexGridSizer" variable="FlexGridSizer15" member="no">
-													<cols>3</cols>
+													<cols>1</cols>
+													<rows>1</rows>
 													<object class="sizeritem">
 														<object class="wxFlexGridSizer" variable="FlexGridSizer19" member="no">
 															<cols>1</cols>
 															<rows>2</rows>
-															<growablerows>1</growablerows>
 															<object class="sizeritem">
 																<object class="wxFlexGridSizer" variable="FlexGridSizer20" member="no">
 																	<cols>7</cols>
@@ -617,7 +605,6 @@
 																						<item>Decrease</item>
 																					</content>
 																					<selection>1</selection>
-																					<size>100,-1</size>
 																				</object>
 																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																				<border>5</border>
@@ -634,9 +621,7 @@
 																				<option>1</option>
 																			</object>
 																			<object class="sizeritem">
-																				<object class="wxChoice" name="ID_CHOICE2" variable="IntensityShape" member="yes">
-																					<size>75,-1</size>
-																				</object>
+																				<object class="wxChoice" name="ID_CHOICE2" variable="IntensityShape" member="yes" />
 																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																				<border>5</border>
 																				<option>1</option>
@@ -728,7 +713,7 @@
 																<option>1</option>
 															</object>
 														</object>
-														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+														<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 														<border>5</border>
 														<option>1</option>
 													</object>
@@ -750,7 +735,6 @@
 							<object class="wxFlexGridSizer" variable="FlexGridSizer9" member="no">
 								<cols>1</cols>
 								<rows>2</rows>
-								<growablerows>1</growablerows>
 								<object class="sizeritem">
 									<object class="wxFlexGridSizer" variable="FlexGridSizer1" member="no">
 										<cols>9</cols>
@@ -952,9 +936,7 @@
 													<option>1</option>
 												</object>
 												<object class="sizeritem">
-													<object class="wxComboBox" name="ID_COMBOBOX1" variable="ButtonTabLabel" member="yes">
-														<size>150,-1</size>
-													</object>
+													<object class="wxComboBox" name="ID_COMBOBOX1" variable="ButtonTabLabel" member="yes" />
 													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 													<border>5</border>
 													<option>1</option>
@@ -989,6 +971,7 @@
 													<item>Button</item>
 													<item>Label</item>
 												</collabels>
+												<style>wxVSCROLL</style>
 											</object>
 											<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 											<border>5</border>
@@ -1044,11 +1027,10 @@
 							<object class="wxFlexGridSizer" variable="FlexGridSizer5" member="no">
 								<cols>1</cols>
 								<rows>2</rows>
-								<growablerows>1</growablerows>
 								<object class="sizeritem">
 									<object class="wxFlexGridSizer" variable="FlexGridSizer3" member="no">
 										<cols>9</cols>
-										<rows>2</rows>
+										<rows>1</rows>
 										<object class="sizeritem">
 											<object class="wxStaticBoxSizer" variable="StaticBoxSizer7" member="no">
 												<label>Device</label>
@@ -1354,9 +1336,7 @@
 													<option>1</option>
 												</object>
 												<object class="sizeritem">
-													<object class="wxComboBox" name="ID_COMBOBOX2" variable="AxisTabLabel" member="yes">
-														<size>150,-1</size>
-													</object>
+													<object class="wxComboBox" name="ID_COMBOBOX2" variable="AxisTabLabel" member="yes" />
 													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 													<border>5</border>
 													<option>1</option>
@@ -1396,8 +1376,10 @@
 													<item>Buffer Size</item>
 													<item>Filter</item>
 												</collabels>
+												<style>wxVSCROLL</style>
 											</object>
 											<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+											<border>5</border>
 										</object>
 										<object class="sizeritem">
 											<object class="wxFlexGridSizer" variable="FlexGridSizer7" member="no">
