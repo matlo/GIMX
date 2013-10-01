@@ -7,18 +7,18 @@
 #define SERIALMAIN_H
 
 //(*Headers(serialFrame)
-#include <wx/sizer.h>
-#include <wx/stattext.h>
-#include <wx/menu.h>
-#include <wx/checkbox.h>
-#include <wx/panel.h>
-#include <wx/snglinst.h>
-#include <wx/choice.h>
-#include <wx/button.h>
-#include <wx/utils.h>
-#include <wx/frame.h>
 #include <wx/combobox.h>
+#include <wx/checkbox.h>
+#include <wx/sizer.h>
+#include <wx/button.h>
+#include <wx/menu.h>
+#include <wx/panel.h>
 #include <wx/statusbr.h>
+#include <wx/snglinst.h>
+#include <wx/frame.h>
+#include <wx/stattext.h>
+#include <wx/choice.h>
+#include <wx/utils.h>
 //*)
 
 #include <wx/process.h>
@@ -48,7 +48,6 @@ class serialFrame: public wxFrame
         void OnMenuEditFpsConfig(wxCommandEvent& event);
         void OnMenuRefresh(wxCommandEvent& event);
         void OnControllerTypeSelect(wxCommandEvent& event);
-        void OnButtonSpoofClick(wxCommandEvent& event);
         void OnMenuUpdate(wxCommandEvent& event);
         void OnMenuStartupUpdates(wxCommandEvent& event);
         void OnMenuGetConfigs(wxCommandEvent& event);
@@ -60,14 +59,10 @@ class serialFrame: public wxFrame
         void autoBindControls(wxArrayString configs);
 
         //(*Identifiers(serialFrame)
-        static const long ID_STATICTEXT3;
-        static const long ID_COMBOBOX1;
         static const long ID_STATICTEXT4;
         static const long ID_CHOICE1;
-        static const long ID_BUTTON2;
-        static const long ID_STATICTEXT1;
-        static const long ID_COMBOBOX2;
-        static const long ID_STATICTEXT2;
+        static const long ID_STATICTEXT3;
+        static const long ID_COMBOBOX1;
         static const long ID_CHECKBOX5;
         static const long ID_CHECKBOX6;
         static const long ID_CHECKBOX1;
@@ -91,35 +86,32 @@ class serialFrame: public wxFrame
         //*)
 
         //(*Declarations(serialFrame)
-        wxMenuItem* MenuRefresh;
-        wxMenuItem* MenuEditFpsConfig;
-        wxStaticText* StaticText2;
-        wxCheckBox* CheckBoxGui;
-        wxCheckBox* CheckBoxGrab;
-        wxComboBox* ComboBoxDevice;
         wxCheckBox* CheckBoxTerminal;
-        wxChoice* ChoiceConfig;
-        wxPanel* Panel1;
-        wxStaticText* StaticText1;
-        wxCheckBox* CheckBoxSubpositions;
-        wxStaticText* StaticText3;
-        wxComboBox* ComboBoxFrequency;
-        wxSingleInstanceChecker SingleInstanceChecker1;
-        wxChoice* ControllerType;
-        wxStatusBar* StatusBar1;
-        wxButton* ButtonCheck;
-        wxButton* ButtonSpoof;
-        wxMenuItem* MenuGetConfigs;
-        wxButton* ButtonStart;
-        wxMenuItem* MenuStartupUpdates;
-        wxStaticText* StaticText4;
-        wxMenuItem* MenuEditConfig;
+        wxFlexGridSizer* FlexGridSizer1;
         wxCheckBox* CheckBoxForceUpdates;
-        wxMenuItem* MenuUpdate;
+        wxPanel* Panel1;
+        wxCheckBox* CheckBoxGui;
+        wxStatusBar* StatusBar1;
         wxMenuItem* MenuAutoBindControls;
+        wxButton* ButtonCheck;
+        wxMenuItem* MenuEditFpsConfig;
+        wxChoice* ChoiceConfig;
+        wxMenuItem* MenuGetConfigs;
+        wxCheckBox* CheckBoxSubpositions;
+        wxMenuItem* MenuUpdate;
+        wxChoice* ControllerType;
+        wxStaticText* StaticText3;
+        wxMenuItem* MenuRefresh;
+        wxMenuItem* MenuStartupUpdates;
+        wxMenuItem* MenuItem3;
+        wxComboBox* ComboBoxDevice;
+        wxStaticText* StaticText4;
+        wxCheckBox* CheckBoxGrab;
+        wxButton* ButtonStart;
+        wxMenuItem* MenuEditConfig;
+        wxSingleInstanceChecker SingleInstanceChecker1;
         //*)
 
-        bool spoofed;
         bool started;
 
         DECLARE_EVENT_TABLE()

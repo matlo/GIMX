@@ -8,8 +8,8 @@
 #include <wx/msgdlg.h>
 
 //(*InternalHeaders(serialFrame)
-#include <wx/intl.h>
 #include <wx/string.h>
+#include <wx/intl.h>
 //*)
 
 #include <unistd.h>
@@ -48,14 +48,10 @@ wxString userConfigDir;
 wxString userDataDir;
 
 //(*IdInit(serialFrame)
-const long serialFrame::ID_STATICTEXT3 = wxNewId();
-const long serialFrame::ID_COMBOBOX1 = wxNewId();
 const long serialFrame::ID_STATICTEXT4 = wxNewId();
 const long serialFrame::ID_CHOICE1 = wxNewId();
-const long serialFrame::ID_BUTTON2 = wxNewId();
-const long serialFrame::ID_STATICTEXT1 = wxNewId();
-const long serialFrame::ID_COMBOBOX2 = wxNewId();
-const long serialFrame::ID_STATICTEXT2 = wxNewId();
+const long serialFrame::ID_STATICTEXT3 = wxNewId();
+const long serialFrame::ID_COMBOBOX1 = wxNewId();
 const long serialFrame::ID_CHECKBOX5 = wxNewId();
 const long serialFrame::ID_CHECKBOX6 = wxNewId();
 const long serialFrame::ID_CHECKBOX1 = wxNewId();
@@ -242,25 +238,6 @@ static void read_filenames(wxChoice* choice)
   }
 }
 
-static void read_frequency(wxComboBox* choice)
-{
-  string filename;
-  string line = "";
-
-  filename = string(userDataDir.mb_str(wxConvUTF8));
-  filename.append("/frequency");
-  ifstream infile (filename.c_str());
-  if ( infile.is_open() )
-  {
-    if( infile.good() )
-    {
-      getline (infile,line);
-      choice->SetSelection(choice->FindString(wxString(line.c_str(), wxConvUTF8)));
-    }
-    infile.close();
-  }
-}
-
 static void read_controller_type(wxChoice* choice)
 {
   string filename;
@@ -305,68 +282,40 @@ static void readStartUpdates(wxMenuItem* menuItem)
 serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
 {
     //(*Initialize(serialFrame)
-    wxStaticBoxSizer* StaticBoxSizer2;
-    wxFlexGridSizer* FlexGridSizer4;
     wxMenuItem* MenuItem2;
-    wxStaticBoxSizer* StaticBoxSizer4;
-    wxFlexGridSizer* FlexGridSizer10;
-    wxFlexGridSizer* FlexGridSizer3;
     wxMenuItem* MenuItem1;
-    wxFlexGridSizer* FlexGridSizer5;
-    wxFlexGridSizer* FlexGridSizer9;
+    wxFlexGridSizer* FlexGridSizer8;
     wxFlexGridSizer* FlexGridSizer2;
     wxMenu* Menu1;
+    wxStaticBoxSizer* StaticBoxSizer5;
+    wxFlexGridSizer* FlexGridSizer11;
     wxFlexGridSizer* FlexGridSizer7;
-    wxMenuItem* MenuItem3;
+    wxFlexGridSizer* FlexGridSizer4;
+    wxFlexGridSizer* FlexGridSizer9;
     wxStaticBoxSizer* StaticBoxSizer8;
     wxStaticBoxSizer* StaticBoxSizer6;
-    wxFlexGridSizer* FlexGridSizer8;
+    wxFlexGridSizer* FlexGridSizer10;
     wxFlexGridSizer* FlexGridSizer13;
-    wxFlexGridSizer* FlexGridSizer12;
     wxMenuBar* MenuBar1;
-    wxFlexGridSizer* FlexGridSizer6;
-    wxFlexGridSizer* FlexGridSizer1;
-    wxFlexGridSizer* FlexGridSizer11;
+    wxFlexGridSizer* FlexGridSizer12;
     wxMenu* Menu2;
-    wxStaticBoxSizer* StaticBoxSizer5;
-    
+
     Create(parent, wxID_ANY, _("Gimx-serial"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
-    SetClientSize(wxSize(412,470));
-    Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxSize(-1,-1), wxTAB_TRAVERSAL, _T("ID_PANEL1"));
-    FlexGridSizer1 = new wxFlexGridSizer(2, 1, 0, 0);
-    StaticBoxSizer2 = new wxStaticBoxSizer(wxVERTICAL, Panel1, _("USB to serial"));
-    FlexGridSizer3 = new wxFlexGridSizer(1, 2, 0, 0);
-    StaticText3 = new wxStaticText(Panel1, ID_STATICTEXT3, _("Device"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT3"));
-    FlexGridSizer3->Add(StaticText3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    ComboBoxDevice = new wxComboBox(Panel1, ID_COMBOBOX1, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX1"));
-    FlexGridSizer3->Add(ComboBoxDevice, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticBoxSizer2->Add(FlexGridSizer3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer1->Add(StaticBoxSizer2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticBoxSizer4 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("emuclient"));
-    FlexGridSizer5 = new wxFlexGridSizer(3, 1, 0, 0);
+    Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL1"));
+    FlexGridSizer1 = new wxFlexGridSizer(3, 1, 0, 0);
     FlexGridSizer2 = new wxFlexGridSizer(2, 1, 0, 0);
-    FlexGridSizer12 = new wxFlexGridSizer(1, 3, 0, 0);
-    StaticText4 = new wxStaticText(Panel1, ID_STATICTEXT4, _("Controller"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT4"));
+    FlexGridSizer12 = new wxFlexGridSizer(2, 2, 0, 0);
+    StaticText4 = new wxStaticText(Panel1, ID_STATICTEXT4, _("Adapter"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT4"));
     FlexGridSizer12->Add(StaticText4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    ControllerType = new wxChoice(Panel1, ID_CHOICE1, wxDefaultPosition, wxSize(100,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
-    ControllerType->SetSelection( ControllerType->Append(_("Joystick")) );
-    ControllerType->Append(_("Sixaxis"));
+    ControllerType = new wxChoice(Panel1, ID_CHOICE1, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
+    ControllerType->SetSelection( ControllerType->Append(_("DIY USB adapter")) );
     ControllerType->Append(_("GPP"));
-    ControllerType->Append(_("PS2 pad"));
-    ControllerType->Append(_("Xbox pad"));
     FlexGridSizer12->Add(ControllerType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    ButtonSpoof = new wxButton(Panel1, ID_BUTTON2, _("Spoof"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON2"));
-    ButtonSpoof->Disable();
-    FlexGridSizer12->Add(ButtonSpoof, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticText3 = new wxStaticText(Panel1, ID_STATICTEXT3, _("Port"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT3"));
+    FlexGridSizer12->Add(StaticText3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ComboBoxDevice = new wxComboBox(Panel1, ID_COMBOBOX1, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX1"));
+    FlexGridSizer12->Add(ComboBoxDevice, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer2->Add(FlexGridSizer12, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer6 = new wxFlexGridSizer(1, 3, 0, 0);
-    StaticText1 = new wxStaticText(Panel1, ID_STATICTEXT1, _("Update frequency "), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
-    FlexGridSizer6->Add(StaticText1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    ComboBoxFrequency = new wxComboBox(Panel1, ID_COMBOBOX2, wxEmptyString, wxDefaultPosition, wxSize(75,-1), 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX2"));
-    FlexGridSizer6->Add(ComboBoxFrequency, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText2 = new wxStaticText(Panel1, ID_STATICTEXT2, _("Hz"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
-    FlexGridSizer6->Add(StaticText2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer2->Add(FlexGridSizer6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer13 = new wxFlexGridSizer(1, 2, 0, 0);
     CheckBoxForceUpdates = new wxCheckBox(Panel1, ID_CHECKBOX5, _("Force updates"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX5"));
     CheckBoxForceUpdates->SetValue(true);
@@ -375,8 +324,8 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     CheckBoxSubpositions->SetValue(true);
     FlexGridSizer13->Add(CheckBoxSubpositions, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer2->Add(FlexGridSizer13, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer5->Add(FlexGridSizer2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer8 = new wxFlexGridSizer(2, 2, 0, 0);
+    FlexGridSizer1->Add(FlexGridSizer2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer8 = new wxFlexGridSizer(1, 2, 0, 0);
     StaticBoxSizer5 = new wxStaticBoxSizer(wxVERTICAL, Panel1, _("Mouse"));
     FlexGridSizer10 = new wxFlexGridSizer(1, 1, 0, 0);
     CheckBoxGrab = new wxCheckBox(Panel1, ID_CHECKBOX1, _("grab"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX1"));
@@ -394,11 +343,11 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer11->Add(CheckBoxTerminal, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer6->Add(FlexGridSizer11, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer8->Add(StaticBoxSizer6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer5->Add(FlexGridSizer8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer1->Add(FlexGridSizer8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer9 = new wxFlexGridSizer(1, 2, 0, 0);
     StaticBoxSizer8 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("Config"));
-    FlexGridSizer4 = new wxFlexGridSizer(0, 3, 0, 0);
-    ChoiceConfig = new wxChoice(Panel1, ID_CHOICE4, wxDefaultPosition, wxSize(225,-1), 0, 0, wxCB_SORT, wxDefaultValidator, _T("ID_CHOICE4"));
+    FlexGridSizer4 = new wxFlexGridSizer(1, 1, 0, 0);
+    ChoiceConfig = new wxChoice(Panel1, ID_CHOICE4, wxDefaultPosition, wxDefaultSize, 0, 0, wxCB_SORT, wxDefaultValidator, _T("ID_CHOICE4"));
     FlexGridSizer4->Add(ChoiceConfig, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticBoxSizer8->Add(FlexGridSizer4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer9->Add(StaticBoxSizer8, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -408,10 +357,9 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     ButtonStart = new wxButton(Panel1, ID_BUTTON3, _("Start"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON3"));
     FlexGridSizer7->Add(ButtonStart, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer9->Add(FlexGridSizer7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer5->Add(FlexGridSizer9, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticBoxSizer4->Add(FlexGridSizer5, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer1->Add(StaticBoxSizer4, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer1->Add(FlexGridSizer9, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     Panel1->SetSizer(FlexGridSizer1);
+    FlexGridSizer1->Fit(Panel1);
     FlexGridSizer1->SetSizeHints(Panel1);
     MenuBar1 = new wxMenuBar();
     Menu1 = new wxMenu();
@@ -446,9 +394,8 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     StatusBar1->SetStatusStyles(2,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
     SingleInstanceChecker1.Create(_T("gimx-serial_") + wxGetUserId() + _T("_Guard"));
-    
+
     Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&serialFrame::OnControllerTypeSelect);
-    Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&serialFrame::OnButtonSpoofClick);
     Connect(ID_CHECKBOX2,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&serialFrame::OnCheckBoxGuiClick);
     Connect(ID_CHECKBOX3,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&serialFrame::OnCheckBoxTerminalClick);
     Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&serialFrame::OnButtonCheckClick1);
@@ -464,17 +411,6 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnMenuStartupUpdates);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&serialFrame::OnAbout);
     //*)
-
-    ComboBoxFrequency->Append(wxT("62.5"));
-    ComboBoxFrequency->Append(wxT("100"));
-    ComboBoxFrequency->Append(wxT("125"));
-    ComboBoxFrequency->SetSelection( ComboBoxFrequency->Append(wxT("250")) );
-
-#ifndef WIN32
-    ControllerType->Append(_("360 pad"));
-#endif
-
-    spoofed = false;
 
     if(SingleInstanceChecker1.IsAnotherRunning())
     {
@@ -516,7 +452,6 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
 
     started = false;
 
-    read_frequency(ComboBoxFrequency);
     read_controller_type(ControllerType);
     refresh();
     
@@ -531,8 +466,6 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
 
     started = true;
 
-    Refresh();
-
     if(ChoiceConfig->IsEmpty())
     {
       int answer = wxMessageBox(_("No config found! Download configs?"), _("Confirm"), wxYES_NO);
@@ -542,6 +475,9 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
         OnMenuGetConfigs(event);
       }
     }
+
+    Panel1->Fit();
+    Fit();
 }
 
 serialFrame::~serialFrame()
@@ -594,10 +530,6 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
     wxArrayString output, errors;
     string filename;
     wxString dpi;
-    double refresh;
-    ostringstream ios;
-    double frequency;
-    wxString wxfrequency;
 
     if(ChoiceConfig->GetStringSelection().IsEmpty())
     {
@@ -614,39 +546,21 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
       }
     }
 
-    if(ControllerType->GetStringSelection() == _("360 pad") && !spoofed)
-    {
-      wxMessageBox( _("Spoof the 360 controller first!"), _("Error"), wxICON_ERROR);
-      return;
-    }
-
 #ifndef WIN32
     command.Append(wxT("xterm -e "));
 #endif
     command.Append(wxT("emuclient"));
-    if(ControllerType->GetStringSelection() == _("Joystick"))
-    {
-      command.Append(wxT(" --type joystick"));
-    }
-    else if(ControllerType->GetStringSelection() == _("GPP"))
+    if(ControllerType->GetStringSelection() == _("GPP"))
     {
       command.Append(wxT(" --type GPP"));
     }
-    else if(ControllerType->GetStringSelection() == _("360 pad"))
+    else
     {
-      command.Append(wxT(" --type 360pad"));
-    }
-    else if(ControllerType->GetStringSelection() == _("Sixaxis"))
-    {
-      command.Append(wxT(" --type Sixaxis"));
-    }
-    else if(ControllerType->GetStringSelection() == _("PS2 pad"))
-    {
-      command.Append(wxT(" --type PS2pad"));
-    }
-    else if(ControllerType->GetStringSelection() == _("Xbox pad"))
-    {
-      command.Append(wxT(" --type XboxPad"));
+      command.Append(wxT(" --port "));
+#ifndef WIN32
+      command.Append(wxT("/dev/"));
+#endif
+      command.Append(ComboBoxDevice->GetValue());
     }
     if(!CheckBoxGrab->IsChecked())
     {
@@ -654,18 +568,7 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
     }
     command.Append(wxT(" --config \""));
     command.Append(ChoiceConfig->GetStringSelection());
-    command.Append(wxT("\" --refresh "));
-    wxfrequency = ComboBoxFrequency->GetValue();
-    if(wxfrequency.ToDouble(&frequency))
-    {
-      refresh = 1000 / frequency;
-    }
-    else
-    {
-      refresh = 10;
-    }
-    ios << refresh;
-    command.Append(wxString(ios.str().c_str(), wxConvUTF8));
+    command.Append(wxT("\""));
     if(CheckBoxForceUpdates->IsChecked())
     {
         command.Append(wxT(" --force-updates"));
@@ -673,14 +576,6 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
     if(CheckBoxSubpositions->IsChecked())
     {
         command.Append(wxT(" --subpos"));
-    }
-    if(ControllerType->GetStringSelection() != _("GPP"))
-    {
-      command.Append(wxT(" --port "));
-#ifndef WIN32
-      command.Append(wxT("/dev/"));
-#endif
-      command.Append(ComboBoxDevice->GetValue());
     }
 
     //cout << command.c_str() << endl;
@@ -692,14 +587,6 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
     {
         outfile << ChoiceConfig->GetStringSelection().mb_str(wxConvUTF8) << endl;
         outfile.close();
-    }
-    filename = userDataDir.mb_str(wxConvUTF8);
-    filename.append("/frequency");
-    ofstream outfile2 (filename.c_str(), ios_base::trunc);
-    if(outfile2.is_open())
-    {
-        outfile2 << ComboBoxFrequency->GetValue().mb_str(wxConvUTF8) << endl;
-        outfile2.close();
     }
     filename = userDataDir.mb_str(wxConvUTF8);
     filename.append("/config");
@@ -847,20 +734,6 @@ void serialFrame::OnMenuRefresh(wxCommandEvent& event)
 
 void serialFrame::OnControllerTypeSelect(wxCommandEvent& event)
 {
-    ComboBoxFrequency->SetSelection(3);
-    ComboBoxFrequency->Enable(true);
-
-    if(ControllerType->GetStringSelection() == _("360 pad"))
-    {
-      if(!spoofed)
-      {
-        ButtonSpoof->Enable(true);
-      }
-    }
-    else
-    {
-      ButtonSpoof->Enable(false);
-    }
     if(ControllerType->GetStringSelection() == _("GPP"))
     {
       ComboBoxDevice->Enable(false);
@@ -868,49 +741,6 @@ void serialFrame::OnControllerTypeSelect(wxCommandEvent& event)
     else
     {
       ComboBoxDevice->Enable(true);
-    }
-    if(ControllerType->GetStringSelection() == _("PS2 pad"))
-    {
-      ComboBoxFrequency->SetSelection(0);
-      ComboBoxFrequency->Enable(false);
-    }
-}
-
-void serialFrame::OnButtonSpoofClick(wxCommandEvent& event)
-{
-    wxString command = wxT("usbspoof -p ");
-
-    if(ComboBoxDevice->GetValue().IsEmpty())
-    {
-      wxMessageBox( _("No USB to serial device selected!"), _("Error"), wxICON_ERROR);
-      return;
-    }
-
-    if(ControllerType->GetStringSelection() == _("360 pad") && !spoofed)
-    {
-      {
-        wxMessageBox( _("1. Make sure a single genuine 360 controller is connected to the PC.\n"
-            "2. Make sure the adapter is connected to the PC.\n"
-            "3. Make sure the adapter is NOT connected to the 360.\n"
-            "4. Press OK, and connect the adapter to the 360 after 2-3 seconds."), _("Info"), wxICON_INFORMATION);
-      }
-#ifndef WIN32
-      command.Append(wxT("/dev/"));
-#endif
-      command.Append(ComboBoxDevice->GetValue());
-
-      if(wxExecute(command, wxEXEC_SYNC))
-      {
-        spoofed = false;
-        wxMessageBox( _("Spoof error!\nPlease try again!"), _("Error"), wxICON_ERROR);
-        return;
-      }
-      else
-      {
-        wxMessageBox( _("Spoof successful!"), _("Info"), wxICON_INFORMATION);
-        spoofed = true;
-        ButtonSpoof->Enable(false);
-      }
     }
 }
 
