@@ -317,8 +317,9 @@ static void display_devices()
   }
 }
 
-static void jsdev_init()
+static int jsdev_init()
 {
+  int ret = 0;
   int i;
   int fd;
   char joystick[sizeof("/dev/input/js255")];
@@ -337,10 +338,11 @@ static void jsdev_init()
     joystick_id[i] = -1;
   }
 
-  for(i=0; i<MAX_DEVICES; ++i)
+  for(i=0; i<MAX_DEVICES && !ret; ++i)
   {
     sprintf(joystick, "/dev/input/js%d", i);
-    if((fd = open (joystick, O_RDONLY | O_NONBLOCK)) != -1)
+    fd = open (joystick, O_RDONLY | O_NONBLOCK);
+    if(fd != -1)
     {
       if (ioctl(fd, JSIOCGNAME(sizeof(name) - 1), name) < 0) {
         fprintf(stderr, "ioctl EVIOCGNAME failed: %s\n", strerror(errno));
@@ -364,7 +366,14 @@ static void jsdev_init()
         close(fd);
       }
     }
+    else if(errno == EACCES)
+    {
+      fprintf(stderr, "can't open %s: %s\n", joystick, strerror(errno));
+      ret = -1;
+    }
   }
+
+  return ret;
 }
 
 void ev_joystick_close(int id)
@@ -388,8 +397,9 @@ static void jsdev_quit()
   }
 }
 
-static void evdev_init()
+static int evdev_init()
 {
+  int ret = 0;
   int i, j;
   int fd;
   char device[sizeof("/dev/input/event255")];
@@ -424,10 +434,11 @@ static void evdev_init()
     }
   }
 
-  for(i=0; i<MAX_DEVICES; ++i)
+  for(i=0; i<MAX_DEVICES && !ret; ++i)
   {
     sprintf(device, "/dev/input/event%d", i);
-    if((fd = open (device, O_RDONLY | O_NONBLOCK)) != -1)
+    fd = open (device, O_RDONLY | O_NONBLOCK);
+    if(fd != -1)
     {
       if(read_device_type(i, fd) != -1)
       {
@@ -444,13 +455,41 @@ static void evdev_init()
         close(fd);
       }
     }
+    else if(errno == EACCES)
+    {
+      fprintf(stderr, "can't open %s: %s\n", device, strerror(errno));
+      ret = -1;
+    }
   }
+
+  if(ret < 0)
+  {
+    struct termios term;
+    tcgetattr(STDOUT_FILENO, &term);
+    term.c_lflag |= ECHO;
+    tcsetattr(STDOUT_FILENO, TCSANOW, &term);
+  }
+
+  return ret;
 }
 
 int ev_init()
 {
-  evdev_init();
-  jsdev_init();
+  int ret = evdev_init();
+
+  if(ret < 0)
+  {
+    fprintf(stderr, "evdev_init failed.\n");
+    return 0;
+  }
+
+  ret = jsdev_init();
+
+  if(ret < 0)
+  {
+    fprintf(stderr, "jsdev_init failed.\n");
+    return 0;
+  }
 
   evqueue_index_first = 0;
   evqueue_index_last = 0;
