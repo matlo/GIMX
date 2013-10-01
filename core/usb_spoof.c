@@ -1,0 +1,266 @@
+/*
+ Copyright (c) 2013 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
+ */
+ 
+#include <stdio.h>
+#include <usb_spoof.h>
+
+#define USB_REQ_TIMEOUT 1000
+
+static libusb_device_handle *devh = NULL;
+static libusb_context* ctx = NULL;
+
+/*
+ * Opens a usb_dev_handle for the first usb device found.
+ */
+int usb_spoof_init_usb_device(int vendor, int product, u_int16_t* bus_id, u_int8_t* device_address, int libusb_debug)
+{
+  if(libusb_init(&ctx))
+  {
+    fprintf(stderr, "libusb_init\n");
+    return -1;
+  }
+
+  libusb_set_debug(ctx, libusb_debug);
+
+  devh = libusb_open_device_with_vid_pid(ctx, vendor, product);
+
+  if(!devh)
+  {
+    fprintf(stderr, "libusb_open_device_with_vid_pid\n");
+    return -1;
+  }
+
+  if(libusb_reset_device(devh))
+  {
+    fprintf(stderr, "libusb_reset_device\n");
+    return -1;
+  }
+  /*#ifndef WIN32
+  if(libusb_detach_kernel_driver(devh, ITFNUM) < 0)
+  {
+    //fatal("libusb_detach_kernel_driver\n");
+  }
+#endif
+  int i;
+  for(i=0; i<4; ++i)
+  {
+    if (libusb_claim_interface(devh, i) < 0)
+    {
+      fprintf(stderr, "usb_claim_interface\n");
+    }
+  }*/
+
+  if(bus_id) *bus_id = libusb_get_bus_number(libusb_get_device(devh));
+  if(device_address) *device_address = libusb_get_device_address(libusb_get_device(devh));
+
+#ifdef WIN32
+  int config;
+  if(libusb_get_configuration(devh, &config) < 0)
+  {
+    fatal("libusb_get_configuration");
+  }
+  if(config == 0)
+  {
+    printf("set configuration 1");
+    if(libusb_set_configuration(devh, 1) < 0)
+    {
+      fatal("libusb_set_configuration");
+    }
+  }
+#endif
+
+  return 0;
+}
+
+void usb_spoof_release_usb_device()
+{
+  if(devh)
+  {
+    libusb_close(devh);
+    libusb_exit(ctx);
+  }
+}
+
+int usb_spoof_get_adapter_status()
+{
+  unsigned char spoof_request[] = {BYTE_START_SPOOF, BYTE_LEN_0_BYTE};
+  if(serial_send(spoof_request, sizeof(spoof_request)) < sizeof(spoof_request))
+  {
+    fprintf(stderr, "serial_send\n");
+    return -1;
+  }
+
+  unsigned char spoof_answer[3];
+
+  if(serial_recv(spoof_answer, sizeof(spoof_answer)) < sizeof(spoof_answer))
+  {
+    fprintf(stderr, "serial_recv\n");
+    return -1;
+  }
+
+  if(spoof_answer[0] != BYTE_START_SPOOF && spoof_answer[1] != BYTE_LEN_1_BYTE)
+  {
+    fprintf(stderr, "bad response\n");
+    return -1;
+  }
+
+  if(spoof_answer[2] == BYTE_STATUS_SPOOFED)
+  {
+    return 1;
+  }
+
+  return 0;
+}
+
+int usb_spoof_forward_to_device(control_request* creq)
+{
+  return libusb_control_transfer(devh, creq->header.bRequestType, creq->header.bRequest,
+      creq->header.wValue, creq->header.wIndex, creq->data, creq->header.wLength, USB_REQ_TIMEOUT);
+}
+
+int usb_spoof_forward_to_adapter(unsigned char* data, unsigned char length)
+{
+  unsigned char byte_spoof_data = BYTE_SPOOF_DATA;
+  if(serial_send(&byte_spoof_data, sizeof(byte_spoof_data)) < sizeof(byte_spoof_data)
+      || serial_send(&length, sizeof(length)) < sizeof(length)
+      || serial_send(data, length) < length)
+  {
+    fprintf(stderr, "serial_send\n");
+    return -1;
+  }
+  return length;
+}
+
+int usb_spoof_spoof_360_controller()
+{
+  control_request creq;
+  unsigned char* p_data = (unsigned char*)&creq.header;
+  int spoofed = 0;
+  int response = 0;
+
+  int ret = usb_spoof_get_adapter_status();
+
+  if(ret == 0)
+  {
+    ret = usb_spoof_init_usb_device(X360_VENDOR, X360_PRODUCT, NULL, NULL, 0);
+
+    if(ret < 0)
+    {
+      ret = -1;
+    }
+    else
+    {
+      while(!spoofed)
+      {
+        unsigned char packet_type;
+
+        ret = serial_recv(&packet_type, sizeof(packet_type));
+        if(ret != sizeof(packet_type))
+        {
+          fprintf(stderr, "serial_recv error\n");
+          ret = -1;
+          break;
+        }
+
+        if(packet_type != BYTE_SPOOF_DATA)
+        {
+          fprintf(stderr, "bad packet type: %02x\n", packet_type);
+          ret = -1;
+          break;
+        }
+
+        unsigned char packet_len;
+
+        ret = serial_recv(&packet_len, sizeof(packet_len));
+        if(ret != sizeof(packet_len))
+        {
+          fprintf(stderr, "serial_recv error\n");
+          ret = -1;
+          break;
+        }
+
+        ret = serial_recv(p_data, packet_len);
+        if(ret != packet_len)
+        {
+          fprintf(stderr, "serial_recv error\n");
+          ret = -1;
+          break;
+        }
+
+        if(creq.header.bRequestType & USB_DIR_IN)
+        {
+          /*
+           * Forward the request to the 360 controller.
+           */
+          ret = usb_spoof_forward_to_device(&creq);
+
+          if(ret < 0)
+          {
+            fprintf(stderr, "usb_spoof_forward_to_device failed with error: %d\n", ret);
+            ret = -1;
+            break;
+          }
+          else
+          {
+            /*
+             * Forward data back to the adapter.
+             */
+            ret = usb_spoof_forward_to_adapter(creq.data, ret & 0xFF);
+
+            if(ret < 0)
+            {
+              ret = -1;
+              break;
+            }
+          }
+
+          if(creq.header.wValue == 0x5b17)
+          {
+            printf("spoof started\n");
+          }
+          else if(creq.header.wValue == 0x5c10)
+          {
+            if(response)
+            {
+              printf("spoof successful\n");
+              spoofed = 1;
+              break;
+            }
+            ++response;
+          }
+        }
+        else
+        {
+          /*
+           * Forward the request to the 360 controller.
+           * No need to forward anything back to the serial port.
+           */
+          ret = usb_spoof_forward_to_device(&creq);
+
+          if(ret < 0)
+          {
+            fprintf(stderr, "usb_spoof_forward_to_device failed with error: %d\n", ret);
+            ret = -1;
+            break;
+          }
+        }
+      }
+
+      usb_spoof_release_usb_device();
+    }
+  }
+  else if(ret > 0)
+  {
+    printf("already spoofed\n");
+    ret = 0;
+  }
+  else
+  {
+    fprintf(stderr, "can't read adapter status\n");
+    ret = -1;
+  }
+
+  return ret;
+}

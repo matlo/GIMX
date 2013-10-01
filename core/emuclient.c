@@ -33,6 +33,28 @@
 #define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
 #define DEFAULT_MAX_AXIS_VALUE 255
 
+int min_refresh_period[C_TYPE_MAX] =
+{
+    [C_TYPE_JOYSTICK] =  1000,
+    [C_TYPE_360_PAD]  =  1000,
+    [C_TYPE_SIXAXIS]  =  1000,
+    [C_TYPE_PS2_PAD]  = 16000,
+    [C_TYPE_XBOX_PAD] =  4000,
+    [C_TYPE_GPP]      =  1000,
+    [C_TYPE_DEFAULT]  = 11250,
+};
+
+int default_refresh_period[C_TYPE_MAX] =
+{
+    [C_TYPE_JOYSTICK] =  4000,
+    [C_TYPE_360_PAD]  =  4000,
+    [C_TYPE_SIXAXIS]  =  4000,
+    [C_TYPE_PS2_PAD]  = 16000,
+    [C_TYPE_XBOX_PAD] =  4000,
+    [C_TYPE_GPP]      =  4000,
+    [C_TYPE_DEFAULT]  = 11250,
+};
+
 s_emuclient_params emuclient_params =
 {
    .ctype = C_TYPE_DEFAULT,
@@ -41,7 +63,7 @@ s_emuclient_params emuclient_params =
   .force_updates = 0,
   .keygen = NULL,
   .grab = 1,
-  .refresh_rate = DEFAULT_REFRESH_PERIOD,
+  .refresh_period = -1,
   .max_axis_value = DEFAULT_MAX_AXIS_VALUE,
   .frequency_scale = 1,
   .status = 0,
@@ -181,11 +203,29 @@ int main(int argc, char *argv[])
 
   if(args_read(argc, argv, &emuclient_params) < 0)
   {
-    fprintf(stderr, "Wrong argument.\n");
+    fprintf(stderr, _("Wrong argument.\n"));
     goto QUIT;
   }
 
-  if (emuclient_params.ctype == C_TYPE_JOYSTICK)
+  if(connector_init() < 0)
+  {
+    fprintf(stderr, "connector_init failed\n");
+    goto QUIT;
+  }
+
+  if(emuclient_params.refresh_period == -1)
+  {
+    emuclient_params.refresh_period = default_refresh_period[emuclient_params.ctype];
+    emuclient_params.postpone_count = 3 * DEFAULT_REFRESH_PERIOD / emuclient_params.refresh_period;
+    printf("using default refresh period: %.02fms\n", (double)emuclient_params.refresh_period/1000);
+  }
+  else if(emuclient_params.refresh_period < min_refresh_period[emuclient_params.ctype])
+  {
+    fprintf(stderr, "Refresh period should be at least %.02fms\n", (double)min_refresh_period[emuclient_params.ctype]/1000);
+    goto QUIT;
+  }
+
+  if(emuclient_params.ctype == C_TYPE_JOYSTICK)
   {
     max_unsigned_axis_value[sa_lstick_x] = 65535;
     max_unsigned_axis_value[sa_lstick_y] = 65535;
@@ -198,7 +238,7 @@ int main(int argc, char *argv[])
     display_init();
   }
 
-  emuclient_params.frequency_scale = (double) DEFAULT_REFRESH_PERIOD / emuclient_params.refresh_rate;
+  emuclient_params.frequency_scale = (double) DEFAULT_REFRESH_PERIOD / emuclient_params.refresh_period;
 
   for (i = 0; i < MAX_CONTROLLERS; ++i)
   {
@@ -208,7 +248,7 @@ int main(int argc, char *argv[])
 
   if (!GE_initialize())
   {
-    fprintf(stderr, "GE_initialize: %s\n", strerror(errno));
+    fprintf(stderr, "GE_initialize failed\n");
     goto QUIT;
   }
 
@@ -224,7 +264,7 @@ int main(int argc, char *argv[])
 
   if(read_config_file(emuclient_params.config_file) < 0)
   {
-    fprintf(stderr, "read_config_file error: %s\n", strerror(errno));
+    fprintf(stderr, "read_config_file failed\n");
     goto QUIT;
   }
 
@@ -238,12 +278,6 @@ int main(int argc, char *argv[])
   GE_release_unused();
 
   macros_read();
-
-  if(connector_init(emuclient_params.ctype, emuclient_params.portname) < 0)
-  {
-    fprintf(stderr, "connector_init: %s\n", strerror(errno));
-    goto QUIT;
-  }
 
   if(emuclient_params.keygen)
   {

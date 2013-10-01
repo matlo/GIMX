@@ -14,23 +14,16 @@
 
 #define DEFAULT_REFRESH_PERIOD 11250 //=11.25ms
 
-#define MIN_JOYSTICK_REFRESH_PERIOD  1000
-#define MIN_360_PAD_REFRESH_PERIOD   1000
-#define MIN_SIXAXIS_REFRESH_PERIOD   1000
-#define MIN_PS2_PAD_REFRESH_PERIOD  16000
-#define MIN_GPP_REFRESH_PERIOD       1000
-#define MIN_XBOX_PAD_REFRESH_PERIOD  4000
-#define MIN_DEFAULT_REFRESH_PERIOD  11250
-
 typedef enum
 {
-  C_TYPE_JOYSTICK,
-  C_TYPE_360_PAD,
-  C_TYPE_SIXAXIS,
-  C_TYPE_PS2_PAD,
-  C_TYPE_GPP,
-  C_TYPE_XBOX_PAD,
-  C_TYPE_DEFAULT
+  C_TYPE_JOYSTICK = 0,
+  C_TYPE_360_PAD = 1,
+  C_TYPE_SIXAXIS = 2,
+  C_TYPE_PS2_PAD = 3,
+  C_TYPE_XBOX_PAD = 4,
+  C_TYPE_GPP = 5,
+  C_TYPE_DEFAULT = 6,
+  C_TYPE_MAX
 } e_controller_type;
 
 typedef struct
@@ -41,7 +34,7 @@ typedef struct
   int force_updates;
   char* keygen;
   int grab;
-  int refresh_rate;
+  int refresh_period;
   int max_axis_value;
   double frequency_scale;
   int status;

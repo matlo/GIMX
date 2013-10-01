@@ -286,7 +286,7 @@ static void get_event(const char* line)
     (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_KEYDOWN;
     (*pcurrent)[(*pcurrent)->size - 1].event.key.keysym = rbutton;
 
-    delay_nb = ceil((double)DEFAULT_DELAY / (emuclient_params.refresh_rate/1000));
+    delay_nb = ceil((double)DEFAULT_DELAY / (emuclient_params.refresh_period/1000));
     for(i=0; i<delay_nb; ++i)
     {
       allocate_element(pcurrent);
@@ -324,7 +324,7 @@ static void get_event(const char* line)
     (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_MOUSEBUTTONDOWN;
     (*pcurrent)[(*pcurrent)->size - 1].event.button.button = rbutton;
 
-    delay_nb = ceil((double)DEFAULT_DELAY / (emuclient_params.refresh_rate/1000));
+    delay_nb = ceil((double)DEFAULT_DELAY / (emuclient_params.refresh_period/1000));
     for(i=0; i<delay_nb; ++i)
     {
       allocate_element(pcurrent);
@@ -361,7 +361,7 @@ static void get_event(const char* line)
     (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_JOYBUTTONDOWN;
     (*pcurrent)[(*pcurrent)->size - 1].event.jbutton.button = rbutton;
 
-    delay_nb = ceil((double)DEFAULT_DELAY / (emuclient_params.refresh_rate/1000));
+    delay_nb = ceil((double)DEFAULT_DELAY / (emuclient_params.refresh_period/1000));
     for(i=0; i<delay_nb; ++i)
     {
       allocate_element(pcurrent);
@@ -374,7 +374,7 @@ static void get_event(const char* line)
   }
   else if (!strncmp(argument[0], "DELAY", strlen("DELAY")))
   {
-    delay_nb = ceil((double)atoi(argument[1]) / (emuclient_params.refresh_rate/1000));
+    delay_nb = ceil((double)atoi(argument[1]) / (emuclient_params.refresh_period/1000));
     for(i=0; i<delay_nb; ++i)
     {
       allocate_element(pcurrent);
@@ -609,7 +609,7 @@ void dump_scripts() {
                   }
                   else if(delay_nb)
                   {
-                      printf("DELAY %d\n", delay_nb*(emuclient_params.refresh_rate/1000));
+                      printf("DELAY %d\n", delay_nb*(emuclient_params.refresh_period/1000));
                       delay_nb = 0;
                   }
                   dump_event(&p_element->event);

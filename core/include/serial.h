@@ -8,6 +8,7 @@
 
 int serial_connect(char*);
 int serial_send(void*, unsigned int);
+int serial_recv(void*, unsigned int);
 void serial_close();
 
 #endif /* SERIAL_H_ */

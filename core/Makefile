@@ -14,7 +14,7 @@ OUT=emuclient.exe
 endif
 LIB=../shared/event/GE.a
 ifneq ($(OS),Windows_NT)
-LIB+= -lxml2 -lm -lncursesw
+LIB+= -lxml2 -lm -lncursesw -lusb-1.0
 else
 LIB+= -lmingw32 -lSDLmain -lSDL -llibxml2 -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl
 endif
@@ -45,7 +45,8 @@ EMUCLIENT_OBJ = \
        report.o\
        tcp_con.o\
        gpp/pcprog.o\
-       gpp_con.o
+       gpp_con.o\
+       usb_spoof.o
 
 ifneq ($(OS),Windows_NT)
 EMUCLIENT_OBJ += \
@@ -68,16 +69,29 @@ ifneq ($(OS),Windows_NT)
 emu: emu.o sixaxis.o dump.o l2cap_con.o bt_utils.o linux/prio.o
 	$(CC) $(INC) -o $@ $^ -lbluetooth
 
-sixaddr: utils/sixaddr.c
+sixaddr: utils/sixaddr.o
 	$(CC) -o $@ $^ -lusb
 	
-usbspoof: utils/usbspoof.c utils/pcapwriter.c
+USBSPOOF_OBJ = \
+       utils/usbspoof.o\
+       usb_spoof.o\
+       utils/pcapwriter.o
+
+ifneq ($(OS),Windows_NT)
+USBSPOOF_OBJ += \
+       linux/serial.o
+else
+USBSPOOF_OBJ += \
+       windows/serial.o
+endif
+
+usbspoof: $(USBSPOOF_OBJ)
 	$(CC) -o $@ $^ -lusb-1.0
 
-bdaddr: utils/bdaddr.c utils/oui.c
+bdaddr: utils/bdaddr.o utils/oui.o
 	$(CC) -o $@ $^ -lbluetooth
 
-hcirevision: hcirevision.c
+hcirevision: hcirevision.o
 	$(CC) -o $@ $^
 endif
 

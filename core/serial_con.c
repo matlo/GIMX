@@ -8,6 +8,7 @@
 #include <dump.h>
 #include <emuclient.h>
 #include <report.h>
+#include <usb_spoof.h>
 
 /*
  * Connect to a serial port.
@@ -15,6 +16,26 @@
 int serial_con_connect(char* portname)
 {
   return serial_connect(portname);
+}
+
+e_controller_type serial_con_get_type()
+{
+  unsigned char get_type_request[] = {BYTE_TYPE, BYTE_LEN_0_BYTE};
+
+  if(serial_send(get_type_request, sizeof(get_type_request)) == sizeof(get_type_request))
+  {
+    unsigned char get_type_answer[3];
+
+    if(serial_recv(get_type_answer, sizeof(get_type_answer)) == sizeof(get_type_answer))
+    {
+      if(get_type_answer[0] == BYTE_TYPE && get_type_answer[1] == BYTE_LEN_1_BYTE)
+      {
+        return get_type_answer[2];
+      }
+    }
+  }
+
+  return C_TYPE_DEFAULT;
 }
 
 /*
@@ -29,7 +50,14 @@ int serial_con_send(e_controller_type ctype, int force_update)
   {
     size = report_build(&report, ctype);
     
-    ret = serial_send(&report, size);
+    if(ctype != C_TYPE_PS2_PAD)
+    {
+      ret = serial_send(&report, size);
+    }
+    else
+    {
+      ret = serial_send(&report.value.ps2, size);
+    }
 
     if(controller[0].send_command)
     {

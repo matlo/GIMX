@@ -10,10 +10,18 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include "emuclient.h"
 #include <linux/spi/spidev.h>
 
+#include <sys/select.h>
+
 #include <termios.h>
+
+#include <sys/ioctl.h>
+
+#include <libintl.h>
+#define _(STRING)    gettext(STRING)
+
+#include <errno.h>
 
 /*
  * The serial connection.
@@ -34,9 +42,9 @@ int tty_connect(char* portname)
   struct termios options;
   int ret = 0;
 
-  gprintf(_("connecting to %s\n"), portname);
+  printf(_("connecting to %s\n"), portname);
 
-  if ((fd = open(portname, O_RDWR | O_NOCTTY | O_NDELAY)) < 0)
+  if ((fd = open(portname, O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0)
   {
     printf(_("can't connect to %s\n"), portname);
     ret = -1;
@@ -55,9 +63,11 @@ int tty_connect(char* portname)
     }
     else
     {
-      gprintf(_("connected\n"));
+      printf(_("connected\n"));
     }
   }
+
+  tcflush(fd, TCIFLUSH);
 
   return ret;
 }
@@ -70,7 +80,7 @@ int spi_connect(char* portname)
   unsigned char bits = 8;
   unsigned char mode = 0;
 
-  if((fd = open(portname, O_RDWR | O_NDELAY)) < 0)
+  if((fd = open(portname, O_RDWR | O_NONBLOCK)) < 0)
   {
     printf(_("can't connect to %s\n"), portname);
     ret = -1;
@@ -140,7 +150,45 @@ int serial_connect(char* portname)
  */
 int serial_send(void* pdata, unsigned int size)
 {
-  return write(fd, (uint8_t*)pdata, size);
+  return write(fd, pdata, size);
+}
+
+int serial_recv(void* pdata, unsigned int size)
+{
+  int bread = 0;
+  int res;
+
+  fd_set readfds;
+  FD_ZERO(&readfds);
+  FD_SET(fd, &readfds);
+
+  struct timeval timeout = {.tv_sec = 1, .tv_usec = 0};
+
+  while(bread != size)
+  {
+    int status = select(fd+1, &readfds, NULL, NULL, &timeout);
+    if(status > 0)
+    {
+      if(FD_ISSET(fd, &readfds))
+      {
+        res = read(fd, pdata, size-bread);
+        if(res > 0)
+        {
+          bread += res;
+        }
+      }
+    }
+    else if(status == EINTR)
+    {
+      continue;
+    }
+    else
+    {
+      break;
+    }
+  }
+
+  return bread;
 }
 
 void serial_close()

@@ -116,7 +116,7 @@ static void translation_test()
 
   if (dots <= 0)
   {
-    delay = DURATION / emuclient_params.refresh_rate;
+    delay = DURATION / emuclient_params.refresh_period;
     step *= 2;
     direction *= -1;
     if (direction > 0)

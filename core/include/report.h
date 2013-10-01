@@ -75,6 +75,13 @@ typedef union
   s_report_360 x360;
   s_report_xbox xbox;
   unsigned char sixaxis[49];
+} s_report_union;
+
+typedef struct
+{
+  uint8_t packet_type;
+  uint8_t value_len;
+  s_report_union value;
 } s_report;
 
 unsigned int report_build(s_report* report, e_controller_type type);

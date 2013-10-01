@@ -15,6 +15,7 @@
 #include "emuclient.h"
 #include "../directories.h"
 #include "macros.h"
+#include <errno.h>
 
 #ifdef WIN32
 #include <sys/stat.h>
@@ -1236,13 +1237,13 @@ static int read_file(char* file_path)
     else
     {
       ret = -1;
-      printf("error: no root element\n");
+      fprintf(stderr, "xml error: no root element\n");
     }
   }
   else
   {
     ret = -1;
-    printf("error: could not parse file %s\n", file_path);
+    fprintf(stderr, "could not parse file %s: %s\n", file_path, strerror(errno));
   }
 
   /*free the document */
@@ -1353,7 +1354,7 @@ int read_config_file(const char* file)
 
   if(read_file(file_path) == -1)
   {
-    fprintf(stderr, "Bad config file: %s\n", file_path);
+    fprintf(stderr, "read_file failed\n");
     return -1;
   }
 

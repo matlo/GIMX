@@ -50,8 +50,6 @@ static pcap_hdr_t capture_header =
 
 static pcaprec_hdr_t packet_header = {};
 
-static unsigned char usb_data[USB_MAX_DATA_LENGTH] = {};
-
 static FILE* file = NULL;
 
 void pcapwriter_init(char* file_name)

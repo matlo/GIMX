@@ -18,7 +18,6 @@
 #include <signal.h>
 #include <unistd.h>
 #ifndef WIN32
-#include <termios.h>
 #include <signal.h>
 #else
 #include <windows.h>
@@ -26,38 +25,20 @@
 #define EINPROGRESS 115
 #endif
 #include <stdlib.h>
-#include <libusb-1.0/libusb.h>
 
 #include "pcapwriter.h"
+
+#include <usb_spoof.h>
 
 #include <errno.h>
 
 #define STANDARD_REQUESTS 0
 
-#define SPOOF_TIMEOUT 15
-#define USB_REQ_TIMEOUT 1000
-
-#define VENDOR 0x045e
-#define PRODUCT 0x028e
-
-#define USB_DIR_IN 0x80
-#define USB_DIR_OUT 0
-
-#define REQTYPE_VENDOR (2 << 5)
-
-#define BUFFER_SIZE 4096
+#define SPOOF_TIMEOUT 5
 
 #define ITFNUM 2
 
-static int bexit = 0;
-
-#ifndef WIN32
-#define BAUDRATE B500000
-static int fd = -1;
-#else
-static int baudrate = 500000;
-static HANDLE serial;
-#endif
+static volatile int bexit = 0;
 
 static int spoof = 0;
 static int response = 0;
@@ -65,20 +46,8 @@ static int debug = 0;
 static int verbose = 0;
 static int libusb_debug = 0;
 
-static libusb_device_handle *devh = NULL;
-static libusb_context* ctx = NULL;
-
 static char* serial_port = NULL;
 static char* file_name = NULL;
-
-typedef struct
-{
-  unsigned char bRequestType;
-  unsigned char bRequest;
-  unsigned short wValue;
-  unsigned short wIndex;
-  unsigned short wLength;
-} control_request_header;
 
 static pcap_usb_header usb_header =
 {
@@ -94,12 +63,6 @@ static pcap_usb_header usb_header =
   .urb_len = 0x00000000,
   .data_len = 0x00000000,
 };
-
-typedef struct
-{
-  control_request_header header;
-  unsigned char data[BUFFER_SIZE];
-} control_request;
 
 void ex_program(int sig)
 {
@@ -127,156 +90,7 @@ void fatal(char *msg)
   exit(1);
 }
 
-/*
- * Opens a usb_dev_handle for the first 360 controller found.
- */
-static void usb_init_spoof()
-{
-  if(libusb_init(&ctx))
-  {
-    perror("libusb_init");
-  }
-  
-  libusb_set_debug(ctx, libusb_debug);
 
-  devh = libusb_open_device_with_vid_pid(ctx, VENDOR, PRODUCT);
-  
-  if(!devh)
-  {
-    fatal("libusb_open_device_with_vid_pid");
-  }
-  
-  if(libusb_reset_device(devh))
-  {
-	  fatal("libusb_reset_device");
-	}
-  /*#ifndef WIN32
-  if(libusb_detach_kernel_driver(devh, ITFNUM) < 0)
-  {
-    //fatal("libusb_detach_kernel_driver");
-  }
-#endif
-  int i;
-  for(i=0; i<4; ++i)
-  {
-    if (libusb_claim_interface(devh, i) < 0)
-    {
-      perror("usb_claim_interface");
-    }
-  }*/
-
-  usb_header.bus_id = libusb_get_bus_number(libusb_get_device(devh));
-  usb_header.device_address = libusb_get_device_address(libusb_get_device(devh));
-
-#ifdef WIN32
-  int config;
-  if(libusb_get_configuration(devh, &config) < 0)
-  {
-    fatal("libusb_get_configuration");
-  }
-  if(config == 0)
-  {
-    printf("set configuration 1");
-    if(libusb_set_configuration(devh, 1) < 0)
-    {
-      fatal("libusb_set_configuration");
-    }
-  }
-#endif
-}
-
-#ifndef WIN32
-/*
- * Opens ttyUSB0 for reading and writing.
- */
-static void serial_port_init()
-{
-  struct termios options;
-
-  fd = open(serial_port, O_RDWR | O_NOCTTY | O_NDELAY/* | O_NONBLOCK*/);
-
-  if(fd < 0)
-  {
-    fatal("open");
-  }
-
-  tcgetattr(fd, &options);
-  cfsetispeed(&options, BAUDRATE);
-  cfsetospeed(&options, BAUDRATE);
-  cfmakeraw(&options);
-  if(tcsetattr(fd, TCSANOW, &options) < 0)
-  {
-    printf("can't set serial port options\n");
-    exit(-1);
-  }
-
-  tcflush(fd, TCIFLUSH);
-}
-#else
-static void serial_port_init()
-{
-  DWORD accessdirection = GENERIC_READ | GENERIC_WRITE;
-  char scom[16];
-  snprintf(scom, sizeof(scom), "\\\\.\\%s", serial_port);
-  serial = CreateFile(scom, accessdirection, 0, 0, OPEN_EXISTING, 0, 0);
-  if (serial == INVALID_HANDLE_VALUE)
-  {
-    printf("can't open serial port\n");
-    exit(-1);
-  }
-  DCB dcbSerialParams =
-  { 0 };
-  dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-  if (!GetCommState(serial, &dcbSerialParams))
-  {
-    printf("can't get serial port state\n");
-    exit(-1);
-  }
-  dcbSerialParams.BaudRate = baudrate;
-  dcbSerialParams.ByteSize = 8;
-  dcbSerialParams.StopBits = ONESTOPBIT;
-  dcbSerialParams.Parity = NOPARITY;
-  if (!SetCommState(serial, &dcbSerialParams))
-  {
-    printf("can't set serial port params\n");
-    exit(-1);
-  }
-  COMMTIMEOUTS timeouts =
-  { 0 };
-  timeouts.ReadIntervalTimeout = 50;
-  timeouts.ReadTotalTimeoutConstant = 50;
-  timeouts.ReadTotalTimeoutMultiplier = 10;
-  timeouts.WriteTotalTimeoutConstant = 50;
-  timeouts.WriteTotalTimeoutMultiplier = 10;
-  if (!SetCommTimeouts(serial, &timeouts))
-  {
-    printf("can't set serial port timeouts\n");
-    exit(-1);
-  }
-}
-
-int serial_write(void* pdata, unsigned int size)
-{
-  DWORD dwBytesWrite = 0;
-
-  if(WriteFile(serial, (uint8_t*)pdata, size, &dwBytesWrite, NULL))
-  {
-    return dwBytesWrite;
-  }
-  return 0;
-}
-
-int serial_read(void* pdata, unsigned int size)
-{
-  DWORD dwBytesWrite = 0;
-
-  if(ReadFile(serial, (uint8_t*)pdata, size, &dwBytesWrite, NULL))
-  {
-    return dwBytesWrite;
-  }
-  return 0;
-}
-#endif
 
 static void usage()
 {
@@ -287,14 +101,10 @@ static void usage()
 /*
  * Reads command-line arguments.
  */
-static int read_args(int argc, char* argv[])
+static void read_args(int argc, char* argv[])
 {
-  int flags, opt;
-  int nsecs, tfnd;
+  int opt;
 
-  nsecs = 0;
-  tfnd = 0;
-  flags = 0;
   while ((opt = getopt(argc, argv, "vdp:w:u:")) != -1)
   {
     switch (opt)
@@ -328,7 +138,6 @@ int main(int argc, char *argv[])
   unsigned char* p_data = (unsigned char*)&creq.header;
   int ret;
   int i;
-  int j;
 
   read_args(argc, argv);
 
@@ -345,14 +154,31 @@ int main(int argc, char *argv[])
 
   (void) signal(SIGINT, ex_program);
 
-  usb_init_spoof();
+  ret = serial_connect(serial_port);
 
-  serial_port_init();
-
-  unsigned char start = 1;
-  if(write(fd, &start, sizeof(start)) < sizeof(start))
+  if(ret < 0)
   {
-    perror("write");
+    exit(-1);
+  }
+
+  ret = usb_spoof_get_adapter_status();
+
+  if(ret < 0)
+  {
+    exit(-1);
+  }
+  else if(ret > 0)
+  {
+    printf("already spoofed\n");
+    printf("spoof successful\n");
+    exit(0);
+  }
+
+  ret = usb_spoof_init_usb_device(X360_VENDOR, X360_PRODUCT, &usb_header.bus_id, &usb_header.device_address, libusb_debug);
+
+  if(ret < 0)
+  {
+    exit(-1);
   }
 
 #ifndef WIN32
@@ -366,307 +192,290 @@ int main(int argc, char *argv[])
 
   while(!bexit)
   {
-    /*
-     * Get data from the serial port.
-     */
-#ifndef WIN32
-    if(read(fd, p_data, sizeof(*p_data)) == sizeof(*p_data))
-#else
-    if(serial_read(p_data, sizeof(*p_data)) == sizeof(*p_data))
-#endif
+    unsigned char packet_type;
+
+    while(!bexit)
+    {
+      ret = serial_recv(&packet_type, sizeof(packet_type));
+      if(ret < 0)
+      {
+        fprintf(stderr, "serial_recv error\n");
+        exit(-1);
+      }
+      else if(ret == sizeof(packet_type))
+      {
+        break;
+      }
+    }
+
+    if(packet_type != BYTE_SPOOF_DATA)
+    {
+      fprintf(stderr, "bad packet type: %02x\n", packet_type);
+      exit(-1);
+    }
+
+    unsigned char packet_len;
+
+    ret = serial_recv(&packet_len, sizeof(packet_len));
+    if(ret != sizeof(packet_len))
+    {
+      fprintf(stderr, "serial_recv error\n");
+      exit(-1);
+    }
+
+    ret = serial_recv(p_data, packet_len);
+    if(ret != packet_len)
+    {
+      fprintf(stderr, "serial_recv error\n");
+      exit(-1);
+    }
+
+    if(bexit)
+    {
+      break;
+    }
+
+    if(creq.header.bRequestType & USB_DIR_IN)
     {
       if(debug)
       {
-        printf(" 0x%02x ", *p_data);
+        printf("\n");
       }
-      p_data++;
-      /*
-       * Check if the header is complete.
-       */
-      if(p_data >= (unsigned char*)&creq.header + sizeof(creq.header))
+      if(verbose)
       {
-        /*
-         * Buffer overflow protection.
-         */
-        if(creq.header.wLength > BUFFER_SIZE)
+        printf("--> GET\n");
+        printf("bRequestType: 0x%02x bRequest: 0x%02x wValue: 0x%04x wIndex: 0x%04x wLength: 0x%04x\n", creq.header.bRequestType, creq.header.bRequest, creq.header.wValue, creq.header.wIndex, creq.header.wLength);
+      }
+
+      if(file_name)
+      {
+        usb_header.id++;
+        usb_header.event_type = URB_SUBMIT;
+        usb_header.endpoint_number = USB_DIR_IN;
+        usb_header.status = -EINPROGRESS;
+        usb_header.setup_flag = 0x00;
+        usb_header.setup.bmRequestType = creq.header.bRequestType;
+        usb_header.setup.bRequest = creq.header.bRequest;
+        usb_header.setup.wValue = creq.header.wValue;
+        usb_header.setup.wIndex = creq.header.wIndex;
+        usb_header.setup.wLength = creq.header.wLength;
+        pcapwriter_write(&usb_header, 0, NULL);
+      }
+
+      /*if(!spoof)
+      {
+        continue;
+      }*/
+
+      if(!STANDARD_REQUESTS && !(creq.header.bRequestType & REQTYPE_VENDOR))
+      {
+        if(verbose || debug)
         {
-          fatal("bad length");
+          printf("--> standard requests are not forwarded\n");
+          printf("\n");
+        }
+        continue;
+      }
+
+      if(response > 1)
+      {
+        continue;
+      }
+
+      ret = usb_spoof_forward_to_device(&creq);
+
+      if(ret < 0)
+      {
+        fprintf(stderr, "usb_spoof_forward_to_device failed with error: %d\n", ret);
+        exit(-1);
+      }
+      else
+      {
+        if(debug)
+        {
+          printf("read from controller: %d data: {", ret);
+          for (i = 0; i < ret; ++i)
+          {
+            printf("0x%02hhx,", creq.data[i]);
+          }
+          printf("}\n");
+        }
+        if(ret > 0xff)
+        {
+          fprintf(stderr, "data length (%d) is higher than 255.", ret);
         }
 
-        /*
-         * No more data to wait for.
-         */
-        if(creq.header.bRequestType & USB_DIR_IN)
+        ret = usb_spoof_forward_to_adapter(creq.data, ret & 0xFF);
+
+        if(ret < 0)
         {
-          if(debug)
-          {
-            printf("\n");
-          }
-          if(verbose)
-          {
-            printf("--> GET\n");
-            printf("bRequestType: 0x%02x bRequest: 0x%02x wValue: 0x%04x wIndex: 0x%04x wLength: 0x%04x\n", creq.header.bRequestType, creq.header.bRequest, creq.header.wValue, creq.header.wIndex, creq.header.wLength);
-          }
-
-          if(file_name)
-          {
-            usb_header.id++;
-            usb_header.event_type = URB_SUBMIT;
-            usb_header.endpoint_number = USB_DIR_IN;
-            usb_header.status = -EINPROGRESS;
-            usb_header.setup_flag = 0x00;
-            usb_header.setup.bmRequestType = creq.header.bRequestType;
-            usb_header.setup.bRequest = creq.header.bRequest;
-            usb_header.setup.wValue = creq.header.wValue;
-            usb_header.setup.wIndex = creq.header.wIndex;
-            usb_header.setup.wLength = creq.header.wLength;
-            pcapwriter_write(&usb_header, 0, NULL);
-          }
-
-          /*if(!spoof)
-          {
-            p_data = (unsigned char*)&creq.header;
-            continue;
-          }*/
-
-          if(!STANDARD_REQUESTS && !(creq.header.bRequestType & REQTYPE_VENDOR))
-          {
-            if(verbose || debug)
-            {
-              printf("--> standard requests are not forwarded\n");
-              printf("\n");
-            }
-            p_data = (unsigned char*)&creq.header;
-            continue;
-          }
-
-          if(response > 1)
-          {
-            p_data = (unsigned char*)&creq.header;
-            continue;
-          }
-
-          /*
-           * Forward the request to the 360 controller.
-           */
-		      ret = libusb_control_transfer(devh, creq.header.bRequestType, creq.header.bRequest,
-              creq.header.wValue, creq.header.wIndex, creq.data, creq.header.wLength, USB_REQ_TIMEOUT);
-
-		      if(ret < 0)
-          {
-            printf("libusb_control_transfer failed with error: %d\n", ret);
-          }
-          else
-          {
-            if(debug)
-            {
-              printf("read from controller: %d data: {", ret);
-              for (i = 0; i < ret; ++i)
-              {
-                printf("0x%02hhx,", creq.data[i]);
-              }
-              printf("}\n");
-            }
-
-            unsigned char length[2];
-            length[0] = ret & 0xFF;
-            length[1] = ret >> 8;
-
-            /*
-             * Forward the length and the data to the serial port.
-             */
-#ifndef WIN32
-            if(write(fd, &length, sizeof(length)) < sizeof(length) || write(fd, creq.data, ret) < ret)
-#else
-            if(serial_write(&length, sizeof(length)) < sizeof(length) || serial_write(creq.data, ret) < ret)
-#endif
-            {
-              perror("write");
-            }
-          }
-
-		      if(file_name)
-          {
-            usb_header.event_type = URB_COMPLETE;
-            usb_header.endpoint_number = USB_DIR_IN;
-            usb_header.setup_flag = 0x01;
-            usb_header.setup.bmRequestType = 0x00;
-            usb_header.setup.bRequest = 0x00;
-            usb_header.setup.wValue = 0x00;
-            usb_header.setup.wIndex = 0x00;
-            usb_header.setup.wLength = 0x00;
-            if(ret >= 0)
-            {
-              usb_header.status = URB_STATUS_SUCCESS;
-              pcapwriter_write(&usb_header, ret, creq.data);
-            }
-            else
-            {
-              usb_header.status = ret;
-              pcapwriter_write(&usb_header, 0, NULL);
-            }
-          }
-
-          if(creq.header.wValue == 0x5b17)
-          {
-            spoof = 1;
-            printf("spoof started\n");
-          }
-          else if(creq.header.wValue == 0x5c10)
-          {
-            if(response)
-            {
-              printf("spoof successful\n");
-              break;
-            }
-            ++response;
-          }
-
-          p_data = (unsigned char*)&creq.header;
-
-          if(verbose || debug)
-          {
-            printf("\n");
-          }
+          exit(-1);
         }
-        /*
-         * Check if data has to be waited for.
-         */
+      }
+
+      if(file_name)
+      {
+        usb_header.event_type = URB_COMPLETE;
+        usb_header.endpoint_number = USB_DIR_IN;
+        usb_header.setup_flag = 0x01;
+        usb_header.setup.bmRequestType = 0x00;
+        usb_header.setup.bRequest = 0x00;
+        usb_header.setup.wValue = 0x00;
+        usb_header.setup.wIndex = 0x00;
+        usb_header.setup.wLength = 0x00;
+        if(ret >= 0)
+        {
+          usb_header.status = URB_STATUS_SUCCESS;
+          pcapwriter_write(&usb_header, ret, creq.data);
+        }
         else
         {
-          if(debug)
-          {
-            printf("\n");
-          }
-          if(verbose)
-          {
-            printf("--> SET\n");
-            printf("bRequestType: 0x%02x bRequest: 0x%02x wValue: 0x%04x wIndex: 0x%04x wLength: 0x%04x\n", creq.header.bRequestType, creq.header.bRequest, creq.header.wValue, creq.header.wIndex, creq.header.wLength);
-          }
-
-          /*if(creq.header.wValue == 0x001e)
-          {
-            spoof = 1;
-            printf("spoof successful\n");
-            break;
-          }*/
-
-#ifndef WIN32
-          ret = read(fd, p_data, creq.header.wLength);
-#else
-          ret = serial_read(p_data, creq.header.wLength);
-#endif
-          if(ret < creq.header.wLength)
-          {
-            printf("\nread error!! expected: %d received: %d\n\n", creq.header.wLength, ret);
-          }
-
-          if(file_name)
-          {
-            usb_header.id++;
-            usb_header.event_type = URB_SUBMIT;
-            usb_header.endpoint_number = USB_DIR_OUT;
-            usb_header.status = -EINPROGRESS;
-            usb_header.setup_flag = 0x00;
-            usb_header.setup.bmRequestType = creq.header.bRequestType;
-            usb_header.setup.bRequest = creq.header.bRequest;
-            usb_header.setup.wValue = creq.header.wValue;
-            usb_header.setup.wIndex = creq.header.wIndex;
-            usb_header.setup.wLength = creq.header.wLength;
-            pcapwriter_write(&usb_header, ret, creq.data);
-          }
-
-          if(ret)
-          {
-            if(debug)
-            {
-              for (i = 0; i < ret; ++i)
-              {
-                printf(" 0x%02x ", creq.data[i]);
-              }
-              printf("\n");
-              printf(" data:");
-
-              for(i=0; i<ret; ++i)
-              {
-                 printf(" 0x%02x", creq.data[i]);
-              }
-              printf("\n");
-            }
-          }
-
-          /*if(
-                 (creq.header.bRequestType == 0x00 && creq.header.bRequest == 0x05)
-              || (creq.header.bRequestType == 0x02 && creq.header.bRequest == 0x01)
-            )*/
-          /*if(creq.header.wLength == 0)
-          {
-            p_data = (unsigned char*)&creq.header;
-            continue;
-          }*/
-
-          /*if(!spoof)
-          {
-            p_data = (unsigned char*)&creq.header;
-            continue;
-          }*/
-
-          if(!STANDARD_REQUESTS && !(creq.header.bRequestType & REQTYPE_VENDOR))
-          {
-            if(verbose || debug)
-            {
-              printf("--> standard requests are not forwarded\n");
-              printf("\n");
-            }
-            p_data = (unsigned char*)&creq.header;
-            continue;
-          }
-
-          if(response > 1)
-          {
-            p_data = (unsigned char*)&creq.header;
-            continue;
-          }
-
-          /*
-           * Forward the request to the 360 controller.
-           * No need to forward anything back to the serial port.
-           */
-          ret = libusb_control_transfer(devh, creq.header.bRequestType, creq.header.bRequest,
-              creq.header.wValue, creq.header.wIndex, creq.data, ret, USB_REQ_TIMEOUT);
-
-		      if(ret < 0)
-          {
-            printf("libusb_control_transfer failed with error: %d\n", ret);
-          }
-		      if(file_name)
-          {
-            usb_header.event_type = URB_COMPLETE;
-            usb_header.endpoint_number = USB_DIR_OUT;
-            usb_header.setup_flag = 0x01;
-            if(ret < 0)
-            {
-              usb_header.status = ret;
-            }
-            else
-            {
-              usb_header.status = URB_COMPLETE;
-            }
-            usb_header.setup.bmRequestType = 0x00;
-            usb_header.setup.bRequest = 0x00;
-            usb_header.setup.wValue = 0x00;
-            usb_header.setup.wIndex = 0x00;
-            usb_header.setup.wLength = 0x00;
-            pcapwriter_write(&usb_header, 0, NULL);
-          }
-
-          p_data = (unsigned char*)&creq.header;
-
-          if(verbose || debug)
-          {
-            printf("\n");
-          }
+          usb_header.status = ret;
+          pcapwriter_write(&usb_header, 0, NULL);
         }
+      }
+
+      if(creq.header.wValue == 0x5b17)
+      {
+        spoof = 1;
+        printf("spoof started\n");
+      }
+      else if(creq.header.wValue == 0x5c10)
+      {
+        if(response)
+        {
+          printf("spoof successful\n");
+          break;
+        }
+        ++response;
+      }
+
+      if(verbose || debug)
+      {
+        printf("\n");
+      }
+    }
+    /*
+     * Check if data has to be waited for.
+     */
+    else
+    {
+      if(debug)
+      {
+        printf("\n");
+      }
+      if(verbose)
+      {
+        printf("--> SET\n");
+        printf("bRequestType: 0x%02x bRequest: 0x%02x wValue: 0x%04x wIndex: 0x%04x wLength: 0x%04x\n", creq.header.bRequestType, creq.header.bRequest, creq.header.wValue, creq.header.wIndex, creq.header.wLength);
+      }
+
+      /*if(creq.header.wValue == 0x001e)
+      {
+        spoof = 1;
+        printf("spoof successful\n");
+        break;
+      }*/
+
+      if(file_name)
+      {
+        usb_header.id++;
+        usb_header.event_type = URB_SUBMIT;
+        usb_header.endpoint_number = USB_DIR_OUT;
+        usb_header.status = -EINPROGRESS;
+        usb_header.setup_flag = 0x00;
+        usb_header.setup.bmRequestType = creq.header.bRequestType;
+        usb_header.setup.bRequest = creq.header.bRequest;
+        usb_header.setup.wValue = creq.header.wValue;
+        usb_header.setup.wIndex = creq.header.wIndex;
+        usb_header.setup.wLength = creq.header.wLength;
+        pcapwriter_write(&usb_header, ret, creq.data);
+      }
+
+      if(ret)
+      {
+        if(debug)
+        {
+          for (i = 0; i < ret; ++i)
+          {
+            printf(" 0x%02x ", creq.data[i]);
+          }
+          printf("\n");
+          printf(" data:");
+
+          for(i=0; i<ret; ++i)
+          {
+             printf(" 0x%02x", creq.data[i]);
+          }
+          printf("\n");
+        }
+      }
+
+      /*if(
+             (creq.header.bRequestType == 0x00 && creq.header.bRequest == 0x05)
+          || (creq.header.bRequestType == 0x02 && creq.header.bRequest == 0x01)
+        )*/
+      /*if(creq.header.wLength == 0)
+      {
+        continue;
+      }*/
+
+      /*if(!spoof)
+      {
+        continue;
+      }*/
+
+      if(!STANDARD_REQUESTS && !(creq.header.bRequestType & REQTYPE_VENDOR))
+      {
+        if(verbose || debug)
+        {
+          printf("--> standard requests are not forwarded\n");
+          printf("\n");
+        }
+        continue;
+      }
+
+      if(response > 1)
+      {
+        continue;
+      }
+
+      /*
+       * Forward the request to the 360 controller.
+       * No need to forward anything back to the serial port.
+       */
+      ret = usb_spoof_forward_to_device(&creq);
+
+      if(ret < 0)
+      {
+        fprintf(stderr, "usb_spoof_forward_to_device failed with error: %d\n", ret);
+        exit(-1);
+      }
+
+      if(file_name)
+      {
+        usb_header.event_type = URB_COMPLETE;
+        usb_header.endpoint_number = USB_DIR_OUT;
+        usb_header.setup_flag = 0x01;
+        if(ret < 0)
+        {
+          usb_header.status = ret;
+        }
+        else
+        {
+          usb_header.status = URB_COMPLETE;
+        }
+        usb_header.setup.bmRequestType = 0x00;
+        usb_header.setup.bRequest = 0x00;
+        usb_header.setup.wValue = 0x00;
+        usb_header.setup.wIndex = 0x00;
+        usb_header.setup.wLength = 0x00;
+        pcapwriter_write(&usb_header, 0, NULL);
+      }
+
+      if(verbose || debug)
+      {
+        printf("\n");
       }
     }
   }
@@ -680,13 +489,12 @@ int main(int argc, char *argv[])
    * tcdrain(fd) does not work, and there does not seem to be a better work-around.
    */
   usleep(500000);
-  close(fd);
+  serial_close();
 #else
   timeEndPeriod(1000);
   CloseHandle(serial);
 #endif
-  libusb_close(devh);
-  libusb_exit(ctx);
+  usb_spoof_release_usb_device();
   if(bexit)
   {
     return -1;

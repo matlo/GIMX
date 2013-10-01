@@ -24,7 +24,7 @@ static int baudrate = 500000;
 int serial_connect(char* portname)
 {
   int ret = 0;
-  DWORD accessdirection = /*GENERIC_READ |*/GENERIC_WRITE;
+  DWORD accessdirection = GENERIC_READ | GENERIC_WRITE;
   char scom[16];
   snprintf(scom, sizeof(scom), "\\\\.\\%s", portname);
   serial = CreateFile(scom, accessdirection, 0, 0, OPEN_EXISTING, 0, 0);
@@ -71,6 +71,17 @@ int serial_send(void* pdata, unsigned int size)
   WriteFile(serial, (uint8_t*)pdata, size, &dwBytesWrite, NULL);
 
   return dwBytesWrite;
+}
+
+int serial_read(void* pdata, unsigned int size)
+{
+  DWORD dwBytesWrite = 0;
+
+  if(ReadFile(serial, (uint8_t*)pdata, size, &dwBytesWrite, NULL))
+  {
+    return dwBytesWrite;
+  }
+  return 0;
 }
 
 /*

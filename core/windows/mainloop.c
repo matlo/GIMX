@@ -80,9 +80,9 @@ void mainloop()
 
     QueryPerformanceCounter(&t1);
 
-    time_to_sleep = emuclient_params.refresh_rate - (t1.QuadPart - t0.QuadPart) * 1000000 / freq.QuadPart;
+    time_to_sleep = emuclient_params.refresh_period - (t1.QuadPart - t0.QuadPart) * 1000000 / freq.QuadPart;
 
-    ptl = emuclient_params.refresh_rate - time_to_sleep;
+    ptl = emuclient_params.refresh_period - time_to_sleep;
     proc_time += ptl;
     proc_time_total += ptl;
     if(ptl > proc_time_worst && proc_time_total > 50000)
@@ -98,7 +98,7 @@ void mainloop()
     {
       if(!emuclient_params.curses)
       {
-        printf(_("processing time higher than %dus: %dus!!\n"), emuclient_params.refresh_rate, emuclient_params.refresh_rate - time_to_sleep);
+        printf(_("processing time higher than %dus: %dus!!\n"), emuclient_params.refresh_period, emuclient_params.refresh_period - time_to_sleep);
       }
     }
   }

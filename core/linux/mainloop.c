@@ -23,7 +23,7 @@ void mainloop()
   GE_Event events[EVENT_BUFFER_SIZE];
   int num_evt;
   GE_Event* event;
-  struct timespec period = {.tv_sec = 0, .tv_nsec = emuclient_params.refresh_rate*1000};
+  struct timespec period = {.tv_sec = 0, .tv_nsec = emuclient_params.refresh_period*1000};
     
   GE_TimerStart(&period);
 
