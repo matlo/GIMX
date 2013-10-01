@@ -208,13 +208,10 @@ class configFrame: public wxFrame
         static const long ID_STATICTEXT17;
         static const long ID_STATICTEXT18;
         static const long ID_STATICTEXT22;
-        static const long ID_STATICTEXT33;
         static const long ID_TEXTCTRL8;
         static const long ID_TEXTCTRL9;
         static const long ID_TEXTCTRL10;
         static const long ID_CHOICE1;
-        static const long ID_TEXTCTRL1;
-        static const long ID_TEXTCTRL2;
         static const long ID_STATICLINE12;
         static const long ID_STATICTEXT44;
         static const long ID_COMBOBOX2;
@@ -265,7 +262,6 @@ class configFrame: public wxFrame
         wxMenuItem* MenuConfiguration3;
         wxMenuItem* MenuItem2;
         wxStaticText* StaticText24;
-        wxStaticText* StaticTextSmoothingPanelAxis;
         wxStaticText* StaticTextDZPanelAxis;
         wxStaticLine* StaticLine10;
         wxStaticText* ButtonTabDeviceType;
@@ -347,7 +343,6 @@ class configFrame: public wxFrame
         wxButton* MouseOptionsAutoDetect;
         wxButton* IntensityAdd;
         wxButton* Button5;
-        wxTextCtrl* AxisTabFilter;
         wxMenu* MenuAdvanced;
         wxMenuItem* MenuItemNew;
         wxStaticText* StaticText8;
@@ -355,7 +350,6 @@ class configFrame: public wxFrame
         wxMenuItem* MenuConfiguration4;
         wxMenuItem* MenuController4;
         wxStaticText* ButtonTabEventId;
-        wxTextCtrl* AxisTabBufferSize;
         wxFileDialog* FileDialog1;
         wxStaticText* AxisTabDeviceType;
         wxStaticLine* StaticLine3;

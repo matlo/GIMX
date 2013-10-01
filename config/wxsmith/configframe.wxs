@@ -1182,7 +1182,7 @@
 										</object>
 										<object class="sizeritem">
 											<object class="wxFlexGridSizer" variable="FlexGridSizer30" member="no">
-												<cols>5</cols>
+												<cols>4</cols>
 												<rows>2</rows>
 												<object class="sizeritem">
 													<object class="wxStaticText" name="ID_STATICTEXT15" variable="StaticTextDZPanelAxis" member="yes">
@@ -1214,15 +1214,6 @@
 												<object class="sizeritem">
 													<object class="wxStaticText" name="ID_STATICTEXT22" variable="StaticTextShapePanelAxis" member="yes">
 														<label>Shape</label>
-													</object>
-													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-													<border>5</border>
-													<option>1</option>
-												</object>
-												<object class="sizeritem">
-													<object class="wxStaticText" name="ID_STATICTEXT33" variable="StaticTextSmoothingPanelAxis" member="yes">
-														<label>Smoothing</label>
-														<hidden>1</hidden>
 													</object>
 													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 													<border>5</border>
@@ -1271,39 +1262,6 @@
 														<selection>0</selection>
 														<enabled>0</enabled>
 														<handler function="OnAxisTabShapeSelect" entry="EVT_CHOICE" />
-													</object>
-													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-													<border>5</border>
-													<option>1</option>
-												</object>
-												<object class="sizeritem">
-													<object class="wxFlexGridSizer" variable="FlexGridSizer11" member="no">
-														<cols>2</cols>
-														<rows>1</rows>
-														<object class="sizeritem">
-															<object class="wxTextCtrl" name="ID_TEXTCTRL1" variable="AxisTabBufferSize" member="yes">
-																<size>27,-1</size>
-																<enabled>0</enabled>
-																<hidden>1</hidden>
-																<tooltip>Buffer size [1..30]</tooltip>
-																<handler function="OnTextCtrl" entry="EVT_TEXT" />
-															</object>
-															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-															<border>5</border>
-															<option>1</option>
-														</object>
-														<object class="sizeritem">
-															<object class="wxTextCtrl" name="ID_TEXTCTRL2" variable="AxisTabFilter" member="yes">
-																<size>41,-1</size>
-																<enabled>0</enabled>
-																<hidden>1</hidden>
-																<tooltip>Filter [0.00..1.00]</tooltip>
-																<handler function="OnTextCtrl" entry="EVT_TEXT" />
-															</object>
-															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-															<border>5</border>
-															<option>1</option>
-														</object>
 													</object>
 													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 													<border>5</border>

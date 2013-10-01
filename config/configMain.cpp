@@ -131,13 +131,10 @@ const long configFrame::ID_STATICTEXT15 = wxNewId();
 const long configFrame::ID_STATICTEXT17 = wxNewId();
 const long configFrame::ID_STATICTEXT18 = wxNewId();
 const long configFrame::ID_STATICTEXT22 = wxNewId();
-const long configFrame::ID_STATICTEXT33 = wxNewId();
 const long configFrame::ID_TEXTCTRL8 = wxNewId();
 const long configFrame::ID_TEXTCTRL9 = wxNewId();
 const long configFrame::ID_TEXTCTRL10 = wxNewId();
 const long configFrame::ID_CHOICE1 = wxNewId();
-const long configFrame::ID_TEXTCTRL1 = wxNewId();
-const long configFrame::ID_TEXTCTRL2 = wxNewId();
 const long configFrame::ID_STATICLINE12 = wxNewId();
 const long configFrame::ID_STATICTEXT44 = wxNewId();
 const long configFrame::ID_COMBOBOX2 = wxNewId();
@@ -487,7 +484,6 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer17;
     wxGridSizer* GridSizer3;
     wxFlexGridSizer* FlexGridSizer29;
-    wxFlexGridSizer* FlexGridSizer11;
     wxFlexGridSizer* FlexGridSizer19;
     wxFlexGridSizer* FlexGridSizer48;
     wxFlexGridSizer* FlexGridSizer47;
@@ -872,7 +868,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     FlexGridSizer3->Add(FlexGridSizer48, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticLine7 = new wxStaticLine(PanelAxis, ID_STATICLINE7, wxDefaultPosition, wxSize(-1,50), wxLI_VERTICAL, _T("ID_STATICLINE7"));
     FlexGridSizer3->Add(StaticLine7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer30 = new wxFlexGridSizer(2, 5, 0, 0);
+    FlexGridSizer30 = new wxFlexGridSizer(2, 4, 0, 0);
     StaticTextDZPanelAxis = new wxStaticText(PanelAxis, ID_STATICTEXT15, _("DZ"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT15"));
     StaticTextDZPanelAxis->SetToolTip(_("Dead zone"));
     FlexGridSizer30->Add(StaticTextDZPanelAxis, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -884,9 +880,6 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     FlexGridSizer30->Add(StaticTextAccelPanelAxis, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticTextShapePanelAxis = new wxStaticText(PanelAxis, ID_STATICTEXT22, _("Shape"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT22"));
     FlexGridSizer30->Add(StaticTextShapePanelAxis, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticTextSmoothingPanelAxis = new wxStaticText(PanelAxis, ID_STATICTEXT33, _("Smoothing"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT33"));
-    StaticTextSmoothingPanelAxis->Hide();
-    FlexGridSizer30->Add(StaticTextSmoothingPanelAxis, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     AxisTabDeadZone = new wxTextCtrl(PanelAxis, ID_TEXTCTRL8, wxEmptyString, wxDefaultPosition, wxSize(27,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL8"));
     AxisTabDeadZone->Disable();
     AxisTabDeadZone->SetToolTip(_("Dead zone [0..64]"));
@@ -905,18 +898,6 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     AxisTabShape->Append(_("Rectangle"));
     AxisTabShape->Disable();
     FlexGridSizer30->Add(AxisTabShape, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer11 = new wxFlexGridSizer(1, 2, 0, 0);
-    AxisTabBufferSize = new wxTextCtrl(PanelAxis, ID_TEXTCTRL1, wxEmptyString, wxDefaultPosition, wxSize(27,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL1"));
-    AxisTabBufferSize->Disable();
-    AxisTabBufferSize->Hide();
-    AxisTabBufferSize->SetToolTip(_("Buffer size [1..30]"));
-    FlexGridSizer11->Add(AxisTabBufferSize, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    AxisTabFilter = new wxTextCtrl(PanelAxis, ID_TEXTCTRL2, wxEmptyString, wxDefaultPosition, wxSize(41,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL2"));
-    AxisTabFilter->Disable();
-    AxisTabFilter->Hide();
-    AxisTabFilter->SetToolTip(_("Filter [0.00..1.00]"));
-    FlexGridSizer11->Add(AxisTabFilter, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer30->Add(FlexGridSizer11, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer3->Add(FlexGridSizer30, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticLine12 = new wxStaticLine(PanelAxis, ID_STATICLINE12, wxDefaultPosition, wxSize(-1,50), wxLI_VERTICAL, _T("ID_STATICLINE12"));
     FlexGridSizer3->Add(StaticLine12, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -1089,8 +1070,6 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(ID_TEXTCTRL9,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
     Connect(ID_TEXTCTRL10,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
     Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&configFrame::OnAxisTabShapeSelect);
-    Connect(ID_TEXTCTRL1,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
-    Connect(ID_TEXTCTRL2,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
     Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonAddPanelAxis);
     Connect(ID_BUTTON7,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonRemovePanelAxis);
     Connect(ID_BUTTON5,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonModifyAxis);
@@ -1381,9 +1360,7 @@ void configFrame::OnButtonAddPanelAxis(wxCommandEvent& event)
     GridPanelAxis->SetCellValue(0, 7, AxisTabSensitivity->GetValue());
     GridPanelAxis->SetCellValue(0, 8, AxisTabAcceleration->GetValue());
     GridPanelAxis->SetCellValue(0, 9, AxisTabShape->GetStringSelection());
-    GridPanelAxis->SetCellValue(0, 10, AxisTabBufferSize->GetValue());
-    GridPanelAxis->SetCellValue(0, 11, AxisTabFilter->GetValue());
-    GridPanelAxis->SetCellValue(0, 12, AxisTabLabel->GetValue());
+    GridPanelAxis->SetCellValue(0, 10, AxisTabLabel->GetValue());
     GridPanelAxis->AutoSizeColumns();
     refresh_gui();
 }
@@ -1618,10 +1595,6 @@ void configFrame::OnEventTypeSelectPanelAxis(wxCommandEvent& event)
 	  AxisTabAcceleration->SetValue(wxEmptyString);
 	  AxisTabShape->SetSelection(0);
 	  AxisTabShape->Disable();
-	  AxisTabBufferSize->Disable();
-	  AxisTabBufferSize->SetValue(wxEmptyString);
-	  AxisTabFilter->Disable();
-	  AxisTabFilter->SetValue(wxEmptyString);
 
     if(AxisTabEventType->GetStringSelection() == _("button"))
     {
@@ -1833,10 +1806,6 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
           {
               AxisTabDeadZone->SetValue(wxT("20"));
               AxisTabSensitivity->SetValue(wxT("1.00"));
-              AxisTabBufferSize->Enable();
-              AxisTabBufferSize->SetValue(wxT("1"));
-              AxisTabFilter->Enable();
-              AxisTabFilter->SetValue(wxT("0.00"));
           }
           else if(evcatch.GetDeviceType() == "joystick")
           {
@@ -1849,10 +1818,6 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
               {
                   AxisTabSensitivity->SetValue(wxT("0.004"));
               }
-        	    AxisTabBufferSize->Disable();
-              AxisTabBufferSize->SetValue(wxEmptyString);
-              AxisTabFilter->Disable();
-              AxisTabFilter->SetValue(wxEmptyString);
           }
           fillAxisAxisChoice(AxisTabAxisId);
         }
@@ -2486,9 +2451,7 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event)
         AxisTabDeadZone->SetValue(GridPanelAxis->GetCellValue(grid2mod, 6));
         AxisTabSensitivity->SetValue(GridPanelAxis->GetCellValue(grid2mod, 7));
         AxisTabAcceleration->SetValue(GridPanelAxis->GetCellValue(grid2mod, 8));
-        AxisTabBufferSize->SetValue(GridPanelAxis->GetCellValue(grid2mod, 10));
-        AxisTabFilter->SetValue(GridPanelAxis->GetCellValue(grid2mod, 11));
-        AxisTabLabel->SetValue(GridPanelAxis->GetCellValue(grid2mod, 12));
+        AxisTabLabel->SetValue(GridPanelAxis->GetCellValue(grid2mod, 10));
         if(AxisTabEventType->GetStringSelection() == _("button"))
         {
             AxisTabDeadZone->Disable();
@@ -2496,8 +2459,6 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event)
             AxisTabAcceleration->Disable();
             AxisTabShape->Disable();
             AxisTabShape->SetSelection(0);
-            AxisTabBufferSize->Disable();
-            AxisTabFilter->Disable();
             fillButtonAxisChoice(AxisTabAxisId);
         }
         else
@@ -2507,11 +2468,6 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event)
             AxisTabAcceleration->Enable();
             AxisTabShape->SetSelection(AxisTabShape->FindString(GridPanelAxis->GetCellValue(grid2mod, 9)));
             AxisTabShape->Enable();
-			      if(AxisTabDeviceType->GetLabel() == _("mouse"))
-			      {
-                AxisTabBufferSize->Enable();
-                AxisTabFilter->Enable();
-      			}
             fillAxisAxisChoice(AxisTabAxisId);
         }
         AxisTabAxisId->SetSelection(AxisTabAxisId->FindString(GridPanelAxis->GetCellValue(grid2mod, 5)));
@@ -2576,9 +2532,7 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event)
         GridPanelAxis->SetCellValue(grid2mod, 7, AxisTabSensitivity->GetValue());
         GridPanelAxis->SetCellValue(grid2mod, 8, AxisTabAcceleration->GetValue());
         GridPanelAxis->SetCellValue(grid2mod, 9, AxisTabShape->GetStringSelection());
-        GridPanelAxis->SetCellValue(grid2mod, 10, AxisTabBufferSize->GetValue());
-        GridPanelAxis->SetCellValue(grid2mod, 11, AxisTabFilter->GetValue());
-        GridPanelAxis->SetCellValue(grid2mod, 12, AxisTabLabel->GetValue());
+        GridPanelAxis->SetCellValue(grid2mod, 10, AxisTabLabel->GetValue());
 
         Button3->Enable();
         Button7->Enable();
