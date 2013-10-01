@@ -43,20 +43,19 @@ e_controller_type serial_con_get_type()
  */
 int serial_con_send(e_controller_type ctype, int force_update)
 {
-  unsigned int size;
-  s_report report;
+  s_report report = {.packet_type = BYTE_SEND_REPORT};
   int ret = 0;
   if (force_update || controller[0].send_command)
   {
-    size = report_build(&report, ctype);
+    report.value_len = report_build(&report, ctype);
     
     if(ctype != C_TYPE_PS2_PAD)
     {
-      ret = serial_send(&report, size);
+      ret = serial_send(&report, 2+report.value_len);
     }
     else
     {
-      ret = serial_send(&report.value.ps2, size);
+      ret = serial_send(&report.value.ps2, report.value_len);
     }
 
     if(controller[0].send_command)

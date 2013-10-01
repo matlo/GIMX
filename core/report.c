@@ -19,9 +19,6 @@ static unsigned int _360pad_report_build(s_report* report)
   
   s_report_360* report_360 = &report->value.x360;
 
-  report->packet_type = BYTE_SEND_REPORT;
-  report->value_len = sizeof(s_report_360);
-
   report_360->type = 0x00;
   report_360->size = 0x14;
 
@@ -127,9 +124,6 @@ static unsigned int XboxPad_report_build(s_report* report)
   int axis_value;
 
   s_report_xbox* report_xbox = &report->value.xbox;
-
-  report->packet_type = BYTE_SEND_REPORT;
-  report->value_len = sizeof(*report_xbox);
 
   report_xbox->type = 0x00;
   report_xbox->size = 0x14;
@@ -258,9 +252,6 @@ static unsigned int joystick_report_build(s_report* report)
 {
   s_report_joystick* report_js = &report->value.js;
 
-  report->packet_type = BYTE_SEND_REPORT;
-  report->value_len = sizeof(*report_js);
-
   report_js->X = clamp(0, state[0].user.axis[sa_lstick_x] + 32768, 65535);
   report_js->Y = clamp(0, state[0].user.axis[sa_lstick_y] + 32768, 65535);
   report_js->Z = clamp(0, state[0].user.axis[sa_rstick_x] + 32768, 65535);
@@ -373,9 +364,6 @@ static unsigned int joystick_report_build(s_report* report)
 static unsigned int ps2_report_build(s_report* report)
 {
   s_report_ps2* report_ps2 = &report->value.ps2;
-
-  report->packet_type = BYTE_SEND_REPORT;
-  report->value_len = sizeof(*report_ps2);
 
   report_ps2->head = 0x5A;
   report_ps2->Bt1 = 0xFF;
