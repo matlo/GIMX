@@ -84,6 +84,14 @@ int serial_read(void* pdata, unsigned int size)
   return 0;
 }
 
+int serial_recv(void* pdata, unsigned int size)
+{
+	/*
+	 * TODO: test this.
+	 */
+  return serial_read(pdata, size);
+}
+
 /*
  * Close the serial port.
  */

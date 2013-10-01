@@ -14,7 +14,7 @@ static libusb_context* ctx = NULL;
 /*
  * Opens a usb_dev_handle for the first usb device found.
  */
-int usb_spoof_init_usb_device(int vendor, int product, u_int16_t* bus_id, u_int8_t* device_address, int libusb_debug)
+int usb_spoof_init_usb_device(int vendor, int product, uint16_t* bus_id, uint8_t* device_address, int libusb_debug)
 {
   if(libusb_init(&ctx))
   {
@@ -55,7 +55,7 @@ int usb_spoof_init_usb_device(int vendor, int product, u_int16_t* bus_id, u_int8
   if(bus_id) *bus_id = libusb_get_bus_number(libusb_get_device(devh));
   if(device_address) *device_address = libusb_get_device_address(libusb_get_device(devh));
 
-#ifdef WIN32
+/*#ifdef WIN32
   int config;
   if(libusb_get_configuration(devh, &config) < 0)
   {
@@ -69,7 +69,7 @@ int usb_spoof_init_usb_device(int vendor, int product, u_int16_t* bus_id, u_int8
       fatal("libusb_set_configuration");
     }
   }
-#endif
+#endif*/
 
   return 0;
 }
