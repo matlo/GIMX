@@ -236,9 +236,8 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     wxMenu* MenuHelp;
 
     Create(parent, wxID_ANY, _("Gimx-fpsconfig"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
-    SetClientSize(wxSize(614,423));
     SetBackgroundColour(wxColour(255,255,255));
-    Panel1 = new wxPanel(this, ID_PANEL1, wxPoint(0,0), wxSize(613,366), wxTAB_TRAVERSAL, _T("ID_PANEL1"));
+    Panel1 = new wxPanel(this, ID_PANEL1, wxPoint(0,0), wxSize(-1,-1), wxTAB_TRAVERSAL, _T("ID_PANEL1"));
     Panel1->SetBackgroundColour(wxColour(255,255,255));
     SpinCtrlXyRatioADS = new wxSpinCtrl(Panel1, ID_SPINCTRL8, _T("100"), wxPoint(486,352), wxSize(19,-1), 0, -10000, 10000, 100, _T("ID_SPINCTRL8"));
     SpinCtrlXyRatioADS->SetValue(_T("100"));
@@ -552,6 +551,9 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
 	  wxToolTip::SetDelay(0);
 
     readLabels();
+
+    Panel1->Fit();
+    Fit();
 }
 
 fpsconfigFrame::~fpsconfigFrame()

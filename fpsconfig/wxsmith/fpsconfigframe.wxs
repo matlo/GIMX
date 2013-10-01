@@ -2,12 +2,11 @@
 <wxsmith>
 	<object class="wxFrame" name="fpsconfigFrame">
 		<title>Gimx-fpsconfig</title>
-		<size>614,423</size>
 		<bg>#FFFFFF</bg>
 		<id_arg>0</id_arg>
 		<object class="wxPanel" name="ID_PANEL1" variable="Panel1" member="yes">
 			<pos>0,0</pos>
-			<size>613,366</size>
+			<size>-1,-1</size>
 			<bg>#FFFFFF</bg>
 			<object class="wxSpinCtrl" name="ID_SPINCTRL8" variable="SpinCtrlXyRatioADS" member="yes">
 				<value>100</value>
