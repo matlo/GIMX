@@ -953,7 +953,9 @@ static int ProcessMouseOptionsListElement(xmlNode * a_node)
             }
             else
             {
-              ret = -1;
+              //ret = -1;
+              //Work-around empty mode bug.
+              mode = E_MOUSE_MODE_AIMING;
             }
 
             if(ret != -1)
@@ -1060,7 +1062,7 @@ static int ProcessConfigurationElement(xmlNode * a_node)
     intensity->shape = E_SHAPE_RECTANGLE;
   }
 
-  for (cur_node = cur_node->next; cur_node; cur_node = cur_node->next)
+  for (cur_node = cur_node->next; cur_node && ret != -1; cur_node = cur_node->next)
   {
     if (cur_node->type == XML_ELEMENT_NODE)
     {

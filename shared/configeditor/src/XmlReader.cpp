@@ -438,7 +438,8 @@ void XmlReader::ProcessMouseOptionsElement(xmlNode * node)
     m_TempMouseOptions.SetMouse(Device("mouse", device_id1, device_name1));
 
     prop = (char*)xmlGetProp(node, (xmlChar*) X_ATTR_MODE);
-    mode = string(prop?prop:"");
+    mode = string(prop?prop:"Aiming");
+    if(mode.empty()) mode = "Aiming";//Work-around empty mode bug.
     xmlFree(prop);
     m_TempMouseOptions.SetMode(mode);
 

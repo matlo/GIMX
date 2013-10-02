@@ -115,6 +115,7 @@ class configFrame: public wxFrame
         wxString isAlreadyUsed(wxString device_type, wxString device_name, wxString device_id, wxString event_type, wxString event_id, int gridIndex1, int gridIndex2, int gridIndex3);
         bool isMouseOptionsDefined(wxString device_name, wxString device_id, int gridIndex);
         void readLabels();
+        string reverseTranslate(string str);
 
         //(*Identifiers(configFrame)
         static const long ID_STATICTEXT35;
@@ -402,6 +403,8 @@ class configFrame: public wxFrame
         wxStaticText* ProfileTriggerButtonId;
         wxStaticText* StaticTextDelayPanelOverall;
         //*)
+
+        wxLocale* locale;
 
         event_catcher evcatch;
         ConfigurationFile configFile;

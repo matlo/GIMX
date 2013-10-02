@@ -32,10 +32,7 @@
 #include <libintl.h>
 #include <wx/stdpaths.h>
 
-/*
- * This macro works around the gettext("") non-empty string result.
- */
-#define _CN(STRING) (strlen(STRING) ? gettext(STRING) : STRING)
+#define _CN(STRING) locale->GetString(wxString(STRING.c_str(), wxConvUTF8))
 
 using namespace std;
 
@@ -194,53 +191,55 @@ END_EVENT_TABLE()
  *
  * \return the original string, or the string itself (if no original string found).
  */
-static string reverse_gettext(string str)
+string configFrame::reverseTranslate(string str)
 {
-  if(str == gettext("Increase"))
+  wxString wxStr = wxString(str.c_str(), wxConvUTF8);
+  
+  if(wxStr == _("Increase"))
   {
     return "Increase";
   }
-  if(str == gettext("Decrease"))
+  if(wxStr == _("Decrease"))
   {
     return "Decrease";
   }
-  if(str == gettext("Circle"))
+  if(wxStr == _("Circle"))
   {
     return "Circle";
   }
-  if(str == gettext("Rectangle"))
+  if(wxStr == _("Rectangle"))
   {
     return "Rectangle";
   }
-  if(str == gettext("mouse"))
+  if(wxStr == _("mouse"))
   {
     return "mouse";
   }
-  if(str == gettext("keyboard"))
+  if(wxStr == _("keyboard"))
   {
     return "keyboard";
   }
-  if(str == gettext("axis"))
+  if(wxStr == _("axis"))
   {
     return "axis";
   }
-  if(str == gettext("axis up"))
+  if(wxStr == _("axis up"))
   {
     return "axis up";
   }
-  if(str == gettext("axis down"))
+  if(wxStr == _("axis down"))
   {
     return "axis down";
   }
-  if(str == gettext("button"))
+  if(wxStr == _("button"))
   {
     return "button";
   }
-  if(str == gettext("Aiming"))
+  if(wxStr == _("Aiming"))
   {
     return "Aiming";
   }
-  if(str == gettext("Driving"))
+  if(wxStr == _("Driving"))
   {
     return "Driving";
   }
@@ -453,18 +452,11 @@ void configFrame::readLabels()
  */
 configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
 {
-    /*
-     * Use the system locale.
-     * Messages will be translated if a translation file is available.
-     */
-    setlocale( LC_ALL, "" );
-#ifndef WIN32
-    bindtextdomain( "gimx", "/usr/share/locale" );
-#else
-    bindtextdomain( "gimx", "share/locale" );
+    locale = new wxLocale(wxLANGUAGE_DEFAULT);
+#ifdef WIN32
+    locale->AddCatalogLookupPathPrefix(wxT("share/locale"));
 #endif
-    textdomain( "gimx" );
-    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
+    locale->AddCatalog(wxT("gimx"));
 
     //(*Initialize(configFrame)
     wxFlexGridSizer* FlexGridSizer30;
@@ -1108,6 +1100,8 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnAbout);
     //*)
 
+	setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
+	
     GridPanelButton->SetSelectionMode(wxGrid::wxGridSelectRows);
     GridPanelAxis->SetSelectionMode(wxGrid::wxGridSelectRows);
     GridIntensity->SetSelectionMode(wxGrid::wxGridSelectRows);
@@ -1397,10 +1391,10 @@ void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
       std::list<ButtonMapper>* buttonMappers = config->GetButtonMapperList();
       for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); )
       {
-        if (it->GetDevice()->GetType() == reverse_gettext(old_device_type)
+        if (it->GetDevice()->GetType() == reverseTranslate(old_device_type)
             && it->GetDevice()->GetName() == old_device_name
             && it->GetDevice()->GetId() == old_device_id
-            && it->GetEvent()->GetType() == reverse_gettext(old_event_type)
+            && it->GetEvent()->GetType() == reverseTranslate(old_event_type)
             && it->GetEvent()->GetId() == old_event_id
             && it->GetButton() == old_button_id)
         {
@@ -1436,10 +1430,10 @@ void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
       std::list<AxisMapper>* axisMappers = config->GetAxisMapperList();
       for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); )
       {
-        if (it->GetDevice()->GetType() == reverse_gettext(old_device_type)
+        if (it->GetDevice()->GetType() == reverseTranslate(old_device_type)
             && it->GetDevice()->GetName() == old_device_name
             && it->GetDevice()->GetId() == old_device_id
-            && it->GetEvent()->GetType() == reverse_gettext(old_event_type)
+            && it->GetEvent()->GetType() == reverseTranslate(old_event_type)
             && it->GetEvent()->GetId() == old_event_id
             && it->GetAxis() == old_axis_id)
         {
@@ -1474,7 +1468,7 @@ void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
       std::list<Intensity>* intensities = config->GetIntensityList();
       for(std::list<Intensity>::iterator it = intensities->begin(); it!=intensities->end(); )
       {
-          if(it->GetDevice()->GetType() == reverse_gettext(old_device_type)
+          if(it->GetDevice()->GetType() == reverseTranslate(old_device_type)
               && it->GetDevice()->GetName() == old_device_name
               && it->GetDevice()->GetId() == old_device_id
               && it->GetEvent()->GetId() == old_event_id
@@ -1659,10 +1653,10 @@ void configFrame::auto_detect(wxStaticText* device_type, string* dname, wxStatic
       msg = _("Move an axis.");
     }
     StatusBar1->SetStatusText(msg);
-    evcatch.run("", reverse_gettext(string(event_type.mb_str(wxConvUTF8))));
+    evcatch.run("", reverseTranslate(string(event_type.mb_str(wxConvUTF8))));
     StatusBar1->SetStatusText(wxEmptyString);
 
-    device_type->SetLabel(wxString(_CN(evcatch.GetDeviceType().c_str()), wxConvUTF8));
+    device_type->SetLabel(_CN(evcatch.GetDeviceType()));
 
     if(MenuItemMultipleMiceAndKeyboards->IsChecked() || evcatch.GetDeviceType() == "joystick")
     {
@@ -1716,9 +1710,9 @@ void configFrame::OnButtonAutoDetectClick(wxCommandEvent& event)
         dev = config->GetTrigger()->GetDevice();
         ev = config->GetTrigger()->GetEvent();
 
-        if(dev->GetType() == reverse_gettext(old_device_type) && dev->GetName() == old_device_name && dev->GetId() == old_device_id && ev->GetId().c_str() == old_event_id)
+        if(dev->GetType() == reverseTranslate(old_device_type) && dev->GetName() == old_device_name && dev->GetId() == old_device_id && ev->GetId().c_str() == old_event_id)
         {
-          dev->SetType(reverse_gettext(string(ProfileTriggerDeviceType->GetLabel().mb_str(wxConvUTF8))));
+          dev->SetType(reverseTranslate(string(ProfileTriggerDeviceType->GetLabel().mb_str(wxConvUTF8))));
           dev->SetName(triggerTabDeviceName);
           dev->SetId(string(ProfileTriggerDeviceId->GetLabel().mb_str(wxConvUTF8)));
           ev->SetId(string(ProfileTriggerButtonId->GetLabel().mb_str(wxConvUTF8)));
@@ -1855,7 +1849,7 @@ void configFrame::save_current()
     std::list<Intensity>* intensityList;
     std::list<MouseOptions>* mouseOptionsList;
     //Save Trigger
-    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->SetType(reverse_gettext(string(ProfileTriggerDeviceType->GetLabel().mb_str(wxConvUTF8))));
+    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->SetType(reverseTranslate(string(ProfileTriggerDeviceType->GetLabel().mb_str(wxConvUTF8))));
     configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->SetName(triggerTabDeviceName);
     configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->SetId(string(ProfileTriggerDeviceId->GetLabel().mb_str(wxConvUTF8)));
     configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetEvent()->SetId(string(ProfileTriggerButtonId->GetLabel().mb_str(wxConvUTF8)));
@@ -1870,7 +1864,7 @@ void configFrame::save_current()
           MouseOptions(
               string(GridMouseOption->GetCellValue(i, 0).mb_str(wxConvUTF8)),
               string(GridMouseOption->GetCellValue(i, 1).mb_str(wxConvUTF8)),
-              reverse_gettext(string(GridMouseOption->GetCellValue(i, 2).mb_str(wxConvUTF8))),
+              reverseTranslate(string(GridMouseOption->GetCellValue(i, 2).mb_str(wxConvUTF8))),
               string(GridMouseOption->GetCellValue(i, 3).mb_str(wxConvUTF8)),
               string(GridMouseOption->GetCellValue(i, 4).mb_str(wxConvUTF8))));
     }
@@ -1882,13 +1876,13 @@ void configFrame::save_current()
       intensityList->push_front(
           Intensity(
               string(GridIntensity->GetCellValue(i, 0).mb_str(wxConvUTF8)),
-              reverse_gettext(string(GridIntensity->GetCellValue(i, 1).mb_str(wxConvUTF8))),
+              reverseTranslate(string(GridIntensity->GetCellValue(i, 1).mb_str(wxConvUTF8))),
               string(GridIntensity->GetCellValue(i, 2).mb_str(wxConvUTF8)),
               string(GridIntensity->GetCellValue(i, 3).mb_str(wxConvUTF8)),
               string(GridIntensity->GetCellValue(i, 4).mb_str(wxConvUTF8)),
-              reverse_gettext(string(GridIntensity->GetCellValue(i, 5).mb_str(wxConvUTF8))),
+              reverseTranslate(string(GridIntensity->GetCellValue(i, 5).mb_str(wxConvUTF8))),
               wxAtoi(GridIntensity->GetCellValue(i, 6)),
-              reverse_gettext(string(GridIntensity->GetCellValue(i, 7).mb_str(wxConvUTF8))),
+              reverseTranslate(string(GridIntensity->GetCellValue(i, 7).mb_str(wxConvUTF8))),
               wxAtoi(GridIntensity->GetCellValue(i, 8))));
     }
     //Save ButtonMappers
@@ -1898,10 +1892,10 @@ void configFrame::save_current()
     {
       buttonMappers->push_front(
           ButtonMapper(
-              reverse_gettext(string(GridPanelButton->GetCellValue(i, 0).mb_str(wxConvUTF8))),
+              reverseTranslate(string(GridPanelButton->GetCellValue(i, 0).mb_str(wxConvUTF8))),
               string(GridPanelButton->GetCellValue(i, 2).mb_str(wxConvUTF8)),
               string(GridPanelButton->GetCellValue(i, 1).mb_str(wxConvUTF8)),
-              reverse_gettext(string(GridPanelButton->GetCellValue(i, 3).mb_str(wxConvUTF8))),
+              reverseTranslate(string(GridPanelButton->GetCellValue(i, 3).mb_str(wxConvUTF8))),
               string(GridPanelButton->GetCellValue(i, 4).mb_str(wxConvUTF8)),
               string(GridPanelButton->GetCellValue(i, 5).mb_str(wxConvUTF8)),
               string(GridPanelButton->GetCellValue(i, 6).mb_str(wxConvUTF8)),
@@ -1914,16 +1908,16 @@ void configFrame::save_current()
     {
       axisMappers->push_front(
           AxisMapper(
-              reverse_gettext(string(GridPanelAxis->GetCellValue(i, 0).mb_str(wxConvUTF8))),
+              reverseTranslate(string(GridPanelAxis->GetCellValue(i, 0).mb_str(wxConvUTF8))),
               string(GridPanelAxis->GetCellValue(i, 2).mb_str(wxConvUTF8)),
               string(GridPanelAxis->GetCellValue(i, 1).mb_str(wxConvUTF8)),
-              reverse_gettext(string(GridPanelAxis->GetCellValue(i, 3).mb_str(wxConvUTF8))),
+              reverseTranslate(string(GridPanelAxis->GetCellValue(i, 3).mb_str(wxConvUTF8))),
               string(GridPanelAxis->GetCellValue(i, 4).mb_str(wxConvUTF8)),
               string(GridPanelAxis->GetCellValue(i, 5).mb_str(wxConvUTF8)),
               string(GridPanelAxis->GetCellValue(i, 6).mb_str(wxConvUTF8)),
               string(GridPanelAxis->GetCellValue(i, 7).mb_str(wxConvUTF8)),
               string(GridPanelAxis->GetCellValue(i, 8).mb_str(wxConvUTF8)),
-              reverse_gettext(string(GridPanelAxis->GetCellValue(i, 9).mb_str(wxConvUTF8))),
+              reverseTranslate(string(GridPanelAxis->GetCellValue(i, 9).mb_str(wxConvUTF8))),
               string(GridPanelAxis->GetCellValue(i, 10).mb_str(wxConvUTF8))));
     }
 
@@ -1939,7 +1933,7 @@ void configFrame::load_current()
     std::list<Intensity>* intensityList;
     std::list<MouseOptions>* mouseOptionsList;
     //Load Trigger
-    ProfileTriggerDeviceType->SetLabel(wxString(_CN(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->GetType().c_str()),wxConvUTF8));
+    ProfileTriggerDeviceType->SetLabel(_CN(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->GetType()));
     triggerTabDeviceName = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->GetName();
     string name = triggerTabDeviceName;
     if(name.size() > 20)
@@ -1967,7 +1961,7 @@ void configFrame::load_current()
       GridMouseOption->InsertRows();
       GridMouseOption->SetCellValue(0, 0, wxString(it->GetMouse()->GetName().c_str(),wxConvUTF8));
       GridMouseOption->SetCellValue(0, 1, wxString(it->GetMouse()->GetId().c_str(),wxConvUTF8));
-      GridMouseOption->SetCellValue(0, 2, wxString(_CN(it->GetMode().c_str()),wxConvUTF8));
+	  GridMouseOption->SetCellValue(0, 2, _CN(it->GetMode()));
       GridMouseOption->SetCellValue(0, 3, wxString(it->GetBufferSize().c_str(),wxConvUTF8));
       GridMouseOption->SetCellValue(0, 4, wxString(it->GetFilter().c_str(),wxConvUTF8));
     }
@@ -1979,15 +1973,15 @@ void configFrame::load_current()
     {
       GridIntensity->InsertRows();
       GridIntensity->SetCellValue(0, 0, wxString(it->GetControl().c_str(),wxConvUTF8));
-      GridIntensity->SetCellValue(0, 1, wxString(_CN(it->GetDevice()->GetType().c_str()),wxConvUTF8));
+      GridIntensity->SetCellValue(0, 1, _CN(it->GetDevice()->GetType()));
       GridIntensity->SetCellValue(0, 2, wxString(it->GetDevice()->GetName().c_str(),wxConvUTF8));
       GridIntensity->SetCellValue(0, 3, wxString(it->GetDevice()->GetId().c_str(),wxConvUTF8));
       GridIntensity->SetCellValue(0, 4, wxString(it->GetEvent()->GetId().c_str(),wxConvUTF8));
-      GridIntensity->SetCellValue(0, 5, wxString(_CN(it->GetDirection().c_str()),wxConvUTF8));
+      GridIntensity->SetCellValue(0, 5, _CN(it->GetDirection()));
       wxString dz;
       dz << it->GetDeadZone();
       GridIntensity->SetCellValue(0, 6, dz);
-      GridIntensity->SetCellValue(0, 7, wxString(_CN(it->GetShape().c_str()),wxConvUTF8));
+      GridIntensity->SetCellValue(0, 7, _CN(it->GetShape()));
       wxString steps;
       steps << it->GetSteps();
       GridIntensity->SetCellValue(0, 8, steps);
@@ -1999,15 +1993,15 @@ void configFrame::load_current()
     for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); ++it)
     {
         GridPanelButton->InsertRows();
-        GridPanelButton->SetCellValue(0, 0, wxString(_CN(it->GetDevice()->GetType().c_str()),wxConvUTF8));
+        GridPanelButton->SetCellValue(0, 0, _CN(it->GetDevice()->GetType()));
         GridPanelButton->SetCellValue(0, 1, wxString(it->GetDevice()->GetName().c_str(),wxConvUTF8));
         GridPanelButton->SetCellValue(0, 2, wxString(it->GetDevice()->GetId().c_str(),wxConvUTF8));
-        GridPanelButton->SetCellValue(0, 3, wxString(_CN(it->GetEvent()->GetType().c_str()),wxConvUTF8));
+        GridPanelButton->SetCellValue(0, 3, _CN(it->GetEvent()->GetType()));
         GridPanelButton->SetCellValue(0, 4, wxString(it->GetEvent()->GetId().c_str(),wxConvUTF8));
         GridPanelButton->SetCellValue(0, 5, wxString(it->GetEvent()->GetThreshold().c_str(),wxConvUTF8));
         GridPanelButton->SetCellValue(0, 6, wxString(it->GetButton().c_str(),wxConvUTF8));
         GridPanelButton->SetCellValue(0, 7, wxString(it->GetLabel().c_str(),wxConvUTF8));
-        if(it->GetLabel().find(_CN(", not found")) != string::npos || it->GetLabel().find(_CN(", duplicate")) != string::npos )
+        if(it->GetLabel().find(", not found") != string::npos || it->GetLabel().find(", duplicate") != string::npos )
         {
           for(int i=0; i<GridPanelButton->GetNumberCols(); ++i)
           {
@@ -2029,18 +2023,18 @@ void configFrame::load_current()
     for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
     {
         GridPanelAxis->InsertRows();
-        GridPanelAxis->SetCellValue(0, 0, wxString(_CN(it->GetDevice()->GetType().c_str()),wxConvUTF8));
+        GridPanelAxis->SetCellValue(0, 0, _CN(it->GetDevice()->GetType()));
         GridPanelAxis->SetCellValue(0, 1, wxString(it->GetDevice()->GetName().c_str(),wxConvUTF8));
         GridPanelAxis->SetCellValue(0, 2, wxString(it->GetDevice()->GetId().c_str(),wxConvUTF8));
-        GridPanelAxis->SetCellValue(0, 3, wxString(_CN(it->GetEvent()->GetType().c_str()),wxConvUTF8));
+        GridPanelAxis->SetCellValue(0, 3, _CN(it->GetEvent()->GetType()));
         GridPanelAxis->SetCellValue(0, 4, wxString(it->GetEvent()->GetId().c_str(),wxConvUTF8));
         GridPanelAxis->SetCellValue(0, 5, wxString(it->GetAxis().c_str(),wxConvUTF8));
         GridPanelAxis->SetCellValue(0, 6, wxString(it->GetEvent()->GetDeadZone().c_str(),wxConvUTF8));
         GridPanelAxis->SetCellValue(0, 7, wxString(it->GetEvent()->GetMultiplier().c_str(),wxConvUTF8));
         GridPanelAxis->SetCellValue(0, 8, wxString(it->GetEvent()->GetExponent().c_str(),wxConvUTF8));
-        GridPanelAxis->SetCellValue(0, 9, wxString(_CN(it->GetEvent()->GetShape().c_str()),wxConvUTF8));
+        GridPanelAxis->SetCellValue(0, 9, _CN(it->GetEvent()->GetShape()));
         GridPanelAxis->SetCellValue(0, 10, wxString(it->GetLabel().c_str(),wxConvUTF8));
-        if(it->GetLabel().find(_CN(", not found")) != string::npos || it->GetLabel().find(_CN(", duplicate")) != string::npos )
+        if(it->GetLabel().find(", not found") != string::npos || it->GetLabel().find(", duplicate") != string::npos )
         {
           for(int i=0; i<GridPanelAxis->GetNumberCols(); ++i)
           {
@@ -2063,20 +2057,20 @@ void configFrame::load_current()
  */
 void configFrame::refresh_gui()
 {
-    /*PanelTrigger->Layout();
+    PanelTrigger->Layout();
     PanelMouseOptions->Layout();
     PanelIntensity->Layout();
     PanelOverall->Layout();
     PanelButton->Layout();
-    PanelAxis->Layout();*/
+    PanelAxis->Layout();
     PanelTrigger->Fit();
     PanelMouseOptions->Fit();
     PanelIntensity->Fit();
     PanelOverall->Fit();
     PanelButton->Fit();
     PanelAxis->Fit();
-    //Refresh();
     Fit();
+    Refresh();
 }
 
 /*
@@ -2377,11 +2371,11 @@ void configFrame::updateButtonConfigurations()
 
     std::list<ButtonMapper>* buttonMappers;
 
-    string old_device_type = reverse_gettext(string(GridPanelButton->GetCellValue(grid1mod, 0).mb_str(wxConvUTF8)));
-    string new_device_type = reverse_gettext(string(ButtonTabDeviceType->GetLabel().mb_str(wxConvUTF8)));
+    string old_device_type = reverseTranslate(string(GridPanelButton->GetCellValue(grid1mod, 0).mb_str(wxConvUTF8)));
+    string new_device_type = reverseTranslate(string(ButtonTabDeviceType->GetLabel().mb_str(wxConvUTF8)));
 
-    string old_event_type = reverse_gettext(string(GridPanelButton->GetCellValue(grid1mod, 3).mb_str(wxConvUTF8)));
-    string new_event_type = reverse_gettext(string(ButtonTabEventType->GetStringSelection().mb_str(wxConvUTF8)));
+    string old_event_type = reverseTranslate(string(GridPanelButton->GetCellValue(grid1mod, 3).mb_str(wxConvUTF8)));
+    string new_event_type = reverseTranslate(string(ButtonTabEventType->GetStringSelection().mb_str(wxConvUTF8)));
 
     Controller* controller = configFile.GetController(currentController);
 
@@ -2551,11 +2545,11 @@ void configFrame::updateAxisConfigurations()
 
     std::list<AxisMapper>* axisMappers;
 
-    string old_device_type = reverse_gettext(string(GridPanelAxis->GetCellValue(grid2mod, 0).mb_str(wxConvUTF8)));
-    string new_device_type = reverse_gettext(string(AxisTabDeviceType->GetLabel().mb_str(wxConvUTF8)));
+    string old_device_type = reverseTranslate(string(GridPanelAxis->GetCellValue(grid2mod, 0).mb_str(wxConvUTF8)));
+    string new_device_type = reverseTranslate(string(AxisTabDeviceType->GetLabel().mb_str(wxConvUTF8)));
 
-    string old_event_type = reverse_gettext(string(GridPanelAxis->GetCellValue(grid2mod, 3).mb_str(wxConvUTF8)));
-    string new_event_type = reverse_gettext(string(AxisTabEventType->GetStringSelection().mb_str(wxConvUTF8)));
+    string old_event_type = reverseTranslate(string(GridPanelAxis->GetCellValue(grid2mod, 3).mb_str(wxConvUTF8)));
+    string new_event_type = reverseTranslate(string(AxisTabEventType->GetStringSelection().mb_str(wxConvUTF8)));
 
     Controller* controller = configFile.GetController(currentController);
 
@@ -3353,13 +3347,13 @@ void configFrame::OnIntensityModifyClick(wxCommandEvent& event)
 
       Intensity oldI(
           string(GridIntensity->GetCellValue(grid3mod, 0).mb_str(wxConvUTF8)),
-          reverse_gettext(string(GridIntensity->GetCellValue(grid3mod, 1).mb_str(wxConvUTF8))),
+          reverseTranslate(string(GridIntensity->GetCellValue(grid3mod, 1).mb_str(wxConvUTF8))),
           string(GridIntensity->GetCellValue(grid3mod, 2).mb_str(wxConvUTF8)),
           string(GridIntensity->GetCellValue(grid3mod, 3).mb_str(wxConvUTF8)),
           string(GridIntensity->GetCellValue(grid3mod, 4).mb_str(wxConvUTF8)),
           string(GridIntensity->GetCellValue(grid3mod, 5).mb_str(wxConvUTF8)),
           wxAtoi(GridIntensity->GetCellValue(grid3mod, 6)),
-          reverse_gettext(string(GridIntensity->GetCellValue(grid3mod, 7).mb_str(wxConvUTF8))),
+          reverseTranslate(string(GridIntensity->GetCellValue(grid3mod, 7).mb_str(wxConvUTF8))),
           wxAtoi(GridIntensity->GetCellValue(grid3mod, 8)));
 
       GridIntensity->SetCellValue(grid3mod, 0, IntensityAxis->GetStringSelection());
@@ -3378,13 +3372,13 @@ void configFrame::OnIntensityModifyClick(wxCommandEvent& event)
 
       Intensity newI(
           string(GridIntensity->GetCellValue(grid3mod, 0).mb_str(wxConvUTF8)),
-          reverse_gettext(string(GridIntensity->GetCellValue(grid3mod, 1).mb_str(wxConvUTF8))),
+          reverseTranslate(string(GridIntensity->GetCellValue(grid3mod, 1).mb_str(wxConvUTF8))),
           string(GridIntensity->GetCellValue(grid3mod, 2).mb_str(wxConvUTF8)),
           string(GridIntensity->GetCellValue(grid3mod, 3).mb_str(wxConvUTF8)),
           string(GridIntensity->GetCellValue(grid3mod, 4).mb_str(wxConvUTF8)),
           string(GridIntensity->GetCellValue(grid3mod, 5).mb_str(wxConvUTF8)),
           wxAtoi(GridIntensity->GetCellValue(grid3mod, 6)),
-          reverse_gettext(string(GridIntensity->GetCellValue(grid3mod, 7).mb_str(wxConvUTF8))),
+          reverseTranslate(string(GridIntensity->GetCellValue(grid3mod, 7).mb_str(wxConvUTF8))),
           wxAtoi(GridIntensity->GetCellValue(grid3mod, 8)));
 
       if(MenuItemLinkControls->IsChecked())
