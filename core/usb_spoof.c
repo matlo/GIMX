@@ -37,39 +37,9 @@ int usb_spoof_init_usb_device(int vendor, int product, uint16_t* bus_id, uint8_t
     fprintf(stderr, "libusb_reset_device\n");
     return -1;
   }
-  /*#ifndef WIN32
-  if(libusb_detach_kernel_driver(devh, ITFNUM) < 0)
-  {
-    //fatal("libusb_detach_kernel_driver\n");
-  }
-#endif
-  int i;
-  for(i=0; i<4; ++i)
-  {
-    if (libusb_claim_interface(devh, i) < 0)
-    {
-      fprintf(stderr, "usb_claim_interface\n");
-    }
-  }*/
 
   if(bus_id) *bus_id = libusb_get_bus_number(libusb_get_device(devh));
   if(device_address) *device_address = libusb_get_device_address(libusb_get_device(devh));
-
-/*#ifdef WIN32
-  int config;
-  if(libusb_get_configuration(devh, &config) < 0)
-  {
-    fatal("libusb_get_configuration");
-  }
-  if(config == 0)
-  {
-    printf("set configuration 1");
-    if(libusb_set_configuration(devh, 1) < 0)
-    {
-      fatal("libusb_set_configuration");
-    }
-  }
-#endif*/
 
   return 0;
 }
@@ -199,6 +169,7 @@ int usb_spoof_spoof_360_controller()
           if(ret < 0)
           {
             fprintf(stderr, "usb_spoof_forward_to_device failed with error: %d\n", ret);
+            fprintf(stderr, "bRequestType: 0x%02x bRequest: 0x%02x wValue: 0x%04x wIndex: 0x%04x wLength: 0x%04x\n", creq.header.bRequestType, creq.header.bRequest, creq.header.wValue, creq.header.wIndex, creq.header.wLength);
             ret = -1;
             break;
           }
@@ -242,6 +213,7 @@ int usb_spoof_spoof_360_controller()
           if(ret < 0)
           {
             fprintf(stderr, "usb_spoof_forward_to_device failed with error: %d\n", ret);
+            fprintf(stderr, "bRequestType: 0x%02x bRequest: 0x%02x wValue: 0x%04x wIndex: 0x%04x wLength: 0x%04x\n", creq.header.bRequestType, creq.header.bRequest, creq.header.wValue, creq.header.wIndex, creq.header.wLength);
             ret = -1;
             break;
           }

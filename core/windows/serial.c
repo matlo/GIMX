@@ -49,9 +49,9 @@ int serial_connect(char* portname)
   }
   COMMTIMEOUTS timeouts =
   { 0 };
-  timeouts.ReadIntervalTimeout = 50;
-  timeouts.ReadTotalTimeoutConstant = 50;
-  timeouts.ReadTotalTimeoutMultiplier = 10;
+  timeouts.ReadIntervalTimeout = 0;
+  timeouts.ReadTotalTimeoutConstant = 0;
+  timeouts.ReadTotalTimeoutMultiplier = 1000;
   timeouts.WriteTotalTimeoutConstant = 50;
   timeouts.WriteTotalTimeoutMultiplier = 10;
   if (!SetCommTimeouts(serial, &timeouts))
@@ -86,9 +86,6 @@ int serial_read(void* pdata, unsigned int size)
 
 int serial_recv(void* pdata, unsigned int size)
 {
-	/*
-	 * TODO: test this.
-	 */
   return serial_read(pdata, size);
 }
 
