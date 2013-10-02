@@ -21,6 +21,7 @@ install: all
 	cp -u -f /mingw/bin/zlib1.dll setup
 	cp -u -f /mingw/bin/libpdcursesw.dll setup
 	cp -u -f /mingw/bin/libintl-8.dll setup
+	cp -u -f /mingw/bin/libusb-1.0.dll setup
 	cp -u -f core/emuclient.exe setup
 	cp -u -f config/gimx-config.exe setup
 	cp -u -f serial/gimx-serial.exe setup
