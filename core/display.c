@@ -57,9 +57,9 @@
 #define LABEL_LENGTH sizeof("triangle")
 #define BUTTON_LENGTH LABEL_LENGTH + sizeof(": 255")
 
-WINDOW *lstick, *rstick, *wbuttons, *wcal;
+static WINDOW *lstick = NULL, *rstick = NULL, *wbuttons = NULL, *wcal = NULL;
 
-int cross[2][2] = { {STICK_X_L / 2, STICK_Y_L / 2}, {STICK_X_L / 2, STICK_Y_L / 2} };
+static int cross[2][2] = { {STICK_X_L / 2, STICK_Y_L / 2}, {STICK_X_L / 2, STICK_Y_L / 2} };
 
 #ifndef WIN32
 struct timeval t0, t1;
@@ -353,7 +353,10 @@ void display_init()
 
 void display_end()
 {
-  endwin();
+  if(wcal)
+  {
+    endwin();
+  }
 }
 
 int last_button_nb = 0;

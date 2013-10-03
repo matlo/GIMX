@@ -66,8 +66,13 @@ unsigned char triggered = 0;
  * Frees running_macro table.
  */
 void free_macros() {    
-    free(running_macro);
-    free(macro_table);
+  free(running_macro);
+	int i;
+	for(i = 0; i < macro_table_nb; ++i)
+	{
+    free(macro_table[i]);
+	}
+  free(macro_table);
 }
 
 /*
