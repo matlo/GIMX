@@ -2063,13 +2063,13 @@ void configFrame::refresh_gui()
     PanelOverall->Layout();
     PanelButton->Layout();
     PanelAxis->Layout();
-    PanelTrigger->Fit();
+    /*PanelTrigger->Fit();
     PanelMouseOptions->Fit();
     PanelIntensity->Fit();
     PanelOverall->Fit();
     PanelButton->Fit();
     PanelAxis->Fit();
-    Fit();
+    Fit();*/
     Refresh();
 }
 
