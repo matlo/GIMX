@@ -61,7 +61,7 @@ void timeradd(struct timeval *a, struct timeval *b, struct timeval *res)
 }
 #endif
 
-static int debug = 3;
+static int debug = 0;
 int display = 0;
 
 static const char *hid_report_name[] = { 
@@ -234,7 +234,7 @@ int process(int psm, const unsigned char *buf, int len,
             char foo = (HID_HANDSHAKE << 4) | 0x0;
             if(write(ctrl, &foo, 1) < 1)
             {
-              printf("write error");
+              fprintf(stderr, "write error\n");
             }
 
             /*if(report == 0xf4)
@@ -243,14 +243,14 @@ int process(int psm, const unsigned char *buf, int len,
               str2ba(state->bdaddr_dst, &dest_addr);
               if(l2cap_set_flush_timeout(&dest_addr, FLUSH_TIMEOUT) < 0)
               {
-                printf("can't set flush timeout for %s\n", state->bdaddr_dst);
+                fprintf(stderr, "can't set flush timeout for %s\n", state->bdaddr_dst);
               }
             }*/
         }
         break;
 
     default:
-        printf("unknown transaction %d\n", transaction);
+        fprintf(stderr, "unknown transaction %d\n", transaction);
         return -1;
     }
 
@@ -298,13 +298,13 @@ void handle_control(int tcpc, const unsigned char *buf, size_t len,
 
     /* Expect that we got 48 bytes, ignore anything else */
     if (len < 48) {
-        printf("tcp control short packet %ld\n", (unsigned long)len);
+        fprintf(stderr, "tcp control short packet %ld\n", (unsigned long)len);
         return;
     }
 
     if(len > 48)
     {
-        printf("%zu tcp packets merged\n", len/48);
+        fprintf(stderr, "%zu tcp packets merged\n", len/48);
     }
 
     while(len >= 48)
@@ -312,7 +312,7 @@ void handle_control(int tcpc, const unsigned char *buf, size_t len,
         /* Process it as input report 01 */
         ret = process_report(HID_TYPE_INPUT, 0x01, buf, 48, state);
         if (ret < 0) {
-            printf("tcp control process error %d\n", ret);
+            fprintf(stderr, "tcp control process error %d\n", ret);
             return;
         }
         buf+=48;
@@ -438,7 +438,7 @@ int main(int argc, char *argv[])
         /* Listen for TCP control connections */
         if (tcps < 0 && tcpc < 0)
             if ((tcps = tcplisten(TCPPORT+sixaxis_number)) < 0)
-                printf("tcp listen\n");
+                fprintf(stderr, "tcp listen\n");
 
 #ifndef WIN32
         memset(&pfd, 0, sizeof(pfd));
@@ -533,7 +533,7 @@ int main(int argc, char *argv[])
                     break;
                 } else {
                     /* Respond to data report with a report of our own */
-                    send_report_now = 1;
+//                    send_report_now = 1;
                 }
             }
         }
@@ -550,18 +550,18 @@ int main(int argc, char *argv[])
                 if (len <= 0) {
                     printf("client disconnected\n");
                     if (len < 0)
-                        printf("tcp recv");
+                        fprintf(stderr, "tcp recv\n");
                     close(tcpc);
                     tcpc = -1;
                 } else {
                     handle_control(tcpc, buf, len, &state);
-                    //send_report_now = 1;
+                    send_report_now = 1;
                 }
             } else {
                 tcpc = tcpaccept(tcps);
                 printf("client connected\n");
                 if (tcpc < 0)
-                    printf("tcp accept");
+                    fprintf(stderr, "tcp accept\n");
                 else {
                     close(tcps);
                     tcps = -1;
@@ -580,7 +580,7 @@ int main(int argc, char *argv[])
         if (send_report_now) {
             /* If we can, send it now.
                Otherwise, if we can't send it, just skip to the next one */
-            if (pfd[1].revents & POLLOUT) {
+            //if (pfd[1].revents & POLLOUT) {
                 if (debug >= 1)
                     sixaxis_dump_state(&state, 0);
                 if (sixaxis_periodic_report(&state)) {
@@ -591,7 +591,7 @@ int main(int argc, char *argv[])
 
                     if (send_report(data, HID_TYPE_INPUT,
                             0x01, &state, 0) == -1) {
-                        printf("send_report");
+                        fprintf(stderr, "send_report\n");
                     }
 
                     /* Dump contents */
@@ -600,7 +600,7 @@ int main(int argc, char *argv[])
                         printf("non blocking send took: %ld µs\n", (tv2.tv_sec*1000+tv2.tv_usec) - (tv1.tv_sec*1000+tv1.tv_usec));
                     }
                 }
-            }
+            //}
 
             /* Schedule next report */
             send_report_now = 0;
