@@ -11,7 +11,7 @@
 #include "display.h"
 #include <stdio.h>
 
-static int done = 0;
+static volatile int done = 0;
 
 void set_done()
 {

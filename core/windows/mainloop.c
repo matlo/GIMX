@@ -12,7 +12,7 @@
 #include <windows.h>
 #include <unistd.h>
 
-static int done = 0;
+static volatile int done = 0;
 
 void set_done()
 {
