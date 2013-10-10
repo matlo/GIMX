@@ -296,8 +296,6 @@ struct sixaxis_process_t sixaxis_process[] = {
     { 0 }
 };
 
-#define MAX_NAME_LENGTH 32
-
 static const char *axis_name[SA_MAX] = {
     [sa_lstick_x] = "lstick x",
     [sa_lstick_y] = "lstick y",
@@ -336,7 +334,7 @@ int get_button_index_from_name(const char* name)
   int i;
   for(i=0; i<SA_MAX; ++i)
   {
-    if(!strncmp(axis_name[i], name, MAX_NAME_LENGTH))
+    if(!strcmp(axis_name[i], name))
     {
       return i;
     }
@@ -345,11 +343,11 @@ int get_button_index_from_name(const char* name)
 }
 
 typedef struct {
-    char name[MAX_NAME_LENGTH];
+    const char* name;
     s_axis_index aindex;
 } s_axis_name_index;
 
-s_axis_name_index axis_name_index[] =
+static const s_axis_name_index axis_name_index[] =
 {
     {.name="rstick x",     {.value=-1,  .index=sa_rstick_x}},
     {.name="rstick y",     {.value=-1,  .index=sa_rstick_y}},
@@ -395,7 +393,7 @@ s_axis_index get_axis_index_from_name(const char* name)
   s_axis_index none = {-1, -1};
   for(i=0; i<sizeof(axis_name_index)/sizeof(s_axis_name_index); ++i)
   {
-    if(!strncmp(axis_name_index[i].name, name, MAX_NAME_LENGTH))
+    if(!strcmp(axis_name_index[i].name, name))
     {
       return axis_name_index[i].aindex;
     }
