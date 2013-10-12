@@ -17,13 +17,8 @@
 #define GE_BTN_WHEELDOWN  SDL_BUTTON_WHEELDOWN
 #define GE_BTN_WHEELLEFT  SDL_BUTTON_X3
 #define GE_BTN_WHEELRIGHT SDL_BUTTON_X4
-/*
- * TODO: test these values
-#define GE_BTN_SIDE       SDL_BUTTON_X1
-#define GE_BTN_EXTRA      SDL_BUTTON_X2
-#define GE_BTN_FORWARD    8
-#define GE_BTN_BACK       9
-#define GE_BTN_TASK       10*/
+#define GE_BTN_BACK       SDL_BUTTON_X1
+#define GE_BTN_FORWARD    SDL_BUTTON_X2
 
 #define GE_KEY_ESC  SDLK_ESCAPE
 #define GE_KEY_1  SDLK_1
