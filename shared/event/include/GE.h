@@ -8,8 +8,9 @@
 
 #include <stdint.h>
 
-#define MAX_KEYNAMES 249
-#define MOUSE_BUTTONS_MAX 12
+#define GE_MAX_DEVICES 256
+
+#define GE_MOUSE_BUTTONS_MAX 12
 
 #ifdef WIN32
 #include "GE_Windows.h"
@@ -90,6 +91,12 @@ typedef union GE_Event {
   GE_JoyButtonEvent jbutton;
 } GE_Event;
 
+typedef enum
+{
+  GE_MK_MODE_MULTIPLE_INPUTS,
+  GE_MK_MODE_SINGLE_INPUT
+} GE_MK_Mode;
+
 #define EVENT_BUFFER_SIZE 256
 
 #define AXIS_X 0
@@ -101,8 +108,6 @@ typedef union GE_Event {
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-extern int merge_all_devices;
 
 int GE_initialize();
 void GE_grab_toggle();
@@ -125,6 +130,9 @@ const char* GE_MouseButtonName(int);
 int GE_MouseButtonId(const char*);
 const char* GE_KeyName(uint16_t);
 uint16_t GE_KeyId(const char*);
+
+GE_MK_Mode GE_GetMKMode();
+void GE_SetMKMode(GE_MK_Mode);
 
 #ifndef WIN32
 void GE_SetCallback(int(*)(GE_Event*));

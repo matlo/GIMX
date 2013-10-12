@@ -82,7 +82,7 @@ void display_calibration()
   }
   clrtoeol();
   wmove(wcal, 1, 1);
-  if(!merge_all_devices)
+  if(GE_GetMKMode() == GE_MK_MODE_MULTIPLE_INPUTS)
   {
     waddstr(wcal, "Mouse:");
     if(current_cal == MC)

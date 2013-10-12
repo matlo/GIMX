@@ -19,36 +19,43 @@
 #include <linux/joystick.h>
 #include <string.h>
 
+#define MAX_KEYNAMES (KEY_MICMUTE+1)
+
+#define DEVTYPE_KEYBOARD 0x01
+#define DEVTYPE_MOUSE    0x02
+#define DEVTYPE_JOYSTICK 0x04
+#define DEVTYPE_NB       3
+
 #define MAX_EVENTS 256
 
 #define AXMAP_SIZE (ABS_MAX + 1)
 
 #define eprintf(...) if(debug) printf(__VA_ARGS__)
 
-int debug = 0;
+static int debug = 0;
 static int grab = 0;
 
-unsigned char device_type[MAX_DEVICES];
-int device_fd[MAX_DEVICES];
-int device_id[MAX_DEVICES][DEVTYPE_NB];
-char* device_name[MAX_DEVICES];
-int k_num;
-int m_num;
-int max_device_id;
+static unsigned char device_type[GE_MAX_DEVICES];
+static int device_fd[GE_MAX_DEVICES];
+static int device_id[GE_MAX_DEVICES][DEVTYPE_NB];
+static char* device_name[GE_MAX_DEVICES];
+static int k_num;
+static int m_num;
+static int max_device_id;
 
-int joystick_fd[MAX_DEVICES];
-int joystick_id[MAX_DEVICES];
-char* joystick_name[MAX_DEVICES];
-//unsigned short joystick_button_ids[MAX_DEVICES][KEY_MAX-BTN_JOYSTICK] = {{0}};
-unsigned short joystick_button_nb[MAX_DEVICES] = {0};
-int joystick_hat_value[MAX_DEVICES][ABS_HAT3Y-ABS_HAT0X] = {{0}};
-uint8_t joystick_ax_map[MAX_DEVICES][AXMAP_SIZE] = {{0}};
-int j_num;
-int max_joystick_id;
+static int joystick_fd[GE_MAX_DEVICES];
+static int joystick_id[GE_MAX_DEVICES];
+static char* joystick_name[GE_MAX_DEVICES];
+//static unsigned short joystick_button_ids[MAX_DEVICES][KEY_MAX-BTN_JOYSTICK] = {{0}};
+static unsigned short joystick_button_nb[GE_MAX_DEVICES] = {0};
+static int joystick_hat_value[GE_MAX_DEVICES][ABS_HAT3Y-ABS_HAT0X] = {{0}};
+static uint8_t joystick_ax_map[GE_MAX_DEVICES][AXMAP_SIZE] = {{0}};
+static int j_num;
+static int max_joystick_id;
 
-GE_Event evqueue[MAX_EVENTS];
-unsigned char evqueue_index_first = 0;
-unsigned char evqueue_index_last = 0;
+static GE_Event evqueue[MAX_EVENTS];
+static unsigned char evqueue_index_first = 0;
+static unsigned char evqueue_index_last = 0;
 
 int ev_push_event(GE_Event* ev)
 {
@@ -118,7 +125,7 @@ void ev_grab_input(int mode)
   {
     enable = &one;
   }
-  for(i=0; i<MAX_DEVICES; ++i)
+  for(i=0; i<GE_MAX_DEVICES; ++i)
   {
     if(device_fd[i] > -1)
     {
@@ -332,13 +339,13 @@ static int jsdev_init()
   memset(joystick_hat_value, 0x00, sizeof(joystick_hat_value));
   memset(joystick_ax_map, 0x00, sizeof(joystick_ax_map));
 
-  for(i=0; i<MAX_DEVICES; ++i)
+  for(i=0; i<GE_MAX_DEVICES; ++i)
   {
     joystick_fd[i] = -1;
     joystick_id[i] = -1;
   }
 
-  for(i=0; i<MAX_DEVICES && !ret; ++i)
+  for(i=0; i<GE_MAX_DEVICES && !ret; ++i)
   {
     sprintf(joystick, "/dev/input/js%d", i);
     fd = open (joystick, O_RDONLY | O_NONBLOCK);
@@ -424,7 +431,7 @@ static int evdev_init()
   k_num = 0;
   m_num = 0;
 
-  for(i=0; i<MAX_DEVICES; ++i)
+  for(i=0; i<GE_MAX_DEVICES; ++i)
   {
     device_fd[i] = -1;
 
@@ -434,7 +441,7 @@ static int evdev_init()
     }
   }
 
-  for(i=0; i<MAX_DEVICES && !ret; ++i)
+  for(i=0; i<GE_MAX_DEVICES && !ret; ++i)
   {
     sprintf(device, "/dev/input/event%d", i);
     fd = open (device, O_RDONLY | O_NONBLOCK);
@@ -555,7 +562,7 @@ const char* ev_keyboard_name(int id)
   return evdev_get_name(DEVTYPE_KEYBOARD, id);
 }
 
-int (*event_callback)(GE_Event*) = NULL;
+static int (*event_callback)(GE_Event*) = NULL;
 
 void ev_set_callback(int (*fp)(GE_Event*))
 {

@@ -315,7 +315,7 @@ void cal_key(int device_id, int sym, int down)
         {
           if (current_cal == NONE)
           {
-            if(!merge_all_devices)
+            if(GE_GetMKMode() == GE_MK_MODE_MULTIPLE_INPUTS)
             {
               current_cal = MC;
               gprintf(_("mouse selection\n"));
@@ -338,7 +338,7 @@ void cal_key(int device_id, int sym, int down)
         }
         else if(current_cal != NONE)
         {
-          if(!merge_all_devices)
+          if(GE_GetMKMode() == GE_MK_MODE_MULTIPLE_INPUTS)
           {
             current_cal = MC;
             gprintf(_("mouse selection\n"));

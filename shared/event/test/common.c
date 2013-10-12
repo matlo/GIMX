@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include "common.h"
 
-int done = 0;
+volatile int done = 0;
 
 void display_devices()
 {

@@ -14,13 +14,13 @@
 
 static SDL_Surface *screen = NULL;
 
-static SDL_Joystick* joysticks[MAX_DEVICES] = {};
+static SDL_Joystick* joysticks[GE_MAX_DEVICES] = {};
 static int j_num;
 static int j_max;
 
-int joystickNbButton[MAX_DEVICES] = {};
-int joystickNbHat[MAX_DEVICES] = {};
-unsigned char* joystickHat[MAX_DEVICES] = {};
+static int joystickNbButton[GE_MAX_DEVICES] = {};
+static int joystickNbHat[GE_MAX_DEVICES] = {};
+static unsigned char* joystickHat[GE_MAX_DEVICES] = {};
 
 int ev_init()
 {

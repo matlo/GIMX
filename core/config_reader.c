@@ -115,17 +115,17 @@ static int GetDeviceId(xmlNode* a_node)
         ret = 1;
       }
     }
-    else if(merge_all_devices)
+    else if(GE_GetMKMode() == GE_MK_MODE_SINGLE_INPUT)
     {
       r_device_id = 0;
     }
     else if(!strlen(r_device_name))
     {
-      if(!merge_all_devices)
+      if(GE_GetMKMode() == GE_MK_MODE_MULTIPLE_INPUTS)
       {
         gprintf(_("A device name is empty. Multiple mice and keyboards are not managed.\n"));
       }
-      merge_all_devices = 1;
+      GE_SetMKMode(GE_MK_MODE_SINGLE_INPUT);
     }
     else
     {

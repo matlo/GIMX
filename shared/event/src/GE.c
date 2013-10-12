@@ -21,18 +21,18 @@ static char* sixaxis_names[] =
   "Sony Navigation Controller"
 };
 
-char* joystickName[MAX_DEVICES] = {};
-int joystickVirtualIndex[MAX_DEVICES] = {};
-int joystickUsed[MAX_DEVICES] = {};
-int joystickSixaxis[MAX_DEVICES] = {};
-char* mouseName[MAX_DEVICES] = {};
-int mouseVirtualIndex[MAX_DEVICES] = {};
-char* keyboardName[MAX_DEVICES] = {};
-int keyboardVirtualIndex[MAX_DEVICES] = {};
+static char* joystickName[GE_MAX_DEVICES] = {};
+static int joystickVirtualIndex[GE_MAX_DEVICES] = {};
+static int joystickUsed[GE_MAX_DEVICES] = {};
+static int joystickSixaxis[GE_MAX_DEVICES] = {};
+static char* mouseName[GE_MAX_DEVICES] = {};
+static int mouseVirtualIndex[GE_MAX_DEVICES] = {};
+static char* keyboardName[GE_MAX_DEVICES] = {};
+static int keyboardVirtualIndex[GE_MAX_DEVICES] = {};
 
-static int grab = 0;
+static int grab = GE_GRAB_OFF;
 
-int merge_all_devices = 0;
+static GE_MK_Mode mk_mode = GE_MK_MODE_MULTIPLE_INPUTS;
 
 static const char* _8BIT_to_UTF8(const char* _8bit)
 {
@@ -147,7 +147,7 @@ int GE_initialize()
 void GE_release_unused()
 {
   int i;
-  for (i = 0; i < MAX_DEVICES && joystickName[i]; ++i)
+  for (i = 0; i < GE_MAX_DEVICES && joystickName[i]; ++i)
   {
     if (!joystickUsed[i])
     {
@@ -190,12 +190,12 @@ void GE_grab()
 void GE_FreeMKames()
 {
   int i;
-  for (i = 0; i < MAX_DEVICES && mouseName[i]; ++i)
+  for (i = 0; i < GE_MAX_DEVICES && mouseName[i]; ++i)
   {
     free(mouseName[i]);
     mouseName[i] = NULL;
   }
-  for (i = 0; i < MAX_DEVICES && keyboardName[i]; ++i)
+  for (i = 0; i < GE_MAX_DEVICES && keyboardName[i]; ++i)
   {
     free(keyboardName[i]);
     keyboardName[i] = NULL;
@@ -209,7 +209,7 @@ void GE_quit()
 {
   int i;
 
-  for (i = 0; i < MAX_DEVICES; ++i)
+  for (i = 0; i < GE_MAX_DEVICES; ++i)
   {
     if (joystickName[i])
     {
@@ -225,13 +225,13 @@ void GE_quit()
 /*
  * \brief Get the mouse name for a given index.
  * 
- * \param id  the mouse index (in the [0..MAX_DEVICES[ range).
+ * \param id  the mouse index (in the [0..GE_MAX_DEVICES[ range).
  * 
  * \return the mouse name if present, NULL otherwise.
  */
 char* GE_MouseName(int id)
 {
-  if (id >= 0 && id < MAX_DEVICES)
+  if (id >= 0 && id < GE_MAX_DEVICES)
   {
     return mouseName[id];
   }
@@ -241,13 +241,13 @@ char* GE_MouseName(int id)
 /*
  * \brief Get the keyboard name for a given index.
  * 
- * \param id  the keyboard index (in the [0..MAX_DEVICES[ range)
+ * \param id  the keyboard index (in the [0..GE_MAX_DEVICES[ range)
  * 
  * \return the keyboard name if present, NULL otherwise.
  */
 char* GE_KeyboardName(int id)
 {
-  if (id >= 0 && id < MAX_DEVICES)
+  if (id >= 0 && id < GE_MAX_DEVICES)
   {
     return keyboardName[id];
   }
@@ -257,13 +257,13 @@ char* GE_KeyboardName(int id)
 /*
  * \brief Get the joystick name for a given index.
  * 
- * \param id  the joystick index (in the [0..MAX_DEVICES[ range)
+ * \param id  the joystick index (in the [0..GE_MAX_DEVICES[ range)
  * 
  * \return the joystick name if present, NULL otherwise.
  */
 char* GE_JoystickName(int id)
 {
-  if (id >= 0 && id < MAX_DEVICES)
+  if (id >= 0 && id < GE_MAX_DEVICES)
   {
     return joystickName[id];
   }
@@ -273,13 +273,13 @@ char* GE_JoystickName(int id)
 /*
  * \brief Get the joystick virtual id for a given index.
  * 
- * \param id  the joystick index (in the [0..MAX_DEVICES[ range)
+ * \param id  the joystick index (in the [0..GE_MAX_DEVICES[ range)
  * 
  * \return the joystick name if present, NULL otherwise.
  */
 int GE_JoystickVirtualId(int id)
 {
-  if (id >= 0 && id < MAX_DEVICES)
+  if (id >= 0 && id < GE_MAX_DEVICES)
   {
     return joystickVirtualIndex[id];
   }
@@ -289,11 +289,11 @@ int GE_JoystickVirtualId(int id)
 /*
  * \brief Set a joystick to the "used" state, so that a call to GE_release_unused will keep it open.
  * 
- * \param id  the joystick index (in the [0..MAX_DEVICES[ range)
+ * \param id  the joystick index (in the [0..GE_MAX_DEVICES[ range)
  */
 void GE_SetJoystickUsed(int id)
 {
-  if (id >= 0 && id < MAX_DEVICES)
+  if (id >= 0 && id < GE_MAX_DEVICES)
   {
     joystickUsed[id] = 1;
   }
@@ -302,13 +302,13 @@ void GE_SetJoystickUsed(int id)
 /*
  * \brief Get the mouse virtual id for a given index.
  * 
- * \param id  the mouse index (in the [0..MAX_DEVICES[ range)
+ * \param id  the mouse index (in the [0..GE_MAX_DEVICES[ range)
  * 
  * \return the mouse name if present, NULL otherwise.
  */
 int GE_MouseVirtualId(int id)
 {
-  if (id >= 0 && id < MAX_DEVICES)
+  if (id >= 0 && id < GE_MAX_DEVICES)
   {
     return mouseVirtualIndex[id];
   }
@@ -318,13 +318,13 @@ int GE_MouseVirtualId(int id)
 /*
  * \brief Get the keyboard virtual id for a given index.
  * 
- * \param id  the keyboard index (in the [0..MAX_DEVICES[ range)
+ * \param id  the keyboard index (in the [0..GE_MAX_DEVICES[ range)
  * 
  * \return the keyboard name if present, NULL otherwise.
  */
 int GE_KeyboardVirtualId(int id)
 {
-  if (id >= 0 && id < MAX_DEVICES)
+  if (id >= 0 && id < GE_MAX_DEVICES)
   {
     return keyboardVirtualIndex[id];
   }
@@ -334,13 +334,13 @@ int GE_KeyboardVirtualId(int id)
 /*
  * \brief Tell if a joystick is a sixaxis / dualshock / navigation controller given its index.
  * 
- * \param id  the joystick index (in the [0..MAX_DEVICES[ range)
+ * \param id  the joystick index (in the [0..GE_MAX_DEVICES[ range)
  * 
  * \return 1 if it is such a joystick, 0 otherwise.
  */
 int GE_IsSixaxis(int id)
 {
-  if (id >= 0 && id < MAX_DEVICES)
+  if (id >= 0 && id < GE_MAX_DEVICES)
   {
     return joystickSixaxis[id];
   }
@@ -348,17 +348,39 @@ int GE_IsSixaxis(int id)
 }
 
 /*
+ * \brief Get the mk mode.
+ *
+ * \return value GE_MK_MODE_MULTIPLE_INPUTS multiple mice and  multiple keyboards (default value),
+ *               GE_MK_MODE_SINGLE_INPUT    single mouse and single keyboard
+ */
+inline GE_MK_Mode GE_GetMKMode()
+{
+  return mk_mode;
+}
+
+/*
+ * \brief Set the mk mode.
+ *
+ * \param value GE_MK_MODE_MULTIPLE_INPUTS multiple mice and  multiple keyboards (default value),
+ *              GE_MK_MODE_SINGLE_INPUT    single mouse and single keyboard
+ */
+inline void GE_SetMKMode(GE_MK_Mode value)
+{
+  mk_mode = value;
+}
+
+/*
  * \brief Returns the device id corresponding to a given event.
  * 
  * \param e  the event
  *
- * \return the device id.
+ * \return the device id (0 if the event is from a mouse or a keyboard and the mk mode is GE_MK_MODE_SINGLE_INPUT).
  */
 int GE_GetDeviceId(GE_Event* e)
 {
   /*
    * 'which' should always be at that place
-   * There is no need to check the value, since it's stored as an uint8_t, and MAX_DEVICES is 256.
+   * There is no need to check the value, since it's stored as an uint8_t, and GE_MAX_DEVICES is 256.
    */
   unsigned int device_id = ((GE_KeyboardEvent*) e)->which;
 
@@ -374,7 +396,7 @@ int GE_GetDeviceId(GE_Event* e)
     case GE_MOUSEBUTTONDOWN:
     case GE_MOUSEBUTTONUP:
     case GE_MOUSEMOTION:
-      if (merge_all_devices)
+      if (GE_GetMKMode() == GE_MK_MODE_SINGLE_INPUT)
       {
         device_id = 0;
       }

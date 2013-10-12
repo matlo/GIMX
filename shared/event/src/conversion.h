@@ -8,8 +8,6 @@
 
 #include <GE.h>
 
-#define MAX_NAME_LENGTH 32
-
 #ifdef __cplusplus
 extern "C" {
 #endif

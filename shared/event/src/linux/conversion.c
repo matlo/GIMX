@@ -7,7 +7,7 @@
 #include <string.h>
 #include <events.h>
 
-char* keynames[249] =
+static const char* keynames[] =
 {
     "RESERVED",
     "ESCAPE",
@@ -267,9 +267,9 @@ uint16_t get_key_from_buffer(const char* buffer)
 {
   int i;
 
-  for (i = 0; i < MAX_KEYNAMES; i++)
+  for (i = 0; i < sizeof(keynames)/sizeof(*keynames); i++)
   {
-    if (!strncmp(keynames[i], buffer, MAX_NAME_LENGTH))
+    if (!strcmp(keynames[i], buffer))
     {
       return i;
     }
@@ -283,7 +283,7 @@ uint16_t get_key_from_buffer(const char* buffer)
  */
 const char* get_chars_from_key(uint16_t key)
 {
-  if(key > 0 && key < MAX_KEYNAMES)
+  if(key > 0 && key < sizeof(keynames)/sizeof(*keynames))
   {
     return keynames[key];
   }
@@ -294,7 +294,7 @@ const char* get_chars_from_key(uint16_t key)
 /*
  * This table gives a correspondence between a char string and a button code.
  */
-char* butnames[MOUSE_BUTTONS_MAX] =
+static const char* butnames[GE_MOUSE_BUTTONS_MAX] =
 {
     "BUTTON_LEFT",
     "BUTTON_RIGHT",
@@ -312,7 +312,7 @@ char* butnames[MOUSE_BUTTONS_MAX] =
 
 const char* get_chars_from_button(int but)
 {
-  if(but >= 0 && but <sizeof(butnames)/sizeof(char*))
+  if(but >= 0 && but <sizeof(butnames)/sizeof(*butnames))
   {
     return butnames[but];
   }
@@ -334,7 +334,7 @@ int get_mouse_event_id_from_buffer(const char* event_id)
   }
   else
   {
-    for(i=0; i<sizeof(butnames)/sizeof(char*); ++i)
+    for(i=0; i<sizeof(butnames)/sizeof(*butnames); ++i)
     {
       if(!strcmp(event_id, butnames[i]))
       {

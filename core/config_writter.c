@@ -154,7 +154,7 @@ static int ProcessDeviceElement(xmlNode * a_node)
       }
       xmlFree(prop);
 
-      if(merge_all_devices)
+      if(GE_GetMKMode() == GE_MK_MODE_SINGLE_INPUT)
       {
         r_device_id = 0;
       }

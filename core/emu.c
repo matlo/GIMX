@@ -61,7 +61,7 @@ void timeradd(struct timeval *a, struct timeval *b, struct timeval *res)
 }
 #endif
 
-static int debug = 0;
+static int debug = 3;
 int display = 0;
 
 static const char *hid_report_name[] = { 
@@ -73,7 +73,8 @@ int device_number;
 #define DATA 19
 #define TCPPORT 21313 /* ('S'<<8+'A') */
 
-static int running = 1;
+static volatile int running = 1;
+
 void sig_handler(int sig)
 {
     running = 0;
@@ -505,6 +506,7 @@ int main(int argc, char *argv[])
         if (FD_ISSET(ctrl, &read_set))
 #endif
         {
+          printf("ctrl\n");
             len = l2cap_recv(ctrl, buf, 1024);
             if (len > 0)
             {
@@ -525,6 +527,7 @@ int main(int argc, char *argv[])
         if (FD_ISSET(data, &read_set))
 #endif
         {
+          printf("data\n");
             len = l2cap_recv(data, buf, 1024);
             if (len > 0) {
                 if (process(DATA, buf, len,
@@ -605,11 +608,11 @@ int main(int argc, char *argv[])
             /* Schedule next report */
             send_report_now = 0;
             gettimeofday(&now, NULL);
-            timeradd(&now, (&(struct timeval){0,11250}), &next_report);
+            timeradd(&now, (&(struct timeval){0,1000000}), &next_report);
         }
     }
 
-    fprintf(stderr, "cleaning up");
+    fprintf(stderr, "cleaning up\n");
     shutdown(ctrl, SHUT_RDWR);
     shutdown(data, SHUT_RDWR);
     close(ctrl);

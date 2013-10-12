@@ -10,8 +10,6 @@
 
 using namespace std;
 
-#define MAX_DEVICES 256
-
 class event_catcher
 {
     public:
@@ -33,14 +31,6 @@ class event_catcher
         string m_DeviceId;
         string m_EventType;
         string m_EventId;
-        /*string joystickName[MAX_DEVICES];
-        int joystickVirtualIndex[MAX_DEVICES];
-        int joystickNbButton[MAX_DEVICES];
-        int joystickSixaxis[MAX_DEVICES];
-        string mouseName[MAX_DEVICES];
-        int mouseVirtualIndex[MAX_DEVICES];
-        string keyboardName[MAX_DEVICES];
-        int keyboardVirtualIndex[MAX_DEVICES];*/
         unsigned int done;
 };
 

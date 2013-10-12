@@ -78,8 +78,6 @@ struct sixaxis_state state[MAX_CONTROLLERS];
 s_controller controller[MAX_CONTROLLERS] =
 { };
 
-int merge_all_devices;
-
 int proc_time = 0;
 int proc_time_worst = 0;
 int proc_time_total = 0;
@@ -268,7 +266,7 @@ int main(int argc, char *argv[])
     goto QUIT;
   }
 
-  if(merge_all_devices)
+  if(GE_GetMKMode() == GE_MK_MODE_SINGLE_INPUT)
   {
     free_config();
     GE_FreeMKames();

@@ -106,7 +106,7 @@ typedef struct
   double y;
   double residue_x;
   double residue_y;
-  int postpone[MOUSE_BUTTONS_MAX];
+  int postpone[GE_MOUSE_BUTTONS_MAX];
 }s_mouse_control;
 
 typedef struct

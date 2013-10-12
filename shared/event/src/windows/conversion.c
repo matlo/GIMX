@@ -10,14 +10,14 @@
 
 typedef struct
 {
-  char arg[MAX_NAME_LENGTH];
+  const char* arg;
   SDLKey key;
 } s_arg_key;
 
 /*
  * This table gives a correspondence between a char string and a key code.
  */
-s_arg_key arg_key_table[SDLK_LAST] =
+static const s_arg_key arg_key_table[SDLK_LAST] =
 {
   {"UNKNOWN",         SDLK_UNKNOWN },
   {"FIRST",           SDLK_FIRST },
@@ -283,7 +283,7 @@ uint16_t get_key_from_buffer(const char* buffer)
 
   for (i = 0; i < SDLK_LAST; i++)
   {
-    if (!strncmp(arg_key_table[i].arg, buffer, MAX_NAME_LENGTH))
+    if (!strcmp(arg_key_table[i].arg, buffer))
     {
       return arg_key_table[i].key;
     }
@@ -310,7 +310,7 @@ const char* get_chars_from_key(uint16_t key)
   return arg_key_table[0].arg;
 }
 
-const char* buttons[MOUSE_BUTTONS_MAX] =
+static const char* buttons[GE_MOUSE_BUTTONS_MAX] =
 {
     "UNDEFINED",
     "BUTTON_LEFT",
@@ -328,7 +328,7 @@ const char* buttons[MOUSE_BUTTONS_MAX] =
 
 const char* get_chars_from_button(int but)
 {
-  if(but > 0 && but < MOUSE_BUTTONS_MAX)
+  if(but >= 0 && but <sizeof(buttons)/sizeof(*buttons))
   {
     return buttons[but];
   }

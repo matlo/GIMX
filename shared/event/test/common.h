@@ -10,7 +10,7 @@
 
 #include <GE.h>
 
-extern int done;
+extern volatile int done;
 
 void display_devices();
 int process_event(GE_Event*);
