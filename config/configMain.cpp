@@ -458,6 +458,8 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
 #endif
     locale->AddCatalog(wxT("gimx"));
 
+    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
+
     //(*Initialize(configFrame)
     wxFlexGridSizer* FlexGridSizer30;
     wxFlexGridSizer* FlexGridSizer46;
@@ -1099,8 +1101,6 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM26,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuUpdate);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnAbout);
     //*)
-
-	setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 	
     GridPanelButton->SetSelectionMode(wxGrid::wxGridSelectRows);
     GridPanelAxis->SetSelectionMode(wxGrid::wxGridSelectRows);

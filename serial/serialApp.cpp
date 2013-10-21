@@ -20,12 +20,6 @@ IMPLEMENT_APP(serialApp);
 
 bool serialApp::OnInit()
 {
-    wxLocale* locale = new wxLocale(wxLANGUAGE_DEFAULT);
-#ifdef WIN32
-    locale->AddCatalogLookupPathPrefix(wxT("share/locale"));
-#endif
-    locale->AddCatalog(wxT("gimx"));
-    
     //(*AppInitialize
     bool wxsOK = true;
     wxInitAllImageHandlers();

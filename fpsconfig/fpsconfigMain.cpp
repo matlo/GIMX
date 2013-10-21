@@ -214,17 +214,12 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
 {
     unsigned int i;
 
-    /*
-     * Use the system locale.
-     * Messages will be translated if a translation file is available.
-     */
-    setlocale( LC_ALL, "" );
-#ifndef WIN32
-    bindtextdomain( "gimx", "/usr/share/locale" );
-#else
-    bindtextdomain( "gimx", "share/locale" );
+    locale = new wxLocale(wxLANGUAGE_DEFAULT);
+#ifdef WIN32
+    locale->AddCatalogLookupPathPrefix(wxT("share/locale"));
 #endif
-    textdomain( "gimx" );
+    locale->AddCatalog(wxT("gimx"));
+
     setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 
     //(*Initialize(fpsconfigFrame)

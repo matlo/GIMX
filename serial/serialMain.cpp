@@ -281,6 +281,14 @@ static void readStartUpdates(wxMenuItem* menuItem)
 
 serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
 {
+    locale = new wxLocale(wxLANGUAGE_DEFAULT);
+#ifdef WIN32
+    locale->AddCatalogLookupPathPrefix(wxT("share/locale"));
+#endif
+    locale->AddCatalog(wxT("gimx"));
+
+    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
+
     //(*Initialize(serialFrame)
     wxMenuItem* MenuItem2;
     wxMenuItem* MenuItem1;
@@ -417,8 +425,6 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
         wxMessageBox( _("gimx-serial is already running!"), _("Error"), wxICON_ERROR);
         exit(-1);
     }
-
-    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 
     userDataDir = wxStandardPaths::Get().GetUserDataDir();
     if(!wxDir::Exists(userDataDir))

@@ -213,6 +213,8 @@ class fpsconfigFrame: public wxFrame
         wxStaticText* StaticTextXy;
         //*)
 
+        wxLocale* locale;
+
         event_catcher evcatch;
         ConfigurationFile configFile;
 

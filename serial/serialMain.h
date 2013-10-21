@@ -112,6 +112,8 @@ class serialFrame: public wxFrame
         wxSingleInstanceChecker SingleInstanceChecker1;
         //*)
 
+        wxLocale* locale;
+
         bool started;
 
         DECLARE_EVENT_TABLE()
