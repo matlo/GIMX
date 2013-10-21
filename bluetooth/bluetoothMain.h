@@ -7,17 +7,17 @@
 #define BLUETOOTHMAIN_H
 
 //(*Headers(bluetoothFrame)
-#include <wx/sizer.h>
-#include <wx/stattext.h>
-#include <wx/menu.h>
 #include <wx/checkbox.h>
-#include <wx/panel.h>
-#include <wx/snglinst.h>
-#include <wx/choice.h>
+#include <wx/sizer.h>
 #include <wx/button.h>
-#include <wx/utils.h>
-#include <wx/frame.h>
+#include <wx/menu.h>
+#include <wx/panel.h>
 #include <wx/statusbr.h>
+#include <wx/snglinst.h>
+#include <wx/frame.h>
+#include <wx/stattext.h>
+#include <wx/choice.h>
+#include <wx/utils.h>
 //*)
 
 #include <wx/process.h>
@@ -117,50 +117,52 @@ class bluetoothFrame: public wxFrame
         //*)
 
         //(*Declarations(bluetoothFrame)
-        wxStaticText* StaticText10;
-        wxChoice* Choice5;
-        wxStaticText* StaticText9;
-        wxButton* Button4;
-        wxMenuItem* MenuItem5;
-        wxStaticText* StaticText13;
-        wxStaticText* StaticText2;
-        wxStaticText* StaticText14;
-        wxChoice* Choice3;
-        wxButton* Button1;
-        wxStaticText* StaticText6;
-        wxMenuItem* MenuItem4;
-        wxStaticText* StaticText8;
-        wxStaticText* StaticText11;
-        wxCheckBox* CheckBox3;
-        wxChoice* ChoiceConfig;
-        wxCheckBox* CheckBox2;
-        wxCheckBox* CheckBox6;
         wxPanel* Panel1;
-        wxStaticText* StaticText1;
-        wxStaticText* StaticText3;
-        wxChoice* Choice7;
-        wxChoice* Choice8;
-        wxButton* Button2;
-        wxCheckBox* CheckBox1;
-        wxSingleInstanceChecker SingleInstanceChecker1;
-        wxMenuItem* MenuItem3;
-        wxButton* Button3;
-        wxStaticText* StaticText5;
-        wxStaticText* StaticText7;
+        wxStaticText* StaticText13;
+        wxStaticText* StaticText14;
         wxStatusBar* StatusBar1;
-        wxMenuItem* MenuItem6;
-        wxChoice* Choice6;
+        wxChoice* Choice3;
+        wxMenuItem* MenuAutoBindControls;
+        wxButton* Button4;
+        wxChoice* ChoiceConfig;
+        wxButton* Button1;
         wxMenuItem* MenuGetConfigs;
-        wxCheckBox* CheckBox7;
-        wxStaticText* StaticText12;
-        wxCheckBox* CheckBox5;
-        wxMenuItem* MenuStartUpdates;
-        wxStaticText* StaticText4;
-        wxChoice* Choice1;
+        wxCheckBox* CheckBox1;
+        wxCheckBox* CheckBox6;
+        wxButton* Button2;
+        wxButton* Button3;
         wxChoice* Choice2;
         wxMenuItem* MenuUpdate;
-        wxMenuItem* MenuAutoBindControls;
+        wxStaticText* StaticText1;
+        wxStaticText* StaticText10;
+        wxMenuItem* MenuStartUpdates;
+        wxStaticText* StaticText3;
+        wxMenuItem* MenuItem3;
+        wxChoice* Choice5;
+        wxChoice* Choice1;
+        wxCheckBox* CheckBox2;
+        wxStaticText* StaticText8;
+        wxStaticText* StaticText12;
+        wxCheckBox* CheckBox7;
+        wxChoice* Choice7;
+        wxStaticText* StaticText7;
+        wxMenuItem* MenuItem5;
+        wxStaticText* StaticText4;
+        wxStaticText* StaticText5;
+        wxStaticText* StaticText2;
+        wxMenuItem* MenuItem4;
+        wxMenuItem* MenuItem6;
+        wxCheckBox* CheckBox3;
+        wxStaticText* StaticText6;
+        wxSingleInstanceChecker SingleInstanceChecker1;
+        wxChoice* Choice6;
+        wxChoice* Choice8;
+        wxStaticText* StaticText9;
+        wxStaticText* StaticText11;
+        wxCheckBox* CheckBox5;
         //*)
+
+        wxLocale* locale;
 
         wxString m_SelectedSixaxis;
         wxString m_SelectedPS3;

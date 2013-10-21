@@ -8,8 +8,8 @@
 #include <wx/msgdlg.h>
 
 //(*InternalHeaders(bluetoothFrame)
-#include <wx/intl.h>
 #include <wx/string.h>
+#include <wx/intl.h>
 //*)
 
 #include <glib.h>
@@ -427,44 +427,53 @@ void bluetoothFrame::refresh()
     {
         wxMessageBox( _("No Bluetooth Dongle Detected!"), _("Error"), wxICON_ERROR);
     }
+    Layout();
+    Refresh();
 }
 
 bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
 {
     unsigned int i;
 
+    locale = new wxLocale(wxLANGUAGE_DEFAULT);
+#ifdef WIN32
+    locale->AddCatalogLookupPathPrefix(wxT("share/locale"));
+#endif
+    locale->AddCatalog(wxT("gimx"));
+
+    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
+
     //(*Initialize(bluetoothFrame)
-    wxStaticBoxSizer* StaticBoxSizer2;
-    wxFlexGridSizer* FlexGridSizer4;
-    wxMenuItem* MenuItem7;
     wxMenuItem* MenuItem2;
-    wxStaticBoxSizer* StaticBoxSizer4;
-    wxFlexGridSizer* FlexGridSizer10;
-    wxFlexGridSizer* FlexGridSizer3;
+    wxStaticBoxSizer* StaticBoxSizer2;
     wxMenuItem* MenuItem1;
-    wxFlexGridSizer* FlexGridSizer5;
-    wxFlexGridSizer* FlexGridSizer9;
+    wxFlexGridSizer* FlexGridSizer8;
+    wxFlexGridSizer* FlexGridSizer1;
     wxFlexGridSizer* FlexGridSizer2;
     wxMenu* Menu1;
-    wxFlexGridSizer* FlexGridSizer7;
-    wxStaticBoxSizer* StaticBoxSizer8;
-    wxStaticBoxSizer* StaticBoxSizer3;
-    wxStaticBoxSizer* StaticBoxSizer6;
-    wxFlexGridSizer* FlexGridSizer8;
-    wxFlexGridSizer* FlexGridSizer14;
-    wxFlexGridSizer* FlexGridSizer13;
-    wxFlexGridSizer* FlexGridSizer12;
-    wxMenuBar* MenuBar1;
-    wxFlexGridSizer* FlexGridSizer6;
-    wxStaticBoxSizer* StaticBoxSizer1;
-    wxFlexGridSizer* FlexGridSizer1;
-    wxFlexGridSizer* FlexGridSizer11;
-    wxMenu* Menu2;
     wxStaticBoxSizer* StaticBoxSizer5;
+    wxFlexGridSizer* FlexGridSizer11;
+    wxFlexGridSizer* FlexGridSizer7;
+    wxFlexGridSizer* FlexGridSizer4;
+    wxFlexGridSizer* FlexGridSizer9;
+    wxFlexGridSizer* FlexGridSizer14;
+    wxStaticBoxSizer* StaticBoxSizer3;
+    wxFlexGridSizer* FlexGridSizer6;
+    wxFlexGridSizer* FlexGridSizer3;
+    wxStaticBoxSizer* StaticBoxSizer8;
+    wxStaticBoxSizer* StaticBoxSizer4;
+    wxStaticBoxSizer* StaticBoxSizer6;
+    wxFlexGridSizer* FlexGridSizer10;
+    wxFlexGridSizer* FlexGridSizer13;
+    wxMenuBar* MenuBar1;
+    wxMenuItem* MenuItem7;
+    wxFlexGridSizer* FlexGridSizer12;
+    wxMenu* Menu2;
+    wxFlexGridSizer* FlexGridSizer5;
+    wxStaticBoxSizer* StaticBoxSizer1;
 
     Create(parent, wxID_ANY, _("Gimx-bluetooth"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
-    SetClientSize(wxSize(675,525));
-    Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxSize(0,0), wxTAB_TRAVERSAL, _T("ID_PANEL1"));
+    Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL1"));
     FlexGridSizer1 = new wxFlexGridSizer(2, 1, 0, 0);
     FlexGridSizer7 = new wxFlexGridSizer(1, 2, 0, 0);
     StaticBoxSizer1 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("Sixaxis"));
@@ -593,6 +602,7 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer6->Add(StaticBoxSizer4, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer1->Add(FlexGridSizer6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     Panel1->SetSizer(FlexGridSizer1);
+    FlexGridSizer1->Fit(Panel1);
     FlexGridSizer1->SetSizeHints(Panel1);
     MenuBar1 = new wxMenuBar();
     Menu1 = new wxMenu();
@@ -724,6 +734,9 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
         OnMenuGetConfigs(event);
       }
     }
+
+    Panel1->Fit();
+    Fit();
 }
 
 bluetoothFrame::~bluetoothFrame()
