@@ -24,17 +24,28 @@ void mainloop()
   int num_evt;
   GE_Event* event;
   struct timespec period = {.tv_sec = 0, .tv_nsec = emuclient_params.refresh_period*1000};
-    
+  unsigned int running_macros;
+
   GE_TimerStart(&period);
 
-  GE_SetCallback(process_event);
-
-  while (!done)
+  /*
+   * Non-generated events are ignored if the --keygen argument is used.
+   */
+  if(emuclient_params.keygen)
   {
-    if(!emuclient_params.keygen)
-    {
-      GE_PumpEvents();
-    }
+    GE_SetCallback(ignore_event);
+  }
+  else
+  {
+    GE_SetCallback(process_event);
+  }
+
+  while(!done)
+  {
+    /*
+     * GE_PumpEvents should always be executed as it drives the period.
+     */
+    GE_PumpEvents();
 
     cfg_process_motion();
 
@@ -50,9 +61,17 @@ void mainloop()
       display_run(state[0].user.axis);
     }
 
+    /*
+     * These two functions generate events.
+     */
     calibration_test();
 
-    macro_process();
+    running_macros = macro_process();
+
+    /*
+     * This part of the loop processes events generated
+     * by macros and calibration tests, and the --keygen argument.
+     */
 
     num_evt = GE_PeepEvents(events, sizeof(events) / sizeof(events[0]));
 
@@ -64,6 +83,15 @@ void mainloop()
     for (event = events; event < events + num_evt; ++event)
     {
       process_event(event);
+    }
+
+    /*
+     * The --keygen argument is used
+     * and there are no more event or macro to process => exit.
+     */
+    if(emuclient_params.keygen && !running_macros && !num_evt)
+    {
+      done = 1;
     }
   }
     

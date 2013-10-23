@@ -122,6 +122,11 @@ void terminate(int sig)
   set_done();
 }
 
+int ignore_event(GE_Event* event)
+{
+  return 0;
+}
+
 int process_event(GE_Event* event)
 {
   if (event->type != GE_MOUSEMOTION)

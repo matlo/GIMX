@@ -61,5 +61,6 @@ inline double get_axis_scale(int);
 #define gprintf(...) if(emuclient_params.status) printf(__VA_ARGS__)
 
 int process_event(GE_Event*);
+int ignore_event(GE_Event*);
 
 #endif /* EMUCLIENT_H_ */

@@ -27,6 +27,7 @@ void mainloop()
   LARGE_INTEGER t0, t1, freq;
   int time_to_sleep;
   int ptl;
+  unsigned int running_macros;
   
   QueryPerformanceFrequency(&freq);
 
@@ -37,13 +38,21 @@ void mainloop()
     /*
      * These two functions generate events.
      */
-    macro_process();
 	  calibration_test();
-    
+
+	  running_macros = macro_process();
+
+    /*
+     * Non-generated events are ignored if the --keygen argument is used.
+     */
     if(!emuclient_params.keygen)
     {
       GE_PumpEvents();
-    } 
+    }
+    
+    /*
+     * This part of the loop processes all events.
+     */
 
     num_evt = GE_PeepEvents(events, sizeof(events) / sizeof(events[0]));
 
@@ -55,6 +64,16 @@ void mainloop()
     for (event = events; event < events + num_evt; ++event)
     {
       process_event(event);
+    }
+
+    /*
+     * The --keygen argument is used
+     * and there are no more event or macro to process => exit.
+     */
+    if(emuclient_params.keygen && !running_macros && !num_evt)
+    {
+      done = 1;
+      continue;//no need to send anything...
     }
 
     cfg_process_motion();

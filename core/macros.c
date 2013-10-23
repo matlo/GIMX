@@ -957,9 +957,9 @@ int get_event_device_type(GE_Event* ev)
 }
 
 /*
- * Generate events for pending macros.
+ * Generate events for pending macros and return the number of running macros.
  */
-void macro_process()
+unsigned int macro_process()
 {
   int i, j;
   int dtype1, dtype2, did;
@@ -1017,6 +1017,7 @@ void macro_process()
       i--;
     }
   }
+  return running_macro_nb;
 }
 
 void macro_set_controller_device(int controller, int device_type, int device_id)

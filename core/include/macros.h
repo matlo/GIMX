@@ -9,7 +9,7 @@
 #include <GE.h>
 
 void macro_lookup(GE_Event*);
-void macro_process();
+unsigned int macro_process();
 
 void macro_set_controller_device(int, int, int);
 
