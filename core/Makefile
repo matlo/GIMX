@@ -16,7 +16,7 @@ LIB=../shared/event/GE.a
 ifneq ($(OS),Windows_NT)
 LIB+= -lxml2 -lm -lncursesw -lusb-1.0
 else
-LIB+= -lmingw32 -lSDLmain -lSDL -llibxml2 -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl -lusb-1.0
+LIB+= `sdl-config --libs` -llibxml2 -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl -lusb-1.0
 endif
 INC=-Iinclude -I../shared/event/include
 ifneq ($(OS),Windows_NT)
