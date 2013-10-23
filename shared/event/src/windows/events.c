@@ -4,6 +4,7 @@
  */
 
 #include <SDL/SDL.h>
+#include "winmm/manymouse.h"
 #include <GE.h>
 #include <events.h>
 #include <math.h>
@@ -63,6 +64,11 @@ int ev_init()
   
   j_num = j_max;
 
+  if(ManyMouse_Init() < 0)
+  {
+    return 0;
+  }
+
   return 1;
 }
 
@@ -76,6 +82,8 @@ void ev_quit(void)
   SDL_Quit();
   
   SDL_WarpMouse(100, 100);
+
+  ManyMouse_Quit();
 }
 
 const char* ev_joystick_name(int id)
@@ -104,12 +112,12 @@ void ev_joystick_close(int id)
 
 const char* ev_mouse_name(int id)
 {
-  return SDL_GetMouseName(id);
+  return ManyMouse_MouseName(id);
 }
 
 const char* ev_keyboard_name(int id)
 {
-  return SDL_GetKeyboardName(id);
+  return ManyMouse_KeyboardName(id);
 }
 
 void ev_grab_input(int mode)
@@ -123,9 +131,106 @@ void ev_set_callback(int (*fp)(GE_Event*))
 {
 }
 
+static short m_x[GE_MAX_DEVICES] = {};
+static short m_y[GE_MAX_DEVICES] = {};
+
 void ev_pump_events()
 {
   SDL_PumpEvents();
+
+  ManyMouseEvent event;
+  Uint8 button = 0;
+
+  while (ManyMouse_PollEvent(&event))
+  {
+    if (event.type == MANYMOUSE_EVENT_RELMOTION)
+    {
+      if(event.item == 0)
+      {
+          m_x[event.device]+=event.value;
+      }
+      else
+      {
+          m_y[event.device]+=event.value;
+      }
+    }
+    else if (event.type == MANYMOUSE_EVENT_BUTTON)
+    {
+        switch(event.item)
+        {
+          case 0:
+            button = SDL_BUTTON_LEFT;
+            break;
+          case 1:
+            button = SDL_BUTTON_RIGHT;
+            break;
+          case 2:
+            button = SDL_BUTTON_MIDDLE;
+            break;
+          case 3:
+            button = SDL_BUTTON_X1;
+            break;
+          case 4:
+            button = SDL_BUTTON_X2;
+            break;
+        }
+        SDL_Event se = {};
+        se.button.type = event.value ? SDL_MOUSEBUTTONDOWN : SDL_MOUSEBUTTONUP;
+        se.button.which = event.device;
+        se.button.button = button;
+        SDL_PushEvent(&se);
+    }
+    else if (event.type == MANYMOUSE_EVENT_SCROLL)
+    {
+      if(event.item == 0)
+      {
+        SDL_Event se = {};
+        se.button.type = SDL_MOUSEBUTTONDOWN;
+        se.button.which = event.device;
+        se.button.button = (event.value > 0) ? SDL_BUTTON_WHEELUP : SDL_BUTTON_WHEELDOWN;
+        SDL_PushEvent(&se);
+        se.button.type = SDL_MOUSEBUTTONUP;
+        SDL_PushEvent(&se);
+      }
+      else
+      {
+        SDL_Event se = {};
+        se.button.type = SDL_MOUSEBUTTONDOWN;
+        se.button.which = event.device;
+        se.button.button = (event.value < 0) ? SDL_BUTTON_X3 : SDL_BUTTON_X4;
+        SDL_PushEvent(&se);
+        se.button.type = SDL_MOUSEBUTTONUP;
+        SDL_PushEvent(&se);
+      }
+    }
+    else if(event.type == MANYMOUSE_EVENT_KEY)
+    {
+      SDL_Event se = {};
+      se.key.type = event.value ? SDL_KEYDOWN : SDL_KEYUP;
+      se.key.which = event.device;
+      se.key.keysym.sym = event.scancode;
+      SDL_PushEvent(&se);
+    }
+  }
+
+  /*
+   * TODO MLA: use the number of mice instead of GE_MAX_DEVICES...
+   */
+  int i;
+  for(i=0; i<GE_MAX_DEVICES; ++i)
+  {
+    if(m_x[i] || m_y[i])
+    {
+      SDL_Event se = {};
+      se.motion.type = SDL_MOUSEMOTION;
+      se.motion.which = i;
+      se.motion.xrel = m_x[i];
+      se.motion.yrel = m_y[i];
+      SDL_PushEvent(&se);
+      m_x[i] = 0;
+      m_y[i] = 0;
+    }
+  }
 }
 
 static inline void convert_g2s(SDL_Event* se, GE_Event* ge)

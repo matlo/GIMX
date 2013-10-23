@@ -3,9 +3,10 @@ include Makedefs
 
 OBJ = src/GE.o
 ifneq ($(OS),Windows_NT)
-OBJ += src/linux/events.o src/linux/conversion.o src/linux/timer.o
+OBJ += src/linux/events.o src/conversion.o src/linux/conversion.o src/linux/timer.o
 else
-OBJ += src/windows/events.o src/windows/conversion.o
+OBJ += src/windows/events.o src/conversion.o src/windows/conversion.o\
+       src/windows/winmm/keycodes.o src/windows/winmm/manymouse.o src/windows/winmm/windows_wminput.o 
 endif
 LIB=
 INC=-I/usr/include/ -Iinclude -Isrc
