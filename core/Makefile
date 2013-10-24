@@ -17,6 +17,7 @@ ifneq ($(OS),Windows_NT)
 LIB+= -lxml2 -lm -lncursesw -lusb-1.0
 else
 LIB+= `sdl-config --libs` -llibxml2 -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl -lusb-1.0
+LIB:=$(filter-out -mwindows,$(LIB))
 endif
 INC=-Iinclude -I../shared/event/include
 ifneq ($(OS),Windows_NT)
