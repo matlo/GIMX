@@ -40,6 +40,7 @@ typedef struct
   int status;
   int curses;
   char* config_file;
+  int event;
   char* ip;
   int postpone_count;
   int subpos;
@@ -49,6 +50,9 @@ extern s_emuclient_params emuclient_params;
 
 extern struct sixaxis_state state[MAX_CONTROLLERS];
 extern s_controller controller[MAX_CONTROLLERS];
+
+void set_axis_value(int axis, int value);
+
 extern int proc_time;
 extern int proc_time_worst;
 extern int proc_time_total;

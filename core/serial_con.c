@@ -9,6 +9,7 @@
 #include <emuclient.h>
 #include <report.h>
 #include <usb_spoof.h>
+#include <unistd.h>
 
 /*
  * Connect to a serial port.
@@ -73,5 +74,6 @@ int serial_con_send(e_controller_type ctype, int force_update)
 
 void serial_con_close()
 {
+  usleep(10000);//sleep 10ms to leave enough time for the last packet to be sent
   serial_close();
 }

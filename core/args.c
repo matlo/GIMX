@@ -25,6 +25,7 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
     {"curses",         no_argument, &params->curses,         1},
     /* These options don't set a flag. We distinguish them by their indices. */
     {"config",  required_argument, 0, 'c'},
+    {"event",   required_argument, 0, 'e'},
     {"ip",      required_argument, 0, 'i'},
     {"keygen",  required_argument, 0, 'k'},
     {"port",    required_argument, 0, 'p'},
@@ -59,6 +60,33 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
       case 'c':
         params->config_file = optarg;
         printf("option -c with value `%s'\n", optarg);
+        break;
+
+      case 'e':
+        {
+          char axis_label[9] = {};
+          int axis;
+          int value;
+          if(sscanf(optarg, "%8[^(](%d)", axis_label, &value) != 2)
+          {
+            fprintf(stderr, "Bad event format: %s\n", optarg);
+            ret = -1;
+          }
+          else
+          {
+            if((axis = get_button_index_from_name(axis_label)) != -1)
+            {
+              printf("option -e with value `%s(%d)'\n", axis_label, value);
+              set_axis_value(axis, value);
+              params->event = 1;
+            }
+            else
+            {
+              fprintf(stderr, "Bad axis name for event: %s\n", optarg);
+              ret = -1;
+            }
+          }
+        }
         break;
 
       case 'i':

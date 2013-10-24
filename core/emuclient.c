@@ -69,6 +69,7 @@ s_emuclient_params emuclient_params =
   .status = 0,
   .curses = 0,
   .config_file = NULL,
+  .event = 0,
   .ip = NULL,
   .postpone_count = DEFAULT_POSTPONE_COUNT,
   .subpos = 0,
@@ -77,6 +78,14 @@ s_emuclient_params emuclient_params =
 struct sixaxis_state state[MAX_CONTROLLERS];
 s_controller controller[MAX_CONTROLLERS] =
 { };
+
+void set_axis_value(int axis, int value)
+{
+  if(axis >= 0 && axis < SA_MAX)
+  {
+    state[0].user.axis[axis] = value;
+  }
+}
 
 int proc_time = 0;
 int proc_time_worst = 0;
@@ -204,6 +213,16 @@ int main(int argc, char *argv[])
   max_unsigned_axis_value[sa_acc_z] = 1023;
   max_unsigned_axis_value[sa_gyro]  = 1023;
 
+  /*
+   * This is initialized before reading the arguments
+   * as the --event argument can modify the controller state.
+   */
+  for (i = 0; i < MAX_CONTROLLERS; ++i)
+  {
+    sixaxis_init(state + i);
+    memset(controller + i, 0x00, sizeof(s_controller));
+  }
+
   if(args_read(argc, argv, &emuclient_params) < 0)
   {
     fprintf(stderr, _("Wrong argument.\n"));
@@ -243,10 +262,14 @@ int main(int argc, char *argv[])
 
   emuclient_params.frequency_scale = (double) DEFAULT_REFRESH_PERIOD / emuclient_params.refresh_period;
 
-  for (i = 0; i < MAX_CONTROLLERS; ++i)
+  /*
+   * The --event argument makes emuclient send a packet and exit.
+   */
+  if(emuclient_params.event)
   {
-    sixaxis_init(state + i);
-    memset(controller + i, 0x00, sizeof(s_controller));
+    controller[0].send_command = 1;
+    connector_send();
+    goto QUIT;
   }
 
   if (!GE_initialize())
