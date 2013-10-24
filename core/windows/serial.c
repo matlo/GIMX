@@ -50,10 +50,10 @@ int serial_connect(char* portname)
   COMMTIMEOUTS timeouts =
   { 0 };
   timeouts.ReadIntervalTimeout = 0;
-  timeouts.ReadTotalTimeoutConstant = 0;
-  timeouts.ReadTotalTimeoutMultiplier = 1000;
-  timeouts.WriteTotalTimeoutConstant = 50;
-  timeouts.WriteTotalTimeoutMultiplier = 10;
+  timeouts.ReadTotalTimeoutMultiplier = 0;
+  timeouts.ReadTotalTimeoutConstant = 1000;
+  timeouts.WriteTotalTimeoutMultiplier = 0;
+  timeouts.WriteTotalTimeoutConstant = 0;
   if (!SetCommTimeouts(serial, &timeouts))
   {
     ret = -1;
@@ -75,11 +75,11 @@ int serial_send(void* pdata, unsigned int size)
 
 int serial_read(void* pdata, unsigned int size)
 {
-  DWORD dwBytesWrite = 0;
+  DWORD dwBytesRead = 0;
 
-  if(ReadFile(serial, (uint8_t*)pdata, size, &dwBytesWrite, NULL))
+  if(ReadFile(serial, (uint8_t*)pdata, size, &dwBytesRead, NULL))
   {
-    return dwBytesWrite;
+    return dwBytesRead;
   }
   return 0;
 }
