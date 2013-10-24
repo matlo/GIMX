@@ -4,4 +4,10 @@ LD = g++
 AR = ar
 
 CFLAGS=-Wall -O3#0 -g
+
+ifeq ($(OS),Windows_NT)
+CFLAGS += `sdl-config --cflags`
+#CFLAGS += `sdl2-config --cflags`
+endif
+
 LDFLAGS = -s

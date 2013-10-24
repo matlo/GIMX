@@ -10,6 +10,7 @@ else
 OBJ += windows_test.o
 BINS=windows_test
 LIB += -lmingw32 -lSDLmain -lSDL -liconv
+#LIB += -lmingw32 -lSDL2main -lSDL2 -liconv
 endif
 
 INC=-I../include

@@ -8,10 +8,16 @@
 #ifndef GE_WINDOWS_H_
 #define GE_WINDOWS_H_
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #define SDL_BUTTON_X3   SDL_BUTTON_X2+1
 #define SDL_BUTTON_X4   SDL_BUTTON_X2+2
+
+#ifdef SDL2
+//TODO MLA: remove this...
+#define SDL_BUTTON_WHEELUP  4
+#define SDL_BUTTON_WHEELDOWN  5
+#endif
 
 #define GE_BTN_LEFT       SDL_BUTTON_LEFT
 #define BE_BTN_RIGHT      SDL_BUTTON_RIGHT

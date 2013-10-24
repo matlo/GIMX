@@ -3,7 +3,7 @@
  License: GPLv3
  */
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include "winmm/manymouse.h"
 #include <GE.h>
 #include <events.h>
@@ -28,12 +28,17 @@ int ev_init()
   int i;
   
   /* Init SDL */
+#ifndef SDL2
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0)
+#else
+  if (SDL_Init(SDL_INIT_JOYSTICK) < 0)
+#endif
   {
    fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
    return 0;
   }
 
+#ifndef SDL2
   /* Init video */
   screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 0,
      SDL_HWSURFACE | SDL_ANYFORMAT | SDL_NOFRAME);
@@ -42,6 +47,7 @@ int ev_init()
    fprintf(stderr, "Unable to create video surface: %s\n", SDL_GetError());
    return 0;
   }
+#endif
   
   j_max = 0;
   i = 0;
@@ -80,15 +86,21 @@ void ev_quit(void)
     ev_joystick_close(i);
   }
   SDL_Quit();
-  
+#ifndef SDL2
   SDL_WarpMouse(100, 100);
-
+#else
+  SDL_WarpMouseInWindow(NULL, 100, 100);//TODO MLA: test this
+#endif
   ManyMouse_Quit();
 }
 
 const char* ev_joystick_name(int id)
 {
+#ifndef SDL2
   return SDL_JoystickName(id);
+#else
+  return SDL_JoystickName(joysticks[id]);
+#endif
 }
 
 /*
@@ -122,9 +134,13 @@ const char* ev_keyboard_name(int id)
 
 void ev_grab_input(int mode)
 {
+#ifndef SDL2
   SDL_WM_GrabInput(mode);
 
   SDL_ShowCursor(SDL_DISABLE);
+#else
+  SDL_SetRelativeMouseMode(SDL_TRUE);
+#endif
 }
 
 void ev_set_callback(int (*fp)(GE_Event*))
@@ -185,29 +201,47 @@ void ev_pump_events()
       if(event.item == 0)
       {
         SDL_Event se = {};
+#ifndef SDL2
         se.button.type = SDL_MOUSEBUTTONDOWN;
         se.button.which = event.device;
         se.button.button = (event.value > 0) ? SDL_BUTTON_WHEELUP : SDL_BUTTON_WHEELDOWN;
         SDL_PushEvent(&se);
         se.button.type = SDL_MOUSEBUTTONUP;
         SDL_PushEvent(&se);
+#else
+        se.wheel.type = SDL_MOUSEWHEEL;
+        se.wheel.which = event.device;
+        se.wheel.x = event.value;
+        SDL_PushEvent(&se);
+#endif
       }
       else
       {
         SDL_Event se = {};
+#ifndef SDL2
         se.button.type = SDL_MOUSEBUTTONDOWN;
         se.button.which = event.device;
         se.button.button = (event.value < 0) ? SDL_BUTTON_X3 : SDL_BUTTON_X4;
         SDL_PushEvent(&se);
         se.button.type = SDL_MOUSEBUTTONUP;
         SDL_PushEvent(&se);
+#else
+        se.wheel.type = SDL_MOUSEWHEEL;
+        se.wheel.which = event.device;
+        se.wheel.y = event.value;
+        SDL_PushEvent(&se);
+#endif
       }
     }
     else if(event.type == MANYMOUSE_EVENT_KEY)
     {
       SDL_Event se = {};
       se.key.type = event.value ? SDL_KEYDOWN : SDL_KEYUP;
+#ifndef SDL2
       se.key.which = event.device;
+#else
+      se.key.padding2 = event.device;
+#endif
       se.key.keysym.sym = event.scancode;
       SDL_PushEvent(&se);
     }
@@ -239,12 +273,20 @@ static inline void convert_g2s(SDL_Event* se, GE_Event* ge)
   {
   case GE_KEYDOWN:
     se->type = SDL_KEYDOWN;
+#ifndef SDL2
     se->key.which = ge->key.which;
+#else
+    se->key.padding2 = ge->key.which;
+#endif
     se->key.keysym.sym = ge->key.keysym;
     break;
   case GE_KEYUP:
     se->type = SDL_KEYUP;
+#ifndef SDL2
     se->key.which = ge->key.which;
+#else
+    se->key.padding2 = ge->key.which;
+#endif
     se->key.keysym.sym = ge->key.keysym;
     break;
   case GE_MOUSEBUTTONDOWN:
@@ -303,12 +345,20 @@ static inline void convert_s2g(SDL_Event* se, GE_Event* ge)
   {
   case SDL_KEYDOWN:
     ge->type = GE_KEYDOWN;
+#ifndef SDL2
     ge->key.which = se->key.which;
+#else
+    ge->key.which = se->key.padding2;
+#endif
     ge->key.keysym = se->key.keysym.sym;
     break;
   case SDL_KEYUP:
     ge->type = GE_KEYUP;
+#ifndef SDL2
     ge->key.which = se->key.which;
+#else
+    ge->key.which = se->key.padding2;
+#endif
     ge->key.keysym = se->key.keysym.sym;
     break;
   case SDL_MOUSEBUTTONDOWN:
@@ -467,7 +517,11 @@ int ev_peep_events(GE_Event* ev, int size)
     size = EVENT_BUFFER_SIZE;
   }
 
+#ifndef SDL2
   int nb = SDL_PeepEvents(events, size, SDL_GETEVENT, SDL_ALLEVENTS);
+#else
+  int nb = SDL_PeepEvents(events, size, SDL_GETEVENT, SDL_KEYDOWN, SDL_JOYDEVICEREMOVED);
+#endif
 
   for(i=0; i<nb; ++i)
   {
