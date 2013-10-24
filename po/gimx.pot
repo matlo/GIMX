@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GIMX 0.50\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-24 23:23+0100\n"
-"PO-Revision-Date: 2013-10-24 23:24+0100\n"
+"POT-Creation-Date: 2013-10-24 23:35+0100\n"
+"PO-Revision-Date: 2013-10-24 23:36+0100\n"
 "Last-Translator: Matlo <mat.lau@laposte.net>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -71,6 +71,91 @@ msgstr ""
 #: ../core/config_reader.c:166
 #, c-format
 msgid "keyboard not found: %s %d\n"
+msgstr ""
+
+#: ../core/args.c:54
+#, c-format
+msgid "option %s"
+msgstr ""
+
+#: ../core/args.c:56
+#, c-format
+msgid " with arg %s"
+msgstr ""
+
+#: ../core/args.c:62
+#, c-format
+msgid "option -c with value `%s'\n"
+msgstr ""
+
+#: ../core/args.c:72
+#, c-format
+msgid "Bad event format: %s\n"
+msgstr ""
+
+#: ../core/args.c:79
+#, c-format
+msgid "option -e with value `%s(%d)'\n"
+msgstr ""
+
+#: ../core/args.c:85
+#, c-format
+msgid "Bad axis name for event: %s\n"
+msgstr ""
+
+#: ../core/args.c:94
+#, c-format
+msgid "option -i with value `%s'\n"
+msgstr ""
+
+#: ../core/args.c:99
+#, c-format
+msgid "option -k with value `%s'\n"
+msgstr ""
+
+#: ../core/args.c:104
+#, c-format
+msgid "option -p with value `%s'\n"
+msgstr ""
+
+#: ../core/args.c:112
+#, c-format
+msgid "option -r with value `%s'\n"
+msgstr ""
+
+#: ../core/args.c:122
+#, c-format
+msgid "option -t with value `%s'\n"
+msgstr ""
+
+#: ../core/args.c:154
+#, c-format
+msgid "unrecognized option: %c\n"
+msgstr ""
+
+#: ../core/args.c:164
+#, c-format
+msgid "grab flag is unset\n"
+msgstr ""
+
+#: ../core/args.c:166
+#, c-format
+msgid "status flag is set\n"
+msgstr ""
+
+#: ../core/args.c:168
+#, c-format
+msgid "subpos flag is set\n"
+msgstr ""
+
+#: ../core/args.c:170
+#, c-format
+msgid "force_updates flag is set\n"
+msgstr ""
+
+#: ../core/args.c:172
+#, c-format
+msgid "curses flag is set\n"
 msgstr ""
 
 #: ../core/display.c:23 ../serial/serialMain.cpp:623
@@ -175,6 +260,31 @@ msgstr ""
 #: ../core/emuclient.c:228
 #, c-format
 msgid "Wrong argument.\n"
+msgstr ""
+
+#: ../core/emuclient.c:234
+#, c-format
+msgid "connector_init failed\n"
+msgstr ""
+
+#: ../core/emuclient.c:242
+#, c-format
+msgid "using default refresh period: %.02fms\n"
+msgstr ""
+
+#: ../core/emuclient.c:277
+#, c-format
+msgid "GE_initialize failed\n"
+msgstr ""
+
+#: ../core/emuclient.c:293
+#, c-format
+msgid "read_config_file failed\n"
+msgstr ""
+
+#: ../core/emuclient.c:317
+#, c-format
+msgid "Unknown key name for argument --keygen: '%s'\n"
 msgstr ""
 
 #: ../core/emuclient.c:326

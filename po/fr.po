@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GIMX 0.50\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-24 23:23+0100\n"
-"PO-Revision-Date: 2013-10-24 23:25+0100\n"
+"POT-Creation-Date: 2013-10-24 23:35+0100\n"
+"PO-Revision-Date: 2013-10-24 23:48+0100\n"
 "Last-Translator: Matlo <mat.lau@laposte.net>\n"
 "Language-Team: Matlo <mat.lau@laposte.net>\n"
 "Language: fr\n"
@@ -78,6 +78,91 @@ msgstr "souris non trouvée : %s %d\n"
 #, c-format
 msgid "keyboard not found: %s %d\n"
 msgstr "clavier non trouvé : %s %d\n"
+
+#: ../core/args.c:54
+#, c-format
+msgid "option %s"
+msgstr "option %s"
+
+#: ../core/args.c:56
+#, c-format
+msgid " with arg %s"
+msgstr " avec pour argument %s"
+
+#: ../core/args.c:62
+#, c-format
+msgid "option -c with value `%s'\n"
+msgstr "option -c avec la valeur `%s'\n"
+
+#: ../core/args.c:72
+#, c-format
+msgid "Bad event format: %s\n"
+msgstr "Mauvais format d'événement : %s\n"
+
+#: ../core/args.c:79
+#, c-format
+msgid "option -e with value `%s(%d)'\n"
+msgstr "option -e avec la valeur `%s(%d)'\n"
+
+#: ../core/args.c:85
+#, c-format
+msgid "Bad axis name for event: %s\n"
+msgstr "Mauvais nom d'axe pour l'événement : %s\n"
+
+#: ../core/args.c:94
+#, c-format
+msgid "option -i with value `%s'\n"
+msgstr "option -i avec la valeur `%s'\n"
+
+#: ../core/args.c:99
+#, c-format
+msgid "option -k with value `%s'\n"
+msgstr "option -k avec la valeur `%s'\n"
+
+#: ../core/args.c:104
+#, c-format
+msgid "option -p with value `%s'\n"
+msgstr "option -p avec la valeur `%s'\n"
+
+#: ../core/args.c:112
+#, c-format
+msgid "option -r with value `%s'\n"
+msgstr "option -r avec la valeur `%s'\n"
+
+#: ../core/args.c:122
+#, c-format
+msgid "option -t with value `%s'\n"
+msgstr "option -t avec la valeur `%s'\n"
+
+#: ../core/args.c:154
+#, c-format
+msgid "unrecognized option: %c\n"
+msgstr "option non reconnue : %c\n"
+
+#: ../core/args.c:164
+#, c-format
+msgid "grab flag is unset\n"
+msgstr "le flag \"grab\" est positionné\n"
+
+#: ../core/args.c:166
+#, c-format
+msgid "status flag is set\n"
+msgstr "le flag \"status\" est positionné\n"
+
+#: ../core/args.c:168
+#, c-format
+msgid "subpos flag is set\n"
+msgstr "le flag \"subpos\" est positionné\n"
+
+#: ../core/args.c:170
+#, c-format
+msgid "force_updates flag is set\n"
+msgstr "le flag \"force_updates\" est positionné\n"
+
+#: ../core/args.c:172
+#, c-format
+msgid "curses flag is set\n"
+msgstr "le flag \"curses\" est positionné\n"
 
 #: ../core/display.c:23 ../serial/serialMain.cpp:623
 #: ../bluetooth/bluetoothMain.cpp:1128 ../bluetooth/Copy of
@@ -182,6 +267,31 @@ msgstr "Taux de rafraîchissement : %dHz"
 #, c-format
 msgid "Wrong argument.\n"
 msgstr "Mauvais argument.\n"
+
+#: ../core/emuclient.c:234
+#, c-format
+msgid "connector_init failed\n"
+msgstr "connector_init a échoué\n"
+
+#: ../core/emuclient.c:242
+#, c-format
+msgid "using default refresh period: %.02fms\n"
+msgstr "utilisation de la période de rafraîchissement par défaut : %.02fms\n"
+
+#: ../core/emuclient.c:277
+#, c-format
+msgid "GE_initialize failed\n"
+msgstr "GE_initialize a échoué\n"
+
+#: ../core/emuclient.c:293
+#, c-format
+msgid "read_config_file failed\n"
+msgstr "read_config_file a échoué\n"
+
+#: ../core/emuclient.c:317
+#, c-format
+msgid "Unknown key name for argument --keygen: '%s'\n"
+msgstr "Nom de touche inconnue pour l'argument --keygen : '%s'\n"
 
 #: ../core/emuclient.c:326
 msgid "Exiting\n"
