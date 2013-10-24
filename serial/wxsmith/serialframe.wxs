@@ -27,7 +27,7 @@
 									<object class="wxChoice" name="ID_CHOICE1" variable="ControllerType" member="yes">
 										<content>
 											<item>DIY USB adapter</item>
-											<item>GPP</item>
+											<item>GPP/Cronus</item>
 										</content>
 										<selection>0</selection>
 										<handler function="OnControllerTypeSelect" entry="EVT_CHOICE" />

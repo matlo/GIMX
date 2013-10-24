@@ -317,7 +317,7 @@ serialFrame::serialFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer12->Add(StaticText4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ControllerType = new wxChoice(Panel1, ID_CHOICE1, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
     ControllerType->SetSelection( ControllerType->Append(_("DIY USB adapter")) );
-    ControllerType->Append(_("GPP"));
+    ControllerType->Append(_("GPP/Cronus"));
     FlexGridSizer12->Add(ControllerType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText3 = new wxStaticText(Panel1, ID_STATICTEXT3, _("Port"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT3"));
     FlexGridSizer12->Add(StaticText3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -543,7 +543,7 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
       return;
     }
 
-    if(ControllerType->GetStringSelection() != _("GPP"))
+    if(ControllerType->GetStringSelection() != _("GPP/Cronus"))
     {
       if(ComboBoxDevice->GetValue().IsEmpty())
       {
@@ -556,7 +556,7 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
     command.Append(wxT("xterm -e "));
 #endif
     command.Append(wxT("emuclient"));
-    if(ControllerType->GetStringSelection() == _("GPP"))
+    if(ControllerType->GetStringSelection() == _("GPP/Cronus"))
     {
       command.Append(wxT(" --type GPP"));
     }
@@ -727,7 +727,7 @@ void serialFrame::refresh()
 {
     read_filenames(ChoiceConfig);
     read_devices(ComboBoxDevice);
-    if(ComboBoxDevice->GetCount() == 0 && ControllerType->GetStringSelection() != _("GPP"))
+    if(ComboBoxDevice->GetCount() == 0 && ControllerType->GetStringSelection() != _("GPP/Cronus"))
     {
         wxMessageBox( _("No Serial Port Detected!\n"), _("Error"), wxICON_ERROR);
     }
@@ -740,7 +740,7 @@ void serialFrame::OnMenuRefresh(wxCommandEvent& event)
 
 void serialFrame::OnControllerTypeSelect(wxCommandEvent& event)
 {
-    if(ControllerType->GetStringSelection() == _("GPP"))
+    if(ControllerType->GetStringSelection() == _("GPP/Cronus"))
     {
       ComboBoxDevice->Enable(false);
     }
