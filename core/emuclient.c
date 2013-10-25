@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
 
   if(connector_init() < 0)
   {
-    fprintf(stderr, "connector_init failed\n");
+    fprintf(stderr, _("connector_init failed\n"));
     goto QUIT;
   }
 
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
   {
     emuclient_params.refresh_period = default_refresh_period[emuclient_params.ctype];
     emuclient_params.postpone_count = 3 * DEFAULT_REFRESH_PERIOD / emuclient_params.refresh_period;
-    printf("using default refresh period: %.02fms\n", (double)emuclient_params.refresh_period/1000);
+    printf(_("using default refresh period: %.02fms\n"), (double)emuclient_params.refresh_period/1000);
   }
   else if(emuclient_params.refresh_period < min_refresh_period[emuclient_params.ctype])
   {
@@ -274,7 +274,7 @@ int main(int argc, char *argv[])
 
   if (!GE_initialize())
   {
-    fprintf(stderr, "GE_initialize failed\n");
+    fprintf(stderr, _("GE_initialize failed\n"));
     goto QUIT;
   }
 
@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
 
   if(read_config_file(emuclient_params.config_file) < 0)
   {
-    fprintf(stderr, "read_config_file failed\n");
+    fprintf(stderr, _("read_config_file failed\n"));
     goto QUIT;
   }
 
@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-      fprintf(stderr, "Unknown key name for argument --keygen: '%s'\n", emuclient_params.keygen);
+      fprintf(stderr, _("Unknown key name for argument --keygen: '%s'\n"), emuclient_params.keygen);
       goto QUIT;
     }
   }

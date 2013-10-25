@@ -51,15 +51,15 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
         /* If this option set a flag, do nothing else now. */
         if (long_options[option_index].flag != 0)
           break;
-        printf("option %s", long_options[option_index].name);
+        printf(_("option %s"), long_options[option_index].name);
         if (optarg)
-          printf(" with arg %s", optarg);
+          printf(_(" with arg %s"), optarg);
         printf("\n");
         break;
 
       case 'c':
         params->config_file = optarg;
-        printf("option -c with value `%s'\n", optarg);
+        printf(_("option -c with value `%s'\n"), optarg);
         break;
 
       case 'e':
@@ -69,20 +69,20 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
           int value;
           if(sscanf(optarg, "%8[^(](%d)", axis_label, &value) != 2)
           {
-            fprintf(stderr, "Bad event format: %s\n", optarg);
+            fprintf(stderr, _("Bad event format: %s\n"), optarg);
             ret = -1;
           }
           else
           {
             if((axis = get_button_index_from_name(axis_label)) != -1)
             {
-              printf("option -e with value `%s(%d)'\n", axis_label, value);
+              printf(_("option -e with value `%s(%d)'\n"), axis_label, value);
               set_axis_value(axis, value);
               params->event = 1;
             }
             else
             {
-              fprintf(stderr, "Bad axis name for event: %s\n", optarg);
+              fprintf(stderr, _("Bad axis name for event: %s\n"), optarg);
               ret = -1;
             }
           }
@@ -91,17 +91,17 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
 
       case 'i':
         params->ip = optarg;
-        printf("option -i with value `%s'\n", optarg);
+        printf(_("option -i with value `%s'\n"), optarg);
         break;
 
       case 'k':
         params->keygen = optarg;
-        printf("option -k with value `%s'\n", optarg);
+        printf(_("option -k with value `%s'\n"), optarg);
         break;
 
       case 'p':
         params->portname = optarg;
-        printf("option -p with value `%s'\n", optarg);
+        printf(_("option -p with value `%s'\n"), optarg);
         break;
 
       case 'r':
@@ -109,7 +109,7 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
         if(params->refresh_period)
         {
           params->postpone_count = 3 * DEFAULT_REFRESH_PERIOD / params->refresh_period;
-          printf("option -r with value `%s'\n", optarg);
+          printf(_("option -r with value `%s'\n"), optarg);
         }
         else
         {
@@ -119,7 +119,7 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
         break;
 
       case 't':
-        printf("option -t with value `%s'\n", optarg);
+        printf(_("option -t with value `%s'\n"), optarg);
         if (!strcmp(optarg, "joystick"))
         {
           params->ctype = C_TYPE_JOYSTICK;
@@ -151,7 +151,7 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
         break;
 
       default:
-        printf("unrecognized option: -c\n");
+        printf(_("unrecognized option: %c\n"), c);
         ret = -1;
         break;
     }
@@ -161,15 +161,15 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
     params->curses = 0;
 
   if(!params->grab)
-    printf("grab flag is unset\n");
+    printf(_("grab flag is unset\n"));
   if(params->status)
-    printf("status flag is set\n");
+    printf(_("status flag is set\n"));
   if(params->subpos)
-    printf("subpos flag is set\n");
+    printf(_("subpos flag is set\n"));
   if(params->force_updates)
-    printf("force_updates flag is set\n");
+    printf(_("force_updates flag is set\n"));
   if(params->curses)
-    printf("curses flag is set\n");
+    printf(_("curses flag is set\n"));
 
   return ret;
 }
