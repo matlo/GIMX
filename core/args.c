@@ -39,7 +39,7 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
     /* getopt_long stores the option index here. */
     int option_index = 0;
 
-    c = getopt_long (argc, argv, "c:i:k:p:r:t:", long_options, &option_index);
+    c = getopt_long (argc, argv, "c:e:i:k:p:r:t:", long_options, &option_index);
 
     /* Detect the end of the options. */
     if (c == -1)
