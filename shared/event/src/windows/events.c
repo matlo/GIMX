@@ -122,9 +122,19 @@ void ev_joystick_close(int id)
   }
 }
 
+static int m_num = 0;
+
 const char* ev_mouse_name(int id)
 {
-  return ManyMouse_MouseName(id);
+  const char* name = ManyMouse_MouseName(id);
+  if(name)
+  {
+    if(id+1 > m_num)
+    {
+      m_num = id+1;
+    }
+  }
+  return name;
 }
 
 const char* ev_keyboard_name(int id)
@@ -247,11 +257,8 @@ void ev_pump_events()
     }
   }
 
-  /*
-   * TODO MLA: use the number of mice instead of GE_MAX_DEVICES...
-   */
   int i;
-  for(i=0; i<GE_MAX_DEVICES; ++i)
+  for(i=0; i<m_num; ++i)
   {
     if(m_x[i] || m_y[i])
     {
