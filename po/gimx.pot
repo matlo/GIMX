@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GIMX 0.50\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-24 23:35+0100\n"
-"PO-Revision-Date: 2013-10-24 23:36+0100\n"
+"POT-Creation-Date: 2013-10-25 10:02+0100\n"
+"PO-Revision-Date: 2013-10-25 10:02+0100\n"
 "Last-Translator: Matlo <mat.lau@laposte.net>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -289,6 +289,26 @@ msgstr ""
 
 #: ../core/emuclient.c:326
 msgid "Exiting\n"
+msgstr ""
+
+#: ../core/usb_spoof.c:193
+#, c-format
+msgid "spoof started\n"
+msgstr ""
+
+#: ../core/usb_spoof.c:199
+#, c-format
+msgid "spoof successful\n"
+msgstr ""
+
+#: ../core/usb_spoof.c:229
+#, c-format
+msgid "already spoofed\n"
+msgstr ""
+
+#: ../core/usb_spoof.c:234
+#, c-format
+msgid "can't read adapter status\n"
 msgstr ""
 
 #: ../core/config.c:365

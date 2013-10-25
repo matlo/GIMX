@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GIMX 0.50\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-24 23:35+0100\n"
-"PO-Revision-Date: 2013-10-24 23:48+0100\n"
+"POT-Creation-Date: 2013-10-25 10:02+0100\n"
+"PO-Revision-Date: 2013-10-25 10:04+0100\n"
 "Last-Translator: Matlo <mat.lau@laposte.net>\n"
 "Language-Team: Matlo <mat.lau@laposte.net>\n"
 "Language: fr\n"
@@ -296,6 +296,26 @@ msgstr "Nom de touche inconnue pour l'argument --keygen : '%s'\n"
 #: ../core/emuclient.c:326
 msgid "Exiting\n"
 msgstr "Sortie\n"
+
+#: ../core/usb_spoof.c:193
+#, c-format
+msgid "spoof started\n"
+msgstr "spoof démarré\n"
+
+#: ../core/usb_spoof.c:199
+#, c-format
+msgid "spoof successful\n"
+msgstr "spoof réussi\n"
+
+#: ../core/usb_spoof.c:229
+#, c-format
+msgid "already spoofed\n"
+msgstr "spoof déjà effectué\n"
+
+#: ../core/usb_spoof.c:234
+#, c-format
+msgid "can't read adapter status\n"
+msgstr "impossible de lire l'état de l'adaptateur\n"
 
 #: ../core/config.c:365
 #, c-format
@@ -1825,9 +1845,6 @@ msgstr "spécifie un fichier à ouvrir"
 #~ msgstr ""
 #~ "Erreur du spoof !\n"
 #~ "Essayez de nouveau !"
-
-#~ msgid "Spoof successful!"
-#~ msgstr "Spoof réussi !"
 
 #~ msgid "Macro %s defined twice!\n"
 #~ msgstr "Macro %s définie deux fois !\n"

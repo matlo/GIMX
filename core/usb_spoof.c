@@ -5,6 +5,7 @@
  
 #include <stdio.h>
 #include <usb_spoof.h>
+#include "emuclient.h"
 
 #define USB_REQ_TIMEOUT 1000
 
@@ -189,13 +190,13 @@ int usb_spoof_spoof_360_controller()
 
           if(creq.header.wValue == 0x5b17)
           {
-            printf("spoof started\n");
+            printf(_("spoof started\n"));
           }
           else if(creq.header.wValue == 0x5c10)
           {
             if(response)
             {
-              printf("spoof successful\n");
+              printf(_("spoof successful\n"));
               spoofed = 1;
               break;
             }
@@ -225,12 +226,12 @@ int usb_spoof_spoof_360_controller()
   }
   else if(ret > 0)
   {
-    printf("already spoofed\n");
+    printf(_("already spoofed\n"));
     ret = 0;
   }
   else
   {
-    fprintf(stderr, "can't read adapter status\n");
+    fprintf(stderr, _("can't read adapter status\n"));
     ret = -1;
   }
 
