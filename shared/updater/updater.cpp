@@ -93,10 +93,21 @@ int updater::checkversion()
   {
     return -1;
   }
-  
+
+#ifdef WIN32
+  char temp[MAX_PATH];
+  if(!GetTempPathA(sizeof(temp), temp))
+  {
+    return -1;
+  }
+#endif
+
   string cmd = WGET_CMD;
   cmd.append(version_url);
   cmd.append(" -O ");
+#ifdef WIN32
+  cmd.append(temp);
+#endif
   cmd.append(version_file);
   
   if(exec(cmd))
@@ -104,8 +115,14 @@ int updater::checkversion()
     return -1;
   }
   
-  ifstream infile;  
-  infile.open(version_file.c_str());
+  string file;
+#ifdef WIN32
+  file.append(temp);
+#endif
+  file.append(version_file);
+
+  ifstream infile;
+  infile.open(file.c_str());
   
   if (infile.good())
   {
@@ -118,7 +135,7 @@ int updater::checkversion()
 
   infile.close();
   
-  remove(version_file.c_str());
+  remove(file.c_str());
 
   vector<string> elems = split(v, '.');
   if (elems.size() != 2)
@@ -147,10 +164,21 @@ int updater::update()
   {
     return -1;
   }
-  
+
+#ifdef WIN32
+  char temp[MAX_PATH];
+  if(!GetTempPathA(sizeof(temp), temp))
+  {
+    return -1;
+  }
+#endif
+
   string cmd = WGET_CMD;
   cmd.append(download_url);
   cmd.append(" -O ");
+#ifdef WIN32
+  cmd.append(temp);
+#endif
   cmd.append(download_file);
   
   if(exec(cmd))
@@ -164,12 +192,15 @@ int updater::update()
   { 0};
   startupInfo.cb = sizeof(startupInfo);
   PROCESS_INFORMATION processInformation;
-  
+
+#ifdef WIN32
+  cmd.append(temp);
+#endif
   cmd.append(download_file);
   char* ccmd = strdup(cmd.c_str());
 
   BOOL result = CreateProcessA(
-      download_file.c_str(),
+      cmd.c_str(),
       ccmd,
       NULL,
       NULL,
