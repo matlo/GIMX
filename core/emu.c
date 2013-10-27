@@ -61,7 +61,7 @@ void timeradd(struct timeval *a, struct timeval *b, struct timeval *res)
 }
 #endif
 
-static int debug = 3;
+static int debug = 0;
 int display = 0;
 
 static const char *hid_report_name[] = { 
@@ -506,7 +506,6 @@ int main(int argc, char *argv[])
         if (FD_ISSET(ctrl, &read_set))
 #endif
         {
-          printf("ctrl\n");
             len = l2cap_recv(ctrl, buf, 1024);
             if (len > 0)
             {
@@ -527,7 +526,6 @@ int main(int argc, char *argv[])
         if (FD_ISSET(data, &read_set))
 #endif
         {
-          printf("data\n");
             len = l2cap_recv(data, buf, 1024);
             if (len > 0) {
                 if (process(DATA, buf, len,
