@@ -60,6 +60,8 @@ int main(int argc, char* argv[])
        }
      }
      
+     fflush(stdout);
+
      //do something periodically
 
      QueryPerformanceCounter(&t1);

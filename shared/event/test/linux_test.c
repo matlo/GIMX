@@ -29,6 +29,8 @@ int main(int argc, char* argv[])
 
   (void) signal(SIGINT, terminate);
 
+  setlinebuf(stdout);
+
   display_devices();
 
   struct timespec period = {.tv_sec = 0, .tv_nsec = 10000000};
