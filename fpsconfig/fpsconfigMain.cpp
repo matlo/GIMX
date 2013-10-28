@@ -1149,7 +1149,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
                   found = true;
                 }
             }
-            if(found == false && !old_buttons[i].GetButton().empty())
+            if(found == false && !old_axes[i].GetAxis().empty())
             {
                 axisMappers->push_front(axes[i]);
             }
