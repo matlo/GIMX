@@ -74,7 +74,9 @@ class fpsconfigFrame: public wxFrame
         wxButton* getAxisButton(string blabel);
 
         void LoadConfig();
-        void readLabels();        
+        void readLabels();
+
+        string reverseTranslate(string str);
 
         //(*Identifiers(fpsconfigFrame)
         static const long ID_SPINCTRL8;

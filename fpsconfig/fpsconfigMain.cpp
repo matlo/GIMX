@@ -41,13 +41,23 @@
 
 using namespace std;
 
-string reverse_gettext(string str)
+/*
+ * \brief Give the original english string for a locale string. \
+ *        This function is useful for a few strings only.
+ *
+ * \param str the locale string
+ *
+ * \return the original string, or the string itself (if no original string found).
+ */
+string fpsconfigFrame::reverseTranslate(string str)
 {
-  if(str == gettext("Circle"))
+  wxString wxStr = wxString(str.c_str(), wxConvUTF8);
+
+  if(wxStr == _("Circle"))
   {
     return "Circle";
   }
-  if(str == gettext("Rectangle"))
+  if(wxStr == _("Rectangle"))
   {
     return "Rectangle";
   }
@@ -1153,7 +1163,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             it->GetEvent()->SetDeadZone(sDzHf);
             it->GetEvent()->SetMultiplier(string(TextCtrlSensitivityHipFire->GetValue().mb_str(wxConvUTF8)));
             it->GetEvent()->SetExponent(string(TextCtrlAccelerationHipFire->GetValue().mb_str(wxConvUTF8)));
-            it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))));
+            it->GetEvent()->SetShape(reverseTranslate(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))));
 
             std::list<MouseOptions>* mouseOptions = configFile.GetController(0)->GetConfiguration(0)->GetMouseOptionsList();
             std::list<MouseOptions>::iterator it2;
@@ -1181,7 +1191,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         axisMappers->push_front(AxisMapper("mouse", defaultMouseId, defaultMouseName, "axis", "x", "rstick x",
             sDzHf, string(TextCtrlSensitivityHipFire->GetValue().mb_str(wxConvUTF8)),
             string(TextCtrlAccelerationHipFire->GetValue().mb_str(wxConvUTF8)),
-            reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))), "Aiming - x axis"));
+            reverseTranslate(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))), "Aiming - x axis"));
 
         std::list<MouseOptions>* mouseOptions = configFile.GetController(0)->GetConfiguration(0)->GetMouseOptionsList();
         std::list<MouseOptions>::iterator it2;
@@ -1220,7 +1230,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             it->GetEvent()->SetDeadZone(sDzHf);
             it->GetEvent()->SetMultiplier(string(wsmy.mb_str(wxConvUTF8)));
             it->GetEvent()->SetExponent(string(TextCtrlAccelerationHipFire->GetValue().mb_str(wxConvUTF8)));
-            it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))));
+            it->GetEvent()->SetShape(reverseTranslate(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))));
             found = true;
         }
     }
@@ -1228,7 +1238,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     {
         axisMappers->push_front(AxisMapper("mouse", defaultMouseId, defaultMouseName, "axis", "y", "rstick y",
             sDzHf, string(wsmy.mb_str(wxConvUTF8)), string(TextCtrlAccelerationHipFire->GetValue().mb_str(wxConvUTF8)),
-            reverse_gettext(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))), "Aiming - y axis"));
+            reverseTranslate(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))), "Aiming - y axis"));
     }
     /*
      * Save ADS config.
@@ -1295,7 +1305,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             it->GetEvent()->SetDeadZone(sDzADS);
             it->GetEvent()->SetMultiplier(string(TextCtrlSensitivityADS->GetValue().mb_str(wxConvUTF8)));
             it->GetEvent()->SetExponent(string(TextCtrlAccelerationADS->GetValue().mb_str(wxConvUTF8)));
-            it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))));
+            it->GetEvent()->SetShape(reverseTranslate(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))));
 
             std::list<MouseOptions>* mouseOptions = configFile.GetController(0)->GetConfiguration(1)->GetMouseOptionsList();
             std::list<MouseOptions>::iterator it2;
@@ -1322,7 +1332,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     {
       axisMappers->push_front(AxisMapper("mouse", defaultMouseId, defaultMouseName, "axis", "x", "rstick x",
           sDzADS, string(TextCtrlSensitivityADS->GetValue().mb_str(wxConvUTF8)), string(TextCtrlAccelerationADS->GetValue().mb_str(wxConvUTF8)),
-          reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))), "Aiming - x axis"));
+          reverseTranslate(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))), "Aiming - x axis"));
 
       std::list<MouseOptions>* mouseOptions = configFile.GetController(0)->GetConfiguration(1)->GetMouseOptionsList();
       std::list<MouseOptions>::iterator it2;
@@ -1361,7 +1371,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
             it->GetEvent()->SetDeadZone(sDzADS);
             it->GetEvent()->SetMultiplier(string(wsmy.mb_str(wxConvUTF8)));
             it->GetEvent()->SetExponent(string(TextCtrlAccelerationADS->GetValue().mb_str(wxConvUTF8)));
-            it->GetEvent()->SetShape(reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))));
+            it->GetEvent()->SetShape(reverseTranslate(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))));
             found = true;
         }
     }
@@ -1369,7 +1379,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
     {
         axisMappers->push_front(AxisMapper("mouse", defaultMouseId, defaultMouseName, "axis", "y", "rstick y",
             sDzADS, string(wsmy.mb_str(wxConvUTF8)), string(TextCtrlAccelerationADS->GetValue().mb_str(wxConvUTF8)),
-            reverse_gettext(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))), "Aiming - y axis"));
+            reverseTranslate(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))), "Aiming - y axis"));
     }
 
     if(configFile.WriteConfigFile() < 0)
