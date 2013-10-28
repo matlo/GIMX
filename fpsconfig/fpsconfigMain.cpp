@@ -858,7 +858,6 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
     {
       if (bindex != bi_undef)
       {
-        old_buttons[bindex] = buttons[bindex];
         buttons[bindex].SetLabel(string(dialog.GetValue().mb_str(wxConvUTF8)));
         string tt(buttons[bindex].GetEvent()->GetId());
         if (!buttons[bindex].GetLabel().empty())
@@ -868,14 +867,9 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
           tt.append("]");
         }
         ((wxButton*) event.GetEventObject())->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
-        if(old_buttons[bindex].GetButton().empty())
-        {
-          old_buttons[bindex] = buttons[bindex];
-        }
       }
       else if (aindex != ai_undef)
       {
-        old_axes[aindex] = axes[aindex];
         axes[aindex].SetLabel(string(dialog.GetValue().mb_str(wxConvUTF8)));
         string tt(axes[aindex].GetEvent()->GetId());
         if (!axes[aindex].GetLabel().empty())
@@ -885,10 +879,6 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
           tt.append("]");
         }
         ((wxButton*) event.GetEventObject())->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
-        if(old_axes[aindex].GetAxis().empty())
-        {
-          old_axes[aindex] = axes[aindex];
-        }
       }
     }
   }
@@ -930,7 +920,6 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 
     if (bindex != bi_undef)
     {
-      old_buttons[bindex] = buttons[bindex];
       buttons[bindex].SetDevice(Device(evcatch.GetDeviceType(), device_id, device_name));
       buttons[bindex].SetEvent(Event("button", evcatch.GetEventId()));
       buttons[bindex].SetButton(button_labels[bindex]);
@@ -957,10 +946,6 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
         tt.append("]");
       }
       ((wxButton*) event.GetEventObject())->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
-      if(old_buttons[bindex].GetButton().empty())
-      {
-        old_buttons[bindex] = buttons[bindex];
-      }
     }
     else
     {
@@ -968,7 +953,6 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 
       if (aindex != ai_undef)
       {
-        old_axes[aindex] = axes[aindex];
         axes[aindex].SetDevice(Device(evcatch.GetDeviceType(), device_id, device_name));
         axes[aindex].SetEvent(Event("button", evcatch.GetEventId()));
         axes[aindex].SetAxis(axis_labels[aindex]);
@@ -995,10 +979,6 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
           tt.append("]");
         }
         ((wxButton*) event.GetEventObject())->SetToolTip(wxString(tt.c_str(), wxConvUTF8));
-        if(old_axes[aindex].GetAxis().empty())
-        {
-          old_axes[aindex] = axes[aindex];
-        }
       }
     }
   }
@@ -1084,6 +1064,8 @@ void fpsconfigFrame::OnMenuSaveAs(wxCommandEvent& event)
     configFile.SetFilePath(string(FileName.mb_str(wxConvUTF8)));
 
     OnMenuSave(event);
+
+    FileDialog1->SetFilename(FileName);
 }
 
 void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
@@ -1128,7 +1110,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
                     found = true;
                 }
             }
-            if(found == false && !old_buttons[i].GetButton().empty())
+            if(found == false)
             {
                 buttonMappers->push_front(buttons[i]);
             }
@@ -1149,7 +1131,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
                   found = true;
                 }
             }
-            if(found == false && !old_axes[i].GetAxis().empty())
+            if(found == false)
             {
                 axisMappers->push_front(axes[i]);
             }
@@ -1270,7 +1252,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
                     found = true;
                 }
             }
-            if(found == false && !old_buttons[i].GetButton().empty())
+            if(found == false)
             {
                 buttonMappers->push_front(buttons[i]);
             }
@@ -1291,7 +1273,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
                     found = true;
                 }
             }
-            if(found == false && !old_axes[i].GetAxis().empty())
+            if(found == false)
             {
                 axisMappers->push_front(axes[i]);
             }
@@ -1380,6 +1362,16 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         axisMappers->push_front(AxisMapper("mouse", defaultMouseId, defaultMouseName, "axis", "y", "rstick y",
             sDzADS, string(wsmy.mb_str(wxConvUTF8)), string(TextCtrlAccelerationADS->GetValue().mb_str(wxConvUTF8)),
             reverseTranslate(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))), "Aiming - y axis"));
+    }
+
+    for(int i=bi_select; i<BI_MAX; i++)
+    {
+        old_buttons[i] = buttons[i];
+    }
+
+    for(int i=ai_ls_up; i<AI_MAX; i++)
+    {
+        old_axes[i] = axes[i];
     }
 
     if(configFile.WriteConfigFile() < 0)
@@ -1489,6 +1481,7 @@ void fpsconfigFrame::LoadConfig()
       if(button->GetLabel().empty())
       {
         buttons[bindex] = *it;
+        old_buttons[bindex] = *it;
         button->SetLabel(wxString(it->GetEvent()->GetId().c_str(), wxConvUTF8));
         string tt(it->GetEvent()->GetId());
         wxButton bt;
@@ -1663,6 +1656,7 @@ void fpsconfigFrame::LoadConfig()
           if(button->GetLabel().empty())
           {
               axes[aindex] = *it;
+              old_axes[aindex] = *it;
               button->SetLabel(wxString(it->GetEvent()->GetId().c_str(), wxConvUTF8));
               string tt(it->GetEvent()->GetId());
               wxButton bt;

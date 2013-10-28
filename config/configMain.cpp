@@ -2242,6 +2242,8 @@ void configFrame::OnMenuSaveAs(wxCommandEvent& event)
 
     OnMenuSave(event);
 
+    FileDialog1->SetFilename(FileName);
+
     MenuFile->Enable(idMenuSave, true);
 }
 
