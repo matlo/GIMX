@@ -22,6 +22,10 @@
 #define GE_GRAB_OFF 0
 #define GE_GRAB_ON 1
 
+#ifndef KEY_MICMUTE
+#define KEY_MICMUTE 248
+#endif
+
 #define GE_KEY_ESC  KEY_ESC
 #define GE_KEY_1  KEY_1
 #define GE_KEY_2  KEY_2
