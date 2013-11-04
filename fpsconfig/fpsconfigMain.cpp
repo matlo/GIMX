@@ -1066,6 +1066,8 @@ void fpsconfigFrame::OnMenuSaveAs(wxCommandEvent& event)
     OnMenuSave(event);
 
     FileDialog1->SetFilename(FileName);
+
+    MenuItemSave->Enable(true);
 }
 
 void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
