@@ -788,7 +788,7 @@ void cfg_process_event(GE_Event* event)
   int threshold;
   double multiplier;
   double exp;
-  int dead_zone;
+  double dead_zone;
   e_shape shape;
   int value = 0;
   unsigned int nb_controls = 0;
@@ -796,7 +796,7 @@ void cfg_process_event(GE_Event* event)
   double my;
   double residue;
   s_mouse_control* mc;
-  int max_axis = 255;
+  int max_axis;
   e_mouse_mode mode;
 
   unsigned int device = GE_GetDeviceId(event);
@@ -906,14 +906,17 @@ void cfg_process_event(GE_Event* event)
           }
           controller[c_id].send_command = 1;
           axis = mapper->controller_axis;
-          multiplier = mapper->multiplier;
+          multiplier = mapper->multiplier * get_axis_scale(axis);
           exp = mapper->exponent;
-          dead_zone = mapper->dead_zone;
+          dead_zone = mapper->dead_zone * get_axis_scale(axis);
           if(axis >= 0)
           {
+            max_axis = get_max_signed(axis);
             if(mapper->controller_axis_value)
             {
-              multiplier *= get_axis_scale(axis);
+              /*
+               * Axis to zero-centered axis.
+               */
               value = event->jaxis.value;
               if(value)
               {
@@ -927,11 +930,13 @@ void cfg_process_event(GE_Event* event)
               {
                 value -= dead_zone;
               }
-              max_axis = get_max_signed(axis);
-              state[c_id].user.axis[axis] = clamp(-max_axis, value , max_axis);
+              state[c_id].user.axis[axis] = clamp(-max_axis, value, max_axis);
             }
             else
             {
+              /*
+               * Axis to non-centered axis.
+               */
               value = event->jaxis.value;
               if(value)
               {
@@ -940,7 +945,7 @@ void cfg_process_event(GE_Event* event)
               if(value > 0)
               {
                 value += dead_zone;
-                state[c_id].user.axis[axis] = clamp(0, value , 255);
+                state[c_id].user.axis[axis] = clamp(0, value, max_axis);
               }
               else
               {
