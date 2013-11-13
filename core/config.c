@@ -664,7 +664,7 @@ static double mouse2axis(int device, struct sixaxis_state* state, int which, dou
     }
     else state->user.axis[axis] = 0;
   }
-  else
+  else //E_MOUSE_MODE_DRIVING
   {
     new_state = state->user.axis[axis] + z;
     if(new_state > 0 && new_state < dz)
@@ -1043,14 +1043,15 @@ void cfg_process_event(GE_Event* event)
               /*
                * Axis to non-centered axis.
                */
+              max_axis = get_max_signed(axis);
               threshold = mapper->threshold;
               if(threshold > 0 && value > threshold)
               {
-                state[c_id].user.axis[axis] = 255;
+                state[c_id].user.axis[axis] = max_axis;
               }
               else if(threshold < 0 && value < threshold)
               {
-                state[c_id].user.axis[axis] = 255;
+                state[c_id].user.axis[axis] = max_axis;
               }
               else
               {
