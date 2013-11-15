@@ -102,12 +102,54 @@ void event_catcher::clean()
     GE_quit();
 }
 
+typedef struct
+{
+  unsigned char which;
+  unsigned char axis;
+  short value;
+} s_joystick_axis_first;
+
+/*
+ * This function records the first value for each axis of each joystick.
+ * If a first value was already recorded, it returns the absolute difference
+ * between the actual value and the first value.
+ * If the first value is recorded, it returns 0.
+ */
+static int process_joystick_axis(s_joystick_axis_first* axis_first, unsigned int* axis_first_nb, GE_Event* event)
+{
+  int diff = 0;
+  s_joystick_axis_first* last;
+  for(last=axis_first; last<axis_first+*axis_first_nb; ++last)
+  {
+    if(event->jaxis.which == last->which
+        && event->jaxis.axis == last->axis)
+    {
+      diff = abs(event->jaxis.value - last->value);
+      break;
+    }
+  }
+  if(last == axis_first+*axis_first_nb)
+  {
+    if(*axis_first_nb < EVENT_BUFFER_SIZE)
+    {
+      axis_first[*axis_first_nb].which = event->jaxis.which;
+      axis_first[*axis_first_nb].axis = event->jaxis.axis;
+      axis_first[*axis_first_nb].value = event->jaxis.value;
+      ++(*axis_first_nb);
+    }
+  }
+  return diff;
+}
+
 void event_catcher::run(string device_type, string event_type)
 {
     GE_Event events[EVENT_BUFFER_SIZE];
     GE_Event* event;
     int num_evt;
     const char* event_id;
+
+    unsigned int axis_first_nb = 0;
+    s_joystick_axis_first axis_first[EVENT_BUFFER_SIZE] = {};
 
     m_DeviceType = device_type;
     m_DeviceId = "";
@@ -276,20 +318,9 @@ void event_catcher::run(string device_type, string event_type)
                     {
                         break;
                     }
-                    /*
-                     * Ugly patch for the sixaxis.
-                     */
-                    if(GE_IsSixaxis(event->jaxis.which) && event->jaxis.axis > 3)
-                    {
-                        event->jaxis.value = (event->jaxis.value + 32767) / 2;
-                    }
-                    if(GE_IsSixaxis(event->jaxis.which) && event->jaxis.axis >= 23)
-                    {
-                        break;
-                    }
                     if(event_type == "axis")
                     {
-                        if(abs(event->jaxis.value) > 10000)
+                        if(process_joystick_axis(axis_first, &axis_first_nb, event) > 1000)
                         {
                             m_DeviceType = "joystick";
                             stringstream ss1;

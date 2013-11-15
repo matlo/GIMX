@@ -849,6 +849,13 @@ void ev_pump_events(void)
                     evt.jaxis.which = joystick_id[i];
                     evt.jaxis.axis = je[j].number;
                     evt.jaxis.value = je[j].value;
+                    /*
+                     * Ugly patch for the sixaxis.
+                     */
+                    if(GE_IsSixaxis(evt.jaxis.which) && evt.jaxis.axis > 3 && evt.jaxis.axis < 23)
+                    {
+                      evt.jaxis.value = (evt.jaxis.value + 32767) / 2;
+                    }
                   }
                 }
 
