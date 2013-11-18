@@ -10,6 +10,7 @@
 #include "macros.h"
 #include "display.h"
 #include <stdio.h>
+#include "controllers/controller.h"
 
 static volatile int done = 0;
 
@@ -58,7 +59,7 @@ void mainloop()
 
     if(emuclient_params.curses)
     {
-      display_run(state[0].user.axis);
+      display_run(get_controller(0)->axis);
     }
 
     /*

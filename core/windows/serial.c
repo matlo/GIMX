@@ -94,5 +94,6 @@ int serial_recv(void* pdata, unsigned int size)
  */
 void serial_close()
 {
+  usleep(10000);//sleep 10ms to leave enough time for the last packet to be sent
   CloseHandle(serial);
 }

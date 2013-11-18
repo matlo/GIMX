@@ -7,8 +7,9 @@
 #include <stdio.h>
 #include "connector.h"
 #include "emuclient.h"
+#include "controllers/controller.h"
+#include "report.h"
 #include "tcp_con.h"
-#include "serial_con.h"
 #include "gpp_con.h"
 #include "usb_spoof.h"
 
@@ -19,6 +20,7 @@ static const char* controller_name[C_TYPE_MAX] =
   "Sixaxis",
   "PS2pad",
   "XboxPad",
+  "DS4",
   "GPP",
   "none"
 };
@@ -26,63 +28,77 @@ static const char* controller_name[C_TYPE_MAX] =
 int connector_init()
 {
   int ret = 0;
-  if(!emuclient_params.portname)
-  {
-    switch(emuclient_params.ctype)
-    {
-      case C_TYPE_DEFAULT:
-        if(tcp_connect() < 0)
-        {
-          ret = -1;
-        }
-        break;
-      case C_TYPE_GPP:
-        if (gpp_connect() < 0)
-        {
-          ret = -1;
-        }
-        break;
-      default:
-        break;
-    }
-  }
-  else
-  {
-    if(!strstr(emuclient_params.portname, "none"))
-    {
-      if(serial_con_connect(emuclient_params.portname) < 0)
-      {
-        ret = -1;
-      }
-      else
-      {
-        e_controller_type type = serial_con_get_type();
-        printf(_("Detected USB adapter: %s.\n"), controller_name[type]);
+  int i;
+  s_controller* controller;
+  unsigned short port = TCP_PORT;
+  char* localhost = "127.0.0.1";
 
-        if(emuclient_params.ctype == C_TYPE_DEFAULT)
+  for(i=0; i<MAX_CONTROLLERS; ++i)
+  {
+    controller = get_controller(i);
+    if(controller->portname)
+    {
+      if(!strstr(controller->portname, "none"))
+      {
+        if((controller->fd = serial_connect(controller->portname)) < 0)
         {
-          emuclient_params.ctype = type;
-        }
-        else if(emuclient_params.ctype != type)
-        {
-          fprintf(stderr, _("Wrong controller type.\n"));
           ret = -1;
         }
-
-        if(emuclient_params.ctype == C_TYPE_360_PAD)
+        else
         {
-          if(usb_spoof_spoof_360_controller() < 0)
+          int rtype = usb_spoof_get_adapter_type(controller->fd);
+
+          if(rtype >= 0)
           {
-            fprintf(stderr, _("Spoof failed.\n"));
-            ret = -1;
+            printf(_("Detected USB adapter: %s.\n"), controller_name[rtype]);
+
+            if(controller->type == C_TYPE_DEFAULT)
+            {
+              controller->type = rtype;
+            }
+            else if(controller->type != rtype)
+            {
+              fprintf(stderr, _("Wrong controller type.\n"));
+              ret = -1;
+            }
+
+            if(controller->type == C_TYPE_360_PAD)
+            {
+              if(usb_spoof_spoof_360_controller() < 0)
+              {
+                fprintf(stderr, _("Spoof failed.\n"));
+                ret = -1;
+              }
+            }
           }
         }
       }
+      if(controller->type == C_TYPE_DEFAULT)
+      {
+        fprintf(stderr, _("No controller detected.\n"));
+        ret = -1;
+      }
     }
-    if(emuclient_params.ctype == C_TYPE_DEFAULT)
+    else if(controller->type == C_TYPE_GPP)
     {
-      fprintf(stderr, _("No controller detected.\n"));
-      ret = -1;
+      if (gpp_connect() < 0)
+      {
+        ret = -1;
+      }
+    }
+    else
+    {
+      if(controller->type != C_TYPE_DEFAULT)
+      {
+        fprintf(stderr, _("Wrong controller type.\n"));
+      }
+      if(!controller->ip)
+      {
+        controller->ip = localhost;
+        controller->port = port;
+        ++port;
+      }
+      controller->fd = tcp_connect(controller->ip, controller->port);
     }
   }
   return ret;
@@ -90,38 +106,77 @@ int connector_init()
 
 void connector_clean()
 {
-  switch(emuclient_params.ctype)
+  int i;
+  s_controller* controller;
+  for(i=0; i<MAX_CONTROLLERS; ++i)
   {
-    case C_TYPE_DEFAULT:
-      tcp_close();
-      break;
-    case C_TYPE_GPP:
-      gpp_disconnect();
-      break;
-    default:
-      serial_con_close();
-      break;
+    controller = get_controller(i);
+    switch(controller->type)
+    {
+      case C_TYPE_DEFAULT:
+        tcp_close(controller->fd);
+        break;
+      case C_TYPE_GPP:
+        gpp_disconnect();
+        break;
+      default:
+        serial_close(controller->fd);
+        break;
+    }
   }
 }
 
 int connector_send()
 {
   int ret = 0;
-  switch(emuclient_params.ctype)
+  int i;
+  s_controller* controller;
+  s_report report = {.packet_type = BYTE_SEND_REPORT};
+
+  for(i=0; i<MAX_CONTROLLERS; ++i)
   {
-    case C_TYPE_DEFAULT:
-      ret = tcp_send(emuclient_params.force_updates);
-      break;
-    case C_TYPE_GPP:
-      ret = gpp_send(emuclient_params.force_updates);
-      break;
-    default:
-      ret = serial_con_send(emuclient_params.ctype, emuclient_params.force_updates);
-      if(strstr(emuclient_params.portname, "none"))
+    controller = get_controller(i);
+
+    if (emuclient_params.force_updates || controller->send_command)
+    {
+      report.value_len = report_build(controller, &report);
+
+      switch(controller->type)
       {
-        ret = 0;
+        case C_TYPE_DEFAULT:
+          if(controller->fd >= 0)
+          {
+            ret = tcp_send(controller->fd, (unsigned char*)&report.value.ds3, report.value_len);
+          }
+          break;
+        case C_TYPE_GPP:
+          ret = gpp_send(controller->axis);
+          break;
+        default:
+          if(controller->fd >= 0)
+          {
+            if(controller->type != C_TYPE_PS2_PAD)
+            {
+              ret = serial_send(controller->fd, &report, 2+report.value_len);
+            }
+            else
+            {
+              ret = serial_send(controller->fd, &report.value.ds2, report.value_len);
+            }
+          }
+          break;
       }
-      break;
+
+      if (controller->send_command)
+      {
+        if(emuclient_params.status)
+        {
+          controller_dump_state(controller);
+        }
+
+        controller->send_command = 0;
+      }
+    }
   }
   return ret;
 }

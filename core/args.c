@@ -9,11 +9,14 @@
 #include "args.h"
 #include "emuclient.h"
 #include <getopt.h>
+#include <controllers/controller.h>
+#include <controllers/ds3.h>
 
 int args_read(int argc, char *argv[], s_emuclient_params* params)
 {
   int ret = 0;
   int c;
+  unsigned char controller = 0;
 
   struct option long_options[] =
   {
@@ -45,6 +48,12 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
     if (c == -1)
     break;
 
+    if(controller == MAX_CONTROLLERS)
+    {
+      printf(_("ignoring: -%c %s (max controllers reached)\n"), c, optarg);
+      continue;
+    }
+
     switch (c)
     {
       case 0:
@@ -74,11 +83,11 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
           }
           else
           {
-            if((axis = get_button_index_from_name(axis_label)) != -1)
+            if((axis = ds3_get_button_index_from_name(axis_label)) != -1)
             {
               printf(_("option -e with value `%s(%d)'\n"), axis_label, value);
-              set_axis_value(axis, value);
-              params->event = 1;
+              set_axis_value(controller, axis, value);
+              get_controller(controller)->event = 1;
             }
             else
             {
@@ -90,7 +99,7 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
         break;
 
       case 'i':
-        params->ip = optarg;
+        get_controller(controller)->ip = optarg;
         printf(_("option -i with value `%s'\n"), optarg);
         break;
 
@@ -100,8 +109,16 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
         break;
 
       case 'p':
-        params->portname = optarg;
-        printf(_("option -p with value `%s'\n"), optarg);
+        if(controller_set_port(controller, optarg) < 0)
+        {
+          printf(_("port already used: `%s'\n"), optarg);
+          ret = -1;
+        }
+        else
+        {
+          ++controller;
+          printf(_("option -p with value `%s'\n"), optarg);
+        }
         break;
 
       case 'r':
@@ -122,27 +139,36 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
         printf(_("option -t with value `%s'\n"), optarg);
         if (!strcmp(optarg, "joystick"))
         {
-          params->ctype = C_TYPE_JOYSTICK;
+          get_controller(controller)->type = C_TYPE_JOYSTICK;
         }
         else if (!strcmp(optarg, "360pad"))
         {
-          params->ctype = C_TYPE_360_PAD;
+          get_controller(controller)->type = C_TYPE_360_PAD;
         }
         else if (!strcmp(optarg, "Sixaxis"))
         {
-          params->ctype = C_TYPE_SIXAXIS;
+          get_controller(controller)->type = C_TYPE_SIXAXIS;
         }
         else if (!strcmp(optarg, "PS2pad"))
         {
-          params->ctype = C_TYPE_PS2_PAD;
+          get_controller(controller)->type = C_TYPE_PS2_PAD;
         }
         else if (!strcmp(optarg, "GPP"))
         {
-          params->ctype = C_TYPE_GPP;
+          get_controller(controller)->type = C_TYPE_GPP;
         }
         else if (!strcmp(optarg, "XboxPad"))
         {
-          params->ctype = C_TYPE_XBOX_PAD;
+          get_controller(controller)->type = C_TYPE_XBOX_PAD;
+        }
+        else if (!strcmp(optarg, "DS4"))
+        {
+          get_controller(controller)->type = C_TYPE_DS4;
+        }
+        else
+        {
+          fprintf(stderr, "Bad controller type: %s\n", optarg);
+          ret = -1;
         }
         break;
 

@@ -15,6 +15,8 @@
 #include <GE.h>
 #include "calibration.h"
 #include "emuclient.h"
+#include "controllers/controller.h"
+#include "controllers/ds3.h"
 
 /*
  * This tells what's the current config of each controller.
@@ -41,7 +43,7 @@ static s_trigger triggers[MAX_CONTROLLERS][MAX_CONFIGURATIONS];
 /*
  * This lists controller stick intensity modifiers.
  */
-static s_intensity axis_intensity[MAX_CONTROLLERS][MAX_CONFIGURATIONS][SA_MAX];
+static s_intensity axis_intensity[MAX_CONTROLLERS][MAX_CONFIGURATIONS][AXIS_MAX];
 
 /*
  * This lists controls of each controller configuration for all keyboards.
@@ -229,11 +231,11 @@ void cfg_process_motion()
 
 /*
  * This updates the stick according to the intensity shape.
- * It only does something for axes in {sa_lstick_x, sa_lstick_y, sa_rstick_x, sa_rstick_y}
+ * It only does something for axes in {rel_axis_lstick_x, rel_axis_lstick_y, rel_axis_rstick_x, rel_axis_rstick_y}
  */
 static void update_stick(int c_id, int axis)
 {
-  if(axis < sa_acc_x)
+  if(axis <= rel_axis_rstick_y)
   {
     if(axis & 1)
     {
@@ -249,35 +251,35 @@ static void update_stick(int c_id, int axis)
     return;
   }
 
-  if (axis < sa_acc_x && intensity->shape == E_SHAPE_CIRCLE)
+  if (axis <= rel_axis_rstick_y && intensity->shape == E_SHAPE_CIRCLE)
   {
-    if (state[c_id].user.axis[axis] && state[c_id].user.axis[axis+1])
+    if (get_controller(c_id)->axis[axis] && get_controller(c_id)->axis[axis+1])
     {
       value = sqrt(value * value / 2);
     }
   }
 
-  if (state[c_id].user.axis[axis] > 0)
+  if (get_controller(c_id)->axis[axis] > 0)
   {
-    state[c_id].user.axis[axis] = round(value);
-    controller[c_id].send_command = 1;
+    get_controller(c_id)->axis[axis] = round(value);
+    get_controller(c_id)->send_command = 1;
   }
-  else if (state[c_id].user.axis[axis] < 0)
+  else if (get_controller(c_id)->axis[axis] < 0)
   {
-    state[c_id].user.axis[axis] = -round(value);
-    controller[c_id].send_command = 1;
+    get_controller(c_id)->axis[axis] = -round(value);
+    get_controller(c_id)->send_command = 1;
   }
-  if (axis < sa_acc_x)
+  if (axis <= rel_axis_rstick_y)
   {
-    if (state[c_id].user.axis[axis+1] > 0)
+    if (get_controller(c_id)->axis[axis+1] > 0)
     {
-      state[c_id].user.axis[axis+1] = round(value);
-      controller[c_id].send_command = 1;
+      get_controller(c_id)->axis[axis+1] = round(value);
+      get_controller(c_id)->send_command = 1;
     }
-    else if (state[c_id].user.axis[axis+1] < 0)
+    else if (get_controller(c_id)->axis[axis+1] < 0)
     {
-      state[c_id].user.axis[axis+1] = -round(value);
-      controller[c_id].send_command = 1;
+      get_controller(c_id)->axis[axis+1] = -round(value);
+      get_controller(c_id)->send_command = 1;
     }
   }
 }
@@ -357,12 +359,12 @@ void cfg_intensity_lookup(GE_Event* e)
 
   for(c_id=0; c_id<MAX_CONTROLLERS; ++c_id)
   {
-    for(a_id=0; a_id<SA_MAX; ++a_id)
+    for(a_id=0; a_id<AXIS_MAX; ++a_id)
     {
       if(update_intensity(device_type, device_id, button_id, c_id, a_id))
       {
         update_stick(c_id, a_id);
-        gprintf(_("controller %d configuration %d axis %s intensity: %.0f\n"), c_id, current_config[c_id], get_axis_name(a_id), axis_intensity[c_id][current_config[c_id]][a_id].value);
+        gprintf(_("controller %d configuration %d axis %s intensity: %.0f\n"), c_id, current_config[c_id], ds3_get_axis_name(a_id), axis_intensity[c_id][current_config[c_id]][a_id].value);
       }
     }
   }
@@ -509,7 +511,7 @@ void cfg_config_activation()
           }
           previous_config[i] = current_config[i];
           current_config[i] = next_config[i];
-          for(j=0; j<SA_MAX; ++j)
+          for(j=0; j<AXIS_MAX; ++j)
           {
             update_stick(i, j);
           }
@@ -575,18 +577,18 @@ static int postpone_event(unsigned int device, GE_Event* event)
   return ret;
 }
 
-static double mouse2axis(int device, struct sixaxis_state* state, int which, double x, double y, int axis, double exp, double multiplier, int dead_zone, e_shape shape, e_mouse_mode mode)
+static double mouse2axis(int device, s_controller* controller, int which, double x, double y, int axis, double exp, double multiplier, int dead_zone, e_shape shape, e_mouse_mode mode)
 {
   double z = 0;
   double dz = dead_zone;
   double motion_residue = 0;
   double ztrunk = 0;
   double val = 0;
-  int max_axis = get_max_signed(axis);
+  int max_axis = get_max_signed(controller->type, axis);
   int new_state;
 
-  multiplier *= get_axis_scale(axis);
-  dz *= get_axis_scale(axis);
+  multiplier *= get_axis_scale(controller->type, axis);
+  dz *= get_axis_scale(controller->type, axis);
 
   if(which == AXIS_X)
   {
@@ -599,11 +601,11 @@ static double mouse2axis(int device, struct sixaxis_state* state, int which, dou
     {
       if(val > 0)
       {
-        state->user.axis[axis] = dz;
+        controller->axis[axis] = dz;
       }
       else
       {
-        state->user.axis[axis] = -dz;
+        controller->axis[axis] = -dz;
       }
       return 0;
     }
@@ -619,11 +621,11 @@ static double mouse2axis(int device, struct sixaxis_state* state, int which, dou
     {
       if(val > 0)
       {
-        state->user.axis[axis] = dz;
+        controller->axis[axis] = dz;
       }
       else
       {
-        state->user.axis[axis] = -dz;
+        controller->axis[axis] = -dz;
       }
       return 0;
     }
@@ -642,31 +644,31 @@ static double mouse2axis(int device, struct sixaxis_state* state, int which, dou
   {
     if(z > 0)
     {
-      state->user.axis[axis] = dz + z;
+      controller->axis[axis] = dz + z;
       /*
        * max axis position => no residue
        */
-      if(state->user.axis[axis] < max_axis)
+      if(controller->axis[axis] < max_axis)
       {
-        ztrunk = state->user.axis[axis] - dz;
+        ztrunk = controller->axis[axis] - dz;
       }
     }
     else if(z < 0)
     {
-      state->user.axis[axis] = z - dz;
+      controller->axis[axis] = z - dz;
       /*
        * max axis position => no residue
        */
-      if(state->user.axis[axis] > -max_axis)
+      if(controller->axis[axis] > -max_axis)
       {
-        ztrunk = state->user.axis[axis] + dz;
+        ztrunk = controller->axis[axis] + dz;
       }
     }
-    else state->user.axis[axis] = 0;
+    else controller->axis[axis] = 0;
   }
   else //E_MOUSE_MODE_DRIVING
   {
-    new_state = state->user.axis[axis] + z;
+    new_state = controller->axis[axis] + z;
     if(new_state > 0 && new_state < dz)
     {
       new_state -= (2*dz);
@@ -675,7 +677,7 @@ static double mouse2axis(int device, struct sixaxis_state* state, int which, dou
     {
       new_state += (2*dz);
     }
-    state->user.axis[axis] = clamp(-max_axis, new_state, max_axis);
+    controller->axis[axis] = clamp(-max_axis, new_state, max_axis);
   }
 
   if(val != 0 && ztrunk != 0)
@@ -704,35 +706,35 @@ void update_dbutton_axis(s_mapper* mapper, int c_id, int axis)
     /*
      * Button to zero-centered axis.
      */
-    state[c_id].user.axis[axis] = - value;
+    get_controller(c_id)->axis[axis] = - value;
   }
   else if(mapper->controller_axis_value > 0)
   {
     /*
      * Button to zero-centered axis.
      */
-    state[c_id].user.axis[axis] = value;
+    get_controller(c_id)->axis[axis] = value;
   }
   else
   {
     /*
      * Button to non-centered axis.
      */
-    state[c_id].user.axis[axis] = value;
+    get_controller(c_id)->axis[axis] = value;
   }
   update_stick(c_id, axis);
   /*
    * Specific code for issue 15.
    */
-  if(axis >= sa_lstick_x && axis <= sa_gyro)
+  if(axis >= rel_axis_0 && axis <= rel_axis_max)
   {
     if(mapper->controller_axis_value > 0)
     {
-      controller[c_id].ts_axis[axis][0] = 1;
+      get_controller(c_id)->ts_axis[axis][0] = 1;
     }
     else if(mapper->controller_axis_value < 0)
     {
-      controller[c_id].ts_axis[axis][1] = 1;
+      get_controller(c_id)->ts_axis[axis][1] = 1;
     }
   }
 }
@@ -742,12 +744,12 @@ void update_ubutton_axis(s_mapper* mapper, int c_id, int axis)
   int dir, odir;
   s_intensity* intensity = &axis_intensity[c_id][current_config[c_id]][axis];
   int value = intensity->value;
-  state[c_id].user.axis[axis] = 0;
+  get_controller(c_id)->axis[axis] = 0;
   if(mapper->controller_axis_value)
   {
     update_stick(c_id, axis);
   }
-  if(axis >= sa_lstick_x && axis <= sa_gyro)
+  if(axis >= rel_axis_0 && axis <= rel_axis_max)
   {
     if(mapper->controller_axis_value > 0)
     {
@@ -759,16 +761,16 @@ void update_ubutton_axis(s_mapper* mapper, int c_id, int axis)
       dir = 1;
       odir = 0;
     }
-    controller[c_id].ts_axis[axis][dir] = 0;
-    if(controller[c_id].ts_axis[axis][odir] == 1)
+    get_controller(c_id)->ts_axis[axis][dir] = 0;
+    if(get_controller(c_id)->ts_axis[axis][odir] == 1)
     {
       if(mapper->controller_axis_value < 0)
       {
-        state[c_id].user.axis[axis] = value;
+        get_controller(c_id)->axis[axis] = value;
       }
       else
       {
-        state[c_id].user.axis[axis] = -value;
+        get_controller(c_id)->axis[axis] = -value;
       }
     }
   }
@@ -798,11 +800,13 @@ void cfg_process_event(GE_Event* event)
   s_mouse_control* mc;
   int max_axis;
   e_mouse_mode mode;
+  s_controller* controller;
 
   unsigned int device = GE_GetDeviceId(event);
 
   for(c_id=0; c_id<MAX_CONTROLLERS; ++c_id)
   {
+    controller = get_controller(c_id);
     config = current_config[c_id];
 
     nb_controls = 0;
@@ -857,7 +861,7 @@ void cfg_process_event(GE_Event* event)
           {
             continue;
           }
-          controller[c_id].send_command = 1;
+          controller->send_command = 1;
           axis = mapper->controller_axis;
           if(axis >= 0)
           {
@@ -873,7 +877,7 @@ void cfg_process_event(GE_Event* event)
           {
             continue;
           }
-          controller[c_id].send_command = 1;
+          controller->send_command = 1;
           axis = mapper->controller_axis;
           if(axis >= 0)
           {
@@ -889,14 +893,14 @@ void cfg_process_event(GE_Event* event)
           {
             continue;
           }
-          controller[c_id].send_command = 1;
+          controller->send_command = 1;
           axis = mapper->controller_axis;
-          multiplier = mapper->multiplier * get_axis_scale(axis);
+          multiplier = mapper->multiplier * get_axis_scale(controller->type, axis);
           exp = mapper->exponent;
-          dead_zone = mapper->dead_zone * get_axis_scale(axis);
+          dead_zone = mapper->dead_zone * get_axis_scale(controller->type, axis);
           if(axis >= 0)
           {
-            max_axis = get_max_signed(axis);
+            max_axis = get_max_signed(controller->type, axis);
             if(mapper->controller_axis_value)
             {
               /*
@@ -915,7 +919,7 @@ void cfg_process_event(GE_Event* event)
               {
                 value -= dead_zone;
               }
-              state[c_id].user.axis[axis] = clamp(-max_axis, value, max_axis);
+              controller->axis[axis] = clamp(-max_axis, value, max_axis);
             }
             else
             {
@@ -930,11 +934,11 @@ void cfg_process_event(GE_Event* event)
               if(value > 0)
               {
                 value += dead_zone;
-                state[c_id].user.axis[axis] = clamp(0, value, max_axis);
+                controller->axis[axis] = clamp(0, value, max_axis);
               }
               else
               {
-                state[c_id].user.axis[axis] = 0;
+                controller->axis[axis] = 0;
               }
             }
           }
@@ -948,7 +952,7 @@ void cfg_process_event(GE_Event* event)
           {
             continue;
           }
-          controller[c_id].send_command = 1;
+          controller->send_command = 1;
           axis = mapper->controller_axis;
           if(axis >= 0)
           {
@@ -964,7 +968,7 @@ void cfg_process_event(GE_Event* event)
           {
             continue;
           }
-          controller[c_id].send_command = 1;
+          controller->send_command = 1;
           axis = mapper->controller_axis;
           if(axis >= 0)
           {
@@ -988,7 +992,7 @@ void cfg_process_event(GE_Event* event)
           {
             continue;
           }
-          controller[c_id].send_command = 1;
+          controller->send_command = 1;
           axis = mapper->controller_axis;
           if(axis >= 0)
           {
@@ -1013,7 +1017,7 @@ void cfg_process_event(GE_Event* event)
                 my = 0;
               }
               mode = cal_get_mouse(device, config)->mode;
-              residue = mouse2axis(device, state+c_id, mapper->axis, mx, my, axis, exp, multiplier, dead_zone, shape, mode);
+              residue = mouse2axis(device, controller, mapper->axis, mx, my, axis, exp, multiplier, dead_zone, shape, mode);
               if(mapper->axis == AXIS_X)
               {
                 mc->residue_x = residue;
@@ -1028,19 +1032,19 @@ void cfg_process_event(GE_Event* event)
               /*
                * Axis to non-centered axis.
                */
-              max_axis = get_max_signed(axis);
+              max_axis = get_max_signed(controller->type, axis);
               threshold = mapper->threshold;
               if(threshold > 0 && value > threshold)
               {
-                state[c_id].user.axis[axis] = max_axis;
+                controller->axis[axis] = max_axis;
               }
               else if(threshold < 0 && value < threshold)
               {
-                state[c_id].user.axis[axis] = max_axis;
+                controller->axis[axis] = max_axis;
               }
               else
               {
-                state[c_id].user.axis[axis] = 0;
+                controller->axis[axis] = 0;
               }
             }
           }
@@ -1054,7 +1058,7 @@ void cfg_process_event(GE_Event* event)
           {
             continue;
           }
-          controller[c_id].send_command = 1;
+          controller->send_command = 1;
           axis = mapper->controller_axis;
           if(axis >= 0)
           {
@@ -1077,7 +1081,7 @@ void cfg_process_event(GE_Event* event)
           {
             return; //no need to do something more
           }
-          controller[c_id].send_command = 1;
+          controller->send_command = 1;
           axis = mapper->controller_axis;
           if(axis >= 0)
           {

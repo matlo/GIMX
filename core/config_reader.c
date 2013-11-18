@@ -5,6 +5,7 @@
 
 #include <string.h>
 #include "config_reader.h"
+#include <xml_defs.h>
 #include "config.h"
 #include <GE.h>
 #include "calibration.h"
@@ -13,6 +14,8 @@
 #include <libxml/xmlreader.h>
 #include <iconv.h>
 #include "emuclient.h"
+#include "controllers/controller.h"
+#include "controllers/ds3.h"
 #include "../directories.h"
 #include "macros.h"
 #include <errno.h>
@@ -567,13 +570,13 @@ static int ProcessButtonElement(xmlNode * a_node)
   int ret = 0;
   xmlNode* cur_node = NULL;
   char* bid;
-  e_sixaxis_axis_index bindex = 0;
+  int bindex = 0;
   s_mapper* p_mapper = NULL;
   s_mapper** pp_mapper = NULL;
 
   bid = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
 
-  ret = get_button_index_from_name(bid);
+  ret = ds3_get_button_index_from_name(bid);
 
   xmlFree(bid);
 
@@ -824,18 +827,7 @@ static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity, int
 
     if(ret != -1)
     {
-      if(axis < sa_acc_x)
-      {
-        intensity->dead_zone = dz * get_axis_scale(sa_rstick_x);
-      }
-      else if(axis < sa_select)
-      {
-        intensity->dead_zone = dz * 4;
-      }
-      else
-      {
-        intensity->dead_zone = dz * 2;
-      }
+      intensity->dead_zone = dz * get_axis_scale(get_controller(r_controller_id)->type, axis);
 
       shape = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_SHAPE);
       if(shape)
@@ -887,19 +879,19 @@ static int ProcessIntensityListElement(xmlNode * a_node)
         control = (char*) xmlGetProp(cur_node, (xmlChar*) X_ATTR_CONTROL);
         if(!strcmp(control, "left_stick") || !strcmp(control, "lstick"))
         {
-          intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, sa_lstick_x);
-          ret = ProcessIntensityElement(cur_node, intensity, sa_lstick_x);
-          memcpy(cfg_get_axis_intensity(r_controller_id, r_config_id, sa_lstick_y), intensity, sizeof(s_intensity));
+          intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, rel_axis_lstick_x);
+          ret = ProcessIntensityElement(cur_node, intensity, rel_axis_lstick_x);
+          memcpy(cfg_get_axis_intensity(r_controller_id, r_config_id, rel_axis_lstick_y), intensity, sizeof(s_intensity));
         }
         else if(!strcmp(control, "right_stick") || !strcmp(control, "rstick"))
         {
-          intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, sa_rstick_x);
-          ret = ProcessIntensityElement(cur_node, intensity, sa_rstick_x);
-          memcpy(cfg_get_axis_intensity(r_controller_id, r_config_id, sa_rstick_y), intensity, sizeof(s_intensity));
+          intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, rel_axis_rstick_x);
+          ret = ProcessIntensityElement(cur_node, intensity, rel_axis_rstick_x);
+          memcpy(cfg_get_axis_intensity(r_controller_id, r_config_id, rel_axis_rstick_y), intensity, sizeof(s_intensity));
         }
         else
         {
-          axis = get_button_index_from_name(control);
+          axis = ds3_get_button_index_from_name(control);
           if(axis >= 0)
           {
             intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, axis);
@@ -1050,15 +1042,15 @@ static int ProcessConfigurationElement(xmlNode * a_node)
     }
   }
 
-  for(i=sa_lstick_x; i<=SA_MAX; ++i)
+  for(i=0; i<=AXIS_MAX; ++i)
   {
     intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, i);
     intensity->device_up_id = -1;
     intensity->device_down_id = -1;
     intensity->up_button = -1;
     intensity->down_button = -1;
-    intensity->value = get_max_signed(i);
-    intensity->max_value = get_max_signed(i);
+    intensity->value = get_max_signed(r_controller_id, i);
+    intensity->max_value = get_max_signed(r_controller_id, i);
     intensity->shape = E_SHAPE_RECTANGLE;
   }
 

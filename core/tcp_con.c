@@ -14,150 +14,73 @@
 #define MSG_DONTWAIT 0
 #endif
 #include "config.h"
-#include "dump.h"
-#include "emuclient.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
 
 /*
- * Controller are listening from TCP_PORT to TCP_PORT+MAX_CONTROLLERS-1
- */
-#define TCP_PORT 21313
-
-/*
- * Sockets to controllers.
- */
-static int sockfd[MAX_CONTROLLERS];
-
-/*
  * Connect to all responding controllers.
  */
-int tcp_connect(void)
+int tcp_connect(char* ip, unsigned short port)
 {
-    int fd;
-    int i;
-    int ret = -1;
-    struct sockaddr_in addr;
-
-    for(i=0; i<MAX_CONTROLLERS; ++i)
-    {
-#ifdef WIN32
-      WSADATA wsadata;
-
-      if (WSAStartup(MAKEWORD(1,1), &wsadata) == SOCKET_ERROR)
-      {
-        fprintf(stderr, "WSAStartup");
-        return -1;
-      }
-
-      if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-      {
-        fprintf(stderr, "socket");
-        return -1;
-      }
-#else
-      if ((fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
-      {
-        fprintf(stderr, "socket");
-        return -1;
-      }
-#endif
-      memset(&addr, 0, sizeof(addr));
-      addr.sin_family = AF_INET;
-      addr.sin_port = htons(TCP_PORT+i);
-#ifdef WIN32
-      addr.sin_addr.s_addr = inet_addr(emuclient_params.ip);
-#else
-      addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-#endif
-      if (connect(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0)
-      {
-        fd = -1;
-      }
-      else
-      {
-        ret = 1;
-        gprintf(_("connected to emu %d\n"), i);
-      }
+  int fd;
+  struct sockaddr_in addr;
 
 #ifdef WIN32
-      // Set the socket I/O mode; iMode = 0 for blocking; iMode != 0 for non-blocking
-      int iMode = 1;
-      ioctlsocket(fd, FIONBIO, (u_long FAR*) &iMode);
-#endif
+  WSADATA wsadata;
 
-      sockfd[i] = fd;
-
-    }
-
-    return ret;
-}
-
-/*
- * Close all connections.
- */
-void tcp_close()
-{
-  int i;
-
-  for(i=0; i<MAX_CONTROLLERS; ++i)
+  if (WSAStartup(MAKEWORD(1,1), &wsadata) == SOCKET_ERROR)
   {
-    if(sockfd[i] > -1)
-    {
-      close(sockfd[i]);
-    }
+    fprintf(stderr, "WSAStartup");
+    return -1;
   }
-}
 
-
-static int tcp_send_single(int c_id, const char* buf, int length)
-{
-  if(sockfd[c_id] < 0)
+  if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
-    return 0;
+    fprintf(stderr, "socket");
+    return -1;
+  }
+#else
+  if ((fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+  {
+    fprintf(stderr, "socket");
+    return -1;
+  }
+#endif
+  memset(&addr, 0, sizeof(addr));
+  addr.sin_family = AF_INET;
+  addr.sin_port = htons(port);
+  addr.sin_addr.s_addr = inet_addr(ip);
+  if (connect(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+  {
+    fd = -1;
   }
   else
   {
-    return send(sockfd[c_id], buf, length, MSG_DONTWAIT);
+    gprintf(_("connected to emu %s:%d\n"), ip, port);
   }
+
+#ifdef WIN32
+  // Set the socket I/O mode; iMode = 0 for blocking; iMode != 0 for non-blocking
+  int iMode = 1;
+  ioctlsocket(fd, FIONBIO, (u_long FAR*) &iMode);
+#endif
+
+  return fd;
 }
 
 /*
- * Send a command to each controller that has its status changed.
+ * Close connection.
  */
-int tcp_send(int force_update)
+void tcp_close(int fd)
 {
-  int i;
-  unsigned char buf[48];
-  int ret = 0;
-
-  for (i = 0; i < MAX_CONTROLLERS; ++i)
-  {
-    if (force_update || controller[i].send_command)
-    {
-      if (assemble_input_01(buf, sizeof(buf), state + i) < 0)
-      {
-        gprintf(_("can't assemble\n"));
-      }
-      if(tcp_send_single(i, (const char*)buf, 48) < 0)
-      {
-        gprintf(_("can't send\n"));
-        ret = -1;
-      }
-
-      if (controller[i].send_command)
-      {
-        if(emuclient_params.status)
-        {
-          sixaxis_dump_state(state + i, i);
-        }
-
-        controller[i].send_command = 0;
-      }
-    }
-  }
-
-  return ret;
+  close(fd);
 }
 
+/*
+ * Send a packet.
+ */
+int tcp_send(int fd, const unsigned char* buf, int length)
+{
+  return send(fd, buf, length, MSG_DONTWAIT);
+}

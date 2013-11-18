@@ -29,102 +29,28 @@
 #include "mainloop.h"
 #include "connector.h"
 #include "args.h"
+#include "controllers/controller.h"
 
 #define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
-#define DEFAULT_MAX_AXIS_VALUE 255
-
-int min_refresh_period[C_TYPE_MAX] =
-{
-    [C_TYPE_JOYSTICK] =  1000,
-    [C_TYPE_360_PAD]  =  1000,
-    [C_TYPE_SIXAXIS]  =  1000,
-    [C_TYPE_PS2_PAD]  = 16000,
-    [C_TYPE_XBOX_PAD] =  4000,
-    [C_TYPE_GPP]      =  1000,
-    [C_TYPE_DEFAULT]  = 11250,
-};
-
-int default_refresh_period[C_TYPE_MAX] =
-{
-    [C_TYPE_JOYSTICK] =  4000,
-    [C_TYPE_360_PAD]  =  4000,
-    [C_TYPE_SIXAXIS]  =  4000,
-    [C_TYPE_PS2_PAD]  = 16000,
-    [C_TYPE_XBOX_PAD] =  4000,
-    [C_TYPE_GPP]      =  4000,
-    [C_TYPE_DEFAULT]  = 11250,
-};
 
 s_emuclient_params emuclient_params =
 {
-   .ctype = C_TYPE_DEFAULT,
   .homedir = NULL,
-  .portname = NULL,
   .force_updates = 0,
   .keygen = NULL,
   .grab = 1,
   .refresh_period = -1,
-  .max_axis_value = DEFAULT_MAX_AXIS_VALUE,
   .frequency_scale = 1,
   .status = 0,
   .curses = 0,
   .config_file = NULL,
-  .event = 0,
-  .ip = NULL,
   .postpone_count = DEFAULT_POSTPONE_COUNT,
   .subpos = 0,
 };
 
-struct sixaxis_state state[MAX_CONTROLLERS];
-s_controller controller[MAX_CONTROLLERS] =
-{ };
-
-void set_axis_value(int axis, int value)
-{
-  if(axis >= 0 && axis < SA_MAX)
-  {
-    state[0].user.axis[axis] = value;
-  }
-}
-
 int proc_time = 0;
 int proc_time_worst = 0;
 int proc_time_total = 0;
-
-static int max_unsigned_axis_value[SA_MAX] = {};
-
-inline int get_max_unsigned(int axis)
-{
-  return max_unsigned_axis_value[axis];
-}
-
-inline int get_max_signed(int axis)
-{
-  if(axis < sa_select)
-  {
-    /*
-     * relative axis
-     */
-    return get_max_unsigned(axis) / 2 + 1;
-  }
-  else
-  {
-    /*
-     * absolute axis
-     */
-    return get_max_unsigned(axis);
-  }
-}
-
-inline int get_mean_unsigned(int axis)
-{
-  return get_max_unsigned(axis) / 2 + 1;
-}
-
-inline double get_axis_scale(int axis)
-{
-  return (double) get_max_unsigned(axis) / DEFAULT_MAX_AXIS_VALUE;
-}
 
 void terminate(int sig)
 {
@@ -174,7 +100,6 @@ int process_event(GE_Event* event)
 int main(int argc, char *argv[])
 {
   GE_Event kgevent = {.type = GE_KEYDOWN};
-  int i;
 
   (void) signal(SIGINT, terminate);
 
@@ -204,24 +129,7 @@ int main(int argc, char *argv[])
 
   set_prio();
 
-  for(i = 0; i < SA_MAX; ++i)
-  {
-    max_unsigned_axis_value[i] = DEFAULT_MAX_AXIS_VALUE;
-  }
-  max_unsigned_axis_value[sa_acc_x] = 1023;
-  max_unsigned_axis_value[sa_acc_y] = 1023;
-  max_unsigned_axis_value[sa_acc_z] = 1023;
-  max_unsigned_axis_value[sa_gyro]  = 1023;
-
-  /*
-   * This is initialized before reading the arguments
-   * as the --event argument can modify the controller state.
-   */
-  for (i = 0; i < MAX_CONTROLLERS; ++i)
-  {
-    sixaxis_init(state + i);
-    memset(controller + i, 0x00, sizeof(s_controller));
-  }
+  controller_init_type();
 
   if(args_read(argc, argv, &emuclient_params) < 0)
   {
@@ -237,22 +145,14 @@ int main(int argc, char *argv[])
 
   if(emuclient_params.refresh_period == -1)
   {
-    emuclient_params.refresh_period = default_refresh_period[emuclient_params.ctype];
+    emuclient_params.refresh_period = get_default_refresh_period(get_controller(0)->type);
     emuclient_params.postpone_count = 3 * DEFAULT_REFRESH_PERIOD / emuclient_params.refresh_period;
     printf(_("using default refresh period: %.02fms\n"), (double)emuclient_params.refresh_period/1000);
   }
-  else if(emuclient_params.refresh_period < min_refresh_period[emuclient_params.ctype])
+  else if(emuclient_params.refresh_period < get_min_refresh_period(get_controller(0)->type))
   {
-    fprintf(stderr, "Refresh period should be at least %.02fms\n", (double)min_refresh_period[emuclient_params.ctype]/1000);
+    fprintf(stderr, "Refresh period should be at least %.02fms\n", (double)get_min_refresh_period(get_controller(0)->type)/1000);
     goto QUIT;
-  }
-
-  if(emuclient_params.ctype == C_TYPE_JOYSTICK)
-  {
-    max_unsigned_axis_value[sa_lstick_x] = 65535;
-    max_unsigned_axis_value[sa_lstick_y] = 65535;
-    max_unsigned_axis_value[sa_rstick_x] = 65535;
-    max_unsigned_axis_value[sa_rstick_y] = 65535;
   }
 
   if(emuclient_params.curses)
@@ -265,9 +165,18 @@ int main(int argc, char *argv[])
   /*
    * The --event argument makes emuclient send a packet and exit.
    */
-  if(emuclient_params.event)
+  int event = 0;
+  unsigned char controller;
+  for(controller=0; controller<MAX_CONTROLLERS; ++controller)
   {
-    controller[0].send_command = 1;
+    if(get_controller(controller)->event)
+    {
+      get_controller(controller)->send_command = 1;
+      event = 1;
+    }
+  }
+  if(event)
+  {
     connector_send();
     goto QUIT;
   }

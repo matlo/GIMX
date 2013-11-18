@@ -13,6 +13,7 @@
 #include "config.h"
 #include "config_writter.h"
 #include "emuclient.h"
+#include "controllers/controller.h"
 #include "display.h"
 #include "mainloop.h"
 
@@ -121,7 +122,10 @@ static void translation_test()
     direction *= -1;
     if (direction > 0)
     {
-      if ((dz - mul + mul * pow(step * 2 * emuclient_params.frequency_scale, exp)) * get_axis_scale(sa_rstick_x) > get_mean_unsigned(sa_rstick_x))
+      /*
+       * TODO: fix the controller type
+       */
+      if ((dz - mul + mul * pow(step * 2 * emuclient_params.frequency_scale, exp)) * get_axis_scale(get_controller(0)->type, rel_axis_2) > get_mean_unsigned(get_controller(0)->type, rel_axis_2))
       {
         step = 1;
         distance = 0.1;
@@ -533,9 +537,12 @@ void cal_button(int which, int button)
           if (mcal->dzx)
           {
             *mcal->dzx += 1;
-            if (*mcal->dzx > get_mean_unsigned(sa_rstick_x) / get_axis_scale(sa_rstick_x))
+            /*
+             * TODO: fix the controller type
+             */
+            if (*mcal->dzx > get_mean_unsigned(get_controller(0)->type, rel_axis_rstick_x) / get_axis_scale(get_controller(0)->type, rel_axis_rstick_x))
             {
-              *mcal->dzx = get_mean_unsigned(sa_rstick_x) / get_axis_scale(sa_rstick_x);
+              *mcal->dzx = get_mean_unsigned(get_controller(0)->type, rel_axis_rstick_x) / get_axis_scale(get_controller(0)->type, rel_axis_rstick_x);
             }
             mc->merge_x[mc->index] = 1;
             mc->merge_y[mc->index] = 0;
@@ -546,9 +553,12 @@ void cal_button(int which, int button)
           if (mcal->dzy)
           {
             *mcal->dzy += 1;
-            if (*mcal->dzy > get_mean_unsigned(sa_rstick_x) / get_axis_scale(sa_rstick_x))
+            /*
+             * TODO: fix the controller type
+             */
+            if (*mcal->dzy > get_mean_unsigned(get_controller(0)->type, rel_axis_rstick_x) / get_axis_scale(get_controller(0)->type, rel_axis_rstick_x))
             {
-              *mcal->dzy = get_mean_unsigned(sa_rstick_x) / get_axis_scale(sa_rstick_x);
+              *mcal->dzy = get_mean_unsigned(get_controller(0)->type, rel_axis_rstick_x) / get_axis_scale(get_controller(0)->type, rel_axis_rstick_x);
             }
             mc->merge_x[mc->index] = 0;
             mc->merge_y[mc->index] = 1;

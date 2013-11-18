@@ -8,6 +8,7 @@
 #include <sys/time.h>
 #include "dump.h"
 #include "sixaxis.h"
+#include "controllers/ds3.h"
 
 void sixaxis_dump_state(struct sixaxis_state *state, int id)
 {
@@ -16,7 +17,6 @@ void sixaxis_dump_state(struct sixaxis_state *state, int id)
     struct timeval tv;
     gettimeofday(&tv, NULL);
     struct sixaxis_state_sys *sys = &state->sys;
-    struct sixaxis_state_user *user = &state->user;
 
     printf("%d %ld.%06ld %c %02x ", id, tv.tv_sec, tv.tv_usec,
            sys->reporting_enabled ? 'R' : 'N',
@@ -57,12 +57,6 @@ void sixaxis_dump_state(struct sixaxis_state *state, int id)
 
     /* rumble state */
     printf(" { %02x %02x }", sys->rumble[0], sys->rumble[1]);
-
-    /* axis values */
-    for (i = 0; i < SA_MAX; i++) {
-        if (user->axis[i])
-            printf(", %s (%d)", get_axis_name(i), user->axis[i]);
-    }
 
     printf("\n");
 }

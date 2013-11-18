@@ -138,6 +138,7 @@ int main(int argc, char *argv[])
   unsigned char* p_data = (unsigned char*)&creq.header;
   int ret;
   int i;
+  int fd;
 
   read_args(argc, argv);
 
@@ -154,14 +155,14 @@ int main(int argc, char *argv[])
 
   (void) signal(SIGINT, ex_program);
 
-  ret = serial_connect(serial_port);
+  fd = serial_connect(serial_port);
 
-  if(ret < 0)
+  if(fd < 0)
   {
     exit(-1);
   }
 
-  ret = usb_spoof_get_adapter_status();
+  ret = usb_spoof_get_adapter_status(fd);
 
   if(ret < 0)
   {
@@ -196,7 +197,7 @@ int main(int argc, char *argv[])
 
     while(!bexit)
     {
-      ret = serial_recv(&packet_type, sizeof(packet_type));
+      ret = serial_recv(fd, &packet_type, sizeof(packet_type));
       if(ret < 0)
       {
         fprintf(stderr, "serial_recv error\n");
@@ -216,14 +217,14 @@ int main(int argc, char *argv[])
 
     unsigned char packet_len;
 
-    ret = serial_recv(&packet_len, sizeof(packet_len));
+    ret = serial_recv(fd, &packet_len, sizeof(packet_len));
     if(ret != sizeof(packet_len))
     {
       fprintf(stderr, "serial_recv error\n");
       exit(-1);
     }
 
-    ret = serial_recv(p_data, packet_len);
+    ret = serial_recv(fd, p_data, packet_len);
     if(ret != packet_len)
     {
       fprintf(stderr, "serial_recv error\n");
@@ -305,7 +306,7 @@ int main(int argc, char *argv[])
           fprintf(stderr, "data length (%d) is higher than 255.", ret);
         }
 
-        ret = usb_spoof_forward_to_adapter(creq.data, ret & 0xFF);
+        ret = usb_spoof_forward_to_adapter(fd, creq.data, ret & 0xFF);
 
         if(ret < 0)
         {
@@ -489,7 +490,7 @@ int main(int argc, char *argv[])
    * tcdrain(fd) does not work, and there does not seem to be a better work-around.
    */
   usleep(500000);
-  serial_close();
+  serial_close(fd);
 #else
   timeEndPeriod(1000);
   CloseHandle(serial);

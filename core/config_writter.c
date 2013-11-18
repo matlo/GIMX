@@ -6,6 +6,7 @@
 #include <string.h>
 #include "config.h"
 #include "config_reader.h"
+#include <xml_defs.h>
 #include <GE.h>
 #include "calibration.h"
 #include <libxml/xmlreader.h>

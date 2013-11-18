@@ -12,6 +12,7 @@
 #include <dirent.h>
 #include <math.h>
 #include "emuclient.h"
+#include "config.h"
 #include <GE.h>
 #include "../directories.h"
 

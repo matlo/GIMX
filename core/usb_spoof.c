@@ -54,10 +54,30 @@ void usb_spoof_release_usb_device()
   }
 }
 
-int usb_spoof_get_adapter_status()
+int usb_spoof_get_adapter_type(int fd)
+{
+  unsigned char get_type_request[] = {BYTE_TYPE, BYTE_LEN_0_BYTE};
+
+  if(serial_send(fd, get_type_request, sizeof(get_type_request)) == sizeof(get_type_request))
+  {
+    unsigned char get_type_answer[3];
+
+    if(serial_recv(fd, get_type_answer, sizeof(get_type_answer)) == sizeof(get_type_answer))
+    {
+      if(get_type_answer[0] == BYTE_TYPE && get_type_answer[1] == BYTE_LEN_1_BYTE)
+      {
+        return get_type_answer[2];
+      }
+    }
+  }
+
+  return -1;
+}
+
+int usb_spoof_get_adapter_status(int fd)
 {
   unsigned char spoof_request[] = {BYTE_START_SPOOF, BYTE_LEN_0_BYTE};
-  if(serial_send(spoof_request, sizeof(spoof_request)) < sizeof(spoof_request))
+  if(serial_send(fd, spoof_request, sizeof(spoof_request)) < sizeof(spoof_request))
   {
     fprintf(stderr, "serial_send\n");
     return -1;
@@ -65,7 +85,7 @@ int usb_spoof_get_adapter_status()
 
   unsigned char spoof_answer[3];
 
-  if(serial_recv(spoof_answer, sizeof(spoof_answer)) < sizeof(spoof_answer))
+  if(serial_recv(fd, spoof_answer, sizeof(spoof_answer)) < sizeof(spoof_answer))
   {
     fprintf(stderr, "serial_recv\n");
     return -1;
@@ -91,12 +111,12 @@ int usb_spoof_forward_to_device(control_request* creq)
       creq->header.wValue, creq->header.wIndex, creq->data, creq->header.wLength, USB_REQ_TIMEOUT);
 }
 
-int usb_spoof_forward_to_adapter(unsigned char* data, unsigned char length)
+int usb_spoof_forward_to_adapter(int fd, unsigned char* data, unsigned char length)
 {
   unsigned char byte_spoof_data = BYTE_SPOOF_DATA;
-  if(serial_send(&byte_spoof_data, sizeof(byte_spoof_data)) < sizeof(byte_spoof_data)
-      || serial_send(&length, sizeof(length)) < sizeof(length)
-      || serial_send(data, length) < length)
+  if(serial_send(fd, &byte_spoof_data, sizeof(byte_spoof_data)) < sizeof(byte_spoof_data)
+      || serial_send(fd, &length, sizeof(length)) < sizeof(length)
+      || serial_send(fd, data, length) < length)
   {
     fprintf(stderr, "serial_send\n");
     return -1;
@@ -104,14 +124,14 @@ int usb_spoof_forward_to_adapter(unsigned char* data, unsigned char length)
   return length;
 }
 
-int usb_spoof_spoof_360_controller()
+int usb_spoof_spoof_360_controller(int fd)
 {
   control_request creq;
   unsigned char* p_data = (unsigned char*)&creq.header;
   int spoofed = 0;
   int response = 0;
 
-  int ret = usb_spoof_get_adapter_status();
+  int ret = usb_spoof_get_adapter_status(fd);
 
   if(ret == 0)
   {
@@ -127,7 +147,7 @@ int usb_spoof_spoof_360_controller()
       {
         unsigned char packet_type;
 
-        ret = serial_recv(&packet_type, sizeof(packet_type));
+        ret = serial_recv(fd, &packet_type, sizeof(packet_type));
         if(ret != sizeof(packet_type))
         {
           fprintf(stderr, "serial_recv error\n");
@@ -144,7 +164,7 @@ int usb_spoof_spoof_360_controller()
 
         unsigned char packet_len;
 
-        ret = serial_recv(&packet_len, sizeof(packet_len));
+        ret = serial_recv(fd, &packet_len, sizeof(packet_len));
         if(ret != sizeof(packet_len))
         {
           fprintf(stderr, "serial_recv error\n");
@@ -152,7 +172,7 @@ int usb_spoof_spoof_360_controller()
           break;
         }
 
-        ret = serial_recv(p_data, packet_len);
+        ret = serial_recv(fd, p_data, packet_len);
         if(ret != packet_len)
         {
           fprintf(stderr, "serial_recv error\n");
@@ -179,7 +199,7 @@ int usb_spoof_spoof_360_controller()
             /*
              * Forward data back to the adapter.
              */
-            ret = usb_spoof_forward_to_adapter(creq.data, ret & 0xFF);
+            ret = usb_spoof_forward_to_adapter(fd, creq.data, ret & 0xFF);
 
             if(ret < 0)
             {

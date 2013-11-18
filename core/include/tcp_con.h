@@ -6,8 +6,8 @@
 #ifndef TCP_CON_H_
 #define TCP_CON_H_
 
-int tcp_connect(void);
-void tcp_close(void);
-int tcp_send(int);
+int tcp_connect(char* ip, unsigned short port);
+void tcp_close(int fd);
+int tcp_send(int fd, const unsigned char* buf, int length);
 
 #endif /* TCP_CON_H_ */

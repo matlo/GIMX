@@ -35,19 +35,24 @@ EMUCLIENT_OBJ = \
        args.o\
        display.o\
        sixaxis.o\
-       dump.o\
        macros.o\
        config.o\
        config_writter.o\
        config_reader.o\
        calibration.o\
        connector.o\
-       serial_con.o\
        report.o\
        tcp_con.o\
        gpp/pcprog.o\
        gpp_con.o\
-       usb_spoof.o
+       usb_spoof.o\
+       controllers/controller.o\
+       controllers/joystick.o\
+       controllers/ds2.o\
+       controllers/ds3.o\
+       controllers/ds4.o\
+       controllers/xbox.o\
+       controllers/x360.o
 
 ifneq ($(OS),Windows_NT)
 EMUCLIENT_OBJ += \
@@ -67,7 +72,7 @@ emuclient: $(DEP) $(EMUCLIENT_OBJ)
 	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LIB)
 
 ifneq ($(OS),Windows_NT)
-emu: emu.o sixaxis.o dump.o l2cap_con.o bt_utils.o linux/prio.o
+emu: emu.o sixaxis.o dump.o l2cap_con.o bt_utils.o linux/prio.o controllers/ds3.o
 	$(CC) $(INC) -o $@ $^ -lbluetooth
 
 sixaddr: utils/sixaddr.o

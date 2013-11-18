@@ -12,7 +12,7 @@
 #include <winsock2.h> /* for htons */
 #endif
 
-int clamp(int min, int val, int max)
+inline int clamp(int min, int val, int max)
 {
     if (val < min) return min;
     if (val > max) return max;
@@ -25,6 +25,19 @@ void sixaxis_init(struct sixaxis_state *state)
 
     state->sys.reporting_enabled = 0;
     state->sys.feature_ef_byte_6 = 0xb0;
+
+    state->user.X = 128;
+    state->user.Y = 128;
+    state->user.Z = 128;
+    state->user.Rz = 128;
+    state->user.acc_x[0] = 512 >> 8;
+    state->user.acc_x[1] = 512 & 0xFF;
+    state->user.acc_y[0] = 512 >> 8;
+    state->user.acc_y[1] = 512 & 0xFF;
+    state->user.acc_z[0] = 400 >> 8;
+    state->user.acc_z[1] = 400 & 0xFF;
+    state->user.gyro[0] = 512 >> 8;
+    state->user.gyro[1] = 512 & 0xFF;
 }
 
 int sixaxis_periodic_report(struct sixaxis_state *state)
@@ -34,106 +47,31 @@ int sixaxis_periodic_report(struct sixaxis_state *state)
     return ret;
 }
 
-const int digital_order[17] = {
-    sa_select, sa_l3, sa_r3, sa_start,
-    sa_up, sa_right, sa_down, sa_left,
-    sa_l2, sa_r2, sa_l1, sa_r1,
-    sa_triangle, sa_circle, sa_cross, sa_square,
-    sa_ps };
-
-const int analog_order[12] = {
-    sa_up, sa_right, sa_down, sa_left,
-    sa_l2, sa_r2, sa_l1, sa_r1,
-    sa_triangle, sa_circle, sa_cross, sa_square };
-
 /* Main input report from Sixaxis -- assemble it */
 int assemble_input_01(uint8_t *buf, int maxlen, struct sixaxis_state *state)
 {
-    struct sixaxis_state_user *u = &state->user;
-    int i;
+    if (maxlen < sizeof(s_report_ds3)-1) return -1;
 
-    if (maxlen < 48) return -1;
-    memset(buf, 0, 48);
+    memcpy(buf, ((uint8_t*)&state->user)+1, sizeof(s_report_ds3)-1);
 
-    /* Digital button state */
-    for (i = 0; i < 17; i++) {
-        int byte = 1 + (i / 8);
-        int offset = i % 8;
-        if (u->axis[digital_order[i]])
-            buf[byte] |= (1 << offset);
-    }
-
-    /* Axes */
-    buf[5] = clamp(0, u->axis[sa_lstick_x] + 128, 255);
-    buf[6] = clamp(0, u->axis[sa_lstick_y] + 128, 255);
-    buf[7] = clamp(0, u->axis[sa_rstick_x] + 128, 255);
-    buf[8] = clamp(0, u->axis[sa_rstick_y] + 128, 255);
-
-    /* Analog button state */
-    for (i = 0; i < 12; i++)
-        buf[13 + i] = u->axis[analog_order[i]];
-
-    /* Charging status? */
-    buf[28] = 0x03;
-
-    /* Power rating? */
-    buf[29] = 0x05;
-
-    /* Bluetooth and rumble status? */
-    buf[30] = 0x16;
+    buf[30] = 0x16;//bluetooth+rumble off (0x14 = on)
 
     /* Unknown, some values fluctuate? */
-    buf[31] = 0x00;
-    buf[32] = 0x00;
-    buf[33] = 0x00;
-    buf[34] = 0x00;
     buf[35] = 0x33;
-    buf[36] = 0x02;
+    buf[36] = 0xfa;
     buf[37] = 0x77;
     buf[38] = 0x01;
-    buf[39] = 0x9e;
+    buf[39] = 0xc0;//rumble off (0x40 = on)
 
-    /* Accelerometers */
-    *(uint16_t *)&buf[40] = htons(clamp(0, u->axis[sa_acc_x] + 512, 1023));
-    *(uint16_t *)&buf[42] = htons(clamp(0, u->axis[sa_acc_y] + 512, 1023));
-    *(uint16_t *)&buf[44] = htons(clamp(0, u->axis[sa_acc_z] + 512, 1023));
-    *(uint16_t *)&buf[46] = htons(clamp(0, u->axis[sa_gyro] + 512, 1023));
-
-    return 48;
+    return sizeof(s_report_ds3)-1;
 }
 
 /* Main input report from Sixaxis -- decode it */
 int process_input_01(const uint8_t *buf, int len, struct sixaxis_state *state)
 {
-    struct sixaxis_state_user *u = &state->user;
-    int i;
+    if (len < sizeof(s_report_ds3)) return -1;
 
-    if (len < 48) return -1;
-    /* Digital button state */
-    for (i = 0; i < 17; i++) {
-        int byte = 1 + (i / 8);
-        int offset = i % 8;
-        if (buf[byte] & (1 << offset))
-            u->axis[digital_order[i]] = 255;
-        else
-            u->axis[digital_order[i]] = 0;
-    }
-
-    /* Axes */
-    u->axis[sa_lstick_x] = buf[5] - 128;
-    u->axis[sa_lstick_y] = buf[6] - 128;
-    u->axis[sa_rstick_x] = buf[7] - 128;
-    u->axis[sa_rstick_y] = buf[8] - 128;
-
-    /* Analog button state */
-    for (i = 0; i < 12; i++)
-        u->axis[analog_order[i]] = buf[13 + i];
-
-    /* Accelerometers */
-    u->axis[sa_acc_x] = ntohs(*(uint16_t *)&buf[40]) - 512;
-    u->axis[sa_acc_y] = ntohs(*(uint16_t *)&buf[42]) - 512;
-    u->axis[sa_acc_z] = ntohs(*(uint16_t *)&buf[44]) - 512;
-    u->axis[sa_gyro] = ntohs(*(uint16_t *)&buf[46]) - 512;
+    memcpy(&state->user, buf, sizeof(s_report_ds3));
 
     return 0;
 }
@@ -164,19 +102,19 @@ int assemble_feature_ef(uint8_t *buf, int maxlen, struct sixaxis_state *state)
 {
     const uint8_t data[] = {
         0xef, 0x04, 0x00, 0x05, 0x03, 0x01, 0xb0, 0x00,
-          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x02, 0x00, 0x00, 0x00, /* acc_x center & radius? */
         0x02, 0x00, 0x03, 0xff, /* acc_y center & radius? */
-          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04
     };
     int len = sizeof(data);
     if (len > maxlen) return -1;
     memcpy(buf, data, len);
 
-      /* Byte 6 must match the byte set by the PS3 */
-      buf[6] = state->sys.feature_ef_byte_6;
+    /* Byte 6 must match the byte set by the PS3 */
+    buf[6] = state->sys.feature_ef_byte_6;
 
     return len;
 }
@@ -295,109 +233,3 @@ struct sixaxis_process_t sixaxis_process[] = {
     { HID_TYPE_FEATURE, 0xf4, process_feature_f4 },
     { 0 }
 };
-
-static const char *axis_name[SA_MAX] = {
-    [sa_lstick_x] = "lstick x",
-    [sa_lstick_y] = "lstick y",
-    [sa_rstick_x] = "rstick x",
-    [sa_rstick_y] = "rstick y",
-    [sa_acc_x] = "acc x",
-    [sa_acc_y] = "acc y",
-    [sa_acc_z] = "acc z",
-    [sa_gyro] = "gyro",
-    [sa_select] = "select",
-    [sa_start] = "start",
-    [sa_ps] = "PS",
-    [sa_up] = "up",
-    [sa_right] = "right",
-    [sa_down] = "down",
-    [sa_left] = "left",
-    [sa_triangle] = "triangle",
-    [sa_circle] = "circle",
-    [sa_cross] = "cross",
-    [sa_square] = "square",
-    [sa_l1] = "l1",
-    [sa_r1] = "r1",
-    [sa_l2] = "l2",
-    [sa_r2] = "r2",
-    [sa_l3] = "l3",
-    [sa_r3] = "r3"
-};
-
-const char* get_axis_name(int index)
-{
-  return axis_name[index];
-}
-
-int get_button_index_from_name(const char* name)
-{
-  int i;
-  for(i=0; i<SA_MAX; ++i)
-  {
-    if(!strcmp(axis_name[i], name))
-    {
-      return i;
-    }
-  }
-  return -1;
-}
-
-typedef struct {
-    const char* name;
-    s_axis_index aindex;
-} s_axis_name_index;
-
-static const s_axis_name_index axis_name_index[] =
-{
-    {.name="rstick x",     {.value=-1,  .index=sa_rstick_x}},
-    {.name="rstick y",     {.value=-1,  .index=sa_rstick_y}},
-    {.name="lstick x",     {.value=-1,  .index=sa_lstick_x}},
-    {.name="lstick y",     {.value=-1,  .index=sa_lstick_y}},
-    {.name="rstick left",  {.value=-1,  .index=sa_rstick_x}},
-    {.name="rstick right", {.value= 1,  .index=sa_rstick_x}},
-    {.name="rstick up",    {.value=-1,  .index=sa_rstick_y}},
-    {.name="rstick down",  {.value= 1,  .index=sa_rstick_y}},
-    {.name="lstick left",  {.value=-1,  .index=sa_lstick_x}},
-    {.name="lstick right", {.value= 1,  .index=sa_lstick_x}},
-    {.name="lstick up",    {.value=-1,  .index=sa_lstick_y}},
-    {.name="lstick down",  {.value= 1,  .index=sa_lstick_y}},
-    {.name="acc x",        {.value=-1,  .index=sa_acc_x}},
-    {.name="acc y",        {.value=-1,  .index=sa_acc_y}},
-    {.name="acc z",        {.value=-1,  .index=sa_acc_z}},
-    {.name="gyro",         {.value=-1,  .index=sa_gyro}},
-    {.name="acc x -",      {.value=-1,  .index=sa_acc_x}},
-    {.name="acc y -",      {.value=-1,  .index=sa_acc_y}},
-    {.name="acc z -",      {.value=-1,  .index=sa_acc_z}},
-    {.name="gyro -",       {.value=-1,  .index=sa_gyro}},
-    {.name="acc x +",      {.value= 1,  .index=sa_acc_x}},
-    {.name="acc y +",      {.value= 1,  .index=sa_acc_y}},
-    {.name="acc z +",      {.value= 1,  .index=sa_acc_z}},
-    {.name="gyro +",       {.value= 1,  .index=sa_gyro}},
-    {.name="up",           {.value= 0,  .index=sa_up}},
-    {.name="down",         {.value= 0,  .index=sa_down}},
-    {.name="right",        {.value= 0,  .index=sa_right}},
-    {.name="left",         {.value= 0,  .index=sa_left}},
-    {.name="r1",           {.value= 0,  .index=sa_r1}},
-    {.name="r2",           {.value= 0,  .index=sa_r2}},
-    {.name="l1",           {.value= 0,  .index=sa_l1}},
-    {.name="l2",           {.value= 0,  .index=sa_l2}},
-    {.name="circle",       {.value= 0,  .index=sa_circle}},
-    {.name="square",       {.value= 0,  .index=sa_square}},
-    {.name="cross",        {.value= 0,  .index=sa_cross}},
-    {.name="triangle",     {.value= 0,  .index=sa_triangle}},
-};
-
-s_axis_index get_axis_index_from_name(const char* name)
-{
-  int i;
-  s_axis_index none = {-1, -1};
-  for(i=0; i<sizeof(axis_name_index)/sizeof(s_axis_name_index); ++i)
-  {
-    if(!strcmp(axis_name_index[i].name, name))
-    {
-      return axis_name_index[i].aindex;
-    }
-  }
-  return none;
-}
-

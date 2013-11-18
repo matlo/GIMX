@@ -8,7 +8,7 @@
 
 int gpp_connect();
 
-int gpp_send(int);
+int gpp_send(int axis[AXIS_MAX]);
 
 void gpp_disconnect();
 

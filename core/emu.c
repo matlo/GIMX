@@ -297,27 +297,27 @@ void handle_control(int tcpc, const unsigned char *buf, size_t len,
 {
     int ret;
 
-    /* Expect that we got 48 bytes, ignore anything else */
-    if (len < 48) {
+    /* Expect that we got 49 bytes, ignore anything else */
+    if (len < sizeof(s_report_ds3)) {
         fprintf(stderr, "tcp control short packet %ld\n", (unsigned long)len);
         return;
     }
 
-    if(len > 48)
+    if(len > sizeof(s_report_ds3))
     {
-        fprintf(stderr, "%zu tcp packets merged\n", len/48);
+        fprintf(stderr, "%zu tcp packets merged\n", len/sizeof(s_report_ds3));
     }
 
-    while(len >= 48)
+    while(len >= sizeof(s_report_ds3))
     {
         /* Process it as input report 01 */
-        ret = process_report(HID_TYPE_INPUT, 0x01, buf, 48, state);
+        ret = process_report(HID_TYPE_INPUT, 0x01, buf, sizeof(s_report_ds3), state);
         if (ret < 0) {
             fprintf(stderr, "tcp control process error %d\n", ret);
             return;
         }
-        buf+=48;
-        len-=48;
+        buf+=sizeof(s_report_ds3);
+        len-=sizeof(s_report_ds3);
     }
 
     return;
@@ -386,11 +386,11 @@ int main(int argc, char *argv[])
 
     if (argc > 3)
     {
-        sixaxis_number = atoi(argv[3]);
+        state.sixaxis_number = atoi(argv[3]);
     }
     else
     {
-        sixaxis_number = 0;
+        state.sixaxis_number = 0;
         printf("default sixaxis number 0 is used\n");
     }
 
@@ -438,7 +438,7 @@ int main(int argc, char *argv[])
 
         /* Listen for TCP control connections */
         if (tcps < 0 && tcpc < 0)
-            if ((tcps = tcplisten(TCPPORT+sixaxis_number)) < 0)
+            if ((tcps = tcplisten(TCPPORT+state.sixaxis_number)) < 0)
                 fprintf(stderr, "tcp listen\n");
 
 #ifndef WIN32
@@ -609,7 +609,7 @@ int main(int argc, char *argv[])
             timeradd(&now, (&(struct timeval){0,1000000}), &next_report);
         }
     }
-
+    
     fprintf(stderr, "cleaning up\n");
     shutdown(ctrl, SHUT_RDWR);
     shutdown(data, SHUT_RDWR);

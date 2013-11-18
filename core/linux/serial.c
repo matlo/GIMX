@@ -24,11 +24,6 @@
 #include <errno.h>
 
 /*
- * The serial connection.
- */
-static int fd = -1;
-
-/*
  * The baud rate in bps.
  */
 #define TTY_BAUDRATE B500000 //0.5Mbps
@@ -40,14 +35,13 @@ static int fd = -1;
 int tty_connect(char* portname)
 {
   struct termios options;
-  int ret = 0;
+  int fd;
 
   printf(_("connecting to %s\n"), portname);
 
   if ((fd = open(portname, O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0)
   {
     printf(_("can't connect to %s\n"), portname);
-    ret = -1;
   }
   else
   {
@@ -59,22 +53,21 @@ int tty_connect(char* portname)
     {
       printf(_("can't set serial port options\n"));
       close(fd);
-      ret = -1;
+      fd = -1;
     }
     else
     {
       printf(_("connected\n"));
     }
+    tcflush(fd, TCIFLUSH);
   }
 
-  tcflush(fd, TCIFLUSH);
-
-  return ret;
+  return fd;
 }
 
 int spi_connect(char* portname)
 {
-  int ret = 0;
+  int fd;
 
   unsigned int speed = SPI_BAUDRATE;
   unsigned char bits = 8;
@@ -83,89 +76,82 @@ int spi_connect(char* portname)
   if((fd = open(portname, O_RDWR | O_NONBLOCK)) < 0)
   {
     printf(_("can't connect to %s\n"), portname);
-    ret = -1;
   }
   else if(ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed) < 0)
   {
     printf(_("can't set spi port speed\n"));
     close(fd);
-    ret = -1;
+    fd = -1;
   }
   else if(ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits) < 0)
   {
     printf(_("can't set bits per word written\n"));
     close(fd);
-    ret = -1;
+    fd = -1;
   }
   else if(ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &bits) < 0)
   {
     printf(_("can't set bits per word read\n"));
     close(fd);
-    ret = -1;
+    fd = -1;
   }
   else if (ioctl (fd, SPI_IOC_WR_MODE, &mode) < 0)
   {
     printf(_("can't set write mode\n"));
     close(fd);
-    ret = -1;
+    fd = -1;
   }
   else if (ioctl (fd, SPI_IOC_RD_MODE, &mode) < 0)
   {
     printf(_("can't set read mode\n"));
     close(fd);
-    ret = -1;
+    fd = -1;
   }
 
-  return ret;
+  return fd;
 }
 
 int serial_connect(char* portname)
 {
-  int ret = 0;
+  int fd = 0;
 
   if(strstr(portname, "tty"))
   {
-    if(tty_connect(portname) < 0)
-    {
-      ret = -1;
-    }
+    fd = tty_connect(portname);
   }
   else if(strstr(portname, "spi"))
   {
-    if(spi_connect(portname) < 0)
-    {
-      ret = -1;
-    }
+    fd = spi_connect(portname);
   }
   else
   {
-    ret = -1;
+    fd = -1;
   }
 
-  return ret;
+  return fd;
 }
 
 /*
  * Send a usb report to the serial port.
  */
-int serial_send(void* pdata, unsigned int size)
+int serial_send(int fd, void* pdata, unsigned int size)
 {
   return write(fd, pdata, size);
 }
 
-int serial_recv(void* pdata, unsigned int size)
+int serial_recv(int fd, void* pdata, unsigned int size)
 {
   int bread = 0;
   int res;
 
   fd_set readfds;
-  FD_ZERO(&readfds);
-  FD_SET(fd, &readfds);
 
   struct timeval timeout = {.tv_sec = 1, .tv_usec = 0};
 
   while(bread != size)
   {
+    FD_ZERO(&readfds);
+    FD_SET(fd, &readfds);
     int status = select(fd+1, &readfds, NULL, NULL, &timeout);
     if(status > 0)
     {
@@ -191,7 +177,8 @@ int serial_recv(void* pdata, unsigned int size)
   return bread;
 }
 
-void serial_close()
+void serial_close(int fd)
 {
+  usleep(10000);//sleep 10ms to leave enough time for the last packet to be sent
   close(fd);
 }

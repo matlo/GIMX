@@ -6,61 +6,44 @@
 #ifndef EMUCLIENT_H_
 #define EMUCLIENT_H_
 
-#include <config.h>
+#include <GE.h>
 
 #include <libintl.h>
 #include <locale.h>
 #define _(STRING)    gettext(STRING)
 
-#define DEFAULT_REFRESH_PERIOD 11250 //=11.25ms
+/*
+ * Controllers are listening from TCP_PORT to TCP_PORT+MAX_CONTROLLERS-1
+ */
+#define TCP_PORT 21313
 
-typedef enum
-{
-  C_TYPE_JOYSTICK = 0,
-  C_TYPE_360_PAD = 1,
-  C_TYPE_SIXAXIS = 2,
-  C_TYPE_PS2_PAD = 3,
-  C_TYPE_XBOX_PAD = 4,
-  C_TYPE_GPP = 5,
-  C_TYPE_DEFAULT = 6,
-  C_TYPE_MAX
-} e_controller_type;
+#define MAX_CONTROLLERS 7
+#define MAX_CONFIGURATIONS 8
+#define MAX_DEVICES 256
+#define MAX_CONTROLS 256
+
+#define DEFAULT_REFRESH_PERIOD 11250 //=11.25ms
 
 typedef struct
 {
-  e_controller_type ctype;
   char* homedir;
-  char* portname;
   int force_updates;
   char* keygen;
   int grab;
   int refresh_period;
-  int max_axis_value;
   double frequency_scale;
   int status;
   int curses;
   char* config_file;
-  int event;
-  char* ip;
   int postpone_count;
   int subpos;
 } s_emuclient_params;
 
 extern s_emuclient_params emuclient_params;
 
-extern struct sixaxis_state state[MAX_CONTROLLERS];
-extern s_controller controller[MAX_CONTROLLERS];
-
-void set_axis_value(int axis, int value);
-
 extern int proc_time;
 extern int proc_time_worst;
 extern int proc_time_total;
-
-inline int get_max_signed(int);
-inline int get_max_unsigned(int);
-inline int get_mean_unsigned(int);
-inline double get_axis_scale(int);
 
 #define gprintf(...) if(emuclient_params.status) printf(__VA_ARGS__)
 
