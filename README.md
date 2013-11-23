@@ -1,7 +1,7 @@
 GIMX
 ====
 
-GIMX stands for _`Game Input MultipleXer`_ or _`Game Input MatriX`_.  
+GIMX stands for `Game Input MultipleXer` or `Game Input MatriX`.  
 The purpose of this software is to control a video game console with a PC.  
 It works with the PS3 and the Xbox 360.  
 It operates:  
