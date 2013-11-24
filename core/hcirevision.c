@@ -15,9 +15,11 @@ int main(int argc, char *argv[])
   {
     sprintf(command, "hciconfig hci%d revision", i);
 
-    return system(command);
+    if(system(command) < 0)
+    {
+      fprintf(stderr, "Can't get the hci revision\n");
+    }
   }
 
-  return -1;
-
+  return 0;
 }
