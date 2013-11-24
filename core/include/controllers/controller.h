@@ -1,8 +1,6 @@
 /*
- * controller.h
- *
- *  Created on: 13 nov. 2013
- *      Author: matlo
+ Copyright (c) 2013 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #ifndef CONTROLLER_H_
