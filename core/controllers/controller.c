@@ -24,22 +24,25 @@ void controller_init_type()
   }
 }
 
+/*
+ * Set the port of the controller.
+ * If it's already used for another controller, do nothing.
+ */
 int controller_set_port(unsigned char index, char* portname)
 {
-  int ret = 0;
   unsigned char i;
   if(index >= MAX_CONTROLLERS)
   {
     return -1;
   }
-  for(i=0; i<index && i<MAX_CONTROLLERS; ++i)
+  for(i=0; i<index; ++i)
   {
     if(controller[i].portname && !strcmp(controller[i].portname, portname))
     {
       return -1;
     }
   }
-  controller[i].portname = portname;
+  controller[index].portname = portname;
   return 0;
 }
 

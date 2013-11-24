@@ -80,6 +80,7 @@ typedef struct
 
 void controller_init_type();
 inline s_controller* get_controller(unsigned char index);
+int controller_set_port(unsigned char index, char* portname);
 
 int get_min_refresh_period(e_controller_type type);
 int get_default_refresh_period(e_controller_type type);

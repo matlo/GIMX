@@ -15,9 +15,9 @@ int main(int argc, char *argv[])
   {
     sprintf(command, "hciconfig hci%d revision", i);
 
-    system(command);
+    return system(command);
   }
 
-  return 0;
+  return -1;
 
 }
