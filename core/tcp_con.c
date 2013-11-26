@@ -82,5 +82,5 @@ void tcp_close(int fd)
  */
 int tcp_send(int fd, const unsigned char* buf, int length)
 {
-  return send(fd, buf, length, MSG_DONTWAIT);
+  return send(fd, (const void*)buf, length, MSG_DONTWAIT);
 }

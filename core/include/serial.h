@@ -6,9 +6,16 @@
 #ifndef SERIAL_H_
 #define SERIAL_H_
 
-int serial_connect(char* portname);
-int serial_send(int fd, void* pdata, unsigned int size);
-int serial_recv(int fd, void* pdata, unsigned int size);
-void serial_close(int fd);
+#ifndef WIN32
+typedef int SERIALOBJECT;
+#else
+#include <windows.h>
+typedef HANDLE SERIALOBJECT;
+#endif
+
+SERIALOBJECT serial_connect(char* portname);
+int serial_send(SERIALOBJECT so, void* pdata, unsigned int size);
+int serial_recv(SERIALOBJECT so, void* pdata, unsigned int size);
+void serial_close(SERIALOBJECT so);
 
 #endif /* SERIAL_H_ */

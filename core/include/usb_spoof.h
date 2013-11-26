@@ -54,10 +54,10 @@ typedef struct
 int usb_spoof_init_usb_device(int vendor, int product,
     uint16_t* bus_id, uint8_t* device_address, int libusb_debug);
 void usb_spoof_release_usb_device();
-int usb_spoof_get_adapter_type(int fd);
-int usb_spoof_get_adapter_status(int fd);
+int usb_spoof_get_adapter_type(SERIALOBJECT serial);
+int usb_spoof_get_adapter_status(SERIALOBJECT serial);
 int usb_spoof_forward_to_device(control_request* creq);
-int usb_spoof_forward_to_adapter(int fd, unsigned char* data, unsigned char length);
+int usb_spoof_forward_to_adapter(SERIALOBJECT serial, unsigned char* data, unsigned char length);
 
 int usb_spoof_spoof_360_controller();
 

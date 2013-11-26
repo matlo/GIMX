@@ -6,6 +6,8 @@
 #ifndef CONTROLLER_H_
 #define CONTROLLER_H_
 
+#include <serial.h>
+
 #define DEFAULT_MAX_AXIS_VALUE MAX_AXIS_VALUE_8BITS
 
 #define MAX_AXIS_VALUE_8BITS 255
@@ -67,7 +69,8 @@ typedef struct
   char* portname;
   char* ip;
   unsigned short port;
-  int fd;
+  SERIALOBJECT serial;
+  int netfd;
   e_controller_type type;
   int event;
   int axis[AXIS_MAX];

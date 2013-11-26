@@ -40,13 +40,13 @@ int connector_init()
     {
       if(!strstr(controller->portname, "none"))
       {
-        if((controller->fd = serial_connect(controller->portname)) < 0)
+        if((controller->serial = serial_connect(controller->portname)) < 0)
         {
           ret = -1;
         }
         else
         {
-          int rtype = usb_spoof_get_adapter_type(controller->fd);
+          int rtype = usb_spoof_get_adapter_type(controller->serial);
 
           if(rtype >= 0)
           {
@@ -98,7 +98,7 @@ int connector_init()
         controller->port = port;
         ++port;
       }
-      controller->fd = tcp_connect(controller->ip, controller->port);
+      controller->netfd = tcp_connect(controller->ip, controller->port);
     }
   }
   return ret;
@@ -114,13 +114,13 @@ void connector_clean()
     switch(controller->type)
     {
       case C_TYPE_DEFAULT:
-        tcp_close(controller->fd);
+        tcp_close(controller->netfd);
         break;
       case C_TYPE_GPP:
         gpp_disconnect();
         break;
       default:
-        serial_close(controller->fd);
+        serial_close(controller->serial);
         break;
     }
   }
@@ -144,24 +144,24 @@ int connector_send()
       switch(controller->type)
       {
         case C_TYPE_DEFAULT:
-          if(controller->fd >= 0)
+          if(controller->netfd >= 0)
           {
-            ret = tcp_send(controller->fd, (unsigned char*)&report.value.ds3, report.value_len);
+            ret = tcp_send(controller->netfd, (unsigned char*)&report.value.ds3, report.value_len);
           }
           break;
         case C_TYPE_GPP:
           ret = gpp_send(controller->axis);
           break;
         default:
-          if(controller->fd >= 0)
+          if(controller->serial >= 0)
           {
             if(controller->type != C_TYPE_PS2_PAD)
             {
-              ret = serial_send(controller->fd, &report, 2+report.value_len);
+              ret = serial_send(controller->serial, &report, 2+report.value_len);
             }
             else
             {
-              ret = serial_send(controller->fd, &report.value.ds2, report.value_len);
+              ret = serial_send(controller->serial, &report.value.ds2, report.value_len);
             }
           }
           break;
