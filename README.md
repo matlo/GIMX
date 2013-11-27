@@ -12,4 +12,8 @@ Other controls such as gesture or voice are possible through the use of external
 
 Documentation is at http://wiki.gimx.fr/  
 
+Source code: http://gimx.fr/source  
+
+Issue tracker: http://gimx.fr/buglist  
+
 Fundraising for GIMX PS4 / Xbox One support: http://blog.gimx.fr/fundraising-for-gimx-ps4-xbox-one-support/  
