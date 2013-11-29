@@ -59,6 +59,6 @@ int usb_spoof_get_adapter_status(SERIALOBJECT serial);
 int usb_spoof_forward_to_device(control_request* creq);
 int usb_spoof_forward_to_adapter(SERIALOBJECT serial, unsigned char* data, unsigned char length);
 
-int usb_spoof_spoof_360_controller();
+int usb_spoof_spoof_360_controller(SERIALOBJECT serial);
 
 #endif /* USB_SPOOF_H_ */

@@ -64,7 +64,7 @@ int connector_init()
 
             if(controller->type == C_TYPE_360_PAD)
             {
-              if(usb_spoof_spoof_360_controller() < 0)
+              if(usb_spoof_spoof_360_controller(controller->serial) < 0)
               {
                 fprintf(stderr, _("Spoof failed.\n"));
                 ret = -1;
