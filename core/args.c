@@ -11,6 +11,30 @@
 #include <getopt.h>
 #include <controllers/controller.h>
 #include <controllers/ds3.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+/*
+ * Try to parse an argument with the following expected format: a.b.c.d:e
+ * where a.b.c.d is an IPv4 address and e is a port.
+ */
+static int read_ip(char* optarg, unsigned int* ip, unsigned short* port)
+{
+  int ret = 0;
+  char* sep = strchr(optarg, ':');
+  if (sep)
+  {
+    *sep = ' ';//Temporarily separate the address and the port
+    *ip = inet_addr(optarg);
+    *port = atoi(sep + 1);
+    *sep = ':';//Revert.
+  }
+  if (!sep || *ip == INADDR_NONE || *port == 0)
+  {
+    ret = -1;
+  }
+  return ret;
+}
 
 int args_read(int argc, char *argv[], s_emuclient_params* params)
 {
@@ -28,11 +52,12 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
     {"curses",         no_argument, &params->curses,         1},
     /* These options don't set a flag. We distinguish them by their indices. */
     {"config",  required_argument, 0, 'c'},
+    {"dst",     required_argument, 0, 'd'},
     {"event",   required_argument, 0, 'e'},
-    {"ip",      required_argument, 0, 'i'},
     {"keygen",  required_argument, 0, 'k'},
     {"port",    required_argument, 0, 'p'},
     {"refresh", required_argument, 0, 'r'},
+    {"src",     required_argument, 0, 's'},
     {"type",    required_argument, 0, 't'},
     {0, 0, 0, 0}
   };
@@ -42,7 +67,7 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
     /* getopt_long stores the option index here. */
     int option_index = 0;
 
-    c = getopt_long (argc, argv, "c:e:i:k:p:r:t:", long_options, &option_index);
+    c = getopt_long (argc, argv, "c:d:e:i:k:p:r:s:t:", long_options, &option_index);
 
     /* Detect the end of the options. */
     if (c == -1)
@@ -98,9 +123,30 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
         }
         break;
 
-      case 'i':
-        get_controller(controller)->ip = optarg;
-        printf(_("option -i with value `%s'\n"), optarg);
+      case 'd':
+        if(read_ip(optarg, &get_controller(controller)->dst_ip,
+            &get_controller(controller)->dst_port) < 0)
+        {
+          printf(_("Bad format for argument -d: '%s'\n"), optarg);
+          ret = -1;
+        }
+        else
+        {
+          printf(_("option -d with value `%s'\n"), optarg);
+        }
+        break;
+
+      case 's':
+        if(read_ip(optarg, &get_controller(controller)->src_ip,
+            &get_controller(controller)->src_port) < 0)
+        {
+          printf(_("Bad format for argument -s: '%s'\n"), optarg);
+          ret = -1;
+        }
+        else
+        {
+          printf(_("option -s with value `%s'\n"), optarg);
+        }
         break;
 
       case 'k':
