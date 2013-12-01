@@ -5,6 +5,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <netinet/in.h>
 #include "connector.h"
 #include "emuclient.h"
 #include "controllers/controller.h"
@@ -31,7 +32,6 @@ int connector_init()
   int i;
   s_controller* controller;
   unsigned short port = TCP_PORT;
-  char* localhost = "127.0.0.1";
 
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
@@ -92,13 +92,13 @@ int connector_init()
       {
         fprintf(stderr, _("Wrong controller type.\n"));
       }
-      if(!controller->ip)
+      if(!controller->dst_ip)
       {
-        controller->ip = localhost;
-        controller->port = port;
+        controller->dst_ip = INADDR_LOOPBACK;
+        controller->dst_port = port;
         ++port;
       }
-      controller->netfd = tcp_connect(controller->ip, controller->port);
+      controller->dst_fd = tcp_connect(controller->dst_ip, controller->dst_port);
     }
   }
   return ret;
@@ -114,7 +114,7 @@ void connector_clean()
     switch(controller->type)
     {
       case C_TYPE_DEFAULT:
-        tcp_close(controller->netfd);
+        tcp_close(controller->dst_fd);
         break;
       case C_TYPE_GPP:
         gpp_disconnect();
@@ -144,9 +144,9 @@ int connector_send()
       switch(controller->type)
       {
         case C_TYPE_DEFAULT:
-          if(controller->netfd >= 0)
+          if(controller->dst_fd >= 0)
           {
-            ret = tcp_send(controller->netfd, (unsigned char*)&report.value.ds3, report.value_len);
+            ret = tcp_send(controller->dst_fd, (unsigned char*)&report.value.ds3, report.value_len);
           }
           break;
         case C_TYPE_GPP:
