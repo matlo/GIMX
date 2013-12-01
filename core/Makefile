@@ -43,6 +43,7 @@ EMUCLIENT_OBJ = \
        connector.o\
        report.o\
        tcp_con.o\
+       udp_con.o\
        gpp/pcprog.o\
        gpp_con.o\
        usb_spoof.o\
