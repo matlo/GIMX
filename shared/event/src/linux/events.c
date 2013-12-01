@@ -56,6 +56,7 @@ static int max_joystick_id;
 static GE_Event evqueue[MAX_EVENTS];
 static unsigned char evqueue_index_first = 0;
 static unsigned char evqueue_index_last = 0;
+static GE_Event next_event = {};
 
 int ev_push_event(GE_Event* ev)
 {
@@ -569,6 +570,228 @@ void ev_set_callback(int (*fp)(GE_Event*))
   event_callback = fp;
 }
 
+static void ev_process_input_events(int device, struct input_event* ie)
+{
+  GE_Event evt = {};
+
+  switch(ie->type)
+  {
+    case EV_KEY:
+      if(ie->value > 1)
+      {
+        return;
+      }
+      break;
+    case EV_MSC:
+      if(ie->value > 1)
+      {
+        return;
+      }
+      if(ie->value == 2)
+      {
+        return;
+      }
+      break;
+    case EV_REL:
+    case EV_ABS:
+      break;
+    default:
+      return;
+  }
+  if((device_type[device] & DEVTYPE_KEYBOARD))
+  {
+    if(ie->type == EV_KEY)
+    {
+      if(ie->code > 0 && ie->code < MAX_KEYNAMES)
+      {
+        evt.type = ie->value ? GE_KEYDOWN : GE_KEYUP;
+        evt.key.which = device_id[device][0];
+        evt.key.keysym = ie->code;
+      }
+    }
+  }
+  /*if((device_type[device] & DEVTYPE_JOYSTICK))
+  {
+    if(ie->type == EV_KEY)
+    {
+      if(ie->code >= BTN_JOYSTICK && ie->code < KEY_MAX)
+      {
+        evt.jbutton.which = device_id[device][2];
+        evt.type = ie->value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        evt.jbutton.button = joystick_button_ids[device_id[device][2]][ie->code-BTN_JOYSTICK];
+      }
+    }
+    else if(ie->type == EV_ABS)
+    {
+      if(ie->code >= ABS_HAT0X && ie->code <= ABS_HAT3Y)
+      {
+        evt.type = ie->value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        int button;
+        int value;
+        int axis = ie->code-ABS_HAT0X;
+        if(!ie->value)
+        {
+          value = joystick_hat_value[device_id[device][2]][axis];
+          joystick_hat_value[device_id[device][2]][axis] = 0;
+        }
+        else
+        {
+          value = ie->value;
+          joystick_hat_value[device_id[device][2]][axis] = value;
+        }
+        button = axis + value + 2*(axis/2);
+        if(button < 4*(axis/2))
+        {
+          button += 4;
+        }
+        evt.jbutton.which = device_id[device][2];
+        evt.jbutton.button = button + joystick_button_nb[device_id[device][2]];
+      }
+      else
+      {
+        evt.type = GE_JOYAXISMOTION;
+        evt.jaxis.which = device_id[device][2];
+        evt.jaxis.axis = joystickAxisIds[device_id[device][2]][ie->code];
+        evt.jaxis.value = (ie->value - joystickAxisShift[device_id[device][2]][ie->code]) * joystickAxisScale[device_id[device][2]][ie->code];
+      }
+    }
+  }*/
+  if(device_type[device] & DEVTYPE_MOUSE)
+  {
+    if(ie->type == EV_KEY)
+    {
+      if(ie->code >= BTN_LEFT && ie->code <= BTN_TASK)
+      {
+        evt.type = ie->value ? GE_MOUSEBUTTONDOWN : GE_MOUSEBUTTONUP;
+        evt.button.which = device_id[device][1];
+        evt.button.button = ie->code - BTN_MOUSE;
+      }
+    }
+    else if(ie->type == EV_REL)
+    {
+      if(ie->code == REL_X)
+      {
+        evt.type = GE_MOUSEMOTION;
+        evt.motion.which = device_id[device][1];
+        evt.motion.xrel = ie->value;
+      }
+      else if(ie->code == REL_Y)
+      {
+        evt.type = GE_MOUSEMOTION;
+        evt.motion.which = device_id[device][1];
+        evt.motion.yrel = ie->value;
+      }
+      else if(ie->code == REL_WHEEL)
+      {
+        evt.type = GE_MOUSEBUTTONDOWN;
+        evt.button.which = device_id[device][1];
+        evt.button.button = (ie->value > 0) ? GE_BTN_WHEELUP : GE_BTN_WHEELDOWN;
+      }
+      else if(ie->code == REL_HWHEEL)
+      {
+        evt.type = GE_MOUSEBUTTONDOWN;
+        evt.button.which = device_id[device][1];
+        evt.button.button = (ie->value > 0) ? GE_BTN_WHEELRIGHT : GE_BTN_WHEELLEFT;
+      }
+    }
+  }
+
+  /*
+   * Process evt.
+   */
+  if(evt.type != GE_NOEVENT)
+  {
+    eprintf("event from device: %s\n", device_name[device]);
+    eprintf("type: %d code: %d value: %d\n", ie->type, ie->code, ie->value);
+    event_callback(&evt);
+    if(evt.type == GE_MOUSEBUTTONDOWN)
+    {
+      if(ie->code == REL_WHEEL || ie->code == REL_HWHEEL)
+      {
+        evt.type = GE_MOUSEBUTTONUP;
+        memcpy(&next_event, &evt, sizeof(next_event));
+      }
+    }
+  }
+}
+
+static void ev_process_js_events(int device, struct js_event* je)
+{
+  GE_Event evt = {};
+
+  if(je->type & JS_EVENT_INIT)
+  {
+    return;
+  }
+
+  if(je->type & JS_EVENT_BUTTON)
+  {
+    evt.type = je->value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+    evt.jbutton.which = joystick_id[device];
+    evt.jbutton.button = je->number;
+  }
+  else if(je->type & JS_EVENT_AXIS)
+  {
+    int axis = joystick_ax_map[device][je->number];
+    if(axis >= ABS_HAT0X && axis <= ABS_HAT3Y)
+    {
+      evt.type = je->value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+      int button;
+      int value;
+      axis -= ABS_HAT0X;
+      if(!je->value)
+      {
+        value = joystick_hat_value[device][axis];
+        joystick_hat_value[device][axis] = 0;
+      }
+      else
+      {
+        value = je->value/32767;
+        joystick_hat_value[device][axis] = value;
+      }
+      button = axis + value + 2*(axis/2);
+      if(button < 4*(axis/2))
+      {
+        button += 4;
+      }
+      evt.jbutton.which = joystick_id[device];
+      evt.jbutton.button = button + joystick_button_nb[device];
+    }
+    else
+    {
+      evt.type = GE_JOYAXISMOTION;
+      evt.jaxis.which = joystick_id[device];
+      evt.jaxis.axis = je->number;
+      evt.jaxis.value = je->value;
+      /*
+       * Ugly patch for the sixaxis.
+       */
+      if(GE_IsSixaxis(evt.jaxis.which) && evt.jaxis.axis > 3 && evt.jaxis.axis < 23)
+      {
+        evt.jaxis.value = (evt.jaxis.value + 32767) / 2;
+      }
+    }
+  }
+
+  /*
+   * Process evt.
+   */
+  if(evt.type != GE_NOEVENT)
+  {
+    eprintf("event from joystick: %s\n", joystick_name[device]);
+    eprintf("type: %d number: %d value: %d\n", je->type, je->number, je->value);
+    event_callback(&evt);
+  }
+}
+
+/*
+ * If a timer wasn't set (tfd < 0):
+ * - this function blocks until an event is received
+ * - it only reads a single event and returns
+ * If a timer was set (tfd > 0):
+ * - this function processes each received event
+ * - it returns as soon as the timer expires
+ */
 void ev_pump_events(void)
 {
   int i, j;
@@ -579,7 +802,6 @@ void ev_pump_events(void)
 
   struct input_event ie[MAX_EVENTS];
   struct js_event je[MAX_EVENTS];
-  GE_Event evt;
 
   if(event_callback == NULL)
   {
@@ -589,6 +811,13 @@ void ev_pump_events(void)
 
   int tfd = timer_getfd();
   
+  if(tfd < 0 && next_event.type != GE_NOEVENT)
+  {
+    event_callback(&next_event);
+    next_event.type = GE_NOEVENT;
+    return;
+  }
+
   while(1)
   {
     FD_ZERO(&rfds);
@@ -628,160 +857,25 @@ void ev_pump_events(void)
         {
           if(FD_ISSET(device_fd[i], &rfds))
           {
-            if((r = read(device_fd[i], ie, sizeof(ie))) > 0)
+            unsigned int size = sizeof(ie);
+
+            if(tfd < 0)
             {
-              for(j=0; j<r/sizeof(ie[0]); ++j)
+              size = sizeof(*ie);
+            }
+
+            if((r = read(device_fd[i], ie, size)) > 0)
+            {
+              for(j=0; j<r/sizeof(*ie); ++j)
               {
-                memset(&evt, 0x00, sizeof(evt));
+                ev_process_input_events(i, ie+j);
 
-                switch(ie[j].type)
+                if(tfd < 0)
                 {
-                  case EV_KEY:
-                    if(ie[j].value > 1)
-                    {
-                      continue;
-                    }
-                    break;
-                  case EV_MSC:
-                    if(ie[j].value > 1)
-                    {
-                      continue;
-                    }
-                    if(ie[j].value == 2)
-                    {
-                      continue;
-                    }
-                    break;
-                  case EV_REL:
-                  case EV_ABS:
-                    break;
-                  default:
-                    continue;
-                }
-                if((device_type[i] & DEVTYPE_KEYBOARD))
-                {
-                  if(ie[j].type == EV_KEY)
-                  {
-                    if(ie[j].code > 0 && ie[j].code < MAX_KEYNAMES)
-                    {
-                      evt.type = ie[j].value ? GE_KEYDOWN : GE_KEYUP;
-                      evt.key.which = device_id[i][0];
-                      evt.key.keysym = ie[j].code;
-                    }
-                  }
-                }
-                /*if((device_type[i] & DEVTYPE_JOYSTICK))
-                {
-                  if(ie[j].type == EV_KEY)
-                  {
-                    if(ie[j].code >= BTN_JOYSTICK && ie[j].code < KEY_MAX)
-                    {
-                      evt.jbutton.which = device_id[i][2];
-                      evt.type = ie[j].value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-                      evt.jbutton.button = joystick_button_ids[device_id[i][2]][ie[j].code-BTN_JOYSTICK];
-                    }
-                  }
-                  else if(ie[j].type == EV_ABS)
-                  {
-                    if(ie[j].code >= ABS_HAT0X && ie[j].code <= ABS_HAT3Y)
-                    {
-                      evt.type = ie[j].value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-                      int button;
-                      int value;
-                      int axis = ie[j].code-ABS_HAT0X;
-                      if(!ie[j].value)
-                      {
-                        value = joystick_hat_value[device_id[i][2]][axis];
-                        joystick_hat_value[device_id[i][2]][axis] = 0;
-                      }
-                      else
-                      {
-                        value = ie[j].value;
-                        joystick_hat_value[device_id[i][2]][axis] = value;
-                      }
-                      button = axis + value + 2*(axis/2);
-                      if(button < 4*(axis/2))
-                      {
-                        button += 4;
-                      }
-                      evt.jbutton.which = device_id[i][2];
-                      evt.jbutton.button = button + joystick_button_nb[device_id[i][2]];
-                    }
-                    else
-                    {
-                      evt.type = GE_JOYAXISMOTION;
-                      evt.jaxis.which = device_id[i][2];
-                      evt.jaxis.axis = joystickAxisIds[device_id[i][2]][ie[j].code];
-                      evt.jaxis.value = (ie[j].value - joystickAxisShift[device_id[i][2]][ie[j].code]) * joystickAxisScale[device_id[i][2]][ie[j].code];
-                    }
-                  }
-                }*/
-                if(device_type[i] & DEVTYPE_MOUSE)
-                {
-                  if(ie[j].type == EV_KEY)
-                  {
-                    if(ie[j].code >= BTN_LEFT && ie[j].code <= BTN_TASK)
-                    {
-                      evt.type = ie[j].value ? GE_MOUSEBUTTONDOWN : GE_MOUSEBUTTONUP;
-                      evt.button.which = device_id[i][1];
-                      evt.button.button = ie[j].code - BTN_MOUSE;
-                    }
-                  }
-                  else if(ie[j].type == EV_REL)
-                  {
-                    if(ie[j].code == REL_X)
-                    {
-                      evt.type = GE_MOUSEMOTION;
-                      evt.motion.which = device_id[i][1];
-                      evt.motion.xrel = ie[j].value;
-                    }
-                    else if(ie[j].code == REL_Y)
-                    {
-                      evt.type = GE_MOUSEMOTION;
-                      evt.motion.which = device_id[i][1];
-                      evt.motion.yrel = ie[j].value;
-                    }
-                    else if(ie[j].code == REL_WHEEL)
-                    {
-                      evt.type = GE_MOUSEBUTTONDOWN;
-                      evt.button.which = device_id[i][1];
-                      evt.button.button = (ie[j].value > 0) ? GE_BTN_WHEELUP : GE_BTN_WHEELDOWN;
-                    }
-                    else if(ie[j].code == REL_HWHEEL)
-                    {
-                      evt.type = GE_MOUSEBUTTONDOWN;
-                      evt.button.which = device_id[i][1];
-                      evt.button.button = (ie[j].value > 0) ? GE_BTN_WHEELRIGHT : GE_BTN_WHEELLEFT;
-                    }
-                  }
-                }
-
-                /*
-                 * Process evt.
-                 */
-                if(evt.type != GE_NOEVENT)
-                {
-                  eprintf("event from device: %s\n", device_name[i]);
-                  eprintf("type: %d code: %d value: %d\n", ie[j].type, ie[j].code, ie[j].value);
-                  if(tfd > -1)
-                  {
-                    event_callback(&evt);
-                    if(evt.type == GE_MOUSEBUTTONDOWN)
-                    {
-                      if(ie[j].code == REL_WHEEL || ie[j].code == REL_HWHEEL)
-                      {
-                        evt.type = GE_MOUSEBUTTONUP;
-                        event_callback(&evt);
-                      }
-                    }
-                  }
-                  else
-                  {
-                    event_callback(&evt);
-                    return;
-                  }
+                  return;
                 }
               }
+
               if(r < 0 && errno != EAGAIN)
               {
                 //printf("%d %s %d\n", device_fd[i], ev_get_name(device_type[i], i), errno);
@@ -799,84 +893,25 @@ void ev_pump_events(void)
         {
           if(FD_ISSET(joystick_fd[i], &rfds))
           {
-            if((r = read(joystick_fd[i], je, sizeof(je))) > 0)
+            unsigned int size = sizeof(ie);
+
+            if(tfd < 0)
             {
-              for(j=0; j<r/sizeof(je[0]); ++j)
+              size = sizeof(*ie);
+            }
+
+            if((r = read(joystick_fd[i], je, size)) > 0)
+            {
+              for(j=0; j<r/sizeof(*je); ++j)
               {
-                if(je[j].type & JS_EVENT_INIT)
-                {
-                  continue;
-                }
+                ev_process_js_events(i, je+j);
 
-                memset(&evt, 0x00, sizeof(evt));
-
-                if(je[j].type & JS_EVENT_BUTTON)
+                if(tfd < 0)
                 {
-                  evt.type = je[j].value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-                  evt.jbutton.which = joystick_id[i];
-                  evt.jbutton.button = je[j].number;
-                }
-                else if(je[j].type & JS_EVENT_AXIS)
-                {
-                  int axis = joystick_ax_map[i][je[j].number];
-                  if(axis >= ABS_HAT0X && axis <= ABS_HAT3Y)
-                  {
-                    evt.type = je[j].value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-                    int button;
-                    int value;
-                    axis -= ABS_HAT0X;
-                    if(!je[j].value)
-                    {
-                      value = joystick_hat_value[i][axis];
-                      joystick_hat_value[i][axis] = 0;
-                    }
-                    else
-                    {
-                      value = je[j].value/32767;
-                      joystick_hat_value[i][axis] = value;
-                    }
-                    button = axis + value + 2*(axis/2);
-                    if(button < 4*(axis/2))
-                    {
-                      button += 4;
-                    }
-                    evt.jbutton.which = joystick_id[i];
-                    evt.jbutton.button = button + joystick_button_nb[i];
-                  }
-                  else
-                  {
-                    evt.type = GE_JOYAXISMOTION;
-                    evt.jaxis.which = joystick_id[i];
-                    evt.jaxis.axis = je[j].number;
-                    evt.jaxis.value = je[j].value;
-                    /*
-                     * Ugly patch for the sixaxis.
-                     */
-                    if(GE_IsSixaxis(evt.jaxis.which) && evt.jaxis.axis > 3 && evt.jaxis.axis < 23)
-                    {
-                      evt.jaxis.value = (evt.jaxis.value + 32767) / 2;
-                    }
-                  }
-                }
-
-                /*
-                 * Process evt.
-                 */
-                if(evt.type != GE_NOEVENT)
-                {
-                  eprintf("event from joystick: %s\n", joystick_name[i]);
-                  eprintf("type: %d number: %d value: %d\n", je[j].type, je[j].number, je[j].value);
-                  if(tfd > -1)
-                  {
-                    event_callback(&evt);
-                  }
-                  else
-                  {
-                    event_callback(&evt);
-                    return;
-                  }
+                  return;
                 }
               }
+
               if(r < 0 && errno != EAGAIN)
               {
                 //printf("%d %s %d\n", device_fd[i], ev_get_name(device_type[i], i), errno);
