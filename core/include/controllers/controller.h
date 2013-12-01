@@ -67,10 +67,13 @@ typedef enum
 typedef struct
 {
   char* portname;
-  char* ip;
-  unsigned short port;
+  unsigned int dst_ip;
+  unsigned short dst_port;
+  int dst_fd;
+  unsigned int src_ip;
+  unsigned short src_port;
+  int src_fd;
   SERIALOBJECT serial;
-  int netfd;
   e_controller_type type;
   int event;
   int axis[AXIS_MAX];
