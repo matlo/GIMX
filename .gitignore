@@ -1,0 +1,14 @@
+*.o
+*.a
+*.exe
+serial/gimx-serial
+bluetooth/gimx-bluetooth
+config/gimx-config
+fpsconfig/gimx-fpsconfig
+core/emuclient
+core/bdaddr
+core/hcirevision
+core/usbspoof
+core/sixaddr
+core/emu
+shared/event/test/linux_test
