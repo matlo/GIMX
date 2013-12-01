@@ -145,6 +145,9 @@ int main(int argc, char *argv[])
 
   if(emuclient_params.refresh_period == -1)
   {
+    /*
+     * TODO MLA: per controller refresh period?
+     */
     emuclient_params.refresh_period = get_default_refresh_period(get_controller(0)->type);
     emuclient_params.postpone_count = 3 * DEFAULT_REFRESH_PERIOD / emuclient_params.refresh_period;
     printf(_("using default refresh period: %.02fms\n"), (double)emuclient_params.refresh_period/1000);
