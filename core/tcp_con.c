@@ -21,7 +21,7 @@
 /*
  * Connect to all responding controllers.
  */
-int tcp_connect(char* ip, unsigned short port)
+int tcp_connect(unsigned int ip, unsigned short port)
 {
   int fd;
   struct sockaddr_in addr;
@@ -50,14 +50,14 @@ int tcp_connect(char* ip, unsigned short port)
   memset(&addr, 0, sizeof(addr));
   addr.sin_family = AF_INET;
   addr.sin_port = htons(port);
-  addr.sin_addr.s_addr = inet_addr(ip);
+  addr.sin_addr.s_addr = ip;
   if (connect(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0)
   {
     fd = -1;
   }
   else
   {
-    gprintf(_("connected to emu %s:%d\n"), ip, port);
+    gprintf(_("connected to emu %s:%d\n"), inet_ntoa(addr.sin_addr), port);
   }
 
 #ifdef WIN32
