@@ -28,25 +28,25 @@ DEP=../shared/event/GE.a
 all: $(BINS)
 
 clean:
-	rm -f $(OUT) *~ *.o */*.o
+	rm -f $(OUT) *~ *.o */*.o */*/*.o
 
 EMUCLIENT_OBJ = \
        emuclient.o\
        args.o\
        display.o\
-       sixaxis.o\
        macros.o\
        config.o\
        config_writter.o\
        config_reader.o\
        calibration.o\
-       connector.o\
        report.o\
-       tcp_con.o\
-       udp_con.o\
-       gpp/pcprog.o\
-       gpp_con.o\
-       usb_spoof.o\
+       connectors/sixaxis.o\
+       connectors/connector.o\
+       connectors/tcp_con.o\
+       connectors/udp_con.o\
+       connectors/gpp/pcprog.o\
+       connectors/gpp_con.o\
+       connectors/usb_spoof.o\
        controllers/controller.o\
        controllers/joystick.o\
        controllers/ds2.o\
@@ -57,15 +57,15 @@ EMUCLIENT_OBJ = \
 
 ifneq ($(OS),Windows_NT)
 EMUCLIENT_OBJ += \
-       gpp/hid_LINUX.o\
+       connectors/gpp/hid_LINUX.o\
        linux/prio.o\
-       linux/serial.o\
+       connectors/linux/serial.o\
        linux/mainloop.o
 else
 EMUCLIENT_OBJ += \
-       gpp/hid_WINDOWS.o\
+       connectors/gpp/hid_WINDOWS.o\
        windows/prio.o\
-       windows/serial.o\
+       connectors/windows/serial.o\
        windows/mainloop.o
 endif
 
@@ -73,7 +73,7 @@ emuclient: $(DEP) $(EMUCLIENT_OBJ)
 	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LIB)
 
 ifneq ($(OS),Windows_NT)
-emu: emu.o sixaxis.o dump.o l2cap_con.o bt_utils.o linux/prio.o controllers/ds3.o
+emu: emu.o connectors/sixaxis.o dump.o connectors/l2cap_con.o connectors/bt_utils.o linux/prio.o controllers/ds3.o
 	$(CC) $(INC) -o $@ $^ -lbluetooth
 
 sixaddr: utils/sixaddr.o
@@ -81,15 +81,15 @@ sixaddr: utils/sixaddr.o
 	
 USBSPOOF_OBJ = \
        utils/usbspoof.o\
-       usb_spoof.o\
+       connectors/usb_spoof.o\
        utils/pcapwriter.o
 
 ifneq ($(OS),Windows_NT)
 USBSPOOF_OBJ += \
-       linux/serial.o
+       connectors/linux/serial.o
 else
 USBSPOOF_OBJ += \
-       windows/serial.o
+       connectors/windows/serial.o
 endif
 
 usbspoof: $(USBSPOOF_OBJ)
@@ -98,7 +98,7 @@ usbspoof: $(USBSPOOF_OBJ)
 bdaddr: utils/bdaddr.o utils/oui.o
 	$(CC) -o $@ $^ -lbluetooth
 
-hcirevision: hcirevision.o
+hcirevision: connectors/hcirevision.o
 	$(CC) -o $@ $^
 endif
 
