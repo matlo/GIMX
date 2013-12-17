@@ -31,6 +31,8 @@
 
 #define FLUSH_TIMEOUT 11250 //=11.25ms
 
+#define DS3_DEVICE_CLASS 0x508
+
 #ifdef WIN32
 #define SHUT_RDWR SD_BOTH
 
@@ -405,7 +407,7 @@ int main(int argc, char *argv[])
     {
         printf("run as root user to set device class\n");
     }
-    else if(write_device_class(device_number) < 0)
+    else if(write_device_class(device_number, DS3_DEVICE_CLASS) < 0)
     {
         printf("failed to set device class\n");
     }

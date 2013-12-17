@@ -4,17 +4,11 @@
 */
 
 #include <bluetooth/bluetooth.h>
-
-/*
-This include doesn't work... I don't now why and I will solve that latter.
-
+#include <bluetooth/hci.h>
 #include <bluetooth/hci_lib.h>
+#include <unistd.h>
 
-Next extern declarations remove the compilation warnings.
-*/
-extern int hci_open_dev(int dev_id);
-extern int hci_read_bd_addr(int dd, bdaddr_t *bdaddr, int to);
-extern int hci_write_class_of_dev(int dd, uint32_t cls, int to);
+#define HCI_REQ_TIMEOUT   1000
 
 /*
  * \brief This function gets the bluetooth device address for a given device number.
@@ -26,34 +20,47 @@ extern int hci_write_class_of_dev(int dd, uint32_t cls, int to);
  */
 int get_device_bdaddr(int device_number, char bdaddr[18])
 {
-    bdaddr_t bda;
+  int ret = 0;
 
-    int s = hci_open_dev (device_number);
+  bdaddr_t bda;
 
-    if(hci_read_bd_addr(s, &bda, 1000) < 0)
-    {
-        return -1;
-    }
+  int s = hci_open_dev (device_number);
 
+  if(hci_read_bd_addr(s, &bda, HCI_REQ_TIMEOUT) < 0)
+  {
+    ret = -1;
+  }
+  else
+  {
     ba2str(&bda, bdaddr);
-    return 0;
+  }
+
+  close(s);
+
+  return ret;
 }
 
 /*
- * \brief This function writes the bluetooth device class to 0x508 for a given device number.
+ * \brief This function writes the device class for a given device number.
  *
  * \param device_number  the device number
+ * \param devclass       the device class to write
  *
  * \return 0 if successful, -1 otherwise
  */
-int write_device_class(int device_number)
+int write_device_class(int device_number, uint32_t devclass)
 {
-    int s = hci_open_dev (device_number);
+  int ret = 0;
 
-    if(hci_write_class_of_dev(s, 0x508, 1000) < 0)
-    {
-        return -1;
-    }
+  int s = hci_open_dev (device_number);
 
-    return 0;
+  if(hci_write_class_of_dev(s, devclass, HCI_REQ_TIMEOUT) < 0)
+  {
+    ret = -1;
+  }
+
+  close(s);
+
+  return ret;
 }
+
