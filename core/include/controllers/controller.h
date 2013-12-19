@@ -82,7 +82,7 @@ typedef struct
   int ts_axis[AXIS_MAX][2]; //issue 15
 } s_controller;
 
-void controller_init_type();
+void controller_init();
 inline s_controller* get_controller(unsigned char index);
 int controller_set_port(unsigned char index, char* portname);
 

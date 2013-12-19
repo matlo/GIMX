@@ -8,9 +8,11 @@
 
 #ifndef WIN32
 typedef int SERIALOBJECT;
+#define SERIALOBJECT_UNDEF -1
 #else
 #include <windows.h>
 typedef HANDLE SERIALOBJECT;
+#define SERIALOBJECT_UNDEF NULL
 #endif
 
 SERIALOBJECT serial_connect(char* portname);

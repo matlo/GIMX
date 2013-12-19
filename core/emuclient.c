@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 
   set_prio();
 
-  controller_init_type();
+  controller_init();
 
   if(args_read(argc, argv, &emuclient_params) < 0)
   {

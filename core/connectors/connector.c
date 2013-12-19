@@ -30,41 +30,41 @@ int connector_init()
 {
   int ret = 0;
   int i;
-  s_controller* controller;
+  s_controller* control;
   unsigned short port = TCP_PORT;
 
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
-    controller = get_controller(i);
-    if(controller->portname)
+    control = get_controller(i);
+    if(control->portname)
     {
-      if(!strstr(controller->portname, "none"))
+      if(!strstr(control->portname, "none"))
       {
-        if((controller->serial = serial_connect(controller->portname)) < 0)
+        if((control->serial = serial_connect(control->portname)) < 0)
         {
           ret = -1;
         }
         else
         {
-          int rtype = usb_spoof_get_adapter_type(controller->serial);
+          int rtype = usb_spoof_get_adapter_type(control->serial);
 
           if(rtype >= 0)
           {
             printf(_("Detected USB adapter: %s.\n"), controller_name[rtype]);
 
-            if(controller->type == C_TYPE_DEFAULT)
+            if(control->type == C_TYPE_DEFAULT)
             {
-              controller->type = rtype;
+              control->type = rtype;
             }
-            else if(controller->type != rtype)
+            else if(control->type != rtype)
             {
               fprintf(stderr, _("Wrong controller type.\n"));
               ret = -1;
             }
 
-            if(controller->type == C_TYPE_360_PAD)
+            if(control->type == C_TYPE_360_PAD)
             {
-              if(usb_spoof_spoof_360_controller(controller->serial) < 0)
+              if(usb_spoof_spoof_360_controller(control->serial) < 0)
               {
                 fprintf(stderr, _("Spoof failed.\n"));
                 ret = -1;
@@ -73,13 +73,13 @@ int connector_init()
           }
         }
       }
-      if(controller->type == C_TYPE_DEFAULT)
+      if(control->type == C_TYPE_DEFAULT)
       {
         fprintf(stderr, _("No controller detected.\n"));
         ret = -1;
       }
     }
-    else if(controller->type == C_TYPE_GPP)
+    else if(control->type == C_TYPE_GPP)
     {
       if (gpp_connect() < 0)
       {
@@ -88,17 +88,17 @@ int connector_init()
     }
     else
     {
-      if(controller->type != C_TYPE_DEFAULT)
+      if(control->type != C_TYPE_DEFAULT)
       {
         fprintf(stderr, _("Wrong controller type.\n"));
       }
-      if(!controller->dst_ip)
+      if(!control->dst_ip)
       {
-        controller->dst_ip = INADDR_LOOPBACK;
-        controller->dst_port = port;
+        control->dst_ip = INADDR_LOOPBACK;
+        control->dst_port = port;
         ++port;
       }
-      controller->dst_fd = tcp_connect(controller->dst_ip, controller->dst_port);
+      control->dst_fd = tcp_connect(control->dst_ip, control->dst_port);
     }
   }
   return ret;

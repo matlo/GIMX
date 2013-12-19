@@ -6,12 +6,23 @@
 #include <sys/timerfd.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <stdint.h>
 
-int tfd = -1;
+static int tfd = -1;
+static int status = 0;
 
-int timer_getfd()
+inline int timer_getfd()
 {
   return tfd;
+}
+
+inline int timer_getstatus()
+{
+  int copy = status;
+
+  status = 0;
+
+  return copy;
 }
 
 int timer_start(struct timespec* period)
@@ -24,25 +35,46 @@ int timer_start(struct timespec* period)
   
   if(tfd != -1)
   {
-    return -1;
+    return tfd;
   }
 
   tfd = timerfd_create(CLOCK_REALTIME, 0);
   if(tfd < 0)
   {
     fprintf(stderr, "timerfd_create");
-    return -1;
   }
-  if(timerfd_settime(tfd, 0, &new_value, NULL))
+  else if(timerfd_settime(tfd, 0, &new_value, NULL))
   {
     fprintf(stderr, "timerfd_settime");
     close(tfd);
-    return -1;
+    tfd = -1;
   }
-  return 0;
+  return tfd;
 }
 
-void timer_close()
+void timer_close(int unused)
 {
   close(tfd);
+  tfd = -1;
+}
+
+void timer_read(int unused)
+{
+  uint64_t exp;
+
+  ssize_t res;
+
+  res = read (tfd, &exp, sizeof(exp));
+
+  if (res != sizeof(exp)) {
+    fprintf (stderr, "Wrong timer fd read...\n");
+  }
+  else
+  {
+    if(exp > 1)
+    {
+      fprintf (stderr, "Timer fired several times...\n");
+    }
+    status = 1;
+  }
 }

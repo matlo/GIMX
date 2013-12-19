@@ -436,7 +436,12 @@ void GE_SetCallback(int(*fp)(GE_Event*))
  */
 void GE_TimerStart(struct timespec* period)
 {
-  timer_start(period);
+  int tfd = timer_start(period);
+
+  if(tfd >= 0)
+  {
+    ev_register_source(tfd, 0, &timer_read, &timer_close);
+  }
 }
 
 /*
@@ -444,7 +449,7 @@ void GE_TimerStart(struct timespec* period)
  */
 void GE_TimerClose()
 {
-  timer_close();
+  timer_close(0);
 }
 #endif
 

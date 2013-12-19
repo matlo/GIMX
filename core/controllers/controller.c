@@ -14,12 +14,13 @@
 static s_controller controller[MAX_CONTROLLERS] =
 { };
 
-void controller_init_type()
+void controller_init()
 {
   unsigned char i;
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
     controller[i].type = C_TYPE_DEFAULT;
+    controller[i].serial = SERIALOBJECT_UNDEF;
   }
 }
 

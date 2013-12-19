@@ -12,9 +12,11 @@
 extern "C" {
 #endif
 
-int timer_getfd();
+inline int timer_getfd();
+inline int timer_getstatus();
 int timer_start(struct timespec*);
-void timer_close();
+void timer_close(int unused);
+void timer_read(int unused);
 
 #ifdef __cplusplus
 }
