@@ -12,7 +12,9 @@
 #include <controllers/controller.h>
 #include <controllers/ds3.h>
 #include <netinet/in.h>
+#ifndef WIN32
 #include <arpa/inet.h>
+#endif
 
 /*
  * Try to parse an argument with the following expected format: a.b.c.d:e
