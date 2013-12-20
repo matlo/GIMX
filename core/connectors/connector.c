@@ -5,7 +5,6 @@
 
 #include <string.h>
 #include <stdio.h>
-#include <netinet/in.h>
 #include "connector.h"
 #include "emuclient.h"
 #include "controllers/controller.h"
@@ -13,6 +12,9 @@
 #include "tcp_con.h"
 #include "gpp_con.h"
 #include "usb_spoof.h"
+#ifndef WIN32
+#include <netinet/in.h>
+#endif
 
 static const char* controller_name[C_TYPE_MAX] =
 {
