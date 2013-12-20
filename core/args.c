@@ -11,8 +11,8 @@
 #include <getopt.h>
 #include <controllers/controller.h>
 #include <controllers/ds3.h>
-#include <netinet/in.h>
 #ifndef WIN32
+#include <netinet/in.h>
 #include <arpa/inet.h>
 #endif
 
