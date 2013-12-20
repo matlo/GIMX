@@ -31,7 +31,6 @@ static int joystick_hat_value[GE_MAX_DEVICES][ABS_HAT3Y-ABS_HAT0X] = {{0}};
 static uint8_t joystick_ax_map[GE_MAX_DEVICES][AXMAP_SIZE] = {{0}};
 static int j_num;
 static int max_joystick_id;
-static int nfds;
 
 static int (*event_callback)(GE_Event*) = NULL;
 
@@ -111,7 +110,7 @@ static void js_process_event(int device, struct js_event* je)
 
 static struct js_event je[MAX_EVENTS];
 
-static void js_process_events(int joystick)
+static int js_process_events(int joystick)
 {
   unsigned int size = sizeof(je);
   int j;
@@ -132,7 +131,7 @@ static void js_process_events(int joystick)
 
       if(tfd < 0)
       {
-        return;
+        return 1;
       }
     }
 
@@ -141,6 +140,8 @@ static void js_process_events(int joystick)
       js_close(joystick);
     }
   }
+  
+  return 0;
 }
 
 int js_init()
@@ -153,7 +154,6 @@ int js_init()
 
   j_num = 0;
   max_joystick_id = -1;
-  nfds = 0;
   memset(joystick_name, 0x00, sizeof(joystick_name));
   memset(joystick_button_nb, 0x00, sizeof(joystick_button_nb));
   memset(joystick_hat_value, 0x00, sizeof(joystick_hat_value));
@@ -186,7 +186,6 @@ int js_init()
         max_joystick_id = i;
         joystick_id[i] = j_num;
         j_num++;
-        ++nfds;
         ev_register_source(joystick_fd[i], i, &js_process_events, &js_close);
       }
       else
@@ -204,29 +203,6 @@ int js_init()
   return ret;
 }
 
-int js_get_nfds()
-{
-  return nfds;
-}
-
-int js_fill_fds(nfds_t max, struct pollfd fds[])
-{
-  int i;
-  int pos = 0;
-
-  for(i=0; i<=max_joystick_id && pos < max; ++i)
-  {
-    if(joystick_fd[i] > -1)
-    {
-      fds[pos].fd = joystick_fd[i];
-      fds[pos].events = POLLIN;
-      ++pos;
-    }
-  }
-
-  return pos;
-}
-
 void js_close(int id)
 {
   free(joystick_name[id]);
@@ -239,8 +215,6 @@ void js_close(int id)
     ev_remove_source(joystick_fd[id]);
 
     joystick_fd[id] = -1;
-
-    --nfds;
   }
 }
 

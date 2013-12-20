@@ -9,20 +9,10 @@
 #include <stdint.h>
 
 static int tfd = -1;
-static int status = 0;
 
 inline int timer_getfd()
 {
   return tfd;
-}
-
-inline int timer_getstatus()
-{
-  int copy = status;
-
-  status = 0;
-
-  return copy;
 }
 
 int timer_start(struct timespec* period)
@@ -58,7 +48,7 @@ void timer_close(int unused)
   tfd = -1;
 }
 
-void timer_read(int unused)
+int timer_read(int unused)
 {
   uint64_t exp;
 
@@ -75,6 +65,7 @@ void timer_read(int unused)
     {
       fprintf (stderr, "Timer fired several times...\n");
     }
-    status = 1;
+    return 1;
   }
+  return 0;
 }

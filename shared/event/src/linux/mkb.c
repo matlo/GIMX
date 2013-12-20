@@ -35,7 +35,6 @@ static char* device_name[GE_MAX_DEVICES];
 static int k_num;
 static int m_num;
 static int max_device_id;
-static int nfds;
 
 static int grab = 0;
 
@@ -227,7 +226,7 @@ static void mkb_process_event(int device, struct input_event* ie)
 
 static struct input_event ie[MAX_EVENTS];
 
-static void mkb_process_events(int device)
+static int mkb_process_events(int device)
 {
   unsigned int size = sizeof(ie);
   int j;
@@ -248,7 +247,7 @@ static void mkb_process_events(int device)
 
       if(tfd < 0)
       {
-        return;
+        return 1;
       }
     }
 
@@ -257,6 +256,7 @@ static void mkb_process_events(int device)
       mkb_close_device(device);
     }
   }
+  return 0;
 }
 
 int mkb_init()
@@ -285,7 +285,6 @@ int mkb_init()
   max_device_id = -1;
   k_num = 0;
   m_num = 0;
-  nfds = 0;
 
   for(i=0; i<GE_MAX_DEVICES; ++i)
   {
@@ -311,7 +310,6 @@ int mkb_init()
           ioctl(device_fd[i], EVIOCGRAB, (void *)1);
         }
         max_device_id = i;
-        ++nfds;
         ev_register_source(device_fd[i], i, &mkb_process_events, &mkb_close_device);
       }
       else
@@ -335,29 +333,6 @@ int mkb_init()
   }
 
   return ret;
-}
-
-int mkb_get_nfds()
-{
-  return nfds;
-}
-
-int mkb_fill_fds(nfds_t max, struct pollfd fds[])
-{
-  int i;
-  int pos = 0;
-
-  for(i=0; i<=max_device_id && pos < max; ++i)
-  {
-    if(device_fd[i] > -1)
-    {
-      fds[pos].fd = device_fd[i];
-      fds[pos].events = POLLIN;
-      ++pos;
-    }
-  }
-
-  return pos;
 }
 
 static char* mkb_get_name(unsigned char devtype, int index)
@@ -399,8 +374,6 @@ void mkb_close_device(int id)
     ev_remove_source(device_fd[id]);
 
     device_fd[id] = -1;
-
-    --nfds;
   }
 }
 

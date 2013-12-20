@@ -23,7 +23,7 @@ int ev_push_event(GE_Event*);
 
 int ev_peep_events(GE_Event*, int);
 
-void ev_register_source(int fd, int id, void (*fd_read)(int), void (*fd_cleanup)(int));
+void ev_register_source(int fd, int id, int (*fd_read)(int), void (*fd_cleanup)(int));
 void ev_remove_source(int fd);
 inline void ev_set_next_event(GE_Event* event);
 

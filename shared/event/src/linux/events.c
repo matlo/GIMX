@@ -38,13 +38,14 @@ typedef struct
 {
   int id;
   int fd;
-  void (*fd_read)(int);
+  int (*fd_read)(int);
   void (*fd_cleanup)(int);
 } s_source;
 
 static s_source sources[FD_SETSIZE] = {};
+static int max_source = 0;
 
-void ev_register_source(int fd, int id, void (*fd_read)(int), void (*fd_cleanup)(int))
+void ev_register_source(int fd, int id, int (*fd_read)(int), void (*fd_cleanup)(int))
 {
   if(fd < FD_SETSIZE)
   {
@@ -52,6 +53,10 @@ void ev_register_source(int fd, int id, void (*fd_read)(int), void (*fd_cleanup)
     sources[fd].fd = fd;
     sources[fd].fd_read = fd_read;
     sources[fd].fd_cleanup = fd_cleanup;
+    if(fd > max_source)
+    {
+      max_source = fd;
+    }
   }
 }
 
@@ -127,6 +132,12 @@ int ev_peep_events(GE_Event *events, int numevents)
 
 int ev_init()
 {
+  int i;
+  for(i=0; i<FD_SETSIZE; ++i)
+  {
+    sources[i].fd = -1;
+  }
+  
   int ret = mkb_init();
 
   if(ret < 0)
@@ -189,25 +200,20 @@ void ev_set_callback(int (*fp)(GE_Event*))
   js_set_callback(fp);
 }
 
-static int fill_fds(nfds_t nfds, struct pollfd fds[nfds])
+static unsigned int fill_fds(nfds_t nfds, struct pollfd fds[nfds])
 {
-  int pos = 0;
+  unsigned int pos = 0;
 
-  int tfd = timer_getfd();
-
-  /*
-   * Add tfd at index 0!
-   */
-  if(tfd >= 0)
+  int i;
+  for(i=0; i<nfds; ++i)
   {
-    fds[pos].fd = tfd;
-    fds[pos].events = POLLIN;
-    ++pos;
+    if(sources[i].fd_read != NULL)
+    {
+      fds[pos].fd = i;
+      fds[pos].events = POLLIN;
+      ++pos;
+    }
   }
-
-  pos += mkb_fill_fds(nfds-pos, fds+pos);
-
-  pos += js_fill_fds(nfds-pos, fds+pos);
 
   return pos;
 }
@@ -223,8 +229,6 @@ static int fill_fds(nfds_t nfds, struct pollfd fds[nfds])
 void ev_pump_events(void)
 {
   int i;
-
-  nfds_t nfds = mkb_get_nfds() + js_get_nfds();
 
   if(event_callback == NULL)
   {
@@ -245,16 +249,11 @@ void ev_pump_events(void)
     return;
   }
 
-  if(tfd >= 0)
-  {
-    ++nfds;
-  }
-
-  struct pollfd fds[nfds];
+  struct pollfd fds[max_source+1];
 
   while(1)
   {
-    nfds = fill_fds(nfds, fds);
+    nfds_t nfds = fill_fds(max_source+1, fds);
 
     if(poll(fds, nfds, -1) > 0)
     {
@@ -266,16 +265,10 @@ void ev_pump_events(void)
         }
         else if(fds[i].revents & POLLIN)
         {
-          sources[fds[i].fd].fd_read(sources[fds[i].fd].id);
-
-          if(tfd < 0)
-          {
+          if(sources[fds[i].fd].fd_read(sources[fds[i].fd].id))
+		  		{
             return;
           }
-        }
-        if(i == 0 && timer_getstatus())
-        {
-          return;
         }
       }
     }
