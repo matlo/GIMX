@@ -3,8 +3,13 @@
  License: GPLv3
  */
 
+#ifndef WIN32
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#else
+#include <winsock2.h>
+#define MSG_DONTWAIT 0
+#endif
 #include <stdio.h>
 #include <unistd.h>
 
