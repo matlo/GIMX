@@ -7,7 +7,7 @@ endif
 
 BINS=emuclient
 ifneq ($(OS),Windows_NT)
-BINS+= emu sixaddr bdaddr hcirevision usbspoof
+BINS+= ds4tool emu sixaddr bdaddr hcirevision usbspoof
 OUT=$(BINS)
 else
 OUT=emuclient.exe
@@ -93,6 +93,9 @@ USBSPOOF_OBJ += \
 endif
 
 usbspoof: $(USBSPOOF_OBJ)
+	$(CC) -o $@ $^ -lusb-1.0
+
+ds4tool: utils/ds4tool.o
 	$(CC) -o $@ $^ -lusb-1.0
 
 bdaddr: utils/bdaddr.o utils/oui.o
