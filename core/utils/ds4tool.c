@@ -16,9 +16,6 @@
 #define VENDOR 0x054c
 #define PRODUCT 0x05c4
 
-#define USB_DIR_IN 0x80
-#define USB_DIR_OUT 0
-
 static char* bdaddr = NULL;
 
 void fatal(char *msg)
@@ -42,7 +39,6 @@ void show_bdaddrs(libusb_device_handle* devh)
 
   if (res < 0)
   {
-    printf("%d\n", res);
     perror("USB_REQ_GET_CONFIGURATION");
     return;
   }
@@ -124,7 +120,7 @@ int main(int argc, char *argv[])
 
   if(libusb_init(&ctx))
   {
-    fprintf(stderr, "libusb_init\n");
+    fprintf(stderr, "Can't initialize libusb.\n");
     return -1;
   }
 
@@ -159,7 +155,7 @@ int main(int argc, char *argv[])
 
   if(libusb_attach_kernel_driver(devh, 0) < 0)
   {
-    fprintf(stderr, "Can't detach kernel driver.\n");
+    fprintf(stderr, "Can't attach kernel driver.\n");
   }
 
   libusb_close(devh);
