@@ -5,11 +5,10 @@ serial/gimx-serial
 bluetooth/gimx-bluetooth
 config/gimx-config
 fpsconfig/gimx-fpsconfig
-core/emuclient
+core/gimx-core
 core/bdaddr
 core/hcirevision
 core/usbspoof
 core/sixaddr
-core/emu
 core/ds4tool
 shared/event/test/linux_test
