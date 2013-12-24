@@ -66,6 +66,8 @@ typedef enum
 
 typedef struct
 {
+  char* bdaddr_dst;
+  int dongle_index;
   char* portname;
   unsigned int dst_ip;
   unsigned short dst_port;

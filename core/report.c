@@ -3,9 +3,7 @@
  License: GPLv3
  */
 
-#include <string.h>
 #include <report.h>
-#include <usb_spoof.h>
 
 extern unsigned int joystick_report_build(int axis[AXIS_MAX], s_report* report);
 extern unsigned int ds2_report_build(int axis[AXIS_MAX], s_report* report);

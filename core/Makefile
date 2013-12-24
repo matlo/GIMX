@@ -7,14 +7,14 @@ endif
 
 BINS=emuclient
 ifneq ($(OS),Windows_NT)
-BINS+= ds4tool emu sixaddr bdaddr hcirevision usbspoof
+BINS+= ds4tool sixaddr bdaddr hcirevision usbspoof
 OUT=$(BINS)
 else
 OUT=emuclient.exe
 endif
 LIB=../shared/event/GE.a
 ifneq ($(OS),Windows_NT)
-LIB+= -lxml2 -lm -lncursesw -lusb-1.0
+LIB+= -lxml2 -lm -lncursesw -lusb-1.0 -lbluetooth
 else
 LIB+= `sdl-config --libs` -llibxml2 -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl -lusb-1.0
 LIB:=$(filter-out -mwindows,$(LIB))
@@ -58,6 +58,8 @@ EMUCLIENT_OBJ = \
 ifneq ($(OS),Windows_NT)
 EMUCLIENT_OBJ += \
        connectors/gpp/hid_LINUX.o\
+       connectors/l2cap_con.o\
+       connectors/bt_utils.o\
        linux/prio.o\
        connectors/linux/serial.o\
        linux/mainloop.o

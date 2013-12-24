@@ -27,7 +27,10 @@ void mainloop()
   struct timespec period = {.tv_sec = 0, .tv_nsec = emuclient_params.refresh_period*1000};
   unsigned int running_macros;
 
-  GE_TimerStart(&period);
+  if(get_controller(0)->type != C_TYPE_DEFAULT)
+  {
+    GE_TimerStart(&period);
+  }
 
   /*
    * Non-generated events are ignored if the --keygen argument is used.

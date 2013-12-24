@@ -16,6 +16,7 @@
 #include <timer.h>
 #include <string.h>
 #include <stdlib.h>
+#include <dirent.h>
 
 #define eprintf(...) if(debug) printf(__VA_ARGS__)
 
@@ -129,7 +130,7 @@ static int js_process_events(int joystick)
     {
       js_process_event(joystick, je+j);
 
-      if(tfd < 0)
+      if(event_callback == GE_PushEvent)
       {
         return 1;
       }
@@ -142,6 +143,13 @@ static int js_process_events(int joystick)
   }
   
   return 0;
+}
+
+#define DEV_INPUT "/dev/input"
+#define JS_DEV_NAME "js"
+
+static int is_event_device(const struct dirent *dir) {
+  return strncmp(JS_DEV_NAME, dir->d_name, sizeof(JS_DEV_NAME)-1) == 0;
 }
 
 int js_init()
@@ -165,39 +173,55 @@ int js_init()
     joystick_id[i] = -1;
   }
 
-  for(i=0; i<GE_MAX_DEVICES && !ret; ++i)
+  struct dirent **namelist;
+  int n;
+
+  n = scandir(DEV_INPUT, &namelist, is_event_device, alphasort);
+  if (n >= 0)
   {
-    sprintf(joystick, "/dev/input/js%d", i);
-    fd = open (joystick, O_RDONLY | O_NONBLOCK);
-    if(fd != -1)
+    for(i=0; i<n && !ret; ++i)
     {
-      if (ioctl(fd, JSIOCGNAME(sizeof(name) - 1), name) < 0) {
-        fprintf(stderr, "ioctl EVIOCGNAME failed: %s\n", strerror(errno));
-        close(fd);
-        continue;
-      }
-      //printf("%s\n", name);
-      unsigned char buttons;
-      if (ioctl (fd, JSIOCGBUTTONS, &buttons) >= 0 && ioctl (fd, JSIOCGAXMAP, &joystick_ax_map[i]) >= 0)
+      snprintf(joystick, sizeof(joystick), "%s/%s", DEV_INPUT, namelist[i]->d_name);
+
+      fd = open (joystick, O_RDONLY | O_NONBLOCK);
+      if(fd != -1)
       {
-        joystick_name[i] = strdup(name);
-        joystick_fd[i] = fd;
-        joystick_button_nb[i] = buttons;
-        max_joystick_id = i;
-        joystick_id[i] = j_num;
-        j_num++;
-        ev_register_source(joystick_fd[i], i, &js_process_events, &js_close);
+        if (ioctl(fd, JSIOCGNAME(sizeof(name) - 1), name) < 0) {
+          fprintf(stderr, "ioctl EVIOCGNAME failed: %s\n", strerror(errno));
+          close(fd);
+          continue;
+        }
+        //printf("%s\n", name);
+        unsigned char buttons;
+        if (ioctl (fd, JSIOCGBUTTONS, &buttons) >= 0 && ioctl (fd, JSIOCGAXMAP, &joystick_ax_map[i]) >= 0)
+        {
+          joystick_name[i] = strdup(name);
+          joystick_fd[i] = fd;
+          joystick_button_nb[i] = buttons;
+          max_joystick_id = i;
+          joystick_id[i] = j_num;
+          j_num++;
+          ev_register_source(joystick_fd[i], i, &js_process_events, &js_close);
+        }
+        else
+        {
+          close(fd);
+        }
       }
-      else
+      else if(errno == EACCES)
       {
-        close(fd);
+        fprintf(stderr, "can't open %s: %s\n", joystick, strerror(errno));
+        ret = -1;
       }
+
+      free(namelist[i]);
     }
-    else if(errno == EACCES)
-    {
-      fprintf(stderr, "can't open %s: %s\n", joystick, strerror(errno));
-      ret = -1;
-    }
+    free(namelist);
+  }
+  else
+  {
+    fprintf(stderr, "can't scan directory %s: %s\n", DEV_INPUT, strerror(errno));
+    ret = -1;
   }
 
   return ret;

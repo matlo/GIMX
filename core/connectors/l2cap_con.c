@@ -3,7 +3,6 @@
  License: GPLv3
  */
 
-#ifndef WIN32
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/l2cap.h>
 #include <unistd.h>
@@ -16,6 +15,17 @@
 
 #define BT_SLOT 625 //microseconds
 
+#ifdef BT_POWER
+#warning "BT_POWER is already defined."
+#else
+#define BT_POWER 9
+#define BT_POWER_FORCE_ACTIVE_OFF 0
+#define BT_POWER_FORCE_ACTIVE_ON 1
+
+struct bt_power {
+  unsigned char force_active;
+};
+#endif
 
 int l2cap_set_flush_timeout(bdaddr_t *ba, int timeout_ms)
 {
@@ -77,17 +87,11 @@ int l2cap_connect(const char *bdaddr_src, const char *bdaddr_dest, int psm)
 {
     int fd;
     struct sockaddr_l2 addr;
-    struct linger l = { .l_onoff = 1, .l_linger = 5 };
     int opt;
 
     if ((fd = socket(PF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_L2CAP)) == -1)
     {
       return -1;
-    }
-
-    if (setsockopt(fd, SOL_SOCKET, SO_LINGER, &l, sizeof(l)) < 0) {
-      close(fd);
-      return -2;
     }
 
     opt = 0;
@@ -111,11 +115,10 @@ int l2cap_connect(const char *bdaddr_src, const char *bdaddr_dest, int psm)
         return -4;
     }
 
-    int f = BT_FLUSHABLE_ON;
-    if (setsockopt(fd, SOL_BLUETOOTH, BT_FLUSHABLE, &f, sizeof(f)) < 0)
+    struct bt_power pwr = {.force_active = BT_POWER_FORCE_ACTIVE_OFF};
+    if (setsockopt(fd, SOL_BLUETOOTH, BT_POWER, &pwr, sizeof(pwr)) < 0)
     {
-      close(fd);
-      return -5;
+      perror("setsockopt BT_POWER");
     }
 
     return fd;
@@ -130,58 +133,3 @@ int l2cap_recv(int fd, unsigned char* buf, int len)
 {
     return recv(fd, buf, len, MSG_DONTWAIT);
 }
-#else
-#include <string.h>
-#include <ctype.h>
-
-int l2cap_connect(const char *bdaddr, int psm)
-{
-    return 1;
-}
-
-int l2cap_send(int fd, const unsigned char* buf, int len, int blocking)
-{
-    return len;
-}
-
-int l2cap_recv(int fd, unsigned char* buf, int len)
-{
-    return 0;
-}
-
-int bachk(const char *str)
-{
-    char tmp[18], *ptr = tmp;
-
-    if (!str)
-        return -1;
-
-    if (strlen(str) != 17)
-        return -1;
-
-    memcpy(tmp, str, 18);
-
-    while (*ptr) {
-        *ptr = toupper(*ptr);
-        if (*ptr < '0' || (*ptr > '9' && *ptr < 'A') || *ptr > 'F')
-            return -1;
-        ptr++;
-
-        *ptr = toupper(*ptr);
-        if (*ptr < '0' || (*ptr > '9' && *ptr < 'A') || *ptr > 'F')
-            return -1;
-        ptr++;
-
-        *ptr = toupper(*ptr);
-        if (*ptr == 0)
-            break;
-        if (*ptr != ':')
-            return -1;
-        ptr++;
-    }
-
-    return 0;
-}
-
-
-#endif

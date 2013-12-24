@@ -16,6 +16,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <timer.h>
+#include <dirent.h>
 
 #define eprintf(...) if(debug) printf(__VA_ARGS__)
 
@@ -245,7 +246,7 @@ static int mkb_process_events(int device)
     {
       mkb_process_event(device, ie+j);
 
-      if(tfd < 0)
+      if(event_callback == GE_PushEvent)
       {
         return 1;
       }
@@ -259,6 +260,13 @@ static int mkb_process_events(int device)
   return 0;
 }
 
+#define DEV_INPUT "/dev/input"
+#define EVENT_DEV_NAME "event"
+
+static int is_event_device(const struct dirent *dir) {
+  return strncmp(EVENT_DEV_NAME, dir->d_name, sizeof(EVENT_DEV_NAME)-1) == 0;
+}
+
 int mkb_init()
 {
   int ret = 0;
@@ -270,10 +278,13 @@ int mkb_init()
    * Avoid the enter key from being still pressed after the process exit.
    * This is only done if the process is launched in a terminal.
    */
-  if(isatty(fileno(stdin)))
+  /*
+   * TODO MLA: confirm this is not usefull anymore...
+   */
+  /*if(isatty(fileno(stdin)))
   {
     sleep(1);
-  }
+  }*/
 
   struct termios term;
   tcgetattr(STDOUT_FILENO, &term);
@@ -296,32 +307,48 @@ int mkb_init()
     }
   }
 
-  for(i=0; i<GE_MAX_DEVICES && !ret; ++i)
+  struct dirent **namelist;
+  int n;
+
+  n = scandir(DEV_INPUT, &namelist, is_event_device, alphasort);
+  if (n >= 0)
   {
-    sprintf(device, "/dev/input/event%d", i);
-    fd = open (device, O_RDONLY | O_NONBLOCK);
-    if(fd != -1)
+    for(i=0; i<n && !ret; ++i)
     {
-      if(mkb_read_type(i, fd) != -1)
+      snprintf(device, sizeof(device), "%s/%s", DEV_INPUT, namelist[i]->d_name);
+
+      fd = open (device, O_RDONLY | O_NONBLOCK);
+      if(fd != -1)
       {
-        device_fd[i] = fd;
-        if(grab)
+        if(mkb_read_type(i, fd) != -1)
         {
-          ioctl(device_fd[i], EVIOCGRAB, (void *)1);
+          device_fd[i] = fd;
+          if(grab)
+          {
+            ioctl(device_fd[i], EVIOCGRAB, (void *)1);
+          }
+          max_device_id = i;
+          ev_register_source(device_fd[i], i, &mkb_process_events, &mkb_close_device);
         }
-        max_device_id = i;
-        ev_register_source(device_fd[i], i, &mkb_process_events, &mkb_close_device);
+        else
+        {
+          close(fd);
+        }
       }
-      else
+      else if(errno == EACCES)
       {
-        close(fd);
+        fprintf(stderr, "can't open %s: %s\n", device, strerror(errno));
+        ret = -1;
       }
+
+      free(namelist[i]);
     }
-    else if(errno == EACCES)
-    {
-      fprintf(stderr, "can't open %s: %s\n", device, strerror(errno));
-      ret = -1;
-    }
+    free(namelist);
+  }
+  else
+  {
+    fprintf(stderr, "can't scan directory %s: %s\n", DEV_INPUT, strerror(errno));
+    ret = -1;
   }
 
   if(ret < 0)

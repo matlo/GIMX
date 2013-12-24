@@ -11,8 +11,7 @@
 #include <string.h>
 #include <sys/time.h>
 
-static s_controller controller[MAX_CONTROLLERS] =
-{ };
+static s_controller controller[MAX_CONTROLLERS] = {};
 
 void controller_init()
 {
@@ -21,6 +20,8 @@ void controller_init()
   {
     controller[i].type = C_TYPE_DEFAULT;
     controller[i].serial = SERIALOBJECT_UNDEF;
+    controller[i].dst_fd = -1;
+    controller[i].src_fd = -1;
   }
 }
 

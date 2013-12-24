@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "connector.h"
 #include "emuclient.h"
+#include "sixaxis.h"
 #include "controllers/controller.h"
 #include "report.h"
 #include "tcp_con.h"
@@ -94,13 +95,26 @@ int connector_init()
       {
         fprintf(stderr, _("Wrong controller type.\n"));
       }
-      if(!control->dst_ip)
+      if(control->bdaddr_dst)
       {
-        control->dst_ip = INADDR_LOOPBACK;
-        control->dst_port = port;
-        ++port;
+        sixaxis_set_dongle(i, control->dongle_index);
+        sixaxis_set_bdaddr(i, control->bdaddr_dst);
+        if(sixaxis_connect(i) < 0)
+        {
+          fprintf(stderr, _("Can't initialize sixaxis.\n"));
+          ret = -1;
+        }
       }
-      control->dst_fd = tcp_connect(control->dst_ip, control->dst_port);
+      else
+      {
+        if(!control->dst_ip)
+        {
+          control->dst_ip = INADDR_LOOPBACK;
+          control->dst_port = port;
+          ++port;
+        }
+        control->dst_fd = tcp_connect(control->dst_ip, control->dst_port);
+      }
     }
   }
   return ret;
@@ -116,7 +130,14 @@ void connector_clean()
     switch(controller->type)
     {
       case C_TYPE_DEFAULT:
-        tcp_close(controller->dst_fd);
+        if(controller->dst_fd >= 0)
+        {
+          tcp_close(controller->dst_fd);
+        }
+        else if(controller->bdaddr_dst)
+        {
+          sixaxis_close(i);
+        }
         break;
       case C_TYPE_GPP:
         gpp_disconnect();
@@ -146,7 +167,11 @@ int connector_send()
       switch(controller->type)
       {
         case C_TYPE_DEFAULT:
-          if(controller->dst_fd >= 0)
+          if(controller->bdaddr_dst)
+          {
+            ret = send_interrupt(i, &report.value.ds3);
+          }
+          else if(controller->dst_fd >= 0)
           {
             ret = tcp_send(controller->dst_fd, (unsigned char*)&report.value.ds3, report.value_len);
           }

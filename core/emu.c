@@ -31,8 +31,6 @@
 
 #define FLUSH_TIMEOUT 11250 //=11.25ms
 
-#define DS3_DEVICE_CLASS 0x508
-
 #ifdef WIN32
 #define SHUT_RDWR SD_BOTH
 
@@ -66,9 +64,6 @@ void timeradd(struct timeval *a, struct timeval *b, struct timeval *res)
 static int debug = 0;
 int display = 0;
 
-static const char *hid_report_name[] = { 
-    "reserved", "input", "output", "feature" };
-
 int device_number;
 
 #define CTRL 17
@@ -80,184 +75,6 @@ static volatile int running = 1;
 void sig_handler(int sig)
 {
     running = 0;
-}
-
-int send_report(int fd, uint8_t type, uint8_t report,
-        struct sixaxis_state *state, int blocking)
-{
-    uint8_t buf[128];
-    int len = 0;
-    int i;
-    struct timeval tv;
-
-    /* Assemble report */
-    for (i = 0; sixaxis_assemble[i].func; i++) {
-        if (sixaxis_assemble[i].type == type &&
-            sixaxis_assemble[i].report == report) {
-            len = sixaxis_assemble[i].
-                func(&buf[2], sizeof(buf) - 2, state);
-            break;
-        }
-    }
-
-    if (!sixaxis_assemble[i].func || len < 0) {
-        printf("%s %s report 0x%02x, sending empty response\n",
-               (len < 0) ? "Error assembling" : "Unknown",
-               hid_report_name[type], report);
-        len = 0;
-    }
-
-    /* Fill common portion */
-    buf[0] = 0xa0 | type;
-    buf[1] = report;
-    len += 2;
-
-    /* Dump contents */
-    if (debug >= 2) {
-        gettimeofday(&tv, NULL);
-        printf("%ld.%06ld Sixaxis %-7s %02x:",
-               tv.tv_sec, tv.tv_usec, hid_report_name[type], report);
-        for (i = 2; i < len; i++)
-            printf(" %02x", buf[i]);
-        printf("\n");
-    }
-
-    /* Send response.  Some messages (periodic input report) can be
-       sent nonblocking, since they're not critical */
-    return l2cap_send(fd, buf, len, blocking);
-}
-
-int process_report(uint8_t type, uint8_t report, const uint8_t *buf, int len,
-           struct sixaxis_state *state)
-{
-    int i;
-    int ret = 0;
-    struct timeval tv;
-
-    /* Dump contents */
-    if (debug >= 2) {
-        gettimeofday(&tv, NULL);
-        printf("%ld.%06ld     PS3 %-7s %02x:",
-               tv.tv_sec, tv.tv_usec, hid_report_name[type], report);
-        for (i = 0; i < len; i++)
-            printf(" %02x", buf[i]);
-        printf("\n");
-    }
-
-    /* Process report */
-    for (i = 0; sixaxis_process[i].func; i++) {
-        if (sixaxis_process[i].type == type &&
-            sixaxis_process[i].report == report) {
-            ret = sixaxis_process[i].
-                func(buf, len, state);
-            break;
-        }
-    }
-
-    if (!sixaxis_process[i].func || ret < 0) {
-        printf("%s %s report 0x%02x\n",
-               (ret < 0) ? "Error processing" : "Unknown",
-               hid_report_name[type], report);
-    }
-
-    return ret;
-}
-
-int process(int psm, const unsigned char *buf, int len,
-        int ctrl, int data, struct sixaxis_state *state)
-{
-    uint8_t transaction;
-    uint16_t maxsize;
-    uint8_t type;
-    uint8_t report;
-    const char *name;
-    int ret = 0;
-    struct timeval tv1, tv2;
-    unsigned long time;
-
-    if (len < 1)
-        return -1;
-
-    transaction = (buf[0] & 0xf0) >> 4;
-    switch (transaction) {
-    case HID_HANDSHAKE:
-        if (buf[0] & 0x0f) {
-            printf("handshake error: 0x%x\n", buf[0] & 0x0f);
-            return -1;
-        }
-        break;
-
-    case HID_GET_REPORT:
-        if (buf[0] & 0x08) {
-            if (len < 4) {
-                printf("GET_REPORT short\n");
-                return -1;
-            }
-            maxsize = (buf[3] << 8) | buf[2];
-            if (maxsize < 64) {
-                printf("GET_REPORT short buf (%d)\n", maxsize);
-                return -1;
-            }
-        }
-        type = buf[0] & 0x03;
-        if (type == HID_TYPE_RESERVED) {
-            printf("GET_REPORT bad type\n");
-            return -1;
-        }
-        report = buf[1];
-        /* printf("<- GET_REPORT %s 0x%02x\n", hid_report_name[type], report); */
-        if (debug >= 2) {
-            gettimeofday(&tv1, NULL);
-        }
-        ret = send_report(psm == CTRL ? ctrl : data, type, report, state, 1);
-        if (debug >= 2) {
-            gettimeofday(&tv2, NULL);
-            time = (tv2.tv_sec*1000+tv2.tv_usec) - (tv1.tv_sec*1000+tv1.tv_usec);
-            printf("blocking send took: %ld µs\n", time);
-        }
-        break;
-
-    case HID_SET_REPORT:
-    case HID_DATA:
-        /* SET_REPORT and DATA are similar */
-        name = (transaction == HID_DATA) ? "DATA" : "SET_REPORT";
-        if (len < 2) {
-            printf("%s: short\n", name);
-            return -1;
-        }
-        type = buf[0] & 0x03;
-        if (type == HID_TYPE_RESERVED) {
-            printf("%s bad type\n", name);
-            return -1;
-        }
-        report = buf[1];
-        ret = process_report(type, report, buf + 2, len - 2, state);
-        /* Respond to these on CTRL port with a positive HANDSHAKE */
-        if (psm == CTRL) {
-            char foo = (HID_HANDSHAKE << 4) | 0x0;
-            if(write(ctrl, &foo, 1) < 1)
-            {
-              fprintf(stderr, "write error\n");
-            }
-
-            /*if(report == 0xf4)
-            {
-              bdaddr_t dest_addr;
-              str2ba(state->bdaddr_dst, &dest_addr);
-              if(l2cap_set_flush_timeout(&dest_addr, FLUSH_TIMEOUT) < 0)
-              {
-                fprintf(stderr, "can't set flush timeout for %s\n", state->bdaddr_dst);
-              }
-            }*/
-        }
-        break;
-
-    default:
-        fprintf(stderr, "unknown transaction %d\n", transaction);
-        return -1;
-    }
-
-    return ret;
 }
 
 int tcplisten(int port)
@@ -328,7 +145,6 @@ void handle_control(int tcpc, const unsigned char *buf, size_t len,
 int main(int argc, char *argv[])
 {
     char *bdaddr_dest = NULL;
-    int ctrl, data;
     int tcps = -1, tcpc = -1;
 #ifndef WIN32
     struct pollfd pfd[3];
@@ -396,7 +212,7 @@ int main(int argc, char *argv[])
         printf("default sixaxis number 0 is used\n");
     }
 
-    if(device_number < 0 || get_device_bdaddr(device_number, state.bdaddr_src) < 0)
+    if(device_number < 0 || bt_get_device_bdaddr(device_number, state.bdaddr_src) < 0)
     {
         fprintf(stderr, "bad bt device number\n");
         fprintf(stderr, "usage: %s <ps3-mac-address>  <bt device number> <sixaxis number>\n", *argv);
@@ -407,7 +223,7 @@ int main(int argc, char *argv[])
     {
         printf("run as root user to set device class\n");
     }
-    else if(write_device_class(device_number, DS3_DEVICE_CLASS) < 0)
+    else if(bt_write_device_class(device_number, DS3_DEVICE_CLASS) < 0)
     {
         printf("failed to set device class\n");
     }
@@ -415,14 +231,14 @@ int main(int argc, char *argv[])
 #endif
     /* Connect to PS3 */
     printf("connecting with hci%d = %s to %s psm %d\n", device_number, state.bdaddr_src, bdaddr_dest, CTRL);
-    if ((ctrl = l2cap_connect(state.bdaddr_src, bdaddr_dest, CTRL)) < 0) {
+    if ((state.control = l2cap_connect(state.bdaddr_src, bdaddr_dest, CTRL)) < 0) {
         printf("can't connect to control psm\n");//needed by sixemugui
         err(1, "can't connect to control psm");
     }
     printf("connecting with hci%d = %s to %s psm %d\n", device_number, state.bdaddr_src, bdaddr_dest, DATA);
-    if ((data = l2cap_connect(state.bdaddr_src, bdaddr_dest, DATA)) < 0) {
-        shutdown(ctrl, SHUT_RDWR);
-        close(ctrl);
+    if ((state.interrupt = l2cap_connect(state.bdaddr_src, bdaddr_dest, DATA)) < 0) {
+        shutdown(state.control, SHUT_RDWR);
+        close(state.control);
         printf("can't connect to data psm\n");//needed by sixemugui
         err(1, "can't connect to data psm");
     }
@@ -447,9 +263,9 @@ int main(int argc, char *argv[])
         memset(&pfd, 0, sizeof(pfd));
 
         /* Listen for data on either fd */
-        pfd[0].fd = ctrl;
+        pfd[0].fd = state.control;
         pfd[0].events = POLLIN | POLLERR;
-        pfd[1].fd = data;
+        pfd[1].fd = state.interrupt;
         pfd[1].events = POLLIN | POLLERR;
 
         /* Listen to control client, or for new connection */
@@ -508,11 +324,10 @@ int main(int argc, char *argv[])
         if (FD_ISSET(ctrl, &read_set))
 #endif
         {
-            len = l2cap_recv(ctrl, buf, 1024);
+            len = l2cap_recv(state.control, buf, 1024);
             if (len > 0)
             {
-                if (process(CTRL, buf, len,
-                        ctrl, data, &state) == -1) {
+                if (process(CTRL, buf, len, &state) == -1) {
                     fprintf(stderr, "error processing ctrl");
                     break;
                 }
@@ -528,10 +343,9 @@ int main(int argc, char *argv[])
         if (FD_ISSET(data, &read_set))
 #endif
         {
-            len = l2cap_recv(data, buf, 1024);
+            len = l2cap_recv(state.interrupt, buf, 1024);
             if (len > 0) {
-                if (process(DATA, buf, len,
-                        ctrl, data, &state) == -1) {
+                if (process(DATA, buf, len, &state) == -1) {
                     fprintf(stderr, "error processing data");
                     break;
                 } else {
@@ -592,7 +406,7 @@ int main(int argc, char *argv[])
                         gettimeofday(&tv1, NULL);
                     }
 
-                    if (send_report(data, HID_TYPE_INPUT,
+                    if (send_report(state.interrupt, HID_TYPE_INPUT,
                             0x01, &state, 0) == -1) {
                         fprintf(stderr, "send_report\n");
                     }
@@ -613,10 +427,10 @@ int main(int argc, char *argv[])
     }
     
     fprintf(stderr, "cleaning up\n");
-    shutdown(ctrl, SHUT_RDWR);
-    shutdown(data, SHUT_RDWR);
-    close(ctrl);
-    close(data);
+    shutdown(state.control, SHUT_RDWR);
+    shutdown(state.interrupt, SHUT_RDWR);
+    close(state.control);
+    close(state.interrupt);
     if (tcps > 0)
         close(tcps);
     if (tcpc > 0)

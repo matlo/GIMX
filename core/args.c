@@ -53,14 +53,16 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
     {"force-updates",  no_argument, &params->force_updates,  1},
     {"curses",         no_argument, &params->curses,         1},
     /* These options don't set a flag. We distinguish them by their indices. */
+    {"bdaddr",  required_argument, 0, 'b'},
     {"config",  required_argument, 0, 'c'},
-    {"dst",     required_argument, 0, 'd'},
-    {"event",   required_argument, 0, 'e'},
-    {"keygen",  required_argument, 0, 'k'},
-    {"port",    required_argument, 0, 'p'},
-    {"refresh", required_argument, 0, 'r'},
-    {"src",     required_argument, 0, 's'},
-    {"type",    required_argument, 0, 't'},
+    {"dst",     optional_argument, 0, 'd'},
+    {"event",   optional_argument, 0, 'e'},
+    {"hci",     optional_argument, 0, 'h'},
+    {"keygen",  optional_argument, 0, 'k'},
+    {"port",    optional_argument, 0, 'p'},
+    {"refresh", optional_argument, 0, 'r'},
+    {"src",     optional_argument, 0, 's'},
+    {"type",    optional_argument, 0, 't'},
     {0, 0, 0, 0}
   };
 
@@ -69,7 +71,7 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
     /* getopt_long stores the option index here. */
     int option_index = 0;
 
-    c = getopt_long (argc, argv, "c:d:e:i:k:p:r:s:t:", long_options, &option_index);
+    c = getopt_long (argc, argv, "b:c:d:e:h:k:p:r:s:t:", long_options, &option_index);
 
     /* Detect the end of the options. */
     if (c == -1)
@@ -91,6 +93,12 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
         if (optarg)
           printf(_(" with arg %s"), optarg);
         printf("\n");
+        break;
+
+      case 'b':
+        get_controller(controller)->bdaddr_dst = optarg;
+        ++controller;
+        printf(_("option -b with value `%s'\n"), optarg);
         break;
 
       case 'c':
@@ -123,6 +131,11 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
             }
           }
         }
+        break;
+
+      case 'h':
+        get_controller(controller)->dongle_index = atoi(optarg);
+        printf(_("option -h with value `%d'\n"), get_controller(controller)->dongle_index);
         break;
 
       case 'd':
