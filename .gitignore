@@ -11,4 +11,5 @@ core/hcirevision
 core/usbspoof
 core/sixaddr
 core/emu
+core/ds4tool
 shared/event/test/linux_test
