@@ -12,8 +12,6 @@
 #include <wx/intl.h>
 //*)
 
-#include <glib.h>
-
 #include <pthread.h>
 #include <unistd.h>
 #include <errno.h>
@@ -55,16 +53,6 @@ const long bluetoothFrame::ID_STATICTEXT7 = wxNewId();
 const long bluetoothFrame::ID_CHOICE7 = wxNewId();
 const long bluetoothFrame::ID_STATICTEXT8 = wxNewId();
 const long bluetoothFrame::ID_BUTTON2 = wxNewId();
-const long bluetoothFrame::ID_CHECKBOX5 = wxNewId();
-const long bluetoothFrame::ID_CHOICE8 = wxNewId();
-const long bluetoothFrame::ID_BUTTON1 = wxNewId();
-const long bluetoothFrame::ID_STATICTEXT5 = wxNewId();
-const long bluetoothFrame::ID_STATICTEXT9 = wxNewId();
-const long bluetoothFrame::ID_STATICTEXT10 = wxNewId();
-const long bluetoothFrame::ID_STATICTEXT11 = wxNewId();
-const long bluetoothFrame::ID_STATICTEXT12 = wxNewId();
-const long bluetoothFrame::ID_STATICTEXT13 = wxNewId();
-const long bluetoothFrame::ID_STATICTEXT14 = wxNewId();
 const long bluetoothFrame::ID_CHECKBOX1 = wxNewId();
 const long bluetoothFrame::ID_CHECKBOX2 = wxNewId();
 const long bluetoothFrame::ID_CHECKBOX3 = wxNewId();
@@ -433,8 +421,6 @@ void bluetoothFrame::refresh()
 
 bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
 {
-    unsigned int i;
-
     locale = new wxLocale(wxLANGUAGE_DEFAULT);
 #ifdef WIN32
     locale->AddCatalogLookupPathPrefix(wxT("share/locale"));
@@ -454,10 +440,8 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     wxStaticBoxSizer* StaticBoxSizer5;
     wxFlexGridSizer* FlexGridSizer11;
     wxFlexGridSizer* FlexGridSizer7;
-    wxFlexGridSizer* FlexGridSizer4;
     wxFlexGridSizer* FlexGridSizer9;
     wxFlexGridSizer* FlexGridSizer14;
-    wxStaticBoxSizer* StaticBoxSizer3;
     wxFlexGridSizer* FlexGridSizer6;
     wxFlexGridSizer* FlexGridSizer3;
     wxStaticBoxSizer* StaticBoxSizer8;
@@ -467,7 +451,6 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer13;
     wxMenuBar* MenuBar1;
     wxMenuItem* MenuItem7;
-    wxFlexGridSizer* FlexGridSizer12;
     wxMenu* Menu2;
     wxFlexGridSizer* FlexGridSizer5;
     wxStaticBoxSizer* StaticBoxSizer1;
@@ -514,49 +497,7 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer7->Add(StaticBoxSizer2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer1->Add(FlexGridSizer7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer6 = new wxFlexGridSizer(1, 2, 0, 0);
-    StaticBoxSizer3 = new wxStaticBoxSizer(wxVERTICAL, Panel1, _("emu"));
-    CheckBox5 = new wxCheckBox(Panel1, ID_CHECKBOX5, _("Autostart\nemuclient"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX5"));
-    CheckBox5->SetValue(true);
-    StaticBoxSizer3->Add(CheckBox5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer12 = new wxFlexGridSizer(0, 3, 0, 0);
-    Choice8 = new wxChoice(Panel1, ID_CHOICE8, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE8"));
-    Choice8->SetSelection( Choice8->Append(_("0")) );
-    Choice8->Append(_("1"));
-    Choice8->Append(_("2"));
-    Choice8->Append(_("3"));
-    Choice8->Append(_("4"));
-    Choice8->Append(_("5"));
-    Choice8->Append(_("6"));
-    FlexGridSizer12->Add(Choice8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Button1 = new wxButton(Panel1, ID_BUTTON1, _("Start"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON1"));
-    FlexGridSizer12->Add(Button1, 1, wxALL|wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL, 5);
-    StaticBoxSizer3->Add(FlexGridSizer12, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer4 = new wxFlexGridSizer(1, 7, 0, 0);
-    StaticText5 = new wxStaticText(Panel1, ID_STATICTEXT5, _("0"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT5"));
-    StaticText5->Disable();
-    FlexGridSizer4->Add(StaticText5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText9 = new wxStaticText(Panel1, ID_STATICTEXT9, _("1"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT9"));
-    StaticText9->Disable();
-    FlexGridSizer4->Add(StaticText9, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText10 = new wxStaticText(Panel1, ID_STATICTEXT10, _("2"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT10"));
-    StaticText10->Disable();
-    FlexGridSizer4->Add(StaticText10, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText11 = new wxStaticText(Panel1, ID_STATICTEXT11, _("3"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT11"));
-    StaticText11->Disable();
-    FlexGridSizer4->Add(StaticText11, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText12 = new wxStaticText(Panel1, ID_STATICTEXT12, _("4"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT12"));
-    StaticText12->Disable();
-    FlexGridSizer4->Add(StaticText12, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText13 = new wxStaticText(Panel1, ID_STATICTEXT13, _("5"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT13"));
-    StaticText13->Disable();
-    FlexGridSizer4->Add(StaticText13, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText14 = new wxStaticText(Panel1, ID_STATICTEXT14, _("6"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT14"));
-    StaticText14->Disable();
-    StaticText14->SetForegroundColour(wxColour(0,0,0));
-    FlexGridSizer4->Add(StaticText14, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticBoxSizer3->Add(FlexGridSizer4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer6->Add(StaticBoxSizer3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticBoxSizer4 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("emuclient"));
+    StaticBoxSizer4 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, wxEmptyString);
     FlexGridSizer5 = new wxFlexGridSizer(3, 1, 0, 0);
     FlexGridSizer8 = new wxFlexGridSizer(2, 2, 0, 0);
     StaticBoxSizer5 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("Mouse"));
@@ -594,7 +535,6 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     Button4 = new wxButton(Panel1, ID_BUTTON4, _("Check"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON4"));
     FlexGridSizer14->Add(Button4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     Button3 = new wxButton(Panel1, ID_BUTTON3, _("Start"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON3"));
-    Button3->Disable();
     FlexGridSizer14->Add(Button3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer9->Add(FlexGridSizer14, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer5->Add(FlexGridSizer9, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -647,8 +587,6 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     Connect(ID_CHOICE6,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnChoice6Select);
     Connect(ID_CHOICE7,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnChoice7Select);
     Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&bluetoothFrame::OnButton2Click);
-    Connect(ID_CHOICE8,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&bluetoothFrame::OnChoice8Select);
-    Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&bluetoothFrame::OnButton1Click);
     Connect(ID_CHECKBOX2,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&bluetoothFrame::OnCheckBox2Click);
     Connect(ID_CHECKBOX3,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&bluetoothFrame::OnCheckBox3Click);
     Connect(ID_BUTTON4,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&bluetoothFrame::OnButton4Click);
@@ -670,17 +608,6 @@ bluetoothFrame::bluetoothFrame(wxWindow* parent,wxWindowID id)
     {
         wxMessageBox( _("gimx-bluetooth is already running!"), _("Error"), wxICON_ERROR);
         exit(-1);
-    }
-
-    for(i=0; i<7; ++i)
-    {
-        dongle[i] = -1;
-        pid[i] = -1;
-    }
-
-    for(i=0; i<256; ++i)
-    {
-        dongleInUse[i] = false;
     }
 
     if(!getuid())
@@ -743,16 +670,6 @@ bluetoothFrame::~bluetoothFrame()
 {
     //(*Destroy(bluetoothFrame)
     //*)
-    int i;
-    for(i=0; i<7; ++i)
-    {
-        if(dongle[i] >= 0) break;
-    }
-
-    if(i < 7)
-    {
-        g_spawn_command_line_sync ("killall emu", NULL, NULL, NULL, NULL);
-    }
 }
 
 void bluetoothFrame::OnQuit(wxCommandEvent& event)
@@ -796,15 +713,8 @@ void bluetoothFrame::OnSelectRefresh(wxCommandEvent& event)
 
 void bluetoothFrame::OnButton2Click(wxCommandEvent& event)
 {
-    int answer;
+    int answer = wxMessageBox(_("Did you saved your dongle address?"), _("Confirm"), wxYES_NO | wxCANCEL);
 
-    if(dongleInUse[Choice3->GetSelection()])
-    {
-        wxMessageBox( _("This dongle is in use!"), _("Error"), wxICON_ERROR);
-        return;
-    }
-
-    answer = wxMessageBox(_("Did you saved your dongle address?"), _("Confirm"), wxYES_NO | wxCANCEL);
     if (answer == wxYES)
     {
         setDongleAddress();
@@ -834,226 +744,6 @@ void bluetoothFrame::OnChoice7Select(wxCommandEvent& event)
     Choice3->SetSelection(Choice7->GetSelection());
     Choice5->SetSelection(Choice7->GetSelection());
     Choice6->SetSelection(Choice7->GetSelection());
-}
-
-static char emu_bdaddr[18];
-static char bt_device[4];
-static char controller[2];
-
-static const char *emu_command[] = { "emu", emu_bdaddr, bt_device, controller, NULL };
-
-typedef enum
-{
-    E_CONNECTING,
-    E_CONNECTED,
-    E_DISCONNECTED,
-    E_ERROR
-} e_emu_state;
-
-e_emu_state emu_state = E_DISCONNECTED;
-
-void* emu_thread(void* arg)
-{
-    GError *error = NULL;
-    gboolean test;
-    GPid child_pid;
-    int out = -1;
-    char tmp[1024];
-    int ret;
-
-    test = g_spawn_async_with_pipes(NULL, (gchar**)emu_command, NULL, (GSpawnFlags)(G_SPAWN_SEARCH_PATH), NULL, NULL, &child_pid, NULL, &out, NULL,  &error);
-
-    if(error)
-    {
-        printf("%s\n", error->message);
-    }
-
-    if(test)
-    {
-        *(int*)arg = child_pid;
-        while(1)
-        {
-            ret = read(out, tmp, 1024);
-            if(ret == -1 && errno != EAGAIN)
-            {
-                emu_state = E_ERROR;
-                break;
-            }
-            if(ret > 0)
-            {
-                if(ret == 1024)
-                {
-                    tmp[1023] = '\0';
-                }
-                else
-                {
-                    tmp[ret] = '\0';
-                }
-                cout << tmp << endl;
-                if(strstr(tmp, "connected"))
-                {
-                    emu_state = E_CONNECTED;
-                    break;
-                }
-                else if(strstr(tmp, "can't connect to"))
-                {
-                    emu_state = E_ERROR;
-                    break;
-                }
-            }
-            sleep(1);
-        }
-    }
-
-    if(error) g_free(error);
-    //if(out > -1) close(out);
-    printf("emu_thread: end\n");
-    pthread_exit (0);
-}
-
-void bluetoothFrame::OnButton1Click(wxCommandEvent& event)
-{
-    pthread_t thread;
-    pthread_attr_t thread_attr;
-    string command;
-    unsigned char c_id = Choice8->GetSelection();
-    unsigned char d_id = Choice3->GetSelection();
-    char kill_command[32];
-    int i;
-
-    if(dongle[c_id] < 0)
-    {
-        if(!dongleInUse[d_id])
-        {
-            /*
-             * Update variables to be read by the thread.
-             */
-            strncpy(emu_bdaddr, Choice2->GetStringSelection().mb_str(wxConvUTF8), 18 );
-            snprintf(bt_device, 4, "%d", d_id);
-            snprintf(controller, 2, "%d", c_id);
-            /*
-             * Launches the emu process.
-             */
-            emu_state = E_CONNECTING;
-            pthread_attr_init(&thread_attr);
-            pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
-            pthread_create( &thread, &thread_attr, emu_thread, pid+c_id);
-
-            while(emu_state == E_CONNECTING)
-            {
-                usleep(100000);
-            }
-            if(emu_state == E_CONNECTED)
-            {
-                /*
-                 * Update the GUI.
-                 */
-                Button1->SetLabel(_("Stop"));
-                dongleInUse[d_id] = true;
-                dongle[c_id] = d_id;
-                switch(c_id)
-                {
-                    case 0:
-                    StaticText5->Enable();
-                    StaticText5->SetForegroundColour( wxColour(255, 0, 0) );
-                    break;
-                    case 1:
-                    StaticText9->Enable();
-                    StaticText9->SetForegroundColour( wxColour(255, 0, 0) );
-                    break;
-                    case 2:
-                    StaticText10->Enable();
-                    StaticText10->SetForegroundColour( wxColour(255, 0, 0) );
-                    break;
-                    case 3:
-                    StaticText11->Enable();
-                    StaticText11->SetForegroundColour( wxColour(255, 0, 0) );
-                    break;
-                    case 4:
-                    StaticText12->Enable();
-                    StaticText12->SetForegroundColour( wxColour(255, 0, 0) );
-                    break;
-                    case 5:
-                    StaticText13->Enable();
-                    StaticText13->SetForegroundColour( wxColour(255, 0, 0) );
-                    break;
-                    case 6:
-                    StaticText14->Enable();
-                    StaticText14->SetForegroundColour( wxColour(255, 0, 0) );
-                    break;
-                    default:
-                    break;
-                }
-                Button3->Enable();
-                if(CheckBox5->IsChecked())
-                {
-                    OnButton3Click(event);
-                }
-                else
-                {
-                    wxMessageBox(_("Connected!\nStart emuclient now."), _("Info"));
-                }
-            }
-            else if(emu_state == E_ERROR)
-            {
-                pid[c_id] = -1;
-                wxMessageBox( _("Connection error!\nDid you set the dongle address?\nIf yes, try another dongle!"), _("Error"), wxICON_ERROR);
-            }
-        }
-        else
-        {
-            wxMessageBox( _("This dongle is already used!"), _("Error"), wxICON_ERROR);
-        }
-    }
-    else
-    {
-        /*
-         * Kills the emu process.
-         */
-        sprintf(kill_command, "kill %d", pid[c_id]);
-        cout << kill_command << endl;
-        g_spawn_command_line_sync (kill_command, NULL, NULL, NULL, NULL);
-        Button1->SetLabel(_("Start"));
-        dongleInUse[dongle[c_id]] = false;
-        dongle[c_id] = -1;
-        switch(c_id)
-        {
-            case 0:
-            StaticText5->Disable();
-            break;
-            case 1:
-            StaticText9->Disable();
-            break;
-            case 2:
-            StaticText10->Disable();
-            break;
-            case 3:
-            StaticText11->Disable();
-            break;
-            case 4:
-            StaticText12->Disable();
-            break;
-            case 5:
-            StaticText13->Disable();
-            break;
-            case 6:
-            StaticText14->Disable();
-            break;
-            default:
-            break;
-        }
-        for(i=0; i<7; ++i)
-        {
-            if(dongle[i] >= 0)
-            {
-                break;
-            }
-        }
-        if(i == 7)
-        {
-            Button3->Disable();
-        }
-    }
 }
 
 class MyProcess : public wxProcess
@@ -1088,9 +778,15 @@ void bluetoothFrame::OnButton3Click(wxCommandEvent& event)
       return;
     }
 
+    if(Choice3->GetStringSelection().IsEmpty())
+    {
+        wxMessageBox( _("No Bluetooth Dongle Selected!"), _("Error"), wxICON_ERROR);
+        return;
+    }
+
     command.Append(wxT("xterm -e "));
 
-    command.Append(wxT("emuclient"));
+    command.Append(wxT("gimx"));
     if(!CheckBox1->IsChecked())
     {
         command.Append(wxT(" --nograb"));
@@ -1114,6 +810,14 @@ void bluetoothFrame::OnButton3Click(wxCommandEvent& event)
     {
         command.Append(wxT(" --status"));
     }
+    /*
+     * TODO MLA: fix the hci index
+     */
+    command.Append(wxT(" --hci "));
+    command.Append(wxString::Format(wxT("%i"),Choice3->GetSelection()));
+    command.Append(wxT(" --bdaddr "));
+    command.Append(Choice2->GetStringSelection());
+    cout << command.mb_str(wxConvUTF8) << endl;
 
     filename.append(homedir);
     filename.append(OPT_DIR);
@@ -1185,18 +889,6 @@ void bluetoothFrame::OnCheckBox2Click(wxCommandEvent& event)
 void bluetoothFrame::OnCheckBox3Click(wxCommandEvent& event)
 {
     CheckBox2->SetValue(false);
-}
-
-void bluetoothFrame::OnChoice8Select(wxCommandEvent& event)
-{
-    if(dongle[Choice8->GetSelection()] >= 0)
-    {
-        Button1->SetLabel(_("Stop"));
-    }
-    else
-    {
-        Button1->SetLabel(_("Start"));
-    }
 }
 
 void bluetoothFrame::OnButton4Click(wxCommandEvent& event)

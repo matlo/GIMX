@@ -55,14 +55,14 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
     /* These options don't set a flag. We distinguish them by their indices. */
     {"bdaddr",  required_argument, 0, 'b'},
     {"config",  required_argument, 0, 'c'},
-    {"dst",     optional_argument, 0, 'd'},
-    {"event",   optional_argument, 0, 'e'},
-    {"hci",     optional_argument, 0, 'h'},
-    {"keygen",  optional_argument, 0, 'k'},
-    {"port",    optional_argument, 0, 'p'},
-    {"refresh", optional_argument, 0, 'r'},
-    {"src",     optional_argument, 0, 's'},
-    {"type",    optional_argument, 0, 't'},
+    {"dst",     required_argument, 0, 'd'},
+    {"event",   required_argument, 0, 'e'},
+    {"hci",     required_argument, 0, 'h'},
+    {"keygen",  required_argument, 0, 'k'},
+    {"port",    required_argument, 0, 'p'},
+    {"refresh", required_argument, 0, 'r'},
+    {"src",     required_argument, 0, 's'},
+    {"type",    required_argument, 0, 't'},
     {0, 0, 0, 0}
   };
 

@@ -6,9 +6,9 @@ bindir=$(prefix)/bin
 BINS=gimx-bluetooth
 
 INC = -I../shared/configeditor/include
-CFLAGS += `pkg-config --cflags glib-2.0` `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
+CFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
 LIBDIR =
-LIB = ../shared/configeditor/configeditor.a ../shared/event/GE.a -lxml2 `wx-config --libs` `pkg-config --libs glib-2.0`
+LIB = ../shared/configeditor/configeditor.a ../shared/event/GE.a -lxml2 `wx-config --libs`
 
 DEP = ../shared/configeditor/configeditor.a ../shared/event/GE.a ../shared/updater/updater.o ../shared/configupdater/configupdater.o
 OBJ = bluetoothApp.o bluetoothMain.o

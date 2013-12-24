@@ -11,8 +11,6 @@
 #include <wx/image.h>
 //*)
 
-#include <glib.h>
-
 #ifndef WIN32
 void gtk_init_hack(void) __attribute__((constructor));
 void gtk_init_hack(void)  // This will always run before main()

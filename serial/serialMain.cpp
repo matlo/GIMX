@@ -555,7 +555,7 @@ void serialFrame::OnButtonStartClick(wxCommandEvent& event)
 #ifndef WIN32
     command.Append(wxT("xterm -e "));
 #endif
-    command.Append(wxT("emuclient"));
+    command.Append(wxT("gimx"));
     if(ControllerType->GetStringSelection() == _("GPP/Cronus"))
     {
       command.Append(wxT(" --type GPP"));

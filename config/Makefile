@@ -6,7 +6,7 @@ bindir=$(prefix)/bin
 endif
 
 INC = -I../shared/configeditor/include
-CFLAGS += `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
+CFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
 LIBDIR =
 LIB = ../shared/configeditor/configeditor.a ../shared/event/GE.a `wx-config --libs`
 ifneq ($(OS),Windows_NT)

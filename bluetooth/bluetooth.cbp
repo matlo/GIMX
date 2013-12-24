@@ -37,12 +37,9 @@
 			<Add option="-include wx_pch.h" />
 			<Add option="-DWX_PRECOMP" />
 			<Add directory="include" />
-			<Add directory="/usr/include/glib-2.0" />
-			<Add directory="/usr/lib/glib-2.0/include/" />
 		</Compiler>
 		<Linker>
 			<Add option="`wx-config --libs`" />
-			<Add option="`pkg-config --libs glib-2.0`" />
 		</Linker>
 		<Unit filename="bluetoothApp.cpp" />
 		<Unit filename="bluetoothApp.h" />

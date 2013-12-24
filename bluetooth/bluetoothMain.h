@@ -83,16 +83,6 @@ class bluetoothFrame: public wxFrame
         static const long ID_CHOICE7;
         static const long ID_STATICTEXT8;
         static const long ID_BUTTON2;
-        static const long ID_CHECKBOX5;
-        static const long ID_CHOICE8;
-        static const long ID_BUTTON1;
-        static const long ID_STATICTEXT5;
-        static const long ID_STATICTEXT9;
-        static const long ID_STATICTEXT10;
-        static const long ID_STATICTEXT11;
-        static const long ID_STATICTEXT12;
-        static const long ID_STATICTEXT13;
-        static const long ID_STATICTEXT14;
         static const long ID_CHECKBOX1;
         static const long ID_CHECKBOX2;
         static const long ID_CHECKBOX3;
@@ -118,14 +108,11 @@ class bluetoothFrame: public wxFrame
 
         //(*Declarations(bluetoothFrame)
         wxPanel* Panel1;
-        wxStaticText* StaticText13;
-        wxStaticText* StaticText14;
         wxStatusBar* StatusBar1;
         wxChoice* Choice3;
         wxMenuItem* MenuAutoBindControls;
         wxButton* Button4;
         wxChoice* ChoiceConfig;
-        wxButton* Button1;
         wxMenuItem* MenuGetConfigs;
         wxCheckBox* CheckBox1;
         wxCheckBox* CheckBox6;
@@ -134,7 +121,6 @@ class bluetoothFrame: public wxFrame
         wxChoice* Choice2;
         wxMenuItem* MenuUpdate;
         wxStaticText* StaticText1;
-        wxStaticText* StaticText10;
         wxMenuItem* MenuStartUpdates;
         wxStaticText* StaticText3;
         wxMenuItem* MenuItem3;
@@ -142,13 +128,11 @@ class bluetoothFrame: public wxFrame
         wxChoice* Choice1;
         wxCheckBox* CheckBox2;
         wxStaticText* StaticText8;
-        wxStaticText* StaticText12;
         wxCheckBox* CheckBox7;
         wxChoice* Choice7;
         wxStaticText* StaticText7;
         wxMenuItem* MenuItem5;
         wxStaticText* StaticText4;
-        wxStaticText* StaticText5;
         wxStaticText* StaticText2;
         wxMenuItem* MenuItem4;
         wxMenuItem* MenuItem6;
@@ -156,10 +140,6 @@ class bluetoothFrame: public wxFrame
         wxStaticText* StaticText6;
         wxSingleInstanceChecker SingleInstanceChecker1;
         wxChoice* Choice6;
-        wxChoice* Choice8;
-        wxStaticText* StaticText9;
-        wxStaticText* StaticText11;
-        wxCheckBox* CheckBox5;
         //*)
 
         wxLocale* locale;
@@ -168,10 +148,6 @@ class bluetoothFrame: public wxFrame
         wxString m_SelectedPS3;
         wxString m_SelectedBtDongle;
         int m_SelectedController;
-
-        int pid[7];
-        bool dongleInUse[256];
-        int dongle[7];
 
         bool started;
 
