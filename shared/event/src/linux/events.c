@@ -39,13 +39,13 @@ typedef struct
   int id;
   int fd;
   int (*fd_read)(int);
-  void (*fd_cleanup)(int);
+  int (*fd_cleanup)(int);
 } s_source;
 
 static s_source sources[FD_SETSIZE] = {};
 static int max_source = 0;
 
-void ev_register_source(int fd, int id, int (*fd_read)(int), void (*fd_cleanup)(int))
+void ev_register_source(int fd, int id, int (*fd_read)(int), int (*fd_cleanup)(int))
 {
   if(fd < FD_SETSIZE)
   {
@@ -261,7 +261,10 @@ void ev_pump_events(void)
       {
         if(fds[i].revents & POLLERR)
         {
-          sources[fds[i].fd].fd_cleanup(sources[fds[i].fd].id);
+          if(sources[fds[i].fd].fd_cleanup(sources[fds[i].fd].id))
+          {
+            return;
+          }
         }
         else if(fds[i].revents & POLLIN)
         {

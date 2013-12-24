@@ -5,12 +5,12 @@ prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
 endif
 
-BINS=emuclient
+BINS=gimx-core
 ifneq ($(OS),Windows_NT)
 BINS+= ds4tool sixaddr bdaddr hcirevision usbspoof
 OUT=$(BINS)
 else
-OUT=emuclient.exe
+OUT=gimx-core.exe
 endif
 LIB=../shared/event/GE.a
 ifneq ($(OS),Windows_NT)
@@ -71,7 +71,7 @@ EMUCLIENT_OBJ += \
        windows/mainloop.o
 endif
 
-emuclient: $(DEP) $(EMUCLIENT_OBJ)
+gimx-core: $(DEP) $(EMUCLIENT_OBJ)
 	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LIB)
 
 ifneq ($(OS),Windows_NT)

@@ -485,11 +485,15 @@ int read_control(int sixaxis_number)
   return 0;
 }
 
-void close_control(int sixaxis_number)
+int close_control(int sixaxis_number)
 {
-  int* control = &states[sixaxis_number].control;
-  close(*control);
-  *control = -1;
+  struct sixaxis_state* state = states + sixaxis_number;
+
+  close(state->control);
+  GE_RemoveSource(state->control);
+  state->control = -1;
+
+  return 1;
 }
 
 int read_interrupt(int sixaxis_number)
@@ -517,16 +521,27 @@ int read_interrupt(int sixaxis_number)
   return ret;
 }
 
-void close_interrupt(int sixaxis_number)
+int close_interrupt(int sixaxis_number)
 {
-  int* interrupt = &states[sixaxis_number].interrupt;
-  close(*interrupt);
-  *interrupt = -1;
+  struct sixaxis_state* state = states + sixaxis_number;
+
+  close(state->interrupt);
+  GE_RemoveSource(state->interrupt);
+  state->interrupt = -1;
+
+  state->sys.shutdown = 1;
+
+  return 1;
 }
 
 int send_interrupt(int sixaxis_number, s_report_ds3* buf)
 {
   struct sixaxis_state* state = states + sixaxis_number;
+
+  if(state->sys.shutdown)
+  {
+    return -1;
+  }
 
   process_report(HID_TYPE_INPUT, 0x01, (unsigned char*) buf, sizeof(s_report_ds3), state);
 

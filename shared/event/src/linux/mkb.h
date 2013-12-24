@@ -9,7 +9,7 @@
 #include <poll.h>
 
 int mkb_init();
-void mkb_close_device(int id);
+int mkb_close_device(int id);
 void mkb_quit();
 void mkb_grab(int mode);
 int mkb_get_nfds();

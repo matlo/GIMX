@@ -527,7 +527,12 @@ uint16_t GE_KeyId(const char* name)
   return get_key_from_buffer(name);
 }
 
-void GE_AddSource(int fd, int id, int (*fd_read)(int), void (*fd_cleanup)(int))
+void GE_AddSource(int fd, int id, int (*fd_read)(int), int (*fd_cleanup)(int))
 {
   ev_register_source(fd, id, fd_read, fd_cleanup);
+}
+
+void GE_RemoveSource(int fd)
+{
+  ev_remove_source(fd);
 }

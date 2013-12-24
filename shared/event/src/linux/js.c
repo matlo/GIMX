@@ -227,7 +227,7 @@ int js_init()
   return ret;
 }
 
-void js_close(int id)
+int js_close(int id)
 {
   free(joystick_name[id]);
   joystick_name[id] = NULL;
@@ -240,6 +240,7 @@ void js_close(int id)
 
     joystick_fd[id] = -1;
   }
+  return 0;
 }
 
 void js_quit()

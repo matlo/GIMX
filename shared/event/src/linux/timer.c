@@ -42,10 +42,12 @@ int timer_start(struct timespec* period)
   return tfd;
 }
 
-void timer_close(int unused)
+int timer_close(int unused)
 {
   close(tfd);
   tfd = -1;
+
+  return 1;
 }
 
 int timer_read(int unused)

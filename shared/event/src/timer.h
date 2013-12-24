@@ -14,7 +14,7 @@ extern "C" {
 
 inline int timer_getfd();
 int timer_start(struct timespec*);
-void timer_close(int unused);
+int timer_close(int unused);
 int timer_read(int unused);
 
 #ifdef __cplusplus

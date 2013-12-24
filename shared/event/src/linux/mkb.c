@@ -390,7 +390,7 @@ char* mkb_get_m_name(int index)
   return mkb_get_name(DEVTYPE_MOUSE, index);
 }
 
-void mkb_close_device(int id)
+int mkb_close_device(int id)
 {
   free(device_name[id]);
   device_name[id] = NULL;
@@ -402,6 +402,7 @@ void mkb_close_device(int id)
 
     device_fd[id] = -1;
   }
+  return 0;
 }
 
 void mkb_quit()

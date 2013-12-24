@@ -11,7 +11,7 @@
 int js_init();
 int js_get_nfds();
 int js_fill_fds(nfds_t max, struct pollfd fds[]);
-void js_close(int id);
+int js_close(int id);
 void js_quit();
 const char* js_get_name(int index);
 void js_set_callback(int (*fp)(GE_Event*));
