@@ -12,6 +12,7 @@
 #endif
 #include <stdio.h>
 #include <unistd.h>
+#include <GE.h>
 
 int udp_listen(unsigned int ip, unsigned short port)
 {
@@ -65,7 +66,10 @@ unsigned int udp_send(int fd, unsigned char* buf, unsigned int len)
   return send(fd, buf, len, MSG_DONTWAIT);
 }
 
-void udp_close(int fd)
+int udp_close(int fd)
 {
   close(fd);
+  GE_RemoveSource(fd);
+
+  return 1;
 }

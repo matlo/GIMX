@@ -200,10 +200,13 @@ int main(int argc, char *argv[])
 
   macros_init();
 
-  if(read_config_file(emuclient_params.config_file) < 0)
+  if(emuclient_params.config_file)
   {
-    fprintf(stderr, _("read_config_file failed\n"));
-    goto QUIT;
+    if(read_config_file(emuclient_params.config_file) < 0)
+    {
+      fprintf(stderr, _("read_config_file failed\n"));
+      goto QUIT;
+    }
   }
 
   if(GE_GetMKMode() == GE_MK_MODE_SINGLE_INPUT)

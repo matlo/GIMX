@@ -109,4 +109,6 @@ s_axis_index get_axis_index_from_name(const char*);
 
 void controller_dump_state(s_controller* c);
 
+int controller_network_read(int fd);
+
 #endif /* CONTROLLER_H_ */

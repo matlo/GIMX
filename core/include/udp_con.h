@@ -9,6 +9,6 @@
 int udp_listen(unsigned int ip, unsigned short port);
 int udp_connect(unsigned int ip, unsigned short port);
 unsigned int udp_send(int fd, unsigned char* buf, unsigned int len);
-void udp_close(int fd);
+int udp_close(int fd);
 
 #endif /* UDP_CON_H_ */

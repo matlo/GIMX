@@ -10,7 +10,7 @@
 #include "sixaxis.h"
 #include "controllers/controller.h"
 #include "report.h"
-#include "tcp_con.h"
+#include "udp_con.h"
 #include "gpp_con.h"
 #include "usb_spoof.h"
 #ifndef WIN32
@@ -34,7 +34,6 @@ int connector_init()
   int ret = 0;
   int i;
   s_controller* control;
-  unsigned short port = TCP_PORT;
 
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
@@ -105,15 +104,27 @@ int connector_init()
           ret = -1;
         }
       }
+      else if(control->dst_ip)
+      {
+        control->dst_fd = udp_connect(control->dst_ip, control->dst_port);
+        if(control->dst_fd < 0)
+        {
+          fprintf(stderr, _("Can't connect to port: %d.\n"), control->dst_port);
+          ret = -1;
+        }
+      }
+    }
+    if(control->src_ip)
+    {
+      control->src_fd = udp_listen(control->src_ip, control->src_port);
+      if(control->src_fd < 0)
+      {
+        fprintf(stderr, _("Can't listen on port: %d.\n"), control->src_port);
+        ret = -1;
+      }
       else
       {
-        if(!control->dst_ip)
-        {
-          control->dst_ip = INADDR_LOOPBACK;
-          control->dst_port = port;
-          ++port;
-        }
-        control->dst_fd = tcp_connect(control->dst_ip, control->dst_port);
+        GE_AddSource(control->src_fd, i, controller_network_read, udp_close);
       }
     }
   }
@@ -132,7 +143,7 @@ void connector_clean()
       case C_TYPE_DEFAULT:
         if(controller->dst_fd >= 0)
         {
-          tcp_close(controller->dst_fd);
+          udp_close(controller->dst_fd);
         }
         else if(controller->bdaddr_dst)
         {
@@ -173,7 +184,7 @@ int connector_send()
           }
           else if(controller->dst_fd >= 0)
           {
-            ret = tcp_send(controller->dst_fd, (unsigned char*)&report.value.ds3, report.value_len);
+            ret = udp_send(controller->dst_fd, (unsigned char*)controller->axis, sizeof(controller->axis));
           }
           break;
         case C_TYPE_GPP:

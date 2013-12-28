@@ -27,7 +27,7 @@ void mainloop()
   struct timespec period = {.tv_sec = 0, .tv_nsec = emuclient_params.refresh_period*1000};
   unsigned int running_macros;
 
-  if(get_controller(0)->type != C_TYPE_DEFAULT)
+  if(!get_controller(0)->bdaddr_dst)
   {
     GE_TimerStart(&period);
   }

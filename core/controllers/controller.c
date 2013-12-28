@@ -10,6 +10,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/time.h>
+#include <errno.h>
+#include <unistd.h>
+#include <udp_con.h>
 
 static s_controller controller[MAX_CONTROLLERS] = {};
 
@@ -223,4 +226,28 @@ void controller_dump_state(s_controller* c)
   }
 
   printf("\n");
+}
+
+int controller_network_read(int id)
+{
+  unsigned char buf[sizeof(controller->axis)];
+  int nread = 0;
+  int ret;
+  while(nread != sizeof(buf))
+  {
+    if((ret = read(controller[id].src_fd, buf+nread, sizeof(buf)-nread)) < 0)
+    {
+      if(errno != EAGAIN)
+      {
+        return -1;
+      }
+    }
+    else
+    {
+      nread += ret;
+    }
+  }
+  memcpy(controller[id].axis, buf, sizeof(controller->axis));
+  controller[id].send_command = 1;
+  return 0;
 }
