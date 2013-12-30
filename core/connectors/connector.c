@@ -126,6 +126,10 @@ int connector_init()
 #endif
       
     }
+    /*
+     * TODO MLA: Windows implementation.
+     */
+#ifndef WIN32
     if(control->src_ip)
     {
       control->src_fd = udp_listen(control->src_ip, control->src_port);
@@ -139,6 +143,7 @@ int connector_init()
         GE_AddSource(control->src_fd, i, controller_network_read, udp_close);
       }
     }
+#endif
   }
   return ret;
 }
