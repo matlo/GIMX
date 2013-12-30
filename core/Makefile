@@ -40,7 +40,6 @@ EMUCLIENT_OBJ = \
        config_reader.o\
        calibration.o\
        report.o\
-       connectors/sixaxis.o\
        connectors/connector.o\
        connectors/tcp_con.o\
        connectors/udp_con.o\
@@ -57,6 +56,7 @@ EMUCLIENT_OBJ = \
 
 ifneq ($(OS),Windows_NT)
 EMUCLIENT_OBJ += \
+       connectors/sixaxis.o\
        connectors/gpp/hid_LINUX.o\
        connectors/l2cap_con.o\
        connectors/bt_utils.o\
