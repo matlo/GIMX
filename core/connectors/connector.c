@@ -183,14 +183,16 @@ int connector_send()
       switch(controller->type)
       {
         case C_TYPE_DEFAULT:
-          if(controller->bdaddr_dst)
-          {
-            ret = send_interrupt(i, &report.value.ds3);
-          }
-          else if(controller->dst_fd >= 0)
+          if(controller->dst_fd >= 0)
           {
             ret = udp_send(controller->dst_fd, (unsigned char*)controller->axis, sizeof(controller->axis));
           }
+#ifndef WIN32
+          else if(controller->bdaddr_dst)
+          {
+            ret = send_interrupt(i, &report.value.ds3);
+          }
+#endif
           break;
         case C_TYPE_GPP:
           ret = gpp_send(controller->axis);
