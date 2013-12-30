@@ -63,7 +63,7 @@ int udp_connect(unsigned int ip, unsigned short port)
 unsigned int udp_send(int fd, unsigned char* buf, unsigned int len)
 {
   //TODO: fix flags
-  return send(fd, buf, len, MSG_DONTWAIT);
+  return send(fd, (const void*)buf, len, MSG_DONTWAIT);
 }
 
 int udp_close(int fd)
