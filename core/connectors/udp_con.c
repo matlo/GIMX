@@ -72,7 +72,9 @@ int udp_close(int fd)
   /*
    * TODO MLA: Windows implementation.
    */
+#ifndef WIN32
   GE_RemoveSource(fd);
+#endif
 
   return 1;
 }
