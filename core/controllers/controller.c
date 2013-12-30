@@ -82,10 +82,10 @@ static int min_refresh_period[C_TYPE_MAX] =
 static int default_refresh_period[C_TYPE_MAX] =
 {
     [C_TYPE_JOYSTICK] =  4000,
-    [C_TYPE_360_PAD]  =  4000,
-    [C_TYPE_SIXAXIS]  =  4000,
+    [C_TYPE_360_PAD]  =  8000,
+    [C_TYPE_SIXAXIS]  = 10000,
     [C_TYPE_PS2_PAD]  = 16000,
-    [C_TYPE_XBOX_PAD] =  4000,
+    [C_TYPE_XBOX_PAD] =  8000,
     [C_TYPE_DS4]      =  5000,
     [C_TYPE_GPP]      =  4000,
     [C_TYPE_DEFAULT]  = 11250,
