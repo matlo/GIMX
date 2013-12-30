@@ -94,7 +94,17 @@ int connector_init()
       {
         fprintf(stderr, _("Wrong controller type.\n"));
       }
-      if(control->bdaddr_dst)
+      if(control->dst_ip)
+      {
+        control->dst_fd = udp_connect(control->dst_ip, control->dst_port);
+        if(control->dst_fd < 0)
+        {
+          fprintf(stderr, _("Can't connect to port: %d.\n"), control->dst_port);
+          ret = -1;
+        }
+      }
+#ifndef WIN32
+      else if(control->bdaddr_dst)
       {
         sixaxis_set_dongle(i, control->dongle_index);
         sixaxis_set_bdaddr(i, control->bdaddr_dst);
@@ -104,15 +114,8 @@ int connector_init()
           ret = -1;
         }
       }
-      else if(control->dst_ip)
-      {
-        control->dst_fd = udp_connect(control->dst_ip, control->dst_port);
-        if(control->dst_fd < 0)
-        {
-          fprintf(stderr, _("Can't connect to port: %d.\n"), control->dst_port);
-          ret = -1;
-        }
-      }
+#endif
+      
     }
     if(control->src_ip)
     {
@@ -145,10 +148,12 @@ void connector_clean()
         {
           udp_close(controller->dst_fd);
         }
+#ifndef WIN32
         else if(controller->bdaddr_dst)
         {
           sixaxis_close(i);
         }
+#endif
         break;
       case C_TYPE_GPP:
         gpp_disconnect();
