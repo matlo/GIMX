@@ -451,6 +451,22 @@ void GE_TimerClose()
 {
   timer_close(0);
 }
+
+/*
+ * Add an event source.
+ */
+void GE_AddSource(int fd, int id, int (*fd_read)(int), int (*fd_cleanup)(int))
+{
+  ev_register_source(fd, id, fd_read, fd_cleanup);
+}
+
+/*
+ * Remove an event source.
+ */
+void GE_RemoveSource(int fd)
+{
+  ev_remove_source(fd);
+}
 #endif
 
 /*
@@ -525,14 +541,4 @@ const char* GE_KeyName(uint16_t key)
 uint16_t GE_KeyId(const char* name)
 {
   return get_key_from_buffer(name);
-}
-
-void GE_AddSource(int fd, int id, int (*fd_read)(int), int (*fd_cleanup)(int))
-{
-  ev_register_source(fd, id, fd_read, fd_cleanup);
-}
-
-void GE_RemoveSource(int fd)
-{
-  ev_remove_source(fd);
 }
