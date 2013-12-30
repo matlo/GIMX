@@ -1049,8 +1049,8 @@ static int ProcessConfigurationElement(xmlNode * a_node)
     intensity->device_down_id = -1;
     intensity->up_button = -1;
     intensity->down_button = -1;
-    intensity->value = get_max_signed(r_controller_id, i);
-    intensity->max_value = get_max_signed(r_controller_id, i);
+    intensity->value = get_max_signed(get_controller(r_controller_id)->type, i);
+    intensity->max_value = get_max_signed(get_controller(r_controller_id)->type, i);
     intensity->shape = E_SHAPE_RECTANGLE;
   }
 
