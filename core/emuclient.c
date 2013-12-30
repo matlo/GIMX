@@ -207,13 +207,13 @@ int main(int argc, char *argv[])
       fprintf(stderr, _("read_config_file failed\n"));
       goto QUIT;
     }
-  }
 
-  if(GE_GetMKMode() == GE_MK_MODE_SINGLE_INPUT)
-  {
-    free_config();
-    GE_FreeMKames();
-    read_config_file(emuclient_params.config_file);
+    if(GE_GetMKMode() == GE_MK_MODE_SINGLE_INPUT)
+    {
+      free_config();
+      GE_FreeMKames();
+      read_config_file(emuclient_params.config_file);
+    }
   }
 
   GE_release_unused();
