@@ -17,6 +17,15 @@
 #include <netinet/in.h>
 #endif
 
+inline int clamp(int min, int val, int max)
+{
+  if (val < min)
+    return min;
+  if (val > max)
+    return max;
+  return val;
+}
+
 static const char* controller_name[C_TYPE_MAX] =
 {
   "joystick",
