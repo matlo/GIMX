@@ -27,15 +27,6 @@ static int debug = 0;
 static const char *hid_report_name[] =
 { "reserved", "input", "output", "feature" };
 
-inline int clamp(int min, int val, int max)
-{
-  if (val < min)
-    return min;
-  if (val > max)
-    return max;
-  return val;
-}
-
 void sixaxis_init(int sixaxis_number)
 {
   struct sixaxis_state* state = states+sixaxis_number;
@@ -155,7 +146,8 @@ int assemble_feature_f2(uint8_t *buf, int maxlen, struct sixaxis_state *state)
   uint8_t data[] =
   { 0xff, 0xff, 0x00, 0x00, 0x1e, 0x3d, 0x24, 0x97, 0xde, /* device bdaddr */
   0x00, 0x03, 0x50, 0x89, 0xc0, 0x01, 0x8a, 0x09 };
-#ifndef WIN32 //remove compilation warnings  sscanf(state->bdaddr_src, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", data + 3, data + 4,
+#ifndef WIN32 //remove compilation warnings
+  sscanf(state->bdaddr_src, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", data + 3, data + 4,
       data + 5, data + 6, data + 7, data + 8);
 #endif
   int len = sizeof(data);
