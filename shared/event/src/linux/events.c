@@ -229,6 +229,7 @@ static unsigned int fill_fds(nfds_t nfds, struct pollfd fds[nfds])
 void ev_pump_events(void)
 {
   int i;
+  int res;
 
   if(event_callback == NULL)
   {
@@ -261,7 +262,9 @@ void ev_pump_events(void)
       {
         if(fds[i].revents & POLLERR)
         {
-          if(sources[fds[i].fd].fd_cleanup(sources[fds[i].fd].id))
+          res = sources[fds[i].fd].fd_cleanup(sources[fds[i].fd].id);
+          ev_remove_source(fds[i].fd);
+          if(res)
           {
             return;
           }

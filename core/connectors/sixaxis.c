@@ -482,7 +482,6 @@ int close_control(int sixaxis_number)
   struct sixaxis_state* state = states + sixaxis_number;
 
   close(state->control);
-  GE_RemoveSource(state->control);
   state->control = -1;
 
   return 1;
@@ -518,9 +517,7 @@ int close_interrupt(int sixaxis_number)
   struct sixaxis_state* state = states + sixaxis_number;
 
   close(state->interrupt);
-  GE_RemoveSource(state->interrupt);
   state->interrupt = -1;
-
   state->sys.shutdown = 1;
 
   return 1;

@@ -235,9 +235,6 @@ int js_close(int id)
   if(joystick_fd[id] >= 0)
   {
     close(joystick_fd[id]);
-
-    ev_remove_source(joystick_fd[id]);
-
     joystick_fd[id] = -1;
   }
   return 0;

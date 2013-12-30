@@ -397,9 +397,6 @@ int mkb_close_device(int id)
   if(device_fd[id] >= 0)
   {
     close(device_fd[id]);
-
-    ev_remove_source(device_fd[id]);
-
     device_fd[id] = -1;
   }
   return 0;

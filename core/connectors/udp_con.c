@@ -69,12 +69,6 @@ unsigned int udp_send(int fd, unsigned char* buf, unsigned int len)
 int udp_close(int fd)
 {
   close(fd);
-  /*
-   * TODO MLA: Windows implementation.
-   */
-#ifndef WIN32
-  GE_RemoveSource(fd);
-#endif
 
   return 1;
 }
