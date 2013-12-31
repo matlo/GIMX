@@ -173,14 +173,20 @@ int main(int argc, char* argv[])
                   escape = 1;
                   break;
                 case SLIP_ESCAPE_START_END:
-                  pos[i]--;
-                  buf[i][pos[i]] = SLIP_START_END;
-                  escape = 0;
+                  if(escape)
+                  {
+                    pos[i]--;
+                    buf[i][pos[i]] = SLIP_START_END;
+                    escape = 0;
+                  }
                   break;
                 case SLIP_ESCAPE_ESCAPE:
-                  pos[i]--;
-                  buf[i][pos[i]] = SLIP_ESCAPE;
-                  escape = 0;
+                  if(escape)
+                  {
+                    pos[i]--;
+                    buf[i][pos[i]] = SLIP_ESCAPE;
+                    escape = 0;
+                  }
                   break;
               }
               pos[i]++;
