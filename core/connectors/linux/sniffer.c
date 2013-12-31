@@ -267,7 +267,7 @@ int main(int argc, char* argv[])
                 
                 length = ((buf[i][2] & 0x0F) << 8) + buf[i][3];
                 
-                pcapwriter_write(direction[i], type, length, buf[i][5]);
+                pcapwriter_write(direction[i], type, length, buf[i]+5);
 
                 pos[i] = 0;
               }
