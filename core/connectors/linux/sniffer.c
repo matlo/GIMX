@@ -111,6 +111,7 @@ int main(int argc, char* argv[])
   int pos[sizeof(pfd)/sizeof(*pfd)] = {};
   int res;
   int i;
+  int escape = 0;
 
   while(!done)
   {
@@ -166,6 +167,22 @@ int main(int argc, char* argv[])
             else
             {
               printf("got data from fd=%d\n", pfd[i].fd);
+              switch(buf[i][pos[i]])
+              {
+                case SLIP_ESCAPE:
+                  escape = 1;
+                  break;
+                case SLIP_ESCAPE_START_END:
+                  pos[i]--;
+                  buf[i][pos[i]] = SLIP_START_END;
+                  escape = 0;
+                  break;
+                case SLIP_ESCAPE_ESCAPE:
+                  pos[i]--;
+                  buf[i][pos[i]] = SLIP_ESCAPE;
+                  escape = 0;
+                  break;
+              }
               pos[i]++;
             }
           }
