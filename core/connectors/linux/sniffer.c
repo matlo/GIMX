@@ -144,7 +144,7 @@ void pcapwriter_write(unsigned int direction, unsigned char packet_type, unsigne
   
   pcap_bluetooth_h4_header bt_h4_hdr =
   {
-    .direction = dir
+    .direction = direction
   };
 
   gettimeofday(&tv, NULL);
@@ -157,7 +157,7 @@ void pcapwriter_write(unsigned int direction, unsigned char packet_type, unsigne
 
   fwrite((char*)&packet_header, 1, sizeof(packet_header), file);
   fwrite((char*)&bt_h4_hdr, 1, sizeof(bt_h4_hdr), file);
-  fwrite((char*)&type, 1, sizeof(type), file);
+  fwrite((char*)&packet_type, 1, sizeof(packet_type), file);
   fwrite((char*)data, 1, data_length, file);
 }
 
