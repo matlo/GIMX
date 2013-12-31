@@ -69,6 +69,10 @@ void serial_close(int fd)
   close(fd);
 }
 
+#define guint32 unsigned long
+#define guint16 unsigned short
+#define gint32 signed long
+
 typedef struct pcap_hdr_s {
   guint32 magic_number; /* magic number */
   guint16 version_major; /* major version number */
