@@ -181,13 +181,6 @@ void terminate(int sig)
 
 int main(int argc, char* argv[])
 {
-  if(argc < 2)
-  {
-    printf("usage: ./sniffer <filename>");
-  }
-  
-  pcapwriter_init(argv[1]);
-  
   int fd1 = serial_connect(PORT1);
   if(fd1 < 0)
   {
@@ -201,6 +194,13 @@ int main(int argc, char* argv[])
     fprintf(stderr, "can't open %s\n", PORT2);
     exit(-1);
   }
+  
+  if(argc < 2)
+  {
+    printf("usage: ./sniffer <filename>");
+  }
+  
+  pcapwriter_init(argv[1]);
 
   struct pollfd pfd[2] =
   {
@@ -318,6 +318,8 @@ int main(int argc, char* argv[])
       }
     }
   }
+
+  pcapwriter_close()
 
   close(fd1);
   close(fd2);
