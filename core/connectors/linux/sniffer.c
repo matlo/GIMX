@@ -184,14 +184,12 @@ int main(int argc, char* argv[])
   int fd1 = serial_connect(PORT1);
   if(fd1 < 0)
   {
-    fprintf(stderr, "can't open %s\n", PORT1);
     exit(-1);
   }
 
   int fd2 = serial_connect(PORT2);
   if(fd1 < 0)
   {
-    fprintf(stderr, "can't open %s\n", PORT2);
     exit(-1);
   }
   
