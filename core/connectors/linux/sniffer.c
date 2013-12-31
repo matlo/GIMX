@@ -69,7 +69,6 @@ int serial_connect(char* portname)
 
 void serial_close(int fd)
 {
-  usleep(10000);//sleep 10ms to leave enough time for the last packet to be sent
   close(fd);
 }
 
@@ -321,8 +320,8 @@ int main(int argc, char* argv[])
 
   pcapwriter_close()
 
-  close(fd1);
-  close(fd2);
+  serial_close(fd1);
+  serial_close(fd2);
 
   return 0;
 }
