@@ -253,7 +253,7 @@ int main(int argc, char* argv[])
                 printf("got end of SLIP packet from fd=%d\n", pfd[i].fd);
                 printf("packet size: %d\n", pos[i]-1);
 
-                type = buf[2] >> 4;
+                type = buf[i][2] >> 4;
                 
                 switch(type)
                 {
@@ -265,9 +265,9 @@ int main(int argc, char* argv[])
                     break;
                 }
                 
-                length = ((buf[2] & 0x0F) << 8) + buf[3];
+                length = ((buf[i][2] & 0x0F) << 8) + buf[i][3];
                 
-                pcapwriter_write(direction[i], type, length, buf);
+                pcapwriter_write(direction[i], type, length, buf[i][5]);
 
                 pos[i] = 0;
               }
@@ -319,7 +319,7 @@ int main(int argc, char* argv[])
     }
   }
 
-  pcapwriter_close()
+  pcapwriter_close();
 
   serial_close(fd1);
   serial_close(fd2);
