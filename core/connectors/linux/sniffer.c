@@ -18,9 +18,6 @@
 #include <sys/ioctl.h>
 #include <sys/time.h>
 
-#include <libintl.h>
-#define _(STRING)    gettext(STRING)
-
 #include <errno.h>
 
 #define PORT1 "/dev/ttyUSB0"
@@ -39,11 +36,11 @@ int serial_connect(char* portname)
   struct termios options;
   int fd;
 
-  printf(_("connecting to %s\n"), portname);
+  printf("connecting to %s\n", portname);
 
   if ((fd = open(portname, O_RDONLY | O_NOCTTY)) < 0)
   {
-    printf(_("can't connect to %s\n"), portname);
+    printf("can't connect to %s\n", portname);
   }
   else
   {
@@ -53,13 +50,13 @@ int serial_connect(char* portname)
     cfmakeraw(&options);
     if(tcsetattr(fd, TCSANOW, &options) < 0)
     {
-      printf(_("can't set serial port options\n"));
+      printf("can't set serial port options\n");
       close(fd);
       fd = -1;
     }
     else
     {
-      printf(_("connected\n"));
+      printf("connected\n");
     }
     tcflush(fd, TCIFLUSH);
   }
