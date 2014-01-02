@@ -240,7 +240,7 @@ int main(int argc, char* argv[])
               
               type[i] = buf[i][0];
 
-              switch(type)
+              switch(type[i])
               {
                 case 0x00:
                   printf("skipping null byte\n");
