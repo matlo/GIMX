@@ -134,11 +134,9 @@ void pcapwriter_close()
 
 void pcapwriter_write(struct timeval* tv, unsigned int direction, unsigned short data_length, unsigned char data[data_length])
 {
-  unsigned int length = 0;
-
   if(!file)
   {
-    fprintf(stderr, "pcapwriter_write");
+    fprintf(stderr, "pcapwriter_write\n");
     return;
   }
   
@@ -210,8 +208,8 @@ int main(int argc, char* argv[])
   struct timeval tv[sizeof(pfd)/sizeof(*pfd)] = {};
   int res;
   int i;
-  unsigned char type;
-  unsigned short length;
+  unsigned char type[sizeof(pfd)/sizeof(*pfd)] = {};
+  unsigned short length[sizeof(pfd)/sizeof(*pfd)] = {};
 
   while(!done)
   {
@@ -236,11 +234,11 @@ int main(int argc, char* argv[])
           }
           else if(res == 1)
           {
-            type = buf[i][0];
-
             if(pos[i] == 0)
             {
               gettimeofday(&tv[i], NULL);
+              
+              type[i] = buf[i][0];
 
               switch(type)
               {
@@ -257,21 +255,21 @@ int main(int argc, char* argv[])
               }
             }
 
-            switch(type)
+            switch(type[i])
             {
               case HCI_COMMAND_PKT:
                 if(pos[i] == 3)
                 {
-                  length = buf[i][3]+4;
+                  length[i] = buf[i][3]+4;
                 }
                 break;
               case HCI_ACLDATA_PKT:
                 if(pos[i] == 6)
                 {
-                  length = buf[i][5]+(buf[i][6] << 8)+7;
-                  if(length > BUFFER_SIZE)
+                  length[i] = buf[i][5]+(buf[i][6] << 8)+7;
+                  if(length[i] > BUFFER_SIZE)
                   {
-                    fprintf(stderr, "length is higher than %d: %d\n", BUFFER_SIZE, length);
+                    fprintf(stderr, "length is higher than %d: %d\n", BUFFER_SIZE, length[i]);
                     done = 1;
                   }
                 }
@@ -279,30 +277,30 @@ int main(int argc, char* argv[])
               case HCI_EVENT_PKT:
                 if(pos[i] == 2)
                 {
-                  length = buf[i][2]+3;
+                  length[i] = buf[i][2]+3;
                 }
                 break;
               case HCI_VENDOR_PKT:
                 if(pos[i] == 2)
                 {
-                  length = buf[i][2]+3;
+                  length[i] = buf[i][2]+3;
                 }
                 break;
               default:
-                printf("unknown packet type: 0x%02x\n", type);
+                printf("unknown packet type: 0x%02x\n", type[i]);
                 done = 1;
                 break;
             }
 
             pos[i]++;
 
-            if(length == pos[i])
+            if(length[i] == pos[i])
             {
-              printf("packet type: %d\n", type);
-              printf("packet length: %d\n", length);
+              printf("packet type: %d\n", type[i]);
+              printf("packet length: %d\n", length[i]);
               
               int j;
-              for(j=0; j<length; ++j)
+              for(j=0; j<length[i]; ++j)
               {
                 if(!(j%8))
                 {
@@ -312,7 +310,7 @@ int main(int argc, char* argv[])
               }
               printf("\n");
 
-              pcapwriter_write(tv+i, direction[i], length, buf[i]);
+              pcapwriter_write(tv+i, direction[i], length[i], buf[i]);
 
               pos[i] = 0;
             }
