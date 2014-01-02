@@ -171,6 +171,8 @@ void terminate(int sig)
 #define HCI_EVENT_PKT           0x04
 #define HCI_VENDOR_PKT          0xff
 
+#define BUFFER_SIZE 4096
+
 int main(int argc, char* argv[])
 {
 
@@ -201,7 +203,7 @@ int main(int argc, char* argv[])
       {.fd = fd2, .events = POLLIN},
   };
 
-  unsigned char buf[sizeof(pfd)/sizeof(*pfd)][4096+4+2+2];
+  unsigned char buf[sizeof(pfd)/sizeof(*pfd)][BUFFER_SIZE];
 
   int pos[sizeof(pfd)/sizeof(*pfd)] = {};
   unsigned int direction[sizeof(pfd)/sizeof(*pfd)] = {};
@@ -264,14 +266,15 @@ int main(int argc, char* argv[])
                 }
                 break;
               case HCI_ACLDATA_PKT:
-              /*
-               * TODO MLA
-               */
-                break;
-              case HCI_SCODATA_PKT:
-              /*
-               * TODO MLA
-               */
+                if(pos[i] == 6)
+                {
+                  length = buf[i][5]+(buf[i][6] << 8)+7;
+                  if(length > BUFFER_SIZE)
+                  {
+                    fprintf(stderr, "length is higher than %d: %d\n", BUFFER_SIZE, length);
+                    done = 1;
+                  }
+                }
                 break;
               case HCI_EVENT_PKT:
                 if(pos[i] == 2)
