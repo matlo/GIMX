@@ -247,10 +247,10 @@ int main(int argc, char* argv[])
                   continue;
                   break;
                 case HCI_COMMAND_PKT:
-                  direction[i] = 0;
+                  direction[i] = 0x00000000;
                   break;
                 case HCI_EVENT_PKT:
-                  direction[i] = 1;
+                  direction[i] = 0x01000000;
                   break;
               }
             }
