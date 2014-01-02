@@ -264,14 +264,20 @@ int main(int argc, char* argv[])
                 }
                 break;
               case HCI_ACLDATA_PKT:
-                if(pos[i] == 6)
+                if(pos[i] == 3)
                 {
-                  length[i] = buf[i][5]+(buf[i][6] << 8)+7;
+                  length[i] = buf[i][3]+(buf[i][4] << 8)+5;
                   if(length[i] > BUFFER_SIZE)
                   {
                     fprintf(stderr, "length is higher than %d: %d\n", BUFFER_SIZE, length[i]);
                     done = 1;
                   }
+                }
+                break;
+              case HCI_SCODATA_PKT:
+                if(pos[i] == 3)
+                {
+                  length[i] = buf[i][3]+4;
                 }
                 break;
               case HCI_EVENT_PKT:
