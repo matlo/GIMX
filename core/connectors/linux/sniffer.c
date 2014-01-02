@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include <poll.h>
 
@@ -69,9 +70,9 @@ void serial_close(int fd)
   close(fd);
 }
 
-#define guint32 unsigned long
+#define guint32 unsigned int
 #define guint16 unsigned short
-#define gint32 signed long
+#define gint32 signed int
 
 typedef struct pcap_hdr_s {
   guint32 magic_number; /* magic number */
@@ -131,9 +132,8 @@ void pcapwriter_close()
   }
 }
 
-void pcapwriter_write(unsigned int direction, unsigned char packet_type, unsigned short data_length, unsigned char data[data_length])
+void pcapwriter_write(struct timeval* tv, unsigned int direction, unsigned short data_length, unsigned char data[data_length])
 {
-  struct timeval tv;
   unsigned int length = 0;
 
   if(!file)
@@ -147,17 +147,14 @@ void pcapwriter_write(unsigned int direction, unsigned char packet_type, unsigne
     .direction = direction
   };
 
-  gettimeofday(&tv, NULL);
+  packet_header.ts_sec = tv->tv_sec;
+  packet_header.ts_usec = tv->tv_usec;
 
-  packet_header.ts_sec = tv.tv_sec;
-  packet_header.ts_usec = tv.tv_usec;
-
-  packet_header.incl_len = sizeof(bt_h4_hdr)+1+data_length;
-  packet_header.orig_len = sizeof(bt_h4_hdr)+1+data_length;
+  packet_header.incl_len = sizeof(bt_h4_hdr)+data_length;
+  packet_header.orig_len = sizeof(bt_h4_hdr)+data_length;
 
   fwrite((char*)&packet_header, 1, sizeof(packet_header), file);
   fwrite((char*)&bt_h4_hdr, 1, sizeof(bt_h4_hdr), file);
-  fwrite((char*)&packet_type, 1, sizeof(packet_type), file);
   fwrite((char*)data, 1, data_length, file);
 }
 
@@ -168,19 +165,17 @@ void terminate(int sig)
   done = 1;
 }
 
-#define SLIP_START_END        0xC0
-#define SLIP_ESCAPE           0xDB
-#define SLIP_ESCAPE_START_END 0xDC
-#define SLIP_ESCAPE_ESCAPE    0xDD
-
 #define HCI_COMMAND_PKT         0x01
 #define HCI_ACLDATA_PKT         0x02
 #define HCI_SCODATA_PKT         0x03
 #define HCI_EVENT_PKT           0x04
-#define HCI_VENDOR_PKT          0x0E
+#define HCI_VENDOR_PKT          0xff
 
 int main(int argc, char* argv[])
 {
+
+  (void) signal(SIGINT, terminate);
+
   int fd1 = serial_connect(PORT1);
   if(fd1 < 0)
   {
@@ -210,9 +205,9 @@ int main(int argc, char* argv[])
 
   int pos[sizeof(pfd)/sizeof(*pfd)] = {};
   unsigned int direction[sizeof(pfd)/sizeof(*pfd)] = {};
+  struct timeval tv[sizeof(pfd)/sizeof(*pfd)] = {};
   int res;
   int i;
-  int escape = 0;
   unsigned char type;
   unsigned short length;
 
@@ -224,7 +219,6 @@ int main(int argc, char* argv[])
       {
         if(pfd[i].revents & POLLIN)
         {
-          printf("got POLLIN event from fd=%d\n", pfd[i].fd);
           res = read(pfd[i].fd, buf[i]+pos[i], 1);
           if(res < 0)
           {
@@ -240,71 +234,82 @@ int main(int argc, char* argv[])
           }
           else if(res == 1)
           {
-            if(buf[i][pos[i]] == SLIP_START_END)
-            {
-              if(pos[i] == 1)
-              {
-                printf("skipping end of SLIP packet from fd=%d\n", pfd[i].fd);
-              }
-              else if(pos[i] > 1)
-              {
-                printf("got end of SLIP packet from fd=%d\n", pfd[i].fd);
-                printf("packet size: %d\n", pos[i]-1);
+            type = buf[i][0];
 
-                type = buf[i][2] >> 4;
-                
-                switch(type)
+            if(pos[i] == 0)
+            {
+              gettimeofday(&tv[i], NULL);
+
+              switch(type)
+              {
+                case 0x00:
+                  printf("skipping null byte\n");
+                  continue;
+                  break;
+                case HCI_COMMAND_PKT:
+                  direction[i] = 0;
+                  break;
+                case HCI_EVENT_PKT:
+                  direction[i] = 1;
+                  break;
+              }
+            }
+
+            switch(type)
+            {
+              case HCI_COMMAND_PKT:
+                if(pos[i] == 3)
                 {
-                  case HCI_COMMAND_PKT:
-                    direction[i] = 0;
-                    break;
-                  case HCI_EVENT_PKT:
-                    direction[i] = 1;
-                    break;
+                  length = buf[i][3]+4;
                 }
-                
-                length = ((buf[i][2] & 0x0F) << 8) + buf[i][3];
-                
-                pcapwriter_write(direction[i], type, length, buf[i]+5);
+                break;
+              case HCI_ACLDATA_PKT:
+              /*
+               * TODO MLA
+               */
+                break;
+              case HCI_SCODATA_PKT:
+              /*
+               * TODO MLA
+               */
+                break;
+              case HCI_EVENT_PKT:
+                if(pos[i] == 2)
+                {
+                  length = buf[i][2]+3;
+                }
+                break;
+              case HCI_VENDOR_PKT:
+                if(pos[i] == 2)
+                {
+                  length = buf[i][2]+3;
+                }
+                break;
+              default:
+                printf("unknown packet type: 0x%02x\n", type);
+            }
 
-                pos[i] = 0;
-              }
-              else
-              {
-                printf("got start of SLIP packet from fd=%d\n", pfd[i].fd);
-                pos[i]++;
-              }
-            }
-            else if(pos[i] == 0)
+            pos[i]++;
+
+            if(length == pos[i])
             {
-              printf("skipping data from fd=%d\n", pfd[i].fd);
-            }
-            else
-            {
-              printf("got data from fd=%d\n", pfd[i].fd);
-              switch(buf[i][pos[i]])
+              printf("packet type: %d\n", type);
+              printf("packet length: %d\n", length);
+              
+              int j;
+              for(j=0; j<length; ++j)
               {
-                case SLIP_ESCAPE:
-                  escape = 1;
-                  break;
-                case SLIP_ESCAPE_START_END:
-                  if(escape)
-                  {
-                    pos[i]--;
-                    buf[i][pos[i]] = SLIP_START_END;
-                    escape = 0;
-                  }
-                  break;
-                case SLIP_ESCAPE_ESCAPE:
-                  if(escape)
-                  {
-                    pos[i]--;
-                    buf[i][pos[i]] = SLIP_ESCAPE;
-                    escape = 0;
-                  }
-                  break;
+                if(!(j%8))
+                {
+                  printf("\n");
+                }
+                printf("0x%02x ", buf[i][j]);
               }
-              pos[i]++;
+              printf("\n");
+
+              pcapwriter_write(tv+i, direction[i], length, buf[i]);
+
+              pos[i] = 0;
             }
           }
         }
