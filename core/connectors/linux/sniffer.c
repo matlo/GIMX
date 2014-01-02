@@ -290,6 +290,8 @@ int main(int argc, char* argv[])
                 break;
               default:
                 printf("unknown packet type: 0x%02x\n", type);
+                done = 1;
+                break;
             }
 
             pos[i]++;
