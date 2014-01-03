@@ -21,6 +21,8 @@
 
 #include <errno.h>
 
+#include <sched.h>
+
 #define PORT1 "/dev/ttyUSB0"
 #define PORT2 "/dev/ttyUSB1"
 
@@ -132,6 +134,21 @@ void pcapwriter_close()
   }
 }
 
+static unsigned char buffer[1000000];
+static unsigned int total = 0;
+
+void store_data(void* from, unsigned int length)
+{
+  if(total + length >= sizeof(buffer))
+  {
+    fwrite((char*)buffer, 1, total, file);
+    total = 0;
+  }
+
+  memcpy(buffer+total, from, length);
+  total += length;
+}
+
 void pcapwriter_write(struct timeval* tv, unsigned int direction, unsigned short data_length, unsigned char data[data_length])
 {
   if(!file)
@@ -151,9 +168,9 @@ void pcapwriter_write(struct timeval* tv, unsigned int direction, unsigned short
   packet_header.incl_len = sizeof(bt_h4_hdr)+data_length;
   packet_header.orig_len = sizeof(bt_h4_hdr)+data_length;
 
-  fwrite((char*)&packet_header, 1, sizeof(packet_header), file);
-  fwrite((char*)&bt_h4_hdr, 1, sizeof(bt_h4_hdr), file);
-  fwrite((char*)data, 1, data_length, file);
+  store_data(&packet_header, sizeof(packet_header));
+  store_data(&bt_h4_hdr, sizeof(bt_h4_hdr));
+  store_data(data, data_length);
 }
 
 static volatile int done = 0;
@@ -169,12 +186,142 @@ void terminate(int sig)
 #define HCI_EVENT_PKT           0x04
 #define HCI_VENDOR_PKT          0xff
 
-#define BUFFER_SIZE 4096
+#define RX_LINES 2
+#define BUFFER_SIZE 8192
+
+unsigned char buf[RX_LINES][BUFFER_SIZE] = {};
+unsigned int direction[RX_LINES] = {};
+int last[RX_LINES] = {};
+struct timeval tv[RX_LINES] = {};
+
+/*
+ * warning: enabling debug can lead to performance issues,
+ * that will mostly result in decoding failure.
+ */
+int debug = 0;
+
+int read_packet(int index)
+{
+  int offset = 0;
+
+  while(offset < last[index] && !buf[index][offset])
+  {
+    offset++;
+  }
+
+  if(offset)
+  {
+    printf("(%d) skip: %d byte(s)\n", index, offset);
+  }
+
+  if(offset == last[index])
+  {
+    last[index] = 0;
+    return 0;
+  }
+
+  unsigned char type = buf[index][offset];
+
+  switch(type)
+  {
+    case HCI_COMMAND_PKT:
+      direction[index] = 0x00000000;
+      break;
+    case HCI_EVENT_PKT:
+      direction[index] = 0x01000000;
+      break;
+  }
+
+  unsigned int length = 0;
+
+  switch(type)
+  {
+    case HCI_COMMAND_PKT:
+      if(last[index] > 3)
+      {
+        length = buf[index][offset+3]+4;
+      }
+      break;
+    case HCI_ACLDATA_PKT:
+      if(last[index] > 3)
+      {
+        length = buf[index][offset+3]+(buf[index][offset+4] << 8)+5;
+        if(length > BUFFER_SIZE)
+        {
+          fprintf(stderr, "length is higher than %d: %d\n", BUFFER_SIZE, length);
+          done = 1;
+        }
+      }
+      break;
+    case HCI_SCODATA_PKT:
+      if(last[index] > 3)
+      {
+        length = buf[index][offset+3]+4;
+      }
+      break;
+    case HCI_EVENT_PKT:
+      if(last[index] > 2)
+      {
+        length = buf[index][offset+2]+3;
+      }
+      break;
+    case HCI_VENDOR_PKT:
+      if(last[index] > 2)
+      {
+        length = buf[index][offset+2]+3;
+      }
+      break;
+    default:
+      printf("unknown packet type: 0x%02x\n", type);
+      done = 1;
+      break;
+  }
+
+  if(!length)
+  {
+    return 0;
+  }
+
+  if(last[index]-offset < length)
+  {
+    return 0;
+  }
+
+  printf("(%d) packet: type=0x%02x length=%d\n", index, type, length);
+
+  if(debug)
+  {
+    int j;
+    for(j=0; j<length; ++j)
+    {
+      if(!(j%8))
+      {
+        printf("\n");
+      }
+      printf("0x%02x ", buf[index][offset+j]);
+    }
+    printf("\n");
+  }
+
+  pcapwriter_write(tv+index, direction[index], length, buf[index]);
+
+  memmove(buf[index], buf[index]+length, last[index]-length);
+
+  last[index] -= length;
+
+  return 1;
+}
 
 int main(int argc, char* argv[])
 {
-
   (void) signal(SIGINT, terminate);
+
+  struct sched_param p =
+  {
+      .sched_priority = sched_get_priority_max(SCHED_FIFO)
+  };
+
+  sched_setscheduler(0, SCHED_FIFO, &p);
 
   int fd1 = serial_connect(PORT1);
   if(fd1 < 0)
@@ -195,31 +342,24 @@ int main(int argc, char* argv[])
   
   pcapwriter_init(argv[1]);
 
-  struct pollfd pfd[2] =
+  struct pollfd pfd[RX_LINES] =
   {
       {.fd = fd1, .events = POLLIN},
       {.fd = fd2, .events = POLLIN},
   };
 
-  unsigned char buf[sizeof(pfd)/sizeof(*pfd)][BUFFER_SIZE];
-
-  int pos[sizeof(pfd)/sizeof(*pfd)] = {};
-  unsigned int direction[sizeof(pfd)/sizeof(*pfd)] = {};
-  struct timeval tv[sizeof(pfd)/sizeof(*pfd)] = {};
   int res;
   int i;
-  unsigned char type[sizeof(pfd)/sizeof(*pfd)] = {};
-  unsigned short length[sizeof(pfd)/sizeof(*pfd)] = {};
 
   while(!done)
   {
     if(poll(pfd, 2, -1) > 0)
     {
-      for(i=0; i<sizeof(pfd)/sizeof(*pfd); ++i)
+      for(i=0; i<RX_LINES; ++i)
       {
         if(pfd[i].revents & POLLIN)
         {
-          res = read(pfd[i].fd, buf[i]+pos[i], 1);
+          res = read(pfd[i].fd, buf[i]+last[i], sizeof(*buf)-last[i]);
           if(res < 0)
           {
             if(errno == EINTR)
@@ -232,94 +372,15 @@ int main(int argc, char* argv[])
               done = 1;
             }
           }
-          else if(res == 1)
+          else if(res > 0)
           {
-            if(pos[i] == 0)
-            {
-              gettimeofday(&tv[i], NULL);
-              
-              type[i] = buf[i][0];
+            printf("(%d) read: %d bytes\n", i, res);
 
-              switch(type[i])
-              {
-                case 0x00:
-                  printf("skipping null byte\n");
-                  continue;
-                  break;
-                case HCI_COMMAND_PKT:
-                  direction[i] = 0x00000000;
-                  break;
-                case HCI_EVENT_PKT:
-                  direction[i] = 0x01000000;
-                  break;
-              }
-            }
+            last[i] += res;
 
-            switch(type[i])
-            {
-              case HCI_COMMAND_PKT:
-                if(pos[i] == 3)
-                {
-                  length[i] = buf[i][3]+4;
-                }
-                break;
-              case HCI_ACLDATA_PKT:
-                if(pos[i] == 3)
-                {
-                  length[i] = buf[i][3]+(buf[i][4] << 8)+5;
-                  if(length[i] > BUFFER_SIZE)
-                  {
-                    fprintf(stderr, "length is higher than %d: %d\n", BUFFER_SIZE, length[i]);
-                    done = 1;
-                  }
-                }
-                break;
-              case HCI_SCODATA_PKT:
-                if(pos[i] == 3)
-                {
-                  length[i] = buf[i][3]+4;
-                }
-                break;
-              case HCI_EVENT_PKT:
-                if(pos[i] == 2)
-                {
-                  length[i] = buf[i][2]+3;
-                }
-                break;
-              case HCI_VENDOR_PKT:
-                if(pos[i] == 2)
-                {
-                  length[i] = buf[i][2]+3;
-                }
-                break;
-              default:
-                printf("unknown packet type: 0x%02x\n", type[i]);
-                done = 1;
-                break;
-            }
+            gettimeofday(tv+i, NULL);
 
-            pos[i]++;
-
-            if(length[i] == pos[i])
-            {
-              printf("packet type: %d\n", type[i]);
-              printf("packet length: %d\n", length[i]);
-              
-              int j;
-              for(j=0; j<length[i]; ++j)
-              {
-                if(!(j%8))
-                {
-                  printf("\n");
-                }
-                printf("0x%02x ", buf[i][j]);
-              }
-              printf("\n");
-
-              pcapwriter_write(tv+i, direction[i], length[i], buf[i]);
-
-              pos[i] = 0;
-            }
+            while(read_packet(i)) {}
           }
         }
         if(pfd[i].revents & POLLERR)
@@ -329,6 +390,11 @@ int main(int argc, char* argv[])
         }
       }
     }
+  }
+
+  if(total > 0)
+  {
+    fwrite((char*)buffer, 1, total, file);
   }
 
   pcapwriter_close();
