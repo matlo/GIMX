@@ -5,7 +5,7 @@ serial/gimx-serial
 bluetooth/gimx-bluetooth
 config/gimx-config
 fpsconfig/gimx-fpsconfig
-core/gimx-core
+core/gimx
 core/bdaddr
 core/hcirevision
 core/usbspoof
