@@ -30,7 +30,7 @@ all: $(BINS)
 clean:
 	rm -f $(OUT) *~ *.o */*.o */*/*.o
 
-EMUCLIENT_OBJ = \
+GIMX_OBJ = \
        emuclient.o\
        args.o\
        display.o\
@@ -55,7 +55,7 @@ EMUCLIENT_OBJ = \
        controllers/x360.o
 
 ifneq ($(OS),Windows_NT)
-EMUCLIENT_OBJ += \
+GIMX_OBJ += \
        connectors/sixaxis.o\
        connectors/gpp/hid_LINUX.o\
        connectors/l2cap_con.o\
@@ -64,20 +64,17 @@ EMUCLIENT_OBJ += \
        connectors/linux/serial.o\
        linux/mainloop.o
 else
-EMUCLIENT_OBJ += \
+GIMX_OBJ += \
        connectors/gpp/hid_WINDOWS.o\
        windows/prio.o\
        connectors/windows/serial.o\
        windows/mainloop.o
 endif
 
-gimx: $(DEP) $(EMUCLIENT_OBJ)
+gimx: $(DEP) $(GIMX_OBJ)
 	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LIB)
 
 ifneq ($(OS),Windows_NT)
-emu: emu.o connectors/sixaxis.o dump.o connectors/l2cap_con.o connectors/bt_utils.o linux/prio.o controllers/ds3.o
-	$(CC) $(INC) -o $@ $^ -lbluetooth
-
 sixaddr: utils/sixaddr.o
 	$(CC) -o $@ $^ -lusb
 	
