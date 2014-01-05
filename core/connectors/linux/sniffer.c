@@ -1,6 +1,11 @@
 /*
  Copyright (c) 2013 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
+
+ Compile: gcc -o sniffer sniffer.c
+ Run:
+ $ ./sniffer | wireshark -k -i -
+ $ ./sniffer -w filename
  */
 
 #include <stdio.h>
@@ -39,11 +44,9 @@ int serial_connect(char* portname)
   struct termios options;
   int fd;
 
-  printf("connecting to %s\n", portname);
-
   if ((fd = open(portname, O_RDONLY | O_NOCTTY)) < 0)
   {
-    printf("can't connect to %s\n", portname);
+    fprintf(stderr, "can't connect to %s\n", portname);
   }
   else
   {
@@ -53,13 +56,9 @@ int serial_connect(char* portname)
     cfmakeraw(&options);
     if(tcsetattr(fd, TCSANOW, &options) < 0)
     {
-      printf("can't set serial port options\n");
+      fprintf(stderr, "can't set serial port options\n");
       close(fd);
       fd = -1;
-    }
-    else
-    {
-      printf("connected\n");
     }
     tcflush(fd, TCIFLUSH);
   }
@@ -111,18 +110,26 @@ typedef struct _pcap_bluetooth_h4_header {
 static pcaprec_hdr_t packet_header = {};
 
 static FILE* file = NULL;
+static char* filename = NULL;
 
-void pcapwriter_init(char* file_name)
+void pcapwriter_init()
 {
-  file = fopen(file_name, "w");
-
-  if(!file)
+  if(filename)
   {
-    fprintf(stderr, "pcapwriter_init");
+    file = fopen(filename, "w");
+
+    if(!file)
+    {
+      fprintf(stderr, "pcapwriter_init");
+    }
+    else
+    {
+      fwrite((char*)&capture_header, 1, sizeof(capture_header), file);
+    }
   }
   else
   {
-    fwrite((char*)&capture_header, 1, sizeof(capture_header), file);
+    write(fileno(stdout), &capture_header, sizeof(capture_header));
   }
 }
 
@@ -151,12 +158,6 @@ void store_data(void* from, unsigned int length)
 
 void pcapwriter_write(struct timeval* tv, unsigned int direction, unsigned short data_length, unsigned char data[data_length])
 {
-  if(!file)
-  {
-    fprintf(stderr, "pcapwriter_write\n");
-    return;
-  }
-  
   pcap_bluetooth_h4_header bt_h4_hdr =
   {
     .direction = direction
@@ -168,9 +169,45 @@ void pcapwriter_write(struct timeval* tv, unsigned int direction, unsigned short
   packet_header.incl_len = sizeof(bt_h4_hdr)+data_length;
   packet_header.orig_len = sizeof(bt_h4_hdr)+data_length;
 
-  store_data(&packet_header, sizeof(packet_header));
-  store_data(&bt_h4_hdr, sizeof(bt_h4_hdr));
-  store_data(data, data_length);
+  if(file)
+  {
+    store_data(&packet_header, sizeof(packet_header));
+    store_data(&bt_h4_hdr, sizeof(bt_h4_hdr));
+    store_data(data, data_length);
+  }
+  else
+  {
+    write(fileno(stdout), &packet_header, sizeof(packet_header));
+    write(fileno(stdout), &bt_h4_hdr, sizeof(bt_h4_hdr));
+    write(fileno(stdout), data, data_length);
+  }
+}
+
+static void usage()
+{
+  fprintf(stderr, "Usage: sniffer [-w filename]\n");
+  exit(EXIT_FAILURE);
+}
+
+/*
+ * Reads command-line arguments.
+ */
+static void read_args(int argc, char* argv[])
+{
+  int opt;
+
+  while ((opt = getopt(argc, argv, ":w:")) != -1)
+  {
+    switch (opt)
+    {
+      case 'w':
+        filename = optarg;
+        break;
+      default: /* '?' */
+        usage();
+        break;
+    }
+  }
 }
 
 static volatile int done = 0;
@@ -209,7 +246,7 @@ int read_packet(int index)
     offset++;
   }
 
-  if(offset)
+  if(filename && offset)
   {
     printf("(%d) skip: %d byte(s)\n", index, offset);
   }
@@ -272,7 +309,7 @@ int read_packet(int index)
       }
       break;
     default:
-      printf("unknown packet type: 0x%02x\n", type);
+      fprintf(stderr, "unknown packet type: 0x%02x\n", type);
       done = 1;
       break;
   }
@@ -287,7 +324,10 @@ int read_packet(int index)
     return 0;
   }
 
-  printf("(%d) packet: type=0x%02x length=%d\n", index, type, length);
+  if(filename)
+  {
+    printf("(%d) packet: type=0x%02x length=%d\n", index, type, length);
+  }
 
   if(debug)
   {
@@ -323,6 +363,8 @@ int main(int argc, char* argv[])
 
   sched_setscheduler(0, SCHED_FIFO, &p);
 
+  read_args(argc, argv);
+
   int fd1 = serial_connect(PORT1);
   if(fd1 < 0)
   {
@@ -333,11 +375,6 @@ int main(int argc, char* argv[])
   if(fd1 < 0)
   {
     exit(-1);
-  }
-  
-  if(argc < 2)
-  {
-    printf("usage: ./sniffer <filename>");
   }
   
   pcapwriter_init(argv[1]);
@@ -374,7 +411,10 @@ int main(int argc, char* argv[])
           }
           else if(res > 0)
           {
-            printf("(%d) read: %d bytes\n", i, res);
+            if(filename)
+            {
+              printf("(%d) read: %d bytes\n", i, res);
+            }
 
             last[i] += res;
 
