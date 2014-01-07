@@ -92,8 +92,18 @@ int connector_init()
     }
     else if(control->type == C_TYPE_GPP)
     {
-      if (gpp_connect() < 0)
+      int rtype = gpp_connect();
+      if (rtype < 0)
       {
+        ret = -1;
+      }
+      else if(rtype < C_TYPE_MAX)
+      {
+        controller_gpp_set_refresh_periods(rtype);
+      }
+      else
+      {
+        fprintf(stderr, _("Unknown GPP controller type.\n"));
         ret = -1;
       }
     }
