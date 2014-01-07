@@ -11,7 +11,7 @@
 
 int gpp_connect()
 {
-  int ret;
+  int ret = -1;
   struct gppReport report;
 
   if(gppcprog_connect() != 1)
