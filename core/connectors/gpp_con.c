@@ -11,6 +11,7 @@
 
 int gpp_connect()
 {
+  int ret;
   struct gppReport report;
 
   if(gppcprog_connect() != 1)
@@ -19,8 +20,29 @@ int gpp_connect()
   }
 
   while(gpppcprog_input(&report, 100) != 1) {}
+  
+  switch(report.console)
+  {
+    case CONSOLE_DISCONNECTED:
+      ret = -1;
+      break;
+    case CONSOLE_PS3:
+      ret = C_TYPE_SIXAXIS;
+      break;
+    case CONSOLE_XB360:
+      ret = C_TYPE_360_PAD;
+      break;
+    case CONSOLE_PS4:
+      ret = C_TYPE_DS4;
+      break;
+    case CONSOLE_XB1:
+      /*
+       * TODO MLA: add controller type
+       */
+      break;
+  }
 
-  return 0;
+  return ret;
 }
 
 int gpp_send(int axis[AXIS_MAX])
