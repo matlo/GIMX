@@ -11,6 +11,7 @@ extern unsigned int ds3_report_build(int axis[AXIS_MAX], s_report* report);
 extern unsigned int ds4_report_build(int axis[AXIS_MAX], s_report* report);
 extern unsigned int xbox_report_build(int axis[AXIS_MAX], s_report* report);
 extern unsigned int x360_report_build(int axis[AXIS_MAX], s_report* report);
+extern unsigned int xone_report_build(int axis[AXIS_MAX], s_report* report);
 
 unsigned int (*func_ptr[C_TYPE_MAX])(int axis[AXIS_MAX], s_report* report) =
 {
@@ -20,6 +21,7 @@ unsigned int (*func_ptr[C_TYPE_MAX])(int axis[AXIS_MAX], s_report* report) =
     [C_TYPE_DS4] = ds4_report_build,
     [C_TYPE_XBOX_PAD] = xbox_report_build,
     [C_TYPE_360_PAD] = x360_report_build,
+    [C_TYPE_XONE_PAD] = xone_report_build,
     [C_TYPE_DEFAULT] = ds3_report_build,
 };
 

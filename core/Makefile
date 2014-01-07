@@ -52,7 +52,8 @@ GIMX_OBJ = \
        controllers/ds3.o\
        controllers/ds4.o\
        controllers/xbox.o\
-       controllers/x360.o
+       controllers/x360.o\
+       controllers/xone.o
 
 ifneq ($(OS),Windows_NT)
 GIMX_OBJ += \

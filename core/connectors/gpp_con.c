@@ -36,9 +36,7 @@ int gpp_connect()
       ret = C_TYPE_DS4;
       break;
     case CONSOLE_XB1:
-      /*
-       * TODO MLA: add controller type
-       */
+      ret = C_TYPE_XONE_PAD;
       break;
   }
 

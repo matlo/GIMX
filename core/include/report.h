@@ -15,6 +15,7 @@
 #include <controllers/joystick.h>
 #include <controllers/xbox.h>
 #include <controllers/x360.h>
+#include <controllers/xone.h>
 
 typedef union
 {
@@ -24,6 +25,7 @@ typedef union
   s_report_ds4 ds4;
   s_report_xbox xbox;
   s_report_x360 x360;
+  s_report_xone xone;
 } s_report_union;
 
 typedef struct

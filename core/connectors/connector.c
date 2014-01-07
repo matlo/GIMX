@@ -28,14 +28,15 @@ inline int clamp(int min, int val, int max)
 
 static const char* controller_name[C_TYPE_MAX] =
 {
-  "joystick",
-  "360pad",
-  "Sixaxis",
-  "PS2pad",
-  "XboxPad",
-  "DS4",
-  "GPP",
-  "none"
+  [C_TYPE_JOYSTICK] = "joystick",
+  [C_TYPE_360_PAD] = "360pad",
+  [C_TYPE_SIXAXIS] = "Sixaxis",
+  [C_TYPE_PS2_PAD] = "PS2pad",
+  [C_TYPE_XBOX_PAD] = "XboxPad",
+  [C_TYPE_DS4] = "DS4",
+  [C_TYPE_XONE_PAD] = "XOnePad",
+  [C_TYPE_GPP] = "GPP",
+  [C_TYPE_DEFAULT] = "none",
 };
 
 int connector_init()
@@ -81,6 +82,12 @@ int connector_init()
                 ret = -1;
               }
             }
+            else if(control->type == C_TYPE_XONE_PAD)
+            {
+              /*
+               * TODO XONE
+               */
+            }
           }
         }
       }
@@ -95,10 +102,12 @@ int connector_init()
       int rtype = gpp_connect();
       if (rtype < 0)
       {
+        fprintf(stderr, _("No controller detected.\n"));
         ret = -1;
       }
       else if(rtype < C_TYPE_MAX)
       {
+        printf(_("Detected controller: %s.\n"), controller_name[rtype]);
         controller_gpp_set_refresh_periods(rtype);
       }
       else
