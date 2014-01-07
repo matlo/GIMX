@@ -88,6 +88,7 @@ void controller_init();
 inline s_controller* get_controller(unsigned char index);
 int controller_set_port(unsigned char index, char* portname);
 
+void controller_gpp_set_refresh_periods(e_controller_type type);
 int get_min_refresh_period(e_controller_type type);
 int get_default_refresh_period(e_controller_type type);
 
