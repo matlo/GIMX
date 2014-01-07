@@ -122,6 +122,7 @@ int* max_unsigned_axis_value[C_TYPE_MAX] =
     [C_TYPE_DS4] = ds4_max_unsigned_axis_value,
     [C_TYPE_XBOX_PAD] = xbox_max_unsigned_axis_value,
     [C_TYPE_360_PAD] = x360_max_unsigned_axis_value,
+    [C_TYPE_XONE_PAD] = xone_max_unsigned_axis_value,
     [C_TYPE_GPP] = ds3_max_unsigned_axis_value,
     [C_TYPE_DEFAULT] = ds3_max_unsigned_axis_value,
 };
