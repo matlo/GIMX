@@ -33,15 +33,9 @@ int l2cap_set_flush_timeout(bdaddr_t *ba, int timeout_ms)
     struct hci_conn_info_req *cr = 0;
     struct hci_request rq = { 0 };
 
-    struct {
-        uint16_t handle;
-        uint16_t flush_timeout;
-    } cmd_param;
+    write_link_supervision_timeout_cp cmd_param;
 
-    struct {
-        uint8_t  status;
-        uint16_t handle;
-    } cmd_response;
+    write_link_supervision_timeout_rp cmd_response;
 
     // find the connection handle to the specified bluetooth device
     cr = (struct hci_conn_info_req*) malloc(
@@ -59,9 +53,9 @@ int l2cap_set_flush_timeout(bdaddr_t *ba, int timeout_ms)
 
     // build a command packet to send to the bluetooth microcontroller
     cmd_param.handle = cr->conn_info->handle;
-    cmd_param.flush_timeout = htobs(timeout_ms/BT_SLOT);
+    cmd_param.timeout = htobs(timeout_ms/BT_SLOT);
     rq.ogf = OGF_HOST_CTL;
-    rq.ocf = 0x28;
+    rq.ocf = OCF_WRITE_AUTOMATIC_FLUSH_TIMEOUT;
     rq.cparam = &cmd_param;
     rq.clen = sizeof(cmd_param);
     rq.rparam = &cmd_response;
