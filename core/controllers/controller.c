@@ -67,69 +67,101 @@ void set_axis_value(unsigned char c, int axis, int value)
   }
 }
 
-static int min_refresh_period[C_TYPE_MAX] =
-{
-    [C_TYPE_JOYSTICK] =  1000,
-    [C_TYPE_360_PAD]  =  1000,
-    [C_TYPE_SIXAXIS]  =  1000,
-    [C_TYPE_PS2_PAD]  = 16000,
-    [C_TYPE_XBOX_PAD] =  4000,
-    [C_TYPE_DS4]      =  1000,
-    [C_TYPE_GPP]      =  1000,
-    [C_TYPE_DEFAULT]  = 11250,
-};
-
-static int default_refresh_period[C_TYPE_MAX] =
-{
-    [C_TYPE_JOYSTICK] =  4000,
-    [C_TYPE_360_PAD]  =  8000,
-    [C_TYPE_SIXAXIS]  = 10000,
-    [C_TYPE_PS2_PAD]  = 16000,
-    [C_TYPE_XBOX_PAD] =  8000,
-    [C_TYPE_DS4]      =  5000,
-    [C_TYPE_GPP]      =  4000,
-    [C_TYPE_DEFAULT]  = 11250,
-};
-
-void controller_gpp_set_refresh_periods(e_controller_type type)
-{
-  min_refresh_period[C_TYPE_GPP] = min_refresh_period[type];
-  default_refresh_period[C_TYPE_GPP] = default_refresh_period[type];
-}
-
-int get_min_refresh_period(e_controller_type type)
-{
-  return min_refresh_period[type];
-}
-
-int get_default_refresh_period(e_controller_type type)
-{
-  return default_refresh_period[type];
-}
-
 extern int joystick_max_unsigned_axis_value[AXIS_MAX];
 extern int ds2_max_unsigned_axis_value[AXIS_MAX];
 extern int ds3_max_unsigned_axis_value[AXIS_MAX];
 extern int ds4_max_unsigned_axis_value[AXIS_MAX];
 extern int xbox_max_unsigned_axis_value[AXIS_MAX];
 extern int x360_max_unsigned_axis_value[AXIS_MAX];
+extern int xone_max_unsigned_axis_value[AXIS_MAX];
 
-int* max_unsigned_axis_value[C_TYPE_MAX] =
+typedef struct
 {
-    [C_TYPE_JOYSTICK] = joystick_max_unsigned_axis_value,
-    [C_TYPE_PS2_PAD] = ds2_max_unsigned_axis_value,
-    [C_TYPE_SIXAXIS] = ds3_max_unsigned_axis_value,
-    [C_TYPE_DS4] = ds4_max_unsigned_axis_value,
-    [C_TYPE_XBOX_PAD] = xbox_max_unsigned_axis_value,
-    [C_TYPE_360_PAD] = x360_max_unsigned_axis_value,
-    [C_TYPE_XONE_PAD] = xone_max_unsigned_axis_value,
-    [C_TYPE_GPP] = ds3_max_unsigned_axis_value,
-    [C_TYPE_DEFAULT] = ds3_max_unsigned_axis_value,
+  int min_refresh_period;
+  int default_refresh_period;
+  int* max_unsigned_axis_value;
+} s_controller_params;
+
+s_controller_params controller_params[C_TYPE_MAX] =
+{
+    [C_TYPE_JOYSTICK] =
+    {
+        .min_refresh_period = 1000,
+        .default_refresh_period = 4000,
+        .max_unsigned_axis_value = joystick_max_unsigned_axis_value
+    },
+    [C_TYPE_360_PAD] =
+    {
+        .min_refresh_period = 1000,
+        .default_refresh_period = 8000,
+        .max_unsigned_axis_value = x360_max_unsigned_axis_value
+    },
+    [C_TYPE_SIXAXIS] =
+    {
+        .min_refresh_period = 1000,
+        .default_refresh_period = 10000,
+        .max_unsigned_axis_value = ds3_max_unsigned_axis_value
+    },
+    [C_TYPE_PS2_PAD] =
+    {
+        .min_refresh_period = 16000,
+        .default_refresh_period = 16000,
+        .max_unsigned_axis_value = ds2_max_unsigned_axis_value
+    },
+    [C_TYPE_XBOX_PAD] =
+    {
+        .min_refresh_period = 4000,
+        .default_refresh_period = 8000,
+        .max_unsigned_axis_value = xbox_max_unsigned_axis_value
+    },
+    [C_TYPE_DS4] =
+    {
+        .min_refresh_period = 1000,
+        .default_refresh_period = 5000,
+        .max_unsigned_axis_value = ds4_max_unsigned_axis_value
+    },
+    [C_TYPE_XONE_PAD] =
+    {
+        /*
+         * TODO XONE
+         */
+        .min_refresh_period = 1000,
+        .default_refresh_period = 4000,
+        .max_unsigned_axis_value = xone_max_unsigned_axis_value
+    },
+    [C_TYPE_GPP] =
+    {
+        .min_refresh_period = 1000,//to be updated according to the controller type
+        .default_refresh_period = 4000,//to be updated according to the controller type
+        .max_unsigned_axis_value = ds3_max_unsigned_axis_value
+    },
+    [C_TYPE_DEFAULT] =
+    {
+        .min_refresh_period = 11250,
+        .default_refresh_period = 11250,
+        .max_unsigned_axis_value = ds3_max_unsigned_axis_value
+    },
 };
+
+void controller_gpp_set_refresh_periods(e_controller_type type)
+{
+  controller_params[C_TYPE_GPP].min_refresh_period = controller_params[type].min_refresh_period;
+  controller_params[C_TYPE_GPP].default_refresh_period = controller_params[type].default_refresh_period;
+}
+
+int get_min_refresh_period(e_controller_type type)
+{
+  return controller_params[type].min_refresh_period;
+}
+
+int get_default_refresh_period(e_controller_type type)
+{
+  return controller_params[type].default_refresh_period;
+}
 
 inline int get_max_unsigned(e_controller_type type, int axis)
 {
-  return max_unsigned_axis_value[type][axis];
+  return controller_params[type].max_unsigned_axis_value[axis];
 }
 
 inline int get_max_signed(e_controller_type type, int axis)
