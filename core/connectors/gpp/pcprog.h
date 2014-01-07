@@ -10,9 +10,11 @@
 #define     NUNCHUK_EXTENSION           0x01
 #define     CLASSIC_EXTENSION           0x02
 
-#define     CONSOLE_DISCONNECTED        0
-#define     CONSOLE_PS3                 1
-#define     CONSOLE_XB360               2
+#define     CONSOLE_DISCONNECTED           0
+#define     CONSOLE_PS3                    1
+#define     CONSOLE_XB360                  2
+#define     CONSOLE_PS4                    3
+#define     CONSOLE_XB1                    4
 
 #define     GPP_LED_OFF                     0
 #define     GPP_LED_ON                      1
