@@ -91,6 +91,12 @@ static int default_refresh_period[C_TYPE_MAX] =
     [C_TYPE_DEFAULT]  = 11250,
 };
 
+void controller_gpp_set_refresh_periods(e_controller_type type)
+{
+  min_refresh_period[C_TYPE_GPP] = min_refresh_period[type];
+  default_refresh_period[C_TYPE_GPP] = default_refresh_period[type];
+}
+
 int get_min_refresh_period(e_controller_type type)
 {
   return min_refresh_period[type];
