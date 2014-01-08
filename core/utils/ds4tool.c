@@ -48,8 +48,8 @@ void show_bdaddrs(libusb_device_handle* devh)
       msg[11], msg[10]);
 
   printf("Current Bluetooth Device Address: ");
-  printf("%02x:%02x:%02x:%02x:%02x:%02x\n", msg[7], msg[6], msg[5], msg[4],
-      msg[3], msg[2]);
+  printf("%02x:%02x:%02x:%02x:%02x:%02x\n", msg[6], msg[5], msg[4], msg[3],
+      msg[2], msg[1]);
 }
 
 void set_master(libusb_device_handle* devh, unsigned char mac[6])
