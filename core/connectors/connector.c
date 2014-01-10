@@ -218,7 +218,10 @@ int connector_send()
         case C_TYPE_DEFAULT:
           if(controller->dst_fd >= 0)
           {
-            ret = udp_send(controller->dst_fd, (unsigned char*)controller->axis, sizeof(controller->axis));
+            if(controller->send_command)
+            {
+              ret = udp_send(controller->dst_fd, (unsigned char*)controller->axis, sizeof(controller->axis));
+            }
           }
 #ifndef WIN32
           else if(controller->bdaddr_dst)
