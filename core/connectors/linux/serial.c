@@ -3,7 +3,7 @@
  License: GPLv3
  */
 
-#include <serial.h>
+#include <connectors/serial.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>

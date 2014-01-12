@@ -3,7 +3,6 @@
  License: GPLv3
  */
 
-#include "sixaxis.h"
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -14,9 +13,10 @@
 #else
 #include <winsock2.h> /* for htons */
 #endif
-#include <bt_utils.h>
-#include <l2cap_con.h>
 #include <GE.h>
+#include <connectors/sixaxis.h>
+#include <connectors/bt_utils.h>
+#include <connectors/l2cap_con.h>
 
 /*
  * TODO MLA: fix table size

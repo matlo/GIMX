@@ -8,7 +8,6 @@
 #include <string.h>
 #include "config.h"
 #include <stdlib.h>
-#include "sixaxis.h"
 #include <math.h>
 #include <unistd.h>
 #include <sys/time.h>

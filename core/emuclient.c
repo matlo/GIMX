@@ -27,7 +27,7 @@
 #include "calibration.h"
 #include "display.h"
 #include "mainloop.h"
-#include "connector.h"
+#include "connectors/connector.h"
 #include "args.h"
 #include "controllers/controller.h"
 

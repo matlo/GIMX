@@ -5,14 +5,14 @@
 
 #include <string.h>
 #include <stdio.h>
-#include "connector.h"
 #include "emuclient.h"
-#include "sixaxis.h"
+#include "connectors/connector.h"
+#include "connectors/sixaxis.h"
+#include "connectors/udp_con.h"
+#include "connectors/gpp_con.h"
+#include "connectors/usb_spoof.h"
 #include "controllers/controller.h"
 #include "report.h"
-#include "udp_con.h"
-#include "gpp_con.h"
-#include "usb_spoof.h"
 #ifndef WIN32
 #include <netinet/in.h>
 #endif

@@ -4,9 +4,9 @@
  */
  
 #include <stdio.h>
-#include <usb_spoof.h>
 #include "emuclient.h"
-#include <serial.h>
+#include <connectors/serial.h>
+#include <connectors/usb_spoof.h>
 
 #define USB_REQ_TIMEOUT 1000
 

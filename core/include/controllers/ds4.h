@@ -32,7 +32,7 @@ typedef enum
   ds4a_touchpad = abs_axis_17,
 } e_ds4_axis_index;
 
-typedef struct
+typedef struct __attribute__ ((packed))
 {
   unsigned char report_id; //0x01
   unsigned char X;

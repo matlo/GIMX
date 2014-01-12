@@ -6,7 +6,7 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-#include "sixaxis.h"
+#include "connectors/sixaxis.h"
 #include <GE.h>
 #include <emuclient.h>
 

@@ -28,7 +28,7 @@
 
 #include "pcapwriter.h"
 
-#include <usb_spoof.h>
+#include <connectors/usb_spoof.h>
 
 #include <errno.h>
 

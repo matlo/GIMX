@@ -6,7 +6,7 @@
 #include <GE.h>
 #include "emuclient.h"
 #include "calibration.h"
-#include "connector.h"
+#include "connectors/connector.h"
 #include "macros.h"
 #include "display.h"
 #include <stdio.h>

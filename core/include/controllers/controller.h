@@ -6,7 +6,7 @@
 #ifndef CONTROLLER_H_
 #define CONTROLLER_H_
 
-#include <serial.h>
+#include <connectors/serial.h>
 
 #define DEFAULT_MAX_AXIS_VALUE MAX_AXIS_VALUE_8BITS
 

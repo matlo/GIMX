@@ -6,7 +6,6 @@
 #include <string.h>
 #include "gpp/pcprog.h"
 #include "config.h"
-#include "dump.h"
 #include "controllers/ds3.h"
 
 int gpp_connect()

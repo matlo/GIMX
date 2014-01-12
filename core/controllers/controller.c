@@ -12,7 +12,7 @@
 #include <sys/time.h>
 #include <errno.h>
 #include <unistd.h>
-#include <udp_con.h>
+#include <connectors/udp_con.h>
 
 static s_controller controller[MAX_CONTROLLERS] = {};
 

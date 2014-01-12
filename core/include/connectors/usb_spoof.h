@@ -11,7 +11,7 @@
 #else
 #include <libusbx-1.0/libusb.h>
 #endif
-#include <serial.h>
+#include <connectors/serial.h>
 
 #define X360_VENDOR 0x045e
 #define X360_PRODUCT 0x028e
