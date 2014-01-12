@@ -6,6 +6,8 @@
 #ifndef DS4_H_
 #define DS4_H_
 
+#include "controllers/controller.h"
+
 typedef enum
 {
   ds4a_lstick_x = rel_axis_lstick_x,

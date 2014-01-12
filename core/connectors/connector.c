@@ -226,7 +226,7 @@ int connector_send()
 #ifndef WIN32
           else if(controller->bdaddr_dst)
           {
-            ret = send_interrupt(i, &report.value.ds3);
+            ret = sixaxis_send_interrupt(i, &report.value.ds3);
           }
 #endif
           break;

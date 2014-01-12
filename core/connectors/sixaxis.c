@@ -18,6 +18,59 @@
 #include <connectors/bt_utils.h>
 #include <connectors/l2cap_con.h>
 
+
+#define DS3_DEVICE_CLASS 0x508
+
+#define PSM_HID_CONTROL   0x0011
+#define PSM_HID_INTERRUPT 0x0013
+
+#define HID_HANDSHAKE 0x0
+#define HID_GET_REPORT 0x4
+#define HID_SET_REPORT 0x5
+#define HID_DATA 0xA
+
+#define HID_TYPE_RESERVED 0
+#define HID_TYPE_INPUT 1
+#define HID_TYPE_OUTPUT 2
+#define HID_TYPE_FEATURE 3
+
+enum led_state_t { LED_OFF = 0, LED_FLASH, LED_ON };
+
+struct sixaxis_state_sys {
+    /*** Values provided by the system (PS3): */
+    int reporting_enabled;
+    int shutdown;
+    int feature_ef_byte_6;
+
+    /* led[0] is the spare */
+    /* led[1]..led[4] correspond to printed text 1..4 */
+    enum led_state_t led[5];
+    uint8_t rumble[2];
+};
+
+struct sixaxis_state {
+    char bdaddr_src[18];
+    char bdaddr_dst[18];
+    int dongle_index;
+    int sixaxis_number;
+    struct sixaxis_state_sys sys;
+    s_report_ds3 user;
+    int control;
+    int interrupt;
+};
+
+struct sixaxis_assemble_t {
+    int type;
+    uint8_t report;
+    int (*func)(uint8_t *buf, int maxlen, struct sixaxis_state *state);
+};
+
+struct sixaxis_process_t {
+    int type;
+    uint8_t report;
+    int (*func)(const uint8_t *buf, int len, struct sixaxis_state *state);
+};
+
 /*
  * TODO MLA: fix table size
  */
@@ -27,7 +80,7 @@ static int debug = 0;
 static const char *hid_report_name[] =
 { "reserved", "input", "output", "feature" };
 
-void sixaxis_init(int sixaxis_number)
+static void sixaxis_init(int sixaxis_number)
 {
   struct sixaxis_state* state = states+sixaxis_number;
 
@@ -65,15 +118,8 @@ void sixaxis_set_dongle(int sixaxis_number, int dongle_index)
   state->dongle_index = dongle_index;
 }
 
-int sixaxis_periodic_report(struct sixaxis_state *state)
-{
-  int ret;
-  ret = state->sys.reporting_enabled;
-  return ret;
-}
-
 /* Main input report from Sixaxis -- assemble it */
-int assemble_input_01(uint8_t *buf, int maxlen, struct sixaxis_state *state)
+static int assemble_input_01(uint8_t *buf, int maxlen, struct sixaxis_state *state)
 {
   if (maxlen < sizeof(s_report_ds3) - 1)
     return -1;
@@ -93,7 +139,7 @@ int assemble_input_01(uint8_t *buf, int maxlen, struct sixaxis_state *state)
 }
 
 /* Main input report from Sixaxis -- decode it */
-int process_input_01(const uint8_t *buf, int len, struct sixaxis_state *state)
+static int process_input_01(const uint8_t *buf, int len, struct sixaxis_state *state)
 {
   if (len < sizeof(s_report_ds3))
     return -1;
@@ -104,7 +150,7 @@ int process_input_01(const uint8_t *buf, int len, struct sixaxis_state *state)
 }
 
 /* Unknown */
-int assemble_feature_01(uint8_t *buf, int maxlen, struct sixaxis_state *state)
+static int assemble_feature_01(uint8_t *buf, int maxlen, struct sixaxis_state *state)
 {
   uint8_t data[] =
   { 0x01, 0x03, 0x00, 0x04, 0x0c, 0x01, 0x02, 0x18, 0x18, 0x18, 0x18, 0x09,
@@ -121,7 +167,7 @@ int assemble_feature_01(uint8_t *buf, int maxlen, struct sixaxis_state *state)
 }
 
 /* Unknown */
-int assemble_feature_ef(uint8_t *buf, int maxlen, struct sixaxis_state *state)
+static int assemble_feature_ef(uint8_t *buf, int maxlen, struct sixaxis_state *state)
 {
   const uint8_t data[] =
   { 0xef, 0x04, 0x00, 0x05, 0x03, 0x01, 0xb0, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -141,7 +187,7 @@ int assemble_feature_ef(uint8_t *buf, int maxlen, struct sixaxis_state *state)
 }
 
 /* Unknown */
-int assemble_feature_f2(uint8_t *buf, int maxlen, struct sixaxis_state *state)
+static int assemble_feature_f2(uint8_t *buf, int maxlen, struct sixaxis_state *state)
 {
   uint8_t data[] =
   { 0xff, 0xff, 0x00, 0x00, 0x1e, 0x3d, 0x24, 0x97, 0xde, /* device bdaddr */
@@ -159,7 +205,7 @@ int assemble_feature_f2(uint8_t *buf, int maxlen, struct sixaxis_state *state)
 }
 
 /* Unknown */
-int assemble_feature_f7(uint8_t *buf, int maxlen, struct sixaxis_state *state)
+static int assemble_feature_f7(uint8_t *buf, int maxlen, struct sixaxis_state *state)
 {
   const uint8_t data[] =
   { 0x00, 0x02, 0xe4, 0x02, 0xa9, 0x01, 0x05, 0xff, 0x14, 0x23, 0x00 };
@@ -172,7 +218,7 @@ int assemble_feature_f7(uint8_t *buf, int maxlen, struct sixaxis_state *state)
 }
 
 /* Unknown */
-int assemble_feature_f8(uint8_t *buf, int maxlen, struct sixaxis_state *state)
+static int assemble_feature_f8(uint8_t *buf, int maxlen, struct sixaxis_state *state)
 {
   const uint8_t data[] =
   { 0x01, 0x00, 0x00, 0x00 };
@@ -185,7 +231,7 @@ int assemble_feature_f8(uint8_t *buf, int maxlen, struct sixaxis_state *state)
 }
 
 /* Main output report from PS3 including rumble and LEDs */
-int process_output_01(const uint8_t *buf, int len, struct sixaxis_state *state)
+static int process_output_01(const uint8_t *buf, int len, struct sixaxis_state *state)
 {
   int i;
 
@@ -216,7 +262,7 @@ int process_output_01(const uint8_t *buf, int len, struct sixaxis_state *state)
 }
 
 /* Unknown */
-int process_feature_ef(const uint8_t *buf, int len, struct sixaxis_state *state)
+static int process_feature_ef(const uint8_t *buf, int len, struct sixaxis_state *state)
 {
   if (len < 7)
     return -1;
@@ -226,7 +272,7 @@ int process_feature_ef(const uint8_t *buf, int len, struct sixaxis_state *state)
 }
 
 /* Enable reporting */
-int process_feature_f4(const uint8_t *buf, int len, struct sixaxis_state *state)
+static int process_feature_f4(const uint8_t *buf, int len, struct sixaxis_state *state)
 {
   /* Enable event reporting */
   if (buf[1] == 0x08)
@@ -240,7 +286,7 @@ int process_feature_f4(const uint8_t *buf, int len, struct sixaxis_state *state)
   return 0;
 }
 
-struct sixaxis_assemble_t sixaxis_assemble[] =
+static struct sixaxis_assemble_t sixaxis_assemble[] =
 {
 { HID_TYPE_INPUT, 0x01, assemble_input_01 },
 { HID_TYPE_FEATURE, 0x01, assemble_feature_01 },
@@ -250,7 +296,7 @@ struct sixaxis_assemble_t sixaxis_assemble[] =
 { HID_TYPE_FEATURE, 0xf8, assemble_feature_f8 },
 { 0 } };
 
-struct sixaxis_process_t sixaxis_process[] =
+static struct sixaxis_process_t sixaxis_process[] =
 {
 { HID_TYPE_INPUT, 0x01, process_input_01 },
 { HID_TYPE_OUTPUT, 0x01, process_output_01 },
@@ -258,7 +304,7 @@ struct sixaxis_process_t sixaxis_process[] =
 { HID_TYPE_FEATURE, 0xf4, process_feature_f4 },
 { 0 } };
 
-int send_report(int fd, uint8_t type, uint8_t report,
+static int send_report(int fd, uint8_t type, uint8_t report,
     struct sixaxis_state *state, int blocking)
 {
   uint8_t buf[128];
@@ -306,7 +352,7 @@ int send_report(int fd, uint8_t type, uint8_t report,
   return l2cap_send(fd, buf, len, blocking);
 }
 
-int process_report(uint8_t type, uint8_t report, const uint8_t *buf, int len,
+static int process_report(uint8_t type, uint8_t report, const uint8_t *buf, int len,
     struct sixaxis_state *state)
 {
   int i;
@@ -343,7 +389,7 @@ int process_report(uint8_t type, uint8_t report, const uint8_t *buf, int len,
   return ret;
 }
 
-int process(int psm, const unsigned char *buf, int len,
+static int process(int psm, const unsigned char *buf, int len,
     struct sixaxis_state *state)
 {
   uint8_t transaction;
@@ -454,7 +500,7 @@ int process(int psm, const unsigned char *buf, int len,
   return ret;
 }
 
-int read_control(int sixaxis_number)
+static int read_control(int sixaxis_number)
 {
   struct sixaxis_state* state = states + sixaxis_number;
 
@@ -477,7 +523,7 @@ int read_control(int sixaxis_number)
   return 0;
 }
 
-int close_control(int sixaxis_number)
+static int close_control(int sixaxis_number)
 {
   struct sixaxis_state* state = states + sixaxis_number;
 
@@ -487,7 +533,7 @@ int close_control(int sixaxis_number)
   return 1;
 }
 
-int read_interrupt(int sixaxis_number)
+static int read_interrupt(int sixaxis_number)
 {
   int ret = 0;
 
@@ -512,7 +558,7 @@ int read_interrupt(int sixaxis_number)
   return ret;
 }
 
-int close_interrupt(int sixaxis_number)
+static int close_interrupt(int sixaxis_number)
 {
   struct sixaxis_state* state = states + sixaxis_number;
 
@@ -523,7 +569,7 @@ int close_interrupt(int sixaxis_number)
   return 1;
 }
 
-int send_interrupt(int sixaxis_number, s_report_ds3* buf)
+int sixaxis_send_interrupt(int sixaxis_number, s_report_ds3* buf)
 {
   struct sixaxis_state* state = states + sixaxis_number;
 
