@@ -58,9 +58,12 @@ void set_master(libusb_device_handle* devh, unsigned char mac[6])
       mac[1], mac[2], mac[3], mac[4], mac[5]);
 
   unsigned char msg[] =
-  { 0x13, mac[5], mac[4], mac[3], mac[2], mac[1], mac[0], 0x56, 0xE8, 0x81,
-      0x38, 0x08, 0x06, 0x51, 0x41, 0xC0, 0x7F, 0x12, 0xAA, 0xD9, 0x66, 0x3C,
-      0xCE };
+  {
+      0x13,
+      mac[5], mac[4], mac[3], mac[2], mac[1], mac[0],
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+  };
 
   int res = libusb_control_transfer(devh, LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE,
       LIBUSB_REQUEST_SET_CONFIGURATION, 0x0313, 0x0000, msg, sizeof(msg), 5000);
@@ -71,11 +74,35 @@ void set_master(libusb_device_handle* devh, unsigned char mac[6])
   }
 }
 
+void show_link_key(libusb_device_handle* devh)
+{
+  unsigned char msg[0x0010];
+
+  int res = libusb_control_transfer(devh, LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE,
+      LIBUSB_REQUEST_CLEAR_FEATURE, 0x0313, 0x0000, msg, sizeof(msg), 5000);
+
+  if (res < 0)
+  {
+    perror("USB_REQ_GET_CONFIGURATION");
+    return;
+  }
+
+  printf("Current link key: ");
+  int i;
+  for(i=0; i<res; ++i)
+  {
+    printf("%02x", msg[i]);
+  }
+  printf("\n");
+}
+
 void process_device(libusb_device_handle* devh)
 {
   unsigned char addr[6];
 
   show_bdaddrs(devh);
+
+  show_link_key(devh);
 
   if (bdaddr)
   {
