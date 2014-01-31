@@ -16,7 +16,9 @@
 #define VENDOR 0x054c
 #define PRODUCT 0x05c4
 
-static char* bdaddr = NULL;
+static char* master = NULL;
+static char* link_key = NULL;
+static char* slave = NULL;
 
 void fatal(char *msg)
 {
@@ -26,7 +28,7 @@ void fatal(char *msg)
 
 static void usage()
 {
-  fprintf(stderr, "Usage: ds4tool [-w bdaddr]\n");
+  fprintf(stderr, "Usage: ds4tool [-l <link key> -m <master bdaddr> -s <slave bdaddr>]\n");
   exit(EXIT_FAILURE);
 }
 
@@ -44,29 +46,40 @@ void show_bdaddrs(libusb_device_handle* devh)
   }
 
   printf("Current Bluetooth master: ");
-  printf("%02x:%02x:%02x:%02x:%02x:%02x\n", msg[15], msg[14], msg[13], msg[12],
-      msg[11], msg[10]);
+  printf("%02x:%02x:%02x:%02x:%02x:%02x\n", msg[15], msg[14], msg[13], msg[12], msg[11], msg[10]);
 
   printf("Current Bluetooth Device Address: ");
-  printf("%02x:%02x:%02x:%02x:%02x:%02x\n", msg[6], msg[5], msg[4], msg[3],
-      msg[2], msg[1]);
+  printf("%02x:%02x:%02x:%02x:%02x:%02x\n", msg[6], msg[5], msg[4], msg[3], msg[2], msg[1]);
 }
 
-void set_master(libusb_device_handle* devh, unsigned char mac[6])
+void set_master(libusb_device_handle* devh, unsigned char master[6], unsigned char lk[16])
 {
-  printf("Setting master bd_addr to %02x:%02x:%02x:%02x:%02x:%02x\n", mac[0],
-      mac[1], mac[2], mac[3], mac[4], mac[5]);
-
   unsigned char msg[] =
   {
       0x13,
-      mac[5], mac[4], mac[3], mac[2], mac[1], mac[0],
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+      master[5], master[4], master[3], master[2], master[1], master[0],
+      lk[0], lk[1], lk[2], lk[3], lk[4], lk[5], lk[6], lk[7],
+      lk[8], lk[9], lk[10], lk[11], lk[12], lk[13], lk[14], lk[15]
   };
 
   int res = libusb_control_transfer(devh, LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE,
       LIBUSB_REQUEST_SET_CONFIGURATION, 0x0313, 0x0000, msg, sizeof(msg), 5000);
+
+  if (res < 0)
+  {
+    perror("USB_REQ_SET_CONFIGURATION");
+  }
+}
+
+void set_slave(libusb_device_handle* devh, unsigned char slave[6])
+{
+  unsigned char msg[] =
+  {
+      slave[5], slave[4], slave[3], slave[2], slave[1], slave[0],
+  };
+
+  int res = libusb_control_transfer(devh, LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE,
+      LIBUSB_REQUEST_SET_CONFIGURATION, 0x0312, 0x0000, msg, sizeof(msg), 5000);
 
   if (res < 0)
   {
@@ -83,7 +96,6 @@ void show_link_key(libusb_device_handle* devh)
 
   if (res < 0)
   {
-    perror("USB_REQ_GET_CONFIGURATION");
     return;
   }
 
@@ -98,22 +110,39 @@ void show_link_key(libusb_device_handle* devh)
 
 void process_device(libusb_device_handle* devh)
 {
-  unsigned char addr[6];
+  unsigned char bdaddr[6];
+  unsigned char lk[16] = {};
 
   show_bdaddrs(devh);
 
   show_link_key(devh);
 
-  if (bdaddr)
+  if (master)
   {
-    if (sscanf(bdaddr, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &addr[0], &addr[1], &addr[2], &addr[3], &addr[4], &addr[5]) != 6)
+    if (sscanf(master, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx", bdaddr, bdaddr+1, bdaddr+2, bdaddr+3, bdaddr+4, bdaddr+5) != 6)
     {
       usage();
     }
-    else
+    if(link_key)
     {
-      set_master(devh, addr);
+      if (sscanf(link_key, "%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx",
+          lk, lk+1, lk+2, lk+3, lk+4, lk+5, lk+6, lk+7, lk+8, lk+9, lk+10, lk+11, lk+12, lk+13, lk+14, lk+15) != 16)
+      {
+        usage();
+      }
     }
+    printf("Setting master bdaddr to %s\n", master);
+    printf("Setting link key to %s\n", link_key);
+    set_master(devh, bdaddr, lk);
+  }
+  if (slave)
+  {
+    if (sscanf(slave, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx", bdaddr+0, bdaddr+1, bdaddr+2, bdaddr+3, bdaddr+4, bdaddr+5) != 6)
+    {
+      usage();
+    }
+    printf("Setting slave bdaddr to %s\n", slave);
+    set_slave(devh, bdaddr);
   }
 }
 
@@ -124,12 +153,18 @@ static void read_args(int argc, char* argv[])
 {
   int opt;
 
-  while ((opt = getopt(argc, argv, ":w:")) != -1)
+  while ((opt = getopt(argc, argv, "l:m:s:")) != -1)
   {
     switch (opt)
     {
-      case 'w':
-        bdaddr = optarg;
+      case 'm':
+        master = optarg;
+        break;
+      case 's':
+        slave = optarg;
+        break;
+      case 'l':
+        link_key = optarg;
         break;
       default: /* '?' */
         usage();
