@@ -29,7 +29,6 @@ void fatal(char *msg)
 static void usage()
 {
   fprintf(stderr, "Usage: ds4tool [-l <link key> -m <master bdaddr> -s <slave bdaddr>]\n");
-  exit(EXIT_FAILURE);
 }
 
 void show_bdaddrs(libusb_device_handle* devh)
@@ -46,10 +45,10 @@ void show_bdaddrs(libusb_device_handle* devh)
   }
 
   printf("Current Bluetooth master: ");
-  printf("%02x:%02x:%02x:%02x:%02x:%02x\n", msg[15], msg[14], msg[13], msg[12], msg[11], msg[10]);
+  printf("%02X:%02X:%02X:%02X:%02X:%02X\n", msg[15], msg[14], msg[13], msg[12], msg[11], msg[10]);
 
   printf("Current Bluetooth Device Address: ");
-  printf("%02x:%02x:%02x:%02x:%02x:%02x\n", msg[6], msg[5], msg[4], msg[3], msg[2], msg[1]);
+  printf("%02X:%02X:%02X:%02X:%02X:%02X\n", msg[6], msg[5], msg[4], msg[3], msg[2], msg[1]);
 }
 
 void set_master(libusb_device_handle* devh, unsigned char master[6], unsigned char lk[16])
@@ -103,12 +102,12 @@ void show_link_key(libusb_device_handle* devh)
   int i;
   for(i=0; i<res; ++i)
   {
-    printf("%02x", msg[i]);
+    printf("%02X", msg[i]);
   }
   printf("\n");
 }
 
-void process_device(libusb_device_handle* devh)
+int process_device(libusb_device_handle* devh)
 {
   unsigned char bdaddr[6];
   unsigned char lk[16] = {};
@@ -129,6 +128,7 @@ void process_device(libusb_device_handle* devh)
           lk, lk+1, lk+2, lk+3, lk+4, lk+5, lk+6, lk+7, lk+8, lk+9, lk+10, lk+11, lk+12, lk+13, lk+14, lk+15) != 16)
       {
         usage();
+        return -1;
       }
     }
     printf("Setting master bdaddr to %s\n", master);
@@ -140,10 +140,12 @@ void process_device(libusb_device_handle* devh)
     if (sscanf(slave, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx", bdaddr+0, bdaddr+1, bdaddr+2, bdaddr+3, bdaddr+4, bdaddr+5) != 6)
     {
       usage();
+      return -1;
     }
     printf("Setting slave bdaddr to %s\n", slave);
     set_slave(devh, bdaddr);
   }
+  return 0;
 }
 
 /*
@@ -168,6 +170,7 @@ static void read_args(int argc, char* argv[])
         break;
       default: /* '?' */
         usage();
+        exit(EXIT_FAILURE);
         break;
     }
   }
@@ -199,30 +202,34 @@ int main(int argc, char *argv[])
   if(libusb_detach_kernel_driver(devh, 0) < 0)
   {
     fprintf(stderr, "Can't detach kernel driver.\n");
-    return -1;
+    goto CLEANUP2;
   }
 
   if(libusb_claim_interface(devh, 0) < 0)
   {
     fprintf(stderr, "Can't claim interface.\n");
-    return -1;
+    goto CLEANUP1;
   }
 
-  process_device(devh);
+  int ret = process_device(devh);
 
   if(libusb_release_interface(devh, 0))
   {
     fprintf(stderr, "Can't release interface.\n");
   }
 
+CLEANUP1:
+
   if(libusb_attach_kernel_driver(devh, 0) < 0)
   {
     fprintf(stderr, "Can't attach kernel driver.\n");
   }
 
+CLEANUP2:
+
   libusb_close(devh);
 
-  return 0;
+  return ret;
 
 }
 
