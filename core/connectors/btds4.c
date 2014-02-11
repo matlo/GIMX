@@ -193,7 +193,6 @@ static int is_connected(int fd)
     }
     else
     {
-      printf("is connected: %d\n", fd);
       return 1;
     }
   }
@@ -226,8 +225,6 @@ static int read_ds4_sdp(int btds4_number)
 static int close_ds4_sdp(int btds4_number)
 {
   struct btds4_state* state = states + btds4_number;
-
-  printf("close_ds4_sdp\n");
 
   close(state->ds4_sdp);
   state->ds4_sdp = -1;
@@ -1163,7 +1160,6 @@ int btds4_send_interrupt(int btds4_number, s_report_ds4* buf)
   {
     if(errno == EAGAIN)
     {
-      printf("can't send...\n");
       ret = 0;
     }
   }
