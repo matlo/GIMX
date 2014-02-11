@@ -11,6 +11,7 @@
 #include <iconv.h>
 #ifndef WIN32
 #include <timer.h>
+#include <poll.h>
 #endif
 
 #define BT_SIXAXIS_NAME "PLAYSTATION(R)3 Controller"
@@ -440,7 +441,7 @@ void GE_TimerStart(struct timespec* period)
 
   if(tfd >= 0)
   {
-    ev_register_source(tfd, 0, &timer_read, &timer_close);
+    ev_register_source(tfd, POLLIN, 0, &timer_read, &timer_close);
   }
 }
 
@@ -455,9 +456,9 @@ void GE_TimerClose()
 /*
  * Add an event source.
  */
-void GE_AddSource(int fd, int id, int (*fd_read)(int), int (*fd_cleanup)(int))
+void GE_AddSource(int fd, short int event, int id, int (*fd_fp)(int), int (*fd_cleanup)(int))
 {
-  ev_register_source(fd, id, fd_read, fd_cleanup);
+  ev_register_source(fd, event, id, fd_fp, fd_cleanup);
 }
 
 /*

@@ -14,7 +14,7 @@ OUT=gimx.exe
 endif
 LIB=../shared/event/GE.a
 ifneq ($(OS),Windows_NT)
-LIB+= -lxml2 -lm -lncursesw -lusb-1.0 -lbluetooth
+LIB+= -lxml2 -lm -lncursesw -lusb-1.0 -lbluetooth -lmhash
 else
 LIB+= `sdl-config --libs` -llibxml2 -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl -lusb-1.0
 LIB:=$(filter-out -mwindows,$(LIB))
@@ -58,6 +58,7 @@ GIMX_OBJ = \
 ifneq ($(OS),Windows_NT)
 GIMX_OBJ += \
        connectors/sixaxis.o\
+       connectors/btds4.o\
        connectors/gpp/hid_LINUX.o\
        connectors/l2cap_con.o\
        connectors/bt_utils.o\

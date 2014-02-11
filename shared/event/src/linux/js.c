@@ -201,7 +201,7 @@ int js_init()
           max_joystick_id = i;
           joystick_id[i] = j_num;
           j_num++;
-          ev_register_source(joystick_fd[i], i, &js_process_events, &js_close);
+          ev_register_source(joystick_fd[i], POLLIN, i, &js_process_events, &js_close);
         }
         else
         {

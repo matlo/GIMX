@@ -8,6 +8,7 @@
 #include "emuclient.h"
 #include "connectors/connector.h"
 #include "connectors/sixaxis.h"
+#include "connectors/btds4.h"
 #include "connectors/udp_con.h"
 #include "connectors/gpp_con.h"
 #include "connectors/usb_spoof.h"
@@ -15,6 +16,7 @@
 #include "report.h"
 #ifndef WIN32
 #include <netinet/in.h>
+#include <poll.h>
 #endif
 
 inline int clamp(int min, int val, int max)
@@ -118,10 +120,6 @@ int connector_init()
     }
     else
     {
-      if(control->type != C_TYPE_DEFAULT)
-      {
-        fprintf(stderr, _("Wrong controller type.\n"));
-      }
       if(control->dst_ip)
       {
         control->dst_fd = udp_connect(control->dst_ip, control->dst_port);
@@ -134,12 +132,30 @@ int connector_init()
 #ifndef WIN32
       else if(control->bdaddr_dst)
       {
-        sixaxis_set_dongle(i, control->dongle_index);
-        sixaxis_set_bdaddr(i, control->bdaddr_dst);
-        if(sixaxis_connect(i) < 0)
+        if(control->type == C_TYPE_SIXAXIS
+            || control->type == C_TYPE_DEFAULT)
         {
-          fprintf(stderr, _("Can't initialize sixaxis.\n"));
-          ret = -1;
+          sixaxis_set_dongle(i, control->dongle_index);
+          sixaxis_set_bdaddr(i, control->bdaddr_dst);
+          if(sixaxis_connect(i) < 0)
+          {
+            fprintf(stderr, _("Can't initialize sixaxis.\n"));
+            ret = -1;
+          }
+        }
+        else if(control->type == C_TYPE_DS4)
+        {
+          btds4_set_dongle(i, control->dongle_index);
+          btds4_set_bdaddr(i, control->bdaddr_dst);
+          if(btds4_init(i) < 0)
+          {
+            fprintf(stderr, _("Can't initialize btds4.\n"));
+            ret = -1;
+          }
+        }
+        else
+        {
+          fprintf(stderr, _("Wrong controller type.\n"));
         }
       }
 #endif
@@ -159,7 +175,7 @@ int connector_init()
       }
       else
       {
-        GE_AddSource(control->src_fd, i, controller_network_read, udp_close);
+        GE_AddSource(control->src_fd, POLLIN, i, controller_network_read, udp_close);
       }
     }
 #endif
@@ -184,7 +200,15 @@ void connector_clean()
 #ifndef WIN32
         else if(controller->bdaddr_dst)
         {
-          sixaxis_close(i);
+          if(controller->type == C_TYPE_SIXAXIS
+              || controller->type == C_TYPE_DEFAULT)
+          {
+            sixaxis_close(i);
+          }
+          else if(controller->type == C_TYPE_DS4)
+          {
+            btds4_close(i);
+          }
         }
 #endif
         break;
@@ -229,6 +253,29 @@ int connector_send()
             ret = sixaxis_send_interrupt(i, &report.value.ds3);
           }
 #endif
+          break;
+        case C_TYPE_SIXAXIS:
+          if(controller->bdaddr_dst)
+          {
+            ret = sixaxis_send_interrupt(i, &report.value.ds3);
+          }
+          else if(controller->serial >= 0)
+          {
+            ret = serial_send(controller->serial, &report, 2+report.value_len);
+          }
+          break;
+        case C_TYPE_DS4:
+          if(controller->bdaddr_dst)
+          {
+            /*
+             * TODO MLA: handle return value
+             */
+            btds4_send_interrupt(i, &report.value.ds4);
+          }
+          else if(controller->serial >= 0)
+          {
+            ret = serial_send(controller->serial, &report, 2+report.value_len);
+          }
           break;
         case C_TYPE_GPP:
           ret = gpp_send(controller->axis);

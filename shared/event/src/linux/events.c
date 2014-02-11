@@ -38,21 +38,23 @@ typedef struct
 {
   int id;
   int fd;
-  int (*fd_read)(int);
+  int (*fd_fp)(int);
   int (*fd_cleanup)(int);
+  short int event;
 } s_source;
 
 static s_source sources[FD_SETSIZE] = {};
 static int max_source = 0;
 
-void ev_register_source(int fd, int id, int (*fd_read)(int), int (*fd_cleanup)(int))
+void ev_register_source(int fd, short int event, int id, int (*fd_fp)(int), int (*fd_cleanup)(int))
 {
   if(fd < FD_SETSIZE)
   {
     sources[fd].id = id;
     sources[fd].fd = fd;
-    sources[fd].fd_read = fd_read;
+    sources[fd].fd_fp = fd_fp;
     sources[fd].fd_cleanup = fd_cleanup;
+    sources[fd].event = event;
     if(fd > max_source)
     {
       max_source = fd;
@@ -66,8 +68,9 @@ void ev_remove_source(int fd)
   {
     sources[fd].id = 0;
     sources[fd].fd = 0;
-    sources[fd].fd_read = NULL;
+    sources[fd].fd_fp = NULL;
     sources[fd].fd_cleanup = NULL;
+    sources[fd].event = 0;
   }
 }
 
@@ -207,10 +210,10 @@ static unsigned int fill_fds(nfds_t nfds, struct pollfd fds[nfds])
   int i;
   for(i=0; i<nfds; ++i)
   {
-    if(sources[i].fd_read != NULL)
+    if(sources[i].fd_fp != NULL)
     {
       fds[pos].fd = i;
-      fds[pos].events = POLLIN;
+      fds[pos].events = sources[i].event;
       ++pos;
     }
   }
@@ -250,10 +253,10 @@ void ev_pump_events(void)
     return;
   }
 
-  struct pollfd fds[max_source+1];
-
   while(1)
   {
+    struct pollfd fds[max_source+1];
+
     nfds_t nfds = fill_fds(max_source+1, fds);
 
     if(poll(fds, nfds, -1) > 0)
@@ -269,9 +272,9 @@ void ev_pump_events(void)
             return;
           }
         }
-        else if(fds[i].revents & POLLIN)
+        else if(fds[i].revents & sources[fds[i].fd].event)
         {
-          if(sources[fds[i].fd].fd_read(sources[fds[i].fd].id))
+          if(sources[fds[i].fd].fd_fp(sources[fds[i].fd].id))
 		  		{
             return;
           }
@@ -279,4 +282,5 @@ void ev_pump_events(void)
       }
     }
   }
+
 }

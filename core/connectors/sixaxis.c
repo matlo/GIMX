@@ -673,8 +673,8 @@ int sixaxis_connect(int sixaxis_number)
   }
   else
   {
-    GE_AddSource(state->control, sixaxis_number, &read_control, &close_control);
-    GE_AddSource(state->interrupt, sixaxis_number, &read_interrupt, &close_interrupt);
+    GE_AddSource(state->control, POLLIN, sixaxis_number, &read_control, &close_control);
+    GE_AddSource(state->interrupt, POLLIN, sixaxis_number, &read_interrupt, &close_interrupt);
   }
 
   return ret;
