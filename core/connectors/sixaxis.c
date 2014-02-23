@@ -7,17 +7,15 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/time.h>
-#ifndef WIN32
 #include <poll.h>
 #include <arpa/inet.h> /* for htons */
-#else
-#include <winsock2.h> /* for htons */
-#endif
+#include <errno.h>
 #include <GE.h>
 #include <connectors/sixaxis.h>
 #include <connectors/bt_utils.h>
 #include <connectors/l2cap_con.h>
-
+#include <config.h>
+#include "emuclient.h"
 
 #define DS3_DEVICE_CLASS 0x508
 
@@ -55,6 +53,8 @@ struct sixaxis_state {
     int sixaxis_number;
     struct sixaxis_state_sys sys;
     s_report_ds3 user;
+    int control_pending;
+    int interrupt_pending;
     int control;
     int interrupt;
 };
@@ -71,10 +71,7 @@ struct sixaxis_process_t {
     int (*func)(const uint8_t *buf, int len, struct sixaxis_state *state);
 };
 
-/*
- * TODO MLA: fix table size
- */
-static struct sixaxis_state states[7] = {};
+static struct sixaxis_state states[MAX_CONTROLLERS] = {};
 static int debug = 0;
 
 static const char *hid_report_name[] =
@@ -86,6 +83,9 @@ static void sixaxis_init(int sixaxis_number)
 
   state->sys.reporting_enabled = 0;
   state->sys.feature_ef_byte_6 = 0xb0;
+
+  state->control_pending = -1;
+  state->interrupt_pending = -1;
 
   state->control = -1;
   state->interrupt = -1;
@@ -192,10 +192,8 @@ static int assemble_feature_f2(uint8_t *buf, int maxlen, struct sixaxis_state *s
   uint8_t data[] =
   { 0xff, 0xff, 0x00, 0x00, 0x1e, 0x3d, 0x24, 0x97, 0xde, /* device bdaddr */
   0x00, 0x03, 0x50, 0x89, 0xc0, 0x01, 0x8a, 0x09 };
-#ifndef WIN32 //remove compilation warnings
   sscanf(state->bdaddr_src, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", data + 3, data + 4,
       data + 5, data + 6, data + 7, data + 8);
-#endif
   int len = sizeof(data);
   if (len > maxlen)
     return -1;
@@ -257,6 +255,14 @@ static int process_output_01(const uint8_t *buf, int len, struct sixaxis_state *
   /* Decode rumble.  Again, ignores some details */
   state->sys.rumble[0] = buf[1] ? buf[2] : 0;
   state->sys.rumble[1] = buf[3] ? buf[4] : 0;
+
+  int controller = (state-states)/sizeof(*state);
+  int joystick = controller_get_device(E_DEVICE_TYPE_JOYSTICK, controller);
+
+  if(GE_JoystickHasRumble(joystick))
+  {
+    GE_JoystickSetRumble(joystick, buf[1], buf[2] << 8, buf[3], buf[4] << 8);
+  }
 
   return 0;
 }
@@ -512,11 +518,11 @@ static int read_control(int sixaxis_number)
   {
     if (process(PSM_HID_CONTROL, buf, len, state) == -1)
     {
-      fprintf(stderr, "error processing ctrl");
+      fprintf(stderr, "error processing ctrl\n");
     }
     else if (state->sys.shutdown)
     {
-      fprintf(stderr, "sixaxis shutdown");
+      fprintf(stderr, "sixaxis shutdown\n");
     }
   }
 
@@ -529,6 +535,8 @@ static int close_control(int sixaxis_number)
 
   close(state->control);
   state->control = -1;
+  state->sys.shutdown = 1;
+  get_controller(sixaxis_number)->send_command = 1;
 
   return 1;
 }
@@ -547,7 +555,7 @@ static int read_interrupt(int sixaxis_number)
   {
     if (process(PSM_HID_INTERRUPT, buf, len, state) == -1)
     {
-      fprintf(stderr, "error processing data");
+      fprintf(stderr, "error processing data\n");
     }
     else
     {
@@ -565,6 +573,7 @@ static int close_interrupt(int sixaxis_number)
   close(state->interrupt);
   state->interrupt = -1;
   state->sys.shutdown = 1;
+  get_controller(sixaxis_number)->send_command = 1;
 
   return 1;
 }
@@ -576,6 +585,11 @@ int sixaxis_send_interrupt(int sixaxis_number, s_report_ds3* buf)
   if(state->sys.shutdown)
   {
     return -1;
+  }
+
+  if(state->interrupt < 0)
+  {
+    return 0;
   }
 
   process_report(HID_TYPE_INPUT, 0x01, (unsigned char*) buf, sizeof(s_report_ds3), state);
@@ -593,10 +607,73 @@ void sixaxis_close(int sixaxis_number)
   close_control(sixaxis_number);
 }
 
+static int connect_interrupt(int sixaxis_number)
+{
+  struct sixaxis_state* state = states + sixaxis_number;
+
+  if(l2cap_is_connected(state->interrupt_pending))
+  {
+    GE_RemoveSource(state->interrupt_pending);
+    state->interrupt = state->interrupt_pending;
+    state->interrupt_pending = -1;
+    GE_AddSource(state->interrupt, sixaxis_number, &read_interrupt, NULL, &close_interrupt);
+  }
+  else
+  {
+    GE_RemoveSource(state->interrupt_pending);
+    close(state->interrupt_pending);
+    state->interrupt_pending = -1;
+    fprintf(stderr, "can't connect to interrupt psm\n");
+    state->sys.shutdown = 1;
+    get_controller(sixaxis_number)->send_command = 1;
+    return -1;
+  }
+
+  return 0;
+}
+
+static int connect_control(int sixaxis_number)
+{
+  struct sixaxis_state* state = states + sixaxis_number;
+
+  if(l2cap_is_connected(state->control_pending))
+  {
+    gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
+      state->bdaddr_src, state->bdaddr_dst, PSM_HID_INTERRUPT);
+
+    if ((state->interrupt_pending = l2cap_connect(state->bdaddr_src, state->bdaddr_dst,
+        PSM_HID_INTERRUPT)) < 0)
+    {
+      GE_RemoveSource(state->control_pending);
+      close(state->control_pending);
+      state->control_pending = -1;
+      fprintf(stderr, "can't connect to interrupt psm\n");
+      return -1;
+    }
+
+    GE_RemoveSource(state->control_pending);
+    state->control = state->control_pending;
+    state->control_pending = -1;
+    GE_AddSource(state->control, sixaxis_number, &read_control, NULL, &close_control);
+
+    GE_AddSource(state->interrupt_pending, sixaxis_number, NULL, &connect_interrupt, &connect_interrupt);
+  }
+  else
+  {
+    GE_RemoveSource(state->control_pending);
+    close(state->control_pending);
+    state->control_pending = -1;
+    fprintf(stderr, "can't connect to control psm\n");
+    state->sys.shutdown = 1;
+    get_controller(sixaxis_number)->send_command = 1;
+    return -1;
+  }
+
+  return 0;
+}
+
 int sixaxis_connect(int sixaxis_number)
 {
-  int ret;
-
   struct sixaxis_state* state = states + sixaxis_number;
 
   sixaxis_init(sixaxis_number);
@@ -614,68 +691,17 @@ int sixaxis_connect(int sixaxis_number)
     return -1;
   }
 
-  /* Connect to PS3 */
-  printf("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
-      state->bdaddr_src, state->bdaddr_dst, PSM_HID_CONTROL);
+  gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
+    state->bdaddr_src, state->bdaddr_dst, PSM_HID_CONTROL);
 
-  if ((state->control = l2cap_connect(state->bdaddr_src, state->bdaddr_dst,
+  if ((state->control_pending = l2cap_connect(state->bdaddr_src, state->bdaddr_dst,
       PSM_HID_CONTROL)) < 0)
   {
-    fprintf(stderr, "can't connect to control psm");
+    fprintf(stderr, "can't connect to control psm\n");
     return -1;
   }
 
-  printf("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
-      state->bdaddr_src, state->bdaddr_dst, PSM_HID_INTERRUPT);
+  GE_AddSource(state->control_pending, sixaxis_number, NULL, &connect_control, &connect_control);
 
-  if ((state->interrupt = l2cap_connect(state->bdaddr_src, state->bdaddr_dst,
-      PSM_HID_INTERRUPT)) < 0)
-  {
-    close_control(sixaxis_number);
-    fprintf(stderr, "can't connect to interrupt psm");
-    return -1;
-  }
-
-  struct pollfd pfd[2] =
-  {
-    {.fd = state->control, .events = POLLIN},
-    {.fd = state->interrupt, .events = POLLIN}
-  };
-
-  while (1)
-  {
-    ret = poll(pfd, sizeof(pfd)/sizeof(*pfd), 2000);
-    if (ret > 0)
-    {
-      if (pfd[0].revents & POLLIN)
-      {
-        read_control(sixaxis_number);
-      }
-      else if (pfd[1].revents & POLLIN)
-      {
-        if(read_interrupt(sixaxis_number))
-        {
-          send_report(state->interrupt, HID_TYPE_INPUT, 0x01, state, 0);
-          break;
-        }
-      }
-    }
-    else
-    {
-      ret = -1; //timeout or error
-      break;
-    }
-  }
-
-  if (ret < 0)
-  {
-    sixaxis_close(sixaxis_number);
-  }
-  else
-  {
-    GE_AddSource(state->control, POLLIN, sixaxis_number, &read_control, &close_control);
-    GE_AddSource(state->interrupt, POLLIN, sixaxis_number, &read_interrupt, &close_interrupt);
-  }
-
-  return ret;
+  return 0;
 }

@@ -13,6 +13,7 @@
 #include <math.h>
 #include "emuclient.h"
 #include "config.h"
+#include "controllers/controller.h"
 #include <GE.h>
 #include "../directories.h"
 
@@ -37,12 +38,6 @@ typedef struct
  */
 static s_running_macro* running_macro = { NULL };
 static unsigned int running_macro_nb;
-
-/*
- * These tables are used to retrieve a device id for an event with a different device type than the trigger.
- */
-static int controller_device[3][MAX_CONTROLLERS];
-static int device_controller[3][MAX_DEVICES];
 
 typedef struct {
   GE_Event event;
@@ -782,18 +777,7 @@ static void read_macros() {
  * Initializes macro_table and reads macros from macro files.
  */
 void macros_init() {
-  int i, j;
-  for(j=0; j<3; ++j)
-  {
-    for(i=0; i<MAX_CONTROLLERS; ++i)
-    {
-      controller_device[j][i] = -1;
-    }
-    for(i=0; i<MAX_DEVICES; ++i)
-    {
-      device_controller[j][i] = -1;
-    }
-  }
+
 }
 
 static void active_triggered_init()
@@ -981,20 +965,20 @@ unsigned int macro_process()
         did = GE_GetDeviceId(&running_macro[i].event);
         if(dtype1 != E_DEVICE_TYPE_UNKNOWN && dtype2 != E_DEVICE_TYPE_UNKNOWN && did >= 0)
         {
-          int controller = device_controller[dtype2-1][did];
+          int controller = controller_get_controller(dtype2, did);
           if(controller < 0)
           {
             controller = 0;
             for(j=0; j<MAX_CONTROLLERS; ++j)
             {
-              if(controller_device[dtype1-1][j] >= 0)
+              if(controller_get_device(dtype1, j) >= 0)
               {
                 controller = j;
                 break;
               }
             }
           }
-          did = controller_device[dtype1-1][controller];
+          did = controller_get_device(dtype1, controller);
           if(did < 0)
           {
             did = 0;
@@ -1021,34 +1005,3 @@ unsigned int macro_process()
   return running_macro_nb;
 }
 
-void macro_set_controller_device(int controller, int device_type, int device_id)
-{
-  if(controller < 0 || controller >= MAX_CONTROLLERS
-  || device_type < 0 || device_type >= 3
-  || device_id < 0 || device_type > MAX_DEVICES)
-  {
-    fprintf(stderr, "set_controller_device error\n");
-    return;
-  }
-  if(controller_device[device_type][controller] < 0)
-  {
-    controller_device[device_type][controller] = device_id;
-    device_controller[device_type][device_id] = controller;
-  }
-  else if(controller_device[device_type][controller] != device_id)
-  {
-    gprintf(_("macros are not not available for: "));
-    if(device_type == 0)
-    {
-      gprintf(_("keyboard %s (%d)\n"), GE_KeyboardName(device_id), GE_KeyboardVirtualId(device_id));
-    }
-    else if(device_type == 1)
-    {
-      gprintf(_("mouse %s (%d)\n"), GE_MouseName(device_id), GE_MouseVirtualId(device_id));
-    }
-    else if(device_type == 2)
-    {
-      gprintf(_("joystick %s (%d)\n"), GE_JoystickName(device_id), GE_JoystickVirtualId(device_id));
-    }
-  }
-}

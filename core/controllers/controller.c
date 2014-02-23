@@ -13,18 +13,36 @@
 #include <errno.h>
 #include <unistd.h>
 #include <connectors/udp_con.h>
+#include <config.h>
 
 static s_controller controller[MAX_CONTROLLERS] = {};
 
+/*
+ * These tables are used to retrieve the default controller for a device and vice versa.
+ */
+static int controller_device[E_DEVICE_TYPE_NB][MAX_CONTROLLERS];
+static int device_controller[E_DEVICE_TYPE_NB][MAX_DEVICES];
+
 void controller_init()
 {
-  unsigned char i;
+  unsigned int i, j;
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
     controller[i].type = C_TYPE_DEFAULT;
     controller[i].serial = SERIALOBJECT_UNDEF;
     controller[i].dst_fd = -1;
     controller[i].src_fd = -1;
+  }
+  for(j=0; j<E_DEVICE_TYPE_NB; ++j)
+  {
+    for(i=0; i<MAX_CONTROLLERS; ++i)
+    {
+      controller_device[j][i] = -1;
+    }
+    for(i=0; i<MAX_DEVICES; ++i)
+    {
+      device_controller[j][i] = -1;
+    }
   }
 }
 
@@ -290,4 +308,57 @@ int controller_network_read(int id)
   memcpy(controller[id].axis, buf, sizeof(controller->axis));
   controller[id].send_command = 1;
   return 0;
+}
+
+/*
+ * Set the default device for a controller.
+ */
+void controller_set_device(int controller, e_device_type device_type, int device_id)
+{
+  int type_index = device_type-1;
+
+  if(controller < 0 || controller >= MAX_CONTROLLERS
+  || type_index < 0 || type_index >= E_DEVICE_TYPE_NB
+  || device_id < 0 || type_index > MAX_DEVICES)
+  {
+    fprintf(stderr, "set_controller_device error\n");
+    return;
+  }
+  if(controller_device[type_index][controller] < 0)
+  {
+    controller_device[type_index][controller] = device_id;
+    device_controller[type_index][device_id] = controller;
+  }
+  else if(controller_device[type_index][controller] != device_id)
+  {
+    gprintf(_("macros are not not available for: "));
+    if(device_type == E_DEVICE_TYPE_KEYBOARD)
+    {
+      gprintf(_("keyboard %s (%d)\n"), GE_KeyboardName(device_id), GE_KeyboardVirtualId(device_id));
+    }
+    else if(device_type == E_DEVICE_TYPE_MOUSE)
+    {
+      gprintf(_("mouse %s (%d)\n"), GE_MouseName(device_id), GE_MouseVirtualId(device_id));
+    }
+    else if(device_type == E_DEVICE_TYPE_JOYSTICK)
+    {
+      gprintf(_("joystick %s (%d)\n"), GE_JoystickName(device_id), GE_JoystickVirtualId(device_id));
+    }
+  }
+}
+
+/*
+ * Get the default device for a controller.
+ */
+int controller_get_device(e_device_type device_type, int controller)
+{
+  return controller_device[device_type-1][controller];
+}
+
+/*
+ * Get the default controller for a device.
+ */
+int controller_get_controller(e_device_type device_type, int device_id)
+{
+  return device_controller[device_type-1][device_id];
 }

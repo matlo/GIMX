@@ -38,7 +38,8 @@ typedef struct
 {
   int id;
   int fd;
-  int (*fd_fp)(int);
+  int (*fp_read)(int);
+  int (*fp_write)(int);
   int (*fd_cleanup)(int);
   short int event;
 } s_source;
@@ -46,15 +47,23 @@ typedef struct
 static s_source sources[FD_SETSIZE] = {};
 static int max_source = 0;
 
-void ev_register_source(int fd, short int event, int id, int (*fd_fp)(int), int (*fd_cleanup)(int))
+void ev_register_source(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fd_cleanup)(int))
 {
   if(fd < FD_SETSIZE)
   {
     sources[fd].id = id;
     sources[fd].fd = fd;
-    sources[fd].fd_fp = fd_fp;
+    if(fp_read)
+    {
+      sources[fd].event |= POLLIN;
+      sources[fd].fp_read = fp_read;
+    }
+    if(fp_write)
+    {
+      sources[fd].event |= POLLOUT;
+      sources[fd].fp_write = fp_write;
+    }
     sources[fd].fd_cleanup = fd_cleanup;
-    sources[fd].event = event;
     if(fd > max_source)
     {
       max_source = fd;
@@ -66,11 +75,7 @@ void ev_remove_source(int fd)
 {
   if(fd < FD_SETSIZE)
   {
-    sources[fd].id = 0;
-    sources[fd].fd = 0;
-    sources[fd].fd_fp = NULL;
-    sources[fd].fd_cleanup = NULL;
-    sources[fd].event = 0;
+    memset(sources+fd, 0x00, sizeof(*sources));
   }
 }
 
@@ -194,6 +199,18 @@ const char* ev_keyboard_name(int id)
   return mkb_get_k_name(id);
 }
 
+#ifndef WIN32
+int ev_joystick_has_ff_rumble(int joystick)
+{
+  return js_has_ff_rumble(joystick);
+}
+
+int ev_joystick_set_ff_rumble(int joystick, unsigned short weak_timeout, unsigned short weak, unsigned short strong_timeout, unsigned short strong)
+{
+  return js_set_ff_rumble(joystick, weak_timeout, weak, strong_timeout, strong);
+}
+#endif
+
 static int (*event_callback)(GE_Event*) = NULL;
 
 void ev_set_callback(int (*fp)(GE_Event*))
@@ -210,7 +227,7 @@ static unsigned int fill_fds(nfds_t nfds, struct pollfd fds[nfds])
   int i;
   for(i=0; i<nfds; ++i)
   {
-    if(sources[i].fd_fp != NULL)
+    if(sources[i].event)
     {
       fds[pos].fd = i;
       fds[pos].events = sources[i].event;
@@ -263,7 +280,7 @@ void ev_pump_events(void)
     {
       for(i=0; i<nfds; ++i)
       {
-        if(fds[i].revents & POLLERR)
+        if(fds[i].revents & (POLLERR | POLLHUP | POLLNVAL))
         {
           res = sources[fds[i].fd].fd_cleanup(sources[fds[i].fd].id);
           ev_remove_source(fds[i].fd);
@@ -271,11 +288,19 @@ void ev_pump_events(void)
           {
             return;
           }
+          continue;
         }
-        else if(fds[i].revents & sources[fds[i].fd].event)
+        if(fds[i].revents & POLLIN)
         {
-          if(sources[fds[i].fd].fd_fp(sources[fds[i].fd].id))
+          if(sources[fds[i].fd].fp_read(sources[fds[i].fd].id))
 		  		{
+            return;
+          }
+        }
+        if(fds[i].revents & POLLOUT)
+        {
+          if(sources[fds[i].fd].fp_write(sources[fds[i].fd].id))
+          {
             return;
           }
         }

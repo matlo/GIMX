@@ -328,7 +328,7 @@ int mkb_init()
             ioctl(device_fd[i], EVIOCGRAB, (void *)1);
           }
           max_device_id = i;
-          ev_register_source(device_fd[i], POLLIN, i, &mkb_process_events, &mkb_close_device);
+          ev_register_source(device_fd[i], i, &mkb_process_events, NULL, &mkb_close_device);
         }
         else
         {

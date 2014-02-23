@@ -400,12 +400,14 @@ void GE_SetMKMode(GE_MK_Mode);
 void GE_SetCallback(int(*)(GE_Event*));
 void GE_TimerStart(struct timespec*);
 void GE_TimerClose();
+int GE_JoystickHasRumble(int id);
+int GE_JoystickSetRumble(int id, unsigned short weak_timeout, unsigned short weak, unsigned short strong_timeout, unsigned short strong);
 #endif
 void GE_PumpEvents();
 int GE_PeepEvents(GE_Event*, int);
 int GE_PushEvent(GE_Event*);
 
-void GE_AddSource(int fd, short int event, int id, int (*fd_fp)(int), int (*fd_cleanup)(int));
+void GE_AddSource(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fd_cleanup)(int));
 void GE_RemoveSource(int fd);
 
 #ifdef __cplusplus

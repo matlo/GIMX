@@ -538,7 +538,7 @@ static int ProcessAxisElement(xmlNode * a_node)
       {
         case E_EVENT_TYPE_BUTTON:
           p_mapper->button = r_event_id;
-          macro_set_controller_device(r_controller_id, r_device_type-1, r_device_id);
+          controller_set_device(r_controller_id, r_device_type, r_device_id);
           break;
         case E_EVENT_TYPE_AXIS:
           p_mapper->axis = r_event_id;
@@ -650,7 +650,7 @@ static int ProcessButtonElement(xmlNode * a_node)
       {
         case E_EVENT_TYPE_BUTTON:
           p_mapper->button = r_event_id;
-          macro_set_controller_device(r_controller_id, r_device_type-1, r_device_id);
+          controller_set_device(r_controller_id, r_device_type, r_device_id);
           break;
         case E_EVENT_TYPE_AXIS_DOWN:
         case E_EVENT_TYPE_AXIS_UP:

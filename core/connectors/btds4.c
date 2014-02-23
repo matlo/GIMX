@@ -5,6 +5,7 @@
 
 #include "controllers/ds4.h"
 #include "connectors/btds4.h"
+#include "emuclient.h"
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -124,6 +125,15 @@ struct btds4_state_sys {
     uint8_t rumble[2];
 };
 
+typedef struct btds4_report {
+  unsigned char header;
+  unsigned char code;
+  unsigned char unknown1;
+  s_report_ds4 report;
+  unsigned char unknown2[8];
+  unsigned char crc32[4];
+} s_btds4_report;
+
 struct btds4_state {
     char dongle_bdaddr[18];
     char ps4_bdaddr[18];
@@ -131,7 +141,7 @@ struct btds4_state {
     int dongle_index;
     int btds4_number;
     struct btds4_state_sys sys;
-    s_report_ds4 user;
+    s_btds4_report bt_report;
     int ps4_control_pending;
     int ps4_interrupt_pending;
     int ps4_control;
@@ -156,48 +166,11 @@ struct btds4_process_t {
     int (*func)(const uint8_t *buf, int len, struct btds4_state *state);
 };
 
-/*
- * TODO MLA: fix table size
- */
-static struct btds4_state states[7] = {};
-static int debug = 1;
+static struct btds4_state states[MAX_CONTROLLERS] = {};
 
 static int sdp_fd = -1;
 static int hid_control_fd = -1;
 static int hid_interrupt_fd = -1;
-
-static const char *hid_report_name[] =
-{ "reserved", "input", "output", "feature" };
-
-static int is_connected(int fd)
-{
-  int error = 0;
-  socklen_t lerror = sizeof(error);
-
-  int ret = getsockopt (fd, SOL_SOCKET, SO_ERROR, &error, &lerror);
-
-  if(ret < 0)
-  {
-    perror("getsockopt SO_ERROR");
-    exit(-1);
-  }
-  else
-  {
-    if(error == EINPROGRESS)
-    {
-      fprintf(stderr, "EINPROGRESS\n");
-    }
-    else if(error < 0)
-    {
-      fprintf(stderr, "connection failed: %s\n", strerror(error));
-    }
-    else
-    {
-      return 1;
-    }
-  }
-  return 0;
-}
 
 static int read_ds4_sdp(int btds4_number)
 {
@@ -351,10 +324,6 @@ static int close_ds4_interrupt(int btds4_number)
   return 1;
 }
 
-static int process(int psm, const unsigned char *buf, int len, struct btds4_state *state);
-
-
-
 static int read_ps4_control(int btds4_number)
 {
   unsigned char buf[1024];
@@ -367,6 +336,59 @@ static int read_ps4_control(int btds4_number)
   }
   else
   {
+    /*if(buf[1] == 0x02)
+    {
+      unsigned char resp02[] =
+      {
+          0xa3, 0x02, 0x01, 0x00, 0xff, 0xff, 0x01, 0x00, 0x5e, 0x22, 0x84, 0x22, 0x9b, 0x22, 0xa6, 0xdd,
+          0x79, 0xdd, 0x64, 0xdd, 0x1c, 0x02, 0x1c, 0x02, 0x85, 0x1f, 0x9f, 0xe0, 0x92, 0x20, 0xdc, 0xe0,
+          0x4d, 0x1c, 0x1e, 0xde, 0x08, 0x00
+      };
+
+      if(l2cap_send(states[btds4_number].ps4_control, resp02, sizeof(resp02), 0) != sizeof(resp02))
+      {
+        fprintf(stderr, "error writing ps4 control\n");
+      }
+
+      return 0;
+    }
+
+    if(buf[1] == 0x06)
+    {
+      unsigned char resp06[] =
+      {
+        0xa3, 0x06, 0x41, 0x75, 0x67, 0x20, 0x20, 0x33, 0x20, 0x32, 0x30, 0x31, 0x33, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x30, 0x37, 0x3a, 0x30, 0x31, 0x3a, 0x31, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x01, 0x00, 0x31, 0x03, 0x00, 0x00, 0x00, 0x49, 0x00, 0x05, 0x00, 0x00, 0x80,
+        0x03, 0x00, 0x4b, 0x52, 0x02, 0xc7
+      };
+
+      if(l2cap_send(states[btds4_number].ps4_control, resp06, sizeof(resp06), 0) != sizeof(resp06))
+      {
+        fprintf(stderr, "error writing ps4 control\n");
+      }
+
+      return 0;
+    }
+
+    if(buf[1] == 0xa3)
+    {
+      unsigned char respa3[] =
+      {
+        0xa3, 0x06, 0x41, 0x75, 0x67, 0x20, 0x20, 0x33, 0x20, 0x32, 0x30, 0x31, 0x33, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x30, 0x37, 0x3a, 0x30, 0x31, 0x3a, 0x31, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x01, 0x00, 0x31, 0x03, 0x00, 0x00, 0x00, 0x49, 0x00, 0x05, 0x00, 0x00, 0x80,
+        0x03, 0x00
+      };
+
+      if(l2cap_send(states[btds4_number].ps4_control, respa3, sizeof(respa3), 0) != sizeof(respa3))
+      {
+        fprintf(stderr, "error writing ps4 control\n");
+      }
+
+      return 0;
+    }*/
+
     int ret = l2cap_send(states[btds4_number].ds4_control, buf, len, 0);
 
     if(ret != len)
@@ -392,15 +414,15 @@ static int connect_ps4_control(int btds4_number)
 {
   struct btds4_state* state = states + btds4_number;
 
-  if(is_connected(state->ps4_control_pending))
+  if(l2cap_is_connected(state->ps4_control_pending))
   {
     GE_RemoveSource(state->ps4_control_pending);
     state->ps4_control = state->ps4_control_pending;
     state->ps4_control_pending = -1;
     if(state->ds4_control >= 0)
     {
-      GE_AddSource(state->ps4_control, POLLIN, btds4_number, &read_ps4_control, &close_ps4_control);
-      GE_AddSource(state->ds4_control, POLLIN, btds4_number, &read_ds4_control, &close_ds4_control);
+      GE_AddSource(state->ps4_control, btds4_number, &read_ps4_control, NULL, &close_ps4_control);
+      GE_AddSource(state->ds4_control, btds4_number, &read_ds4_control, NULL, &close_ds4_control);
     }
   }
   else
@@ -408,6 +430,8 @@ static int connect_ps4_control(int btds4_number)
     GE_RemoveSource(state->ps4_control_pending);
     close(state->ps4_control_pending);
     state->ps4_control_pending = -1;
+    fprintf(stderr, "can't connect to control psm");
+    return -1;
   }
 
   return 0;
@@ -425,6 +449,17 @@ static int read_ps4_interrupt(int btds4_number)
   }
   else
   {
+    /*
+     * TODO MLA: process rumble!
+     */
+
+    /*switch(buf[2])
+    {
+      case 0xc0:
+        printf("0x%02x 0x%02x 0x%02x\n", buf[1], buf[7], buf[8]);
+        break;
+    }*/
+
     /*int ret = l2cap_send(states[btds4_number].ds4_interrupt, buf, len, 0);
 
     if(ret != len)
@@ -452,15 +487,15 @@ static int connect_ps4_interrupt(int btds4_number)
 {
   struct btds4_state* state = states + btds4_number;
 
-  if(is_connected(state->ps4_interrupt_pending))
+  if(l2cap_is_connected(state->ps4_interrupt_pending))
   {
     GE_RemoveSource(state->ps4_interrupt_pending);
     state->ps4_interrupt = state->ps4_interrupt_pending;
     state->ps4_interrupt_pending = -1;
     if(state->ds4_interrupt >= 0)
     {
-      GE_AddSource(state->ps4_interrupt, POLLIN, btds4_number, &read_ps4_interrupt, &close_ps4_interrupt);
-      GE_AddSource(state->ds4_interrupt, POLLIN, btds4_number, &read_ds4_interrupt, &close_ds4_interrupt);
+      GE_AddSource(state->ps4_interrupt, btds4_number, &read_ps4_interrupt, NULL, &close_ps4_interrupt);
+      GE_AddSource(state->ds4_interrupt, btds4_number, &read_ds4_interrupt, NULL, &close_ds4_interrupt);
     }
   }
   else
@@ -468,6 +503,8 @@ static int connect_ps4_interrupt(int btds4_number)
     GE_RemoveSource(state->ps4_interrupt_pending);
     close(state->ps4_interrupt_pending);
     state->ps4_interrupt_pending = -1;
+    fprintf(stderr, "can't connect to interrupt psm");
+    return -1;
   }
 
   return 0;
@@ -495,7 +532,7 @@ static int btds4_accept(int listen_fd)
       {
         states[i].ps4_sdp = fd;
         states[i].ps4_sdp_cid = cid;
-        GE_AddSource(states[i].ps4_sdp, POLLIN, i, &read_ps4_sdp, &close_ps4_sdp);
+        GE_AddSource(states[i].ps4_sdp, i, &read_ps4_sdp, NULL, &close_ps4_sdp);
         break;
       }
     }
@@ -511,9 +548,9 @@ static int btds4_accept(int listen_fd)
         {
           ba2str(&src, states[i].ds4_bdaddr);
           states[i].ds4_sdp = fd;
-          GE_AddSource(states[i].ds4_sdp, POLLIN, i, &read_ds4_sdp, &close_ds4_sdp);
+          GE_AddSource(states[i].ds4_sdp, i, &read_ds4_sdp, NULL, &close_ds4_sdp);
 
-          printf("connecting with hci%d = %s to %s psm 0x%04x\n", states[i].dongle_index,
+          gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", states[i].dongle_index,
               states[i].dongle_bdaddr, states[i].ps4_bdaddr, PSM_HID_CONTROL);
 
           if ((states[i].ps4_control_pending = l2cap_connect(states[i].dongle_bdaddr, states[i].ps4_bdaddr,
@@ -523,9 +560,9 @@ static int btds4_accept(int listen_fd)
             break;
           }
 
-          GE_AddSource(states[i].ps4_control_pending, POLLOUT, i, &connect_ps4_control, &close);
+          GE_AddSource(states[i].ps4_control_pending, i, NULL, &connect_ps4_control, &connect_ps4_control);
 
-          printf("connecting with hci%d = %s to %s psm 0x%04x\n", states[i].dongle_index,
+          gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", states[i].dongle_index,
               states[i].dongle_bdaddr, states[i].ps4_bdaddr, PSM_HID_INTERRUPT);
 
           if ((states[i].ps4_interrupt_pending = l2cap_connect(states[i].dongle_bdaddr, states[i].ps4_bdaddr,
@@ -536,7 +573,7 @@ static int btds4_accept(int listen_fd)
             break;
           }
 
-          GE_AddSource(states[i].ps4_interrupt_pending, POLLOUT, i, &connect_ps4_interrupt, &close);
+          GE_AddSource(states[i].ps4_interrupt_pending, i, NULL, &connect_ps4_interrupt, &connect_ps4_interrupt);
 
           break;
         }
@@ -565,8 +602,8 @@ static int btds4_accept(int listen_fd)
           states[i].ds4_control = fd;
           if(states[i].ps4_control >= 0)
           {
-            GE_AddSource(states[i].ds4_control, POLLIN, i, &read_ds4_control, &close_ds4_control);
-            GE_AddSource(states[i].ps4_control, POLLIN, i, &read_ps4_control, &close_ps4_control);
+            GE_AddSource(states[i].ds4_control, i, &read_ds4_control, NULL, &close_ds4_control);
+            GE_AddSource(states[i].ps4_control, i, &read_ps4_control, NULL, &close_ps4_control);
           }
         }
         else if(psm == PSM_HID_INTERRUPT)
@@ -574,8 +611,8 @@ static int btds4_accept(int listen_fd)
           states[i].ds4_interrupt = fd;
           if(states[i].ps4_interrupt >= 0)
           {
-            GE_AddSource(states[i].ds4_interrupt, POLLIN, i, &read_ds4_interrupt, &close_ds4_interrupt);
-            GE_AddSource(states[i].ps4_interrupt, POLLIN, i, &read_ps4_interrupt, &close_ps4_interrupt);
+            GE_AddSource(states[i].ds4_interrupt, i, &read_ds4_interrupt, NULL, &close_ds4_interrupt);
+            GE_AddSource(states[i].ps4_interrupt, i, &read_ps4_interrupt, NULL, &close_ps4_interrupt);
           }
         }
         break;
@@ -616,6 +653,36 @@ static int btds4_close_listen(int listen_fd)
   return 1;
 }
 
+s_btds4_report init_report = {
+    .header = 0xa1,
+    .code = 0x11,
+    .unknown1 = 0xc0,
+    .report.report_id = 0x00,
+    .report.X = 0x80,
+    .report.Y = 0x80,
+    .report.Z = 0x80,
+    .report.Rz = 0x80,
+    .report.HatAndButtons = 0x08,
+    .report.ButtonsAndCounter = 0xfc00,
+    .report.Rx = 0x00,
+    .report.Ry = 0x00,
+    .report.unknown =
+    {
+        0x99, 0x50, 0xfd, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xe7, 0xff, 0x6e, 0x20, 0xd9, 0x09, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00,
+        0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80,
+        0x00, 0x00, 0x00, 0x00, 0x80, 0x00
+    },
+    .unknown2 =
+    {
+        0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00
+    },
+    .crc32 =
+    {
+        0x00, 0x00, 0x00, 0x00
+    }
+};
+
 int btds4_init(int btds4_number)
 {
   struct btds4_state* state = states+btds4_number;
@@ -633,16 +700,7 @@ int btds4_init(int btds4_number)
   state->ds4_sdp = -1;
   state->ds4_sdp_pending = -1;
 
-  state->user.X = 128;
-  state->user.Y = 128;
-  state->user.Z = 128;
-  state->user.Rz = 128;
-
-  state->user.HatAndButtons = 0x08;
-
-  /*
-   * TDO MLA: initialize other values
-   */
+  memcpy(&state->bt_report, &init_report, sizeof(s_btds4_report));
 
   if (bt_get_device_bdaddr(state->dongle_index, state->dongle_bdaddr) < 0)
   {
@@ -661,7 +719,7 @@ int btds4_init(int btds4_number)
   {
     if((sdp_fd = l2cap_listen(PSM_SDP)) >= 0)
     {
-      GE_AddSource(sdp_fd, POLLIN, sdp_fd, &btds4_accept, &btds4_close_listen);
+      GE_AddSource(sdp_fd, sdp_fd, &btds4_accept, NULL, &btds4_close_listen);
     }
     else
     {
@@ -673,7 +731,7 @@ int btds4_init(int btds4_number)
   {
     if((hid_control_fd = l2cap_listen(PSM_HID_CONTROL)) >= 0)
     {
-      GE_AddSource(hid_control_fd, POLLIN, hid_control_fd, &btds4_accept, &btds4_close_listen);
+      GE_AddSource(hid_control_fd, hid_control_fd, &btds4_accept, NULL, &btds4_close_listen);
     }
     else
     {
@@ -685,7 +743,7 @@ int btds4_init(int btds4_number)
   {
     if((hid_interrupt_fd = l2cap_listen(PSM_HID_INTERRUPT)) >= 0)
     {
-      GE_AddSource(hid_interrupt_fd, POLLIN, hid_interrupt_fd, &btds4_accept, &btds4_close_listen);
+      GE_AddSource(hid_interrupt_fd, hid_interrupt_fd, &btds4_accept, NULL, &btds4_close_listen);
     }
     else
     {
@@ -710,440 +768,14 @@ void btds4_set_dongle(int btds4_number, int dongle_index)
   state->dongle_index = dongle_index;
 }
 
-/* Main input report from Sixaxis -- assemble it */
-static int assemble_input_01(uint8_t *buf, int maxlen, struct btds4_state *state)
-{
-  const uint8_t data[] =
-  {
-    /*
-     *  TODO MLA
-     *
-     *  4 axes + d-pad + buttons?
-     */
-    0x7d, 0x7d, 0x80, 0x7e, 0x08, 0x00, 0x00, 0x00, 0x00
-  };
-
-  int len = sizeof(data);
-  if (len > maxlen)
-    return -1;
-  memcpy(buf, data, len);
-
-  return len;
-}
-
-static int assemble_input_11(uint8_t *buf, int maxlen, struct btds4_state *state)
-{
-  uint8_t data[79] =
-  {
-    0xa1, 0x11, 0xc0, 0x00, 0x7d, 0x7d, 0x81, 0x7e,
-    0x08, 0x00, 0x28, 0x00, 0x00, 0x8c, 0xf3, 0x01,
-    0x13, 0x00, 0xf8, 0xff, 0x05, 0x00, 0x31, 0xfe,
-    0x3f, 0x0f, 0xd1, 0xe3, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x09, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00,
-    0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x80,
-    0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00,
-    0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00,
-    0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x5e, 0x22, 0x7b, 0xa0
-  };
-
-  memcpy(data+4, ((uint8_t*) &state->user) + 1, 9);
-
-  MHASH td = mhash_init(MHASH_CRC32B);
-
-  if (td == MHASH_FAILED) {
-    perror("mhash_init");
-  }
-
-  mhash(td, data, 75);
-
-  unsigned int digest = 0; // crc32 will be stored here
-
-  mhash_deinit(td, &digest);
-
-  data[78] = digest >> 24;
-  data[77] = (digest >> 16) & 0xFF;
-  data[76] = (digest >> 8) & 0xFF;
-  data[75] = digest & 0xFF;
-
-  int len = sizeof(data) - 2;
-  if (len > maxlen)
-    return -1;
-  memcpy(buf, data+2, len);
-
-  return len;
-}
-
-/* Unknown */
-static int assemble_feature_02(uint8_t *buf, int maxlen, struct btds4_state *state)
-{
-  const uint8_t data[] =
-  {
-    0x01, 0x00, 0xff, 0xff, 0x01, 0x00, 0x5e, 0x22,
-    0x84, 0x22, 0x9b, 0x22, 0xa6, 0xdd, 0x79, 0xdd,
-    0x64, 0xdd, 0x1c, 0x02, 0x1c, 0x02, 0x85, 0x1f,
-    0x9f, 0xe0, 0x92, 0x20, 0xdc, 0xe0, 0x4d, 0x1c,
-    0x1e, 0xde, 0x08, 0x00
-  };
-
-  int len = sizeof(data);
-  if (len > maxlen)
-    return -1;
-  memcpy(buf, data, len);
-
-  return len;
-}
-
-/* Unknown */
-static int assemble_feature_04(uint8_t *buf, int maxlen, struct btds4_state *state)
-{
-  /*
-   * TODO MLA: forward
-   */
-
-  return 0;
-}
-
-static int assemble_feature_06(uint8_t *buf, int maxlen, struct btds4_state *state)
-{
-  const uint8_t data[] =
-  {
-    0x41, 0x75, 0x67, 0x20, 0x20, 0x33, 0x20, 0x32,
-    0x30, 0x31, 0x33, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x30, 0x37, 0x3a, 0x30, 0x31, 0x3a, 0x31, 0x32,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x01, 0x00, 0x31, 0x03, 0x00, 0x00, 0x00,
-    0x49, 0x00, 0x05, 0x00, 0x00, 0x80, 0x03, 0x00,
-    0x4b, 0x52, 0x02, 0xc7 /* <-- CRC-32 */
-  };
-
-  int len = sizeof(data);
-  if (len > maxlen)
-    return -1;
-  memcpy(buf, data, len);
-
-  return len;
-}
-
-static int assemble_feature_a3(uint8_t *buf, int maxlen, struct btds4_state *state)
-{
-  const uint8_t data[] =
-  {
-    0x41, 0x75, 0x67, 0x20, 0x20, 0x33, 0x20, 0x32,
-    0x30, 0x31, 0x33, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x30, 0x37, 0x3a, 0x30, 0x31, 0x3a, 0x31, 0x32,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x01, 0x00, 0x31, 0x03, 0x00, 0x00, 0x00,
-    0x49, 0x00, 0x05, 0x00, 0x00, 0x80, 0x03, 0x00
-  };
-
-  int len = sizeof(data);
-  if (len > maxlen)
-    return -1;
-  memcpy(buf, data, len);
-
-  return len;
-}
-
-static int assemble_feature_f1(uint8_t *buf, int maxlen, struct btds4_state *state)
-{
-  /*
-   * TODO MLA: forward
-   */
-
-  return 0;
-}
-
-static int assemble_feature_f2(uint8_t *buf, int maxlen, struct btds4_state *state)
-{
-  /*
-   *  TODO MLA: forward
-   */
-
-  return 0;
-}
-
-static int process_input_11(const uint8_t *buf, int len, struct btds4_state *state)
-{
-  if (len < sizeof(s_report_ds4))
-    return -1;
-
-  memcpy(&state->user, buf, sizeof(s_report_ds4));
-
-  return 0;
-}
-
-static int process_output_11(const uint8_t *buf, int len, struct btds4_state *state)
-{
-  return 0;
-}
-
-static int process_output_14(const uint8_t *buf, int len, struct btds4_state *state)
-{
-  return 0;
-}
-
-static int process_output_15(const uint8_t *buf, int len, struct btds4_state *state)
-{
-  return 0;
-}
-
-static int process_output_17(const uint8_t *buf, int len, struct btds4_state *state)
-{
-  return 0;
-}
-
-static int process_output_18(const uint8_t *buf, int len, struct btds4_state *state)
-{
-  return 0;
-}
-
-static int process_output_19(const uint8_t *buf, int len, struct btds4_state *state)
-{
-  return 0;
-}
-
-static int process_feature_03(const uint8_t *buf, int len, struct btds4_state *state)
-{
-  /*
-   * TODO MLA: forward
-   */
-
-  return 0;
-}
-
-static int process_feature_f0(const uint8_t *buf, int len, struct btds4_state *state)
-{
-  /*
-   * TODO MLA: forward
-   */
-
-  return 0;
-}
-
-static struct btds4_assemble_t btds4_assemble[] =
-{
-{ HID_TYPE_INPUT, 0x01, assemble_input_01 },
-{ HID_TYPE_INPUT, 0x11, assemble_input_11 },
-{ HID_TYPE_FEATURE, 0x02, assemble_feature_02 },
-{ HID_TYPE_FEATURE, 0x04, assemble_feature_04 },
-{ HID_TYPE_FEATURE, 0x06, assemble_feature_06 },
-{ HID_TYPE_FEATURE, 0xa3, assemble_feature_a3 },
-{ HID_TYPE_FEATURE, 0xf1, assemble_feature_f1 },
-{ HID_TYPE_FEATURE, 0xf2, assemble_feature_f2 },
-{ 0 } };
-
-static struct btds4_process_t btds4_process[] =
-{
-{ HID_TYPE_INPUT, 0x11, process_input_11 },
-{ HID_TYPE_OUTPUT, 0x11, process_output_11 },
-{ HID_TYPE_OUTPUT, 0x14, process_output_14 },
-{ HID_TYPE_OUTPUT, 0x15, process_output_15 },
-{ HID_TYPE_OUTPUT, 0x17, process_output_17 },
-{ HID_TYPE_OUTPUT, 0x18, process_output_18 },
-{ HID_TYPE_OUTPUT, 0x19, process_output_19 },
-{ HID_TYPE_FEATURE, 0x03, process_feature_03 },
-{ HID_TYPE_FEATURE, 0xf0, process_feature_f0 },
-{ 0 } };
-
-static int send_report(int fd, uint8_t type, uint8_t report,
-    struct btds4_state *state, int blocking)
-{
-  uint8_t buf[128];
-  int len = 0;
-  int i;
-  struct timeval tv;
-
-  /* Assemble report */
-  for (i = 0; btds4_assemble[i].func; i++)
-  {
-    if (btds4_assemble[i].type == type
-        && btds4_assemble[i].report == report)
-    {
-      len = btds4_assemble[i].func(&buf[2], sizeof(buf) - 2, state);
-      break;
-    }
-  }
-
-  if (!btds4_assemble[i].func || len < 0)
-  {
-    printf("%s %s report 0x%02x, sending empty response\n",
-        (len < 0) ? "Error assembling" : "Unknown", hid_report_name[type],
-        report);
-    len = 0;
-  }
-
-  /* Fill common portion */
-  buf[0] = 0xa0 | type;
-  buf[1] = report;
-  len += 2;
-
-  /* Dump contents */
-  if (debug >= 2)
-  {
-    gettimeofday(&tv, NULL);
-    printf("%ld.%06ld Sixaxis %-7s %02x:", tv.tv_sec, tv.tv_usec,
-        hid_report_name[type], report);
-    for (i = 2; i < len; i++)
-      printf(" %02x", buf[i]);
-    printf("\n");
-  }
-
-  /* Send response.  Some messages (periodic input report) can be
-   sent nonblocking, since they're not critical */
-  return l2cap_send(fd, buf, len, blocking);
-}
-
-static int process_report(uint8_t type, uint8_t report, const uint8_t *buf, int len,
-    struct btds4_state *state)
-{
-  int i;
-  int ret = 0;
-  struct timeval tv;
-
-  /* Dump contents */
-  if (debug >= 2)
-  {
-    gettimeofday(&tv, NULL);
-    printf("%ld.%06ld     PS3 %-7s %02x:", tv.tv_sec, tv.tv_usec,
-        hid_report_name[type], report);
-    for (i = 0; i < len; i++)
-      printf(" %02x", buf[i]);
-    printf("\n");
-  }
-
-  /* Process report */
-  for (i = 0; btds4_process[i].func; i++)
-  {
-    if (btds4_process[i].type == type && btds4_process[i].report == report)
-    {
-      ret = btds4_process[i].func(buf, len, state);
-      break;
-    }
-  }
-
-  if (!btds4_process[i].func || ret < 0)
-  {
-    printf("%s %s report 0x%02x\n", (ret < 0) ? "Error processing" : "Unknown",
-        hid_report_name[type], report);
-  }
-
-  return ret;
-}
-
-static int process(int psm, const unsigned char *buf, int len,
-    struct btds4_state *state)
-{
-  uint8_t transaction;
-  uint16_t maxsize;
-  uint8_t type;
-  uint8_t report;
-  const char *name;
-  int ret = 0;
-  struct timeval tv1, tv2;
-  unsigned long time;
-
-  if (len < 1)
-    return -1;
-
-  transaction = (buf[0] & 0xf0) >> 4;
-  switch (transaction)
-  {
-    case HID_HANDSHAKE:
-      if (buf[0] & 0x0f)
-      {
-        printf("handshake error: 0x%x\n", buf[0] & 0x0f);
-        return -1;
-      }
-      break;
-
-    case HID_GET_REPORT:
-      if (buf[0] & 0x08)
-      {
-        if (len < 4)
-        {
-          printf("GET_REPORT short\n");
-          return -1;
-        }
-        maxsize = (buf[3] << 8) | buf[2];
-      }
-      type = buf[0] & 0x03;
-      if (type == HID_TYPE_RESERVED)
-      {
-        printf("GET_REPORT bad type\n");
-        return -1;
-      }
-      report = buf[1];
-      /* printf("<- GET_REPORT %s 0x%02x\n", hid_report_name[type], report); */
-      if (debug >= 2)
-      {
-        gettimeofday(&tv1, NULL);
-      }
-      ret = send_report(
-          psm == PSM_HID_CONTROL ? state->ps4_control : state->ps4_interrupt, type,
-          report, state, 1);
-      if (debug >= 2)
-      {
-        gettimeofday(&tv2, NULL);
-        time = (tv2.tv_sec * 1000 + tv2.tv_usec)
-            - (tv1.tv_sec * 1000 + tv1.tv_usec);
-        printf("blocking send took: %ld µs\n", time);
-      }
-      break;
-
-    case HID_SET_REPORT:
-    case HID_DATA:
-      /* SET_REPORT and DATA are similar */
-      name = (transaction == HID_DATA) ? "DATA" : "SET_REPORT";
-      if (len < 2)
-      {
-        printf("%s: short\n", name);
-        return -1;
-      }
-      type = buf[0] & 0x03;
-      if (type == HID_TYPE_RESERVED)
-      {
-        printf("%s bad type\n", name);
-        return -1;
-      }
-      report = buf[1];
-      ret = process_report(type, report, buf + 2, len - 2, state);
-      /* Respond to these on CTRL port with a positive HANDSHAKE */
-      if (psm == PSM_HID_CONTROL)
-      {
-        char foo = (HID_HANDSHAKE << 4) | 0x0;
-        if (write(state->ps4_control, &foo, 1) < 1)
-        {
-          fprintf(stderr, "write error\n");
-        }
-
-        /*if(report == 0xf4)
-         {
-         bdaddr_t dest_addr;
-         str2ba(state->bdaddr_dst, &dest_addr);
-         if(l2cap_set_flush_timeout(&dest_addr, FLUSH_TIMEOUT) < 0)
-         {
-         fprintf(stderr, "can't set flush timeout for %s\n", state->bdaddr_dst);
-         }
-         }*/
-      }
-      break;
-
-    default:
-      fprintf(stderr, "unknown transaction %d\n", transaction);
-      return -1;
-  }
-
-  return ret;
-}
-
-int btds4_send_interrupt(int btds4_number, s_report_ds4* buf)
+int btds4_send_interrupt(int btds4_number, s_report_ds4* report)
 {
   struct btds4_state* state = states + btds4_number;
+  unsigned char counter;
+  unsigned short buttons;
 
   if(state->sys.shutdown)
   {
-    printf("shutdown\n");
     return -1;
   }
 
@@ -1152,9 +784,39 @@ int btds4_send_interrupt(int btds4_number, s_report_ds4* buf)
     return 0;
   }
 
-  process_report(HID_TYPE_INPUT, 0x11, (unsigned char*) buf, sizeof(s_report_ds4), state);
+  report->report_id = 0x00;
 
-  int ret = send_report(state->ps4_interrupt, HID_TYPE_INPUT, 0x11, state, 0);
+  state->bt_report.report.X = report->X;
+  state->bt_report.report.Y = report->Y;
+  state->bt_report.report.Z = report->Z;
+  state->bt_report.report.Rz = report->Rz;
+  state->bt_report.report.HatAndButtons = report->HatAndButtons;
+  counter = (state->bt_report.report.ButtonsAndCounter >> 8) & 0xFC;
+  counter += 4;
+  buttons = report->ButtonsAndCounter & 0x03FF;
+  state->bt_report.report.ButtonsAndCounter = (counter << 8) | buttons;
+  state->bt_report.report.Rx = report->Rx;
+  state->bt_report.report.Ry = report->Ry;
+
+  MHASH td = mhash_init(MHASH_CRC32B);
+
+  if (td == MHASH_FAILED)
+  {
+    perror("mhash_init");
+  }
+
+  mhash(td, &state->bt_report, sizeof(state->bt_report)-4);
+
+  unsigned int digest = 0; // crc32 will be stored here
+
+  mhash_deinit(td, &digest);
+
+  state->bt_report.crc32[3] = digest >> 24;
+  state->bt_report.crc32[2] = (digest >> 16) & 0xFF;
+  state->bt_report.crc32[1] = (digest >> 8) & 0xFF;
+  state->bt_report.crc32[0] = digest & 0xFF;
+
+  int ret = l2cap_send(state->ps4_interrupt, (unsigned char*) &state->bt_report, sizeof(state->bt_report), 0);
 
   if(ret < 0)
   {
@@ -1171,7 +833,14 @@ void btds4_close(int btds4_number)
 {
   struct btds4_state* state = states + btds4_number;
 
-  bt_disconnect(state->ps4_bdaddr);
+  if(state->ps4_control >= 0)
+  {
+    bt_disconnect(state->ps4_bdaddr);
+  }
+  if(state->ds4_control >= 0)
+  {
+    bt_disconnect(state->ds4_bdaddr);
+  }
 
   close_ps4_sdp(btds4_number);
   close_ps4_interrupt(btds4_number);

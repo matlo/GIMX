@@ -109,43 +109,43 @@ unsigned int ds4_report_build(int axis[AXIS_MAX], s_report* report)
 
   if (axis[ds4a_l1])
   {
-    report_ds4->ButtonsAndVendor |= 0x0001;
+    report_ds4->ButtonsAndCounter |= 0x0001;
   }
   if (axis[ds4a_r1])
   {
-    report_ds4->ButtonsAndVendor |= 0x0002;
+    report_ds4->ButtonsAndCounter |= 0x0002;
   }
   if (axis[ds4a_l2])
   {
-    report_ds4->ButtonsAndVendor |= 0x0004;
+    report_ds4->ButtonsAndCounter |= 0x0004;
   }
   if (axis[ds4a_r2])
   {
-    report_ds4->ButtonsAndVendor |= 0x0008;
+    report_ds4->ButtonsAndCounter |= 0x0008;
   }
   if (axis[ds4a_select])
   {
-    report_ds4->ButtonsAndVendor |= 0x0010;
+    report_ds4->ButtonsAndCounter |= 0x0010;
   }
   if (axis[ds4a_start])
   {
-    report_ds4->ButtonsAndVendor |= 0x0020;
+    report_ds4->ButtonsAndCounter |= 0x0020;
   }
   if (axis[ds4a_l3])
   {
-    report_ds4->ButtonsAndVendor |= 0x0040;
+    report_ds4->ButtonsAndCounter |= 0x0040;
   }
   if (axis[ds4a_r3])
   {
-    report_ds4->ButtonsAndVendor |= 0x0080;
+    report_ds4->ButtonsAndCounter |= 0x0080;
   }
   if (axis[ds4a_ps])
   {
-    report_ds4->ButtonsAndVendor |= 0x0100;
+    report_ds4->ButtonsAndCounter |= 0x0100;
   }
   if (axis[ds4a_touchpad])
   {
-    report_ds4->ButtonsAndVendor |= 0x0200;
+    report_ds4->ButtonsAndCounter |= 0x0200;
   }
 
   report_ds4->Rx = clamp(0, axis[ds4a_l2], 255);

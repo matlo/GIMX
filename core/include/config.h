@@ -6,9 +6,7 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-#include "connectors/sixaxis.h"
 #include <GE.h>
-#include <emuclient.h>
 
 #define MAX_BUFFERSIZE 256
 
@@ -23,7 +21,8 @@ typedef enum
   E_DEVICE_TYPE_UNKNOWN,
   E_DEVICE_TYPE_KEYBOARD,
   E_DEVICE_TYPE_MOUSE,
-  E_DEVICE_TYPE_JOYSTICK
+  E_DEVICE_TYPE_JOYSTICK,
+  E_DEVICE_TYPE_NB = E_DEVICE_TYPE_JOYSTICK
 }e_device_type;
 
 typedef enum

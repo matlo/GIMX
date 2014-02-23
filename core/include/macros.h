@@ -11,8 +11,6 @@
 void macro_lookup(GE_Event*);
 unsigned int macro_process();
 
-void macro_set_controller_device(int, int, int);
-
 void macros_init();
 void macros_read();
 void free_macros();

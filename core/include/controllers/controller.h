@@ -7,6 +7,7 @@
 #define CONTROLLER_H_
 
 #include <connectors/serial.h>
+#include <config.h>
 
 #define DEFAULT_MAX_AXIS_VALUE MAX_AXIS_VALUE_8BITS
 
@@ -112,5 +113,9 @@ s_axis_index get_axis_index_from_name(const char*);
 void controller_dump_state(s_controller* c);
 
 int controller_network_read(int fd);
+
+void controller_set_device(int controller, e_device_type device_type, int device_id);
+int controller_get_device(e_device_type device_type, int controller);
+int controller_get_controller(e_device_type device_type, int device_id);
 
 #endif /* CONTROLLER_H_ */

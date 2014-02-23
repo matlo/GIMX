@@ -24,12 +24,21 @@ static int debug = 0;
 
 #define AXMAP_SIZE (ABS_MAX + 1)
 
-static int joystick_fd[GE_MAX_DEVICES];
-static int joystick_id[GE_MAX_DEVICES];
-static char* joystick_name[GE_MAX_DEVICES];
-static unsigned short joystick_button_nb[GE_MAX_DEVICES] = {0};
-static int joystick_hat_value[GE_MAX_DEVICES][ABS_HAT3Y-ABS_HAT0X] = {{0}};
-static uint8_t joystick_ax_map[GE_MAX_DEVICES][AXMAP_SIZE] = {{0}};
+typedef struct
+{
+  int fd;
+  int id;
+  char* name;
+  unsigned short button_nb;
+  int hat_value[ABS_HAT3Y-ABS_HAT0X];
+  uint8_t ax_map[AXMAP_SIZE];
+  int ff_fd;
+  int weak_id;
+  int strong_id;
+} s_joystick;
+
+static s_joystick joystick[GE_MAX_DEVICES] = {};
+
 static int j_num;
 static int max_joystick_id;
 
@@ -52,12 +61,12 @@ static void js_process_event(int device, struct js_event* je)
   if(je->type & JS_EVENT_BUTTON)
   {
     evt.type = je->value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    evt.jbutton.which = joystick_id[device];
+    evt.jbutton.which = joystick[device].id;
     evt.jbutton.button = je->number;
   }
   else if(je->type & JS_EVENT_AXIS)
   {
-    int axis = joystick_ax_map[device][je->number];
+    int axis = joystick[device].ax_map[je->number];
     if(axis >= ABS_HAT0X && axis <= ABS_HAT3Y)
     {
       evt.type = je->value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
@@ -66,26 +75,26 @@ static void js_process_event(int device, struct js_event* je)
       axis -= ABS_HAT0X;
       if(!je->value)
       {
-        value = joystick_hat_value[device][axis];
-        joystick_hat_value[device][axis] = 0;
+        value = joystick[device].hat_value[axis];
+        joystick[device].hat_value[axis] = 0;
       }
       else
       {
         value = je->value/32767;
-        joystick_hat_value[device][axis] = value;
+        joystick[device].hat_value[axis] = value;
       }
       button = axis + value + 2*(axis/2);
       if(button < 4*(axis/2))
       {
         button += 4;
       }
-      evt.jbutton.which = joystick_id[device];
-      evt.jbutton.button = button + joystick_button_nb[device];
+      evt.jbutton.which = joystick[device].id;
+      evt.jbutton.button = button + joystick[device].button_nb;
     }
     else
     {
       evt.type = GE_JOYAXISMOTION;
-      evt.jaxis.which = joystick_id[device];
+      evt.jaxis.which = joystick[device].id;
       evt.jaxis.axis = je->number;
       evt.jaxis.value = je->value;
       /*
@@ -103,7 +112,7 @@ static void js_process_event(int device, struct js_event* je)
    */
   if(evt.type != GE_NOEVENT)
   {
-    eprintf("event from joystick: %s\n", joystick_name[device]);
+    eprintf("event from joystick: %s\n", joystick[device].name);
     eprintf("type: %d number: %d value: %d\n", je->type, je->number, je->value);
     event_callback(&evt);
   }
@@ -111,7 +120,7 @@ static void js_process_event(int device, struct js_event* je)
 
 static struct js_event je[MAX_EVENTS];
 
-static int js_process_events(int joystick)
+static int js_process_events(int index)
 {
   unsigned int size = sizeof(je);
   int j;
@@ -124,11 +133,11 @@ static int js_process_events(int joystick)
     size = sizeof(*je);
   }
 
-  if((r = read(joystick_fd[joystick], je, size)) > 0)
+  if((r = read(joystick[index].fd, je, size)) > 0)
   {
     for(j=0; j<r/sizeof(*je); ++j)
     {
-      js_process_event(joystick, je+j);
+      js_process_event(index, je+j);
 
       if(event_callback == GE_PushEvent)
       {
@@ -138,7 +147,7 @@ static int js_process_events(int joystick)
 
     if(r < 0 && errno != EAGAIN)
     {
-      js_close(joystick);
+      js_close(index);
     }
   }
   
@@ -147,76 +156,162 @@ static int js_process_events(int joystick)
 
 #define DEV_INPUT "/dev/input"
 #define JS_DEV_NAME "js"
+#define EV_DEV_NAME "event"
 
-static int is_event_device(const struct dirent *dir) {
+#define BITS_PER_LONG (sizeof(long) * 8)
+#define OFF(x)  ((x)%BITS_PER_LONG)
+#define BIT(x)  (1UL<<OFF(x))
+#define LONG(x) ((x)/BITS_PER_LONG)
+#define test_bit(bit, array)    ((array[LONG(bit)] >> OFF(bit)) & 1)
+
+static int is_js_device(const struct dirent *dir) {
   return strncmp(JS_DEV_NAME, dir->d_name, sizeof(JS_DEV_NAME)-1) == 0;
+}
+
+static int is_ev_device(const struct dirent *dir) {
+  return strncmp(EV_DEV_NAME, dir->d_name, sizeof(EV_DEV_NAME)-1) == 0;
 }
 
 int js_init()
 {
   int ret = 0;
-  int i;
-  int fd;
-  char joystick[sizeof("/dev/input/js255")];
+  int i, j;
+  int fd_js, fd_ev;
+  char js_file[sizeof("/dev/input/js255")];
+  char dir_event[sizeof("/sys/class/input/js255/device/")];
+  char event[sizeof("/sys/class/input/js255/device/event255")];
   char name[1024] = {0};
 
   j_num = 0;
   max_joystick_id = -1;
-  memset(joystick_name, 0x00, sizeof(joystick_name));
-  memset(joystick_button_nb, 0x00, sizeof(joystick_button_nb));
-  memset(joystick_hat_value, 0x00, sizeof(joystick_hat_value));
-  memset(joystick_ax_map, 0x00, sizeof(joystick_ax_map));
 
   for(i=0; i<GE_MAX_DEVICES; ++i)
   {
-    joystick_fd[i] = -1;
-    joystick_id[i] = -1;
+    joystick[i].fd = -1;
+    joystick[i].ff_fd = -1;
+    joystick[i].id = -1;
   }
 
-  struct dirent **namelist;
-  int n;
+  struct dirent **namelist_js;
+  int n_js;
 
-  n = scandir(DEV_INPUT, &namelist, is_event_device, alphasort);
-  if (n >= 0)
+  struct dirent **namelist_ev;
+  int n_ev;
+
+  n_js = scandir(DEV_INPUT, &namelist_js, is_js_device, alphasort);
+  if (n_js >= 0)
   {
-    for(i=0; i<n && !ret; ++i)
+    for(i=0; i<n_js && !ret; ++i)
     {
-      snprintf(joystick, sizeof(joystick), "%s/%s", DEV_INPUT, namelist[i]->d_name);
+      snprintf(js_file, sizeof(js_file), "%s/%s", DEV_INPUT, namelist_js[i]->d_name);
 
-      fd = open (joystick, O_RDONLY | O_NONBLOCK);
-      if(fd != -1)
+      fd_js = open (js_file, O_RDONLY | O_NONBLOCK);
+      if(fd_js != -1)
       {
-        if (ioctl(fd, JSIOCGNAME(sizeof(name) - 1), name) < 0) {
+        if (ioctl(fd_js, JSIOCGNAME(sizeof(name) - 1), name) < 0) {
           fprintf(stderr, "ioctl EVIOCGNAME failed: %s\n", strerror(errno));
-          close(fd);
+          close(fd_js);
           continue;
         }
-        //printf("%s\n", name);
         unsigned char buttons;
-        if (ioctl (fd, JSIOCGBUTTONS, &buttons) >= 0 && ioctl (fd, JSIOCGAXMAP, &joystick_ax_map[i]) >= 0)
+        if (ioctl (fd_js, JSIOCGBUTTONS, &buttons) >= 0 && ioctl (fd_js, JSIOCGAXMAP, &joystick[i].ax_map) >= 0)
         {
-          joystick_name[i] = strdup(name);
-          joystick_fd[i] = fd;
-          joystick_button_nb[i] = buttons;
+          joystick[i].name = strdup(name);
+          joystick[i].fd = fd_js;
+          joystick[i].button_nb = buttons;
           max_joystick_id = i;
-          joystick_id[i] = j_num;
+          joystick[i].id = j_num;
           j_num++;
-          ev_register_source(joystick_fd[i], POLLIN, i, &js_process_events, &js_close);
+          ev_register_source(joystick[i].fd, i, &js_process_events, NULL, &js_close);
+
+          snprintf(dir_event, sizeof(dir_event), "/sys/class/input/%s/device/", namelist_js[i]->d_name);
+          
+          n_ev = scandir(dir_event, &namelist_ev, is_ev_device, alphasort);
+          if (n_ev >= 0)
+          {
+            for(j=0; j<n_ev && !ret; ++j)
+            {
+              snprintf(event, sizeof(event), "%s/%s", DEV_INPUT, namelist_ev[j]->d_name);
+
+              fd_ev = open (event, O_RDWR | O_NONBLOCK);
+              if(fd_ev != -1)
+              {
+                unsigned long features[4];
+                if (ioctl(fd_ev, EVIOCGBIT(EV_FF, sizeof(features)), features) == -1)
+                {
+                  perror("ioctl EV_FF");
+                  close(fd_ev);
+                  continue;
+                }
+                if (test_bit(FF_RUMBLE, features))
+                {
+                  /*
+                   * Upload a "weak" effect.
+                   */
+
+                  struct ff_effect weak =
+                  {
+                    .type = FF_RUMBLE,
+                    .id = -1
+                  };
+
+                  if (ioctl(fd_ev, EVIOCSFF, &weak) == -1)
+                  {
+                    perror("ioctl EVIOCSFF");
+                    close(fd_ev);
+                    continue;
+                  }
+
+                  /*
+                   * Upload a "strong" effect.
+                   */
+
+                  struct ff_effect strong =
+                  {
+                    .type = FF_RUMBLE,
+                    .id = -1,
+                  };
+
+                  if (ioctl(fd_ev, EVIOCSFF, &strong) == -1)
+                  {
+                    perror("ioctl EVIOCSFF");
+                    close(fd_ev);
+                    continue;
+                  }
+
+                  /*
+                   * Store the ids so that the effects can be updated and played later.
+                   */
+
+                  joystick[i].weak_id = weak.id;
+                  joystick[i].strong_id = strong.id;
+
+                  joystick[i].ff_fd = fd_ev;
+                }
+                else
+                {
+                  close(fd_ev);
+                }
+              }
+              free(namelist_ev[j]);
+            }
+            free(namelist_ev);
+          }
         }
         else
         {
-          close(fd);
+          close(fd_js);
         }
       }
       else if(errno == EACCES)
       {
-        fprintf(stderr, "can't open %s: %s\n", joystick, strerror(errno));
+        fprintf(stderr, "can't open %s: %s\n", js_file, strerror(errno));
         ret = -1;
       }
 
-      free(namelist[i]);
+      free(namelist_js[i]);
     }
-    free(namelist);
+    free(namelist_js);
   }
   else
   {
@@ -227,15 +322,110 @@ int js_init()
   return ret;
 }
 
-int js_close(int id)
+int js_has_ff_rumble(int index)
 {
-  free(joystick_name[id]);
-  joystick_name[id] = NULL;
+  return (joystick[index].ff_fd != -1);
+}
 
-  if(joystick_fd[id] >= 0)
+int js_set_ff_rumble(int index, unsigned short weak_timeout, unsigned short weak, unsigned short strong_timeout, unsigned short strong)
+{
+  int ret = 0;
+
+    struct ff_effect effect =
+    {
+      .type = FF_RUMBLE
+    };
+
+    struct input_event play =
+    {
+      .type = EV_FF,
+      .value = 1 /* play: 1, stop: 0 */
+    };
+
+    int fd = joystick[index].ff_fd;
+
+    if(fd < 0)
+    {
+      return -1;
+    }
+
+    if(weak_timeout)
+    {
+      /*
+       * Update the effect.
+       */
+
+      effect.id = joystick[index].weak_id;
+      effect.u.rumble.strong_magnitude = 0;
+      effect.u.rumble.weak_magnitude   = weak;
+      effect.replay.length = weak_timeout;
+
+      if (ioctl(fd, EVIOCSFF, &effect) == -1)
+      {
+        perror("ioctl EVIOCSFF");
+        ret = -1;
+      }
+
+      /*
+       * Play the effect.
+       */
+
+      play.code =  effect.id;
+
+      if (write(fd, (const void*) &play, sizeof(play)) == -1)
+      {
+        perror("write");
+        exit(1);
+      }
+    }
+
+    if(strong_timeout)
+    {
+      /*
+       * Update the effect.
+       */
+
+      effect.id = joystick[index].strong_id;
+      effect.u.rumble.strong_magnitude = strong;
+      effect.u.rumble.weak_magnitude   = 0;
+      effect.replay.length = strong_timeout;
+
+      if (ioctl(fd, EVIOCSFF, &effect) == -1)
+      {
+        perror("ioctl EVIOCSFF");
+        ret = -1;
+      }
+
+      /*
+       * Play the effect.
+       */
+
+      play.code =  effect.id;
+
+      if (write(fd, (const void*) &play, sizeof(play)) == -1)
+      {
+        perror("write");
+        exit(1);
+      }
+    }
+
+    return ret;
+}
+
+int js_close(int index)
+{
+  free(joystick[index].name);
+  joystick[index].name = NULL;
+
+  if(joystick[index].fd >= 0)
   {
-    close(joystick_fd[id]);
-    joystick_fd[id] = -1;
+    close(joystick[index].fd);
+    joystick[index].fd = -1;
+  }
+  if(joystick[index].ff_fd >= 0)
+  {
+    close(joystick[index].ff_fd);
+    joystick[index].ff_fd = -1;
   }
   return 0;
 }
@@ -254,12 +444,10 @@ const char* js_get_name(int index)
   int i;
   for(i=0; i<=max_joystick_id; ++i)
   {
-    if(joystick_id[i] == index)
+    if(joystick[i].id == index)
     {
-      return joystick_name[i];
+      return joystick[i].name;
     }
   }
   return NULL;
 }
-
-

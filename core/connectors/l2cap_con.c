@@ -213,6 +213,12 @@ static void l2cap_setsockopt(int fd)
   struct l2cap_options l2o;
   socklen_t len = sizeof(l2o);
 
+  int opt = L2CAP_LM_MASTER;
+  if (setsockopt(fd, SOL_L2CAP, L2CAP_LM, &opt, sizeof(opt)) < 0)
+  {
+    perror("setsockopt L2CAP_LM");
+  }
+
   memset(&l2o, 0, sizeof(l2o));
   if(getsockopt(fd, SOL_L2CAP, L2CAP_OPTIONS, &l2o, &len) < 0)
   {
@@ -244,7 +250,7 @@ int l2cap_connect(const char *bdaddr_src, const char *bdaddr_dest, int psm)
 {
     int fd;
     struct sockaddr_l2 addr;
-    int opt;
+    //int opt;
 
     if ((fd = socket(PF_BLUETOOTH, SOCK_SEQPACKET | SOCK_NONBLOCK, BTPROTO_L2CAP)) == -1)
     {
@@ -252,13 +258,13 @@ int l2cap_connect(const char *bdaddr_src, const char *bdaddr_dest, int psm)
       return -1;
     }
 
-    opt = 0;
+    /*opt = 0;
     if (setsockopt(fd, SOL_L2CAP, L2CAP_LM, &opt, sizeof(opt)) < 0)
     {
       perror("setsockopt L2CAP_LM");
       close(fd);
       return -3;
-    }
+    }*/
 
     l2cap_setsockopt(fd);
 
@@ -335,7 +341,7 @@ int l2cap_listen(unsigned short psm)
     return -1;
   }
 
-  printf("listening on psm: 0x%04x\n", psm);
+  gprintf("listening on psm: 0x%04x\n", psm);
 
   return s;
 }
@@ -355,11 +361,40 @@ int l2cap_accept(int s, bdaddr_t* src, unsigned short* psm, unsigned short* cid)
   }
 
   ba2str(&rem_addr.l2_bdaddr, buf);
-  printf("accepted connection from %s (psm: 0x%04x)\n", buf, btohs(rem_addr.l2_psm));
+  gprintf("accepted connection from %s (psm: 0x%04x)\n", buf, btohs(rem_addr.l2_psm));
 
   *src = rem_addr.l2_bdaddr;
   *psm = btohs(rem_addr.l2_psm);
   *cid = btohs(rem_addr.l2_cid);
 
   return client;
+}
+
+int l2cap_is_connected(int fd)
+{
+  int error = 0;
+  socklen_t lerror = sizeof(error);
+
+  int ret = getsockopt (fd, SOL_SOCKET, SO_ERROR, &error, &lerror);
+
+  if(ret < 0)
+  {
+    perror("getsockopt SO_ERROR");
+  }
+  else
+  {
+    if(error == EINPROGRESS)
+    {
+      fprintf(stderr, "EINPROGRESS\n");
+    }
+    else if(error)
+    {
+      fprintf(stderr, "connection failed: %s\n", strerror(error));
+    }
+    else
+    {
+      return 1;
+    }
+  }
+  return 0;
 }

@@ -36,13 +36,13 @@ typedef enum
 
 typedef struct __attribute__ ((packed))
 {
-  unsigned char report_id; //0x01
+  unsigned char report_id; //USB: 0x01, BT: 0x00
   unsigned char X;
   unsigned char Y;
   unsigned char Z;
   unsigned char Rz;
   unsigned char HatAndButtons;
-  unsigned short ButtonsAndVendor;
+  unsigned short ButtonsAndCounter;
   unsigned char Rx;
   unsigned char Ry;
   unsigned char unknown[54];

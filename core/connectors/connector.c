@@ -175,7 +175,7 @@ int connector_init()
       }
       else
       {
-        GE_AddSource(control->src_fd, POLLIN, i, controller_network_read, udp_close);
+        GE_AddSource(control->src_fd, i, controller_network_read, NULL, udp_close);
       }
     }
 #endif
@@ -242,6 +242,10 @@ int connector_send()
         case C_TYPE_DEFAULT:
           if(controller->dst_fd >= 0)
           {
+            /*
+             * Do not send useless reports over the network.
+             * The remote gimx can force updates.
+             */
             if(controller->send_command)
             {
               ret = udp_send(controller->dst_fd, (unsigned char*)controller->axis, sizeof(controller->axis));
@@ -267,10 +271,7 @@ int connector_send()
         case C_TYPE_DS4:
           if(controller->bdaddr_dst)
           {
-            /*
-             * TODO MLA: handle return value
-             */
-            btds4_send_interrupt(i, &report.value.ds4);
+            ret = btds4_send_interrupt(i, &report.value.ds4);
           }
           else if(controller->serial >= 0)
           {

@@ -441,7 +441,7 @@ void GE_TimerStart(struct timespec* period)
 
   if(tfd >= 0)
   {
-    ev_register_source(tfd, POLLIN, 0, &timer_read, &timer_close);
+    ev_register_source(tfd, 0, &timer_read, NULL, &timer_close);
   }
 }
 
@@ -456,9 +456,9 @@ void GE_TimerClose()
 /*
  * Add an event source.
  */
-void GE_AddSource(int fd, short int event, int id, int (*fd_fp)(int), int (*fd_cleanup)(int))
+void GE_AddSource(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fd_cleanup)(int))
 {
-  ev_register_source(fd, event, id, fd_fp, fd_cleanup);
+  ev_register_source(fd, id, fp_read, fp_write, fd_cleanup);
 }
 
 /*
@@ -467,6 +467,24 @@ void GE_AddSource(int fd, short int event, int id, int (*fd_fp)(int), int (*fd_c
 void GE_RemoveSource(int fd)
 {
   ev_remove_source(fd);
+}
+
+int GE_JoystickHasRumble(int id)
+{
+  if (id >= 0 && id < GE_MAX_DEVICES)
+  {
+    return ev_joystick_has_ff_rumble(id);
+  }
+  return 0;
+}
+
+int GE_JoystickSetRumble(int id, unsigned short weak_timeout, unsigned short weak, unsigned short strong_timeout, unsigned short strong)
+{
+  if (id >= 0 && id < GE_MAX_DEVICES)
+  {
+    return ev_joystick_set_ff_rumble(id, weak_timeout, weak, strong_timeout, strong);
+  }
+  return 0;
 }
 #endif
 

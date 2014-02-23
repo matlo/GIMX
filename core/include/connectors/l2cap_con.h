@@ -17,6 +17,4 @@ int l2cap_set_flush_timeout(bdaddr_t *ba, int timeout_ms);
 int l2cap_listen(unsigned short psm);
 int l2cap_accept(int s, bdaddr_t* src, unsigned short* psm, unsigned short* cid);
 
-#ifdef WIN32
-int bachk(const char *str);
-#endif
+int l2cap_is_connected(int fd);
