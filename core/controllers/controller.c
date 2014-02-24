@@ -135,7 +135,7 @@ s_controller_params controller_params[C_TYPE_MAX] =
     [C_TYPE_DS4] =
     {
         .min_refresh_period = 1000,
-        .default_refresh_period = 12500,
+        .default_refresh_period = 10000,
         .max_unsigned_axis_value = ds4_max_unsigned_axis_value
     },
     [C_TYPE_XONE_PAD] =
