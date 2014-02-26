@@ -219,9 +219,9 @@ static int read_ps4_sdp(int btds4_number)
   {
     int ret = acl_send_data(states[btds4_number].ps4_bdaddr, states[btds4_number].ps4_sdp_cid, sdp_ds4, sizeof(sdp_ds4));
 
-    if(ret != len)
+    if(ret < 0)
     {
-      fprintf(stderr, "error writing ds4 sdp\n");
+      fprintf(stderr, "error writing ps4 sdp\n");
     }
   }
 
