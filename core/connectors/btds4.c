@@ -430,7 +430,7 @@ static int connect_ps4_control(int btds4_number)
     GE_RemoveSource(state->ps4_control_pending);
     close(state->ps4_control_pending);
     state->ps4_control_pending = -1;
-    fprintf(stderr, "can't connect to control psm");
+    fprintf(stderr, "can't connect to control psm\n");
     return -1;
   }
 
@@ -503,7 +503,7 @@ static int connect_ps4_interrupt(int btds4_number)
     GE_RemoveSource(state->ps4_interrupt_pending);
     close(state->ps4_interrupt_pending);
     state->ps4_interrupt_pending = -1;
-    fprintf(stderr, "can't connect to interrupt psm");
+    fprintf(stderr, "can't connect to interrupt psm\n");
     return -1;
   }
 
