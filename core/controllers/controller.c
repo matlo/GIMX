@@ -253,6 +253,55 @@ static const s_axis_name_index axis_name_index[] =
     {.name="square",       {.value= 0,  .index=sa_square}},
     {.name="cross",        {.value= 0,  .index=sa_cross}},
     {.name="triangle",     {.value= 0,  .index=sa_triangle}},
+
+    //the above values are kept for compatibility with old configurations
+
+    {.name="rel_axis_0",     {.value=-1,  .index=rel_axis_0}},
+    {.name="rel_axis_1",     {.value=-1,  .index=rel_axis_1}},
+    {.name="rel_axis_2",     {.value=-1,  .index=rel_axis_2}},
+    {.name="rel_axis_3",     {.value=-1,  .index=rel_axis_3}},
+    {.name="rel_axis_4",     {.value=-1,  .index=rel_axis_4}},
+    {.name="rel_axis_5",     {.value=-1,  .index=rel_axis_5}},
+    {.name="rel_axis_6",     {.value=-1,  .index=rel_axis_6}},
+    {.name="rel_axis_7",     {.value=-1,  .index=rel_axis_7}},
+
+    {.name="rel_axis_0-",    {.value=-1,  .index=rel_axis_0}},
+    {.name="rel_axis_1-",    {.value=-1,  .index=rel_axis_1}},
+    {.name="rel_axis_2-",    {.value=-1,  .index=rel_axis_2}},
+    {.name="rel_axis_3-",    {.value=-1,  .index=rel_axis_3}},
+    {.name="rel_axis_4-",    {.value=-1,  .index=rel_axis_4}},
+    {.name="rel_axis_5-",    {.value=-1,  .index=rel_axis_5}},
+    {.name="rel_axis_6-",    {.value=-1,  .index=rel_axis_6}},
+    {.name="rel_axis_7-",    {.value=-1,  .index=rel_axis_7}},
+
+    {.name="rel_axis_0+",    {.value=1,  .index=rel_axis_0}},
+    {.name="rel_axis_1+",    {.value=1,  .index=rel_axis_1}},
+    {.name="rel_axis_2+",    {.value=1,  .index=rel_axis_2}},
+    {.name="rel_axis_3+",    {.value=1,  .index=rel_axis_3}},
+    {.name="rel_axis_4+",    {.value=1,  .index=rel_axis_4}},
+    {.name="rel_axis_5+",    {.value=1,  .index=rel_axis_5}},
+    {.name="rel_axis_6+",    {.value=1,  .index=rel_axis_6}},
+    {.name="rel_axis_7+",    {.value=1,  .index=rel_axis_7}},
+
+    {.name="abs_axis_0",     {.value=0,  .index=abs_axis_0}},
+    {.name="abs_axis_1",     {.value=0,  .index=abs_axis_1}},
+    {.name="abs_axis_2",     {.value=0,  .index=abs_axis_2}},
+    {.name="abs_axis_3",     {.value=0,  .index=abs_axis_3}},
+    {.name="abs_axis_4",     {.value=0,  .index=abs_axis_4}},
+    {.name="abs_axis_5",     {.value=0,  .index=abs_axis_5}},
+    {.name="abs_axis_6",     {.value=0,  .index=abs_axis_6}},
+    {.name="abs_axis_7",     {.value=0,  .index=abs_axis_7}},
+    {.name="abs_axis_8",     {.value=0,  .index=abs_axis_8}},
+    {.name="abs_axis_9",     {.value=0,  .index=abs_axis_9}},
+    {.name="abs_axis_10",    {.value=0,  .index=abs_axis_10}},
+    {.name="abs_axis_11",    {.value=0,  .index=abs_axis_11}},
+    {.name="abs_axis_12",    {.value=0,  .index=abs_axis_12}},
+    {.name="abs_axis_13",    {.value=0,  .index=abs_axis_13}},
+    {.name="abs_axis_14",    {.value=0,  .index=abs_axis_14}},
+    {.name="abs_axis_15",    {.value=0,  .index=abs_axis_15}},
+    {.name="abs_axis_16",    {.value=0,  .index=abs_axis_16}},
+    {.name="abs_axis_17",    {.value=0,  .index=abs_axis_17}},
+
 };
 
 s_axis_index get_axis_index_from_name(const char* name)
