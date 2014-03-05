@@ -32,7 +32,8 @@ static const char *axis_name[AXIS_MAX] = {
     [sa_l2] = "l2",
     [sa_r2] = "r2",
     [sa_l3] = "l3",
-    [sa_r3] = "r3"
+    [sa_r3] = "r3",
+    [abs_axis_17] = "abs_axis_17"
 };
 
 const char* ds3_get_axis_name(int index)
