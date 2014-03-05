@@ -363,7 +363,7 @@ int l2cap_accept(int s, bdaddr_t* src, unsigned short* psm, unsigned short* cid)
   ba2str(&rem_addr.l2_bdaddr, buf);
   gprintf("accepted connection from %s (psm: 0x%04x)\n", buf, btohs(rem_addr.l2_psm));
 
-  *src = rem_addr.l2_bdaddr;
+  bacpy(src, &rem_addr.l2_bdaddr);
   *psm = btohs(rem_addr.l2_psm);
   *cid = btohs(rem_addr.l2_cid);
 
