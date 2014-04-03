@@ -10,7 +10,7 @@
 #include "macros.h"
 #include "display.h"
 #include <stdio.h>
-#include "controllers/controller.h"
+#include <adapter.h>
 
 static volatile int done = 0;
 
@@ -27,7 +27,7 @@ void mainloop()
   struct timespec period = {.tv_sec = 0, .tv_nsec = emuclient_params.refresh_period*1000};
   unsigned int running_macros;
 
-  if(!get_controller(0)->bdaddr_dst || get_controller(0)->type == C_TYPE_DS4)
+  if(!adapter_get(0)->bdaddr_dst || adapter_get(0)->type == C_TYPE_DS4)
   {
     GE_TimerStart(&period);
   }
@@ -62,7 +62,7 @@ void mainloop()
 
     if(emuclient_params.curses)
     {
-      display_run(get_controller(0)->axis);
+      display_run(adapter_get(0)->type, adapter_get(0)->axis);
     }
 
     /*

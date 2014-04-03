@@ -18,7 +18,7 @@
 #include "calibration.h"
 #include <GE.h>
 #include "emuclient.h"
-#include "controllers/ds3.h"
+#include <adapter.h>
 
 #define CROSS_CHAR '*'
 #define SHIFT_ESC _("Press Shift+Esc to exit.")
@@ -364,7 +364,7 @@ int last_button_nb = 0;
 int cpt = 0;
 int cpt_total = 0;
 
-void display_run(int axis[])
+void display_run(e_controller_type type, int axis[])
 {
   int i;
   int d;
@@ -403,7 +403,7 @@ void display_run(int axis[])
   {
     if(axis[i])
     {
-      snprintf(label, sizeof(label), "%8s: %4d", ds3_get_axis_name(i), axis[i]);
+      snprintf(label, sizeof(label), "%8s: %4d", control_get_name(type, i), axis[i]);
       mvwaddstr(wbuttons, 1 + d, 1, label);
       d++;
     }
@@ -422,8 +422,8 @@ void display_run(int axis[])
   last_button_nb = d;
 
   mvwaddch(lstick, cross[0][1], cross[0][0], ' ');
-  cross[0][0] = STICK_X_L / 2 + (double)axis[rel_axis_lstick_x] / get_max_signed(get_controller(0)->type, rel_axis_lstick_x) * (STICK_X_L / 2 - 1);
-  cross[0][1] = STICK_Y_L / 2 + (double)axis[rel_axis_lstick_y] / get_max_signed(get_controller(0)->type, rel_axis_lstick_y) * (STICK_Y_L / 2 - 1);
+  cross[0][0] = STICK_X_L / 2 + (double)axis[rel_axis_lstick_x] / controller_get_max_signed(adapter_get(0)->type, rel_axis_lstick_x) * (STICK_X_L / 2 - 1);
+  cross[0][1] = STICK_Y_L / 2 + (double)axis[rel_axis_lstick_y] / controller_get_max_signed(adapter_get(0)->type, rel_axis_lstick_y) * (STICK_Y_L / 2 - 1);
   if(cross[0][0] <= 0 || cross[0][0] >= STICK_X_L-1 || cross[0][1] <= 0 || cross[0][1] >= STICK_Y_L-1)
   {
     mvwaddch(lstick, cross[0][1], cross[0][0], CROSS_CHAR | COLOR_PAIR(3));
@@ -435,8 +435,8 @@ void display_run(int axis[])
   wnoutrefresh(lstick);
 
   mvwaddch(rstick, cross[1][1], cross[1][0], ' ');
-  cross[1][0] = STICK_X_L / 2 + (double)axis[rel_axis_rstick_x] / get_max_signed(get_controller(0)->type, rel_axis_rstick_x) * (STICK_X_L / 2 - 1);
-  cross[1][1] = STICK_Y_L / 2 + (double)axis[rel_axis_rstick_y] / get_max_signed(get_controller(0)->type, rel_axis_rstick_y) * (STICK_Y_L / 2 - 1);
+  cross[1][0] = STICK_X_L / 2 + (double)axis[rel_axis_rstick_x] / controller_get_max_signed(adapter_get(0)->type, rel_axis_rstick_x) * (STICK_X_L / 2 - 1);
+  cross[1][1] = STICK_Y_L / 2 + (double)axis[rel_axis_rstick_y] / controller_get_max_signed(adapter_get(0)->type, rel_axis_rstick_y) * (STICK_Y_L / 2 - 1);
   if(cross[1][0] <= 0 || cross[1][0] >= STICK_X_L-1 || cross[1][1] <= 0 || cross[1][1] >= STICK_Y_L-1)
   {
     mvwaddch(rstick, cross[1][1], cross[1][0], CROSS_CHAR | COLOR_PAIR(3));

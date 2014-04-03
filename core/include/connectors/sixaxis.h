@@ -8,7 +8,7 @@
  
 #include <stdint.h>
 #include <stdbool.h>
-#include <controllers/ds3.h>
+#include <ds3.h>
 
 void sixaxis_set_bdaddr(int sixaxis_number, char* dst);
 void sixaxis_set_dongle(int sixaxis_number, int dongle_index);

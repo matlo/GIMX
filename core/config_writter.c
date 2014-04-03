@@ -15,6 +15,7 @@
 
 #include "../directories.h"
 #include "emuclient.h"
+#include <adapter.h>
 
 /*
  * These variables are used to read the configuration.

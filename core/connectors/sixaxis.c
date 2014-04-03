@@ -16,6 +16,7 @@
 #include <connectors/l2cap_con.h>
 #include <config.h>
 #include "emuclient.h"
+#include <adapter.h>
 
 #define DS3_DEVICE_CLASS 0x508
 
@@ -257,7 +258,7 @@ static int process_output_01(const uint8_t *buf, int len, struct sixaxis_state *
   state->sys.rumble[1] = buf[3] ? buf[4] : 0;
 
   int controller = (state-states)/sizeof(*state);
-  int joystick = controller_get_device(E_DEVICE_TYPE_JOYSTICK, controller);
+  int joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, controller);
 
   if(GE_JoystickHasRumble(joystick))
   {
@@ -536,7 +537,7 @@ static int close_control(int sixaxis_number)
   close(state->control);
   state->control = -1;
   state->sys.shutdown = 1;
-  get_controller(sixaxis_number)->send_command = 1;
+  adapter_get(sixaxis_number)->send_command = 1;
 
   return 1;
 }
@@ -573,7 +574,7 @@ static int close_interrupt(int sixaxis_number)
   close(state->interrupt);
   state->interrupt = -1;
   state->sys.shutdown = 1;
-  get_controller(sixaxis_number)->send_command = 1;
+  adapter_get(sixaxis_number)->send_command = 1;
 
   return 1;
 }
@@ -625,7 +626,7 @@ static int connect_interrupt(int sixaxis_number)
     state->interrupt_pending = -1;
     fprintf(stderr, "can't connect to interrupt psm\n");
     state->sys.shutdown = 1;
-    get_controller(sixaxis_number)->send_command = 1;
+    adapter_get(sixaxis_number)->send_command = 1;
     return -1;
   }
 
@@ -665,7 +666,7 @@ static int connect_control(int sixaxis_number)
     state->control_pending = -1;
     fprintf(stderr, "can't connect to control psm\n");
     state->sys.shutdown = 1;
-    get_controller(sixaxis_number)->send_command = 1;
+    adapter_get(sixaxis_number)->send_command = 1;
     return -1;
   }
 

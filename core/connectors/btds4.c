@@ -3,8 +3,8 @@
  License: GPLv3
  */
 
-#include "controllers/ds4.h"
 #include "connectors/btds4.h"
+#include <adapter.h>
 #include "emuclient.h"
 #include <string.h>
 #include <stdio.h>
@@ -653,30 +653,10 @@ static int btds4_close_listen(int listen_fd)
   return 1;
 }
 
-s_btds4_report init_report = {
+static s_btds4_report init_report_btds4 = {
     .header = 0xa1,
     .code = 0x11,
     .unknown1 = 0xc0,
-    .report.report_id = 0x00,
-    .report.X = 0x80,
-    .report.Y = 0x80,
-    .report.Z = 0x80,
-    .report.Rz = 0x80,
-    .report.HatAndButtons = 0x08,
-    .report.ButtonsAndCounter = 0xfc00,
-    .report.Rx = 0x00,
-    .report.Ry = 0x00,
-    .report.unknown =
-    {
-        0x99, 0x50, 0xfd, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xe7, 0xff, 0x6e, 0x20, 0xd9, 0x09, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00,
-        0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80,
-        0x00, 0x00, 0x00, 0x00, 0x80, 0x00
-    },
-    .unknown2 =
-    {
-        0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00
-    },
     .crc32 =
     {
         0x00, 0x00, 0x00, 0x00
@@ -700,7 +680,7 @@ int btds4_init(int btds4_number)
   state->ds4_sdp = -1;
   state->ds4_sdp_pending = -1;
 
-  memcpy(&state->bt_report, &init_report, sizeof(s_btds4_report));
+  memcpy(&state->bt_report, &init_report_btds4, sizeof(s_btds4_report));
 
   if (bt_get_device_bdaddr(state->dongle_index, state->dongle_bdaddr) < 0)
   {
@@ -771,8 +751,6 @@ void btds4_set_dongle(int btds4_number, int dongle_index)
 int btds4_send_interrupt(int btds4_number, s_report_ds4* report)
 {
   struct btds4_state* state = states + btds4_number;
-  unsigned char counter;
-  unsigned short buttons;
 
   if(state->sys.shutdown)
   {
@@ -784,19 +762,7 @@ int btds4_send_interrupt(int btds4_number, s_report_ds4* report)
     return 0;
   }
 
-  report->report_id = 0x00;
-
-  state->bt_report.report.X = report->X;
-  state->bt_report.report.Y = report->Y;
-  state->bt_report.report.Z = report->Z;
-  state->bt_report.report.Rz = report->Rz;
-  state->bt_report.report.HatAndButtons = report->HatAndButtons;
-  counter = (state->bt_report.report.ButtonsAndCounter >> 8) & 0xFC;
-  counter += 4;
-  buttons = report->ButtonsAndCounter & 0x03FF;
-  state->bt_report.report.ButtonsAndCounter = (counter << 8) | buttons;
-  state->bt_report.report.Rx = report->Rx;
-  state->bt_report.report.Ry = report->Ry;
+  memcpy(&state->bt_report.report, report, sizeof(s_report_ds4));
 
   MHASH td = mhash_init(MHASH_CRC32B);
 

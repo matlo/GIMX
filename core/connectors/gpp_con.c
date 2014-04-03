@@ -6,12 +6,12 @@
 #include <string.h>
 #include "gpp/pcprog.h"
 #include "config.h"
-#include "controllers/ds3.h"
+#include <controller.h>
 
 int gpp_connect()
 {
   int ret = -1;
-  struct gppReport report;
+  GCAPI_REPORT report;
 
   if(gppcprog_connect() != 1)
   {
@@ -44,7 +44,7 @@ int gpp_connect()
 
 int gpp_send(int axis[AXIS_MAX])
 {
-  char output[REP_IO_COUNT] = {};
+  int8_t output[GCAPI_INPUT_TOTAL] = {};
   int axis_value;
   int ret = 0;
 
@@ -52,13 +52,13 @@ int gpp_send(int axis[AXIS_MAX])
   output[PS3_DOWN] = axis[sa_down] * 100 / 255;
   output[PS3_LEFT] = axis[sa_left] * 100 / 255;
   output[PS3_RIGHT] = axis[sa_right] * 100 / 255;
-  output[PS3_START] = axis[sa_start] * 100 / 255;
-  output[PS3_SELECT] = axis[sa_select] * 100 / 255;
+  output[PS3_START] = axis[sa_start] ? 100 : 0;
+  output[PS3_SELECT] = axis[sa_select] ? 100 : 0;
   output[PS3_L3] = axis[sa_l3] * 100 / 255;
   output[PS3_R3] = axis[sa_r3] * 100 / 255;
   output[PS3_L1] = axis[sa_l1] * 100 / 255;
   output[PS3_R1] = axis[sa_r1] * 100 / 255;
-  output[PS3_PS] = axis[sa_ps] * 100 / 255;
+  output[PS3_PS] = axis[sa_ps] ? 100 : 0;
   output[PS3_CROSS] = axis[sa_cross] * 100 / 255;
   output[PS3_CIRCLE] = axis[sa_circle] * 100 / 255;
   output[PS3_SQUARE] = axis[sa_square] * 100 / 255;
@@ -89,6 +89,10 @@ int gpp_send(int axis[AXIS_MAX])
 
   axis_value = axis[sa_gyro] * 100 / 511;
   output[PS3_GYRO] = clamp(-100, axis_value, 100);
+
+  output[PS4_TOUCH] = axis[ds4a_finger1] ? 100 : 0;
+  output[PS4_TOUCHX] = axis[ds4a_finger1_x] * 100 / 1919;
+  output[PS4_TOUCHY] = axis[ds4a_finger1_y] * 100 / 919;
 
   if(!gpppcprog_output(output))
   {

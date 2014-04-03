@@ -9,12 +9,12 @@
 #include "args.h"
 #include "emuclient.h"
 #include <getopt.h>
-#include <controllers/controller.h>
-#include <controllers/ds3.h>
+#include <adapter.h>
 #ifndef WIN32
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #endif
+#include <connectors/usb_spoof.h>
 
 /*
  * Try to parse an argument with the following expected format: a.b.c.d:e
@@ -96,7 +96,7 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
         break;
 
       case 'b':
-        get_controller(controller)->bdaddr_dst = optarg;
+        adapter_get(controller)->bdaddr_dst = optarg;
         ++controller;
         printf(_("option -b with value `%s'\n"), optarg);
         break;
@@ -118,11 +118,11 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
           }
           else
           {
-            if((axis = ds3_get_button_index_from_name(axis_label)) != -1)
+            if((axis = control_get_index(axis_label)) != -1)
             {
               printf(_("option -e with value `%s(%d)'\n"), axis_label, value);
-              set_axis_value(controller, axis, value);
-              get_controller(controller)->event = 1;
+              adapter_set_axis(controller, axis, value);
+              adapter_get(controller)->event = 1;
             }
             else
             {
@@ -134,13 +134,13 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
         break;
 
       case 'h':
-        get_controller(controller)->dongle_index = atoi(optarg);
-        printf(_("option -h with value `%d'\n"), get_controller(controller)->dongle_index);
+        adapter_get(controller)->dongle_index = atoi(optarg);
+        printf(_("option -h with value `%d'\n"), adapter_get(controller)->dongle_index);
         break;
 
       case 'd':
-        if(read_ip(optarg, &get_controller(controller)->dst_ip,
-            &get_controller(controller)->dst_port) < 0)
+        if(read_ip(optarg, &adapter_get(controller)->dst_ip,
+            &adapter_get(controller)->dst_port) < 0)
         {
           printf(_("Bad format for argument -d: '%s'\n"), optarg);
           ret = -1;
@@ -152,8 +152,8 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
         break;
 
       case 's':
-        if(read_ip(optarg, &get_controller(controller)->src_ip,
-            &get_controller(controller)->src_port) < 0)
+        if(read_ip(optarg, &adapter_get(controller)->src_ip,
+            &adapter_get(controller)->src_port) < 0)
         {
           printf(_("Bad format for argument -s: '%s'\n"), optarg);
           ret = -1;
@@ -170,7 +170,8 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
         break;
 
       case 'p':
-        if(controller_set_port(controller, optarg) < 0)
+        adapter_get(controller)->report.packet_type = BYTE_SEND_REPORT;
+        if(adapter_set_port(controller, optarg) < 0)
         {
           printf(_("port already used: `%s'\n"), optarg);
           ret = -1;
@@ -200,31 +201,31 @@ int args_read(int argc, char *argv[], s_emuclient_params* params)
         printf(_("option -t with value `%s'\n"), optarg);
         if (!strcmp(optarg, "joystick"))
         {
-          get_controller(controller)->type = C_TYPE_JOYSTICK;
+          adapter_get(controller)->type = C_TYPE_JOYSTICK;
         }
         else if (!strcmp(optarg, "360pad"))
         {
-          get_controller(controller)->type = C_TYPE_360_PAD;
+          adapter_get(controller)->type = C_TYPE_360_PAD;
         }
         else if (!strcmp(optarg, "Sixaxis"))
         {
-          get_controller(controller)->type = C_TYPE_SIXAXIS;
+          adapter_get(controller)->type = C_TYPE_SIXAXIS;
         }
         else if (!strcmp(optarg, "PS2pad"))
         {
-          get_controller(controller)->type = C_TYPE_PS2_PAD;
+          adapter_get(controller)->type = C_TYPE_PS2_PAD;
         }
         else if (!strcmp(optarg, "GPP"))
         {
-          get_controller(controller)->type = C_TYPE_GPP;
+          adapter_get(controller)->type = C_TYPE_GPP;
         }
         else if (!strcmp(optarg, "XboxPad"))
         {
-          get_controller(controller)->type = C_TYPE_XBOX_PAD;
+          adapter_get(controller)->type = C_TYPE_XBOX_PAD;
         }
         else if (!strcmp(optarg, "DS4"))
         {
-          get_controller(controller)->type = C_TYPE_DS4;
+          adapter_get(controller)->type = C_TYPE_DS4;
         }
         else
         {

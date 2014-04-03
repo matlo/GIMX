@@ -12,18 +12,18 @@ OUT=$(BINS)
 else
 OUT=gimx.exe
 endif
-LIB=../shared/event/GE.a
+LIB=../shared/event/GE.a  -Wl,--whole-archive ../shared/controller/controller.a -Wl,--no-whole-archive
 ifneq ($(OS),Windows_NT)
 LIB+= -lxml2 -lm -lncursesw -lusb-1.0 -lbluetooth -lmhash
 else
 LIB+= `sdl-config --libs` -llibxml2 -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl -lusb-1.0
 LIB:=$(filter-out -mwindows,$(LIB))
 endif
-INC=-Iinclude -I../shared/event/include
+INC=-Iinclude -I../shared/event/include -I../shared/controller/include
 ifneq ($(OS),Windows_NT)
 INC += -I/usr/include/libxml2
 endif
-DEP=../shared/event/GE.a
+DEP=../shared/event/GE.a ../shared/controller/controller.a
 
 all: $(BINS)
 
@@ -39,21 +39,13 @@ GIMX_OBJ = \
        config_writter.o\
        config_reader.o\
        calibration.o\
-       report.o\
        connectors/connector.o\
        connectors/tcp_con.o\
        connectors/udp_con.o\
        connectors/gpp/pcprog.o\
        connectors/gpp_con.o\
        connectors/usb_spoof.o\
-       controllers/controller.o\
-       controllers/joystick.o\
-       controllers/ds2.o\
-       controllers/ds3.o\
-       controllers/ds4.o\
-       controllers/xbox.o\
-       controllers/x360.o\
-       controllers/xone.o
+       adapter.o
 
 ifneq ($(OS),Windows_NT)
 GIMX_OBJ += \

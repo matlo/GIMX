@@ -95,7 +95,7 @@ void mainloop()
     }
     if(emuclient_params.curses)
     {
-      display_run(get_controller(0)->axis);
+      display_run(adapter_get(0)->type, adapter_get(0)->axis);
     }
 
     QueryPerformanceCounter(&t1);

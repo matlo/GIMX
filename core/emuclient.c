@@ -29,7 +29,7 @@
 #include "mainloop.h"
 #include "connectors/connector.h"
 #include "args.h"
-#include "controllers/controller.h"
+#include <adapter.h>
 
 #define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
 
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 
   set_prio();
 
-  controller_init();
+  adapter_init();
 
   if(args_read(argc, argv, &emuclient_params) < 0)
   {
@@ -148,13 +148,13 @@ int main(int argc, char *argv[])
     /*
      * TODO MLA: per controller refresh period?
      */
-    emuclient_params.refresh_period = get_default_refresh_period(get_controller(0)->type);
+    emuclient_params.refresh_period = controller_get_default_refresh_period(adapter_get(0)->type);
     emuclient_params.postpone_count = 3 * DEFAULT_REFRESH_PERIOD / emuclient_params.refresh_period;
     printf(_("using default refresh period: %.02fms\n"), (double)emuclient_params.refresh_period/1000);
   }
-  else if(emuclient_params.refresh_period < get_min_refresh_period(get_controller(0)->type))
+  else if(emuclient_params.refresh_period < controller_get_min_refresh_period(adapter_get(0)->type))
   {
-    fprintf(stderr, "Refresh period should be at least %.02fms\n", (double)get_min_refresh_period(get_controller(0)->type)/1000);
+    fprintf(stderr, "Refresh period should be at least %.02fms\n", (double)controller_get_min_refresh_period(adapter_get(0)->type)/1000);
     goto QUIT;
   }
 
@@ -172,9 +172,9 @@ int main(int argc, char *argv[])
   unsigned char controller;
   for(controller=0; controller<MAX_CONTROLLERS; ++controller)
   {
-    if(get_controller(controller)->event)
+    if(adapter_get(controller)->event)
     {
-      get_controller(controller)->send_command = 1;
+      adapter_get(controller)->send_command = 1;
       event = 1;
     }
   }

@@ -13,7 +13,7 @@
 #include <math.h>
 #include "emuclient.h"
 #include "config.h"
-#include "controllers/controller.h"
+#include <adapter.h>
 #include <GE.h>
 #include "../directories.h"
 
@@ -965,20 +965,20 @@ unsigned int macro_process()
         did = GE_GetDeviceId(&running_macro[i].event);
         if(dtype1 != E_DEVICE_TYPE_UNKNOWN && dtype2 != E_DEVICE_TYPE_UNKNOWN && did >= 0)
         {
-          int controller = controller_get_controller(dtype2, did);
+          int controller = adapter_get_controller(dtype2, did);
           if(controller < 0)
           {
             controller = 0;
             for(j=0; j<MAX_CONTROLLERS; ++j)
             {
-              if(controller_get_device(dtype1, j) >= 0)
+              if(adapter_get_device(dtype1, j) >= 0)
               {
                 controller = j;
                 break;
               }
             }
           }
-          did = controller_get_device(dtype1, controller);
+          did = adapter_get_device(dtype1, controller);
           if(did < 0)
           {
             did = 0;

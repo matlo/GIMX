@@ -8,7 +8,7 @@
  
 #include <stdint.h>
 #include <stdbool.h>
-#include <controllers/ds4.h>
+#include <ds4.h>
 
 void btds4_set_bdaddr(int btds4_number, char* dst);
 void btds4_set_dongle(int btds4_number, int dongle_index);

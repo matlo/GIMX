@@ -14,8 +14,7 @@
 #include <libxml/xmlreader.h>
 #include <iconv.h>
 #include "emuclient.h"
-#include "controllers/controller.h"
-#include "controllers/ds3.h"
+#include <adapter.h>
 #include "../directories.h"
 #include "macros.h"
 #include <errno.h>
@@ -469,7 +468,7 @@ static int ProcessAxisElement(xmlNode * a_node)
 
   aid = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
 
-  aindex = get_axis_index_from_name(aid);
+  aindex = controller_get_axis_index_from_name(aid);
 
   xmlFree(aid);
 
@@ -538,7 +537,7 @@ static int ProcessAxisElement(xmlNode * a_node)
       {
         case E_EVENT_TYPE_BUTTON:
           p_mapper->button = r_event_id;
-          controller_set_device(r_controller_id, r_device_type, r_device_id);
+          adapter_set_device(r_controller_id, r_device_type, r_device_id);
           break;
         case E_EVENT_TYPE_AXIS:
           p_mapper->axis = r_event_id;
@@ -576,7 +575,7 @@ static int ProcessButtonElement(xmlNode * a_node)
 
   bid = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
 
-  ret = ds3_get_button_index_from_name(bid);
+  ret = control_get_index(bid);
 
   xmlFree(bid);
 
@@ -650,7 +649,7 @@ static int ProcessButtonElement(xmlNode * a_node)
       {
         case E_EVENT_TYPE_BUTTON:
           p_mapper->button = r_event_id;
-          controller_set_device(r_controller_id, r_device_type, r_device_id);
+          adapter_set_device(r_controller_id, r_device_type, r_device_id);
           break;
         case E_EVENT_TYPE_AXIS_DOWN:
         case E_EVENT_TYPE_AXIS_UP:
@@ -827,7 +826,7 @@ static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity, int
 
     if(ret != -1)
     {
-      intensity->dead_zone = dz * get_axis_scale(get_controller(r_controller_id)->type, axis);
+      intensity->dead_zone = dz * controller_get_axis_scale(adapter_get(r_controller_id)->type, axis);
 
       shape = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_SHAPE);
       if(shape)
@@ -891,7 +890,7 @@ static int ProcessIntensityListElement(xmlNode * a_node)
         }
         else
         {
-          axis = ds3_get_button_index_from_name(control);
+          axis = control_get_index(control);
           if(axis >= 0)
           {
             intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, axis);
@@ -1049,8 +1048,8 @@ static int ProcessConfigurationElement(xmlNode * a_node)
     intensity->device_down_id = -1;
     intensity->up_button = -1;
     intensity->down_button = -1;
-    intensity->value = get_max_signed(get_controller(r_controller_id)->type, i);
-    intensity->max_value = get_max_signed(get_controller(r_controller_id)->type, i);
+    intensity->value = controller_get_max_signed(adapter_get(r_controller_id)->type, i);
+    intensity->max_value = controller_get_max_signed(adapter_get(r_controller_id)->type, i);
     intensity->shape = E_SHAPE_RECTANGLE;
   }
 

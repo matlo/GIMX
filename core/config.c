@@ -14,8 +14,7 @@
 #include <GE.h>
 #include "calibration.h"
 #include "emuclient.h"
-#include "controllers/controller.h"
-#include "controllers/ds3.h"
+#include <adapter.h>
 
 /*
  * This tells what's the current config of each controller.
@@ -252,33 +251,33 @@ static void update_stick(int c_id, int axis)
 
   if (axis <= rel_axis_rstick_y && intensity->shape == E_SHAPE_CIRCLE)
   {
-    if (get_controller(c_id)->axis[axis] && get_controller(c_id)->axis[axis+1])
+    if (adapter_get(c_id)->axis[axis] && adapter_get(c_id)->axis[axis+1])
     {
       value = sqrt(value * value / 2);
     }
   }
 
-  if (get_controller(c_id)->axis[axis] > 0)
+  if (adapter_get(c_id)->axis[axis] > 0)
   {
-    get_controller(c_id)->axis[axis] = round(value);
-    get_controller(c_id)->send_command = 1;
+    adapter_get(c_id)->axis[axis] = round(value);
+    adapter_get(c_id)->send_command = 1;
   }
-  else if (get_controller(c_id)->axis[axis] < 0)
+  else if (adapter_get(c_id)->axis[axis] < 0)
   {
-    get_controller(c_id)->axis[axis] = -round(value);
-    get_controller(c_id)->send_command = 1;
+    adapter_get(c_id)->axis[axis] = -round(value);
+    adapter_get(c_id)->send_command = 1;
   }
   if (axis <= rel_axis_rstick_y)
   {
-    if (get_controller(c_id)->axis[axis+1] > 0)
+    if (adapter_get(c_id)->axis[axis+1] > 0)
     {
-      get_controller(c_id)->axis[axis+1] = round(value);
-      get_controller(c_id)->send_command = 1;
+      adapter_get(c_id)->axis[axis+1] = round(value);
+      adapter_get(c_id)->send_command = 1;
     }
-    else if (get_controller(c_id)->axis[axis+1] < 0)
+    else if (adapter_get(c_id)->axis[axis+1] < 0)
     {
-      get_controller(c_id)->axis[axis+1] = -round(value);
-      get_controller(c_id)->send_command = 1;
+      adapter_get(c_id)->axis[axis+1] = -round(value);
+      adapter_get(c_id)->send_command = 1;
     }
   }
 }
@@ -363,7 +362,7 @@ void cfg_intensity_lookup(GE_Event* e)
       if(update_intensity(device_type, device_id, button_id, c_id, a_id))
       {
         update_stick(c_id, a_id);
-        gprintf(_("controller %d configuration %d axis %s intensity: %.0f\n"), c_id, current_config[c_id], ds3_get_axis_name(a_id), axis_intensity[c_id][current_config[c_id]][a_id].value);
+        gprintf(_("controller %d configuration %d axis %s intensity: %.0f\n"), c_id, current_config[c_id], control_get_name(adapter_get(c_id)->type, a_id), axis_intensity[c_id][current_config[c_id]][a_id].value);
       }
     }
   }
@@ -576,18 +575,18 @@ static int postpone_event(unsigned int device, GE_Event* event)
   return ret;
 }
 
-static double mouse2axis(int device, s_controller* controller, int which, double x, double y, int axis, double exp, double multiplier, int dead_zone, e_shape shape, e_mouse_mode mode)
+static double mouse2axis(int device, s_adapter* controller, int which, double x, double y, int axis, double exp, double multiplier, int dead_zone, e_shape shape, e_mouse_mode mode)
 {
   double z = 0;
   double dz = dead_zone;
   double motion_residue = 0;
   double ztrunk = 0;
   double val = 0;
-  int max_axis = get_max_signed(controller->type, axis);
+  int max_axis = controller_get_max_signed(controller->type, axis);
   int new_state;
 
-  multiplier *= get_axis_scale(controller->type, axis);
-  dz *= get_axis_scale(controller->type, axis);
+  multiplier *= controller_get_axis_scale(controller->type, axis);
+  dz *= controller_get_axis_scale(controller->type, axis);
 
   if(which == AXIS_X)
   {
@@ -705,21 +704,21 @@ void update_dbutton_axis(s_mapper* mapper, int c_id, int axis)
     /*
      * Button to zero-centered axis.
      */
-    get_controller(c_id)->axis[axis] = - value;
+    adapter_get(c_id)->axis[axis] = - value;
   }
   else if(mapper->controller_axis_value > 0)
   {
     /*
      * Button to zero-centered axis.
      */
-    get_controller(c_id)->axis[axis] = value;
+    adapter_get(c_id)->axis[axis] = value;
   }
   else
   {
     /*
      * Button to non-centered axis.
      */
-    get_controller(c_id)->axis[axis] = value;
+    adapter_get(c_id)->axis[axis] = value;
   }
   update_stick(c_id, axis);
   /*
@@ -729,11 +728,11 @@ void update_dbutton_axis(s_mapper* mapper, int c_id, int axis)
   {
     if(mapper->controller_axis_value > 0)
     {
-      get_controller(c_id)->ts_axis[axis][0] = 1;
+      adapter_get(c_id)->ts_axis[axis][0] = 1;
     }
     else if(mapper->controller_axis_value < 0)
     {
-      get_controller(c_id)->ts_axis[axis][1] = 1;
+      adapter_get(c_id)->ts_axis[axis][1] = 1;
     }
   }
 }
@@ -743,7 +742,7 @@ void update_ubutton_axis(s_mapper* mapper, int c_id, int axis)
   int dir, odir;
   s_intensity* intensity = &axis_intensity[c_id][current_config[c_id]][axis];
   int value = intensity->value;
-  get_controller(c_id)->axis[axis] = 0;
+  adapter_get(c_id)->axis[axis] = 0;
   if(mapper->controller_axis_value)
   {
     update_stick(c_id, axis);
@@ -760,16 +759,16 @@ void update_ubutton_axis(s_mapper* mapper, int c_id, int axis)
       dir = 1;
       odir = 0;
     }
-    get_controller(c_id)->ts_axis[axis][dir] = 0;
-    if(get_controller(c_id)->ts_axis[axis][odir] == 1)
+    adapter_get(c_id)->ts_axis[axis][dir] = 0;
+    if(adapter_get(c_id)->ts_axis[axis][odir] == 1)
     {
       if(mapper->controller_axis_value < 0)
       {
-        get_controller(c_id)->axis[axis] = value;
+        adapter_get(c_id)->axis[axis] = value;
       }
       else
       {
-        get_controller(c_id)->axis[axis] = -value;
+        adapter_get(c_id)->axis[axis] = -value;
       }
     }
   }
@@ -799,13 +798,13 @@ void cfg_process_event(GE_Event* event)
   s_mouse_control* mc;
   int max_axis;
   e_mouse_mode mode;
-  s_controller* controller;
+  s_adapter* controller;
 
   unsigned int device = GE_GetDeviceId(event);
 
   for(c_id=0; c_id<MAX_CONTROLLERS; ++c_id)
   {
-    controller = get_controller(c_id);
+    controller = adapter_get(c_id);
     config = current_config[c_id];
 
     nb_controls = 0;
@@ -894,12 +893,12 @@ void cfg_process_event(GE_Event* event)
           }
           controller->send_command = 1;
           axis = mapper->controller_axis;
-          multiplier = mapper->multiplier * get_axis_scale(controller->type, axis);
+          multiplier = mapper->multiplier * controller_get_axis_scale(controller->type, axis);
           exp = mapper->exponent;
-          dead_zone = mapper->dead_zone * get_axis_scale(controller->type, axis);
+          dead_zone = mapper->dead_zone * controller_get_axis_scale(controller->type, axis);
           if(axis >= 0)
           {
-            max_axis = get_max_signed(controller->type, axis);
+            max_axis = controller_get_max_signed(controller->type, axis);
             if(mapper->controller_axis_value)
             {
               /*
@@ -1031,7 +1030,7 @@ void cfg_process_event(GE_Event* event)
               /*
                * Axis to non-centered axis.
                */
-              max_axis = get_max_signed(controller->type, axis);
+              max_axis = controller_get_max_signed(controller->type, axis);
               threshold = mapper->threshold;
               if(threshold > 0 && value > threshold)
               {

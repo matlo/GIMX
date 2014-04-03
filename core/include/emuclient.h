@@ -17,11 +17,6 @@
  */
 #define TCP_PORT 21313
 
-#define MAX_CONTROLLERS 7
-#define MAX_CONFIGURATIONS 8
-#define MAX_DEVICES 256
-#define MAX_CONTROLS 256
-
 #define DEFAULT_REFRESH_PERIOD 11250 //=11.25ms
 
 typedef struct
