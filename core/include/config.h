@@ -7,6 +7,7 @@
 #define CONFIG_H_
 
 #include <GE.h>
+#include <controller.h>
 
 #define MAX_BUFFERSIZE 256
 
@@ -83,8 +84,7 @@ typedef struct
   e_shape shape;
   int dead_zone;
 
-  int controller_axis;
-  int controller_axis_value; //only for button to axis mapping
+  s_axis_index axis_index;
 }s_mapper;
 
 typedef struct

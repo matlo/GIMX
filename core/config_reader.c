@@ -530,8 +530,8 @@ static int ProcessAxisElement(xmlNode * a_node)
 
       p_mapper = p_mapper+p_mapper->nb_mappers-1;
 
-      p_mapper->controller_axis_value = aindex.value;
-      p_mapper->controller_axis = aindex.index;
+      p_mapper->axis_index.index = aindex.index;
+      p_mapper->axis_index.dir = aindex.dir;
 
       switch(r_event_type)
       {
@@ -642,8 +642,8 @@ static int ProcessButtonElement(xmlNode * a_node)
 
       p_mapper = p_mapper + p_mapper->nb_mappers - 1;
 
-      p_mapper->controller_axis_value = 0;
-      p_mapper->controller_axis = bindex;
+      p_mapper->axis_index.index = bindex;
+      p_mapper->axis_index.dir = 0;
 
       switch (r_event_type)
       {

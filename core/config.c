@@ -699,14 +699,14 @@ void update_dbutton_axis(s_mapper* mapper, int c_id, int axis)
 {
   s_intensity* intensity = &axis_intensity[c_id][current_config[c_id]][axis];
   int value = intensity->value;
-  if(mapper->controller_axis_value < 0)
+  if(mapper->axis_index.dir < 0)
   {
     /*
      * Button to zero-centered axis.
      */
     adapter_get(c_id)->axis[axis] = - value;
   }
-  else if(mapper->controller_axis_value > 0)
+  else if(mapper->axis_index.dir > 0)
   {
     /*
      * Button to zero-centered axis.
@@ -726,11 +726,11 @@ void update_dbutton_axis(s_mapper* mapper, int c_id, int axis)
    */
   if(axis >= rel_axis_0 && axis <= rel_axis_max)
   {
-    if(mapper->controller_axis_value > 0)
+    if(mapper->axis_index.dir > 0)
     {
       adapter_get(c_id)->ts_axis[axis][0] = 1;
     }
-    else if(mapper->controller_axis_value < 0)
+    else if(mapper->axis_index.dir < 0)
     {
       adapter_get(c_id)->ts_axis[axis][1] = 1;
     }
@@ -743,13 +743,13 @@ void update_ubutton_axis(s_mapper* mapper, int c_id, int axis)
   s_intensity* intensity = &axis_intensity[c_id][current_config[c_id]][axis];
   int value = intensity->value;
   adapter_get(c_id)->axis[axis] = 0;
-  if(mapper->controller_axis_value)
+  if(mapper->axis_index.dir)
   {
     update_stick(c_id, axis);
   }
   if(axis >= rel_axis_0 && axis <= rel_axis_max)
   {
-    if(mapper->controller_axis_value > 0)
+    if(mapper->axis_index.dir > 0)
     {
       dir = 0;
       odir = 1;
@@ -762,7 +762,7 @@ void update_ubutton_axis(s_mapper* mapper, int c_id, int axis)
     adapter_get(c_id)->ts_axis[axis][dir] = 0;
     if(adapter_get(c_id)->ts_axis[axis][odir] == 1)
     {
-      if(mapper->controller_axis_value < 0)
+      if(mapper->axis_index.dir < 0)
       {
         adapter_get(c_id)->axis[axis] = value;
       }
@@ -860,7 +860,7 @@ void cfg_process_event(GE_Event* event)
             continue;
           }
           controller->send_command = 1;
-          axis = mapper->controller_axis;
+          axis = mapper->axis_index.index;
           if(axis >= 0)
           {
             update_dbutton_axis(mapper, c_id, axis);
@@ -876,7 +876,7 @@ void cfg_process_event(GE_Event* event)
             continue;
           }
           controller->send_command = 1;
-          axis = mapper->controller_axis;
+          axis = mapper->axis_index.index;
           if(axis >= 0)
           {
             update_ubutton_axis(mapper, c_id, axis);
@@ -892,14 +892,14 @@ void cfg_process_event(GE_Event* event)
             continue;
           }
           controller->send_command = 1;
-          axis = mapper->controller_axis;
+          axis = mapper->axis_index.index;
           multiplier = mapper->multiplier * controller_get_axis_scale(controller->type, axis);
           exp = mapper->exponent;
           dead_zone = mapper->dead_zone * controller_get_axis_scale(controller->type, axis);
           if(axis >= 0)
           {
             max_axis = controller_get_max_signed(controller->type, axis);
-            if(mapper->controller_axis_value)
+            if(mapper->axis_index.dir)
             {
               /*
                * Axis to zero-centered axis.
@@ -951,7 +951,7 @@ void cfg_process_event(GE_Event* event)
             continue;
           }
           controller->send_command = 1;
-          axis = mapper->controller_axis;
+          axis = mapper->axis_index.index;
           if(axis >= 0)
           {
             update_dbutton_axis(mapper, c_id, axis);
@@ -967,7 +967,7 @@ void cfg_process_event(GE_Event* event)
             continue;
           }
           controller->send_command = 1;
-          axis = mapper->controller_axis;
+          axis = mapper->axis_index.index;
           if(axis >= 0)
           {
             update_ubutton_axis(mapper, c_id, axis);
@@ -991,11 +991,11 @@ void cfg_process_event(GE_Event* event)
             continue;
           }
           controller->send_command = 1;
-          axis = mapper->controller_axis;
+          axis = mapper->axis_index.index;
           if(axis >= 0)
           {
             multiplier = mapper->multiplier;
-            if(mapper->controller_axis_value || multiplier)
+            if(mapper->axis_index.dir || multiplier)
             {
               /*
                * Axis to zero-centered axis.
@@ -1057,7 +1057,7 @@ void cfg_process_event(GE_Event* event)
             continue;
           }
           controller->send_command = 1;
-          axis = mapper->controller_axis;
+          axis = mapper->axis_index.index;
           if(axis >= 0)
           {
             update_dbutton_axis(mapper, c_id, axis);
@@ -1080,7 +1080,7 @@ void cfg_process_event(GE_Event* event)
             return; //no need to do something more
           }
           controller->send_command = 1;
-          axis = mapper->controller_axis;
+          axis = mapper->axis_index.index;
           if(axis >= 0)
           {
             update_ubutton_axis(mapper, c_id, axis);

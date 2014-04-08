@@ -165,6 +165,51 @@ void ds4_init_report(s_report_ds4* ds4)
   memcpy(ds4, &init_report_ds4, sizeof(s_report_ds4));
 }
 
+static inline void update_finger(s_trackpad_finger* finger, int presence, int axis_x, int axis_y)
+{
+  unsigned char* coords = finger->coords;
+
+  unsigned short finger_x;
+  unsigned short finger_y;
+
+  if(presence)
+  {
+    if(finger->id & 0x80)
+    {
+      //increase the finger id in case of new touch
+      finger->id++;
+
+      //start movement from center
+      finger_x = TRACKPAD_MAX_X/2;
+      finger_y = TRACKPAD_MAX_Y/2;
+    }
+    else
+    {
+      //continue movement from last position
+      finger_x = ((coords[1] & 0x0F) << 8) | coords[0];
+      finger_y = coords[2] << 4 | (coords[1]>>4);
+    }
+
+    //finger present
+    finger->id &= 0x7F;
+
+    int x = finger_x + axis_x;
+    int y = finger_y + axis_y;
+
+    finger_x = clamp(0, x, TRACKPAD_MAX_X);
+    finger_y = clamp(0, y, TRACKPAD_MAX_Y);
+
+    coords[0] = finger_x & 0xFF;
+    coords[1] =  ((finger_x >> 8) & 0x0F) | ((finger_y & 0x0F) << 4);
+    coords[2] =  finger_y >> 4;
+  }
+  else
+  {
+    //finger absent
+    finger->id |= 0x80;
+  }
+}
+
 /*
  * Work in progress...
  * Do not assume the code in the following function is right!
@@ -293,94 +338,12 @@ static unsigned int ds4_report_build(int axis[AXIS_MAX], s_report* report)
 
   if(axis[ds4a_finger1] || axis[ds4a_finger2])
   {
-    ds4->packets = 1;
     ds4->packet1.counter += 4;
   }
 
-  if(axis[ds4a_finger1])
-  {
-    unsigned char* coords = ds4->packet1.finger1.coords;
+  update_finger(&ds4->packet1.finger1, axis[ds4a_finger1], axis[ds4a_finger1_x], axis[ds4a_finger1_y]);
 
-    unsigned short finger1x;
-    unsigned short finger1y;
-
-    if(ds4->packet1.finger1.id & 0x80)
-    {
-      //increase the finger id in case of new touch
-      ds4->packet1.finger1.id++;
-
-      //start movement from center
-      finger1x = TRACKPAD_MAX_X/2;
-      finger1y = TRACKPAD_MAX_Y/2;
-    }
-    else
-    {
-      //continue movement from last position
-      finger1x = ((coords[1] & 0x0F) << 8) | coords[0];
-      finger1y = coords[2] << 4 | (coords[1]>>4);
-    }
-
-    //finger present
-    ds4->packet1.finger1.id &= 0x7F;
-
-    int x = finger1x - TRACKPAD_MAX_X/2 + axis[ds4a_finger1_x];
-    int y = finger1y - TRACKPAD_MAX_Y/2 + axis[ds4a_finger1_y];
-
-    finger1x = clamp(0, x + TRACKPAD_MAX_X/2, TRACKPAD_MAX_X);
-    finger1y = clamp(0, y + TRACKPAD_MAX_Y/2, TRACKPAD_MAX_Y);
-
-    coords[0] = finger1x & 0xFF;
-    coords[1] =  ((finger1x >> 8) & 0x0F) | ((finger1y & 0x0F) << 4);
-    coords[2] =  finger1y >> 4;
-  }
-  else
-  {
-    //finger absent
-    ds4->packet1.finger1.id |= 0x80;
-  }
-
-  if(axis[ds4a_finger2])
-  {
-    unsigned char* coords = ds4->packet1.finger2.coords;
-
-    unsigned short finger2x;
-    unsigned short finger2y;
-
-    if(ds4->packet1.finger2.id & 0x80)
-    {
-      //increase the finger id in case of new touch
-      ds4->packet1.finger2.id++;
-
-      //start movement from center
-      finger2x = TRACKPAD_MAX_X/2;
-      finger2y = TRACKPAD_MAX_Y/2;
-    }
-    else
-    {
-      //continue movement from last position
-      finger2x = ((coords[1] & 0x0F) << 8) | coords[0];
-      finger2y = coords[2] << 4 | (coords[1]>>4);
-    }
-
-    //finger present
-    ds4->packet1.finger2.id &= 0x7F;
-
-    int x = finger2x - TRACKPAD_MAX_X/2 + axis[ds4a_finger2_x];
-    int y = finger2y - TRACKPAD_MAX_Y/2 + axis[ds4a_finger2_y];
-
-    finger2x = clamp(0, x + TRACKPAD_MAX_X/2, TRACKPAD_MAX_X);
-    finger2y = clamp(0, y + TRACKPAD_MAX_Y/2, TRACKPAD_MAX_Y);
-
-    coords[0] = finger2x & 0xFF;
-    coords[1] =  ((finger2x >> 8) & 0x0F) | ((finger2y & 0x0F) << 4);
-    coords[2] =  finger2y >> 4;
-
-  }
-  else
-  {
-    //finger absent
-    ds4->packet1.finger2.id |= 0x80;
-  }
+  update_finger(&ds4->packet1.finger2, axis[ds4a_finger2], axis[ds4a_finger2_x], axis[ds4a_finger2_y]);
 
   return sizeof(*ds4);
 }

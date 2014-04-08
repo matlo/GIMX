@@ -9,7 +9,7 @@
 #include <string.h>
 #include <unistd.h>
 
-static const char* controller_name[C_TYPE_MAX] =
+static const char* names[C_TYPE_MAX] =
 {
   [C_TYPE_JOYSTICK] = "joystick",
   [C_TYPE_360_PAD]  = "360pad",
@@ -24,7 +24,22 @@ static const char* controller_name[C_TYPE_MAX] =
 
 const char* controller_get_name(e_controller_type type)
 {
-  return controller_name[type];
+  if(type < C_TYPE_MAX)
+  {
+    return names[type];
+  }
+  return names[C_TYPE_SIXAXIS];
+}
+
+e_controller_type controller_get_type(const char* name)
+{
+  int i;
+  for(i=0; i<C_TYPE_MAX; ++i) {
+    if(!strcmp(names[i], name)) {
+      return i;
+    }
+  }
+  return C_TYPE_SIXAXIS;
 }
 
 static s_controller_params* controller_params[C_TYPE_MAX] = {};
@@ -103,90 +118,96 @@ typedef struct {
 
 static const s_axis_name_index axis_name_index[] =
 {
-    {.name="rstick x",     {.value=-1,  .index=sa_rstick_x}},
-    {.name="rstick y",     {.value=-1,  .index=sa_rstick_y}},
-    {.name="lstick x",     {.value=-1,  .index=sa_lstick_x}},
-    {.name="lstick y",     {.value=-1,  .index=sa_lstick_y}},
-    {.name="rstick left",  {.value=-1,  .index=sa_rstick_x}},
-    {.name="rstick right", {.value= 1,  .index=sa_rstick_x}},
-    {.name="rstick up",    {.value=-1,  .index=sa_rstick_y}},
-    {.name="rstick down",  {.value= 1,  .index=sa_rstick_y}},
-    {.name="lstick left",  {.value=-1,  .index=sa_lstick_x}},
-    {.name="lstick right", {.value= 1,  .index=sa_lstick_x}},
-    {.name="lstick up",    {.value=-1,  .index=sa_lstick_y}},
-    {.name="lstick down",  {.value= 1,  .index=sa_lstick_y}},
-    {.name="acc x",        {.value=-1,  .index=sa_acc_x}},
-    {.name="acc y",        {.value=-1,  .index=sa_acc_y}},
-    {.name="acc z",        {.value=-1,  .index=sa_acc_z}},
-    {.name="gyro",         {.value=-1,  .index=sa_gyro}},
-    {.name="acc x -",      {.value=-1,  .index=sa_acc_x}},
-    {.name="acc y -",      {.value=-1,  .index=sa_acc_y}},
-    {.name="acc z -",      {.value=-1,  .index=sa_acc_z}},
-    {.name="gyro -",       {.value=-1,  .index=sa_gyro}},
-    {.name="acc x +",      {.value= 1,  .index=sa_acc_x}},
-    {.name="acc y +",      {.value= 1,  .index=sa_acc_y}},
-    {.name="acc z +",      {.value= 1,  .index=sa_acc_z}},
-    {.name="gyro +",       {.value= 1,  .index=sa_gyro}},
-    {.name="up",           {.value= 0,  .index=sa_up}},
-    {.name="down",         {.value= 0,  .index=sa_down}},
-    {.name="right",        {.value= 0,  .index=sa_right}},
-    {.name="left",         {.value= 0,  .index=sa_left}},
-    {.name="r1",           {.value= 0,  .index=sa_r1}},
-    {.name="r2",           {.value= 0,  .index=sa_r2}},
-    {.name="l1",           {.value= 0,  .index=sa_l1}},
-    {.name="l2",           {.value= 0,  .index=sa_l2}},
-    {.name="circle",       {.value= 0,  .index=sa_circle}},
-    {.name="square",       {.value= 0,  .index=sa_square}},
-    {.name="cross",        {.value= 0,  .index=sa_cross}},
-    {.name="triangle",     {.value= 0,  .index=sa_triangle}},
+    {.name = "rstick x",     {.index = sa_rstick_x, .dir = 0}},
+    {.name = "rstick y",     {.index = sa_rstick_y, .dir = 0}},
+    {.name = "lstick x",     {.index = sa_lstick_x, .dir = 0}},
+    {.name = "lstick y",     {.index = sa_lstick_y, .dir = 0}},
+
+    {.name = "rstick left",  {.index = sa_rstick_x, .dir = -1}},
+    {.name = "rstick right", {.index = sa_rstick_x, .dir =  1}},
+    {.name = "rstick up",    {.index = sa_rstick_y, .dir = -1}},
+    {.name = "rstick down",  {.index = sa_rstick_y, .dir =  1}},
+
+    {.name = "lstick left",  {.index = sa_lstick_x, .dir = -1}},
+    {.name = "lstick right", {.index = sa_lstick_x, .dir =  1}},
+    {.name = "lstick up",    {.index = sa_lstick_y, .dir = -1}},
+    {.name = "lstick down",  {.index = sa_lstick_y, .dir =  1}},
+
+    {.name = "acc x",        {.index = sa_acc_x,    .dir = 0}},
+    {.name = "acc y",        {.index = sa_acc_y,    .dir = 0}},
+    {.name = "acc z",        {.index = sa_acc_z,    .dir = 0}},
+    {.name = "gyro",         {.index = sa_gyro,     .dir = 0}},
+
+    {.name = "acc x -",      {.index = sa_acc_x,    .dir = -1}},
+    {.name = "acc y -",      {.index = sa_acc_y,    .dir = -1}},
+    {.name = "acc z -",      {.index = sa_acc_z,    .dir = -1}},
+    {.name = "gyro -",       {.index = sa_gyro,     .dir = -1}},
+
+    {.name = "acc x +",      {.index = sa_acc_x,    .dir = 1}},
+    {.name = "acc y +",      {.index = sa_acc_y,    .dir = 1}},
+    {.name = "acc z +",      {.index = sa_acc_z,    .dir = 1}},
+    {.name = "gyro +",       {.index = sa_gyro,     .dir = 1}},
+
+    {.name = "up",           {.index = sa_up,       .dir = 0}},
+    {.name = "down",         {.index = sa_down,     .dir = 0}},
+    {.name = "right",        {.index = sa_right,    .dir = 0}},
+    {.name = "left",         {.index = sa_left,     .dir = 0}},
+    {.name = "r1",           {.index = sa_r1,       .dir = 0}},
+    {.name = "r2",           {.index = sa_r2,       .dir = 0}},
+    {.name = "l1",           {.index = sa_l1,       .dir = 0}},
+    {.name = "l2",           {.index = sa_l2,       .dir = 0}},
+    {.name = "circle",       {.index = sa_circle,   .dir = 0}},
+    {.name = "square",       {.index = sa_square,   .dir = 0}},
+    {.name = "cross",        {.index = sa_cross,    .dir = 0}},
+    {.name = "triangle",     {.index = sa_triangle, .dir = 0}},
 
     //the above values are kept for compatibility with old configurations
 
-    {.name="rel_axis_0",     {.value=-1,  .index=rel_axis_0}},
-    {.name="rel_axis_1",     {.value=-1,  .index=rel_axis_1}},
-    {.name="rel_axis_2",     {.value=-1,  .index=rel_axis_2}},
-    {.name="rel_axis_3",     {.value=-1,  .index=rel_axis_3}},
-    {.name="rel_axis_4",     {.value=-1,  .index=rel_axis_4}},
-    {.name="rel_axis_5",     {.value=-1,  .index=rel_axis_5}},
-    {.name="rel_axis_6",     {.value=-1,  .index=rel_axis_6}},
-    {.name="rel_axis_7",     {.value=-1,  .index=rel_axis_7}},
+    {.name = "rel_axis_0",   {.index = rel_axis_0,  .dir = 0,}},
+    {.name = "rel_axis_1",   {.index = rel_axis_1,  .dir = 0,}},
+    {.name = "rel_axis_2",   {.index = rel_axis_2,  .dir = 0,}},
+    {.name = "rel_axis_3",   {.index = rel_axis_3,  .dir = 0,}},
+    {.name = "rel_axis_4",   {.index = rel_axis_4,  .dir = 0,}},
+    {.name = "rel_axis_5",   {.index = rel_axis_5,  .dir = 0,}},
+    {.name = "rel_axis_6",   {.index = rel_axis_6,  .dir = 0,}},
+    {.name = "rel_axis_7",   {.index = rel_axis_7,  .dir = 0,}},
 
-    {.name="rel_axis_0-",    {.value=-1,  .index=rel_axis_0}},
-    {.name="rel_axis_1-",    {.value=-1,  .index=rel_axis_1}},
-    {.name="rel_axis_2-",    {.value=-1,  .index=rel_axis_2}},
-    {.name="rel_axis_3-",    {.value=-1,  .index=rel_axis_3}},
-    {.name="rel_axis_4-",    {.value=-1,  .index=rel_axis_4}},
-    {.name="rel_axis_5-",    {.value=-1,  .index=rel_axis_5}},
-    {.name="rel_axis_6-",    {.value=-1,  .index=rel_axis_6}},
-    {.name="rel_axis_7-",    {.value=-1,  .index=rel_axis_7}},
+    {.name = "rel_axis_0-",  {.index = rel_axis_0, .dir = -1}},
+    {.name = "rel_axis_1-",  {.index = rel_axis_1, .dir = -1}},
+    {.name = "rel_axis_2-",  {.index = rel_axis_2, .dir = -1}},
+    {.name = "rel_axis_3-",  {.index = rel_axis_3, .dir = -1}},
+    {.name = "rel_axis_4-",  {.index = rel_axis_4, .dir = -1}},
+    {.name = "rel_axis_5-",  {.index = rel_axis_5, .dir = -1}},
+    {.name = "rel_axis_6-",  {.index = rel_axis_6, .dir = -1}},
+    {.name = "rel_axis_7-",  {.index = rel_axis_7, .dir = -1}},
 
-    {.name="rel_axis_0+",    {.value=1,  .index=rel_axis_0}},
-    {.name="rel_axis_1+",    {.value=1,  .index=rel_axis_1}},
-    {.name="rel_axis_2+",    {.value=1,  .index=rel_axis_2}},
-    {.name="rel_axis_3+",    {.value=1,  .index=rel_axis_3}},
-    {.name="rel_axis_4+",    {.value=1,  .index=rel_axis_4}},
-    {.name="rel_axis_5+",    {.value=1,  .index=rel_axis_5}},
-    {.name="rel_axis_6+",    {.value=1,  .index=rel_axis_6}},
-    {.name="rel_axis_7+",    {.value=1,  .index=rel_axis_7}},
+    {.name = "rel_axis_0+",  {.index = rel_axis_0, .dir = 1}},
+    {.name = "rel_axis_1+",  {.index = rel_axis_1, .dir = 1}},
+    {.name = "rel_axis_2+",  {.index = rel_axis_2, .dir = 1}},
+    {.name = "rel_axis_3+",  {.index = rel_axis_3, .dir = 1}},
+    {.name = "rel_axis_4+",  {.index = rel_axis_4, .dir = 1}},
+    {.name = "rel_axis_5+",  {.index = rel_axis_5, .dir = 1}},
+    {.name = "rel_axis_6+",  {.index = rel_axis_6, .dir = 1}},
+    {.name = "rel_axis_7+",  {.index = rel_axis_7, .dir = 1}},
 
-    {.name="abs_axis_0",     {.value=0,  .index=abs_axis_0}},
-    {.name="abs_axis_1",     {.value=0,  .index=abs_axis_1}},
-    {.name="abs_axis_2",     {.value=0,  .index=abs_axis_2}},
-    {.name="abs_axis_3",     {.value=0,  .index=abs_axis_3}},
-    {.name="abs_axis_4",     {.value=0,  .index=abs_axis_4}},
-    {.name="abs_axis_5",     {.value=0,  .index=abs_axis_5}},
-    {.name="abs_axis_6",     {.value=0,  .index=abs_axis_6}},
-    {.name="abs_axis_7",     {.value=0,  .index=abs_axis_7}},
-    {.name="abs_axis_8",     {.value=0,  .index=abs_axis_8}},
-    {.name="abs_axis_9",     {.value=0,  .index=abs_axis_9}},
-    {.name="abs_axis_10",    {.value=0,  .index=abs_axis_10}},
-    {.name="abs_axis_11",    {.value=0,  .index=abs_axis_11}},
-    {.name="abs_axis_12",    {.value=0,  .index=abs_axis_12}},
-    {.name="abs_axis_13",    {.value=0,  .index=abs_axis_13}},
-    {.name="abs_axis_14",    {.value=0,  .index=abs_axis_14}},
-    {.name="abs_axis_15",    {.value=0,  .index=abs_axis_15}},
-    {.name="abs_axis_16",    {.value=0,  .index=abs_axis_16}},
-    {.name="abs_axis_17",    {.value=0,  .index=abs_axis_17}},
+    {.name = "abs_axis_0",   {.index = abs_axis_0,  .dir = 0}},
+    {.name = "abs_axis_1",   {.index = abs_axis_1,  .dir = 0}},
+    {.name = "abs_axis_2",   {.index = abs_axis_2,  .dir = 0}},
+    {.name = "abs_axis_3",   {.index = abs_axis_3,  .dir = 0}},
+    {.name = "abs_axis_4",   {.index = abs_axis_4,  .dir = 0}},
+    {.name = "abs_axis_5",   {.index = abs_axis_5,  .dir = 0}},
+    {.name = "abs_axis_6",   {.index = abs_axis_6,  .dir = 0}},
+    {.name = "abs_axis_7",   {.index = abs_axis_7,  .dir = 0}},
+    {.name = "abs_axis_8",   {.index = abs_axis_8,  .dir = 0}},
+    {.name = "abs_axis_9",   {.index = abs_axis_9,  .dir = 0}},
+    {.name = "abs_axis_10",  {.index = abs_axis_10, .dir = 0}},
+    {.name = "abs_axis_11",  {.index = abs_axis_11, .dir = 0}},
+    {.name = "abs_axis_12",  {.index = abs_axis_12, .dir = 0}},
+    {.name = "abs_axis_13",  {.index = abs_axis_13, .dir = 0}},
+    {.name = "abs_axis_14",  {.index = abs_axis_14, .dir = 0}},
+    {.name = "abs_axis_15",  {.index = abs_axis_15, .dir = 0}},
+    {.name = "abs_axis_16",  {.index = abs_axis_16, .dir = 0}},
+    {.name = "abs_axis_17",  {.index = abs_axis_17, .dir = 0}},
 
 };
 
