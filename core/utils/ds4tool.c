@@ -180,6 +180,7 @@ int main(int argc, char *argv[])
 {
   static libusb_device_handle* devh = NULL;
   static libusb_context* ctx = NULL;
+  int ret = -1;
 
   read_args(argc, argv);
 
@@ -211,7 +212,7 @@ int main(int argc, char *argv[])
     goto CLEANUP1;
   }
 
-  int ret = process_device(devh);
+  ret = process_device(devh);
 
   if(libusb_release_interface(devh, 0))
   {

@@ -87,7 +87,7 @@ cleanup:
  */
 int acl_send_data (const char *bdaddr_dst, unsigned short cid, unsigned char *data, unsigned short plen)
 {
-  int ret = -1, dd, device;
+  int ret = -1, dd = -1, device;
   struct hci_conn_info_req *cr = 0;
   bdaddr_t ba;
   uint8_t type = HCI_ACLDATA_PKT;
