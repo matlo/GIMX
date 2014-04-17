@@ -699,14 +699,14 @@ void update_dbutton_axis(s_mapper* mapper, int c_id, int axis)
 {
   s_intensity* intensity = &axis_intensity[c_id][current_config[c_id]][axis];
   int value = intensity->value;
-  if(mapper->axis_index.dir < 0)
+  if(mapper->axis_props.props & AXIS_PROP_NEGATIVE)
   {
     /*
      * Button to zero-centered axis.
      */
     adapter_get(c_id)->axis[axis] = - value;
   }
-  else if(mapper->axis_index.dir > 0)
+  else if(mapper->axis_props.props & AXIS_PROP_POSITIVE)
   {
     /*
      * Button to zero-centered axis.
@@ -726,11 +726,11 @@ void update_dbutton_axis(s_mapper* mapper, int c_id, int axis)
    */
   if(axis >= rel_axis_0 && axis <= rel_axis_max)
   {
-    if(mapper->axis_index.dir > 0)
+    if(mapper->axis_props.props & AXIS_PROP_POSITIVE)
     {
       adapter_get(c_id)->ts_axis[axis][0] = 1;
     }
-    else if(mapper->axis_index.dir < 0)
+    else if(mapper->axis_props.props & AXIS_PROP_NEGATIVE)
     {
       adapter_get(c_id)->ts_axis[axis][1] = 1;
     }
@@ -739,30 +739,30 @@ void update_dbutton_axis(s_mapper* mapper, int c_id, int axis)
 
 void update_ubutton_axis(s_mapper* mapper, int c_id, int axis)
 {
-  int dir, odir;
+  int direction, opposite;
   s_intensity* intensity = &axis_intensity[c_id][current_config[c_id]][axis];
   int value = intensity->value;
   adapter_get(c_id)->axis[axis] = 0;
-  if(mapper->axis_index.dir)
+  if(mapper->axis_props.props)
   {
     update_stick(c_id, axis);
   }
   if(axis >= rel_axis_0 && axis <= rel_axis_max)
   {
-    if(mapper->axis_index.dir > 0)
+    if(mapper->axis_props.props & AXIS_PROP_POSITIVE)
     {
-      dir = 0;
-      odir = 1;
+      direction = 0;
+      opposite = 1;
     }
     else
     {
-      dir = 1;
-      odir = 0;
+      direction = 1;
+      opposite = 0;
     }
-    adapter_get(c_id)->ts_axis[axis][dir] = 0;
-    if(adapter_get(c_id)->ts_axis[axis][odir] == 1)
+    adapter_get(c_id)->ts_axis[axis][direction] = 0;
+    if(adapter_get(c_id)->ts_axis[axis][opposite] == 1)
     {
-      if(mapper->axis_index.dir < 0)
+      if(mapper->axis_props.props & AXIS_PROP_NEGATIVE)
       {
         adapter_get(c_id)->axis[axis] = value;
       }
@@ -860,7 +860,7 @@ void cfg_process_event(GE_Event* event)
             continue;
           }
           controller->send_command = 1;
-          axis = mapper->axis_index.index;
+          axis = mapper->axis_props.axis;
           if(axis >= 0)
           {
             update_dbutton_axis(mapper, c_id, axis);
@@ -876,7 +876,7 @@ void cfg_process_event(GE_Event* event)
             continue;
           }
           controller->send_command = 1;
-          axis = mapper->axis_index.index;
+          axis = mapper->axis_props.axis;
           if(axis >= 0)
           {
             update_ubutton_axis(mapper, c_id, axis);
@@ -892,14 +892,14 @@ void cfg_process_event(GE_Event* event)
             continue;
           }
           controller->send_command = 1;
-          axis = mapper->axis_index.index;
+          axis = mapper->axis_props.axis;
           multiplier = mapper->multiplier * controller_get_axis_scale(controller->type, axis);
           exp = mapper->exponent;
           dead_zone = mapper->dead_zone * controller_get_axis_scale(controller->type, axis);
           if(axis >= 0)
           {
             max_axis = controller_get_max_signed(controller->type, axis);
-            if(mapper->axis_index.dir)
+            if(mapper->axis_props.props == AXIS_PROP_CENTERED)
             {
               /*
                * Axis to zero-centered axis.
@@ -951,7 +951,7 @@ void cfg_process_event(GE_Event* event)
             continue;
           }
           controller->send_command = 1;
-          axis = mapper->axis_index.index;
+          axis = mapper->axis_props.axis;
           if(axis >= 0)
           {
             update_dbutton_axis(mapper, c_id, axis);
@@ -967,7 +967,7 @@ void cfg_process_event(GE_Event* event)
             continue;
           }
           controller->send_command = 1;
-          axis = mapper->axis_index.index;
+          axis = mapper->axis_props.axis;
           if(axis >= 0)
           {
             update_ubutton_axis(mapper, c_id, axis);
@@ -991,11 +991,11 @@ void cfg_process_event(GE_Event* event)
             continue;
           }
           controller->send_command = 1;
-          axis = mapper->axis_index.index;
+          axis = mapper->axis_props.axis;
           if(axis >= 0)
           {
             multiplier = mapper->multiplier;
-            if(mapper->axis_index.dir || multiplier)
+            if(mapper->axis_props.props == AXIS_PROP_CENTERED || multiplier)
             {
               /*
                * Axis to zero-centered axis.
@@ -1057,7 +1057,7 @@ void cfg_process_event(GE_Event* event)
             continue;
           }
           controller->send_command = 1;
-          axis = mapper->axis_index.index;
+          axis = mapper->axis_props.axis;
           if(axis >= 0)
           {
             update_dbutton_axis(mapper, c_id, axis);
@@ -1080,7 +1080,7 @@ void cfg_process_event(GE_Event* event)
             return; //no need to do something more
           }
           controller->send_command = 1;
-          axis = mapper->axis_index.index;
+          axis = mapper->axis_props.axis;
           if(axis >= 0)
           {
             update_ubutton_axis(mapper, c_id, axis);

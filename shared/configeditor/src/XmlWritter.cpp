@@ -12,6 +12,8 @@
 #include <unistd.h>
 #endif
 
+#include <controller.h>
+
 using namespace std;
 
 XmlWritter::XmlWritter()
@@ -67,13 +69,13 @@ void XmlWritter::CreateAxisMapNode(xmlNodePtr parent_node)
     xmlNodePtr am_node;
 
     xmlNodePtr node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_AXIS_MAP, NULL);
-    list<AxisMapper>* am_list = m_ConfigurationFile->GetController(m_CurrentController)->GetConfiguration(m_CurrentConfiguration)->GetAxisMapperList();
+    list<ControlMapper>* am_list = m_ConfigurationFile->GetController(m_CurrentController)->GetConfiguration(m_CurrentConfiguration)->GetAxisMapperList();
 
-    for(list<AxisMapper>::iterator it = am_list->begin(); it!=am_list->end(); ++it)
+    for(list<ControlMapper>::iterator it = am_list->begin(); it!=am_list->end(); ++it)
     {
         am_node = xmlNewChild(node, NULL, BAD_CAST X_NODE_AXIS, NULL);
 
-        xmlNewProp(am_node, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) it->GetAxis().c_str());
+        xmlNewProp(am_node, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) it->GetGenericAxisName().c_str());
 		    xmlNewProp(am_node, BAD_CAST X_ATTR_LABEL, BAD_CAST (const char*) it->GetLabel().c_str());
 
         CreateDeviceNode(am_node, it->GetDevice());
@@ -87,13 +89,13 @@ void XmlWritter::CreateButtonMapNode(xmlNodePtr parent_node)
     xmlNodePtr bm_node;
 
     xmlNodePtr node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_BUTTON_MAP, NULL);
-    list<ButtonMapper>* bm_list = m_ConfigurationFile->GetController(m_CurrentController)->GetConfiguration(m_CurrentConfiguration)->GetButtonMapperList();
+    list<ControlMapper>* bm_list = m_ConfigurationFile->GetController(m_CurrentController)->GetConfiguration(m_CurrentConfiguration)->GetButtonMapperList();
 
-    for(list<ButtonMapper>::iterator it = bm_list->begin(); it!=bm_list->end(); ++it)
+    for(list<ControlMapper>::iterator it = bm_list->begin(); it!=bm_list->end(); ++it)
     {
         bm_node = xmlNewChild(node, NULL, BAD_CAST X_NODE_BUTTON, NULL);
 
-        xmlNewProp(bm_node, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) it->GetButton().c_str());
+        xmlNewProp(bm_node, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) it->GetGenericAxisName().c_str());
 		    xmlNewProp(bm_node, BAD_CAST X_ATTR_LABEL, BAD_CAST (const char*) it->GetLabel().c_str());
 
         CreateDeviceNode(bm_node, it->GetDevice());
@@ -170,7 +172,7 @@ void XmlWritter::CreateIntensityNodes(xmlNodePtr parent_node)
 
       xmlNodePtr node = xmlNewChild(pnode, NULL, BAD_CAST X_NODE_INTENSITY, NULL);
 
-      xmlNewProp(node, BAD_CAST X_ATTR_CONTROL, BAD_CAST (const char*) it->GetControl().c_str());
+      xmlNewProp(node, BAD_CAST X_ATTR_CONTROL, BAD_CAST (const char*) it->GetGenericAxisName().c_str());
 
       xmlNewProp(node, BAD_CAST X_ATTR_DEADZONE, BAD_CAST (const char*) dead_zone);
 
@@ -265,6 +267,10 @@ void XmlWritter::CreateControllerNodes(xmlNodePtr parent_node)
         snprintf(dpi, sizeof(dpi), "%u", m_ConfigurationFile->GetController(m_CurrentController)->GetMouseDPI());
 
         xmlNewProp(node, BAD_CAST X_ATTR_DPI, BAD_CAST dpi);
+
+        const char* cname = controller_get_name(m_ConfigurationFile->GetController(m_CurrentController)->GetControllerType());
+
+        xmlNewProp(node, BAD_CAST X_ATTR_TYPE, BAD_CAST cname);
 
         CreateConfigurationNodes(node);
     }

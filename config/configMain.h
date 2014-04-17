@@ -103,6 +103,8 @@ class configFrame: public wxFrame
         void OnMouseOptionsRemoveClick(wxCommandEvent& event);
         void OnMouseOptionsModifyClick(wxCommandEvent& event);
         void OnMenuOpenConfigDirectory(wxCommandEvent& event);
+        void OnMenuTypeItemSelected(wxCommandEvent& event);
+        void OnButtonTabButtonIdSelect(wxCommandEvent& event);
         //*)
         void DeleteSelectedRows(wxGrid* grid);
         void DeleteLinkedRows(wxGrid* grid, int row);
@@ -116,6 +118,11 @@ class configFrame: public wxFrame
         bool isMouseOptionsDefined(wxString device_name, wxString device_id, int gridIndex);
         void readLabels();
         string reverseTranslate(string str);
+        void fillButtonAxisChoice();
+        void fillAxisAxisChoice();
+        void fillButtonChoice();
+        void fillIntensityAxisChoice();
+        void LoadControllerType();
 
         //(*Identifiers(configFrame)
         static const long ID_STATICTEXT35;
@@ -243,6 +250,13 @@ class configFrame: public wxFrame
         static const long ID_MENUITEM5;
         static const long ID_MENUITEM6;
         static const long ID_MENUITEM7;
+        static const long ID_MENUITEMDS4;
+        static const long ID_MENUITEMDS3;
+        static const long ID_MENUITEMDS2;
+        static const long ID_MENUITEMXONE;
+        static const long ID_MENUITEM360;
+        static const long ID_MENUITEMXBOX;
+        static const long ID_MENUITEMJS;
         static const long ID_MENUITEM8;
         static const long ID_MENUITEM9;
         static const long ID_MENUITEM10;
@@ -302,10 +316,12 @@ class configFrame: public wxFrame
         wxMenu* MenuFile;
         wxStaticText* AxisTabDeviceId;
         wxStaticLine* StaticLine7;
+        wxMenu* MenuType;
         wxStaticText* MouseOptionsButton;
         wxMenuItem* MenuItemPasteProfile;
         wxMenuItem* MenuController7;
         wxChoice* IntensityDirection;
+        wxMenuItem* MenuItem360;
         wxStaticText* ProfileTriggerDeviceName;
         wxGrid* GridMouseOption;
         wxMenuItem* MenuItemSave;
@@ -326,6 +342,7 @@ class configFrame: public wxFrame
         wxButton* ButtonDelete;
         wxStaticText* StaticText18;
         wxStaticText* AxisTabEventId;
+        wxMenuItem* MenuItemXbox;
         wxStaticText* StaticText1;
         wxChoice* AxisTabAxisId;
         wxTextCtrl* AxisTabAcceleration;
@@ -351,6 +368,7 @@ class configFrame: public wxFrame
         wxMenuItem* MenuConfiguration4;
         wxMenuItem* MenuController4;
         wxStaticText* ButtonTabEventId;
+        wxMenuItem* MenuItemJs;
         wxFileDialog* FileDialog1;
         wxStaticText* AxisTabDeviceType;
         wxStaticLine* StaticLine3;
@@ -359,6 +377,7 @@ class configFrame: public wxFrame
         wxMenuItem* MenuController3;
         wxMenuItem* MenuItemSetMouseDPI;
         wxButton* ButtonAutoDetect;
+        wxMenuItem* MenuItemDS2;
         wxNotebook* Notebook2;
         wxStaticText* ProfileTriggerDeviceId;
         wxMenuItem* MenuItemMultipleMiceAndKeyboards;
@@ -373,10 +392,12 @@ class configFrame: public wxFrame
         wxGrid* GridPanelButton;
         wxStaticText* MouseOptionsName;
         wxMenuItem* MenuItemReplaceKeyboard;
+        wxMenuItem* MenuItemXOne;
         wxStaticLine* StaticLine8;
         wxStaticText* StaticText6;
         wxSpinCtrl* IntensityDeadZone;
         wxMenuItem* MenuController5;
+        wxMenuItem* MenuItemDS4;
         wxButton* ButtonTabModify;
         wxStaticText* StaticTextButtonPanelButton;
         wxStaticLine* StaticLine4;
@@ -396,6 +417,7 @@ class configFrame: public wxFrame
         wxButton* ButtonTabAutoDetect;
         wxTextCtrl* ButtonTabThreshold;
         wxButton* MouseOptionsModify;
+        wxMenuItem* MenuItemDS3;
         wxStaticText* StaticTextAxisPanelAxis;
         wxMenuItem* MenuConfiguration1;
         wxStaticLine* StaticLine9;

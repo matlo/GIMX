@@ -5,17 +5,17 @@ prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
 endif
 
-INC = -I../shared/configeditor/include
+INC = -I../shared/configeditor/include -I../shared/controller/include
 CFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
 LIBDIR =
-LIB = ../shared/configeditor/configeditor.a ../shared/event/GE.a `wx-config --libs`
+LIB = ../shared/configeditor/configeditor.a ../shared/event/GE.a `wx-config --libs` -Wl,--whole-archive ../shared/controller/controller.a -Wl,--no-whole-archive
 ifneq ($(OS),Windows_NT)
 LIB += -lxml2
 else
 LIB += -lSDL -llibxml2 -lintl -liconv
 endif
 
-DEP = ../shared/configeditor/configeditor.a ../shared/event/GE.a ../shared/updater/updater.o
+DEP = ../shared/configeditor/configeditor.a ../shared/controller/controller.a ../shared/event/GE.a ../shared/updater/updater.o
 OBJ = configMain.o configApp.o
 ifneq ($(OS),Windows_NT)
 OUT = gimx-config

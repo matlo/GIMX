@@ -463,12 +463,12 @@ static int ProcessAxisElement(xmlNode * a_node)
   s_mapper** pp_mapper = NULL;
   s_mapper* p_mapper = NULL;
   s_mouse_cal* mcal;
-  s_axis_index aindex;
+  s_axis_props axis_props;
   char* aid;
 
   aid = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
 
-  aindex = controller_get_axis_index_from_name(aid);
+  axis_props = controller_get_axis_index_from_name(aid);
 
   xmlFree(aid);
 
@@ -530,8 +530,8 @@ static int ProcessAxisElement(xmlNode * a_node)
 
       p_mapper = p_mapper+p_mapper->nb_mappers-1;
 
-      p_mapper->axis_index.index = aindex.index;
-      p_mapper->axis_index.dir = aindex.dir;
+      p_mapper->axis_props.axis = axis_props.axis;
+      p_mapper->axis_props.props = axis_props.props;
 
       switch(r_event_type)
       {
@@ -569,22 +569,17 @@ static int ProcessButtonElement(xmlNode * a_node)
   int ret = 0;
   xmlNode* cur_node = NULL;
   char* bid;
-  int bindex = 0;
+  s_axis_props axis_props;
   s_mapper* p_mapper = NULL;
   s_mapper** pp_mapper = NULL;
 
   bid = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
 
-  ret = control_get_index(bid);
+  axis_props = controller_get_axis_index_from_name(bid);
 
   xmlFree(bid);
 
-  if(ret != -1)
-  {
-    bindex = ret;
-  }
-
-  for (cur_node = a_node->children; cur_node && ret != -1; cur_node = cur_node->next)
+  for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
   {
     if (cur_node->type == XML_ELEMENT_NODE)
     {
@@ -642,8 +637,8 @@ static int ProcessButtonElement(xmlNode * a_node)
 
       p_mapper = p_mapper + p_mapper->nb_mappers - 1;
 
-      p_mapper->axis_index.index = bindex;
-      p_mapper->axis_index.dir = 0;
+      p_mapper->axis_props.axis = axis_props.axis;
+      p_mapper->axis_props.props = axis_props.props;
 
       switch (r_event_type)
       {

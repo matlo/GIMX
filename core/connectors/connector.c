@@ -7,8 +7,6 @@
 #include <stdio.h>
 #include "emuclient.h"
 #include "connectors/connector.h"
-#include "connectors/sixaxis.h"
-#include "connectors/btds4.h"
 #include "connectors/udp_con.h"
 #include "connectors/gpp_con.h"
 #include "connectors/usb_spoof.h"
@@ -17,6 +15,8 @@
 #ifndef WIN32
 #include <netinet/in.h>
 #include <poll.h>
+#include "connectors/sixaxis.h"
+#include "connectors/btds4.h"
 #endif
 
 int connector_init()
@@ -245,24 +245,28 @@ int connector_send()
 #endif
           break;
         case C_TYPE_SIXAXIS:
-          if(controller->bdaddr_dst)
-          {
-            ret = sixaxis_send_interrupt(i, &report->value.ds3);
-          }
-          else if(controller->serial >= 0)
+          if(controller->serial >= 0)
           {
             ret = serial_send(controller->serial, report, 2+report->value_len);
           }
+#ifndef WIN32          
+          else if(controller->bdaddr_dst)
+          {
+            ret = sixaxis_send_interrupt(i, &report->value.ds3);
+          }
+#endif
           break;
         case C_TYPE_DS4:
-          if(controller->bdaddr_dst)
-          {
-            ret = btds4_send_interrupt(i, &report->value.ds4);
-          }
-          else if(controller->serial >= 0)
+          if(controller->serial >= 0)
           {
             ret = serial_send(controller->serial, &report, 2+report->value_len);
           }
+#ifndef WIN32
+          else if(controller->bdaddr_dst)
+          {
+            ret = btds4_send_interrupt(i, &report->value.ds4);
+          }
+#endif
           break;
         case C_TYPE_GPP:
           ret = gpp_send(controller->axis);

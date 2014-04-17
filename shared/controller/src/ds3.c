@@ -36,6 +36,58 @@ static const char *ds3_axis_name[AXIS_MAX] = {
     [sa_r3] = "r3",
 };
 
+static s_axis_name_dir axis_names[] =
+{
+  {.name = "rstick x",     {.axis = sa_rstick_x, .props = AXIS_PROP_CENTERED}},
+  {.name = "rstick y",     {.axis = sa_rstick_y, .props = AXIS_PROP_CENTERED}},
+  {.name = "lstick x",     {.axis = sa_lstick_x, .props = AXIS_PROP_CENTERED}},
+  {.name = "lstick y",     {.axis = sa_lstick_y, .props = AXIS_PROP_CENTERED}},
+
+  {.name = "rstick left",  {.axis = sa_rstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "rstick right", {.axis = sa_rstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "rstick up",    {.axis = sa_rstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "rstick down",  {.axis = sa_rstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+
+  {.name = "lstick left",  {.axis = sa_lstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "lstick right", {.axis = sa_lstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "lstick up",    {.axis = sa_lstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "lstick down",  {.axis = sa_lstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+
+  {.name = "acc x",        {.axis = sa_acc_x,    .props = AXIS_PROP_CENTERED}},
+  {.name = "acc y",        {.axis = sa_acc_y,    .props = AXIS_PROP_CENTERED}},
+  {.name = "acc z",        {.axis = sa_acc_z,    .props = AXIS_PROP_CENTERED}},
+  {.name = "gyro",         {.axis = sa_gyro,     .props = AXIS_PROP_CENTERED}},
+
+  {.name = "acc x -",      {.axis = sa_acc_x,    .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "acc y -",      {.axis = sa_acc_y,    .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "acc z -",      {.axis = sa_acc_z,    .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "gyro -",       {.axis = sa_gyro,     .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+
+  {.name = "acc x +",      {.axis = sa_acc_x,    .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "acc y +",      {.axis = sa_acc_y,    .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "acc z +",      {.axis = sa_acc_z,    .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "gyro +",       {.axis = sa_gyro,     .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+
+  {.name = "up",           {.axis = sa_up,       .props = AXIS_PROP_POSITIVE}},
+  {.name = "down",         {.axis = sa_down,     .props = AXIS_PROP_POSITIVE}},
+  {.name = "right",        {.axis = sa_right,    .props = AXIS_PROP_POSITIVE}},
+  {.name = "left",         {.axis = sa_left,     .props = AXIS_PROP_POSITIVE}},
+  {.name = "r1",           {.axis = sa_r1,       .props = AXIS_PROP_POSITIVE}},
+  {.name = "r2",           {.axis = sa_r2,       .props = AXIS_PROP_POSITIVE}},
+  {.name = "l1",           {.axis = sa_l1,       .props = AXIS_PROP_POSITIVE}},
+  {.name = "l2",           {.axis = sa_l2,       .props = AXIS_PROP_POSITIVE}},
+  {.name = "circle",       {.axis = sa_circle,   .props = AXIS_PROP_POSITIVE}},
+  {.name = "square",       {.axis = sa_square,   .props = AXIS_PROP_POSITIVE}},
+  {.name = "cross",        {.axis = sa_cross,    .props = AXIS_PROP_POSITIVE}},
+  {.name = "triangle",     {.axis = sa_triangle, .props = AXIS_PROP_POSITIVE}},
+
+  {.name = "select",       {.axis = sa_select,   .props = AXIS_PROP_TOGGLE}},
+  {.name = "start",        {.axis = sa_start,    .props = AXIS_PROP_TOGGLE}},
+  {.name = "PS",           {.axis = sa_ps,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "r3",           {.axis = sa_r3,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "l3",           {.axis = sa_l3,       .props = AXIS_PROP_TOGGLE}},
+};
+
 static int ds3_max_unsigned_axis_value[AXIS_MAX] =
 {
   [sa_lstick_x] = MAX_AXIS_VALUE_8BITS,
@@ -195,6 +247,10 @@ static unsigned int ds3_report_build(int axis[AXIS_MAX], s_report* report)
 void ds3_init(void) __attribute__((constructor (101)));
 void ds3_init(void)
 {
+  controller_register_axis_names(C_TYPE_SIXAXIS, sizeof(axis_names)/sizeof(*axis_names), axis_names);
+  controller_register_axis_names(C_TYPE_DEFAULT, sizeof(axis_names)/sizeof(*axis_names), axis_names);
+  controller_register_axis_names(C_TYPE_GPP, sizeof(axis_names)/sizeof(*axis_names), axis_names);
+
   controller_register_params(C_TYPE_SIXAXIS, &ds3_params);
   controller_register_params(C_TYPE_DEFAULT, &ds3_params);
   controller_register_params(C_TYPE_GPP, &ds3_params);

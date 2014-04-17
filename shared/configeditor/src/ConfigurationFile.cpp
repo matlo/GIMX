@@ -178,9 +178,9 @@ int ConfigurationFile::AutoBind(string refFilePath)
         modConfig->SetTrigger(*refConfig->GetTrigger());
         modConfig->SetIntensityList(*refConfig->GetIntensityList());
 
-        AutoBindMappers<ButtonMapper>(refConfig->GetButtonMapperList(), modConfig->GetButtonMapperList());
+        AutoBindMappers<ControlMapper>(refConfig->GetButtonMapperList(), modConfig->GetButtonMapperList());
 
-        AutoBindMappers<AxisMapper>(refConfig->GetAxisMapperList(), modConfig->GetAxisMapperList());
+        AutoBindMappers<ControlMapper>(refConfig->GetAxisMapperList(), modConfig->GetAxisMapperList());
       }
     }
   }
@@ -210,18 +210,18 @@ int ConfigurationFile::ConvertSensitivity(string refFilePath)
         {
           Configuration* modConfig = modController->GetConfiguration(k);
 
-          list<AxisMapper>* modAxisMappers = modConfig->GetAxisMapperList();
+          list<ControlMapper>* modAxisMappers = modConfig->GetAxisMapperList();
 
-          for(list<AxisMapper>::iterator itModAxisMappers = modAxisMappers->begin(); itModAxisMappers!=modAxisMappers->end(); ++itModAxisMappers)
+          for(list<ControlMapper>::iterator itModControlMappers = modAxisMappers->begin(); itModControlMappers!=modAxisMappers->end(); ++itModControlMappers)
           {
-            if(itModAxisMappers->GetDevice()->GetType() == "mouse" && itModAxisMappers->GetEvent()->GetType() == "axis")
+            if(itModControlMappers->GetDevice()->GetType() == "mouse" && itModControlMappers->GetEvent()->GetType() == "axis")
             {
-                double val = atof(itModAxisMappers->GetEvent()->GetMultiplier().c_str());
-                double exp = atof(itModAxisMappers->GetEvent()->GetExponent().c_str());
+                double val = atof(itModControlMappers->GetEvent()->GetMultiplier().c_str());
+                double exp = atof(itModControlMappers->GetEvent()->GetExponent().c_str());
                 val = val * pow((double)dpi / refdpi, exp);
                 ostringstream ios;
                 ios << setprecision(2) << val;
-                itModAxisMappers->GetEvent()->SetMultiplier(ios.str());
+                itModControlMappers->GetEvent()->SetMultiplier(ios.str());
             }
           }
         }
@@ -245,9 +245,9 @@ void ConfigurationFile::GetLabels(list<string>& button_labels, list<string>& axi
     {
       Configuration* config = controller->GetConfiguration(k);
 
-      list<ButtonMapper>* buttonMappers = config->GetButtonMapperList();
+      list<ControlMapper>* buttonMappers = config->GetButtonMapperList();
 
-      for(list<ButtonMapper>::iterator itButtonMappers = buttonMappers->begin(); itButtonMappers!=buttonMappers->end(); ++itButtonMappers)
+      for(list<ControlMapper>::iterator itButtonMappers = buttonMappers->begin(); itButtonMappers!=buttonMappers->end(); ++itButtonMappers)
       {
         string label = itButtonMappers->GetLabel();
         if(!label.empty())
@@ -278,11 +278,11 @@ void ConfigurationFile::GetLabels(list<string>& button_labels, list<string>& axi
         }
       }
 
-      list<AxisMapper>* axisMappers = config->GetAxisMapperList();
+      list<ControlMapper>* axisMappers = config->GetAxisMapperList();
 
-      for(list<AxisMapper>::iterator itAxisMappers = axisMappers->begin(); itAxisMappers!=axisMappers->end(); ++itAxisMappers)
+      for(list<ControlMapper>::iterator itControlMappers = axisMappers->begin(); itControlMappers!=axisMappers->end(); ++itControlMappers)
       {
-        string label = itAxisMappers->GetLabel();
+        string label = itControlMappers->GetLabel();
         if(!label.empty())
         {
           list<string> tokens = split(label, ',');

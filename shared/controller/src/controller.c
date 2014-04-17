@@ -9,7 +9,7 @@
 #include <string.h>
 #include <unistd.h>
 
-static const char* names[C_TYPE_MAX] =
+static const char* controller_names[C_TYPE_MAX] =
 {
   [C_TYPE_JOYSTICK] = "joystick",
   [C_TYPE_360_PAD]  = "360pad",
@@ -26,16 +26,16 @@ const char* controller_get_name(e_controller_type type)
 {
   if(type < C_TYPE_MAX)
   {
-    return names[type];
+    return controller_names[type];
   }
-  return names[C_TYPE_SIXAXIS];
+  return controller_names[C_TYPE_SIXAXIS];
 }
 
 e_controller_type controller_get_type(const char* name)
 {
   int i;
   for(i=0; i<C_TYPE_MAX; ++i) {
-    if(!strcmp(names[i], name)) {
+    if(!strcmp(controller_names[i], name)) {
       return i;
     }
   }
@@ -49,6 +49,20 @@ void controller_register_params(e_controller_type type, s_controller_params* par
   controller_params[type] = params;
 }
 
+typedef struct
+{
+  int nb;
+  s_axis_name_dir* axis_names;
+} s_entry;
+
+static s_entry controller_axis_names[C_TYPE_MAX] = {};
+
+void controller_register_axis_names(e_controller_type type, int nb, s_axis_name_dir* axis_names)
+{
+  controller_axis_names[type].nb = nb;
+  controller_axis_names[type].axis_names = axis_names;
+}
+
 void controller_init(void) __attribute__((constructor (102)));
 void controller_init(void)
 {
@@ -57,7 +71,12 @@ void controller_init(void)
   {
     if(!controller_params[type])
     {
-      fprintf(stderr, "Controller type %d is missing parameters!\n", type);
+      fprintf(stderr, "Controller '%s' is missing parameters!\n", controller_names[type]);
+      exit(-1);
+    }
+    if(!controller_axis_names[type].axis_names)
+    {
+      fprintf(stderr, "Controller '%s' is missing axis names!\n", controller_names[type]);
       exit(-1);
     }
   }
@@ -111,116 +130,184 @@ inline double controller_get_axis_scale(e_controller_type type, int axis)
   return (double) controller_get_max_unsigned(type, axis) / DEFAULT_MAX_AXIS_VALUE;
 }
 
-typedef struct {
-    const char* name;
-    s_axis_index aindex;
-} s_axis_name_index;
-
-static const s_axis_name_index axis_name_index[] =
+static const s_axis_name_dir axis_names[] =
 {
-    {.name = "rstick x",     {.index = sa_rstick_x, .dir = 0}},
-    {.name = "rstick y",     {.index = sa_rstick_y, .dir = 0}},
-    {.name = "lstick x",     {.index = sa_lstick_x, .dir = 0}},
-    {.name = "lstick y",     {.index = sa_lstick_y, .dir = 0}},
+    {.name = "rel_axis_0",   {.axis = rel_axis_0,  .props = AXIS_PROP_CENTERED}},
+    {.name = "rel_axis_1",   {.axis = rel_axis_1,  .props = AXIS_PROP_CENTERED}},
+    {.name = "rel_axis_2",   {.axis = rel_axis_2,  .props = AXIS_PROP_CENTERED}},
+    {.name = "rel_axis_3",   {.axis = rel_axis_3,  .props = AXIS_PROP_CENTERED}},
+    {.name = "rel_axis_4",   {.axis = rel_axis_4,  .props = AXIS_PROP_CENTERED}},
+    {.name = "rel_axis_5",   {.axis = rel_axis_5,  .props = AXIS_PROP_CENTERED}},
+    {.name = "rel_axis_6",   {.axis = rel_axis_6,  .props = AXIS_PROP_CENTERED}},
+    {.name = "rel_axis_7",   {.axis = rel_axis_7,  .props = AXIS_PROP_CENTERED}},
 
-    {.name = "rstick left",  {.index = sa_rstick_x, .dir = -1}},
-    {.name = "rstick right", {.index = sa_rstick_x, .dir =  1}},
-    {.name = "rstick up",    {.index = sa_rstick_y, .dir = -1}},
-    {.name = "rstick down",  {.index = sa_rstick_y, .dir =  1}},
+    {.name = "rel_axis_0-",  {.axis = rel_axis_0, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+    {.name = "rel_axis_1-",  {.axis = rel_axis_1, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+    {.name = "rel_axis_2-",  {.axis = rel_axis_2, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+    {.name = "rel_axis_3-",  {.axis = rel_axis_3, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+    {.name = "rel_axis_4-",  {.axis = rel_axis_4, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+    {.name = "rel_axis_5-",  {.axis = rel_axis_5, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+    {.name = "rel_axis_6-",  {.axis = rel_axis_6, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+    {.name = "rel_axis_7-",  {.axis = rel_axis_7, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
 
-    {.name = "lstick left",  {.index = sa_lstick_x, .dir = -1}},
-    {.name = "lstick right", {.index = sa_lstick_x, .dir =  1}},
-    {.name = "lstick up",    {.index = sa_lstick_y, .dir = -1}},
-    {.name = "lstick down",  {.index = sa_lstick_y, .dir =  1}},
+    {.name = "rel_axis_0+",  {.axis = rel_axis_0, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+    {.name = "rel_axis_1+",  {.axis = rel_axis_1, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+    {.name = "rel_axis_2+",  {.axis = rel_axis_2, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+    {.name = "rel_axis_3+",  {.axis = rel_axis_3, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+    {.name = "rel_axis_4+",  {.axis = rel_axis_4, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+    {.name = "rel_axis_5+",  {.axis = rel_axis_5, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+    {.name = "rel_axis_6+",  {.axis = rel_axis_6, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+    {.name = "rel_axis_7+",  {.axis = rel_axis_7, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
 
-    {.name = "acc x",        {.index = sa_acc_x,    .dir = 0}},
-    {.name = "acc y",        {.index = sa_acc_y,    .dir = 0}},
-    {.name = "acc z",        {.index = sa_acc_z,    .dir = 0}},
-    {.name = "gyro",         {.index = sa_gyro,     .dir = 0}},
+    {.name = "abs_axis_0",   {.axis = abs_axis_0,  .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_1",   {.axis = abs_axis_1,  .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_2",   {.axis = abs_axis_2,  .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_3",   {.axis = abs_axis_3,  .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_4",   {.axis = abs_axis_4,  .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_5",   {.axis = abs_axis_5,  .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_6",   {.axis = abs_axis_6,  .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_7",   {.axis = abs_axis_7,  .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_8",   {.axis = abs_axis_8,  .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_9",   {.axis = abs_axis_9,  .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_10",  {.axis = abs_axis_10, .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_11",  {.axis = abs_axis_11, .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_12",  {.axis = abs_axis_12, .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_13",  {.axis = abs_axis_13, .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_14",  {.axis = abs_axis_14, .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_15",  {.axis = abs_axis_15, .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_16",  {.axis = abs_axis_16, .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_17",  {.axis = abs_axis_17, .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_18",  {.axis = abs_axis_18, .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_19",  {.axis = abs_axis_19, .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_20",  {.axis = abs_axis_20, .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_21",  {.axis = abs_axis_21, .props = AXIS_PROP_POSITIVE}},
 
-    {.name = "acc x -",      {.index = sa_acc_x,    .dir = -1}},
-    {.name = "acc y -",      {.index = sa_acc_y,    .dir = -1}},
-    {.name = "acc z -",      {.index = sa_acc_z,    .dir = -1}},
-    {.name = "gyro -",       {.index = sa_gyro,     .dir = -1}},
+    {.name = "abs_axis_0",   {.axis = abs_axis_0,  .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_1",   {.axis = abs_axis_1,  .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_2",   {.axis = abs_axis_2,  .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_3",   {.axis = abs_axis_3,  .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_4",   {.axis = abs_axis_4,  .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_5",   {.axis = abs_axis_5,  .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_6",   {.axis = abs_axis_6,  .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_7",   {.axis = abs_axis_7,  .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_8",   {.axis = abs_axis_8,  .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_9",   {.axis = abs_axis_9,  .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_10",  {.axis = abs_axis_10, .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_11",  {.axis = abs_axis_11, .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_12",  {.axis = abs_axis_12, .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_13",  {.axis = abs_axis_13, .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_14",  {.axis = abs_axis_14, .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_15",  {.axis = abs_axis_15, .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_16",  {.axis = abs_axis_16, .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_17",  {.axis = abs_axis_17, .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_18",  {.axis = abs_axis_18, .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_19",  {.axis = abs_axis_19, .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_20",  {.axis = abs_axis_20, .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_21",  {.axis = abs_axis_21, .props = AXIS_PROP_TOGGLE}},
 
-    {.name = "acc x +",      {.index = sa_acc_x,    .dir = 1}},
-    {.name = "acc y +",      {.index = sa_acc_y,    .dir = 1}},
-    {.name = "acc z +",      {.index = sa_acc_z,    .dir = 1}},
-    {.name = "gyro +",       {.index = sa_gyro,     .dir = 1}},
+    //the below values are kept for compatibility with old configurations
 
-    {.name = "up",           {.index = sa_up,       .dir = 0}},
-    {.name = "down",         {.index = sa_down,     .dir = 0}},
-    {.name = "right",        {.index = sa_right,    .dir = 0}},
-    {.name = "left",         {.index = sa_left,     .dir = 0}},
-    {.name = "r1",           {.index = sa_r1,       .dir = 0}},
-    {.name = "r2",           {.index = sa_r2,       .dir = 0}},
-    {.name = "l1",           {.index = sa_l1,       .dir = 0}},
-    {.name = "l2",           {.index = sa_l2,       .dir = 0}},
-    {.name = "circle",       {.index = sa_circle,   .dir = 0}},
-    {.name = "square",       {.index = sa_square,   .dir = 0}},
-    {.name = "cross",        {.index = sa_cross,    .dir = 0}},
-    {.name = "triangle",     {.index = sa_triangle, .dir = 0}},
+    {.name = "rstick x",     {.axis = sa_rstick_x, .props = AXIS_PROP_CENTERED}},
+    {.name = "rstick y",     {.axis = sa_rstick_y, .props = AXIS_PROP_CENTERED}},
+    {.name = "lstick x",     {.axis = sa_lstick_x, .props = AXIS_PROP_CENTERED}},
+    {.name = "lstick y",     {.axis = sa_lstick_y, .props = AXIS_PROP_CENTERED}},
 
-    //the above values are kept for compatibility with old configurations
+    {.name = "rstick left",  {.axis = sa_rstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+    {.name = "rstick right", {.axis = sa_rstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+    {.name = "rstick up",    {.axis = sa_rstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+    {.name = "rstick down",  {.axis = sa_rstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
 
-    {.name = "rel_axis_0",   {.index = rel_axis_0,  .dir = 0,}},
-    {.name = "rel_axis_1",   {.index = rel_axis_1,  .dir = 0,}},
-    {.name = "rel_axis_2",   {.index = rel_axis_2,  .dir = 0,}},
-    {.name = "rel_axis_3",   {.index = rel_axis_3,  .dir = 0,}},
-    {.name = "rel_axis_4",   {.index = rel_axis_4,  .dir = 0,}},
-    {.name = "rel_axis_5",   {.index = rel_axis_5,  .dir = 0,}},
-    {.name = "rel_axis_6",   {.index = rel_axis_6,  .dir = 0,}},
-    {.name = "rel_axis_7",   {.index = rel_axis_7,  .dir = 0,}},
+    {.name = "lstick left",  {.axis = sa_lstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+    {.name = "lstick right", {.axis = sa_lstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+    {.name = "lstick up",    {.axis = sa_lstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+    {.name = "lstick down",  {.axis = sa_lstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
 
-    {.name = "rel_axis_0-",  {.index = rel_axis_0, .dir = -1}},
-    {.name = "rel_axis_1-",  {.index = rel_axis_1, .dir = -1}},
-    {.name = "rel_axis_2-",  {.index = rel_axis_2, .dir = -1}},
-    {.name = "rel_axis_3-",  {.index = rel_axis_3, .dir = -1}},
-    {.name = "rel_axis_4-",  {.index = rel_axis_4, .dir = -1}},
-    {.name = "rel_axis_5-",  {.index = rel_axis_5, .dir = -1}},
-    {.name = "rel_axis_6-",  {.index = rel_axis_6, .dir = -1}},
-    {.name = "rel_axis_7-",  {.index = rel_axis_7, .dir = -1}},
+    {.name = "acc x",        {.axis = sa_acc_x,    .props = AXIS_PROP_CENTERED | AXIS_PROP_CENTERED}},
+    {.name = "acc y",        {.axis = sa_acc_y,    .props = AXIS_PROP_CENTERED | AXIS_PROP_CENTERED}},
+    {.name = "acc z",        {.axis = sa_acc_z,    .props = AXIS_PROP_CENTERED | AXIS_PROP_CENTERED}},
+    {.name = "gyro",         {.axis = sa_gyro,     .props = AXIS_PROP_CENTERED | AXIS_PROP_CENTERED}},
 
-    {.name = "rel_axis_0+",  {.index = rel_axis_0, .dir = 1}},
-    {.name = "rel_axis_1+",  {.index = rel_axis_1, .dir = 1}},
-    {.name = "rel_axis_2+",  {.index = rel_axis_2, .dir = 1}},
-    {.name = "rel_axis_3+",  {.index = rel_axis_3, .dir = 1}},
-    {.name = "rel_axis_4+",  {.index = rel_axis_4, .dir = 1}},
-    {.name = "rel_axis_5+",  {.index = rel_axis_5, .dir = 1}},
-    {.name = "rel_axis_6+",  {.index = rel_axis_6, .dir = 1}},
-    {.name = "rel_axis_7+",  {.index = rel_axis_7, .dir = 1}},
+    {.name = "acc x -",      {.axis = sa_acc_x,    .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+    {.name = "acc y -",      {.axis = sa_acc_y,    .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+    {.name = "acc z -",      {.axis = sa_acc_z,    .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+    {.name = "gyro -",       {.axis = sa_gyro,     .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
 
-    {.name = "abs_axis_0",   {.index = abs_axis_0,  .dir = 0}},
-    {.name = "abs_axis_1",   {.index = abs_axis_1,  .dir = 0}},
-    {.name = "abs_axis_2",   {.index = abs_axis_2,  .dir = 0}},
-    {.name = "abs_axis_3",   {.index = abs_axis_3,  .dir = 0}},
-    {.name = "abs_axis_4",   {.index = abs_axis_4,  .dir = 0}},
-    {.name = "abs_axis_5",   {.index = abs_axis_5,  .dir = 0}},
-    {.name = "abs_axis_6",   {.index = abs_axis_6,  .dir = 0}},
-    {.name = "abs_axis_7",   {.index = abs_axis_7,  .dir = 0}},
-    {.name = "abs_axis_8",   {.index = abs_axis_8,  .dir = 0}},
-    {.name = "abs_axis_9",   {.index = abs_axis_9,  .dir = 0}},
-    {.name = "abs_axis_10",  {.index = abs_axis_10, .dir = 0}},
-    {.name = "abs_axis_11",  {.index = abs_axis_11, .dir = 0}},
-    {.name = "abs_axis_12",  {.index = abs_axis_12, .dir = 0}},
-    {.name = "abs_axis_13",  {.index = abs_axis_13, .dir = 0}},
-    {.name = "abs_axis_14",  {.index = abs_axis_14, .dir = 0}},
-    {.name = "abs_axis_15",  {.index = abs_axis_15, .dir = 0}},
-    {.name = "abs_axis_16",  {.index = abs_axis_16, .dir = 0}},
-    {.name = "abs_axis_17",  {.index = abs_axis_17, .dir = 0}},
+    {.name = "acc x +",      {.axis = sa_acc_x,    .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+    {.name = "acc y +",      {.axis = sa_acc_y,    .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+    {.name = "acc z +",      {.axis = sa_acc_z,    .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+    {.name = "gyro +",       {.axis = sa_gyro,     .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
 
+    {.name = "up",           {.axis = sa_up,       .props = AXIS_PROP_POSITIVE}},
+    {.name = "down",         {.axis = sa_down,     .props = AXIS_PROP_POSITIVE}},
+    {.name = "right",        {.axis = sa_right,    .props = AXIS_PROP_POSITIVE}},
+    {.name = "left",         {.axis = sa_left,     .props = AXIS_PROP_POSITIVE}},
+    {.name = "r1",           {.axis = sa_r1,       .props = AXIS_PROP_POSITIVE}},
+    {.name = "r2",           {.axis = sa_r2,       .props = AXIS_PROP_POSITIVE}},
+    {.name = "l1",           {.axis = sa_l1,       .props = AXIS_PROP_POSITIVE}},
+    {.name = "l2",           {.axis = sa_l2,       .props = AXIS_PROP_POSITIVE}},
+    {.name = "circle",       {.axis = sa_circle,   .props = AXIS_PROP_POSITIVE}},
+    {.name = "square",       {.axis = sa_square,   .props = AXIS_PROP_POSITIVE}},
+    {.name = "cross",        {.axis = sa_cross,    .props = AXIS_PROP_POSITIVE}},
+    {.name = "triangle",     {.axis = sa_triangle, .props = AXIS_PROP_POSITIVE}},
+
+    {.name = "select",       {.axis = sa_select,   .props = AXIS_PROP_TOGGLE}},
+    {.name = "start",        {.axis = sa_start,    .props = AXIS_PROP_TOGGLE}},
+    {.name = "PS",           {.axis = sa_ps,       .props = AXIS_PROP_TOGGLE}},
+    {.name = "r3",           {.axis = sa_r3,       .props = AXIS_PROP_TOGGLE}},
+    {.name = "l3",           {.axis = sa_l3,       .props = AXIS_PROP_TOGGLE}},
 };
 
-s_axis_index controller_get_axis_index_from_name(const char* name)
+s_axis_props controller_get_axis_index_from_name(const char* name)
 {
   int i;
-  s_axis_index none = {-1, -1};
-  for(i=0; i<sizeof(axis_name_index)/sizeof(s_axis_name_index); ++i)
+  s_axis_props none = {-1, AXIS_PROP_NONE};
+  for(i=0; i<sizeof(axis_names)/sizeof(*axis_names); ++i)
   {
-    if(!strcmp(axis_name_index[i].name, name))
+    if(!strcmp(axis_names[i].name, name))
     {
-      return axis_name_index[i].aindex;
+      return axis_names[i].axis_props;
     }
   }
   return none;
+}
+
+const char* controller_get_generic_axis_name_from_index(s_axis_props axis_props)
+{
+  int i;
+  for(i=0; i<sizeof(axis_names)/sizeof(*axis_names); ++i)
+  {
+    if(axis_names[i].axis_props.axis == axis_props.axis
+        && axis_names[i].axis_props.props == axis_props.props)
+    {
+      return axis_names[i].name;
+    }
+  }
+  return "";
+}
+
+const char* controller_get_specific_axis_name_from_index(e_controller_type type, s_axis_props axis_props)
+{
+  int i;
+  for(i=0; i<controller_axis_names[type].nb; ++i)
+  {
+    if(controller_axis_names[type].axis_names[i].axis_props.axis == axis_props.axis
+        && controller_axis_names[type].axis_names[i].axis_props.props == axis_props.props)
+    {
+      return controller_axis_names[type].axis_names[i].name;
+    }
+  }
+  return "";
+}
+
+s_axis_props controller_get_axis_index_from_specific_name(e_controller_type type, const char* name)
+{
+  int i;
+  for(i=0; i<controller_axis_names[type].nb; ++i)
+  {
+    if(!strcmp(controller_axis_names[type].axis_names[i].name, name))
+    {
+      return controller_axis_names[type].axis_names[i].axis_props;
+    }
+  }
+  return controller_get_axis_index_from_name(name);
 }

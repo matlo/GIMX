@@ -48,8 +48,7 @@
 		<Unit filename="fpsconfigApp.h" />
 		<Unit filename="fpsconfigMain.cpp" />
 		<Unit filename="fpsconfigMain.h" />
-		<Unit filename="include/AxisMapper.h" />
-		<Unit filename="include/ButtonMapper.h" />
+		<Unit filename="include/ControlMapper.h" />
 		<Unit filename="include/Configuration.h" />
 		<Unit filename="include/ConfigurationFile.h" />
 		<Unit filename="include/Controller.h" />
@@ -60,8 +59,7 @@
 		<Unit filename="include/XmlReader.h" />
 		<Unit filename="include/XmlWritter.h" />
 		<Unit filename="include/event_catcher.h" />
-		<Unit filename="src/AxisMapper.cpp" />
-		<Unit filename="src/ButtonMapper.cpp" />
+		<Unit filename="src/ControlMapper.cpp" />
 		<Unit filename="src/Configuration.cpp" />
 		<Unit filename="src/ConfigurationFile.cpp" />
 		<Unit filename="src/Controller.cpp" />

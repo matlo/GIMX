@@ -1,8 +1,8 @@
 include ../../Makedefs
 
-OBJ=src/event_catcher.o src/XmlWritter.o src/XmlReader.o src/Trigger.o src/Intensity.o src/Event.o src/Device.o src/Controller.o src/ConfigurationFile.o src/Configuration.o src/ButtonMapper.o src/AxisMapper.o src/MouseOptions.o
+OBJ=src/event_catcher.o src/XmlWritter.o src/XmlReader.o src/Trigger.o src/Intensity.o src/Event.o src/Device.o src/Controller.o src/ConfigurationFile.o src/Configuration.o src/ControlMapper.o src/MouseOptions.o
 LIB=
-INC=-I/usr/include/ -I../event/include -Iinclude -I/usr/include/libxml2
+INC=-I/usr/include/ -I../event/include -Iinclude -I/usr/include/libxml2 -I../controller/include
 
 all: $(OBJ)
 	ar rcsD configeditor.a.new $(OBJ)

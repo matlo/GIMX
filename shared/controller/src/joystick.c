@@ -31,6 +31,41 @@ static const char *joystick_axis_name[AXIS_MAX] =
   [jsa_B11] = "r3",
 };
 
+static s_axis_name_dir axis_names[] =
+{
+  {.name = "rstick x",     {.axis = jsa_rstick_x, .props = AXIS_PROP_CENTERED}},
+  {.name = "rstick y",     {.axis = jsa_rstick_y, .props = AXIS_PROP_CENTERED}},
+  {.name = "lstick x",     {.axis = jsa_lstick_x, .props = AXIS_PROP_CENTERED}},
+  {.name = "lstick y",     {.axis = jsa_lstick_y, .props = AXIS_PROP_CENTERED}},
+
+  {.name = "rstick left",  {.axis = jsa_rstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "rstick right", {.axis = jsa_rstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "rstick up",    {.axis = jsa_rstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "rstick down",  {.axis = jsa_rstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+
+  {.name = "lstick left",  {.axis = jsa_lstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "lstick right", {.axis = jsa_lstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "lstick up",    {.axis = jsa_lstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "lstick down",  {.axis = jsa_lstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+
+  {.name = "select",       {.axis = jsa_B8,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "start",        {.axis = jsa_B9,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "up",           {.axis = jsa_up,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "down",         {.axis = jsa_down,     .props = AXIS_PROP_TOGGLE}},
+  {.name = "right",        {.axis = jsa_right,    .props = AXIS_PROP_TOGGLE}},
+  {.name = "left",         {.axis = jsa_left,     .props = AXIS_PROP_TOGGLE}},
+  {.name = "r1",           {.axis = jsa_B5,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "r2",           {.axis = jsa_B7,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "r3",           {.axis = jsa_B11,      .props = AXIS_PROP_TOGGLE}},
+  {.name = "l1",           {.axis = jsa_B4,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "l2",           {.axis = jsa_B6,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "l3",           {.axis = jsa_B10,      .props = AXIS_PROP_TOGGLE}},
+  {.name = "circle",       {.axis = jsa_B2,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "square",       {.axis = jsa_B0,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "cross",        {.axis = jsa_B1,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "triangle",     {.axis = jsa_B3,       .props = AXIS_PROP_TOGGLE}},
+};
+
 static int joystick_max_unsigned_axis_value[AXIS_MAX] =
 {
   [jsa_lstick_x] = MAX_AXIS_VALUE_16BITS,
@@ -179,6 +214,8 @@ static unsigned int joystick_report_build(int axis[AXIS_MAX], s_report* report)
 void joystick_init(void) __attribute__((constructor (101)));
 void joystick_init(void)
 {
+  controller_register_axis_names(C_TYPE_JOYSTICK, sizeof(axis_names)/sizeof(*axis_names), axis_names);
+
   controller_register_params(C_TYPE_JOYSTICK, &joystick_params);
 
   control_register_names(C_TYPE_JOYSTICK, joystick_axis_name);

@@ -11,7 +11,7 @@
 #include "display.h"
 #include <windows.h>
 #include <unistd.h>
-#include <controllers/controller.h>
+#include <adapter.h>
 
 static volatile int done = 0;
 

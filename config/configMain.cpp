@@ -162,6 +162,13 @@ const long configFrame::ID_MENUITEM4 = wxNewId();
 const long configFrame::ID_MENUITEM5 = wxNewId();
 const long configFrame::ID_MENUITEM6 = wxNewId();
 const long configFrame::ID_MENUITEM7 = wxNewId();
+const long configFrame::ID_MENUITEMDS4 = wxNewId();
+const long configFrame::ID_MENUITEMDS3 = wxNewId();
+const long configFrame::ID_MENUITEMDS2 = wxNewId();
+const long configFrame::ID_MENUITEMXONE = wxNewId();
+const long configFrame::ID_MENUITEM360 = wxNewId();
+const long configFrame::ID_MENUITEMXBOX = wxNewId();
+const long configFrame::ID_MENUITEMJS = wxNewId();
 const long configFrame::ID_MENUITEM8 = wxNewId();
 const long configFrame::ID_MENUITEM9 = wxNewId();
 const long configFrame::ID_MENUITEM10 = wxNewId();
@@ -194,7 +201,7 @@ END_EVENT_TABLE()
 string configFrame::reverseTranslate(string str)
 {
   wxString wxStr = wxString(str.c_str(), wxConvUTF8);
-  
+
   if(wxStr == _("Increase"))
   {
     return "Increase";
@@ -248,138 +255,172 @@ string configFrame::reverseTranslate(string str)
 }
 
 /*
- * \brief This function fills a wxChoice for button to axis bindings.
- *
- * \param choice the wxChoice to fill
+ * \brief This function fills the choices for button to axis bindings.
  */
-static void fillButtonAxisChoice(wxChoice* choice)
+void configFrame::fillButtonAxisChoice()
 {
-    wxString previous = choice->GetStringSelection();
-    choice->Clear();
-    choice->SetSelection(choice->Append(wxEmptyString));
-    choice->Append(wxT("rstick left"));
-    choice->Append(wxT("rstick right"));
-    choice->Append(wxT("rstick up"));
-    choice->Append(wxT("rstick down"));
-    choice->Append(wxT("lstick left"));
-    choice->Append(wxT("lstick right"));
-    choice->Append(wxT("lstick up"));
-    choice->Append(wxT("lstick down"));
-    choice->Append(wxT("acc x +"));
-    choice->Append(wxT("acc x -"));
-    choice->Append(wxT("acc y +"));
-    choice->Append(wxT("acc y -"));
-    choice->Append(wxT("acc z +"));
-    choice->Append(wxT("acc z -"));
-    choice->Append(wxT("gyro +"));
-    choice->Append(wxT("gyro -"));
-    choice->Append(wxT("up"));
-    choice->Append(wxT("down"));
-    choice->Append(wxT("right"));
-    choice->Append(wxT("left"));
-    choice->Append(wxT("r1"));
-    choice->Append(wxT("r2"));
-    choice->Append(wxT("l1"));
-    choice->Append(wxT("l2"));
-    choice->Append(wxT("circle"));
-    choice->Append(wxT("square"));
-    choice->Append(wxT("cross"));
-    choice->Append(wxT("triangle"));
-    choice->SetSelection(choice->FindString(previous));
+    wxString previous = AxisTabAxisId->GetStringSelection();
+    AxisTabAxisId->Clear();
+    AxisTabAxisId->SetSelection(AxisTabAxisId->Append(wxEmptyString));
+
+    e_controller_type type = configFile.GetController(currentController)->GetControllerType();
+
+    for(int i=0; i<AXIS_MAX; i++)
+    {
+      s_axis_props axis_props = {.axis = i};
+
+      string name;
+
+      if(i <= rel_axis_max)
+      {
+        axis_props.props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE;
+        name = ControlMapper::GetSpecificAxisName(type, axis_props);
+        if(!name.empty())
+        {
+          AxisTabAxisId->Append(wxString(name.c_str(), wxConvUTF8));
+        }
+      }
+
+      axis_props.props = AXIS_PROP_POSITIVE;
+      if(i <= rel_axis_max)
+      {
+        axis_props.props |= AXIS_PROP_CENTERED;
+      }
+      name = ControlMapper::GetSpecificAxisName(type, axis_props);
+      if(!name.empty())
+      {
+        AxisTabAxisId->Append(wxString(name.c_str(), wxConvUTF8));
+      }
+    }
+
+    AxisTabAxisId->SetSelection(AxisTabAxisId->FindString(previous));
 }
 
 /*
- * \brief This function fills a wxChoice for axis to axis bindings.
- *
- * \param choice the wxChoice to fill
+ * \brief This function fills the choices for axis to axis bindings.
  */
-static void fillAxisAxisChoice(wxChoice* choice)
+void configFrame::fillAxisAxisChoice()
 {
-    wxString previous = choice->GetStringSelection();
-    choice->Clear();
-    choice->SetSelection(choice->Append(wxEmptyString));
-    choice->Append(wxT("rstick x"));
-    choice->Append(wxT("rstick y"));
-    choice->Append(wxT("lstick x"));
-    choice->Append(wxT("lstick y"));
-    choice->Append(wxT("acc x"));
-    choice->Append(wxT("acc y"));
-    choice->Append(wxT("acc z"));
-    choice->Append(wxT("gyro"));
-    choice->Append(wxT("up"));
-    choice->Append(wxT("down"));
-    choice->Append(wxT("right"));
-    choice->Append(wxT("left"));
-    choice->Append(wxT("r1"));
-    choice->Append(wxT("r2"));
-    choice->Append(wxT("l1"));
-    choice->Append(wxT("l2"));
-    choice->Append(wxT("circle"));
-    choice->Append(wxT("square"));
-    choice->Append(wxT("cross"));
-    choice->Append(wxT("triangle"));
-    choice->SetSelection(choice->FindString(previous));
+    wxString previous = AxisTabAxisId->GetStringSelection();
+    AxisTabAxisId->Clear();
+    AxisTabAxisId->SetSelection(AxisTabAxisId->Append(wxEmptyString));
+
+    e_controller_type type = configFile.GetController(currentController)->GetControllerType();
+
+    for(int i=0; i<AXIS_MAX; i++)
+    {
+      s_axis_props axis_props = {.axis = i};
+
+      string name;
+
+      if(i <= rel_axis_max)
+      {
+        axis_props.props = AXIS_PROP_CENTERED;
+        name = ControlMapper::GetSpecificAxisName(type, axis_props);
+        if(!name.empty())
+        {
+          AxisTabAxisId->Append(wxString(name.c_str(), wxConvUTF8));
+        }
+      }
+      else
+      {
+        axis_props.props = AXIS_PROP_POSITIVE;
+        name = ControlMapper::GetSpecificAxisName(type, axis_props);
+        if(!name.empty())
+        {
+          AxisTabAxisId->Append(wxString(name.c_str(), wxConvUTF8));
+      }
+      }
+    }
+
+    AxisTabAxisId->SetSelection(AxisTabAxisId->FindString(previous));
 }
 
 /*
- * \brief This function fills a wxChoice for axis/button to button bindings.
- *
- * \param choice the wxChoice to fill
+ * \brief This function fills the choices for axis/button to button bindings.
  */
-static void fillButtonChoice(wxChoice* choice)
+void configFrame::fillButtonChoice()
 {
-    wxString previous = choice->GetStringSelection();
-    choice->Clear();
-    choice->SetSelection(choice->Append(wxEmptyString));
-    choice->Append(wxT("up"));
-    choice->Append(wxT("down"));
-    choice->Append(wxT("right"));
-    choice->Append(wxT("left"));
-    choice->Append(wxT("r1"));
-    choice->Append(wxT("r2"));
-    choice->Append(wxT("r3"));
-    choice->Append(wxT("l1"));
-    choice->Append(wxT("l2"));
-    choice->Append(wxT("l3"));
-    choice->Append(wxT("circle"));
-    choice->Append(wxT("square"));
-    choice->Append(wxT("cross"));
-    choice->Append(wxT("triangle"));
-    choice->Append(wxT("start"));
-    choice->Append(wxT("select"));
-    choice->Append(wxT("PS"));
-    choice->SetSelection(choice->FindString(previous));
+    wxString previous = ButtonTabButtonId->GetStringSelection();
+    ButtonTabButtonId->Clear();
+    ButtonTabButtonId->SetSelection(ButtonTabButtonId->Append(wxEmptyString));
+
+    e_controller_type type = configFile.GetController(currentController)->GetControllerType();
+
+    for(int i=abs_axis_0; i<AXIS_MAX; i++)
+    {
+      s_axis_props axis_props = {.axis = i};
+
+      string name;
+
+      axis_props.props = AXIS_PROP_TOGGLE;
+      name = ControlMapper::GetSpecificAxisName(type, axis_props);
+      if(!name.empty())
+      {
+        ButtonTabButtonId->Append(wxString(name.c_str(), wxConvUTF8));
+      }
+
+      axis_props.props = AXIS_PROP_POSITIVE;
+      name = ControlMapper::GetSpecificAxisName(type, axis_props);
+      if(!name.empty())
+      {
+        ButtonTabButtonId->Append(wxString(name.c_str(), wxConvUTF8));
+      }
+    }
+
+    ButtonTabButtonId->SetSelection(ButtonTabButtonId->FindString(previous));
 }
 
 /*
- * \brief This function fills a wxChoice for axis intensities.
- *
- * \param choice the wxChoice to fill
+ * \brief This function fills the choices for axis intensities.
  */
-static void fillIntensityAxisChoice(wxChoice* choice)
+void configFrame::fillIntensityAxisChoice()
 {
-    wxString previous = choice->GetStringSelection();
-    choice->Clear();
-    choice->SetSelection(choice->Append(wxEmptyString));
-    choice->Append(wxT("lstick"));
-    choice->Append(wxT("rstick"));
-    choice->Append(wxT("acc x"));
-    choice->Append(wxT("acc y"));
-    choice->Append(wxT("acc z"));
-    choice->Append(wxT("gyro"));
-    choice->Append(wxT("up"));
-    choice->Append(wxT("down"));
-    choice->Append(wxT("right"));
-    choice->Append(wxT("left"));
-    choice->Append(wxT("r1"));
-    choice->Append(wxT("r2"));
-    choice->Append(wxT("l1"));
-    choice->Append(wxT("l2"));
-    choice->Append(wxT("circle"));
-    choice->Append(wxT("square"));
-    choice->Append(wxT("cross"));
-    choice->Append(wxT("triangle"));
-    choice->SetSelection(choice->FindString(previous));
+    wxString previous = IntensityAxis->GetStringSelection();
+    IntensityAxis->Clear();
+    IntensityAxis->SetSelection(IntensityAxis->Append(wxEmptyString));
+
+    e_controller_type type = configFile.GetController(currentController)->GetControllerType();
+
+    for(int i=0; i<AXIS_MAX; i++)
+    {
+      s_axis_props axis_props = {.axis = i};
+
+      string name;
+
+      if(i <= rel_axis_max)
+      {
+        axis_props.props = AXIS_PROP_CENTERED;
+        name = ControlMapper::GetSpecificAxisName(type, axis_props);
+        if(!name.empty())
+        {
+          if(name.find("stick", 0) == 1)
+          {
+            // "rstick x" -> "rstick"
+            // "rstick y" -> "rstick"
+            // "lstick x" -> "lstick"
+            // "lstick y" -> "lstick"
+            name = name.substr(0, 6);
+          }
+          wxString wxname = wxString(name.c_str(), wxConvUTF8);
+          if(IntensityAxis->FindString(wxname) == wxNOT_FOUND)
+          {
+            IntensityAxis->Append(wxname);
+          }
+        }
+      }
+      else
+      {
+        axis_props.props = AXIS_PROP_POSITIVE;
+        name = ControlMapper::GetSpecificAxisName(type, axis_props);
+        if(!name.empty())
+        {
+          IntensityAxis->Append(wxString(name.c_str(), wxConvUTF8));
+        }
+      }
+    }
+
+    IntensityAxis->SetSelection(IntensityAxis->FindString(previous));
 }
 
 /*
@@ -996,6 +1037,24 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     MenuController7 = new wxMenuItem(MenuController, ID_MENUITEM7, _("7"), wxEmptyString, wxITEM_RADIO);
     MenuController->Append(MenuController7);
     MenuBar1->Append(MenuController, _("Controller"));
+    MenuType = new wxMenu();
+    MenuItemDS4 = new wxMenuItem(MenuType, ID_MENUITEMDS4, _("Dualshock 4"), wxEmptyString, wxITEM_RADIO);
+    MenuType->Append(MenuItemDS4);
+    MenuItemDS3 = new wxMenuItem(MenuType, ID_MENUITEMDS3, _("Dualshock 3"), wxEmptyString, wxITEM_RADIO);
+    MenuType->Append(MenuItemDS3);
+    MenuItemDS2 = new wxMenuItem(MenuType, ID_MENUITEMDS2, _("Dualshock 2"), wxEmptyString, wxITEM_RADIO);
+    MenuType->Append(MenuItemDS2);
+    MenuType->AppendSeparator();
+    MenuItemXOne = new wxMenuItem(MenuType, ID_MENUITEMXONE, _("XOne pad"), wxEmptyString, wxITEM_RADIO);
+    MenuType->Append(MenuItemXOne);
+    MenuItem360 = new wxMenuItem(MenuType, ID_MENUITEM360, _("360 pad"), wxEmptyString, wxITEM_RADIO);
+    MenuType->Append(MenuItem360);
+    MenuItemXbox = new wxMenuItem(MenuType, ID_MENUITEMXBOX, _("Xbox pad"), wxEmptyString, wxITEM_RADIO);
+    MenuType->Append(MenuItemXbox);
+    MenuType->AppendSeparator();
+    MenuItemJs = new wxMenuItem(MenuType, ID_MENUITEMJS, _("Joystick"), wxEmptyString, wxITEM_RADIO);
+    MenuType->Append(MenuItemJs);
+    MenuBar1->Append(MenuType, _("Type"));
     MenuConfiguration = new wxMenu();
     MenuConfiguration1 = new wxMenuItem(MenuConfiguration, ID_MENUITEM8, _("1"), wxEmptyString, wxITEM_RADIO);
     MenuConfiguration->Append(MenuConfiguration1);
@@ -1088,6 +1147,13 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController);
     Connect(ID_MENUITEM6,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController);
     Connect(ID_MENUITEM7,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemController);
+    Connect(ID_MENUITEMDS4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuTypeItemSelected);
+    Connect(ID_MENUITEMDS3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuTypeItemSelected);
+    Connect(ID_MENUITEMDS2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuTypeItemSelected);
+    Connect(ID_MENUITEMXONE,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuTypeItemSelected);
+    Connect(ID_MENUITEM360,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuTypeItemSelected);
+    Connect(ID_MENUITEMXBOX,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuTypeItemSelected);
+    Connect(ID_MENUITEMJS,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuTypeItemSelected);
     Connect(ID_MENUITEM8,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration);
     Connect(ID_MENUITEM9,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration);
     Connect(ID_MENUITEM10,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration);
@@ -1101,18 +1167,19 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM26,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuUpdate);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnAbout);
     //*)
-	
+
     GridPanelButton->SetSelectionMode(wxGrid::wxGridSelectRows);
     GridPanelAxis->SetSelectionMode(wxGrid::wxGridSelectRows);
     GridIntensity->SetSelectionMode(wxGrid::wxGridSelectRows);
     GridMouseOption->SetSelectionMode(wxGrid::wxGridSelectRows);
 
-    fillButtonChoice(ButtonTabButtonId);
-    fillAxisAxisChoice(AxisTabAxisId);
-    fillIntensityAxisChoice(IntensityAxis);
-
     currentController = 0;
     currentConfiguration = 0;
+
+    LoadControllerType();
+    fillButtonChoice();
+    fillAxisAxisChoice();
+    fillIntensityAxisChoice();
 
     default_directory = wxEmptyString;
 
@@ -1368,6 +1435,9 @@ void configFrame::OnButtonAddPanelAxis(wxCommandEvent& event)
  */
 void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
 {
+
+  Controller* controller = configFile.GetController(currentController);
+
   if(grid == GridPanelButton)
   {
     string old_device_type = string(GridPanelButton->GetCellValue(row, 0).mb_str(wxConvUTF8));
@@ -1376,8 +1446,6 @@ void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
     string old_event_type = string(GridPanelButton->GetCellValue(row, 3).mb_str(wxConvUTF8));
     string old_event_id = string(GridPanelButton->GetCellValue(row, 4).mb_str(wxConvUTF8));
     string old_button_id = string(GridPanelButton->GetCellValue(row, 6).mb_str(wxConvUTF8));
-
-    Controller* controller = configFile.GetController(currentController);
 
     for(unsigned int k=0; k<MAX_CONFIGURATIONS; ++k)
     {
@@ -1388,15 +1456,15 @@ void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
 
       Configuration* config = controller->GetConfiguration(k);
 
-      std::list<ButtonMapper>* buttonMappers = config->GetButtonMapperList();
-      for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); )
+      std::list<ControlMapper>* buttonMappers = config->GetButtonMapperList();
+      for(std::list<ControlMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); )
       {
         if (it->GetDevice()->GetType() == reverseTranslate(old_device_type)
             && it->GetDevice()->GetName() == old_device_name
             && it->GetDevice()->GetId() == old_device_id
             && it->GetEvent()->GetType() == reverseTranslate(old_event_type)
             && it->GetEvent()->GetId() == old_event_id
-            && it->GetButton() == old_button_id)
+            && it->CompareAxisProps(ControlMapper::GetGenericAxisProps(controller->GetControllerType(), old_button_id)))
         {
           it = buttonMappers ->erase(it);
         }
@@ -1416,8 +1484,6 @@ void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
     string old_event_id = string(GridPanelAxis->GetCellValue(row, 4).mb_str(wxConvUTF8));
     string old_axis_id = string(GridPanelAxis->GetCellValue(row, 5).mb_str(wxConvUTF8));
 
-    Controller* controller = configFile.GetController(currentController);
-
     for(unsigned int k=0; k<MAX_CONFIGURATIONS; ++k)
     {
       if(k == currentConfiguration)
@@ -1427,15 +1493,15 @@ void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
 
       Configuration* config = controller->GetConfiguration(k);
 
-      std::list<AxisMapper>* axisMappers = config->GetAxisMapperList();
-      for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); )
+      std::list<ControlMapper>* axisMappers = config->GetAxisMapperList();
+      for(std::list<ControlMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); )
       {
         if (it->GetDevice()->GetType() == reverseTranslate(old_device_type)
             && it->GetDevice()->GetName() == old_device_name
             && it->GetDevice()->GetId() == old_device_id
             && it->GetEvent()->GetType() == reverseTranslate(old_event_type)
             && it->GetEvent()->GetId() == old_event_id
-            && it->GetAxis() == old_axis_id)
+            && it->CompareAxisProps(ControlMapper::GetGenericAxisProps(controller->GetControllerType(), old_axis_id)))
         {
           it = axisMappers ->erase(it);
         }
@@ -1465,6 +1531,8 @@ void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
 
       Configuration* config = controller->GetConfiguration(k);
 
+      cout << Intensity::GetGenericAxisProps(controller->GetControllerType(), old_axis_id).axis << endl;
+
       std::list<Intensity>* intensities = config->GetIntensityList();
       for(std::list<Intensity>::iterator it = intensities->begin(); it!=intensities->end(); )
       {
@@ -1472,7 +1540,7 @@ void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
               && it->GetDevice()->GetName() == old_device_name
               && it->GetDevice()->GetId() == old_device_id
               && it->GetEvent()->GetId() == old_event_id
-              && it->GetControl() == old_axis_id)
+              && it->CompareAxisProps(Intensity::GetGenericAxisProps(controller->GetControllerType(), old_axis_id)))
         {
           it = intensities ->erase(it);
         }
@@ -1592,11 +1660,11 @@ void configFrame::OnEventTypeSelectPanelAxis(wxCommandEvent& event)
 
     if(AxisTabEventType->GetStringSelection() == _("button"))
     {
-        fillButtonAxisChoice(AxisTabAxisId);
+        fillButtonAxisChoice();
     }
     else
     {
-        fillAxisAxisChoice(AxisTabAxisId);
+        fillAxisAxisChoice();
     }
     refresh_gui();
 }
@@ -1611,7 +1679,7 @@ void configFrame::OnButtonTabEventTypeSelect(wxCommandEvent& event)
     ButtonTabDeviceId->SetLabel(wxEmptyString);
     ButtonTabEventId->SetLabel(wxEmptyString);
 
-    if(ButtonTabEventType->GetStringSelection() = _("button"))
+    if(ButtonTabEventType->GetStringSelection() == _("button"))
     {
         ButtonTabThreshold->Disable();
         ButtonTabThreshold->SetValue(wxEmptyString);
@@ -1752,7 +1820,7 @@ void configFrame::OnButtonTabAutoDetectClick(wxCommandEvent& event)
         }
     }
 
-    fillButtonChoice(ButtonTabButtonId);
+    fillButtonChoice();
 
     refresh_gui();
 
@@ -1786,7 +1854,7 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
             AxisTabAcceleration->SetValue(wxEmptyString);
             AxisTabShape->Disable();
             AxisTabShape->SetSelection(0);
-            fillButtonAxisChoice(AxisTabAxisId);
+            fillButtonAxisChoice();
         }
         else
         {
@@ -1813,7 +1881,7 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
                   AxisTabSensitivity->SetValue(wxT("0.004"));
               }
           }
-          fillAxisAxisChoice(AxisTabAxisId);
+          fillAxisAxisChoice();
         }
     }
 
@@ -1844,19 +1912,23 @@ void configFrame::reset_buttons()
  */
 void configFrame::save_current()
 {
-    std::list<ButtonMapper>* buttonMappers;
-    std::list<AxisMapper>* axisMappers;
+    std::list<ControlMapper>* buttonMappers;
+    std::list<ControlMapper>* axisMappers;
     std::list<Intensity>* intensityList;
     std::list<MouseOptions>* mouseOptionsList;
+
+    Controller* controller = configFile.GetController(currentController);
+    Configuration* configuration = controller->GetConfiguration(currentConfiguration);
+
     //Save Trigger
-    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->SetType(reverseTranslate(string(ProfileTriggerDeviceType->GetLabel().mb_str(wxConvUTF8))));
-    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->SetName(triggerTabDeviceName);
-    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->SetId(string(ProfileTriggerDeviceId->GetLabel().mb_str(wxConvUTF8)));
-    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetEvent()->SetId(string(ProfileTriggerButtonId->GetLabel().mb_str(wxConvUTF8)));
-    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->SetSwitchBack(string(CheckBoxSwitchBack->GetValue()?"yes":"no"));
-    configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->SetDelay(ProfileTriggerDelay->GetValue());
+    configuration->GetTrigger()->GetDevice()->SetType(reverseTranslate(string(ProfileTriggerDeviceType->GetLabel().mb_str(wxConvUTF8))));
+    configuration->GetTrigger()->GetDevice()->SetName(triggerTabDeviceName);
+    configuration->GetTrigger()->GetDevice()->SetId(string(ProfileTriggerDeviceId->GetLabel().mb_str(wxConvUTF8)));
+    configuration->GetTrigger()->GetEvent()->SetId(string(ProfileTriggerButtonId->GetLabel().mb_str(wxConvUTF8)));
+    configuration->GetTrigger()->SetSwitchBack(string(CheckBoxSwitchBack->GetValue()?"yes":"no"));
+    configuration->GetTrigger()->SetDelay(ProfileTriggerDelay->GetValue());
     //Save MouseOptions
-    mouseOptionsList = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetMouseOptionsList();
+    mouseOptionsList = configuration->GetMouseOptionsList();
     mouseOptionsList->erase(mouseOptionsList->begin(), mouseOptionsList->end());
     for(int i=0; i<GridMouseOption->GetNumberRows(); i++)
     {
@@ -1869,13 +1941,13 @@ void configFrame::save_current()
               string(GridMouseOption->GetCellValue(i, 4).mb_str(wxConvUTF8))));
     }
     //Save axis Intensity
-    intensityList = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetIntensityList();
+    intensityList = configuration->GetIntensityList();
     intensityList->erase(intensityList->begin(), intensityList->end());
     for(int i=0; i<GridIntensity->GetNumberRows(); i++)
     {
       intensityList->push_front(
           Intensity(
-              string(GridIntensity->GetCellValue(i, 0).mb_str(wxConvUTF8)),
+              Intensity::GetGenericAxisProps(controller->GetControllerType(), string(GridIntensity->GetCellValue(i, 0).mb_str(wxConvUTF8))),
               reverseTranslate(string(GridIntensity->GetCellValue(i, 1).mb_str(wxConvUTF8))),
               string(GridIntensity->GetCellValue(i, 2).mb_str(wxConvUTF8)),
               string(GridIntensity->GetCellValue(i, 3).mb_str(wxConvUTF8)),
@@ -1885,35 +1957,35 @@ void configFrame::save_current()
               reverseTranslate(string(GridIntensity->GetCellValue(i, 7).mb_str(wxConvUTF8))),
               wxAtoi(GridIntensity->GetCellValue(i, 8))));
     }
-    //Save ButtonMappers
-    buttonMappers = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetButtonMapperList();
+    //Save ControlMappers
+    buttonMappers = configuration->GetButtonMapperList();
     buttonMappers->erase(buttonMappers->begin(), buttonMappers->end());
     for(int i=0; i<GridPanelButton->GetNumberRows(); i++)
     {
       buttonMappers->push_front(
-          ButtonMapper(
+          ControlMapper(
               reverseTranslate(string(GridPanelButton->GetCellValue(i, 0).mb_str(wxConvUTF8))),
               string(GridPanelButton->GetCellValue(i, 2).mb_str(wxConvUTF8)),
               string(GridPanelButton->GetCellValue(i, 1).mb_str(wxConvUTF8)),
               reverseTranslate(string(GridPanelButton->GetCellValue(i, 3).mb_str(wxConvUTF8))),
               string(GridPanelButton->GetCellValue(i, 4).mb_str(wxConvUTF8)),
               string(GridPanelButton->GetCellValue(i, 5).mb_str(wxConvUTF8)),
-              string(GridPanelButton->GetCellValue(i, 6).mb_str(wxConvUTF8)),
+              ControlMapper::GetGenericAxisProps(controller->GetControllerType(), string(GridPanelButton->GetCellValue(i, 6).mb_str(wxConvUTF8))),
               string(GridPanelButton->GetCellValue(i, 7).mb_str(wxConvUTF8))));
     }
-    //Save AxisMappers
-    axisMappers = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetAxisMapperList();
+    //Save axisMappers
+    axisMappers = configuration->GetAxisMapperList();
     axisMappers->erase(axisMappers->begin(), axisMappers->end());
     for(int i=0; i<GridPanelAxis->GetNumberRows(); i++)
     {
       axisMappers->push_front(
-          AxisMapper(
+          ControlMapper(
               reverseTranslate(string(GridPanelAxis->GetCellValue(i, 0).mb_str(wxConvUTF8))),
               string(GridPanelAxis->GetCellValue(i, 2).mb_str(wxConvUTF8)),
               string(GridPanelAxis->GetCellValue(i, 1).mb_str(wxConvUTF8)),
               reverseTranslate(string(GridPanelAxis->GetCellValue(i, 3).mb_str(wxConvUTF8))),
               string(GridPanelAxis->GetCellValue(i, 4).mb_str(wxConvUTF8)),
-              string(GridPanelAxis->GetCellValue(i, 5).mb_str(wxConvUTF8)),
+              ControlMapper::GetGenericAxisProps(controller->GetControllerType(), string(GridPanelAxis->GetCellValue(i, 5).mb_str(wxConvUTF8))),
               string(GridPanelAxis->GetCellValue(i, 6).mb_str(wxConvUTF8)),
               string(GridPanelAxis->GetCellValue(i, 7).mb_str(wxConvUTF8)),
               string(GridPanelAxis->GetCellValue(i, 8).mb_str(wxConvUTF8)),
@@ -1923,18 +1995,60 @@ void configFrame::save_current()
 
 }
 
+void configFrame::LoadControllerType()
+{
+  Controller* controller = configFile.GetController(currentController);
+
+  //Set controller type
+  switch(controller->GetControllerType())
+  {
+    case C_TYPE_DS4:
+      MenuType->Check(ID_MENUITEMDS4, true);
+      break;
+    case C_TYPE_SIXAXIS:
+      MenuType->Check(ID_MENUITEMDS3, true);
+      break;
+    case C_TYPE_PS2_PAD:
+      MenuType->Check(ID_MENUITEMDS2, true);
+      break;
+    case C_TYPE_XONE_PAD:
+      MenuType->Check(ID_MENUITEMXONE, true);
+      break;
+    case C_TYPE_360_PAD:
+      MenuType->Check(ID_MENUITEM360, true);
+      break;
+    case C_TYPE_XBOX_PAD:
+      MenuType->Check(ID_MENUITEMXBOX, true);
+      break;
+    case C_TYPE_JOYSTICK:
+      MenuType->Check(ID_MENUITEMJS, true);
+      break;
+    case C_TYPE_GPP:
+    case C_TYPE_DEFAULT:
+    case C_TYPE_MAX:
+      break;
+  }
+}
+
 /*
  * \brief Load the current profile.
  */
 void configFrame::load_current()
 {
-    std::list<ButtonMapper>* buttonMappers;
-    std::list<AxisMapper>* axisMappers;
+    std::list<ControlMapper>* buttonMappers;
+    std::list<ControlMapper>* axisMappers;
     std::list<Intensity>* intensityList;
     std::list<MouseOptions>* mouseOptionsList;
+
+    Controller* controller = configFile.GetController(currentController);
+    Configuration* configuration = controller->GetConfiguration(currentConfiguration);
+
+    //Set controller type
+    LoadControllerType();
+
     //Load Trigger
-    ProfileTriggerDeviceType->SetLabel(_CN(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->GetType()));
-    triggerTabDeviceName = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->GetName();
+    ProfileTriggerDeviceType->SetLabel(_CN(configuration->GetTrigger()->GetDevice()->GetType()));
+    triggerTabDeviceName = configuration->GetTrigger()->GetDevice()->GetName();
     string name = triggerTabDeviceName;
     if(name.size() > 20)
     {
@@ -1942,9 +2056,9 @@ void configFrame::load_current()
       name.append("...");
     }
     ProfileTriggerDeviceName->SetLabel(wxString(name.c_str(),wxConvUTF8));
-    ProfileTriggerDeviceId->SetLabel(wxString(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDevice()->GetId().c_str(),wxConvUTF8));
-    ProfileTriggerButtonId->SetLabel(wxString(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetEvent()->GetId().c_str(),wxConvUTF8));
-    if(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetSwitchBack() == "yes")
+    ProfileTriggerDeviceId->SetLabel(wxString(configuration->GetTrigger()->GetDevice()->GetId().c_str(),wxConvUTF8));
+    ProfileTriggerButtonId->SetLabel(wxString(configuration->GetTrigger()->GetEvent()->GetId().c_str(),wxConvUTF8));
+    if(configuration->GetTrigger()->GetSwitchBack() == "yes")
     {
         CheckBoxSwitchBack->SetValue(true);
     }
@@ -1952,10 +2066,10 @@ void configFrame::load_current()
     {
         CheckBoxSwitchBack->SetValue(false);
     }
-    ProfileTriggerDelay->SetValue(configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetTrigger()->GetDelay());
+    ProfileTriggerDelay->SetValue(configuration->GetTrigger()->GetDelay());
     //Load mouse options
     GridMouseOption->DeleteRows(0, GridMouseOption->GetNumberRows());
-    mouseOptionsList = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetMouseOptionsList();
+    mouseOptionsList = configuration->GetMouseOptionsList();
     for(std::list<MouseOptions>::iterator it = mouseOptionsList->begin(); it!=mouseOptionsList->end(); ++it)
     {
       GridMouseOption->InsertRows();
@@ -1968,11 +2082,34 @@ void configFrame::load_current()
     GridMouseOption->AutoSizeColumns();
     //Load axis intensities
     GridIntensity->DeleteRows(0, GridIntensity->GetNumberRows());
-    intensityList = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetIntensityList();
+    intensityList = configuration->GetIntensityList();
     for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); ++it)
     {
+      string name = it->GetSpecificAxisName(controller->GetControllerType());
+
+      if(name.empty())
+      {
+        s_axis_props axis_props = it->GetAxis();
+
+        if(axis_props.props == AXIS_PROP_TOGGLE)
+        {
+          axis_props.props = AXIS_PROP_POSITIVE;
+          name = ControlMapper::GetSpecificAxisName(controller->GetControllerType(), axis_props);
+        }
+        else if(axis_props.props == AXIS_PROP_POSITIVE)
+        {
+          axis_props.props = AXIS_PROP_TOGGLE;
+          name = ControlMapper::GetSpecificAxisName(controller->GetControllerType(), axis_props);
+        }
+
+        if(name.empty())
+        {
+          name = it->GetGenericAxisName();
+        }
+      }
+
       GridIntensity->InsertRows();
-      GridIntensity->SetCellValue(0, 0, wxString(it->GetControl().c_str(),wxConvUTF8));
+      GridIntensity->SetCellValue(0, 0, wxString(name.c_str(),wxConvUTF8));
       GridIntensity->SetCellValue(0, 1, _CN(it->GetDevice()->GetType()));
       GridIntensity->SetCellValue(0, 2, wxString(it->GetDevice()->GetName().c_str(),wxConvUTF8));
       GridIntensity->SetCellValue(0, 3, wxString(it->GetDevice()->GetId().c_str(),wxConvUTF8));
@@ -1987,67 +2124,97 @@ void configFrame::load_current()
       GridIntensity->SetCellValue(0, 8, steps);
     }
     GridIntensity->AutoSizeColumns();
-    //Load ButtonMappers
+    //Load buttonMappers
     GridPanelButton->DeleteRows(0, GridPanelButton->GetNumberRows());
-    buttonMappers = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetButtonMapperList();
-    for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); ++it)
+    buttonMappers = configuration->GetButtonMapperList();
+    for(std::list<ControlMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); ++it)
     {
-        GridPanelButton->InsertRows();
-        GridPanelButton->SetCellValue(0, 0, _CN(it->GetDevice()->GetType()));
-        GridPanelButton->SetCellValue(0, 1, wxString(it->GetDevice()->GetName().c_str(),wxConvUTF8));
-        GridPanelButton->SetCellValue(0, 2, wxString(it->GetDevice()->GetId().c_str(),wxConvUTF8));
-        GridPanelButton->SetCellValue(0, 3, _CN(it->GetEvent()->GetType()));
-        GridPanelButton->SetCellValue(0, 4, wxString(it->GetEvent()->GetId().c_str(),wxConvUTF8));
-        GridPanelButton->SetCellValue(0, 5, wxString(it->GetEvent()->GetThreshold().c_str(),wxConvUTF8));
-        GridPanelButton->SetCellValue(0, 6, wxString(it->GetButton().c_str(),wxConvUTF8));
-        GridPanelButton->SetCellValue(0, 7, wxString(it->GetLabel().c_str(),wxConvUTF8));
-        if(it->GetLabel().find(", not found") != string::npos || it->GetLabel().find(", duplicate") != string::npos )
+      string name = it->GetSpecificAxisName(controller->GetControllerType());
+
+      if(name.empty())
+      {
+        s_axis_props axis_props = it->GetAxis();
+
+        if(axis_props.props == AXIS_PROP_TOGGLE)
         {
-          for(int i=0; i<GridPanelButton->GetNumberCols(); ++i)
-          {
-            GridPanelButton->SetCellBackgroundColour(0, i, wxColour(255, 0, 0));
-          }
+          axis_props.props = AXIS_PROP_POSITIVE;
+          name = ControlMapper::GetSpecificAxisName(controller->GetControllerType(), axis_props);
         }
-        else
+        else if(axis_props.props == AXIS_PROP_POSITIVE)
         {
-          for(int i=0; i<GridPanelButton->GetNumberCols(); ++i)
-          {
-            GridPanelButton->SetCellBackgroundColour(0, i, GridPanelButton->GetDefaultCellBackgroundColour());
-          }
+          axis_props.props = AXIS_PROP_TOGGLE;
+          name = ControlMapper::GetSpecificAxisName(controller->GetControllerType(), axis_props);
         }
+
+        if(name.empty())
+        {
+          name = it->GetGenericAxisName();
+        }
+      }
+
+      GridPanelButton->InsertRows();
+      GridPanelButton->SetCellValue(0, 0, _CN(it->GetDevice()->GetType()));
+      GridPanelButton->SetCellValue(0, 1, wxString(it->GetDevice()->GetName().c_str(),wxConvUTF8));
+      GridPanelButton->SetCellValue(0, 2, wxString(it->GetDevice()->GetId().c_str(),wxConvUTF8));
+      GridPanelButton->SetCellValue(0, 3, _CN(it->GetEvent()->GetType()));
+      GridPanelButton->SetCellValue(0, 4, wxString(it->GetEvent()->GetId().c_str(),wxConvUTF8));
+      GridPanelButton->SetCellValue(0, 5, wxString(it->GetEvent()->GetThreshold().c_str(),wxConvUTF8));
+      GridPanelButton->SetCellValue(0, 6, wxString(name.c_str(),wxConvUTF8));
+      GridPanelButton->SetCellValue(0, 7, wxString(it->GetLabel().c_str(),wxConvUTF8));
+      if(it->GetLabel().find(", not found") != string::npos || it->GetLabel().find(", duplicate") != string::npos )
+      {
+        for(int i=0; i<GridPanelButton->GetNumberCols(); ++i)
+        {
+          GridPanelButton->SetCellBackgroundColour(0, i, wxColour(255, 0, 0));
+        }
+      }
+      else
+      {
+        for(int i=0; i<GridPanelButton->GetNumberCols(); ++i)
+        {
+          GridPanelButton->SetCellBackgroundColour(0, i, GridPanelButton->GetDefaultCellBackgroundColour());
+        }
+      }
     }
     GridPanelButton->AutoSizeColumns();
-    //Load AxisMappers
+    //Load axisMappers
     GridPanelAxis->DeleteRows(0, GridPanelAxis->GetNumberRows());
-    axisMappers = configFile.GetController(currentController)->GetConfiguration(currentConfiguration)->GetAxisMapperList();
-    for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
+    axisMappers = configuration->GetAxisMapperList();
+    for(std::list<ControlMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
     {
-        GridPanelAxis->InsertRows();
-        GridPanelAxis->SetCellValue(0, 0, _CN(it->GetDevice()->GetType()));
-        GridPanelAxis->SetCellValue(0, 1, wxString(it->GetDevice()->GetName().c_str(),wxConvUTF8));
-        GridPanelAxis->SetCellValue(0, 2, wxString(it->GetDevice()->GetId().c_str(),wxConvUTF8));
-        GridPanelAxis->SetCellValue(0, 3, _CN(it->GetEvent()->GetType()));
-        GridPanelAxis->SetCellValue(0, 4, wxString(it->GetEvent()->GetId().c_str(),wxConvUTF8));
-        GridPanelAxis->SetCellValue(0, 5, wxString(it->GetAxis().c_str(),wxConvUTF8));
-        GridPanelAxis->SetCellValue(0, 6, wxString(it->GetEvent()->GetDeadZone().c_str(),wxConvUTF8));
-        GridPanelAxis->SetCellValue(0, 7, wxString(it->GetEvent()->GetMultiplier().c_str(),wxConvUTF8));
-        GridPanelAxis->SetCellValue(0, 8, wxString(it->GetEvent()->GetExponent().c_str(),wxConvUTF8));
-        GridPanelAxis->SetCellValue(0, 9, _CN(it->GetEvent()->GetShape()));
-        GridPanelAxis->SetCellValue(0, 10, wxString(it->GetLabel().c_str(),wxConvUTF8));
-        if(it->GetLabel().find(", not found") != string::npos || it->GetLabel().find(", duplicate") != string::npos )
+      string name = it->GetSpecificAxisName(controller->GetControllerType());
+
+      if(name.empty())
+      {
+        name = it->GetGenericAxisName();
+      }
+
+      GridPanelAxis->InsertRows();
+      GridPanelAxis->SetCellValue(0, 0, _CN(it->GetDevice()->GetType()));
+      GridPanelAxis->SetCellValue(0, 1, wxString(it->GetDevice()->GetName().c_str(),wxConvUTF8));
+      GridPanelAxis->SetCellValue(0, 2, wxString(it->GetDevice()->GetId().c_str(),wxConvUTF8));
+      GridPanelAxis->SetCellValue(0, 3, _CN(it->GetEvent()->GetType()));
+      GridPanelAxis->SetCellValue(0, 4, wxString(it->GetEvent()->GetId().c_str(),wxConvUTF8));
+      GridPanelAxis->SetCellValue(0, 5, wxString(name.c_str(),wxConvUTF8));
+      GridPanelAxis->SetCellValue(0, 6, wxString(it->GetEvent()->GetDeadZone().c_str(),wxConvUTF8));
+      GridPanelAxis->SetCellValue(0, 7, wxString(it->GetEvent()->GetMultiplier().c_str(),wxConvUTF8));
+      GridPanelAxis->SetCellValue(0, 8, wxString(it->GetEvent()->GetExponent().c_str(),wxConvUTF8));
+      GridPanelAxis->SetCellValue(0, 9, _CN(it->GetEvent()->GetShape()));
+      GridPanelAxis->SetCellValue(0, 10, wxString(it->GetLabel().c_str(),wxConvUTF8));
+      if(it->GetLabel().find(", not found") != string::npos || it->GetLabel().find(", duplicate") != string::npos )
+      {
+        for(int i=0; i<GridPanelAxis->GetNumberCols(); ++i)
         {
-          for(int i=0; i<GridPanelAxis->GetNumberCols(); ++i)
-          {
-            GridPanelAxis->SetCellBackgroundColour(0, i, wxColour(255, 0, 0));
-          }
+          GridPanelAxis->SetCellBackgroundColour(0, i, wxColour(255, 0, 0));
         }
-        else
+      }
+      else
+      {
+        for(int i=0; i<GridPanelAxis->GetNumberCols(); ++i)
         {
-          for(int i=0; i<GridPanelAxis->GetNumberCols(); ++i)
-          {
-            GridPanelAxis->SetCellBackgroundColour(0, i, GridPanelAxis->GetDefaultCellBackgroundColour());
-          }
+          GridPanelAxis->SetCellBackgroundColour(0, i, GridPanelAxis->GetDefaultCellBackgroundColour());
         }
+      }
     }
     GridPanelAxis->AutoSizeColumns();
 }
@@ -2293,7 +2460,7 @@ void configFrame::OnButtonModifyButton(wxCommandEvent& event)
         {
             ButtonTabThreshold->Enable();
         }
-        fillButtonChoice(ButtonTabButtonId);
+        fillButtonChoice();
         ButtonTabButtonId->SetSelection(ButtonTabButtonId->FindString(GridPanelButton->GetCellValue(grid1mod, 6)));
         ButtonTabLabel->SetValue(GridPanelButton->GetCellValue(grid1mod, 7));
         ButtonTabAdd->Disable();
@@ -2371,7 +2538,7 @@ void configFrame::updateButtonConfigurations()
 {
     int k;
 
-    std::list<ButtonMapper>* buttonMappers;
+    std::list<ControlMapper>* buttonMappers;
 
     string old_device_type = reverseTranslate(string(GridPanelButton->GetCellValue(grid1mod, 0).mb_str(wxConvUTF8)));
     string new_device_type = reverseTranslate(string(ButtonTabDeviceType->GetLabel().mb_str(wxConvUTF8)));
@@ -2386,14 +2553,14 @@ void configFrame::updateButtonConfigurations()
       Configuration* config = controller->GetConfiguration(k);
 
       buttonMappers = config->GetButtonMapperList();
-      for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); ++it)
+      for(std::list<ControlMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); ++it)
       {
           if(it->GetDevice()->GetType() == old_device_type
               && it->GetDevice()->GetName() == string(GridPanelButton->GetCellValue(grid1mod, 1).mb_str(wxConvUTF8))
               && it->GetDevice()->GetId() == string(GridPanelButton->GetCellValue(grid1mod, 2).mb_str(wxConvUTF8))
               && it->GetEvent()->GetType() == old_event_type
               && it->GetEvent()->GetId() == string(GridPanelButton->GetCellValue(grid1mod, 4).mb_str(wxConvUTF8))
-              && it->GetButton() == string(GridPanelButton->GetCellValue(grid1mod, 6).mb_str(wxConvUTF8)))
+              && it->CompareAxisProps(ControlMapper::GetGenericAxisProps(controller->GetControllerType(), string(GridPanelButton->GetCellValue(grid1mod, 6).mb_str(wxConvUTF8)))))
           {
               it->GetDevice()->SetType(new_device_type);
               it->GetDevice()->SetId(string(ButtonTabDeviceId->GetLabel().mb_str(wxConvUTF8)));
@@ -2401,7 +2568,7 @@ void configFrame::updateButtonConfigurations()
               it->GetEvent()->SetType(new_event_type);
               it->GetEvent()->SetId(string(ButtonTabEventId->GetLabel().mb_str(wxConvUTF8)));
               it->GetEvent()->SetThreshold(string(ButtonTabThreshold->GetValue().mb_str(wxConvUTF8)));
-              it->SetButton(string(ButtonTabButtonId->GetStringSelection().mb_str(wxConvUTF8)));
+              it->SetAxis(ControlMapper::GetGenericAxisProps(controller->GetControllerType(), string(ButtonTabButtonId->GetStringSelection().mb_str(wxConvUTF8)).c_str()));
               it->SetLabel(string(ButtonTabLabel->GetValue().mb_str(wxConvUTF8)));
           }
       }
@@ -2455,7 +2622,7 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event)
             AxisTabAcceleration->Disable();
             AxisTabShape->Disable();
             AxisTabShape->SetSelection(0);
-            fillButtonAxisChoice(AxisTabAxisId);
+            fillButtonAxisChoice();
         }
         else
         {
@@ -2464,7 +2631,7 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event)
             AxisTabAcceleration->Enable();
             AxisTabShape->SetSelection(AxisTabShape->FindString(GridPanelAxis->GetCellValue(grid2mod, 9)));
             AxisTabShape->Enable();
-            fillAxisAxisChoice(AxisTabAxisId);
+            fillAxisAxisChoice();
         }
         AxisTabAxisId->SetSelection(AxisTabAxisId->FindString(GridPanelAxis->GetCellValue(grid2mod, 5)));
         Button3->Disable();
@@ -2545,7 +2712,7 @@ void configFrame::updateAxisConfigurations()
 {
     int k;
 
-    std::list<AxisMapper>* axisMappers;
+    std::list<ControlMapper>* axisMappers;
 
     string old_device_type = reverseTranslate(string(GridPanelAxis->GetCellValue(grid2mod, 0).mb_str(wxConvUTF8)));
     string new_device_type = reverseTranslate(string(AxisTabDeviceType->GetLabel().mb_str(wxConvUTF8)));
@@ -2560,21 +2727,21 @@ void configFrame::updateAxisConfigurations()
       Configuration* config = controller->GetConfiguration(k);
 
       axisMappers = config->GetAxisMapperList();
-      for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
+      for(std::list<ControlMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
       {
           if(it->GetDevice()->GetType() == old_device_type
               && it->GetDevice()->GetName() == string(GridPanelAxis->GetCellValue(grid2mod, 1).mb_str(wxConvUTF8))
               && it->GetDevice()->GetId() == string(GridPanelAxis->GetCellValue(grid2mod, 2).mb_str(wxConvUTF8))
               && it->GetEvent()->GetType() == old_event_type
               && it->GetEvent()->GetId() == string(GridPanelAxis->GetCellValue(grid2mod, 4).mb_str(wxConvUTF8))
-              && it->GetAxis() == string(GridPanelAxis->GetCellValue(grid2mod, 5).mb_str(wxConvUTF8)))
+              && it->CompareAxisProps(ControlMapper::GetGenericAxisProps(controller->GetControllerType(), string(GridPanelAxis->GetCellValue(grid2mod, 5).mb_str(wxConvUTF8)))))
           {
               it->GetDevice()->SetType(new_device_type);
               it->GetDevice()->SetId(string(AxisTabDeviceId->GetLabel().mb_str(wxConvUTF8)));
               it->GetDevice()->SetName(axisTabDeviceName);
               it->GetEvent()->SetType(new_event_type);
               it->GetEvent()->SetId(string(AxisTabEventId->GetLabel().mb_str(wxConvUTF8)));
-              it->SetAxis(string(AxisTabAxisId->GetStringSelection().mb_str(wxConvUTF8)));
+              it->SetAxis(ControlMapper::GetGenericAxisProps(controller->GetControllerType(), string(AxisTabAxisId->GetStringSelection().mb_str(wxConvUTF8))));
               it->SetLabel(string(AxisTabLabel->GetValue().mb_str(wxConvUTF8)));
           }
       }
@@ -2666,8 +2833,8 @@ void configFrame::replaceDevice(wxString wx_device_type)
     string device_id = "0";
     string device_type = string(wx_device_type.mb_str(wxConvUTF8));
 
-    std::list<ButtonMapper>* buttonMappers;
-    std::list<AxisMapper>* axisMappers;
+    std::list<ControlMapper>* buttonMappers;
+    std::list<ControlMapper>* axisMappers;
     std::list<Intensity>* intensityList;
     std::list<MouseOptions>* mouseOptionsList;
 
@@ -2726,7 +2893,7 @@ void configFrame::replaceDevice(wxString wx_device_type)
       }
 
       buttonMappers = config->GetButtonMapperList();
-      for(std::list<ButtonMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); ++it)
+      for(std::list<ControlMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); ++it)
       {
           if(it->GetDevice()->GetType() == device_type)
           {
@@ -2735,7 +2902,7 @@ void configFrame::replaceDevice(wxString wx_device_type)
           }
       }
       axisMappers = config->GetAxisMapperList();
-      for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
+      for(std::list<ControlMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
       {
         if(it->GetDevice()->GetType() == device_type)
         {
@@ -2793,7 +2960,7 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
     string device_id = "0";
     string device_type = "mouse";
 
-    std::list<AxisMapper>* axisMappers;
+    std::list<ControlMapper>* axisMappers;
 
     int old_value, new_value;
 
@@ -2841,7 +3008,7 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
               Configuration* config = controller->GetConfiguration(k);
 
               axisMappers = config->GetAxisMapperList();
-              for(std::list<AxisMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
+              for(std::list<ControlMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
               {
                 if(it->GetDevice()->GetType() == "mouse" && it->GetEvent()->GetType() == "axis")
                 {
@@ -3268,7 +3435,7 @@ void configFrame::updateIntensityConfigurations(Intensity* oldI, Intensity* newI
               && it->GetDevice()->GetName() == oldI->GetDevice()->GetName()
               && it->GetDevice()->GetId() == oldI->GetDevice()->GetId()
               && it->GetEvent()->GetId() == oldI->GetEvent()->GetId()
-              && it->GetControl() == oldI->GetControl())
+              && it->CompareAxisProps(oldI->GetAxis()))
           {
               *it = *newI;
           }
@@ -3347,8 +3514,10 @@ void configFrame::OnIntensityModifyClick(wxCommandEvent& event)
         }
       }
 
+      Controller* controller = configFile.GetController(currentController);
+
       Intensity oldI(
-          string(GridIntensity->GetCellValue(grid3mod, 0).mb_str(wxConvUTF8)),
+          Intensity::GetGenericAxisProps(controller->GetControllerType(), string(GridIntensity->GetCellValue(grid3mod, 0).mb_str(wxConvUTF8))),
           reverseTranslate(string(GridIntensity->GetCellValue(grid3mod, 1).mb_str(wxConvUTF8))),
           string(GridIntensity->GetCellValue(grid3mod, 2).mb_str(wxConvUTF8)),
           string(GridIntensity->GetCellValue(grid3mod, 3).mb_str(wxConvUTF8)),
@@ -3373,7 +3542,7 @@ void configFrame::OnIntensityModifyClick(wxCommandEvent& event)
       GridIntensity->SetCellValue(grid3mod, 8, steps);
 
       Intensity newI(
-          string(GridIntensity->GetCellValue(grid3mod, 0).mb_str(wxConvUTF8)),
+          Intensity::GetGenericAxisProps(controller->GetControllerType(), string(GridIntensity->GetCellValue(grid3mod, 0).mb_str(wxConvUTF8))),
           reverseTranslate(string(GridIntensity->GetCellValue(grid3mod, 1).mb_str(wxConvUTF8))),
           string(GridIntensity->GetCellValue(grid3mod, 2).mb_str(wxConvUTF8)),
           string(GridIntensity->GetCellValue(grid3mod, 3).mb_str(wxConvUTF8)),
@@ -3629,4 +3798,57 @@ void configFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event)
 #else
   wxExecute(wxT("xdg-open ") + default_directory, wxEXEC_ASYNC, NULL);
 #endif
+}
+
+void configFrame::OnMenuTypeItemSelected(wxCommandEvent& event)
+{
+  e_controller_type newType = C_TYPE_SIXAXIS;
+
+  if(MenuItemDS4->IsChecked())
+  {
+    newType = C_TYPE_DS4;
+  }
+  else if(MenuItemDS3->IsChecked())
+  {
+    newType = C_TYPE_SIXAXIS;
+  }
+  else if(MenuItemDS2->IsChecked())
+  {
+    newType = C_TYPE_PS2_PAD;
+  }
+  else if(MenuItemXOne->IsChecked())
+  {
+    newType = C_TYPE_XONE_PAD;
+  }
+  else if(MenuItem360->IsChecked())
+  {
+    newType = C_TYPE_360_PAD;
+  }
+  else if(MenuItemXbox->IsChecked())
+  {
+    newType = C_TYPE_XBOX_PAD;
+  }
+  else if(MenuItemJs->IsChecked())
+  {
+    newType = C_TYPE_JOYSTICK;
+  }
+
+  Controller* controller = configFile.GetController(currentController);
+
+  if(newType != controller->GetControllerType())
+  {
+    save_current();
+    controller->SetControllerType(newType);
+    fillButtonChoice();
+    if(AxisTabEventType->GetStringSelection() == _("button"))
+    {
+        fillButtonAxisChoice();
+    }
+    else
+    {
+        fillAxisAxisChoice();
+    }
+    fillIntensityAxisChoice();
+    load_current();
+  }
 }

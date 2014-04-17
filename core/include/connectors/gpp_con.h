@@ -6,6 +6,8 @@
 #ifndef GPP_CON_H_
 #define GPP_CON_H_
 
+#include <defs.h>
+
 int gpp_connect();
 
 int gpp_send(int axis[AXIS_MAX]);

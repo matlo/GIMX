@@ -7,6 +7,9 @@
 #include <stdexcept>
 #include <sstream>
 
+#include <defs.h>
+#include <controller.h>
+
 using namespace std;
 
 #define EMPTY_NAME_MSG "A device name is empty. Multiple mice and keyboards are not managed."
@@ -251,7 +254,7 @@ void XmlReader::ProcessAxisElement(xmlNode * a_node)
         m_TempEvent.SetShape("");
     }
 
-    m_TempAxisMapper.SetAxis(id);
+    m_TempAxisMapper.SetAxis(ControlMapper::GetAxisProps(id));
 	  m_TempAxisMapper.SetLabel(label);
     m_TempAxisMapper.SetDevice(m_TempDevice);
     m_TempAxisMapper.SetEvent(m_TempEvent);
@@ -319,7 +322,7 @@ void XmlReader::ProcessButtonElement(xmlNode * a_node)
         throw invalid_argument(message);
     }
 
-    m_TempButtonMapper.SetButton(id);
+    m_TempButtonMapper.SetAxis(ControlMapper::GetAxisProps(id));
 	  m_TempButtonMapper.SetLabel(label);
     m_TempButtonMapper.SetDevice(m_TempDevice);
     m_TempButtonMapper.SetEvent(m_TempEvent);
@@ -491,7 +494,7 @@ void XmlReader::ProcessIntensityElement(xmlNode * a_node)
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_CONTROL);
     control = string(prop?prop:"");
     xmlFree(prop);
-    m_TempIntensity.SetControl(control);
+    m_TempIntensity.SetAxis(Intensity::GetAxisProps(control));
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_DEADZONE);
     dead_zone = atoi(prop);
     xmlFree(prop);
@@ -543,12 +546,12 @@ void XmlReader::ProcessIntensityElement(xmlNode * a_node)
               
               if(control == "left_stick")
               {
-                m_TempIntensity.SetControl("lstick");
+                m_TempIntensity.SetAxis(Intensity::GetAxisProps("lstick"));
                 m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
               }
               else if(control == "right_stick")
               {
-                m_TempIntensity.SetControl("rstick");
+                m_TempIntensity.SetAxis(Intensity::GetAxisProps("rstick"));
                 m_TempConfiguration.GetIntensityList()->push_back(m_TempIntensity);
               }
               else
@@ -713,7 +716,7 @@ void XmlReader::ProcessControllerElement(xmlNode * a_node)
     xmlNode* cur_node = NULL;
     unsigned int controller_index;
     stringstream ss1, ss2;
-    string id, dpi;
+    string id, dpi, ctype;
     unsigned int idpi;
     char* prop;
 
@@ -723,6 +726,10 @@ void XmlReader::ProcessControllerElement(xmlNode * a_node)
 
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_DPI);
     dpi = string(prop?prop:"0");
+    xmlFree(prop);
+
+    prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_TYPE);
+    ctype = string(prop?prop:"");
     xmlFree(prop);
 
     ss1 << id;
@@ -754,6 +761,10 @@ void XmlReader::ProcessControllerElement(xmlNode * a_node)
     ss2 << dpi;
     ss2 >> idpi;
     m_TempController.SetMouseDPI(idpi);
+
+    e_controller_type type = controller_get_type(ctype.c_str());
+
+    m_TempController.SetControllerType(type);
 
     m_TempConfigurationFile.SetController(m_TempController, controller_index);
 }

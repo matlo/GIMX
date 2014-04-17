@@ -44,8 +44,7 @@
 			<Add library="SDL" />
 			<Add library="xml2" />
 		</Linker>
-		<Unit filename="include/AxisMapper.h" />
-		<Unit filename="include/ButtonMapper.h" />
+		<Unit filename="include/ControlMapper.h" />
 		<Unit filename="include/Configuration.h" />
 		<Unit filename="include/ConfigurationFile.h" />
 		<Unit filename="include/Controller.h" />
@@ -59,8 +58,7 @@
 		<Unit filename="configApp.h" />
 		<Unit filename="configMain.cpp" />
 		<Unit filename="configMain.h" />
-		<Unit filename="src/AxisMapper.cpp" />
-		<Unit filename="src/ButtonMapper.cpp" />
+		<Unit filename="src/ControlMapper.cpp" />
 		<Unit filename="src/Configuration.cpp" />
 		<Unit filename="src/ConfigurationFile.cpp" />
 		<Unit filename="src/Controller.cpp" />

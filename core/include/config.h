@@ -84,7 +84,7 @@ typedef struct
   e_shape shape;
   int dead_zone;
 
-  s_axis_index axis_index;
+  s_axis_props axis_props;
 }s_mapper;
 
 typedef struct

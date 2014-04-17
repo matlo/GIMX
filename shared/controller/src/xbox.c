@@ -31,6 +31,42 @@ static const char *xbox_axis_name[AXIS_MAX] =
   [xboxa_RS] = "RS",
 };
 
+static s_axis_name_dir axis_names[] =
+{
+  {.name = "rstick x",     {.axis = xboxa_rstick_x, .props = AXIS_PROP_CENTERED}},
+  {.name = "rstick y",     {.axis = xboxa_rstick_y, .props = AXIS_PROP_CENTERED}},
+  {.name = "lstick x",     {.axis = xboxa_lstick_x, .props = AXIS_PROP_CENTERED}},
+  {.name = "lstick y",     {.axis = xboxa_lstick_y, .props = AXIS_PROP_CENTERED}},
+
+  {.name = "rstick left",  {.axis = xboxa_rstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "rstick right", {.axis = xboxa_rstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "rstick up",    {.axis = xboxa_rstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "rstick down",  {.axis = xboxa_rstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+
+  {.name = "lstick left",  {.axis = xboxa_lstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "lstick right", {.axis = xboxa_lstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "lstick up",    {.axis = xboxa_lstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "lstick down",  {.axis = xboxa_lstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+
+  {.name = "white",        {.axis = xboxa_white,    .props = AXIS_PROP_POSITIVE}},
+  {.name = "black",        {.axis = xboxa_black,    .props = AXIS_PROP_POSITIVE}},
+  {.name = "LT",           {.axis = xboxa_LT,       .props = AXIS_PROP_POSITIVE}},
+  {.name = "RT",           {.axis = xboxa_RT,       .props = AXIS_PROP_POSITIVE}},
+  {.name = "A",            {.axis = xboxa_A,        .props = AXIS_PROP_POSITIVE}},
+  {.name = "B",            {.axis = xboxa_B,        .props = AXIS_PROP_POSITIVE}},
+  {.name = "X",            {.axis = xboxa_X,        .props = AXIS_PROP_POSITIVE}},
+  {.name = "Y",            {.axis = xboxa_Y,        .props = AXIS_PROP_POSITIVE}},
+
+  {.name = "back",         {.axis = xboxa_back,     .props = AXIS_PROP_TOGGLE}},
+  {.name = "start",        {.axis = xboxa_start,    .props = AXIS_PROP_TOGGLE}},
+  {.name = "up",           {.axis = xboxa_up,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "down",         {.axis = xboxa_down,     .props = AXIS_PROP_TOGGLE}},
+  {.name = "right",        {.axis = xboxa_right,    .props = AXIS_PROP_TOGGLE}},
+  {.name = "left",         {.axis = xboxa_left,     .props = AXIS_PROP_TOGGLE}},
+  {.name = "LS",           {.axis = xboxa_LS,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "RS",           {.axis = xboxa_RS,       .props = AXIS_PROP_TOGGLE}},
+};
+
 static int xbox_max_unsigned_axis_value[AXIS_MAX] =
 {
   [xboxa_lstick_x] = MAX_AXIS_VALUE_8BITS,
@@ -147,6 +183,8 @@ static unsigned int xbox_report_build(int axis[AXIS_MAX], s_report* report)
 void xbox_init(void) __attribute__((constructor (101)));
 void xbox_init(void)
 {
+  controller_register_axis_names(C_TYPE_XBOX_PAD, sizeof(axis_names)/sizeof(*axis_names), axis_names);
+
   controller_register_params(C_TYPE_XBOX_PAD, &xbox_params);
 
   control_register_names(C_TYPE_XBOX_PAD, xbox_axis_name);

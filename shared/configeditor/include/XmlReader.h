@@ -87,8 +87,8 @@ class XmlReader
         void ProcessEventElement(xmlNode * a_node);
         Event m_TempEvent;
         Device m_TempDevice;
-        ButtonMapper m_TempButtonMapper;
-        AxisMapper m_TempAxisMapper;
+        ControlMapper m_TempButtonMapper;
+        ControlMapper m_TempAxisMapper;
         Trigger m_TempTrigger;
         MouseOptions m_TempMouseOptions;
         Intensity m_TempIntensity;

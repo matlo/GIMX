@@ -1507,6 +1507,46 @@
 					<radio>1</radio>
 				</object>
 			</object>
+			<object class="wxMenu" variable="MenuType" member="yes">
+				<label>Type</label>
+				<object class="wxMenuItem" name="ID_MENUITEMDS4" variable="MenuItemDS4" member="yes">
+					<label>Dualshock 4</label>
+					<handler function="OnMenuTypeItemSelected" entry="EVT_MENU" />
+					<radio>1</radio>
+				</object>
+				<object class="wxMenuItem" name="ID_MENUITEMDS3" variable="MenuItemDS3" member="yes">
+					<label>Dualshock 3</label>
+					<handler function="OnMenuTypeItemSelected" entry="EVT_MENU" />
+					<radio>1</radio>
+				</object>
+				<object class="wxMenuItem" name="ID_MENUITEMDS2" variable="MenuItemDS2" member="yes">
+					<label>Dualshock 2</label>
+					<handler function="OnMenuTypeItemSelected" entry="EVT_MENU" />
+					<radio>1</radio>
+				</object>
+				<object class="separator" />
+				<object class="wxMenuItem" name="ID_MENUITEMXONE" variable="MenuItemXOne" member="yes">
+					<label>XOne pad</label>
+					<handler function="OnMenuTypeItemSelected" entry="EVT_MENU" />
+					<radio>1</radio>
+				</object>
+				<object class="wxMenuItem" name="ID_MENUITEM360" variable="MenuItem360" member="yes">
+					<label>360 pad</label>
+					<handler function="OnMenuTypeItemSelected" entry="EVT_MENU" />
+					<radio>1</radio>
+				</object>
+				<object class="wxMenuItem" name="ID_MENUITEMXBOX" variable="MenuItemXbox" member="yes">
+					<label>Xbox pad</label>
+					<handler function="OnMenuTypeItemSelected" entry="EVT_MENU" />
+					<radio>1</radio>
+				</object>
+				<object class="separator" />
+				<object class="wxMenuItem" name="ID_MENUITEMJS" variable="MenuItemJs" member="yes">
+					<label>Joystick</label>
+					<handler function="OnMenuTypeItemSelected" entry="EVT_MENU" />
+					<radio>1</radio>
+				</object>
+			</object>
 			<object class="wxMenu" variable="MenuConfiguration" member="yes">
 				<label>Profile</label>
 				<object class="wxMenuItem" name="ID_MENUITEM8" variable="MenuConfiguration1" member="yes">

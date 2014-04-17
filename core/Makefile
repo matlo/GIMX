@@ -12,7 +12,7 @@ OUT=$(BINS)
 else
 OUT=gimx.exe
 endif
-LIB=../shared/event/GE.a  -Wl,--whole-archive ../shared/controller/controller.a -Wl,--no-whole-archive
+LIB=../shared/event/GE.a -Wl,--whole-archive ../shared/controller/controller.a -Wl,--no-whole-archive
 ifneq ($(OS),Windows_NT)
 LIB+= -lxml2 -lm -lncursesw -lusb-1.0 -lbluetooth -lmhash
 else

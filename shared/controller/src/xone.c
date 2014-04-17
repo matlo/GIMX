@@ -32,6 +32,43 @@ static const char *xone_axis_name[AXIS_MAX] =
   [xonea_RS] = "RS",
 };
 
+static s_axis_name_dir axis_names[] =
+{
+  {.name = "rstick x",     {.axis = xonea_rstick_x, .props = AXIS_PROP_CENTERED}},
+  {.name = "rstick y",     {.axis = xonea_rstick_y, .props = AXIS_PROP_CENTERED}},
+  {.name = "lstick x",     {.axis = xonea_lstick_x, .props = AXIS_PROP_CENTERED}},
+  {.name = "lstick y",     {.axis = xonea_lstick_y, .props = AXIS_PROP_CENTERED}},
+
+  {.name = "rstick left",  {.axis = xonea_rstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "rstick right", {.axis = xonea_rstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "rstick up",    {.axis = xonea_rstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "rstick down",  {.axis = xonea_rstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+
+  {.name = "lstick left",  {.axis = xonea_lstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "lstick right", {.axis = xonea_lstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "lstick up",    {.axis = xonea_lstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "lstick down",  {.axis = xonea_lstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+
+  {.name = "LT",           {.axis = xonea_LT,       .props = AXIS_PROP_POSITIVE}},
+  {.name = "RT",           {.axis = xonea_RT,       .props = AXIS_PROP_POSITIVE}},
+
+  {.name = "view",         {.axis = xonea_view,     .props = AXIS_PROP_TOGGLE}},
+  {.name = "menu",         {.axis = xonea_menu,     .props = AXIS_PROP_TOGGLE}},
+  {.name = "guide",        {.axis = xonea_guide,    .props = AXIS_PROP_TOGGLE}},
+  {.name = "up",           {.axis = xonea_up,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "down",         {.axis = xonea_down,     .props = AXIS_PROP_TOGGLE}},
+  {.name = "right",        {.axis = xonea_right,    .props = AXIS_PROP_TOGGLE}},
+  {.name = "left",         {.axis = xonea_left,     .props = AXIS_PROP_TOGGLE}},
+  {.name = "LB",           {.axis = xonea_LB,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "RB",           {.axis = xonea_RB,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "LS",           {.axis = xonea_LS,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "RS",           {.axis = xonea_RS,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "A",            {.axis = xonea_A,        .props = AXIS_PROP_TOGGLE}},
+  {.name = "B",            {.axis = xonea_B,        .props = AXIS_PROP_TOGGLE}},
+  {.name = "X",            {.axis = xonea_X,        .props = AXIS_PROP_TOGGLE}},
+  {.name = "Y",            {.axis = xonea_Y,        .props = AXIS_PROP_TOGGLE}},
+};
+
 static int xone_max_unsigned_axis_value[AXIS_MAX] =
 {
   [xonea_lstick_x] = MAX_AXIS_VALUE_8BITS,
@@ -177,6 +214,8 @@ static unsigned int xone_report_build(int axis[AXIS_MAX], s_report* report)
 void xone_init(void) __attribute__((constructor (101)));
 void xone_init(void)
 {
+  controller_register_axis_names(C_TYPE_XONE_PAD, sizeof(axis_names)/sizeof(*axis_names), axis_names);
+
   controller_register_params(C_TYPE_XONE_PAD, &xone_params);
 
   control_register_names(C_TYPE_XONE_PAD, xone_axis_name);

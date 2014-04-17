@@ -31,6 +31,41 @@ static const char *ds2_axis_name[AXIS_MAX] =
   [ds2a_r3] = "r3",
 };
 
+static s_axis_name_dir axis_names[] =
+{
+  {.name = "rstick x",     {.axis = ds2a_rstick_x, .props = AXIS_PROP_CENTERED}},
+  {.name = "rstick y",     {.axis = ds2a_rstick_y, .props = AXIS_PROP_CENTERED}},
+  {.name = "lstick x",     {.axis = ds2a_lstick_x, .props = AXIS_PROP_CENTERED}},
+  {.name = "lstick y",     {.axis = ds2a_lstick_y, .props = AXIS_PROP_CENTERED}},
+
+  {.name = "rstick left",  {.axis = ds2a_rstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "rstick right", {.axis = ds2a_rstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "rstick up",    {.axis = ds2a_rstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "rstick down",  {.axis = ds2a_rstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+
+  {.name = "lstick left",  {.axis = ds2a_lstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "lstick right", {.axis = ds2a_lstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "lstick up",    {.axis = ds2a_lstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "lstick down",  {.axis = ds2a_lstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+
+  {.name = "select",       {.axis = ds2a_select,   .props = AXIS_PROP_TOGGLE}},
+  {.name = "start",        {.axis = ds2a_start,    .props = AXIS_PROP_TOGGLE}},
+  {.name = "up",           {.axis = ds2a_up,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "down",         {.axis = ds2a_down,     .props = AXIS_PROP_TOGGLE}},
+  {.name = "right",        {.axis = ds2a_right,    .props = AXIS_PROP_TOGGLE}},
+  {.name = "left",         {.axis = ds2a_left,     .props = AXIS_PROP_TOGGLE}},
+  {.name = "r1",           {.axis = ds2a_r1,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "r2",           {.axis = ds2a_r2,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "r3",           {.axis = ds2a_r3,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "l1",           {.axis = ds2a_l1,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "l2",           {.axis = ds2a_l2,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "l3",           {.axis = ds2a_l3,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "circle",       {.axis = ds2a_circle,   .props = AXIS_PROP_TOGGLE}},
+  {.name = "square",       {.axis = ds2a_square,   .props = AXIS_PROP_TOGGLE}},
+  {.name = "cross",        {.axis = ds2a_cross,    .props = AXIS_PROP_TOGGLE}},
+  {.name = "triangle",     {.axis = ds2a_triangle, .props = AXIS_PROP_TOGGLE}},
+};
+
 static int ds2_max_unsigned_axis_value[AXIS_MAX] =
 {
   [ds2a_lstick_x] = MAX_AXIS_VALUE_8BITS,
@@ -149,6 +184,8 @@ static unsigned int ds2_report_build(int axis[AXIS_MAX], s_report* report)
 void ds2_init(void) __attribute__((constructor (101)));
 void ds2_init(void)
 {
+  controller_register_axis_names(C_TYPE_PS2_PAD, sizeof(axis_names)/sizeof(*axis_names), axis_names);
+
   controller_register_params(C_TYPE_PS2_PAD, &ds2_params);
 
   control_register_names(C_TYPE_PS2_PAD, ds2_axis_name);

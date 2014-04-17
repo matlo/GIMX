@@ -32,6 +32,43 @@ static const char *x360_axis_name[AXIS_MAX] =
   [x360a_RS] = "RS",
 };
 
+static s_axis_name_dir axis_names[] =
+{
+  {.name = "rstick x",     {.axis = x360a_rstick_x, .props = AXIS_PROP_CENTERED}},
+  {.name = "rstick y",     {.axis = x360a_rstick_y, .props = AXIS_PROP_CENTERED}},
+  {.name = "lstick x",     {.axis = x360a_lstick_x, .props = AXIS_PROP_CENTERED}},
+  {.name = "lstick y",     {.axis = x360a_lstick_y, .props = AXIS_PROP_CENTERED}},
+
+  {.name = "rstick left",  {.axis = x360a_rstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "rstick right", {.axis = x360a_rstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "rstick up",    {.axis = x360a_rstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "rstick down",  {.axis = x360a_rstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+
+  {.name = "lstick left",  {.axis = x360a_lstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "lstick right", {.axis = x360a_lstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "lstick up",    {.axis = x360a_lstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "lstick down",  {.axis = x360a_lstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+
+  {.name = "LT",           {.axis = x360a_LT,       .props = AXIS_PROP_POSITIVE}},
+  {.name = "RT",           {.axis = x360a_RT,       .props = AXIS_PROP_POSITIVE}},
+
+  {.name = "back",         {.axis = x360a_back,     .props = AXIS_PROP_TOGGLE}},
+  {.name = "start",        {.axis = x360a_start,    .props = AXIS_PROP_TOGGLE}},
+  {.name = "guide",        {.axis = x360a_guide,    .props = AXIS_PROP_TOGGLE}},
+  {.name = "up",           {.axis = x360a_up,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "down",         {.axis = x360a_down,     .props = AXIS_PROP_TOGGLE}},
+  {.name = "right",        {.axis = x360a_right,    .props = AXIS_PROP_TOGGLE}},
+  {.name = "left",         {.axis = x360a_left,     .props = AXIS_PROP_TOGGLE}},
+  {.name = "LB",           {.axis = x360a_LB,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "RB",           {.axis = x360a_RB,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "LS",           {.axis = x360a_LS,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "RS",           {.axis = x360a_RS,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "A",            {.axis = x360a_A,        .props = AXIS_PROP_TOGGLE}},
+  {.name = "B",            {.axis = x360a_B,        .props = AXIS_PROP_TOGGLE}},
+  {.name = "X",            {.axis = x360a_X,        .props = AXIS_PROP_TOGGLE}},
+  {.name = "Y",            {.axis = x360a_Y,        .props = AXIS_PROP_TOGGLE}},
+};
+
 static int x360_max_unsigned_axis_value[AXIS_MAX] =
 {
   [x360a_lstick_x] = MAX_AXIS_VALUE_8BITS,
@@ -173,6 +210,8 @@ static unsigned int x360_report_build(int axis[AXIS_MAX], s_report* report)
 void x360_init(void) __attribute__((constructor (101)));
 void x360_init(void)
 {
+  controller_register_axis_names(C_TYPE_360_PAD, sizeof(axis_names)/sizeof(*axis_names), axis_names);
+
   controller_register_params(C_TYPE_360_PAD, &x360_params);
 
   control_register_names(C_TYPE_360_PAD, x360_axis_name);

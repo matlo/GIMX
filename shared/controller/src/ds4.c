@@ -40,6 +40,61 @@ static const char *ds4_axis_name[AXIS_MAX] =
   [ds4a_finger2] = "finger2",
 };
 
+static s_axis_name_dir axis_names[] =
+{
+  {.name = "rstick x",     {.axis = ds4a_rstick_x, .props = AXIS_PROP_CENTERED}},
+  {.name = "rstick y",     {.axis = ds4a_rstick_y, .props = AXIS_PROP_CENTERED}},
+  {.name = "lstick x",     {.axis = ds4a_lstick_x, .props = AXIS_PROP_CENTERED}},
+  {.name = "lstick y",     {.axis = ds4a_lstick_y, .props = AXIS_PROP_CENTERED}},
+
+  {.name = "rstick left",  {.axis = ds4a_rstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "rstick right", {.axis = ds4a_rstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "rstick up",    {.axis = ds4a_rstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "rstick down",  {.axis = ds4a_rstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+
+  {.name = "lstick left",  {.axis = ds4a_lstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "lstick right", {.axis = ds4a_lstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "lstick up",    {.axis = ds4a_lstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "lstick down",  {.axis = ds4a_lstick_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+
+  {.name = "finger1 x",    {.axis = ds4a_finger1_x, .props = AXIS_PROP_CENTERED,}},
+  {.name = "finger1 y",    {.axis = ds4a_finger1_y, .props = AXIS_PROP_CENTERED,}},
+  {.name = "finger2 x",    {.axis = ds4a_finger2_x, .props = AXIS_PROP_CENTERED,}},
+  {.name = "finger2 y",    {.axis = ds4a_finger2_y, .props = AXIS_PROP_CENTERED,}},
+
+  {.name = "finger1 x -",  {.axis = ds4a_finger1_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "finger1 y -",  {.axis = ds4a_finger1_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "finger2 x -",  {.axis = ds4a_finger2_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "finger2 y -",  {.axis = ds4a_finger2_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+
+  {.name = "finger1 x +",  {.axis = ds4a_finger1_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "finger1 y +",  {.axis = ds4a_finger1_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "finger2 x +",  {.axis = ds4a_finger2_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+  {.name = "finger2 y +",  {.axis = ds4a_finger2_y, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
+
+  {.name = "r2",           {.axis = ds4a_r2,       .props = AXIS_PROP_POSITIVE}},
+  {.name = "l2",           {.axis = ds4a_l2,       .props = AXIS_PROP_POSITIVE}},
+
+  {.name = "share",        {.axis = ds4a_share,    .props = AXIS_PROP_TOGGLE}},
+  {.name = "options",      {.axis = ds4a_options,  .props = AXIS_PROP_TOGGLE}},
+  {.name = "PS",           {.axis = ds4a_ps,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "up",           {.axis = ds4a_up,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "down",         {.axis = ds4a_down,     .props = AXIS_PROP_TOGGLE}},
+  {.name = "right",        {.axis = ds4a_right,    .props = AXIS_PROP_TOGGLE}},
+  {.name = "left",         {.axis = ds4a_left,     .props = AXIS_PROP_TOGGLE}},
+  {.name = "r1",           {.axis = ds4a_r1,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "r3",           {.axis = ds4a_r3,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "l1",           {.axis = ds4a_l1,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "l3",           {.axis = ds4a_l3,       .props = AXIS_PROP_TOGGLE}},
+  {.name = "circle",       {.axis = ds4a_circle,   .props = AXIS_PROP_TOGGLE}},
+  {.name = "square",       {.axis = ds4a_square,   .props = AXIS_PROP_TOGGLE}},
+  {.name = "cross",        {.axis = ds4a_cross,    .props = AXIS_PROP_TOGGLE}},
+  {.name = "triangle",     {.axis = ds4a_triangle, .props = AXIS_PROP_TOGGLE}},
+  {.name = "touchpad",     {.axis = ds4a_touchpad, .props = AXIS_PROP_TOGGLE}},
+  {.name = "finger1",      {.axis = ds4a_finger1,  .props = AXIS_PROP_TOGGLE}},
+  {.name = "finger2",      {.axis = ds4a_finger2,  .props = AXIS_PROP_TOGGLE}},
+};
+
 #define TRACKPAD_MAX_X 1919
 #define TRACKPAD_MAX_Y 919
 
@@ -351,6 +406,8 @@ static unsigned int ds4_report_build(int axis[AXIS_MAX], s_report* report)
 void ds4_init(void) __attribute__((constructor (101)));
 void ds4_init(void)
 {
+  controller_register_axis_names(C_TYPE_DS4, sizeof(axis_names)/sizeof(*axis_names), axis_names);
+
   controller_register_params(C_TYPE_DS4, &ds4_params);
 
   control_register_names(C_TYPE_DS4, ds4_axis_name);
