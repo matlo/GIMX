@@ -1,0 +1,24 @@
+1 ICON "launcher.ico"
+1 VERSIONINFO
+FILEVERSION   0,51,0,0
+PRODUCTVERSION  0,51,0,0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+  BLOCK "040904E4"
+  BEGIN
+    VALUE "CompanyName", "MatLauLab"
+    VALUE "FileDescription", "GIMX launcher"
+    VALUE "FileVersion", "0.51"
+    VALUE "InternalName", "gimx-launcher"
+    VALUE "LegalCopyright", "Matlo GNU GPL"
+    VALUE "OriginalFilename", "gimx-launcher.exe"
+    VALUE "ProductName", "gimx-launcher"
+    VALUE "ProductVersion", "0.51"
+  END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 1252
+  END
+END

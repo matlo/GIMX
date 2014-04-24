@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Gimx-launcher
+GenericName=Gimx-launcher
+Icon=gimx-launcher
+Exec=/usr/bin/gimx-launcher
+Categories=Game;
