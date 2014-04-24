@@ -646,7 +646,6 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
         exit(-1);
       }
     }
-    wxMessageBox( appDataDir, _("Error"), wxICON_ERROR);
 
     userConfigDir = wxStandardPaths::Get().GetUserConfigDir();
     userConfigDir.Append(wxT(APP_DIR));
@@ -658,7 +657,6 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
         exit(-1);
       }
     }
-    wxMessageBox( userConfigDir, _("Error"), wxICON_ERROR);
     userConfigDir.Append(wxT(CONFIG_DIR));
     if(!wxDir::Exists(userConfigDir))
     {
