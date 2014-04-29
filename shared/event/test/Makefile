@@ -10,7 +10,8 @@ else
 OBJ += windows_test.o
 BINS=windows_test
 LIB += -lmingw32 -lSDLmain -lSDL -liconv
-#LIB += -lmingw32 -lSDL2main -lSDL2 -liconv
+#LIB += $(shell sdl2-config --libs) -liconv
+#LIB:=$(filter-out -mwindows,$(LIB))
 endif
 
 INC=-I../include

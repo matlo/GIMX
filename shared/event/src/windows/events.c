@@ -13,9 +13,14 @@
 #define SCREEN_HEIGHT 1
 #define TITLE "Sixaxis Control"
 
+#ifndef SDL2
 static SDL_Surface *screen = NULL;
+#endif
 
 static SDL_Joystick* joysticks[GE_MAX_DEVICES] = {};
+#ifdef SDL2
+static SDL_GameController* controllers[GE_MAX_DEVICES] = {};
+#endif
 static int j_num;
 static int j_max;
 
@@ -31,7 +36,7 @@ int ev_init()
 #ifndef SDL2
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0)
 #else
-  if (SDL_Init(SDL_INIT_JOYSTICK) < 0)
+  if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) < 0)
 #endif
   {
    fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
@@ -50,6 +55,7 @@ int ev_init()
 #endif
   
   j_max = 0;
+#ifndef SDL2
   i = 0;
   while((joysticks[i] = SDL_JoystickOpen(i)))
   {
@@ -61,12 +67,47 @@ int ev_init()
       joystickHat[i] = calloc(joystickNbHat[i], sizeof(unsigned char));
       if(!joystickHat[i])
       {
-        fprintf(stderr, "Unable to allocate %u bytes for joystick hats.\n", joystickNbHat[i]*sizeof(unsigned char));
+        fprintf(stderr, "Unable to allocate %I64u bytes for joystick hats.\n", joystickNbHat[i]*sizeof(unsigned char));
         return 0;
       }
     }
     i++;
   }
+#else
+  for (i = 0; i < SDL_NumJoysticks(); ++i)
+  {
+    if (SDL_IsGameController(i))
+    {
+      if ((controllers[i] = SDL_GameControllerOpen(i)))
+      {
+        j_max++;
+      }
+      else
+      {
+        fprintf(stderr, "Could not open gamecontroller %i: %s\n", i, SDL_GetError());
+        return 0;
+      }
+    }
+    else
+    {
+      if((joysticks[i] = SDL_JoystickOpen(i)))
+      {
+        j_max++;
+        joystickNbButton[i] = SDL_JoystickNumButtons(joysticks[i]);
+        joystickNbHat[i] = SDL_JoystickNumHats(joysticks[i]);
+        if(joystickNbHat[i] > 0)
+        {
+          joystickHat[i] = calloc(joystickNbHat[i], sizeof(unsigned char));
+          if(!joystickHat[i])
+          {
+            fprintf(stderr, "Unable to allocate %I64u bytes for joystick hats.\n", joystickNbHat[i]*sizeof(unsigned char));
+            return 0;
+          }
+        }
+      }
+    }
+  }
+#endif
   
   j_num = j_max;
 
@@ -99,6 +140,10 @@ const char* ev_joystick_name(int id)
 #ifndef SDL2
   return SDL_JoystickName(id);
 #else
+  if(controllers[id])
+  {
+    return SDL_GameControllerName(controllers[id]);
+  }
   return SDL_JoystickName(joysticks[id]);
 #endif
 }
@@ -115,11 +160,24 @@ void ev_joystick_close(int id)
     free(joystickHat[id]);
     joystickHat[id] = NULL;
     j_num--;
+#ifndef SDL2
     if(j_num == 0)
     {
       SDL_QuitSubSystem(SDL_INIT_JOYSTICK);    
     }
+#endif
   }
+#ifdef SDL2
+  else if(controllers[id])
+  {
+    SDL_GameControllerClose(controllers[id]);
+    j_num--;
+  }
+  if(j_num == 0)
+  {
+    SDL_QuitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
+  }
+#endif
 }
 
 static int m_num = 0;
@@ -388,6 +446,18 @@ static inline void convert_s2g(SDL_Event* se, GE_Event* ge)
     ge->jbutton.which = se->jbutton.which;
     ge->jbutton.button = se->jbutton.button;
     break;
+#ifdef SDL2
+  case SDL_CONTROLLERBUTTONDOWN:
+    ge->type = GE_JOYBUTTONDOWN;
+    ge->jbutton.which = se->cbutton.which;
+    ge->jbutton.button = se->cbutton.button;
+    break;
+  case SDL_CONTROLLERBUTTONUP:
+    ge->type = GE_JOYBUTTONUP;
+    ge->jbutton.which = se->cbutton.which;
+    ge->jbutton.button = se->cbutton.button;
+    break;
+#endif
   case SDL_MOUSEMOTION:
     ge->type = GE_MOUSEMOTION;
     ge->motion.which = se->motion.which;
@@ -400,6 +470,14 @@ static inline void convert_s2g(SDL_Event* se, GE_Event* ge)
     ge->jaxis.axis = se->jaxis.axis;
     ge->jaxis.value = se->jaxis.value;
     break;
+#ifdef SDL2
+  case SDL_CONTROLLERAXISMOTION:
+    ge->type = GE_JOYAXISMOTION;
+    ge->jaxis.which = se->caxis.which;
+    ge->jaxis.axis = se->caxis.axis;
+    ge->jaxis.value = se->caxis.value;
+    break;
+#endif
   case SDL_JOYHATMOTION:
     ge->type = GE_JOYHATMOTION;
     ge->jhat.which = se->jhat.which;
@@ -527,7 +605,7 @@ int ev_peep_events(GE_Event* ev, int size)
 #ifndef SDL2
   int nb = SDL_PeepEvents(events, size, SDL_GETEVENT, SDL_ALLEVENTS);
 #else
-  int nb = SDL_PeepEvents(events, size, SDL_GETEVENT, SDL_KEYDOWN, SDL_JOYDEVICEREMOVED);
+  int nb = SDL_PeepEvents(events, size, SDL_GETEVENT, SDL_KEYDOWN, SDL_CONTROLLERDEVICEREMAPPED);
 #endif
 
   for(i=0; i<nb; ++i)
