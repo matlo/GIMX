@@ -7,7 +7,7 @@
 #define ADAPTER_H_
 
 #include <connectors/serial.h>
-#include <controller.h>
+#include <controller2.h>
 #include <config.h>
 
 #define MAX_CONTROLLERS 7

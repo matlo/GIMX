@@ -3,7 +3,7 @@
  License: GPLv3
  */
 
-#include <controller.h>
+#include <controller2.h>
 #include <control.h>
 #include <string.h>
 #include <stdio.h>
@@ -46,16 +46,16 @@ const char* control_get_name(e_controller_type type, e_controller_axis_index ind
 
 int control_get_index(const char* name)
 {
-  unsigned char axis;
+  unsigned int axis;
 
-  if(sscanf(name, "rel_axis_%hhu", &axis) == 1)
+  if(sscanf(name, "rel_axis_%u", &axis) == 1)
   {
     if(axis > rel_axis_max)
     {
       return -1;
     }
   }
-  else if(sscanf(name, "abs_axis_%hhu", &axis) == 1)
+  else if(sscanf(name, "abs_axis_%u", &axis) == 1)
   {
     axis += abs_axis_0;
 

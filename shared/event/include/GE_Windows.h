@@ -14,7 +14,6 @@
 #define SDL_BUTTON_X4   SDL_BUTTON_X2+2
 
 #ifdef SDL2
-//TODO MLA: remove this...
 #define SDL_BUTTON_WHEELUP  4
 #define SDL_BUTTON_WHEELDOWN  5
 #endif

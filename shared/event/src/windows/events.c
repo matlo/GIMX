@@ -20,6 +20,7 @@ static SDL_Surface *screen = NULL;
 static SDL_Joystick* joysticks[GE_MAX_DEVICES] = {};
 #ifdef SDL2
 static SDL_GameController* controllers[GE_MAX_DEVICES] = {};
+static int instanceIdToIndex[GE_MAX_DEVICES] = {};
 #endif
 static int j_num;
 static int j_max;
@@ -80,7 +81,17 @@ int ev_init()
     {
       if ((controllers[i] = SDL_GameControllerOpen(i)))
       {
-        j_max++;
+        int instanceId = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controllers[i]));
+        if(instanceId >= 0)
+        {
+          instanceIdToIndex[instanceId] = i;
+          j_max++;
+        }
+        else
+        {
+          SDL_GameControllerClose(controllers[i]);
+          controllers[i] = NULL;
+        }
       }
       else
       {
@@ -92,17 +103,27 @@ int ev_init()
     {
       if((joysticks[i] = SDL_JoystickOpen(i)))
       {
-        j_max++;
-        joystickNbButton[i] = SDL_JoystickNumButtons(joysticks[i]);
-        joystickNbHat[i] = SDL_JoystickNumHats(joysticks[i]);
-        if(joystickNbHat[i] > 0)
+        int instanceId = SDL_JoystickInstanceID(joysticks[i]);
+        if(instanceId >= 0)
         {
-          joystickHat[i] = calloc(joystickNbHat[i], sizeof(unsigned char));
-          if(!joystickHat[i])
+          instanceIdToIndex[instanceId] = i;
+          j_max++;
+          joystickNbButton[i] = SDL_JoystickNumButtons(joysticks[i]);
+          joystickNbHat[i] = SDL_JoystickNumHats(joysticks[i]);
+          if(joystickNbHat[i] > 0)
           {
-            fprintf(stderr, "Unable to allocate %I64u bytes for joystick hats.\n", joystickNbHat[i]*sizeof(unsigned char));
-            return 0;
+            joystickHat[i] = calloc(joystickNbHat[i], sizeof(unsigned char));
+            if(!joystickHat[i])
+            {
+              fprintf(stderr, "Unable to allocate %I64u bytes for joystick hats.\n", joystickNbHat[i]*sizeof(unsigned char));
+              return 0;
+            }
           }
+        }
+        else
+        {
+          SDL_JoystickClose(joysticks[i]);
+          joysticks[i] = NULL;
         }
       }
     }
@@ -269,36 +290,22 @@ void ev_pump_events()
       if(event.item == 0)
       {
         SDL_Event se = {};
-#ifndef SDL2
         se.button.type = SDL_MOUSEBUTTONDOWN;
         se.button.which = event.device;
         se.button.button = (event.value > 0) ? SDL_BUTTON_WHEELUP : SDL_BUTTON_WHEELDOWN;
         SDL_PushEvent(&se);
         se.button.type = SDL_MOUSEBUTTONUP;
         SDL_PushEvent(&se);
-#else
-        se.wheel.type = SDL_MOUSEWHEEL;
-        se.wheel.which = event.device;
-        se.wheel.x = event.value;
-        SDL_PushEvent(&se);
-#endif
       }
       else
       {
         SDL_Event se = {};
-#ifndef SDL2
         se.button.type = SDL_MOUSEBUTTONDOWN;
         se.button.which = event.device;
         se.button.button = (event.value < 0) ? SDL_BUTTON_X3 : SDL_BUTTON_X4;
         SDL_PushEvent(&se);
         se.button.type = SDL_MOUSEBUTTONUP;
         SDL_PushEvent(&se);
-#else
-        se.wheel.type = SDL_MOUSEWHEEL;
-        se.wheel.which = event.device;
-        se.wheel.y = event.value;
-        SDL_PushEvent(&se);
-#endif
       }
     }
     else if(event.type == MANYMOUSE_EVENT_KEY)
@@ -404,8 +411,9 @@ int ev_push_event(GE_Event* ge)
   return SDL_PushEvent(&se);
 }
 
-static inline void convert_s2g(SDL_Event* se, GE_Event* ge)
+static inline int convert_s2g(SDL_Event* se, GE_Event* ge)
 {
+  int index;
   switch (se->type)
   {
   case SDL_KEYDOWN:
@@ -437,24 +445,34 @@ static inline void convert_s2g(SDL_Event* se, GE_Event* ge)
     ge->button.button = se->button.button;
     break;
   case SDL_JOYBUTTONDOWN:
+    index = instanceIdToIndex[se->jbutton.which];
+    if(!joysticks[index])
+    {
+      return 0;
+    }
     ge->type = GE_JOYBUTTONDOWN;
-    ge->jbutton.which = se->jbutton.which;
+    ge->jbutton.which = index;
     ge->jbutton.button = se->jbutton.button;
     break;
   case SDL_JOYBUTTONUP:
+    index = instanceIdToIndex[se->jbutton.which];
+    if(!joysticks[index])
+    {
+      return 0;
+    }
     ge->type = GE_JOYBUTTONUP;
-    ge->jbutton.which = se->jbutton.which;
+    ge->jbutton.which = index;
     ge->jbutton.button = se->jbutton.button;
     break;
 #ifdef SDL2
   case SDL_CONTROLLERBUTTONDOWN:
     ge->type = GE_JOYBUTTONDOWN;
-    ge->jbutton.which = se->cbutton.which;
+    ge->jbutton.which = instanceIdToIndex[se->cbutton.which];
     ge->jbutton.button = se->cbutton.button;
     break;
   case SDL_CONTROLLERBUTTONUP:
     ge->type = GE_JOYBUTTONUP;
-    ge->jbutton.which = se->cbutton.which;
+    ge->jbutton.which = instanceIdToIndex[se->cbutton.which];
     ge->jbutton.button = se->cbutton.button;
     break;
 #endif
@@ -465,26 +483,37 @@ static inline void convert_s2g(SDL_Event* se, GE_Event* ge)
     ge->motion.yrel = se->motion.yrel;
     break;
   case SDL_JOYAXISMOTION:
+    index = instanceIdToIndex[se->jaxis.which];
+    if(!joysticks[index])
+    {
+      return 0;
+    }
     ge->type = GE_JOYAXISMOTION;
-    ge->jaxis.which = se->jaxis.which;
+    ge->jaxis.which = index;
     ge->jaxis.axis = se->jaxis.axis;
     ge->jaxis.value = se->jaxis.value;
     break;
 #ifdef SDL2
   case SDL_CONTROLLERAXISMOTION:
     ge->type = GE_JOYAXISMOTION;
-    ge->jaxis.which = se->caxis.which;
+    ge->jaxis.which = instanceIdToIndex[se->caxis.which];
     ge->jaxis.axis = se->caxis.axis;
     ge->jaxis.value = se->caxis.value;
     break;
 #endif
   case SDL_JOYHATMOTION:
+    index = instanceIdToIndex[se->jhat.which];
+    if(!joysticks[index])
+    {
+      return 0;
+    }
     ge->type = GE_JOYHATMOTION;
-    ge->jhat.which = se->jhat.which;
+    ge->jhat.which = index;
     ge->jhat.hat = se->jhat.hat;
     ge->jhat.value = se->jhat.value;
     break;
   }
+  return 1;
 }
 
 static int joystick_hat_button(GE_Event* event, unsigned char hat_dir)
@@ -595,7 +624,7 @@ static SDL_Event events[EVENT_BUFFER_SIZE];
 
 int ev_peep_events(GE_Event* ev, int size)
 {
-  int i;
+  int i, j;
 
   if(size > EVENT_BUFFER_SIZE)
   {
@@ -608,10 +637,14 @@ int ev_peep_events(GE_Event* ev, int size)
   int nb = SDL_PeepEvents(events, size, SDL_GETEVENT, SDL_KEYDOWN, SDL_CONTROLLERDEVICEREMAPPED);
 #endif
 
+  j = 0;
   for(i=0; i<nb; ++i)
   {
-    convert_s2g(events+i, ev+i);
+    if(convert_s2g(events+i, ev+j))
+    {
+      j++;
+    }
   }
   
-  return preprocess_events(ev, nb);
+  return preprocess_events(ev, j);
 }

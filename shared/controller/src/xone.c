@@ -5,7 +5,7 @@
 
 #include <xone.h>
 #include <report.h>
-#include <controller.h>
+#include <controller2.h>
 
 static const char *xone_axis_name[AXIS_MAX] =
 {

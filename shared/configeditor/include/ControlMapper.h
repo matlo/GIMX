@@ -9,7 +9,7 @@
 #include <Device.h>
 #include <Event.h>
 
-#include <controller.h>
+#include <controller2.h>
 
 class ControlMapper
 {

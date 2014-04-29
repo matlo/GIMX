@@ -12,8 +12,8 @@ AR = ar
 CFLAGS=-Wall -O0 -g
 
 ifeq ($(OS),Windows_NT)
-CFLAGS += `sdl-config --cflags`
-#CFLAGS += `sdl2-config --cflags` -DSDL2
+#CFLAGS += `sdl-config --cflags`
+CFLAGS += `xml2-config --cflags` `sdl2-config --cflags` -DSDL2
 endif
 
 LDFLAGS = -s

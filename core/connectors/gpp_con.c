@@ -6,7 +6,7 @@
 #include <string.h>
 #include "gpp/pcprog.h"
 #include "config.h"
-#include <controller.h>
+#include <controller2.h>
 
 int gpp_connect()
 {

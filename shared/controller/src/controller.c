@@ -3,7 +3,7 @@
  License: GPLv3
  */
 
-#include <controller.h>
+#include <controller2.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

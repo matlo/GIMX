@@ -3,8 +3,8 @@
  License: GPLv3
  */
 
-#ifndef CONTROLLER_H_
-#define CONTROLLER_H_
+#ifndef CONTROLLER2_H_
+#define CONTROLLER2_H_
 
 #include <defs.h>
 #include <report.h>
@@ -57,4 +57,4 @@ s_axis_props controller_get_axis_index_from_specific_name(e_controller_type type
 }
 #endif
 
-#endif /* CONTROLLER_H_ */
+#endif /* CONTROLLER2_H_ */

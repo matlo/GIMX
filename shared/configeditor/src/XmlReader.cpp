@@ -8,7 +8,7 @@
 #include <sstream>
 
 #include <defs.h>
-#include <controller.h>
+#include <controller2.h>
 
 using namespace std;
 

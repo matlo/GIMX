@@ -12,7 +12,7 @@
 #include <unistd.h>
 #endif
 
-#include <controller.h>
+#include <controller2.h>
 
 using namespace std;
 

@@ -5,7 +5,7 @@
 
 #include <joystick.h>
 #include <report.h>
-#include <controller.h>
+#include <controller2.h>
 
 static const char *joystick_axis_name[AXIS_MAX] =
 {

@@ -5,7 +5,7 @@
 
 #include <ds2.h>
 #include <report.h>
-#include <controller.h>
+#include <controller2.h>
 
 static const char *ds2_axis_name[AXIS_MAX] =
 {

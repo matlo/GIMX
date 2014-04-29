@@ -6,7 +6,7 @@
 #ifndef DISPLAY_H_
 #define DISPLAY_H_
 
-#include <controller.h>
+#include <controller2.h>
 
 void display_init();
 void display_end();

@@ -5,7 +5,7 @@
 
 #include <x360.h>
 #include <report.h>
-#include <controller.h>
+#include <controller2.h>
 
 static const char *x360_axis_name[AXIS_MAX] =
 {

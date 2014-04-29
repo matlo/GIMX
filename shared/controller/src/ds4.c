@@ -5,7 +5,7 @@
 
 #include <ds4.h>
 #include <report.h>
-#include <controller.h>
+#include <controller2.h>
 #include <string.h>
 
 static const char *ds4_axis_name[AXIS_MAX] =
