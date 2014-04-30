@@ -225,9 +225,6 @@ static void queue_event(const ManyMouseEvent *event)
     } /* if */
 } /* queue_event */
 
-#define MAPVK_VK_TO_VSC    0
-#define MAPVK_VSC_TO_VK_EX 3
-
 static void queue_from_rawinput(const RAWINPUT *raw, UINT align)
 {
     int i;
