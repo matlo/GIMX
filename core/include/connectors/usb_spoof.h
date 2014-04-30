@@ -6,11 +6,7 @@
 #ifndef USB_SPOOF_H_
 #define USB_SPOOF_H_
 
-#ifndef WIN32
 #include <libusb-1.0/libusb.h>
-#else
-#include <libusbx-1.0/libusb.h>
-#endif
 #include <connectors/serial.h>
 
 #define X360_VENDOR 0x045e
