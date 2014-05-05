@@ -33,7 +33,7 @@
 #include <stdint.h>
 #include <windows.h>
 #include <setupapi.h>
-#include <ddk/hidsdi.h>
+#include <hidsdi.h>
 #include <ddk/hidclass.h>
 
 #include "hid.h"
