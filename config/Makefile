@@ -12,7 +12,7 @@ LIB = ../shared/configeditor/configeditor.a ../shared/event/GE.a `wx-config --li
 ifneq ($(OS),Windows_NT)
 LIB += -lxml2
 else
-LIB += -lSDL -llibxml2 -lintl -liconv
+LIB += -lSDL2 -llibxml2 -lintl -liconv
 endif
 
 DEP = ../shared/configeditor/configeditor.a ../shared/controller/controller.a ../shared/event/GE.a ../shared/updater/updater.o
