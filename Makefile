@@ -13,15 +13,16 @@ clean:
 ifeq ($(OS),Windows_NT)
 install: all
 	mkdir -p setup
-	cp -u -f /mingw/bin/libgcc_s_dw2-1.dll setup
-	cp -u -f /mingw/bin/libiconv-2.dll setup
-	cp -u -f /mingw/bin/libstdc++-6.dll setup
-	cp -u -f /mingw/bin/libxml2.dll setup
-	cp -u -f /mingw/bin/SDL.dll setup
-	cp -u -f /mingw/bin/zlib1.dll setup
-	cp -u -f /mingw/bin/libpdcursesw.dll setup
-	cp -u -f /mingw/bin/libintl-8.dll setup
-	cp -u -f /mingw/bin/libusb-1.0.dll setup
+	cp -u -f /mingw64/bin/libgcc_s_seh-1.dll setup
+	cp -u -f /mingw64/bin/libiconv-2.dll setup
+	cp -u -f /mingw64/bin/libintl-8.dll setup
+	cp -u -f /mingw64/bin/SDL2.dll setup
+	cp -u -f /mingw64/bin/libusb-1.0.dll setup
+	cp -u -f /mingw64/bin/libxml2-2.dll setup
+	cp -u -f /mingw64/bin/liblzma-5.dll setup
+	cp -u -f /mingw64/bin/libwinpthread-1.dll setup
+	cp -u -f /mingw64/bin/libstdc++-6.dll setup
+	cp -u -f /mingw64/bin/zlib1.dll setup
 	cp -u -f core/gimx.exe setup
 	cp -u -f config/gimx-config.exe setup
 	cp -u -f serial/gimx-serial.exe setup
