@@ -76,7 +76,7 @@ int ev_init()
             joystickHat[i] = calloc(joystickNbHat[i], sizeof(unsigned char));
             if(!joystickHat[i])
             {
-              fprintf(stderr, "Unable to allocate %lu bytes for joystick hats.\n", joystickNbHat[i]*sizeof(unsigned char));
+              fprintf(stderr, "Unable to allocate memory for joystick hats.\n");
               return 0;
             }
           }
@@ -164,18 +164,24 @@ void ev_grab_input(int mode)
   {
     HWND hwnd = FindWindow("ManyMouseRawInputCatcher", "ManyMouseRawInputMsgWindow");
 
-    //clip the mouse cursor into the window
-    RECT _clip;
-    GetWindowRect(hwnd, &_clip);
-    ClipCursor(&_clip);
+    if(hwnd)
+    {
+      //clip the mouse cursor into the window
+      RECT _clip;
 
-    ShowCursor(FALSE);
+      if(GetWindowRect(hwnd, &_clip))
+      {
+        ClipCursor(&_clip);
+      }
+
+      while(ShowCursor(FALSE) >= 0) {}
+    }
   }
   else
   {
     ClipCursor(NULL);
 
-    ShowCursor(TRUE);
+    while(ShowCursor(TRUE) < 0) {}
   }
 }
 
