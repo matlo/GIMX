@@ -160,6 +160,8 @@ const char* ev_keyboard_name(int id)
 
 void ev_grab_input(int mode)
 {
+  int i;
+
   if(mode == GE_GRAB_ON)
   {
     HWND hwnd = FindWindow("ManyMouseRawInputCatcher", "ManyMouseRawInputMsgWindow");
@@ -174,14 +176,16 @@ void ev_grab_input(int mode)
         ClipCursor(&_clip);
       }
 
-      while(ShowCursor(FALSE) >= 0) {}
+      i = 10;
+      while(i > 0 && ShowCursor(FALSE) >= 0) { i--; }
     }
   }
   else
   {
     ClipCursor(NULL);
 
-    while(ShowCursor(TRUE) < 0) {}
+    i = 10;
+    while(i > 0 && ShowCursor(TRUE) < 0) { i--; }
   }
 }
 
