@@ -159,9 +159,6 @@ void event_catcher::run(string device_type, string event_type)
 
     init();
 
-#ifdef WIN32
-    usleep(1000000);
-#endif
     GE_grab();
 
     done = 0;

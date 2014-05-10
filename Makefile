@@ -13,16 +13,18 @@ clean:
 ifeq ($(OS),Windows_NT)
 install: all
 	mkdir -p setup
-	cp -u -f /mingw64/bin/libgcc_s_seh-1.dll setup
-	cp -u -f /mingw64/bin/libiconv-2.dll setup
-	cp -u -f /mingw64/bin/libintl-8.dll setup
-	cp -u -f /mingw64/bin/SDL2.dll setup
-	cp -u -f /mingw64/bin/libusb-1.0.dll setup
-	cp -u -f /mingw64/bin/libxml2-2.dll setup
-	cp -u -f /mingw64/bin/liblzma-5.dll setup
-	cp -u -f /mingw64/bin/libwinpthread-1.dll setup
-	cp -u -f /mingw64/bin/libstdc++-6.dll setup
-	cp -u -f /mingw64/bin/zlib1.dll setup
+	-cp -u -f $(BINDIR)/bin/libgcc_s_dw2-1.dll setup
+	-cp -u -f $(BINDIR)/bin/libgcc_s_seh-1.dll setup
+	cp -u -f $(BINDIR)/bin/libiconv-2.dll setup
+	cp -u -f $(BINDIR)/bin/libintl-8.dll setup
+	cp -u -f $(BINDIR)/bin/libpdcursesw.dll setup/pdcurses.dll
+	cp -u -f $(BINDIR)/bin/SDL2.dll setup
+	cp -u -f $(BINDIR)/bin/libusb-1.0.dll setup
+	cp -u -f $(BINDIR)/bin/libxml2-2.dll setup
+	cp -u -f $(BINDIR)/bin/liblzma-5.dll setup
+	cp -u -f $(BINDIR)/bin/libwinpthread-1.dll setup
+	cp -u -f $(BINDIR)/bin/libstdc++-6.dll setup
+	cp -u -f $(BINDIR)/bin/zlib1.dll setup
 	cp -u -f core/gimx.exe setup
 	cp -u -f config/gimx-config.exe setup
 	cp -u -f serial/gimx-serial.exe setup

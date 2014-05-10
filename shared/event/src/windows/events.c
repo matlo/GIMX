@@ -8,20 +8,15 @@
 #include <GE.h>
 #include <events.h>
 #include <math.h>
+#include <windows.h>
 
 #define SCREEN_WIDTH  1
 #define SCREEN_HEIGHT 1
 #define TITLE "Sixaxis Control"
 
-#ifndef SDL2
-static SDL_Surface *screen = NULL;
-#endif
-
 static SDL_Joystick* joysticks[GE_MAX_DEVICES] = {};
-#ifdef SDL2
 static SDL_GameController* controllers[GE_MAX_DEVICES] = {};
 static int instanceIdToIndex[GE_MAX_DEVICES] = {};
-#endif
 static int j_num;
 static int j_max;
 
@@ -34,47 +29,13 @@ int ev_init()
   int i;
   
   /* Init SDL */
-#ifndef SDL2
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0)
-#else
   if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) < 0)
-#endif
   {
    fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
    return 0;
   }
 
-#ifndef SDL2
-  /* Init video */
-  screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 0,
-     SDL_HWSURFACE | SDL_ANYFORMAT | SDL_NOFRAME);
-  if (screen == NULL)
-  {
-   fprintf(stderr, "Unable to create video surface: %s\n", SDL_GetError());
-   return 0;
-  }
-#endif
-  
   j_max = 0;
-#ifndef SDL2
-  i = 0;
-  while((joysticks[i] = SDL_JoystickOpen(i)))
-  {
-    j_max++;
-    joystickNbButton[i] = SDL_JoystickNumButtons(joysticks[i]);
-    joystickNbHat[i] = SDL_JoystickNumHats(joysticks[i]);
-    if(joystickNbHat[i] > 0)
-    {
-      joystickHat[i] = calloc(joystickNbHat[i], sizeof(unsigned char));
-      if(!joystickHat[i])
-      {
-        fprintf(stderr, "Unable to allocate %I64u bytes for joystick hats.\n", joystickNbHat[i]*sizeof(unsigned char));
-        return 0;
-      }
-    }
-    i++;
-  }
-#else
   for (i = 0; i < SDL_NumJoysticks(); ++i)
   {
     if (SDL_IsGameController(i))
@@ -115,7 +76,7 @@ int ev_init()
             joystickHat[i] = calloc(joystickNbHat[i], sizeof(unsigned char));
             if(!joystickHat[i])
             {
-              fprintf(stderr, "Unable to allocate %I64u bytes for joystick hats.\n", joystickNbHat[i]*sizeof(unsigned char));
+              fprintf(stderr, "Unable to allocate %lu bytes for joystick hats.\n", joystickNbHat[i]*sizeof(unsigned char));
               return 0;
             }
           }
@@ -128,7 +89,6 @@ int ev_init()
       }
     }
   }
-#endif
   
   j_num = j_max;
 
@@ -148,25 +108,17 @@ void ev_quit(void)
     ev_joystick_close(i);
   }
   SDL_Quit();
-#ifndef SDL2
-  SDL_WarpMouse(100, 100);
-#else
-  SDL_WarpMouseInWindow(NULL, 100, 100);//TODO MLA: test this
-#endif
+  ev_grab_input(GE_GRAB_OFF);
   ManyMouse_Quit();
 }
 
 const char* ev_joystick_name(int id)
 {
-#ifndef SDL2
-  return SDL_JoystickName(id);
-#else
   if(controllers[id])
   {
     return SDL_GameControllerName(controllers[id]);
   }
   return SDL_JoystickName(joysticks[id]);
-#endif
 }
 
 /*
@@ -181,24 +133,9 @@ void ev_joystick_close(int id)
     free(joystickHat[id]);
     joystickHat[id] = NULL;
     j_num--;
-#ifndef SDL2
-    if(j_num == 0)
-    {
-      SDL_QuitSubSystem(SDL_INIT_JOYSTICK);    
-    }
-#endif
+
+    //Don't quit the joystick subsystem or the event queue will be disabled.
   }
-#ifdef SDL2
-  else if(controllers[id])
-  {
-    SDL_GameControllerClose(controllers[id]);
-    j_num--;
-  }
-  if(j_num == 0)
-  {
-    SDL_QuitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
-  }
-#endif
 }
 
 static int m_num = 0;
@@ -223,13 +160,23 @@ const char* ev_keyboard_name(int id)
 
 void ev_grab_input(int mode)
 {
-#ifndef SDL2
-  SDL_WM_GrabInput(mode);
+  if(mode == GE_GRAB_ON)
+  {
+    HWND hwnd = FindWindow("ManyMouseRawInputCatcher", "ManyMouseRawInputMsgWindow");
 
-  SDL_ShowCursor(SDL_DISABLE);
-#else
-  SDL_SetRelativeMouseMode(SDL_TRUE);
-#endif
+    //clip the mouse cursor into the window
+    RECT _clip;
+    GetWindowRect(hwnd, &_clip);
+    ClipCursor(&_clip);
+
+    ShowCursor(FALSE);
+  }
+  else
+  {
+    ClipCursor(NULL);
+
+    ShowCursor(TRUE);
+  }
 }
 
 void ev_set_callback(int (*fp)(GE_Event*))
@@ -312,11 +259,7 @@ void ev_pump_events()
     {
       SDL_Event se = {};
       se.key.type = event.value ? SDL_KEYDOWN : SDL_KEYUP;
-#ifndef SDL2
-      se.key.which = event.device;
-#else
       se.key.padding2 = event.device;
-#endif
       se.key.keysym.sym = event.scancode;
       SDL_PushEvent(&se);
     }
@@ -345,20 +288,12 @@ static inline void convert_g2s(SDL_Event* se, GE_Event* ge)
   {
   case GE_KEYDOWN:
     se->type = SDL_KEYDOWN;
-#ifndef SDL2
-    se->key.which = ge->key.which;
-#else
     se->key.padding2 = ge->key.which;
-#endif
     se->key.keysym.sym = ge->key.keysym;
     break;
   case GE_KEYUP:
     se->type = SDL_KEYUP;
-#ifndef SDL2
-    se->key.which = ge->key.which;
-#else
     se->key.padding2 = ge->key.which;
-#endif
     se->key.keysym.sym = ge->key.keysym;
     break;
   case GE_MOUSEBUTTONDOWN:
@@ -418,20 +353,12 @@ static inline int convert_s2g(SDL_Event* se, GE_Event* ge)
   {
   case SDL_KEYDOWN:
     ge->type = GE_KEYDOWN;
-#ifndef SDL2
-    ge->key.which = se->key.which;
-#else
     ge->key.which = se->key.padding2;
-#endif
     ge->key.keysym = se->key.keysym.sym;
     break;
   case SDL_KEYUP:
     ge->type = GE_KEYUP;
-#ifndef SDL2
-    ge->key.which = se->key.which;
-#else
     ge->key.which = se->key.padding2;
-#endif
     ge->key.keysym = se->key.keysym.sym;
     break;
   case SDL_MOUSEBUTTONDOWN:
@@ -464,7 +391,6 @@ static inline int convert_s2g(SDL_Event* se, GE_Event* ge)
     ge->jbutton.which = index;
     ge->jbutton.button = se->jbutton.button;
     break;
-#ifdef SDL2
   case SDL_CONTROLLERBUTTONDOWN:
     ge->type = GE_JOYBUTTONDOWN;
     ge->jbutton.which = instanceIdToIndex[se->cbutton.which];
@@ -475,7 +401,6 @@ static inline int convert_s2g(SDL_Event* se, GE_Event* ge)
     ge->jbutton.which = instanceIdToIndex[se->cbutton.which];
     ge->jbutton.button = se->cbutton.button;
     break;
-#endif
   case SDL_MOUSEMOTION:
     ge->type = GE_MOUSEMOTION;
     ge->motion.which = se->motion.which;
@@ -493,14 +418,12 @@ static inline int convert_s2g(SDL_Event* se, GE_Event* ge)
     ge->jaxis.axis = se->jaxis.axis;
     ge->jaxis.value = se->jaxis.value;
     break;
-#ifdef SDL2
   case SDL_CONTROLLERAXISMOTION:
     ge->type = GE_JOYAXISMOTION;
     ge->jaxis.which = instanceIdToIndex[se->caxis.which];
     ge->jaxis.axis = se->caxis.axis;
     ge->jaxis.value = se->caxis.value;
     break;
-#endif
   case SDL_JOYHATMOTION:
     index = instanceIdToIndex[se->jhat.which];
     if(!joysticks[index])
@@ -631,11 +554,7 @@ int ev_peep_events(GE_Event* ev, int size)
     size = EVENT_BUFFER_SIZE;
   }
 
-#ifndef SDL2
-  int nb = SDL_PeepEvents(events, size, SDL_GETEVENT, SDL_ALLEVENTS);
-#else
   int nb = SDL_PeepEvents(events, size, SDL_GETEVENT, SDL_KEYDOWN, SDL_CONTROLLERDEVICEREMAPPED);
-#endif
 
   j = 0;
   for(i=0; i<nb; ++i)

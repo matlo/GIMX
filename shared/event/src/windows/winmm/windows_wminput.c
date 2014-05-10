@@ -580,9 +580,13 @@ static int init_event_queue(void)
     if (class_atom == 0)
         return 0;
 
-    raw_hwnd = pCreateWindowExA(0, class_name, win_name, WS_OVERLAPPEDWINDOW,
-                        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-                        CW_USEDEFAULT, HWND_MESSAGE, NULL, hInstance, NULL);
+    //create the window at the position of the cursor
+    POINT cursor_pos;
+    GetCursorPos(&cursor_pos);
+    
+    raw_hwnd = pCreateWindowExA(0, class_name, win_name, WS_POPUP|WS_VISIBLE|WS_SYSMENU,
+                        cursor_pos.x, cursor_pos.y, 1,
+                        1, NULL, NULL, hInstance, NULL);
 
     if (raw_hwnd == NULL)
         return 0;
@@ -592,13 +596,13 @@ static int init_event_queue(void)
     ZeroMemory(&rid[0], sizeof (rid[0]));
     rid[0].usUsagePage = 1; /* GenericDesktop page */
     rid[0].usUsage = 2; /* GeneralDestop Mouse usage. */
-    rid[0].dwFlags = RIDEV_INPUTSINK | RIDEV_NOLEGACY;
+    rid[0].dwFlags = RIDEV_NOLEGACY | RIDEV_CAPTUREMOUSE;
     rid[0].hwndTarget = raw_hwnd;
 
     ZeroMemory(&rid[1], sizeof (rid[1]));
     rid[1].usUsagePage = 1;
     rid[1].usUsage = 6;
-    rid[1].dwFlags = RIDEV_INPUTSINK | RIDEV_NOLEGACY;
+    rid[1].dwFlags = RIDEV_NOLEGACY;
     rid[1].hwndTarget = raw_hwnd;
 
     if (!pRegisterRawInputDevices(rid, 2, sizeof (rid[0])))
@@ -606,6 +610,8 @@ static int init_event_queue(void)
         pDeleteCriticalSection(&mutex);
         return 0;
     } /* if */
+    
+    ShowWindow(raw_hwnd, SW_SHOW);
 
     return 1;
 } /* init_event_queue */
