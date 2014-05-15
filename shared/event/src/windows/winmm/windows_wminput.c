@@ -596,7 +596,7 @@ static int init_event_queue(void)
     ZeroMemory(&rid[0], sizeof (rid[0]));
     rid[0].usUsagePage = 1; /* GenericDesktop page */
     rid[0].usUsage = 2; /* GeneralDestop Mouse usage. */
-    rid[0].dwFlags = RIDEV_NOLEGACY | RIDEV_CAPTUREMOUSE;
+    rid[0].dwFlags = RIDEV_NOLEGACY;
     rid[0].hwndTarget = raw_hwnd;
 
     ZeroMemory(&rid[1], sizeof (rid[1]));

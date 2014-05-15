@@ -16,7 +16,7 @@ LIB=../shared/event/GE.a -Wl,--whole-archive ../shared/controller/controller.a -
 ifneq ($(OS),Windows_NT)
 LIB+= -lxml2 -lm -lncursesw -lusb-1.0 -lbluetooth -lmhash
 else
-LIB+= $(shell sdl2-config --libs) `xml2-config --libs` -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl -lusb-1.0
+LIB+= $(shell sdl2-config --libs) `xml2-config --libs` -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl -lusb-1.0 -lwinmm
 LIB:=$(filter-out -mwindows,$(LIB))
 endif
 INC=-Iinclude -I../shared/event/include -I../shared/controller/include
