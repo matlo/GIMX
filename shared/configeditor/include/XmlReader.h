@@ -66,7 +66,7 @@ class XmlReader
         string GetInfo() {return m_info;};
         string GetError() {return m_error;};
         bool MultipleMK();
-        void SetEvtCatch(event_catcher* e) { m_evtcatch = e; }
+        void SetCheckDevices(bool check) { m_checkDevices = check; }
     protected:
     private:
         void ProcessRootElement(xmlNode * a_node);
@@ -101,6 +101,7 @@ class XmlReader
         string m_error;
         bool m_name_empty;
         bool m_name_nempty;
+        bool m_checkDevices;
 };
 
 #endif // XMLREADER_H

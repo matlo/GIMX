@@ -428,7 +428,7 @@ class configFrame: public wxFrame
 
         wxLocale* locale;
 
-        event_catcher evcatch;
+        event_catcher* evcatch;
         ConfigurationFile configFile;
         unsigned int currentController;
         unsigned int currentConfiguration;

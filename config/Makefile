@@ -6,13 +6,16 @@ bindir=$(prefix)/bin
 endif
 
 INC = -I../shared/configeditor/include -I../shared/controller/include
-CFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
+CFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP `curl-config --cflags`
 LIBDIR =
-LIB = ../shared/configeditor/configeditor.a ../shared/event/GE.a `wx-config --libs` -Wl,--whole-archive ../shared/controller/controller.a -Wl,--no-whole-archive
-ifneq ($(OS),Windows_NT)
-LIB += -lxml2
-else
-LIB += -lSDL2 -llibxml2 -lintl -liconv
+LIB = ../shared/configeditor/configeditor.a \
+      ../shared/event/GE.a \
+      `wx-config --libs` \
+      -Wl,--whole-archive ../shared/controller/controller.a -Wl,--no-whole-archive \
+      `curl-config --libs` \
+      -lxml2
+ifeq ($(OS),Windows_NT)
+LIB += -lSDL2 -lintl -liconv
 endif
 
 DEP = ../shared/configeditor/configeditor.a ../shared/controller/controller.a ../shared/event/GE.a ../shared/updater/updater.o

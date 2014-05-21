@@ -18,7 +18,8 @@ XmlReader::XmlReader()
 {
     //ctor
     m_ConfigurationFile = NULL;
-    m_evtcatch = NULL;
+    m_evtcatch = event_catcher::getInstance();
+    m_checkDevices = true;
 }
 
 XmlReader::XmlReader(ConfigurationFile* configFile)
@@ -128,7 +129,7 @@ void XmlReader::CheckDevice(string type, string name, string id)
   {
     m_name_nempty = true;
 
-    if(m_evtcatch && !m_evtcatch->check_device(type, name, id))
+    if(m_checkDevices && !m_evtcatch->check_device(type, name, id))
     {
       info.append(type + " not found: " + name + " (" + id + ")\n");
 
@@ -817,7 +818,7 @@ int XmlReader::ReadConfigFile(string filePath)
     m_name_empty = false;
     m_name_nempty = false;
 
-    if(m_evtcatch)
+    if(m_checkDevices)
     {
       if(m_evtcatch->init() < 0)
       {
@@ -864,7 +865,7 @@ int XmlReader::ReadConfigFile(string filePath)
         ret = -1;
     }
 
-    if(m_evtcatch)
+    if(m_checkDevices)
     {
       m_evtcatch->clean();
     }

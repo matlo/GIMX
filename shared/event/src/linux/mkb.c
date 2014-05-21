@@ -233,7 +233,7 @@ static int mkb_process_events(int device)
   int j;
   int r;
 
-  int tfd = timer_getfd();
+  int tfd = timer_get();
 
   if(tfd < 0)
   {

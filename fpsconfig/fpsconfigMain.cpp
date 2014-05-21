@@ -38,6 +38,7 @@
 
 #include <libintl.h>
 #include <wx/stdpaths.h>
+#include <wx/busyinfo.h>
 
 using namespace std;
 
@@ -536,6 +537,8 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
       values[i] = 1;
     }
 
+    evcatch = event_catcher::getInstance();
+
   	/* Open the file given as argument. */
     if(!file.IsEmpty())
     {
@@ -885,10 +888,10 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
   else
   {
     StatusBar1->SetStatusText(_("Press a button."));
-    evcatch.run("", "button");
+    evcatch->run("", "button");
     StatusBar1->SetStatusText(wxEmptyString);
 
-    if(evcatch.GetDeviceType() == "joystick")
+    if(evcatch->GetDeviceType() == "joystick")
     {
       wxMessageBox(_("Joystick controls are only supported through gimx-config."), _("Info"), wxICON_INFORMATION);
       ((wxButton*) event.GetEventObject())->Enable(true);
@@ -897,7 +900,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 
     string device_name = "";
     string device_id = "0";
-    if(evcatch.GetDeviceType() == "keyboard")
+    if(evcatch->GetDeviceType() == "keyboard")
     {
       if(!defaultKeyboardName.empty())
       {
@@ -905,7 +908,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
         device_id = defaultKeyboardId;
       }
     }
-    else if(evcatch.GetDeviceType() == "mouse")
+    else if(evcatch->GetDeviceType() == "mouse")
     {
       if(!defaultMouseName.empty())
       {
@@ -914,14 +917,14 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
       }
     }
 
-    ((wxButton*) event.GetEventObject())->SetLabel(wxString(evcatch.GetEventId().c_str(), wxConvUTF8));
+    ((wxButton*) event.GetEventObject())->SetLabel(wxString(evcatch->GetEventId().c_str(), wxConvUTF8));
 
     bindex = getButtonIndex((wxButton*) event.GetEventObject());
 
     if (bindex != bi_undef)
     {
-      buttons[bindex].SetDevice(Device(evcatch.GetDeviceType(), device_id, device_name));
-      buttons[bindex].SetEvent(Event("button", evcatch.GetEventId()));
+      buttons[bindex].SetDevice(Device(evcatch->GetDeviceType(), device_id, device_name));
+      buttons[bindex].SetEvent(Event("button", evcatch->GetEventId()));
       buttons[bindex].SetAxis(ControlMapper::GetAxisProps(button_labels[bindex]));
       string tt(buttons[bindex].GetEvent()->GetId());
       if (!buttons[bindex].GetLabel().empty())
@@ -953,8 +956,8 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 
       if (aindex != ai_undef)
       {
-        axes[aindex].SetDevice(Device(evcatch.GetDeviceType(), device_id, device_name));
-        axes[aindex].SetEvent(Event("button", evcatch.GetEventId()));
+        axes[aindex].SetDevice(Device(evcatch->GetDeviceType(), device_id, device_name));
+        axes[aindex].SetEvent(Event("button", evcatch->GetEventId()));
         axes[aindex].SetAxis(ControlMapper::GetAxisProps(axis_labels[aindex]));
         string tt(axes[aindex].GetEvent()->GetId());
         if (!axes[aindex].GetLabel().empty())
@@ -1958,9 +1961,10 @@ void fpsconfigFrame::OnMenuUpdate(wxCommandEvent& event)
 {
   int ret;
 
-  updater u(VERSION_URL, VERSION_FILE, INFO_VERSION, DOWNLOAD_URL, DOWNLOAD_FILE);
+  updater* u = updater::getInstance();
+  u->SetParams(VERSION_URL, VERSION_FILE, INFO_VERSION, DOWNLOAD_URL, DOWNLOAD_FILE);
 
-  ret = u.checkversion();
+  ret = u->CheckVersion();
 
   if (ret > 0)
   {
@@ -1969,9 +1973,14 @@ void fpsconfigFrame::OnMenuUpdate(wxCommandEvent& event)
     {
      return;
     }
-    if (u.update() < 0)
+    wxBusyInfo wait(_("Downloading update..."));
+    if (u->Update() < 0)
     {
       wxMessageBox(_("Can't retrieve update file!"), _("Error"), wxICON_ERROR);
+    }
+    else
+    {
+      exit(0);
     }
   }
   else if (ret < 0)

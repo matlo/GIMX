@@ -397,15 +397,15 @@ GE_MK_Mode GE_GetMKMode();
 void GE_SetMKMode(GE_MK_Mode);
 
 #ifndef WIN32
-void GE_SetCallback(int(*)(GE_Event*));
-void GE_TimerStart(struct timespec*);
-void GE_TimerClose();
 int GE_JoystickHasRumble(int id);
 int GE_JoystickSetRumble(int id, unsigned short weak_timeout, unsigned short weak, unsigned short strong_timeout, unsigned short strong);
 #endif
+void GE_TimerStart(int usec);
+void GE_TimerClose();
 void GE_PumpEvents();
 int GE_PeepEvents(GE_Event*, int);
 int GE_PushEvent(GE_Event*);
+void GE_SetCallback(int(*)(GE_Event*));
 
 void GE_AddSource(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fd_cleanup)(int));
 void GE_RemoveSource(int fd);

@@ -217,7 +217,7 @@ class fpsconfigFrame: public wxFrame
 
         wxLocale* locale;
 
-        event_catcher evcatch;
+        event_catcher* evcatch;
         ConfigurationFile configFile;
 
         ControlMapper buttons[BI_MAX];

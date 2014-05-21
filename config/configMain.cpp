@@ -31,6 +31,7 @@
 
 #include <libintl.h>
 #include <wx/stdpaths.h>
+#include <wx/busyinfo.h>
 
 #define _CN(STRING) locale->GetString(wxString(STRING.c_str(), wxConvUTF8))
 
@@ -1242,7 +1243,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     GridIntensity->AutoSizeColumns();
     GridMouseOption->AutoSizeColumns();
 
-	  configFile.SetEvCatch(&evcatch);
+    evcatch = event_catcher::getInstance();
 
 	  /* Open the file given as argument */
     if(!file.IsEmpty())
@@ -1721,14 +1722,14 @@ void configFrame::auto_detect(wxStaticText* device_type, string* dname, wxStatic
       msg = _("Move an axis.");
     }
     StatusBar1->SetStatusText(msg);
-    evcatch.run("", reverseTranslate(string(event_type.mb_str(wxConvUTF8))));
+    evcatch->run("", reverseTranslate(string(event_type.mb_str(wxConvUTF8))));
     StatusBar1->SetStatusText(wxEmptyString);
 
-    device_type->SetLabel(_CN(evcatch.GetDeviceType()));
+    device_type->SetLabel(_CN(evcatch->GetDeviceType()));
 
-    if(MenuItemMultipleMiceAndKeyboards->IsChecked() || evcatch.GetDeviceType() == "joystick")
+    if(MenuItemMultipleMiceAndKeyboards->IsChecked() || evcatch->GetDeviceType() == "joystick")
     {
-      *dname = evcatch.GetDeviceName();
+      *dname = evcatch->GetDeviceName();
       string name = *dname;
       if(name.size() > 20)
       {
@@ -1736,7 +1737,7 @@ void configFrame::auto_detect(wxStaticText* device_type, string* dname, wxStatic
         name.append("...");
       }
       device_name->SetLabel(wxString(name.c_str(), wxConvUTF8));
-      device_id->SetLabel( wxString(evcatch.GetDeviceId().c_str(), wxConvUTF8));
+      device_id->SetLabel( wxString(evcatch->GetDeviceId().c_str(), wxConvUTF8));
     }
     else
     {
@@ -1745,7 +1746,7 @@ void configFrame::auto_detect(wxStaticText* device_type, string* dname, wxStatic
       device_id->SetLabel(wxT("0"));
     }
 
-    event_id->SetLabel(wxString(evcatch.GetEventId().c_str(), wxConvUTF8));
+    event_id->SetLabel(wxString(evcatch->GetEventId().c_str(), wxConvUTF8));
 }
 
 /*
@@ -1802,7 +1803,7 @@ void configFrame::OnButtonTabAutoDetectClick(wxCommandEvent& event)
 
     auto_detect(ButtonTabDeviceType, &buttonTabDeviceName, ButtonTabDeviceName, ButtonTabDeviceId, ButtonTabEventType->GetStringSelection(), ButtonTabEventId);
 
-    if(evcatch.GetEventType() == "button")
+    if(evcatch->GetEventType() == "button")
     {
         ButtonTabThreshold->Disable();
         ButtonTabThreshold->SetValue(wxEmptyString);
@@ -1844,7 +1845,7 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
        || old_device_name != axisTabDeviceName
        || old_device_id != AxisTabDeviceId->GetLabel())
     {
-        if(evcatch.GetEventType() == "button")
+        if(evcatch->GetEventType() == "button")
         {
             AxisTabDeadZone->Disable();
             AxisTabDeadZone->SetValue(wxEmptyString);
@@ -1864,12 +1865,12 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
           AxisTabAcceleration->SetValue(wxT("1.00"));
           AxisTabShape->Enable();
           AxisTabShape->SetSelection(1);
-          if(evcatch.GetDeviceType() == "mouse")
+          if(evcatch->GetDeviceType() == "mouse")
           {
               AxisTabDeadZone->SetValue(wxT("20"));
               AxisTabSensitivity->SetValue(wxT("1.00"));
           }
-          else if(evcatch.GetDeviceType() == "joystick")
+          else if(evcatch->GetDeviceType() == "joystick")
           {
               AxisTabDeadZone->SetValue(wxT("0"));
               if(!AxisTabAxisId->GetStringSelection().Contains(wxT("stick")))
@@ -2850,10 +2851,10 @@ void configFrame::replaceDevice(wxString wx_device_type)
           msg = _("Press a keyboard key.");
         }
         StatusBar1->SetStatusText(msg);
-	      evcatch.run(device_type, "button");
+	      evcatch->run(device_type, "button");
         StatusBar1->SetStatusText(wxEmptyString);
-        device_name = evcatch.GetDeviceName();
-        device_id = evcatch.GetDeviceId();
+        device_name = evcatch->GetDeviceName();
+        device_id = evcatch->GetDeviceId();
     }
 
     save_current();
@@ -2993,10 +2994,10 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
             if(MenuItemMultipleMiceAndKeyboards->IsChecked())
             {
                 StatusBar1->SetStatusText(_("Press a mouse button."));
-                evcatch.run(device_type, "button");
+                evcatch->run(device_type, "button");
                 StatusBar1->SetStatusText(wxEmptyString);
-                device_name = evcatch.GetDeviceName();
-                device_id = evcatch.GetDeviceId();
+                device_name = evcatch->GetDeviceName();
+                device_id = evcatch->GetDeviceId();
             }
 
             save_current();
@@ -3296,9 +3297,10 @@ void configFrame::OnMenuUpdate(wxCommandEvent& event)
 {
   int ret;
 
-  updater u(VERSION_URL, VERSION_FILE, INFO_VERSION, DOWNLOAD_URL, DOWNLOAD_FILE);
+  updater* u = updater::getInstance();
+  u->SetParams(VERSION_URL, VERSION_FILE, INFO_VERSION, DOWNLOAD_URL, DOWNLOAD_FILE);
 
-  ret = u.checkversion();
+  ret = u->CheckVersion();
 
   if (ret > 0)
   {
@@ -3307,9 +3309,14 @@ void configFrame::OnMenuUpdate(wxCommandEvent& event)
     {
      return;
     }
-    if (u.update() < 0)
+    wxBusyInfo wait(_("Downloading update..."));
+    if (u->Update() < 0)
     {
       wxMessageBox(_("Can't retrieve update file!"), _("Error"), wxICON_ERROR);
+    }
+    else
+    {
+      exit(0);
     }
   }
   else if (ret < 0)

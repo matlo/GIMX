@@ -31,6 +31,7 @@
 #include <ConfigurationFile.h>
 
 #include <wx/arrstr.h>
+#include <wx/busyinfo.h>
 
 using namespace std;
 
@@ -908,8 +909,6 @@ void bluetoothFrame::OnButton4Click(wxCommandEvent& event)
   file.append(ChoiceConfig->GetStringSelection().mb_str(wxConvUTF8));
 
   ConfigurationFile configFile;
-  event_catcher evcatch;
-  configFile.SetEvCatch(&evcatch);
   int ret = configFile.ReadConfigFile(file);
 
   if(ret < 0)
@@ -966,9 +965,10 @@ void bluetoothFrame::OnMenuUpdate(wxCommandEvent& event)
 {
   int ret;
 
-  updater u(VERSION_URL, VERSION_FILE, INFO_VERSION, DOWNLOAD_URL, DOWNLOAD_FILE);
+  updater* u = updater::getInstance();
+  u->SetParams(VERSION_URL, VERSION_FILE, INFO_VERSION, DOWNLOAD_URL, DOWNLOAD_FILE);
 
-  ret = u.checkversion();
+  ret = u->CheckVersion();
 
   if (ret > 0)
   {
@@ -977,7 +977,8 @@ void bluetoothFrame::OnMenuUpdate(wxCommandEvent& event)
     {
      return;
     }
-    if (u.update() < 0)
+    wxBusyInfo wait(_("Downloading update..."));
+    if (u->Update() < 0)
     {
       wxMessageBox(_("Can't retrieve update file!"), _("Error"), wxICON_ERROR);
     }
@@ -1027,10 +1028,17 @@ void bluetoothFrame::OnMenuGetConfigs(wxCommandEvent& event)
   dir.append(APP_DIR);
 #endif
   dir.append(CONFIG_DIR);
-  configupdater u(CONFIGS_URL, CONFIGS_FILE, dir);
+  
+  configupdater* u = configupdater::getInstance();
+  u->SetParams(CONFIGS_URL, CONFIGS_FILE, dir);
 
-  list<string>* cl = u.getconfiglist();
+  list<string>* cl;
   list<string> cl_sel;
+
+  {
+    wxBusyInfo wait(_("Downloading config list..."));
+    cl = u->getconfiglist();
+  }
 
   if(cl && !cl->empty())
   {
@@ -1064,11 +1072,15 @@ void bluetoothFrame::OnMenuGetConfigs(wxCommandEvent& event)
         configs.Add(choices[selections[n]]);
       }
 
-      if(u.getconfigs(&cl_sel) < 0)
       {
-        wxMessageBox(_("Can't retrieve configs!"), _("Error"), wxICON_ERROR);
-        return;
+        wxBusyInfo wait(_("Downloading configs..."));
+        if(u->getconfigs(&cl_sel) < 0)
+        {
+          wxMessageBox(_("Can't retrieve configs!"), _("Error"), wxICON_ERROR);
+          return;
+        }
       }
+      
       if(!cl_sel.empty())
       {
         wxMessageBox(_("Download is complete!"), _("Info"), wxICON_INFORMATION);

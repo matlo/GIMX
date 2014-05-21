@@ -6,6 +6,13 @@
 
 #define MAX_EVENTS 256
 
+#ifndef WIN32
+#define SOURCE int
+#else
+#include <windows.h>
+#define SOURCE HANDLE
+#endif
+
 int ev_init();
 void ev_quit();
 
@@ -28,8 +35,8 @@ int ev_push_event(GE_Event*);
 
 int ev_peep_events(GE_Event*, int);
 
-void ev_register_source(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fd_cleanup)(int));
-void ev_remove_source(int fd);
+void ev_register_source(SOURCE source, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int));
+void ev_remove_source(SOURCE source);
 inline void ev_set_next_event(GE_Event* event);
 
 #endif /* EVENTS_H_ */

@@ -9,9 +9,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <iconv.h>
-#ifndef WIN32
 #include <timer.h>
+#ifndef WIN32
 #include <poll.h>
+#else
+#include <windows.h>
 #endif
 
 #define BT_SIXAXIS_NAME "PLAYSTATION(R)3 Controller"
@@ -419,7 +421,6 @@ int GE_PushEvent(GE_Event *event)
   return ev_push_event(event);
 }
 
-#ifndef WIN32
 /*
  * \brief Set a callback function for processing events (Linux only).
  *
@@ -430,14 +431,16 @@ void GE_SetCallback(int(*fp)(GE_Event*))
   ev_set_callback(fp);
 }
 
+#ifndef WIN32
+
 /*
  * \brief Start a timer to make GE_PumpEvents return periodically (Linux only).
  * 
- * \param period  the period of the timer.
+ * \param period  the period of the timer (microseconds).
  */
-void GE_TimerStart(struct timespec* period)
+void GE_TimerStart(int usec)
 {
-  int tfd = timer_start(period);
+  int tfd = timer_start(usec);
 
   if(tfd >= 0)
   {
@@ -485,6 +488,19 @@ int GE_JoystickSetRumble(int id, unsigned short weak_timeout, unsigned short wea
     return ev_joystick_set_ff_rumble(id, weak_timeout, weak, strong_timeout, strong);
   }
   return 0;
+}
+#else
+void GE_TimerStart(int usec)
+{
+  timer_start(usec);
+}
+
+/*
+ * \brief Stop the timer (Linux only).
+ */
+void GE_TimerClose()
+{
+  timer_close(0);
 }
 #endif
 

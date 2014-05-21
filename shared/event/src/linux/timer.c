@@ -10,17 +10,19 @@
 
 static int tfd = -1;
 
-inline int timer_getfd()
+inline int timer_get()
 {
   return tfd;
 }
 
-int timer_start(struct timespec* period)
+int timer_start(int usec)
 {
+  struct timespec period = {.tv_sec = 0, .tv_nsec = usec * 1000};
+
   struct itimerspec new_value =
   {
-      .it_interval = *period,
-      .it_value = *period,
+      .it_interval = period,
+      .it_value = period,
   };
   
   if(tfd != -1)

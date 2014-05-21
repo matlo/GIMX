@@ -15,8 +15,8 @@
 
 ConfigurationFile::ConfigurationFile()
 {
-    m_evcatch = NULL;
     //ctor
+    m_checkDevices = true;
 }
 
 ConfigurationFile::~ConfigurationFile()
@@ -45,7 +45,7 @@ int ConfigurationFile::ReadConfigFile(string filePath)
 
     XmlReader reader(this);
 
-    reader.SetEvtCatch(m_evcatch);
+    reader.SetCheckDevices(m_checkDevices);
 
     ret = reader.ReadConfigFile(filePath);
 
@@ -317,6 +317,7 @@ void ConfigurationFile::GetLabels(list<string>& button_labels, list<string>& axi
 void ConfigurationFile::GetLabels(string file, list<string>& button_labels, list<string>& axis_labels)
 {
   ConfigurationFile configFile;
+  configFile.SetCheckDevices(false);
   if(configFile.ReadConfigFile(file) >= 0)
   {
     configFile.GetLabels(button_labels, axis_labels);

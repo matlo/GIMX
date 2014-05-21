@@ -6,14 +6,20 @@
 #ifndef TIMER_H_
 #define TIMER_H_
 
-#include <time.h>
+#ifndef WIN32
+#define TIMER int
+#else
+#include <windows.h>
+#define TIMER HANDLE
+#endif
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-inline int timer_getfd();
-int timer_start(struct timespec*);
+inline TIMER timer_get();
+TIMER timer_start(int usec);
 int timer_close(int unused);
 int timer_read(int unused);
 

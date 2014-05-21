@@ -24,12 +24,11 @@ void mainloop()
   GE_Event events[EVENT_BUFFER_SIZE];
   int num_evt;
   GE_Event* event;
-  struct timespec period = {.tv_sec = 0, .tv_nsec = emuclient_params.refresh_period*1000};
   unsigned int running_macros;
 
   if(!adapter_get(0)->bdaddr_dst || adapter_get(0)->type == C_TYPE_DS4)
   {
-    GE_TimerStart(&period);
+    GE_TimerStart(emuclient_params.refresh_period);
   }
 
   /*

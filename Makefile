@@ -13,8 +13,11 @@ clean:
 ifeq ($(OS),Windows_NT)
 install: all
 	mkdir -p setup
-	-cp -u -f $(BINDIR)/bin/libgcc_s_dw2-1.dll setup
-	-cp -u -f $(BINDIR)/bin/libgcc_s_seh-1.dll setup
+ifeq ($(OS),Windows_NT)
+	cp -u -f $(BINDIR)/bin/libgcc_s_dw2-1.dll setup
+else
+	cp -u -f $(BINDIR)/bin/libgcc_s_seh-1.dll setup
+endif
 	cp -u -f $(BINDIR)/bin/libiconv-2.dll setup
 	cp -u -f $(BINDIR)/bin/libintl-8.dll setup
 	cp -u -f $(BINDIR)/bin/libpdcursesw.dll setup/pdcurses.dll
@@ -25,12 +28,23 @@ install: all
 	cp -u -f $(BINDIR)/bin/libwinpthread-1.dll setup
 	cp -u -f $(BINDIR)/bin/libstdc++-6.dll setup
 	cp -u -f $(BINDIR)/bin/zlib1.dll setup
+	cp -u -f $(BINDIR)/bin/libcurl-4.dll setup
+	cp -u -f /usr$(BINDIR)/bin/LIBEAY32.dll setup
+	cp -u -f /usr$(BINDIR)/bin/libidn-11.dll setup
+	cp -u -f /usr$(BINDIR)/bin/librtmp-1.dll setup
+	cp -u -f /usr$(BINDIR)/bin/libgmp-10.dll setup
+	cp -u -f /usr$(BINDIR)/bin/libgnutls-28.dll setup
+	cp -u -f /usr$(BINDIR)/bin/libhogweed-2-5.dll setup
+	cp -u -f /usr$(BINDIR)/bin/libnettle-4-7.dll setup
+	cp -u -f /usr$(BINDIR)/bin/libp11-kit-0.dll setup
+	cp -u -f /usr$(BINDIR)/bin/libffi-6.dll setup
+	cp -u -f /usr$(BINDIR)/bin/libtasn1-6.dll setup
+	cp -u -f /usr$(BINDIR)/bin/libssh2-1.dll setup
+	cp -u -f /usr$(BINDIR)/bin/SSLEAY32.dll setup
 	cp -u -f core/gimx.exe setup
 	cp -u -f config/gimx-config.exe setup
 	cp -u -f serial/gimx-serial.exe setup
 	cp -u -f fpsconfig/gimx-fpsconfig.exe setup
-	cp -u -f /mingw/local/bin/wget-1.11.4.exe setup/wget.exe
-	cp -u -f /etc/wgetrc setup/wget.ini
 	mkdir -p setup/share/locale
 	for translation in po/*.po; \
   do \

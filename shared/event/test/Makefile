@@ -1,15 +1,10 @@
 include ../Makedefs
 -include ../../../Makedefs
 
-OBJ=common.o
+OBJ=common.o GE_test.o
 LIB=../GE.a
-ifneq ($(OS),Windows_NT)
-OBJ += linux_test.o 
-BINS=linux_test
-else
-OBJ += windows_test.o
-BINS=windows_test
-#LIB += -lmingw32 -lSDLmain -lSDL -liconv
+BINS=GE_test
+ifeq ($(OS),Windows_NT)
 LIB += $(shell sdl2-config --libs) -liconv
 LIB:=$(filter-out -mwindows,$(LIB))
 endif
@@ -22,13 +17,8 @@ all: $(BINS)
 clean:
 	rm -f $(BINS) *~ *.o
 
-ifneq ($(OS),Windows_NT)
-linux_test: $(OBJ) $(DEPS)
+GE_test: $(OBJ) $(DEPS)
 	$(CC) $(CFLAGS) $(INC) -o $@ $(OBJ) $(LIB)
-else
-windows_test: $(OBJ) $(DEPS)
-	$(CC) $(CFLAGS) $(INC) -o $@ $(OBJ) $(LIB)
-endif
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(INC) -o $@ -c $<

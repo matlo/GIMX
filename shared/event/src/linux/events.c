@@ -47,26 +47,26 @@ typedef struct
 static s_source sources[FD_SETSIZE] = {};
 static int max_source = 0;
 
-void ev_register_source(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fd_cleanup)(int))
+void ev_register_source(SOURCE source, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int))
 {
-  if(fd < FD_SETSIZE)
+  if(source < FD_SETSIZE)
   {
-    sources[fd].id = id;
-    sources[fd].fd = fd;
+    sources[source].id = id;
+    sources[source].fd = source;
     if(fp_read)
     {
-      sources[fd].event |= POLLIN;
-      sources[fd].fp_read = fp_read;
+      sources[source].event |= POLLIN;
+      sources[source].fp_read = fp_read;
     }
     if(fp_write)
     {
-      sources[fd].event |= POLLOUT;
-      sources[fd].fp_write = fp_write;
+      sources[source].event |= POLLOUT;
+      sources[source].fp_write = fp_write;
     }
-    sources[fd].fd_cleanup = fd_cleanup;
-    if(fd > max_source)
+    sources[source].fd_cleanup = fp_cleanup;
+    if(source > max_source)
     {
-      max_source = fd;
+      max_source = source;
     }
   }
 }
@@ -257,7 +257,7 @@ void ev_pump_events(void)
     return;
   }
 
-  int tfd = timer_getfd();
+  int tfd = timer_get();
   
   /*
    * If tfd is not set, ev_pump_event only reads a single event for each call.

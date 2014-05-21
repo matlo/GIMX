@@ -22,6 +22,7 @@ class ConfigurationFile
         ConfigurationFile& operator=(const ConfigurationFile& other);
         int ReadConfigFile(string filePath);
         bool MultipleMK() { return m_multipleMK; }
+        void SetCheckDevices(bool check) { m_checkDevices = check; }
         string GetError() { return m_Error; }
         string GetInfo() { return m_Info; }
         int WriteConfigFile();
@@ -29,7 +30,6 @@ class ConfigurationFile
         void SetFilePath(string val) { m_FilePath = val; }
         Controller* GetController(unsigned int i) { return m_Controllers+i; }
         void SetController(Controller val, unsigned int i) { m_Controllers[i] = val; }
-        void SetEvCatch(event_catcher* e) { m_evcatch = e; }
         int AutoBind(string refFilePath);
         int ConvertSensitivity(string refFilePath);
         void GetLabels(list<string>&, list<string>&);
@@ -41,8 +41,8 @@ class ConfigurationFile
         string m_Error;
         string m_Info;
         Controller m_Controllers[MAX_CONTROLLERS];
-        event_catcher* m_evcatch;
         bool m_multipleMK;
+        bool m_checkDevices;
 };
 
 #endif // CONFIGURATIONFILE_H

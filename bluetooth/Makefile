@@ -6,9 +6,14 @@ bindir=$(prefix)/bin
 BINS=gimx-bluetooth
 
 INC = -I../shared/configeditor/include -I../shared/controller/include
-CFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
+CFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP `curl-config --cflags`
 LIBDIR =
-LIB = ../shared/configeditor/configeditor.a ../shared/event/GE.a -lxml2 `wx-config --libs` -Wl,--whole-archive ../shared/controller/controller.a -Wl,--no-whole-archive
+LIB = ../shared/configeditor/configeditor.a \
+      ../shared/event/GE.a \
+      `wx-config --libs` \
+      -Wl,--whole-archive ../shared/controller/controller.a -Wl,--no-whole-archive \
+      `curl-config --libs` \
+      -lxml2
 
 DEP = ../shared/configeditor/configeditor.a ../shared/controller/controller.a ../shared/event/GE.a ../shared/updater/updater.o ../shared/configupdater/configupdater.o
 OBJ = bluetoothApp.o bluetoothMain.o

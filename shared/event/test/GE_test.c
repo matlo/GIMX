@@ -14,6 +14,8 @@
 
 #include "common.h"
 
+#define PERIOD 10000//microseconds
+
 static void terminate(int sig)
 {
   done = 1;
@@ -29,19 +31,23 @@ int main(int argc, char* argv[])
 
   (void) signal(SIGINT, terminate);
 
+#ifndef WIN32
   setlinebuf(stdout);
+#endif
 
   display_devices();
 
-  struct timespec period = {.tv_sec = 0, .tv_nsec = 10000000};
-
-  GE_TimerStart(&period);
+  GE_TimerStart(PERIOD);
 
   GE_SetCallback(process_event);
 
   while(!done)
   {
     GE_PumpEvents();
+
+#ifdef WIN32
+    fflush(stdout);
+#endif
 
     //do something periodically
   }

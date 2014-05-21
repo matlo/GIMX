@@ -10,60 +10,32 @@
 #include <vector>
 #include <sstream>
 #include "updater.h"
+#include <curl/curl.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifdef WIN32
 #include <windows.h>
-#define WGET_CMD "wget.exe -q -w 0 -t 1 -T 10 "
-#else
-#define WGET_CMD "wget -q -w 0 -t 1 -T 10 "
 #endif
 
-static int exec(string command)
-{
+updater* updater::_singleton = NULL;
+
 #ifdef WIN32
-  DWORD ret;
-  STARTUPINFOA startupInfo =
-  { 0};
-  startupInfo.cb = sizeof(startupInfo);
-  PROCESS_INFORMATION processInformation;
-
-  char* cmd = strdup(command.c_str());
-
-  BOOL result = CreateProcessA(
-      "wget.exe",
-      cmd,
-      NULL,
-      NULL,
-      FALSE,
-      CREATE_NO_WINDOW,
-      NULL,
-      NULL,
-      &startupInfo,
-      &processInformation
-  );
-
-  free(cmd);
-
-  WaitForSingleObject(processInformation.hProcess, INFINITE);
-
-  if(!result)
-  {
-    ret = -1;
-  }
-  else
-  {
-    if(!GetExitCodeProcess(processInformation.hProcess, &ret))
-    {
-      ret = -1;
-    }
-  }
-
-  CloseHandle(processInformation.hProcess);
-
-  return ret;
+#define CURL_INIT_FLAGS CURL_GLOBAL_WIN32
 #else
-  return system(command.c_str());
+#define CURL_INIT_FLAGS CURL_GLOBAL_NOTHING
 #endif
+
+updater::updater()
+{
+  //ctor
+  curl_global_init(CURL_INIT_FLAGS);
+}
+
+updater::~updater()
+{
+  //dtor
+  curl_global_cleanup();
 }
 
 static vector<string> &split(const string &s, char delim, vector<string> &elems)
@@ -83,151 +55,169 @@ static vector<string> split(const string &s, char delim)
   return split(s, delim, elems);
 }
 
-int updater::checkversion()
+struct MemoryStruct {
+  char *memory;
+  size_t size;
+};
+
+static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
+{
+  size_t realsize = size * nmemb;
+  struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+
+  mem->memory = (char*) realloc(mem->memory, mem->size + realsize + 1);
+  if(mem->memory == NULL) {
+    printf("not enough memory (realloc returned NULL)\n");
+    return 0;
+  }
+
+  memcpy(&(mem->memory[mem->size]), contents, realsize);
+  mem->size += realsize;
+  mem->memory[mem->size] = 0;
+
+  return realsize;
+}
+
+int updater::CheckVersion()
 {
   string v;
   int major, minor;
   int old_major, old_minor;
-  
+  int ret = -1;
+
   if(version_url.empty() || version_file.empty() || version.empty())
   {
     return -1;
   }
 
-#ifdef WIN32
-  char temp[MAX_PATH];
-  if(!GetTempPathA(sizeof(temp), temp))
-  {
-    return -1;
-  }
-#endif
+  CURLcode res;
+  struct MemoryStruct chunk;
+  chunk.memory = (char*) malloc(sizeof(char));
+  chunk.size = 0;
 
-  string cmd = WGET_CMD;
-  cmd.append(version_url);
-  cmd.append(" -O ");
-#ifdef WIN32
-  cmd.append(temp);
-#endif
-  cmd.append(version_file);
-  
-  if(exec(cmd))
-  {
-    return -1;
-  }
-  
-  string file;
-#ifdef WIN32
-  file.append(temp);
-#endif
-  file.append(version_file);
+  CURL *curl_handle = curl_easy_init();
 
-  ifstream infile;
-  infile.open(file.c_str());
-  
-  if (infile.good())
+  curl_easy_setopt(curl_handle, CURLOPT_URL, VERSION_URL);
+  curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+  curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
+  curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+  res = curl_easy_perform(curl_handle);
+  if(res == CURLE_OK)
   {
-    infile >> v;
-  }
-  else
-  {
-    return -1;
+    string v = string(chunk.memory);
+
+    vector<string> elems = split(v, '.');
+    if (elems.size() == 2)
+    {
+      major = atoi(elems[0].c_str());
+      minor = atoi(elems[1].c_str());
+
+      vector<string> old_elems = split(version, '.');
+      if (old_elems.size() == 2)
+      {
+        old_major = atoi(old_elems[0].c_str());
+        old_minor = atoi(old_elems[1].c_str());
+
+        ret = (major >= old_major && minor > old_minor);
+      }
+    }
   }
 
-  infile.close();
-  
-  remove(file.c_str());
+ /* cleanup curl stuff */
+ curl_easy_cleanup(curl_handle);
 
-  vector<string> elems = split(v, '.');
-  if (elems.size() != 2)
-  {
-    return -1;
-  }
+ if(chunk.memory)
+   free(chunk.memory);
 
-  major = atoi(elems[0].c_str());
-  minor = atoi(elems[1].c_str());
-
-  vector<string> old_elems = split(version, '.');
-  if (old_elems.size() != 2)
-  {
-    return -1;
-  }
-
-  old_major = atoi(old_elems[0].c_str());
-  old_minor = atoi(old_elems[1].c_str());
-
-  return major >= old_major && minor > old_minor;
+ return ret;
 }
 
-int updater::update()
+static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
 {
+  size_t written = fwrite(ptr, size, nmemb, (FILE *)stream);
+  return written;
+}
+
+int updater::Update()
+{
+  int ret = -1;
+
   if(download_url.empty())
   {
     return -1;
   }
 
+  string output = "";
+
 #ifdef WIN32
   char temp[MAX_PATH];
   if(!GetTempPathA(sizeof(temp), temp))
   {
     return -1;
   }
+  output.append(temp);
 #endif
+  output.append(download_file);
 
-  string cmd = WGET_CMD;
-  cmd.append(download_url);
-  cmd.append(" -O ");
-#ifdef WIN32
-  cmd.append(temp);
-#endif
-  cmd.append(download_file);
-  
-  if(exec(cmd))
+  FILE* outfile = fopen(output.c_str(), "wb");
+  if(outfile)
   {
-    return -1;
-  }
-  
-  cmd.clear();
-#ifdef WIN32
-  STARTUPINFOA startupInfo =
-  { 0};
-  startupInfo.cb = sizeof(startupInfo);
-  PROCESS_INFORMATION processInformation;
+    CURL *curl_handle = curl_easy_init();
+
+    curl_easy_setopt(curl_handle, CURLOPT_URL, download_url.c_str());
+    curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);
+    curl_easy_setopt(curl_handle, CURLOPT_FILE, outfile);
+    curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+    int res = curl_easy_perform(curl_handle);
+    if(res == CURLE_OK)
+    {
+      ret = 0;
+    }
+
+    curl_easy_cleanup(curl_handle);
+
+    fclose(outfile);
 
 #ifdef WIN32
-  cmd.append(temp);
-#endif
-  cmd.append(download_file);
-  char* ccmd = strdup(cmd.c_str());
+    STARTUPINFOA startupInfo =
+    { 0};
+    startupInfo.cb = sizeof(startupInfo);
+    PROCESS_INFORMATION processInformation;
 
-  BOOL result = CreateProcessA(
-      cmd.c_str(),
-      ccmd,
-      NULL,
-      NULL,
-      FALSE,
-      NORMAL_PRIORITY_CLASS,
-      NULL,
-      NULL,
-      &startupInfo,
-      &processInformation
-  );
-
-  free(ccmd);
+    char* ccmd = strdup(output.c_str());
   
-  if(!result)
-  {
-    return -1;
-  }
+    BOOL result = CreateProcessA(
+        output.c_str(),
+        ccmd,
+        NULL,
+        NULL,
+        FALSE,
+        NORMAL_PRIORITY_CLASS,
+        NULL,
+        NULL,
+        &startupInfo,
+        &processInformation
+    );
+  
+    free(ccmd);
+
+    if(!result)
+    {
+      return -1;
+    }
 #else
-  cmd.append("xdg-open ");
-  cmd.append(download_file);
-  cmd.append("&");
-  
-  if(system(cmd.c_str()))
-  {
-    return -1;
-  }
-#endif
+    string cmd = "";
+    cmd.append("xdg-open ");
+    cmd.append(download_file);
+    cmd.append("&");
 
-  return 0;
+    if(system(cmd.c_str()))
+    {
+      return -1;
+    }
+#endif
+  }
+
+  return ret;
 }

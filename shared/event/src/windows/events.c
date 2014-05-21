@@ -7,6 +7,7 @@
 #include "winmm/manymouse.h"
 #include <GE.h>
 #include <events.h>
+#include <timer.h>
 #include <math.h>
 #include <windows.h>
 
@@ -189,105 +190,165 @@ void ev_grab_input(int mode)
   }
 }
 
+static int (*event_callback)(GE_Event*) = NULL;
+
 void ev_set_callback(int (*fp)(GE_Event*))
 {
+  event_callback = fp;
 }
 
-static short m_x[GE_MAX_DEVICES] = {};
-static short m_y[GE_MAX_DEVICES] = {};
+#define MAX_SOURCES (MAXIMUM_WAIT_OBJECTS-1)
+
+static struct
+{
+  HANDLE handle;
+  int (*fp_read)(int);
+  int (*fd_cleanup)(int);
+} sources[MAX_SOURCES] = {};
+
+static int max_source = 0;
+
+void ev_register_source(SOURCE source, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int))
+{
+  if(max_source < MAX_SOURCES)
+  {
+    sources[max_source].handle = source;
+    if(fp_read)
+    {
+      sources[max_source].fp_read = fp_read;
+    }
+    sources[max_source].fd_cleanup = fp_cleanup;
+    ++max_source;
+  }
+}
 
 void ev_pump_events()
 {
-  SDL_PumpEvents();
+  int num_evt;
+  GE_Event events[EVENT_BUFFER_SIZE];
+  GE_Event* event;
 
-  ManyMouseEvent event;
+  struct
+  {
+    short x;
+    short y;
+  } mouse[GE_MAX_DEVICES] = {};
+
+  ManyMouseEvent mme;
   Uint8 button = 0;
 
-  while (ManyMouse_PollEvent(&event))
+  HANDLE hTimer = timer_get();
+
+  int result;
+
+  do
   {
-    if (event.type == MANYMOUSE_EVENT_RELMOTION)
+    result = MsgWaitForMultipleObjects(1, &hTimer, FALSE, INFINITE, QS_RAWINPUT);
+
+    switch(result)
     {
-      if(event.item == 0)
+    case WAIT_OBJECT_0 + 1:
+
+      if (ManyMouse_PollEvent(&mme))
       {
-          m_x[event.device]+=event.value;
-      }
-      else
-      {
-          m_y[event.device]+=event.value;
-      }
-    }
-    else if (event.type == MANYMOUSE_EVENT_BUTTON)
-    {
-        switch(event.item)
+        if (mme.type == MANYMOUSE_EVENT_RELMOTION)
         {
+          if (mme.item == 0)
+          {
+            mouse[mme.device].x += mme.value;
+          }
+          else
+          {
+            mouse[mme.device].y += mme.value;
+          }
+        }
+        else if (mme.type == MANYMOUSE_EVENT_BUTTON)
+        {
+          switch (mme.item)
+          {
           case 0:
-            button = SDL_BUTTON_LEFT;
+            button = GE_BTN_LEFT;
             break;
           case 1:
-            button = SDL_BUTTON_RIGHT;
+            button = GE_BTN_RIGHT;
             break;
           case 2:
-            button = SDL_BUTTON_MIDDLE;
+            button = GE_BTN_MIDDLE;
             break;
           case 3:
-            button = SDL_BUTTON_X1;
+            button = GE_BTN_BACK;
             break;
           case 4:
-            button = SDL_BUTTON_X2;
+            button = GE_BTN_FORWARD;
             break;
+          }
+          GE_Event ge = { };
+          ge.button.type = mme.value ? GE_MOUSEBUTTONDOWN : GE_MOUSEBUTTONUP;
+          ge.button.which = mme.device;
+          ge.button.button = button;
+          event_callback(&ge);
         }
-        SDL_Event se = {};
-        se.button.type = event.value ? SDL_MOUSEBUTTONDOWN : SDL_MOUSEBUTTONUP;
-        se.button.which = event.device;
-        se.button.button = button;
-        SDL_PushEvent(&se);
-    }
-    else if (event.type == MANYMOUSE_EVENT_SCROLL)
-    {
-      if(event.item == 0)
-      {
-        SDL_Event se = {};
-        se.button.type = SDL_MOUSEBUTTONDOWN;
-        se.button.which = event.device;
-        se.button.button = (event.value > 0) ? SDL_BUTTON_WHEELUP : SDL_BUTTON_WHEELDOWN;
-        SDL_PushEvent(&se);
-        se.button.type = SDL_MOUSEBUTTONUP;
-        SDL_PushEvent(&se);
+        else if (mme.type == MANYMOUSE_EVENT_SCROLL)
+        {
+          if (mme.item == 0)
+          {
+            GE_Event ge = { };
+            ge.button.type = GE_MOUSEBUTTONDOWN;
+            ge.button.which = mme.device;
+            ge.button.button = (mme.value > 0) ? GE_BTN_WHEELUP : GE_BTN_WHEELDOWN;
+            event_callback(&ge);
+            ge.button.type = GE_MOUSEBUTTONUP;
+            event_callback(&ge);
+          }
+          else
+          {
+            GE_Event ge = { };
+            ge.button.type = GE_MOUSEBUTTONDOWN;
+            ge.button.which = mme.device;
+            ge.button.button = (mme.value < 0) ? GE_BTN_WHEELLEFT : GE_BTN_WHEELRIGHT;
+            event_callback(&ge);
+            ge.button.type = GE_MOUSEBUTTONUP;
+            event_callback(&ge);
+          }
+        }
+        else if (mme.type == MANYMOUSE_EVENT_KEY)
+        {
+          GE_Event ge = { };
+          ge.key.type = mme.value ? GE_KEYDOWN : GE_KEYUP;
+          ge.key.which = mme.device;
+          ge.key.keysym = mme.scancode;
+          event_callback(&ge);
+        }
       }
-      else
-      {
-        SDL_Event se = {};
-        se.button.type = SDL_MOUSEBUTTONDOWN;
-        se.button.which = event.device;
-        se.button.button = (event.value < 0) ? SDL_BUTTON_X3 : SDL_BUTTON_X4;
-        SDL_PushEvent(&se);
-        se.button.type = SDL_MOUSEBUTTONUP;
-        SDL_PushEvent(&se);
-      }
     }
-    else if(event.type == MANYMOUSE_EVENT_KEY)
-    {
-      SDL_Event se = {};
-      se.key.type = event.value ? SDL_KEYDOWN : SDL_KEYUP;
-      se.key.padding2 = event.device;
-      se.key.keysym.sym = event.scancode;
-      SDL_PushEvent(&se);
-    }
-  }
+
+  } while(result != WAIT_OBJECT_0);
 
   int i;
   for(i=0; i<m_num; ++i)
   {
-    if(m_x[i] || m_y[i])
+    if(mouse[i].x || mouse[i].y)
     {
-      SDL_Event se = {};
-      se.motion.type = SDL_MOUSEMOTION;
-      se.motion.which = i;
-      se.motion.xrel = m_x[i];
-      se.motion.yrel = m_y[i];
-      SDL_PushEvent(&se);
-      m_x[i] = 0;
-      m_y[i] = 0;
+      GE_Event ge = {};
+      ge.motion.type = GE_MOUSEMOTION;
+      ge.motion.which = i;
+      ge.motion.xrel = mouse[i].x;
+      ge.motion.yrel = mouse[i].y;
+      event_callback(&ge);
+      mouse[i].x = 0;
+      mouse[i].y = 0;
+    }
+  }
+
+  SDL_PumpEvents();
+
+  num_evt = GE_PeepEvents(events, sizeof(events) / sizeof(events[0]));
+
+  if (num_evt > 0)
+  {
+    for (event = events; event < events + num_evt; ++event)
+    {
+      event_callback(event);
     }
   }
 }

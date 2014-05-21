@@ -9,12 +9,12 @@
 
 #define VERSION_FILE "version"
 #define DOWNLOAD_URL "http://gimx.fr/download/gimx-windows.html"
-#define DOWNLOAD_FILE "setup.exe"
+#define DOWNLOAD_FILE "gimx-update.exe"
 
 #else
 
 #define VERSION_FILE "/tmp/version"
-#define DOWNLOAD_FILE "/tmp/gimx.deb"
+#define DOWNLOAD_FILE "/tmp/gimx-update.deb"
 
 #include <limits.h>
 
@@ -37,19 +37,33 @@ using namespace std;
 class updater
 {
 public:
-  updater(string vu, string vf, string v, string du, string df) : 
-    version_url(vu),
-    version_file(vf),
-    version(v),
-    download_url(du),
-    download_file(df)
-  {};
-  int checkversion();
-  int update();
+  int CheckVersion();
+  int Update();
+  void SetParams(string vu, string vf, string v, string du, string df)
+  {
+    version_url = vu;
+    version_file = vf;
+    version = v;
+    download_url = du;
+    download_file = df;
+  };
+  static updater* getInstance ()
+  {
+    if (NULL == _singleton)
+    {
+      _singleton =  new updater;
+    }
+
+    return _singleton;
+  }
 private:
+  updater();
+  virtual ~updater();
   string version_url;
   string version_file;
   string version;
   string download_url;
   string download_file;
+
+  static updater* _singleton;
 };

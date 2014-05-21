@@ -24,7 +24,7 @@ static int debug = 0;
 
 #define AXMAP_SIZE (ABS_MAX + 1)
 
-typedef struct
+static struct
 {
   int fd;
   int id;
@@ -35,9 +35,7 @@ typedef struct
   int ff_fd;
   int weak_id;
   int strong_id;
-} s_joystick;
-
-static s_joystick joystick[GE_MAX_DEVICES] = {};
+} joystick[GE_MAX_DEVICES] = {};
 
 static int j_num;
 static int max_joystick_id;
@@ -126,7 +124,7 @@ static int js_process_events(int index)
   int j;
   int r;
 
-  int tfd = timer_getfd();
+  int tfd = timer_get();
 
   if(tfd < 0)
   {
