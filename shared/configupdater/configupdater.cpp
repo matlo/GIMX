@@ -148,7 +148,7 @@ int configupdater::getconfigs(list<string>* cl)
     }
 
 #ifndef WIN32
-    if(chown(file.c_str(), getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid) < 0)
+    if(chown(output.c_str(), getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid) < 0)
     {
       ret = -1;
     }
