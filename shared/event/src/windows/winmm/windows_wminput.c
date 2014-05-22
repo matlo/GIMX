@@ -322,7 +322,7 @@ static void queue_from_rawinput(const RAWINPUT *raw, UINT align)
               queue_event(&event);
           } /* if */
       } /* if */
-	  else if (mouse->usButtonFlags & RI_MOUSE_HWHEEL)
+      else if (mouse->usButtonFlags & RI_MOUSE_HWHEEL)
       {
           if (mouse->usButtonData != 0)  /* !!! FIXME: can this ever be zero? */
           {
@@ -518,25 +518,25 @@ BOOL bIsWow64 = FALSE;
 void wminput_handler_buff()
 {
     UINT i;
-    UINT cbSize = 256;
-    RAWINPUT RawInput[cbSize];
+    static RAWINPUT RawInputs[MAX_EVENTS];
+    UINT cbSize = sizeof(RawInputs);
         
-    UINT nInput = pGetRawInputBuffer(RawInput, &cbSize, sizeof(RAWINPUTHEADER));
-        
-    if (nInput < 0) 
+    UINT nInput = pGetRawInputBuffer(RawInputs, &cbSize, sizeof(RAWINPUTHEADER));
+    
+    if (nInput == (UINT)-1)
     {
       return;
     }
     
-    for (i = 0; i < nInput; ++i) 
+    for (i = 0; i < nInput; ++i)
     {
       if(bIsWow64)
       {
-        queue_from_rawinput((RAWINPUT *) RawInput + i, 8);
+        queue_from_rawinput((RAWINPUT *) RawInputs + i, 8);
       }
       else
       {
-        queue_from_rawinput((RAWINPUT *) RawInput + i, 0);
+        queue_from_rawinput((RAWINPUT *) RawInputs + i, 0);
       }
     }
 }
@@ -544,7 +544,7 @@ void wminput_handler_buff()
 /*
  * For some reason GetRawInputBuffer does not work when winmm and SDL-1.2.14 are used together...
  */
-int buff = 0;
+int buff = 1;
 
 static LRESULT CALLBACK RawWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
@@ -913,45 +913,46 @@ static int check_for_disconnects(ManyMouseEvent *ev)
 } /* check_for_disconnects */
 
 
-static int windows_wminput_poll(ManyMouseEvent *ev)
+static int windows_wminput_poll(ManyMouseEvent *ev, unsigned int max)
 {
-    MSG Msg;  /* run the queue for WM_INPUT messages, etc ... */
+    MSG Msg;
     int found = 0;
     
     if(buff)
     {
+        /* process WM_INPUT events */
         wminput_handler_buff();
+        
+        /* process all other events, otherwise the message queue quickly gets full */
+        while (pPeekMessageA(&Msg, raw_hwnd, 0, WM_INPUT-1, PM_REMOVE))
+        {
+            DefWindowProc(Msg.hwnd, Msg.message, Msg.wParam, Msg.lParam);
+        }
+        while (pPeekMessageA(&Msg, raw_hwnd, WM_INPUT+1, 0xFFFF, PM_REMOVE))
+        {
+            DefWindowProc(Msg.hwnd, Msg.message, Msg.wParam, Msg.lParam);
+        }
     }
-    
-    /* ...favor existing events in the queue... */
-    pEnterCriticalSection(&mutex);
-    if (input_events_read != input_events_write)  /* no events if equal. */
-    {
-        CopyMemory(ev, &input_events[input_events_read], sizeof (*ev));
-        input_events_read = ((input_events_read + 1) % MAX_EVENTS);
-        found = 1;
-    } /* if */
-    pLeaveCriticalSection(&mutex);
-
-    if (!found)
+    else
     {
         /* pump Windows for new hardware events... */
         while (pPeekMessageA(&Msg, raw_hwnd, 0, 0, PM_REMOVE))
         {
             pTranslateMessage(&Msg);
+            /* process messages including WM_INPUT ones */
             pDispatchMessageA(&Msg);
-        } /* while */
+        }
+    }
 
-        /* In case something new came in, give it to the app... */
-        pEnterCriticalSection(&mutex);
-        if (input_events_read != input_events_write)  /* no events if equal. */
-        {
-            CopyMemory(ev, &input_events[input_events_read], sizeof (*ev));
-            input_events_read = ((input_events_read + 1) % MAX_EVENTS);
-            found = 1;
-        } /* if */
-        pLeaveCriticalSection(&mutex);
-    } /* if */
+    /* In case something new came in, give it to the app... */
+    pEnterCriticalSection(&mutex);
+    while (input_events_read != input_events_write && found < max)  /* no events if equal. */
+    {
+        CopyMemory(ev+found, &input_events[input_events_read], sizeof (*ev));
+        input_events_read = ((input_events_read + 1) % MAX_EVENTS);
+        ++found;
+    }
+    pLeaveCriticalSection(&mutex);
 
     /*
      * Check for disconnects if queue is totally empty and Windows didn't

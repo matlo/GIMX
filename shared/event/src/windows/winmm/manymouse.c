@@ -88,9 +88,9 @@ const char *ManyMouse_KeyboardName(unsigned int index)
     return (driver) ? driver->keyboard_name(index) : NULL;
 } /* ManyMouse_DeviceName */
 
-int ManyMouse_PollEvent(ManyMouseEvent *event)
+int ManyMouse_PollEvent(ManyMouseEvent *event, unsigned int max)
 {
-    return (driver) ? driver->poll(event) : 0;
+    return (driver) ? driver->poll(event, max) : 0;
 } /* ManyMouse_PollEvent */
 
 /* end of manymouse.c ... */

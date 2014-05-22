@@ -225,16 +225,19 @@ void ev_register_source(SOURCE source, int id, int (*fp_read)(int), int (*fp_wri
 void ev_pump_events()
 {
   int num_evt;
-  GE_Event events[EVENT_BUFFER_SIZE];
+  static GE_Event events[EVENT_BUFFER_SIZE];
   GE_Event* event;
 
-  struct
+  static struct
   {
     short x;
     short y;
   } mouse[GE_MAX_DEVICES] = {};
 
-  ManyMouseEvent mme;
+  int num_mm_evt;
+  static ManyMouseEvent mm_events[EVENT_BUFFER_SIZE];
+  ManyMouseEvent* mm_event;
+  
   Uint8 button = 0;
 
   HANDLE hTimer = timer_get();
@@ -249,22 +252,23 @@ void ev_pump_events()
     {
     case WAIT_OBJECT_0 + 1:
 
-      if (ManyMouse_PollEvent(&mme))
+      num_mm_evt = ManyMouse_PollEvent(mm_events, sizeof(mm_events)/sizeof(*mm_events));
+      for(mm_event=mm_events; mm_event < mm_events + num_mm_evt; ++mm_event)
       {
-        if (mme.type == MANYMOUSE_EVENT_RELMOTION)
+        if (mm_event->type == MANYMOUSE_EVENT_RELMOTION)
         {
-          if (mme.item == 0)
+          if (mm_event->item == 0)
           {
-            mouse[mme.device].x += mme.value;
+            mouse[mm_event->device].x += mm_event->value;
           }
           else
           {
-            mouse[mme.device].y += mme.value;
+            mouse[mm_event->device].y += mm_event->value;
           }
         }
-        else if (mme.type == MANYMOUSE_EVENT_BUTTON)
+        else if (mm_event->type == MANYMOUSE_EVENT_BUTTON)
         {
-          switch (mme.item)
+          switch (mm_event->item)
           {
           case 0:
             button = GE_BTN_LEFT;
@@ -283,19 +287,19 @@ void ev_pump_events()
             break;
           }
           GE_Event ge = { };
-          ge.button.type = mme.value ? GE_MOUSEBUTTONDOWN : GE_MOUSEBUTTONUP;
-          ge.button.which = mme.device;
+          ge.button.type = mm_event->value ? GE_MOUSEBUTTONDOWN : GE_MOUSEBUTTONUP;
+          ge.button.which = mm_event->device;
           ge.button.button = button;
           event_callback(&ge);
         }
-        else if (mme.type == MANYMOUSE_EVENT_SCROLL)
+        else if (mm_event->type == MANYMOUSE_EVENT_SCROLL)
         {
-          if (mme.item == 0)
+          if (mm_event->item == 0)
           {
             GE_Event ge = { };
             ge.button.type = GE_MOUSEBUTTONDOWN;
-            ge.button.which = mme.device;
-            ge.button.button = (mme.value > 0) ? GE_BTN_WHEELUP : GE_BTN_WHEELDOWN;
+            ge.button.which = mm_event->device;
+            ge.button.button = (mm_event->value > 0) ? GE_BTN_WHEELUP : GE_BTN_WHEELDOWN;
             event_callback(&ge);
             ge.button.type = GE_MOUSEBUTTONUP;
             event_callback(&ge);
@@ -304,19 +308,19 @@ void ev_pump_events()
           {
             GE_Event ge = { };
             ge.button.type = GE_MOUSEBUTTONDOWN;
-            ge.button.which = mme.device;
-            ge.button.button = (mme.value < 0) ? GE_BTN_WHEELLEFT : GE_BTN_WHEELRIGHT;
+            ge.button.which = mm_event->device;
+            ge.button.button = (mm_event->value < 0) ? GE_BTN_WHEELLEFT : GE_BTN_WHEELRIGHT;
             event_callback(&ge);
             ge.button.type = GE_MOUSEBUTTONUP;
             event_callback(&ge);
           }
         }
-        else if (mme.type == MANYMOUSE_EVENT_KEY)
+        else if (mm_event->type == MANYMOUSE_EVENT_KEY)
         {
           GE_Event ge = { };
-          ge.key.type = mme.value ? GE_KEYDOWN : GE_KEYUP;
-          ge.key.which = mme.device;
-          ge.key.keysym = mme.scancode;
+          ge.key.type = mm_event->value ? GE_KEYDOWN : GE_KEYUP;
+          ge.key.which = mm_event->device;
+          ge.key.keysym = mm_event->scancode;
           event_callback(&ge);
         }
       }

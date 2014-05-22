@@ -45,7 +45,7 @@ typedef struct
     int (*init)(void);
     void (*quit)(void);
     const char *(*mouse_name)(unsigned int index);
-    int (*poll)(ManyMouseEvent *event);
+    int (*poll)(ManyMouseEvent *event, unsigned int max);
     const char *(*keyboard_name)(unsigned int index);
 } ManyMouseDriver;
 
@@ -54,7 +54,7 @@ int ManyMouse_Init(void);
 const char *ManyMouse_DriverName(void);
 void ManyMouse_Quit(void);
 const char *ManyMouse_MouseName(unsigned int index);
-int ManyMouse_PollEvent(ManyMouseEvent *event);
+int ManyMouse_PollEvent(ManyMouseEvent *event, unsigned int max);
 const char *ManyMouse_KeyboardName(unsigned int index);
 
 #ifdef __cplusplus
