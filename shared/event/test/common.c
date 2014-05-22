@@ -22,6 +22,11 @@ void display_devices()
     printf("  keyboard %d is named %s\n", i, name);
     ++i;
   }
+  
+  if(!i)
+  {
+    printf("  none\n");
+  }
 
   i = 0;
   printf("Mice:\n");
@@ -29,6 +34,11 @@ void display_devices()
   {
     printf("  mouse %d is named %s\n", i, name);
     ++i;
+  }
+  
+  if(!i)
+  {
+    printf("  none\n");
   }
 
   i = 0;
@@ -38,6 +48,15 @@ void display_devices()
     printf("  joystick %d is named %s\n", i, name);
     ++i;
   }
+  
+  if(!i)
+  {
+    printf("  none\n");
+  }
+  
+#ifdef WIN32
+  fflush(stdout);
+#endif
 }
 
 int process_event(GE_Event* event)
@@ -80,5 +99,8 @@ int process_event(GE_Event* event)
       printf("Joystick: %s (%u) - axis: %d value: %d\n", GE_JoystickName(event->jaxis.which), GE_JoystickVirtualId(event->jaxis.which), event->jaxis.axis, event->jaxis.value);
       break;
   }
+#ifdef WIN32
+  fflush(stdout);
+#endif
   return 0;
 }

@@ -40,14 +40,12 @@ int main(int argc, char* argv[])
   GE_TimerStart(PERIOD);
 
   GE_SetCallback(process_event);
+  
+  GE_grab();
 
   while(!done)
   {
     GE_PumpEvents();
-
-#ifdef WIN32
-    fflush(stdout);
-#endif
 
     //do something periodically
   }
