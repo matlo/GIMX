@@ -1195,9 +1195,21 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     }
 #endif
 
+    //migrate configs
+    wxString oldGimxDir = wxStandardPaths::Get().GetUserConfigDir().Append(wxT(OLD_GIMX_DIR));
+    wxString gimxDir = wxStandardPaths::Get().GetUserConfigDir().Append(wxT(GIMX_DIR));
+    if(wxDir::Exists(oldGimxDir) && !wxDir::Exists(gimxDir))
+    {
+      if(!wxRenameFile(oldGimxDir, gimxDir))
+      {
+        wxMessageBox( _("Can't migrate directory: ") + oldGimxDir, _("Error"), wxICON_ERROR);
+        exit(-1);
+      }
+    }
+
     /* Retrieve config/ directory location */
     default_directory = wxStandardPaths::Get().GetUserConfigDir();
-    default_directory.Append(wxT(APP_DIR));
+    default_directory.Append(wxT(GIMX_DIR));
     if(!wxDir::Exists(default_directory))
     {
       if(!wxMkdir(default_directory))

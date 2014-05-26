@@ -1338,7 +1338,7 @@ int read_config_file(const char* file)
 {
   char file_path[PATH_MAX];
 
-  snprintf(file_path, sizeof(file_path), "%s%s%s%s", emuclient_params.homedir, APP_DIR, CONFIG_DIR, file);
+  snprintf(file_path, sizeof(file_path), "%s%s%s%s", emuclient_params.homedir, GIMX_DIR, CONFIG_DIR, file);
 
   if(read_file(file_path) == -1)
   {

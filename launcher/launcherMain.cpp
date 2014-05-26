@@ -28,6 +28,7 @@
 
 #include <wx/aboutdlg.h>
 #include <wx/dir.h>
+#include <wx/file.h>
 #include "launcher.h"
 
 #include "../directories.h"
@@ -45,8 +46,11 @@ using namespace std;
 #define MAX_PORT_ID 32
 #endif
 
-wxString userConfigDir;
-wxString appDataDir;
+#define BLUETOOTH_DIR "/.sixemugui"
+#define PS3_CONFIG "/PS3Pairings"
+
+wxString gimxConfigDir;
+wxString launcherDir;
 
 //(*IdInit(launcherFrame)
 const long launcherFrame::ID_STATICTEXT4 = wxNewId();
@@ -70,8 +74,6 @@ const long launcherFrame::ID_MENUITEM8 = wxNewId();
 const long launcherFrame::ID_MENUITEM7 = wxNewId();
 const long launcherFrame::ID_MENUITEM3 = wxNewId();
 const long launcherFrame::idMenuQuit = wxNewId();
-const long launcherFrame::ID_MENUITEM9 = wxNewId();
-const long launcherFrame::ID_MENUITEM10 = wxNewId();
 const long launcherFrame::ID_MENUITEM6 = wxNewId();
 const long launcherFrame::ID_MENUITEM4 = wxNewId();
 const long launcherFrame::ID_MENUITEM5 = wxNewId();
@@ -212,7 +214,7 @@ int launcherFrame::setDongleAddress(wxArrayString dongles, wxString device, wxSt
 
     if(res != -1)
     {
-        wxMessageBox( results1[0], _("Success"), wxICON_INFORMATION);
+      wxMessageBox( results1[0], _("Success"), wxICON_INFORMATION);
     }
 
     //wait up to 5s for the device to come back
@@ -226,6 +228,7 @@ int launcherFrame::setDongleAddress(wxArrayString dongles, wxString device, wxSt
     if(results2[0] !=  address)
     {
         wxMessageBox( _("Read address after set: ko!"), _("Error"), wxICON_ERROR);
+        return -1;
     }
     else
     {
@@ -236,16 +239,16 @@ int launcherFrame::setDongleAddress(wxArrayString dongles, wxString device, wxSt
 }
 
 #ifdef WIN32
-static void read_serial_ports(wxComboBox* choice)
+void launcherFrame::readSerialPorts()
 {
   HANDLE hSerial;
   DWORD accessdirection = /*GENERIC_READ |*/GENERIC_WRITE;
   char portname[16];
   wchar_t szCOM[16];
   int i;
-  wxString previous = choice->GetStringSelection();
+  wxString previous = ComboBoxOutput->GetStringSelection();
 
-  choice->Clear();
+  ComboBoxOutput->Clear();
 
   for(i=0; i<MAX_PORT_ID; ++i)
   {
@@ -266,7 +269,7 @@ static void read_serial_ports(wxComboBox* choice)
         if (SetCommState(hSerial, &newDcbSerialParams))//test port parameters
         {
           snprintf(portname, sizeof(portname), "COM%d", i);
-          choice->SetSelection(choice->Append(wxString(portname, wxConvUTF8)));
+          ComboBoxOutput->SetSelection(ComboBoxOutput->Append(wxString(portname, wxConvUTF8)));
         }
         SetCommState(hSerial, &oldDcbSerialParams);//restore port parameters, do not care about any error
       }
@@ -276,21 +279,21 @@ static void read_serial_ports(wxComboBox* choice)
 
   if(previous != wxEmptyString)
   {
-    choice->SetSelection(choice->FindString(previous));
+    ComboBoxOutput->SetSelection(ComboBoxOutput->FindString(previous));
   }
-  if(choice->GetSelection() < 0)
+  if(ComboBoxOutput->GetSelection() < 0)
   {
-    choice->SetSelection(0);
+    ComboBoxOutput->SetSelection(0);
   }
 }
 #else
-static void read_serial_ports(wxComboBox* choice)
+void launcherFrame::readSerialPorts()
 {
   string filename;
   string line = "";
-  wxString previous = choice->GetStringSelection();
+  wxString previous = ComboBoxOutput->GetStringSelection();
 
-  filename = string(appDataDir.mb_str(wxConvUTF8));
+  filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append("/config");
   ifstream infile (filename.c_str());
   if ( infile.is_open() )
@@ -302,7 +305,7 @@ static void read_serial_ports(wxComboBox* choice)
       infile.close();
   }
 
-  choice->Clear();
+  ComboBoxOutput->Clear();
 
   string ds = "/dev";
 
@@ -323,34 +326,34 @@ static void read_serial_ports(wxComboBox* choice)
     {
       if(!line.empty() && wxString(line.c_str(), wxConvUTF8) == file)
       {
-        choice->SetSelection(choice->Append(file));
+        ComboBoxOutput->SetSelection(ComboBoxOutput->Append(file));
       }
       else
       {
-        choice->Append(file);
+        ComboBoxOutput->Append(file);
       }
     }
   }
 
   if(previous != wxEmptyString)
   {
-    choice->SetSelection(choice->FindString(previous));
+    ComboBoxOutput->SetSelection(ComboBoxOutput->FindString(previous));
   }
-  if(choice->GetSelection() < 0)
+  if(ComboBoxOutput->GetSelection() < 0)
   {
-    choice->SetSelection(0);
+    ComboBoxOutput->SetSelection(0);
   }
 }
 #endif
 
-static void read_filenames(wxChoice* choice)
+void launcherFrame::readConfigs()
 {
   string filename;
   string line = "";
-  wxString previous = choice->GetStringSelection();
+  wxString previous = ChoiceConfig->GetStringSelection();
 
   /* Read the last config used so as to auto-select it. */
-  filename = string(appDataDir.mb_str(wxConvUTF8));
+  filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append("/default");
   ifstream infile (filename.c_str());
   if ( infile.is_open() )
@@ -362,10 +365,10 @@ static void read_filenames(wxChoice* choice)
     infile.close();
   }
 
-  choice->Clear();
+  ChoiceConfig->Clear();
 
   /* Read all config file names. */
-  wxDir dir(userConfigDir);
+  wxDir dir(gimxConfigDir);
 
   if(!dir.IsOpened())
   {
@@ -381,35 +384,37 @@ static void read_filenames(wxChoice* choice)
     {
       previous = file;
     }
-    choice->Append(file);
+    ChoiceConfig->Append(file);
   }
 
   if(previous != wxEmptyString)
   {
-    choice->SetSelection(choice->FindString(previous));
+    ChoiceConfig->SetSelection(ChoiceConfig->FindString(previous));
   }
-  if(choice->GetSelection() < 0)
+  if(ChoiceConfig->GetSelection() < 0)
   {
-    choice->SetSelection(0);
+    ChoiceConfig->SetSelection(0);
   }
 }
 
-static int read_sixaxis_config(wxComboBox* choice)
+int launcherFrame::readPairings(const char* file)
 {
     string filename;
     string line;
     string device;
     string master;
     int ret = -1;
+    
+    ComboBoxOutput->Clear();
 
-    filename = string(appDataDir.mb_str(wxConvUTF8));
-    filename.append("/config");
+    filename = string(launcherDir.mb_str(wxConvUTF8));
+    filename.append(file);
 
     if(!::wxFileExists(wxString(filename.c_str(), wxConvUTF8)))
     {
       return 0;
     }
-
+    
     ifstream myfile(filename.c_str());
     if(myfile.is_open())
     {
@@ -418,7 +423,7 @@ static int read_sixaxis_config(wxComboBox* choice)
             getline (myfile,line);
             if(!line.empty())
             {
-                choice->Append(wxString(line.c_str(), wxConvUTF8));
+                ComboBoxOutput->Append(wxString(line.c_str(), wxConvUTF8));
                 ret = 0;
             }
         }
@@ -431,12 +436,12 @@ static int read_sixaxis_config(wxComboBox* choice)
     return ret;
 }
 
-static void read_controller_type(wxChoice* choice)
+void launcherFrame::readControllerType()
 {
   string filename;
   string line = "";
 
-  filename = string(appDataDir.mb_str(wxConvUTF8));
+  filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append("/controller");
   ifstream infile (filename.c_str());
   if ( infile.is_open() )
@@ -444,18 +449,18 @@ static void read_controller_type(wxChoice* choice)
     if( infile.good() )
     {
       getline (infile,line);
-      choice->SetSelection(choice->FindString(wxString(line.c_str(), wxConvUTF8)));
+      ControllerType->SetSelection(ControllerType->FindString(wxString(line.c_str(), wxConvUTF8)));
     }
     infile.close();
   }
 }
 
-static void readStartUpdates(wxMenuItem* menuItem)
+void launcherFrame::readStartUpdates()
 {
   string filename;
   string line = "";
 
-  filename = string(appDataDir.mb_str(wxConvUTF8));
+  filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append("/startUpdates");
   ifstream infile (filename.c_str());
   if ( infile.is_open() )
@@ -465,7 +470,7 @@ static void readStartUpdates(wxMenuItem* menuItem)
       getline (infile,line);
       if(line == "yes")
       {
-        menuItem->Check(true);
+        MenuStartupUpdates->Check(true);
       }
     }
     infile.close();
@@ -492,51 +497,44 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer7;
     wxFlexGridSizer* FlexGridSizer4;
     wxFlexGridSizer* FlexGridSizer9;
-    wxFlexGridSizer* FlexGridSizer3;
     wxStaticBoxSizer* StaticBoxSizer8;
     wxStaticBoxSizer* StaticBoxSizer6;
     wxFlexGridSizer* FlexGridSizer10;
     wxMenuBar* MenuBar1;
-    wxFlexGridSizer* FlexGridSizer12;
     wxMenu* Menu2;
     wxFlexGridSizer* FlexGridSizer5;
 
     Create(parent, wxID_ANY, _("Gimx-launcher"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL1"));
     FlexGridSizer1 = new wxFlexGridSizer(3, 1, 0, 0);
-    FlexGridSizer12 = new wxFlexGridSizer(4, 1, 0, 0);
+    IOSizer = new wxFlexGridSizer(4, 1, 0, 0);
     FlexGridSizer2 = new wxFlexGridSizer(1, 2, 0, 0);
-    StaticText4 = new wxStaticText(Panel1, ID_STATICTEXT4, _("Adapter"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT4"));
+    StaticText4 = new wxStaticText(Panel1, ID_STATICTEXT4, _("Output"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT4"));
     FlexGridSizer2->Add(StaticText4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ControllerType = new wxChoice(Panel1, ID_CHOICE1, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
-    ControllerType->SetSelection( ControllerType->Append(_("Bluetooth / PS3")) );
-    ControllerType->Append(_("Bluetooth / PS4"));
-    ControllerType->Append(_("DIY USB"));
-    ControllerType->Append(_("GPP/Cronus"));
-    ControllerType->Append(_("Remote GIMX"));
     FlexGridSizer2->Add(ControllerType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer12->Add(FlexGridSizer2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer3 = new wxFlexGridSizer(1, 2, 0, 0);
-    DeviceText = new wxStaticText(Panel1, ID_STATICTEXT3, _("Port"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT3"));
-    FlexGridSizer3->Add(DeviceText, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    ComboBoxDevice = new wxComboBox(Panel1, ID_COMBOBOX1, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX1"));
-    FlexGridSizer3->Add(ComboBoxDevice, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer12->Add(FlexGridSizer3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    IOSizer->Add(FlexGridSizer2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    OutputSizer = new wxFlexGridSizer(1, 2, 0, 0);
+    OutputText = new wxStaticText(Panel1, ID_STATICTEXT3, _("Port"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT3"));
+    OutputSizer->Add(OutputText, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ComboBoxOutput = new wxComboBox(Panel1, ID_COMBOBOX1, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX1"));
+    OutputSizer->Add(ComboBoxOutput, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    IOSizer->Add(OutputSizer, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer5 = new wxFlexGridSizer(1, 2, 0, 0);
-    StaticText1 = new wxStaticText(Panel1, ID_STATICTEXT1, _("Source"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
+    StaticText1 = new wxStaticText(Panel1, ID_STATICTEXT1, _("Input"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
     FlexGridSizer5->Add(StaticText1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     sourceChoice = new wxChoice(Panel1, ID_CHOICE2, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE2"));
     sourceChoice->SetSelection( sourceChoice->Append(_("Physical inputs")) );
     sourceChoice->Append(_("Network"));
     FlexGridSizer5->Add(sourceChoice, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer12->Add(FlexGridSizer5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    IOSizer->Add(FlexGridSizer5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     SourceIpSizer = new wxFlexGridSizer(1, 2, 0, 0);
     StaticText2 = new wxStaticText(Panel1, ID_STATICTEXT2, _("IP:port"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
     SourceIpSizer->Add(StaticText2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    ComboBox1 = new wxComboBox(Panel1, ID_COMBOBOX2, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX2"));
-    SourceIpSizer->Add(ComboBox1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer12->Add(SourceIpSizer, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer1->Add(FlexGridSizer12, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ComboBoxIpSource = new wxComboBox(Panel1, ID_COMBOBOX2, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_COMBOBOX2"));
+    SourceIpSizer->Add(ComboBoxIpSource, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    IOSizer->Add(SourceIpSizer, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer1->Add(IOSizer, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer8 = new wxFlexGridSizer(1, 2, 0, 0);
     MouseSizer = new wxStaticBoxSizer(wxVERTICAL, Panel1, _("Mouse"));
     FlexGridSizer10 = new wxFlexGridSizer(1, 1, 0, 0);
@@ -588,12 +586,6 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
     MenuItem1 = new wxMenuItem(Menu1, idMenuQuit, _("Quit\tAlt-F4"), _("Quit the application"), wxITEM_NORMAL);
     Menu1->Append(MenuItem1);
     MenuBar1->Append(Menu1, _("&File"));
-    Menu3 = new wxMenu();
-    MenuPS3Tools = new wxMenuItem(Menu3, ID_MENUITEM9, _("PS3"), wxEmptyString, wxITEM_NORMAL);
-    Menu3->Append(MenuPS3Tools);
-    MenuPS4Tools = new wxMenuItem(Menu3, ID_MENUITEM10, _("PS4"), wxEmptyString, wxITEM_NORMAL);
-    Menu3->Append(MenuPS4Tools);
-    MenuBar1->Append(Menu3, _("Tools"));
     Menu2 = new wxMenu();
     MenuGetConfigs = new wxMenuItem(Menu2, ID_MENUITEM6, _("Get configs"), wxEmptyString, wxITEM_NORMAL);
     Menu2->Append(MenuGetConfigs);
@@ -614,6 +606,7 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
     SingleInstanceChecker1.Create(_T("gimx-launcher_") + wxGetUserId() + _T("_Guard"));
 
     Connect(ID_CHOICE1,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&launcherFrame::OnControllerTypeSelect);
+    Connect(ID_COMBOBOX1,wxEVT_COMMAND_COMBOBOX_SELECTED,(wxObjectEventFunction)&launcherFrame::OnComboBoxDeviceSelected);
     Connect(ID_CHOICE2,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&launcherFrame::OnsourceChoiceSelect);
     Connect(ID_CHECKBOX2,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&launcherFrame::OnCheckBoxGuiClick);
     Connect(ID_CHECKBOX3,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&launcherFrame::OnCheckBoxTerminalClick);
@@ -625,7 +618,6 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM7,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnMenuAutoBindControls);
     Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnMenuRefresh);
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnQuit);
-    Connect(ID_MENUITEM9,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnMenuPS3Tools);
     Connect(ID_MENUITEM6,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnMenuGetConfigs);
     Connect(ID_MENUITEM4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnMenuUpdate);
     Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnMenuStartupUpdates);
@@ -638,46 +630,81 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
         exit(-1);
     }
 
-    appDataDir = wxStandardPaths::Get().GetUserDataDir();
-    if(!wxDir::Exists(appDataDir))
+    launcherDir = wxStandardPaths::Get().GetUserDataDir();
+    if(!wxDir::Exists(launcherDir))
     {
-      if(!wxMkdir(appDataDir))
+      if(!wxMkdir(launcherDir))
       {
-        wxMessageBox( _("Can't init directory: ") + appDataDir, _("Error"), wxICON_ERROR);
+        wxMessageBox( _("Can't init directory: ") + launcherDir, _("Error"), wxICON_ERROR);
         exit(-1);
       }
     }
-
-    userConfigDir = wxStandardPaths::Get().GetUserConfigDir();
-    userConfigDir.Append(wxT(APP_DIR));
-    if(!wxDir::Exists(userConfigDir))
+   
+    //migrate old config file from gimx-bluetooth
+    wxString oldConfig = wxStandardPaths::Get().GetUserConfigDir() + wxT(BLUETOOTH_DIR) + wxT("/config");
+    wxString config = launcherDir + wxT(PS3_CONFIG);
+    if(wxFile::Exists(oldConfig) && !wxFile::Exists(config))
     {
-      if(!wxMkdir(userConfigDir))
+      if(!wxRenameFile(oldConfig, config))
       {
-        wxMessageBox( _("Can't init directory: ") + userConfigDir, _("Error"), wxICON_ERROR);
+        wxMessageBox( _("Can't migrate config: ") + oldConfig, _("Error"), wxICON_ERROR);
         exit(-1);
       }
     }
-    userConfigDir.Append(wxT(CONFIG_DIR));
-    if(!wxDir::Exists(userConfigDir))
+    
+    //migrate old config/ directory if present
+    wxString oldGimxDir = wxStandardPaths::Get().GetUserConfigDir() + wxT(OLD_GIMX_DIR);
+    wxString gimxDir = wxStandardPaths::Get().GetUserConfigDir() + wxT(GIMX_DIR);
+    if(wxDir::Exists(oldGimxDir) && !wxDir::Exists(gimxDir))
     {
-      if(!wxMkdir(userConfigDir))
+      if(!wxRenameFile(oldGimxDir, gimxDir))
       {
-        wxMessageBox( _("Can't init directory: ") + userConfigDir, _("Error"), wxICON_ERROR);
+        wxMessageBox( _("Can't migrate directory: ") + oldGimxDir, _("Error"), wxICON_ERROR);
+        exit(-1);
+      }
+    }
+    
+    //create config/ directory if absent
+    if(!wxDir::Exists(gimxDir))
+    {
+      if(!wxMkdir(gimxDir))
+      {
+        wxMessageBox( _("Can't init directory: ") + gimxDir, _("Error"), wxICON_ERROR);
+        exit(-1);
+      }
+    }
+    gimxConfigDir = gimxDir + wxT(CONFIG_DIR);
+    if(!wxDir::Exists(gimxConfigDir))
+    {
+      if(!wxMkdir(gimxConfigDir))
+      {
+        wxMessageBox( _("Can't init directory: ") + gimxConfigDir, _("Error"), wxICON_ERROR);
         exit(-1);
       }
     }
 
     started = false;
 
-    read_controller_type(ControllerType);
+#ifndef WIN32
+    ControllerType->SetSelection( ControllerType->Append(_("Bluetooth / PS3")) );
+    ControllerType->Append(_("Bluetooth / PS4"));
+    ControllerType->Append(_("DIY USB"));
+    ControllerType->Append(_("GPP/Cronus"));
+    ControllerType->Append(_("Remote GIMX"));
+#else
+    ControllerType->SetSelection( ControllerType->Append(_("DIY USB")) );
+    ControllerType->Append(_("GPP/Cronus"));
+    ControllerType->Append(_("Remote GIMX"));
+#endif
+
+    readControllerType();
     refresh();
 
     wxCommandEvent event;
     OnControllerTypeSelect(event);
     OnsourceChoiceSelect(event);
 
-    readStartUpdates(MenuStartupUpdates);
+    readStartUpdates();
     if(MenuStartupUpdates->IsChecked())
     {
       OnMenuUpdate(event);
@@ -695,8 +722,7 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
       }
     }
 
-    Panel1->Fit();
-    Fit();
+    refreshGui();
 }
 
 launcherFrame::~launcherFrame()
@@ -756,9 +782,10 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
       return;
     }
 
+    //TODO: check port / pairing / IP:port
     if(ControllerType->GetStringSelection() != _("GPP/Cronus"))
     {
-      if(ComboBoxDevice->GetValue().IsEmpty())
+      if(ComboBoxOutput->GetValue().IsEmpty())
       {
         wxMessageBox( _("No USB to serial device selected!"), _("Error"), wxICON_ERROR);
         return;
@@ -779,7 +806,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
 #ifndef WIN32
       command.Append(wxT("/dev/"));
 #endif
-      command.Append(ComboBoxDevice->GetValue());
+      command.Append(ComboBoxOutput->GetValue());
     }
     if(!CheckBoxGrab->IsChecked())
     {
@@ -794,8 +821,8 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
     //cout << command.c_str() << endl;
 
     //TODO: sauver les options lorsque le programme se termine
-    
-    filename = appDataDir.mb_str(wxConvUTF8);
+
+    filename = launcherDir.mb_str(wxConvUTF8);
     filename.append("/default");
     ofstream outfile (filename.c_str(), ios_base::trunc);
     if(outfile.is_open())
@@ -803,15 +830,15 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
         outfile << ChoiceConfig->GetStringSelection().mb_str(wxConvUTF8) << endl;
         outfile.close();
     }
-    filename = appDataDir.mb_str(wxConvUTF8);
+    filename = launcherDir.mb_str(wxConvUTF8);
     filename.append("/config");
     ofstream outfile3 (filename.c_str(), ios_base::trunc);
     if(outfile3.is_open())
     {
-        outfile3 << ComboBoxDevice->GetValue().mb_str(wxConvUTF8) << endl;
+        outfile3 << ComboBoxOutput->GetValue().mb_str(wxConvUTF8) << endl;
         outfile3.close();
     }
-    filename = appDataDir.mb_str(wxConvUTF8);
+    filename = launcherDir.mb_str(wxConvUTF8);
     filename.append("/controller");
     ofstream outfile4 (filename.c_str(), ios_base::trunc);
     if(outfile4.is_open())
@@ -872,7 +899,7 @@ void launcherFrame::OnButtonCheckClick1(wxCommandEvent& event)
       return;
     }
 
-    string file = string(userConfigDir.mb_str(wxConvUTF8));
+    string file = string(gimxConfigDir.mb_str(wxConvUTF8));
     file.append(ChoiceConfig->GetStringSelection().mb_str(wxConvUTF8));
 
     ConfigurationFile configFile;
@@ -932,12 +959,23 @@ void launcherFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
 
 void launcherFrame::refresh()
 {
-    read_filenames(ChoiceConfig);
-    read_serial_ports(ComboBoxDevice);
-    if(ComboBoxDevice->GetCount() == 0 && ControllerType->GetStringSelection() != _("GPP/Cronus"))
+    readConfigs();
+    if(ControllerType->GetStringSelection() == _("DIY USB"))
     {
-        wxMessageBox( _("No Serial Port Detected!\n"), _("Error"), wxICON_ERROR);
+      readSerialPorts();
+      if(ComboBoxOutput->IsEmpty())
+      {
+          wxMessageBox( _("No Serial Port Detected!\n"), _("Error"), wxICON_ERROR);
+      }
     }
+}
+
+void launcherFrame::refreshGui()
+{
+  IOSizer->Layout();
+  Panel1->Fit();
+  Fit();
+  Refresh();
 }
 
 void launcherFrame::OnMenuRefresh(wxCommandEvent& event)
@@ -949,44 +987,73 @@ void launcherFrame::OnControllerTypeSelect(wxCommandEvent& event)
 {
     if(ControllerType->GetStringSelection() == _("GPP/Cronus"))
     {
-      ComboBoxDevice->Show(false);
-      DeviceText->Show(false);
+      OutputSizer->Show(false);
+      
+      refreshGui();
     }
     else if(ControllerType->GetStringSelection() == _("DIY USB"))
     {
-      ComboBoxDevice->Show(true);
-      DeviceText->Show(true);
-      DeviceText->SetLabel(_("Port"));
+      OutputSizer->Show(true);
+      OutputText->SetLabel(_("Port"));
+      
+      refreshGui();
 
-      read_serial_ports(ComboBoxDevice);
+      readSerialPorts();
+
+      if(ComboBoxOutput->IsEmpty())
+      {
+          wxMessageBox( _("No Serial Port Detected!\n"), _("Error"), wxICON_ERROR);
+      }
     }
     else if(ControllerType->GetStringSelection() == _("Bluetooth / PS3"))
     {
-      ComboBoxDevice->Show(true);
-      DeviceText->Show(true);
-      DeviceText->SetLabel(_("Address"));
-
-      read_sixaxis_config(ComboBoxDevice);
+      OutputSizer->Show(true);
+      OutputText->SetLabel(_("Pairing"));
       
-      //TODO: si pas d'adresses, demander appairage
+      refreshGui();
+
+      readPairings(PS3_CONFIG);
+
+      if(ComboBoxOutput->IsEmpty())
+      {
+        int answer = wxMessageBox(_("No pairing found.\nPerform a new pairing?"), _("Confirm"), wxYES_NO);
+        if (answer == wxYES)
+        {
+          ps3Setup();
+        }
+      }
+
+      ComboBoxOutput->Append(_("New pairing..."));
     }
     else if(ControllerType->GetStringSelection() == _("Bluetooth / PS4"))
     {
-      ComboBoxDevice->Show(true);
-      DeviceText->Show(true);
-      DeviceText->SetLabel(_("Address"));
-      //TODO: lire les adresses
+      OutputSizer->Show(true);
+      OutputText->SetLabel(_("Pairing"));
       
-      //TODO: si pas d'adresses, demander appairage
+      refreshGui();
+      
+      //TODO: lire les adresses
+      ComboBoxOutput->Clear();
+
+      if(ComboBoxOutput->IsEmpty())
+      {
+        int answer = wxMessageBox(_("No pairing found.\nPerform a new pairing?"), _("Confirm"), wxYES_NO);
+        if (answer == wxYES)
+        {
+          ps4Setup();
+        }
+      }
+
+      ComboBoxOutput->Append(_("New pairing..."));
     }
     else if(ControllerType->GetStringSelection() == _("Remote GIMX"))
     {
-      ComboBoxDevice->Show(true);
-      DeviceText->Show(true);
-      DeviceText->SetLabel(_("IP:port"));
+      OutputSizer->Show(true);
+      OutputText->SetLabel(_("IP:port"));
       //TODO: lire les IPs
+      
+      refreshGui();
     }
-    Panel1->Fit();
 }
 
 void launcherFrame::OnMenuUpdate(wxCommandEvent& event)
@@ -1027,7 +1094,7 @@ void launcherFrame::OnMenuUpdate(wxCommandEvent& event)
 
 void launcherFrame::OnMenuStartupUpdates(wxCommandEvent& event)
 {
-  string filename = string(appDataDir.mb_str(wxConvUTF8));
+  string filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append("/startUpdates");
   ofstream outfile (filename.c_str(), ios_base::trunc);
   if(outfile.is_open())
@@ -1046,8 +1113,8 @@ void launcherFrame::OnMenuStartupUpdates(wxCommandEvent& event)
 
 void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event)
 {
-  string dir = string(userConfigDir.mb_str(wxConvUTF8));
-  
+  string dir = string(gimxConfigDir.mb_str(wxConvUTF8));
+
   configupdater* u = configupdater::getInstance();
   u->SetParams(CONFIGS_URL, CONFIGS_FILE, dir);
 
@@ -1111,7 +1178,7 @@ void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event)
             autoBindControls(configs);
           }
 	      }
-        read_filenames(ChoiceConfig);
+        readConfigs();
         ChoiceConfig->SetSelection(ChoiceConfig->FindString(wxString(cl_sel.front().c_str(), wxConvUTF8)));
       }
     }
@@ -1125,7 +1192,7 @@ void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event)
 
 void launcherFrame::autoBindControls(wxArrayString configs)
 {
-  string dir = string(userConfigDir.mb_str(wxConvUTF8));
+  string dir = string(gimxConfigDir.mb_str(wxConvUTF8));
 
   wxString mod_config;
 
@@ -1189,10 +1256,10 @@ void launcherFrame::OnMenuAutoBindControls(wxCommandEvent& event)
 void launcherFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event)
 {
 #ifdef WIN32
-  userConfigDir.Replace(wxT("/"), wxT("\\"));
-  wxExecute(wxT("explorer ") + userConfigDir, wxEXEC_ASYNC, NULL);
+  gimxConfigDir.Replace(wxT("/"), wxT("\\"));
+  wxExecute(wxT("explorer ") + gimxConfigDir, wxEXEC_ASYNC, NULL);
 #else
-  wxExecute(wxT("xdg-open ") + userConfigDir, wxEXEC_ASYNC, NULL);
+  wxExecute(wxT("xdg-open ") + gimxConfigDir, wxEXEC_ASYNC, NULL);
 #endif
 }
 
@@ -1208,10 +1275,11 @@ void launcherFrame::OnsourceChoiceSelect(wxCommandEvent& event)
     MouseSizer->Show(true);
     SourceIpSizer->Show(false);
   }
-  Panel1->Fit();
+
+  refreshGui();
 }
 
-void launcherFrame::OnMenuPS3Tools(wxCommandEvent& event)
+int launcherFrame::ps3Setup()
 {
   wxArrayString sixaxisInfos[2];
   readSixaxis(sixaxisInfos);
@@ -1219,7 +1287,7 @@ void launcherFrame::OnMenuPS3Tools(wxCommandEvent& event)
   if(sixaxisInfos[0].GetCount() == 0)
   {
       wxMessageBox( _("No Sixaxis Detected!\nSixaxis usb wire plugged?"), _("Error"), wxICON_ERROR);
-      return;
+      return -1;
   }
 
   wxArrayString addresses;
@@ -1236,7 +1304,7 @@ void launcherFrame::OnMenuPS3Tools(wxCommandEvent& event)
   dialogSixaxis.SetSelection(0);
   if (dialogSixaxis.ShowModal() != wxID_OK)
   {
-    return;
+    return -1;
   }
 
   wxArrayString dongleInfos[4];
@@ -1245,7 +1313,7 @@ void launcherFrame::OnMenuPS3Tools(wxCommandEvent& event)
   if(dongleInfos[0].GetCount() == 0)
   {
       wxMessageBox( _("No Bluetooth Dongle Detected!"), _("Error"), wxICON_ERROR);
-      return;
+      return -1;
   }
 
   wxArrayString dongles;
@@ -1269,7 +1337,7 @@ void launcherFrame::OnMenuPS3Tools(wxCommandEvent& event)
   dialogDongles.SetSelection(0);
   if (dialogDongles.ShowModal() != wxID_OK)
   {
-    return;
+    return -1;
   }
 
   int answer = wxMessageBox(_("Did you saved your dongle address?"), _("Confirm"), wxYES_NO | wxCANCEL);
@@ -1278,10 +1346,66 @@ void launcherFrame::OnMenuPS3Tools(wxCommandEvent& event)
   {
     int sixaxisIndex = dialogSixaxis.GetSelection();
     int dongleIndex = dialogDongles.GetSelection();
-    setDongleAddress(dongleInfos[1], dongleInfos[0][dongleIndex], sixaxisInfos[0][sixaxisIndex]);
+    if(setDongleAddress(dongleInfos[1], dongleInfos[0][dongleIndex], sixaxisInfos[0][sixaxisIndex]) != -1)
+    {
+      wxString pairing = sixaxisInfos[0][sixaxisIndex] + wxT(" ") + sixaxisInfos[1][sixaxisIndex];
+      if(ComboBoxOutput->FindString(pairing) == wxNOT_FOUND)
+      {
+        if(ComboBoxOutput->IsEmpty())
+        {
+          ComboBoxOutput->SetSelection(ComboBoxOutput->Append(pairing));
+        }
+        else
+        {
+          ComboBoxOutput->Append(pairing);
+        }
+      }
+    }
+    else
+    {
+      return -1;
+    }
   }
   else if (answer == wxNO)
   {
-      wxMessageBox(_("Please save it!"), _("Info"));
+    wxMessageBox(_("Please save it!"), _("Info"));
+    return -1;
+  }
+  
+  return 0;
+}
+int launcherFrame::ps4Setup()
+{
+  //TODO: perform pairings
+  ComboBoxOutput->Clear();
+  
+  return -1;
+}
+
+void launcherFrame::OnComboBoxDeviceSelected(wxCommandEvent& event)
+{
+  if(ControllerType->GetStringSelection() == _("Bluetooth / PS3"))
+  {
+    if(ComboBoxOutput->GetValue() == _("New pairing..."))
+    {
+      ComboBoxOutput->Delete(ComboBoxOutput->GetSelection());
+      if(ps3Setup() < 0)
+      {
+        ComboBoxOutput->SetSelection(wxNOT_FOUND);
+      }
+      ComboBoxOutput->Append(_("New pairing..."));
+    }
+  }
+  else if(ControllerType->GetStringSelection() == _("Bluetooth / PS4"))
+  {
+    if(ComboBoxOutput->GetValue() == _("New pairing..."))
+    {
+      ComboBoxOutput->Delete(ComboBoxOutput->GetSelection());
+      if(ps4Setup() < 0)
+      {
+        ComboBoxOutput->SetSelection(wxNOT_FOUND);
+      }
+      ComboBoxOutput->Append(_("New pairing..."));
+    }
   }
 }

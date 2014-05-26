@@ -683,7 +683,7 @@ static void read_macros() {
     struct stat buf;
 #endif
 
-    snprintf(dir_path, sizeof(dir_path), "%s/%s/%s", emuclient_params.homedir, APP_DIR, MACRO_DIR);
+    snprintf(dir_path, sizeof(dir_path), "%s/%s/%s", emuclient_params.homedir, GIMX_DIR, MACRO_DIR);
 
     dirp = opendir(dir_path);
     if (dirp == NULL)

@@ -9,10 +9,17 @@
 #define DIRECTORIES_H_
 
 #ifndef WIN32
-#define APP_DIR "/.emuclient/"
+#define OLD_GIMX_DIR "/.emuclient/"
 #else
-#define APP_DIR "/emuclient/"
+#define OLD_GIMX_DIR "/emuclient/"
 #endif
+
+#ifndef WIN32
+#define GIMX_DIR "/.gimx/"
+#else
+#define GIMX_DIR "/gimx/"
+#endif
+
 #define CONFIG_DIR "config/"
 #define MACRO_DIR "macros/"
 

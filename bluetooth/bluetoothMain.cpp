@@ -302,7 +302,7 @@ static void read_filenames(wxChoice* choice)
   string ds;
 #ifndef WIN32
   ds.append(homedir);
-  ds.append(APP_DIR);
+  ds.append(GIMX_DIR);
 #endif
   ds.append(CONFIG_DIR);
 
@@ -903,7 +903,7 @@ void bluetoothFrame::OnButton4Click(wxCommandEvent& event)
   string file;
 #ifndef WIN32
   file.append(homedir);
-  file.append(APP_DIR);
+  file.append(GIMX_DIR);
 #endif
   file.append(CONFIG_DIR);
   file.append(ChoiceConfig->GetStringSelection().mb_str(wxConvUTF8));
@@ -1025,7 +1025,7 @@ void bluetoothFrame::OnMenuGetConfigs(wxCommandEvent& event)
   string dir;
 #ifndef WIN32
   dir.append(homedir);
-  dir.append(APP_DIR);
+  dir.append(GIMX_DIR);
 #endif
   dir.append(CONFIG_DIR);
   
@@ -1109,7 +1109,7 @@ void bluetoothFrame::autoBindControls(wxArrayString configs)
   string dir;
 #ifndef WIN32
   dir.append(homedir);
-  dir.append(APP_DIR);
+  dir.append(GIMX_DIR);
 #endif
   dir.append(CONFIG_DIR);
 
@@ -1176,7 +1176,7 @@ void bluetoothFrame::OnMenuAutoBindControls(wxCommandEvent& event)
 void bluetoothFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event)
 {
   wxString userConfigDir(homedir, wxConvUTF8);
-  userConfigDir.Append(wxT(APP_DIR));
+  userConfigDir.Append(wxT(GIMX_DIR));
   userConfigDir.Append(wxT(CONFIG_DIR));
   wxExecute(wxT("xdg-open ") + userConfigDir, wxEXEC_ASYNC, NULL);
 }

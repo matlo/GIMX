@@ -55,15 +55,25 @@ class launcherFrame: public wxFrame
         void OnMenuOpenConfigDirectory(wxCommandEvent& event);
         void OnsourceChoiceSelect(wxCommandEvent& event);
         void OnComboBoxDeviceSelected(wxCommandEvent& event);
-        void OnMenuPS3Tools(wxCommandEvent& event);
         //*)
 
         void refresh();
+        void refreshGui();
         void autoBindControls(wxArrayString configs);
+
+        void readSerialPorts();
+        void readConfigs();
+        int readPairings(const char* file);
+        void readControllerType();
+        void readStartUpdates();
 
         void readSixaxis(wxArrayString addresses[2]);
         void readDongles(wxArrayString dongleInfos[4]);
+
         int setDongleAddress(wxArrayString dongles, wxString device, wxString address);
+        
+        int ps3Setup();
+        int ps4Setup();
 
         //(*Identifiers(launcherFrame)
         static const long ID_STATICTEXT4;
@@ -87,8 +97,6 @@ class launcherFrame: public wxFrame
         static const long ID_MENUITEM7;
         static const long ID_MENUITEM3;
         static const long idMenuQuit;
-        static const long ID_MENUITEM9;
-        static const long ID_MENUITEM10;
         static const long ID_MENUITEM6;
         static const long ID_MENUITEM4;
         static const long ID_MENUITEM5;
@@ -98,36 +106,35 @@ class launcherFrame: public wxFrame
 
         //(*Declarations(launcherFrame)
         wxStaticBoxSizer* MouseSizer;
-        wxStaticText* DeviceText;
         wxCheckBox* CheckBoxTerminal;
         wxFlexGridSizer* FlexGridSizer1;
         wxPanel* Panel1;
         wxCheckBox* CheckBoxGui;
+        wxComboBox* ComboBoxIpSource;
         wxStatusBar* StatusBar1;
         wxMenuItem* MenuAutoBindControls;
         wxButton* ButtonCheck;
         wxMenuItem* MenuEditFpsConfig;
-        wxMenu* Menu3;
         wxChoice* ChoiceConfig;
         wxMenuItem* MenuGetConfigs;
         wxChoice* sourceChoice;
         wxMenuItem* MenuUpdate;
+        wxFlexGridSizer* OutputSizer;
         wxStaticText* StaticText1;
         wxChoice* ControllerType;
+        wxFlexGridSizer* IOSizer;
         wxMenuItem* MenuRefresh;
         wxMenuItem* MenuStartupUpdates;
         wxMenuItem* MenuItem3;
-        wxComboBox* ComboBox1;
-        wxMenuItem* MenuPS3Tools;
-        wxComboBox* ComboBoxDevice;
         wxStaticText* StaticText4;
         wxCheckBox* CheckBoxGrab;
         wxFlexGridSizer* SourceIpSizer;
         wxStaticText* StaticText2;
-        wxMenuItem* MenuPS4Tools;
         wxButton* ButtonStart;
         wxMenuItem* MenuEditConfig;
+        wxComboBox* ComboBoxOutput;
         wxSingleInstanceChecker SingleInstanceChecker1;
+        wxStaticText* OutputText;
         //*)
 
         wxLocale* locale;

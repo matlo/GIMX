@@ -1,7 +1,7 @@
-DIRS=shared core config serial fpsconfig
+DIRS=shared core config launcher fpsconfig
 
 ifneq ($(OS),Windows_NT)
-DIRS+= bluetooth po
+DIRS+= po
 endif
 
 all:
@@ -43,7 +43,7 @@ endif
 	cp -u -f $(BINDIR)/bin/SSLEAY32.dll setup
 	cp -u -f core/gimx.exe setup
 	cp -u -f config/gimx-config.exe setup
-	cp -u -f serial/gimx-serial.exe setup
+	cp -u -f launcher/gimx-launcher.exe setup
 	cp -u -f fpsconfig/gimx-fpsconfig.exe setup
 	mkdir -p setup/share/locale
 	for translation in po/*.po; \
