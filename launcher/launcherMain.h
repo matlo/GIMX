@@ -76,7 +76,7 @@ class launcherFrame: public wxFrame
         void readSixaxis(wxArrayString addresses[2]);
         void readDongles(wxArrayString dongleInfos[4]);
 
-        int setDongleAddress(wxArrayString dongles, wxString device, wxString address);
+        int setDongleAddress(wxArrayString dongleInfos[4], int dongleIndex, wxString address);
         
         int ps3Setup();
         int ps4Setup();

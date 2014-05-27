@@ -205,7 +205,7 @@ void launcherFrame::readDongles(wxArrayString dongleInfos[4])
   }
 }
 
-int launcherFrame::setDongleAddress(wxArrayString dongles, wxString device, wxString address)
+int launcherFrame::setDongleAddress(wxArrayString dongleInfos[4], int dongleIndex, wxString address)
 {
     int j = 0;
     wxString params1[1] = {wxT("Address changed - ")};
@@ -214,13 +214,30 @@ int launcherFrame::setDongleAddress(wxArrayString dongles, wxString device, wxSt
     wxString results2[1];
     int res;
 
-    if(dongles.Index(address) != wxNOT_FOUND)
+    int pos = dongleInfos[1].Index(address);
+
+    if(pos != wxNOT_FOUND)
     {
-      wxMessageBox( _("Address already used!"), _("Error"), wxICON_ERROR);
+      if(pos == dongleIndex)
+      {
+        return 0;
+      }
+      else
+      {
+        wxMessageBox( _("Address already used!"), _("Error"), wxICON_ERROR);
+        return -1;
+      }
+    }
+
+    int answer = wxMessageBox(_("Did you saved your dongle address?"), _("Confirm"), wxYES_NO | wxCANCEL);
+
+    if (answer == wxNO)
+    {
+      wxMessageBox(_("Please save it!"), _("Info"));
       return -1;
     }
 
-    wxString command = wxT("bdaddr -r -i ") + device + wxT(" ") + address;
+    wxString command = wxT("bdaddr -r -i ") + dongleInfos[0][dongleIndex] + wxT(" ") + address;
     res = readCommandResults(command, 1, params1, 1, results1);
 
     if(res != -1)
@@ -229,7 +246,7 @@ int launcherFrame::setDongleAddress(wxArrayString dongles, wxString device, wxSt
     }
 
     //wait up to 5s for the device to come back
-    command = wxT("bdaddr -i ") + device;
+    command = wxT("bdaddr -i ") + dongleInfos[0][dongleIndex];
     while(readCommandResults(command, 1, params2, 1, results2) == -1 && j<50)
     {
         usleep(100000);
@@ -1447,35 +1464,23 @@ int launcherFrame::ps3Setup()
     return -1;
   }
 
-  int answer = wxMessageBox(_("Did you saved your dongle address?"), _("Confirm"), wxYES_NO | wxCANCEL);
-
-  if (answer == wxYES)
+  int sixaxisIndex = dialogSixaxis.GetSelection();
+  int dongleIndex = dialogDongles.GetSelection();
+  if(setDongleAddress(dongleInfos, dongleIndex, sixaxisInfos[0][sixaxisIndex]) != -1)
   {
-    int sixaxisIndex = dialogSixaxis.GetSelection();
-    int dongleIndex = dialogDongles.GetSelection();
-    if(setDongleAddress(dongleInfos[1], dongleInfos[0][dongleIndex], sixaxisInfos[0][sixaxisIndex]) != -1)
+    wxString pairing = sixaxisInfos[0][sixaxisIndex] + wxT(" ") + sixaxisInfos[1][sixaxisIndex];
+    int pos = ChoiceOutput->FindString(pairing);
+    if(pos == wxNOT_FOUND)
     {
-      wxString pairing = sixaxisInfos[0][sixaxisIndex] + wxT(" ") + sixaxisInfos[1][sixaxisIndex];
-      if(ChoiceOutput->FindString(pairing) == wxNOT_FOUND)
-      {
-        if(ChoiceOutput->IsEmpty())
-        {
-          ChoiceOutput->SetSelection(ChoiceOutput->Append(pairing));
-        }
-        else
-        {
-          ChoiceOutput->Append(pairing);
-        }
-      }
+      ChoiceOutput->SetSelection(ChoiceOutput->Append(pairing));
     }
     else
     {
-      return -1;
+      ChoiceOutput->SetSelection(pos);
     }
   }
-  else if (answer == wxNO)
+  else
   {
-    wxMessageBox(_("Please save it!"), _("Info"));
     return -1;
   }
 
