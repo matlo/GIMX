@@ -843,8 +843,6 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
         wxMessageBox( _("No destination IP:port specified!"), _("Error"), wxICON_ERROR);
         return;
       }
-
-      //TODO: check IP:port
     }
     else if(ControllerType->GetStringSelection() == _("Bluetooth / PS3")
          || ControllerType->GetStringSelection() == _("Bluetooth / PS4"))
@@ -861,6 +859,16 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
       if(ChoiceInput->GetStringSelection().IsEmpty())
       {
         wxMessageBox( _("No source IP:port specified!"), _("Error"), wxICON_ERROR);
+        return;
+      }
+    }
+
+    if(ControllerType->GetStringSelection() == _("Remote GIMX")
+    && sourceChoice->GetStringSelection() == _("Network"))
+    {
+      if(ChoiceInput->GetStringSelection() == ChoiceOutput->GetStringSelection())
+      {
+        wxMessageBox( _("IP:port is the same for input and output!"), _("Error"), wxICON_ERROR);
         return;
       }
     }
