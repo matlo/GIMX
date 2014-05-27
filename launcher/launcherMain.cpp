@@ -39,6 +39,7 @@
 #include <wx/arrstr.h>
 #include <wx/stdpaths.h>
 #include <wx/busyinfo.h>
+#include "wx/numdlg.h"
 
 #ifndef WIN32
 #include <netinet/in.h>
@@ -95,45 +96,6 @@ BEGIN_EVENT_TABLE(launcherFrame,wxFrame)
     //(*EventTable(launcherFrame)
     //*)
 END_EVENT_TABLE()
-
-/*
- * Try to parse an argument with the following expected format: a.b.c.d:e
- * where a.b.c.d is an IPv4 address and e is a port.
- */
-static int read_ip(char* optarg, unsigned int* ip, unsigned short* port)
-{
-  int ret = 0;
-  int pos;
-  size_t len = strlen(optarg);
-  //check the length
-  if(len + 1 > sizeof("111.111.111.111:65535"))
-  {
-    return -1;
-  }
-  //check the absence of spaces
-  if(strchr(optarg, ' '))
-  {
-    return -1;
-  }
-  //get the position of the ':'
-  char* sep = strchr(optarg, ':');
-  if (sep)
-  {
-    *sep = ' ';//Temporarily separate the address and the port
-    *ip = inet_addr(optarg);//parse the IP
-    //parse the port
-    if(sscanf(sep + 1, "%hu%n", port, &pos) != 1 || pos != int(len - (sep + 1 - optarg)))
-    {
-      ret = -1;
-    }
-    *sep = ':';//Revert.
-  }
-  if (!sep || *ip == INADDR_NONE || *port == 0)
-  {
-    ret = -1;
-  }
-  return ret;
-}
 
 static int readCommandResults(wxString command, int nb_params, wxString params[], int nb_repeat, wxString results[])
 {
@@ -1541,34 +1503,40 @@ void launcherFrame::OnMenuSave(wxCommandEvent& event)
 
 void launcherFrame::readIp(wxChoice* choices)
 {
-  wxString text = wxGetTextFromUser(wxT("IP:port"), _("Remote GIMX"), wxT("127.0.0.1:5000"));
+  wxTextEntryDialog dialogIp(this, _("Enter an IP address"), _("Remote GIMX"), wxT("127.0.0.1"));
 
-  if(!text.IsEmpty())
+  if(dialogIp.ShowModal() == wxID_OK)
   {
-    char* dup = strdup(text.mb_str(wxConvUTF8));
-    unsigned int ip;
-    unsigned short port;
+    wxString text = dialogIp.GetValue();
 
-    int ret = read_ip(dup, &ip, &port);
+    unsigned int ip = inet_addr(text.mb_str(wxConvUTF8));
 
-    free(dup);
-
-    if(ret != -1)
+    if (ip != INADDR_NONE)
     {
-      int pos = choices->FindString(text);
+      wxNumberEntryDialog dialogPort(this, wxT(""), _("Enter a port"), _("Remote GIMX"), 51914, 0, 65535);
 
-      if(pos != wxNOT_FOUND)
+      if(dialogPort.ShowModal() == wxID_OK)
       {
-        choices->SetSelection(pos);
-      }
-      else
-      {
-        choices->SetSelection(choices->Append(text));
+          int port = dialogPort.GetValue();
+
+          text.Append(wxT(":"));
+          text.Append(wxString::Format(wxT("%i"), port));
+
+          int pos = choices->FindString(text);
+
+          if(pos != wxNOT_FOUND)
+          {
+            choices->SetSelection(pos);
+          }
+          else
+          {
+            choices->SetSelection(choices->Append(text));
+          }
       }
     }
     else
     {
-      wxMessageBox( _("Bad format!"), _("Error"), wxICON_ERROR);
+      wxMessageBox( _("Bad IP format!"), _("Error"), wxICON_ERROR);
     }
   }
 }
@@ -1587,9 +1555,13 @@ void launcherFrame::OnOutputNewButtonClick(wxCommandEvent& event)
   {
     readIp(ChoiceOutput);
   }
+
+  refreshGui();
 }
 
 void launcherFrame::OnInputNewButtonClick(wxCommandEvent& event)
 {
   readIp(ChoiceInput);
+
+  refreshGui();
 }
