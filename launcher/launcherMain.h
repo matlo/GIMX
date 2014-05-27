@@ -7,18 +7,17 @@
 #define LAUNCHERMAIN_H
 
 //(*Headers(launcherFrame)
-#include <wx/combobox.h>
-#include <wx/checkbox.h>
 #include <wx/sizer.h>
-#include <wx/button.h>
-#include <wx/menu.h>
-#include <wx/panel.h>
-#include <wx/statusbr.h>
-#include <wx/snglinst.h>
-#include <wx/frame.h>
 #include <wx/stattext.h>
+#include <wx/menu.h>
+#include <wx/checkbox.h>
+#include <wx/panel.h>
+#include <wx/snglinst.h>
 #include <wx/choice.h>
+#include <wx/button.h>
 #include <wx/utils.h>
+#include <wx/frame.h>
+#include <wx/statusbr.h>
 //*)
 
 #include <wx/process.h>
@@ -54,7 +53,9 @@ class launcherFrame: public wxFrame
         void OnMenuAutoBindControls(wxCommandEvent& event);
         void OnMenuOpenConfigDirectory(wxCommandEvent& event);
         void OnsourceChoiceSelect(wxCommandEvent& event);
-        void OnComboBoxDeviceSelected(wxCommandEvent& event);
+        void OnMenuSave(wxCommandEvent& event);
+        void OnOutputNewButtonClick(wxCommandEvent& event);
+        void OnInputNewButtonClick(wxCommandEvent& event);
         //*)
 
         void refresh();
@@ -63,7 +64,12 @@ class launcherFrame: public wxFrame
 
         void readSerialPorts();
         void readConfigs();
-        int readPairings(const char* file);
+        
+        int readChoices(const char* file, wxChoice* choices);
+        int saveChoices(const char* file, wxChoice* choices);
+        
+        void readIp(wxChoice* choices);
+        
         void readControllerType();
         void readStartUpdates();
 
@@ -79,11 +85,13 @@ class launcherFrame: public wxFrame
         static const long ID_STATICTEXT4;
         static const long ID_CHOICE1;
         static const long ID_STATICTEXT3;
-        static const long ID_COMBOBOX1;
+        static const long ID_CHOICE3;
+        static const long ID_BUTTON2;
         static const long ID_STATICTEXT1;
         static const long ID_CHOICE2;
         static const long ID_STATICTEXT2;
-        static const long ID_COMBOBOX2;
+        static const long ID_CHOICE5;
+        static const long ID_BUTTON4;
         static const long ID_CHECKBOX1;
         static const long ID_CHECKBOX2;
         static const long ID_CHECKBOX3;
@@ -96,6 +104,7 @@ class launcherFrame: public wxFrame
         static const long ID_MENUITEM8;
         static const long ID_MENUITEM7;
         static const long ID_MENUITEM3;
+        static const long ID_MENUITEM9;
         static const long idMenuQuit;
         static const long ID_MENUITEM6;
         static const long ID_MENUITEM4;
@@ -105,36 +114,39 @@ class launcherFrame: public wxFrame
         //*)
 
         //(*Declarations(launcherFrame)
-        wxStaticBoxSizer* MouseSizer;
-        wxCheckBox* CheckBoxTerminal;
-        wxFlexGridSizer* FlexGridSizer1;
-        wxPanel* Panel1;
-        wxCheckBox* CheckBoxGui;
-        wxComboBox* ComboBoxIpSource;
-        wxStatusBar* StatusBar1;
-        wxMenuItem* MenuAutoBindControls;
-        wxButton* ButtonCheck;
-        wxMenuItem* MenuEditFpsConfig;
-        wxChoice* ChoiceConfig;
-        wxMenuItem* MenuGetConfigs;
-        wxChoice* sourceChoice;
-        wxMenuItem* MenuUpdate;
-        wxFlexGridSizer* OutputSizer;
-        wxStaticText* StaticText1;
-        wxChoice* ControllerType;
-        wxFlexGridSizer* IOSizer;
-        wxMenuItem* MenuRefresh;
-        wxMenuItem* MenuStartupUpdates;
-        wxMenuItem* MenuItem3;
-        wxStaticText* StaticText4;
-        wxCheckBox* CheckBoxGrab;
-        wxFlexGridSizer* SourceIpSizer;
-        wxStaticText* StaticText2;
-        wxButton* ButtonStart;
-        wxMenuItem* MenuEditConfig;
-        wxComboBox* ComboBoxOutput;
-        wxSingleInstanceChecker SingleInstanceChecker1;
         wxStaticText* OutputText;
+        wxButton* OutputNewButton;
+        wxChoice* sourceChoice;
+        wxMenuItem* MenuRefresh;
+        wxMenuItem* MenuEditFpsConfig;
+        wxStaticText* StaticText2;
+        wxCheckBox* CheckBoxGui;
+        wxButton* Button1;
+        wxChoice* ChoiceInput;
+        wxCheckBox* CheckBoxGrab;
+        wxMenuItem* MenuItem4;
+        wxCheckBox* CheckBoxTerminal;
+        wxChoice* ChoiceConfig;
+        wxPanel* Panel1;
+        wxStaticText* StaticText1;
+        wxSingleInstanceChecker SingleInstanceChecker1;
+        wxFlexGridSizer* IOSizer;
+        wxMenuItem* MenuItem3;
+        wxChoice* ControllerType;
+        wxChoice* ChoiceOutput;
+        wxStaticBoxSizer* MouseSizer;
+        wxStatusBar* StatusBar1;
+        wxButton* ButtonCheck;
+        wxMenuItem* MenuGetConfigs;
+        wxButton* ButtonStart;
+        wxFlexGridSizer* FlexGridSizer1;
+        wxFlexGridSizer* SourceIpSizer;
+        wxMenuItem* MenuStartupUpdates;
+        wxStaticText* StaticText4;
+        wxMenuItem* MenuEditConfig;
+        wxMenuItem* MenuUpdate;
+        wxMenuItem* MenuAutoBindControls;
+        wxFlexGridSizer* OutputSizer;
         //*)
 
         wxLocale* locale;

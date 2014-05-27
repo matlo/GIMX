@@ -23,12 +23,29 @@
 static int read_ip(char* optarg, unsigned int* ip, unsigned short* port)
 {
   int ret = 0;
+  int pos;
+  size_t len = strlen(optarg);
+  //check the length
+  if(len + 1 > sizeof("111.111.111.111:65535"))
+  {
+    return -1;
+  }
+  //check the absence of spaces
+  if(strchr(optarg, ' '))
+  {
+    return -1;
+  }
+  //get the position of the ':'
   char* sep = strchr(optarg, ':');
   if (sep)
   {
     *sep = ' ';//Temporarily separate the address and the port
-    *ip = inet_addr(optarg);
-    *port = atoi(sep + 1);
+    *ip = inet_addr(optarg);//parse the IP
+    //parse the port
+    if(sscanf(sep + 1, "%hu%n", port, &pos) != 1 || pos != (len - (sep + 1 - optarg)))
+    {
+      ret = -1;
+    }
     *sep = ':';//Revert.
   }
   if (!sep || *ip == INADDR_NONE || *port == 0)
