@@ -56,6 +56,7 @@ using namespace std;
 #define PS3_PAIRINGS "/PS3Pairings"
 #define PS4_PAIRINGS "/PS4Pairings"
 #define IP_DESTS "/IPDests"
+#define IP_SOURCES "/IPSources"
 
 wxString gimxConfigDir;
 wxString launcherDir;
@@ -1177,6 +1178,8 @@ void launcherFrame::OnControllerTypeSelect(wxCommandEvent& event)
 
       readChoices(IP_DESTS, ChoiceOutput);
 
+      refreshGui();
+
       if(ChoiceOutput->IsEmpty())
       {
         readIp(ChoiceOutput);
@@ -1399,6 +1402,15 @@ void launcherFrame::OnsourceChoiceSelect(wxCommandEvent& event)
   {
     MouseSizer->Show(false);
     SourceIpSizer->Show(true);
+
+    readChoices(IP_SOURCES, ChoiceInput);
+
+    refreshGui();
+
+    if(ChoiceInput->IsEmpty())
+    {
+      readIp(ChoiceInput);
+    }
   }
   else
   {
@@ -1517,6 +1529,11 @@ void launcherFrame::OnMenuSave(wxCommandEvent& event)
     else if(ControllerType->GetStringSelection() == _("Remote GIMX"))
     {
       saveChoices(IP_DESTS, ChoiceOutput);
+    }
+
+    if(sourceChoice->GetStringSelection() == _("Network"))
+    {
+      saveChoices(IP_SOURCES, ChoiceInput);
     }
 }
 
