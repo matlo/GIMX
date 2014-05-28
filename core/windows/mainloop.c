@@ -9,8 +9,7 @@
 #include "connectors/connector.h"
 #include "macros.h"
 #include "display.h"
-#include <windows.h>
-#include <unistd.h>
+#include <stdio.h>
 #include <adapter.h>
 
 static volatile int done = 0;
@@ -27,53 +26,29 @@ void mainloop()
   GE_Event* event;
   unsigned int running_macros;
 
-  HANDLE hTimer = CreateWaitableTimer(NULL, FALSE, NULL);
-  LARGE_INTEGER li = { .QuadPart = 0 };
-  SetWaitableTimer(hTimer, &li, emuclient_params.refresh_period / 1000, NULL, NULL, FALSE);
-  timeBeginPeriod(1);
+  if(!adapter_get(0)->bdaddr_dst || adapter_get(0)->type == C_TYPE_DS4)
+  {
+    GE_TimerStart(emuclient_params.refresh_period);
+  }
 
-  while (!done)
+  /*
+   * Non-generated events are ignored if the --keygen argument is used.
+   */
+  if(emuclient_params.keygen)
+  {
+    GE_SetCallback(ignore_event);
+  }
+  else
+  {
+    GE_SetCallback(process_event);
+  }
+
+  while(!done)
   {
     /*
-     * These two functions generate events.
+     * GE_PumpEvents should always be executed as it drives the period.
      */
-	  calibration_test();
-
-	  running_macros = macro_process();
-
-    /*
-     * Non-generated events are ignored if the --keygen argument is used.
-     */
-    if(!emuclient_params.keygen)
-    {
-      GE_PumpEvents();
-    }
-    
-    /*
-     * This part of the loop processes all events.
-     */
-
-    num_evt = GE_PeepEvents(events, sizeof(events) / sizeof(events[0]));
-
-    if (num_evt == EVENT_BUFFER_SIZE)
-    {
-      printf("buffer too small!!!\n");
-    }
-
-    for (event = events; event < events + num_evt; ++event)
-    {
-      process_event(event);
-    }
-
-    /*
-     * The --keygen argument is used
-     * and there are no more event or macro to process => exit.
-     */
-    if(emuclient_params.keygen && !running_macros && !num_evt)
-    {
-      done = 1;
-      continue;//no need to send anything...
-    }
+    GE_PumpEvents();
 
     cfg_process_motion();
 
@@ -96,8 +71,39 @@ void mainloop()
       display_run(adapter_get(0)->type, adapter_get(0)->axis);
     }
 
-    MsgWaitForMultipleObjects(1, &hTimer, FALSE, INFINITE, 0);
-  }
+    /*
+     * These two functions generate events.
+     */
+    calibration_test();
 
-  timeEndPeriod(0);
+    running_macros = macro_process();
+
+    /*
+     * This part of the loop processes events generated
+     * by macros and calibration tests, and the --keygen argument.
+     */
+
+    num_evt = GE_PeepEvents(events, sizeof(events) / sizeof(events[0]));
+
+    if (num_evt == EVENT_BUFFER_SIZE)
+    {
+      printf("buffer too small!!!\n");
+    }
+    
+    for (event = events; event < events + num_evt; ++event)
+    {
+      process_event(event);
+    }
+
+    /*
+     * The --keygen argument is used
+     * and there are no more event or macro to process => exit.
+     */
+    if(emuclient_params.keygen && !running_macros && !num_evt)
+    {
+      done = 1;
+    }
+  }
+    
+  GE_TimerClose();
 }

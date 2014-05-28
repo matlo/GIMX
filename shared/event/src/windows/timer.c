@@ -17,6 +17,8 @@ inline HANDLE timer_get()
 
 HANDLE timer_start(int usec)
 {
+  timeBeginPeriod(1);
+  
   hTimer = CreateWaitableTimer(NULL, FALSE, NULL);
   LARGE_INTEGER li = { .QuadPart = 0 };
   SetWaitableTimer(hTimer, &li, usec / 1000, NULL, NULL, FALSE);
@@ -27,6 +29,8 @@ HANDLE timer_start(int usec)
 int timer_close(int unused)
 {
   CloseHandle(hTimer);
+  
+  timeEndPeriod(0);
 
   return 1;
 }

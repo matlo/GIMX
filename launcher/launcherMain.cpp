@@ -911,7 +911,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
     }
     else if(ControllerType->GetStringSelection() == _("Remote GIMX"))
     {
-      command.Append(wxT(" --dest "));
+      command.Append(wxT(" --dst "));
       command.Append(ChoiceOutput->GetStringSelection());
     }
     else if(ControllerType->GetStringSelection() == _("Bluetooth / PS3"))
@@ -937,6 +937,12 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
       command.Append(wxT("/dev/"));
 #endif
       command.Append(ChoiceOutput->GetStringSelection());
+    }
+    
+    if(sourceChoice->GetStringSelection() == _("Network"))
+    {
+      command.Append(wxT(" --src "));
+      command.Append(sourceChoice->GetStringSelection());
     }
 
     //cout << command.c_str() << endl;

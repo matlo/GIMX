@@ -20,7 +20,7 @@ int udp_listen(unsigned int ip, unsigned short port)
 
   if ((fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
   {
-    fprintf(stderr, "socket\n");
+    perror("socket");
     return -1;
   }
 
@@ -29,7 +29,7 @@ int udp_listen(unsigned int ip, unsigned short port)
 
   if (bind(fd, (struct sockaddr*)&sa, sizeof(sa)) == -1)
   {
-    fprintf(stderr, "socket\n");
+    perror("bind");
     close(fd);
     return -1;
   }
@@ -40,10 +40,20 @@ int udp_listen(unsigned int ip, unsigned short port)
 int udp_connect(unsigned int ip, unsigned short port)
 {
   int fd;
+  
+#ifdef WIN32
+  WSADATA wsadata;
+
+  if (WSAStartup(MAKEWORD(1,1), &wsadata) == SOCKET_ERROR)
+  {
+    fprintf(stderr, "WSAStartup");
+    return -1;
+  }
+#endif
 
   if ((fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
   {
-    fprintf(stderr, "socket\n");
+    perror("socket");
     return -1;
   }
 
@@ -52,7 +62,7 @@ int udp_connect(unsigned int ip, unsigned short port)
 
   if (connect(fd, (struct sockaddr*)&sa, sizeof(sa)) == -1)
   {
-    fprintf(stderr, "connect\n");
+    perror("connect");
     close(fd);
     return -1;
   }
