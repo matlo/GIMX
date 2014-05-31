@@ -127,6 +127,9 @@ static s_controller_params ds3_params =
 static unsigned int ds3_report_build(int axis[AXIS_MAX], s_report* report)
 {
   s_report_ds3* ds3 = &report->value.ds3;
+  unsigned char buttons1 = 0x00;
+  unsigned char buttons2 = 0x00;
+  unsigned char buttons3 = 0x00;
 
   ds3->report_id = 0x01;
 
@@ -137,84 +140,89 @@ static unsigned int ds3_report_build(int axis[AXIS_MAX], s_report* report)
 
   if(axis[sa_select])
   {
-    ds3->buttons1 |= 0x01;
+    buttons1 |= 0x01;
   }
   if(axis[sa_l3])
   {
-    ds3->buttons1 |= 0x02;
+    buttons1 |= 0x02;
   }
   if(axis[sa_r3])
   {
-    ds3->buttons1 |= 0x04;
+    buttons1 |= 0x04;
   }
   if(axis[sa_start])
   {
-    ds3->buttons1 |= 0x08;
+    buttons1 |= 0x08;
   }
   if(axis[sa_up])
   {
-    ds3->buttons1 |= 0x10;
-    ds3->up = axis[sa_up];
+    buttons1 |= 0x10;
   }
   if(axis[sa_right])
   {
-    ds3->buttons1 |= 0x20;
-    ds3->right = axis[sa_right];
+    buttons1 |= 0x20;
   }
   if(axis[sa_down])
   {
-    ds3->buttons1 |= 0x40;
-    ds3->down = axis[sa_down];
+    buttons1 |= 0x40;
   }
   if(axis[sa_left])
   {
-    ds3->buttons1 |= 0x80;
-    ds3->left = axis[sa_left];
+    buttons1 |= 0x80;
   }
   if(axis[sa_l2])
   {
-    ds3->buttons2 |= 0x01;
-    ds3->l2 = axis[sa_l2];
+    buttons2 |= 0x01;
   }
   if(axis[sa_r2])
   {
-    ds3->buttons2 |= 0x02;
-    ds3->r2 = axis[sa_r2];
+    buttons2 |= 0x02;
   }
   if(axis[sa_l1])
   {
-    ds3->buttons2 |= 0x04;
-    ds3->l1 = axis[sa_l1];
+    buttons2 |= 0x04;
   }
   if(axis[sa_r1])
   {
-    ds3->buttons2 |= 0x08;
-    ds3->r1 = axis[sa_r1];
+    buttons2 |= 0x08;
   }
   if(axis[sa_triangle])
   {
-    ds3->buttons2 |= 0x10;
-    ds3->triangle = axis[sa_triangle];
+    buttons2 |= 0x10;
   }
   if(axis[sa_circle])
   {
-    ds3->buttons2 |= 0x20;
-    ds3->circle = axis[sa_circle];
+    buttons2 |= 0x20;
   }
   if(axis[sa_cross])
   {
-    ds3->buttons2 |= 0x40;
-    ds3->cross = axis[sa_cross];
+    buttons2 |= 0x40;
   }
   if(axis[sa_square])
   {
-    ds3->buttons2 |= 0x80;
-    ds3->square = axis[sa_square];
+    buttons2 |= 0x80;
   }
   if(axis[sa_ps])
   {
-    ds3->buttons3 |= 0x01;
+    buttons3 |= 0x01;
   }
+
+  ds3->buttons1 = buttons1;
+  ds3->buttons2 = buttons2;
+  ds3->buttons3 = buttons3;
+
+  ds3->up = axis[sa_up];
+  ds3->right = axis[sa_right];
+  ds3->down = axis[sa_down];
+  ds3->left = axis[sa_left];
+  ds3->l2 = axis[sa_l2];
+  ds3->r2 = axis[sa_r2];
+  ds3->l1 = axis[sa_l1];
+  ds3->r1 = axis[sa_r1];
+  ds3->triangle = axis[sa_triangle];
+  ds3->circle = axis[sa_circle];
+  ds3->cross = axis[sa_cross];
+  ds3->square = axis[sa_square];
 
   unsigned short value;
 
