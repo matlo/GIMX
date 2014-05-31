@@ -232,7 +232,7 @@ int launcherFrame::setDongleAddress(wxArrayString dongleInfos[4], int dongleInde
 
     int answer = wxMessageBox(_("Did you saved your dongle address?"), _("Confirm"), wxYES_NO | wxCANCEL);
 
-    if (answer == wxNO)
+    if (answer != wxYES)
     {
       wxMessageBox(_("Please save it!"), _("Info"));
       return -1;
@@ -836,9 +836,11 @@ void MyProcess::OnTerminate(int pid, int status)
 void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
 {
     wxString command;
-    wxArrayString output, errors;
     string filename;
-    wxString dpi;
+    wxString dongleIndex = wxEmptyString;
+    wxString bdaddrDst = wxEmptyString;
+
+    wxString output = ChoiceOutput->GetStringSelection();
 
     if(ChoiceConfig->GetStringSelection().IsEmpty())
     {
@@ -848,7 +850,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
 
     if(ControllerType->GetStringSelection() == _("DIY USB"))
     {
-      if(ChoiceOutput->GetStringSelection().IsEmpty())
+      if(output.IsEmpty())
       {
         wxMessageBox( _("No USB to serial device selected!"), _("Error"), wxICON_ERROR);
         return;
@@ -856,7 +858,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
     }
     else if(ControllerType->GetStringSelection() == _("Remote GIMX"))
     {
-      if(ChoiceOutput->GetStringSelection().IsEmpty())
+      if(output.IsEmpty())
       {
         wxMessageBox( _("No destination IP:port specified!"), _("Error"), wxICON_ERROR);
         return;
@@ -865,10 +867,77 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
     else if(ControllerType->GetStringSelection() == _("Bluetooth / PS3")
          || ControllerType->GetStringSelection() == _("Bluetooth / PS4"))
     {
-      if(ChoiceOutput->GetStringSelection().IsEmpty())
+      if(output.IsEmpty())
       {
         wxMessageBox( _("No pairing selected!"), _("Error"), wxICON_ERROR);
         return;
+      }
+
+      int pos = output.Find(wxT(" "));
+
+      if(pos == wxNOT_FOUND)
+      {
+        wxMessageBox( _("Selected pairing is incorrect!"), _("Error"), wxICON_ERROR);
+        return;
+      }
+
+      wxString bdaddrSrc = output.BeforeFirst(wxChar(' '));
+      bdaddrDst = output.AfterFirst(wxChar(' '));
+
+      //check what dongle has to be used
+      wxArrayString dongleInfos[4];
+      readDongles(dongleInfos);
+
+      if(dongleInfos[0].GetCount() == 0)
+      {
+          wxMessageBox( _("No Bluetooth Dongle Detected!"), _("Error"), wxICON_ERROR);
+          return;
+      }
+
+      for(unsigned int i=0; i<dongleInfos[0].GetCount(); ++i)
+      {
+        if(dongleInfos[1][i] == bdaddrSrc)
+        {
+          dongleIndex = dongleInfos[0][i].Mid(3);
+          break;
+        }
+      }
+
+      //no dongle found => ask the user what dongle to use
+      if(dongleIndex.IsEmpty())
+      {
+        wxArrayString dongles;
+
+        for(unsigned int i=0; i<dongleInfos[0].GetCount(); ++i)
+        {
+          wxString dongle = wxEmptyString;
+          dongle.Append(_("Device: ")).Append(dongleInfos[0][i]).Append(wxT("\n"));
+          dongle.Append(_("Address: ")).Append(dongleInfos[1][i]).Append(wxT("\n"));
+          dongle.Append(_("Manufacturer: ")).Append(dongleInfos[2][i]);
+
+          if(!dongleInfos[3][i].IsEmpty())
+          {
+            dongle.Append(wxT("\n")).Append(_("Chip: ")).Append(dongleInfos[3][i]);
+          }
+
+          dongles.Add(dongle);
+        }
+
+        wxSingleChoiceDialog dialogDongles(this, _("Select the bluetooth adapter."), _("PS3 Tool"), dongles);
+        dialogDongles.SetSelection(0);
+        if (dialogDongles.ShowModal() != wxID_OK)
+        {
+          return;
+        }
+
+        int dongle = dialogDongles.GetSelection();
+
+        if(setDongleAddress(dongleInfos, dongle, bdaddrSrc) == -1)
+        {
+          return;
+        }
+
+        dongleIndex = dongleInfos[0][dongle].Mid(3);
       }
     }
 
@@ -884,7 +953,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
     if(ControllerType->GetStringSelection() == _("Remote GIMX")
     && sourceChoice->GetStringSelection() == _("Network"))
     {
-      if(ChoiceInput->GetStringSelection() == ChoiceOutput->GetStringSelection())
+      if(ChoiceInput->GetStringSelection() == output)
       {
         wxMessageBox( _("IP:port is the same for input and output!"), _("Error"), wxICON_ERROR);
         return;
@@ -913,23 +982,27 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
     else if(ControllerType->GetStringSelection() == _("Remote GIMX"))
     {
       command.Append(wxT(" --dst "));
-      command.Append(ChoiceOutput->GetStringSelection());
+      command.Append(output);
     }
     else if(ControllerType->GetStringSelection() == _("Bluetooth / PS3"))
     {
       command.Append(wxT(" --type Sixaxis"));
-      command.Append(wxT(" --bdaddr "));
 
-      //todo
-      //command.Append(ChoiceOutput->GetStringSelection());
+      command.Append(wxT(" --hci "));
+      command.Append(dongleIndex);
+
+      command.Append(wxT(" --bdaddr "));
+      command.Append(bdaddrDst);
     }
     else if(ControllerType->GetStringSelection() == _("Bluetooth / PS4"))
     {
       command.Append(wxT(" --type DS4"));
-      command.Append(wxT(" --bdaddr "));
 
-      //todo
-      //command.Append(ChoiceOutput->GetStringSelection());
+      command.Append(wxT(" --hci "));
+      command.Append(dongleIndex);
+
+      command.Append(wxT(" --bdaddr "));
+      command.Append(bdaddrDst);
     }
     else if(ControllerType->GetStringSelection() == _("DIY USB"))
     {
@@ -937,7 +1010,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
 #ifndef WIN32
       command.Append(wxT("/dev/"));
 #endif
-      command.Append(ChoiceOutput->GetStringSelection());
+      command.Append(output);
     }
     
     if(sourceChoice->GetStringSelection() == _("Network"))
@@ -983,7 +1056,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
     ofstream outfile3 (filename.c_str(), ios_base::trunc);
     if(outfile3.is_open())
     {
-        outfile3 << ChoiceOutput->GetStringSelection().mb_str(wxConvUTF8) << endl;
+        outfile3 << output.mb_str(wxConvUTF8) << endl;
         outfile3.close();
     }
     filename = launcherDir.mb_str(wxConvUTF8);
