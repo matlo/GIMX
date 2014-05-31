@@ -95,7 +95,7 @@ bdaddr: utils/bdaddr.o utils/oui.o
 	$(CC) -o $@ $^ -lbluetooth
 
 hcirevision: connectors/hcirevision.o
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ -lbluetooth
 endif
 
 %.o: %.c
