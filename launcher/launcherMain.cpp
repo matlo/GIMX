@@ -53,10 +53,14 @@ using namespace std;
 #endif
 
 #define BLUETOOTH_DIR "/.sixemugui"
+#define OUTPUT_FILE "/controller"
+#define INPUT_FILE "/input"
 #define PS3_PAIRINGS "/PS3Pairings"
 #define PS4_PAIRINGS "/PS4Pairings"
 #define IP_DESTS "/IPDests"
 #define IP_SOURCES "/IPSources"
+#define START_UPDATES "/startUpdates"
+#define PORT_FILE "/port"
 
 wxString gimxConfigDir;
 wxString launcherDir;
@@ -456,12 +460,14 @@ int launcherFrame::readChoices(const char* file, wxChoice* choices)
                 ret = 0;
             }
         }
+        choices->SetSelection(0);
         myfile.close();
     }
     else
     {
         wxMessageBox( _("Cannot open file: ") + wxString(filename.c_str(), wxConvUTF8), _("Error"), wxICON_ERROR);
     }
+
     return ret;
 }
 
@@ -479,9 +485,16 @@ int launcherFrame::saveChoices(const char* file, wxChoice* choices)
     ofstream outfile (filename.c_str(), ios_base::trunc);
     if(outfile.is_open())
     {
-        for(unsigned int i=0; i<choices->GetCount(); i++)
+        if(!choices->GetStringSelection().IsEmpty())
         {
-            outfile << choices->GetString(i).mb_str(wxConvUTF8) << endl;
+          outfile << choices->GetStringSelection().mb_str(wxConvUTF8) << endl;
+        }
+        for(int i=0; i<(int)choices->GetCount(); i++)
+        {
+            if(i != choices->GetSelection())
+            {
+                outfile << choices->GetString(i).mb_str(wxConvUTF8) << endl;
+            }
         }
         outfile.close();
     }
@@ -492,20 +505,20 @@ int launcherFrame::saveChoices(const char* file, wxChoice* choices)
     return ret;
 }
 
-void launcherFrame::readControllerType()
+void launcherFrame::readParam(const char* file, wxChoice* choice)
 {
   string filename;
   string line = "";
 
   filename = string(launcherDir.mb_str(wxConvUTF8));
-  filename.append("/controller");
+  filename.append(file);
   ifstream infile (filename.c_str());
   if ( infile.is_open() )
   {
     if( infile.good() )
     {
       getline (infile,line);
-      ControllerType->SetSelection(ControllerType->FindString(wxString(line.c_str(), wxConvUTF8)));
+      choice->SetSelection(choice->FindString(wxString(line.c_str(), wxConvUTF8)));
     }
     infile.close();
   }
@@ -517,7 +530,7 @@ void launcherFrame::readStartUpdates()
   string line = "";
 
   filename = string(launcherDir.mb_str(wxConvUTF8));
-  filename.append("/startUpdates");
+  filename.append(START_UPDATES);
   ifstream infile (filename.c_str());
   if ( infile.is_open() )
   {
@@ -761,7 +774,8 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
     ControllerType->Append(_("Remote GIMX"));
 #endif
 
-    readControllerType();
+    readParam(OUTPUT_FILE, ControllerType);
+    readParam(INPUT_FILE, sourceChoice);
     refresh();
 
     wxCommandEvent event;
@@ -1579,7 +1593,40 @@ int launcherFrame::ps3Setup()
 }
 int launcherFrame::ps4Setup()
 {
-  //TODO: perform pairings
+  //TODO: demander quel dongle utiliser
+
+  //TODO: générer une clef pour la DS4
+
+  //TODO: demander quelle DS4 utiliser
+
+  //TODO: écrire le master de la DS4 (adresse du dongle)
+
+  //TODO: demander le débranchage de la DS4, et répéter jusqu'à obtenpération
+
+  //TODO: demander le branchage du teensy, et répéter jusqu'à obtenpération
+
+  //TODO: écrire l'adresse du teensy
+
+  //TODO: réinitialiser le master du teensy
+
+  //TODO: demander le débranchage du teensy, et répéter jusqu'à obtenpération
+
+  //TODO: demander le branchage du teensy à la PS4, puis au PC.
+
+  //TODO: lire l'adresse de le PS4 et la clef
+
+  //TODO: écrire la clef de la DS4
+
+  //TODO: écrire la clef de la PS4
+
+  //TODO: arrêter le service bluetooth
+
+  //TODO: hciconfig up pscan
+
+  //TODO: hciconfig putkey
+
+  //TODO: hciconfig auth encrypt
+
   ChoiceOutput->Clear();
 
   return -1;
@@ -1587,9 +1634,11 @@ int launcherFrame::ps4Setup()
 
 void launcherFrame::OnMenuSave(wxCommandEvent& event)
 {
+    saveChoices(OUTPUT_FILE, ControllerType);
+
     if(ControllerType->GetStringSelection() == _("DIY USB"))
     {
-      //TODO: save serial port
+      saveChoices(PORT_FILE, ChoiceOutput);
     }
     else if(ControllerType->GetStringSelection() == _("Bluetooth / PS3"))
     {
@@ -1604,6 +1653,7 @@ void launcherFrame::OnMenuSave(wxCommandEvent& event)
       saveChoices(IP_DESTS, ChoiceOutput);
     }
 
+    saveChoices(INPUT_FILE, sourceChoice);
     if(sourceChoice->GetStringSelection() == _("Network"))
     {
       saveChoices(IP_SOURCES, ChoiceInput);

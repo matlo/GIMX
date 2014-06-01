@@ -70,8 +70,8 @@ class launcherFrame: public wxFrame
         
         void readIp(wxChoice* choices);
         
-        void readControllerType();
         void readStartUpdates();
+        void readParam(const char* file, wxChoice* choices);
 
         void readSixaxis(wxArrayString addresses[2]);
         void readDongles(wxArrayString dongleInfos[4]);
