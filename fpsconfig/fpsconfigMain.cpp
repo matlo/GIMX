@@ -1444,8 +1444,8 @@ void fpsconfigFrame::LoadConfig()
           button->UnsetToolTip();
       }
   }
-  ButtonMappers[0] = configFile.GetController(0)->GetConfiguration(0)->GetAxisMapperList();
-  ButtonMappers[1] = configFile.GetController(0)->GetConfiguration(1)->GetAxisMapperList();
+  ButtonMappers[0] = configFile.GetController(0)->GetConfiguration(0)->GetButtonMapperList();
+  ButtonMappers[1] = configFile.GetController(0)->GetConfiguration(1)->GetButtonMapperList();
   if(ButtonMappers[0]->size() != ButtonMappers[1]->size())
   {
     warn = true;

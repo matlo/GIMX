@@ -14,8 +14,8 @@
 #include <iomanip>
 
 //(*InternalHeaders(configFrame)
-#include <wx/string.h>
 #include <wx/intl.h>
+#include <wx/string.h>
 //*)
 
 #include <wx/aboutdlg.h>
@@ -337,6 +337,20 @@ void configFrame::fillAxisAxisChoice()
     AxisTabAxisId->SetSelection(AxisTabAxisId->FindString(previous));
 }
 
+void configFrame::fillChoices()
+{
+    fillButtonChoice();
+    if(AxisTabEventType->GetStringSelection() == _("button"))
+    {
+        fillButtonAxisChoice();
+    }
+    else
+    {
+        fillAxisAxisChoice();
+    }
+    fillIntensityAxisChoice();
+}
+
 /*
  * \brief This function fills the choices for axis/button to button bindings.
  */
@@ -503,65 +517,65 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 
     //(*Initialize(configFrame)
-    wxFlexGridSizer* FlexGridSizer30;
-    wxFlexGridSizer* FlexGridSizer46;
-    wxFlexGridSizer* FlexGridSizer21;
-    wxFlexGridSizer* FlexGridSizer28;
-    wxMenuItem* MenuItem1;
-    wxFlexGridSizer* FlexGridSizer8;
-    wxGridSizer* GridSizer1;
-    wxStaticBoxSizer* StaticBoxSizer10;
-    wxFlexGridSizer* FlexGridSizer1;
-    wxFlexGridSizer* FlexGridSizer2;
-    wxFlexGridSizer* FlexGridSizer25;
-    wxFlexGridSizer* FlexGridSizer15;
-    wxStaticBoxSizer* StaticBoxSizer7;
-    wxStaticBoxSizer* StaticBoxSizer5;
-    wxFlexGridSizer* FlexGridSizer17;
-    wxGridSizer* GridSizer3;
-    wxFlexGridSizer* FlexGridSizer29;
-    wxFlexGridSizer* FlexGridSizer19;
-    wxFlexGridSizer* FlexGridSizer48;
-    wxFlexGridSizer* FlexGridSizer47;
-    wxStaticBoxSizer* StaticBoxSizer12;
-    wxFlexGridSizer* FlexGridSizer41;
-    wxFlexGridSizer* FlexGridSizer7;
-    wxFlexGridSizer* FlexGridSizer4;
-    wxFlexGridSizer* FlexGridSizer9;
-    wxFlexGridSizer* FlexGridSizer14;
-    wxStaticBoxSizer* StaticBoxSizer3;
-    wxFlexGridSizer* FlexGridSizer6;
-    wxFlexGridSizer* FlexGridSizer33;
-    wxFlexGridSizer* FlexGridSizer27;
-    wxFlexGridSizer* FlexGridSizer37;
-    wxFlexGridSizer* FlexGridSizer42;
-    wxFlexGridSizer* FlexGridSizer3;
-    wxFlexGridSizer* FlexGridSizer22;
-    wxStaticBoxSizer* StaticBoxSizer8;
-    wxFlexGridSizer* FlexGridSizer31;
-    wxFlexGridSizer* FlexGridSizer43;
-    wxStaticBoxSizer* StaticBoxSizer4;
-    wxStaticBoxSizer* StaticBoxSizer9;
-    wxStaticBoxSizer* StaticBoxSizer6;
-    wxFlexGridSizer* FlexGridSizer16;
-    wxFlexGridSizer* FlexGridSizer34;
-    wxFlexGridSizer* FlexGridSizer23;
-    wxFlexGridSizer* FlexGridSizer13;
-    wxMenuBar* MenuBar1;
-    wxMenuItem* MenuItemAbout;
-    wxFlexGridSizer* FlexGridSizer18;
-    wxFlexGridSizer* FlexGridSizer49;
-    wxFlexGridSizer* FlexGridSizer36;
-    wxFlexGridSizer* FlexGridSizer12;
-    wxMenuItem* MenuItemOpen;
-    wxFlexGridSizer* FlexGridSizer45;
-    wxFlexGridSizer* FlexGridSizer35;
-    wxFlexGridSizer* FlexGridSizer44;
-    wxFlexGridSizer* FlexGridSizer5;
-    wxFlexGridSizer* FlexGridSizer24;
     wxMenu* MenuHelp;
-    wxFlexGridSizer* FlexGridSizer32;
+    wxFlexGridSizer* FlexGridSizer4;
+    wxFlexGridSizer* FlexGridSizer45;
+    wxFlexGridSizer* FlexGridSizer47;
+    wxMenuItem* MenuItemAbout;
+    wxFlexGridSizer* FlexGridSizer16;
+    wxFlexGridSizer* FlexGridSizer24;
+    wxFlexGridSizer* FlexGridSizer19;
+    wxStaticBoxSizer* StaticBoxSizer12;
+    wxFlexGridSizer* FlexGridSizer23;
+    wxFlexGridSizer* FlexGridSizer41;
+    wxStaticBoxSizer* StaticBoxSizer4;
+    wxFlexGridSizer* FlexGridSizer3;
+    wxFlexGridSizer* FlexGridSizer27;
+    wxMenuItem* MenuItem1;
+    wxFlexGridSizer* FlexGridSizer44;
+    wxFlexGridSizer* FlexGridSizer37;
+    wxFlexGridSizer* FlexGridSizer5;
+    wxFlexGridSizer* FlexGridSizer25;
+    wxFlexGridSizer* FlexGridSizer22;
+    wxFlexGridSizer* FlexGridSizer9;
+    wxFlexGridSizer* FlexGridSizer2;
+    wxStaticBoxSizer* StaticBoxSizer9;
+    wxFlexGridSizer* FlexGridSizer7;
+    wxStaticBoxSizer* StaticBoxSizer7;
+    wxMenuItem* MenuItemOpen;
+    wxStaticBoxSizer* StaticBoxSizer10;
+    wxFlexGridSizer* FlexGridSizer29;
+    wxFlexGridSizer* FlexGridSizer34;
+    wxStaticBoxSizer* StaticBoxSizer8;
+    wxStaticBoxSizer* StaticBoxSizer3;
+    wxGridSizer* GridSizer1;
+    wxFlexGridSizer* FlexGridSizer49;
+    wxStaticBoxSizer* StaticBoxSizer6;
+    wxFlexGridSizer* FlexGridSizer15;
+    wxGridSizer* GridSizer3;
+    wxFlexGridSizer* FlexGridSizer18;
+    wxFlexGridSizer* FlexGridSizer8;
+    wxFlexGridSizer* FlexGridSizer21;
+    wxFlexGridSizer* FlexGridSizer14;
     wxFlexGridSizer* FlexGridSizer20;
+    wxFlexGridSizer* FlexGridSizer13;
+    wxFlexGridSizer* FlexGridSizer12;
+    wxFlexGridSizer* FlexGridSizer35;
+    wxFlexGridSizer* FlexGridSizer36;
+    wxMenuBar* MenuBar1;
+    wxFlexGridSizer* FlexGridSizer6;
+    wxFlexGridSizer* FlexGridSizer48;
+    wxFlexGridSizer* FlexGridSizer46;
+    wxFlexGridSizer* FlexGridSizer1;
+    wxFlexGridSizer* FlexGridSizer33;
+    wxFlexGridSizer* FlexGridSizer43;
+    wxFlexGridSizer* FlexGridSizer17;
+    wxStaticBoxSizer* StaticBoxSizer5;
+    wxFlexGridSizer* FlexGridSizer32;
+    wxFlexGridSizer* FlexGridSizer42;
+    wxFlexGridSizer* FlexGridSizer31;
+    wxFlexGridSizer* FlexGridSizer28;
+    wxFlexGridSizer* FlexGridSizer30;
 
     Create(parent, wxID_ANY, _("Gimx-config"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     GridSizer1 = new wxGridSizer(1, 1, 0, 0);
@@ -1045,14 +1059,12 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     MenuType->Append(MenuItemDS3);
     MenuItemDS2 = new wxMenuItem(MenuType, ID_MENUITEMDS2, _("Dualshock 2"), wxEmptyString, wxITEM_RADIO);
     MenuType->Append(MenuItemDS2);
-    MenuType->AppendSeparator();
     MenuItemXOne = new wxMenuItem(MenuType, ID_MENUITEMXONE, _("XOne pad"), wxEmptyString, wxITEM_RADIO);
     MenuType->Append(MenuItemXOne);
     MenuItem360 = new wxMenuItem(MenuType, ID_MENUITEM360, _("360 pad"), wxEmptyString, wxITEM_RADIO);
     MenuType->Append(MenuItem360);
     MenuItemXbox = new wxMenuItem(MenuType, ID_MENUITEMXBOX, _("Xbox pad"), wxEmptyString, wxITEM_RADIO);
     MenuType->Append(MenuItemXbox);
-    MenuType->AppendSeparator();
     MenuItemJs = new wxMenuItem(MenuType, ID_MENUITEMJS, _("Joystick"), wxEmptyString, wxITEM_RADIO);
     MenuType->Append(MenuItemJs);
     MenuBar1->Append(MenuType, _("Type"));
@@ -1178,9 +1190,6 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     currentConfiguration = 0;
 
     LoadControllerType();
-    fillButtonChoice();
-    fillAxisAxisChoice();
-    fillIntensityAxisChoice();
 
     default_directory = wxEmptyString;
 
@@ -2041,6 +2050,8 @@ void configFrame::LoadControllerType()
     case C_TYPE_MAX:
       break;
   }
+  
+  fillChoices();
 }
 
 /*
@@ -3858,16 +3869,6 @@ void configFrame::OnMenuTypeItemSelected(wxCommandEvent& event)
   {
     save_current();
     controller->SetControllerType(newType);
-    fillButtonChoice();
-    if(AxisTabEventType->GetStringSelection() == _("button"))
-    {
-        fillButtonAxisChoice();
-    }
-    else
-    {
-        fillAxisAxisChoice();
-    }
-    fillIntensityAxisChoice();
     load_current();
   }
 }

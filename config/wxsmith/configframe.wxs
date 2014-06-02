@@ -1524,7 +1524,6 @@
 					<handler function="OnMenuTypeItemSelected" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="separator" />
 				<object class="wxMenuItem" name="ID_MENUITEMXONE" variable="MenuItemXOne" member="yes">
 					<label>XOne pad</label>
 					<handler function="OnMenuTypeItemSelected" entry="EVT_MENU" />
@@ -1540,7 +1539,6 @@
 					<handler function="OnMenuTypeItemSelected" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="separator" />
 				<object class="wxMenuItem" name="ID_MENUITEMJS" variable="MenuItemJs" member="yes">
 					<label>Joystick</label>
 					<handler function="OnMenuTypeItemSelected" entry="EVT_MENU" />
