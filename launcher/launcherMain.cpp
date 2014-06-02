@@ -776,7 +776,7 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
 
     readParam(OUTPUT_FILE, ControllerType);
     readParam(INPUT_FILE, sourceChoice);
-    refresh();
+    readConfigs();
 
     wxCommandEvent event;
     OnControllerTypeSelect(event);
