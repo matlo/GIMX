@@ -93,14 +93,16 @@ class launcherFrame: public wxFrame
         void readStartUpdates();
         void readParam(const char* file, wxChoice* choices);
 
-        void readSixaxis(vector<BluetoothPairing>& bluetoothPairings);
+        void readPairings(vector<BluetoothPairing>& bluetoothPairings, wxString tool);
         void readDongles(vector<DongleInfo>& dongleInfos);
 
         int setDongleAddress(vector<DongleInfo>& dongleInfos, int dongleIndex, wxString address);
         
-        int chooseSixaxis(BluetoothPairing& pairing);
+        int choosePairing(BluetoothPairing& pairing);
         int chooseDongle(wxString address, DongleInfo& dongleInfo);
         
+        wxString generateLinkKey();
+
         int ps3Setup();
         int ps4Setup();
 

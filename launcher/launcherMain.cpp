@@ -138,11 +138,11 @@ static int readCommandResults(wxString command, int nb_params, wxString params[]
     return ret;
 }
 
-void launcherFrame::readSixaxis(vector<BluetoothPairing>& bluetoothPairings)
+void launcherFrame::readPairings(vector<BluetoothPairing>& bluetoothPairings, wxString tool)
 {
     wxString params[2] = {wxT("Current Bluetooth master: "), wxT("Current Bluetooth Device Address: ")};
     wxString results[14];
-    wxString command = wxT("sixaddr");
+    wxString command = tool;
 
     int res = readCommandResults(command, 2, params, 7, results);
 
@@ -1469,14 +1469,21 @@ void launcherFrame::OnsourceChoiceSelect(wxCommandEvent& event)
   refreshGui();
 }
 
-int launcherFrame::chooseSixaxis(BluetoothPairing& pairing)
+int launcherFrame::choosePairing(BluetoothPairing& pairing)
 {
   vector<BluetoothPairing> bluetoothPairings;
-  readSixaxis(bluetoothPairings);
+  if(ControllerType->GetStringSelection() == _("Bluetooth / PS3"))
+  {
+    readPairings(bluetoothPairings, wxT("sixaddr"));
+  }
+  else if(ControllerType->GetStringSelection() == _("Bluetooth / PS4"))
+  {
+    readPairings(bluetoothPairings, wxT("ds4tool"));
+  }
 
   if(bluetoothPairings.empty())
   {
-      wxMessageBox( _("No Sixaxis Detected!\nSixaxis usb wire plugged?"), _("Error"), wxICON_ERROR);
+      wxMessageBox( _("No controller Detected!\nPlug a controller with a USB cable."), _("Error"), wxICON_ERROR);
       return -1;
   }
 
@@ -1485,12 +1492,12 @@ int launcherFrame::chooseSixaxis(BluetoothPairing& pairing)
   for(unsigned int i=0; i<bluetoothPairings.size(); ++i)
   {
     wxString address = wxEmptyString;
-    address.Append(_("Sixaxis: ")).Append(bluetoothPairings[i].controller).Append(wxT("\n"));
-    address.Append(_("PS3: ")).Append(bluetoothPairings[i].console);
+    address.Append(_("Controller: ")).Append(bluetoothPairings[i].controller).Append(wxT("\n"));
+    address.Append(_("Console: ")).Append(bluetoothPairings[i].console);
     addresses.Add(address);
   }
 
-  wxSingleChoiceDialog dialogSixaxis(this, _("Select the sixaxis + ps3 addresses."), _("PS3 Tool"), addresses);
+  wxSingleChoiceDialog dialogSixaxis(this, _("Select the pairing."), _("PS Tool"), addresses);
   dialogSixaxis.SetSelection(0);
   if (dialogSixaxis.ShowModal() != wxID_OK)
   {
@@ -1557,7 +1564,7 @@ int launcherFrame::chooseDongle(wxString address, DongleInfo& dongleInfo)
     dongles.Add(dongle);
   }
 
-  wxSingleChoiceDialog dialogDongles(this, _("Select the bluetooth adapter."), _("PS3 Tool"), dongles);
+  wxSingleChoiceDialog dialogDongles(this, _("Select the bluetooth adapter."), _("PS Tool"), dongles);
   dialogDongles.SetSelection(0);
   if (dialogDongles.ShowModal() != wxID_OK)
   {
@@ -1586,7 +1593,7 @@ int launcherFrame::ps3Setup()
 {
   BluetoothPairing btPairing;
 
-  if(chooseSixaxis(btPairing) < 0)
+  if(choosePairing(btPairing) < 0)
   {
     return -1;
   }
@@ -1612,6 +1619,20 @@ int launcherFrame::ps3Setup()
   return 0;
 }
 
+wxString launcherFrame::generateLinkKey()
+{
+  wxString ds4LinkKey;
+
+  srand(time(NULL));
+  for(unsigned int i=0; i<16; i++)
+  {
+    unsigned char byte = rand();
+    ds4LinkKey.Append(wxString::Format(wxT("%02x"), byte));
+  }
+
+  return ds4LinkKey;
+}
+
 int launcherFrame::ps4Setup()
 {
   //TODO: remove this
@@ -1630,20 +1651,31 @@ int launcherFrame::ps4Setup()
     return -1;
   }
 
-  //TODO: demander quelle DS4 utiliser
+  choosePairing(btPairing);
   
-  //generate a link key for the DS4
-  
-  srand(time(NULL));
-  for(unsigned int i=0; i<16; i++)
+  ds4LinkKey = generateLinkKey();
+
+  command.Clear();
+  command.Append(wxT("ds4tool -m "));
+  command.Append(dongleInfo.address);
+  command.Append(wxT(" -l "));
+  command.Append(ds4LinkKey);
+  if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
-    unsigned char byte = rand();
-    ds4LinkKey.Append(wxString::Format(wxT("%02x"), byte));
+    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
   }
 
-  //TODO: écrire le master de la DS4 (adresse du dongle)
+  vector<BluetoothPairing> pairings;
+  do
+  {
+    wxMessageBox( _("Unplug the DS4"), _("PS Tool"), wxICON_INFORMATION);
 
-  //TODO: demander le débranchage de la DS4, et répéter jusqu'à obtenpération
+    pairings.clear();
+    readPairings(pairings, wxT("ds4tool"));
+
+  } while(pairings.size());
+
+  return 0;
 
   //TODO: demander le branchage du teensy, et répéter jusqu'à obtenpération
 
@@ -1665,7 +1697,7 @@ int launcherFrame::ps4Setup()
   command.Append(wxT("/d\" -i /var/lib/bluetooth/"));
   command.Append(dongleInfo.address);
   command.Append(wxT("/linkkeys"));
-  if(!wxExecute(command, output, errors, wxEXEC_SYNC))
+  if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
   }
@@ -1678,7 +1710,7 @@ int launcherFrame::ps4Setup()
   command.Append(wxT(" 4 0 >> /var/lib/bluetooth/"));
   command.Append(dongleInfo.address);
   command.Append(wxT("/linkkeys"));
-  if(!wxExecute(command, output, errors, wxEXEC_SYNC))
+  if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
   }
@@ -1691,7 +1723,7 @@ int launcherFrame::ps4Setup()
   command.Append(wxT("/d\" -i /var/lib/bluetooth/"));
   command.Append(dongleInfo.address);
   command.Append(wxT("/linkkeys"));
-  if(!wxExecute(command, output, errors, wxEXEC_SYNC))
+  if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
   }
@@ -1704,7 +1736,7 @@ int launcherFrame::ps4Setup()
   command.Append(wxT(" 4 0 >> /var/lib/bluetooth/"));
   command.Append(dongleInfo.address);
   command.Append(wxT("/linkkeys"));
-  if(!wxExecute(command, output, errors, wxEXEC_SYNC))
+  if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
   }
@@ -1713,7 +1745,7 @@ int launcherFrame::ps4Setup()
   
   command.Clear();
   command.Append(wxT("gksudo service bluetooth stop"));
-  if(!wxExecute(command, output, errors, wxEXEC_SYNC))
+  if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
   }
@@ -1724,7 +1756,7 @@ int launcherFrame::ps4Setup()
   command.Append(wxT("gksudo hciconfig "));
   command.Append(dongleInfo.hci);
   command.Append(wxT(" up pscan"));
-  if(!wxExecute(command, output, errors, wxEXEC_SYNC))
+  if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
   }
@@ -1736,7 +1768,7 @@ int launcherFrame::ps4Setup()
   command.Append(dongleInfo.hci);
   command.Append(wxT(" putkey "));
   command.Append(btPairing.console);
-  if(!wxExecute(command, output, errors, wxEXEC_SYNC))
+  if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
   }
@@ -1746,7 +1778,7 @@ int launcherFrame::ps4Setup()
   command.Append(dongleInfo.hci);
   command.Append(wxT(" putkey "));
   command.Append(btPairing.controller);
-  if(!wxExecute(command, output, errors, wxEXEC_SYNC))
+  if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
   }
@@ -1757,7 +1789,7 @@ int launcherFrame::ps4Setup()
   command.Append(wxT("gksudo hciconfig "));
   command.Append(dongleInfo.hci);
   command.Append(wxT(" auth encrypt"));
-  if(!wxExecute(command, output, errors, wxEXEC_SYNC))
+  if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
   }
