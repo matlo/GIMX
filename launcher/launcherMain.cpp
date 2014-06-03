@@ -46,6 +46,8 @@
 #include <arpa/inet.h>
 #endif
 
+#include <time.h>
+
 using namespace std;
 
 #ifdef WIN32
@@ -136,11 +138,10 @@ static int readCommandResults(wxString command, int nb_params, wxString params[]
     return ret;
 }
 
-void launcherFrame::readSixaxis(wxArrayString addresses[2])
+void launcherFrame::readSixaxis(vector<BluetoothPairing>& bluetoothPairings)
 {
     wxString params[2] = {wxT("Current Bluetooth master: "), wxT("Current Bluetooth Device Address: ")};
     wxString results[14];
-    unsigned int j;
     wxString command = wxT("sixaddr");
 
     int res = readCommandResults(command, 2, params, 7, results);
@@ -153,24 +154,19 @@ void launcherFrame::readSixaxis(wxArrayString addresses[2])
             {
                 break;
             }
+            
+            wxString controller = results[i+1].MakeUpper();
+            wxString console = results[i].MakeUpper();
 
-            for(j=0; j<addresses[0].GetCount(); ++j)
-            {
-              if(addresses[0][j] == results[i+1].MakeUpper())
-              {
-                break;
-              }
-            }
-            if(j == addresses[0].GetCount())
-            {
-              addresses[0].Add(results[i+1].MakeUpper());
-              addresses[1].Add(results[i].MakeUpper());
-            }
+            BluetoothPairing pairing;
+            pairing.controller = controller;
+            pairing.console = console;
+            bluetoothPairings.push_back(pairing);
         }
     }
 }
 
-void launcherFrame::readDongles(wxArrayString dongleInfos[4])
+void launcherFrame::readDongles(vector<DongleInfo>& dongleInfos)
 {
   wxString params1[2] = {wxT("BD Address: "), wxT("Manufacturer: ")};
   wxString results1[2];
@@ -189,9 +185,10 @@ void launcherFrame::readDongles(wxArrayString dongleInfos[4])
 
     if (res != -1)
     {
-      dongleInfos[0].Add(device);
-      dongleInfos[1].Add(results1[0].Left(17));
-      dongleInfos[2].Add(results1[1]);
+      DongleInfo di;
+      di.hci = device;
+      di.address = results1[0].Left(17);
+      di.manufacturer = results1[1];
 
       command = wxT("hcirevision ") + device;
       res = readCommandResults(command, 1, params2, 1, results2);
@@ -201,7 +198,9 @@ void launcherFrame::readDongles(wxArrayString dongleInfos[4])
       {
         chip = results2[0];
       }
-      dongleInfos[3].Add(chip);
+      di.chip = chip;
+
+      dongleInfos.push_back(di);
     }
     else
     {
@@ -210,7 +209,7 @@ void launcherFrame::readDongles(wxArrayString dongleInfos[4])
   }
 }
 
-int launcherFrame::setDongleAddress(wxArrayString dongleInfos[4], int dongleIndex, wxString address)
+int launcherFrame::setDongleAddress(vector<DongleInfo>& dongleInfos, int dongleIndex, wxString address)
 {
     int j = 0;
     wxString params1[1] = {wxT("Address changed - ")};
@@ -219,9 +218,18 @@ int launcherFrame::setDongleAddress(wxArrayString dongleInfos[4], int dongleInde
     wxString results2[1];
     int res;
 
-    int pos = dongleInfos[1].Index(address);
+    int pos = -1;
+    
+    for(unsigned int i=0; i<dongleInfos.size(); ++i)
+    {
+      if(dongleInfos[i].address == address)
+      {
+        pos = i;
+        break;
+      }
+    }
 
-    if(pos != wxNOT_FOUND)
+    if(pos != -1)
     {
       if(pos == dongleIndex)
       {
@@ -242,7 +250,7 @@ int launcherFrame::setDongleAddress(wxArrayString dongleInfos[4], int dongleInde
       return -1;
     }
 
-    wxString command = wxT("bdaddr -r -i ") + dongleInfos[0][dongleIndex] + wxT(" ") + address;
+    wxString command = wxT("bdaddr -r -i ") + dongleInfos[dongleIndex].hci + wxT(" ") + address;
     res = readCommandResults(command, 1, params1, 1, results1);
 
     if(res != -1)
@@ -251,7 +259,7 @@ int launcherFrame::setDongleAddress(wxArrayString dongleInfos[4], int dongleInde
     }
 
     //wait up to 5s for the device to come back
-    command = wxT("bdaddr -i ") + dongleInfos[0][dongleIndex];
+    command = wxT("bdaddr -i ") + dongleInfos[dongleIndex].hci;
     while(readCommandResults(command, 1, params2, 1, results2) == -1 && j<50)
     {
         usleep(100000);
@@ -851,7 +859,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
 {
     wxString command;
     string filename;
-    wxString dongleIndex = wxEmptyString;
+    wxString hciIndex = wxEmptyString;
     wxString bdaddrDst = wxEmptyString;
 
     wxString output = ChoiceOutput->GetStringSelection();
@@ -898,61 +906,14 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
       wxString bdaddrSrc = output.BeforeFirst(wxChar(' '));
       bdaddrDst = output.AfterFirst(wxChar(' '));
 
-      //check what dongle has to be used
-      wxArrayString dongleInfos[4];
-      readDongles(dongleInfos);
+      DongleInfo dongleInfo;
 
-      if(dongleInfos[0].GetCount() == 0)
+      if(chooseDongle(bdaddrSrc, dongleInfo) < 0)
       {
-          wxMessageBox( _("No Bluetooth Dongle Detected!"), _("Error"), wxICON_ERROR);
-          return;
+        return;
       }
-
-      for(unsigned int i=0; i<dongleInfos[0].GetCount(); ++i)
-      {
-        if(dongleInfos[1][i] == bdaddrSrc)
-        {
-          dongleIndex = dongleInfos[0][i].Mid(3);
-          break;
-        }
-      }
-
-      //no dongle found => ask the user what dongle to use
-      if(dongleIndex.IsEmpty())
-      {
-        wxArrayString dongles;
-
-        for(unsigned int i=0; i<dongleInfos[0].GetCount(); ++i)
-        {
-          wxString dongle = wxEmptyString;
-          dongle.Append(_("Device: ")).Append(dongleInfos[0][i]).Append(wxT("\n"));
-          dongle.Append(_("Address: ")).Append(dongleInfos[1][i]).Append(wxT("\n"));
-          dongle.Append(_("Manufacturer: ")).Append(dongleInfos[2][i]);
-
-          if(!dongleInfos[3][i].IsEmpty())
-          {
-            dongle.Append(wxT("\n")).Append(_("Chip: ")).Append(dongleInfos[3][i]);
-          }
-
-          dongles.Add(dongle);
-        }
-
-        wxSingleChoiceDialog dialogDongles(this, _("Select the bluetooth adapter."), _("PS3 Tool"), dongles);
-        dialogDongles.SetSelection(0);
-        if (dialogDongles.ShowModal() != wxID_OK)
-        {
-          return;
-        }
-
-        int dongle = dialogDongles.GetSelection();
-
-        if(setDongleAddress(dongleInfos, dongle, bdaddrSrc) == -1)
-        {
-          return;
-        }
-
-        dongleIndex = dongleInfos[0][dongle].Mid(3);
-      }
+      
+      hciIndex = dongleInfo.hci.Mid(3);
     }
 
     if(sourceChoice->GetStringSelection() == _("Network"))
@@ -1003,7 +964,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
       command.Append(wxT(" --type Sixaxis"));
 
       command.Append(wxT(" --hci "));
-      command.Append(dongleIndex);
+      command.Append(hciIndex);
 
       command.Append(wxT(" --bdaddr "));
       command.Append(bdaddrDst);
@@ -1013,7 +974,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
       command.Append(wxT(" --type DS4"));
 
       command.Append(wxT(" --hci "));
-      command.Append(dongleIndex);
+      command.Append(hciIndex);
 
       command.Append(wxT(" --bdaddr "));
       command.Append(bdaddrDst);
@@ -1030,10 +991,8 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
     if(sourceChoice->GetStringSelection() == _("Network"))
     {
       command.Append(wxT(" --src "));
-      command.Append(sourceChoice->GetStringSelection());
+      command.Append(ChoiceInput->GetStringSelection());
     }
-
-    //cout << command.c_str() << endl;
 
     if(CheckBoxTerminal->IsChecked())
     {
@@ -1047,6 +1006,8 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
     StatusBar1->SetStatusText(_("Press Shift+Esc to exit."));
 
     ButtonStart->Enable(false);
+
+    //wxMessageBox( command, _("Error"), wxICON_ERROR);
 
     MyProcess *process = new MyProcess(this, command);
 
@@ -1508,12 +1469,12 @@ void launcherFrame::OnsourceChoiceSelect(wxCommandEvent& event)
   refreshGui();
 }
 
-int launcherFrame::ps3Setup()
+int launcherFrame::chooseSixaxis(BluetoothPairing& pairing)
 {
-  wxArrayString sixaxisInfos[2];
-  readSixaxis(sixaxisInfos);
+  vector<BluetoothPairing> bluetoothPairings;
+  readSixaxis(bluetoothPairings);
 
-  if(sixaxisInfos[0].GetCount() == 0)
+  if(bluetoothPairings.empty())
   {
       wxMessageBox( _("No Sixaxis Detected!\nSixaxis usb wire plugged?"), _("Error"), wxICON_ERROR);
       return -1;
@@ -1521,11 +1482,11 @@ int launcherFrame::ps3Setup()
 
   wxArrayString addresses;
 
-  for(unsigned int i=0; i<sixaxisInfos[0].GetCount(); ++i)
+  for(unsigned int i=0; i<bluetoothPairings.size(); ++i)
   {
     wxString address = wxEmptyString;
-    address.Append(_("Sixaxis: ")).Append(sixaxisInfos[0][i]).Append(wxT("\n"));
-    address.Append(_("PS3: ")).Append(sixaxisInfos[1][i]);
+    address.Append(_("Sixaxis: ")).Append(bluetoothPairings[i].controller).Append(wxT("\n"));
+    address.Append(_("PS3: ")).Append(bluetoothPairings[i].console);
     addresses.Add(address);
   }
 
@@ -1535,28 +1496,62 @@ int launcherFrame::ps3Setup()
   {
     return -1;
   }
+    
+  pairing = bluetoothPairings[dialogSixaxis.GetSelection()];
+  
+  return 0;
+}
 
-  wxArrayString dongleInfos[4];
+/*
+ * Choose a bt dongle:
+ * -if address is not empty
+ *   -if a dongle address matches
+ *   -else ask the user to choose a dongle and set its address
+ * -else
+ *   -ask the user to choose a dongle
+ * In any case, if a dongle is successfully selected, dongleInfo is set.
+ */
+int launcherFrame::chooseDongle(wxString address, DongleInfo& dongleInfo)
+{
+  vector<DongleInfo> dongleInfos;
   readDongles(dongleInfos);
 
-  if(dongleInfos[0].GetCount() == 0)
+  if(dongleInfos.empty())
   {
       wxMessageBox( _("No Bluetooth Dongle Detected!"), _("Error"), wxICON_ERROR);
       return -1;
   }
+  
+  if(!address.IsEmpty())
+  {
+    for(unsigned int i=0; i<dongleInfos.size(); ++i)
+    {
+      if(dongleInfos[i].address == address)
+      {
+        dongleInfo = dongleInfos[i];
+        return 0;
+      }
+    }
+    
+    if(ControllerType->GetStringSelection() == _("Bluetooth / PS4"))
+    {
+      wxMessageBox( _("Dongle not found!"), _("Error"), wxICON_ERROR);
+      return -1;
+    }
+  }
 
   wxArrayString dongles;
 
-  for(unsigned int i=0; i<dongleInfos[0].GetCount(); ++i)
+  for(unsigned int i=0; i<dongleInfos.size(); ++i)
   {
     wxString dongle = wxEmptyString;
-    dongle.Append(_("Device: ")).Append(dongleInfos[0][i]).Append(wxT("\n"));
-    dongle.Append(_("Address: ")).Append(dongleInfos[1][i]).Append(wxT("\n"));
-    dongle.Append(_("Manufacturer: ")).Append(dongleInfos[2][i]);
+    dongle.Append(_("Device: ")).Append(dongleInfos[i].hci).Append(wxT("\n"));
+    dongle.Append(_("Address: ")).Append(dongleInfos[i].address).Append(wxT("\n"));
+    dongle.Append(_("Manufacturer: ")).Append(dongleInfos[i].manufacturer);
 
-    if(!dongleInfos[3][i].IsEmpty())
+    if(!dongleInfos[i].chip.IsEmpty())
     {
-      dongle.Append(wxT("\n")).Append(_("Chip: ")).Append(dongleInfos[3][i]);
+      dongle.Append(wxT("\n")).Append(_("Chip: ")).Append(dongleInfos[i].chip);
     }
 
     dongles.Add(dongle);
@@ -1568,36 +1563,83 @@ int launcherFrame::ps3Setup()
   {
     return -1;
   }
-
-  int sixaxisIndex = dialogSixaxis.GetSelection();
+  
   int dongleIndex = dialogDongles.GetSelection();
-  if(setDongleAddress(dongleInfos, dongleIndex, sixaxisInfos[0][sixaxisIndex]) != -1)
+  dongleInfo = dongleInfos[dongleIndex];
+
+  if(!address.IsEmpty())
   {
-    wxString pairing = sixaxisInfos[0][sixaxisIndex] + wxT(" ") + sixaxisInfos[1][sixaxisIndex];
-    int pos = ChoiceOutput->FindString(pairing);
-    if(pos == wxNOT_FOUND)
+    if(setDongleAddress(dongleInfos, dongleIndex, address) != -1)
     {
-      ChoiceOutput->SetSelection(ChoiceOutput->Append(pairing));
+      dongleInfo.address = address;
     }
     else
     {
-      ChoiceOutput->SetSelection(pos);
+      return -1;
     }
+  }
+  
+  return 0;
+}
+
+int launcherFrame::ps3Setup()
+{
+  BluetoothPairing btPairing;
+
+  if(chooseSixaxis(btPairing) < 0)
+  {
+    return -1;
+  }
+  
+  DongleInfo dongleInfo;
+
+  if(chooseDongle(btPairing.controller, dongleInfo) < 0)
+  {
+    return -1;
+  }
+  
+  wxString pairing = btPairing.controller + wxT(" ") + btPairing.console;
+  int pos = ChoiceOutput->FindString(pairing);
+  if(pos == wxNOT_FOUND)
+  {
+    ChoiceOutput->SetSelection(ChoiceOutput->Append(pairing));
   }
   else
   {
-    return -1;
+    ChoiceOutput->SetSelection(pos);
   }
 
   return 0;
 }
+
 int launcherFrame::ps4Setup()
 {
-  //TODO: demander quel dongle utiliser
+  //TODO: remove this
+  ChoiceOutput->Clear();
+  return 0;
 
-  //TODO: générer une clef pour la DS4
+  wxArrayString output, errors;
+  wxString command;
+  DongleInfo dongleInfo;
+  BluetoothPairing btPairing;
+  wxString ds4LinkKey;
+  wxString ps4LinkKey;//TODO
+
+  if(chooseDongle(wxEmptyString, dongleInfo) < 0)
+  {
+    return -1;
+  }
 
   //TODO: demander quelle DS4 utiliser
+  
+  //generate a link key for the DS4
+  
+  srand(time(NULL));
+  for(unsigned int i=0; i<16; i++)
+  {
+    unsigned char byte = rand();
+    ds4LinkKey.Append(wxString::Format(wxT("%02x"), byte));
+  }
 
   //TODO: écrire le master de la DS4 (adresse du dongle)
 
@@ -1614,20 +1656,122 @@ int launcherFrame::ps4Setup()
   //TODO: demander le branchage du teensy à la PS4, puis au PC.
 
   //TODO: lire l'adresse de le PS4 et la clef
+  
+  //set dongle link key for the PS4
+  
+  command.Clear();
+  command.Append(wxT("sed \"/"));
+  command.Append(btPairing.console);
+  command.Append(wxT("/d\" -i /var/lib/bluetooth/"));
+  command.Append(dongleInfo.address);
+  command.Append(wxT("/linkkeys"));
+  if(!wxExecute(command, output, errors, wxEXEC_SYNC))
+  {
+    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+  }
+    
+  command.Clear();
+  command.Append(wxT("echo "));
+  command.Append(btPairing.console);
+  command.Append(wxT(" "));
+  command.Append(ps4LinkKey);
+  command.Append(wxT(" 4 0 >> /var/lib/bluetooth/"));
+  command.Append(dongleInfo.address);
+  command.Append(wxT("/linkkeys"));
+  if(!wxExecute(command, output, errors, wxEXEC_SYNC))
+  {
+    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+  }
+  
+  //set dongle link key for the DS4
+  
+  command.Clear();
+  command.Append(wxT("sed \"/"));
+  command.Append(btPairing.controller);
+  command.Append(wxT("/d\" -i /var/lib/bluetooth/"));
+  command.Append(dongleInfo.address);
+  command.Append(wxT("/linkkeys"));
+  if(!wxExecute(command, output, errors, wxEXEC_SYNC))
+  {
+    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+  }
+    
+  command.Clear();
+  command.Append(wxT("echo "));
+  command.Append(btPairing.controller);
+  command.Append(wxT(" "));
+  command.Append(ds4LinkKey);
+  command.Append(wxT(" 4 0 >> /var/lib/bluetooth/"));
+  command.Append(dongleInfo.address);
+  command.Append(wxT("/linkkeys"));
+  if(!wxExecute(command, output, errors, wxEXEC_SYNC))
+  {
+    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+  }
+  
+  //stop the bluetooth service 
+  
+  command.Clear();
+  command.Append(wxT("gksudo service bluetooth stop"));
+  if(!wxExecute(command, output, errors, wxEXEC_SYNC))
+  {
+    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+  }
+  
+  //make sure the bluetooth dongle is up
+  
+  command.Clear();
+  command.Append(wxT("gksudo hciconfig "));
+  command.Append(dongleInfo.hci);
+  command.Append(wxT(" up pscan"));
+  if(!wxExecute(command, output, errors, wxEXEC_SYNC))
+  {
+    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+  }
 
-  //TODO: écrire la clef de la DS4
+  //send link keys
+  
+  command.Clear();
+  command.Append(wxT("gksudo hciconfig "));
+  command.Append(dongleInfo.hci);
+  command.Append(wxT(" putkey "));
+  command.Append(btPairing.console);
+  if(!wxExecute(command, output, errors, wxEXEC_SYNC))
+  {
+    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+  }
+  
+  command.Clear();
+  command.Append(wxT("gksudo hciconfig "));
+  command.Append(dongleInfo.hci);
+  command.Append(wxT(" putkey "));
+  command.Append(btPairing.controller);
+  if(!wxExecute(command, output, errors, wxEXEC_SYNC))
+  {
+    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+  }
+  
+  //enable authentication and encryption
+  
+  command.Clear();
+  command.Append(wxT("gksudo hciconfig "));
+  command.Append(dongleInfo.hci);
+  command.Append(wxT(" auth encrypt"));
+  if(!wxExecute(command, output, errors, wxEXEC_SYNC))
+  {
+    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+  }
 
-  //TODO: écrire la clef de la PS4
-
-  //TODO: arrêter le service bluetooth
-
-  //TODO: hciconfig up pscan
-
-  //TODO: hciconfig putkey
-
-  //TODO: hciconfig auth encrypt
-
-  ChoiceOutput->Clear();
+  wxString pairing = dongleInfo.address + wxT(" ") + btPairing.console;
+  int pos = ChoiceOutput->FindString(pairing);
+  if(pos == wxNOT_FOUND)
+  {
+    ChoiceOutput->SetSelection(ChoiceOutput->Append(pairing));
+  }
+  else
+  {
+    ChoiceOutput->SetSelection(pos);
+  }
 
   return -1;
 }

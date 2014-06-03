@@ -22,6 +22,26 @@
 
 #include <wx/process.h>
 
+#include <vector>
+
+using namespace std;
+
+class DongleInfo
+{
+public:
+    wxString hci;
+    wxString address;
+    wxString manufacturer;
+    wxString chip;
+};
+
+class BluetoothPairing
+{
+public:
+    wxString controller;
+    wxString console;
+};
+
 class launcherFrame: public wxFrame
 {
     public:
@@ -73,10 +93,13 @@ class launcherFrame: public wxFrame
         void readStartUpdates();
         void readParam(const char* file, wxChoice* choices);
 
-        void readSixaxis(wxArrayString addresses[2]);
-        void readDongles(wxArrayString dongleInfos[4]);
+        void readSixaxis(vector<BluetoothPairing>& bluetoothPairings);
+        void readDongles(vector<DongleInfo>& dongleInfos);
 
-        int setDongleAddress(wxArrayString dongleInfos[4], int dongleIndex, wxString address);
+        int setDongleAddress(vector<DongleInfo>& dongleInfos, int dongleIndex, wxString address);
+        
+        int chooseSixaxis(BluetoothPairing& pairing);
+        int chooseDongle(wxString address, DongleInfo& dongleInfo);
         
         int ps3Setup();
         int ps4Setup();
