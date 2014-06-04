@@ -40,6 +40,7 @@ class BluetoothPairing
 public:
     wxString controller;
     wxString console;
+    wxString linkKey;
 };
 
 class launcherFrame: public wxFrame

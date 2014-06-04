@@ -16,9 +16,17 @@
 #define VENDOR 0x054c
 #define PRODUCT 0x05c4
 
+#define TYPE_DS4 0
+#define TYPE_TEENSY 1
+
+static unsigned char type = TYPE_DS4;
+
 static char* master = NULL;
 static char* link_key = NULL;
 static char* slave = NULL;
+
+static unsigned char msg_bdaddrs[0x0010];
+static unsigned char msg_link_key[0x0010];
 
 void fatal(char *msg)
 {
@@ -31,24 +39,17 @@ static void usage()
   fprintf(stderr, "Usage: ds4tool [-l <link key> -m <master bdaddr> -s <slave bdaddr>]\n");
 }
 
-void show_bdaddrs(libusb_device_handle* devh)
+int get_bdaddrs(libusb_device_handle* devh)
 {
-  unsigned char msg[0x0010];
-
   int res = libusb_control_transfer(devh, LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE,
-      LIBUSB_REQUEST_CLEAR_FEATURE, 0x0312, 0x0000, msg, sizeof(msg), 5000);
+      LIBUSB_REQUEST_CLEAR_FEATURE, 0x0312, 0x0000, msg_bdaddrs, sizeof(msg_bdaddrs), 5000);
 
   if (res < 0)
   {
     perror("USB_REQ_GET_CONFIGURATION");
-    return;
   }
 
-  printf("Current Bluetooth master: ");
-  printf("%02X:%02X:%02X:%02X:%02X:%02X\n", msg[15], msg[14], msg[13], msg[12], msg[11], msg[10]);
-
-  printf("Current Bluetooth Device Address: ");
-  printf("%02X:%02X:%02X:%02X:%02X:%02X\n", msg[6], msg[5], msg[4], msg[3], msg[2], msg[1]);
+  return res;
 }
 
 void set_master(libusb_device_handle* devh, unsigned char master[6], unsigned char lk[16])
@@ -86,25 +87,10 @@ void set_slave(libusb_device_handle* devh, unsigned char slave[6])
   }
 }
 
-void show_link_key(libusb_device_handle* devh)
+int get_link_key(libusb_device_handle* devh)
 {
-  unsigned char msg[0x0010];
-
-  int res = libusb_control_transfer(devh, LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE,
-      LIBUSB_REQUEST_CLEAR_FEATURE, 0x0313, 0x0000, msg, sizeof(msg), 5000);
-
-  if (res < 0)
-  {
-    return;
-  }
-
-  printf("Current link key: ");
-  int i;
-  for(i=0; i<res; ++i)
-  {
-    printf("%02X", msg[i]);
-  }
-  printf("\n");
+  return libusb_control_transfer(devh, LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE,
+      LIBUSB_REQUEST_CLEAR_FEATURE, 0x0313, 0x0000, msg_link_key, sizeof(msg_link_key), 5000);
 }
 
 int process_device(libusb_device_handle* devh)
@@ -112,9 +98,42 @@ int process_device(libusb_device_handle* devh)
   unsigned char bdaddr[6];
   unsigned char lk[16] = {};
 
-  show_bdaddrs(devh);
+  if(get_bdaddrs(devh) < 0)
+  {
+    return -1;
+  }
 
-  show_link_key(devh);
+  if(get_link_key(devh) < 0)
+  {
+    if(type == TYPE_TEENSY)
+    {
+      return -1;
+    }
+  }
+  else
+  {
+    if(type == TYPE_DS4)
+    {
+      return -1;
+    }
+  }
+
+  printf("Current Bluetooth master: ");
+  printf("%02X:%02X:%02X:%02X:%02X:%02X\n", msg_bdaddrs[15], msg_bdaddrs[14], msg_bdaddrs[13], msg_bdaddrs[12], msg_bdaddrs[11], msg_bdaddrs[10]);
+
+  printf("Current Bluetooth Device Address: ");
+  printf("%02X:%02X:%02X:%02X:%02X:%02X\n", msg_bdaddrs[6], msg_bdaddrs[5], msg_bdaddrs[4], msg_bdaddrs[3], msg_bdaddrs[2], msg_bdaddrs[1]);
+
+  if(type == TYPE_TEENSY)
+  {
+    printf("Current link key: ");
+    int i;
+    for(i=0; i<16; ++i)
+    {
+      printf("%02X", msg_link_key[i]);
+    }
+    printf("\n");
+  }
 
   if (master)
   {
@@ -155,7 +174,7 @@ static void read_args(int argc, char* argv[])
 {
   int opt;
 
-  while ((opt = getopt(argc, argv, "l:m:s:")) != -1)
+  while ((opt = getopt(argc, argv, "l:m:s:t::")) != -1)
   {
     switch (opt)
     {
@@ -168,6 +187,9 @@ static void read_args(int argc, char* argv[])
       case 'l':
         link_key = optarg;
         break;
+      case 't':
+        type = TYPE_TEENSY;
+        break;
       default: /* '?' */
         usage();
         exit(EXIT_FAILURE);
@@ -178,9 +200,11 @@ static void read_args(int argc, char* argv[])
 
 int main(int argc, char *argv[])
 {
-  static libusb_device_handle* devh = NULL;
-  static libusb_context* ctx = NULL;
+  libusb_device** devs;
+  libusb_device_handle* devh = NULL;
+  libusb_context* ctx = NULL;
   int ret = -1;
+  int i;
 
   read_args(argc, argv);
 
@@ -192,43 +216,65 @@ int main(int argc, char *argv[])
 
   //libusb_set_debug(ctx, 128);
 
-  devh = libusb_open_device_with_vid_pid(ctx, VENDOR, PRODUCT);
+  ssize_t cnt = libusb_get_device_list(ctx, &devs);
 
-  if(!devh)
+  if(cnt < 0)
   {
-    fprintf(stderr, "Can't find any DS4 controller on USB busses.\n");
+    fprintf(stderr, "Can't get USB device list.\n");
     return -1;
   }
 
-  if(libusb_detach_kernel_driver(devh, 0) < 0)
+  for(i=0; i<cnt; ++i)
   {
-    fprintf(stderr, "Can't detach kernel driver.\n");
-    goto CLEANUP2;
+    struct libusb_device_descriptor desc;
+    ret = libusb_get_device_descriptor(devs[i], &desc);
+    if(!ret)
+    {
+      if(desc.idVendor == VENDOR && desc.idProduct == PRODUCT)
+      {
+        ret = libusb_open(devs[i], &devh);
+        if(!ret)
+        {
+          if(libusb_detach_kernel_driver(devh, 0) < 0)
+          {
+            fprintf(stderr, "Can't detach kernel driver.\n");
+            ret = -1;
+          }
+          else
+          {
+            if(libusb_claim_interface(devh, 0) < 0)
+            {
+              fprintf(stderr, "Can't claim interface.\n");
+              ret = -1;
+            }
+            else
+            {
+              ret = process_device(devh);
+
+              if(libusb_release_interface(devh, 0))
+              {
+                fprintf(stderr, "Can't release interface.\n");
+              }
+            }
+
+            if(libusb_attach_kernel_driver(devh, 0) < 0)
+            {
+              fprintf(stderr, "Can't attach kernel driver.\n");
+            }
+          }
+
+          libusb_close(devh);
+
+          if(ret == 0 && (slave || master))
+          {
+            break;
+          }
+        }
+      }
+    }
   }
 
-  if(libusb_claim_interface(devh, 0) < 0)
-  {
-    fprintf(stderr, "Can't claim interface.\n");
-    goto CLEANUP1;
-  }
-
-  ret = process_device(devh);
-
-  if(libusb_release_interface(devh, 0))
-  {
-    fprintf(stderr, "Can't release interface.\n");
-  }
-
-CLEANUP1:
-
-  if(libusb_attach_kernel_driver(devh, 0) < 0)
-  {
-    fprintf(stderr, "Can't attach kernel driver.\n");
-  }
-
-CLEANUP2:
-
-  libusb_close(devh);
+  libusb_exit(ctx);
 
   return ret;
 

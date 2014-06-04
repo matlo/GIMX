@@ -24,6 +24,8 @@
 #include <windows.h>
 #else
 #include <pwd.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #endif
 
 #include <wx/aboutdlg.h>
@@ -40,11 +42,6 @@
 #include <wx/stdpaths.h>
 #include <wx/busyinfo.h>
 #include "wx/numdlg.h"
-
-#ifndef WIN32
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#endif
 
 #include <time.h>
 
@@ -104,107 +101,180 @@ BEGIN_EVENT_TABLE(launcherFrame,wxFrame)
     //*)
 END_EVENT_TABLE()
 
-static int readCommandResults(wxString command, int nb_params, wxString params[], int nb_repeat, wxString results[])
+/*
+ * \brief This function performs a synchronous execution of a given command, and parses the command output.
+ * 
+ * \param command    the command to execute
+ * \param firstLine  in case the output is a list of line blocks, this indicates an entry delimiter
+ * \param params     the list of strings to look for in the command output
+ * \param results    the values parsed from the command output
+ * \param nbResults  specifies the size of the results array
+ * 
+ * \return 0 if command exited with 0, -1 otherwise
+ */
+static int readCommandResults(wxString command, wxString firstLine, wxArrayString params, wxArrayString results[], int nbResults)
 {
     int ret = 0;
     wxArrayString output, errors;
-    unsigned int j = 0;
-    int pos;
+    int index = -1;
 
     if(!wxExecute(command, output, errors, wxEXEC_SYNC))
     {
-      for(int i=0; i<nb_params*nb_repeat && ret != -1; ++i)
+      for(unsigned int j=0; j<output.GetCount(); ++j)
       {
-        for(; j<output.GetCount(); ++j)
+        //find a line that matches firstLine
+        if(output[j].Find(firstLine) != wxNOT_FOUND)
         {
-          pos = output[j].Find(params[i%nb_params]);
-          if(pos != wxNOT_FOUND)
+          //increase the result index
+          ++index;
+          if(index == nbResults)
           {
-            results[i] = output[j].Mid(pos+params[i%nb_params].Length());
             break;
           }
+          //init the result
+          for(unsigned int i=0; i<params.GetCount(); ++i)
+          {
+            results[index].Add(wxEmptyString);
+          }
         }
-        if(j == output.GetCount() && nb_repeat == 1)
+        
+        //firstLine has not been found yet
+        if(index < 0)
         {
-          ret = -1;
+          continue;
+        }
+        
+        for(unsigned int i=0; i<params.GetCount(); ++i)
+        {
+          //check if line contains something interesting
+          int pos = output[j].Find(params[i]);
+          if(pos != wxNOT_FOUND)
+          {
+            //store the remaining chars of the line
+            results[index][i] = output[j].Mid(pos+params[i].Length());
+            break;
+          }
         }
       }
     }
     else
     {
+      //command execution has failed
       ret = -1;
     }
 
     return ret;
 }
 
+/*
+ * \brief Read the bluetooth pairings with a given tool.
+ * 
+ * \param bluetoothPairings  the vector to store the pairings
+ * \param tool               the tool, e.g. sixaddr or ds4tool
+ */
 void launcherFrame::readPairings(vector<BluetoothPairing>& bluetoothPairings, wxString tool)
 {
-    wxString params[2] = {wxT("Current Bluetooth master: "), wxT("Current Bluetooth Device Address: ")};
-    wxString results[14];
+    wxString firstLine = wxT("Current Bluetooth master: ");
+    wxArrayString params;
+    params.Add(wxT("Current Bluetooth master: "));
+    params.Add(wxT("Current Bluetooth Device Address: "));
+    params.Add(wxT("Current link key: "));
+    wxArrayString results[7];
     wxString command = tool;
 
-    int res = readCommandResults(command, 2, params, 7, results);
+    int res = readCommandResults(command, firstLine, params, results, sizeof(results)/sizeof(*results));
 
     if(res != -1)
     {
-        for(int i=0; i<13; i+=2)
+        for(unsigned int i=0; i<sizeof(results)/sizeof(*results); ++i)
         {
             if(results[i].IsEmpty())
             {
-                break;
+              break;
             }
-            
-            wxString controller = results[i+1].MakeUpper();
-            wxString console = results[i].MakeUpper();
 
             BluetoothPairing pairing;
-            pairing.controller = controller;
-            pairing.console = console;
+            pairing.console = results[i][0].MakeUpper();
+            pairing.controller = results[i][1].MakeUpper();
+            pairing.linkKey = results[i][2].MakeUpper();
             bluetoothPairings.push_back(pairing);
         }
     }
 }
 
+/*
+ * \brief Read bluetooth device properties.
+ * 
+ * \param dongleInfos  the vector to store the properties
+ */
 void launcherFrame::readDongles(vector<DongleInfo>& dongleInfos)
 {
-  wxString params1[2] = {wxT("BD Address: "), wxT("Manufacturer: ")};
-  wxString results1[2];
-  wxString params2[1] = {wxT("Chip version: ")};
-  wxString results2[1];
-  int res;
+  //retrieve the hci indexes
+  
+  wxArrayString hciDevices;
+  
+  wxString firstLine = wxT("hci");
+  wxArrayString params;
+  params.Add(wxT("hci"));
+  wxArrayString results[7];
+  
+  int res = readCommandResults(wxT("hciconfig"), firstLine, params, results, sizeof(results)/sizeof(*results));
 
-  for(int i=0; i<256; ++i)
+  if(res != -1)
+  {
+    for(unsigned int i=0; i<sizeof(results)/sizeof(*results); ++i)
+    {
+      if(results[i].IsEmpty())
+      {
+        break;
+      }
+
+      hciDevices.push_back(results[i][0].BeforeFirst(wxChar(':')));
+    }
+  }
+  else
+  {
+    return;
+  }
+  
+  wxString firstLine1 = wxT("BD Address: ");
+  wxArrayString params1;
+  params1.Add(wxT("BD Address: "));
+  params1.Add(wxT("Manufacturer: "));
+  wxArrayString results1[1];
+  
+  wxString firstLine2 = wxT("Chip version: ");
+  wxArrayString params2;
+  params2.Add(wxT("Chip version: "));
+  wxArrayString results2[1];
+  
+  for(unsigned int i=0; i<hciDevices.GetCount(); ++i)
   {
     wxString device = wxT("hci");
-    device.Append(wxString::Format(wxT("%i"), i));
+    device.Append(hciDevices[i]);
 
     wxString command = wxT("hciconfig -a ") + device;
 
-    res = readCommandResults(command, 2, params1, 1, results1);
+    res = readCommandResults(command, firstLine1, params1, results1, sizeof(results1)/sizeof(*results1));
 
     if (res != -1)
     {
       DongleInfo di;
       di.hci = device;
-      di.address = results1[0].Left(17);
-      di.manufacturer = results1[1];
+      di.address = results1[0][0].Left(17);
+      di.manufacturer = results1[0][1];
 
       command = wxT("hcirevision ") + device;
-      res = readCommandResults(command, 1, params2, 1, results2);
+      res = readCommandResults(command, firstLine2, params2, results2, sizeof(results2)/sizeof(*results2));
 
       wxString chip = wxEmptyString;
-      if (res != -1 && results2[0] != wxT("Unknown"))
+      if (res != -1 && results2[0][0] != wxT("Unknown"))
       {
-        chip = results2[0];
+        chip = results2[0][0];
       }
       di.chip = chip;
 
       dongleInfos.push_back(di);
-    }
-    else
-    {
-      break;
     }
   }
 }
@@ -212,10 +282,14 @@ void launcherFrame::readDongles(vector<DongleInfo>& dongleInfos)
 int launcherFrame::setDongleAddress(vector<DongleInfo>& dongleInfos, int dongleIndex, wxString address)
 {
     int j = 0;
-    wxString params1[1] = {wxT("Address changed - ")};
-    wxString results1[1];
-    wxString params2[1] = {wxT("Device address: ")};
-    wxString results2[1];
+    wxString firstLine1 = wxT("Address changed - ");
+    wxArrayString params1;
+    params1.Add(wxT("Address changed - "));
+    wxArrayString results1[1];
+    wxString firstLine2 = wxT("Device address: ");
+    wxArrayString params2;
+    params2.Add(wxT("Device address: "));
+    wxArrayString results2[1];
     int res;
 
     int pos = -1;
@@ -251,22 +325,22 @@ int launcherFrame::setDongleAddress(vector<DongleInfo>& dongleInfos, int dongleI
     }
 
     wxString command = wxT("bdaddr -r -i ") + dongleInfos[dongleIndex].hci + wxT(" ") + address;
-    res = readCommandResults(command, 1, params1, 1, results1);
+    res = readCommandResults(command, firstLine1, params1, results1, sizeof(results1)/sizeof(*results1));
 
     if(res != -1)
     {
-      wxMessageBox( results1[0], _("Success"), wxICON_INFORMATION);
+      wxMessageBox( results1[0][0], _("Success"), wxICON_INFORMATION);
     }
 
     //wait up to 5s for the device to come back
     command = wxT("bdaddr -i ") + dongleInfos[dongleIndex].hci;
-    while(readCommandResults(command, 1, params2, 1, results2) == -1 && j<50)
+    while(readCommandResults(command, firstLine2, params2, results2, sizeof(results2)/sizeof(*results2)) == -1 && j<50)
     {
         usleep(100000);
         j++;
     }
 
-    if(results2[0] !=  address)
+    if(results2[0][0] !=  address)
     {
         wxMessageBox( _("Read address after set: ko!"), _("Error"), wxICON_ERROR);
         return -1;
@@ -1635,23 +1709,37 @@ wxString launcherFrame::generateLinkKey()
 
 int launcherFrame::ps4Setup()
 {
-  //TODO: remove this
-  ChoiceOutput->Clear();
-  return 0;
-
   wxArrayString output, errors;
   wxString command;
   DongleInfo dongleInfo;
   BluetoothPairing btPairing;
+  vector<BluetoothPairing> pairings;
   wxString ds4LinkKey;
-  wxString ps4LinkKey;//TODO
+  wxString ps4LinkKey;
+  
+  //choose a bluetooth device
 
-  if(chooseDongle(wxEmptyString, dongleInfo) < 0)
+  while(chooseDongle(wxEmptyString, dongleInfo) < 0)
   {
-    return -1;
+    int answer = wxMessageBox( _("Plug a bluetooth dongle"), _("PS Tool"), wxICON_INFORMATION | wxYES | wxCANCEL);
+    if (answer != wxYES)
+    {
+      return -1;
+    }
   }
+  
+  //choose a ds4
 
-  choosePairing(btPairing);
+  while(choosePairing(btPairing) < 0)
+  {
+    int answer = wxMessageBox( _("Plug a ds4"), _("PS Tool"), wxICON_INFORMATION | wxYES | wxCANCEL);
+    if (answer != wxYES)
+    {
+      return -1;
+    }
+  }
+  
+  //set the master and the link key of the ds4
   
   ds4LinkKey = generateLinkKey();
 
@@ -1663,46 +1751,75 @@ int launcherFrame::ps4Setup()
   if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+    return -1;
   }
+  
+  //loop until the teensy is plugged
 
-  vector<BluetoothPairing> pairings;
   do
   {
-    wxMessageBox( _("Unplug the DS4"), _("PS Tool"), wxICON_INFORMATION);
-
     pairings.clear();
-    readPairings(pairings, wxT("ds4tool"));
+    readPairings(pairings, wxT("ds4tool -t"));
 
-  } while(pairings.size());
+    if(!pairings.empty())
+    {
+      break;
+    }
 
-  return 0;
-
-  //TODO: demander le branchage du teensy, et répéter jusqu'à obtenpération
-
-  //TODO: écrire l'adresse du teensy
-
-  //TODO: réinitialiser le master du teensy
-
-  //TODO: demander le débranchage du teensy, et répéter jusqu'à obtenpération
-
-  //TODO: demander le branchage du teensy à la PS4, puis au PC.
-
-  //TODO: lire l'adresse de le PS4 et la clef
+    int answer = wxMessageBox( _("Plug the teensy"), _("PS Tool"), wxICON_INFORMATION | wxYES | wxCANCEL);
+    if (answer != wxYES)
+    {
+      return -1;
+    }
+  } while(1);
   
-  //set dongle link key for the PS4
+  //set teensy slave & master address (& reset link key)
   
   command.Clear();
-  command.Append(wxT("sed \"/"));
-  command.Append(btPairing.console);
-  command.Append(wxT("/d\" -i /var/lib/bluetooth/"));
+  command.Append(wxT("ds4tool -t -s "));
   command.Append(dongleInfo.address);
-  command.Append(wxT("/linkkeys"));
+  command.Append(wxT(" -m 00:00:00:00:00:00"));
   if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+    return -1;
   }
-    
+  
+  //loop until the teensy is paired with the PS4
+
+  do
+  {
+    int answer = wxMessageBox( _("Plug the Teensy to the PS4,\nwait a few seconds,\nand plug it back to the PC"), _("PS Tool"), wxICON_INFORMATION | wxYES | wxCANCEL);
+    if (answer != wxYES)
+    {
+      return -1;
+    }
+
+    pairings.clear();
+    readPairings(pairings, wxT("ds4tool -t"));
+
+  } while(pairings.empty() || pairings[0].linkKey == wxT("00000000000000000000000000000000"));
+  
+  ps4LinkKey = pairings[0].linkKey;
+
+  //set dongle link key for the PS4
+  
   command.Clear();
+  command.Append(wxT("gksudo \""));
+  command.Append(wxT("sed '/"));
+  command.Append(btPairing.console);
+  command.Append(wxT("/d' -i /var/lib/bluetooth/"));
+  command.Append(dongleInfo.address);
+  command.Append(wxT("/linkkeys"));
+  command.Append(wxT("\""));
+  if(wxExecute(command, output, errors, wxEXEC_SYNC))
+  {
+    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+    return -1;
+  }
+
+  command.Clear();
+  command.Append(wxT("gksudo \""));
   command.Append(wxT("echo "));
   command.Append(btPairing.console);
   command.Append(wxT(" "));
@@ -1710,25 +1827,31 @@ int launcherFrame::ps4Setup()
   command.Append(wxT(" 4 0 >> /var/lib/bluetooth/"));
   command.Append(dongleInfo.address);
   command.Append(wxT("/linkkeys"));
+  command.Append(wxT("\""));
   if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+    return -1;
   }
   
   //set dongle link key for the DS4
   
   command.Clear();
-  command.Append(wxT("sed \"/"));
+  command.Append(wxT("gksudo \""));
+  command.Append(wxT("sed '/"));
   command.Append(btPairing.controller);
-  command.Append(wxT("/d\" -i /var/lib/bluetooth/"));
+  command.Append(wxT("/d' -i /var/lib/bluetooth/"));
   command.Append(dongleInfo.address);
   command.Append(wxT("/linkkeys"));
+  command.Append(wxT("\""));
   if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+    return -1;
   }
     
   command.Clear();
+  command.Append(wxT("gksudo \""));
   command.Append(wxT("echo "));
   command.Append(btPairing.controller);
   command.Append(wxT(" "));
@@ -1736,62 +1859,79 @@ int launcherFrame::ps4Setup()
   command.Append(wxT(" 4 0 >> /var/lib/bluetooth/"));
   command.Append(dongleInfo.address);
   command.Append(wxT("/linkkeys"));
+  command.Append(wxT("\""));
   if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+    return -1;
   }
   
   //stop the bluetooth service 
   
   command.Clear();
-  command.Append(wxT("gksudo service bluetooth stop"));
+  command.Append(wxT("gksudo \""));
+  command.Append(wxT("service bluetooth stop"));
+  command.Append(wxT("\""));
   if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+    return -1;
   }
   
   //make sure the bluetooth dongle is up
   
   command.Clear();
-  command.Append(wxT("gksudo hciconfig "));
+  command.Append(wxT("gksudo \""));
+  command.Append(wxT("hciconfig "));
   command.Append(dongleInfo.hci);
   command.Append(wxT(" up pscan"));
+  command.Append(wxT("\""));
   if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+    return -1;
   }
 
   //send link keys
   
   command.Clear();
-  command.Append(wxT("gksudo hciconfig "));
+  command.Append(wxT("gksudo \""));
+  command.Append(wxT("hciconfig "));
   command.Append(dongleInfo.hci);
   command.Append(wxT(" putkey "));
   command.Append(btPairing.console);
+  command.Append(wxT("\""));
   if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+    return -1;
   }
   
   command.Clear();
-  command.Append(wxT("gksudo hciconfig "));
+  command.Append(wxT("gksudo \""));
+  command.Append(wxT("hciconfig "));
   command.Append(dongleInfo.hci);
   command.Append(wxT(" putkey "));
   command.Append(btPairing.controller);
+  command.Append(wxT("\""));
   if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+    return -1;
   }
   
   //enable authentication and encryption
   
   command.Clear();
-  command.Append(wxT("gksudo hciconfig "));
+  command.Append(wxT("gksudo \""));
+  command.Append(wxT("hciconfig "));
   command.Append(dongleInfo.hci);
   command.Append(wxT(" auth encrypt"));
+  command.Append(wxT("\""));
   if(wxExecute(command, output, errors, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+    return -1;
   }
 
   wxString pairing = dongleInfo.address + wxT(" ") + btPairing.console;
