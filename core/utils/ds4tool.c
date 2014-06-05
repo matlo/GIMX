@@ -36,7 +36,11 @@ void fatal(char *msg)
 
 static void usage()
 {
-  fprintf(stderr, "Usage: ds4tool [-l <link key> -m <master bdaddr> -s <slave bdaddr>]\n");
+  fprintf(stderr, "Usage: ds4tool [-t] [-l lk] [-m master] [-s slave]\n");
+  fprintf(stderr, "  -t: Teensy mode\n");
+  fprintf(stderr, "  -l lk: the link key to set\n");
+  fprintf(stderr, "  -m master: the master bdaddr to set\n");
+  fprintf(stderr, "  -s slave: the slave bdaddr to set (only with -t)\n");
 }
 
 int get_bdaddrs(libusb_device_handle* devh)
@@ -196,6 +200,12 @@ static void read_args(int argc, char* argv[])
         break;
     }
   }
+
+  if(type == TYPE_DS4 && slave)
+  {
+    usage();
+    exit(EXIT_FAILURE);
+  }
 }
 
 int main(int argc, char *argv[])
@@ -273,6 +283,8 @@ int main(int argc, char *argv[])
       }
     }
   }
+  
+  libusb_free_device_list(devs, 1);
 
   libusb_exit(ctx);
 
