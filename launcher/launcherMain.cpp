@@ -1714,7 +1714,9 @@ int launcherFrame::ps4Setup()
   BluetoothPairing btPairing;
   vector<BluetoothPairing> pairings;
   wxString ds4LinkKey;
+  wxString ds4Bdaddr;
   wxString ps4LinkKey;
+  wxString ps4Bdaddr;
   
   //choose a bluetooth device
 
@@ -1738,6 +1740,8 @@ int launcherFrame::ps4Setup()
     }
   }
   
+  ds4Bdaddr = btPairing.controller;
+
   //loop until the teensy is plugged
 
   do
@@ -1784,6 +1788,7 @@ int launcherFrame::ps4Setup()
 
   } while(pairings.empty() || pairings[0].linkKey == wxT("00000000000000000000000000000000"));
   
+  ps4Bdaddr = pairings[0].console;
   ps4LinkKey = pairings[0].linkKey;
 
   ds4LinkKey = generateLinkKey();
@@ -1794,11 +1799,11 @@ int launcherFrame::ps4Setup()
   command.Append(wxT(" "));
   command.Append(dongleInfo.address);
   command.Append(wxT(" "));
-  command.Append(btPairing.controller);
+  command.Append(ds4Bdaddr);
   command.Append(wxT(" "));
   command.Append(ds4LinkKey);
   command.Append(wxT(" "));
-  command.Append(btPairing.console);
+  command.Append(ps4Bdaddr);
   command.Append(wxT(" "));
   command.Append(ps4LinkKey);
   command.Append(wxT("\""));
