@@ -96,6 +96,7 @@ bdaddr: utils/bdaddr.o utils/oui.o
 
 hcirevision: connectors/hcirevision.o
 	$(CC) -o $@ $^ -lbluetooth
+
 endif
 
 %.o: %.c
@@ -107,8 +108,10 @@ install: all
 	mkdir -p $(bindir)
 	for i in $(BINS); do cp $$i $(bindir)/; done
 	for i in $(BINS); do chmod ug+s $(bindir)/$$i; done
+	cp utils/gimx-ps4setup.sh $(bindir)
 
 uninstall:
+	-rm $(bindir)/gimx-ps4setup.sh
 	-for i in $(BINS); do rm $(bindir)/$$i; done
 	-rmdir $(bindir)
 	-rmdir $(prefix)

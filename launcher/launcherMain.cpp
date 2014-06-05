@@ -1709,7 +1709,6 @@ wxString launcherFrame::generateLinkKey()
 
 int launcherFrame::ps4Setup()
 {
-  wxArrayString output, errors;
   wxString command;
   DongleInfo dongleInfo;
   BluetoothPairing btPairing;
@@ -1739,21 +1738,6 @@ int launcherFrame::ps4Setup()
     }
   }
   
-  //set the master and the link key of the ds4
-  
-  ds4LinkKey = generateLinkKey();
-
-  command.Clear();
-  command.Append(wxT("ds4tool -m "));
-  command.Append(dongleInfo.address);
-  command.Append(wxT(" -l "));
-  command.Append(ds4LinkKey);
-  if(wxExecute(command, output, errors, wxEXEC_SYNC))
-  {
-    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
-    return -1;
-  }
-  
   //loop until the teensy is plugged
 
   do
@@ -1779,7 +1763,7 @@ int launcherFrame::ps4Setup()
   command.Append(wxT("ds4tool -t -s "));
   command.Append(dongleInfo.address);
   command.Append(wxT(" -m 00:00:00:00:00:00"));
-  if(wxExecute(command, output, errors, wxEXEC_SYNC))
+  if(wxExecute(command, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
     return -1;
@@ -1802,133 +1786,36 @@ int launcherFrame::ps4Setup()
   
   ps4LinkKey = pairings[0].linkKey;
 
-  //set dongle link key for the PS4
-  
-  command.Clear();
-  command.Append(wxT("gksudo \""));
-  command.Append(wxT("sed '/"));
-  command.Append(btPairing.console);
-  command.Append(wxT("/d' -i /var/lib/bluetooth/"));
-  command.Append(dongleInfo.address);
-  command.Append(wxT("/linkkeys"));
-  command.Append(wxT("\""));
-  if(wxExecute(command, output, errors, wxEXEC_SYNC))
-  {
-    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
-    return -1;
-  }
+  ds4LinkKey = generateLinkKey();
 
   command.Clear();
-  command.Append(wxT("gksudo \""));
-  command.Append(wxT("echo "));
-  command.Append(btPairing.console);
+  command.Append(wxT("gksudo -- bash -c \"gimx-ps4setup.sh "));
+  command.Append(dongleInfo.hci);
   command.Append(wxT(" "));
-  command.Append(ps4LinkKey);
-  command.Append(wxT(" 4 0 >> /var/lib/bluetooth/"));
   command.Append(dongleInfo.address);
-  command.Append(wxT("/linkkeys"));
-  command.Append(wxT("\""));
-  if(wxExecute(command, output, errors, wxEXEC_SYNC))
-  {
-    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
-    return -1;
-  }
-  
-  //set dongle link key for the DS4
-  
-  command.Clear();
-  command.Append(wxT("gksudo \""));
-  command.Append(wxT("sed '/"));
-  command.Append(btPairing.controller);
-  command.Append(wxT("/d' -i /var/lib/bluetooth/"));
-  command.Append(dongleInfo.address);
-  command.Append(wxT("/linkkeys"));
-  command.Append(wxT("\""));
-  if(wxExecute(command, output, errors, wxEXEC_SYNC))
-  {
-    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
-    return -1;
-  }
-    
-  command.Clear();
-  command.Append(wxT("gksudo \""));
-  command.Append(wxT("echo "));
+  command.Append(wxT(" "));
   command.Append(btPairing.controller);
   command.Append(wxT(" "));
   command.Append(ds4LinkKey);
-  command.Append(wxT(" 4 0 >> /var/lib/bluetooth/"));
-  command.Append(dongleInfo.address);
-  command.Append(wxT("/linkkeys"));
+  command.Append(wxT(" "));
+  command.Append(btPairing.console);
+  command.Append(wxT(" "));
+  command.Append(ps4LinkKey);
   command.Append(wxT("\""));
-  if(wxExecute(command, output, errors, wxEXEC_SYNC))
-  {
-    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
-    return -1;
-  }
-  
-  //stop the bluetooth service 
-  
-  command.Clear();
-  command.Append(wxT("gksudo \""));
-  command.Append(wxT("service bluetooth stop"));
-  command.Append(wxT("\""));
-  if(wxExecute(command, output, errors, wxEXEC_SYNC))
-  {
-    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
-    return -1;
-  }
-  
-  //make sure the bluetooth dongle is up
-  
-  command.Clear();
-  command.Append(wxT("gksudo \""));
-  command.Append(wxT("hciconfig "));
-  command.Append(dongleInfo.hci);
-  command.Append(wxT(" up pscan"));
-  command.Append(wxT("\""));
-  if(wxExecute(command, output, errors, wxEXEC_SYNC))
+  if(wxExecute(command, wxEXEC_SYNC ))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
     return -1;
   }
 
-  //send link keys
-  
+  //set the master and the link key of the ds4
+
   command.Clear();
-  command.Append(wxT("gksudo \""));
-  command.Append(wxT("hciconfig "));
-  command.Append(dongleInfo.hci);
-  command.Append(wxT(" putkey "));
-  command.Append(btPairing.console);
-  command.Append(wxT("\""));
-  if(wxExecute(command, output, errors, wxEXEC_SYNC))
-  {
-    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
-    return -1;
-  }
-  
-  command.Clear();
-  command.Append(wxT("gksudo \""));
-  command.Append(wxT("hciconfig "));
-  command.Append(dongleInfo.hci);
-  command.Append(wxT(" putkey "));
-  command.Append(btPairing.controller);
-  command.Append(wxT("\""));
-  if(wxExecute(command, output, errors, wxEXEC_SYNC))
-  {
-    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
-    return -1;
-  }
-  
-  //enable authentication and encryption
-  
-  command.Clear();
-  command.Append(wxT("gksudo \""));
-  command.Append(wxT("hciconfig "));
-  command.Append(dongleInfo.hci);
-  command.Append(wxT(" auth encrypt"));
-  command.Append(wxT("\""));
-  if(wxExecute(command, output, errors, wxEXEC_SYNC))
+  command.Append(wxT("ds4tool -m "));
+  command.Append(dongleInfo.address);
+  command.Append(wxT(" -l "));
+  command.Append(ds4LinkKey);
+  if(wxExecute(command, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
     return -1;
