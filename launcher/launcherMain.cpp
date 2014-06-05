@@ -1794,7 +1794,7 @@ int launcherFrame::ps4Setup()
   ds4LinkKey = generateLinkKey();
 
   command.Clear();
-  command.Append(wxT("gksudo -- bash -c \"gimx-ps4setup.sh "));
+  command.Append(wxT("gksudo --message \"gimx-ps4setup\" -- bash -c \"gimx-ps4setup.sh "));
   command.Append(dongleInfo.hci);
   command.Append(wxT(" "));
   command.Append(dongleInfo.address);
