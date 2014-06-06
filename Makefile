@@ -20,7 +20,7 @@ else
 endif
 	cp -u -f $(BINDIR)/bin/libiconv-2.dll setup
 	cp -u -f $(BINDIR)/bin/libintl-8.dll setup
-	cp -u -f $(BINDIR)/bin/libpdcursesw.dll setup/pdcurses.dll
+	cp -u -f $(BINDIR)/bin/libpdcursesw.dll setup
 	cp -u -f $(BINDIR)/bin/SDL2.dll setup
 	cp -u -f $(BINDIR)/bin/libusb-1.0.dll setup
 	cp -u -f $(BINDIR)/bin/libxml2-2.dll setup
