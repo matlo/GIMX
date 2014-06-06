@@ -984,6 +984,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
 
       if(chooseDongle(bdaddrSrc, dongleInfo) < 0)
       {
+        wxMessageBox( _("Dongle not found!"), _("Error"), wxICON_ERROR);
         return;
       }
       
@@ -1557,7 +1558,6 @@ int launcherFrame::choosePairing(BluetoothPairing& pairing)
 
   if(bluetoothPairings.empty())
   {
-      wxMessageBox( _("No controller Detected!\nPlug a controller with a USB cable."), _("Error"), wxICON_ERROR);
       return -1;
   }
 
@@ -1599,7 +1599,6 @@ int launcherFrame::chooseDongle(wxString address, DongleInfo& dongleInfo)
 
   if(dongleInfos.empty())
   {
-      wxMessageBox( _("No Bluetooth Dongle Detected!"), _("Error"), wxICON_ERROR);
       return -1;
   }
   
@@ -1616,7 +1615,6 @@ int launcherFrame::chooseDongle(wxString address, DongleInfo& dongleInfo)
     
     if(ControllerType->GetStringSelection() == _("Bluetooth / PS4"))
     {
-      wxMessageBox( _("Dongle not found!"), _("Error"), wxICON_ERROR);
       return -1;
     }
   }
@@ -1667,16 +1665,28 @@ int launcherFrame::ps3Setup()
 {
   BluetoothPairing btPairing;
 
-  if(choosePairing(btPairing) < 0)
+  //choose a ds4
+
+  while(choosePairing(btPairing) < 0)
   {
-    return -1;
+    int answer = wxMessageBox( _("Plug a sixaxis/ds3"), _("PS Tool"), wxICON_INFORMATION | wxYES | wxCANCEL);
+    if (answer != wxYES)
+    {
+      return -1;
+    }
   }
   
   DongleInfo dongleInfo;
 
-  if(chooseDongle(btPairing.controller, dongleInfo) < 0)
+  //choose a bluetooth device
+
+  while(chooseDongle(btPairing.controller, dongleInfo) < 0)
   {
-    return -1;
+    int answer = wxMessageBox( _("Plug a bluetooth dongle"), _("PS Tool"), wxICON_INFORMATION | wxYES | wxCANCEL);
+    if (answer != wxYES)
+    {
+      return -1;
+    }
   }
   
   wxString pairing = btPairing.controller + wxT(" ") + btPairing.console;
@@ -1742,6 +1752,21 @@ int launcherFrame::ps4Setup()
   
   ds4Bdaddr = btPairing.controller;
 
+  ds4LinkKey = generateLinkKey();
+
+  //set the master and the link key of the ds4
+
+  command.Clear();
+  command.Append(wxT("ds4tool -m "));
+  command.Append(dongleInfo.address);
+  command.Append(wxT(" -l "));
+  command.Append(ds4LinkKey);
+  if(wxExecute(command, wxEXEC_SYNC))
+  {
+    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+    return -1;
+  }
+
   //loop until the teensy is plugged
 
   do
@@ -1761,7 +1786,7 @@ int launcherFrame::ps4Setup()
     }
   } while(1);
   
-  //set teensy slave & master address (& reset link key)
+  //set teensy slave address, blank master address & link key
   
   command.Clear();
   command.Append(wxT("ds4tool -t -s "));
@@ -1791,7 +1816,7 @@ int launcherFrame::ps4Setup()
   ps4Bdaddr = pairings[0].console;
   ps4LinkKey = pairings[0].linkKey;
 
-  ds4LinkKey = generateLinkKey();
+  //read gimx-ps4setup.sh for details
 
   command.Clear();
   command.Append(wxT("gksudo --message \"gimx-ps4setup\" -- bash -c \"gimx-ps4setup.sh "));
@@ -1813,20 +1838,7 @@ int launcherFrame::ps4Setup()
     return -1;
   }
 
-  //set the master and the link key of the ds4
-
-  command.Clear();
-  command.Append(wxT("ds4tool -m "));
-  command.Append(dongleInfo.address);
-  command.Append(wxT(" -l "));
-  command.Append(ds4LinkKey);
-  if(wxExecute(command, wxEXEC_SYNC))
-  {
-    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
-    return -1;
-  }
-
-  wxString pairing = dongleInfo.address + wxT(" ") + btPairing.console;
+  wxString pairing = dongleInfo.address + wxT(" ") + ps4Bdaddr;
   int pos = ChoiceOutput->FindString(pairing);
   if(pos == wxNOT_FOUND)
   {
