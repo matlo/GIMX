@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #ifdef WIN32
 #include <windows.h>
-#include <curses.h>
+#include <cursesw.h>
 #else
 #include <sys/time.h>
 #include <ncursesw/ncurses.h>
