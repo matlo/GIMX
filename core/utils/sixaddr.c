@@ -11,12 +11,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#ifndef WIN32
 #include <libusb-1.0/libusb.h>
-#else
-#include <libusb-1.0/libusb.h>
-#endif
 
 #define VENDOR 0x054c
 #define PRODUCT 0x0268
