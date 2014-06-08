@@ -10,7 +10,7 @@
 #ifndef WIN32
 #include <libusb-1.0/libusb.h>
 #else
-#include <libusbx-1.0/libusb.h>
+#include <libusb-1.0/libusb.h>
 #endif
 
 #define VENDOR 0x054c
@@ -27,12 +27,6 @@ static char* slave = NULL;
 
 static unsigned char msg_bdaddrs[0x0010];
 static unsigned char msg_link_key[0x0010];
-
-void fatal(char *msg)
-{
-  perror(msg);
-  exit(1);
-}
 
 static void usage()
 {
