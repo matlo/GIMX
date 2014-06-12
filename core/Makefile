@@ -32,6 +32,7 @@ clean:
 
 GIMX_OBJ = \
        emuclient.o\
+       mainloop.o\
        args.o\
        display.o\
        macros.o\
@@ -55,14 +56,12 @@ GIMX_OBJ += \
        connectors/l2cap_con.o\
        connectors/bt_utils.o\
        linux/prio.o\
-       connectors/linux/serial.o\
-       linux/mainloop.o
+       connectors/linux/serial.o
 else
 GIMX_OBJ += \
        connectors/gpp/hid_WINDOWS.o\
        windows/prio.o\
-       connectors/windows/serial.o\
-       windows/mainloop.o
+       connectors/windows/serial.o
 endif
 
 gimx: $(DEP) $(GIMX_OBJ)

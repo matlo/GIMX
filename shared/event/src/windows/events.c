@@ -287,6 +287,7 @@ void ev_pump_events()
   HANDLE hTimer = timer_get();
 
   int result;
+  int done = 0;;
 
   do
   {
@@ -391,12 +392,15 @@ void ev_pump_events()
             {
               if(NetworkEvents.iErrorCode[FD_READ_BIT])
               {
-                fprintf(stderr, "iErrorCode is set\n");
+                fprintf(stderr, "iErrorCode[FD_READ_BIT] is set\n");
                 sources[i].fp_cleanup(sources[i].id);
               }
               else
               {
-                sources[i].fp_read(sources[i].id);
+                if(sources[i].fp_read(sources[i].id))
+                {
+                  done = 1;
+                }
               }
             }
           }
@@ -404,8 +408,12 @@ void ev_pump_events()
         }
       }
     }
+    else if(result == WAIT_OBJECT_0)
+    {
+      done = 1;
+    }
 
-  } while(result != WAIT_OBJECT_0);
+  } while(!done);
 
   for(i=0; i<m_num; ++i)
   {

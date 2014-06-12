@@ -6,6 +6,9 @@
 #ifndef WIN32
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <errno.h>
 #else
 #include <winsock2.h>
 #define MSG_DONTWAIT 0
@@ -97,8 +100,15 @@ int udp_connect(unsigned int ip, unsigned short port)
 
 unsigned int udp_send(int fd, unsigned char* buf, unsigned int len)
 {
-  //TODO: fix flags
-  return send(fd, (const void*)buf, len, MSG_DONTWAIT);
+  int ret = send(fd, (const void*)buf, len, MSG_DONTWAIT);
+
+  if(ret != len && errno != ECONNREFUSED)
+  {
+    perror("send");
+    return -1;
+  }
+
+  return 0;
 }
 
 int udp_close(int fd)

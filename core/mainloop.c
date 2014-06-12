@@ -59,6 +59,15 @@ void mainloop()
       done = 1;
     }
 
+#ifdef WIN32
+    /*
+     * There is no setlinebuf(stdout) in windows.
+     */
+    if(emuclient_params.status)
+    {
+      fflush(stdout);
+    }
+#endif
     if(emuclient_params.curses)
     {
       display_run(adapter_get(0)->type, adapter_get(0)->axis);

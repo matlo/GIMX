@@ -125,7 +125,11 @@ int adapter_network_read(int id)
   }
   memcpy(adapter[id].axis, buf, sizeof(adapter->axis));
   adapter[id].send_command = 1;
-  return 0;
+  if((adapter[id].type == C_TYPE_SIXAXIS || adapter[id].type == C_TYPE_DEFAULT) && adapter[id].bdaddr_dst)
+  {
+    return 0;
+  }
+  return 1;
 }
 
 int adapter_network_close(int id)
