@@ -121,7 +121,6 @@ class launcherFrame: public wxFrame
         static const long ID_CHECKBOX1;
         static const long ID_CHECKBOX2;
         static const long ID_CHECKBOX3;
-        static const long ID_CHOICE4;
         static const long ID_BUTTON1;
         static const long ID_BUTTON3;
         static const long ID_PANEL1;
@@ -152,7 +151,6 @@ class launcherFrame: public wxFrame
         wxCheckBox* CheckBoxGrab;
         wxMenuItem* MenuItem4;
         wxCheckBox* CheckBoxTerminal;
-        wxChoice* ChoiceConfig;
         wxPanel* Panel1;
         wxStaticText* StaticText1;
         wxSingleInstanceChecker SingleInstanceChecker1;

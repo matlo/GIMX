@@ -146,10 +146,6 @@ int connector_init()
 #endif
       
     }
-    /*
-     * TODO MLA: Windows implementation.
-     */
-#ifndef WIN32
     if(controller->src_ip)
     {
       controller->src_fd = udp_listen(controller->src_ip, controller->src_port);
@@ -160,10 +156,9 @@ int connector_init()
       }
       else
       {
-        GE_AddSource(controller->src_fd, i, adapter_network_read, NULL, udp_close);
+        GE_AddSource(controller->src_fd, i, adapter_network_read, NULL, adapter_network_close);
       }
     }
-#endif
   }
   return ret;
 }
@@ -180,6 +175,7 @@ void connector_clean()
       case C_TYPE_DEFAULT:
         if(controller->dst_fd >= 0)
         {
+          GE_RemoveSource(controller->src_fd);
           udp_close(controller->dst_fd);
         }
 #ifndef WIN32

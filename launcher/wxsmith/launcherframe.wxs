@@ -206,56 +206,22 @@
 					<option>1</option>
 				</object>
 				<object class="sizeritem">
-					<object class="wxFlexGridSizer" variable="FlexGridSizer9" member="no">
+					<object class="wxFlexGridSizer" variable="FlexGridSizer7" member="no">
 						<cols>2</cols>
 						<rows>1</rows>
 						<object class="sizeritem">
-							<object class="wxStaticBoxSizer" variable="StaticBoxSizer8" member="no">
-								<label>Config</label>
-								<object class="sizeritem">
-									<object class="wxFlexGridSizer" variable="FlexGridSizer4" member="no">
-										<cols>1</cols>
-										<rows>1</rows>
-										<object class="sizeritem">
-											<object class="wxChoice" name="ID_CHOICE4" variable="ChoiceConfig" member="yes">
-												<style>wxCB_SORT</style>
-											</object>
-											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-											<border>5</border>
-											<option>1</option>
-										</object>
-									</object>
-									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-									<border>5</border>
-									<option>1</option>
-								</object>
+							<object class="wxButton" name="ID_BUTTON1" variable="ButtonCheck" member="yes">
+								<label>Check</label>
+								<handler function="OnButtonCheckClick1" entry="EVT_BUTTON" />
 							</object>
-							<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+							<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 							<border>5</border>
 							<option>1</option>
 						</object>
 						<object class="sizeritem">
-							<object class="wxFlexGridSizer" variable="FlexGridSizer7" member="no">
-								<cols>1</cols>
-								<rows>2</rows>
-								<object class="sizeritem">
-									<object class="wxButton" name="ID_BUTTON1" variable="ButtonCheck" member="yes">
-										<label>Check</label>
-										<handler function="OnButtonCheckClick1" entry="EVT_BUTTON" />
-									</object>
-									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-									<border>5</border>
-									<option>1</option>
-								</object>
-								<object class="sizeritem">
-									<object class="wxButton" name="ID_BUTTON3" variable="ButtonStart" member="yes">
-										<label>Start</label>
-										<handler function="OnButtonStartClick" entry="EVT_BUTTON" />
-									</object>
-									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-									<border>5</border>
-									<option>1</option>
-								</object>
+							<object class="wxButton" name="ID_BUTTON3" variable="ButtonStart" member="yes">
+								<label>Start</label>
+								<handler function="OnButtonStartClick" entry="EVT_BUTTON" />
 							</object>
 							<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 							<border>5</border>

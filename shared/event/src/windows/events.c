@@ -7,9 +7,10 @@
 #include "winmm/manymouse.h"
 #include <GE.h>
 #include <events.h>
-#include <timer.h>
 #include <math.h>
+#include <winsock2.h>
 #include <windows.h>
+#include <timer.h>
 
 #define SCREEN_WIDTH  1
 #define SCREEN_HEIGHT 1
@@ -201,25 +202,67 @@ void ev_set_callback(int (*fp)(GE_Event*))
 
 static struct
 {
+  int fd;
+  int id;
   HANDLE handle;
   int (*fp_read)(int);
-  int (*fd_cleanup)(int);
+  int (*fp_cleanup)(int);
 } sources[MAX_SOURCES] = {};
 
-static int max_source = 0;
+static unsigned int max_source = 0;
 
-void ev_register_source(SOURCE source, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int))
+void ev_register_source(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int))
 {
+  if(!fp_cleanup)
+  {
+    fprintf(stderr, "%s: the cleanup function is mandatory.", __FUNCTION__);
+    return;
+  }
   if(max_source < MAX_SOURCES)
   {
-    sources[max_source].handle = source;
-    if(fp_read)
+    HANDLE evt = CreateEvent(NULL, TRUE, FALSE, NULL);
+    if(WSAEventSelect(fd, evt, FD_READ | FD_CLOSE) == SOCKET_ERROR)
     {
-      sources[max_source].fp_read = fp_read;
+      fprintf(stderr, "WSAEventSelect failed.");
+      return;
     }
-    sources[max_source].fd_cleanup = fp_cleanup;
+    
+    sources[max_source].fd = fd;
+    sources[max_source].id = id;
+    sources[max_source].handle = evt;
+    sources[max_source].fp_read = fp_read;
+    sources[max_source].fp_cleanup = fp_cleanup;
     ++max_source;
   }
+}
+
+void ev_remove_source(int fd)
+{
+  int i;
+  for(i=0; i<max_source; ++i)
+  {
+    if(sources[i].fd == fd)
+    {
+      WSACloseEvent(sources[i].handle);
+      memmove(sources+i, sources+i+1, (max_source-i)*sizeof(*sources));
+      --max_source;
+      break;
+    }
+  }
+}
+
+static unsigned int fill_handles(HANDLE handles[])
+{
+  int i;
+  for(i=0; i<max_source; ++i)
+  {
+    if(sources[i].fp_read)
+    {
+      handles[i] = sources[i].handle;
+    }
+  }
+
+  return max_source;
 }
 
 void ev_pump_events()
@@ -227,6 +270,7 @@ void ev_pump_events()
   int num_evt;
   static GE_Event events[EVENT_BUFFER_SIZE];
   GE_Event* event;
+  int i;
 
   static struct
   {
@@ -246,12 +290,15 @@ void ev_pump_events()
 
   do
   {
-    result = MsgWaitForMultipleObjects(1, &hTimer, FALSE, INFINITE, QS_RAWINPUT);
+    HANDLE handles[max_source+1];
+    handles[0] = hTimer;
+    
+    fill_handles(handles+1);
+    
+    result = MsgWaitForMultipleObjects(max_source+1, handles, FALSE, INFINITE, QS_RAWINPUT);
 
-    switch(result)
+    if(result == WAIT_OBJECT_0 + max_source + 1)
     {
-    case WAIT_OBJECT_0 + 1:
-
       num_mm_evt = ManyMouse_PollEvent(mm_events, sizeof(mm_events)/sizeof(*mm_events));
       for(mm_event=mm_events; mm_event < mm_events + num_mm_evt; ++mm_event)
       {
@@ -325,10 +372,41 @@ void ev_pump_events()
         }
       }
     }
+    else if(result > WAIT_OBJECT_0)
+    {
+      WSANETWORKEVENTS NetworkEvents;
+      
+      for(i=0; i<max_source; ++i)
+      {
+        if(sources[i].handle == handles[result])
+        {
+          if(WSAEnumNetworkEvents(sources[i].fd, handles[result], &NetworkEvents))
+          {
+            fprintf(stderr, "WSAEnumNetworkEvents: %d\n", WSAGetLastError());
+            sources[i].fp_cleanup(sources[i].id);
+          }
+          else
+          {
+            if(NetworkEvents.lNetworkEvents & FD_READ)
+            {
+              if(NetworkEvents.iErrorCode[FD_READ_BIT])
+              {
+                fprintf(stderr, "iErrorCode is set\n");
+                sources[i].fp_cleanup(sources[i].id);
+              }
+              else
+              {
+                sources[i].fp_read(sources[i].id);
+              }
+            }
+          }
+          break;
+        }
+      }
+    }
 
   } while(result != WAIT_OBJECT_0);
 
-  int i;
   for(i=0; i<m_num; ++i)
   {
     if(mouse[i].x || mouse[i].y)

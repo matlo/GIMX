@@ -78,7 +78,6 @@ const long launcherFrame::ID_BUTTON4 = wxNewId();
 const long launcherFrame::ID_CHECKBOX1 = wxNewId();
 const long launcherFrame::ID_CHECKBOX2 = wxNewId();
 const long launcherFrame::ID_CHECKBOX3 = wxNewId();
-const long launcherFrame::ID_CHOICE4 = wxNewId();
 const long launcherFrame::ID_BUTTON1 = wxNewId();
 const long launcherFrame::ID_BUTTON3 = wxNewId();
 const long launcherFrame::ID_PANEL1 = wxNewId();
@@ -465,7 +464,7 @@ void launcherFrame::readConfigs()
 {
   string filename;
   string line = "";
-  wxString previous = ChoiceConfig->GetStringSelection();
+  wxString previous = ChoiceInput->GetStringSelection();
 
   /* Read the last config used so as to auto-select it. */
   filename = string(launcherDir.mb_str(wxConvUTF8));
@@ -480,7 +479,7 @@ void launcherFrame::readConfigs()
     infile.close();
   }
 
-  ChoiceConfig->Clear();
+  ChoiceInput->Clear();
 
   /* Read all config file names. */
   wxDir dir(gimxConfigDir);
@@ -499,16 +498,16 @@ void launcherFrame::readConfigs()
     {
       previous = file;
     }
-    ChoiceConfig->Append(file);
+    ChoiceInput->Append(file);
   }
 
   if(previous != wxEmptyString)
   {
-    ChoiceConfig->SetSelection(ChoiceConfig->FindString(previous));
+    ChoiceInput->SetSelection(ChoiceInput->FindString(previous));
   }
-  if(ChoiceConfig->GetSelection() < 0)
+  if(ChoiceInput->GetSelection() < 0)
   {
-    ChoiceConfig->SetSelection(0);
+    ChoiceInput->SetSelection(0);
   }
 }
 
@@ -639,16 +638,13 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
     setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 
     //(*Initialize(launcherFrame)
-    wxFlexGridSizer* FlexGridSizer4;
     wxMenuItem* MenuItem2;
     wxFlexGridSizer* FlexGridSizer10;
     wxMenuItem* MenuItem1;
     wxFlexGridSizer* FlexGridSizer5;
-    wxFlexGridSizer* FlexGridSizer9;
     wxFlexGridSizer* FlexGridSizer2;
     wxMenu* Menu1;
     wxFlexGridSizer* FlexGridSizer7;
-    wxStaticBoxSizer* StaticBoxSizer8;
     wxStaticBoxSizer* StaticBoxSizer6;
     wxFlexGridSizer* FlexGridSizer8;
     wxMenuBar* MenuBar1;
@@ -709,20 +705,12 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
     StaticBoxSizer6->Add(FlexGridSizer11, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer8->Add(StaticBoxSizer6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer1->Add(FlexGridSizer8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer9 = new wxFlexGridSizer(1, 2, 0, 0);
-    StaticBoxSizer8 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("Config"));
-    FlexGridSizer4 = new wxFlexGridSizer(1, 1, 0, 0);
-    ChoiceConfig = new wxChoice(Panel1, ID_CHOICE4, wxDefaultPosition, wxDefaultSize, 0, 0, wxCB_SORT, wxDefaultValidator, _T("ID_CHOICE4"));
-    FlexGridSizer4->Add(ChoiceConfig, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticBoxSizer8->Add(FlexGridSizer4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer9->Add(StaticBoxSizer8, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer7 = new wxFlexGridSizer(2, 1, 0, 0);
+    FlexGridSizer7 = new wxFlexGridSizer(1, 2, 0, 0);
     ButtonCheck = new wxButton(Panel1, ID_BUTTON1, _("Check"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON1"));
     FlexGridSizer7->Add(ButtonCheck, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ButtonStart = new wxButton(Panel1, ID_BUTTON3, _("Start"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON3"));
     FlexGridSizer7->Add(ButtonStart, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer9->Add(FlexGridSizer7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer1->Add(FlexGridSizer9, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer1->Add(FlexGridSizer7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     Panel1->SetSizer(FlexGridSizer1);
     FlexGridSizer1->Fit(Panel1);
     FlexGridSizer1->SetSizeHints(Panel1);
@@ -783,11 +771,11 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnAbout);
     //*)
 
-    if(SingleInstanceChecker1.IsAnotherRunning())
+    /*if(SingleInstanceChecker1.IsAnotherRunning())
     {
         wxMessageBox( _("gimx-launcher is already running!"), _("Error"), wxICON_ERROR);
         exit(-1);
-    }
+    }*/
 
     launcherDir = wxStandardPaths::Get().GetUserDataDir();
     if(!wxDir::Exists(launcherDir))
@@ -872,7 +860,7 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
 
     started = true;
 
-    if(ChoiceConfig->IsEmpty())
+    if(ChoiceInput->IsEmpty())
     {
       int answer = wxMessageBox(_("No config found! Download configs?"), _("Confirm"), wxYES_NO);
       if (answer == wxYES)
@@ -938,7 +926,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
 
     wxString output = ChoiceOutput->GetStringSelection();
 
-    if(ChoiceConfig->GetStringSelection().IsEmpty())
+    if(ChoiceInput->GetStringSelection().IsEmpty())
     {
       wxMessageBox( _("No config selected!"), _("Error"), wxICON_ERROR);
       return;
@@ -1015,13 +1003,20 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
 #endif
     command.Append(wxT("gimx"));
 
-    if(!CheckBoxGrab->IsChecked())
+    if(sourceChoice->GetStringSelection() == _("Network"))
     {
-        command.Append(wxT(" --nograb"));
+      command.Append(wxT(" --nograb"));
     }
-    command.Append(wxT(" --config \""));
-    command.Append(ChoiceConfig->GetStringSelection());
-    command.Append(wxT("\""));
+    else
+    {
+      if(!CheckBoxGrab->IsChecked())
+      {
+          command.Append(wxT(" --nograb"));
+      }
+      command.Append(wxT(" --config \""));
+      command.Append(ChoiceInput->GetStringSelection());
+      command.Append(wxT("\""));
+    }
     command.Append(wxT(" --force-updates"));
     command.Append(wxT(" --subpos"));
 
@@ -1098,7 +1093,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
     ofstream outfile (filename.c_str(), ios_base::trunc);
     if(outfile.is_open())
     {
-        outfile << ChoiceConfig->GetStringSelection().mb_str(wxConvUTF8) << endl;
+        outfile << ChoiceInput->GetStringSelection().mb_str(wxConvUTF8) << endl;
         outfile.close();
     }
     filename = launcherDir.mb_str(wxConvUTF8);
@@ -1144,14 +1139,14 @@ void launcherFrame::OnCheckBoxTerminalClick(wxCommandEvent& event)
 
 void launcherFrame::OnButtonCheckClick1(wxCommandEvent& event)
 {
-    if(ChoiceConfig->GetStringSelection().IsEmpty())
+    if(ChoiceInput->GetStringSelection().IsEmpty())
     {
       wxMessageBox( _("No config selected!"), _("Error"), wxICON_ERROR);
       return;
     }
 
     string file = string(gimxConfigDir.mb_str(wxConvUTF8));
-    file.append(ChoiceConfig->GetStringSelection().mb_str(wxConvUTF8));
+    file.append(ChoiceInput->GetStringSelection().mb_str(wxConvUTF8));
 
     ConfigurationFile configFile;
     int ret = configFile.ReadConfigFile(file);
@@ -1172,14 +1167,14 @@ void launcherFrame::OnButtonCheckClick1(wxCommandEvent& event)
 
 void launcherFrame::OnMenuEditConfig(wxCommandEvent& event)
 {
-  if(ChoiceConfig->GetStringSelection().IsEmpty())
+  if(ChoiceInput->GetStringSelection().IsEmpty())
   {
     wxMessageBox( _("No config selected!"), _("Error"), wxICON_ERROR);
     return;
   }
 
   wxString command = wxT("gimx-config -f \"");
-  command.Append(ChoiceConfig->GetStringSelection());
+  command.Append(ChoiceInput->GetStringSelection());
   command.Append(wxT("\""));
 
   if (!wxExecute(command, wxEXEC_ASYNC))
@@ -1191,14 +1186,14 @@ void launcherFrame::OnMenuEditConfig(wxCommandEvent& event)
 
 void launcherFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
 {
-  if(ChoiceConfig->GetStringSelection().IsEmpty())
+  if(ChoiceInput->GetStringSelection().IsEmpty())
   {
     wxMessageBox( _("No config selected!"), _("Error"), wxICON_ERROR);
     return;
   }
 
   wxString command = wxT("gimx-fpsconfig -f \"");
-  command.Append(ChoiceConfig->GetStringSelection());
+  command.Append(ChoiceInput->GetStringSelection());
   command.Append(wxT("\""));
 
   if (!wxExecute(command, wxEXEC_ASYNC))
@@ -1426,7 +1421,7 @@ void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event)
       if(!cl_sel.empty())
 	    {
 	      wxMessageBox(_("Download is complete!"), _("Info"), wxICON_INFORMATION);
-	      if(!ChoiceConfig->IsEmpty())
+	      if(!ChoiceInput->IsEmpty())
 	      {
 	        int answer = wxMessageBox(_("Auto-bind and convert?"), _("Confirm"), wxYES_NO);
           if (answer == wxYES)
@@ -1435,7 +1430,7 @@ void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event)
           }
 	      }
         readConfigs();
-        ChoiceConfig->SetSelection(ChoiceConfig->FindString(wxString(cl_sel.front().c_str(), wxConvUTF8)));
+        ChoiceInput->SetSelection(ChoiceInput->FindString(wxString(cl_sel.front().c_str(), wxConvUTF8)));
       }
     }
   }
@@ -1453,9 +1448,9 @@ void launcherFrame::autoBindControls(wxArrayString configs)
   wxString mod_config;
 
   wxArrayString ref_configs;
-  for(unsigned int i=0; i<ChoiceConfig->GetCount(); i++)
+  for(unsigned int i=0; i<ChoiceInput->GetCount(); i++)
   {
-    ref_configs.Add(ChoiceConfig->GetString(i));
+    ref_configs.Add(ChoiceInput->GetString(i));
   }
 
   wxSingleChoiceDialog dialog(this, _("Select the reference config."), _("Auto-bind and convert"), ref_configs);
@@ -1497,14 +1492,14 @@ void launcherFrame::autoBindControls(wxArrayString configs)
 
 void launcherFrame::OnMenuAutoBindControls(wxCommandEvent& event)
 {
-  if(ChoiceConfig->GetStringSelection().IsEmpty())
+  if(ChoiceInput->GetStringSelection().IsEmpty())
   {
     wxMessageBox( _("No config selected!"), _("Error"), wxICON_ERROR);
     return;
   }
 
   wxArrayString configs;
-  configs.Add(ChoiceConfig->GetStringSelection());
+  configs.Add(ChoiceInput->GetStringSelection());
 
   autoBindControls(configs);
 }
@@ -1523,10 +1518,11 @@ void launcherFrame::OnsourceChoiceSelect(wxCommandEvent& event)
 {
   if(sourceChoice->GetStringSelection() == _("Network"))
   {
-    MouseSizer->Show(false);
-    SourceIpSizer->Show(true);
-
+    StaticText2->SetLabel(_("IP:port"));
     readChoices(IP_SOURCES, ChoiceInput);
+    Button1->Show(true);
+    ButtonCheck->Show(false);
+    MouseSizer->Show(false);
 
     refreshGui();
 
@@ -1537,8 +1533,11 @@ void launcherFrame::OnsourceChoiceSelect(wxCommandEvent& event)
   }
   else
   {
+    StaticText2->SetLabel(_("Config"));
+    readConfigs();
+    Button1->Show(false);
+    ButtonCheck->Show(true);
     MouseSizer->Show(true);
-    SourceIpSizer->Show(false);
   }
 
   refreshGui();

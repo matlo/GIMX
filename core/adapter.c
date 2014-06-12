@@ -10,6 +10,11 @@
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <mainloop.h>
+#ifndef WIN32
+#include <sys/types.h>
+#include <sys/socket.h>
+#endif
 
 static s_adapter adapter[MAX_CONTROLLERS] = {};
 
@@ -100,15 +105,16 @@ void adapter_dump_state(s_adapter* c)
 
 int adapter_network_read(int id)
 {
-  unsigned char buf[sizeof(adapter->axis)];
+  char buf[sizeof(adapter->axis)];
   int nread = 0;
   int ret;
   while(nread != sizeof(buf))
   {
-    if((ret = read(adapter[id].src_fd, buf+nread, sizeof(buf)-nread)) < 0)
+    if((ret = recv(adapter[id].src_fd, buf+nread, sizeof(buf)-nread, 0)) < 0)
     {
       if(errno != EAGAIN)
       {
+        perror("recv");
         return -1;
       }
     }
@@ -119,6 +125,15 @@ int adapter_network_read(int id)
   }
   memcpy(adapter[id].axis, buf, sizeof(adapter->axis));
   adapter[id].send_command = 1;
+  return 0;
+}
+
+int adapter_network_close(int id)
+{
+  set_done();
+  
+  //the cleaning is done by connector_close
+  
   return 0;
 }
 

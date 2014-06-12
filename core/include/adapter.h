@@ -42,7 +42,8 @@ int adapter_set_port(unsigned char index, char* portname);
 
 void adapter_dump_state(s_adapter* c);
 
-int adapter_network_read(int fd);
+int adapter_network_read(int id);
+int adapter_network_close(int id);
 
 void adapter_set_device(int controller, e_device_type device_type, int device_id);
 int adapter_get_device(e_device_type device_type, int controller);

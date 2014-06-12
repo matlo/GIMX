@@ -422,38 +422,13 @@ int GE_PushEvent(GE_Event *event)
 }
 
 /*
- * \brief Set a callback function for processing events (Linux only).
+ * \brief Set a callback function for processing events.
  *
  * \param fp  the callback function
  */
 void GE_SetCallback(int(*fp)(GE_Event*))
 {
   ev_set_callback(fp);
-}
-
-#ifndef WIN32
-
-/*
- * \brief Start a timer to make GE_PumpEvents return periodically (Linux only).
- * 
- * \param period  the period of the timer (microseconds).
- */
-void GE_TimerStart(int usec)
-{
-  int tfd = timer_start(usec);
-
-  if(tfd >= 0)
-  {
-    ev_register_source(tfd, 0, &timer_read, NULL, &timer_close);
-  }
-}
-
-/*
- * \brief Stop the timer (Linux only).
- */
-void GE_TimerClose()
-{
-  timer_close(0);
 }
 
 /*
@@ -472,6 +447,34 @@ void GE_RemoveSource(int fd)
   ev_remove_source(fd);
 }
 
+/*
+ * \brief Start a timer to make GE_PumpEvents return periodically.
+ * 
+ * \param period  the period of the timer (microseconds).
+ */
+void GE_TimerStart(int usec)
+{
+#ifndef WIN32
+  int tfd = timer_start(usec);
+
+  if(tfd >= 0)
+  {
+    ev_register_source(tfd, 0, &timer_read, NULL, &timer_close);
+  }
+#else
+  timer_start(usec);
+#endif
+}
+
+/*
+ * \brief Stop the timer.
+ */
+void GE_TimerClose()
+{
+  timer_close(0);
+}
+
+#ifndef WIN32
 int GE_JoystickHasRumble(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
@@ -488,19 +491,6 @@ int GE_JoystickSetRumble(int id, unsigned short weak_timeout, unsigned short wea
     return ev_joystick_set_ff_rumble(id, weak_timeout, weak, strong_timeout, strong);
   }
   return 0;
-}
-#else
-void GE_TimerStart(int usec)
-{
-  timer_start(usec);
-}
-
-/*
- * \brief Stop the timer (Linux only).
- */
-void GE_TimerClose()
-{
-  timer_close(0);
 }
 #endif
 

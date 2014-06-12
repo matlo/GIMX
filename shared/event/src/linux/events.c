@@ -47,26 +47,31 @@ typedef struct
 static s_source sources[FD_SETSIZE] = {};
 static int max_source = 0;
 
-void ev_register_source(SOURCE source, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int))
+void ev_register_source(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int))
 {
-  if(source < FD_SETSIZE)
+  if(!fp_cleanup)
   {
-    sources[source].id = id;
-    sources[source].fd = source;
+    fprintf(stderr, "%s: the cleanup function is mandatory.", __FUNCTION__);
+    return;
+  }
+  if(fd < FD_SETSIZE)
+  {
+    sources[fd].id = id;
+    sources[fd].fd = fd;
     if(fp_read)
     {
-      sources[source].event |= POLLIN;
-      sources[source].fp_read = fp_read;
+      sources[fd].event |= POLLIN;
+      sources[fd].fp_read = fp_read;
     }
     if(fp_write)
     {
-      sources[source].event |= POLLOUT;
-      sources[source].fp_write = fp_write;
+      sources[fd].event |= POLLOUT;
+      sources[fd].fp_write = fp_write;
     }
-    sources[source].fd_cleanup = fp_cleanup;
-    if(source > max_source)
+    sources[fd].fd_cleanup = fp_cleanup;
+    if(fd > max_source)
     {
-      max_source = source;
+      max_source = fd;
     }
   }
 }
