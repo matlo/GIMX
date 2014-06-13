@@ -8,7 +8,6 @@
 #include "calibration.h"
 #include "connectors/connector.h"
 #include "macros.h"
-#include "display.h"
 #include <stdio.h>
 #include <adapter.h>
 
@@ -57,20 +56,6 @@ void mainloop()
     if(connector_send() < 0)
     {
       done = 1;
-    }
-
-#ifdef WIN32
-    /*
-     * There is no setlinebuf(stdout) in windows.
-     */
-    if(emuclient_params.status)
-    {
-      fflush(stdout);
-    }
-#endif
-    if(emuclient_params.curses)
-    {
-      display_run(adapter_get(0)->type, adapter_get(0)->axis);
     }
 
     /*

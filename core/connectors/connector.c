@@ -12,6 +12,7 @@
 #include "connectors/usb_spoof.h"
 #include <adapter.h>
 #include <report.h>
+#include "display.h"
 #ifndef WIN32
 #include <netinet/in.h>
 #include <poll.h>
@@ -224,14 +225,7 @@ int connector_send()
         case C_TYPE_DEFAULT:
           if(controller->dst_fd >= 0)
           {
-            /*
-             * Do not send useless reports over the network.
-             * The remote gimx can force updates.
-             */
-            if(controller->send_command)
-            {
-              ret = udp_send(controller->dst_fd, (unsigned char*)controller->axis, sizeof(controller->axis));
-            }
+            ret = udp_send(controller->dst_fd, (unsigned char*)controller->axis, sizeof(controller->axis));
           }
 #ifndef WIN32
           else if(controller->bdaddr_dst)
@@ -287,6 +281,14 @@ int connector_send()
         if(emuclient_params.status)
         {
           adapter_dump_state(controller);
+#ifdef WIN32
+          //There is no setlinebuf(stdout) in windows.
+          fflush(stdout);
+#endif
+        }
+        if(emuclient_params.curses)
+        {
+          display_run(adapter_get(0)->type, adapter_get(0)->axis);
         }
 
         controller->send_command = 0;

@@ -8,7 +8,6 @@
 #include <netinet/in.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <errno.h>
 #else
 #include <winsock2.h>
 #define MSG_DONTWAIT 0
@@ -16,6 +15,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <GE.h>
+#include <errno.h>
 
 #ifdef WIN32
 //this is used to make sure WSAStartup/WSACleanup are only called once,

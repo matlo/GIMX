@@ -1016,9 +1016,10 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
       command.Append(wxT(" --config \""));
       command.Append(ChoiceInput->GetStringSelection());
       command.Append(wxT("\""));
+      
+      command.Append(wxT(" --force-updates"));
+      command.Append(wxT(" --subpos"));
     }
-    command.Append(wxT(" --force-updates"));
-    command.Append(wxT(" --subpos"));
 
     if(ControllerType->GetStringSelection() == _("GPP/Cronus"))
     {

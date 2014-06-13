@@ -287,18 +287,25 @@ void ev_pump_events()
   HANDLE hTimer = timer_get();
 
   int result;
-  int done = 0;;
+  int done = 0;
+  int count;
 
   do
   {
+    count = max_source;
+    
+    if(hTimer)
+    {
+      ++count;
+    }
+    
     HANDLE handles[max_source+1];
-    handles[0] = hTimer;
+    fill_handles(handles);
+    handles[max_source] = hTimer;
     
-    fill_handles(handles+1);
-    
-    result = MsgWaitForMultipleObjects(max_source+1, handles, FALSE, INFINITE, QS_RAWINPUT);
+    result = MsgWaitForMultipleObjects(count, handles, FALSE, INFINITE, QS_RAWINPUT);
 
-    if(result == WAIT_OBJECT_0 + max_source + 1)
+    if(result == WAIT_OBJECT_0 + count)
     {
       num_mm_evt = ManyMouse_PollEvent(mm_events, sizeof(mm_events)/sizeof(*mm_events));
       for(mm_event=mm_events; mm_event < mm_events + num_mm_evt; ++mm_event)
@@ -373,7 +380,11 @@ void ev_pump_events()
         }
       }
     }
-    else if(result > WAIT_OBJECT_0)
+    else if(handles[result] == hTimer)
+    {
+      done = 1;
+    }
+    else
     {
       WSANETWORKEVENTS NetworkEvents;
       
@@ -407,10 +418,6 @@ void ev_pump_events()
           break;
         }
       }
-    }
-    else if(result == WAIT_OBJECT_0)
-    {
-      done = 1;
     }
 
   } while(!done);
