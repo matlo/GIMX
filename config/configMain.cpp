@@ -268,7 +268,8 @@ void configFrame::fillButtonAxisChoice()
 
     for(int i=0; i<AXIS_MAX; i++)
     {
-      s_axis_props axis_props = {.axis = i};
+      s_axis_props axis_props;
+      axis_props.axis = i;
 
       string name;
 
@@ -310,7 +311,8 @@ void configFrame::fillAxisAxisChoice()
 
     for(int i=0; i<AXIS_MAX; i++)
     {
-      s_axis_props axis_props = {.axis = i};
+      s_axis_props axis_props;
+      axis_props.axis = i;
 
       string name;
 
@@ -364,7 +366,8 @@ void configFrame::fillButtonChoice()
 
     for(int i=abs_axis_0; i<AXIS_MAX; i++)
     {
-      s_axis_props axis_props = {.axis = i};
+      s_axis_props axis_props;
+      axis_props.axis = i;
 
       string name;
 
@@ -399,7 +402,8 @@ void configFrame::fillIntensityAxisChoice()
 
     for(int i=0; i<AXIS_MAX; i++)
     {
-      s_axis_props axis_props = {.axis = i};
+      s_axis_props axis_props;
+      axis_props.axis = i;
 
       string name;
 
@@ -1552,8 +1556,6 @@ void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
       }
 
       Configuration* config = controller->GetConfiguration(k);
-
-      cout << Intensity::GetGenericAxisProps(controller->GetControllerType(), old_axis_id).axis << endl;
 
       std::list<Intensity>* intensities = config->GetIntensityList();
       for(std::list<Intensity>::iterator it = intensities->begin(); it!=intensities->end(); )
