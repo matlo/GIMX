@@ -3,6 +3,7 @@
  License: GPLv3
  */
 
+#include <connectors/udp_con.h>
 #include <adapter.h>
 #include <emuclient.h>
 #include <string.h>
@@ -11,10 +12,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <mainloop.h>
-#ifndef WIN32
-#include <sys/types.h>
-#include <sys/socket.h>
-#endif
 
 static s_adapter adapter[MAX_CONTROLLERS] = {};
 
@@ -103,28 +100,48 @@ void adapter_dump_state(s_adapter* c)
   printf("\n");
 }
 
+/*
+ * Read a packet from a remote GIMX client.
+ * The packet can be:
+ * - a "get controller type" request
+ * - a report to be sent.
+ * Note that the socket operations should not block.
+ */
 int adapter_network_read(int id)
 {
-  char buf[sizeof(adapter->axis)];
+  static unsigned char buf[256+2];
   int nread = 0;
-  int ret;
-  while(nread != sizeof(buf))
+  struct sockaddr_in sa;
+  socklen_t salen = sizeof(sa);
+  // retrieve the packet and the address of the client
+  if((nread = udp_recvfrom(adapter[id].src_fd, buf, sizeof(buf), (struct sockaddr*) &sa, &salen)) <= 0)
   {
-    if((ret = recv(adapter[id].src_fd, buf+nread, sizeof(buf)-nread, 0)) < 0)
+    return 0;
+  }
+  switch(buf[0])
+  {
+  case BYTE_TYPE:
     {
-      if(errno != EAGAIN)
+      // send the answer
+      unsigned char answer[3] = {BYTE_TYPE, BYTE_LEN_1_BYTE, adapter[id].type};
+      if (udp_sendto(adapter[id].src_fd, answer, sizeof(answer), (struct sockaddr*) &sa, salen) == -1)
       {
-        perror("recv");
-        return -1;
+        fprintf(stderr, "adapter_network_read: can't send controller type\n");
+        return 0;
       }
     }
-    else
+    break;
+  case BYTE_SEND_REPORT:
+    if(buf[1] != sizeof(adapter->axis))
     {
-      nread += ret;
+      fprintf(stderr, "adapter_network_read: wrong packet size\n");
+      return 0;
     }
+    // store the report (no answer)
+    memcpy(adapter[id].axis, buf+2, sizeof(adapter->axis));
+    adapter[id].send_command = 1;
+    break;
   }
-  memcpy(adapter[id].axis, buf, sizeof(adapter->axis));
-  adapter[id].send_command = 1;
   if((adapter[id].type == C_TYPE_SIXAXIS || adapter[id].type == C_TYPE_DEFAULT) && adapter[id].bdaddr_dst)
   {
     return 0;

@@ -14,8 +14,6 @@
 #include <report.h>
 #include "display.h"
 #ifndef WIN32
-#include <netinet/in.h>
-#include <poll.h>
 #include "connectors/sixaxis.h"
 #include "connectors/btds4.h"
 #endif
@@ -24,67 +22,67 @@ int connector_init()
 {
   int ret = 0;
   int i;
-  s_adapter* controller;
+  s_adapter* adapter;
 
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
-    controller = adapter_get(i);
-    if(controller->portname)
+    adapter = adapter_get(i);
+    if(adapter->portname)
     {
-      if(!strstr(controller->portname, "none"))
+      if(!strstr(adapter->portname, "none"))
       {
-        if((controller->serial = serial_connect(controller->portname)) < 0)
+        if((adapter->serial = serial_connect(adapter->portname)) < 0)
         {
           ret = -1;
         }
         else
         {
-          int rtype = usb_spoof_get_adapter_type(controller->serial);
+          int rtype = usb_spoof_get_adapter_type(adapter->serial);
 
           if(rtype >= 0)
           {
             printf(_("Detected USB adapter: %s.\n"), controller_get_name(rtype));
 
-            if(controller->type == C_TYPE_DEFAULT)
+            if(adapter->type == C_TYPE_DEFAULT)
             {
-              controller->type = rtype;
+              adapter->type = rtype;
             }
-            else if(controller->type != rtype)
+            else if(adapter->type != rtype)
             {
               fprintf(stderr, _("Wrong controller type.\n"));
               ret = -1;
             }
 
-            if(controller->type == C_TYPE_360_PAD)
+            if(adapter->type == C_TYPE_360_PAD)
             {
-              if(usb_spoof_spoof_360_controller(controller->serial) < 0)
+              if(usb_spoof_spoof_360_controller(adapter->serial) < 0)
               {
                 fprintf(stderr, _("Spoof failed.\n"));
                 ret = -1;
               }
             }
-            else if(controller->type == C_TYPE_XONE_PAD)
+            else if(adapter->type == C_TYPE_XONE_PAD)
             {
               /*
                * TODO XONE
                */
             }
-            else if(controller->type == C_TYPE_DS4)
+            else if(adapter->type == C_TYPE_DS4)
             {
-              controller->report.value.ds4.report_id = 0x01;
-              controller->report.value_len = DS4_USB_INTERRUPT_PACKET_SIZE;
-              ds4_init_report(&controller->report.value.ds4);
+              adapter->report.value.ds4.report_id = 0x01;
+              adapter->report.value_len = DS4_USB_INTERRUPT_PACKET_SIZE;
+              ds4_init_report(&adapter->report.value.ds4);
             }
           }
         }
       }
-      if(controller->type == C_TYPE_DEFAULT)
+      if(adapter->type == C_TYPE_DEFAULT)
       {
         fprintf(stderr, _("No controller detected.\n"));
         ret = -1;
       }
     }
-    else if(controller->type == C_TYPE_GPP)
+    else if(adapter->type == C_TYPE_GPP)
     {
       int rtype = gpp_connect();
       if (rtype < 0)
@@ -105,39 +103,43 @@ int connector_init()
     }
     else
     {
-      if(controller->dst_ip)
+      if(adapter->dst_ip)
       {
-        controller->dst_fd = udp_connect(controller->dst_ip, controller->dst_port);
-        if(controller->dst_fd < 0)
+        adapter->dst_fd = udp_connect(adapter->dst_ip, adapter->dst_port, (int *)&adapter->type);
+        if(adapter->dst_fd < 0)
         {
-          fprintf(stderr, _("Can't connect to port: %d.\n"), controller->dst_port);
+          fprintf(stderr, _("Can't connect to port: %d.\n"), adapter->dst_port);
           ret = -1;
+        }
+        else
+        {
+          printf(_("Detected controller: %s.\n"), controller_get_name(adapter->type));
         }
       }
 #ifndef WIN32
-      else if(controller->bdaddr_dst)
+      else if(adapter->bdaddr_dst)
       {
-        if(controller->type == C_TYPE_SIXAXIS
-            || controller->type == C_TYPE_DEFAULT)
+        if(adapter->type == C_TYPE_SIXAXIS
+            || adapter->type == C_TYPE_DEFAULT)
         {
-          sixaxis_set_dongle(i, controller->dongle_index);
-          sixaxis_set_bdaddr(i, controller->bdaddr_dst);
+          sixaxis_set_dongle(i, adapter->dongle_index);
+          sixaxis_set_bdaddr(i, adapter->bdaddr_dst);
           if(sixaxis_connect(i) < 0)
           {
             fprintf(stderr, _("Can't initialize sixaxis.\n"));
             ret = -1;
           }
         }
-        else if(controller->type == C_TYPE_DS4)
+        else if(adapter->type == C_TYPE_DS4)
         {
-          btds4_set_dongle(i, controller->dongle_index);
-          btds4_set_bdaddr(i, controller->bdaddr_dst);
+          btds4_set_dongle(i, adapter->dongle_index);
+          btds4_set_bdaddr(i, adapter->bdaddr_dst);
           if(btds4_init(i) < 0)
           {
             fprintf(stderr, _("Can't initialize btds4.\n"));
             ret = -1;
           }
-          ds4_init_report(&controller->report.value.ds4);
+          ds4_init_report(&adapter->report.value.ds4);
         }
         else
         {
@@ -147,17 +149,17 @@ int connector_init()
 #endif
       
     }
-    if(controller->src_ip)
+    if(adapter->src_ip)
     {
-      controller->src_fd = udp_listen(controller->src_ip, controller->src_port);
-      if(controller->src_fd < 0)
+      adapter->src_fd = udp_listen(adapter->src_ip, adapter->src_port);
+      if(adapter->src_fd < 0)
       {
-        fprintf(stderr, _("Can't listen on port: %d.\n"), controller->src_port);
+        fprintf(stderr, _("Can't listen on port: %d.\n"), adapter->src_port);
         ret = -1;
       }
       else
       {
-        GE_AddSource(controller->src_fd, i, adapter_network_read, NULL, adapter_network_close);
+        GE_AddSource(adapter->src_fd, i, adapter_network_read, NULL, adapter_network_close);
       }
     }
   }
@@ -167,27 +169,27 @@ int connector_init()
 void connector_clean()
 {
   int i;
-  s_adapter* controller;
+  s_adapter* adapter;
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
-    controller = adapter_get(i);
-    switch(controller->type)
+    adapter = adapter_get(i);
+    switch(adapter->type)
     {
       case C_TYPE_DEFAULT:
-        if(controller->dst_fd >= 0)
+        if(adapter->dst_fd >= 0)
         {
-          GE_RemoveSource(controller->src_fd);
-          udp_close(controller->dst_fd);
+          GE_RemoveSource(adapter->src_fd);
+          udp_close(adapter->dst_fd);
         }
 #ifndef WIN32
-        else if(controller->bdaddr_dst)
+        else if(adapter->bdaddr_dst)
         {
-          if(controller->type == C_TYPE_SIXAXIS
-              || controller->type == C_TYPE_DEFAULT)
+          if(adapter->type == C_TYPE_SIXAXIS
+              || adapter->type == C_TYPE_DEFAULT)
           {
             sixaxis_close(i);
           }
-          else if(controller->type == C_TYPE_DS4)
+          else if(adapter->type == C_TYPE_DS4)
           {
             btds4_close(i);
           }
@@ -198,7 +200,7 @@ void connector_clean()
         gpp_disconnect();
         break;
       default:
-        serial_close(controller->serial);
+        serial_close(adapter->serial);
         break;
     }
   }
@@ -208,79 +210,83 @@ int connector_send()
 {
   int ret = 0;
   int i;
-  s_adapter* controller;
-  s_report* report;
+  s_adapter* adapter;
 
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
-    controller = adapter_get(i);
-    report = &controller->report;
+    adapter = adapter_get(i);
 
-    if (emuclient_params.force_updates || controller->send_command)
+    if (emuclient_params.force_updates || adapter->send_command)
     {
-      report->value_len = report_build(controller->type, controller->axis, report);
-
-      switch(controller->type)
+      if(adapter->dst_fd >= 0)
       {
-        case C_TYPE_DEFAULT:
-          if(controller->dst_fd >= 0)
-          {
-            ret = udp_send(controller->dst_fd, (unsigned char*)controller->axis, sizeof(controller->axis));
-          }
+        static unsigned char report[sizeof(adapter->axis)+2] = {0xff, sizeof(adapter->axis)};
+        memcpy(report+2, adapter->axis, sizeof(adapter->axis));
+        ret = udp_send(adapter->dst_fd, report, sizeof(report));
+      }
+      else
+      {
+        s_report* report = &adapter->report;
+        report->value_len = report_build(adapter->type, adapter->axis, report);
+
+        switch(adapter->type)
+        {
 #ifndef WIN32
-          else if(controller->bdaddr_dst)
+        case C_TYPE_DEFAULT:
+          if(adapter->bdaddr_dst)
           {
             ret = sixaxis_send_interrupt(i, &report->value.ds3);
           }
-#endif
           break;
+#endif
         case C_TYPE_SIXAXIS:
-          if(controller->serial >= 0)
+          if(adapter->serial >= 0)
           {
-            ret = serial_send(controller->serial, report, 2+report->value_len);
+            ret = serial_send(adapter->serial, report, 2+report->value_len);
           }
 #ifndef WIN32          
-          else if(controller->bdaddr_dst)
+          else if(adapter->bdaddr_dst)
           {
             ret = sixaxis_send_interrupt(i, &report->value.ds3);
           }
 #endif
           break;
         case C_TYPE_DS4:
-          if(controller->serial >= 0)
+          if(adapter->serial >= 0)
           {
-            ret = serial_send(controller->serial, &report, 2+report->value_len);
+            ret = serial_send(adapter->serial, &report, 2+report->value_len);
           }
 #ifndef WIN32
-          else if(controller->bdaddr_dst)
+          else if(adapter->bdaddr_dst)
           {
             ret = btds4_send_interrupt(i, &report->value.ds4);
           }
 #endif
           break;
         case C_TYPE_GPP:
-          ret = gpp_send(controller->axis);
+          ret = gpp_send(adapter->axis);
           break;
         default:
-          if(controller->serial >= 0)
+          if(adapter->serial >= 0)
           {
-            if(controller->type != C_TYPE_PS2_PAD)
+            if(adapter->type != C_TYPE_PS2_PAD)
             {
-              ret = serial_send(controller->serial, &report, 2+report->value_len);
+              ret = serial_send(adapter->serial, &report, 2+report->value_len);
             }
             else
             {
-              ret = serial_send(controller->serial, &report->value.ds2, report->value_len);
+              ret = serial_send(adapter->serial, &report->value.ds2, report->value_len);
             }
           }
           break;
+        }
       }
 
-      if (controller->send_command)
+      if (adapter->send_command)
       {
         if(emuclient_params.status)
         {
-          adapter_dump_state(controller);
+          adapter_dump_state(adapter);
 #ifdef WIN32
           //There is no setlinebuf(stdout) in windows.
           fflush(stdout);
@@ -291,7 +297,7 @@ int connector_send()
           display_run(adapter_get(0)->type, adapter_get(0)->axis);
         }
 
-        controller->send_command = 0;
+        adapter->send_command = 0;
       }
     }
   }

@@ -211,6 +211,10 @@ static struct
 
 static unsigned int max_source = 0;
 
+/*
+ * Register a socket as an event source.
+ * Note that the socket becomes non-blocking.
+ */
 void ev_register_source(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int))
 {
   if(!fp_cleanup)
