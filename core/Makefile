@@ -50,6 +50,7 @@ GIMX_OBJ = \
 
 ifneq ($(OS),Windows_NT)
 GIMX_OBJ += \
+       connectors/bt_mgmt.o\
        connectors/sixaxis.o\
        connectors/btds4.o\
        connectors/gpp/hid_LINUX.o\
