@@ -208,13 +208,12 @@ int acl_send_data (const char *bdaddr_dst, unsigned short cid, unsigned char *da
 
 #define L2CAP_MTU 1024
 
-static void l2cap_setsockopt(int fd)
+static void l2cap_setsockopt(int fd, int options)
 {
   struct l2cap_options l2o;
   socklen_t len = sizeof(l2o);
 
-  int opt = L2CAP_LM_MASTER;
-  if (setsockopt(fd, SOL_L2CAP, L2CAP_LM, &opt, sizeof(opt)) < 0)
+  if (setsockopt(fd, SOL_L2CAP, L2CAP_LM, &options, sizeof(options)) < 0)
   {
     perror("setsockopt L2CAP_LM");
   }
@@ -246,7 +245,7 @@ static void l2cap_setsockopt(int fd)
   }
 }
 
-int l2cap_connect(const char *bdaddr_src, const char *bdaddr_dest, int psm)
+int l2cap_connect(const char *bdaddr_src, const char *bdaddr_dest, unsigned short psm, int options)
 {
     int fd;
     struct sockaddr_l2 addr;
@@ -266,7 +265,7 @@ int l2cap_connect(const char *bdaddr_src, const char *bdaddr_dest, int psm)
       return -3;
     }*/
 
-    l2cap_setsockopt(fd);
+    l2cap_setsockopt(fd, options);
 
     memset(&addr, 0, sizeof(addr));
     addr.l2_family = AF_BLUETOOTH;
@@ -306,7 +305,7 @@ int l2cap_recv(int fd, unsigned char* buf, int len)
     return recv(fd, buf, len, MSG_DONTWAIT);
 }
 
-int l2cap_listen(unsigned short psm)
+int l2cap_listen(unsigned short psm, int options)
 {
   struct sockaddr_l2 loc_addr = { 0 };
   int s;
@@ -318,7 +317,7 @@ int l2cap_listen(unsigned short psm)
     return -1;
   }
 
-  l2cap_setsockopt(s);
+  l2cap_setsockopt(s, options);
 
   // bind socket to port psm of the first available
   // bluetooth adapter
@@ -398,3 +397,4 @@ int l2cap_is_connected(int fd)
   }
   return 0;
 }
+

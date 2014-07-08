@@ -643,7 +643,7 @@ static int connect_control(int sixaxis_number)
       state->bdaddr_src, state->bdaddr_dst, PSM_HID_INTERRUPT);
 
     if ((state->interrupt_pending = l2cap_connect(state->bdaddr_src, state->bdaddr_dst,
-        PSM_HID_INTERRUPT)) < 0)
+        PSM_HID_INTERRUPT, L2CAP_LM_MASTER)) < 0)
     {
       GE_RemoveSource(state->control_pending);
       close(state->control_pending);
@@ -696,7 +696,7 @@ int sixaxis_connect(int sixaxis_number)
     state->bdaddr_src, state->bdaddr_dst, PSM_HID_CONTROL);
 
   if ((state->control_pending = l2cap_connect(state->bdaddr_src, state->bdaddr_dst,
-      PSM_HID_CONTROL)) < 0)
+      PSM_HID_CONTROL, L2CAP_LM_MASTER)) < 0)
   {
     fprintf(stderr, "can't connect to control psm\n");
     return -1;

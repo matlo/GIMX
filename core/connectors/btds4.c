@@ -4,6 +4,7 @@
  */
 
 #include "connectors/btds4.h"
+#include "connectors/bt_mgmt.h"
 #include <adapter.h>
 #include "emuclient.h"
 #include <string.h>
@@ -554,7 +555,7 @@ static int btds4_accept(int listen_fd)
               states[i].dongle_bdaddr, states[i].ps4_bdaddr, PSM_HID_CONTROL);
 
           if ((states[i].ps4_control_pending = l2cap_connect(states[i].dongle_bdaddr, states[i].ps4_bdaddr,
-              PSM_HID_CONTROL)) < 0)
+              PSM_HID_CONTROL, L2CAP_LM_MASTER | L2CAP_LM_AUTH | L2CAP_LM_ENCRYPT)) < 0)
           {
             fprintf(stderr, "can't connect to control psm\n");
             break;
@@ -566,7 +567,7 @@ static int btds4_accept(int listen_fd)
               states[i].dongle_bdaddr, states[i].ps4_bdaddr, PSM_HID_INTERRUPT);
 
           if ((states[i].ps4_interrupt_pending = l2cap_connect(states[i].dongle_bdaddr, states[i].ps4_bdaddr,
-              PSM_HID_INTERRUPT)) < 0)
+              PSM_HID_INTERRUPT, L2CAP_LM_MASTER | L2CAP_LM_AUTH | L2CAP_LM_ENCRYPT)) < 0)
           {
             close_ps4_control(i);
             fprintf(stderr, "can't connect to interrupt psm\n");
@@ -682,9 +683,15 @@ int btds4_init(int btds4_number)
 
   memcpy(&state->bt_report, &init_report_btds4, sizeof(s_btds4_report));
 
+  if(bt_mgmt_adapter_init(state->dongle_index) < 0)
+  {
+    fprintf(stderr, "failed to initialize bluetooth device\n");
+    return -1;
+  }
+
   if (bt_get_device_bdaddr(state->dongle_index, state->dongle_bdaddr) < 0)
   {
-    fprintf(stderr, "failed to get device number\n");
+    fprintf(stderr, "failed to get device bdaddr\n");
     return -1;
   }
   state->btds4_number = btds4_number;
@@ -697,7 +704,7 @@ int btds4_init(int btds4_number)
 
   if(sdp_fd < 0)
   {
-    if((sdp_fd = l2cap_listen(PSM_SDP)) >= 0)
+    if((sdp_fd = l2cap_listen(PSM_SDP, L2CAP_LM_MASTER)) >= 0)
     {
       GE_AddSource(sdp_fd, sdp_fd, &btds4_accept, NULL, &btds4_close_listen);
     }
@@ -709,7 +716,7 @@ int btds4_init(int btds4_number)
 
   if(hid_control_fd < 0)
   {
-    if((hid_control_fd = l2cap_listen(PSM_HID_CONTROL)) >= 0)
+    if((hid_control_fd = l2cap_listen(PSM_HID_CONTROL, L2CAP_LM_MASTER)) >= 0)
     {
       GE_AddSource(hid_control_fd, hid_control_fd, &btds4_accept, NULL, &btds4_close_listen);
     }
@@ -721,7 +728,7 @@ int btds4_init(int btds4_number)
 
   if(hid_interrupt_fd < 0)
   {
-    if((hid_interrupt_fd = l2cap_listen(PSM_HID_INTERRUPT)) >= 0)
+    if((hid_interrupt_fd = l2cap_listen(PSM_HID_INTERRUPT, L2CAP_LM_MASTER)) >= 0)
     {
       GE_AddSource(hid_interrupt_fd, hid_interrupt_fd, &btds4_accept, NULL, &btds4_close_listen);
     }

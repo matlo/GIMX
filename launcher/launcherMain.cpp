@@ -267,7 +267,7 @@ void launcherFrame::readDongles(vector<DongleInfo>& dongleInfos)
       res = readCommandResults(command, firstLine2, params2, results2, sizeof(results2)/sizeof(*results2));
 
       wxString chip = wxEmptyString;
-      if (res != -1 && results2[0][0] != wxT("Unknown"))
+      if (res != -1 && !results2[0].IsEmpty() && results2[0][0] != wxT("Unknown"))
       {
         chip = results2[0][0];
       }
@@ -995,6 +995,29 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
       {
         wxMessageBox( _("IP:port is the same for input and output!"), _("Error"), wxICON_ERROR);
         return;
+      }
+    }
+
+    if(ControllerType->GetStringSelection() == _("Bluetooth / PS4"))
+    {
+      wxString checkCommand = wxT("pgrep bluetoothd");
+
+      if(!wxExecute(checkCommand, wxEXEC_SYNC))
+      {
+        int answer = wxMessageBox(_("Bluetooth service has to be stopped.\nProceed?"), _("Confirm"), wxYES_NO | wxCANCEL);
+
+        if (answer != wxYES)
+        {
+          return;
+        }
+
+        wxString stopService = wxT("gksudo --message \"stop bluetooth service\" -- bash -c \"service bluetooth stop\"");
+
+        if(wxExecute(stopService, wxEXEC_SYNC))
+        {
+          wxMessageBox( _("Can't stop bluetoothd!"), _("Error"), wxICON_ERROR);
+          return;
+        }
       }
     }
 
@@ -1786,18 +1809,27 @@ int launcherFrame::ps4Setup()
     }
   } while(1);
   
-  //set teensy slave address, blank master address & link key
+  //set teensy slave address
   
   command.Clear();
   command.Append(wxT("ds4tool -t -s "));
   command.Append(dongleInfo.address);
-  command.Append(wxT(" -m 00:00:00:00:00:00"));
   if(wxExecute(command, wxEXEC_SYNC))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
     return -1;
   }
   
+  //blank master address & link key
+
+  command.Clear();
+  command.Append(wxT("ds4tool -t -m 00:00:00:00:00:00"));
+  if(wxExecute(command, wxEXEC_SYNC))
+  {
+    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+    return -1;
+  }
+
   //loop until the teensy is paired with the PS4
 
   do
@@ -1819,9 +1851,7 @@ int launcherFrame::ps4Setup()
   //read gimx-ps4setup.sh for details
 
   command.Clear();
-  command.Append(wxT("gksudo --message \"gimx-ps4setup\" -- bash -c \"gimx-ps4setup.sh "));
-  command.Append(dongleInfo.hci);
-  command.Append(wxT(" "));
+  command.Append(wxT("gimx-ps4setup.sh "));
   command.Append(dongleInfo.address);
   command.Append(wxT(" "));
   command.Append(ds4Bdaddr);
@@ -1831,7 +1861,6 @@ int launcherFrame::ps4Setup()
   command.Append(ps4Bdaddr);
   command.Append(wxT(" "));
   command.Append(ps4LinkKey);
-  command.Append(wxT("\""));
   if(wxExecute(command, wxEXEC_SYNC ))
   {
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
