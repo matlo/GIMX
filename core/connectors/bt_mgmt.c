@@ -33,6 +33,7 @@ typedef enum
   E_INIT,
   E_SET_POWERED,
   E_SET_CONNECTABLE,
+  E_SET_LOCAL_NAME,
   E_LOAD_LINK_KEYS,
   E_DONE
 }e_step;
@@ -81,6 +82,27 @@ static int mgmt_set_mode(int sk, uint16_t index, uint16_t opcode, uint8_t val)
   return 0;
 }
 
+static int mgmt_set_local_name(int sk, uint16_t index)
+{
+  char buf[MGMT_HDR_SIZE + sizeof(struct mgmt_cp_set_local_name)];
+  struct mgmt_hdr *hdr = (void *) buf;
+  struct mgmt_cp_set_local_name *cp = (void *) &buf[sizeof(*hdr)];
+
+  memset(buf, 0, sizeof(buf));
+  hdr->opcode = htobs(MGMT_OP_SET_LOCAL_NAME);
+  hdr->index = htobs(index);
+  hdr->len = htobs(sizeof(*cp));
+
+  char name[] = "Wireless Controller";
+
+  memcpy(cp->name, name, sizeof(name));
+
+  if (write(sk, buf, sizeof(buf)) < 0)
+    return -errno;
+
+  return 0;
+}
+
 static int mgmt_cmd_complete(int sk, uint16_t index, void *buf, size_t len)
 {
   struct mgmt_ev_cmd_complete *ev = buf;
@@ -104,6 +126,16 @@ static int mgmt_cmd_complete(int sk, uint16_t index, void *buf, size_t len)
     else if(ev->status)
     {
       fprintf(stderr, "set_powered failed\n");
+      ret = -1;
+    }
+    break;
+  case MGMT_OP_SET_LOCAL_NAME:
+    if(step != E_SET_LOCAL_NAME) {
+      fprintf(stderr, "unexpected set_local_name complete\n");
+    }
+    else if(ev->status)
+    {
+      fprintf(stderr, "set_local_name failed\n");
       ret = -1;
     }
     break;
@@ -312,6 +344,20 @@ int bt_mgmt_adapter_init(uint16_t index)
   step = E_SET_POWERED;
 
   if(mgmt_set_mode(sk, index, MGMT_OP_SET_POWERED, TRUE) < 0)
+  {
+    close(sk);
+    return -1;
+  }
+
+  if(mgmt_read_evt(sk, index) < 0)
+  {
+    close(sk);
+    return -1;
+  }
+
+  step = E_SET_LOCAL_NAME;
+
+  if(mgmt_set_local_name(sk, index) < 0)
   {
     close(sk);
     return -1;
