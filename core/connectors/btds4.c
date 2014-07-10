@@ -117,12 +117,7 @@ static unsigned char sdp_ds4[] =
 };
 
 struct btds4_state_sys {
-    /*** Values provided by the system (PS3): */
-    int reporting_enabled;
     int shutdown;
-    int feature_ef_byte_6;
-
-
     uint8_t rumble[2];
 };
 
@@ -229,12 +224,58 @@ static int read_ps4_sdp(int btds4_number)
   return 0;
 }
 
+static int close_ps4_control(int btds4_number);
+static int connect_ps4_control(int btds4_number);
+static int connect_ps4_interrupt(int btds4_number);
+
 static int close_ps4_sdp(int btds4_number)
 {
   struct btds4_state* state = states + btds4_number;
 
   close(state->ps4_sdp);
   state->ps4_sdp = -1;
+
+  /*
+   * Warning: this is really hackish...
+   * There is an issue at the very first connection.
+   * Maybe the acl_send_data hack interferes in some way with the l2cap sockets.
+   * As a work-around, we disconnect and restart the connection.
+   */
+   
+  GE_RemoveSource(state->ps4_control_pending);
+  close(state->ps4_control_pending);
+  state->ps4_control_pending = -1;
+
+  GE_RemoveSource(state->ps4_interrupt_pending);
+  close(state->ps4_interrupt_pending);
+  state->ps4_interrupt_pending = -1;
+
+  bt_disconnect(state->ps4_bdaddr);
+
+  gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
+      state->dongle_bdaddr, state->ps4_bdaddr, PSM_HID_CONTROL);
+
+  if ((state->ps4_control_pending = l2cap_connect(state->dongle_bdaddr, state->ps4_bdaddr,
+      PSM_HID_CONTROL, L2CAP_LM_MASTER | L2CAP_LM_AUTH | L2CAP_LM_ENCRYPT)) < 0)
+  {
+    fprintf(stderr, "can't connect to control psm\n");
+    return -1;
+  }
+
+  gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
+      state->dongle_bdaddr, state->ps4_bdaddr, PSM_HID_INTERRUPT);
+
+  if ((state->ps4_interrupt_pending = l2cap_connect(state->dongle_bdaddr, state->ps4_bdaddr,
+      PSM_HID_INTERRUPT, L2CAP_LM_MASTER | L2CAP_LM_AUTH | L2CAP_LM_ENCRYPT)) < 0)
+  {
+    close(state->ps4_control_pending);
+    state->ps4_control_pending = -1;
+    fprintf(stderr, "can't connect to interrupt psm\n");
+    return -1;
+  }
+
+  GE_AddSource(state->ps4_control_pending, btds4_number, NULL, &connect_ps4_control, &connect_ps4_control);
+  GE_AddSource(state->ps4_interrupt_pending, btds4_number, NULL, &connect_ps4_interrupt, &connect_ps4_interrupt);
 
   return 1;
 }
@@ -417,6 +458,7 @@ static int connect_ps4_control(int btds4_number)
 
   if(l2cap_is_connected(state->ps4_control_pending))
   {
+    gprintf("connected\n");
     GE_RemoveSource(state->ps4_control_pending);
     state->ps4_control = state->ps4_control_pending;
     state->ps4_control_pending = -1;
@@ -667,9 +709,6 @@ static s_btds4_report init_report_btds4 = {
 int btds4_init(int btds4_number)
 {
   struct btds4_state* state = states+btds4_number;
-
-  state->sys.reporting_enabled = 0;
-  state->sys.feature_ef_byte_6 = 0xb0;
 
   state->ps4_control = -1;
   state->ps4_interrupt = -1;

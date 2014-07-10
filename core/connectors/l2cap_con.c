@@ -117,6 +117,14 @@ int acl_send_data (const char *bdaddr_dst, unsigned short cid, unsigned char *da
     goto cleanup;
   }
 
+  /*struct hci_filter filter;
+  hci_filter_clear(&filter);
+  if(setsockopt(dd, SOL_HCI, HCI_FILTER, &filter, sizeof(filter)) < 0)
+  {
+    perror("setsockopt HCI_FILTER");
+    goto cleanup;
+  }*/
+
   if (ioctl(dd, HCIGETCONNINFO, (unsigned long) cr) < 0)
   {
     perror("ioctl HCIGETCONNINFO");

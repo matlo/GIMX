@@ -89,6 +89,19 @@ int bt_disconnect(char bdaddr[18])
 
   hci_disconnect(dd, cr->conn_info->handle, HCI_OE_USER_ENDED_CONNECTION, HCI_REQ_TIMEOUT);
 
+  //wait up to 5s for the disconnect to be completed
+  int i = 0;
+  while(i < 50 && !(ioctl(dd, HCIGETCONNINFO, (unsigned long) cr)))
+  {
+    usleep(100000);
+    ++i;
+  }
+
+  if(i == 50)
+  {
+    err = -1;
+  }
+
   cleanup: free(cr);
   if (dd >= 0)
     close(dd);
