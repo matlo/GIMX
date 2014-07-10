@@ -88,6 +88,7 @@ class launcherFrame: public wxFrame
         
         int readChoices(const char* file, wxChoice* choices);
         int saveChoices(const char* file, wxChoice* choices);
+        int saveLinkKeys(wxString dongleBdaddr, wxString ds4Bdaddr, wxString ds4LinkKey, wxString ps4Bdaddr, wxString ps4LinkKey);
         
         void readIp(wxChoice* choices);
         

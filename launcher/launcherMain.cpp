@@ -63,6 +63,7 @@ using namespace std;
 
 wxString gimxConfigDir;
 wxString launcherDir;
+wxString gimxDir;
 
 //(*IdInit(launcherFrame)
 const long launcherFrame::ID_STATICTEXT4 = wxNewId();
@@ -558,7 +559,7 @@ int launcherFrame::saveChoices(const char* file, wxChoice* choices)
     string line;
     string device;
     string master;
-    int ret = -1;
+    int ret = 0;
 
     filename = string(launcherDir.mb_str(wxConvUTF8));
     filename.append(file);
@@ -582,8 +583,49 @@ int launcherFrame::saveChoices(const char* file, wxChoice* choices)
     else
     {
         wxMessageBox( _("Cannot open file for writing: ") + wxString(filename.c_str(), wxConvUTF8), _("Error"), wxICON_ERROR);
+        ret = -1;
     }
     return ret;
+}
+
+int launcherFrame::saveLinkKeys(wxString dongleBdaddr, wxString ds4Bdaddr, wxString ds4LinkKey, wxString ps4Bdaddr, wxString ps4LinkKey)
+{
+  string filename;
+  string line;
+  string device;
+  string master;
+  int ret = 0;
+
+  filename = string(gimxDir.mb_str(wxConvUTF8));
+  filename.append("bluetooth/");
+  filename.append(dongleBdaddr.mb_str(wxConvUTF8));
+
+  wxString lkDir = wxString(filename.c_str(), wxConvUTF8);
+
+  if(!wxDir::Exists(lkDir))
+  {
+    if(!wxMkdir(lkDir))
+    {
+      wxMessageBox( _("Can't init directory: ") + lkDir, _("Error"), wxICON_ERROR);
+      return -1;
+    }
+  }
+
+  filename.append("/linkkeys");
+
+  ofstream outfile (filename.c_str(), ios_base::trunc);
+  if(outfile.is_open())
+  {
+      outfile << ds4Bdaddr.mb_str(wxConvUTF8) << " " << ds4LinkKey.mb_str(wxConvUTF8) << " 4 0" << endl;
+      outfile << ps4Bdaddr.mb_str(wxConvUTF8) << " " << ps4LinkKey.mb_str(wxConvUTF8) << " 4 0" << endl;
+      outfile.close();
+  }
+  else
+  {
+      wxMessageBox( _("Cannot open file for writing: ") + wxString(filename.c_str(), wxConvUTF8), _("Error"), wxICON_ERROR);
+      ret = -1;
+  }
+  return ret;
 }
 
 void launcherFrame::readParam(const char* file, wxChoice* choice)
@@ -801,7 +843,7 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
 
     //migrate old config/ directory if present
     wxString oldGimxDir = wxStandardPaths::Get().GetUserConfigDir() + wxT(OLD_GIMX_DIR);
-    wxString gimxDir = wxStandardPaths::Get().GetUserConfigDir() + wxT(GIMX_DIR);
+    gimxDir = wxStandardPaths::Get().GetUserConfigDir() + wxT(GIMX_DIR);
     if(wxDir::Exists(oldGimxDir) && !wxDir::Exists(gimxDir))
     {
       if(!wxRenameFile(oldGimxDir, gimxDir))
@@ -1848,22 +1890,8 @@ int launcherFrame::ps4Setup()
   ps4Bdaddr = pairings[0].console;
   ps4LinkKey = pairings[0].linkKey;
 
-  //read gimx-ps4setup.sh for details
-
-  command.Clear();
-  command.Append(wxT("gimx-ps4setup.sh "));
-  command.Append(dongleInfo.address);
-  command.Append(wxT(" "));
-  command.Append(ds4Bdaddr);
-  command.Append(wxT(" "));
-  command.Append(ds4LinkKey);
-  command.Append(wxT(" "));
-  command.Append(ps4Bdaddr);
-  command.Append(wxT(" "));
-  command.Append(ps4LinkKey);
-  if(wxExecute(command, wxEXEC_SYNC ))
+  if(saveLinkKeys(dongleInfo.address, ds4Bdaddr, ds4LinkKey, ps4Bdaddr, ps4LinkKey) < 0)
   {
-    wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
     return -1;
   }
 
@@ -1878,7 +1906,12 @@ int launcherFrame::ps4Setup()
     ChoiceOutput->SetSelection(pos);
   }
 
-  return -1;
+  if(saveChoices(PS4_PAIRINGS, ChoiceOutput) < 0)
+  {
+    return -1;
+  }
+
+  return 0;
 }
 
 void launcherFrame::OnMenuSave(wxCommandEvent& event)
