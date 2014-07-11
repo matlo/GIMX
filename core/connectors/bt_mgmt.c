@@ -28,6 +28,10 @@
 
 #define MGMT_BUF_SIZE 1024
 
+#ifndef BDADDR_BREDR
+#define BDADDR_BREDR 0x00
+#endif
+
 typedef enum
 {
   E_INIT,
