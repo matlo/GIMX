@@ -7,17 +7,17 @@
 #define LAUNCHERMAIN_H
 
 //(*Headers(launcherFrame)
-#include <wx/sizer.h>
-#include <wx/stattext.h>
-#include <wx/menu.h>
 #include <wx/checkbox.h>
-#include <wx/panel.h>
-#include <wx/snglinst.h>
-#include <wx/choice.h>
+#include <wx/sizer.h>
 #include <wx/button.h>
-#include <wx/utils.h>
-#include <wx/frame.h>
+#include <wx/menu.h>
+#include <wx/panel.h>
 #include <wx/statusbr.h>
+#include <wx/snglinst.h>
+#include <wx/frame.h>
+#include <wx/stattext.h>
+#include <wx/choice.h>
+#include <wx/utils.h>
 //*)
 
 #include <wx/process.h>
@@ -67,13 +67,13 @@ class launcherFrame: public wxFrame
         void OnMenuEditConfig(wxCommandEvent& event);
         void OnMenuEditFpsConfig(wxCommandEvent& event);
         void OnMenuRefresh(wxCommandEvent& event);
-        void OnControllerTypeSelect(wxCommandEvent& event);
+        void OnOutputSelect(wxCommandEvent& event);
         void OnMenuUpdate(wxCommandEvent& event);
         void OnMenuStartupUpdates(wxCommandEvent& event);
         void OnMenuGetConfigs(wxCommandEvent& event);
         void OnMenuAutoBindControls(wxCommandEvent& event);
         void OnMenuOpenConfigDirectory(wxCommandEvent& event);
-        void OnsourceChoiceSelect(wxCommandEvent& event);
+        void OnInputSelect(wxCommandEvent& event);
         void OnMenuSave(wxCommandEvent& event);
         void OnOutputNewButtonClick(wxCommandEvent& event);
         void OnInputNewButtonClick(wxCommandEvent& event);
@@ -86,9 +86,10 @@ class launcherFrame: public wxFrame
         void readSerialPorts();
         void readConfigs();
         
-        int readChoices(const char* file, wxChoice* choices);
+        int readChoices(const char* file, wxChoice* choices, const char* default_file);
         int saveChoices(const char* file, wxChoice* choices);
         int saveLinkKeys(wxString dongleBdaddr, wxString ds4Bdaddr, wxString ds4LinkKey, wxString ps4Bdaddr, wxString ps4LinkKey);
+        int saveParam(const char* file, wxString option);
         
         void readIp(wxChoice* choices);
         
@@ -140,38 +141,38 @@ class launcherFrame: public wxFrame
         //*)
 
         //(*Declarations(launcherFrame)
-        wxStaticText* OutputText;
-        wxButton* OutputNewButton;
-        wxChoice* sourceChoice;
-        wxMenuItem* MenuRefresh;
-        wxMenuItem* MenuEditFpsConfig;
-        wxStaticText* StaticText2;
-        wxCheckBox* CheckBoxGui;
-        wxButton* Button1;
-        wxChoice* ChoiceInput;
-        wxCheckBox* CheckBoxGrab;
-        wxMenuItem* MenuItem4;
-        wxCheckBox* CheckBoxTerminal;
-        wxPanel* Panel1;
-        wxStaticText* StaticText1;
-        wxSingleInstanceChecker SingleInstanceChecker1;
-        wxFlexGridSizer* IOSizer;
-        wxMenuItem* MenuItem3;
-        wxChoice* ControllerType;
-        wxChoice* ChoiceOutput;
         wxStaticBoxSizer* MouseSizer;
-        wxStatusBar* StatusBar1;
-        wxButton* ButtonCheck;
-        wxMenuItem* MenuGetConfigs;
-        wxButton* ButtonStart;
+        wxCheckBox* CheckBoxTerminal;
+        wxChoice* Output;
         wxFlexGridSizer* FlexGridSizer1;
-        wxFlexGridSizer* SourceIpSizer;
-        wxMenuItem* MenuStartupUpdates;
-        wxStaticText* StaticText4;
-        wxMenuItem* MenuEditConfig;
-        wxMenuItem* MenuUpdate;
+        wxPanel* Panel1;
+        wxChoice* OutputChoice;
+        wxCheckBox* CheckBoxGui;
+        wxStatusBar* StatusBar1;
         wxMenuItem* MenuAutoBindControls;
+        wxButton* ButtonCheck;
+        wxMenuItem* MenuEditFpsConfig;
+        wxButton* OutputNewButton;
+        wxButton* Button1;
+        wxMenuItem* MenuGetConfigs;
+        wxMenuItem* MenuUpdate;
         wxFlexGridSizer* OutputSizer;
+        wxStaticText* StaticText1;
+        wxFlexGridSizer* IOSizer;
+        wxMenuItem* MenuRefresh;
+        wxMenuItem* MenuStartupUpdates;
+        wxMenuItem* MenuItem3;
+        wxChoice* Input;
+        wxChoice* InputChoice;
+        wxStaticText* StaticText4;
+        wxCheckBox* CheckBoxGrab;
+        wxFlexGridSizer* SourceIpSizer;
+        wxStaticText* StaticText2;
+        wxMenuItem* MenuItem4;
+        wxButton* ButtonStart;
+        wxMenuItem* MenuEditConfig;
+        wxSingleInstanceChecker SingleInstanceChecker1;
+        wxStaticText* OutputText;
         //*)
 
         wxLocale* locale;
