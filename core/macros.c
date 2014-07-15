@@ -22,6 +22,8 @@
 #define LINE_MAX 1024
 #endif
 
+static unsigned char debug = 0;
+
 /* This is the minimum amount of time between KEYDOWN and KEYUP. */
 #define DEFAULT_DELAY 50
 
@@ -39,14 +41,22 @@ typedef struct
 static s_running_macro* running_macro = { NULL };
 static unsigned int running_macro_nb;
 
+#define ACTIVE_OFF 0
+#define ACTIVE_ON  1
+
+#define TOGGLE_NO  0
+#define TOGGLE_YES 1
+
 typedef struct {
   GE_Event event;
-    /*
-     * Below elements are only significant for the first entry.
-     */
-    unsigned char active; //1 = active, 0 = inactive
-    int size; //The size of the table.
-    int macro; //The index of the macro in running_macro.
+  /*
+   * Below elements are only significant for the first entry.
+   * TODO: use a table of GE_Event instead
+   */
+  unsigned char active;
+  unsigned char toggle;
+  int size; //The size of the table.
+  int macro; //The index of the macro in running_macro.
 } s_macro_event;
 
 /*
@@ -54,7 +64,6 @@ typedef struct {
  */
 static s_macro_event** macro_table = NULL;
 static int macro_table_nb = 0;
-unsigned char triggered = 0;
 
 /*
  * Cleans macro_table.
@@ -210,6 +219,7 @@ static s_macro_event** get_macro(const char* line)
 
     (*pt) = calloc(2, sizeof(s_macro_event));
     (*pt)[0].size = 2;
+    (*pt)[0].active = ACTIVE_ON;
     
     (*pt)[1].event.type = etype;
     switch(etype)
@@ -520,6 +530,63 @@ void get_trigger(const char* line)
         (*pcurrent)[0].event.jbutton.button = rbutton;
       break;
     }
+
+    //macros with a trigger are default off
+    (*pcurrent)[0].active = ACTIVE_OFF;
+  }
+}
+
+void get_toggle(const char* line)
+{
+  char argument[2][LINE_MAX];
+
+  if(pcurrent && !*pcurrent)
+  {
+    return;
+  }
+
+  int ret = sscanf(line, "%s %s", argument[0], argument[1]);
+
+  if(ret < 2) {
+    /* invalid line */
+    return;
+  }
+
+  if (!strncmp(argument[0], "TOGGLE", strlen("TOGGLE")))
+  {
+    if(!strncmp(argument[1], "YES", strlen("YES")))
+    {
+      (*pcurrent)[0].toggle = TOGGLE_YES;
+    }
+  }
+}
+
+void get_init(const char* line)
+{
+  char argument[2][LINE_MAX];
+
+  if(pcurrent && !*pcurrent)
+  {
+    return;
+  }
+
+  int ret = sscanf(line, "%s %s", argument[0], argument[1]);
+
+  if(ret < 2) {
+    /* invalid line */
+    return;
+  }
+
+  if (!strncmp(argument[0], "INIT", strlen("INIT")))
+  {
+    if(!strncmp(argument[1], "ON", strlen("ON")))
+    {
+      (*pcurrent)[0].active = ACTIVE_ON;
+    }
+    else if(!strncmp(argument[1], "OFF", strlen("OFF")))
+    {
+      (*pcurrent)[0].active = ACTIVE_OFF;
+    }
   }
 }
 
@@ -537,6 +604,8 @@ void process_line(const char* line)
     else if(pcurrent)
     {
       get_trigger(line);
+      get_toggle(line);
+      get_init(line);
       get_event(line);
     }
 
@@ -601,6 +670,22 @@ void dump_scripts() {
                   {
                     printf("TRIGGER ");
                     dump_event(&(*p_table)->event);
+                  }
+                  if((*p_table)->toggle == TOGGLE_YES)
+                  {
+                    printf("TOGGLE YES\n");
+                  }
+                  else
+                  {
+                    printf("TOGGLE NO\n");
+                  }
+                  if((*p_table)->active == ACTIVE_ON)
+                  {
+                    printf("INIT ON\n");
+                  }
+                  else
+                  {
+                    printf("INIT OFF\n");
                   }
                 }
                 else
@@ -780,51 +865,20 @@ void macros_init() {
 
 }
 
-static void active_triggered_init()
-{
-  int i;
-  GE_Event e = {.type = GE_NOEVENT};
-  for(i=0; i<macro_table_nb; ++i)
-  {
-    if(macro_table[i][0].event.type == GE_NOEVENT)
-    {
-      /*
-       * No trigger => macro is always active.
-       */
-      macro_table[i][0].active = 1;
-    }
-    else if(compare_events(&e, &macro_table[i][0].event))
-    {
-      if(e.type == GE_NOEVENT)
-      {
-        /*
-         * First triggered macro => active at startup.
-         */
-        macro_table[i][0].active = 1;
-        e = macro_table[i][0].event;
-      }
-    }
-    else
-    {
-      /*
-       * Trigger is the same as first triggered macro => active at startup.
-       */
-      macro_table[i][0].active = 1;
-    }
-  }
-}
 
 void macros_read()
 {
   read_macros();
-  active_triggered_init();
-  //dump_scripts();
+  if(debug)
+  {
+    dump_scripts();
+  }
 }
 
 static void macro_unalloc(int index)
 {
   s_running_macro* running_macro_realloc;
-  memcpy(running_macro+index, running_macro+index+1, (running_macro_nb-index-1)*sizeof(s_running_macro));
+  memmove(running_macro+index, running_macro+index+1, (running_macro_nb-index-1)*sizeof(s_running_macro));
   running_macro_realloc = realloc(running_macro, (running_macro_nb-1)*sizeof(s_running_macro));
   if(running_macro_realloc || !(running_macro_nb-1))
   {
@@ -882,37 +936,70 @@ void macro_lookup(GE_Event* event)
       /*
        * Check if macro has to be activated.
        */
-      if(!compare_events(event, &macro_table[i][0].event) 
-         && !macro_table[i][0].active)
+      if(!compare_events(event, &macro_table[i][0].event))
       {
-        macro_table[i][0].active = 1;
-        /*
-         * Disable macros that have a different activation trigger.
-         */
-        for(j=0; j<macro_table_nb; ++j)
+        if(macro_table[i][0].toggle == TOGGLE_NO)
         {
-          if(macro_table[j][0].event.type == GE_NOEVENT)
+          if(macro_table[i][0].active == ACTIVE_OFF)
           {
-            continue;
+            macro_table[i][0].active = ACTIVE_ON;
+            /*
+             * Disable macros that have a different activation trigger.
+             */
+            for(j=0; j<macro_table_nb; ++j)
+            {
+              if(macro_table[j][0].event.type == GE_NOEVENT)
+              {
+                continue;
+              }
+              if(compare_events(event, &macro_table[j][0].event)
+                 && macro_table[j][0].active == ACTIVE_ON)
+              {
+                macro_table[j][0].active = ACTIVE_OFF;
+              }
+            }
           }
-          if(compare_events(event, &macro_table[j][0].event)
-             && macro_table[j][0].active)
+        }
+        else
+        {
+          if(macro_table[i][0].active == ACTIVE_OFF)
           {
-            macro_table[j][0].active = 0;
+            gprintf("enable macro: ");
+            dump_event(&macro_table[i][1].event);
+            macro_table[i][0].active = ACTIVE_ON;
+          }
+          else
+          {
+            gprintf("disable macro: ");
+            dump_event(&macro_table[i][1].event);
+            macro_table[i][0].active = ACTIVE_OFF;
           }
         }
       }
     }
     if(!compare_events(event, &macro_table[i][1].event))
     {
-      if(macro_table[i][0].active)
+      if(macro_table[i][0].active == ACTIVE_ON)
       {
         /*
          * Start or stop a macro.
          */
         if(!macro_delete(event))
         {
+          if(debug)
+          {
+            gprintf("start macro: ");
+            dump_event(&macro_table[i][1].event);
+          }
           macro_add(event, i);
+        }
+        else
+        {
+          if(debug)
+          {
+            gprintf("stop macro: ");
+            dump_event(&macro_table[i][1].event);
+          }
         }
       }
     }

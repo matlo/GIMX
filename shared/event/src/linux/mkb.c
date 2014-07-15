@@ -279,7 +279,7 @@ int mkb_init()
    * This is only done if the process is launched in a terminal.
    */
   /*
-   * TODO MLA: confirm this is not usefull anymore...
+   * TODO MLA: find something better...
    */
   /*if(isatty(fileno(stdin)))
   {
