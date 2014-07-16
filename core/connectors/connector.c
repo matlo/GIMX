@@ -271,7 +271,7 @@ int connector_send()
           {
             if(adapter->type != C_TYPE_PS2_PAD)
             {
-              ret = serial_send(adapter->serial, &report, 2+report->value_len);
+              ret = serial_send(adapter->serial, report, 2+report->value_len);
             }
             else
             {
