@@ -118,7 +118,7 @@ int updater::CheckVersion()
         old_major = atoi(old_elems[0].c_str());
         old_minor = atoi(old_elems[1].c_str());
 
-        ret = (major >= old_major && minor > old_minor);
+        ret = (major > old_major || (major == old_major && minor > old_minor));
       }
     }
   }
