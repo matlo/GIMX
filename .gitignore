@@ -1,8 +1,7 @@
 *.o
 *.a
 *.exe
-serial/gimx-serial
-bluetooth/gimx-bluetooth
+launcher/gimx-launcher
 config/gimx-config
 fpsconfig/gimx-fpsconfig
 core/gimx
