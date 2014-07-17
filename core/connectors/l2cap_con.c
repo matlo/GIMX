@@ -335,7 +335,15 @@ int l2cap_listen(unsigned short psm, int options)
 
   if(bind(s, (struct sockaddr *) &loc_addr, sizeof(loc_addr)) < 0)
   {
-    perror("bind");
+    if(errno == EADDRINUSE)
+    {
+      fprintf(stderr, "bind: Address already in use\n");
+      fprintf(stderr, "please stop the bluetooth service\n");
+    }
+    else
+    {
+      perror("bind");
+    }
     close(s);
     return -1;
   }
