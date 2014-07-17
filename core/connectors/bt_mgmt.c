@@ -51,17 +51,21 @@ int mgmt_create(void)
 
   sk = socket(PF_BLUETOOTH, SOCK_RAW | SOCK_CLOEXEC | SOCK_NONBLOCK, BTPROTO_HCI);
   if (sk < 0)
-    return -errno;
+  {
+    perror("socket");
+    return -1;
+  }
 
   memset(&addr, 0, sizeof(addr));
   addr.hci_family = AF_BLUETOOTH;
   addr.hci_dev = HCI_DEV_NONE;
   addr.hci_channel = HCI_CHANNEL_CONTROL;
 
-  if (bind(sk, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-    int err = -errno;
+  if (bind(sk, (struct sockaddr *) &addr, sizeof(addr)) < 0)
+  {
+    perror("bind");
     close(sk);
-    return err;
+    return -1;
   }
 
   return sk;
@@ -81,7 +85,10 @@ static int mgmt_set_mode(int sk, uint16_t index, uint16_t opcode, uint8_t val)
   cp->val = val;
 
   if (write(sk, buf, sizeof(buf)) < 0)
-    return -errno;
+  {
+    perror("write");
+    return -1;
+  }
 
   return 0;
 }
@@ -102,7 +109,10 @@ static int mgmt_set_local_name(int sk, uint16_t index)
   memcpy(cp->name, name, sizeof(name));
 
   if (write(sk, buf, sizeof(buf)) < 0)
-    return -errno;
+  {
+    perror("write");
+    return -1;
+  }
 
   return 0;
 }
@@ -242,7 +252,7 @@ static int mgmt_load_link_keys(int sk, uint16_t index, uint16_t nb_keys, bdaddr_
   struct mgmt_cp_load_link_keys *cp;
   struct mgmt_link_key_info *key;
   size_t cp_size;
-  int err;
+  int err = 0;
 
   cp_size = sizeof(*cp) + (nb_keys * sizeof(*key));
 
@@ -270,9 +280,10 @@ static int mgmt_load_link_keys(int sk, uint16_t index, uint16_t nb_keys, bdaddr_
   }
 
   if (write(sk, buf, sizeof(*hdr) + cp_size) < 0)
-    err = -errno;
-  else
-    err = 0;
+  {
+    perror("write");
+    err = -1;
+  }
 
   free(buf);
 
@@ -349,6 +360,7 @@ int bt_mgmt_adapter_init(uint16_t index)
 
   if(mgmt_set_mode(sk, index, MGMT_OP_SET_POWERED, TRUE) < 0)
   {
+    fprintf(stderr, "set_powered failed\n");
     close(sk);
     return -1;
   }
@@ -363,6 +375,7 @@ int bt_mgmt_adapter_init(uint16_t index)
 
   if(mgmt_set_local_name(sk, index) < 0)
   {
+    fprintf(stderr, "set_local_name failed\n");
     close(sk);
     return -1;
   }
@@ -377,6 +390,7 @@ int bt_mgmt_adapter_init(uint16_t index)
 
   if(mgmt_set_mode(sk, index, MGMT_OP_SET_CONNECTABLE, TRUE) < 0)
   {
+    fprintf(stderr, "set_connectable failed\n");
     close(sk);
     return -1;
   }
@@ -394,12 +408,14 @@ int bt_mgmt_adapter_init(uint16_t index)
 
   if(read_link_keys(index, 2, bdaddrs, keys) < 0)
   {
+    fprintf(stderr, "read_link_keys failed\n");
     close(sk);
     return -1;
   }
 
   if(mgmt_load_link_keys(sk, index, 2, bdaddrs, keys) < 0)
   {
+    fprintf(stderr, "load_link_keys failed\n");
     close(sk);
     return -1;
   }
