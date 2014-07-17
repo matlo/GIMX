@@ -33,7 +33,7 @@ typedef enum
   x360a_RS = abs_axis_16,
 } e_x360_axis_index;
 
-typedef struct
+typedef struct __attribute__ ((packed))
 {
   unsigned char type;
   unsigned char size;

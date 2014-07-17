@@ -25,7 +25,7 @@ typedef union
   s_report_xone xone;
 } s_report_union;
 
-typedef struct
+typedef struct __attribute__ ((packed))
 {
   unsigned char packet_type;
   unsigned char value_len;

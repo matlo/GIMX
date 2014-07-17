@@ -33,7 +33,7 @@ typedef enum
   xonea_RS = abs_axis_16,
 } e_xone_axis_index;
 
-typedef struct
+typedef struct __attribute__ ((packed))
 {
   /*
    * TODO XONE

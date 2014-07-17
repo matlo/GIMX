@@ -33,7 +33,7 @@ typedef enum
   jsa_B12 = abs_axis_2,
 } e_joystick_axis_index;
 
-typedef struct
+typedef struct __attribute__ ((packed))
 {
   short X;
   short Y;

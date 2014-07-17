@@ -32,7 +32,7 @@ typedef enum
   xboxa_RS = abs_axis_16,
 } e_xbox_axis_index;
 
-typedef struct
+typedef struct __attribute__ ((packed))
 {
   unsigned char type; //0x00
   unsigned char size;     //0x14
