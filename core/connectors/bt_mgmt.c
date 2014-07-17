@@ -23,6 +23,12 @@
 #include <emuclient.h>
 #include "../../directories.h"
 
+#if $HCI_CHANNEL_CONTROL == 1
+#warning "Redefining HCI_CHANNEL_CONTROL to 3."
+#undef HCI_CHANNEL_CONTROL
+#define HCI_CHANNEL_CONTROL 3
+#endif
+
 #define TRUE 1
 #define FALSE 0
 
