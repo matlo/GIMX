@@ -6,7 +6,7 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/l2cap.h>
 #include <unistd.h>
-#include <emuclient.h>
+#include <gimx.h>
 
 #include <errno.h>
 #include <stdlib.h>

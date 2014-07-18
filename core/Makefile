@@ -31,7 +31,7 @@ clean:
 	rm -f $(OUT) *~ *.o */*.o */*/*.o
 
 GIMX_OBJ = \
-       emuclient.o\
+       gimx.o\
        mainloop.o\
        args.o\
        display.o\

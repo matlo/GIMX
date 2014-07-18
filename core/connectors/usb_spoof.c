@@ -4,7 +4,7 @@
  */
  
 #include <stdio.h>
-#include "emuclient.h"
+#include "gimx.h"
 #include <connectors/serial.h>
 #include <connectors/usb_spoof.h>
 

@@ -13,7 +13,7 @@
 #include <winsock2.h>
 #define MSG_DONTWAIT 0
 #endif
-#include "emuclient.h"
+#include "gimx.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>

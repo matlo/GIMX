@@ -4,7 +4,7 @@
  */
 
 #include <GE.h>
-#include "emuclient.h"
+#include "gimx.h"
 #include "calibration.h"
 #include "connectors/connector.h"
 #include "macros.h"
@@ -27,13 +27,13 @@ void mainloop()
 
   if(!adapter_get(0)->bdaddr_dst || adapter_get(0)->type == C_TYPE_DS4)
   {
-    GE_TimerStart(emuclient_params.refresh_period);
+    GE_TimerStart(gimx_params.refresh_period);
   }
 
   /*
    * Non-generated events are ignored if the --keygen argument is used.
    */
-  if(emuclient_params.keygen)
+  if(gimx_params.keygen)
   {
     GE_SetCallback(ignore_event);
   }
@@ -86,7 +86,7 @@ void mainloop()
      * The --keygen argument is used
      * and there are no more event or macro to process => exit.
      */
-    if(emuclient_params.keygen && !running_macros && !num_evt)
+    if(gimx_params.keygen && !running_macros && !num_evt)
     {
       done = 1;
     }

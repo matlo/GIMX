@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "args.h"
-#include "emuclient.h"
+#include "gimx.h"
 #include <getopt.h>
 #include <adapter.h>
 #ifndef WIN32
@@ -55,7 +55,7 @@ static int read_ip(char* optarg, unsigned int* ip, unsigned short* port)
   return ret;
 }
 
-int args_read(int argc, char *argv[], s_emuclient_params* params)
+int args_read(int argc, char *argv[], s_gimx_params* params)
 {
   int ret = 0;
   int c;

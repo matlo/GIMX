@@ -5,7 +5,7 @@
 
 #include <string.h>
 #include <stdio.h>
-#include "emuclient.h"
+#include "gimx.h"
 #include "connectors/connector.h"
 #include "connectors/udp_con.h"
 #include "connectors/gpp_con.h"
@@ -216,7 +216,7 @@ int connector_send()
   {
     adapter = adapter_get(i);
 
-    if (emuclient_params.force_updates || adapter->send_command)
+    if (gimx_params.force_updates || adapter->send_command)
     {
       if(adapter->dst_fd >= 0)
       {
@@ -284,7 +284,7 @@ int connector_send()
 
       if (adapter->send_command)
       {
-        if(emuclient_params.status)
+        if(gimx_params.status)
         {
           adapter_dump_state(adapter);
 #ifdef WIN32
@@ -292,7 +292,7 @@ int connector_send()
           fflush(stdout);
 #endif
         }
-        if(emuclient_params.curses)
+        if(gimx_params.curses)
         {
           display_run(adapter_get(0)->type, adapter_get(0)->axis);
         }

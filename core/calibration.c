@@ -12,7 +12,7 @@
 #include <math.h>
 #include "config.h"
 #include "config_writter.h"
-#include "emuclient.h"
+#include "gimx.h"
 #include <adapter.h>
 #include "display.h"
 #include "mainloop.h"
@@ -117,12 +117,12 @@ static void translation_test()
 
   if (dots <= 0)
   {
-    delay = DURATION / emuclient_params.refresh_period;
+    delay = DURATION / gimx_params.refresh_period;
     step *= 2;
     direction *= -1;
     if (direction > 0)
     {
-      if ((dz - mul + mul * pow(step * 2 * emuclient_params.frequency_scale, exp)) * controller_get_axis_scale(adapter_get(cal_get_controller(current_mouse))->type, rel_axis_2) > controller_get_mean_unsigned(adapter_get(0)->type, rel_axis_2))
+      if ((dz - mul + mul * pow(step * 2 * gimx_params.frequency_scale, exp)) * controller_get_axis_scale(adapter_get(cal_get_controller(current_mouse))->type, rel_axis_2) > controller_get_mean_unsigned(adapter_get(0)->type, rel_axis_2))
       {
         step = 1;
         distance = 0.1;
@@ -330,9 +330,9 @@ void cal_key(int device_id, int sym, int down)
           else
           {
             current_cal = NONE;
-            if (cfgw_modify_file(emuclient_params.config_file))
+            if (cfgw_modify_file(gimx_params.config_file))
             {
-              gprintf(_("error writting the config file %s\n"), emuclient_params.config_file);
+              gprintf(_("error writting the config file %s\n"), gimx_params.config_file);
             }
             gprintf(_("calibration done\n"));
           }
@@ -452,7 +452,7 @@ void cal_key(int device_id, int sym, int down)
 
   if(prev != current_cal)
   {
-    if(emuclient_params.curses)
+    if(gimx_params.curses)
     {
       display_calibration();
     }
@@ -467,15 +467,15 @@ void cal_key(int device_id, int sym, int down)
    */
   if (lshift && rshift)
   {
-    if (emuclient_params.status)
+    if (gimx_params.status)
     {
-      emuclient_params.status = 0;
+      gimx_params.status = 0;
     }
     else
     {
-      if(!emuclient_params.curses)
+      if(!gimx_params.curses)
       {
-        emuclient_params.status = 1;
+        gimx_params.status = 1;
       }
     }
   }
@@ -598,7 +598,7 @@ void cal_button(int which, int button)
       }
       if(current_cal != NONE)
       {
-        if(emuclient_params.curses)
+        if(gimx_params.curses)
         {
           display_calibration();
         }
@@ -715,7 +715,7 @@ void cal_button(int which, int button)
       }
       if(current_cal != NONE)
       {
-        if(emuclient_params.curses)
+        if(gimx_params.curses)
         {
           display_calibration();
         }

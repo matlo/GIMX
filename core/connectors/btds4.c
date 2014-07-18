@@ -6,7 +6,7 @@
 #include "connectors/btds4.h"
 #include "connectors/bt_mgmt.h"
 #include <adapter.h>
-#include "emuclient.h"
+#include "gimx.h"
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>

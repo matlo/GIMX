@@ -21,7 +21,7 @@
 #include <unistd.h> //usleep
 #endif
 
-#include "emuclient.h"
+#include "gimx.h"
 #include "macros.h"
 #include "config_reader.h"
 #include "calibration.h"
@@ -33,7 +33,7 @@
 
 #define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
 
-s_emuclient_params emuclient_params =
+s_gimx_params gimx_params =
 {
   .homedir = NULL,
   .force_updates = 0,
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
 #ifndef WIN32
   setlinebuf(stdout);
 
-  emuclient_params.homedir = getpwuid(getuid())->pw_dir;
+  gimx_params.homedir = getpwuid(getuid())->pw_dir;
 #else
   static char path[MAX_PATH];
   if(SHGetFolderPath( NULL, CSIDL_APPDATA , NULL, 0, path ))
@@ -157,14 +157,14 @@ int main(int argc, char *argv[])
     fprintf(stderr, "Can't get the user directory.\n");
     goto QUIT;
   }
-  emuclient_params.homedir = path;
+  gimx_params.homedir = path;
 #endif
 
   set_prio();
 
   adapter_init();
 
-  if(args_read(argc, argv, &emuclient_params) < 0)
+  if(args_read(argc, argv, &gimx_params) < 0)
   {
     fprintf(stderr, _("Wrong argument.\n"));
     goto QUIT;
@@ -176,30 +176,30 @@ int main(int argc, char *argv[])
     goto QUIT;
   }
 
-  if(emuclient_params.refresh_period == -1)
+  if(gimx_params.refresh_period == -1)
   {
     /*
      * TODO MLA: per controller refresh period?
      */
-    emuclient_params.refresh_period = controller_get_default_refresh_period(adapter_get(0)->type);
-    emuclient_params.postpone_count = 3 * DEFAULT_REFRESH_PERIOD / emuclient_params.refresh_period;
-    printf(_("using default refresh period: %.02fms\n"), (double)emuclient_params.refresh_period/1000);
+    gimx_params.refresh_period = controller_get_default_refresh_period(adapter_get(0)->type);
+    gimx_params.postpone_count = 3 * DEFAULT_REFRESH_PERIOD / gimx_params.refresh_period;
+    printf(_("using default refresh period: %.02fms\n"), (double)gimx_params.refresh_period/1000);
   }
-  else if(emuclient_params.refresh_period < controller_get_min_refresh_period(adapter_get(0)->type))
+  else if(gimx_params.refresh_period < controller_get_min_refresh_period(adapter_get(0)->type))
   {
     fprintf(stderr, "Refresh period should be at least %.02fms\n", (double)controller_get_min_refresh_period(adapter_get(0)->type)/1000);
     goto QUIT;
   }
 
-  if(emuclient_params.curses)
+  if(gimx_params.curses)
   {
     display_init();
   }
 
-  emuclient_params.frequency_scale = (double) DEFAULT_REFRESH_PERIOD / emuclient_params.refresh_period;
+  gimx_params.frequency_scale = (double) DEFAULT_REFRESH_PERIOD / gimx_params.refresh_period;
 
   /*
-   * The --event argument makes emuclient send a packet and exit.
+   * The --event argument makes gimx send a packet and exit.
    */
   int event = 0;
   unsigned char controller;
@@ -223,16 +223,16 @@ int main(int argc, char *argv[])
     goto QUIT;
   }
 
-  if(emuclient_params.grab)
+  if(gimx_params.grab)
   {
     GE_grab();
   }
 
   macros_init();
 
-  if(emuclient_params.config_file)
+  if(gimx_params.config_file)
   {
-    if(read_config_file(emuclient_params.config_file) < 0)
+    if(read_config_file(gimx_params.config_file) < 0)
     {
       fprintf(stderr, _("read_config_file failed\n"));
       goto QUIT;
@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
     {
       free_config();
       GE_FreeMKames();
-      read_config_file(emuclient_params.config_file);
+      read_config_file(gimx_params.config_file);
     }
   }
 
@@ -250,16 +250,16 @@ int main(int argc, char *argv[])
 
   macros_read();
 
-  if(emuclient_params.keygen)
+  if(gimx_params.keygen)
   {
-    kgevent.key.keysym = GE_KeyId(emuclient_params.keygen);
+    kgevent.key.keysym = GE_KeyId(gimx_params.keygen);
     if(kgevent.key.keysym)
     {
       macro_lookup(&kgevent);
     }
     else
     {
-      fprintf(stderr, _("Unknown key name for argument --keygen: '%s'\n"), emuclient_params.keygen);
+      fprintf(stderr, _("Unknown key name for argument --keygen: '%s'\n"), gimx_params.keygen);
       goto QUIT;
     }
   }
@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
 
   xmlCleanupParser();
 
-  if(emuclient_params.curses)
+  if(gimx_params.curses)
   {
     display_end();
   }

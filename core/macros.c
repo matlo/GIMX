@@ -11,7 +11,7 @@
 #include <string.h>
 #include <dirent.h>
 #include <math.h>
-#include "emuclient.h"
+#include "gimx.h"
 #include "config.h"
 #include <adapter.h>
 #include <GE.h>
@@ -297,7 +297,7 @@ static void get_event(const char* line)
     (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_KEYDOWN;
     (*pcurrent)[(*pcurrent)->size - 1].event.key.keysym = rbutton;
 
-    delay_nb = ceil((double)DEFAULT_DELAY / (emuclient_params.refresh_period/1000));
+    delay_nb = ceil((double)DEFAULT_DELAY / (gimx_params.refresh_period/1000));
     for(i=0; i<delay_nb; ++i)
     {
       allocate_element(pcurrent);
@@ -335,7 +335,7 @@ static void get_event(const char* line)
     (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_MOUSEBUTTONDOWN;
     (*pcurrent)[(*pcurrent)->size - 1].event.button.button = rbutton;
 
-    delay_nb = ceil((double)DEFAULT_DELAY / (emuclient_params.refresh_period/1000));
+    delay_nb = ceil((double)DEFAULT_DELAY / (gimx_params.refresh_period/1000));
     for(i=0; i<delay_nb; ++i)
     {
       allocate_element(pcurrent);
@@ -372,7 +372,7 @@ static void get_event(const char* line)
     (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_JOYBUTTONDOWN;
     (*pcurrent)[(*pcurrent)->size - 1].event.jbutton.button = rbutton;
 
-    delay_nb = ceil((double)DEFAULT_DELAY / (emuclient_params.refresh_period/1000));
+    delay_nb = ceil((double)DEFAULT_DELAY / (gimx_params.refresh_period/1000));
     for(i=0; i<delay_nb; ++i)
     {
       allocate_element(pcurrent);
@@ -385,7 +385,7 @@ static void get_event(const char* line)
   }
   else if (!strncmp(argument[0], "DELAY", strlen("DELAY")))
   {
-    delay_nb = ceil((double)atoi(argument[1]) / (emuclient_params.refresh_period/1000));
+    delay_nb = ceil((double)atoi(argument[1]) / (gimx_params.refresh_period/1000));
     for(i=0; i<delay_nb; ++i)
     {
       allocate_element(pcurrent);
@@ -695,7 +695,7 @@ void dump_scripts() {
                   }
                   else if(delay_nb)
                   {
-                      printf("DELAY %d\n", delay_nb*(emuclient_params.refresh_period/1000));
+                      printf("DELAY %d\n", delay_nb*(gimx_params.refresh_period/1000));
                       delay_nb = 0;
                   }
                   dump_event(&p_element->event);
@@ -734,7 +734,7 @@ static void read_configs_txt(const char* dir_path)
           return;
         }
 
-        if(!strcmp(config, emuclient_params.config_file))
+        if(!strcmp(config, gimx_params.config_file))
         {
           macros_realloc = realloc(macros, (nb_macros+1)*sizeof(char*));
           if(macros_realloc)
@@ -768,7 +768,7 @@ static void read_macros() {
     struct stat buf;
 #endif
 
-    snprintf(dir_path, sizeof(dir_path), "%s/%s/%s", emuclient_params.homedir, GIMX_DIR, MACRO_DIR);
+    snprintf(dir_path, sizeof(dir_path), "%s/%s/%s", gimx_params.homedir, GIMX_DIR, MACRO_DIR);
 
     dirp = opendir(dir_path);
     if (dirp == NULL)

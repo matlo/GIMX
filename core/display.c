@@ -17,7 +17,7 @@
 
 #include "calibration.h"
 #include <GE.h>
-#include "emuclient.h"
+#include "gimx.h"
 #include <adapter.h>
 
 #define CROSS_CHAR '*'

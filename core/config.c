@@ -13,7 +13,7 @@
 #include <sys/time.h>
 #include <GE.h>
 #include "calibration.h"
-#include "emuclient.h"
+#include "gimx.h"
 #include <adapter.h>
 
 /*
@@ -161,7 +161,7 @@ void cfg_process_motion()
     }
     if (mc->changed || mc->change)
     {
-      if (emuclient_params.subpos)
+      if (gimx_params.subpos)
       {
         /*
          * Add the residual motion vector from the last iteration.
@@ -474,7 +474,7 @@ void cfg_trigger_lookup(GE_Event* e)
       next_config[i] = selected;
       if(!up)
       {
-        config_delay[i] = triggers[i][selected].delay / (emuclient_params.refresh_period / 1000);
+        config_delay[i] = triggers[i][selected].delay / (gimx_params.refresh_period / 1000);
       }
       else
       {
@@ -501,7 +501,7 @@ void cfg_config_activation()
       {
         if(next_config[i] != current_config[i])
         {
-          if(emuclient_params.status)
+          if(gimx_params.status)
           {
             gettimeofday(&tv, NULL);
 
@@ -541,7 +541,7 @@ static int postpone_event(unsigned int device, GE_Event* event)
    || event->button.button == GE_BTN_WHEELRIGHT
    || event->button.button == GE_BTN_WHEELLEFT)
   {
-    if (mc->postpone[event->button.button] < emuclient_params.postpone_count)
+    if (mc->postpone[event->button.button] < gimx_params.postpone_count)
     {
       GE_PushEvent(event);
       mc->postpone[event->button.button]++;
@@ -590,7 +590,7 @@ static double mouse2axis(int device, s_adapter* controller, int which, double x,
 
   if(which == AXIS_X)
   {
-    val = x * emuclient_params.frequency_scale;
+    val = x * gimx_params.frequency_scale;
     if(x && y && shape == E_SHAPE_CIRCLE)
     {
       dz = dz*cos(atan(fabs(y/x)));
@@ -610,7 +610,7 @@ static double mouse2axis(int device, s_adapter* controller, int which, double x,
   }
   else if(which == AXIS_Y)
   {
-    val = y * emuclient_params.frequency_scale;
+    val = y * gimx_params.frequency_scale;
     if(x && y && shape == E_SHAPE_CIRCLE)
     {
       dz = dz*sin(atan(fabs(y/x)));

@@ -14,7 +14,7 @@
 #include <limits.h>
 
 #include "../directories.h"
-#include "emuclient.h"
+#include "gimx.h"
 #include <adapter.h>
 
 /*
@@ -387,7 +387,7 @@ int cfgw_modify_file(char* file)
   int ret = 0;
   char file_path[PATH_MAX];
 
-  snprintf(file_path, sizeof(file_path), "%s%s%s%s", emuclient_params.homedir, GIMX_DIR, CONFIG_DIR, file);
+  snprintf(file_path, sizeof(file_path), "%s%s%s%s", gimx_params.homedir, GIMX_DIR, CONFIG_DIR, file);
 
   /*
    * this initialize the library and check potential ABI mismatches

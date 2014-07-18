@@ -15,7 +15,7 @@
 #include <connectors/bt_utils.h>
 #include <connectors/l2cap_con.h>
 #include <config.h>
-#include "emuclient.h"
+#include "gimx.h"
 #include <adapter.h>
 
 #define DS3_DEVICE_CLASS 0x508

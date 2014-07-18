@@ -5,7 +5,7 @@
 
 #include <connectors/udp_con.h>
 #include <adapter.h>
-#include <emuclient.h>
+#include <gimx.h>
 #include <string.h>
 #include <sys/time.h>
 #include <errno.h>

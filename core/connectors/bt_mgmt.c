@@ -20,7 +20,7 @@
 
 #include <connectors/bt_utils.h>
 #include <connectors/bt_utils.h>
-#include <emuclient.h>
+#include <gimx.h>
 #include "../../directories.h"
 
 #if HCI_CHANNEL_CONTROL == 1
@@ -325,7 +325,7 @@ static int read_link_keys(uint16_t index, uint16_t nb_keys, bdaddr_t bdaddrs[nb_
     return -1;
   }
 
-  snprintf(file_path, sizeof(file_path), "%s%s%s%s/%s", emuclient_params.homedir, GIMX_DIR, BT_DIR, dongle_bdaddr, "linkkeys");
+  snprintf(file_path, sizeof(file_path), "%s%s%s%s/%s", gimx_params.homedir, GIMX_DIR, BT_DIR, dongle_bdaddr, "linkkeys");
 
   char line[LINE_MAX];
 

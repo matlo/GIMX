@@ -8,8 +8,8 @@
 #ifndef ARGS_H_
 #define ARGS_H_
 
-#include "emuclient.h"
+#include "gimx.h"
 
-int args_read(int argc, char *argv[], s_emuclient_params* params);
+int args_read(int argc, char *argv[], s_gimx_params* params);
 
 #endif /* ARGS_H_ */

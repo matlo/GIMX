@@ -3,8 +3,8 @@
  License: GPLv3
  */
 
-#ifndef EMUCLIENT_H_
-#define EMUCLIENT_H_
+#ifndef GIMX_H_
+#define GIMX_H_
 
 #include <GE.h>
 
@@ -32,17 +32,17 @@ typedef struct
   char* config_file;
   int postpone_count;
   int subpos;
-} s_emuclient_params;
+} s_gimx_params;
 
-extern s_emuclient_params emuclient_params;
+extern s_gimx_params gimx_params;
 
 extern int proc_time;
 extern int proc_time_worst;
 extern int proc_time_total;
 
-#define gprintf(...) if(emuclient_params.status) printf(__VA_ARGS__)
+#define gprintf(...) if(gimx_params.status) printf(__VA_ARGS__)
 
 int process_event(GE_Event*);
 int ignore_event(GE_Event*);
 
-#endif /* EMUCLIENT_H_ */
+#endif /* GIMX_H_ */
