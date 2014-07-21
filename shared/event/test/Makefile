@@ -5,7 +5,7 @@ OBJ=common.o GE_test.o
 LIB=../GE.a
 BINS=GE_test
 ifeq ($(OS),Windows_NT)
-LIB += $(shell sdl2-config --libs) -liconv
+LIB += $(shell sdl2-config --libs) -liconv -lws2_32 -lwinmm
 LIB:=$(filter-out -mwindows,$(LIB))
 endif
 
