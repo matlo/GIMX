@@ -8,11 +8,15 @@
 #ifdef WIN32
 
 #define VERSION_FILE "version"
+
 #ifdef __x86_64__
 #define DOWNLOAD_URL "http://gimx.fr/download/gimx-windows-64bits"
-#else
+#endif
+
+#ifdef __i686__
 #define DOWNLOAD_URL "http://gimx.fr/download/gimx-windows-32bits"
 #endif
+
 #define DOWNLOAD_FILE "gimx-update.exe"
 
 #else
@@ -22,13 +26,15 @@
 
 #include <limits.h>
 
-#ifndef __ARM_ARCH_6__
-#if ( __WORDSIZE == 64 )
+#ifdef __x86_64__
 #define DOWNLOAD_URL "http://gimx.fr/download/gimx-ubuntu-64bits.html"
-#else
+#endif
+
+#ifdef __i686__
 #define DOWNLOAD_URL "http://gimx.fr/download/gimx-ubuntu-32bits.html"
 #endif
-#else
+
+#ifdef __ARM_ARCH_6__
 #define DOWNLOAD_URL "http://gimx.fr/download/gimx-raspbian.html"
 #endif
 
