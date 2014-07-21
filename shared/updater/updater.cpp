@@ -21,7 +21,7 @@
 updater* updater::_singleton = NULL;
 
 #ifdef WIN32
-#define CURL_INIT_FLAGS CURL_GLOBAL_WIN32
+#define CURL_INIT_FLAGS (CURL_GLOBAL_WIN32 | CURL_GLOBAL_SSL)
 #else
 #define CURL_INIT_FLAGS CURL_GLOBAL_NOTHING
 #endif
@@ -166,13 +166,21 @@ int updater::Update()
 
     curl_easy_setopt(curl_handle, CURLOPT_URL, download_url.c_str());
     curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);
     curl_easy_setopt(curl_handle, CURLOPT_FILE, outfile);
     curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
-    int res = curl_easy_perform(curl_handle);
+
+    //curl_easy_setopt(curl_handle, CURLOPT_VERBOSE, 1L);
+
+    CURLcode res = curl_easy_perform(curl_handle);
     if(res == CURLE_OK)
     {
       ret = 0;
+    }
+    else
+    {
+      fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
     }
 
     curl_easy_cleanup(curl_handle);
