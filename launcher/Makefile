@@ -8,7 +8,9 @@ endif
 INC = -I../shared/configeditor/include -I../shared/controller/include
 CFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
 LIBDIR =
-LIB = ../shared/configeditor/configeditor.a \
+LIB = ../shared/updater/updater.a \
+      ../shared/configupdater/configupdater.a \
+      ../shared/configeditor/configeditor.a \
       ../shared/event/GE.a \
       `wx-config --libs` \
       -Wl,--whole-archive ../shared/controller/controller.a -Wl,--no-whole-archive  \
@@ -18,7 +20,7 @@ ifeq ($(OS),Windows_NT)
 LIB += -lSDL2 -lintl -liconv
 endif
 
-DEP = ../shared/configeditor/configeditor.a ../shared/event/GE.a ../shared/updater/updater.o ../shared/configupdater/configupdater.o
+DEP = ../shared/configeditor/configeditor.a ../shared/event/GE.a ../shared/updater/updater.a ../shared/configupdater/configupdater.a
 OBJ = launcherApp.o launcherMain.o
 ifneq ($(OS),Windows_NT)
 OUT = gimx-launcher
@@ -31,7 +33,7 @@ endif
 all: $(OUT)
 
 $(OUT): $(OBJ) $(DEP)
-	$(LD) $(LDFLAGS) $(LIBDIR) -o $(OUT) $(OBJ)  ../shared/updater/updater.o ../shared/configupdater/configupdater.o $(LIB)
+	$(LD) $(LDFLAGS) $(LIBDIR) -o $(OUT) $(OBJ) $(LIB)
 
 ifeq ($(OS),Windows_NT)
 launcher.rc.o: launcher.rc

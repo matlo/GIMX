@@ -5,9 +5,12 @@ LIB=
 INC=
 
 all: $(OBJ)
+	ar rcsD updater.a.new $(OBJ)
+	diff -N updater.a.new updater.a > /dev/null || mv updater.a.new updater.a
+	rm -f updater.a.new
 
 %.o: %.cpp
-	$(CC) $(CFLAGS) $(INC) -o $@ -c $< 
+	$(CC) $(CFLAGS) $(INC) -o $@ -c $< $(LIB)
 
 clean:
-	rm -f $(OBJ)
+	rm -f $(OBJ) updater.a
