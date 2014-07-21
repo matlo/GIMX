@@ -7,4 +7,16 @@
 #define INFO_WEB "http://gimx.fr"
 #define INFO_LICENCE "GNU GPL v3"
 
+#ifdef __x86_64__
+  #define INFO_ARCH "x86_64"
+#endif
+
+#ifdef __i686__
+  #define INFO_ARCH "i686"
+#endif
+
+#ifdef __ARM_ARCH_6__
+  #define INFO_ARCH "ARMv6"
+#endif
+
 #endif /* INFO_H_ */

@@ -984,7 +984,7 @@ void launcherFrame::OnAbout(wxCommandEvent& event)
 {
   wxAboutDialogInfo info;
   info.SetName(wxTheApp->GetAppName());
-  info.SetVersion(wxT(INFO_VERSION));
+  info.SetVersion(wxT(INFO_VERSION) + wxString(wxT(" ")) + wxString(wxT(INFO_ARCH)));
   wxString text = wxString(wxT(INFO_DESCR)) + wxString(wxT("\n")) + wxString(wxT(INFO_YEAR)) + wxString(wxT(" ")) + wxString(wxT(INFO_DEV)) + wxString(wxT(" ")) + wxString(wxT(INFO_LICENCE));
   info.SetDescription(text);
   info.SetWebSite(wxT(INFO_WEB));
