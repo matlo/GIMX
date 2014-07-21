@@ -640,6 +640,18 @@ int launcherFrame::saveLinkKeys(wxString dongleBdaddr, wxString ds4Bdaddr, wxStr
 
   filename = string(gimxDir.mb_str(wxConvUTF8));
   filename.append(BLUETOOTH_LK_DIR);
+
+  wxString btDir = wxString(filename.c_str(), wxConvUTF8);
+
+  if(!wxDir::Exists(btDir))
+  {
+    if(!wxMkdir(btDir))
+    {
+      wxMessageBox( _("Can't init directory: ") + btDir, _("Error"), wxICON_ERROR);
+      return -1;
+    }
+  }
+
   filename.append("/");
   filename.append(dongleBdaddr.mb_str(wxConvUTF8));
 
