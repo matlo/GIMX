@@ -166,7 +166,9 @@ int updater::Update()
 
     curl_easy_setopt(curl_handle, CURLOPT_URL, download_url.c_str());
     curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
+#ifdef WIN32
     curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
+#endif
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);
     curl_easy_setopt(curl_handle, CURLOPT_FILE, outfile);
     curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
