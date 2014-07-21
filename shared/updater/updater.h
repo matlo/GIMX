@@ -8,7 +8,11 @@
 #ifdef WIN32
 
 #define VERSION_FILE "version"
-#define DOWNLOAD_URL "http://gimx.fr/download/gimx-windows.html"
+#ifdef __x86_64__
+#define DOWNLOAD_URL "http://gimx.fr/download/gimx-windows-64bits"
+#else
+#define DOWNLOAD_URL "http://gimx.fr/download/gimx-windows-32bits"
+#endif
 #define DOWNLOAD_FILE "gimx-update.exe"
 
 #else
