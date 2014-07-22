@@ -20,17 +20,36 @@ HANDLE timer_start(int usec)
   timeBeginPeriod(1);
   
   hTimer = CreateWaitableTimer(NULL, FALSE, NULL);
-  LARGE_INTEGER li = { .QuadPart = 0 };
-  SetWaitableTimer(hTimer, &li, usec / 1000, NULL, NULL, FALSE);
+  if(hTimer)
+  {
+    LARGE_INTEGER li = { .QuadPart = -(usec*10) };
+    if(!SetWaitableTimer(hTimer, &li, usec / 1000, NULL, NULL, FALSE))
+    {
+      fprintf(stderr, "SetWaitableTimer failed.\n");
+      hTimer = NULL;
+    }
+  }
+  else
+  {
+    fprintf(stderr, "CreateWaitableTimer failed.\n");
+  }
   
+  if(!hTimer)
+  {
+    timeEndPeriod(0);
+  }
+
   return hTimer;
 }
 
 int timer_close(int unused)
 {
-  CloseHandle(hTimer);
-  
-  timeEndPeriod(0);
+  if(hTimer)
+  {
+    CloseHandle(hTimer);
+
+    timeEndPeriod(0);
+  }
 
   return 1;
 }

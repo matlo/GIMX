@@ -50,6 +50,8 @@ int main(int argc, char* argv[])
     //do something periodically
   }
 
+  GE_TimerClose();
+
   GE_quit();
 
   printf("Exiting\n");

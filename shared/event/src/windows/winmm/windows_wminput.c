@@ -542,9 +542,11 @@ void wminput_handler_buff()
 }
 
 /*
- * For some reason GetRawInputBuffer does not work when winmm and SDL-1.2.14 are used together...
+ * For some reason GetRawInputBuffer does not work in Windows 8:
+ * it seems there remain WM_INPUT messages in the queue, which
+ * make the MsgWaitForMultipleInput always return immediately.
  */
-int buff = 1;
+int buff = 0;
 
 static LRESULT CALLBACK RawWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
