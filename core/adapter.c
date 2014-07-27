@@ -83,18 +83,20 @@ void adapter_set_axis(unsigned char c, int axis, int value)
   }
 }
 
-void adapter_dump_state(s_adapter* c)
+void adapter_dump_state(int id)
 {
   int i;
   struct timeval tv;
   gettimeofday(&tv, NULL);
-  int* axis = c->axis;
 
-  printf("%ld %ld.%06ld", (c-adapter)/sizeof(s_adapter), tv.tv_sec, tv.tv_usec);
+  s_adapter* adapter = adapter_get(id);
+  int* axis = adapter->axis;
+
+  printf("%d %ld.%06ld", id, tv.tv_sec, tv.tv_usec);
 
   for (i = 0; i < AXIS_MAX; i++) {
       if (axis[i])
-          printf(", %s (%d)", control_get_name(c->type, i), axis[i]);
+          printf(", %s (%d)", control_get_name(adapter->type, i), axis[i]);
   }
 
   printf("\n");
@@ -142,6 +144,7 @@ int adapter_network_read(int id)
     adapter[id].send_command = 1;
     break;
   }
+  // require a report to be sent immediately, except for a Sixaxis controller working over bluetooth
   if((adapter[id].type == C_TYPE_SIXAXIS || adapter[id].type == C_TYPE_DEFAULT) && adapter[id].bdaddr_dst)
   {
     return 0;

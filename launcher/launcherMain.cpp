@@ -1124,6 +1124,8 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
 
     if(Input->GetStringSelection() == _("Network"))
     {
+      command.Append(wxT(" --src "));
+      command.Append(InputChoice->GetStringSelection());
       command.Append(wxT(" --nograb"));
     }
     else
@@ -1176,12 +1178,6 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
       command.Append(wxT("/dev/"));
 #endif
       command.Append(outputSelection);
-    }
-    
-    if(Input->GetStringSelection() == _("Network"))
-    {
-      command.Append(wxT(" --src "));
-      command.Append(InputChoice->GetStringSelection());
     }
 
     if(CheckBoxTerminal->IsChecked())

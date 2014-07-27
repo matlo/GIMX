@@ -40,7 +40,7 @@ void adapter_init();
 inline s_adapter* adapter_get(unsigned char index);
 int adapter_set_port(unsigned char index, char* portname);
 
-void adapter_dump_state(s_adapter* c);
+void adapter_dump_state(int id);
 
 int adapter_network_read(int id);
 int adapter_network_close(int id);

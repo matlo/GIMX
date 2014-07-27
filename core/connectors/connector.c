@@ -286,7 +286,7 @@ int connector_send()
       {
         if(gimx_params.status)
         {
-          adapter_dump_state(adapter);
+          adapter_dump_state(i);
 #ifdef WIN32
           //There is no setlinebuf(stdout) in windows.
           fflush(stdout);

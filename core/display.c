@@ -390,7 +390,7 @@ void display_run(e_controller_type type, int axis[])
     sprintf(rate, _("Processing time: current=%dus average=%dus worst=%dus"), proc_time/cpt, proc_time_total/cpt_total, proc_time_worst);
     mvaddstr(LINES-2, 1, rate);
     clrtoeol();
-    sprintf(rate, _("Refresh rate: %dHz  "), cpt*1000000/RATE_PERIOD);
+    sprintf(rate, _("Refresh rate: %3dHz  "), cpt*1000000/RATE_PERIOD);
     mvaddstr(LINES-1, 1, rate);
     t0 = t1;
     cpt = 0;
