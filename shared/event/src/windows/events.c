@@ -16,15 +16,19 @@
 #define SCREEN_HEIGHT 1
 #define TITLE "Sixaxis Control"
 
-static SDL_Joystick* joysticks[GE_MAX_DEVICES] = {};
-static SDL_GameController* controllers[GE_MAX_DEVICES] = {};
 static int instanceIdToIndex[GE_MAX_DEVICES] = {};
+
 static int j_num;
 static int j_max;
 
-static int joystickNbButton[GE_MAX_DEVICES] = {};
-static int joystickNbHat[GE_MAX_DEVICES] = {};
-static unsigned char* joystickHat[GE_MAX_DEVICES] = {};
+static struct
+{
+  SDL_Joystick* joystick;
+  SDL_GameController* controller;
+  int joystickNbButton;
+  int joystickNbHat;
+  unsigned char* joystickHat;
+} joysticks[GE_MAX_DEVICES] = {};
 
 int ev_init()
 {
@@ -42,9 +46,9 @@ int ev_init()
   {
     if (SDL_IsGameController(i))
     {
-      if ((controllers[i] = SDL_GameControllerOpen(i)))
+      if ((joysticks[i].controller = SDL_GameControllerOpen(i)))
       {
-        int instanceId = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controllers[i]));
+        int instanceId = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(joysticks[i].controller));
         if(instanceId >= 0)
         {
           instanceIdToIndex[instanceId] = i;
@@ -52,8 +56,8 @@ int ev_init()
         }
         else
         {
-          SDL_GameControllerClose(controllers[i]);
-          controllers[i] = NULL;
+          SDL_GameControllerClose(joysticks[i].controller);
+          joysticks[i].controller = NULL;
         }
       }
       else
@@ -64,19 +68,19 @@ int ev_init()
     }
     else
     {
-      if((joysticks[i] = SDL_JoystickOpen(i)))
+      if((joysticks[i].joystick = SDL_JoystickOpen(i)))
       {
-        int instanceId = SDL_JoystickInstanceID(joysticks[i]);
+        int instanceId = SDL_JoystickInstanceID(joysticks[i].joystick);
         if(instanceId >= 0)
         {
           instanceIdToIndex[instanceId] = i;
           j_max++;
-          joystickNbButton[i] = SDL_JoystickNumButtons(joysticks[i]);
-          joystickNbHat[i] = SDL_JoystickNumHats(joysticks[i]);
-          if(joystickNbHat[i] > 0)
+          joysticks[i].joystickNbButton = SDL_JoystickNumButtons(joysticks[i].joystick);
+          joysticks[i].joystickNbHat = SDL_JoystickNumHats(joysticks[i].joystick);
+          if(joysticks[i].joystickNbHat > 0)
           {
-            joystickHat[i] = calloc(joystickNbHat[i], sizeof(unsigned char));
-            if(!joystickHat[i])
+            joysticks[i].joystickHat = calloc(joysticks[i].joystickNbHat, sizeof(unsigned char));
+            if(!joysticks[i].joystickHat)
             {
               fprintf(stderr, "Unable to allocate memory for joystick hats.\n");
               return 0;
@@ -85,8 +89,8 @@ int ev_init()
         }
         else
         {
-          SDL_JoystickClose(joysticks[i]);
-          joysticks[i] = NULL;
+          SDL_JoystickClose(joysticks[i].joystick);
+          joysticks[i].joystick = NULL;
         }
       }
     }
@@ -116,11 +120,11 @@ void ev_quit(void)
 
 const char* ev_joystick_name(int id)
 {
-  if(controllers[id])
+  if(joysticks[id].controller)
   {
-    return SDL_GameControllerName(controllers[id]);
+    return SDL_GameControllerName(joysticks[id].controller);
   }
-  return SDL_JoystickName(joysticks[id]);
+  return SDL_JoystickName(joysticks[id].joystick);
 }
 
 /*
@@ -128,12 +132,12 @@ const char* ev_joystick_name(int id)
  */
 void ev_joystick_close(int id)
 {
-  if(joysticks[id])
+  if(joysticks[id].joystick)
   {
-    SDL_JoystickClose(joysticks[id]);
-    joysticks[id] = NULL;
-    free(joystickHat[id]);
-    joystickHat[id] = NULL;
+    SDL_JoystickClose(joysticks[id].joystick);
+    joysticks[id].joystick = NULL;
+    free(joysticks[id].joystickHat);
+    joysticks[id].joystickHat = NULL;
     j_num--;
 
     //Don't quit the joystick subsystem or the event queue will be disabled.
@@ -545,7 +549,7 @@ static inline int convert_s2g(SDL_Event* se, GE_Event* ge)
     break;
   case SDL_JOYBUTTONDOWN:
     index = instanceIdToIndex[se->jbutton.which];
-    if(!joysticks[index])
+    if(!joysticks[index].joystick)
     {
       return 0;
     }
@@ -555,7 +559,7 @@ static inline int convert_s2g(SDL_Event* se, GE_Event* ge)
     break;
   case SDL_JOYBUTTONUP:
     index = instanceIdToIndex[se->jbutton.which];
-    if(!joysticks[index])
+    if(!joysticks[index].joystick)
     {
       return 0;
     }
@@ -581,7 +585,7 @@ static inline int convert_s2g(SDL_Event* se, GE_Event* ge)
     break;
   case SDL_JOYAXISMOTION:
     index = instanceIdToIndex[se->jaxis.which];
-    if(!joysticks[index])
+    if(!joysticks[index].joystick)
     {
       return 0;
     }
@@ -598,7 +602,7 @@ static inline int convert_s2g(SDL_Event* se, GE_Event* ge)
     break;
   case SDL_JOYHATMOTION:
     index = instanceIdToIndex[se->jhat.which];
-    if(!joysticks[index])
+    if(!joysticks[index].joystick)
     {
       return 0;
     }
@@ -607,29 +611,31 @@ static inline int convert_s2g(SDL_Event* se, GE_Event* ge)
     ge->jhat.hat = se->jhat.hat;
     ge->jhat.value = se->jhat.value;
     break;
+  default:
+    return 0;
   }
   return 1;
 }
 
 static int joystick_hat_button(GE_Event* event, unsigned char hat_dir)
 {
-  return joystickNbButton[event->jhat.which] + 4*event->jhat.hat + log2(hat_dir);
+  return joysticks[event->jhat.which].joystickNbButton + 4*event->jhat.hat + log2(hat_dir);
 }
 
 static unsigned char get_joystick_hat(GE_Event* event)
 {
-  if(event->jhat.which >= 0 && event->jhat.hat < joystickNbHat[event->jhat.which])
+  if(event->jhat.which >= 0 && event->jhat.hat < joysticks[event->jhat.which].joystickNbHat)
   {
-    return joystickHat[event->jhat.which][event->jhat.hat];
+    return joysticks[event->jhat.which].joystickHat[event->jhat.hat];
   }
   return 0;
 }
 
 static void set_joystick_hat(GE_Event* event)
 {
-  if(event->jhat.which >= 0 && event->jhat.hat < joystickNbHat[event->jhat.which])
+  if(event->jhat.which >= 0 && event->jhat.hat < joysticks[event->jhat.which].joystickNbHat)
   {
-    joystickHat[event->jhat.which][event->jhat.hat] = event->jhat.value;
+    joysticks[event->jhat.which].joystickHat[event->jhat.hat] = event->jhat.value;
   }
 }
 
@@ -715,9 +721,9 @@ static int preprocess_events(GE_Event *events, int numevents)
   return numevents;
 }
 
-static SDL_Event events[EVENT_BUFFER_SIZE];
+static SDL_Event sdl_events[EVENT_BUFFER_SIZE];
 
-int ev_peep_events(GE_Event* ev, int size)
+int ev_peep_events(GE_Event* events, int size)
 {
   int i, j;
 
@@ -726,16 +732,16 @@ int ev_peep_events(GE_Event* ev, int size)
     size = EVENT_BUFFER_SIZE;
   }
 
-  int nb = SDL_PeepEvents(events, size, SDL_GETEVENT, SDL_KEYDOWN, SDL_CONTROLLERDEVICEREMAPPED);
+  int nb = SDL_PeepEvents(sdl_events, size, SDL_GETEVENT, SDL_KEYDOWN, SDL_CONTROLLERDEVICEREMAPPED);
 
   j = 0;
   for(i=0; i<nb; ++i)
   {
-    if(convert_s2g(events+i, ev+j))
+    if(convert_s2g(sdl_events+i, events+j))
     {
       j++;
     }
   }
-  
-  return preprocess_events(ev, j);
+
+  return preprocess_events(events, j);
 }

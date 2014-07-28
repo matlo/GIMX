@@ -375,5 +375,7 @@ void event_catcher::run(string device_type, string event_type)
         GE_PumpEvents();
     }
 
+    GE_TimerClose();
+
     clean();
 }
