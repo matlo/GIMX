@@ -4,6 +4,7 @@
  */
 
 #include <events.h>
+#include <stdio.h>
 
 static int debug = 0;
 
