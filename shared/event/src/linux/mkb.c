@@ -5,6 +5,7 @@
 
 #include <GE.h>
 #include <events.h>
+#include <queue.h>
 #include "mkb.h"
 #include <errno.h>
 #include <unistd.h>
