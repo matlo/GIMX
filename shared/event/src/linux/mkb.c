@@ -237,6 +237,7 @@ static int mkb_process_events(int device)
 
   if(tfd < 0)
   {
+    //read a single event
     size = sizeof(*ie);
   }
 

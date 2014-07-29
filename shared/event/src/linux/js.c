@@ -128,6 +128,7 @@ static int js_process_events(int index)
 
   if(tfd < 0)
   {
+    //read a single event
     size = sizeof(*je);
   }
 
