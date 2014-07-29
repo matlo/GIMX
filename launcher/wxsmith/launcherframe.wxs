@@ -111,7 +111,9 @@
 									<option>1</option>
 								</object>
 								<object class="sizeritem">
-									<object class="wxChoice" name="ID_CHOICE5" variable="InputChoice" member="yes" />
+									<object class="wxChoice" name="ID_CHOICE5" variable="InputChoice" member="yes">
+										<style>wxCB_SORT</style>
+									</object>
 									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 									<border>5</border>
 									<option>1</option>

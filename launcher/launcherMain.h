@@ -146,12 +146,12 @@ class launcherFrame: public wxFrame
         wxChoice* Output;
         wxFlexGridSizer* FlexGridSizer1;
         wxPanel* Panel1;
-        wxChoice* OutputChoice;
         wxCheckBox* CheckBoxGui;
         wxStatusBar* StatusBar1;
         wxMenuItem* MenuAutoBindControls;
         wxButton* ButtonCheck;
         wxMenuItem* MenuEditFpsConfig;
+        wxChoice* InputChoice;
         wxButton* OutputNewButton;
         wxButton* Button1;
         wxMenuItem* MenuGetConfigs;
@@ -159,11 +159,11 @@ class launcherFrame: public wxFrame
         wxFlexGridSizer* OutputSizer;
         wxStaticText* StaticText1;
         wxFlexGridSizer* IOSizer;
+        wxChoice* OutputChoice;
         wxMenuItem* MenuRefresh;
         wxMenuItem* MenuStartupUpdates;
         wxMenuItem* MenuItem3;
         wxChoice* Input;
-        wxChoice* InputChoice;
         wxStaticText* StaticText4;
         wxCheckBox* CheckBoxGrab;
         wxFlexGridSizer* SourceIpSizer;
