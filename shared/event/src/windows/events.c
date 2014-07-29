@@ -11,6 +11,7 @@
 #include <winsock2.h>
 #include <windows.h>
 #include <timer.h>
+#include <queue.h>
 
 #define SCREEN_WIDTH  1
 #define SCREEN_HEIGHT 1
@@ -102,6 +103,8 @@ int ev_init()
   {
     return 0;
   }
+
+  queue_init();
 
   return 1;
 }
@@ -273,6 +276,8 @@ static unsigned int fill_handles(HANDLE handles[])
   return max_source;
 }
 
+static int joystick_peep_events(GE_Event* events, int size);
+
 void ev_pump_events()
 {
   int num_evt;
@@ -365,7 +370,7 @@ void ev_pump_events()
             ge.button.button = (mm_event->value > 0) ? GE_BTN_WHEELUP : GE_BTN_WHEELDOWN;
             event_callback(&ge);
             ge.button.type = GE_MOUSEBUTTONUP;
-            event_callback(&ge);
+            queue_push_event(&ge);
           }
           else
           {
@@ -375,7 +380,7 @@ void ev_pump_events()
             ge.button.button = (mm_event->value < 0) ? GE_BTN_WHEELLEFT : GE_BTN_WHEELRIGHT;
             event_callback(&ge);
             ge.button.type = GE_MOUSEBUTTONUP;
-            event_callback(&ge);
+            queue_push_event(&ge);
           }
         }
         else if (mm_event->type == MANYMOUSE_EVENT_KEY)
@@ -447,7 +452,7 @@ void ev_pump_events()
 
   SDL_PumpEvents();
 
-  num_evt = GE_PeepEvents(events, sizeof(events) / sizeof(events[0]));
+  num_evt = joystick_peep_events(events, sizeof(events) / sizeof(events[0]));
 
   if (num_evt > 0)
   {
@@ -456,70 +461,6 @@ void ev_pump_events()
       event_callback(event);
     }
   }
-}
-
-static inline void convert_g2s(SDL_Event* se, GE_Event* ge)
-{
-  switch (ge->type)
-  {
-  case GE_KEYDOWN:
-    se->type = SDL_KEYDOWN;
-    se->key.padding2 = ge->key.which;
-    se->key.keysym.sym = ge->key.keysym;
-    break;
-  case GE_KEYUP:
-    se->type = SDL_KEYUP;
-    se->key.padding2 = ge->key.which;
-    se->key.keysym.sym = ge->key.keysym;
-    break;
-  case GE_MOUSEBUTTONDOWN:
-    se->type = SDL_MOUSEBUTTONDOWN;
-    se->button.which = ge->button.which;
-    se->button.button = ge->button.button;
-    break;
-  case GE_MOUSEBUTTONUP:
-    se->type = SDL_MOUSEBUTTONUP;
-    se->button.which = ge->button.which;
-    se->button.button = ge->button.button;
-    break;
-  case GE_JOYBUTTONDOWN:
-    se->type = SDL_JOYBUTTONDOWN;
-    se->jbutton.which = ge->jbutton.which;
-    se->jbutton.button = ge->jbutton.button;
-    break;
-  case GE_JOYBUTTONUP:
-    se->type = SDL_JOYBUTTONUP;
-    se->jbutton.which = ge->jbutton.which;
-    se->jbutton.button = ge->jbutton.button;
-    break;
-  case GE_MOUSEMOTION:
-    se->type = SDL_MOUSEMOTION;
-    se->motion.which = ge->motion.which;
-    se->motion.xrel = ge->motion.xrel;
-    se->motion.yrel = ge->motion.yrel;
-    break;
-  case GE_JOYAXISMOTION:
-    se->type = SDL_JOYAXISMOTION;
-    se->jaxis.which = ge->jaxis.which;
-    se->jaxis.axis = ge->jaxis.axis;
-    se->jaxis.value = ge->jaxis.value;
-    break;
-  case GE_JOYHATMOTION:
-    se->type = SDL_JOYHATMOTION;
-    se->jhat.which = ge->jhat.which;
-    se->jhat.hat = ge->jhat.hat;
-    se->jhat.value = ge->jhat.value;
-    break;
-  }
-}
-
-int ev_push_event(GE_Event* ge)
-{
-  SDL_Event se;
-
-  convert_g2s(&se, ge);
-
-  return SDL_PushEvent(&se);
 }
 
 static inline int convert_s2g(SDL_Event* se, GE_Event* ge)
@@ -723,7 +664,7 @@ static int preprocess_events(GE_Event *events, int numevents)
 
 static SDL_Event sdl_events[EVENT_BUFFER_SIZE];
 
-int ev_peep_events(GE_Event* events, int size)
+static int joystick_peep_events(GE_Event* events, int size)
 {
   int i, j;
 

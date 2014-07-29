@@ -5,6 +5,7 @@
 
 #include <GE.h>
 #include <events.h>
+#include <queue.h>
 #include <conversion.h>
 #include <string.h>
 #include <stdlib.h>
@@ -418,7 +419,7 @@ int GE_GetDeviceId(GE_Event* e)
  */
 int GE_PushEvent(GE_Event *event)
 {
-  return ev_push_event(event);
+  return queue_push_event(event);
 }
 
 /*
@@ -517,7 +518,7 @@ void GE_PumpEvents()
  */
 int GE_PeepEvents(GE_Event *events, int numevents)
 {
-  return ev_peep_events(events, numevents);
+  return queue_peep_events(events, numevents);
 }
 
 /*

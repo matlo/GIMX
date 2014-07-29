@@ -18,21 +18,7 @@
 #include <string.h>
 #include "mkb.h"
 #include "js.h"
-
-#define eprintf(...) if(debug) printf(__VA_ARGS__)
-
-static int debug = 0;
-
-static GE_Event evqueue[MAX_EVENTS];
-static unsigned char evqueue_index_first = 0;
-static unsigned char evqueue_index_last = 0;
-
-static GE_Event next_event = {};
-
-inline void ev_set_next_event(GE_Event* event)
-{
-  memcpy(&next_event, &event, sizeof(next_event));
-}
+#include <queue.h>
 
 typedef struct
 {
@@ -84,65 +70,6 @@ void ev_remove_source(int fd)
   }
 }
 
-int ev_push_event(GE_Event* ev)
-{
-  int ret = -1;
-  eprintf("first: %d last: %d\n", evqueue_index_first, evqueue_index_last);
-  if(evqueue_index_last >= evqueue_index_first)
-  {
-    evqueue[evqueue_index_last] = *ev;
-    evqueue_index_last++;
-    evqueue_index_last%=MAX_EVENTS;
-    if(evqueue_index_last == evqueue_index_first)
-    {
-      evqueue_index_last = MAX_EVENTS-1;
-    }
-    ret = 0;
-  }
-  else if(evqueue_index_last+1 < evqueue_index_first)
-  {
-    evqueue[evqueue_index_last] = *ev;
-    evqueue_index_last++;
-    ret = 0;
-  }
-  eprintf("ret: %d first: %d last: %d\n", ret, evqueue_index_first, evqueue_index_last);
-  return ret;
-}
-
-int ev_peep_events(GE_Event *events, int numevents)
-{
-  int i;
-  int j = 0;
-  if(evqueue_index_first > evqueue_index_last)
-  {
-    for(i=evqueue_index_first; i<MAX_EVENTS; ++i)
-    {
-      eprintf("peep: %d\n", i);
-      events[j] = evqueue[i];
-      ++evqueue_index_first;
-      evqueue_index_first%=MAX_EVENTS;
-      ++j;
-      if(j == numevents)
-      {
-        return numevents;
-      }
-    }
-  }
-  for(i=evqueue_index_first; i<evqueue_index_last; ++i)
-  {
-    eprintf("peep: %d\n", i);
-    events[j] = evqueue[i];
-    ++evqueue_index_first;
-    evqueue_index_first%=MAX_EVENTS;
-    ++j;
-    if(j == numevents)
-    {
-      return numevents;
-    }
-  }
-  return j;
-}
-
 int ev_init()
 {
   int i;
@@ -167,8 +94,7 @@ int ev_init()
     return 0;
   }
 
-  evqueue_index_first = 0;
-  evqueue_index_last = 0;
+  queue_init();
 
   return 1;
 }
@@ -259,19 +185,6 @@ void ev_pump_events(void)
   if(event_callback == NULL)
   {
     fprintf(stderr, "ev_set_callback should be called first!\n");
-    return;
-  }
-
-  int tfd = timer_get();
-  
-  /*
-   * If tfd is not set, ev_pump_event only reads a single event for each call.
-   * This generates up button events for mouse wheels.
-   */
-  if(tfd < 0 && next_event.type != GE_NOEVENT)
-  {
-    event_callback(&next_event);
-    next_event.type = GE_NOEVENT;
     return;
   }
 

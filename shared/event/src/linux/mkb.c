@@ -219,7 +219,7 @@ static void mkb_process_event(int device, struct input_event* ie)
       if(ie->code == REL_WHEEL || ie->code == REL_HWHEEL)
       {
         evt.type = GE_MOUSEBUTTONUP;
-        ev_set_next_event(&evt);
+        queue_push_event(&evt);
       }
     }
   }

@@ -24,9 +24,6 @@ int ev_joystick_set_ff_rumble(int joystick, unsigned short weak_timeout, unsigne
 void ev_grab_input(int);
 void ev_set_callback(int (*)(GE_Event*));
 void ev_pump_events();
-int ev_push_event(GE_Event*);
-
-int ev_peep_events(GE_Event*, int);
 
 void ev_register_source(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int));
 void ev_remove_source(int fd);

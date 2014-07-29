@@ -1,7 +1,7 @@
 include Makedefs
 -include ../../Makedefs
 
-OBJ = src/GE.o
+OBJ = src/GE.o src/queue.o
 ifneq ($(OS),Windows_NT)
 OBJ += src/linux/events.o src/linux/mkb.o src/linux/js.o src/conversion.o src/linux/conversion.o src/linux/timer.o
 else
