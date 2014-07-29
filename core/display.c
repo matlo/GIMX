@@ -406,11 +406,10 @@ void display_run(e_controller_type type, int axis[])
       snprintf(label, sizeof(label), "%8s: %4d", control_get_name(type, i), axis[i]);
       mvwaddstr(wbuttons, 1 + d, 1, label);
       d++;
-    }
-    wnoutrefresh(wbuttons);
-    if(d == BUTTON_Y_L - 3)
-    {
-      break;
+      if(d == BUTTON_Y_L - 3)
+      {
+        break;
+      }
     }
   }
   memset(label, ' ', sizeof(label));
@@ -420,6 +419,7 @@ void display_run(e_controller_type type, int axis[])
     mvwaddstr(wbuttons, 1 + i, 1, label);
   }
   last_button_nb = d;
+  wnoutrefresh(wbuttons);
 
   mvwaddch(lstick, cross[0][1], cross[0][0], ' ');
   cross[0][0] = STICK_X_L / 2 + (double)axis[rel_axis_lstick_x] / controller_get_max_signed(adapter_get(0)->type, rel_axis_lstick_x) * (STICK_X_L / 2 - 1);
