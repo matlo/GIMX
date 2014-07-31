@@ -30,10 +30,14 @@ static int debug = 0;
 #define DEVTYPE_JOYSTICK 0x04
 #define DEVTYPE_NB       3
 
-static unsigned char device_type[GE_MAX_DEVICES];
-static int device_fd[GE_MAX_DEVICES];
-static int device_id[GE_MAX_DEVICES][DEVTYPE_NB];
-static char* device_name[GE_MAX_DEVICES];
+static struct
+{
+  unsigned char type;
+  int fd;
+  int id[DEVTYPE_NB];
+  char* name;
+} devices[GE_MAX_DEVICES];
+
 static int k_num;
 static int m_num;
 static int max_device_id;
@@ -104,18 +108,18 @@ static int mkb_read_type(int index, int fd)
 
   if(has_keys)
   {
-    device_type[index] = DEVTYPE_KEYBOARD;
-    device_id[index][0] = k_num;
+    devices[index].type = DEVTYPE_KEYBOARD;
+    devices[index].id[0] = k_num;
     k_num++;
   }
   if(has_rel_axes || has_scroll)
   {
-    device_type[index] |= DEVTYPE_MOUSE;
-    device_id[index][1] = m_num;
+    devices[index].type |= DEVTYPE_MOUSE;
+    devices[index].id[1] = m_num;
     m_num++;
   }
 
-  device_name[index] = strdup(name);
+  devices[index].name = strdup(name);
 
   return 0;
 }
@@ -155,26 +159,26 @@ static void mkb_process_event(int device, struct input_event* ie)
     default:
       return;
   }
-  if((device_type[device] & DEVTYPE_KEYBOARD))
+  if((devices[device].type & DEVTYPE_KEYBOARD))
   {
     if(ie->type == EV_KEY)
     {
       if(ie->code > 0 && ie->code < MAX_KEYNAMES)
       {
         evt.type = ie->value ? GE_KEYDOWN : GE_KEYUP;
-        evt.key.which = device_id[device][0];
+        evt.key.which = devices[device].id[0];
         evt.key.keysym = ie->code;
       }
     }
   }
-  if(device_type[device] & DEVTYPE_MOUSE)
+  if(devices[device].type & DEVTYPE_MOUSE)
   {
     if(ie->type == EV_KEY)
     {
       if(ie->code >= BTN_LEFT && ie->code <= BTN_TASK)
       {
         evt.type = ie->value ? GE_MOUSEBUTTONDOWN : GE_MOUSEBUTTONUP;
-        evt.button.which = device_id[device][1];
+        evt.button.which = devices[device].id[1];
         evt.button.button = ie->code - BTN_MOUSE;
       }
     }
@@ -183,25 +187,25 @@ static void mkb_process_event(int device, struct input_event* ie)
       if(ie->code == REL_X)
       {
         evt.type = GE_MOUSEMOTION;
-        evt.motion.which = device_id[device][1];
+        evt.motion.which = devices[device].id[1];
         evt.motion.xrel = ie->value;
       }
       else if(ie->code == REL_Y)
       {
         evt.type = GE_MOUSEMOTION;
-        evt.motion.which = device_id[device][1];
+        evt.motion.which = devices[device].id[1];
         evt.motion.yrel = ie->value;
       }
       else if(ie->code == REL_WHEEL)
       {
         evt.type = GE_MOUSEBUTTONDOWN;
-        evt.button.which = device_id[device][1];
+        evt.button.which = devices[device].id[1];
         evt.button.button = (ie->value > 0) ? GE_BTN_WHEELUP : GE_BTN_WHEELDOWN;
       }
       else if(ie->code == REL_HWHEEL)
       {
         evt.type = GE_MOUSEBUTTONDOWN;
-        evt.button.which = device_id[device][1];
+        evt.button.which = devices[device].id[1];
         evt.button.button = (ie->value > 0) ? GE_BTN_WHEELRIGHT : GE_BTN_WHEELLEFT;
       }
     }
@@ -212,7 +216,7 @@ static void mkb_process_event(int device, struct input_event* ie)
    */
   if(evt.type != GE_NOEVENT)
   {
-    eprintf("event from device: %s\n", device_name[device]);
+    eprintf("event from device: %s\n", devices[device].name);
     eprintf("type: %d code: %d value: %d\n", ie->type, ie->code, ie->value);
     event_callback(&evt);
     if(evt.type == GE_MOUSEBUTTONDOWN)
@@ -242,7 +246,7 @@ static int mkb_process_events(int device)
     size = sizeof(*ie);
   }
 
-  if((r = read(device_fd[device], ie, size)) > 0)
+  if((r = read(devices[device].fd, ie, size)) > 0)
   {
     for(j=0; j<r/sizeof(*ie); ++j)
     {
@@ -293,19 +297,18 @@ int mkb_init()
   term.c_lflag &= ~ECHO;
   tcsetattr(STDOUT_FILENO, TCSANOW, &term);
 
-  memset(device_type, 0x00, sizeof(device_type));
-  memset(device_name, 0x00, sizeof(device_name));
+  memset(devices, 0x00, sizeof(devices));
   max_device_id = -1;
   k_num = 0;
   m_num = 0;
 
   for(i=0; i<GE_MAX_DEVICES; ++i)
   {
-    device_fd[i] = -1;
+    devices[i].fd = -1;
 
     for(j=0; j<DEVTYPE_NB; ++j)
     {
-      device_id[i][j] = -1;
+      devices[i].id[j] = -1;
     }
   }
 
@@ -324,13 +327,13 @@ int mkb_init()
       {
         if(mkb_read_type(i, fd) != -1)
         {
-          device_fd[i] = fd;
+          devices[i].fd = fd;
           if(grab)
           {
-            ioctl(device_fd[i], EVIOCGRAB, (void *)1);
+            ioctl(devices[i].fd, EVIOCGRAB, (void *)1);
           }
           max_device_id = i;
-          ev_register_source(device_fd[i], i, &mkb_process_events, NULL, &mkb_close_device);
+          ev_register_source(devices[i].fd, i, &mkb_process_events, NULL, &mkb_close_device);
         }
         else
         {
@@ -370,11 +373,11 @@ static char* mkb_get_name(unsigned char devtype, int index)
   int nb = 0;
   for(i=0; i<=max_device_id; ++i)
   {
-    if(device_type[i] & devtype)
+    if(devices[i].type & devtype)
     {
       if(index == nb)
       {
-        return device_name[i];
+        return devices[i].name;
       }
       nb++;
     }
@@ -394,12 +397,12 @@ char* mkb_get_m_name(int index)
 
 int mkb_close_device(int id)
 {
-  free(device_name[id]);
-  device_name[id] = NULL;
-  if(device_fd[id] >= 0)
+  free(devices[id].name);
+  devices[id].name = NULL;
+  if(devices[id].fd >= 0)
   {
-    close(device_fd[id]);
-    device_fd[id] = -1;
+    close(devices[id].fd);
+    devices[id].fd = -1;
   }
   return 0;
 }
@@ -412,7 +415,7 @@ void mkb_quit()
     mkb_close_device(i);
     if(grab)
     {
-      ioctl(device_fd[i], EVIOCGRAB, (void *)0);
+      ioctl(devices[i].fd, EVIOCGRAB, (void *)0);
     }
   }
 
@@ -437,9 +440,9 @@ void mkb_grab(int mode)
   }
   for(i=0; i<GE_MAX_DEVICES; ++i)
   {
-    if(device_fd[i] > -1)
+    if(devices[i].fd > -1)
     {
-      ioctl(device_fd[i], EVIOCGRAB, enable);
+      ioctl(devices[i].fd, EVIOCGRAB, enable);
     }
   }
 }
