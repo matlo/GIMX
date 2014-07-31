@@ -398,18 +398,27 @@ void cfg_trigger_lookup(GE_Event* e)
   {
     case GE_JOYBUTTONUP:
       up = 1;
+      device_type = E_DEVICE_TYPE_JOYSTICK;
+      button = e->jbutton.button;
+      break;
     case GE_JOYBUTTONDOWN:
       device_type = E_DEVICE_TYPE_JOYSTICK;
       button = e->jbutton.button;
       break;
     case GE_KEYUP:
       up = 1;
+      device_type = E_DEVICE_TYPE_KEYBOARD;
+      button = e->key.keysym;
+      break;
     case GE_KEYDOWN:
       device_type = E_DEVICE_TYPE_KEYBOARD;
       button = e->key.keysym;
       break;
     case GE_MOUSEBUTTONUP:
       up = 1;
+      device_type = E_DEVICE_TYPE_MOUSE;
+      button = e->button.button;
+      break;
     case GE_MOUSEBUTTONDOWN:
       device_type = E_DEVICE_TYPE_MOUSE;
       button = e->button.button;
