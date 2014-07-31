@@ -195,12 +195,19 @@ int usb_spoof_spoof_360_controller(SERIALOBJECT serial)
             ret = -1;
             break;
           }
+          else if(ret > 0xFF)
+          {
+            fprintf(stderr, "usb_spoof_forward_to_device returned a size higher that 0xFF: %d\n", ret);
+            fprintf(stderr, "bRequestType: 0x%02x bRequest: 0x%02x wValue: 0x%04x wIndex: 0x%04x wLength: 0x%04x\n", creq.header.bRequestType, creq.header.bRequest, creq.header.wValue, creq.header.wIndex, creq.header.wLength);
+            ret = -1;
+            break;
+          }
           else
           {
             /*
              * Forward data back to the adapter.
              */
-            ret = usb_spoof_forward_to_adapter(serial, creq.data, ret & 0xFF);
+            ret = usb_spoof_forward_to_adapter(serial, creq.data, ret);
 
             if(ret < 0)
             {
