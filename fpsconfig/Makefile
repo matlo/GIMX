@@ -7,16 +7,14 @@ endif
 
 INC = -I../shared/configeditor/include -I../shared/controller/include
 CFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP `curl-config --cflags`
-LIBDIR =
-LIB = ../shared/updater/updater.a \
-      ../shared/configeditor/configeditor.a \
-      ../shared/event/GE.a \
+LDFLAGS := ../shared/configeditor/configeditor.a \
+      $(LDFLAGS) \
+      ../shared/updater/updater.a \
       `wx-config --libs` \
-      -Wl,--whole-archive ../shared/controller/controller.a -Wl,--no-whole-archive \
       `curl-config --libs` \
       -lxml2
 ifeq ($(OS),Windows_NT)
-LIB += -lSDL2 -lintl -liconv
+LDFLAGS += -lSDL2 -lintl -liconv
 endif
 
 DEP = ../shared/configeditor/configeditor.a ../shared/controller/controller.a ../shared/event/GE.a ../shared/updater/updater.a
@@ -32,7 +30,7 @@ endif
 all: $(OUT)
 
 $(OUT): $(OBJ) $(DEP)
-	$(LD) $(LDFLAGS) $(LIBDIR) -o $(OUT) $(OBJ) $(LIB)
+	$(LD) -o $(OUT) $(OBJ) $(LDFLAGS)
 
 ifeq ($(OS),Windows_NT)
 fpsconfig.rc.o: fpsconfig.rc

@@ -12,12 +12,12 @@ OUT=$(BINS)
 else
 OUT=gimx.exe
 endif
-LIB=../shared/event/GE.a -Wl,--whole-archive ../shared/controller/controller.a -Wl,--no-whole-archive
+
 ifneq ($(OS),Windows_NT)
-LIB+= -lxml2 -lm -lncursesw -lusb-1.0 -lbluetooth -lmhash
+LDFLAGS += -lxml2 -lm -lncursesw -lusb-1.0 -lbluetooth -lmhash
 else
-LIB+= $(shell sdl2-config --libs) `xml2-config --libs` -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl -lusb-1.0 -lwinmm
-LIB:=$(filter-out -mwindows,$(LIB))
+LDFLAGS += $(shell sdl2-config --libs) `xml2-config --libs` -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl -lusb-1.0 -lwinmm
+LDFLAGS:=$(filter-out -mwindows,$(LDFLAGS))
 endif
 INC=-Iinclude -I../shared/event/include -I../shared/controller/include
 ifneq ($(OS),Windows_NT)
@@ -66,7 +66,7 @@ GIMX_OBJ += \
 endif
 
 gimx: $(DEP) $(GIMX_OBJ)
-	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LIB)
+	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LDFLAGS)
 
 ifneq ($(OS),Windows_NT)
 sixaddr: utils/sixaddr.o

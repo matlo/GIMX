@@ -8,7 +8,6 @@ else
 OBJ += src/windows/events.o src/conversion.o src/windows/conversion.o\
        src/windows/winmm/keycodes.o src/windows/winmm/manymouse.o src/windows/winmm/windows_wminput.o src/windows/timer.o
 endif
-LIB=
 INC=-I/usr/include/ -Iinclude -Isrc
 
 all: $(OBJ)
@@ -17,7 +16,7 @@ all: $(OBJ)
 	rm -f GE.a.new
 
 src/%.o: src/%.c
-	$(CC) $(CFLAGS) $(INC) -o $@ -c $< $(LIB)
+	$(CC) $(CFLAGS) $(INC) -o $@ -c $<
 
 clean:
 	rm -f $(OBJ) GE.a

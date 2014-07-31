@@ -6,7 +6,13 @@ AR = ar
 CFLAGS=-Wall -O3#0 -g
 
 ifeq ($(OS),Windows_NT)
-CFLAGS += `sdl2-config --cflags`
+CFLAGS += `xml2-config --cflags` `sdl2-config --cflags`
 endif
 
-LDFLAGS = -s
+LDFLAGS = -s \
+      ../shared/event/GE.a \
+      -Wl,--whole-archive ../shared/controller/controller.a -Wl,--no-whole-archive
+
+ifneq ($(OS),Windows_NT)
+LDFLAGS += -lXi -lX11
+endif

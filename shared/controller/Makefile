@@ -10,7 +10,6 @@ OBJ=src/report.o\
     src/x360.o\
     src/xbox.o\
     src/xone.o
-LIB=
 INC=-Iinclude -Isrc
 
 all: $(OBJ)
@@ -19,7 +18,7 @@ all: $(OBJ)
 	rm -f controller.a.new
 
 src/%.o: src/%.c
-	$(CC) $(CFLAGS) $(INC) -o $@ -c $< $(LIB) 
+	$(CC) $(CFLAGS) $(INC) -o $@ -c $< 
 
 clean:
 	rm -f $(OBJ) controller.a

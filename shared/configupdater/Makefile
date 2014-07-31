@@ -1,7 +1,6 @@
 include ../../Makedefs
 
 OBJ=configupdater.o
-LIB=
 INC=
 
 all: $(OBJ)
@@ -10,7 +9,7 @@ all: $(OBJ)
 	rm -f configupdater.a.new
 
 %.o: %.cpp
-	$(CC) $(CFLAGS) $(INC) -o $@ -c $< $(LIB)
+	$(CC) $(CFLAGS) $(INC) -o $@ -c $<
 
 clean:
 	rm -f $(OBJ) configupdater.a
