@@ -15,9 +15,11 @@
 
 #define SCREEN_WIDTH  1
 #define SCREEN_HEIGHT 1
-#define TITLE "Sixaxis Control"
+#define TITLE "gimx"
 
 static unsigned char mkb_source;
+
+static SDL_Window* window = NULL;
 
 static int instanceIdToIndex[GE_MAX_DEVICES] = {};
 
@@ -112,7 +114,20 @@ int ev_init(unsigned char mkb_src)
   }
   else if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
   {
-    //todo
+    if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0)
+    {
+      fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
+      return 0;
+    }
+
+    /* Init video */
+    window = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+        SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_BORDERLESS);
+    if (window == NULL)
+    {
+      fprintf(stderr, "Unable to create video surface: %s\n", SDL_GetError());
+      return 0;
+    }
   }
 
   queue_init();
@@ -127,7 +142,6 @@ void ev_quit(void)
   {
     ev_joystick_close(i);
   }
-  SDL_Quit();
   ev_grab_input(GE_GRAB_OFF);
 
   if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
@@ -136,8 +150,10 @@ void ev_quit(void)
   }
   else if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
   {
-    //todo
+    SDL_DestroyWindow(window);
   }
+
+  SDL_Quit();
 }
 
 const char* ev_joystick_name(int id)
@@ -229,7 +245,9 @@ void ev_grab_input(int mode)
     }
     else if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
     {
-      //todo
+      SDL_SetRelativeMouseMode(SDL_TRUE);
+
+      hwnd = FindWindow(NULL, "gimx");
     }
 
     if(hwnd)
@@ -252,6 +270,11 @@ void ev_grab_input(int mode)
 
     i = 10;
     while(i > 0 && ShowCursor(TRUE) < 0) { i--; }
+
+    if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
+    {
+      SDL_SetRelativeMouseMode(SDL_FALSE);
+    }
   }
 }
 
@@ -529,6 +552,8 @@ void ev_pump_events()
   }
 }
 
+extern unsigned char get_keycode_from_scancode(unsigned short scancode);
+
 static inline int convert_s2g(SDL_Event* se, GE_Event* ge)
 {
   int index;
@@ -536,23 +561,43 @@ static inline int convert_s2g(SDL_Event* se, GE_Event* ge)
   {
   case SDL_KEYDOWN:
     ge->type = GE_KEYDOWN;
-    ge->key.which = se->key.padding2;
-    ge->key.keysym = se->key.keysym.sym;
+    ge->key.which = 0;
+    ge->key.keysym = get_keycode_from_scancode(se->key.keysym.scancode);
     break;
   case SDL_KEYUP:
     ge->type = GE_KEYUP;
-    ge->key.which = se->key.padding2;
-    ge->key.keysym = se->key.keysym.sym;
+    ge->key.which = 0;
+    ge->key.keysym = get_keycode_from_scancode(se->key.keysym.scancode);
     break;
   case SDL_MOUSEBUTTONDOWN:
     ge->type = GE_MOUSEBUTTONDOWN;
-    ge->button.which = se->button.which;
+    ge->button.which = 0;
     ge->button.button = se->button.button;
     break;
   case SDL_MOUSEBUTTONUP:
     ge->type = GE_MOUSEBUTTONUP;
-    ge->button.which = se->button.which;
+    ge->button.which = 0;
     ge->button.button = se->button.button;
+    break;
+  case SDL_MOUSEWHEEL:
+    ge->type = GE_MOUSEBUTTONDOWN;
+    ge->button.which = 0;
+    if(se->wheel.x > 0)
+    {
+      ge->button.button = GE_BTN_WHEELRIGHT;
+    }
+    else if(se->wheel.x < 0)
+    {
+      ge->button.button = GE_BTN_WHEELLEFT;
+    }
+    else if(se->wheel.y > 0)
+    {
+      ge->button.button = GE_BTN_WHEELUP;
+    }
+    else if(se->wheel.y < 0)
+    {
+      ge->button.button = GE_BTN_WHEELDOWN;
+    }
     break;
   case SDL_JOYBUTTONDOWN:
     index = instanceIdToIndex[se->jbutton.which];
@@ -586,7 +631,7 @@ static inline int convert_s2g(SDL_Event* se, GE_Event* ge)
     break;
   case SDL_MOUSEMOTION:
     ge->type = GE_MOUSEMOTION;
-    ge->motion.which = se->motion.which;
+    ge->motion.which = 0;
     ge->motion.xrel = se->motion.xrel;
     ge->motion.yrel = se->motion.yrel;
     break;
