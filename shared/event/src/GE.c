@@ -55,7 +55,8 @@ static const char* _8BIT_to_UTF8(const char* _8bit)
 /*
  * \bried Initializes the GE library.
  *
- * \param The choice for the mouse and keyboard input.
+ * \param mkb_src GE_MKB_SOURCE_PHYSICAL: use evdev under Linux and raw inputs under Windows.
+ *                GE_MKB_SOURCE_WINDOW_SYSTEM: use X inputs under Linux and the SDL library under Windows.
  *
  * \return 1 if successful
  *         0 in case of error
