@@ -75,14 +75,6 @@ void ev_remove_source(int fd)
 
 int ev_init(unsigned char mkb_src)
 {
-  memset(sources, 0x00, sizeof(sources));
-
-  int i;
-  for(i=0; i<FD_SETSIZE; ++i)
-  {
-    sources[i].fd = -1;
-  }
-  
   int ret;
 
   mkb_source = mkb_src;
