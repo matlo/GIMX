@@ -18,6 +18,7 @@
 #include <string.h>
 #include "mkb.h"
 #include "js.h"
+#include "xinput.h"
 #include <queue.h>
 
 typedef struct
@@ -26,12 +27,14 @@ typedef struct
   int fd;
   int (*fp_read)(int);
   int (*fp_write)(int);
-  int (*fd_cleanup)(int);
+  int (*fp_cleanup)(int);
   short int event;
 } s_source;
 
 static s_source sources[FD_SETSIZE] = {};
 static int max_source = 0;
+
+static unsigned char mkb_source;
 
 void ev_register_source(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int))
 {
@@ -54,7 +57,7 @@ void ev_register_source(int fd, int id, int (*fp_read)(int), int (*fp_write)(int
       sources[fd].event |= POLLOUT;
       sources[fd].fp_write = fp_write;
     }
-    sources[fd].fd_cleanup = fp_cleanup;
+    sources[fd].fp_cleanup = fp_cleanup;
     if(fd > max_source)
     {
       max_source = fd;
@@ -70,20 +73,39 @@ void ev_remove_source(int fd)
   }
 }
 
-int ev_init()
+int ev_init(unsigned char mkb_src)
 {
+  memset(sources, 0x00, sizeof(sources));
+
   int i;
   for(i=0; i<FD_SETSIZE; ++i)
   {
     sources[i].fd = -1;
   }
   
-  int ret = mkb_init();
+  int ret;
 
-  if(ret < 0)
+  mkb_source = mkb_src;
+
+  if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
   {
-    fprintf(stderr, "evdev_init failed.\n");
-    return 0;
+    ret = mkb_init();
+
+    if(ret < 0)
+    {
+      fprintf(stderr, "mkb_init failed.\n");
+      return 0;
+    }
+  }
+  else if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
+  {
+    ret = xinput_init();
+
+    if(ret < 0)
+    {
+      fprintf(stderr, "xinput_init failed.\n");
+      return 0;
+    }
   }
 
   ret = js_init();
@@ -106,12 +128,26 @@ void ev_joystick_close(int id)
 
 void ev_grab_input(int mode)
 {
-  mkb_grab(mode);
+  if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
+  {
+    mkb_grab(mode);
+  }
+  else if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
+  {
+    xinput_grab(mode);
+  }
 }
 
 void ev_quit(void)
 {
-  mkb_quit();
+  if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
+  {
+    mkb_quit();
+  }
+  else if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
+  {
+    xinput_quit();
+  }
   js_quit();
 }
 
@@ -122,12 +158,28 @@ const char* ev_joystick_name(int index)
 
 const char* ev_mouse_name(int id)
 {
-  return mkb_get_m_name(id);
+  if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
+  {
+    return mkb_get_m_name(id);
+  }
+  else if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
+  {
+    return xinput_get_mouse_name(id);
+  }
+  return NULL;
 }
 
 const char* ev_keyboard_name(int id)
 {
-  return mkb_get_k_name(id);
+  if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
+  {
+    return mkb_get_k_name(id);
+  }
+  else if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
+  {
+    return xinput_get_keyboard_name(id);
+  }
+  return NULL;
 }
 
 #ifndef WIN32
@@ -147,7 +199,14 @@ static int (*event_callback)(GE_Event*) = NULL;
 void ev_set_callback(int (*fp)(GE_Event*))
 {
   event_callback = fp;
-  mkb_set_callback(fp);
+  if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
+  {
+    mkb_set_callback(fp);
+  }
+  else if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
+  {
+    xinput_set_callback(fp);
+  }
   js_set_callback(fp);
 }
 
@@ -200,7 +259,7 @@ void ev_pump_events(void)
       {
         if(fds[i].revents & (POLLERR | POLLHUP | POLLNVAL))
         {
-          res = sources[fds[i].fd].fd_cleanup(sources[fds[i].fd].id);
+          res = sources[fds[i].fd].fp_cleanup(sources[fds[i].fd].id);
           ev_remove_source(fds[i].fd);
           if(res)
           {

@@ -45,7 +45,8 @@ s_gimx_params gimx_params =
   .curses = 0,
   .config_file = NULL,
   .postpone_count = DEFAULT_POSTPONE_COUNT,
-  .subpos = 0,
+  .subpositions = 0,
+  .window_events = 0,
 };
 
 int proc_time = 0;
@@ -217,7 +218,14 @@ int main(int argc, char *argv[])
     goto QUIT;
   }
 
-  if (!GE_initialize())
+  unsigned char src = GE_MKB_SOURCE_PHYSICAL;
+
+  if(gimx_params.window_events)
+  {
+    src = GE_MKB_SOURCE_WINDOW_SYSTEM;
+  }
+
+  if (!GE_initialize(src))
   {
     fprintf(stderr, _("GE_initialize failed\n"));
     goto QUIT;

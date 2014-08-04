@@ -84,6 +84,7 @@
 									<object class="wxChoice" name="ID_CHOICE2" variable="Input" member="yes">
 										<content>
 											<item>Physical inputs</item>
+											<item>Window inputs</item>
 											<item>Network</item>
 										</content>
 										<selection>0</selection>

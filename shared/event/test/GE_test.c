@@ -23,9 +23,9 @@ static void terminate(int sig)
 
 int main(int argc, char* argv[])
 {
-  if (!GE_initialize())
+  if (!GE_initialize(GE_MKB_SOURCE_PHYSICAL))
   {
-    fprintf(stderr, "GE_initialize: %s\n", strerror(errno));
+    fprintf(stderr, "GE_initialize failed\n");
     exit(-1);
   }
 

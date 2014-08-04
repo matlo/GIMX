@@ -7,22 +7,22 @@
 #define CONFIGMAIN_H
 
 //(*Headers(configFrame)
-#include <wx/notebook.h>
-#include <wx/sizer.h>
-#include <wx/stattext.h>
-#include <wx/menu.h>
-#include <wx/textctrl.h>
-#include <wx/checkbox.h>
-#include <wx/spinctrl.h>
-#include <wx/statline.h>
-#include <wx/panel.h>
 #include <wx/grid.h>
-#include <wx/filedlg.h>
-#include <wx/choice.h>
-#include <wx/button.h>
-#include <wx/frame.h>
+#include <wx/spinctrl.h>
 #include <wx/combobox.h>
+#include <wx/checkbox.h>
+#include <wx/sizer.h>
+#include <wx/notebook.h>
+#include <wx/button.h>
+#include <wx/menu.h>
+#include <wx/filedlg.h>
+#include <wx/panel.h>
 #include <wx/statusbr.h>
+#include <wx/statline.h>
+#include <wx/frame.h>
+#include <wx/stattext.h>
+#include <wx/textctrl.h>
+#include <wx/choice.h>
 //*)
 
 #include <event_catcher.h>
@@ -105,6 +105,7 @@ class configFrame: public wxFrame
         void OnMenuOpenConfigDirectory(wxCommandEvent& event);
         void OnMenuTypeItemSelected(wxCommandEvent& event);
         void OnButtonTabButtonIdSelect(wxCommandEvent& event);
+        void OnMenuItemWindowEventsSelected(wxCommandEvent& event);
         //*)
         void DeleteSelectedRows(wxGrid* grid);
         void DeleteLinkedRows(wxGrid* grid, int row);
@@ -267,6 +268,7 @@ class configFrame: public wxFrame
         static const long ID_MENUITEM15;
         static const long ID_MENUITEM16;
         static const long ID_MENUITEM24;
+        static const long ID_MENUITEM29;
         static const long ID_MENUITEM25;
         static const long ID_MENUITEM27;
         static const long ID_MENUITEM26;
@@ -275,156 +277,157 @@ class configFrame: public wxFrame
         //*)
 
         //(*Declarations(configFrame)
+        wxMenuItem* MenuConfiguration3;
+        wxMenuItem* MenuItem2;
+        wxStaticText* StaticText24;
+        wxStaticText* StaticTextDZPanelAxis;
+        wxStaticLine* StaticLine10;
+        wxStaticText* ButtonTabDeviceType;
+        wxStaticLine* StaticLine6;
+        wxMenuItem* MenuItemSaveAs;
+        wxStaticText* MouseOptionsId;
+        wxButton* ButtonTabRemove;
+        wxButton* IntensityAutoDetect;
+        wxButton* MouseOptionsRemove;
+        wxChoice* MouseOptionsInitMode;
+        wxSpinCtrl* ProfileTriggerDelay;
+        wxStaticText* IntensityDeviceType;
         wxStaticText* StaticTextLabel;
         wxPanel* PanelMouseOptions;
-        wxChoice* MouseOptionsInitMode;
-        wxMenuItem* MenuConfiguration6;
-        wxStaticText* StaticTextAccelPanelAxis;
-        wxButton* IntensityModify;
-        wxMenuItem* MenuController4;
-        wxComboBox* ButtonTabLabel;
-        wxMenuItem* MenuItemDS2;
-        wxTextCtrl* AxisTabAcceleration;
-        wxMenuItem* MenuItemSetMouseDPI;
-        wxMenuItem* MenuItemSave;
-        wxStaticLine* StaticLine8;
-        wxSpinCtrl* IntensityDeadZone;
-        wxMenuItem* MenuItemPasteController;
-        wxStaticText* ButtonTabDeviceId;
-        wxGrid* GridMouseOption;
-        wxNotebook* Notebook1;
-        wxMenuItem* MenuItemSaveAs;
-        wxStaticLine* StaticLine10;
-        wxButton* ButtonTabAutoDetect;
-        wxTextCtrl* MouseOptionsFilter;
-        wxStaticText* ButtonTabDeviceType;
-        wxStaticText* StaticText2;
-        wxStaticLine* StaticLine6;
-        wxMenuItem* MenuController1;
-        wxMenuItem* MenuController5;
-        wxMenuItem* MenuItem2;
-        wxMenuItem* MenuItem360;
-        wxMenuItem* MenuConfiguration1;
-        wxButton* MouseOptionsAutoDetect;
-        wxChoice* ButtonTabButtonId;
-        wxStaticText* StaticText6;
-        wxMenuItem* MenuController7;
-        wxStaticText* StaticTextSensPanelAxis;
-        wxButton* AxisTabAutoDetect;
-        wxStaticLine* StaticLine9;
-        wxStaticText* ButtonTabEventId;
-        wxStaticText* ProfileTriggerDeviceType;
-        wxStaticText* AxisTabEventId;
-        wxMenuItem* MenuItemPasteProfile;
-        wxMenuItem* MenuItemDS3;
-        wxMenuItem* MenuController2;
-        wxStaticText* StaticText8;
-        wxStaticText* StaticText11;
-        wxSpinCtrl* ProfileTriggerDelay;
-        wxStaticText* StaticText18;
-        wxMenu* MenuController;
-        wxChoice* IntensityDirection;
-        wxStaticText* StaticTextShapePanelAxis;
-        wxChoice* IntensityShape;
-        wxMenuItem* MenuItemJs;
-        wxMenuItem* MenuItemXOne;
-        wxStaticText* StaticText1;
-        wxButton* ButtonAutoDetect;
-        wxStaticText* AxisTabDeviceId;
-        wxButton* MouseOptionsModify;
-        wxFileDialog* FileDialog1;
-        wxStaticText* StaticTextDelayPanelOverall;
-        wxMenuItem* MenuConfiguration3;
-        wxStaticText* AxisTabDeviceName;
-        wxStaticText* StaticText3;
-        wxStaticLine* StaticLine7;
-        wxMenuItem* MenuItemReplaceMouse;
-        wxMenu* MenuAdvanced;
-        wxTextCtrl* AxisTabSensitivity;
-        wxStaticText* StaticTextEmptyPanelAxis;
-        wxPanel* PanelTrigger;
-        wxStaticText* ProfileTriggerButtonId;
-        wxStaticLine* StaticLine4;
-        wxMenuItem* MenuConfiguration2;
-        wxStaticLine* StaticLine2;
-        wxMenuItem* MenuItemXbox;
-        wxStaticLine* StaticLine12;
-        wxMenuItem* MenuItemDS4;
-        wxStaticText* StaticText24;
-        wxChoice* AxisTabEventType;
-        wxButton* Button5;
-        wxStaticText* StaticTextThresholdPanelButton;
-        wxStaticText* AxisTabDeviceType;
-        wxButton* Button3;
-        wxButton* MouseOptionsRemove;
-        wxSpinCtrl* IntensitySteps;
-        wxButton* Button7;
-        wxStaticText* StaticText7;
-        wxStaticText* StaticTextButtonPanelButton;
-        wxTextCtrl* AxisTabDeadZone;
-        wxStaticText* MouseOptionsName;
-        wxStatusBar* StatusBar1;
-        wxMenu* MenuFile;
-        wxCheckBox* CheckBoxSwitchBack;
-        wxStaticText* IntensityDeviceId;
-        wxStaticLine* StaticLine3;
-        wxStaticText* IntensityButtonId;
-        wxStaticLine* StaticLine1;
-        wxMenuItem* MenuItemCopyProfile;
-        wxStaticText* MouseOptionsButton;
-        wxButton* ButtonTabModify;
-        wxMenu* MenuEdit;
-        wxMenuItem* MenuItemMultipleMiceAndKeyboards;
-        wxChoice* AxisTabShape;
-        wxPanel* PanelAxis;
-        wxMenuItem* MenuItemReplaceKeyboard;
-        wxMenuItem* MenuItemNew;
-        wxGrid* GridIntensity;
-        wxButton* MouseOptionsAdd;
-        wxMenu* MenuType;
-        wxComboBox* AxisTabLabel;
-        wxStaticText* StaticText12;
-        wxMenuItem* MenuConfiguration8;
-        wxMenuItem* MenuConfiguration4;
-        wxButton* ButtonTabRemove;
-        wxStaticText* IntensityDeviceType;
-        wxStaticText* StaticTextDZPanelAxis;
-        wxStaticText* MouseOptionsType;
-        wxPanel* PanelButton;
-        wxTextCtrl* MouseOptionsBuffer;
-        wxButton* IntensityAdd;
-        wxMenuItem* MenuController6;
-        wxButton* IntensityAutoDetect;
-        wxChoice* IntensityAxis;
-        wxMenu* MenuConfiguration;
-        wxMenuItem* MenuItemCopyController;
-        wxNotebook* Notebook2;
-        wxGrid* GridPanelButton;
-        wxMenuItem* MenuConfiguration7;
-        wxMenuItem* MenuConfiguration5;
-        wxStaticLine* StaticLine11;
-        wxStaticText* ProfileTriggerDeviceId;
-        wxStaticText* MouseOptionsId;
-        wxStaticText* StaticText17;
-        wxStaticText* StaticTextAxisPanelAxis;
-        wxButton* ButtonTabAdd;
         wxButton* IntensityRemove;
-        wxMenuItem* MenuItemLinkControls;
-        wxMenuItem* MenuController3;
-        wxChoice* ButtonTabEventType;
-        wxTextCtrl* ButtonTabThreshold;
-        wxButton* ButtonDelete;
-        wxMenuItem* MenuItemReplaceMouseDPI;
+        wxPanel* PanelAxis;
+        wxButton* ButtonTabAdd;
+        wxChoice* ButtonTabButtonId;
+        wxStaticText* ButtonTabDeviceId;
+        wxButton* IntensityModify;
+        wxStaticLine* StaticLine2;
         wxGrid* GridPanelAxis;
+        wxStatusBar* StatusBar1;
+        wxMenuItem* MenuController6;
+        wxStaticLine* StaticLine11;
+        wxComboBox* ButtonTabLabel;
+        wxStaticText* IntensityDeviceId;
         wxStaticText* IntensityDeviceName;
-        wxPanel* PanelOverall;
-        wxStaticText* ProfileTriggerDeviceName;
-        wxChoice* AxisTabAxisId;
-        wxMenuItem* MenuUpdate;
         wxMenuItem* MenuAutoBindControls;
-        wxStaticText* ButtonTabDeviceName;
+        wxGrid* GridIntensity;
+        wxTextCtrl* MouseOptionsFilter;
+        wxStaticLine* StaticLine12;
+        wxChoice* AxisTabEventType;
+        wxStaticText* StaticText17;
+        wxMenu* MenuController;
+        wxMenuItem* MenuItemWindowEvents;
+        wxStaticText* StaticTextEmptyPanelAxis;
+        wxMenu* MenuFile;
+        wxStaticText* AxisTabDeviceId;
+        wxStaticLine* StaticLine7;
+        wxMenu* MenuType;
+        wxStaticText* MouseOptionsButton;
+        wxMenuItem* MenuItemPasteProfile;
+        wxMenuItem* MenuController7;
+        wxChoice* IntensityDirection;
+        wxMenuItem* MenuItem360;
+        wxStaticText* ProfileTriggerDeviceName;
+        wxGrid* GridMouseOption;
+        wxMenuItem* MenuItemSave;
+        wxPanel* PanelOverall;
+        wxMenuItem* MenuConfiguration2;
+        wxMenuItem* MenuItemCopyController;
+        wxMenuItem* MenuConfiguration8;
         wxPanel* PanelIntensity;
+        wxStaticText* ButtonTabDeviceName;
         wxStaticLine* StaticLine5;
+        wxMenuItem* MenuController2;
+        wxButton* Button3;
+        wxPanel* PanelButton;
+        wxMenuItem* MenuConfiguration5;
+        wxMenuItem* MenuUpdate;
+        wxStaticText* IntensityButtonId;
+        wxStaticText* MouseOptionsType;
+        wxButton* ButtonDelete;
+        wxStaticText* StaticText18;
+        wxStaticText* AxisTabEventId;
+        wxMenuItem* MenuItemXbox;
+        wxStaticText* StaticText1;
+        wxChoice* AxisTabAxisId;
+        wxTextCtrl* AxisTabAcceleration;
+        wxCheckBox* CheckBoxSwitchBack;
+        wxButton* MouseOptionsAdd;
+        wxMenuItem* MenuConfiguration7;
+        wxStaticText* StaticText3;
+        wxMenuItem* MenuItemPasteController;
+        wxMenuItem* MenuItemLinkControls;
+        wxStaticText* StaticTextSensPanelAxis;
+        wxComboBox* AxisTabLabel;
+        wxChoice* IntensityShape;
+        wxStaticLine* StaticLine1;
+        wxStaticText* StaticTextShapePanelAxis;
+        wxSpinCtrl* IntensitySteps;
+        wxButton* MouseOptionsAutoDetect;
+        wxButton* IntensityAdd;
+        wxButton* Button5;
+        wxMenu* MenuAdvanced;
+        wxMenuItem* MenuItemNew;
+        wxStaticText* StaticText8;
+        wxStaticText* StaticText12;
+        wxMenuItem* MenuConfiguration4;
+        wxMenuItem* MenuController4;
+        wxStaticText* ButtonTabEventId;
+        wxMenuItem* MenuItemJs;
+        wxFileDialog* FileDialog1;
+        wxStaticText* AxisTabDeviceType;
+        wxStaticLine* StaticLine3;
+        wxChoice* AxisTabShape;
+        wxStaticText* StaticText7;
+        wxMenuItem* MenuController3;
+        wxMenuItem* MenuItemSetMouseDPI;
+        wxButton* ButtonAutoDetect;
+        wxMenuItem* MenuItemDS2;
+        wxNotebook* Notebook2;
+        wxStaticText* ProfileTriggerDeviceId;
+        wxMenuItem* MenuItemMultipleMiceAndKeyboards;
+        wxButton* AxisTabAutoDetect;
+        wxStaticText* StaticTextAccelPanelAxis;
+        wxMenuItem* MenuItemReplaceMouse;
+        wxMenuItem* MenuConfiguration6;
+        wxTextCtrl* AxisTabDeadZone;
+        wxMenu* MenuConfiguration;
+        wxStaticText* StaticText2;
+        wxNotebook* Notebook1;
+        wxGrid* GridPanelButton;
+        wxStaticText* MouseOptionsName;
+        wxMenuItem* MenuItemReplaceKeyboard;
+        wxMenuItem* MenuItemXOne;
+        wxStaticLine* StaticLine8;
+        wxStaticText* StaticText6;
+        wxSpinCtrl* IntensityDeadZone;
+        wxMenuItem* MenuController5;
+        wxMenuItem* MenuItemDS4;
+        wxButton* ButtonTabModify;
+        wxStaticText* StaticTextButtonPanelButton;
+        wxStaticLine* StaticLine4;
+        wxStaticText* AxisTabDeviceName;
+        wxMenu* MenuEdit;
+        wxMenuItem* MenuItemReplaceMouseDPI;
+        wxChoice* IntensityAxis;
+        wxMenuItem* MenuItemCopyProfile;
+        wxButton* Button7;
+        wxTextCtrl* MouseOptionsBuffer;
+        wxStaticText* ProfileTriggerDeviceType;
+        wxPanel* PanelTrigger;
+        wxMenuItem* MenuController1;
+        wxStaticText* StaticTextThresholdPanelButton;
+        wxTextCtrl* AxisTabSensitivity;
+        wxChoice* ButtonTabEventType;
+        wxButton* ButtonTabAutoDetect;
+        wxTextCtrl* ButtonTabThreshold;
+        wxButton* MouseOptionsModify;
+        wxMenuItem* MenuItemDS3;
+        wxStaticText* StaticTextAxisPanelAxis;
+        wxMenuItem* MenuConfiguration1;
+        wxStaticLine* StaticLine9;
+        wxStaticText* StaticText11;
+        wxStaticText* ProfileTriggerButtonId;
+        wxStaticText* StaticTextDelayPanelOverall;
         //*)
 
         wxLocale* locale;

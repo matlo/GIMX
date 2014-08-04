@@ -27,8 +27,7 @@ static int debug = 0;
 
 #define DEVTYPE_KEYBOARD 0x01
 #define DEVTYPE_MOUSE    0x02
-#define DEVTYPE_JOYSTICK 0x04
-#define DEVTYPE_NB       3
+#define DEVTYPE_NB       2
 
 static struct
 {

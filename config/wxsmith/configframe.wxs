@@ -1595,6 +1595,11 @@
 					<handler function="OnMenuMultipleMK" entry="EVT_MENU" />
 					<checkable>1</checkable>
 				</object>
+				<object class="wxMenuItem" name="ID_MENUITEM29" variable="MenuItemWindowEvents" member="yes">
+					<label>Window events</label>
+					<handler function="OnMenuItemWindowEventsSelected" entry="EVT_MENU" />
+					<checkable>1</checkable>
+				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM25" variable="MenuItemLinkControls" member="yes">
 					<label>Link controls</label>
 					<checked>1</checked>

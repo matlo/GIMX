@@ -161,7 +161,7 @@ void cfg_process_motion()
     }
     if (mc->changed || mc->change)
     {
-      if (gimx_params.subpos)
+      if (gimx_params.subpositions)
       {
         /*
          * Add the residual motion vector from the last iteration.

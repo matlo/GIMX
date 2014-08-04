@@ -6,7 +6,7 @@
 
 #define MAX_EVENTS 256
 
-int ev_init();
+int ev_init(unsigned char mkb_src);
 void ev_quit();
 
 void ev_set_caption (const char*, const char*);

@@ -31,7 +31,8 @@ typedef struct
   int curses;
   char* config_file;
   int postpone_count;
-  int subpos;
+  int subpositions;
+  int window_events;
 } s_gimx_params;
 
 extern s_gimx_params gimx_params;

@@ -66,9 +66,10 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     /* These options set a flag. */
     {"nograb",         no_argument, &params->grab,           0},
     {"status",         no_argument, &params->status,         1},
-    {"subpos",         no_argument, &params->subpos,         1},
+    {"subpos",         no_argument, &params->subpositions,   1},
     {"force-updates",  no_argument, &params->force_updates,  1},
     {"curses",         no_argument, &params->curses,         1},
+    {"window-events",  no_argument, &params->window_events,  1},
     /* These options don't set a flag. We distinguish them by their indices. */
     {"bdaddr",  required_argument, 0, 'b'},
     {"config",  required_argument, 0, 'c'},
@@ -269,12 +270,14 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     printf(_("grab flag is unset\n"));
   if(params->status)
     printf(_("status flag is set\n"));
-  if(params->subpos)
+  if(params->subpositions)
     printf(_("subpos flag is set\n"));
   if(params->force_updates)
     printf(_("force_updates flag is set\n"));
   if(params->curses)
     printf(_("curses flag is set\n"));
+  if(params->window_events)
+    printf(_("wevents flag is set\n"));
 
   return ret;
 }

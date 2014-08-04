@@ -25,6 +25,7 @@ class event_catcher
         void SetEventId(string event_id) { m_EventId = event_id; }
         void SetDone() { done = 1; }
         int GetDone() { return done; }
+        void SetWindowEvents(bool value) { wevents = value; }
         int init();
         void run(string device_type, string event_type);
         void clean();
@@ -47,6 +48,7 @@ class event_catcher
         string m_EventType;
         string m_EventId;
         unsigned int done;
+        bool wevents;
 
         static event_catcher* _singleton;
 };

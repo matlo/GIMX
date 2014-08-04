@@ -14,8 +14,8 @@
 #include <iomanip>
 
 //(*InternalHeaders(configFrame)
-#include <wx/intl.h>
 #include <wx/string.h>
+#include <wx/intl.h>
 //*)
 
 #include <wx/aboutdlg.h>
@@ -179,6 +179,7 @@ const long configFrame::ID_MENUITEM14 = wxNewId();
 const long configFrame::ID_MENUITEM15 = wxNewId();
 const long configFrame::ID_MENUITEM16 = wxNewId();
 const long configFrame::ID_MENUITEM24 = wxNewId();
+const long configFrame::ID_MENUITEM29 = wxNewId();
 const long configFrame::ID_MENUITEM25 = wxNewId();
 const long configFrame::ID_MENUITEM27 = wxNewId();
 const long configFrame::ID_MENUITEM26 = wxNewId();
@@ -521,65 +522,65 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 
     //(*Initialize(configFrame)
-    wxMenu* MenuHelp;
-    wxFlexGridSizer* FlexGridSizer4;
-    wxFlexGridSizer* FlexGridSizer45;
-    wxFlexGridSizer* FlexGridSizer47;
-    wxMenuItem* MenuItemAbout;
-    wxFlexGridSizer* FlexGridSizer16;
-    wxFlexGridSizer* FlexGridSizer24;
-    wxFlexGridSizer* FlexGridSizer19;
-    wxStaticBoxSizer* StaticBoxSizer12;
-    wxFlexGridSizer* FlexGridSizer23;
-    wxFlexGridSizer* FlexGridSizer41;
-    wxStaticBoxSizer* StaticBoxSizer4;
-    wxFlexGridSizer* FlexGridSizer3;
-    wxFlexGridSizer* FlexGridSizer27;
-    wxMenuItem* MenuItem1;
-    wxFlexGridSizer* FlexGridSizer44;
-    wxFlexGridSizer* FlexGridSizer37;
-    wxFlexGridSizer* FlexGridSizer5;
-    wxFlexGridSizer* FlexGridSizer25;
-    wxFlexGridSizer* FlexGridSizer22;
-    wxFlexGridSizer* FlexGridSizer9;
-    wxFlexGridSizer* FlexGridSizer2;
-    wxStaticBoxSizer* StaticBoxSizer9;
-    wxFlexGridSizer* FlexGridSizer7;
-    wxStaticBoxSizer* StaticBoxSizer7;
-    wxMenuItem* MenuItemOpen;
-    wxStaticBoxSizer* StaticBoxSizer10;
-    wxFlexGridSizer* FlexGridSizer29;
-    wxFlexGridSizer* FlexGridSizer34;
-    wxStaticBoxSizer* StaticBoxSizer8;
-    wxStaticBoxSizer* StaticBoxSizer3;
-    wxGridSizer* GridSizer1;
-    wxFlexGridSizer* FlexGridSizer49;
-    wxStaticBoxSizer* StaticBoxSizer6;
-    wxFlexGridSizer* FlexGridSizer15;
-    wxGridSizer* GridSizer3;
-    wxFlexGridSizer* FlexGridSizer18;
-    wxFlexGridSizer* FlexGridSizer8;
-    wxFlexGridSizer* FlexGridSizer21;
-    wxFlexGridSizer* FlexGridSizer14;
-    wxFlexGridSizer* FlexGridSizer20;
-    wxFlexGridSizer* FlexGridSizer13;
-    wxFlexGridSizer* FlexGridSizer12;
-    wxFlexGridSizer* FlexGridSizer35;
-    wxFlexGridSizer* FlexGridSizer36;
-    wxMenuBar* MenuBar1;
-    wxFlexGridSizer* FlexGridSizer6;
-    wxFlexGridSizer* FlexGridSizer48;
-    wxFlexGridSizer* FlexGridSizer46;
-    wxFlexGridSizer* FlexGridSizer1;
-    wxFlexGridSizer* FlexGridSizer33;
-    wxFlexGridSizer* FlexGridSizer43;
-    wxFlexGridSizer* FlexGridSizer17;
-    wxStaticBoxSizer* StaticBoxSizer5;
-    wxFlexGridSizer* FlexGridSizer32;
-    wxFlexGridSizer* FlexGridSizer42;
-    wxFlexGridSizer* FlexGridSizer31;
-    wxFlexGridSizer* FlexGridSizer28;
     wxFlexGridSizer* FlexGridSizer30;
+    wxFlexGridSizer* FlexGridSizer46;
+    wxFlexGridSizer* FlexGridSizer21;
+    wxFlexGridSizer* FlexGridSizer28;
+    wxMenuItem* MenuItem1;
+    wxFlexGridSizer* FlexGridSizer8;
+    wxGridSizer* GridSizer1;
+    wxStaticBoxSizer* StaticBoxSizer10;
+    wxFlexGridSizer* FlexGridSizer1;
+    wxFlexGridSizer* FlexGridSizer2;
+    wxFlexGridSizer* FlexGridSizer25;
+    wxFlexGridSizer* FlexGridSizer15;
+    wxStaticBoxSizer* StaticBoxSizer7;
+    wxStaticBoxSizer* StaticBoxSizer5;
+    wxFlexGridSizer* FlexGridSizer17;
+    wxGridSizer* GridSizer3;
+    wxFlexGridSizer* FlexGridSizer29;
+    wxFlexGridSizer* FlexGridSizer19;
+    wxFlexGridSizer* FlexGridSizer48;
+    wxFlexGridSizer* FlexGridSizer47;
+    wxStaticBoxSizer* StaticBoxSizer12;
+    wxFlexGridSizer* FlexGridSizer41;
+    wxFlexGridSizer* FlexGridSizer7;
+    wxFlexGridSizer* FlexGridSizer4;
+    wxFlexGridSizer* FlexGridSizer9;
+    wxFlexGridSizer* FlexGridSizer14;
+    wxStaticBoxSizer* StaticBoxSizer3;
+    wxFlexGridSizer* FlexGridSizer6;
+    wxFlexGridSizer* FlexGridSizer33;
+    wxFlexGridSizer* FlexGridSizer27;
+    wxFlexGridSizer* FlexGridSizer37;
+    wxFlexGridSizer* FlexGridSizer42;
+    wxFlexGridSizer* FlexGridSizer3;
+    wxFlexGridSizer* FlexGridSizer22;
+    wxStaticBoxSizer* StaticBoxSizer8;
+    wxFlexGridSizer* FlexGridSizer31;
+    wxFlexGridSizer* FlexGridSizer43;
+    wxStaticBoxSizer* StaticBoxSizer4;
+    wxStaticBoxSizer* StaticBoxSizer9;
+    wxStaticBoxSizer* StaticBoxSizer6;
+    wxFlexGridSizer* FlexGridSizer16;
+    wxFlexGridSizer* FlexGridSizer34;
+    wxFlexGridSizer* FlexGridSizer23;
+    wxFlexGridSizer* FlexGridSizer13;
+    wxMenuBar* MenuBar1;
+    wxMenuItem* MenuItemAbout;
+    wxFlexGridSizer* FlexGridSizer18;
+    wxFlexGridSizer* FlexGridSizer49;
+    wxFlexGridSizer* FlexGridSizer36;
+    wxFlexGridSizer* FlexGridSizer12;
+    wxMenuItem* MenuItemOpen;
+    wxFlexGridSizer* FlexGridSizer45;
+    wxFlexGridSizer* FlexGridSizer35;
+    wxFlexGridSizer* FlexGridSizer44;
+    wxFlexGridSizer* FlexGridSizer5;
+    wxFlexGridSizer* FlexGridSizer24;
+    wxMenu* MenuHelp;
+    wxFlexGridSizer* FlexGridSizer32;
+    wxFlexGridSizer* FlexGridSizer20;
 
     Create(parent, wxID_ANY, _("Gimx-config"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     GridSizer1 = new wxGridSizer(1, 1, 0, 0);
@@ -1093,6 +1094,8 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     MenuAdvanced = new wxMenu();
     MenuItemMultipleMiceAndKeyboards = new wxMenuItem(MenuAdvanced, ID_MENUITEM24, _("Multiple Mice and Keyboards"), wxEmptyString, wxITEM_CHECK);
     MenuAdvanced->Append(MenuItemMultipleMiceAndKeyboards);
+    MenuItemWindowEvents = new wxMenuItem(MenuAdvanced, ID_MENUITEM29, _("Window events"), wxEmptyString, wxITEM_CHECK);
+    MenuAdvanced->Append(MenuItemWindowEvents);
     MenuItemLinkControls = new wxMenuItem(MenuAdvanced, ID_MENUITEM25, _("Link controls"), wxEmptyString, wxITEM_CHECK);
     MenuAdvanced->Append(MenuItemLinkControls);
     MenuItemLinkControls->Check(true);
@@ -1180,6 +1183,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM15,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration);
     Connect(ID_MENUITEM16,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration);
     Connect(ID_MENUITEM24,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuMultipleMK);
+    Connect(ID_MENUITEM29,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemWindowEventsSelected);
     Connect(ID_MENUITEM27,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuAutoBindControls);
     Connect(ID_MENUITEM26,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuUpdate);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnAbout);
@@ -2052,7 +2056,7 @@ void configFrame::LoadControllerType()
     case C_TYPE_MAX:
       break;
   }
-  
+
   fillChoices();
 }
 
@@ -3872,5 +3876,17 @@ void configFrame::OnMenuTypeItemSelected(wxCommandEvent& event)
     save_current();
     controller->SetControllerType(newType);
     load_current();
+  }
+}
+
+void configFrame::OnMenuItemWindowEventsSelected(wxCommandEvent& event)
+{
+  if(MenuItemWindowEvents->IsChecked())
+  {
+    evcatch->SetWindowEvents(true);
+  }
+  else
+  {
+    evcatch->SetWindowEvents(false);
   }
 }

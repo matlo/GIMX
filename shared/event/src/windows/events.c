@@ -17,6 +17,8 @@
 #define SCREEN_HEIGHT 1
 #define TITLE "Sixaxis Control"
 
+static unsigned char mkb_source;
+
 static int instanceIdToIndex[GE_MAX_DEVICES] = {};
 
 static int j_num;
@@ -31,7 +33,7 @@ static struct
   unsigned char* joystickHat;
 } joysticks[GE_MAX_DEVICES] = {};
 
-int ev_init()
+int ev_init(unsigned char mkb_src)
 {
   int i;
   
@@ -99,9 +101,18 @@ int ev_init()
   
   j_num = j_max;
 
-  if(ManyMouse_Init() < 0)
+  mkb_source = mkb_src;
+
+  if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
   {
-    return 0;
+    if(ManyMouse_Init() < 0)
+    {
+      return 0;
+    }
+  }
+  else if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
+  {
+    //todo
   }
 
   queue_init();
@@ -118,7 +129,15 @@ void ev_quit(void)
   }
   SDL_Quit();
   ev_grab_input(GE_GRAB_OFF);
-  ManyMouse_Quit();
+
+  if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
+  {
+    ManyMouse_Quit();
+  }
+  else if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
+  {
+    //todo
+  }
 }
 
 const char* ev_joystick_name(int id)
@@ -143,7 +162,14 @@ void ev_joystick_close(int id)
     joysticks[id].joystickHat = NULL;
     j_num--;
 
-    //Don't quit the joystick subsystem or the event queue will be disabled.
+    /*
+     * Closing the joystick subsystem also closes SDL's event queue,
+     * but we don't care as we don't use it.
+     */
+    if(j_num == 0)
+    {
+      SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+    }
   }
 }
 
@@ -151,20 +177,42 @@ static int m_num = 0;
 
 const char* ev_mouse_name(int id)
 {
-  const char* name = ManyMouse_MouseName(id);
-  if(name)
+  if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
   {
-    if(id+1 > m_num)
+    const char* name = ManyMouse_MouseName(id);
+    if(name)
     {
-      m_num = id+1;
+      if(id+1 > m_num)
+      {
+        m_num = id+1;
+      }
+    }
+    return name;
+  }
+  else if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
+  {
+    if(id == 0)
+    {
+      return "Window Events";
     }
   }
-  return name;
+  return NULL;
 }
 
 const char* ev_keyboard_name(int id)
 {
-  return ManyMouse_KeyboardName(id);
+  if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
+  {
+    return ManyMouse_KeyboardName(id);
+  }
+  else if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
+  {
+    if(id == 0)
+    {
+      return "Window Events";
+    }
+  }
+  return NULL;
 }
 
 void ev_grab_input(int mode)
@@ -173,7 +221,16 @@ void ev_grab_input(int mode)
 
   if(mode == GE_GRAB_ON)
   {
-    HWND hwnd = FindWindow("ManyMouseRawInputCatcher", "ManyMouseRawInputMsgWindow");
+    HWND hwnd = NULL;
+
+    if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
+    {
+      hwnd = FindWindow("ManyMouseRawInputCatcher", "ManyMouseRawInputMsgWindow");
+    }
+    else if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
+    {
+      //todo
+    }
 
     if(hwnd)
     {
@@ -276,7 +333,7 @@ static unsigned int fill_handles(HANDLE handles[])
   return max_source;
 }
 
-static int joystick_peep_events(GE_Event* events, int size);
+static int sdl_peep_events(GE_Event* events, int size);
 
 void ev_pump_events()
 {
@@ -290,10 +347,6 @@ void ev_pump_events()
     short x;
     short y;
   } mouse[GE_MAX_DEVICES] = {};
-
-  int num_mm_evt;
-  static ManyMouseEvent mm_events[EVENT_BUFFER_SIZE];
-  ManyMouseEvent* mm_event;
   
   Uint8 button = 0;
 
@@ -316,80 +369,93 @@ void ev_pump_events()
     fill_handles(handles);
     handles[max_source] = hTimer;
     
-    result = MsgWaitForMultipleObjects(count, handles, FALSE, INFINITE, QS_RAWINPUT);
+    unsigned int dwWakeMask = 0;
+
+    if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
+    {
+      dwWakeMask = QS_RAWINPUT;
+    }
+
+    result = MsgWaitForMultipleObjects(count, handles, FALSE, INFINITE, dwWakeMask);
 
     if(result == WAIT_OBJECT_0 + count)
     {
-      num_mm_evt = ManyMouse_PollEvent(mm_events, sizeof(mm_events)/sizeof(*mm_events));
-      for(mm_event=mm_events; mm_event < mm_events + num_mm_evt; ++mm_event)
+      if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
       {
-        if (mm_event->type == MANYMOUSE_EVENT_RELMOTION)
+        static ManyMouseEvent mm_events[EVENT_BUFFER_SIZE];
+        ManyMouseEvent* mm_event;
+
+        int num_mm_evt = ManyMouse_PollEvent(mm_events, sizeof(mm_events)/sizeof(*mm_events));
+        for(mm_event=mm_events; mm_event < mm_events + num_mm_evt; ++mm_event)
         {
-          if (mm_event->item == 0)
+          if (mm_event->type == MANYMOUSE_EVENT_RELMOTION)
           {
-            mouse[mm_event->device].x += mm_event->value;
+            if (mm_event->item == 0)
+            {
+              mouse[mm_event->device].x += mm_event->value;
+            }
+            else
+            {
+              mouse[mm_event->device].y += mm_event->value;
+            }
           }
-          else
+          else if (mm_event->type == MANYMOUSE_EVENT_BUTTON)
           {
-            mouse[mm_event->device].y += mm_event->value;
+            switch (mm_event->item)
+            {
+            case 0:
+              button = GE_BTN_LEFT;
+              break;
+            case 1:
+              button = GE_BTN_RIGHT;
+              break;
+            case 2:
+              button = GE_BTN_MIDDLE;
+              break;
+            case 3:
+              button = GE_BTN_BACK;
+              break;
+            case 4:
+              button = GE_BTN_FORWARD;
+              break;
+            }
+            GE_Event ge = { };
+            ge.button.type = mm_event->value ? GE_MOUSEBUTTONDOWN : GE_MOUSEBUTTONUP;
+            ge.button.which = mm_event->device;
+            ge.button.button = button;
+            event_callback(&ge);
           }
-        }
-        else if (mm_event->type == MANYMOUSE_EVENT_BUTTON)
-        {
-          switch (mm_event->item)
+          else if (mm_event->type == MANYMOUSE_EVENT_SCROLL)
           {
-          case 0:
-            button = GE_BTN_LEFT;
-            break;
-          case 1:
-            button = GE_BTN_RIGHT;
-            break;
-          case 2:
-            button = GE_BTN_MIDDLE;
-            break;
-          case 3:
-            button = GE_BTN_BACK;
-            break;
-          case 4:
-            button = GE_BTN_FORWARD;
-            break;
+            if (mm_event->item == 0)
+            {
+              GE_Event ge = { };
+              ge.button.type = GE_MOUSEBUTTONDOWN;
+              ge.button.which = mm_event->device;
+              ge.button.button = (mm_event->value > 0) ? GE_BTN_WHEELUP : GE_BTN_WHEELDOWN;
+              event_callback(&ge);
+              ge.button.type = GE_MOUSEBUTTONUP;
+              queue_push_event(&ge);
+            }
+            else
+            {
+              GE_Event ge = { };
+              ge.button.type = GE_MOUSEBUTTONDOWN;
+              ge.button.which = mm_event->device;
+              ge.button.button = (mm_event->value < 0) ? GE_BTN_WHEELLEFT : GE_BTN_WHEELRIGHT;
+              event_callback(&ge);
+              ge.button.type = GE_MOUSEBUTTONUP;
+              queue_push_event(&ge);
+            }
           }
-          GE_Event ge = { };
-          ge.button.type = mm_event->value ? GE_MOUSEBUTTONDOWN : GE_MOUSEBUTTONUP;
-          ge.button.which = mm_event->device;
-          ge.button.button = button;
-          event_callback(&ge);
-        }
-        else if (mm_event->type == MANYMOUSE_EVENT_SCROLL)
-        {
-          if (mm_event->item == 0)
+          else if (mm_event->type == MANYMOUSE_EVENT_KEY)
           {
             GE_Event ge = { };
-            ge.button.type = GE_MOUSEBUTTONDOWN;
-            ge.button.which = mm_event->device;
-            ge.button.button = (mm_event->value > 0) ? GE_BTN_WHEELUP : GE_BTN_WHEELDOWN;
+            ge.key.type = mm_event->value ? GE_KEYDOWN : GE_KEYUP;
+            ge.key.which = mm_event->device;
+            ge.key.keysym = mm_event->scancode;
             event_callback(&ge);
-            ge.button.type = GE_MOUSEBUTTONUP;
-            queue_push_event(&ge);
           }
-          else
-          {
-            GE_Event ge = { };
-            ge.button.type = GE_MOUSEBUTTONDOWN;
-            ge.button.which = mm_event->device;
-            ge.button.button = (mm_event->value < 0) ? GE_BTN_WHEELLEFT : GE_BTN_WHEELRIGHT;
-            event_callback(&ge);
-            ge.button.type = GE_MOUSEBUTTONUP;
-            queue_push_event(&ge);
-          }
-        }
-        else if (mm_event->type == MANYMOUSE_EVENT_KEY)
-        {
-          GE_Event ge = { };
-          ge.key.type = mm_event->value ? GE_KEYDOWN : GE_KEYUP;
-          ge.key.which = mm_event->device;
-          ge.key.keysym = mm_event->scancode;
-          event_callback(&ge);
         }
       }
     }
@@ -435,6 +501,18 @@ void ev_pump_events()
 
   } while(!done);
 
+  SDL_PumpEvents();
+
+  num_evt = sdl_peep_events(events, sizeof(events) / sizeof(events[0]));
+
+  if (num_evt > 0)
+  {
+    for (event = events; event < events + num_evt; ++event)
+    {
+      event_callback(event);
+    }
+  }
+
   for(i=0; i<m_num; ++i)
   {
     if(mouse[i].x || mouse[i].y)
@@ -447,18 +525,6 @@ void ev_pump_events()
       event_callback(&ge);
       mouse[i].x = 0;
       mouse[i].y = 0;
-    }
-  }
-
-  SDL_PumpEvents();
-
-  num_evt = joystick_peep_events(events, sizeof(events) / sizeof(events[0]));
-
-  if (num_evt > 0)
-  {
-    for (event = events; event < events + num_evt; ++event)
-    {
-      event_callback(event);
     }
   }
 }
@@ -664,7 +730,7 @@ static int preprocess_events(GE_Event *events, int numevents)
 
 static SDL_Event sdl_events[EVENT_BUFFER_SIZE];
 
-static int joystick_peep_events(GE_Event* events, int size)
+static int sdl_peep_events(GE_Event* events, int size)
 {
   int i, j;
 
@@ -673,7 +739,14 @@ static int joystick_peep_events(GE_Event* events, int size)
     size = EVENT_BUFFER_SIZE;
   }
 
-  int nb = SDL_PeepEvents(sdl_events, size, SDL_GETEVENT, SDL_KEYDOWN, SDL_CONTROLLERDEVICEREMAPPED);
+  unsigned int minType = SDL_JOYAXISMOTION;
+
+  if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
+  {
+    minType = SDL_KEYDOWN;
+  }
+
+  int nb = SDL_PeepEvents(sdl_events, size, SDL_GETEVENT, minType, SDL_CONTROLLERDEVICEREMAPPED);
 
   j = 0;
   for(i=0; i<nb; ++i)

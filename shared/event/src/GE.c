@@ -55,16 +55,18 @@ static const char* _8BIT_to_UTF8(const char* _8bit)
 /*
  * \bried Initializes the GE library.
  *
+ * \param The choice for the mouse and keyboard input.
+ *
  * \return 1 if successful
  *         0 in case of error
  */
-int GE_initialize()
+int GE_initialize(unsigned char mkb_src)
 {
   int i = 0;
   int j;
   const char* name;
 
-  if (!ev_init())
+  if (!ev_init(mkb_src))
   {
     return 0;
   }

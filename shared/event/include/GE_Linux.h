@@ -11,7 +11,7 @@
 #include <linux/input.h>
 
 #define GE_BTN_LEFT       (BTN_LEFT-BTN_MOUSE)
-#define BE_BTN_RIGHT      (BTN_RIGHT-BTN_MOUSE)
+#define GE_BTN_RIGHT      (BTN_RIGHT-BTN_MOUSE)
 #define GE_BTN_MIDDLE     (BTN_MIDDLE-BTN_MOUSE)
 #define GE_BTN_SIDE       (BTN_SIDE-BTN_MOUSE)
 #define GE_BTN_EXTRA      (BTN_EXTRA-BTN_MOUSE)

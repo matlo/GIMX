@@ -172,6 +172,7 @@ const long fpsconfigFrame::ID_MENUITEM8 = wxNewId();
 const long fpsconfigFrame::idMenuQuit = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM6 = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM7 = wxNewId();
+const long fpsconfigFrame::ID_MENUITEM9 = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM5 = wxNewId();
 const long fpsconfigFrame::idMenuAbout = wxNewId();
 const long fpsconfigFrame::ID_STATUSBAR1 = wxNewId();
@@ -401,6 +402,8 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     MenuAdvanced->Append(MenuEditLabels);
     MenuAutoBindControls = new wxMenuItem(MenuAdvanced, ID_MENUITEM7, _("Auto-bind controls"), wxEmptyString, wxITEM_NORMAL);
     MenuAdvanced->Append(MenuAutoBindControls);
+    MenuItemWindowEvents = new wxMenuItem(MenuAdvanced, ID_MENUITEM9, _("Window events"), wxEmptyString, wxITEM_CHECK);
+    MenuAdvanced->Append(MenuItemWindowEvents);
     MenuBar1->Append(MenuAdvanced, _("Advanced"));
     MenuHelp = new wxMenu();
     MenuUpdate = new wxMenuItem(MenuHelp, ID_MENUITEM5, _("Update"), wxEmptyString, wxITEM_NORMAL);
@@ -471,6 +474,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEM8,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuOpenConfigDirectory);
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnQuit);
     Connect(ID_MENUITEM7,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuAutoBindControls);
+    Connect(ID_MENUITEM9,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuItemWindowEventsSelected);
     Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuUpdate);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnAbout);
     //*)
@@ -518,7 +522,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
         exit(-1);
       }
     }
-    
+
     /* Retrieve config/ directory location */
     default_directory = wxStandardPaths::Get().GetUserConfigDir();
     default_directory.Append(wxT(GIMX_DIR));
@@ -2130,4 +2134,16 @@ void fpsconfigFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event)
 #else
   wxExecute(wxT("xdg-open ") + default_directory, wxEXEC_ASYNC, NULL);
 #endif
+}
+
+void fpsconfigFrame::OnMenuItemWindowEventsSelected(wxCommandEvent& event)
+{
+    if(MenuItemWindowEvents->IsChecked())
+    {
+      evcatch->SetWindowEvents(true);
+    }
+    else
+    {
+      evcatch->SetWindowEvents(false);
+    }
 }

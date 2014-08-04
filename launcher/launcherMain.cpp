@@ -771,6 +771,7 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
     FlexGridSizer5->Add(StaticText1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     Input = new wxChoice(Panel1, ID_CHOICE2, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE2"));
     Input->SetSelection( Input->Append(_("Physical inputs")) );
+    Input->Append(_("Window inputs"));
     Input->Append(_("Network"));
     FlexGridSizer5->Add(Input, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     IOSizer->Add(FlexGridSizer5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -1130,6 +1131,11 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
     }
     else
     {
+      if(Input->GetStringSelection() == _("Window inputs"))
+      {
+        command.Append(wxT(" --wevents"));
+      }
+
       if(!CheckBoxGrab->IsChecked())
       {
           command.Append(wxT(" --nograb"));

@@ -17,6 +17,7 @@ event_catcher* event_catcher::_singleton = NULL;
 event_catcher::event_catcher()
 {
     //ctor
+    wevents = false;
 }
 
 event_catcher::~event_catcher()
@@ -26,7 +27,14 @@ event_catcher::~event_catcher()
 
 int event_catcher::init()
 {
-    if(!GE_initialize())
+    unsigned char src = GE_MKB_SOURCE_PHYSICAL;
+    
+    if(wevents)
+    {
+      src = GE_MKB_SOURCE_WINDOW_SYSTEM;
+    }
+    
+    if(!GE_initialize(src))
     {
       return -1;
     }

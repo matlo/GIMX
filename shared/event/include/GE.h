@@ -19,6 +19,10 @@
 #include <sys/time.h>
 #endif
 
+#define GE_MKB_SOURCE_NONE 0
+#define GE_MKB_SOURCE_PHYSICAL 1
+#define GE_MKB_SOURCE_WINDOW_SYSTEM 2
+
 #define GE_GRAB_OFF 0
 #define GE_GRAB_ON 1
 
@@ -371,7 +375,7 @@ typedef enum
 extern "C" {
 #endif
 
-int GE_initialize();
+int GE_initialize(unsigned char mkb_src);
 void GE_grab_toggle();
 void GE_grab();
 void GE_release_unused();
