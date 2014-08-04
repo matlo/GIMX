@@ -509,6 +509,8 @@ static int process(int psm, const unsigned char *buf, int len,
 
 static int read_control(int sixaxis_number)
 {
+  int ret = 0;
+
   struct sixaxis_state* state = states + sixaxis_number;
 
   unsigned char buf[1024];
@@ -524,10 +526,11 @@ static int read_control(int sixaxis_number)
     else if (state->sys.shutdown)
     {
       fprintf(stderr, "sixaxis shutdown\n");
+      ret = 1;
     }
   }
 
-  return 0;
+  return ret;
 }
 
 static int close_control(int sixaxis_number)
