@@ -411,7 +411,7 @@ int GE_PeepEvents(GE_Event*, int);
 int GE_PushEvent(GE_Event*);
 void GE_SetCallback(int(*)(GE_Event*));
 
-void GE_AddSource(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fd_cleanup)(int));
+void GE_AddSource(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int));
 void GE_RemoveSource(int fd);
 
 #ifdef __cplusplus

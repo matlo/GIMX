@@ -438,9 +438,9 @@ void GE_SetCallback(int(*fp)(GE_Event*))
 /*
  * Add an event source.
  */
-void GE_AddSource(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fd_cleanup)(int))
+void GE_AddSource(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int))
 {
-  ev_register_source(fd, id, fp_read, fp_write, fd_cleanup);
+  ev_register_source(fd, id, fp_read, fp_write, fp_cleanup);
 }
 
 /*
