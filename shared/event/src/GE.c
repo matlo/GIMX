@@ -475,6 +475,14 @@ void GE_TimerStart(int usec)
  */
 void GE_TimerClose()
 {
+#ifndef WIN32
+  int tfd = timer_get();
+
+  if(tfd >= 0)
+  {
+    ev_remove_source(tfd);
+  }
+#endif
   timer_close(0);
 }
 

@@ -400,6 +400,7 @@ int mkb_close_device(int id)
   devices[id].name = NULL;
   if(devices[id].fd >= 0)
   {
+    ev_remove_source(devices[id].fd);
     close(devices[id].fd);
     devices[id].fd = -1;
   }
@@ -411,11 +412,11 @@ void mkb_quit()
   int i;
   for(i=0; i<=max_device_id; ++i)
   {
-    mkb_close_device(i);
     if(grab)
     {
       ioctl(devices[i].fd, EVIOCGRAB, (void *)0);
     }
+    mkb_close_device(i);
   }
 
   struct termios term;

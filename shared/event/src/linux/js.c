@@ -418,6 +418,7 @@ int js_close(int index)
 
   if(joystick[index].fd >= 0)
   {
+    ev_remove_source(joystick[index].fd);
     close(joystick[index].fd);
     joystick[index].fd = -1;
   }
