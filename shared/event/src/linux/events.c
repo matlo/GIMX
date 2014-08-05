@@ -24,7 +24,6 @@
 typedef struct
 {
   int id;
-  int fd;
   int (*fp_read)(int);
   int (*fp_write)(int);
   int (*fp_cleanup)(int);
@@ -46,7 +45,6 @@ void ev_register_source(int fd, int id, int (*fp_read)(int), int (*fp_write)(int
   if(fd < FD_SETSIZE)
   {
     sources[fd].id = id;
-    sources[fd].fd = fd;
     if(fp_read)
     {
       sources[fd].event |= POLLIN;
