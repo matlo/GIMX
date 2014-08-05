@@ -527,6 +527,7 @@ static int read_control(int sixaxis_number)
     {
       fprintf(stderr, "sixaxis shutdown\n");
       ret = 1;
+      adapter_get(sixaxis_number)->send_command = 1;
     }
   }
 
