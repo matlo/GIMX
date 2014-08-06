@@ -277,7 +277,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
   if(params->curses)
     printf(_("curses flag is set\n"));
   if(params->window_events)
-    printf(_("wevents flag is set\n"));
+    printf(_("window_events flag is set\n"));
 
   return ret;
 }

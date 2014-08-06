@@ -770,7 +770,7 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
     StaticText1 = new wxStaticText(Panel1, ID_STATICTEXT1, _("Input"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
     FlexGridSizer5->Add(StaticText1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     Input = new wxChoice(Panel1, ID_CHOICE2, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE2"));
-    Input->SetSelection( Input->Append(_("Physical inputs")) );
+    Input->SetSelection( Input->Append(_("Physical devices")) );
     Input->Append(_("Window events"));
     Input->Append(_("Network"));
     FlexGridSizer5->Add(Input, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
