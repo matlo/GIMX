@@ -70,9 +70,12 @@ int control_get_index(const char* name)
     int i;
     for(i=0; i<AXIS_MAX; ++i)
     {
-      if(!strcmp(control_names[C_TYPE_SIXAXIS][i], name))
+      if(control_names[C_TYPE_SIXAXIS][i])
       {
-        return i;
+        if(!strcmp(control_names[C_TYPE_SIXAXIS][i], name))
+        {
+          return i;
+        }
       }
     }
   }
