@@ -16,4 +16,6 @@ Source code: http://gimx.fr/source
 
 Issue tracker: http://gimx.fr/buglist  
 
+Licence: [GPLv3](https://www.gnu.org/copyleft/gpl.html)  
+
 Fundraising for GIMX PS4 / Xbox One support: http://blog.gimx.fr/fundraising-for-gimx-ps4-xbox-one-support/  
