@@ -121,12 +121,11 @@ struct btds4_state_sys {
     uint8_t rumble[2];
 };
 
-typedef struct btds4_report {
+typedef struct __attribute__ ((packed)) {
   unsigned char header;
   unsigned char code;
   unsigned char unknown1;
   s_report_ds4 report;
-  unsigned char unknown2[8];
   unsigned char crc32[4];
 } s_btds4_report;
 
