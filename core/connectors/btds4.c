@@ -137,6 +137,8 @@ struct btds4_state {
     int btds4_number;
     struct btds4_state_sys sys;
     s_btds4_report bt_report;
+    unsigned short inactivity_counter;
+    unsigned char active;
     int ps4_control_pending;
     int ps4_interrupt_pending;
     int ps4_control;
@@ -793,7 +795,9 @@ void btds4_set_dongle(int btds4_number, int dongle_index)
   state->dongle_index = dongle_index;
 }
 
-int btds4_send_interrupt(int btds4_number, s_report_ds4* report)
+#define INACTIVITY_THRESHOLD 6000 //6000x10ms=60s
+
+int btds4_send_interrupt(int btds4_number, s_report_ds4* report, int active)
 {
   struct btds4_state* state = states + btds4_number;
 
@@ -805,6 +809,24 @@ int btds4_send_interrupt(int btds4_number, s_report_ds4* report)
   if(state->ps4_interrupt < 0 || state->ds4_interrupt < 0)
   {
     return 0;
+  }
+
+  /*
+   * Don't send reports after 60s of inactivity.
+   */
+  if(active)
+  {
+    state->active = 1;
+    state->inactivity_counter = 0;
+  }
+  else
+  {
+    if(!state->active && state->inactivity_counter == INACTIVITY_THRESHOLD)
+    {
+      return 0;
+    }
+    state->active = 0;
+    ++state->inactivity_counter;
   }
 
   memcpy(&state->bt_report.report, report, sizeof(s_report_ds4));

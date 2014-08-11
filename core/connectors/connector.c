@@ -259,7 +259,7 @@ int connector_send()
 #ifndef WIN32
           else if(adapter->bdaddr_dst)
           {
-            ret = btds4_send_interrupt(i, &report->value.ds4);
+            ret = btds4_send_interrupt(i, &report->value.ds4, adapter->send_command);
           }
 #endif
           break;
