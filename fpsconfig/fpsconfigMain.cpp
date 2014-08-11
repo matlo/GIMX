@@ -1117,7 +1117,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
      * Save Hip Fire config.
      */
     //Save ButtonMappers
-    ButtonMappers = configFile.GetController(0)->GetConfiguration(0)->GetAxisMapperList();
+    ButtonMappers = configFile.GetController(0)->GetConfiguration(0)->GetButtonMapperList();
     for(int i=bi_select; i<BI_MAX; i++)
     {
         if(!buttons[i].GetDevice()->GetType().empty())
@@ -1259,7 +1259,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
         configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->SetDelay(0);
     }
     //Save ButtonMappers
-    ButtonMappers = configFile.GetController(0)->GetConfiguration(1)->GetAxisMapperList();
+    ButtonMappers = configFile.GetController(0)->GetConfiguration(1)->GetButtonMapperList();
     for(int i=bi_select; i<BI_MAX; i++)
     {
         if(!buttons[i].GetDevice()->GetType().empty())
