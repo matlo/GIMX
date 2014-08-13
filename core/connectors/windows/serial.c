@@ -102,14 +102,15 @@ int serial_read(int id, void* pdata, unsigned int size)
 
 int serial_recv(int id, void* pdata, unsigned int size)
 {
-  return serial_read(serials[id].handle, pdata, size);
+  return serial_read(id, pdata, size);
 }
 
 /*
  * Close the serial port.
  */
-void serial_close(int id)
+int serial_close(int id)
 {
   usleep(10000);//sleep 10ms to leave enough time for the last packet to be sent
   CloseHandle(serials[id].handle);
+  return 0;
 }

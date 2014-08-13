@@ -6,15 +6,6 @@
 #ifndef SERIAL_H_
 #define SERIAL_H_
 
-#ifndef WIN32
-typedef int SERIALOBJECT;
-#define SERIALOBJECT_UNDEF -1
-#else
-#include <windows.h>
-typedef HANDLE SERIALOBJECT;
-#define SERIALOBJECT_UNDEF NULL
-#endif
-
 #define HEADER_SIZE 0x02
 #define BUFFER_SIZE 0xFF
 

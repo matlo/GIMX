@@ -27,8 +27,8 @@ int usb_spoof_init_usb_device(int vendor, int product,
     uint16_t* bus_id, uint8_t* device_address, int libusb_debug);
 void usb_spoof_release_usb_device();
 int usb_spoof_forward_to_device(control_request* creq);
-int usb_spoof_forward_to_adapter(SERIALOBJECT serial, unsigned char* data, unsigned char length);
+int usb_spoof_forward_to_adapter(int id, unsigned char* data, unsigned char length);
 
-int usb_spoof_spoof_360_controller(SERIALOBJECT serial);
+int usb_spoof_spoof_360_controller(int id);
 
 #endif /* USB_SPOOF_H_ */

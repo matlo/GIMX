@@ -9,6 +9,7 @@
 #include "connectors/connector.h"
 #include "connectors/udp_con.h"
 #include "connectors/gpp_con.h"
+#include "connectors/usb_con.h"
 #include "connectors/usb_spoof.h"
 #include <adapter.h>
 #include <report.h>
@@ -16,7 +17,6 @@
 #ifndef WIN32
 #include "connectors/sixaxis.h"
 #include "connectors/btds4.h"
-#include "connectors/usb_con.h"
 #endif
 
 int connector_init()
