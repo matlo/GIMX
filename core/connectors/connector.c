@@ -16,6 +16,7 @@
 #ifndef WIN32
 #include "connectors/sixaxis.h"
 #include "connectors/btds4.h"
+#include "connectors/usb_con.h"
 #endif
 
 int connector_init()
@@ -31,13 +32,13 @@ int connector_init()
     {
       if(!strstr(adapter->portname, "none"))
       {
-        if((adapter->serial = serial_connect(adapter->portname)) < 0)
+        if(serial_connect(i, adapter->portname) < 0)
         {
           ret = -1;
         }
         else
         {
-          int rtype = usb_spoof_get_adapter_type(adapter->serial);
+          int rtype = adapter_get_type(i);
 
           if(rtype >= 0)
           {
@@ -55,7 +56,7 @@ int connector_init()
 
             if(adapter->type == C_TYPE_360_PAD)
             {
-              if(usb_spoof_spoof_360_controller(adapter->serial) < 0)
+              if(usb_spoof_spoof_360_controller(i) < 0)
               {
                 fprintf(stderr, _("Spoof failed.\n"));
                 ret = -1;
@@ -69,9 +70,22 @@ int connector_init()
             }
             else if(adapter->type == C_TYPE_DS4)
             {
-              adapter->report.value.ds4.report_id = 0x01;
-              adapter->report.value_len = DS4_USB_INTERRUPT_PACKET_SIZE;
               ds4_init_report(&adapter->report.value.ds4);
+
+              if(usb_init(i, DS4_VENDOR, DS4_PRODUCT, usb_callback) < 0)
+              {
+                fprintf(stderr, _("usb_init failed.\n"));
+                ret = -1;
+              }
+
+              if(adapter_get_status(i) == BYTE_STATUS_STARTED)
+              {
+                adapter_send_reset(i);
+              }
+
+              adapter_send_start(i);
+
+              serial_add_source(i);
             }
           }
         }
@@ -173,35 +187,37 @@ void connector_clean()
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
     adapter = adapter_get(i);
-    switch(adapter->type)
+    if(adapter->dst_fd >= 0)
     {
-      case C_TYPE_DEFAULT:
-        if(adapter->dst_fd >= 0)
-        {
-          GE_RemoveSource(adapter->src_fd);
-          udp_close(adapter->dst_fd);
-        }
+      GE_RemoveSource(adapter->src_fd);
+      udp_close(adapter->dst_fd);
+    }
 #ifndef WIN32
-        else if(adapter->bdaddr_dst)
-        {
-          if(adapter->type == C_TYPE_SIXAXIS
-              || adapter->type == C_TYPE_DEFAULT)
-          {
-            sixaxis_close(i);
-          }
-          else if(adapter->type == C_TYPE_DS4)
-          {
-            btds4_close(i);
-          }
-        }
+    else if(adapter->bdaddr_dst)
+    {
+      if(adapter->type == C_TYPE_SIXAXIS
+          || adapter->type == C_TYPE_DEFAULT)
+      {
+        sixaxis_close(i);
+      }
+      else if(adapter->type == C_TYPE_DS4)
+      {
+        btds4_close(i);
+      }
+    }
 #endif
-        break;
-      case C_TYPE_GPP:
-        gpp_disconnect();
-        break;
-      default:
-        serial_close(adapter->serial);
-        break;
+    else if(adapter->portname)
+    {
+      if(adapter->type == C_TYPE_DS4)
+      {
+        usb_close(i);
+        adapter_send_reset(i);
+      }
+      serial_close(i);
+    }
+    else if(adapter->type == C_TYPE_GPP)
+    {
+      gpp_disconnect();
     }
   }
 }
@@ -240,9 +256,9 @@ int connector_send()
           break;
 #endif
         case C_TYPE_SIXAXIS:
-          if(adapter->serial >= 0)
+          if(adapter->portname)
           {
-            ret = serial_send(adapter->serial, report, 2+report->value_len);
+            ret = serial_send(i, report, 2+report->value_len);
           }
 #ifndef WIN32          
           else if(adapter->bdaddr_dst)
@@ -252,9 +268,11 @@ int connector_send()
 #endif
           break;
         case C_TYPE_DS4:
-          if(adapter->serial >= 0)
+          if(adapter->portname)
           {
-            ret = serial_send(adapter->serial, &report, 2+report->value_len);
+            report->value.ds4.report_id = 0x01;
+            report->value_len = DS4_USB_INTERRUPT_PACKET_SIZE;
+            ret = serial_send(i, report, HEADER_SIZE+report->value_len);
           }
 #ifndef WIN32
           else if(adapter->bdaddr_dst)
@@ -267,15 +285,15 @@ int connector_send()
           ret = gpp_send(adapter->axis);
           break;
         default:
-          if(adapter->serial >= 0)
+          if(adapter->portname)
           {
             if(adapter->type != C_TYPE_PS2_PAD)
             {
-              ret = serial_send(adapter->serial, report, 2+report->value_len);
+              ret = serial_send(i, report, 2+report->value_len);
             }
             else
             {
-              ret = serial_send(adapter->serial, &report->value.ds2, report->value_len);
+              ret = serial_send(i, &report->value.ds2, report->value_len);
             }
           }
           break;

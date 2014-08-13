@@ -26,7 +26,6 @@ typedef struct
   unsigned int src_ip;
   unsigned short src_port;
   int src_fd;
-  SERIALOBJECT serial;
   e_controller_type type;
   int event;
   int axis[AXIS_MAX];
@@ -50,5 +49,13 @@ int adapter_get_device(e_device_type device_type, int controller);
 int adapter_get_controller(e_device_type device_type, int device_id);
 
 void adapter_set_axis(unsigned char c, int axis, int value);
+
+int adapter_forward_data_in(int id, unsigned char* data, unsigned char length);
+int adapter_forward_data_out(int id, unsigned char* data, unsigned char length);
+
+int adapter_get_type(int id);
+int adapter_send_start(int id);
+int adapter_get_status(int id);
+int adapter_send_reset(int id);
 
 #endif /* ADAPTER_H_ */

@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <mainloop.h>
+#include <connectors/usb_con.h>
 
 static s_adapter adapter[MAX_CONTROLLERS] = {};
 
@@ -27,7 +28,6 @@ void adapter_init()
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
     adapter[i].type = C_TYPE_DEFAULT;
-    adapter[i].serial = SERIALOBJECT_UNDEF;
     adapter[i].dst_fd = -1;
     adapter[i].src_fd = -1;
   }
@@ -212,4 +212,115 @@ int adapter_get_device(e_device_type device_type, int controller)
 int adapter_get_controller(e_device_type device_type, int device_id)
 {
   return device_adapter[device_type-1][device_id];
+}
+
+int adapter_forward_data_in(int id, unsigned char* data, unsigned char length)
+{
+  if(adapter[id].portname >= 0)
+  {
+    unsigned char header[] = {BYTE_SPOOF_DATA, length};
+    return serial_sendv(id, header, sizeof(header)/sizeof(*header), data, length);
+  }
+  else
+  {
+    fprintf(stderr, "no serial port opened for adapter %d\n", id);
+    return -1;
+  }
+}
+
+int adapter_forward_data_out(int id, unsigned char* data, unsigned char length)
+{
+  return usb_send(id, data, length);
+}
+
+/*
+ * This function should only be used in the initialization stages, i.e. before the mainloop.
+ */
+int adapter_get_type(int id)
+{
+  unsigned char get_type_request[] = {BYTE_TYPE, BYTE_LEN_0_BYTE};
+
+  if(serial_send(id, get_type_request, sizeof(get_type_request)) == sizeof(get_type_request))
+  {
+    unsigned char get_type_answer[3];
+
+    if(serial_recv(id, get_type_answer, sizeof(get_type_answer)) == sizeof(get_type_answer))
+    {
+      if(get_type_answer[0] == BYTE_TYPE && get_type_answer[1] == BYTE_LEN_1_BYTE)
+      {
+        return get_type_answer[2];
+      }
+    }
+  }
+
+  return -1;
+}
+
+/*
+ * This function should only be used in the initialization stages, i.e. before the mainloop.
+ */
+int adapter_send_start(int id)
+{
+  unsigned char spoof_request[] = {BYTE_START_SPOOF, BYTE_LEN_0_BYTE};
+  if(serial_send(id, spoof_request, sizeof(spoof_request)) < sizeof(spoof_request))
+  {
+    fprintf(stderr, "serial_send\n");
+    return -1;
+  }
+
+  unsigned char spoof_answer[3];
+
+  if(serial_recv(id, spoof_answer, sizeof(spoof_answer)) < sizeof(spoof_answer))
+  {
+    fprintf(stderr, "serial_recv\n");
+    return -1;
+  }
+
+  if(spoof_answer[0] != BYTE_START_SPOOF && spoof_answer[1] != BYTE_LEN_1_BYTE)
+  {
+    fprintf(stderr, "bad response\n");
+    return -1;
+  }
+
+  if(spoof_answer[2] == BYTE_STATUS_SPOOFED)
+  {
+    return 1;
+  }
+
+  return 0;
+}
+
+/*
+ * This function should only be used in the initialization stages, i.e. before the mainloop.
+ */
+int adapter_get_status(int id)
+{
+  unsigned char get_status_request[] = {BYTE_STATUS, BYTE_LEN_0_BYTE};
+
+  if(serial_send(id, get_status_request, sizeof(get_status_request)) == sizeof(get_status_request))
+  {
+    unsigned char get_status_answer[3];
+
+    if(serial_recv(id, get_status_answer, sizeof(get_status_answer)) == sizeof(get_status_answer))
+    {
+      if(get_status_answer[0] == BYTE_TYPE && get_status_answer[1] == BYTE_LEN_1_BYTE)
+      {
+        return get_status_answer[2];
+      }
+    }
+  }
+
+  return -1;
+}
+
+int adapter_send_reset(int id)
+{
+  unsigned char reset_request[] = {BYTE_RESET, BYTE_LEN_0_BYTE};
+
+  if(serial_send(id, reset_request, sizeof(reset_request)) != sizeof(reset_request))
+  {
+    return -1;
+  }
+
+  return 0;
 }

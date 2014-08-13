@@ -287,6 +287,12 @@ static int read_ds4_control(int btds4_number)
 
   ssize_t len = l2cap_recv(states[btds4_number].ds4_control, buf, sizeof(buf));
 
+  /*if(buf[1] == 0x04)
+  {
+    printf("alter report id 0x04\n");
+    buf[4] = ~buf[4];
+  }*/
+
   if(len < 0)
   {
     fprintf(stderr, "error reading ds4 control\n");
@@ -431,6 +437,18 @@ static int read_ps4_control(int btds4_number)
 
       return 0;
     }*/
+
+    /*
+     * todo: forward to USB device, and deactivate l2cap_send
+     */
+
+    if(buf[1] == 0x03 || buf[1] == 0x04)
+    {
+      struct timeval t;
+      gettimeofday(&t, NULL);
+      printf("%ld.%06ld ", t.tv_sec, t.tv_usec);
+      printf("report id 0x%02x\n", buf[1]);
+    }
 
     int ret = l2cap_send(states[btds4_number].ds4_control, buf, len, 0);
 
@@ -742,6 +760,10 @@ int btds4_init(int btds4_number)
     return -1;
   }
 
+  /*
+   * todo: open a USB device, add event sources, and deactivate following code if successful
+   */
+
   if(sdp_fd < 0)
   {
     if((sdp_fd = l2cap_listen(PSM_SDP, L2CAP_LM_MASTER)) >= 0)
@@ -875,9 +897,18 @@ void btds4_close(int btds4_number)
     bt_disconnect(state->ds4_bdaddr);
   }
 
+  /*
+   * todo: close any a USB device that was opened!
+   */
+
   close_ps4_sdp(btds4_number);
   close_ps4_interrupt(btds4_number);
   close_ps4_control(btds4_number);
+
+  /*
+   * todo: deactivate this if we are working with a USB device
+   */
+
   close_ds4_sdp(btds4_number);
   close_ds4_interrupt(btds4_number);
   close_ds4_control(btds4_number);

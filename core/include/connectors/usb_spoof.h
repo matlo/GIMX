@@ -17,41 +17,15 @@
 
 #define REQTYPE_VENDOR (2 << 5)
 
-#define BUFFER_SIZE 0xFF
-
-#define BYTE_TYPE        0x11
-#define BYTE_STATUS      0x22
-#define BYTE_START_SPOOF 0x33
-#define BYTE_SPOOF_DATA  0x44
-#define BYTE_SEND_REPORT 0xff
-
-#define BYTE_TYPE_X360       0x01
-#define BYTE_STATUS_NSPOOFED 0x00
-#define BYTE_STATUS_SPOOFED  0x01
-
-#define BYTE_LEN_0_BYTE 0x00
-#define BYTE_LEN_1_BYTE 0x01
-
 typedef struct
 {
-  unsigned char bRequestType;
-  unsigned char bRequest;
-  unsigned short wValue;
-  unsigned short wIndex;
-  unsigned short wLength;
-} control_request_header;
-
-typedef struct
-{
-  control_request_header header;
-  unsigned char data[BUFFER_SIZE-sizeof(control_request_header)];
+  struct libusb_control_setup setup;
+  unsigned char data[BUFFER_SIZE-sizeof(struct libusb_control_setup)];
 } control_request;
 
 int usb_spoof_init_usb_device(int vendor, int product,
     uint16_t* bus_id, uint8_t* device_address, int libusb_debug);
 void usb_spoof_release_usb_device();
-int usb_spoof_get_adapter_type(SERIALOBJECT serial);
-int usb_spoof_get_adapter_status(SERIALOBJECT serial);
 int usb_spoof_forward_to_device(control_request* creq);
 int usb_spoof_forward_to_adapter(SERIALOBJECT serial, unsigned char* data, unsigned char length);
 

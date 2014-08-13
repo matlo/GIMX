@@ -7,7 +7,7 @@ endif
 
 BINS=gimx
 ifneq ($(OS),Windows_NT)
-BINS+= ds4tool sixaddr bdaddr hcirevision usbspoof
+BINS+= ds4tool sixaddr bdaddr hcirevision
 OUT=$(BINS)
 else
 OUT=gimx.exe
@@ -46,6 +46,7 @@ GIMX_OBJ = \
        connectors/gpp/pcprog.o\
        connectors/gpp_con.o\
        connectors/usb_spoof.o\
+       connectors/usb_con.o\
        adapter.o
 
 ifneq ($(OS),Windows_NT)

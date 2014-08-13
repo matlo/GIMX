@@ -17,17 +17,27 @@
 #include <termios.h>
 
 #include <sys/ioctl.h>
+#include <sys/uio.h>
 
 #include <libintl.h>
 #define _(STRING)    gettext(STRING)
 
 #include <errno.h>
 
+#include <adapter.h>
+
 /*
  * The baud rate in bps.
  */
 #define TTY_BAUDRATE B500000 //0.5Mbps
 #define SPI_BAUDRATE 4000000 //4Mbps
+
+static struct serial
+{
+  int fd;
+  unsigned char data[HEADER_SIZE+BUFFER_SIZE];
+  unsigned char bread;
+} serials[MAX_CONTROLLERS] = {};
 
 /*
  * Connect to a serial port.
@@ -111,7 +121,7 @@ int spi_connect(char* portname)
   return fd;
 }
 
-int serial_connect(char* portname)
+int serial_connect(int id, char* portname)
 {
   int fd = 0;
 
@@ -128,18 +138,39 @@ int serial_connect(char* portname)
     fd = -1;
   }
 
+  if(fd >= 0)
+  {
+    serials[id].fd = fd;
+  }
+
   return fd;
 }
 
 /*
- * Send a usb report to the serial port.
+ * Send a data to the serial port.
  */
-int serial_send(int fd, void* pdata, unsigned int size)
+int serial_send(int id, void* pdata, unsigned int size)
 {
-  return write(fd, pdata, size);
+  return write(serials[id].fd, pdata, size);
 }
 
-int serial_recv(int fd, void* pdata, unsigned int size)
+int serial_sendv(int id, void* pdata1, unsigned int size1, void* pdata2, unsigned int size2)
+{
+  struct iovec ov[2] =
+  {
+      {.iov_base = pdata1, .iov_len = size1},
+      {.iov_base = pdata2, .iov_len = size2}
+  };
+  return writev(serials[id].fd, ov, sizeof(ov)/sizeof(*ov));
+}
+
+/*
+ * This function tries to read 'size' bytes of data.
+ * It blocks until 'size' bytes of data have been read or after 1s has elapsed.
+ *
+ * It should only be used in the initialization stages, i.e. before the mainloop.
+ */
+int serial_recv(int id, void* pdata, unsigned int size)
 {
   int bread = 0;
   int res;
@@ -151,13 +182,13 @@ int serial_recv(int fd, void* pdata, unsigned int size)
   while(bread != size)
   {
     FD_ZERO(&readfds);
-    FD_SET(fd, &readfds);
-    int status = select(fd+1, &readfds, NULL, NULL, &timeout);
+    FD_SET(serials[id].fd, &readfds);
+    int status = select(serials[id].fd+1, &readfds, NULL, NULL, &timeout);
     if(status > 0)
     {
-      if(FD_ISSET(fd, &readfds))
+      if(FD_ISSET(serials[id].fd, &readfds))
       {
-        res = read(fd, pdata, size-bread);
+        res = read(serials[id].fd, pdata, size-bread);
         if(res > 0)
         {
           bread += res;
@@ -177,8 +208,70 @@ int serial_recv(int fd, void* pdata, unsigned int size)
   return bread;
 }
 
-void serial_close(int fd)
+int serial_close(int fd)
 {
   usleep(10000);//sleep 10ms to leave enough time for the last packet to be sent
   close(fd);
+  return 0;
+}
+
+static int serial_callback(int id)
+{
+  int ret;
+
+  if(serials[id].bread < HEADER_SIZE)
+  {
+    /*
+     * read the first two bytes first so as to retrieve the data length
+     */
+    ret = read(serials[id].fd, serials[id].data+serials[id].bread, HEADER_SIZE-serials[id].bread);
+
+    if(ret >= 0)
+    {
+      serials[id].bread += ret;
+    }
+    else
+    {
+      perror("read");
+      ret = -1;
+    }
+  }
+  else
+  {
+    /*
+     * read the data
+     */
+    ret = read(serials[id].fd, serials[id].data+serials[id].bread, serials[id].data[1]-(serials[id].bread-HEADER_SIZE));
+
+    if(ret >= 0)
+    {
+      serials[id].bread += ret;
+
+      if(serials[id].data[1] + HEADER_SIZE == serials[id].bread)
+      {
+        if(serials[id].data[0] == BYTE_SPOOF_DATA)
+        {
+          ret = adapter_forward_data_out(id, serials[id].data+HEADER_SIZE, serials[id].data[1]);
+        }
+        else
+        {
+          fprintf(stderr, "unhandled packet (type=0x%02x)\n", serials[id].data[0]);
+        }
+
+        serials[id].bread = 0;
+      }
+    }
+    else
+    {
+      perror("read");
+      ret = -1;
+    }
+  }
+
+  return ret;
+}
+
+void serial_add_source(int id)
+{
+  GE_AddSource(serials[id].fd, id, serial_callback, NULL, serial_close);
 }

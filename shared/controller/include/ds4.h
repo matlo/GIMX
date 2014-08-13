@@ -10,6 +10,9 @@
 
 #define DS4_USB_INTERRUPT_PACKET_SIZE 64
 
+#define DS4_VENDOR 0x054c
+#define DS4_PRODUCT 0x05c4
+
 typedef enum
 {
   ds4a_lstick_x = rel_axis_lstick_x,
