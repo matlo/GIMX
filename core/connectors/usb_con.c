@@ -115,12 +115,14 @@ int usb_init(int usb_number, unsigned short vendor, unsigned short product, void
             state->fp = fp;
             ++nb_opened;
 
+#ifndef WIN32
             const struct libusb_pollfd** pfd_usb = libusb_get_pollfds(ctx);
 
             for (poll_i=0; pfd_usb[poll_i] != NULL; ++poll_i)
             {
               GE_AddSource(pfd_usb[poll_i]->fd, usb_number, usb_handle_events, usb_handle_events, usb_close);
             }
+#endif
 
             return 0;
           }
