@@ -25,14 +25,25 @@ static char* sixaxis_names[] =
   "Sony Navigation Controller"
 };
 
-static char* joystickName[GE_MAX_DEVICES] = {};
-static int joystickVirtualIndex[GE_MAX_DEVICES] = {};
-static int joystickUsed[GE_MAX_DEVICES] = {};
-static int joystickSixaxis[GE_MAX_DEVICES] = {};
-static char* mouseName[GE_MAX_DEVICES] = {};
-static int mouseVirtualIndex[GE_MAX_DEVICES] = {};
-static char* keyboardName[GE_MAX_DEVICES] = {};
-static int keyboardVirtualIndex[GE_MAX_DEVICES] = {};
+static struct
+{
+  char* name;
+  int virtualIndex;
+  unsigned char isUsed;
+  unsigned char isSixaxis;
+} joysticks[GE_MAX_DEVICES] = {};
+
+static struct
+{
+  char* name;
+  int virtualIndex;
+} mice[GE_MAX_DEVICES] = {};
+
+static struct
+{
+  char* name;
+  int virtualIndex;
+} keyboards[GE_MAX_DEVICES] = {};
 
 static int grab = GE_GRAB_OFF;
 
@@ -83,25 +94,25 @@ int GE_initialize(unsigned char mkb_src)
       name = "Sony PLAYSTATION(R)3 Controller";
     }
 
-    joystickName[i] = strdup(_8BIT_to_UTF8(name));
+    joysticks[i].name = strdup(_8BIT_to_UTF8(name));
 
     for (j = i - 1; j >= 0; --j)
     {
-      if (!strcmp(joystickName[i], joystickName[j]))
+      if (!strcmp(joysticks[i].name, joysticks[j].name))
       {
-        joystickVirtualIndex[i] = joystickVirtualIndex[j] + 1;
+        joysticks[i].virtualIndex = joysticks[j].virtualIndex + 1;
         break;
       }
     }
     if (j < 0)
     {
-      joystickVirtualIndex[i] = 0;
+      joysticks[i].virtualIndex = 0;
     }
     for (j = 0; j < sizeof(sixaxis_names) / sizeof(sixaxis_names[0]); ++j)
     {
-      if (!strcmp(joystickName[i], sixaxis_names[j]))
+      if (!strcmp(joysticks[i].name, sixaxis_names[j]))
       {
-        joystickSixaxis[i] = 1;
+        joysticks[i].isSixaxis = 1;
       }
     }
     i++;
@@ -109,38 +120,38 @@ int GE_initialize(unsigned char mkb_src)
   i = 0;
   while ((name = ev_mouse_name(i)))
   {
-    mouseName[i] = strdup(_8BIT_to_UTF8(name));
+    mice[i].name = strdup(_8BIT_to_UTF8(name));
 
     for (j = i - 1; j >= 0; --j)
     {
-      if (!strcmp(mouseName[i], mouseName[j]))
+      if (!strcmp(mice[i].name, mice[j].name))
       {
-        mouseVirtualIndex[i] = mouseVirtualIndex[j] + 1;
+        mice[i].virtualIndex = mice[j].virtualIndex + 1;
         break;
       }
     }
     if (j < 0)
     {
-      mouseVirtualIndex[i] = 0;
+        mice[i].virtualIndex = 0;
     }
     i++;
   }
   i = 0;
   while ((name = ev_keyboard_name(i)))
   {
-    keyboardName[i] = strdup(_8BIT_to_UTF8(name));
+    keyboards[i].name = strdup(_8BIT_to_UTF8(name));
 
     for (j = i - 1; j >= 0; --j)
     {
-      if (!strcmp(keyboardName[i], keyboardName[j]))
+      if (!strcmp(keyboards[i].name, keyboards[j].name))
       {
-        keyboardVirtualIndex[i] = keyboardVirtualIndex[j] + 1;
+        keyboards[i].virtualIndex = keyboards[j].virtualIndex + 1;
         break;
       }
     }
     if (j < 0)
     {
-      keyboardVirtualIndex[i] = 0;
+      keyboards[i].virtualIndex = 0;
     }
     i++;
   }
@@ -154,12 +165,12 @@ int GE_initialize(unsigned char mkb_src)
 void GE_release_unused()
 {
   int i;
-  for (i = 0; i < GE_MAX_DEVICES && joystickName[i]; ++i)
+  for (i = 0; i < GE_MAX_DEVICES && joysticks[i].name; ++i)
   {
-    if (!joystickUsed[i])
+    if (!joysticks[i].isUsed)
     {
-      free(joystickName[i]);
-      joystickName[i] = NULL;
+      free(joysticks[i].name);
+      joysticks[i].name = NULL;
       ev_joystick_close(i);
     }
   }
@@ -197,15 +208,15 @@ void GE_grab()
 void GE_FreeMKames()
 {
   int i;
-  for (i = 0; i < GE_MAX_DEVICES && mouseName[i]; ++i)
+  for (i = 0; i < GE_MAX_DEVICES && mice[i].name; ++i)
   {
-    free(mouseName[i]);
-    mouseName[i] = NULL;
+    free(mice[i].name);
+    mice[i].name = NULL;
   }
-  for (i = 0; i < GE_MAX_DEVICES && keyboardName[i]; ++i)
+  for (i = 0; i < GE_MAX_DEVICES && keyboards[i].name; ++i)
   {
-    free(keyboardName[i]);
-    keyboardName[i] = NULL;
+    free(keyboards[i].name);
+    keyboards[i].name = NULL;
   }
 }
 
@@ -218,10 +229,10 @@ void GE_quit()
 
   for (i = 0; i < GE_MAX_DEVICES; ++i)
   {
-    if (joystickName[i])
+    if (joysticks[i].name)
     {
-      free(joystickName[i]);
-      joystickName[i] = NULL;
+      free(joysticks[i].name);
+      joysticks[i].name = NULL;
       ev_joystick_close(i);
     }
   }
@@ -240,7 +251,7 @@ char* GE_MouseName(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
-    return mouseName[id];
+    return mice[id].name;
   }
   return NULL;
 }
@@ -256,7 +267,7 @@ char* GE_KeyboardName(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
-    return keyboardName[id];
+    return keyboards[id].name;
   }
   return NULL;
 }
@@ -272,7 +283,7 @@ char* GE_JoystickName(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
-    return joystickName[id];
+    return joysticks[id].name;
   }
   return NULL;
 }
@@ -288,7 +299,7 @@ int GE_JoystickVirtualId(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
-    return joystickVirtualIndex[id];
+    return joysticks[id].virtualIndex;
   }
   return 0;
 }
@@ -302,7 +313,7 @@ void GE_SetJoystickUsed(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
-    joystickUsed[id] = 1;
+    joysticks[id].isUsed = 1;
   }
 }
 
@@ -317,7 +328,7 @@ int GE_MouseVirtualId(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
-    return mouseVirtualIndex[id];
+    return mice[id].virtualIndex;
   }
   return 0;
 }
@@ -333,7 +344,7 @@ int GE_KeyboardVirtualId(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
-    return keyboardVirtualIndex[id];
+    return keyboards[id].virtualIndex;
   }
   return 0;
 }
@@ -349,7 +360,7 @@ int GE_IsSixaxis(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
-    return joystickSixaxis[id];
+    return joysticks[id].isSixaxis;
   }
   return 0;
 }
