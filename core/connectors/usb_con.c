@@ -58,7 +58,7 @@ int usb_handle_events(int unused)
 int usb_init(int usb_number, unsigned short vendor, unsigned short product, void (*fp)(struct libusb_transfer* transfer))
 {
   int ret = -1;
-  int dev_i, poll_i;
+  int dev_i;
 
   struct usb_state* state = usb_states+usb_number;
 
@@ -118,6 +118,7 @@ int usb_init(int usb_number, unsigned short vendor, unsigned short product, void
 #ifndef WIN32
             const struct libusb_pollfd** pfd_usb = libusb_get_pollfds(ctx);
 
+            int poll_i;
             for (poll_i=0; pfd_usb[poll_i] != NULL; ++poll_i)
             {
               GE_AddSource(pfd_usb[poll_i]->fd, usb_number, usb_handle_events, usb_handle_events, usb_close);
