@@ -12,5 +12,6 @@ int usb_init(int usb_number, unsigned short vendor, unsigned short product, void
 void usb_callback(struct libusb_transfer* transfer);
 int usb_close(int usb_number);
 int usb_send(int usb_number, unsigned char* buffer, unsigned char length);
+int usb_handle_events(int unused);
 
 #endif /* USB_CON_H_ */

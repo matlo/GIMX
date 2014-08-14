@@ -219,7 +219,14 @@ int adapter_forward_data_in(int id, unsigned char* data, unsigned char length)
   if(adapter[id].portname >= 0)
   {
     unsigned char header[] = {BYTE_SPOOF_DATA, length};
-    return serial_sendv(id, header, sizeof(header)/sizeof(*header), data, length);
+    if(serial_sendv(id, header, HEADER_SIZE, data, length) < 0)
+    {
+      return -1;
+    }
+    else
+    {
+      return 0;
+    }
   }
   else
   {

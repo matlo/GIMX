@@ -10,6 +10,9 @@
 #include "macros.h"
 #include <stdio.h>
 #include <adapter.h>
+#ifdef WIN32
+#include <connectors/usb_con.h>
+#endif
 
 static volatile int done = 0;
 
@@ -57,6 +60,10 @@ void mainloop()
     {
       done = 1;
     }
+    
+#ifdef WIN32
+    usb_handle_events(0);
+#endif
 
     /*
      * These two functions generate events.

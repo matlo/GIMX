@@ -217,18 +217,19 @@ int serial_close(int fd)
 
 static int serial_callback(int id)
 {
-  int ret;
+  int nread;
+  int ret = 0;
 
   if(serials[id].bread < HEADER_SIZE)
   {
     /*
      * read the first two bytes first so as to retrieve the data length
      */
-    ret = read(serials[id].fd, serials[id].data+serials[id].bread, HEADER_SIZE-serials[id].bread);
+    nread = read(serials[id].fd, serials[id].data+serials[id].bread, HEADER_SIZE-serials[id].bread);
 
-    if(ret >= 0)
+    if(nread >= 0)
     {
-      serials[id].bread += ret;
+      serials[id].bread += nread;
     }
     else
     {
@@ -241,17 +242,17 @@ static int serial_callback(int id)
     /*
      * read the data
      */
-    ret = read(serials[id].fd, serials[id].data+serials[id].bread, serials[id].data[1]-(serials[id].bread-HEADER_SIZE));
+    nread = read(serials[id].fd, serials[id].data+serials[id].bread, serials[id].data[1]-(serials[id].bread-HEADER_SIZE));
 
-    if(ret >= 0)
+    if(nread >= 0)
     {
-      serials[id].bread += ret;
+      serials[id].bread += nread;
 
       if(serials[id].data[1] + HEADER_SIZE == serials[id].bread)
       {
         if(serials[id].data[0] == BYTE_SPOOF_DATA)
         {
-          ret = adapter_forward_data_out(id, serials[id].data+HEADER_SIZE, serials[id].data[1]);
+          nread = adapter_forward_data_out(id, serials[id].data+HEADER_SIZE, serials[id].data[1]);
         }
         else
         {

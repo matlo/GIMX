@@ -40,7 +40,10 @@ void usb_callback(struct libusb_transfer* transfer)
       else
       {
         unsigned char *data = libusb_control_transfer_get_data(transfer);
-        adapter_forward_data_in(id, data, transfer->actual_length);
+        if(adapter_forward_data_in(id, data, transfer->actual_length) < 0)
+        {
+          fprintf(stderr, "can't forward data to the adapter\n");
+        }
       }
     }
   }
@@ -52,7 +55,12 @@ void usb_callback(struct libusb_transfer* transfer)
 
 int usb_handle_events(int unused)
 {
+#ifndef WIN32
   return libusb_handle_events(ctx);
+#else
+  struct timeval tv = {};
+  return libusb_handle_events_timeout(ctx, &tv);
+#endif
 }
 
 int usb_init(int usb_number, unsigned short vendor, unsigned short product, void (*fp)(struct libusb_transfer* transfer))
