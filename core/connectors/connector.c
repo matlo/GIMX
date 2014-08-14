@@ -74,7 +74,7 @@ int connector_init()
 
               if(usb_init(i, DS4_VENDOR, DS4_PRODUCT, usb_callback) < 0)
               {
-                fprintf(stderr, _("usb_init failed.\n"));
+                fprintf(stderr, _("No Dualshock 4 controller was found on USB buses.\n"));
                 ret = -1;
               }
 

@@ -79,7 +79,7 @@ int usb_init(int usb_number, unsigned short vendor, unsigned short product, void
     cnt = libusb_get_device_list(ctx, &devs);
     if(cnt < 0)
     {
-      fprintf(stderr, "libusb_init: %s.\n", libusb_strerror(cnt));
+      fprintf(stderr, "libusb_get_device_list: %s.\n", libusb_strerror(cnt));
       return -1;
     }
   }
@@ -96,7 +96,7 @@ int usb_init(int usb_number, unsigned short vendor, unsigned short product, void
         ret = libusb_open(devs[dev_i], &devh);
         if(ret < 0)
         {
-          fprintf(stderr, "libusb_init: %s.\n", libusb_strerror(cnt));
+          fprintf(stderr, "libusb_open: %s.\n", libusb_strerror(cnt));
           return -1;
         }
         else
@@ -136,18 +136,19 @@ int usb_close(int usb_number)
 {
   struct usb_state* state = usb_states+usb_number;
 
-  libusb_release_interface(state->devh, 0);
-  libusb_close(state->devh);
-  state->devh = NULL;
-
-  --nb_opened;
-
-  if(!nb_opened)
+  if(state->devh)
   {
-    libusb_free_device_list(devs, 1);
-    devs = NULL;
-    libusb_exit(ctx);
-    ctx = NULL;
+    libusb_release_interface(state->devh, 0);
+    libusb_close(state->devh);
+    state->devh = NULL;
+    --nb_opened;
+    if(!nb_opened)
+    {
+      libusb_free_device_list(devs, 1);
+      devs = NULL;
+      libusb_exit(ctx);
+      ctx = NULL;
+    }
   }
 
   set_done();
