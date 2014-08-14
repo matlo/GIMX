@@ -412,6 +412,9 @@ int GE_PushEvent(GE_Event*);
 void GE_SetCallback(int(*)(GE_Event*));
 
 void GE_AddSource(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int));
+#ifdef WIN32
+void GE_AddSourceHandle(HANDLE handle, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int));
+#endif
 void GE_RemoveSource(int fd);
 
 #ifdef __cplusplus

@@ -327,6 +327,24 @@ void ev_register_source(int fd, int id, int (*fp_read)(int), int (*fp_write)(int
   }
 }
 
+void ev_register_source_handle(HANDLE handle, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int))
+{
+  if(!fp_cleanup)
+  {
+    fprintf(stderr, "%s: the cleanup function is mandatory.", __FUNCTION__);
+    return;
+  }
+  if(max_source < MAX_SOURCES)
+  {
+    sources[max_source].fd = -1;
+    sources[max_source].id = id;
+    sources[max_source].handle = handle;
+    sources[max_source].fp_read = fp_read;
+    sources[max_source].fp_cleanup = fp_cleanup;
+    ++max_source;
+  }
+}
+
 void ev_remove_source(int fd)
 {
   int i;

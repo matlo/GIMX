@@ -443,6 +443,16 @@ void GE_AddSource(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int
   ev_register_source(fd, id, fp_read, fp_write, fp_cleanup);
 }
 
+#ifdef WIN32
+/*
+ * Add an event source.
+ */
+void GE_AddSourceHandle(HANDLE handle, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int))
+{
+  ev_register_source_handle(handle, id, fp_read, fp_write, fp_cleanup);
+}
+#endif
+
 /*
  * Remove an event source.
  */

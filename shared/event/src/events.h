@@ -26,6 +26,9 @@ void ev_set_callback(int (*)(GE_Event*));
 void ev_pump_events();
 
 void ev_register_source(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int));
+#ifdef WIN32
+void ev_register_source_handle(HANDLE handle, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int));
+#endif
 void ev_remove_source(int fd);
 inline void ev_set_next_event(GE_Event* event);
 
