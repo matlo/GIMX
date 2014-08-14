@@ -14,6 +14,7 @@
 
 #ifdef WIN32
 #include "GE_Windows.h"
+typedef void* HANDLE;
 #else
 #include "GE_Linux.h"
 #include <sys/time.h>

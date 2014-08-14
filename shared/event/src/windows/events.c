@@ -419,7 +419,11 @@ void ev_pump_events()
 
     result = MsgWaitForMultipleObjects(count, handles, FALSE, INFINITE, dwWakeMask);
 
-    if(result == WAIT_OBJECT_0 + count)
+    if(result == WAIT_FAILED)
+    {
+      fprintf(stderr, "MsgWaitForMultipleObjects failed with error %d\n", result);
+    }
+    else if(result == WAIT_OBJECT_0 + count)
     {
       if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
       {
@@ -512,27 +516,43 @@ void ev_pump_events()
       {
         if(sources[i].handle == handles[result])
         {
-          if(WSAEnumNetworkEvents(sources[i].fd, handles[result], &NetworkEvents))
+          if(sources[i].fd >= 0)
           {
-            fprintf(stderr, "WSAEnumNetworkEvents: %d\n", WSAGetLastError());
-            sources[i].fp_cleanup(sources[i].id);
+            /*
+             * Network source
+             */
+            if(WSAEnumNetworkEvents(sources[i].fd, handles[result], &NetworkEvents))
+            {
+              fprintf(stderr, "WSAEnumNetworkEvents: %d\n", WSAGetLastError());
+              sources[i].fp_cleanup(sources[i].id);
+            }
+            else
+            {
+              if(NetworkEvents.lNetworkEvents & FD_READ)
+              {
+                if(NetworkEvents.iErrorCode[FD_READ_BIT])
+                {
+                  fprintf(stderr, "iErrorCode[FD_READ_BIT] is set\n");
+                  sources[i].fp_cleanup(sources[i].id);
+                }
+                else
+                {
+                  if(sources[i].fp_read(sources[i].id))
+                  {
+                    done = 1;
+                  }
+                }
+              }
+            }
           }
           else
           {
-            if(NetworkEvents.lNetworkEvents & FD_READ)
+            /*
+             * Serial source
+             */
+            if(sources[i].fp_read(sources[i].id))
             {
-              if(NetworkEvents.iErrorCode[FD_READ_BIT])
-              {
-                fprintf(stderr, "iErrorCode[FD_READ_BIT] is set\n");
-                sources[i].fp_cleanup(sources[i].id);
-              }
-              else
-              {
-                if(sources[i].fp_read(sources[i].id))
-                {
-                  done = 1;
-                }
-              }
+              done = 1;
             }
           }
           break;
