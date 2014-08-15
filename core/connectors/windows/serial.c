@@ -237,8 +237,13 @@ static int serial_read_callback(int id)
         ret = -1;
       }
     }
+    else
+    {
+      remaining = 0;
+    }
   }
-  else
+
+  if(!remaining)
   {
     if(serials[id].data[0] == BYTE_SPOOF_DATA)
     {
