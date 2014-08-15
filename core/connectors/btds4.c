@@ -442,13 +442,13 @@ static int read_ps4_control(int btds4_number)
      * todo: forward to USB device, and deactivate l2cap_send
      */
 
-    if(buf[1] == 0x03 || buf[1] == 0x04)
+    /*if(buf[1] == 0x03 || buf[1] == 0x04)
     {
       struct timeval t;
       gettimeofday(&t, NULL);
       printf("%ld.%06ld ", t.tv_sec, t.tv_usec);
       printf("report id 0x%02x\n", buf[1]);
-    }
+    }*/
 
     int ret = l2cap_send(states[btds4_number].ds4_control, buf, len, 0);
 
@@ -898,7 +898,7 @@ void btds4_close(int btds4_number)
   }
 
   /*
-   * todo: close any a USB device that was opened!
+   * todo: close any USB device that was opened!
    */
 
   close_ps4_sdp(btds4_number);
