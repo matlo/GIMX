@@ -56,12 +56,10 @@ int serial_connect(int id, char* portname)
       }
       else
       {
+        /*
+         * disable timeouts
+         */
         COMMTIMEOUTS timeouts = { 0 };
-        timeouts.ReadIntervalTimeout = 0;
-        timeouts.ReadTotalTimeoutMultiplier = 0;
-        timeouts.ReadTotalTimeoutConstant = 1000;
-        timeouts.WriteTotalTimeoutMultiplier = 0;
-        timeouts.WriteTotalTimeoutConstant = 0;
         if (!SetCommTimeouts(handle, &timeouts))
         {
           CloseHandle(handle);
@@ -84,7 +82,7 @@ int serial_connect(int id, char* portname)
 }
 
 /*
- * Send a usb report to the serial port.
+ * Send a data to the serial port.
  */
 int serial_send(int id, void* pdata, unsigned int size)
 {
@@ -150,7 +148,7 @@ int serial_recv(int id, void* pdata, unsigned int size)
       printf("ReadFile failed with error %lu\n", GetLastError());
       return -1;
     }
-    int ret = WaitForSingleObject(serials[id].rOverlapped.hEvent, INFINITE);
+    int ret = WaitForSingleObject(serials[id].rOverlapped.hEvent, 1000);
     switch (ret)
     {
       case WAIT_OBJECT_0:
@@ -159,6 +157,9 @@ int serial_recv(int id, void* pdata, unsigned int size)
           printf("GetOverlappedResult failed with error %lu\n", GetLastError());
           return -1;
         }
+        break;
+      case WAIT_TIMEOUT:
+        CancelIo(serials[id].handle);
         break;
       default:
         printf("WaitForSingleObject failed with error %lu\n", GetLastError());
@@ -258,15 +259,6 @@ static int serial_read_callback(int id)
 
 void serial_add_source(int id)
 {
-  /*
-   * Disable the timeouts.
-   */
-  COMMTIMEOUTS timeouts = { 0 };
-  if (!SetCommTimeouts(serials[id].handle, &timeouts))
-  {
-    fprintf(stderr, "can't set timeout\n");
-  }
-
   read_header(id);
 
   GE_AddSourceHandle(serials[id].rOverlapped.hEvent, id, serial_read_callback, NULL, serial_close);
