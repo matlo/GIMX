@@ -15,7 +15,7 @@ CPPFLAGS+=-Iinclude -Isrc
 all: $(OBJ)
 	ar rcsD controller.a.new $(OBJ)
 	diff -N controller.a.new controller.a > /dev/null || mv controller.a.new controller.a
-	rm -f controller.a.new
+	$(RM) controller.a.new
 
 clean:
-	rm -f $(OBJ) controller.a
+	$(RM) $(OBJ) controller.a

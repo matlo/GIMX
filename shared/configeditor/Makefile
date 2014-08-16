@@ -6,10 +6,10 @@ CPPFLAGS+=-I/usr/include/ -I../event/include -Iinclude -I/usr/include/libxml2 -I
 all: $(OBJ)
 	ar rcsD configeditor.a.new $(OBJ)
 	diff -N configeditor.a.new configeditor.a > /dev/null || mv configeditor.a.new configeditor.a
-	rm -f configeditor.a.new
+	$(RM) configeditor.a.new
 
 src/%.o: src/%.cpp
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
 clean:
-	rm -f $(OBJ) configeditor.a
+	$(RM) $(OBJ) configeditor.a

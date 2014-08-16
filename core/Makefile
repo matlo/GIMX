@@ -28,7 +28,7 @@ DEP=../shared/event/GE.a ../shared/controller/controller.a
 all: $(BINS)
 
 clean:
-	rm -f $(OUT) *~ *.o */*.o */*/*.o
+	$(RM) $(OUT) *~ *.o */*.o */*/*.o
 
 GIMX_OBJ = \
        gimx.o\
@@ -111,7 +111,7 @@ install: all
 	for i in $(BINS); do chmod ug+s $(bindir)/$$i; done
 
 uninstall:
-	-for i in $(BINS); do rm $(bindir)/$$i; done
+	-for i in $(BINS); do $(RM) $(bindir)/$$i; done
 	-rmdir $(bindir)
 	-rmdir $(prefix)
 

@@ -42,7 +42,7 @@ endif
 	$(CPP) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 clean:
-	rm -f $(OBJ) $(OUT)
+	$(RM) $(OBJ) $(OUT)
 
 .PHONY: clean
 
@@ -57,11 +57,11 @@ install: all
 	cp gimx-config.png $(prefix)/share/pixmaps
 
 uninstall:
-	-for i in $(BINS); do rm $(bindir)/$$i; done
+	-for i in $(BINS); do $(RM) $(bindir)/$$i; done
 	-rmdir $(bindir)
 	-rmdir $(prefix)
-	-rm $(prefix)/share/applications/gimx-config.desktop
-	-rm $(prefix)/share/pixmaps/gimx-config.png
+	-$(RM) $(prefix)/share/applications/gimx-config.desktop
+	-$(RM) $(prefix)/share/pixmaps/gimx-config.png
 
 really-clean: clean uninstall
 endif

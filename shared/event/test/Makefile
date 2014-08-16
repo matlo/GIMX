@@ -17,7 +17,7 @@ DEPS=../GE.a
 all: $(BINS)
 
 clean:
-	rm -f $(BINS) *~ *.o
+	$(RM) $(BINS) *~ *.o
 
 GE_test: $(OBJ) $(DEPS)
 	$(CC) $(CFLAGS) -o $@ $(OBJ) $(LDFLAGS)
