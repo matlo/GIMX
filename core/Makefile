@@ -72,7 +72,7 @@ gimx: $(DEP) $(GIMX_OBJ)
 ifneq ($(OS),Windows_NT)
 sixaddr: utils/sixaddr.o
 	$(CC) -o $@ $^ -lusb-1.0
-	
+
 USBSPOOF_OBJ = \
        utils/usbspoof.o\
        connectors/usb_spoof.o\
