@@ -186,9 +186,13 @@ int serial_close(int id)
   return 0;
 }
 
+static int read_value(int id);
+
 static int read_header(int id)
 {
   int ret = 0;
+
+  serials[id].bread = 0;
 
   if(!ReadFile(serials[id].handle, (uint8_t*)serials[id].data, HEADER_SIZE, NULL, &serials[id].rOverlapped))
   {
@@ -197,6 +201,56 @@ static int read_header(int id)
       fprintf(stderr, "ReadFile failed with error %lu\n", GetLastError());
       ret = -1;
     }
+  }
+  else
+  {
+    // the read immediately completed
+    serials[id].bread = HEADER_SIZE;
+
+    ret = read_value(id);
+  }
+
+  return ret;
+}
+
+static int process_packet(int id)
+{
+  int ret = 0;
+
+  if(serials[id].data[0] == BYTE_SPOOF_DATA)
+  {
+    ret = adapter_forward_data_out(id, serials[id].data+HEADER_SIZE, serials[id].data[1]);
+  }
+  else
+  {
+    fprintf(stderr, "unhandled packet (type=0x%02x)\n", serials[id].data[0]);
+  }
+
+  // start another read
+  // todo: break recursion
+  read_header(id);
+
+  return ret;
+}
+
+static int read_value(int id)
+{
+  int ret = 0;
+
+  DWORD remaining = serials[id].data[1] - (serials[id].bread - HEADER_SIZE);
+
+  if(!ReadFile(serials[id].handle, (uint8_t*)serials[id].data+serials[id].bread, remaining, NULL, &serials[id].rOverlapped))
+  {
+    if(GetLastError() != ERROR_IO_PENDING)
+    {
+      fprintf(stderr, "ReadFile failed with error %lu\n", GetLastError());
+      ret = -1;
+    }
+  }
+  else
+  {
+    // the read immediately completed
+    ret = process_packet(id);
   }
 
   return ret;
@@ -229,34 +283,11 @@ static int serial_read_callback(int id)
 
   if(remaining > 0)
   {
-    if(!ReadFile(serials[id].handle, (uint8_t*)serials[id].data+serials[id].bread, remaining, NULL, &serials[id].rOverlapped))
-    {
-      if(GetLastError() != ERROR_IO_PENDING)
-      {
-        fprintf(stderr, "ReadFile failed with error %lu\n", GetLastError());
-        ret = -1;
-      }
-    }
-    else
-    {
-      remaining = 0;
-    }
+    ret = read_value(id);
   }
-
-  if(!remaining)
+  else
   {
-    if(serials[id].data[0] == BYTE_SPOOF_DATA)
-    {
-      ret = adapter_forward_data_out(id, serials[id].data+HEADER_SIZE, serials[id].data[1]);
-    }
-    else
-    {
-      fprintf(stderr, "unhandled packet (type=0x%02x)\n", serials[id].data[0]);
-    }
-
-    serials[id].bread = 0;
-
-    read_header(id);
+    ret = process_packet(id);
   }
 
   return ret;
