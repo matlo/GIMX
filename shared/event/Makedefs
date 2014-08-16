@@ -3,13 +3,13 @@ CPP = g++
 LD = g++
 AR = ar
 
-CFLAGS=-Wall -O3#0 -g
+CFLAGS += -Wall -O3#0 -g
 
 ifeq ($(OS),Windows_NT)
 CFLAGS += `xml2-config --cflags` `sdl2-config --cflags`
 endif
 
-LDFLAGS = -s \
+LDFLAGS += -s \
       ../shared/event/GE.a \
       -Wl,--whole-archive ../shared/controller/controller.a -Wl,--no-whole-archive
 
