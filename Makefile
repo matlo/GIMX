@@ -5,10 +5,10 @@ DIRS+= po
 endif
 
 all:
-	+for i in $(DIRS); do cd $$i; $(MAKE) all; cd ..; done
+	+for i in $(DIRS); do $(MAKE) -C $$i all; done
 
 clean:
-	+for i in $(DIRS); do cd $$i; $(MAKE) clean; cd ..; done
+	+for i in $(DIRS); do $(MAKE) -C $$i clean; done
 
 ifeq ($(OS),Windows_NT)
 install: all
@@ -55,10 +55,10 @@ endif
 
 else
 install: all
-	for i in $(DIRS); do cd $$i; $(MAKE) install; cd ..; done
+	for i in $(DIRS); do $(MAKE) -C $$i install; done
 
 uninstall:
-	-for i in $(DIRS); do cd $$i; $(MAKE) uninstall; cd ..; done
+	for i in $(DIRS); do $(MAKE) -C $$i uninstall; done
 
 really-clean: clean uninstall
 endif
