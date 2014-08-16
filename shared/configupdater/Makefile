@@ -3,7 +3,7 @@ include ../../Makedefs
 OBJ=configupdater.o
 
 all: $(OBJ)
-	ar rcsD configupdater.a.new $(OBJ)
+	$(AR) rcsD configupdater.a.new $(OBJ)
 	diff -N configupdater.a.new configupdater.a > /dev/null || mv configupdater.a.new configupdater.a
 	$(RM) configupdater.a.new
 

@@ -11,7 +11,7 @@ endif
 CPPFLAGS+=-I/usr/include/ -Iinclude -Isrc
 
 all: $(OBJ)
-	ar rcsD GE.a.new $(OBJ)
+	$(AR) rcsD GE.a.new $(OBJ)
 	diff -N GE.a.new GE.a > /dev/null || mv GE.a.new GE.a
 	$(RM) GE.a.new
 

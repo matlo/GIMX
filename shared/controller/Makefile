@@ -13,7 +13,7 @@ OBJ=src/report.o\
 CPPFLAGS+=-Iinclude -Isrc
 
 all: $(OBJ)
-	ar rcsD controller.a.new $(OBJ)
+	$(AR) rcsD controller.a.new $(OBJ)
 	diff -N controller.a.new controller.a > /dev/null || mv controller.a.new controller.a
 	$(RM) controller.a.new
 

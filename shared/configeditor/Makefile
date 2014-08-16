@@ -4,7 +4,7 @@ OBJ=src/event_catcher.o src/XmlWritter.o src/XmlReader.o src/Trigger.o src/Inten
 CPPFLAGS+=-I/usr/include/ -I../event/include -Iinclude -I/usr/include/libxml2 -I../controller/include
 
 all: $(OBJ)
-	ar rcsD configeditor.a.new $(OBJ)
+	$(AR) rcsD configeditor.a.new $(OBJ)
 	diff -N configeditor.a.new configeditor.a > /dev/null || mv configeditor.a.new configeditor.a
 	$(RM) configeditor.a.new
 
