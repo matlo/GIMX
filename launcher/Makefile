@@ -5,7 +5,7 @@ prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
 endif
 
-INC = -I../shared/configeditor/include -I../shared/controller/include
+CPPFLAGS += -I../shared/configeditor/include -I../shared/controller/include
 CFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
 LDFLAGS := ../shared/configeditor/configeditor.a \
       $(LDFLAGS) \
@@ -39,7 +39,7 @@ launcher.rc.o: launcher.rc
 endif
 
 %.o: %.cpp
-	$(CPP) $(CFLAGS) $(INC) -c -o $@ $<
+	$(CPP) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 clean:
 	rm -f $(OBJ) $(OUT)

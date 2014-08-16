@@ -12,7 +12,7 @@ AR = ar
 CFLAGS=-Wall -O3#0 -g
 
 ifeq ($(OS),Windows_NT)
-CFLAGS += `xml2-config --cflags` `sdl2-config --cflags`
+CPPFLAGS += `xml2-config --cflags` `sdl2-config --cflags`
 endif
 
 LDFLAGS = -s \

@@ -19,9 +19,9 @@ else
 LDFLAGS += $(shell sdl2-config --libs) `xml2-config --libs` -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl -lusb-1.0 -lwinmm
 LDFLAGS:=$(filter-out -mwindows,$(LDFLAGS))
 endif
-INC=-Iinclude -I../shared/event/include -I../shared/controller/include
+CPPFLAGS+=-Iinclude -I../shared/event/include -I../shared/controller/include
 ifneq ($(OS),Windows_NT)
-INC += -I/usr/include/libxml2
+CPPFLAGS += -I/usr/include/libxml2
 endif
 DEP=../shared/event/GE.a ../shared/controller/controller.a
 
@@ -67,7 +67,7 @@ GIMX_OBJ += \
 endif
 
 gimx: $(DEP) $(GIMX_OBJ)
-	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ $^ $(LDFLAGS)
 
 ifneq ($(OS),Windows_NT)
 sixaddr: utils/sixaddr.o
@@ -101,7 +101,7 @@ hcirevision: connectors/hcirevision.o
 endif
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(INC) -o $@ -c $< 
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
 ifneq ($(OS),Windows_NT)
 install: all
