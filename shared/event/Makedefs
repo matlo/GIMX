@@ -1,7 +1,4 @@
-CC = gcc
-CPP = g++
-LD = g++
-AR = ar
+LD = $(CPP)
 
 CFLAGS += -Wall -O3#0 -g
 
