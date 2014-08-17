@@ -5,7 +5,7 @@ prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
 endif
 
-INC = -I../shared/configeditor/include -I../shared/controller/include
+CPPFLAGS += -I../shared/configeditor/include -I../shared/controller/include
 CFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
 LDFLAGS := ../shared/configeditor/configeditor.a \
       $(LDFLAGS) \
@@ -39,10 +39,10 @@ launcher.rc.o: launcher.rc
 endif
 
 %.o: %.cpp
-	$(CPP) $(CFLAGS) $(INC) -c -o $@ $<
+	$(CPP) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 clean:
-	rm -f $(OBJ) $(OUT)
+	$(RM) $(OBJ) $(OUT)
 
 .PHONY: clean
 
@@ -57,11 +57,11 @@ install: all
 	cp gimx-launcher.png $(prefix)/share/pixmaps
 
 uninstall:
-	-for i in $(BINS); do rm $(bindir)/$$i; done
+	-for i in $(BINS); do $(RM) $(bindir)/$$i; done
 	-rmdir $(bindir)
 	-rmdir $(prefix)
-	-rm $(prefix)/share/applications/gimx-launcher.desktop
-	-rm $(prefix)/share/pixmaps/gimx-launcher.png
+	-$(RM) $(prefix)/share/applications/gimx-launcher.desktop
+	-$(RM) $(prefix)/share/pixmaps/gimx-launcher.png
 
 really-clean: clean uninstall
 endif

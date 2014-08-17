@@ -19,16 +19,16 @@ else
 LDFLAGS += $(shell sdl2-config --libs) `xml2-config --libs` -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl -lusb-1.0 -lwinmm
 LDFLAGS:=$(filter-out -mwindows,$(LDFLAGS))
 endif
-INC=-Iinclude -I../shared/event/include -I../shared/controller/include
+CPPFLAGS+=-Iinclude -I../shared/event/include -I../shared/controller/include
 ifneq ($(OS),Windows_NT)
-INC += -I/usr/include/libxml2
+CPPFLAGS += -I/usr/include/libxml2
 endif
 DEP=../shared/event/GE.a ../shared/controller/controller.a
 
 all: $(BINS)
 
 clean:
-	rm -f $(OUT) *~ *.o */*.o */*/*.o
+	$(RM) $(OUT) *~ *.o */*.o */*/*.o
 
 GIMX_OBJ = \
        gimx.o\
@@ -67,12 +67,12 @@ GIMX_OBJ += \
 endif
 
 gimx: $(DEP) $(GIMX_OBJ)
-	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ $^ $(LDFLAGS)
 
 ifneq ($(OS),Windows_NT)
 sixaddr: utils/sixaddr.o
 	$(CC) -o $@ $^ -lusb-1.0
-	
+
 USBSPOOF_OBJ = \
        utils/usbspoof.o\
        connectors/usb_spoof.o\
@@ -101,7 +101,7 @@ hcirevision: connectors/hcirevision.o
 endif
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(INC) -o $@ -c $< 
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
 ifneq ($(OS),Windows_NT)
 install: all
@@ -111,7 +111,7 @@ install: all
 	for i in $(BINS); do chmod ug+s $(bindir)/$$i; done
 
 uninstall:
-	-for i in $(BINS); do rm $(bindir)/$$i; done
+	-for i in $(BINS); do $(RM) $(bindir)/$$i; done
 	-rmdir $(bindir)
 	-rmdir $(prefix)
 

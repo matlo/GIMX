@@ -5,7 +5,7 @@ prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
 endif
 
-INC = -I../shared/configeditor/include -I../shared/controller/include
+CPPFLAGS += -I../shared/configeditor/include -I../shared/controller/include
 CFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP `curl-config --cflags`
 LDFLAGS := ../shared/configeditor/configeditor.a \
       $(LDFLAGS) \
@@ -38,10 +38,10 @@ fpsconfig.rc.o: fpsconfig.rc
 endif
 
 %.o: %.cpp
-	$(CPP) $(CFLAGS) $(INC) -c -o $@ $<
+	$(CPP) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 clean:
-	rm -f $(OBJ) $(OUT)
+	$(RM) $(OBJ) $(OUT)
 
 .PHONY: clean
 
@@ -56,11 +56,11 @@ install: all
 	cp gimx-fpsconfig.png $(prefix)/share/pixmaps
 
 uninstall:
-	-for i in $(BINS); do rm $(bindir)/$$i; done
+	-for i in $(BINS); do $(RM) $(bindir)/$$i; done
 	-rmdir $(bindir)
 	-rmdir $(prefix)
-	-rm $(prefix)/share/applications/gimx-fpsconfig.desktop
-	-rm $(prefix)/share/pixmaps/gimx-fpsconfig.png
+	-$(RM) $(prefix)/share/applications/gimx-fpsconfig.desktop
+	-$(RM) $(prefix)/share/pixmaps/gimx-fpsconfig.png
 
 really-clean: clean uninstall
 endif

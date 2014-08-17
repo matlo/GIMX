@@ -12,4 +12,4 @@ install:
   done
 
 uninstall:
-	rm $(DESTDIR)/usr/share/locale/*/LC_MESSAGES/gimx.mo
+	$(RM) $(DESTDIR)/usr/share/locale/*/LC_MESSAGES/gimx.mo

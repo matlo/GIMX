@@ -35,7 +35,7 @@ void usb_callback(struct libusb_transfer* transfer)
     {
       if(transfer->actual_length > 0xff)
       {
-        fprintf(stderr, "wLength (%hu) is higher than %hu\n", transfer->actual_length, BUFFER_SIZE-LIBUSB_CONTROL_SETUP_SIZE);
+        fprintf(stderr, "wLength (%hu) is higher than %hu\n", transfer->actual_length, (int)(BUFFER_SIZE-LIBUSB_CONTROL_SETUP_SIZE));
       }
       else
       {
@@ -180,7 +180,7 @@ int usb_send(int usb_number, unsigned char* buffer, unsigned char length)
   struct libusb_control_setup* control_setup = (struct libusb_control_setup*)buffer;
   if(control_setup->wLength > BUFFER_SIZE-LIBUSB_CONTROL_SETUP_SIZE)
   {
-    fprintf(stderr, "wLength (%hu) is higher than %hu\n", control_setup->wLength, BUFFER_SIZE-LIBUSB_CONTROL_SETUP_SIZE);
+    fprintf(stderr, "wLength (%hu) is higher than %hu\n", control_setup->wLength, (int)(BUFFER_SIZE-LIBUSB_CONTROL_SETUP_SIZE));
     return -1;
   }
 

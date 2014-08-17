@@ -11,17 +11,14 @@ else
 LDFLAGS += -lXi -lX11
 endif
 
-INC=-I../include
+CPPFLAGS+=-I../include
 DEPS=../GE.a
 
 all: $(BINS)
 
 clean:
-	rm -f $(BINS) *~ *.o
+	$(RM) $(BINS) *~ *.o
 
 GE_test: $(OBJ) $(DEPS)
-	$(CC) $(CFLAGS) $(INC) -o $@ $(OBJ) $(LDFLAGS)
-
-%.o: %.c
-	$(CC) $(CFLAGS) $(INC) -o $@ -c $<
+	$(CC) $(CFLAGS) -o $@ $(OBJ) $(LDFLAGS)
 
