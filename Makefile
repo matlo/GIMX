@@ -55,10 +55,10 @@ endif
 
 else
 install: all
-	for i in $(DIRS); do $(MAKE) -C $$i install; cd ..; done
+	for i in $(DIRS); do $(MAKE) -C $$i install; done
 
 uninstall:
-	-for i in $(DIRS); do $(MAKE) -C $$i uninstall; cd ..; done
+	-for i in $(DIRS); do $(MAKE) -C $$i uninstall; done
 
 really-clean: clean uninstall
 endif
