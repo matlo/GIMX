@@ -5,17 +5,17 @@ prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
 endif
 
-INC = -I../shared/configeditor/include -I../shared/controller/include
-CFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP
-LDFLAGS := ../shared/configeditor/configeditor.a \
-      $(LDFLAGS) \
+CPPFLAGS += -I../shared/configeditor/include -I../shared/controller/include
+CPPFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP `curl-config --cflags`
+LDLIBS := ../shared/configeditor/configeditor.a \
+      $(LDLIBS) \
       ../shared/updater/updater.a \
       ../shared/configupdater/configupdater.a \
       `wx-config --libs` \
       `curl-config --libs` \
       -lxml2
 ifeq ($(OS),Windows_NT)
-LDFLAGS += -lSDL2 -lintl -liconv
+LDLIBS += -lSDL2 -lintl -liconv
 endif
 
 DEP = ../shared/configeditor/configeditor.a ../shared/event/GE.a ../shared/updater/updater.a ../shared/configupdater/configupdater.a
@@ -30,19 +30,16 @@ endif
 
 all: $(OUT)
 
-$(OUT): $(OBJ) $(DEP)
-	$(LD) -o $(OUT) $(OBJ) $(LDFLAGS)
+$(OUT): $(DEP) $(OBJ)
+	$(LD) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 ifeq ($(OS),Windows_NT)
 launcher.rc.o: launcher.rc
 	WINDRES $^ -o $@
 endif
 
-%.o: %.cpp
-	$(CPP) $(CFLAGS) $(INC) -c -o $@ $<
-
 clean:
-	rm -f $(OBJ) $(OUT)
+	$(RM) $(OBJ) $(OUT)
 
 .PHONY: clean
 
@@ -57,11 +54,11 @@ install: all
 	cp gimx-launcher.png $(prefix)/share/pixmaps
 
 uninstall:
-	-for i in $(BINS); do rm $(bindir)/$$i; done
-	-rmdir $(bindir)
-	-rmdir $(prefix)
-	-rm $(prefix)/share/applications/gimx-launcher.desktop
-	-rm $(prefix)/share/pixmaps/gimx-launcher.png
+	-for i in $(BINS); do $(RM) $(bindir)/$$i; done
+	-$(RM) $(bindir)
+	-$(RM) $(prefix)
+	-$(RM) $(prefix)/share/applications/gimx-launcher.desktop
+	-$(RM) $(prefix)/share/pixmaps/gimx-launcher.png
 
 really-clean: clean uninstall
 endif

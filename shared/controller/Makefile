@@ -10,15 +10,12 @@ OBJ=src/report.o\
     src/x360.o\
     src/xbox.o\
     src/xone.o
-INC=-Iinclude -Isrc
+CPPFLAGS+=-Iinclude -Isrc
 
 all: $(OBJ)
-	ar rcsD controller.a.new $(OBJ)
+	$(AR) rcsD controller.a.new $(OBJ)
 	diff -N controller.a.new controller.a > /dev/null || mv controller.a.new controller.a
-	rm -f controller.a.new
-
-src/%.o: src/%.c
-	$(CC) $(CFLAGS) $(INC) -o $@ -c $< 
+	$(RM) controller.a.new
 
 clean:
-	rm -f $(OBJ) controller.a
+	$(RM) $(OBJ) controller.a

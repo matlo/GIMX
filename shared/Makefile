@@ -1,7 +1,7 @@
 DIRS=controller event updater configupdater configeditor
 
 all:
-	+for i in $(DIRS); do cd $$i; make all; cd ..; done
+	+for i in $(DIRS); do $(MAKE) -C $$i all; done
 
 clean:
-	+for i in $(DIRS); do cd $$i; make clean; cd ..; done
+	+for i in $(DIRS); do $(MAKE) -C $$i clean; done

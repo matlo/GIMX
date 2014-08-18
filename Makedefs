@@ -1,24 +1,20 @@
 #CC = i586-mingw32msvc-gcc
-#CPP = i586-mingw32msvc-g++
+#CXX = i586-mingw32msvc-g++
 #LD = i586-mingw32msvc-g++
 #AR = i586-mingw32msvc-ar
 #WINDRES = i586-mingw32msvc-windres
 
-CC = gcc
-CPP = g++
-LD = g++
-AR = ar
+LD = $(CXX)
 
-CFLAGS=-Wall -O3#0 -g
+CFLAGS += -Wall -s -O3#0 -g
+CXXFLAGS += -Wall -s -O3#0 -g
 
 ifeq ($(OS),Windows_NT)
-CFLAGS += `xml2-config --cflags` `sdl2-config --cflags`
+CPPFLAGS += `xml2-config --cflags` `sdl2-config --cflags`
 endif
 
-LDFLAGS = -s \
-      ../shared/event/GE.a \
-      -Wl,--whole-archive ../shared/controller/controller.a -Wl,--no-whole-archive
+LDLIBS += ../shared/event/GE.a -Wl,--whole-archive ../shared/controller/controller.a -Wl,--no-whole-archive
 
 ifneq ($(OS),Windows_NT)
-LDFLAGS += -lXi -lX11
+LDLIBS += -lXi -lX11
 endif

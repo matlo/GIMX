@@ -1,15 +1,11 @@
 include ../../Makedefs
 
 OBJ=updater.o
-INC=
 
 all: $(OBJ)
-	ar rcsD updater.a.new $(OBJ)
+	$(AR) rcsD updater.a.new $(OBJ)
 	diff -N updater.a.new updater.a > /dev/null || mv updater.a.new updater.a
-	rm -f updater.a.new
-
-%.o: %.cpp
-	$(CC) $(CFLAGS) $(INC) -o $@ -c $<
+	$(RM) updater.a.new
 
 clean:
-	rm -f $(OBJ) updater.a
+	$(RM) $(OBJ) updater.a

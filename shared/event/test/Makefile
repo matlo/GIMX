@@ -2,26 +2,21 @@ include ../Makedefs
 -include ../../../Makedefs
 
 OBJ=common.o GE_test.o
-LDFLAGS=../GE.a
+LDLIBS=../GE.a
 BINS=GE_test
 ifeq ($(OS),Windows_NT)
-LDFLAGS += $(shell sdl2-config --libs) -liconv -lws2_32 -lwinmm
-LDFLAGS:=$(filter-out -mwindows,$(LDFLAGS))
+LDLIBS += $(shell sdl2-config --libs) -liconv -lws2_32 -lwinmm
+LDLIBS:=$(filter-out -mwindows,$(LDLIBS))
 else
-LDFLAGS += -lXi -lX11
+LDLIBS += -lXi -lX11
 endif
 
-INC=-I../include
+CPPFLAGS +=-I../include
 DEPS=../GE.a
 
 all: $(BINS)
 
 clean:
-	rm -f $(BINS) *~ *.o
+	$(RM) $(BINS) *~ *.o
 
 GE_test: $(OBJ) $(DEPS)
-	$(CC) $(CFLAGS) $(INC) -o $@ $(OBJ) $(LDFLAGS)
-
-%.o: %.c
-	$(CC) $(CFLAGS) $(INC) -o $@ -c $<
-
