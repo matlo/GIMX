@@ -1,5 +1,4 @@
-include Makedefs
--include ../../Makedefs
+include ../../Makedefs
 
 OBJ = src/GE.o src/queue.o
 ifneq ($(OS),Windows_NT)

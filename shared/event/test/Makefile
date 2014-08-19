@@ -1,7 +1,6 @@
-include ../Makedefs
 -include ../../../Makedefs
 
-OBJ=common.o GE_test.o
+OBJS=common.o GE_test.o
 LDLIBS=../GE.a
 BINS=GE_test
 ifeq ($(OS),Windows_NT)
@@ -19,4 +18,4 @@ all: $(BINS)
 clean:
 	$(RM) $(BINS) *~ *.o
 
-GE_test: $(OBJ) $(DEPS)
+GE_test: $(OBJS) $(DEPS)
