@@ -82,7 +82,10 @@ int serial_connect(int id, char* portname)
 }
 
 /*
- * Send a data to the serial port.
+ * Send 'size' bytes of data.
+ * This function blocks until the write completes.
+ * 
+ * Writing on a serial port that only has rx/tx lines should be fast since there's no feedback.
  */
 int serial_send(int id, void* pdata, unsigned int size)
 {
@@ -186,59 +189,10 @@ int serial_close(int id)
   return 0;
 }
 
-static int read_value(int id);
-
-static int read_header(int id)
+static int start_overlapped_read(int id, int remaining)
 {
   int ret = 0;
-
-  serials[id].bread = 0;
-
-  if(!ReadFile(serials[id].handle, (uint8_t*)serials[id].data, HEADER_SIZE, NULL, &serials[id].rOverlapped))
-  {
-    if(GetLastError() != ERROR_IO_PENDING)
-    {
-      fprintf(stderr, "ReadFile failed with error %lu\n", GetLastError());
-      ret = -1;
-    }
-  }
-  else
-  {
-    // the read immediately completed
-    serials[id].bread = HEADER_SIZE;
-
-    ret = read_value(id);
-  }
-
-  return ret;
-}
-
-static int process_packet(int id)
-{
-  int ret = 0;
-
-  if(serials[id].data[0] == BYTE_SPOOF_DATA)
-  {
-    ret = adapter_forward_data_out(id, serials[id].data+HEADER_SIZE, serials[id].data[1]);
-  }
-  else
-  {
-    fprintf(stderr, "unhandled packet (type=0x%02x)\n", serials[id].data[0]);
-  }
-
-  // start another read
-  // todo: break recursion
-  read_header(id);
-
-  return ret;
-}
-
-static int read_value(int id)
-{
-  int ret = 0;
-
-  DWORD remaining = serials[id].data[1] - (serials[id].bread - HEADER_SIZE);
-
+  
   if(!ReadFile(serials[id].handle, (uint8_t*)serials[id].data+serials[id].bread, remaining, NULL, &serials[id].rOverlapped))
   {
     if(GetLastError() != ERROR_IO_PENDING)
@@ -250,16 +204,79 @@ static int read_value(int id)
   else
   {
     // the read immediately completed
-    ret = process_packet(id);
+    serials[id].bread += remaining;
+    
+    ret = remaining;
+  }
+  
+  return ret;
+}
+
+static int read_value(int id)
+{
+  int remaining = serials[id].data[1] - (serials[id].bread - HEADER_SIZE);
+  
+  if(remaining < 1)
+  {
+    return serials[id].data[1];
   }
 
+  return start_overlapped_read(id, remaining);
+}
+
+static int read_header(int id)
+{
+  int remaining = HEADER_SIZE - serials[id].bread;
+  
+  if(remaining < 1)
+  {
+    return HEADER_SIZE;
+  }
+
+  return start_overlapped_read(id, remaining);
+}
+
+static void process_packet(int id)
+{ 
+  unsigned char type = serials[id].data[0];
+  unsigned char length = serials[id].data[1];
+
+  if(type == BYTE_SPOOF_DATA)
+  {
+    int ret = adapter_forward_data_out(id, serials[id].data+HEADER_SIZE, length);
+    
+    if(ret < 0)
+    {
+      fprintf(stderr, "adapter_forward_data_out failed\n");
+    }
+  }
+  else
+  {
+    fprintf(stderr, "unhandled packet (type=0x%02x)\n", type);
+  }
+  
+  serials[id].bread = 0;
+}
+
+int read_packet(int id)
+{
+  int ret = read_header(id);
+  
+  if(ret > 0)
+  {
+    ret = read_value(id);
+    
+    if(ret > 0)
+    {
+      process_packet(id);
+    }
+  }
+  
   return ret;
 }
 
 static int serial_read_callback(int id)
 {
-  int ret = 0;
-
   DWORD dwBytesRead = 0;
 
   if (!GetOverlappedResult(serials[id].handle, &serials[id].rOverlapped, &dwBytesRead, FALSE))
@@ -269,33 +286,15 @@ static int serial_read_callback(int id)
   }
 
   serials[id].bread += dwBytesRead;
-
-  DWORD remaining;
-
-  if(serials[id].bread < HEADER_SIZE)
-  {
-    remaining = HEADER_SIZE - serials[id].bread;
-  }
-  else
-  {
-    remaining = serials[id].data[1] - (serials[id].bread - HEADER_SIZE);
-  }
-
-  if(remaining > 0)
-  {
-    ret = read_value(id);
-  }
-  else
-  {
-    ret = process_packet(id);
-  }
-
-  return ret;
+  
+  while(read_packet(id) > 0) ;
+  
+  return 0;
 }
 
 void serial_add_source(int id)
 {
-  read_header(id);
+  while(read_packet(id) > 0) ;
 
   GE_AddSourceHandle(serials[id].rOverlapped.hEvent, id, serial_read_callback, NULL, serial_close);
 }
