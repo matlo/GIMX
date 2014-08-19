@@ -10,6 +10,7 @@ CFLAGS += -Wall -s -O3#0 -g
 CXXFLAGS += -Wall -s -O3#0 -g
 
 ifeq ($(OS),Windows_NT)
+CC = gcc
 CPPFLAGS += `xml2-config --cflags` `sdl2-config --cflags`
 endif
 
