@@ -8,7 +8,7 @@
 
 #include <libusb-1.0/libusb.h>
 
-int usb_init(int usb_number, unsigned short vendor, unsigned short product, void (*fp)(struct libusb_transfer* transfer));
+int usb_init(int usb_number, unsigned short vendor, unsigned short product, libusb_transfer_cb_fn fp);
 void usb_callback(struct libusb_transfer* transfer);
 int usb_close(int usb_number);
 int usb_send(int usb_number, unsigned char* buffer, unsigned char length);

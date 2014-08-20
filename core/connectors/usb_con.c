@@ -13,6 +13,12 @@
 
 #include <libusb-1.0/libusb.h>
 
+//warning: ugly hack inside!
+typedef union {
+  void *ptr;
+  int i;
+} intptr;
+
 static libusb_context* ctx = NULL;
 static libusb_device** devs = NULL;
 static ssize_t cnt = 0;
@@ -20,12 +26,12 @@ static int nb_opened = 0;
 
 static struct usb_state {
   libusb_device_handle* devh;
-  void (*fp)(struct libusb_transfer* transfer);
+  libusb_transfer_cb_fn fp;
 } usb_states[MAX_CONTROLLERS];
 
 void usb_callback(struct libusb_transfer* transfer)
 {
-  int id = (unsigned long)transfer->user_data;
+  intptr cp = { .ptr = transfer->user_data };
 
   struct libusb_control_setup* setup = libusb_control_transfer_get_setup(transfer);
 
@@ -40,7 +46,7 @@ void usb_callback(struct libusb_transfer* transfer)
       else
       {
         unsigned char *data = libusb_control_transfer_get_data(transfer);
-        if(adapter_forward_data_in(id, data, transfer->actual_length) < 0)
+        if(adapter_forward_data_in(cp.i, data, transfer->actual_length) < 0)
         {
           fprintf(stderr, "can't forward data to the adapter\n");
         }
@@ -63,7 +69,7 @@ int usb_handle_events(int unused)
 #endif
 }
 
-int usb_init(int usb_number, unsigned short vendor, unsigned short product, void (*fp)(struct libusb_transfer* transfer))
+int usb_init(int usb_number, unsigned short vendor, unsigned short product, libusb_transfer_cb_fn fp)
 {
   int ret = -1;
   int dev_i;
@@ -204,7 +210,9 @@ int usb_send(int usb_number, unsigned char* buffer, unsigned char length)
 
   transfer->flags = LIBUSB_TRANSFER_FREE_BUFFER | LIBUSB_TRANSFER_FREE_TRANSFER ;
 
-  libusb_fill_control_transfer(transfer, state->devh, buf, state->fp, (void*)(unsigned long)usb_number, 1000);
+  intptr cp = { .i = usb_number };
+
+  libusb_fill_control_transfer(transfer, state->devh, buf, state->fp, cp.ptr, 1000);
 
   int ret = libusb_submit_transfer(transfer);
   if(ret < 0)
