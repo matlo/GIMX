@@ -6,11 +6,11 @@
 
 LD = $(CXX)
 
-#CFLAGS += -Wall -s -O3
-#CXXFLAGS += -Wall -s -O3
+CFLAGS += -Wall -s -O3
+CXXFLAGS += -Wall -s -O3
 #Comment the above two lines and uncomment the below two lines to compile with debug symbols.
-CFLAGS += -Wall -O0 -g
-CXXFLAGS += -Wall -O0 -g
+#CFLAGS += -Wall -O0 -g
+#CXXFLAGS += -Wall -O0 -g
 
 ifeq ($(OS),Windows_NT)
 CC = gcc
