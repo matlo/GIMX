@@ -22,7 +22,6 @@ static int usb_state_indexes[MAX_CONTROLLERS] = {};
 
 static struct usb_state {
   libusb_device_handle* devh;
-  libusb_transfer_cb_fn fp;
 } usb_states[MAX_CONTROLLERS];
 
 void usb_callback(struct libusb_transfer* transfer)
@@ -63,7 +62,7 @@ int usb_handle_events(int unused)
 #endif
 }
 
-int usb_init(int usb_number, unsigned short vendor, unsigned short product, libusb_transfer_cb_fn fp)
+int usb_init(int usb_number, unsigned short vendor, unsigned short product)
 {
   int ret = -1;
   int dev_i;
@@ -122,7 +121,6 @@ int usb_init(int usb_number, unsigned short vendor, unsigned short product, libu
           else
           {
             state->devh = devh;
-            state->fp = fp;
             ++nb_opened;
 
 #ifndef WIN32
@@ -206,7 +204,7 @@ int usb_send(int usb_number, unsigned char* buffer, unsigned char length)
 
   transfer->flags = LIBUSB_TRANSFER_FREE_BUFFER | LIBUSB_TRANSFER_FREE_TRANSFER ;
 
-  libusb_fill_control_transfer(transfer, state->devh, buf, state->fp, usb_state_indexes+usb_number, 1000);
+  libusb_fill_control_transfer(transfer, state->devh, buf, (libusb_transfer_cb_fn)usb_callback, usb_state_indexes+usb_number, 1000);
 
   int ret = libusb_submit_transfer(transfer);
   if(ret < 0)
