@@ -13,6 +13,13 @@
 
 #include <libusb-1.0/libusb.h>
 
+#ifndef LIBUSBX_API_VERSION
+const char * LIBUSB_CALL libusb_strerror(enum libusb_error errcode)
+{
+  return libusb_error_name(errcode);
+}
+#endif
+
 static libusb_context* ctx = NULL;
 static libusb_device** devs = NULL;
 static ssize_t cnt = 0;

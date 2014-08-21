@@ -6,8 +6,6 @@
 #ifndef USB_CON_H_
 #define USB_CON_H_
 
-#include <libusb-1.0/libusb.h>
-
 int usb_init(int usb_number, unsigned short vendor, unsigned short product);
 int usb_close(int usb_number);
 int usb_send(int usb_number, unsigned char* buffer, unsigned char length);
