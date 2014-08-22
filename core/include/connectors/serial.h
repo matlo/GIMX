@@ -14,6 +14,7 @@
 #define BYTE_START_SPOOF 0x33
 #define BYTE_SPOOF_DATA  0x44
 #define BYTE_RESET       0x55
+#define BYTE_DEBUG       0xee
 #define BYTE_SEND_REPORT 0xff
 
 #define BYTE_TYPE_X360       0x01
