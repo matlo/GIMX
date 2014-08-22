@@ -189,9 +189,14 @@ int serial_close(int id)
   return 0;
 }
 
+/*
+ * This function starts an overlapped read.
+ * If the read completes immediately, it returns the number of transferred bytes, which is the number of requested bytes.
+ * If the read is pending, it returns -1.
+ */
 static int start_overlapped_read(int id, int remaining)
 {
-  int ret = 0;
+  int ret = -1;
   
   if(!ReadFile(serials[id].handle, (uint8_t*)serials[id].data+serials[id].bread, remaining, NULL, &serials[id].rOverlapped))
   {
@@ -212,6 +217,11 @@ static int start_overlapped_read(int id, int remaining)
   return ret;
 }
 
+/*
+ * This function checks if a packet value is available.
+ * If a packet value is available, it returns the size of the value (which can be 0).
+ * If no packet value is available yet, it returns -1.
+ */
 static int read_value(int id)
 {
   int remaining = serials[id].data[1] - (serials[id].bread - HEADER_SIZE);
@@ -224,6 +234,11 @@ static int read_value(int id)
   return start_overlapped_read(id, remaining);
 }
 
+/*
+ * This function checks if a packet header is available.
+ * If a packet header is available, it returns HEADER_SIZE.
+ * If no packet header is available yet, it returns -1.
+ */
 static int read_header(int id)
 {
   int remaining = HEADER_SIZE - serials[id].bread;
@@ -262,11 +277,19 @@ int read_packet(int id)
 {
   int ret = read_header(id);
   
+  /*
+   * Since we are reading with no timeout,
+   * a positive value indicates that the header is complete.
+   */
   if(ret > 0)
   {
     ret = read_value(id);
-    
-    if(ret > 0)
+
+    /*
+     * Since we are reading with no timeout,
+     * a non-negative value indicates that the value is complete.
+     */
+    if(ret >= 0)
     {
       process_packet(id);
     }
@@ -287,14 +310,14 @@ static int serial_read_callback(int id)
 
   serials[id].bread += dwBytesRead;
   
-  while(read_packet(id) > 0) ;
+  while(read_packet(id) >= 0) ;
   
   return 0;
 }
 
 void serial_add_source(int id)
 {
-  while(read_packet(id) > 0) ;
+  while(read_packet(id) >= 0) ;
 
   GE_AddSourceHandle(serials[id].rOverlapped.hEvent, id, serial_read_callback, NULL, serial_close);
 }
