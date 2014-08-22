@@ -13,7 +13,7 @@
 
 #include <libusb-1.0/libusb.h>
 
-#ifndef LIBUSBX_API_VERSION
+#if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)
 const char * LIBUSB_CALL libusb_strerror(enum libusb_error errcode)
 {
   return libusb_error_name(errcode);
@@ -117,7 +117,7 @@ int usb_init(int usb_number, unsigned short vendor, unsigned short product)
         }
         else
         {
-#ifdef LIBUSBX_API_VERSION
+#if defined(LIBUSB_API_VERSION) || defined(LIBUSBX_API_VERSION)
           libusb_set_auto_detach_kernel_driver(devh, 1);
 #else
 #ifndef WIN32
@@ -172,7 +172,7 @@ int usb_close(int usb_number)
   if(state->devh)
   {
     libusb_release_interface(state->devh, 0);
-#ifndef LIBUSBX_API_VERSION
+#if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)
 #ifndef WIN32
     libusb_attach_kernel_driver(state->devh, 0);
 #endif
