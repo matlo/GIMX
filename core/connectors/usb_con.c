@@ -117,7 +117,22 @@ int usb_init(int usb_number, unsigned short vendor, unsigned short product)
         }
         else
         {
+#ifdef LIBUSBX_API_VERSION
           libusb_set_auto_detach_kernel_driver(devh, 1);
+#else
+#ifndef WIN32
+          if(libusb_kernel_driver_active(devh, 0))
+          {
+            ret = libusb_detach_kernel_driver(devh, 0);
+            if(ret < 0)
+            {
+              fprintf(stderr, "libusb_detach_kernel_driver: %s.\n", libusb_strerror(ret));
+              libusb_close(devh);
+              return -1;
+            }
+          }
+#endif
+#endif
 
           ret = libusb_claim_interface(devh, 0);
           if(ret < 0)
@@ -157,6 +172,11 @@ int usb_close(int usb_number)
   if(state->devh)
   {
     libusb_release_interface(state->devh, 0);
+#ifndef LIBUSBX_API_VERSION
+#ifndef WIN32
+    libusb_attach_kernel_driver(state->devh, 0);
+#endif
+#endif
     libusb_close(state->devh);
     state->devh = NULL;
     --nb_opened;
