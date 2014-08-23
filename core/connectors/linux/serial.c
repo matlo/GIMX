@@ -215,24 +215,6 @@ int serial_close(int fd)
   return 0;
 }
 
-static void dump_packet(int id)
-{
-  int size = serials[id].data[1];
-  int i;
-  for(i=0; i<size; ++i)
-  {
-    if(i && !(i%8))
-    {
-      printf("\n");
-    }
-    printf("0x%02x ", serials[id].data[2+i]);
-  }
-  if(i%8)
-  {
-    printf("\n");
-  }
-}
-
 static int serial_callback(int id)
 {
   int nread;
@@ -268,20 +250,7 @@ static int serial_callback(int id)
 
       if(serials[id].data[1] + HEADER_SIZE == serials[id].bread)
       {
-        if(serials[id].data[0] == BYTE_SPOOF_DATA)
-        {
-          nread = adapter_forward_data_out(id, serials[id].data+HEADER_SIZE, serials[id].data[1]);
-        }
-        else if(serials[id].data[0] == BYTE_DEBUG)
-        {
-          int size = serials[id].data[1];
-          printf("debug packet received (size = %d bytes)\n", size);
-          dump_packet(id);
-        }
-        else
-        {
-          fprintf(stderr, "unhandled packet (type=0x%02x)\n", serials[id].data[0]);
-        }
+        adapter_process_packet(id, serials[id].data);
 
         serials[id].bread = 0;
       }

@@ -240,6 +240,48 @@ int adapter_forward_data_out(int id, unsigned char* data, unsigned char length)
   return usb_send(id, data, length);
 }
 
+static void dump(unsigned char* packet, unsigned char length)
+{
+  int i;
+  for(i=0; i<length; ++i)
+  {
+    if(i && !(i%8))
+    {
+      printf("\n");
+    }
+    printf("0x%02x ", packet[i]);
+  }
+  if(i%8)
+  {
+    printf("\n");
+  }
+}
+
+void adapter_process_packet(int id, unsigned char* packet)
+{
+  unsigned char type = packet[0];
+  unsigned char length = packet[1];
+
+  if(type == BYTE_SPOOF_DATA)
+  {
+    int ret = adapter_forward_data_out(id, packet+HEADER_SIZE, length);
+
+    if(ret < 0)
+    {
+      fprintf(stderr, "adapter_forward_data_out failed\n");
+    }
+  }
+  else if(type == BYTE_DEBUG)
+  {
+    printf("debug packet received (size = %d bytes)\n", length);
+    dump(packet+HEADER_SIZE, length);
+  }
+  else
+  {
+    fprintf(stderr, "unhandled packet (type=0x%02x)\n", type);
+  }
+}
+
 /*
  * This function should only be used in the initialization stages, i.e. before the mainloop.
  */

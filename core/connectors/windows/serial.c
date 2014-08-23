@@ -251,28 +251,6 @@ static int read_header(int id)
   return start_overlapped_read(id, remaining);
 }
 
-static void process_packet(int id)
-{ 
-  unsigned char type = serials[id].data[0];
-  unsigned char length = serials[id].data[1];
-
-  if(type == BYTE_SPOOF_DATA)
-  {
-    int ret = adapter_forward_data_out(id, serials[id].data+HEADER_SIZE, length);
-    
-    if(ret < 0)
-    {
-      fprintf(stderr, "adapter_forward_data_out failed\n");
-    }
-  }
-  else
-  {
-    fprintf(stderr, "unhandled packet (type=0x%02x)\n", type);
-  }
-  
-  serials[id].bread = 0;
-}
-
 int read_packet(int id)
 {
   int ret = read_header(id);
@@ -291,7 +269,9 @@ int read_packet(int id)
      */
     if(ret >= 0)
     {
-      process_packet(id);
+      adapter_process_packet(id, serials[id].data);
+
+      serials[id].bread = 0;
     }
   }
   

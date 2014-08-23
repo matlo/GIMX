@@ -53,6 +53,8 @@ void adapter_set_axis(unsigned char c, int axis, int value);
 int adapter_forward_data_in(int id, unsigned char* data, unsigned char length);
 int adapter_forward_data_out(int id, unsigned char* data, unsigned char length);
 
+void adapter_process_packet(int id, unsigned char* packet);
+
 int adapter_get_type(int id);
 int adapter_send_start(int id);
 int adapter_get_status(int id);
