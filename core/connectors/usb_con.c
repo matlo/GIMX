@@ -64,8 +64,15 @@ int usb_handle_events(int unused)
 #ifndef WIN32
   return libusb_handle_events(ctx);
 #else
-  struct timeval tv = {};
-  return libusb_handle_events_timeout(ctx, &tv);
+  if(ctx != null)
+  {
+    struct timeval tv = {};
+    return libusb_handle_events_timeout(ctx, &tv);
+  }
+  else
+  {
+    return 0;
+  }
 #endif
 }
 
