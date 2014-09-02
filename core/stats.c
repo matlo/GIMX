@@ -53,10 +53,10 @@ int stats_get_frequency(int id)
 
   tdiff = (tnow.tv_sec * 1000000 + tnow.tv_usec) - (stats[id].tlast.tv_sec * 1000000 + stats[id].tlast.tv_usec);
 #else
-  LARGE_INTEGER t1;
-  QueryPerformanceCounter(&t1);
+  LARGE_INTEGER tnow;
+  QueryPerformanceCounter(&tnow);
 
-  tdiff = (tnow.QuadPart - tlast.QuadPart) * 1000000 / freq.QuadPart;
+  tdiff = (tnow.QuadPart - stats[id].tlast.QuadPart) * 1000000 / freq.QuadPart;
 #endif
 
   if(tdiff > STATS_PERIOD)
