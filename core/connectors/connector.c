@@ -14,6 +14,7 @@
 #include <adapter.h>
 #include <report.h>
 #include "display.h"
+#include "stats.h"
 #ifndef WIN32
 #include "connectors/sixaxis.h"
 #include "connectors/btds4.h"
@@ -298,6 +299,11 @@ int connector_send()
           }
           break;
         }
+      }
+
+      if(gimx_params.curses)
+      {
+        stats_update(i);
       }
 
       if (adapter->send_command)

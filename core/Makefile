@@ -47,7 +47,8 @@ GIMX_OBJ = \
        connectors/gpp_con.o\
        connectors/usb_spoof.o\
        connectors/usb_con.o\
-       adapter.o
+       adapter.o\
+       stats.o
 
 ifneq ($(OS),Windows_NT)
 GIMX_OBJ += \

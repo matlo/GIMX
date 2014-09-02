@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GIMX 0.50\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-08-06 08:40+0100\n"
-"PO-Revision-Date: 2014-08-06 08:50+0100\n"
+"POT-Creation-Date: 2014-09-02 17:27+0100\n"
+"PO-Revision-Date: 2014-09-02 17:28+0100\n"
 "Last-Translator: Matlo <mat.lau@laposte.net>\n"
 "Language-Team: Matlo <mat.lau@laposte.net>\n"
 "Language: fr\n"
@@ -165,102 +165,97 @@ msgstr "le flag \"curses\" est positionné\n"
 msgid "window_events flag is set\n"
 msgstr "le flag \"window_events\" est positionné\n"
 
-#: ../core/display.c:24 ../launcher/launcherMain.cpp:1198
+#: ../core/display.c:23 ../launcher/launcherMain.cpp:1198
 msgid "Press Shift+Esc to exit."
 msgstr "Appuyez sur MAJ+Echap pour quitter."
 
-#: ../core/display.c:78 ../core/display.c:336
+#: ../core/display.c:69 ../core/display.c:327
 msgid "Mouse calibration (Ctrl+F1 to edit)"
 msgstr "Calibration de la souris (Ctrl+F1 pour éditer)"
 
-#: ../core/display.c:82
+#: ../core/display.c:73
 msgid "Mouse calibration (Ctrl+F1 to save)(mouse wheel to change values)"
 msgstr "Calibration de la souris (Ctrl+F1 pour sauver)(molette pour modifier)"
 
-#: ../core/display.c:100
+#: ../core/display.c:91
 msgid "Profile:"
 msgstr "Profil :"
 
-#: ../core/display.c:112
+#: ../core/display.c:103
 msgid "Dead zone:"
 msgstr "Dead zone :"
 
-#: ../core/display.c:125 ../core/display.c:144 ../core/display.c:199
-#: ../core/display.c:218 ../core/display.c:290
+#: ../core/display.c:116 ../core/display.c:135 ../core/display.c:190
+#: ../core/display.c:209 ../core/display.c:281
 msgid "N/A"
 msgstr "ND"
 
-#: ../core/display.c:155
+#: ../core/display.c:146
 msgid " shape="
 msgstr " forme="
 
-#: ../core/display.c:160
+#: ../core/display.c:151
 msgid "circle"
 msgstr "cercle"
 
-#: ../core/display.c:164
+#: ../core/display.c:155
 msgid "rectangle"
 msgstr "rectangle"
 
-#: ../core/display.c:169 ../core/display.c:238
+#: ../core/display.c:160 ../core/display.c:229
 msgid " N/A"
 msgstr "ND"
 
-#: ../core/display.c:177
+#: ../core/display.c:168
 msgid "Acceleration:"
 msgstr "Accélération :"
 
-#: ../core/display.c:182
+#: ../core/display.c:173
 msgid " test (F6)"
 msgstr " test (F6)"
 
-#: ../core/display.c:226
+#: ../core/display.c:217
 msgid "Sensitivity:"
 msgstr "Sensibilité :"
 
-#: ../core/display.c:251
+#: ../core/display.c:242
 msgid " circle test"
 msgstr " test du cercle"
 
-#: ../core/display.c:261
+#: ../core/display.c:252
 #, c-format
 msgid "radius=%d (F10)"
 msgstr "rayon=%d (F10)"
 
-#: ../core/display.c:272
+#: ../core/display.c:263
 #, c-format
 msgid "velocity=%d (F11)"
 msgstr "vitesse=%d (F11)"
 
-#: ../core/display.c:282
+#: ../core/display.c:273
 msgid " ratio="
 msgstr " ratio="
 
-#: ../core/display.c:320
+#: ../core/display.c:311
 msgid "Left stick"
 msgstr "Stick gauche"
 
-#: ../core/display.c:321
+#: ../core/display.c:312
 msgid "Right stick"
 msgstr "Stick droit"
 
-#: ../core/display.c:322
+#: ../core/display.c:313
 msgid "Buttons"
 msgstr "Boutons"
 
-#: ../core/display.c:342
+#: ../core/display.c:333
 msgid "Refresh rate:"
 msgstr "Taux de rafraîchissement :"
 
-#: ../core/display.c:390
+#: ../core/display.c:360
 #, c-format
-msgid "Processing time: current=%dus average=%dus worst=%dus"
-msgstr "Temps de calcul : courant=%dus moyen=%dus pire=%dus"
-
-#: ../core/display.c:393
-#, c-format
-msgid "Refresh rate: %3dHz  "
-msgstr "Taux de rafraîchissement : %3dHz"
+msgid "Refresh rate: %4dHz  "
+msgstr "Taux de rafraîchissement : %4dHz"
 
 #: ../core/config.c:365
 #, c-format
@@ -397,37 +392,37 @@ msgstr "ajustement de la vitesse du test du cercle\n"
 msgid "translation test started\n"
 msgstr "test de translation démarré\n"
 
-#: ../core/gimx.c:170
+#: ../core/gimx.c:167
 #, c-format
 msgid "Wrong argument.\n"
 msgstr "Mauvais argument.\n"
 
-#: ../core/gimx.c:176
+#: ../core/gimx.c:173
 #, c-format
 msgid "connector_init failed\n"
 msgstr "connector_init a échoué\n"
 
-#: ../core/gimx.c:187
+#: ../core/gimx.c:184
 #, c-format
 msgid "using default refresh period: %.02fms\n"
 msgstr "utilisation de la période de rafraîchissement par défaut : %.02fms\n"
 
-#: ../core/gimx.c:230
+#: ../core/gimx.c:227
 #, c-format
 msgid "GE_initialize failed\n"
 msgstr "GE_initialize a échoué\n"
 
-#: ../core/gimx.c:245
+#: ../core/gimx.c:242
 #, c-format
 msgid "read_config_file failed\n"
 msgstr "read_config_file a échoué\n"
 
-#: ../core/gimx.c:270
+#: ../core/gimx.c:267
 #, c-format
 msgid "Unknown key name for argument --keygen: '%s'\n"
 msgstr "Nom de touche inconnue pour l'argument --keygen : '%s'\n"
 
-#: ../core/gimx.c:279
+#: ../core/gimx.c:278
 msgid "Exiting\n"
 msgstr "Sortie\n"
 
@@ -450,72 +445,77 @@ msgstr "souris %s (%d)\n"
 msgid "joystick %s (%d)\n"
 msgstr "joystick %s (%d)\n"
 
-#: ../core/connectors/connector.c:44
+#: ../core/connectors/connector.c:46
 #, c-format
 msgid "Detected USB adapter: %s.\n"
 msgstr "Adaptateur USB détecté : %s.\n"
 
-#: ../core/connectors/connector.c:52 ../core/connectors/connector.c:146
+#: ../core/connectors/connector.c:54 ../core/connectors/connector.c:161
 #, c-format
 msgid "Wrong controller type.\n"
 msgstr "Mauvais type de contrôleur.\n"
 
-#: ../core/connectors/connector.c:60
+#: ../core/connectors/connector.c:62
 #, c-format
 msgid "Spoof failed.\n"
 msgstr "Spoof échoué.\n"
 
-#: ../core/connectors/connector.c:81 ../core/connectors/connector.c:90
+#: ../core/connectors/connector.c:78
+#, c-format
+msgid "No Dualshock 4 controller was found on USB buses.\n"
+msgstr "Pas de Dualshock 4 détecté sur les bus USB.\n"
+
+#: ../core/connectors/connector.c:96 ../core/connectors/connector.c:105
 #, c-format
 msgid "No controller detected.\n"
 msgstr "Pas de contrôleur détecté.\n"
 
-#: ../core/connectors/connector.c:95 ../core/connectors/connector.c:116
+#: ../core/connectors/connector.c:110 ../core/connectors/connector.c:131
 #, c-format
 msgid "Detected controller: %s.\n"
 msgstr "Contrôleur détecté : %s.\n"
 
-#: ../core/connectors/connector.c:100
+#: ../core/connectors/connector.c:115
 #, c-format
 msgid "Unknown GPP controller type.\n"
 msgstr "Type de contrôleur GPP inconnu.\n"
 
-#: ../core/connectors/connector.c:111
+#: ../core/connectors/connector.c:126
 #, c-format
 msgid "Can't connect to port: %d.\n"
 msgstr "Impossible de se connecter au port : %d.\n"
 
-#: ../core/connectors/connector.c:129
+#: ../core/connectors/connector.c:144
 #, c-format
 msgid "Can't initialize sixaxis.\n"
 msgstr "Impossible d'initialiser sixaxis.\n"
 
-#: ../core/connectors/connector.c:139
+#: ../core/connectors/connector.c:154
 #, c-format
 msgid "Can't initialize btds4.\n"
 msgstr "Impossible d'initialiser btds4.\n"
 
-#: ../core/connectors/connector.c:157
+#: ../core/connectors/connector.c:172
 #, c-format
 msgid "Can't listen on port: %d.\n"
 msgstr "Impossible d'écouter le port : %d.\n"
 
-#: ../core/connectors/usb_spoof.c:221
+#: ../core/connectors/usb_spoof.c:171
 #, c-format
 msgid "spoof started\n"
 msgstr "spoof démarré\n"
 
-#: ../core/connectors/usb_spoof.c:227
+#: ../core/connectors/usb_spoof.c:177
 #, c-format
 msgid "spoof successful\n"
 msgstr "spoof réussi\n"
 
-#: ../core/connectors/usb_spoof.c:257
+#: ../core/connectors/usb_spoof.c:207
 #, c-format
 msgid "already spoofed\n"
 msgstr "spoof déjà effectué\n"
 
-#: ../core/connectors/usb_spoof.c:262
+#: ../core/connectors/usb_spoof.c:212
 #, c-format
 msgid "can't read adapter status\n"
 msgstr "impossible de lire l'état de l'adaptateur\n"
@@ -525,47 +525,47 @@ msgstr "impossible de lire l'état de l'adaptateur\n"
 msgid "connected to emu %s:%d\n"
 msgstr "connecté à emu %s:%d\n"
 
-#: ../core/connectors/linux/serial.c:40
+#: ../core/connectors/linux/serial.c:50
 #, c-format
 msgid "connecting to %s\n"
 msgstr "connexion à %s\n"
 
-#: ../core/connectors/linux/serial.c:44 ../core/connectors/linux/serial.c:78
+#: ../core/connectors/linux/serial.c:54 ../core/connectors/linux/serial.c:88
 #, c-format
 msgid "can't connect to %s\n"
 msgstr "impossible de se connecter à %s\n"
 
-#: ../core/connectors/linux/serial.c:54
+#: ../core/connectors/linux/serial.c:64
 #, c-format
 msgid "can't set serial port options\n"
 msgstr "impossible d'écrire les options du port série\n"
 
-#: ../core/connectors/linux/serial.c:60
+#: ../core/connectors/linux/serial.c:70
 #, c-format
 msgid "connected\n"
 msgstr "connecté\n"
 
-#: ../core/connectors/linux/serial.c:82
+#: ../core/connectors/linux/serial.c:92
 #, c-format
 msgid "can't set spi port speed\n"
 msgstr "impossible d'écrire les options du port spi\n"
 
-#: ../core/connectors/linux/serial.c:88
+#: ../core/connectors/linux/serial.c:98
 #, c-format
 msgid "can't set bits per word written\n"
 msgstr "impossible d'écrire les options du port spi\n"
 
-#: ../core/connectors/linux/serial.c:94
+#: ../core/connectors/linux/serial.c:104
 #, c-format
 msgid "can't set bits per word read\n"
 msgstr "impossible d'écrire les options du port spi\n"
 
-#: ../core/connectors/linux/serial.c:100
+#: ../core/connectors/linux/serial.c:110
 #, c-format
 msgid "can't set write mode\n"
 msgstr "impossible d'écrire les options du port spi\n"
 
-#: ../core/connectors/linux/serial.c:106
+#: ../core/connectors/linux/serial.c:116
 #, c-format
 msgid "can't set read mode\n"
 msgstr "impossible d'appliquer le mode de lecture\n"
@@ -1829,6 +1829,9 @@ msgstr "fichier"
 #: ../config/configApp.h:26 ../fpsconfig/fpsconfigApp.h:25
 msgid "specifies a file to open"
 msgstr "spécifie un fichier à ouvrir"
+
+#~ msgid "Processing time: current=%dus average=%dus worst=%dus"
+#~ msgstr "Temps de calcul : courant=%dus moyen=%dus pire=%dus"
 
 #~ msgid "option -i with value `%s'\n"
 #~ msgstr "option -i avec la valeur `%s'\n"

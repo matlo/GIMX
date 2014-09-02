@@ -6,10 +6,8 @@
 #include <string.h>
 #include <stdlib.h>
 #ifdef WIN32
-#include <windows.h>
 #include <cursesw.h>
 #else
-#include <sys/time.h>
 #include <ncursesw/ncurses.h>
 #endif
 
@@ -19,11 +17,10 @@
 #include <GE.h>
 #include "gimx.h"
 #include <adapter.h>
+#include <stats.h>
 
 #define CROSS_CHAR '*'
 #define SHIFT_ESC _("Press Shift+Esc to exit.")
-
-#define RATE_PERIOD 500000 //ms
 
 #ifndef WIN32
 #define STICK_Y_L 11
@@ -61,12 +58,6 @@
 static WINDOW *lstick = NULL, *rstick = NULL, *wbuttons = NULL, *wcal = NULL;
 
 static int cross[2][2] = { {STICK_X_L / 2, STICK_Y_L / 2}, {STICK_X_L / 2, STICK_Y_L / 2} };
-
-#ifndef WIN32
-struct timeval t0, t1;
-#else
-LARGE_INTEGER t0, t1, freq;
-#endif
 
 void display_calibration()
 {
@@ -343,13 +334,6 @@ void display_init()
   mvaddstr(LINES-1, COLS-strlen(SHIFT_ESC), SHIFT_ESC);
 
   doupdate();
-
-#ifndef WIN32
-  gettimeofday(&t0, NULL);
-#else
-  QueryPerformanceCounter(&t0);
-  QueryPerformanceFrequency(&freq);
-#endif
 }
 
 void display_end()
@@ -360,9 +344,7 @@ void display_end()
   }
 }
 
-int last_button_nb = 0;
-int cpt = 0;
-int cpt_total = 0;
+static int last_button_nb = 0;
 
 void display_run(e_controller_type type, int axis[])
 {
@@ -370,31 +352,13 @@ void display_run(e_controller_type type, int axis[])
   int d;
   char label[BUTTON_LENGTH];
   char rate[COLS];
-  int tdiff;
 
-  cpt++;
+  int freq = stats_get_frequency(0);
 
-#ifndef WIN32
-  gettimeofday(&t1, NULL);
-
-  tdiff = (t1.tv_sec * 1000000 + t1.tv_usec) - (t0.tv_sec * 1000000 + t0.tv_usec);
-#else
-  QueryPerformanceCounter(&t1);
-
-  tdiff = (t1.QuadPart - t0.QuadPart) * 1000000 / freq.QuadPart;
-#endif
-
-  if(tdiff > RATE_PERIOD)
+  if(freq >= 0)
   {
-    cpt_total += cpt;
-    sprintf(rate, _("Processing time: current=%dus average=%dus worst=%dus"), proc_time/cpt, proc_time_total/cpt_total, proc_time_worst);
-    mvaddstr(LINES-2, 1, rate);
-    clrtoeol();
-    sprintf(rate, _("Refresh rate: %3dHz  "), cpt*1000000/RATE_PERIOD);
+    sprintf(rate, _("Refresh rate: %4dHz  "), freq);
     mvaddstr(LINES-1, 1, rate);
-    t0 = t1;
-    cpt = 0;
-    proc_time = 0;
   }
 
   d = 0;

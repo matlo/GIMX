@@ -37,10 +37,6 @@ typedef struct
 
 extern s_gimx_params gimx_params;
 
-extern int proc_time;
-extern int proc_time_worst;
-extern int proc_time_total;
-
 #define gprintf(...) if(gimx_params.status) printf(__VA_ARGS__)
 
 int process_event(GE_Event*);

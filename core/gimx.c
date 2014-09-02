@@ -30,6 +30,7 @@
 #include "connectors/connector.h"
 #include "args.h"
 #include <adapter.h>
+#include <stats.h>
 
 #define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
 
@@ -48,10 +49,6 @@ s_gimx_params gimx_params =
   .subpositions = 0,
   .window_events = 0,
 };
-
-int proc_time = 0;
-int proc_time_worst = 0;
-int proc_time_total = 0;
 
 #ifdef WIN32
 BOOL WINAPI ConsoleHandler(DWORD dwType)
@@ -195,6 +192,7 @@ int main(int argc, char *argv[])
   if(gimx_params.curses)
   {
     display_init();
+    stats_init(0);
   }
 
   gimx_params.frequency_scale = (double) DEFAULT_REFRESH_PERIOD / gimx_params.refresh_period;
