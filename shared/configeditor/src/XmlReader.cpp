@@ -26,6 +26,8 @@ XmlReader::XmlReader(ConfigurationFile* configFile)
 {
     //ctor
     m_ConfigurationFile = configFile;
+    m_evtcatch = event_catcher::getInstance();
+    m_checkDevices = false;
 }
 
 XmlReader::~XmlReader()
