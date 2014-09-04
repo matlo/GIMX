@@ -20,6 +20,7 @@
 #include <connectors/bt_utils.h>
 #include <connectors/l2cap_con.h>
 #include <GE.h>
+#include <ds4_wrapper.h>
 
 #include <mhash.h>
 
@@ -137,6 +138,8 @@ struct btds4_state {
     int btds4_number;
     struct btds4_state_sys sys;
     s_btds4_report bt_report;
+    s_report_ds4 previous;
+    int device_id;
     unsigned short inactivity_counter;
     unsigned char active;
     int ps4_control_pending;
@@ -332,6 +335,13 @@ static int read_ds4_interrupt(int btds4_number)
   {
     fprintf(stderr, "error reading ds4 interrupt\n");
   }
+
+  s_report_ds4* current = &((s_btds4_report*)buf)->report;
+  s_report_ds4* previous = &states[btds4_number].previous;
+
+  ds4_wrapper(current, previous, states[btds4_number].device_id);
+
+  *previous = *current;
 
   return 0;
 
@@ -740,6 +750,7 @@ int btds4_init(int btds4_number)
   state->ds4_sdp_pending = -1;
 
   memcpy(&state->bt_report, &init_report_btds4, sizeof(s_btds4_report));
+  state->device_id = GE_RegisterJoystick(DS4_DEVICE_NAME);
 
   if(bt_mgmt_adapter_init(state->dongle_index) < 0)
   {

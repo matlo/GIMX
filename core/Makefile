@@ -47,6 +47,7 @@ GIMX_OBJ = \
        connectors/gpp_con.o\
        connectors/usb_spoof.o\
        connectors/usb_con.o\
+       connectors/ds4_wrapper.o\
        adapter.o\
        stats.o
 
