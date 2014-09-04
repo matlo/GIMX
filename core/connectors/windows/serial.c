@@ -269,7 +269,7 @@ int read_packet(int id)
      */
     if(ret >= 0)
     {
-      adapter_process_packet(id, serials[id].data);
+      ret = adapter_process_packet(id, serials[id].data);
 
       serials[id].bread = 0;
     }

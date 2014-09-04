@@ -250,7 +250,7 @@ static int serial_callback(int id)
 
       if(serials[id].data[1] + HEADER_SIZE == serials[id].bread)
       {
-        adapter_process_packet(id, serials[id].data);
+        ret = adapter_process_packet(id, serials[id].data);
 
         serials[id].bread = 0;
       }

@@ -257,14 +257,16 @@ static void dump(unsigned char* packet, unsigned char length)
   }
 }
 
-void adapter_process_packet(int id, unsigned char* packet)
+int adapter_process_packet(int id, unsigned char* packet)
 {
   unsigned char type = packet[0];
   unsigned char length = packet[1];
 
+  int ret = 0;
+
   if(type == BYTE_SPOOF_DATA)
   {
-    int ret = adapter_forward_data_out(id, packet+HEADER_SIZE, length);
+    ret = adapter_forward_data_out(id, packet+HEADER_SIZE, length);
 
     if(ret < 0)
     {
@@ -280,6 +282,8 @@ void adapter_process_packet(int id, unsigned char* packet)
   {
     fprintf(stderr, "unhandled packet (type=0x%02x)\n", type);
   }
+
+  return ret;
 }
 
 /*

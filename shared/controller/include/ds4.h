@@ -10,7 +10,11 @@
 
 #define DS4_USB_INTERRUPT_ENDPOINT_IN 4
 #define DS4_USB_INTERRUPT_PACKET_SIZE 64
+#ifndef WIN32
 #define DS4_DEVICE_NAME "Sony Computer Entertainment Wireless Controller"
+#else
+#define DS4_DEVICE_NAME "PS4 Controller"
+#endif
 
 #define DS4_VENDOR 0x054c
 #define DS4_PRODUCT 0x05c4
@@ -38,6 +42,7 @@
 #define DS4_PS_MASK         0x0100
 #define DS4_TOUCHPAD_MASK   0x0200
 
+#ifndef WIN32
 #define DS4_SQUARE_ID     0
 #define DS4_CROSS_ID      1
 #define DS4_CIRCLE_ID     2
@@ -67,6 +72,37 @@
 #define DS4_AXIS_L2_ID    3
 #define DS4_AXIS_R2_ID    4
 #define DS4_AXIS_RZ_ID    5
+#else
+#define DS4_SQUARE_ID     2
+#define DS4_CROSS_ID      0
+#define DS4_CIRCLE_ID     1
+#define DS4_TRIANGLE_ID   3
+
+#define DS4_L1_ID         9
+#define DS4_R1_ID         10
+#define DS4_L2_ID         10//bug?
+#define DS4_R2_ID         7//bug?
+
+#define DS4_SHARE_ID      4
+#define DS4_OPTIONS_ID    6
+#define DS4_L3_ID         7
+#define DS4_R3_ID         8
+
+#define DS4_PS_ID         5
+#define DS4_TOUCHPAD_ID   13//bug?
+
+#define DS4_UP_ID         11
+#define DS4_RIGHT_ID      14
+#define DS4_DOWN_ID       12
+#define DS4_LEFT_ID       13
+
+#define DS4_AXIS_X_ID     0
+#define DS4_AXIS_Y_ID     1
+#define DS4_AXIS_Z_ID     2
+#define DS4_AXIS_RZ_ID    3
+#define DS4_AXIS_L2_ID    4
+#define DS4_AXIS_R2_ID    5
+#endif
 
 typedef enum
 {
