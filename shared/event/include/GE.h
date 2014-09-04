@@ -392,6 +392,7 @@ char* GE_JoystickName(int);
 int GE_JoystickVirtualId(int);
 void GE_SetJoystickUsed(int);
 int GE_IsSixaxis(int);
+int GE_RegisterJoystick(const char* name);
 
 const char* GE_MouseButtonName(int);
 int GE_MouseButtonId(const char*);

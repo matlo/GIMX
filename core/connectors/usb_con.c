@@ -29,33 +29,315 @@ static int usb_state_indexes[MAX_CONTROLLERS] = {};
 
 static struct usb_state {
   libusb_device_handle* devh;
+  int device_id;
+  s_report report;
 } usb_states[MAX_CONTROLLERS];
+
+static int usb_poll_interrupt(int usb_number);
+
+static inline unsigned char hatToButtons(const unsigned char hat)
+{
+  unsigned char buttons = 0x00;
+  switch(hat)
+  {
+    case 0x00:
+      buttons = DS4_UP_MASK;
+      break;
+    case 0x01:
+      buttons = DS4_UP_MASK | DS4_RIGHT_MASK;
+      break;
+    case 0x02:
+      buttons = DS4_RIGHT_MASK;
+      break;
+    case 0x03:
+      buttons = DS4_DOWN_MASK | DS4_RIGHT_MASK;
+      break;
+    case 0x04:
+      buttons = DS4_DOWN_MASK;
+      break;
+    case 0x05:
+      buttons = DS4_DOWN_MASK | DS4_LEFT_MASK;
+      break;
+    case 0x06:
+      buttons = DS4_LEFT_MASK;
+      break;
+    case 0x07:
+      buttons = DS4_UP_MASK | DS4_LEFT_MASK;
+      break;
+    case 0x08:
+      break;
+  }
+  return buttons;
+}
+
+static int (*event_callback)(GE_Event*) = NULL;
+
+void usb_set_event_callback(int (*fp)(GE_Event*))
+{
+  event_callback = fp;
+}
 
 void usb_callback(struct libusb_transfer* transfer)
 {
+  int usb_number = *(int*)transfer->user_data;
+  struct usb_state* state = usb_states+usb_number;
+
   struct libusb_control_setup* setup = libusb_control_transfer_get_setup(transfer);
 
-  if(transfer->status == LIBUSB_TRANSFER_COMPLETED)
+  if(transfer->type == LIBUSB_TRANSFER_TYPE_CONTROL)
   {
-    if(setup->bmRequestType & LIBUSB_ENDPOINT_IN)
+    if(transfer->status == LIBUSB_TRANSFER_COMPLETED)
     {
-      if(transfer->actual_length > 0xff)
+      if(setup->bmRequestType & LIBUSB_ENDPOINT_IN)
       {
-        fprintf(stderr, "wLength (%hu) is higher than %hu\n", transfer->actual_length, BUFFER_SIZE-LIBUSB_CONTROL_SETUP_SIZE);
-      }
-      else
-      {
-        unsigned char *data = libusb_control_transfer_get_data(transfer);
-        if(adapter_forward_data_in(*(int*)transfer->user_data, data, transfer->actual_length) < 0)
+        if(transfer->actual_length > 0xff)
         {
-          fprintf(stderr, "can't forward data to the adapter\n");
+          fprintf(stderr, "wLength (%hu) is higher than %hu\n", transfer->actual_length, BUFFER_SIZE-LIBUSB_CONTROL_SETUP_SIZE);
+        }
+        else
+        {
+          unsigned char *data = libusb_control_transfer_get_data(transfer);
+          if(adapter_forward_data_in(usb_number, data, transfer->actual_length) < 0)
+          {
+            fprintf(stderr, "can't forward data to the adapter\n");
+          }
         }
       }
     }
+    else
+    {
+      fprintf(stderr, "libusb_transfer failed with status %d (bmRequestType=0x%02x, bRequest=0x%02x, wValue=0x%04x)\n", transfer->status, setup->bmRequestType, setup->bRequest, setup->wValue);
+    }
   }
-  else
+  else if(transfer->type == LIBUSB_TRANSFER_TYPE_INTERRUPT)
   {
-    fprintf(stderr, "libusb_transfer failed with status %d (bmRequestType=0x%02x, bRequest=0x%02x, wValue=0x%04x)\n", transfer->status, setup->bmRequestType, setup->bRequest, setup->wValue);
+    // process joystick events
+    if(transfer->actual_length == DS4_USB_INTERRUPT_PACKET_SIZE)
+    {
+      s_report_ds4* report = (s_report_ds4*) transfer->buffer;
+
+      GE_Event event = { .jbutton.which = state->device_id };
+
+      unsigned short value;
+
+      unsigned char hatAndButtons = report->HatAndButtons;
+      unsigned char prevHatAndButtons = state->report.value.ds4.HatAndButtons;
+
+      unsigned short buttonsAndCounter = report->ButtonsAndCounter;
+      unsigned short prevButtonsAndCounter = state->report.value.ds4.ButtonsAndCounter;
+
+      unsigned char dirButtons = hatToButtons(hatAndButtons & 0x0F);
+      unsigned char prevDirButtons = hatToButtons(prevHatAndButtons & 0x0F);
+
+      if((value = (dirButtons & DS4_UP_MASK)) ^ (prevDirButtons & DS4_UP_MASK))
+      {
+        event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        event.jbutton.button = DS4_UP_ID;
+        event_callback(&event);
+      }
+      if((value = (dirButtons & DS4_RIGHT_MASK)) ^ (prevDirButtons & DS4_RIGHT_MASK))
+      {
+        event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        event.jbutton.button = DS4_RIGHT_ID;
+        event_callback(&event);
+      }
+      if((value = (dirButtons & DS4_DOWN_MASK)) ^ (prevDirButtons & DS4_DOWN_MASK))
+      {
+        event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        event.jbutton.button = DS4_DOWN_ID;
+        event_callback(&event);
+      }
+      if((value = (dirButtons & DS4_LEFT_MASK)) ^ (prevDirButtons & DS4_LEFT_MASK))
+      {
+        event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        event.jbutton.button = DS4_LEFT_ID;
+        event_callback(&event);
+      }
+
+      if((value = (hatAndButtons & DS4_SQUARE_MASK)) ^ (prevHatAndButtons & DS4_SQUARE_MASK))
+      {
+        event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        event.jbutton.button = DS4_SQUARE_ID;
+        event_callback(&event);
+      }
+      if((value = (hatAndButtons & DS4_CROSS_MASK)) ^ (prevHatAndButtons & DS4_CROSS_MASK))
+      {
+        event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        event.jbutton.button = DS4_CROSS_ID;
+        event_callback(&event);
+      }
+      if((value = (hatAndButtons & DS4_CIRCLE_MASK)) ^ (prevHatAndButtons & DS4_CIRCLE_MASK))
+      {
+        event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        event.jbutton.button = DS4_CIRCLE_ID;
+        event_callback(&event);
+      }
+      if((value = (hatAndButtons & DS4_TRIANGLE_MASK)) ^ (prevHatAndButtons & DS4_TRIANGLE_MASK))
+      {
+        event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        event.jbutton.button = DS4_TRIANGLE_ID;
+        event_callback(&event);
+      }
+
+      if((value = (buttonsAndCounter & DS4_L1_MASK)) ^ (prevButtonsAndCounter & DS4_L1_MASK))
+      {
+        event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        event.jbutton.button = DS4_L1_ID;
+        event_callback(&event);
+      }
+      if((value = (buttonsAndCounter & DS4_R1_MASK)) ^ (prevButtonsAndCounter & DS4_R1_MASK))
+      {
+        event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        event.jbutton.button = DS4_R1_ID;
+        event_callback(&event);
+      }
+      if((value = (buttonsAndCounter & DS4_L2_MASK)) ^ (prevButtonsAndCounter & DS4_L2_MASK))
+      {
+        event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        event.jbutton.button = DS4_L2_ID;
+        event_callback(&event);
+      }
+      if((value = (buttonsAndCounter & DS4_R2_MASK)) ^ (prevButtonsAndCounter & DS4_R2_MASK))
+      {
+        event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        event.jbutton.button = DS4_R2_ID;
+        event_callback(&event);
+      }
+
+      if((value = (buttonsAndCounter & DS4_SHARE_MASK)) ^ (prevButtonsAndCounter & DS4_SHARE_MASK))
+      {
+        event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        event.jbutton.button = DS4_SHARE_ID;
+        event_callback(&event);
+      }
+      if((value = (buttonsAndCounter & DS4_OPTIONS_MASK)) ^ (prevButtonsAndCounter & DS4_OPTIONS_MASK))
+      {
+        event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        event.jbutton.button = DS4_OPTIONS_ID;
+        event_callback(&event);
+      }
+      if((value = (buttonsAndCounter & DS4_L3_MASK)) ^ (prevButtonsAndCounter & DS4_L3_MASK))
+      {
+        event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        event.jbutton.button = DS4_L3_ID;
+        event_callback(&event);
+      }
+      if((value = (buttonsAndCounter & DS4_R3_MASK)) ^ (prevButtonsAndCounter & DS4_R3_MASK))
+      {
+        event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        event.jbutton.button = DS4_R3_ID;
+        event_callback(&event);
+      }
+
+      if((value = (buttonsAndCounter & DS4_PS_MASK)) ^ (prevButtonsAndCounter & DS4_PS_MASK))
+      {
+        event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        event.jbutton.button = DS4_PS_ID;
+        event_callback(&event);
+      }
+      if((value = (buttonsAndCounter & DS4_TOUCHPAD_MASK)) ^ (prevButtonsAndCounter & DS4_TOUCHPAD_MASK))
+      {
+        event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+        event.jbutton.button = DS4_TOUCHPAD_ID;
+        event_callback(&event);
+      }
+
+      event.type = GE_JOYAXISMOTION;
+
+      int axisValue;
+      int prevAxisValue;
+
+      axisValue = report->X;
+      prevAxisValue = state->report.value.ds4.X;
+      if(axisValue != prevAxisValue)
+      {
+        event.jaxis.axis = DS4_AXIS_X_ID;
+        axisValue = (axisValue - 0x80) * 32765 / 127;
+        event.jaxis.value = clamp(-32768, axisValue, 32767);
+        event_callback(&event);
+      }
+      axisValue = report->Y;
+      prevAxisValue = state->report.value.ds4.Y;
+      if(axisValue != prevAxisValue)
+      {
+        event.jaxis.axis = DS4_AXIS_Y_ID;
+        axisValue = (axisValue - 0x80) * 32765 / 127;
+        event.jaxis.value = clamp(-32768, axisValue, 32767);
+        event_callback(&event);
+      }
+      axisValue = report->Z;
+      prevAxisValue = state->report.value.ds4.Z;
+      if(axisValue != prevAxisValue)
+      {
+        event.jaxis.axis = DS4_AXIS_Z_ID;
+        axisValue = (axisValue - 0x80) * 32765 / 127;
+        event.jaxis.value = clamp(-32768, axisValue, 32767);
+        event_callback(&event);
+      }
+      axisValue = report->Rz;
+      prevAxisValue = state->report.value.ds4.Rz;
+      if(axisValue != prevAxisValue)
+      {
+        event.jaxis.axis = DS4_AXIS_RZ_ID;
+        axisValue = (axisValue - 0x80) * 32765 / 127;
+        event.jaxis.value = clamp(-32768, axisValue, 32767);
+        event_callback(&event);
+      }
+      axisValue = report->Rx;
+      prevAxisValue = state->report.value.ds4.Rx;
+      if(axisValue != prevAxisValue)
+      {
+        event.jaxis.axis = DS4_AXIS_L2_ID;
+        axisValue = (axisValue - 0x80) * 32765 / 127;
+        event.jaxis.value = clamp(-32768, axisValue, 32767);
+        event_callback(&event);
+      }
+      axisValue = report->Ry;
+      prevAxisValue = state->report.value.ds4.Ry;
+      if(axisValue || prevAxisValue)
+      {
+        event.jaxis.axis = DS4_AXIS_R2_ID;
+        axisValue = (axisValue - 0x80) * 32765 / 127;
+        event.jaxis.value = clamp(-32768, axisValue, 32767);
+        event_callback(&event);
+      }
+
+      state->report.value.ds4 = *report;
+    }
+    else
+    {
+      fprintf(stderr, "incorrect packet size on interrupt endpoint\n");
+    }
+  }
+}
+
+static int usb_poll_interrupt(int usb_number)
+{
+  struct usb_state* state = usb_states+usb_number;
+  struct libusb_transfer* transfer = libusb_alloc_transfer(0);
+  transfer->flags = LIBUSB_TRANSFER_FREE_BUFFER | LIBUSB_TRANSFER_FREE_TRANSFER ;
+  unsigned int size = DS4_USB_INTERRUPT_PACKET_SIZE;
+  unsigned char* buf = calloc(size, sizeof(char));
+  libusb_fill_interrupt_transfer(transfer, state->devh, DS4_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN, buf, size, (libusb_transfer_cb_fn)usb_callback, usb_state_indexes+usb_number, 1000);
+  int ret = libusb_submit_transfer(transfer);
+  if(ret < 0)
+  {
+    fprintf(stderr, "libusb_submit_transfer: %s.\n", libusb_strerror(ret));
+    free(transfer->buffer);
+    libusb_free_transfer(transfer);
+  }
+  return ret;
+}
+
+void usb_poll_interrupts()
+{
+  int i;
+  for(i=0; i<MAX_CONTROLLERS; ++i)
+  {
+    if(usb_states[i].devh)
+    {
+      usb_poll_interrupt(i);
+    }
   }
 }
 
@@ -86,6 +368,7 @@ int usb_init(int usb_number, unsigned short vendor, unsigned short product)
   usb_state_indexes[usb_number] = usb_number;
 
   memset(state, 0x00, sizeof(*state));
+  state->device_id = -1;
 
   if(!ctx)
   {
@@ -160,8 +443,17 @@ int usb_init(int usb_number, unsigned short vendor, unsigned short product)
             {
               GE_AddSource(pfd_usb[poll_i]->fd, usb_number, usb_handle_events, usb_handle_events, usb_close);
             }
-#endif
 
+            if(usb_poll_interrupt(usb_number) == LIBUSB_SUCCESS)
+            {
+              // register joystick
+              int device_id = GE_RegisterJoystick(DS4_DEVICE_NAME);
+              if(device_id >= 0)
+              {
+                state->device_id = device_id;
+              }
+            }
+#endif
             return 0;
           }
         }
@@ -236,7 +528,7 @@ int usb_send(int usb_number, unsigned char* buffer, unsigned char length)
 
   struct libusb_transfer* transfer = libusb_alloc_transfer(0);
 
-  transfer->flags = LIBUSB_TRANSFER_FREE_BUFFER | LIBUSB_TRANSFER_FREE_TRANSFER ;
+  transfer->flags = LIBUSB_TRANSFER_FREE_BUFFER | LIBUSB_TRANSFER_FREE_TRANSFER;
 
   libusb_fill_control_transfer(transfer, state->devh, buf, (libusb_transfer_cb_fn)usb_callback, usb_state_indexes+usb_number, 1000);
 

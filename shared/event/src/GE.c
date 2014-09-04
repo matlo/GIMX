@@ -318,6 +318,40 @@ void GE_SetJoystickUsed(int id)
 }
 
 /*
+ * \brief Register a joystick to be emulated in software.
+ * 
+ * \param name  the name of the joystick to register.
+ * 
+ * \return the id of the joystick, that can be used in generated events
+ */
+int GE_RegisterJoystick(const char* name)
+{
+  int i;
+  int device_id = -1;
+  int index = 0;
+  for (i = 0; i < GE_MAX_DEVICES; ++i)
+  {
+    if(joysticks[i].name)
+    {
+      if(!strcmp(joysticks[i].name, name))
+      {
+        ++index;
+      }
+    }
+    else if(device_id < 0)
+    {
+      joysticks[i].name = strdup(name);
+      device_id = i;
+    }
+  }
+  if(device_id >= 0)
+  {
+    joysticks[device_id].virtualIndex = index;
+  }
+  return device_id;
+}
+
+/*
  * \brief Get the mouse virtual id for a given index.
  * 
  * \param id  the mouse index (in the [0..GE_MAX_DEVICES[ range)

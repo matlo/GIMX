@@ -10,9 +10,7 @@
 #include "macros.h"
 #include <stdio.h>
 #include <adapter.h>
-#ifdef WIN32
 #include <connectors/usb_con.h>
-#endif
 
 static volatile int done = 0;
 
@@ -45,6 +43,8 @@ void mainloop()
     GE_SetCallback(process_event);
   }
 
+  usb_set_event_callback(process_event);
+
   while(!done)
   {
     /*
@@ -61,6 +61,8 @@ void mainloop()
       done = 1;
     }
     
+    usb_poll_interrupts();
+
 #ifdef WIN32
     usb_handle_events(0);
 #endif

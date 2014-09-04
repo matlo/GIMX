@@ -8,10 +8,65 @@
 
 #include <control.h>
 
+#define DS4_USB_INTERRUPT_ENDPOINT_IN 4
 #define DS4_USB_INTERRUPT_PACKET_SIZE 64
+#define DS4_DEVICE_NAME "Sony Computer Entertainment Wireless Controller"
 
 #define DS4_VENDOR 0x054c
 #define DS4_PRODUCT 0x05c4
+
+#define DS4_UP_MASK         0x01
+#define DS4_RIGHT_MASK      0x02
+#define DS4_DOWN_MASK       0x04
+#define DS4_LEFT_MASK       0x08
+
+#define DS4_SQUARE_MASK     0x0010
+#define DS4_CROSS_MASK      0x0020
+#define DS4_CIRCLE_MASK     0x0040
+#define DS4_TRIANGLE_MASK   0x0080
+
+#define DS4_L1_MASK         0x0001
+#define DS4_R1_MASK         0x0002
+#define DS4_L2_MASK         0x0004
+#define DS4_R2_MASK         0x0008
+
+#define DS4_SHARE_MASK      0x0010
+#define DS4_OPTIONS_MASK    0x0020
+#define DS4_L3_MASK         0x0040
+#define DS4_R3_MASK         0x0080
+
+#define DS4_PS_MASK         0x0100
+#define DS4_TOUCHPAD_MASK   0x0200
+
+#define DS4_SQUARE_ID     0
+#define DS4_CROSS_ID      1
+#define DS4_CIRCLE_ID     2
+#define DS4_TRIANGLE_ID   3
+
+#define DS4_L1_ID         4
+#define DS4_R1_ID         5
+#define DS4_L2_ID         6
+#define DS4_R2_ID         7
+
+#define DS4_SHARE_ID      8
+#define DS4_OPTIONS_ID    9
+#define DS4_L3_ID         10
+#define DS4_R3_ID         11
+
+#define DS4_PS_ID         12
+#define DS4_TOUCHPAD_ID   13
+
+#define DS4_UP_ID         14
+#define DS4_RIGHT_ID      15
+#define DS4_DOWN_ID       16
+#define DS4_LEFT_ID       17
+
+#define DS4_AXIS_X_ID     0
+#define DS4_AXIS_Y_ID     1
+#define DS4_AXIS_Z_ID     2
+#define DS4_AXIS_L2_ID    3
+#define DS4_AXIS_R2_ID    4
+#define DS4_AXIS_RZ_ID    5
 
 typedef enum
 {
