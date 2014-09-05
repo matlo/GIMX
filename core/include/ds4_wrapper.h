@@ -10,6 +10,6 @@
 #include <ds4.h>
 
 void ds4_wrapper_set_event_callback(int (*fp)(GE_Event*));
-void ds4_wrapper(s_report_ds4* current, s_report_ds4* previous, int device_id);
+void ds4_wrapper(int adapter_id, s_report_ds4* current, s_report_ds4* previous, int joystick_id);
 
 #endif /* DS4_WRAPPER_H_ */

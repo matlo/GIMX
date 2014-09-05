@@ -30,7 +30,7 @@ static int usb_state_indexes[MAX_CONTROLLERS] = {};
 static struct usb_state {
   libusb_device_handle* devh;
   unsigned char ack;
-  int device_id;
+  int joystick_id;
   s_report report;
 } usb_states[MAX_CONTROLLERS];
 
@@ -85,7 +85,7 @@ void usb_callback(struct libusb_transfer* transfer)
         s_report_ds4* current = (s_report_ds4*) transfer->buffer;
         s_report_ds4* previous = &state->report.value.ds4;
 
-        ds4_wrapper(current, previous, state->device_id);
+        ds4_wrapper(usb_number, current, previous, state->joystick_id);
 
         state->report.value.ds4 = *current;
       }
@@ -162,7 +162,7 @@ int usb_init(int usb_number, unsigned short vendor, unsigned short product)
   usb_state_indexes[usb_number] = usb_number;
 
   memset(state, 0x00, sizeof(*state));
-  state->device_id = -1;
+  state->joystick_id = -1;
 
   if(!ctx)
   {
@@ -244,7 +244,7 @@ int usb_init(int usb_number, unsigned short vendor, unsigned short product)
               int device_id = GE_RegisterJoystick(DS4_DEVICE_NAME);
               if(device_id >= 0)
               {
-                state->device_id = device_id;
+                state->joystick_id = device_id;
               }
             }
 

@@ -104,6 +104,9 @@
 #define DS4_AXIS_R2_ID    5
 #endif
 
+#define DS4_TRACKPAD_MAX_X 1919
+#define DS4_TRACKPAD_MAX_Y 919
+
 typedef enum
 {
   ds4a_lstick_x = rel_axis_lstick_x,

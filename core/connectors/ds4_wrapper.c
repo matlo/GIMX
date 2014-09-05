@@ -4,6 +4,7 @@
  */
 
 #include <ds4_wrapper.h>
+#include <adapter.h>
 #include <stddef.h>
 #include <stdlib.h>
 
@@ -51,9 +52,44 @@ static inline unsigned char hatToButtons(const unsigned char hat)
   return buttons;
 }
 
-void ds4_wrapper(s_report_ds4* current, s_report_ds4* previous, int device_id)
+static inline void update_finger(s_trackpad_finger* current, s_trackpad_finger* previous, int* presence, int* axis_x, int* axis_y)
 {
-  GE_Event event = { .jbutton.which = device_id };
+  unsigned char* coords = current->coords;
+  unsigned char* prevCoords = previous->coords;
+
+  if(current->id & 0x80)
+  {
+    *presence = 0;
+  }
+  else
+  {
+    *presence = 1;
+    unsigned short prev_x;
+    unsigned short prev_y;
+    if(previous->id & 0x80)
+    {
+      //new touch: relative to center
+      prev_x = DS4_TRACKPAD_MAX_X/2;
+      prev_y = DS4_TRACKPAD_MAX_Y/2;
+    }
+    else
+    {
+      //relative to last position
+      prev_x = ((prevCoords[1] & 0x0F) << 8) | prevCoords[0];
+      prev_y = prevCoords[2] << 4 | (prevCoords[1]>>4);
+    }
+    *axis_x = (((coords[1] & 0x0F) << 8) | coords[0]) - prev_x;
+    *axis_y = (coords[2] << 4 | (coords[1]>>4)) - prev_y;
+  }
+}
+
+void ds4_wrapper(int adapter_id, s_report_ds4* current, s_report_ds4* previous, int joystick_id)
+{
+  GE_Event event = { .jbutton.which = joystick_id };
+
+  /*
+   * Buttons
+   */
 
   unsigned short value;
 
@@ -183,6 +219,10 @@ void ds4_wrapper(s_report_ds4* current, s_report_ds4* previous, int device_id)
   }
 #endif
 
+  /*
+   * Axes
+   */
+
   event.type = GE_JOYAXISMOTION;
 
   int axisValue;
@@ -255,5 +295,47 @@ void ds4_wrapper(s_report_ds4* current, s_report_ds4* previous, int device_id)
     event_callback(&event);
   }
 
-  //TODO: touchpad + motion sensing
+  /*
+   * Touchpad
+   *
+   * The touchpad does not generate joystick events.
+   * => wrap the touchpad directly to the emulated touchpad.
+   */
+
+  s_trackpad_finger* finger;
+  s_trackpad_finger* prevFinger;
+  int* presence;
+  int* axis_x;
+  int* axis_y;
+  int prevPresence;
+
+  s_adapter* adapter = adapter_get(adapter_id);
+
+  finger = &current->packet1.finger1;
+  prevFinger = &previous->packet1.finger1;
+  presence = &adapter->axis[ds4a_finger1];
+  prevPresence = *presence;
+  axis_x = &adapter->axis[ds4a_finger1_x];
+  axis_y = &adapter->axis[ds4a_finger1_y];
+  update_finger(finger, prevFinger, presence, axis_x, axis_y);
+
+  if(*presence ^ prevPresence)
+  {
+    adapter->send_command = 1;
+  }
+
+  finger = &current->packet1.finger2;
+  prevFinger = &previous->packet1.finger2;
+  presence = &adapter->axis[ds4a_finger2];
+  prevPresence = *presence;
+  axis_x = &adapter->axis[ds4a_finger2_x];
+  axis_y = &adapter->axis[ds4a_finger2_y];
+  update_finger(finger, prevFinger, presence, axis_x, axis_y);
+
+  if(*presence ^ prevPresence)
+  {
+    adapter->send_command = 1;
+  }
+
+  //TODO: motion sensing
 }

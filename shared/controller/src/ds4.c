@@ -95,19 +95,16 @@ static s_axis_name_dir axis_names[] =
   {.name = "finger2",      {.axis = ds4a_finger2,  .props = AXIS_PROP_TOGGLE}},
 };
 
-#define TRACKPAD_MAX_X 1919
-#define TRACKPAD_MAX_Y 919
-
 static int ds4_max_unsigned_axis_value[AXIS_MAX] =
 {
   [ds4a_lstick_x] = MAX_AXIS_VALUE_8BITS,
   [ds4a_lstick_y] = MAX_AXIS_VALUE_8BITS,
   [ds4a_rstick_x] = MAX_AXIS_VALUE_8BITS,
   [ds4a_rstick_y] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_finger1_x] = TRACKPAD_MAX_X,
-  [ds4a_finger1_y] = TRACKPAD_MAX_Y,
-  [ds4a_finger2_x] = TRACKPAD_MAX_X,
-  [ds4a_finger2_y] = TRACKPAD_MAX_Y,
+  [ds4a_finger1_x] = DS4_TRACKPAD_MAX_X,
+  [ds4a_finger1_y] = DS4_TRACKPAD_MAX_Y,
+  [ds4a_finger2_x] = DS4_TRACKPAD_MAX_X,
+  [ds4a_finger2_y] = DS4_TRACKPAD_MAX_Y,
   [ds4a_up] = MAX_AXIS_VALUE_8BITS,
   [ds4a_right] = MAX_AXIS_VALUE_8BITS,
   [ds4a_down] = MAX_AXIS_VALUE_8BITS,
@@ -220,6 +217,10 @@ void ds4_init_report(s_report_ds4* ds4)
   memcpy(ds4, &init_report_ds4, sizeof(s_report_ds4));
 }
 
+/*
+ * Update touchpad finger.
+ * The axes are relative to the last position.
+ */
 static inline void update_finger(s_trackpad_finger* finger, int presence, int axis_x, int axis_y)
 {
   unsigned char* coords = finger->coords;
@@ -235,8 +236,8 @@ static inline void update_finger(s_trackpad_finger* finger, int presence, int ax
       finger->id++;
 
       //start movement from center
-      finger_x = TRACKPAD_MAX_X/2;
-      finger_y = TRACKPAD_MAX_Y/2;
+      finger_x = DS4_TRACKPAD_MAX_X/2;
+      finger_y = DS4_TRACKPAD_MAX_Y/2;
     }
     else
     {
@@ -251,8 +252,8 @@ static inline void update_finger(s_trackpad_finger* finger, int presence, int ax
     int x = finger_x + axis_x;
     int y = finger_y + axis_y;
 
-    finger_x = clamp(0, x, TRACKPAD_MAX_X);
-    finger_y = clamp(0, y, TRACKPAD_MAX_Y);
+    finger_x = clamp(0, x, DS4_TRACKPAD_MAX_X);
+    finger_y = clamp(0, y, DS4_TRACKPAD_MAX_Y);
 
     coords[0] = finger_x & 0xFF;
     coords[1] =  ((finger_x >> 8) & 0x0F) | ((finger_y & 0x0F) << 4);
