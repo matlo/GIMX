@@ -336,7 +336,8 @@ static int read_ds4_interrupt(int btds4_number)
     fprintf(stderr, "error reading ds4 interrupt\n");
   }
 
-  s_report_ds4* current = &((s_btds4_report*)buf)->report;
+  unsigned char* pbuf = buf;
+  s_report_ds4* current = &((s_btds4_report*)pbuf)->report;
   s_report_ds4* previous = &states[btds4_number].previous;
 
   ds4_wrapper(btds4_number, current, previous, states[btds4_number].joystick_id);
