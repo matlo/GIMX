@@ -8,7 +8,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#define STICK_THRESHOLD 4
+#define STICK_THRESHOLD 8
 
 static int (*event_callback)(GE_Event*) = NULL;
 
@@ -307,35 +307,33 @@ void ds4_wrapper(int adapter_id, s_report_ds4* current, s_report_ds4* previous, 
   int* presence;
   int* axis_x;
   int* axis_y;
-  int prevPresence;
 
   s_adapter* adapter = adapter_get(adapter_id);
 
   finger = &current->packet1.finger1;
-  prevFinger = &previous->packet1.finger1;
+  prevFinger = &adapter->report.value.ds4.packet1.finger1;
   presence = &adapter->axis[ds4a_finger1];
-  prevPresence = *presence;
   axis_x = &adapter->axis[ds4a_finger1_x];
   axis_y = &adapter->axis[ds4a_finger1_y];
   update_finger(finger, prevFinger, presence, axis_x, axis_y);
 
-  if(*presence ^ prevPresence)
-  {
-    adapter->send_command = 1;
-  }
-
   finger = &current->packet1.finger2;
-  prevFinger = &previous->packet1.finger2;
+  prevFinger = &adapter->report.value.ds4.packet1.finger2;
   presence = &adapter->axis[ds4a_finger2];
-  prevPresence = *presence;
   axis_x = &adapter->axis[ds4a_finger2_x];
   axis_y = &adapter->axis[ds4a_finger2_y];
   update_finger(finger, prevFinger, presence, axis_x, axis_y);
 
-  if(*presence ^ prevPresence)
-  {
-    adapter->send_command = 1;
-  }
+  /*
+   * Motion sensing
+   */
 
-  //TODO: motion sensing
+  adapter->report.value.ds4._time = current->_time;
+  adapter->report.value.ds4.motion_acc = current->motion_acc;
+  adapter->report.value.ds4.motion_gyro = current->motion_gyro;
+
+  /*
+   * Always send a report
+   */
+  adapter->send_command = 1;
 }

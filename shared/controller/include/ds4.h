@@ -152,6 +152,20 @@ typedef struct __attribute__ ((packed))
   s_trackpad_finger finger2;
 } s_trackpad_packet;
 
+typedef struct __attribute__ ((packed))
+{
+  short x;
+  short y;
+  short z;
+} s_motion_acc;
+
+typedef struct __attribute__ ((packed))
+{
+  short roll;
+  short yaw;
+  short pitch;
+} s_motion_gyro;
+
 /*
  *
  */
@@ -166,10 +180,10 @@ typedef struct __attribute__ ((packed))
   unsigned short ButtonsAndCounter;
   unsigned char Rx;
   unsigned char Ry;
-  unsigned char _time[2];
+  unsigned short _time;
   unsigned char battery_level;
-  unsigned char rel_gyro[6];
-  unsigned char abs_gyro[6];
+  s_motion_acc motion_acc;
+  s_motion_gyro motion_gyro;
   unsigned char _unknown1[5];
   unsigned char ext;
   unsigned char _unknown2[2];

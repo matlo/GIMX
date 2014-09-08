@@ -145,10 +145,10 @@ static s_report_ds4 init_report_ds4 =
   .ButtonsAndCounter = 0xfc00,
   .Rx = 0x00,
   .Ry = 0x00,
-  ._time = {0x99, 0x50},
+  ._time = {0x5099},
   .battery_level = 0xff,
-  .rel_gyro = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-  .abs_gyro = {0xe7, 0xff, 0x6e, 0x20, 0xd9, 0x09},
+  .motion_acc = {0x0006, 0x0001, 0x350f},
+  .motion_gyro = {0x1903,  0x0001, 0x0008},
   ._unknown1 = {0x00, 0x00, 0x00, 0x00, 0x00},
   .ext = 0x08,
   ._unknown2 = {0x00, 0x00},
@@ -221,7 +221,7 @@ void ds4_init_report(s_report_ds4* ds4)
  * Update touchpad finger.
  * The axes are relative to the last position.
  */
-static inline void update_finger(s_trackpad_finger* finger, int presence, int axis_x, int axis_y)
+static inline void update_finger(s_trackpad_finger* finger, int presence, int* axis_x, int* axis_y)
 {
   unsigned char* coords = finger->coords;
 
@@ -249,8 +249,8 @@ static inline void update_finger(s_trackpad_finger* finger, int presence, int ax
     //finger present
     finger->id &= 0x7F;
 
-    int x = finger_x + axis_x;
-    int y = finger_y + axis_y;
+    int x = finger_x + *axis_x;
+    int y = finger_y + *axis_y;
 
     finger_x = clamp(0, x, DS4_TRACKPAD_MAX_X);
     finger_y = clamp(0, y, DS4_TRACKPAD_MAX_Y);
@@ -264,6 +264,9 @@ static inline void update_finger(s_trackpad_finger* finger, int presence, int ax
     //finger absent
     finger->id |= 0x80;
   }
+
+  *axis_x = 0;
+  *axis_y = 0;
 }
 
 /*
@@ -397,9 +400,9 @@ static unsigned int ds4_report_build(int axis[AXIS_MAX], s_report* report)
     ds4->packet1.counter += 4;
   }
 
-  update_finger(&ds4->packet1.finger1, axis[ds4a_finger1], axis[ds4a_finger1_x], axis[ds4a_finger1_y]);
+  update_finger(&ds4->packet1.finger1, axis[ds4a_finger1], &axis[ds4a_finger1_x], &axis[ds4a_finger1_y]);
 
-  update_finger(&ds4->packet1.finger2, axis[ds4a_finger2], axis[ds4a_finger2_x], axis[ds4a_finger2_y]);
+  update_finger(&ds4->packet1.finger2, axis[ds4a_finger2], &axis[ds4a_finger2_x], &axis[ds4a_finger2_y]);
 
   return sizeof(*ds4);
 }
