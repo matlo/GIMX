@@ -6,6 +6,7 @@
 #include <connectors/usb_con.h>
 #include <adapter.h>
 #include <mainloop.h>
+#include <ds4_wrapper.h>
 
 #include <stdio.h>
 #include <string.h>
