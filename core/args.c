@@ -116,7 +116,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"dst",     required_argument, 0, 'd'},
     {"event",   required_argument, 0, 'e'},
     {"hci",     required_argument, 0, 'h'},
-    {"help",    required_argument, 0, 'm'},
+    {"help",    no_argument,       0, 'm'},
     {"keygen",  required_argument, 0, 'k'},
     {"port",    required_argument, 0, 'p'},
     {"refresh", required_argument, 0, 'r'},
