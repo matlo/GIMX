@@ -1347,7 +1347,7 @@ void launcherFrame::OnOutputSelect(wxCommandEvent& event)
 
       refreshGui();
 
-      if(OutputChoice->IsEmpty())
+      if(started && OutputChoice->IsEmpty())
       {
           wxMessageBox( _("No Serial Port Detected!\n"), _("Error"), wxICON_ERROR);
       }
@@ -1362,7 +1362,7 @@ void launcherFrame::OnOutputSelect(wxCommandEvent& event)
 
       refreshGui();
 
-      if(OutputChoice->IsEmpty())
+      if(started && OutputChoice->IsEmpty())
       {
         int answer = wxMessageBox(_("No pairing found.\nPerform a new pairing?"), _("Confirm"), wxYES_NO);
         if (answer == wxYES)
@@ -1381,7 +1381,7 @@ void launcherFrame::OnOutputSelect(wxCommandEvent& event)
 
       refreshGui();
 
-      if(OutputChoice->IsEmpty())
+      if(started && OutputChoice->IsEmpty())
       {
         int answer = wxMessageBox(_("No pairing found.\nPerform a new pairing?"), _("Confirm"), wxYES_NO);
         if (answer == wxYES)
@@ -1400,7 +1400,7 @@ void launcherFrame::OnOutputSelect(wxCommandEvent& event)
 
       refreshGui();
 
-      if(OutputChoice->IsEmpty())
+      if(started && OutputChoice->IsEmpty())
       {
         readIp(OutputChoice);
       }
