@@ -20,24 +20,24 @@
 static void usage()
 {
 #ifndef WIN32
-  printf("PS3+bluetooth: gimx -t Sixaxis -c filename -h bt_device_index -b ps3_bt_address\n");
+  printf("PS3+bluetooth: gimx --type Sixaxis --config filename --hci bt_device_index --bdaddr ps3_bt_address\n");
   printf("  filename: The name of the config file, in the ~/.gimx/config directory (ex: \"File name.xml\").\n");
   printf("  bt_device_index: The bluetooth device index (ex: 0 for hci0, 1 for hci1, etc). Optional, default value is 0.\n");
   printf("  ps3_bt_address: The bluetooth device address of the PS3.\n");
 
-  printf("PS4+bluetooth: gimx -t DS4 -c filename -h bt_device_index -b ps3_bt_address\n");
+  printf("PS4+bluetooth: gimx --type DS4 --config filename --hci bt_device_index --bdaddr ps3_bt_address\n");
   printf("  filename: The name of the config file, in the ~/.gimx/config directory (ex: \"File name.xml\").\n");
   printf("  bt_device_index: The bluetooth device index (ex: 0 for hci0, 1 for hci1, etc). Optional, default value is 0.\n");
   printf("  ps3_bt_address: The bluetooth device address of the PS3.\n");
 #endif
-  printf("DIY USB adapter: gimx -c filename -p portname\n");
+  printf("DIY USB adapter: gimx --config filename --port portname\n");
   printf("  filename: The name of the config file, in the ~/.gimx/config directory (ex: \"File name.xml\").\n");
-  printf("  portname: The serial port. Ex: /dev/ttyUSB0 in Linux, COM4 in windows.\n");
+  printf("  portname: The serial port. Ex: /dev/ttyUSB0 in Linux, COM4 in Windows.\n");
 
-  printf("GPP/Cronus/Titan: gimx -c filename -t GPP\n");
+  printf("GPP/Cronus/Titan: gimx --config filename --type GPP\n");
   printf("  filename: The name of the config file, in the ~/.gimx/config directory (ex: \"File name.xml\").\n");
 
-  printf("Remote GIMX: gimx -c filename -d IP:port\n");
+  printf("Remote GIMX: gimx --config filename --dst IP:port\n");
   printf("  filename: The name of the config file, in the ~/.gimx/config directory (ex: \"File name.xml\").\n");
   printf("  IP:port: The destination IP+port. Ex: 127.0.0.1:51914.\n");
 
@@ -53,6 +53,9 @@ static void usage()
   printf("    \"acc x\", \"acc y\", \"acc z\", \"gyro\": [-512,511]\n");
   printf("    \"select\", \"start\", \"PS\", \"l3\", \"r3\": {0, 255}\n");
   printf("    \"up\", \"right\", \"down\", \"left\", \"triangle\", \"circle\", \"cross\", \"square\", \"l1\", \"r1\", \"l2\", \"r2\": [0,255]\n");
+  printf("  --refresh n: The refresh period, in ms. Forcing the refresh period is not recommended.\n");
+  printf("  --src IP:port: Specifies a source IP+port to listen on. Ex: 127.0.0.1:51914.\n");
+  printf("    This argument has to be placed before the --bdaddr and --port arguments.\n");
 
 }
 
