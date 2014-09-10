@@ -88,7 +88,7 @@ void usb_callback(struct libusb_transfer* transfer)
 
         ds4_wrapper(usb_number, current, previous, state->joystick_id);
 
-        state->report.value.ds4 = *current;
+        memcpy(&state->report.value.ds4, current, DS4_USB_INTERRUPT_PACKET_SIZE);
       }
       else
       {
@@ -238,6 +238,8 @@ int usb_init(int usb_number, unsigned short vendor, unsigned short product)
             {
               GE_AddSource(pfd_usb[poll_i]->fd, usb_number, usb_handle_events, usb_handle_events, usb_close);
             }
+
+            free(pfd_usb);
 #endif
             if(usb_poll_interrupt(usb_number) == LIBUSB_SUCCESS)
             {
@@ -274,6 +276,7 @@ int usb_close(int usb_number)
     libusb_close(state->devh);
     state->devh = NULL;
     --nb_opened;
+    printf("close %d\n", nb_opened);
     if(!nb_opened)
     {
       libusb_free_device_list(devs, 1);
