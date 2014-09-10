@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include "args.h"
 #include "gimx.h"
+#include "../info.h"
 #include <getopt.h>
 #include <adapter.h>
 #ifndef WIN32
@@ -15,6 +16,45 @@
 #include <arpa/inet.h>
 #endif
 #include <connectors/usb_spoof.h>
+
+static void usage()
+{
+#ifndef WIN32
+  printf("PS3+bluetooth: gimx -t Sixaxis -c filename -h bt_device_index -b ps3_bt_address\n");
+  printf("  filename: The name of the config file, in the ~/.gimx/config directory (ex: \"File name.xml\").\n");
+  printf("  bt_device_index: The bluetooth device index (ex: 0 for hci0, 1 for hci1, etc). Optional, default value is 0.\n");
+  printf("  ps3_bt_address: The bluetooth device address of the PS3.\n");
+
+  printf("PS4+bluetooth: gimx -t DS4 -c filename -h bt_device_index -b ps3_bt_address\n");
+  printf("  filename: The name of the config file, in the ~/.gimx/config directory (ex: \"File name.xml\").\n");
+  printf("  bt_device_index: The bluetooth device index (ex: 0 for hci0, 1 for hci1, etc). Optional, default value is 0.\n");
+  printf("  ps3_bt_address: The bluetooth device address of the PS3.\n");
+#endif
+  printf("DIY USB adapter: gimx -c filename -p portname\n");
+  printf("  filename: The name of the config file, in the ~/.gimx/config directory (ex: \"File name.xml\").\n");
+  printf("  portname: The serial port. Ex: /dev/ttyUSB0 in Linux, COM4 in windows.\n");
+
+  printf("GPP/Cronus/Titan: gimx -c filename -t GPP\n");
+  printf("  filename: The name of the config file, in the ~/.gimx/config directory (ex: \"File name.xml\").\n");
+
+  printf("Remote GIMX: gimx -c filename -d IP:port\n");
+  printf("  filename: The name of the config file, in the ~/.gimx/config directory (ex: \"File name.xml\").\n");
+  printf("  IP:port: The destination IP+port. Ex: 127.0.0.1:51914.\n");
+
+  printf("General options:\n");
+  printf("  --curses: Curses terminal display. Mouse calibration is available through this interface.\n");
+  printf("  --status: Display controls in the terminal.\n");
+  printf("  --nograb: Do not grab the mouse cursor.\n");
+  printf("  --force-updates: Send button+axis status even if there is no change.\n");
+  printf("  --subpos: Improve stick precision.\n");
+  printf("  --keygen key: Generate a key press at gimx startup.\n");
+  printf("  --event \"control(value)\": send controls to the console and exit.\n");
+  printf("    Names and value ranges: \"lstick x\", \"lstick y\", \"rstick x\", \"rstick y\": [-128,127]\n");
+  printf("    \"acc x\", \"acc y\", \"acc z\", \"gyro\": [-512,511]\n");
+  printf("    \"select\", \"start\", \"PS\", \"l3\", \"r3\": {0, 255}\n");
+  printf("    \"up\", \"right\", \"down\", \"left\", \"triangle\", \"circle\", \"cross\", \"square\", \"l1\", \"r1\", \"l2\", \"r2\": [0,255]\n");
+
+}
 
 /*
  * Try to parse an argument with the following expected format: a.b.c.d:e
@@ -76,11 +116,13 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"dst",     required_argument, 0, 'd'},
     {"event",   required_argument, 0, 'e'},
     {"hci",     required_argument, 0, 'h'},
+    {"help",    required_argument, 0, 'm'},
     {"keygen",  required_argument, 0, 'k'},
     {"port",    required_argument, 0, 'p'},
     {"refresh", required_argument, 0, 'r'},
     {"src",     required_argument, 0, 's'},
     {"type",    required_argument, 0, 't'},
+    {"version", no_argument,       0, 'v'},
     {0, 0, 0, 0}
   };
 
@@ -89,7 +131,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     /* getopt_long stores the option index here. */
     int option_index = 0;
 
-    c = getopt_long (argc, argv, "b:c:d:e:h:k:p:r:s:t:", long_options, &option_index);
+    c = getopt_long (argc, argv, "b:c:d:e:h:k:p:r:s:t:vm", long_options, &option_index);
 
     /* Detect the end of the options. */
     if (c == -1)
@@ -167,6 +209,11 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         {
           printf(_("option -d with value `%s'\n"), optarg);
         }
+        break;
+
+      case 'm':
+        usage();
+        exit(0);
         break;
 
       case 's':
@@ -252,8 +299,14 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         }
         break;
 
+      case 'v':
+        printf("GIMX %s %s\n", INFO_VERSION, INFO_ARCH);
+        exit(0);
+        break;
+
       case '?':
-        /* getopt_long already printed an error message. */
+        usage();
+        exit(-1);
         break;
 
       default:
