@@ -21,16 +21,15 @@
 #include "xinput.h"
 #include <queue.h>
 
-typedef struct
+static struct
 {
   int id;
   int (*fp_read)(int);
   int (*fp_write)(int);
   int (*fp_cleanup)(int);
   short int event;
-} s_source;
+} sources[FD_SETSIZE] = {};
 
-static s_source sources[FD_SETSIZE] = {};
 static int max_source = 0;
 
 static unsigned char mkb_source;
@@ -111,6 +110,11 @@ int ev_init(unsigned char mkb_src)
   return 1;
 }
 
+int ev_joystick_register(const char* name)
+{
+  return js_register(name);
+}
+
 void ev_joystick_close(int id)
 {
   js_close(id);
@@ -172,7 +176,6 @@ const char* ev_keyboard_name(int id)
   return NULL;
 }
 
-#ifndef WIN32
 int ev_joystick_has_ff_rumble(int joystick)
 {
   return js_has_ff_rumble(joystick);
@@ -182,7 +185,6 @@ int ev_joystick_set_ff_rumble(int joystick, unsigned short weak_timeout, unsigne
 {
   return js_set_ff_rumble(joystick, weak_timeout, weak, strong_timeout, strong);
 }
-#endif
 
 static int (*event_callback)(GE_Event*) = NULL;
 

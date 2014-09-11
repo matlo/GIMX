@@ -15,6 +15,7 @@ int js_close(int id);
 void js_quit();
 const char* js_get_name(int index);
 void js_set_callback(int (*fp)(GE_Event*));
+int js_register(const char* name);
 
 int js_has_ff_rumble(int joystick);
 int js_set_ff_rumble(int joystick, unsigned short weak_timeout, unsigned short weak, unsigned short strong_timeout, unsigned short strong);

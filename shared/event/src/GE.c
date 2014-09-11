@@ -49,6 +49,10 @@ static int grab = GE_GRAB_OFF;
 
 static GE_MK_Mode mk_mode = GE_MK_MODE_MULTIPLE_INPUTS;
 
+/*
+ * Convert an ISO-8859-1 string to an UTF-8 string.
+ * The returned string is hold in a statically allocated buffer that is modified at each call.
+ */
 static const char* _8BIT_to_UTF8(const char* _8bit)
 {
   iconv_t cd;
@@ -84,30 +88,32 @@ int GE_initialize(unsigned char mkb_src)
   }
 
   i = 0;
-  while ((name = ev_joystick_name(i)))
+  while (i < GE_MAX_DEVICES && (name = ev_joystick_name(i)))
   {
     if (!strncmp(name, BT_SIXAXIS_NAME, sizeof(BT_SIXAXIS_NAME) - 1))
     {
-      /*
-       * Rename QtSixA devices.
-       */
+      // Rename QtSixA devices.
       name = "Sony PLAYSTATION(R)3 Controller";
     }
 
     joysticks[i].name = strdup(_8BIT_to_UTF8(name));
 
+    // Go backward and look for a joystick with the same name.
     for (j = i - 1; j >= 0; --j)
     {
       if (!strcmp(joysticks[i].name, joysticks[j].name))
       {
+        // Found => compute the virtual index.
         joysticks[i].virtualIndex = joysticks[j].virtualIndex + 1;
         break;
       }
     }
     if (j < 0)
     {
+      // Not found => the virtual index is 0.
       joysticks[i].virtualIndex = 0;
     }
+    // Determine if the joystick is a Sixaxis.
     for (j = 0; j < sizeof(sixaxis_names) / sizeof(sixaxis_names[0]); ++j)
     {
       if (!strcmp(joysticks[i].name, sixaxis_names[j]))
@@ -118,39 +124,45 @@ int GE_initialize(unsigned char mkb_src)
     i++;
   }
   i = 0;
-  while ((name = ev_mouse_name(i)))
+  while (i < GE_MAX_DEVICES && (name = ev_mouse_name(i)))
   {
     mice[i].name = strdup(_8BIT_to_UTF8(name));
 
+    // Go backward and look for a mouse with the same name.
     for (j = i - 1; j >= 0; --j)
     {
       if (!strcmp(mice[i].name, mice[j].name))
       {
+        // Found => compute the virtual index.
         mice[i].virtualIndex = mice[j].virtualIndex + 1;
         break;
       }
     }
     if (j < 0)
     {
-        mice[i].virtualIndex = 0;
+      // Not found => the virtual index is 0.
+      mice[i].virtualIndex = 0;
     }
     i++;
   }
   i = 0;
-  while ((name = ev_keyboard_name(i)))
+  while (i < GE_MAX_DEVICES && (name = ev_keyboard_name(i)))
   {
     keyboards[i].name = strdup(_8BIT_to_UTF8(name));
 
+    // Go backward and look for a keyboard with the same name.
     for (j = i - 1; j >= 0; --j)
     {
       if (!strcmp(keyboards[i].name, keyboards[j].name))
       {
+        // Found => compute the virtual index.
         keyboards[i].virtualIndex = keyboards[j].virtualIndex + 1;
         break;
       }
     }
     if (j < 0)
     {
+      // Not found => the virtual index is 0.
       keyboards[i].virtualIndex = 0;
     }
     i++;
@@ -293,7 +305,7 @@ char* GE_JoystickName(int id)
  * 
  * \param id  the joystick index (in the [0..GE_MAX_DEVICES[ range)
  * 
- * \return the joystick name if present, NULL otherwise.
+ * \return the joystick virtual id if present, NULL otherwise.
  */
 int GE_JoystickVirtualId(int id)
 {
@@ -320,35 +332,15 @@ void GE_SetJoystickUsed(int id)
 /*
  * \brief Register a joystick to be emulated in software.
  * 
+ * \remark This function can be called before calling GE_initialize.
+ *
  * \param name  the name of the joystick to register.
  * 
- * \return the id of the joystick, that can be used in generated events
+ * \return the id of the joystick, that can be used to forge an event
  */
 int GE_RegisterJoystick(const char* name)
 {
-  int i;
-  int device_id = -1;
-  int index = 0;
-  for (i = 0; i < GE_MAX_DEVICES; ++i)
-  {
-    if(joysticks[i].name)
-    {
-      if(!strcmp(joysticks[i].name, name))
-      {
-        ++index;
-      }
-    }
-    else if(device_id < 0)
-    {
-      joysticks[i].name = strdup(name);
-      device_id = i;
-    }
-  }
-  if(device_id >= 0)
-  {
-    joysticks[device_id].virtualIndex = index;
-  }
-  return device_id;
+  return ev_joystick_register(name);
 }
 
 /*
@@ -356,7 +348,7 @@ int GE_RegisterJoystick(const char* name)
  * 
  * \param id  the mouse index (in the [0..GE_MAX_DEVICES[ range)
  * 
- * \return the mouse name if present, NULL otherwise.
+ * \return the mouse virtual id if present, NULL otherwise.
  */
 int GE_MouseVirtualId(int id)
 {
@@ -372,7 +364,7 @@ int GE_MouseVirtualId(int id)
  * 
  * \param id  the keyboard index (in the [0..GE_MAX_DEVICES[ range)
  * 
- * \return the keyboard name if present, NULL otherwise.
+ * \return the keyboard virtual id if present, NULL otherwise.
  */
 int GE_KeyboardVirtualId(int id)
 {
@@ -542,6 +534,13 @@ void GE_TimerClose()
 }
 
 #ifndef WIN32
+/*
+ * \brief Tell if a joystick has rumble capabilities.
+ * 
+ * \param id  the joystick index (in the [0..GE_MAX_DEVICES[ range)
+ * 
+ * \return 1 if the joystick has rumble capabilities, false otherwise
+ */
 int GE_JoystickHasRumble(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
@@ -551,6 +550,13 @@ int GE_JoystickHasRumble(int id)
   return 0;
 }
 
+/*
+ * \brief Set the joystick rumble.
+ *
+ * \param id  the joystick index (in the [0..GE_MAX_DEVICES[ range)
+ *
+ * \return -1 in case of error, 0 otherwise
+ */
 int GE_JoystickSetRumble(int id, unsigned short weak_timeout, unsigned short weak, unsigned short strong_timeout, unsigned short strong)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)

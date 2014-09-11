@@ -11,6 +11,7 @@ void ev_quit();
 
 void ev_set_caption (const char*, const char*);
 
+int ev_joystick_register(const char* name);
 void ev_joystick_close(int);
 const char* ev_joystick_name(int);
 const char* ev_mouse_name(int);
