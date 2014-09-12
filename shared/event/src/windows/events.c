@@ -54,7 +54,7 @@ int ev_init(unsigned char mkb_src)
    return 0;
   }
 
-  for (i = 0; i < SDL_NumJoysticks(); ++i)
+  for (i = 0; i < SDL_NumJoysticks() && joysticks_nb < GE_MAX_DEVICES; ++i)
   {
     if (SDL_IsGameController(i))
     {
@@ -168,6 +168,10 @@ void ev_quit(void)
 
 const char* ev_joystick_name(int id)
 {
+  if(id < 0 || id >= joysticks_nb)
+  {
+    return NULL;
+  }
   if(joysticks[id].name)
   {
     return joysticks[id].name;
@@ -197,6 +201,10 @@ int ev_joystick_register(const char* name)
  */
 void ev_joystick_close(int id)
 {
+  if(id < 0 || id >= joysticks_nb)
+  {
+    return;
+  }
   int closed = 0;
   if(joysticks[id].name)
   {
