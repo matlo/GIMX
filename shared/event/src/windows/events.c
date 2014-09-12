@@ -23,16 +23,24 @@ static SDL_Window* window = NULL;
 
 static int instanceIdToIndex[GE_MAX_DEVICES] = {};
 
-static int j_num;
-static int j_max;
+static int joysticks_nb = 0;
+// Keep tracking of the number of registered joysticks (externally handled) and the
+// number of opened joysticks, so as to be able to close the joystick subsystem
+// and to avoid pumping the SDL library events when no joystick is used.
+static int joysticks_registered = 0;
+static int joysticks_opened;
 
 static struct
 {
+  char* name; // registered joysticks (externally handled)
   SDL_Joystick* joystick;
   SDL_GameController* controller;
-  int joystickNbButton;
-  int joystickNbHat;
-  unsigned char* joystickHat;
+  struct
+  {
+    int joystickHatButtonBaseIndex; // the base index of the generated hat buttons equals the number of physical buttons
+    int joystickNbHat; // the number of hats
+    unsigned char* joystickHat; // the current hat values
+  } hat_info; // allows to convert hat axes to buttons
 } joysticks[GE_MAX_DEVICES] = {};
 
 int ev_init(unsigned char mkb_src)
@@ -46,23 +54,23 @@ int ev_init(unsigned char mkb_src)
    return 0;
   }
 
-  j_max = 0;
   for (i = 0; i < SDL_NumJoysticks(); ++i)
   {
     if (SDL_IsGameController(i))
     {
-      if ((joysticks[i].controller = SDL_GameControllerOpen(i)))
+      SDL_GameController* controller = SDL_GameControllerOpen(i);
+      if (controller)
       {
-        int instanceId = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(joysticks[i].controller));
+        int instanceId = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller));
         if(instanceId >= 0)
         {
-          instanceIdToIndex[instanceId] = i;
-          j_max++;
+          joysticks[joysticks_nb].controller = controller;
+          instanceIdToIndex[instanceId] = joysticks_nb;
+          ++joysticks_nb;
         }
         else
         {
-          SDL_GameControllerClose(joysticks[i].controller);
-          joysticks[i].controller = NULL;
+          SDL_GameControllerClose(controller);
         }
       }
       else
@@ -73,35 +81,35 @@ int ev_init(unsigned char mkb_src)
     }
     else
     {
-      if((joysticks[i].joystick = SDL_JoystickOpen(i)))
+      SDL_Joystick* joystick = SDL_JoystickOpen(i);
+      if(joystick)
       {
-        int instanceId = SDL_JoystickInstanceID(joysticks[i].joystick);
+        int instanceId = SDL_JoystickInstanceID(joystick);
         if(instanceId >= 0)
         {
-          instanceIdToIndex[instanceId] = i;
-          j_max++;
-          joysticks[i].joystickNbButton = SDL_JoystickNumButtons(joysticks[i].joystick);
-          joysticks[i].joystickNbHat = SDL_JoystickNumHats(joysticks[i].joystick);
-          if(joysticks[i].joystickNbHat > 0)
+          joysticks[joysticks_nb].joystick = joystick;
+          instanceIdToIndex[instanceId] = joysticks_nb;
+          joysticks[joysticks_nb].hat_info.joystickHatButtonBaseIndex = SDL_JoystickNumButtons(joystick);
+          joysticks[joysticks_nb].hat_info.joystickNbHat = SDL_JoystickNumHats(joystick);
+          if(joysticks[joysticks_nb].hat_info.joystickNbHat > 0)
           {
-            joysticks[i].joystickHat = calloc(joysticks[i].joystickNbHat, sizeof(unsigned char));
-            if(!joysticks[i].joystickHat)
+            joysticks[joysticks_nb].hat_info.joystickHat = calloc(joysticks[joysticks_nb].hat_info.joystickNbHat, sizeof(unsigned char));
+            if(!joysticks[joysticks_nb].hat_info.joystickHat)
             {
               fprintf(stderr, "Unable to allocate memory for joystick hats.\n");
-              return 0;
             }
           }
+          ++joysticks_nb;
         }
         else
         {
-          SDL_JoystickClose(joysticks[i].joystick);
-          joysticks[i].joystick = NULL;
+          SDL_JoystickClose(joystick);
         }
       }
     }
   }
-  
-  j_num = j_max;
+
+  joysticks_opened = joysticks_nb;
 
   mkb_source = mkb_src;
 
@@ -138,10 +146,12 @@ int ev_init(unsigned char mkb_src)
 void ev_quit(void)
 {
   int i;
-  for(i=0; i<j_max; ++i)
+  for(i=0; i<joysticks_nb; ++i)
   {
     ev_joystick_close(i);
   }
+  joysticks_nb = 0;
+
   ev_grab_input(GE_GRAB_OFF);
 
   if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
@@ -158,6 +168,10 @@ void ev_quit(void)
 
 const char* ev_joystick_name(int id)
 {
+  if(joysticks[id].name)
+  {
+    return joysticks[id].name;
+  }
   if(joysticks[id].controller)
   {
     return SDL_GameControllerName(joysticks[id].controller);
@@ -165,24 +179,53 @@ const char* ev_joystick_name(int id)
   return SDL_JoystickName(joysticks[id].joystick);
 }
 
+int ev_joystick_register(const char* name)
+{
+  int index = -1;
+  if(joysticks_nb < GE_MAX_DEVICES)
+  {
+    index = joysticks_nb;
+    joysticks[index].name = strdup(name);
+    ++joysticks_nb;
+    ++joysticks_registered;
+  }
+  return index;
+}
+
 /*
  * Close a joystick, and close the joystick subsystem if none is used anymore.
  */
 void ev_joystick_close(int id)
 {
-  if(joysticks[id].joystick)
+  int closed = 0;
+  if(joysticks[id].name)
+  {
+    free(joysticks[id].name);
+    joysticks[id].name = NULL;
+    closed = 1;
+    --joysticks_registered;
+  }
+  else if(joysticks[id].joystick)
   {
     SDL_JoystickClose(joysticks[id].joystick);
     joysticks[id].joystick = NULL;
-    free(joysticks[id].joystickHat);
-    joysticks[id].joystickHat = NULL;
-    j_num--;
+    free(joysticks[id].hat_info.joystickHat);
+    joysticks[id].hat_info.joystickHat = NULL;
+    closed = 1;
+  }
+  else if(joysticks[id].controller)
+  {
+    SDL_GameControllerClose(joysticks[id].controller);
+    joysticks[id].controller = NULL;
+    closed = 1;
+  }
+  if(closed)
+  {
+    --joysticks_opened;
 
-    /*
-     * Closing the joystick subsystem also closes SDL's event queue,
-     * but we don't care as we don't use it.
-     */
-    if(j_num == 0)
+    // Closing the joystick subsystem also closes SDL's event queue,
+    // but we don't care as we won't use it anymore.
+    if(joysticks_opened == joysticks_registered)
     {
       SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
     }
@@ -562,7 +605,10 @@ void ev_pump_events()
 
   } while(!done);
 
-  SDL_PumpEvents();
+  if(joysticks_opened != joysticks_registered)
+  {
+    SDL_PumpEvents();
+  }
 
   num_evt = sdl_peep_events(events, sizeof(events) / sizeof(events[0]));
 
@@ -709,23 +755,23 @@ static inline int convert_s2g(SDL_Event* se, GE_Event* ge)
 
 static int joystick_hat_button(GE_Event* event, unsigned char hat_dir)
 {
-  return joysticks[event->jhat.which].joystickNbButton + 4*event->jhat.hat + log2(hat_dir);
+  return joysticks[event->jhat.which].hat_info.joystickHatButtonBaseIndex + 4*event->jhat.hat + log2(hat_dir);
 }
 
 static unsigned char get_joystick_hat(GE_Event* event)
 {
-  if(event->jhat.which >= 0 && event->jhat.hat < joysticks[event->jhat.which].joystickNbHat)
+  if(event->jhat.which >= 0 && event->jhat.hat < joysticks[event->jhat.which].hat_info.joystickNbHat)
   {
-    return joysticks[event->jhat.which].joystickHat[event->jhat.hat];
+    return joysticks[event->jhat.which].hat_info.joystickHat[event->jhat.hat];
   }
   return 0;
 }
 
 static void set_joystick_hat(GE_Event* event)
 {
-  if(event->jhat.which >= 0 && event->jhat.hat < joysticks[event->jhat.which].joystickNbHat)
+  if(event->jhat.which >= 0 && event->jhat.hat < joysticks[event->jhat.which].hat_info.joystickNbHat)
   {
-    joysticks[event->jhat.which].joystickHat[event->jhat.hat] = event->jhat.value;
+    joysticks[event->jhat.which].hat_info.joystickHat[event->jhat.hat] = event->jhat.value;
   }
 }
 

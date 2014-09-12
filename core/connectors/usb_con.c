@@ -276,7 +276,6 @@ int usb_close(int usb_number)
     libusb_close(state->devh);
     state->devh = NULL;
     --nb_opened;
-    printf("close %d\n", nb_opened);
     if(!nb_opened)
     {
       libusb_free_device_list(devs, 1);
