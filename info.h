@@ -11,8 +11,8 @@
   #define INFO_ARCH "x86_64"
 #endif
 
-#ifdef __i686__
-  #define INFO_ARCH "i686"
+#ifdef __i386__
+  #define INFO_ARCH "i386"
 #endif
 
 #ifdef __ARM_ARCH_6__

@@ -13,7 +13,7 @@
 #define DOWNLOAD_URL "http://gimx.fr/download/gimx-windows-64bits"
 #endif
 
-#ifdef __i686__
+#ifdef __i386__
 #define DOWNLOAD_URL "http://gimx.fr/download/gimx-windows-32bits"
 #endif
 
@@ -30,7 +30,7 @@
 #define DOWNLOAD_URL "http://gimx.fr/download/gimx-ubuntu-64bits.html"
 #endif
 
-#ifdef __i686__
+#ifdef __i386__
 #define DOWNLOAD_URL "http://gimx.fr/download/gimx-ubuntu-32bits.html"
 #endif
 
