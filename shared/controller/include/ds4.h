@@ -89,7 +89,7 @@
 #define DS4_R3_ID         8
 
 #define DS4_PS_ID         5
-#define DS4_TOUCHPAD_ID   13//bug?
+#define DS4_TOUCHPAD_ID   15//not detected by the default hid driver
 
 #define DS4_UP_ID         11
 #define DS4_RIGHT_ID      14

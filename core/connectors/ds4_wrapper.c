@@ -210,14 +210,12 @@ void ds4_wrapper(int adapter_id, s_report_ds4* current, s_report_ds4* previous, 
     event.jbutton.button = DS4_PS_ID;
     event_callback(&event);
   }
-#ifndef WIN32
   if((value = (buttonsAndCounter & DS4_TOUCHPAD_MASK)) ^ (prevButtonsAndCounter & DS4_TOUCHPAD_MASK))
   {
     event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
     event.jbutton.button = DS4_TOUCHPAD_ID;
     event_callback(&event);
   }
-#endif
 
   /*
    * Axes
