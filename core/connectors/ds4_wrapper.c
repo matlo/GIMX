@@ -7,6 +7,7 @@
 #include <adapter.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define STICK_THRESHOLD 8
 
@@ -59,7 +60,13 @@ static inline void update_finger(s_trackpad_finger* current, s_trackpad_finger* 
 
   if(current->id & 0x80)
   {
-    *presence = 0;
+    /*
+     * TODO MLA: make a better fix for #286
+     */
+    if(*presence == 1)
+    {
+      *presence = 0;
+    }
   }
   else
   {
@@ -293,6 +300,8 @@ void ds4_wrapper(int adapter_id, s_report_ds4* current, s_report_ds4* previous, 
     event_callback(&event);
   }
 
+  int send_command = 0;
+
   /*
    * Touchpad
    *
@@ -315,6 +324,11 @@ void ds4_wrapper(int adapter_id, s_report_ds4* current, s_report_ds4* previous, 
   axis_y = &adapter->axis[ds4a_finger1_y];
   update_finger(finger, prevFinger, presence, axis_x, axis_y);
 
+  if(*presence == 1)
+  {
+    send_command = 1;
+  }
+
   finger = &current->packet1.finger2;
   prevFinger = &adapter->report.value.ds4.packet1.finger2;
   presence = &adapter->axis[ds4a_finger2];
@@ -322,16 +336,29 @@ void ds4_wrapper(int adapter_id, s_report_ds4* current, s_report_ds4* previous, 
   axis_y = &adapter->axis[ds4a_finger2_y];
   update_finger(finger, prevFinger, presence, axis_x, axis_y);
 
+  if(*presence == 1)
+  {
+    send_command = 1;
+  }
+
   /*
    * Motion sensing
    */
 
+  /*
+   * TODO MLA: make motion sensing updates send a command
+   * without interfering with the inactivity timeout...
+   */
   adapter->report.value.ds4._time = current->_time;
   adapter->report.value.ds4.motion_acc = current->motion_acc;
   adapter->report.value.ds4.motion_gyro = current->motion_gyro;
 
-  /*
-   * Always send a report
-   */
-  adapter->send_command = 1;
+  // battery level
+  adapter->report.value.ds4.battery_level = current->battery_level;
+
+  // remember to send a report if the touchpad status changed
+  if(send_command)
+  {
+    adapter->send_command = 1;
+  }
 }
