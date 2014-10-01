@@ -355,6 +355,9 @@ void ds4_wrapper(int adapter_id, s_report_ds4* current, s_report_ds4* previous, 
 
   // battery level
   adapter->report.value.ds4.battery_level = current->battery_level;
+  //we don't forward mic and phone state
+  //as we don't support mic and phone
+  adapter->report.value.ds4.ext = current->ext & 0x1F;
 
   // remember to send a report if the touchpad status changed
   if(send_command)
