@@ -9,27 +9,38 @@
 #define GPPKG_ENTER_CAPTURE     0x07
 #define GPPKG_LEAVE_CAPTURE     0x08
 
+static unsigned short product_ids[] =
+{
+    0x0001, //GPP
+    0x0002, //Cronus
+    0x0003, //Titan
+};
+
 int8_t gpppcprog_send(uint8_t type, uint8_t *data, uint16_t lenght);
 
 int8_t gppcprog_connected_flag = 0;
 
 int8_t gppcprog_connect()
 {
-  uint16_t r;
+  int r = 0;
 
   gppcprog_disconnect();
 
-  // Connect to GPP
-  r = (uint8_t) rawhid_open(1, 0x2508, 0x0001, 0xFFAB, 0x0200);
-  if (r <= 0)
+  // Connect to GPP/Cronus/Titan
+  int i;
+  for(i=0; i<sizeof(product_ids)/sizeof(*product_ids); ++i)
   {
-    r = (uint8_t) rawhid_open(1, 0x2508, 0x0002, 0xFFAB, 0x0200);
-    if (r <= 0)
+    if ((r = rawhid_open(1, 0x2508, product_ids[i], 0xFFAB, 0x0200)) > 0)
     {
-
-      return (r);
+      break;
     }
   }
+
+  if (r < 1)
+  {
+    return r;
+  }
+
   gppcprog_connected_flag = 1;
 
   // Enter Capture Mode
