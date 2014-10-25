@@ -97,7 +97,7 @@ int connector_init()
                   }
                   else
                   {
-                    printf(_("Reset sent to the adapter.\n".));
+                    printf(_("Reset sent to the adapter.\n"));
                   }
                 }
 
