@@ -163,6 +163,7 @@ int serial_recv(int id, void* pdata, unsigned int size)
         break;
       case WAIT_TIMEOUT:
         CancelIo(serials[id].handle);
+        printf("WaitForSingleObject failed: timeout expired.\n");
         break;
       default:
         printf("WaitForSingleObject failed with error %lu\n", GetLastError());

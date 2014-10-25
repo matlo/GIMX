@@ -79,14 +79,38 @@ int connector_init()
                 ret = -1;
               }
 
-              if(adapter_get_status(i) == BYTE_STATUS_STARTED)
+              int status = adapter_get_status(i);
+
+              if(status < 0)
               {
-                adapter_send_reset(i);
+                fprintf(stderr, _("Can't get adapter status.\n"));
+                ret = -1;
               }
+              else
+              {
+                if(status == BYTE_STATUS_STARTED)
+                {
+                  if(adapter_send_reset(i) < 0)
+                  {
+                    fprintf(stderr, _("Can't reset the adapter.\n"));
+                    ret = -1;
+                  }
+                  else
+                  {
+                    printf(_("Reset sent to the adapter.\n".));
+                  }
+                }
 
-              adapter_send_start(i);
-
-              serial_add_source(i);
+                if(adapter_send_start(i) < 0)
+                {
+                  fprintf(stderr, _("Can't start the adapter.\n"));
+                  ret = -1;
+                }
+                else
+                {
+                  serial_add_source(i);
+                }
+              }
             }
           }
         }
