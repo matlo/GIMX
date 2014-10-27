@@ -613,7 +613,11 @@ void ev_pump_events()
 
   } while(!done);
 
-  if(joysticks_opened != joysticks_registered)
+  /*
+   * Pump events only if a joystick is opened
+   * or if the mouse and keyboard source is the window system.
+   */
+  if(joysticks_opened != joysticks_registered || mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
   {
     SDL_PumpEvents();
   }
