@@ -47,6 +47,7 @@ static void usage()
   printf("  --nograb: Do not grab the mouse cursor.\n");
   printf("  --force-updates: Send button+axis status even if there is no change.\n");
   printf("  --subpos: Improve stick precision.\n");
+  printf("  --window-events : Read window events instead of hardware events.\n");
   printf("  --keygen key: Generate a key press at gimx startup.\n");
   printf("  --event \"control(value)\": send controls to the console and exit.\n");
   printf("    Names and value ranges: \"lstick x\", \"lstick y\", \"rstick x\", \"rstick y\": [-128,127]\n");
