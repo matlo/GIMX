@@ -104,6 +104,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
   int ret = 0;
   int c;
   unsigned char controller = 0;
+  unsigned char event = 0;
 
   struct option long_options[] =
   {
@@ -187,6 +188,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
               printf(_("option -e with value `%s(%d)'\n"), axis_label, value);
               adapter_set_axis(controller, axis, value);
               adapter_get(controller)->event = 1;
+              event = 1;
             }
             else
             {
@@ -336,9 +338,9 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
   if(params->window_events)
     printf(_("window_events flag is set\n"));
 
-  if(!params->config_file && !params->keygen)
+  if(!params->config_file && !event)
   {
-    fprintf(stderr, "At least a config file or a keygen should be specified as argument.\n");
+    fprintf(stderr, "At least a config file or an event should be specified as argument.\n");
     ret = -1;
   }
 
