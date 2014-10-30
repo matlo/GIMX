@@ -356,7 +356,7 @@ int adapter_get_status(int id)
 
     if(serial_recv(id, get_status_answer, sizeof(get_status_answer)) == sizeof(get_status_answer))
     {
-      if(get_status_answer[0] == BYTE_TYPE && get_status_answer[1] == BYTE_LEN_1_BYTE)
+      if(get_status_answer[0] == BYTE_STATUS && get_status_answer[1] == BYTE_LEN_1_BYTE)
       {
         return get_status_answer[2];
       }

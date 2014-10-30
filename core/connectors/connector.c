@@ -5,6 +5,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
 #include "gimx.h"
 #include "connectors/connector.h"
 #include "connectors/udp_con.h"
@@ -19,6 +20,12 @@
 #include "connectors/sixaxis.h"
 #include "connectors/btds4.h"
 #endif
+
+/*
+ * The adapter restarts about 15ms after receiving the reset command.
+ * This time is doubled so as to include the reset command transfer duration.
+ */
+#define ADAPTER_RESET_TIME 30000 //microseconds
 
 int connector_init()
 {
@@ -71,14 +78,6 @@ int connector_init()
             }
             else if(adapter->type == C_TYPE_DS4)
             {
-              ds4_init_report(&adapter->report.value.ds4);
-
-              if(usb_init(i, DS4_VENDOR, DS4_PRODUCT) < 0)
-              {
-                fprintf(stderr, _("No Dualshock 4 controller was found on USB buses.\n"));
-                ret = -1;
-              }
-
               int status = adapter_get_status(i);
 
               if(status < 0)
@@ -98,17 +97,32 @@ int connector_init()
                   else
                   {
                     printf(_("Reset sent to the adapter.\n"));
+                    //Leave time for the adapter to reinitialize.
+                    usleep(ADAPTER_RESET_TIME);
                   }
                 }
 
-                if(adapter_send_start(i) < 0)
+                if(ret != -1)
                 {
-                  fprintf(stderr, _("Can't start the adapter.\n"));
-                  ret = -1;
-                }
-                else
-                {
-                  serial_add_source(i);
+                  ds4_init_report(&adapter->report.value.ds4);
+
+                  if(usb_init(i, DS4_VENDOR, DS4_PRODUCT) < 0)
+                  {
+                    fprintf(stderr, _("No Dualshock 4 controller was found on USB buses.\n"));
+                    ret = -1;
+                  }
+                  else
+                  {
+                    if(adapter_send_start(i) < 0)
+                    {
+                      fprintf(stderr, _("Can't start the adapter.\n"));
+                      ret = -1;
+                    }
+                    else
+                    {
+                      serial_add_source(i);
+                    }
+                  }
                 }
               }
             }
