@@ -336,5 +336,11 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
   if(params->window_events)
     printf(_("window_events flag is set\n"));
 
+  if(!params->config_file && !params->keygen)
+  {
+    fprintf(stderr, "At least a config file or a keygen should be specified as argument.\n");
+    ret = -1;
+  }
+
   return ret;
 }

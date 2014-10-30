@@ -40,6 +40,18 @@ static struct serial
 } serials[MAX_CONTROLLERS] = {};
 
 /*
+ * This initializes the data before any other function of this file gets called.
+ */
+__attribute__((constructor (101))) static void struct_init(void)
+{
+  int i;
+  for(i=0; i<MAX_CONTROLLERS; ++i)
+  {
+    serials[i].fd = -1;
+  }
+}
+
+/*
  * Connect to a serial port.
  */
 int tty_connect(char* portname)
