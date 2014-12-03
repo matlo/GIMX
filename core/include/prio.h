@@ -8,6 +8,6 @@
 #ifndef PRIO_H_
 #define PRIO_H_
 
-void set_prio();
+int set_prio();
 
 #endif /* PRIO_H_ */
