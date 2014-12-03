@@ -25,12 +25,13 @@ endif
 DEPS = ../shared/configeditor/configeditor.a ../shared/event/GE.a ../shared/updater/updater.a ../shared/configupdater/configupdater.a
 
 OBJECTS := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
-ifneq ($(OS),Windows_NT)
+
 OUT = gimx-$(NAME)
+
+ifneq ($(OS),Windows_NT)
 BINS = $(OUT)
 else
 OBJECTS += $(NAME).rc.o
-OUT = gimx-$(NAME).exe
 endif
 
 all: updated $(OUT)

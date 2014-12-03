@@ -3,9 +3,9 @@
  License: GPLv3
  */
 
-#ifndef _KEYCODES_H
-#define _KEYCODES_H
+#ifndef _SCANCODES_H
+#define _SCANCODES_H
 
 unsigned char get_keycode(unsigned short flags, unsigned short scancode);
 
-#endif /* _KEYCODES_H */
+#endif /* _SCANCODES_H */

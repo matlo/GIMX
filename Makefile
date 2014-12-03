@@ -41,10 +41,10 @@ endif
 	cp -u -f /$(MSYSTEM)/bin/libtasn1-6.dll setup
 	cp -u -f /$(MSYSTEM)/bin/libssh2-1.dll setup
 	cp -u -f /$(MSYSTEM)/bin/SSLEAY32.dll setup
-	cp -u -f core/gimx.exe setup
-	cp -u -f config/gimx-config.exe setup
-	cp -u -f launcher/gimx-launcher.exe setup
-	cp -u -f fpsconfig/gimx-fpsconfig.exe setup
+	cp -u -f core/gimx setup/gimx.exe
+	cp -u -f config/gimx-config setup/gimx-config.exe
+	cp -u -f launcher/gimx-launcher setup/gimx-launcher.exe
+	cp -u -f fpsconfig/gimx-fpsconfig setup/gimx-fpsconfig.exe
 	mkdir -p setup/share/locale
 	for translation in po/*.po; \
   do \
