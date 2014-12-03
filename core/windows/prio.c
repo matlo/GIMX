@@ -5,8 +5,17 @@
 
 #include <windows.h>
 
-void set_prio()
+int set_prio()
 {
-  SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
-  SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
+  if(!SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS))
+  {
+    fprintf(stderr, "SetPriorityClass failed.\n");
+    return -1;
+  }
+  if(!SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL))
+  {
+    fprintf(stderr, "SetThreadPriority failed.\n");
+    return -1;
+  }
+  return 0;
 }

@@ -158,7 +158,10 @@ int main(int argc, char *argv[])
   gimx_params.homedir = path;
 #endif
 
-  set_prio();
+  if( set_prio() < 0 )
+  {
+    printf("Warning: failed to set process priority\n");
+  }
 
   adapter_init();
 

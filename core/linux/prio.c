@@ -4,8 +4,9 @@
  */
 
 #include <sched.h>
+#include <stdio.h>
 
-void set_prio()
+int set_prio()
 {
   /*
    * Set highest priority & scheduler policy.
@@ -13,5 +14,10 @@ void set_prio()
   struct sched_param p =
   { .sched_priority = sched_get_priority_max(SCHED_FIFO) };
 
-  sched_setscheduler(0, SCHED_FIFO, &p);
+  if( sched_setscheduler(0, SCHED_FIFO, &p) < 0 )
+  {
+    perror("sched_setscheduler");
+    return -1;
+  }
+  return 0;
 }
