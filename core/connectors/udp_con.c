@@ -48,7 +48,7 @@ int udp_listen(unsigned int ip, unsigned short port)
  * 1. open a UDP socket and set the destination,
  * 2. try to get the controller type from the remote GIMX.
  * If 1. is not successful the function returns -1.
- * If 1. is sucessful but 2. fails, the function returns a valid socket,
+ * If 1. is successful but 2. fails, the function returns a valid socket,
  * but the controller type is not set.
  */
 int udp_connect(unsigned int ip, unsigned short port, int* type)
@@ -71,39 +71,47 @@ int udp_connect(unsigned int ip, unsigned short port, int* type)
 
   if ((fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) >= 0)
   {
-    struct sockaddr_in sa =
-    { .sin_family = AF_INET, .sin_port = htons(port), .sin_addr.s_addr = ip };
-
-    if (connect(fd, (struct sockaddr*)&sa, sizeof(sa)) != -1)
+    struct timeval tv = { .tv_sec = 2 };
+    if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
+        perror("setsockopt SO_RCVTIMEO");
+        error = 1;
+    }
+    else
     {
-      //request the controller type from the remote gimx
-      
-      unsigned char request[] = {BYTE_TYPE, BYTE_LEN_0_BYTE};
-      
-      if(udp_send(fd, request, sizeof(request)) != -1)
+      struct sockaddr_in sa =
+      { .sin_family = AF_INET, .sin_port = htons(port), .sin_addr.s_addr = ip };
+
+      if (connect(fd, (struct sockaddr*)&sa, sizeof(sa)) != -1)
       {
-        unsigned char answer[3];
-        socklen_t salen = sizeof(sa);
-        int ret = udp_recvfrom(fd, answer, sizeof(answer), (struct sockaddr *) &sa, &salen);
-        if(ret == sizeof(answer) && answer[0] == BYTE_TYPE && answer[1] == BYTE_LEN_1_BYTE)
+        //request the controller type from the remote gimx
+
+        unsigned char request[] = {BYTE_TYPE, BYTE_LEN_0_BYTE};
+
+        if(udp_send(fd, request, sizeof(request)) != -1)
         {
-          *type = answer[2];
+          unsigned char answer[3];
+          socklen_t salen = sizeof(sa);
+          int ret = udp_recvfrom(fd, answer, sizeof(answer), (struct sockaddr *) &sa, &salen);
+          if(ret == sizeof(answer) && answer[0] == BYTE_TYPE && answer[1] == BYTE_LEN_1_BYTE)
+          {
+            *type = answer[2];
+          }
+          else
+          {
+            fprintf(stderr, "can't get controller type from remote gimx\n");
+          }
         }
         else
         {
-          fprintf(stderr, "can't get controller type from remote gimx\n");
+          fprintf(stderr, "can't send request to remote gimx\n");
+          error = 1;
         }
       }
       else
       {
-        fprintf(stderr, "can't send request to remote gimx\n");
+        perror("connect");
         error = 1;
       }
-    }
-    else
-    {
-      perror("connect");
-      error = 1;
     }
   }
   else
@@ -212,7 +220,7 @@ unsigned int udp_recvfrom(int fd, unsigned char* buf, socklen_t buflen, struct s
       }
 #else
       int error = WSAGetLastError();
-      if(error != WSAEWOULDBLOCK && errno != WSAECONNRESET)
+      if(error != WSAEWOULDBLOCK && error != WSAECONNRESET)
       {
         fprintf(stderr, "recvfrom failed with error %d\n", error);
         return 0;
