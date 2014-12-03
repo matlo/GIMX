@@ -5,6 +5,8 @@ prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
 endif
 
+NAME=$(shell basename $(shell pwd))
+
 CPPFLAGS += -I../shared/configeditor/include -I../shared/controller/include
 CPPFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP `curl-config --cflags`
 LDLIBS := ../shared/configeditor/configeditor.a \
@@ -12,33 +14,40 @@ LDLIBS := ../shared/configeditor/configeditor.a \
       ../shared/updater/updater.a \
       `wx-config --libs` \
       `curl-config --libs` \
-      -lxml2
+      -lxml2 \
+      -lstdc++ \
+      -lm
 ifeq ($(OS),Windows_NT)
 LDLIBS += -lSDL2 -lintl -liconv
 endif
 
-DEP = ../shared/configeditor/configeditor.a ../shared/controller/controller.a ../shared/event/GE.a ../shared/updater/updater.a
-OBJ = fpsconfigMain.o fpsconfigApp.o
+DEPS = ../shared/configeditor/configeditor.a ../shared/controller/controller.a ../shared/event/GE.a ../shared/updater/updater.a
+
+OBJECTS := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 ifneq ($(OS),Windows_NT)
-OUT = gimx-fpsconfig
+OUT = gimx-$(NAME)
 BINS = $(OUT)
 else
-OBJ += fpsconfig.rc.o
-OUT = gimx-fpsconfig.exe
+OBJECTS += $(NAME).rc.o
+OUT = gimx-$(NAME).exe
 endif
 
-all: $(OUT)
+all: updated $(OUT)
 
-$(OUT): $(DEP) $(OBJ)
-	$(LD) $^ $(LOADLIBES) $(LDLIBS) -o $@
+$(OUT): $(OBJECTS)
+
+#this rule triggers an update when $(DEPS) is updated
+updated: $(DEPS)
+	touch updated
+	$(RM) $(OUT)
 
 ifeq ($(OS),Windows_NT)
-fpsconfig.rc.o: fpsconfig.rc
+$(NAME).rc.o: $(NAME).rc
 	WINDRES $^ -o $@
 endif
 
 clean:
-	$(RM) $(OBJ) $(OUT)
+	$(RM) $(OBJECTS) $(OUT)
 
 .PHONY: clean
 
@@ -49,15 +58,15 @@ install: all
 	mkdir -p $(prefix)/share/applications
 	mkdir -p $(prefix)/share/pixmaps
 	for i in $(BINS); do cp $$i $(bindir)/; done
-	cp gimx-fpsconfig.desktop $(prefix)/share/applications
-	cp gimx-fpsconfig.png $(prefix)/share/pixmaps
+	cp gimx-$(NAME).desktop $(prefix)/share/applications
+	cp gimx-$(NAME).png $(prefix)/share/pixmaps
 
 uninstall:
 	-for i in $(BINS); do $(RM) $(bindir)/$$i; done
 	-$(RM) $(bindir)
 	-$(RM) $(prefix)
-	-$(RM) $(prefix)/share/applications/gimx-fpsconfig.desktop
-	-$(RM) $(prefix)/share/pixmaps/gimx-fpsconfig.png
+	-$(RM) $(prefix)/share/applications/gimx-$(NAME).desktop
+	-$(RM) $(prefix)/share/pixmaps/gimx-$(NAME).png
 
 really-clean: clean uninstall
 endif

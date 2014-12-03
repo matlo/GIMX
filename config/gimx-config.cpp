@@ -4,7 +4,7 @@
  */
 
 #include "wx_pch.h"
-#include "configMain.h"
+#include "gimx-config.h"
 #include <wx/msgdlg.h>
 #include <stdio.h>
 #include <sys/types.h>

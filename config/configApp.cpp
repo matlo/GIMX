@@ -7,7 +7,7 @@
 #include "configApp.h"
 
 //(*AppHeaders
-#include "configMain.h"
+#include "gimx-config.h"
 #include <wx/image.h>
 //*)
 

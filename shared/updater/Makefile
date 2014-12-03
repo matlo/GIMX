@@ -1,11 +1,10 @@
 include ../../Makedefs
 
-OBJ=updater.o
+LIBNAME=$(shell basename $(shell pwd)).a
+SOURCES = $(wildcard *.cpp)
+OBJ = $(SOURCES:.cpp=.o)
 
-all: $(OBJ)
-	$(AR) rcsD updater.a.new $(OBJ)
-	diff -N updater.a.new updater.a > /dev/null || mv updater.a.new updater.a
-	$(RM) updater.a.new
+all: $(LIBNAME)($(OBJ))
 
 clean:
-	$(RM) $(OBJ) updater.a
+	$(RM) $(OBJ) $(LIBNAME)

@@ -25,13 +25,12 @@ CPPFLAGS += -I/usr/include/libxml2
 endif
 DEPS=../shared/event/GE.a ../shared/controller/controller.a
 
-all: $(BINS)
+all: updated $(BINS)
 
 clean:
 	$(RM) $(OUT) *~ *.o */*.o */*/*.o
 
 GIMX_OBJ = \
-       gimx.o\
        mainloop.o\
        args.o\
        display.o\
@@ -68,8 +67,12 @@ GIMX_OBJ += \
        connectors/windows/serial.o
 endif
 
-gimx: $(DEPS) $(GIMX_OBJ)
-	$(CC) $^ $(LOADLIBES) $(LDLIBS) -o $@
+gimx: $(GIMX_OBJ)
+
+#this rule triggers an update when $(DEPS) is updated
+updated: $(DEPS)
+	touch updated
+	$(RM) $(OUT)
 
 ifneq ($(OS),Windows_NT)
 sixaddr: utils/sixaddr.o

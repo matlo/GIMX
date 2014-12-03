@@ -7,7 +7,6 @@
 #define LAUNCHERAPP_H
 
 #include <wx/app.h>
-#include "launcherMain.h"
 
 class launcherApp : public wxApp
 {

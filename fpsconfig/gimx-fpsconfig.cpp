@@ -4,7 +4,7 @@
  */
 
 #include "wx_pch.h"
-#include "fpsconfigMain.h"
+#include "gimx-fpsconfig.h"
 #include <wx/msgdlg.h>
 #include <ConfigurationFile.h>
 

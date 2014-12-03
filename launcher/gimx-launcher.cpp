@@ -4,7 +4,7 @@
  */
 
 #include "wx_pch.h"
-#include "launcherMain.h"
+#include "gimx-launcher.h"
 #include <wx/msgdlg.h>
 
 //(*InternalHeaders(launcherFrame)

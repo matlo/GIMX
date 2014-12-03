@@ -7,7 +7,7 @@
 #include "fpsconfigApp.h"
 
 //(*AppHeaders
-#include "fpsconfigMain.h"
+#include "gimx-fpsconfig.h"
 #include <wx/image.h>
 //*)
 

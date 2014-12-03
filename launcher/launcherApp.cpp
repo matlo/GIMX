@@ -7,7 +7,7 @@
 #include "launcherApp.h"
 
 //(*AppHeaders
-#include "launcherMain.h"
+#include "gimx-launcher.h"
 #include <wx/image.h>
 //*)
 

@@ -1,18 +1,15 @@
 include ../../Makedefs
 
-OBJ = src/GE.o src/queue.o
+LIBNAME=GE.a
+OBJECTS := $(patsubst %.c,%.o,$(wildcard src/*.c))
 ifneq ($(OS),Windows_NT)
-OBJ += src/linux/events.o src/linux/mkb.o src/linux/js.o src/conversion.o src/linux/conversion.o src/linux/timer.o src/linux/xinput.o
+OBJECTS += $(patsubst %.c,%.o,$(wildcard src/linux/*.c))
 else
-OBJ += src/windows/events.o src/conversion.o src/windows/conversion.o\
-       src/windows/winmm/keycodes.o src/windows/winmm/manymouse.o src/windows/winmm/windows_wminput.o src/windows/timer.o
+OBJECTS := $(patsubst %.c,%.o,$(wildcard src/windows/*.c))
 endif
 CPPFLAGS +=-I/usr/include/ -Iinclude -Isrc
 
-all: $(OBJ)
-	$(AR) rcsD GE.a.new $(OBJ)
-	diff -N GE.a.new GE.a > /dev/null || mv GE.a.new GE.a
-	$(RM) GE.a.new
+all: $(LIBNAME)($(OBJECTS))
 
 clean:
-	$(RM) $(OBJ) GE.a
+	$(RM) $(LIBNAME)

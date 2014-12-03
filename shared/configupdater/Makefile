@@ -1,11 +1,9 @@
 include ../../Makedefs
 
-OBJ=configupdater.o
+LIBNAME=$(shell basename $(shell pwd)).a
+OBJECTS := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 
-all: $(OBJ)
-	$(AR) rcsD configupdater.a.new $(OBJ)
-	diff -N configupdater.a.new configupdater.a > /dev/null || mv configupdater.a.new configupdater.a
-	$(RM) configupdater.a.new
+all: $(LIBNAME)($(OBJECTS))
 
 clean:
-	$(RM) $(OBJ) configupdater.a
+	$(RM) $(LIBNAME)
