@@ -71,47 +71,57 @@ int udp_connect(unsigned int ip, unsigned short port, int* type)
 
   if ((fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) >= 0)
   {
-    struct timeval tv = { .tv_sec = 2 };
-    if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
-        perror("setsockopt SO_RCVTIMEO");
-        error = 1;
+    struct sockaddr_in sa =
+    { .sin_family = AF_INET, .sin_port = htons(port), .sin_addr.s_addr = ip };
+
+    if (connect(fd, (struct sockaddr*)&sa, sizeof(sa)) != -1)
+    {
+    //request the controller type from the remote gimx
+
+    unsigned char request[] = {BYTE_TYPE, BYTE_LEN_0_BYTE};
+
+    if(udp_send(fd, request, sizeof(request)) != -1)
+    {
+		struct timeval tv = { .tv_sec = 2 };
+		fd_set fds;
+		int n;
+
+		// Set up the file descriptor set.
+		FD_ZERO(&fds);
+		FD_SET(fd, &fds);
+
+		// Wait until timeout or data received.
+		n = select(fd + 1, &fds, NULL, NULL, &tv);
+		if (n == 0)
+		{
+			fprintf(stderr, "Timeout\n");
+			error = 1;
+		}
+		else
+		{
+			unsigned char answer[3];
+			socklen_t salen = sizeof(sa);
+			int ret = udp_recvfrom(fd, answer, sizeof(answer), (struct sockaddr *) &sa, &salen);
+			if (ret == sizeof(answer) && answer[0] == BYTE_TYPE && answer[1] == BYTE_LEN_1_BYTE)
+			{
+				*type = answer[2];
+			}
+			else
+			{
+				fprintf(stderr, "can't get controller type from remote gimx\n");
+			}
+		}
     }
     else
     {
-      struct sockaddr_in sa =
-      { .sin_family = AF_INET, .sin_port = htons(port), .sin_addr.s_addr = ip };
-
-      if (connect(fd, (struct sockaddr*)&sa, sizeof(sa)) != -1)
-      {
-        //request the controller type from the remote gimx
-
-        unsigned char request[] = {BYTE_TYPE, BYTE_LEN_0_BYTE};
-
-        if(udp_send(fd, request, sizeof(request)) != -1)
-        {
-          unsigned char answer[3];
-          socklen_t salen = sizeof(sa);
-          int ret = udp_recvfrom(fd, answer, sizeof(answer), (struct sockaddr *) &sa, &salen);
-          if(ret == sizeof(answer) && answer[0] == BYTE_TYPE && answer[1] == BYTE_LEN_1_BYTE)
-          {
-            *type = answer[2];
-          }
-          else
-          {
-            fprintf(stderr, "can't get controller type from remote gimx\n");
-          }
-        }
-        else
-        {
-          fprintf(stderr, "can't send request to remote gimx\n");
-          error = 1;
-        }
-      }
-      else
-      {
-        perror("connect");
+        fprintf(stderr, "can't send request to remote gimx\n");
         error = 1;
-      }
+    }
+    }
+    else
+    {
+    perror("connect");
+    error = 1;
     }
   }
   else

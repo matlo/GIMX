@@ -7,7 +7,7 @@
  */
 
 #include "manymouse.h"
-#include "keycodes.h"
+#include "scancodes.h"
 
 #if (defined(_WIN32) || defined(_WINDOWS) || defined(__CYGWIN__))
 
