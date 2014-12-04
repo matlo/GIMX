@@ -3,7 +3,10 @@ include ../../Makedefs
 LIBNAME=$(shell basename $(shell pwd)).a
 OBJECTS := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 
-all: $(LIBNAME)($(OBJECTS))
+all: $(LIBNAME)
+
+$(LIBNAME): $(OBJECTS)
+	$(AR) $(ARFLAGS) $@ $?
 
 clean:
-	$(RM) $(LIBNAME)
+	$(RM) $(LIBNAME) $(OBJECTS)

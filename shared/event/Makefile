@@ -10,7 +10,10 @@ OBJECTS += $(patsubst %.c,%.o,$(wildcard src/windows/winmm/*.c))
 endif
 CPPFLAGS +=-I/usr/include/ -Iinclude -Isrc
 
-all: $(LIBNAME)($(OBJECTS))
+all: $(LIBNAME)
+
+$(LIBNAME): $(OBJECTS)
+	$(AR) $(ARFLAGS) $@ $?
 
 clean:
-	$(RM) $(LIBNAME)
+	$(RM) $(LIBNAME) $(OBJECTS)

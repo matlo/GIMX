@@ -1,10 +1,12 @@
 include ../../Makedefs
 
 LIBNAME=$(shell basename $(shell pwd)).a
-SOURCES = $(wildcard *.cpp)
-OBJ = $(SOURCES:.cpp=.o)
+OBJECTS := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 
-all: $(LIBNAME)($(OBJ))
+all: $(LIBNAME)
+
+$(LIBNAME): $(OBJECTS)
+	$(AR) $(ARFLAGS) $@ $?
 
 clean:
-	$(RM) $(OBJ) $(LIBNAME)
+	$(RM) $(LIBNAME) $(OBJECTS)
