@@ -6,42 +6,16 @@
 #include <connectors/udp_con.h>
 #ifndef WIN32
 #include <arpa/inet.h>
+#else
+#include <connectors/windows/sockets.h>
 #endif
 #include <stdio.h>
 #include <unistd.h>
 #include <GE.h>
 #include <errno.h>
 
-#ifdef WIN32
-//this is used to make sure WSAStartup/WSACleanup are only called once,
-//and to make sure all the sockets are closed before calling WSACleanup
-static unsigned int cnt = 0;
-#endif
-
 #ifndef WIN32
 #define psockerror(msg) perror(msg)
-#else
-void psockerror(const char* msg)
-{
-  DWORD error = GetLastError();
-  LPTSTR pBuffer = NULL;
-
-  if(!FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-          NULL,
-          error,
-          0,
-          (LPTSTR)&pBuffer,
-          0,
-          NULL))
-  {
-    fprintf(stderr, "%s failed with error: %lu\n", msg, error);
-  }
-  else
-  {
-    fprintf(stderr, "%s failed with error: %s\n", msg, pBuffer);
-    LocalFree(pBuffer);
-  }
-}
 #endif
 
 /*
@@ -53,15 +27,9 @@ int udp_listen(unsigned int ip, unsigned short port)
   int error = 0;
 
 #ifdef WIN32
-  WSADATA wsadata;
-
-  if(!cnt)
+  if (wsa_init() < 0)
   {
-    if (WSAStartup(MAKEWORD(2,2), &wsadata) == SOCKET_ERROR)
-    {
-      fprintf(stderr, "WSAStartup failed\n");
-      return -1;
-    }
+    return -1;
   }
 #endif
 
@@ -89,15 +57,7 @@ int udp_listen(unsigned int ip, unsigned short port)
   }
 
 #ifdef WIN32
-  if(!error)
-  {
-    ++cnt;
-  }
-
-  if(!cnt)
-  {
-    WSACleanup();
-  }
+  wsa_count(error);
 #endif
 
   return fd;
@@ -111,17 +71,11 @@ int udp_connect(unsigned int ip, unsigned short port, int* type)
 {
   int fd = -1;
   int error = 0;
-  
-#ifdef WIN32
-  WSADATA wsadata;
 
-  if(!cnt)
+#ifdef WIN32
+  if (wsa_init() < 0)
   {
-    if (WSAStartup(MAKEWORD(2,2), &wsadata) == SOCKET_ERROR)
-    {
-      fprintf(stderr, "WSAStartup failed\n");
-      return -1;
-    }
+    return -1;
   }
 #endif
 
@@ -203,15 +157,7 @@ int udp_connect(unsigned int ip, unsigned short port, int* type)
   }
   
 #ifdef WIN32
-  if(!error)
-  {  
-    ++cnt;
-  }
-  
-  if(!cnt)
-  {
-    WSACleanup();
-  }
+  wsa_count(error);
 #endif
 
   return fd;
@@ -261,16 +207,14 @@ int udp_recvfrom(int fd, unsigned char* buf, socklen_t buflen, struct sockaddr* 
  */
 int udp_close(int fd)
 {
-  close(fd);
+  if(fd >= 0)
+  {
+    close(fd);
   
 #ifdef WIN32
-  --cnt;
-  
-  if(!cnt)
-  {
-    WSACleanup();
-  }
+    wsa_clean();
 #endif
+  }
 
   return 1;
 }

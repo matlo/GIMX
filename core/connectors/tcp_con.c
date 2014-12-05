@@ -18,52 +18,64 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifndef WIN32
+#define psockerror(msg) perror(msg)
+#endif
+
 /*
- * Connect to all responding controllers.
+ * Open a TCP socket and connect to ip:port.
  */
 int tcp_connect(unsigned int ip, unsigned short port)
 {
   int fd;
-  struct sockaddr_in addr;
+  int error = 0;
 
 #ifdef WIN32
-  WSADATA wsadata;
-
-  if (WSAStartup(MAKEWORD(1,1), &wsadata) == SOCKET_ERROR)
+  if (wsa_init() < 0)
   {
-    fprintf(stderr, "WSAStartup");
-    return -1;
-  }
-
-  if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-  {
-    fprintf(stderr, "socket");
-    return -1;
-  }
-#else
-  if ((fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
-  {
-    fprintf(stderr, "socket");
     return -1;
   }
 #endif
-  memset(&addr, 0, sizeof(addr));
-  addr.sin_family = AF_INET;
-  addr.sin_port = htons(port);
-  addr.sin_addr.s_addr = htonl(ip);
-  if (connect(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+
+  if ((fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) != -1)
   {
-    fd = -1;
+    struct sockaddr_in sa =
+    { .sin_family = AF_INET, .sin_port = htons(port), .sin_addr.s_addr = ip };
+
+    if (connect(fd, (struct sockaddr *)&sa, sizeof(sa)) != -1)
+    {
+      gprintf(_("connected to %s:%d\n"), inet_ntoa(sa.sin_addr), port);
+
+#ifdef WIN32
+      // Set the socket I/O mode; iMode = 0 for blocking; iMode != 0 for non-blocking
+      int iMode = 1;
+      if(ioctlsocket(fd, FIONBIO, (u_long FAR*) &iMode) == SOCKET_ERROR)
+      {
+        perror("ioctlsocket");
+        error = 1;
+      }
+#endif
+    }
+    else
+    {
+      psockerror("connect");
+      error = 1;
+    }
   }
   else
   {
-    gprintf(_("connected to emu %s:%d\n"), inet_ntoa(addr.sin_addr), port);
+    psockerror("socket");
+    error = 1;
+  }
+
+  if(error && fd >= 0)
+  {
+    close(fd);
+    fd = -1;
   }
 
 #ifdef WIN32
-  // Set the socket I/O mode; iMode = 0 for blocking; iMode != 0 for non-blocking
-  int iMode = 1;
-  ioctlsocket(fd, FIONBIO, (u_long FAR*) &iMode);
+  wsa_count(error);
 #endif
 
   return fd;
@@ -72,9 +84,18 @@ int tcp_connect(unsigned int ip, unsigned short port)
 /*
  * Close connection.
  */
-void tcp_close(int fd)
+int tcp_close(int fd)
 {
-  close(fd);
+  if(fd >= 0)
+  {
+    close(fd);
+
+#ifdef WIN32
+    wsa_clean();
+#endif
+  }
+
+  return 1;
 }
 
 /*
@@ -82,5 +103,10 @@ void tcp_close(int fd)
  */
 int tcp_send(int fd, const unsigned char* buf, int length)
 {
-  return send(fd, (const void*)buf, length, MSG_DONTWAIT);
+  int ret = send(fd, (const void*)buf, length, MSG_DONTWAIT);
+  if(ret < 0)
+  {
+    psockerror("send");
+  }
+  return ret;
 }
