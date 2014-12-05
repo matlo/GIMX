@@ -95,7 +95,7 @@ int serial_send(int id, void* pdata, unsigned int size)
   {
     if(GetLastError() != ERROR_IO_PENDING)
     {
-      printf("WriteFile failed with error %lu\n", GetLastError());
+      fprintf(stderr, "WriteFile failed with error %lu\n", GetLastError());
       return -1;
     }
     int ret = WaitForSingleObject(serials[id].wOverlapped.hEvent, INFINITE);
@@ -104,12 +104,12 @@ int serial_send(int id, void* pdata, unsigned int size)
       case WAIT_OBJECT_0:
         if (!GetOverlappedResult(serials[id].handle, &serials[id].wOverlapped, &dwBytesWritten, FALSE))
         {
-          printf("GetOverlappedResult failed with error %lu\n", GetLastError());
+          fprintf(stderr, "GetOverlappedResult failed with error %lu\n", GetLastError());
           return -1;
         }
         break;
       default:
-        printf("WaitForSingleObject failed with error %lu\n", GetLastError());
+        fprintf(stderr, "WaitForSingleObject failed with error %lu\n", GetLastError());
         return -1;
     }
   }
@@ -148,7 +148,7 @@ int serial_recv(int id, void* pdata, unsigned int size)
   {
     if(GetLastError() != ERROR_IO_PENDING)
     {
-      printf("ReadFile failed with error %lu\n", GetLastError());
+      fprintf(stderr, "ReadFile failed with error %lu\n", GetLastError());
       return -1;
     }
     int ret = WaitForSingleObject(serials[id].rOverlapped.hEvent, 1000);
@@ -157,16 +157,16 @@ int serial_recv(int id, void* pdata, unsigned int size)
       case WAIT_OBJECT_0:
         if (!GetOverlappedResult(serials[id].handle, &serials[id].rOverlapped, &dwBytesRead, FALSE))
         {
-          printf("GetOverlappedResult failed with error %lu\n", GetLastError());
+          fprintf(stderr, "GetOverlappedResult failed with error %lu\n", GetLastError());
           return -1;
         }
         break;
       case WAIT_TIMEOUT:
         CancelIo(serials[id].handle);
-        printf("WaitForSingleObject failed: timeout expired.\n");
+        fprintf(stderr, "WaitForSingleObject failed: timeout expired.\n");
         break;
       default:
-        printf("WaitForSingleObject failed with error %lu\n", GetLastError());
+        fprintf(stderr, "WaitForSingleObject failed with error %lu\n", GetLastError());
         return -1;
     }
   }
@@ -285,7 +285,7 @@ static int serial_read_callback(int id)
 
   if (!GetOverlappedResult(serials[id].handle, &serials[id].rOverlapped, &dwBytesRead, FALSE))
   {
-    printf("GetOverlappedResult failed with error %lu\n", GetLastError());
+    fprintf(stderr, "GetOverlappedResult failed with error %lu\n", GetLastError());
     return -1;
   }
 

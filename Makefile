@@ -1,4 +1,4 @@
-DIRS=shared core config launcher fpsconfig
+DIRS=shared utils core config launcher fpsconfig
 
 ifneq ($(OS),Windows_NT)
 DIRS+= po
