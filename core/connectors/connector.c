@@ -212,7 +212,8 @@ int connector_init()
       adapter->src_fd = udp_listen(adapter->src_ip, adapter->src_port);
       if(adapter->src_fd < 0)
       {
-        fprintf(stderr, _("Can't listen on port: %d.\n"), adapter->src_port);
+        struct in_addr addr = { .s_addr = adapter->src_ip };
+        fprintf(stderr, _("Can't listen on: %s:%d.\n"), inet_ntoa(addr), adapter->src_port);
         ret = -1;
       }
       else
