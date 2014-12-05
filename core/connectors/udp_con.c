@@ -23,22 +23,23 @@ static unsigned int cnt = 0;
 #else
 void psockerror(const char* msg)
 {
-  DWORD err = GetLastError();
-  LPTSTR Error = NULL;
+  DWORD error = GetLastError();
+  LPTSTR pBuffer = NULL;
 
-  if(FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+  if(!FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
           NULL,
-          err,
+          error,
           0,
-          (LPTSTR)&Error,
+          (LPTSTR)&pBuffer,
           0,
-          NULL) == 0)
+          NULL))
   {
-    fprintf(stderr, "%s failed with error: %lu\n", msg, err);
+    fprintf(stderr, "%s failed with error: %lu\n", msg, error);
   }
   else
   {
-    fprintf(stderr, "%s failed with error: %s\n", msg, Error);
+    fprintf(stderr, "%s failed with error: %s\n", msg, pBuffer);
+    LocalFree(pBuffer);
   }
 }
 #endif
