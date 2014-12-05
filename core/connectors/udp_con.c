@@ -13,12 +13,34 @@
 #include <errno.h>
 
 #ifdef WIN32
-#define psockerror(msg) fprintf(stderr, msg" failed with error: %d\n", WSAGetLastError())
 //this is used to make sure WSAStartup/WSACleanup are only called once,
 //and to make sure all the sockets are closed before calling WSACleanup
 static unsigned int cnt = 0;
-#else
+#endif
+
+#ifndef WIN32
 #define psockerror(msg) perror(msg)
+#else
+void psockerror(const char* msg)
+{
+  DWORD err = GetLastError();
+  LPTSTR Error = NULL;
+
+  if(FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+          NULL,
+          err,
+          0,
+          (LPTSTR)&Error,
+          0,
+          NULL) == 0)
+  {
+    fprintf(stderr, "%s failed with error: %lu\n", msg, err);
+  }
+  else
+  {
+    fprintf(stderr, "%s failed with error: %s\n", msg, Error);
+  }
+}
 #endif
 
 /*
@@ -27,6 +49,19 @@ static unsigned int cnt = 0;
 int udp_listen(unsigned int ip, unsigned short port)
 {
   int fd;
+
+#ifdef WIN32
+  WSADATA wsadata;
+
+  if(!cnt)
+  {
+    if (WSAStartup(MAKEWORD(2,2), &wsadata) == SOCKET_ERROR)
+    {
+      fprintf(stderr, "WSAStartup failed\n");
+      return -1;
+    }
+  }
+#endif
 
   if ((fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
   {
