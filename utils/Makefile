@@ -1,3 +1,4 @@
+include ../Makedefs
 
 ifneq ($(OS),Windows_NT)
 prefix=$(DESTDIR)/usr
@@ -12,7 +13,9 @@ else
 OUT=
 endif
 
-LDLIBS += -lusb-1.0
+CPPFLAGS :=
+
+LDLIBS := -lusb-1.0
 ifneq ($(OS),Windows_NT)
 LDLIBS += -lbluetooth
 endif

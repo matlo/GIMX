@@ -16,6 +16,13 @@
 #define VENDOR 0x054c
 #define PRODUCT 0x0268
 
+#if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)
+const char * LIBUSB_CALL libusb_strerror(enum libusb_error errcode)
+{
+  return libusb_error_name(errcode);
+}
+#endif
+
 static unsigned char msg_master[8];
 static unsigned char msg_slave[18];
 
@@ -80,52 +87,76 @@ int main(int argc, char *argv[])
   if(cnt < 0)
   {
     fprintf(stderr, "Can't get USB device list.\n");
-    return -1;
   }
 
   for(i=0; i<cnt; ++i)
   {
     struct libusb_device_descriptor desc;
     ret = libusb_get_device_descriptor(devs[i], &desc);
-    if(!ret)
+    if(ret < 0)
     {
-      if(desc.idVendor == VENDOR && desc.idProduct == PRODUCT)
+      continue;
+    }
+
+    if(desc.idVendor != VENDOR || desc.idProduct != PRODUCT)
+    {
+      continue;
+    }
+
+    ret = libusb_open(devs[i], &devh);
+    if(ret < 0)
+    {
+      continue;
+    }
+
+#if defined(LIBUSB_API_VERSION) || defined(LIBUSBX_API_VERSION)
+    libusb_set_auto_detach_kernel_driver(devh, 1);
+#else
+#ifndef WIN32
+    ret = libusb_kernel_driver_active(devh, 0);
+    if(ret > 0)
+    {
+      ret = libusb_detach_kernel_driver(devh, 0);
+      if(ret < 0)
       {
-        ret = libusb_open(devs[i], &devh);
-        if(!ret)
-        {
-          if(libusb_detach_kernel_driver(devh, 0) < 0)
-          {
-            fprintf(stderr, "Can't detach kernel driver.\n");
-            ret = -1;
-          }
-          else
-          {
-            if(libusb_claim_interface(devh, 0) < itfnum)
-            {
-              fprintf(stderr, "Can't claim interface.\n");
-              ret = -1;
-            }
-            else
-            {
-              ret = process_device(devh);
-
-              if(libusb_release_interface(devh, itfnum))
-              {
-                fprintf(stderr, "Can't release interface.\n");
-              }
-            }
-
-            if(libusb_attach_kernel_driver(devh, 0) < 0)
-            {
-              fprintf(stderr, "Can't attach kernel driver.\n");
-            }
-          }
-
-          libusb_close(devh);
-        }
+        fprintf(stderr, "Can't detach kernel driver: %s.\n", libusb_strerror(ret));
+        continue;
       }
     }
+#endif
+#endif
+    ret = libusb_claim_interface(devh, 0);
+    if(ret < 0)
+    {
+      fprintf(stderr, "Can't claim interface: %s.\n", libusb_strerror(ret));
+      continue;
+    }
+
+    ret = process_device(devh);
+
+    ret = libusb_release_interface(devh, 0);
+    if(ret < 0)
+    {
+      fprintf(stderr, "Can't release interface: %s.\n", libusb_strerror(ret));
+    }
+
+#if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)
+#ifndef WIN32
+    ret = libusb_attach_kernel_driver(devh, 0);
+    if(ret < 0)
+    {
+      fprintf(stderr, "Can't attach kernel driver: %s.\n", libusb_strerror(ret));
+    }
+#endif
+#endif
+
+    libusb_close(devh);
+    devh = NULL;
+  }
+
+  if(devh != NULL)
+  {
+    libusb_close(devh);
   }
 
   libusb_free_device_list(devs, 1);
