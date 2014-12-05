@@ -50,6 +50,7 @@ void psockerror(const char* msg)
 int udp_listen(unsigned int ip, unsigned short port)
 {
   int fd;
+  int error = 0;
 
 #ifdef WIN32
   WSADATA wsadata;
@@ -67,18 +68,37 @@ int udp_listen(unsigned int ip, unsigned short port)
   if ((fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
   {
     psockerror("socket");
-    return -1;
+    error = 1;
   }
-  
-  struct sockaddr_in sa =
-  { .sin_family = AF_INET, .sin_port = htons(port), .sin_addr.s_addr = ip };
-
-  if (bind(fd, (struct sockaddr*)&sa, sizeof(sa)) == -1)
+  else
   {
-    psockerror("bind");
-    close(fd);
-    return -1;
+    struct sockaddr_in sa =
+    { .sin_family = AF_INET, .sin_port = htons(port), .sin_addr.s_addr = ip };
+  
+    if (bind(fd, (struct sockaddr*)&sa, sizeof(sa)) == -1)
+    {
+      psockerror("bind");
+      error = 1;
+    }
   }
+
+  if(error && fd >= 0)
+  {
+    close(fd);
+    fd = -1;
+  }
+
+#ifdef WIN32
+  if(!error)
+  {
+    ++cnt;
+  }
+
+  if(!cnt)
+  {
+    WSACleanup();
+  }
+#endif
 
   return fd;
 }
