@@ -21,6 +21,13 @@
 #include "connectors/btds4.h"
 #endif
 
+#ifndef WIN32
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#else
+#include <winsock2.h>
+#endif
+
 /*
  * The adapter restarts about 15ms after receiving the reset command.
  * This time is doubled so as to include the reset command transfer duration.
@@ -38,90 +45,87 @@ int connector_init()
     adapter = adapter_get(i);
     if(adapter->portname)
     {
-      if(!strstr(adapter->portname, "none"))
+      if(serial_connect(i, adapter->portname) < 0)
       {
-        if(serial_connect(i, adapter->portname) < 0)
-        {
-          ret = -1;
-        }
-        else
-        {
-          int rtype = adapter_get_type(i);
+        ret = -1;
+      }
+      else
+      {
+        int rtype = adapter_get_type(i);
 
-          if(rtype >= 0)
+        if(rtype >= 0)
+        {
+          printf(_("Detected USB adapter: %s.\n"), controller_get_name(rtype));
+
+          if(adapter->type == C_TYPE_DEFAULT)
           {
-            printf(_("Detected USB adapter: %s.\n"), controller_get_name(rtype));
+            adapter->type = rtype;
+          }
+          else if(adapter->type != rtype)
+          {
+            fprintf(stderr, _("Wrong controller type.\n"));
+            ret = -1;
+          }
 
-            if(adapter->type == C_TYPE_DEFAULT)
+          if(adapter->type == C_TYPE_360_PAD)
+          {
+            if(usb_spoof_spoof_360_controller(i) < 0)
             {
-              adapter->type = rtype;
-            }
-            else if(adapter->type != rtype)
-            {
-              fprintf(stderr, _("Wrong controller type.\n"));
+              fprintf(stderr, _("Spoof failed.\n"));
               ret = -1;
             }
+          }
+          else if(adapter->type == C_TYPE_XONE_PAD)
+          {
+            /*
+             * TODO XONE
+             */
+          }
+          else if(adapter->type == C_TYPE_DS4)
+          {
+            int status = adapter_get_status(i);
 
-            if(adapter->type == C_TYPE_360_PAD)
+            if(status < 0)
             {
-              if(usb_spoof_spoof_360_controller(i) < 0)
-              {
-                fprintf(stderr, _("Spoof failed.\n"));
-                ret = -1;
-              }
+              fprintf(stderr, _("Can't get adapter status.\n"));
+              ret = -1;
             }
-            else if(adapter->type == C_TYPE_XONE_PAD)
+            else
             {
-              /*
-               * TODO XONE
-               */
-            }
-            else if(adapter->type == C_TYPE_DS4)
-            {
-              int status = adapter_get_status(i);
-
-              if(status < 0)
+              if(status == BYTE_STATUS_STARTED)
               {
-                fprintf(stderr, _("Can't get adapter status.\n"));
-                ret = -1;
-              }
-              else
-              {
-                if(status == BYTE_STATUS_STARTED)
+                if(adapter_send_reset(i) < 0)
                 {
-                  if(adapter_send_reset(i) < 0)
-                  {
-                    fprintf(stderr, _("Can't reset the adapter.\n"));
-                    ret = -1;
-                  }
-                  else
-                  {
-                    printf(_("Reset sent to the adapter.\n"));
-                    //Leave time for the adapter to reinitialize.
-                    usleep(ADAPTER_RESET_TIME);
-                  }
+                  fprintf(stderr, _("Can't reset the adapter.\n"));
+                  ret = -1;
                 }
-
-                if(ret != -1)
+                else
                 {
-                  ds4_init_report(&adapter->report.value.ds4);
+                  printf(_("Reset sent to the adapter.\n"));
+                  //Leave time for the adapter to reinitialize.
+                  usleep(ADAPTER_RESET_TIME);
+                }
+              }
 
-                  if(usb_init(i, DS4_VENDOR, DS4_PRODUCT) < 0)
+              if(ret != -1)
+              {
+                ds4_init_report(&adapter->report.value.ds4);
+
+                if(usb_init(i, DS4_VENDOR, DS4_PRODUCT) < 0)
+                {
+                  fprintf(stderr, _("No Dualshock 4 controller was found on USB buses.\n"));
+                  ret = -1;
+                }
+                else
+                {
+                  if(adapter_send_start(i) < 0)
                   {
-                    fprintf(stderr, _("No Dualshock 4 controller was found on USB buses.\n"));
+                    fprintf(stderr, _("Can't start the adapter.\n"));
                     ret = -1;
                   }
                   else
                   {
-                    if(adapter_send_start(i) < 0)
-                    {
-                      fprintf(stderr, _("Can't start the adapter.\n"));
-                      ret = -1;
-                    }
-                    else
-                    {
-                      serial_add_source(i);
-                    }
+                    serial_add_source(i);
                   }
                 }
               }
@@ -161,7 +165,8 @@ int connector_init()
         adapter->dst_fd = udp_connect(adapter->dst_ip, adapter->dst_port, (int *)&adapter->type);
         if(adapter->dst_fd < 0)
         {
-          fprintf(stderr, _("Can't connect to port: %d.\n"), adapter->dst_port);
+          struct in_addr addr = { .s_addr = adapter->dst_ip };
+          fprintf(stderr, _("Can't connect to: %s:%d.\n"), inet_ntoa(addr), adapter->dst_port);
           ret = -1;
         }
         else
@@ -299,7 +304,7 @@ int connector_send()
           {
             ret = serial_send(i, report, 2+report->value_len);
           }
-#ifndef WIN32          
+#ifndef WIN32
           else if(adapter->bdaddr_dst)
           {
             ret = sixaxis_send_interrupt(i, &report->value.ds3);

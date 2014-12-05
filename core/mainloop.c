@@ -95,7 +95,7 @@ void mainloop()
      * The --keygen argument is used
      * and there are no more event or macro to process => exit.
      */
-    if(gimx_params.keygen && !running_macros && !num_evt)
+    if(!gimx_params.network_input && gimx_params.keygen && !running_macros && !num_evt)
     {
       done = 1;
     }

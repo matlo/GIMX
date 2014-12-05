@@ -64,7 +64,7 @@ static void usage()
  * Try to parse an argument with the following expected format: a.b.c.d:e
  * where a.b.c.d is an IPv4 address and e is a port.
  */
-static int read_ip(char* optarg, unsigned int* ip, unsigned short* port)
+static int read_ip(char* optarg, in_addr_t* ip, unsigned short* port)
 {
   int ret = 0;
   int pos;
@@ -234,6 +234,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         {
           printf(_("option -s with value `%s'\n"), optarg);
           input = 1;
+          params->network_input = 1;
         }
         break;
 

@@ -10,6 +10,12 @@
 #include <controller2.h>
 #include <config.h>
 
+#ifndef WIN32
+#include <netinet/in.h>
+#else
+#include <winsock2.h>
+#endif
+
 #define MAX_CONTROLLERS 7
 #define MAX_CONFIGURATIONS 8
 #define MAX_DEVICES 256
@@ -20,10 +26,10 @@ typedef struct
   char* bdaddr_dst;
   int dongle_index;
   char* portname;
-  unsigned int dst_ip;
+  in_addr_t dst_ip;
   unsigned short dst_port;
   int dst_fd;
-  unsigned int src_ip;
+  in_addr_t src_ip;
   unsigned short src_port;
   int src_fd;
   e_controller_type type;

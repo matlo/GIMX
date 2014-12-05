@@ -120,13 +120,18 @@ int adapter_network_read(int id)
   {
     return 0;
   }
+  if(nread < 2)
+  {
+    fprintf(stderr, "invalid packet size: %d\n", nread);
+    return 0;
+  }
   switch(buf[0])
   {
   case BYTE_TYPE:
     {
       // send the answer
       unsigned char answer[3] = {BYTE_TYPE, BYTE_LEN_1_BYTE, adapter[id].type};
-      if (udp_sendto(adapter[id].src_fd, answer, sizeof(answer), (struct sockaddr*) &sa, salen) == -1)
+      if (udp_sendto(adapter[id].src_fd, answer, sizeof(answer), (struct sockaddr*) &sa, salen) < 0)
       {
         fprintf(stderr, "adapter_network_read: can't send controller type\n");
         return 0;

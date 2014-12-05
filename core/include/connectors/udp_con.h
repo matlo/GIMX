@@ -25,9 +25,9 @@ typedef int socklen_t;
 
 int udp_listen(unsigned int ip, unsigned short port);
 int udp_connect(unsigned int ip, unsigned short port, int* type);
-unsigned int udp_send(int fd, unsigned char* buf, socklen_t buflen);
-unsigned int udp_sendto(int fd, unsigned char* buf, socklen_t buflen, struct sockaddr* sa, socklen_t salen);
-unsigned int udp_recvfrom(int fd, unsigned char* buf, socklen_t buflen, struct sockaddr* sa, socklen_t* salen);
+int udp_send(int fd, unsigned char* buf, socklen_t buflen);
+int udp_sendto(int fd, unsigned char* buf, socklen_t buflen, struct sockaddr* sa, socklen_t salen);
+int udp_recvfrom(int fd, unsigned char* buf, socklen_t buflen, struct sockaddr* sa, socklen_t* salen);
 int udp_close(int fd);
 
 #endif /* UDP_CON_H_ */

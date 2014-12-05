@@ -13,9 +13,12 @@
 #include <errno.h>
 
 #ifdef WIN32
+#define psockerror(msg) fprintf(stderr, msg" failed with error: %d\n", WSAGetLastError())
 //this is used to make sure WSAStartup/WSACleanup are only called once,
 //and to make sure all the sockets are closed before calling WSACleanup
 static unsigned int cnt = 0;
+#else
+#define psockerror(msg) perror(msg)
 #endif
 
 /*
@@ -27,7 +30,7 @@ int udp_listen(unsigned int ip, unsigned short port)
 
   if ((fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
   {
-    perror("socket");
+    psockerror("socket");
     return -1;
   }
   
@@ -36,7 +39,7 @@ int udp_listen(unsigned int ip, unsigned short port)
 
   if (bind(fd, (struct sockaddr*)&sa, sizeof(sa)) == -1)
   {
-    perror("bind");
+    psockerror("bind");
     close(fd);
     return -1;
   }
@@ -45,11 +48,8 @@ int udp_listen(unsigned int ip, unsigned short port)
 }
 
 /*
- * 1. open a UDP socket and set the destination,
- * 2. try to get the controller type from the remote GIMX.
- * If 1. is not successful the function returns -1.
- * If 1. is successful but 2. fails, the function returns a valid socket,
- * but the controller type is not set.
+ * Open a UDP socket and set the destination,
+ * and then try to get the controller type from the remote GIMX.
  */
 int udp_connect(unsigned int ip, unsigned short port, int* type)
 {
@@ -63,7 +63,7 @@ int udp_connect(unsigned int ip, unsigned short port, int* type)
   {
     if (WSAStartup(MAKEWORD(2,2), &wsadata) == SOCKET_ERROR)
     {
-      fprintf(stderr, "WSAStartup");
+      fprintf(stderr, "WSAStartup failed\n");
       return -1;
     }
   }
@@ -71,52 +71,72 @@ int udp_connect(unsigned int ip, unsigned short port, int* type)
 
   if ((fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) >= 0)
   {
-    struct timeval tv = { .tv_sec = 2 };
-    if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
-        perror("setsockopt SO_RCVTIMEO");
-        error = 1;
-    }
-    else
+    struct sockaddr_in sa =
+    { .sin_family = AF_INET, .sin_port = htons(port), .sin_addr.s_addr = ip };
+
+    if (connect(fd, (struct sockaddr*)&sa, sizeof(sa)) != -1)
     {
-      struct sockaddr_in sa =
-      { .sin_family = AF_INET, .sin_port = htons(port), .sin_addr.s_addr = ip };
+      //request the controller type from the remote gimx
 
-      if (connect(fd, (struct sockaddr*)&sa, sizeof(sa)) != -1)
+      unsigned char request[] = {BYTE_TYPE, BYTE_LEN_0_BYTE};
+
+      if(udp_send(fd, request, sizeof(request)) > 0)
       {
-        //request the controller type from the remote gimx
-
-        unsigned char request[] = {BYTE_TYPE, BYTE_LEN_0_BYTE};
-
-        if(udp_send(fd, request, sizeof(request)) != -1)
+#ifndef WIN32
+        struct timeval tv = { .tv_sec = 2 };
+        void* optval = &tv;
+#else
+        unsigned long tv = 2000;
+        const char* optval = (char*)&tv;
+#endif
+        if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, optval, sizeof(tv)) < 0) {
+            perror("setsockopt SO_RCVTIMEO");
+            error = 1;
+        }
+        else
         {
           unsigned char answer[3];
           socklen_t salen = sizeof(sa);
           int ret = udp_recvfrom(fd, answer, sizeof(answer), (struct sockaddr *) &sa, &salen);
-          if(ret == sizeof(answer) && answer[0] == BYTE_TYPE && answer[1] == BYTE_LEN_1_BYTE)
+          if(ret == sizeof(answer))
           {
-            *type = answer[2];
+            if(answer[0] == BYTE_TYPE && answer[1] == BYTE_LEN_1_BYTE)
+            {
+              *type = answer[2];
+            }
+            else
+            {
+              fprintf(stderr, "invalid reply from remote gimx (type=%d, length=%d)\n", answer[0], answer[1]);
+              error = 1;
+            }
+          }
+          else if(ret > 0)
+          {
+            fprintf(stderr, "invalid reply from remote gimx (size=%d)\n", ret);
+            error = 1;
           }
           else
           {
             fprintf(stderr, "can't get controller type from remote gimx\n");
+            error = 1;
           }
-        }
-        else
-        {
-          fprintf(stderr, "can't send request to remote gimx\n");
-          error = 1;
         }
       }
       else
       {
-        perror("connect");
+        fprintf(stderr, "can't send request to remote gimx\n");
         error = 1;
       }
+    }
+    else
+    {
+      psockerror("connect");
+      error = 1;
     }
   }
   else
   {
-    perror("socket");
+    psockerror("socket");
     error = 1;
   }
 
@@ -143,96 +163,41 @@ int udp_connect(unsigned int ip, unsigned short port, int* type)
 
 /*
  * Send a packet to the remote GIMX.
- * "Connection refused" errors are ignored.
  */
-unsigned int udp_send(int fd, unsigned char* buf, socklen_t buflen)
+int udp_send(int fd, unsigned char* buf, socklen_t buflen)
 {
   int ret = send(fd, (const void*)buf, buflen, MSG_DONTWAIT);
-
-  if(ret != buflen)
+  if(ret < 0)
   {
-#ifndef WIN32
-    if(errno != ECONNREFUSED)
-    {
-      perror("sendto");
-      return -1;
-    }
-#else
-    int error = WSAGetLastError();
-    if(error != WSAECONNREFUSED)
-    {
-      fprintf(stderr, "sendto failed with error %d\n", error);
-      return -1;
-    }
-#endif
+    psockerror("send");
   }
-
-  return 0;
+  return ret;
 }
 
 /*
  * Send a packet to the remote GIMX.
- *
- * "Connection refused" errors are ignored.
  */
-unsigned int udp_sendto(int fd, unsigned char* buf, socklen_t buflen, struct sockaddr* sa, socklen_t salen)
+int udp_sendto(int fd, unsigned char* buf, socklen_t buflen, struct sockaddr* sa, socklen_t salen)
 {
   int ret = sendto(fd, (const void*)buf, buflen, MSG_DONTWAIT, sa, salen);
-
-  if(ret != buflen)
+  if(ret < 0)
   {
-#ifndef WIN32
-    if(errno != ECONNREFUSED)
-    {
-      perror("sendto");
-      return -1;
-    }
-#else
-    int error = WSAGetLastError();
-    if(error != WSAECONNREFUSED)
-    {
-      fprintf(stderr, "sendto failed with error %d\n", error);
-      return -1;
-    }
-#endif
+    psockerror("sendto");
   }
-
-  return 0;
+  return ret;
 }
 
 /*
  * Get the UDP packet and the address of the client.
- * If there is not data available, return 0.
  */
-unsigned int udp_recvfrom(int fd, unsigned char* buf, socklen_t buflen, struct sockaddr* sa, socklen_t* salen)
+int udp_recvfrom(int fd, unsigned char* buf, socklen_t buflen, struct sockaddr* sa, socklen_t* salen)
 {
-  int nread = 0;
-  int ret;
-  while(!nread)
+  int ret = recvfrom(fd, (char*)buf, buflen, 0, sa, salen);
+  if(ret < 0)
   {
-    if((ret = recvfrom(fd, (char*)buf, buflen, 0, sa, salen)) < 0)
-    {
-#ifndef WIN32
-      if(errno != EWOULDBLOCK)
-      {
-        perror("recvfrom");
-        return 0;
-      }
-#else
-      int error = WSAGetLastError();
-      if(error != WSAEWOULDBLOCK && error != WSAECONNRESET)
-      {
-        fprintf(stderr, "recvfrom failed with error %d\n", error);
-        return 0;
-      }
-#endif
-    }
-    else
-    {
-      nread = ret;
-    }
+    psockerror("recvfrom");
   }
-  return nread;
+  return ret;
 }
 
 /*

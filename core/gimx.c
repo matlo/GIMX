@@ -226,6 +226,9 @@ int main(int argc, char *argv[])
     src = GE_MKB_SOURCE_WINDOW_SYSTEM;
   }
 
+  //TODO MLA: if there is no config file:
+  // - there's no need to read inputs
+  // - there's no need to grab the mouse
   if (!GE_initialize(src))
   {
     fprintf(stderr, _("GE_initialize failed\n"));

@@ -33,6 +33,7 @@ typedef struct
   int postpone_count;
   int subpositions;
   int window_events;
+  int network_input;
 } s_gimx_params;
 
 extern s_gimx_params gimx_params;
