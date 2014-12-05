@@ -11,6 +11,7 @@
 #include <pwd.h>
 #else
 #include <winsock2.h>
+#include <connectors/windows/sockets.h>
 #define MSG_DONTWAIT 0
 #endif
 #include "gimx.h"

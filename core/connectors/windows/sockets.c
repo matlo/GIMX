@@ -4,6 +4,7 @@
  */
 
 #include <winsock2.h>
+#include <stdio.h>
 
 //this is used to make sure WSAStartup/WSACleanup are only called once,
 //and to make sure all the sockets are closed before calling WSACleanup

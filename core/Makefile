@@ -64,7 +64,8 @@ else
 GIMX_OBJ += \
        connectors/gpp/hid_WINDOWS.o\
        windows/prio.o\
-       connectors/windows/serial.o
+       connectors/windows/serial.o\
+       connectors/windows/sockets.o
 endif
 
 gimx: $(GIMX_OBJ)
