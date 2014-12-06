@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "hid.h"
+#include <connectors/hid.h>
 #include "pcprog.h"
 
 #define GPPKG_INPUT_REPORT      0x01

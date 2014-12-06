@@ -7,8 +7,10 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/time.h>
+#ifndef WIN32
 #include <poll.h>
 #include <arpa/inet.h> /* for htons */
+#endif
 #include <errno.h>
 #include <GE.h>
 #include <connectors/sixaxis.h>

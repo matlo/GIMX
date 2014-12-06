@@ -7,6 +7,12 @@
 
 #define HCI_REQ_TIMEOUT   1000
 
+#ifdef WIN32
+//TODO MLA
+//str2ba
+//ba2str
+#endif
+
 /*
  * \brief This function gets the bluetooth device address for a given device number.
  *

@@ -31,8 +31,11 @@ ifneq ($(OS),Windows_NT)
 OBJECTS += $(patsubst %.c,%.o,$(wildcard system/linux/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/linux/*/*.c))
 else
-OBJECTS += $(patsubst %.c,%.o,$(wildcard system/linux/*.c))
-OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/linux/*/*.c))
+OBJECTS += $(patsubst %.c,%.o,$(wildcard system/windows/*.c))
+OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/*.c))
+OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/*/*.c))
+OBJECTS:=$(filter-out connectors/sixaxis.o,$(OBJECTS))
+OBJECTS:=$(filter-out connectors/btds4.o,$(OBJECTS))
 endif
 
 all: updated $(BINS)

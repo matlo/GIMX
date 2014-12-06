@@ -3,15 +3,17 @@
  License: GPLv3
  */
 
-#include "connectors/btds4.h"
-#include "connectors/bt_mgmt.h"
 #include <adapter.h>
 #include "gimx.h"
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <errno.h>
 #ifndef WIN32
+#include "connectors/btds4.h"
+#include "connectors/bt_mgmt.h"
+#include <mhash.h>
 #include <poll.h>
 #include <arpa/inet.h> /* for htons */
 #else
@@ -22,7 +24,6 @@
 #include <GE.h>
 #include <ds4_wrapper.h>
 
-#include <mhash.h>
 
 #define DS4_DEVICE_CLASS 0x2508
 
@@ -753,11 +754,15 @@ int btds4_init(int btds4_number)
   memcpy(&state->bt_report, &init_report_btds4, sizeof(s_btds4_report));
   state->joystick_id = GE_RegisterJoystick(DS4_DEVICE_NAME);
 
+#ifndef WIN32
   if(bt_mgmt_adapter_init(state->dongle_index) < 0)
   {
     fprintf(stderr, "failed to initialize bluetooth device\n");
     return -1;
   }
+#else
+  //TODO MLA
+#endif
 
   if (bt_get_device_bdaddr(state->dongle_index, state->dongle_bdaddr) < 0)
   {
@@ -865,6 +870,7 @@ int btds4_send_interrupt(int btds4_number, s_report_ds4* report, int active)
 
   memcpy(&state->bt_report.report, report, sizeof(s_report_ds4));
 
+#ifndef WIN32
   MHASH td = mhash_init(MHASH_CRC32B);
 
   if (td == MHASH_FAILED)
@@ -873,10 +879,15 @@ int btds4_send_interrupt(int btds4_number, s_report_ds4* report, int active)
   }
 
   mhash(td, &state->bt_report, sizeof(state->bt_report)-4);
+#else
+  //TODO MLA
+#endif
 
   unsigned int digest = 0; // crc32 will be stored here
 
+#ifndef WIN32
   mhash_deinit(td, &digest);
+#endif
 
   state->bt_report.crc32[3] = digest >> 24;
   state->bt_report.crc32[2] = (digest >> 16) & 0xFF;

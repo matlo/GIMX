@@ -36,7 +36,7 @@
 #include <hidsdi.h>
 #include <ddk/hidclass.h>
 
-#include "hid.h"
+#include <connectors/hid.h>
 
 
 // a list of all opened HID devices, so the caller can

@@ -4,11 +4,7 @@
  */
 
 #include <connectors/tcp_con.h>
-
-/* BD Address */
-typedef struct {
-  uint8_t b[6];
-} __attribute__((packed)) bdaddr_t;
+#include <connectors/l2cap_con.h>
 
 #define ACL_MTU 1024
 #define L2CAP_MTU 1024
