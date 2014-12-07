@@ -9,6 +9,20 @@
 #include <stdint.h>
 
 #ifdef WIN32
+#define OPCODE(ogf, ocf) (ocf | ogf << 10)
+
+#define OGF_INFORMATIONAL_PARAMETERS 0x04
+
+typedef struct {
+  uint16_t    opcode;
+  const char *format;
+} hci_cmd_t;
+
+const hci_cmd_t hci_read_bd_addr = {
+  .opcode = OPCODE(OGF_INFORMATIONAL_PARAMETERS, 0x09),
+  .format = ""
+};
+
 /* BD Address */
 typedef struct {
   uint8_t b[6];

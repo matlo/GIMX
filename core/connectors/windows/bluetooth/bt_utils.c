@@ -37,6 +37,18 @@ int bachk(const char *str)
   return 0;
 }
 
+void baswap(bdaddr_t *dst, bdaddr_t *src)
+{
+  unsigned char *d = (unsigned char *) dst;
+  unsigned char *s = (unsigned char *) src;
+  unsigned int i;
+
+  for (i = 0; i < 6; i++)
+  {
+    d[i] = s[5 - i];
+  }
+}
+
 int ba2str(const bdaddr_t *ba, char *str)
 {
   return sprintf(str, "%2.2X:%2.2X:%2.2X:%2.2X:%2.2X:%2.2X",
