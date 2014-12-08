@@ -10,9 +10,7 @@
 #include <sys/socket.h>
 #include <pwd.h>
 #else
-#include <winsock2.h>
 #include <connectors/windows/sockets.h>
-#define MSG_DONTWAIT 0
 #endif
 #include "gimx.h"
 #include <unistd.h>
@@ -104,7 +102,7 @@ int tcp_close(int fd)
  */
 int tcp_send(int fd, const unsigned char* buf, int length)
 {
-  int ret = send(fd, (const void*)buf, length, MSG_DONTWAIT);
+  int ret = send(fd, (const void*)buf, length, MSG_DONTWAIT | MSG_NOSIGNAL);
   if(ret < 0)
   {
     psockerror("send");

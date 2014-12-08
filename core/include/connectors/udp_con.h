@@ -13,7 +13,6 @@
 #else
 #include <winsock2.h>
 #define WIN32_LEAN_AND_MEAN
-#define MSG_DONTWAIT 0
 typedef int socklen_t;
 #endif
 
