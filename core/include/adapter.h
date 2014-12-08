@@ -13,7 +13,7 @@
 #ifndef WIN32
 #include <netinet/in.h>
 #else
-typedef uint32_t in_addr_t;
+#include <connectors/windows/sockets.h>
 #endif
 
 #define MAX_CONTROLLERS 7

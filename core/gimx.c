@@ -16,6 +16,7 @@
 #include <sys/types.h> //to get the homedir
 #include <unistd.h> //to get the homedir
 #else
+#include <winsock2.h>
 #include <windows.h>
 #include <shlobj.h> //to get the homedir
 #include <unistd.h> //usleep

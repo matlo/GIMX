@@ -5,15 +5,21 @@
 
 #include <connectors/tcp_con.h>
 #include <connectors/l2cap_con.h>
+#include <connectors/bt_utils.h>
+#include <hci.h>
 
 #define ACL_MTU 1024
 #define L2CAP_MTU 1024
 
 int l2cap_connect(const char *bdaddr_src, const char *bdaddr_dest, unsigned short psm, int options)
 {
-    //TODO
+  bdaddr_t ba;
+  str2ba(bdaddr_dest, &ba);
+  bt_send_cmd(&l2cap_create_channel_mtu, ba.b, psm, L2CAP_MTU);
 
-    return -1;
+  //TODO
+
+  return -1;
 }
 
 int l2cap_send(int fd, const unsigned char* buf, int len, int blocking)

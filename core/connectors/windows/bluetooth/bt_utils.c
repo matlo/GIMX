@@ -8,9 +8,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <connectors/tcp_con.h>
 #include <connectors/bt_utils.h>
+#include <hci.h>
 
 #define HCI_REQ_TIMEOUT   1000
+
+#define BTSTACK_ADDR "127.0.0.1"
+#define BTSTACK_PORT 13333
 
 int bachk(const char *str)
 {
@@ -73,6 +78,57 @@ int str2ba(const char *str, bdaddr_t *ba)
   return 0;
 }
 
+// connection to btstack
+static int fd = -1;
+
+typedef struct {
+    uint16_t type;
+    uint16_t channel;
+    uint16_t length;
+    uint8_t  data[0];
+} packet_header_t;
+
+static uint8_t hci_cmd_buffer[HCI_ACL_BUFFER_SIZE];
+
+// send hci cmd packet
+int bt_send_cmd(const hci_cmd_t *cmd, ...) {
+
+  if(fd < 0)
+  {
+    fprintf(stderr, "No connection to btstack.\n");
+    return -1;
+  }
+
+  va_list argptr;
+  va_start(argptr, cmd);
+  uint16_t len = hci_create_cmd_internal(hci_cmd_buffer, cmd, argptr);
+  va_end(argptr);
+
+  uint8_t header[sizeof(packet_header_t)];
+  bt_store_16(header, 0, HCI_COMMAND_DATA_PACKET);
+  bt_store_16(header, 2, 0);
+  bt_store_16(header, 4, len);
+  if(tcp_send(fd, header, 6) < 0)
+  {
+    fprintf(stderr, "Failed to send hci command.\n");
+    return -1;
+  }
+  if(tcp_send(fd, hci_cmd_buffer, len) < 0)
+  {
+    fprintf(stderr, "Failed to send hci command.\n");
+    return -1;
+  }
+
+  return 0;
+}
+
+int bt_connect()
+{
+  in_addr_t ip = inet_addr(BTSTACK_ADDR);
+  fd = tcp_connect(ip, BTSTACK_PORT);
+  return fd;
+}
+
 /*
  * \brief This function gets the bluetooth device address for a given device number.
  *
@@ -84,6 +140,8 @@ int str2ba(const char *str, bdaddr_t *ba)
 int bt_get_device_bdaddr(int device_number, char bdaddr[18])
 {
   int ret = 0;
+
+  bt_send_cmd(&hci_read_bd_addr);
 
   //TODO
 

@@ -7,15 +7,11 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/l2cap.h>
 #else
-#include <stdint.h>
+#include <connectors/bt_utils.h>
 //TODO MLA
 #define L2CAP_LM_MASTER 0
 #define L2CAP_LM_AUTH 0
 #define L2CAP_LM_ENCRYPT 0
-/* BD Address */
-typedef struct {
-  uint8_t b[6];
-} __attribute__((packed)) bdaddr_t;
 #endif
 
 int l2cap_connect(const char *bdaddr_src, const char *bdaddr_dest, unsigned short psm, int options);

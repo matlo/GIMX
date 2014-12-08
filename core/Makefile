@@ -21,6 +21,8 @@ endif
 CPPFLAGS+=-Iinclude -I../shared/event/include -I../shared/controller/include
 ifneq ($(OS),Windows_NT)
 CPPFLAGS += -I/usr/include/libxml2
+else
+CPPFLAGS += -Iconnectors/windows/bluetooth/include -Iconnectors/windows/bluetooth/src
 endif
 DEPS=../shared/event/GE.a ../shared/controller/controller.a
 
@@ -34,6 +36,9 @@ else
 OBJECTS += $(patsubst %.c,%.o,$(wildcard system/windows/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/*/*.c))
+OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/bluetooth/src/hci_cmds.c))
+OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/bluetooth/src/utils.c))
+OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/bluetooth/src/sdp_util.c))
 OBJECTS:=$(filter-out connectors/sixaxis.o,$(OBJECTS))
 OBJECTS:=$(filter-out connectors/btds4.o,$(OBJECTS))
 endif

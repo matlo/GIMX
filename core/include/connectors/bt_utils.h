@@ -7,22 +7,9 @@
 #define BT_UTILS_H_
 
 #include <stdint.h>
+#include <btstack/hci_cmds.h>
 
 #ifdef WIN32
-#define OPCODE(ogf, ocf) (ocf | ogf << 10)
-
-#define OGF_INFORMATIONAL_PARAMETERS 0x04
-
-typedef struct {
-  uint16_t    opcode;
-  const char *format;
-} hci_cmd_t;
-
-const hci_cmd_t hci_read_bd_addr = {
-  .opcode = OPCODE(OGF_INFORMATIONAL_PARAMETERS, 0x09),
-  .format = ""
-};
-
 /* BD Address */
 typedef struct {
   uint8_t b[6];
@@ -33,7 +20,7 @@ int ba2str(const bdaddr_t *ba, char *str);
 int str2ba(const char *str, bdaddr_t *ba);
 
 int bt_connect();
-int bt_send_cmd(int fd, const hci_cmd_t *cmd, ...);
+int bt_send_cmd(const hci_cmd_t *cmd, ...);
 #endif
 
 int bt_get_device_bdaddr(int device_number, char bdaddr[18]);

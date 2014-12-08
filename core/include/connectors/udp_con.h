@@ -11,9 +11,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #else
-#include <winsock2.h>
-#define WIN32_LEAN_AND_MEAN
-typedef int socklen_t;
+#include <connectors/windows/sockets.h>
 #endif
 
 #define BYTE_LEN_0_BYTE 0x00

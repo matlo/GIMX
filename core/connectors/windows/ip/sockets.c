@@ -3,8 +3,8 @@
  License: GPLv3
  */
 
-#include <winsock2.h>
 #include <stdio.h>
+#include <connectors/windows/sockets.h>
 
 //this is used to make sure WSAStartup/WSACleanup are only called once,
 //and to make sure all the sockets are closed before calling WSACleanup

@@ -6,8 +6,6 @@
 #include <connectors/udp_con.h>
 #ifndef WIN32
 #include <arpa/inet.h>
-#else
-#include <connectors/windows/sockets.h>
 #endif
 #include <stdio.h>
 #include <unistd.h>

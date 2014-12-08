@@ -4,10 +4,10 @@
  */
  
 #include <stdio.h>
-#include "gimx.h"
-#include <connectors/serial.h>
-#include <connectors/usb_spoof.h>
 #include <adapter.h>
+#include <connectors/usb_spoof.h>
+#include <gimx.h>
+#include <connectors/serial.h>
 
 #define USB_REQ_TIMEOUT 1000
 
