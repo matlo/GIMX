@@ -7,9 +7,10 @@
 #define BT_UTILS_H_
 
 #include <stdint.h>
-#include <btstack/hci_cmds.h>
 
 #ifdef WIN32
+#include <btstack/hci_cmds.h>
+
 /* BD Address */
 typedef struct {
   uint8_t b[6];
