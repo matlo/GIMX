@@ -56,8 +56,10 @@ int adapter_get_controller(e_device_type device_type, int device_id);
 
 void adapter_set_axis(unsigned char c, int axis, int value);
 
-int adapter_forward_data_in(int id, unsigned char* data, unsigned char length);
-int adapter_forward_data_out(int id, unsigned char* data, unsigned char length);
+int adapter_forward_control_in(int id, unsigned char* data, unsigned char length);
+int adapter_forward_control_out(int id, unsigned char* data, unsigned char length);
+
+int adapter_forward_interrupt_out(int id, unsigned char endpoint, unsigned char* data, unsigned char length);
 
 int adapter_process_packet(int id, unsigned char* packet);
 
