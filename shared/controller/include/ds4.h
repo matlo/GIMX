@@ -9,6 +9,7 @@
 #include <control.h>
 
 #define DS4_USB_INTERRUPT_ENDPOINT_IN 4
+#define DS4_USB_INTERRUPT_ENDPOINT_OUT 3
 #define DS4_USB_INTERRUPT_PACKET_SIZE 64
 #ifndef WIN32
 #define DS4_DEVICE_NAME "Sony Computer Entertainment Wireless Controller"
@@ -19,15 +20,10 @@
 #define DS4_VENDOR 0x054c
 #define DS4_PRODUCT 0x05c4
 
-#define DS4_UP_MASK         0x01
-#define DS4_RIGHT_MASK      0x02
-#define DS4_DOWN_MASK       0x04
-#define DS4_LEFT_MASK       0x08
-
-#define DS4_SQUARE_MASK     0x0010
-#define DS4_CROSS_MASK      0x0020
-#define DS4_CIRCLE_MASK     0x0040
-#define DS4_TRIANGLE_MASK   0x0080
+#define DS4_SQUARE_MASK     0x10
+#define DS4_CROSS_MASK      0x20
+#define DS4_CIRCLE_MASK     0x40
+#define DS4_TRIANGLE_MASK   0x80
 
 #define DS4_L1_MASK         0x0001
 #define DS4_R1_MASK         0x0002
