@@ -15,6 +15,8 @@ typedef enum
   C_TYPE_XBOX_PAD,
   C_TYPE_DS4,
   C_TYPE_XONE_PAD,
+  C_TYPE_T300RS_PS4,
+  // <- add new types here
   C_TYPE_GPP,
   C_TYPE_DEFAULT,
   C_TYPE_MAX

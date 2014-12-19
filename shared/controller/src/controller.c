@@ -18,6 +18,7 @@ static const char* controller_names[C_TYPE_MAX] =
   [C_TYPE_XBOX_PAD] = "XboxPad",
   [C_TYPE_DS4]      = "DS4",
   [C_TYPE_XONE_PAD] = "XOnePad",
+  [C_TYPE_T300RS_PS4] = "T300RS PS4",
   [C_TYPE_GPP]      = "GPP",
   [C_TYPE_DEFAULT]  = "none",
 };

@@ -13,6 +13,7 @@
 #include <xbox.h>
 #include <x360.h>
 #include <xone.h>
+#include <t300rs_ps4.h>
 
 typedef union
 {
@@ -23,6 +24,7 @@ typedef union
   s_report_xbox xbox;
   s_report_x360 x360;
   s_report_xone xone;
+  s_report_t300rsPs4 t300rsPs4;
 } s_report_union;
 
 typedef struct __attribute__ ((packed))
