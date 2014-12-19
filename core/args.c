@@ -301,6 +301,10 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         {
           adapter_get(controller)->type = C_TYPE_DS4;
         }
+        else if (!strcmp(optarg, "T300RS_PS4"))
+        {
+          adapter_get(controller)->type = C_TYPE_T300RS_PS4;
+        }
         else
         {
           fprintf(stderr, "Bad controller type: %s\n", optarg);
