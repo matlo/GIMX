@@ -56,8 +56,8 @@
 		<Unit filename="include/event_catcher.h" />
 		<Unit filename="configApp.cpp" />
 		<Unit filename="configApp.h" />
-		<Unit filename="configMain.cpp" />
-		<Unit filename="configMain.h" />
+		<Unit filename="gimx-config.cpp" />
+		<Unit filename="gimx-config.h" />
 		<Unit filename="src/ControlMapper.cpp" />
 		<Unit filename="src/Configuration.cpp" />
 		<Unit filename="src/ConfigurationFile.cpp" />
@@ -79,7 +79,7 @@
 			<wxsmith version="1">
 				<gui name="wxWidgets" src="configApp.cpp" main="configFrame" init_handlers="necessary" language="CPP" />
 				<resources>
-					<wxFrame wxs="wxsmith/configframe.wxs" src="configMain.cpp" hdr="configMain.h" name="configFrame" language="CPP" />
+					<wxFrame wxs="wxsmith/configframe.wxs" src="gimx-config.cpp" hdr="gimx-config.h" name="configFrame" language="CPP" />
 				</resources>
 			</wxsmith>
 			<debugger />

@@ -1544,6 +1544,11 @@
 					<handler function="OnMenuTypeItemSelected" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
+				<object class="wxMenuItem" name="ID_MENUITEMT300RSPS4" variable="MenuItemT300rsPs4" member="yes">
+					<label>T300RS PS4</label>
+					<handler function="OnMenuTypeItemSelected" entry="EVT_MENU" />
+					<radio>1</radio>
+				</object>
 			</object>
 			<object class="wxMenu" variable="MenuConfiguration" member="yes">
 				<label>Profile</label>

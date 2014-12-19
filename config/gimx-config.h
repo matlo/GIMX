@@ -259,6 +259,7 @@ class configFrame: public wxFrame
         static const long ID_MENUITEM360;
         static const long ID_MENUITEMXBOX;
         static const long ID_MENUITEMJS;
+        static const long ID_MENUITEMT300RSPS4;
         static const long ID_MENUITEM8;
         static const long ID_MENUITEM9;
         static const long ID_MENUITEM10;
@@ -291,6 +292,7 @@ class configFrame: public wxFrame
         wxButton* MouseOptionsRemove;
         wxChoice* MouseOptionsInitMode;
         wxSpinCtrl* ProfileTriggerDelay;
+        wxMenuItem* MenuItemT300rsPs4;
         wxStaticText* IntensityDeviceType;
         wxStaticText* StaticTextLabel;
         wxPanel* PanelMouseOptions;
@@ -315,10 +317,10 @@ class configFrame: public wxFrame
         wxChoice* AxisTabEventType;
         wxStaticText* StaticText17;
         wxMenu* MenuController;
-        wxMenuItem* MenuItemWindowEvents;
         wxStaticText* StaticTextEmptyPanelAxis;
         wxMenu* MenuFile;
         wxStaticText* AxisTabDeviceId;
+        wxMenuItem* MenuItemWindowEvents;
         wxStaticLine* StaticLine7;
         wxMenu* MenuType;
         wxStaticText* MouseOptionsButton;
