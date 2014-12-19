@@ -286,82 +286,92 @@ void ds4_wrapper(int adapter_id, s_report_ds4* current, s_report_ds4* previous, 
   if(axisValue != prevAxisValue)
   {
     event.jaxis.axis = DS4_AXIS_L2_ID;
-    axisValue = (axisValue - 0x80) * 32765 / 127;
-    event.jaxis.value = clamp(-32768, axisValue, 32767);
+    axisValue = axisValue * 32765 / 127;
+    event.jaxis.value = clamp(0, axisValue, 32767);
     event_callback(&event);
   }
   axisValue = current->Ry;
   prevAxisValue = previous->Ry;
-  if(axisValue || prevAxisValue)
+  if(axisValue != prevAxisValue)
   {
     event.jaxis.axis = DS4_AXIS_R2_ID;
-    axisValue = (axisValue - 0x80) * 32765 / 127;
-    event.jaxis.value = clamp(-32768, axisValue, 32767);
+    axisValue = axisValue * 32765 / 127;
+    event.jaxis.value = clamp(0, axisValue, 32767);
     event_callback(&event);
   }
 
-  int send_command = 0;
-
-  /*
-   * Touchpad
-   *
-   * The touchpad does not generate joystick events.
-   * => wrap the touchpad directly to the emulated touchpad.
-   */
-
-  s_trackpad_finger* finger;
-  s_trackpad_finger* prevFinger;
-  int* presence;
-  int* axis_x;
-  int* axis_y;
-
   s_adapter* adapter = adapter_get(adapter_id);
 
-  finger = &current->packet1.finger1;
-  prevFinger = &adapter->report.value.ds4.packet1.finger1;
-  presence = &adapter->axis[ds4a_finger1];
-  axis_x = &adapter->axis[ds4a_finger1_x];
-  axis_y = &adapter->axis[ds4a_finger1_y];
-  update_finger(finger, prevFinger, presence, axis_x, axis_y);
-
-  if(*presence == 1)
+  if(adapter->type == C_TYPE_DS4)
   {
-    send_command = 1;
-  }
+    /*
+     * Touchpad
+     *
+     * The touchpad does not generate joystick events.
+     * => wrap the touchpad directly to the emulated touchpad.
+     */
 
-  finger = &current->packet1.finger2;
-  prevFinger = &adapter->report.value.ds4.packet1.finger2;
-  presence = &adapter->axis[ds4a_finger2];
-  axis_x = &adapter->axis[ds4a_finger2_x];
-  axis_y = &adapter->axis[ds4a_finger2_y];
-  update_finger(finger, prevFinger, presence, axis_x, axis_y);
+    int send_command = 0;
 
-  if(*presence == 1)
-  {
-    send_command = 1;
-  }
+    s_trackpad_finger* finger;
+    s_trackpad_finger* prevFinger;
+    int* presence;
+    int* axis_x;
+    int* axis_y;
 
-  /*
-   * Motion sensing
-   */
+    finger = &current->packet1.finger1;
+    prevFinger = &adapter->report.value.ds4.packet1.finger1;
+    presence = &adapter->axis[ds4a_finger1];
+    axis_x = &adapter->axis[ds4a_finger1_x];
+    axis_y = &adapter->axis[ds4a_finger1_y];
+    update_finger(finger, prevFinger, presence, axis_x, axis_y);
 
-  /*
-   * TODO MLA: make motion sensing updates send a command
-   * without interfering with the inactivity timeout...
-   */
-  adapter->report.value.ds4._time = current->_time;
-  adapter->report.value.ds4.motion_acc = current->motion_acc;
-  adapter->report.value.ds4.motion_gyro = current->motion_gyro;
+    if(*presence == 1)
+    {
+      send_command = 1;
+    }
 
-  // battery level
-  adapter->report.value.ds4.battery_level = current->battery_level;
-  //we don't forward mic and phone state
-  //as we don't support mic and phone
-  adapter->report.value.ds4.ext = current->ext & 0x1F;
+    finger = &current->packet1.finger2;
+    prevFinger = &adapter->report.value.ds4.packet1.finger2;
+    presence = &adapter->axis[ds4a_finger2];
+    axis_x = &adapter->axis[ds4a_finger2_x];
+    axis_y = &adapter->axis[ds4a_finger2_y];
+    update_finger(finger, prevFinger, presence, axis_x, axis_y);
 
-  // remember to send a report if the touchpad status changed
-  if(send_command)
-  {
-    adapter->send_command = 1;
+    if(*presence == 1)
+    {
+      send_command = 1;
+    }
+
+    /*
+     * Motion sensing
+     */
+
+    /*
+     * TODO MLA: make motion sensing updates send a command
+     * without interfering with the inactivity timeout...
+     */
+    adapter->report.value.ds4._time = current->_time;
+    adapter->report.value.ds4.motion_acc = current->motion_acc;
+    adapter->report.value.ds4.motion_gyro = current->motion_gyro;
+
+    // battery level
+  /*  static unsigned char cpt = 0;
+    if(cpt == 255)
+    {
+      printf("0x%02x ", adapter->report.value.ds4.battery_level);
+      printf("0x%02x\n", adapter->report.value.ds4.ext);
+    }
+    cpt++;*/
+    adapter->report.value.ds4.battery_level = current->battery_level;
+    //we don't forward mic and phone state
+    //as we don't support mic and phone
+    adapter->report.value.ds4.ext = current->ext & 0x1F;
+
+    // remember to send a report if the touchpad status changed
+    if(send_command)
+    {
+      adapter->send_command = 1;
+    }
   }
 }
