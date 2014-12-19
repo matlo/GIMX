@@ -105,10 +105,10 @@ static unsigned int ds2_report_build(int axis[AXIS_MAX], s_report* report)
   ds2->Bt1 = 0xFF;
   ds2->Bt2 = 0xFF;
 
-  ds2->X = clamp(0, axis[ds2a_lstick_x] + 128, 255);
-  ds2->Y = clamp(0, axis[ds2a_lstick_y] + 128, 255);
-  ds2->Z = clamp(0, axis[ds2a_rstick_x] + 128, 255);
-  ds2->Rz = clamp(0, axis[ds2a_rstick_y] + 128, 255);
+  ds2->X = clamp(0, axis[ds2a_lstick_x] + CENTER_AXIS_VALUE_8BITS, MAX_AXIS_VALUE_8BITS);
+  ds2->Y = clamp(0, axis[ds2a_lstick_y] + CENTER_AXIS_VALUE_8BITS, MAX_AXIS_VALUE_8BITS);
+  ds2->Z = clamp(0, axis[ds2a_rstick_x] + CENTER_AXIS_VALUE_8BITS, MAX_AXIS_VALUE_8BITS);
+  ds2->Rz = clamp(0, axis[ds2a_rstick_y] + CENTER_AXIS_VALUE_8BITS, MAX_AXIS_VALUE_8BITS);
 
   if (axis[ds2a_square])
   {

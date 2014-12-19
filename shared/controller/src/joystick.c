@@ -102,10 +102,10 @@ static unsigned int joystick_report_build(int axis[AXIS_MAX], s_report* report)
 {
   s_report_joystick* js = &report->value.js;
 
-  js->X = clamp(0, axis[jsa_lstick_x] + 32768, 65535);
-  js->Y = clamp(0, axis[jsa_lstick_y] + 32768, 65535);
-  js->Z = clamp(0, axis[jsa_rstick_x] + 32768, 65535);
-  js->Rz = clamp(0, axis[jsa_rstick_y] + 32768, 65535);
+  js->X = clamp(0, axis[jsa_lstick_x] + CENTER_AXIS_VALUE_16BITS, MAX_AXIS_VALUE_16BITS);
+  js->Y = clamp(0, axis[jsa_lstick_y] + CENTER_AXIS_VALUE_16BITS, MAX_AXIS_VALUE_16BITS);
+  js->Z = clamp(0, axis[jsa_rstick_x] + CENTER_AXIS_VALUE_16BITS, MAX_AXIS_VALUE_16BITS);
+  js->Rz = clamp(0, axis[jsa_rstick_y] + CENTER_AXIS_VALUE_16BITS, MAX_AXIS_VALUE_16BITS);
 
   js->Bt = 0x0000;
 

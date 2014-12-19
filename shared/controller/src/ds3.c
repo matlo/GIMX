@@ -133,10 +133,10 @@ static unsigned int ds3_report_build(int axis[AXIS_MAX], s_report* report)
 
   ds3->report_id = 0x01;
 
-  ds3->X = clamp(0, axis[sa_lstick_x] + 128, 255);
-  ds3->Y = clamp(0, axis[sa_lstick_y] + 128, 255);
-  ds3->Z = clamp(0, axis[sa_rstick_x] + 128, 255);
-  ds3->Rz = clamp(0, axis[sa_rstick_y] + 128, 255);
+  ds3->X = clamp(0, axis[sa_lstick_x] + CENTER_AXIS_VALUE_8BITS, MAX_AXIS_VALUE_8BITS);
+  ds3->Y = clamp(0, axis[sa_lstick_y] + CENTER_AXIS_VALUE_8BITS, MAX_AXIS_VALUE_8BITS);
+  ds3->Z = clamp(0, axis[sa_rstick_x] + CENTER_AXIS_VALUE_8BITS, MAX_AXIS_VALUE_8BITS);
+  ds3->Rz = clamp(0, axis[sa_rstick_y] + CENTER_AXIS_VALUE_8BITS, MAX_AXIS_VALUE_8BITS);
 
   if(axis[sa_select])
   {

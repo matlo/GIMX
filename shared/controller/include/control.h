@@ -12,6 +12,9 @@
 #define MAX_AXIS_VALUE_10BITS 1023
 #define MAX_AXIS_VALUE_16BITS 65535
 
+#define CENTER_AXIS_VALUE_8BITS (MAX_AXIS_VALUE_8BITS/2+1)
+#define CENTER_AXIS_VALUE_16BITS (MAX_AXIS_VALUE_16BITS/2+1)
+
 #define AXIS_NAME_FORMAT "xxx_axis_yy"
 
 inline int clamp(int min, int val, int max);

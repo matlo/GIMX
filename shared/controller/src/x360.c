@@ -176,8 +176,8 @@ static unsigned int x360_report_build(int axis[AXIS_MAX], s_report* report)
     x360->buttons |= 0x8000;
   }
 
-  x360->ltrigger = clamp(0, axis[x360a_LT], 255);
-  x360->rtrigger = clamp(0, axis[x360a_RT], 255);
+  x360->ltrigger = clamp(0, axis[x360a_LT], MAX_AXIS_VALUE_8BITS);
+  x360->rtrigger = clamp(0, axis[x360a_RT], MAX_AXIS_VALUE_8BITS);
 
   axis_value = axis[x360a_lstick_x];
   x360->xaxis = clamp(-128, axis_value, 127) << 8;

@@ -143,14 +143,14 @@ static unsigned int xbox_report_build(int axis[AXIS_MAX], s_report* report)
     xbox->buttons |= 0x80;
   }
 
-  xbox->ltrigger = clamp(0, axis[xboxa_LT], 255);
-  xbox->rtrigger = clamp(0, axis[xboxa_RT], 255);
-  xbox->btnA = clamp(0, axis[xboxa_A], 255);
-  xbox->btnB = clamp(0, axis[xboxa_B], 255);
-  xbox->btnX = clamp(0, axis[xboxa_X], 255);
-  xbox->btnY = clamp(0, axis[xboxa_Y], 255);
-  xbox->btnWhite = clamp(0, axis[xboxa_white], 255);
-  xbox->btnBlack = clamp(0, axis[xboxa_black], 255);
+  xbox->ltrigger = clamp(0, axis[xboxa_LT], MAX_AXIS_VALUE_8BITS);
+  xbox->rtrigger = clamp(0, axis[xboxa_RT], MAX_AXIS_VALUE_8BITS);
+  xbox->btnA = clamp(0, axis[xboxa_A], MAX_AXIS_VALUE_8BITS);
+  xbox->btnB = clamp(0, axis[xboxa_B], MAX_AXIS_VALUE_8BITS);
+  xbox->btnX = clamp(0, axis[xboxa_X], MAX_AXIS_VALUE_8BITS);
+  xbox->btnY = clamp(0, axis[xboxa_Y], MAX_AXIS_VALUE_8BITS);
+  xbox->btnWhite = clamp(0, axis[xboxa_white], MAX_AXIS_VALUE_8BITS);
+  xbox->btnBlack = clamp(0, axis[xboxa_black], MAX_AXIS_VALUE_8BITS);
 
   axis_value = axis[xboxa_lstick_x];
   xbox->xaxis = clamp(-128, axis_value, 127) << 8;

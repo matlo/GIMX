@@ -279,10 +279,10 @@ static unsigned int ds4_report_build(int axis[AXIS_MAX], s_report* report)
   unsigned char counter;
   unsigned short buttons = 0x0000;
 
-  ds4->X = clamp(0, axis[ds4a_lstick_x] + 128, MAX_AXIS_VALUE_8BITS);
-  ds4->Y = clamp(0, axis[ds4a_lstick_y] + 128, MAX_AXIS_VALUE_8BITS);
-  ds4->Z = clamp(0, axis[ds4a_rstick_x] + 128, MAX_AXIS_VALUE_8BITS);
-  ds4->Rz = clamp(0, axis[ds4a_rstick_y] + 128, MAX_AXIS_VALUE_8BITS);
+  ds4->X = clamp(0, axis[ds4a_lstick_x] + CENTER_AXIS_VALUE_8BITS, MAX_AXIS_VALUE_8BITS);
+  ds4->Y = clamp(0, axis[ds4a_lstick_y] + CENTER_AXIS_VALUE_8BITS, MAX_AXIS_VALUE_8BITS);
+  ds4->Z = clamp(0, axis[ds4a_rstick_x] + CENTER_AXIS_VALUE_8BITS, MAX_AXIS_VALUE_8BITS);
+  ds4->Rz = clamp(0, axis[ds4a_rstick_y] + CENTER_AXIS_VALUE_8BITS, MAX_AXIS_VALUE_8BITS);
 
   if (axis[ds4a_right])
   {
@@ -329,60 +329,60 @@ static unsigned int ds4_report_build(int axis[AXIS_MAX], s_report* report)
 
   if (axis[ds4a_square])
   {
-    ds4->HatAndButtons |= 0x10;
+    ds4->HatAndButtons |= DS4_SQUARE_MASK;
   }
   if (axis[ds4a_cross])
   {
-    ds4->HatAndButtons |= 0x20;
+    ds4->HatAndButtons |= DS4_CROSS_MASK;
   }
   if (axis[ds4a_circle])
   {
-    ds4->HatAndButtons |= 0x40;
+    ds4->HatAndButtons |= DS4_CIRCLE_MASK;
   }
   if (axis[ds4a_triangle])
   {
-    ds4->HatAndButtons |= 0x80;
+    ds4->HatAndButtons |= DS4_TRIANGLE_MASK;
   }
 
   if (axis[ds4a_l1])
   {
-    buttons |= 0x0001;
+    buttons |= DS4_L1_MASK;
   }
   if (axis[ds4a_r1])
   {
-    buttons |= 0x0002;
+    buttons |= DS4_R1_MASK;
   }
   if (axis[ds4a_l2])
   {
-    buttons |= 0x0004;
+    buttons |= DS4_L2_MASK;
   }
   if (axis[ds4a_r2])
   {
-    buttons |= 0x0008;
+    buttons |= DS4_R2_MASK;
   }
   if (axis[ds4a_share])
   {
-    buttons |= 0x0010;
+    buttons |= DS4_SHARE_MASK;
   }
   if (axis[ds4a_options])
   {
-    buttons |= 0x0020;
+    buttons |= DS4_OPTIONS_MASK;
   }
   if (axis[ds4a_l3])
   {
-    buttons |= 0x0040;
+    buttons |= DS4_L3_MASK;
   }
   if (axis[ds4a_r3])
   {
-    buttons |= 0x0080;
+    buttons |= DS4_R3_MASK;
   }
   if (axis[ds4a_ps])
   {
-    buttons |= 0x0100;
+    buttons |= DS4_PS_MASK;
   }
   if (axis[ds4a_touchpad])
   {
-    buttons |= 0x0200;
+    buttons |= DS4_TOUCHPAD_MASK;
   }
 
   counter = (ds4->ButtonsAndCounter >> 8) & 0xFC;
@@ -390,8 +390,8 @@ static unsigned int ds4_report_build(int axis[AXIS_MAX], s_report* report)
 
   ds4->ButtonsAndCounter = (counter << 8) | buttons;
 
-  ds4->Rx = clamp(0, axis[ds4a_l2], 255);
-  ds4->Ry = clamp(0, axis[ds4a_r2], 255);
+  ds4->Rx = clamp(0, axis[ds4a_l2], MAX_AXIS_VALUE_8BITS);
+  ds4->Ry = clamp(0, axis[ds4a_r2], MAX_AXIS_VALUE_8BITS);
 
   ds4->packets = 1;
 

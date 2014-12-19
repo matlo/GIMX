@@ -180,8 +180,8 @@ static unsigned int xone_report_build(int axis[AXIS_MAX], s_report* report)
     xone->buttons |= 0x8000;
   }
 
-  xone->ltrigger = clamp(0, axis[xonea_LT], 255);
-  xone->rtrigger = clamp(0, axis[xonea_RT], 255);
+  xone->ltrigger = clamp(0, axis[xonea_LT], MAX_AXIS_VALUE_8BITS);
+  xone->rtrigger = clamp(0, axis[xonea_RT], MAX_AXIS_VALUE_8BITS);
 
   axis_value = axis[xonea_lstick_x];
   xone->xaxis = clamp(-128, axis_value, 127) << 8;
