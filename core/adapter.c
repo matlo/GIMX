@@ -219,7 +219,7 @@ int adapter_get_controller(e_device_type device_type, int device_id)
   return device_adapter[device_type-1][device_id];
 }
 
-int adapter_forward_data_in(int id, unsigned char* data, unsigned char length)
+int adapter_forward_control_in(int id, unsigned char* data, unsigned char length)
 {
   if(adapter[id].portname >= 0)
   {
@@ -240,9 +240,14 @@ int adapter_forward_data_in(int id, unsigned char* data, unsigned char length)
   }
 }
 
-int adapter_forward_data_out(int id, unsigned char* data, unsigned char length)
+int adapter_forward_control_out(int id, unsigned char* data, unsigned char length)
 {
-  return usb_send(id, data, length);
+  return usb_send_control(id, data, length);
+}
+
+int adapter_forward_interrupt_out(int id, unsigned char endpoint, unsigned char* data, unsigned char length)
+{
+  return usb_send_interrupt_out(id, endpoint, data, length);
 }
 
 static void dump(unsigned char* packet, unsigned char length)
@@ -256,32 +261,79 @@ static void dump(unsigned char* packet, unsigned char length)
     }
     printf("0x%02x ", packet[i]);
   }
-  if(i%8)
-  {
-    printf("\n");
-  }
+  printf("\n");
 }
 
 int adapter_process_packet(int id, unsigned char* packet)
 {
   unsigned char type = packet[0];
   unsigned char length = packet[1];
+  unsigned char* data = packet+HEADER_SIZE;
 
   int ret = 0;
 
   if(type == BYTE_SPOOF_DATA)
   {
-    ret = adapter_forward_data_out(id, packet+HEADER_SIZE, length);
+    ret = adapter_forward_control_out(id, data, length);
 
     if(ret < 0)
     {
       fprintf(stderr, "adapter_forward_data_out failed\n");
     }
   }
+  else if(type == BYTE_OUT_REPORT)
+  {
+    int joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, id);
+
+    switch(adapter[id].type)
+    {
+      case C_TYPE_DS4:
+        //TODO
+        ret = adapter_forward_interrupt_out(id, DS4_USB_INTERRUPT_ENDPOINT_OUT, data, length);
+        if(ret < 0)
+        {
+          fprintf(stderr, "adapter_forward_interrupt_out failed\n");
+        }
+        break;
+      case C_TYPE_SIXAXIS:
+        if(GE_JoystickHasRumble(joystick))
+        {
+          //TODO
+          //GE_JoystickSetRumble(joystick, buf[1], buf[2] << 8, buf[3], buf[4] << 8);
+        }
+        break;
+      default:
+        break;
+    }
+  }
   else if(type == BYTE_DEBUG)
   {
-    printf("debug packet received (size = %d bytes)\n", length);
-    dump(packet+HEADER_SIZE, length);
+    /*struct timeval tv;
+    gettimeofday(&tv, NULL);
+    printf("%ld.%06ld debug packet received (size = %d bytes)\n", tv.tv_sec, tv.tv_usec, length);
+    dump(packet+2, length);*/
+    if(data[0] != 0x00)
+    {
+      int i;
+      int zeros = 0;
+      for(i=length-1; i>=0; --i)
+      {
+        if(data[i] != 0x00)
+        {
+          zeros = length-1-i;
+          break;
+        }
+      }
+      for(i=0; i<length-zeros; ++i)
+      {
+        printf("%02x ", data[i]);
+      }
+      printf("\n");
+      /*if(zeros)
+      {
+        printf("00 (%d times)\n", zeros);
+      }*/
+    }
   }
   else
   {

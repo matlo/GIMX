@@ -62,7 +62,7 @@ void usb_callback(struct libusb_transfer* transfer)
         else
         {
           unsigned char *data = libusb_control_transfer_get_data(transfer);
-          if(adapter_forward_data_in(usb_number, data, transfer->actual_length) < 0)
+          if(adapter_forward_control_in(usb_number, data, transfer->actual_length) < 0)
           {
             fprintf(stderr, "can't forward data to the adapter\n");
           }
@@ -76,28 +76,34 @@ void usb_callback(struct libusb_transfer* transfer)
   }
   else if(transfer->type == LIBUSB_TRANSFER_TYPE_INTERRUPT)
   {
-    state->ack = 1;
+    if(transfer->endpoint == (DS4_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN))
+    {
+      state->ack = 1;
+    }
 
     if(transfer->status == LIBUSB_TRANSFER_COMPLETED)
     {
-      // process joystick events
-      if(transfer->actual_length == DS4_USB_INTERRUPT_PACKET_SIZE)
+      if(transfer->endpoint == (DS4_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN))
       {
-        s_report_ds4* current = (s_report_ds4*) transfer->buffer;
-        s_report_ds4* previous = &state->report.value.ds4;
+        // process joystick events
+        if(transfer->actual_length == DS4_USB_INTERRUPT_PACKET_SIZE)
+        {
+          s_report_ds4* current = (s_report_ds4*) transfer->buffer;
+          s_report_ds4* previous = &state->report.value.ds4;
 
-        ds4_wrapper(usb_number, current, previous, state->joystick_id);
+          ds4_wrapper(usb_number, current, previous, state->joystick_id);
 
-        memcpy(&state->report.value.ds4, current, DS4_USB_INTERRUPT_PACKET_SIZE);
-      }
-      else
-      {
-        fprintf(stderr, "incorrect packet size on interrupt endpoint\n");
+          memcpy(&state->report.value.ds4, current, DS4_USB_INTERRUPT_PACKET_SIZE);
+        }
+        else
+        {
+          fprintf(stderr, "incorrect packet size on interrupt endpoint\n");
+        }
       }
     }
     else
     {
-      fprintf(stderr, "libusb_transfer failed with status %d\n", transfer->status);
+      fprintf(stderr, "libusb_transfer failed with status %d (endpoint=%d)\n", transfer->status, transfer->endpoint);
     }
   }
 }
@@ -290,7 +296,7 @@ int usb_close(int usb_number)
   return 1;
 }
 
-int usb_send(int usb_number, unsigned char* buffer, unsigned char length)
+int usb_send_control(int usb_number, unsigned char* buffer, unsigned char length)
 {
   struct usb_state* state = usb_states+usb_number;
 
@@ -328,6 +334,43 @@ int usb_send(int usb_number, unsigned char* buffer, unsigned char length)
   transfer->flags = LIBUSB_TRANSFER_FREE_BUFFER | LIBUSB_TRANSFER_FREE_TRANSFER;
 
   libusb_fill_control_transfer(transfer, state->devh, buf, (libusb_transfer_cb_fn)usb_callback, usb_state_indexes+usb_number, 1000);
+
+  int ret = libusb_submit_transfer(transfer);
+  if(ret < 0)
+  {
+    fprintf(stderr, "libusb_submit_transfer: %s.\n", libusb_strerror(ret));
+    free(transfer->buffer);
+    libusb_free_transfer(transfer);
+    return -1;
+  }
+
+  return 0;
+}
+
+int usb_send_interrupt_out(int usb_number, unsigned char endpoint, unsigned char* buffer, unsigned char length)
+{
+  struct usb_state* state = usb_states+usb_number;
+
+  if(!state->devh)
+  {
+    fprintf(stderr, "no usb device opened for index %d\n", usb_number);
+    return -1;
+  }
+
+  unsigned char* buf = calloc(length, sizeof(unsigned char));
+  if(!buf)
+  {
+    fprintf(stderr, "calloc failed\n");
+    return -1;
+  }
+
+  memcpy(buf, buffer, length);
+
+  struct libusb_transfer* transfer = libusb_alloc_transfer(0);
+
+  transfer->flags = LIBUSB_TRANSFER_FREE_BUFFER | LIBUSB_TRANSFER_FREE_TRANSFER;
+
+  libusb_fill_interrupt_transfer(transfer, state->devh, endpoint, buf, length, (libusb_transfer_cb_fn)usb_callback, usb_state_indexes+usb_number, 1000);
 
   int ret = libusb_submit_transfer(transfer);
   if(ret < 0)
