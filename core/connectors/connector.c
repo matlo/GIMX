@@ -81,7 +81,7 @@ int connector_init()
              * TODO XONE
              */
           }
-          else if(adapter->type == C_TYPE_DS4)
+          else if(adapter->type == C_TYPE_DS4 || adapter->type == C_TYPE_T300RS_PS4)
           {
             int status = adapter_get_status(i);
 
@@ -109,7 +109,14 @@ int connector_init()
 
               if(ret != -1)
               {
-                ds4_init_report(&adapter->report.value.ds4);
+                if(adapter->type == C_TYPE_DS4)
+                {
+                  ds4_init_report(&adapter->report.value.ds4);
+                }
+                else if(adapter->type == C_TYPE_T300RS_PS4)
+                {
+                  t300rsPs4_init_report(&adapter->report.value.t300rsPs4);
+                }
 
                 if(usb_init(i, DS4_VENDOR, DS4_PRODUCT) < 0)
                 {
@@ -205,7 +212,7 @@ int connector_init()
         }
       }
 #endif
-      
+
     }
     if(adapter->src_ip)
     {
@@ -253,7 +260,7 @@ void connector_clean()
 #endif
     else if(adapter->portname)
     {
-      if(adapter->type == C_TYPE_DS4)
+      if(adapter->type == C_TYPE_DS4 || adapter->type == C_TYPE_T300RS_PS4)
       {
         usb_close(i);
         adapter_send_reset(i);
@@ -325,6 +332,13 @@ int connector_send()
             ret = btds4_send_interrupt(i, &report->value.ds4, adapter->send_command);
           }
 #endif
+          break;
+        case C_TYPE_T300RS_PS4:
+          if(adapter->portname)
+          {
+            report->value_len = DS4_USB_INTERRUPT_PACKET_SIZE;
+            ret = serial_send(i, report, HEADER_SIZE+report->value_len);
+          }
           break;
         case C_TYPE_GPP:
           ret = gpp_send(adapter->axis);
