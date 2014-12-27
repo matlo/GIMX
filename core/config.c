@@ -584,15 +584,26 @@ static int postpone_event(unsigned int device, GE_Event* event)
   return ret;
 }
 
-static double mouse2axis(int device, s_adapter* controller, int which, double x, double y, int axis, double exp, double multiplier, int dead_zone, e_shape shape, e_mouse_mode mode)
+static double mouse2axis(int device, s_adapter* controller, int which, double x, double y, s_axis_props* axis_props, double exp, double multiplier, int dead_zone, e_shape shape, e_mouse_mode mode)
 {
   double z = 0;
   double dz = dead_zone;
   double motion_residue = 0;
   double ztrunk = 0;
   double val = 0;
-  int max_axis = controller_get_max_signed(controller->type, axis);
+  int min_axis, max_axis;
   int new_state;
+  int axis = axis_props->axis;
+
+  max_axis = controller_get_max_signed(controller->type, axis);
+  if(axis_props->props == AXIS_PROP_CENTERED)
+  {
+    min_axis = -max_axis;
+  }
+  else
+  {
+    min_axis = 0;
+  }
 
   multiplier *= controller_get_axis_scale(controller->type, axis);
   dz *= controller_get_axis_scale(controller->type, axis);
@@ -666,7 +677,7 @@ static double mouse2axis(int device, s_adapter* controller, int which, double x,
       /*
        * max axis position => no residue
        */
-      if(controller->axis[axis] > -max_axis)
+      if(controller->axis[axis] > min_axis)
       {
         ztrunk = controller->axis[axis] + dz;
       }
@@ -684,7 +695,7 @@ static double mouse2axis(int device, s_adapter* controller, int which, double x,
     {
       new_state += (2*dz);
     }
-    controller->axis[axis] = clamp(-max_axis, new_state, max_axis);
+    controller->axis[axis] = clamp(min_axis, new_state, max_axis);
   }
 
   if(val != 0 && ztrunk != 0)
@@ -805,7 +816,7 @@ void cfg_process_event(GE_Event* event)
   double my;
   double residue;
   s_mouse_control* mc;
-  int max_axis;
+  int min_axis, max_axis;
   e_mouse_mode mode;
   s_adapter* controller;
 
@@ -907,13 +918,21 @@ void cfg_process_event(GE_Event* event)
           dead_zone = mapper->dead_zone * controller_get_axis_scale(controller->type, axis);
           if(axis >= 0)
           {
+            value = event->jaxis.value;
             max_axis = controller_get_max_signed(controller->type, axis);
             if(mapper->axis_props.props == AXIS_PROP_CENTERED)
             {
+              min_axis = -max_axis;
+            }
+            else
+            {
+              min_axis = 0;
+            }
+            if(multiplier)
+            {
               /*
-               * Axis to zero-centered axis.
+               * Axis to axis.
                */
-              value = event->jaxis.value;
               if(value)
               {
                 value = value/abs(value)*multiplier*pow(abs(value), exp);
@@ -926,26 +945,25 @@ void cfg_process_event(GE_Event* event)
               {
                 value -= dead_zone;
               }
-              controller->axis[axis] = clamp(-max_axis, value, max_axis);
+              controller->axis[axis] = clamp(min_axis, value, max_axis);
             }
             else
             {
               /*
-               * Axis to non-centered axis.
+               * Axis to button.
                */
-              value = event->jaxis.value;
-              if(value)
+              threshold = mapper->threshold * controller_get_axis_scale(controller->type, axis);
+              if(threshold > 0 && value > threshold)
               {
-                value = value/abs(value)*multiplier*pow(abs(value), exp);
+                controller->axis[axis] = max_axis;
               }
-              if(value > 0)
+              else if(threshold < 0 && value < threshold)
               {
-                value += dead_zone;
-                controller->axis[axis] = clamp(0, value, max_axis);
+                controller->axis[axis] = max_axis;
               }
               else
               {
-                controller->axis[axis] = 0;
+                controller->axis[axis] = min_axis;
               }
             }
           }
@@ -1004,10 +1022,10 @@ void cfg_process_event(GE_Event* event)
           if(axis >= 0)
           {
             multiplier = mapper->multiplier;
-            if(mapper->axis_props.props == AXIS_PROP_CENTERED || multiplier)
+            if(multiplier)
             {
               /*
-               * Axis to zero-centered axis.
+               * Axis to axis.
                */
               exp = mapper->exponent;
               dead_zone = mapper->dead_zone;
@@ -1024,7 +1042,7 @@ void cfg_process_event(GE_Event* event)
                 my = 0;
               }
               mode = cal_get_mouse(device, config)->mode;
-              residue = mouse2axis(device, controller, mapper->axis, mx, my, axis, exp, multiplier, dead_zone, shape, mode);
+              residue = mouse2axis(device, controller, mapper->axis, mx, my, &mapper->axis_props, exp, multiplier, dead_zone, shape, mode);
               if(mapper->axis == AXIS_X)
               {
                 mc->residue_x = residue;
@@ -1037,7 +1055,7 @@ void cfg_process_event(GE_Event* event)
             else
             {
               /*
-               * Axis to non-centered axis.
+               * Axis to button.
                */
               max_axis = controller_get_max_signed(controller->type, axis);
               threshold = mapper->threshold;
