@@ -409,6 +409,7 @@ int usb_close(int usb_number)
 
   if(state->devh)
   {
+    //TODO: cancel and free pending transfers
     libusb_release_interface(state->devh, 0);
 #if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)
 #ifndef WIN32
