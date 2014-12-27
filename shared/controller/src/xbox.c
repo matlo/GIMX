@@ -98,7 +98,7 @@ static s_controller_params xbox_params =
     .max_unsigned_axis_value = xbox_max_unsigned_axis_value
 };
 
-static unsigned int xbox_report_build(int axis[AXIS_MAX], s_report* report)
+static unsigned int xbox_report_build(int axis[AXIS_MAX], s_report_packet* report)
 {
   s_report_xbox* xbox = &report->value.xbox;
 

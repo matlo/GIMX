@@ -101,7 +101,7 @@ static s_controller_params xone_params =
     .max_unsigned_axis_value = xone_max_unsigned_axis_value
 };
 
-static unsigned int xone_report_build(int axis[AXIS_MAX], s_report* report)
+static unsigned int xone_report_build(int axis[AXIS_MAX], s_report_packet* report)
 {
   s_report_xone* xone = &report->value.xone;
 

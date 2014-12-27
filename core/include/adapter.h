@@ -38,7 +38,7 @@ typedef struct
   int change;
   int send_command;
   int ts_axis[AXIS_MAX][2]; //issue 15
-  s_report report;
+  s_report_packet report;
 } s_adapter;
 
 void adapter_init();

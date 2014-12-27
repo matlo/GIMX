@@ -119,7 +119,7 @@ void t300rsPs4_init_report(s_report_t300rsPs4* t300rsPs4)
  * Work in progress...
  * Do not assume the code in the following function is right!
  */
-static unsigned int t300rsPs4_report_build(int axis[AXIS_MAX], s_report* report)
+static unsigned int t300rsPs4_report_build(int axis[AXIS_MAX], s_report_packet* report)
 {
   s_report_t300rsPs4* t300rsPs4 = &report->value.t300rsPs4;
 

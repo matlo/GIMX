@@ -15,7 +15,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #endif
-#include <connectors/usb_spoof.h>
 
 static void usage()
 {

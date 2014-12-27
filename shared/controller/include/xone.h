@@ -8,6 +8,18 @@
 
 #include <control.h>
 
+#define XONE_VENDOR 0x045e
+#define XONE_PRODUCT 0x02d1
+
+//TODO XONE
+#define XONE_NAME "Controller"
+
+#define XONE_USB_INTERRUPT_ENDPOINT_IN 1
+#define XONE_USB_INTERRUPT_ENDPOINT_OUT 2
+#define XONE_USB_INTERRUPT_PACKET_SIZE 32
+
+#define XONE_USB_HID_IN_REPORT_ID 0x20
+
 typedef enum
 {
   xonea_lstick_x = rel_axis_lstick_x,

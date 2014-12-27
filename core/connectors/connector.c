@@ -11,7 +11,6 @@
 #include "connectors/udp_con.h"
 #include "connectors/gpp_con.h"
 #include "connectors/usb_con.h"
-#include "connectors/usb_spoof.h"
 #include <adapter.h>
 #include <report.h>
 #include "display.h"
@@ -67,75 +66,87 @@ int connector_init()
             ret = -1;
           }
 
-          if(adapter->type == C_TYPE_360_PAD)
+          if(ret != -1)
           {
-            if(usb_spoof_spoof_360_controller(i) < 0)
+            switch(adapter->type)
             {
-              fprintf(stderr, _("Spoof failed.\n"));
-              ret = -1;
-            }
-          }
-          else if(adapter->type == C_TYPE_XONE_PAD)
-          {
-            /*
-             * TODO XONE
-             */
-          }
-          else if(adapter->type == C_TYPE_DS4 || adapter->type == C_TYPE_T300RS_PS4)
-          {
-            int status = adapter_get_status(i);
+              case C_TYPE_360_PAD:
+              case C_TYPE_XONE_PAD:
+              case C_TYPE_DS4:
+              case C_TYPE_T300RS_PS4:
+                {
+                  int status = adapter_get_status(i);
 
-            if(status < 0)
-            {
-              fprintf(stderr, _("Can't get adapter status.\n"));
-              ret = -1;
-            }
-            else
-            {
-              if(status == BYTE_STATUS_STARTED)
-              {
-                if(adapter_send_reset(i) < 0)
-                {
-                  fprintf(stderr, _("Can't reset the adapter.\n"));
-                  ret = -1;
-                }
-                else
-                {
-                  printf(_("Reset sent to the adapter.\n"));
-                  //Leave time for the adapter to reinitialize.
-                  usleep(ADAPTER_RESET_TIME);
-                }
-              }
-
-              if(ret != -1)
-              {
-                if(adapter->type == C_TYPE_DS4)
-                {
-                  ds4_init_report(&adapter->report.value.ds4);
-                }
-                else if(adapter->type == C_TYPE_T300RS_PS4)
-                {
-                  t300rsPs4_init_report(&adapter->report.value.t300rsPs4);
-                }
-
-                if(usb_init(i, DS4_VENDOR, DS4_PRODUCT) < 0)
-                {
-                  fprintf(stderr, _("No Dualshock 4 controller was found on USB buses.\n"));
-                  ret = -1;
-                }
-                else
-                {
-                  if(adapter_send_start(i) < 0)
+                  if(status < 0)
                   {
-                    fprintf(stderr, _("Can't start the adapter.\n"));
+                    fprintf(stderr, _("Can't get adapter status.\n"));
                     ret = -1;
                   }
                   else
                   {
-                    serial_add_source(i);
+                    switch(adapter->type)
+                    {
+                      case C_TYPE_DS4:
+                      case C_TYPE_T300RS_PS4:
+                        if(status == BYTE_STATUS_STARTED)
+                        {
+                          if(adapter_send_reset(i) < 0)
+                          {
+                            fprintf(stderr, _("Can't reset the adapter.\n"));
+                            ret = -1;
+                          }
+                          else
+                          {
+                            printf(_("Reset sent to the adapter.\n"));
+                            //Leave time for the adapter to reinitialize.
+                            usleep(ADAPTER_RESET_TIME);
+                          }
+                        }
+                        break;
+                      default:
+                        break;
+                    }
+
+                    if(ret != -1)
+                    {
+                      if(adapter->type == C_TYPE_DS4)
+                      {
+                        ds4_init_report(&adapter->report.value.ds4);
+                      }
+                      else if(adapter->type == C_TYPE_T300RS_PS4)
+                      {
+                        t300rsPs4_init_report(&adapter->report.value.t300rsPs4);
+                      }
+
+                      int usb_res = usb_init(i, adapter->type);
+                      if(usb_res < 0)
+                      {
+                        if(adapter->type != C_TYPE_360_PAD
+                            || status != BYTE_STATUS_SPOOFED)
+                        {
+                          fprintf(stderr, _("No controller was found on USB buses.\n"));
+                          ret = -1;
+                        }
+                      }
+
+                      if(ret != -1)
+                      {
+                        if(adapter_send_start(i) < 0)
+                        {
+                          fprintf(stderr, _("Can't start the adapter.\n"));
+                          ret = -1;
+                        }
+                        else
+                        {
+                          serial_add_source(i);
+                        }
+                      }
+                    }
                   }
                 }
-              }
+                break;
+              default:
+                break;
             }
           }
         }
@@ -260,10 +271,19 @@ void connector_clean()
 #endif
     else if(adapter->portname)
     {
-      if(adapter->type == C_TYPE_DS4 || adapter->type == C_TYPE_T300RS_PS4)
+      switch(adapter->type)
       {
-        usb_close(i);
-        adapter_send_reset(i);
+        case C_TYPE_360_PAD:
+        case C_TYPE_XONE_PAD:
+          usb_close(i);
+          break;
+        case C_TYPE_DS4:
+        case C_TYPE_T300RS_PS4:
+          usb_close(i);
+          adapter_send_reset(i);
+          break;
+        default:
+          break;
       }
       serial_close(i);
     }
@@ -294,7 +314,7 @@ int connector_send()
       }
       else
       {
-        s_report* report = &adapter->report;
+        s_report_packet* report = &adapter->report;
         report->value_len = report_build(adapter->type, adapter->axis, report);
 
         switch(adapter->type)
@@ -322,7 +342,7 @@ int connector_send()
         case C_TYPE_DS4:
           if(adapter->portname)
           {
-            report->value.ds4.report_id = 0x01;
+            report->value.ds4.report_id = DS4_USB_HID_IN_REPORT_ID;
             report->value_len = DS4_USB_INTERRUPT_PACKET_SIZE;
             ret = serial_send(i, report, HEADER_SIZE+report->value_len);
           }

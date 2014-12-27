@@ -22,7 +22,7 @@
 #include <connectors/bt_utils.h>
 #include <connectors/l2cap_con.h>
 #include <GE.h>
-#include <ds4_wrapper.h>
+#include <report2event/report2event.h>
 
 
 #define DS4_DEVICE_CLASS 0x2508
@@ -341,7 +341,7 @@ static int read_ds4_interrupt(int btds4_number)
   s_report_ds4* current = &((s_btds4_report*)pbuf)->report;
   s_report_ds4* previous = &states[btds4_number].previous;
 
-  ds4_wrapper(btds4_number, current, previous, states[btds4_number].joystick_id);
+  report2event(C_TYPE_DS4, btds4_number, (s_report*)current, (s_report*)previous, states[btds4_number].joystick_id);
 
   *previous = *current;
 
@@ -868,7 +868,7 @@ int btds4_send_interrupt(int btds4_number, s_report_ds4* report, int active)
     ++state->inactivity_counter;
   }
 
-  memcpy(&state->bt_report.report, report, sizeof(s_report_ds4));
+  state->bt_report.report = *report;
 
 #ifndef WIN32
   MHASH td = mhash_init(MHASH_CRC32B);

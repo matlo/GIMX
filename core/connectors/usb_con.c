@@ -6,7 +6,7 @@
 #include <connectors/usb_con.h>
 #include <adapter.h>
 #include <mainloop.h>
-#include <ds4_wrapper.h>
+#include <report2event/report2event.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -26,21 +26,125 @@ static libusb_device** devs = NULL;
 static ssize_t cnt = 0;
 static int nb_opened = 0;
 
+static struct
+{
+  const char* name;
+  unsigned short vendor;
+  unsigned short product;
+  struct
+  {
+    struct
+    {
+      unsigned char address;
+      unsigned short size;
+      unsigned char report_id;
+      unsigned char report_length;
+    } in;
+    struct
+    {
+      unsigned char address;
+      unsigned short size;
+    } out;
+  } endpoints;
+} controller[C_TYPE_MAX] =
+{
+  [C_TYPE_DS4] =
+  {
+    .name = DS4_DEVICE_NAME,
+    .vendor = DS4_VENDOR,
+    .product = DS4_PRODUCT,
+    .endpoints =
+    {
+      .in =
+      {
+        .address = DS4_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN,
+        .size = DS4_USB_INTERRUPT_PACKET_SIZE,
+        .report_id = DS4_USB_HID_IN_REPORT_ID,
+        .report_length = sizeof(s_report_ds4)
+      },
+      .out =
+      {
+        .address = DS4_USB_INTERRUPT_ENDPOINT_OUT | LIBUSB_ENDPOINT_OUT,
+        .size = DS4_USB_INTERRUPT_PACKET_SIZE
+      }
+    }
+  },
+  [C_TYPE_T300RS_PS4] =
+  {
+    .name = DS4_DEVICE_NAME,
+    .vendor = DS4_VENDOR,
+    .product = DS4_PRODUCT,
+    .endpoints =
+    {
+      .in =
+      {
+        .address = DS4_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN,
+        .size = DS4_USB_INTERRUPT_PACKET_SIZE,
+        .report_id = DS4_USB_HID_IN_REPORT_ID,
+        .report_length = sizeof(s_report_ds4)
+      },
+      .out =
+      {
+        .address = DS4_USB_INTERRUPT_ENDPOINT_OUT | LIBUSB_ENDPOINT_OUT,
+        .size = DS4_USB_INTERRUPT_PACKET_SIZE
+      }
+    }
+  },
+  [C_TYPE_360_PAD] =
+  {
+    .name = X360_NAME,
+    .vendor = X360_VENDOR,
+    .product = X360_PRODUCT,
+    .endpoints =
+    {
+      .in =
+      {
+        .address = X360_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN,
+        .size = X360_USB_INTERRUPT_PACKET_SIZE,
+        .report_id = X360_USB_HID_IN_REPORT_ID,
+        .report_length = sizeof(s_report_x360)
+      },
+      .out =
+      {
+        .address = X360_USB_INTERRUPT_ENDPOINT_OUT | LIBUSB_ENDPOINT_OUT,
+        .size = X360_USB_INTERRUPT_PACKET_SIZE
+      }
+    }
+  },
+  [C_TYPE_XONE_PAD] =
+  {
+    .name = XONE_NAME,
+    .vendor = XONE_VENDOR,
+    .product = XONE_PRODUCT,
+    .endpoints =
+    {
+      .in =
+      {
+        .address = XONE_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN,
+        .size = XONE_USB_INTERRUPT_PACKET_SIZE,
+        .report_id = XONE_USB_HID_IN_REPORT_ID,
+        .report_length = sizeof(s_report_xone)
+      },
+      .out =
+      {
+        .address = XONE_USB_INTERRUPT_ENDPOINT_OUT | LIBUSB_ENDPOINT_OUT,
+        .size = XONE_USB_INTERRUPT_PACKET_SIZE
+      }
+    }
+  }
+};
+
 static int usb_state_indexes[MAX_CONTROLLERS] = {};
 
 static struct usb_state {
+  e_controller_type type;
   libusb_device_handle* devh;
   unsigned char ack;
   int joystick_id;
-  s_report report;
+  s_report_packet report;
 } usb_states[MAX_CONTROLLERS];
 
 static int usb_poll_interrupt(int usb_number);
-
-void usb_set_event_callback(int (*fp)(GE_Event*))
-{
-  ds4_wrapper_set_event_callback(fp);
-}
 
 void usb_callback(struct libusb_transfer* transfer)
 {
@@ -76,34 +180,51 @@ void usb_callback(struct libusb_transfer* transfer)
   }
   else if(transfer->type == LIBUSB_TRANSFER_TYPE_INTERRUPT)
   {
-    if(transfer->endpoint == (DS4_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN))
+    if(transfer->endpoint == controller[state->type].endpoints.in.address)
     {
       state->ack = 1;
     }
 
     if(transfer->status == LIBUSB_TRANSFER_COMPLETED)
     {
-      if(transfer->endpoint == (DS4_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN))
+      if(transfer->endpoint == controller[state->type].endpoints.in.address)
       {
         // process joystick events
-        if(transfer->actual_length == DS4_USB_INTERRUPT_PACKET_SIZE)
+        if(transfer->actual_length <= controller[state->type].endpoints.in.size
+            && transfer->actual_length > 0)
         {
-          s_report_ds4* current = (s_report_ds4*) transfer->buffer;
-          s_report_ds4* previous = &state->report.value.ds4;
+          if(transfer->buffer[0] == controller[state->type].endpoints.in.report_id)
+          {
+            if(transfer->actual_length == controller[state->type].endpoints.in.report_length)
+            {
+              s_report* current = (s_report*) transfer->buffer;
+              s_report* previous = &state->report.value;
 
-          ds4_wrapper(usb_number, current, previous, state->joystick_id);
+              report2event(state->type, usb_number, (s_report*)current, (s_report*)previous, state->joystick_id);
 
-          memcpy(&state->report.value.ds4, current, DS4_USB_INTERRUPT_PACKET_SIZE);
-        }
-        else
-        {
-          fprintf(stderr, "incorrect packet size on interrupt endpoint\n");
+              if(state->type == C_TYPE_DS4 || state->type == C_TYPE_T300RS_PS4)
+              {
+                state->report.value.ds4 = current->ds4;
+              }
+              else if(state->type == C_TYPE_360_PAD)
+              {
+                state->report.value.x360 = current->x360;
+              }
+            }
+            else
+            {
+              fprintf(stderr, "incorrect report length on interrupt endpoint: received %d bytes, expected %d bytes\n", transfer->actual_length, controller[state->type].endpoints.in.report_length);
+            }
+          }
         }
       }
     }
     else
     {
-      fprintf(stderr, "libusb_transfer failed with status %d (endpoint=%d)\n", transfer->status, transfer->endpoint);
+      if(transfer->status != LIBUSB_TRANSFER_TIMED_OUT)
+      {
+        fprintf(stderr, "libusb_transfer failed with status %d (endpoint=0x%02x)\n", transfer->status, transfer->endpoint);
+      }
     }
   }
 }
@@ -113,9 +234,9 @@ static int usb_poll_interrupt(int usb_number)
   struct usb_state* state = usb_states+usb_number;
   struct libusb_transfer* transfer = libusb_alloc_transfer(0);
   transfer->flags = LIBUSB_TRANSFER_FREE_BUFFER | LIBUSB_TRANSFER_FREE_TRANSFER ;
-  unsigned int size = DS4_USB_INTERRUPT_PACKET_SIZE;
+  unsigned int size = controller[state->type].endpoints.in.size;
   unsigned char* buf = calloc(size, sizeof(char));
-  libusb_fill_interrupt_transfer(transfer, state->devh, DS4_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN, buf, size, (libusb_transfer_cb_fn)usb_callback, usb_state_indexes+usb_number, 1000);
+  libusb_fill_interrupt_transfer(transfer, state->devh, controller[state->type].endpoints.in.address, buf, size, (libusb_transfer_cb_fn)usb_callback, usb_state_indexes+usb_number, 1000);
   int ret = libusb_submit_transfer(transfer);
   if(ret < 0)
   {
@@ -159,17 +280,24 @@ int usb_handle_events(int unused)
 #endif
 }
 
-int usb_init(int usb_number, unsigned short vendor, unsigned short product)
+int usb_init(int usb_number, e_controller_type type)
 {
   int ret = -1;
   int dev_i;
 
   struct usb_state* state = usb_states+usb_number;
 
+  if(!controller[type].vendor || !controller[type].product)
+  {
+    fprintf(stderr, "Controller type is missing a vendor id or a product id: %s.\n", controller_get_name(type));
+    return -1;
+  }
+
   usb_state_indexes[usb_number] = usb_number;
 
   memset(state, 0x00, sizeof(*state));
   state->joystick_id = -1;
+  state->type = type;
 
   if(!ctx)
   {
@@ -197,17 +325,25 @@ int usb_init(int usb_number, unsigned short vendor, unsigned short product)
     ret = libusb_get_device_descriptor(devs[dev_i], &desc);
     if(!ret)
     {
-      if(desc.idVendor == vendor && desc.idProduct == product)
+      if(desc.idVendor == controller[type].vendor && desc.idProduct == controller[type].product)
       {
         libusb_device_handle* devh;
         ret = libusb_open(devs[dev_i], &devh);
         if(ret < 0)
         {
-          fprintf(stderr, "libusb_open: %s.\n", libusb_strerror(cnt));
+          fprintf(stderr, "libusb_open: %s.\n", libusb_strerror(ret));
           return -1;
         }
         else
         {
+          ret = libusb_reset_device(devh);
+          if(ret != LIBUSB_SUCCESS)
+          {
+            fprintf(stderr, "libusb_detach_kernel_driver: %s.\n", libusb_strerror(ret));
+            libusb_close(devh);
+            return -1;
+          }
+
 #if defined(LIBUSB_API_VERSION) || defined(LIBUSBX_API_VERSION)
           libusb_set_auto_detach_kernel_driver(devh, 1);
 #else
@@ -250,7 +386,7 @@ int usb_init(int usb_number, unsigned short vendor, unsigned short product)
             if(usb_poll_interrupt(usb_number) == LIBUSB_SUCCESS)
             {
               // register joystick
-              int device_id = GE_RegisterJoystick(DS4_DEVICE_NAME);
+              int device_id = GE_RegisterJoystick(controller[state->type].name);
               if(device_id >= 0)
               {
                 state->joystick_id = device_id;

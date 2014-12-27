@@ -98,7 +98,7 @@ static s_controller_params joystick_params =
     .max_unsigned_axis_value = joystick_max_unsigned_axis_value
 };
 
-static unsigned int joystick_report_build(int axis[AXIS_MAX], s_report* report)
+static unsigned int joystick_report_build(int axis[AXIS_MAX], s_report_packet* report)
 {
   s_report_joystick* js = &report->value.js;
 

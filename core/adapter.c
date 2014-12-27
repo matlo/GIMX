@@ -346,55 +346,60 @@ int adapter_process_packet(int id, unsigned char* packet)
 /*
  * This function should only be used in the initialization stages, i.e. before the mainloop.
  */
-int adapter_get_type(int id)
+static int adapter_send_short_command(int id, unsigned char type)
 {
-  unsigned char get_type_request[] = {BYTE_TYPE, BYTE_LEN_0_BYTE};
-
-  if(serial_send(id, get_type_request, sizeof(get_type_request)) == sizeof(get_type_request))
+  struct __attribute__ ((packed))
   {
-    unsigned char get_type_answer[3];
-
-    if(serial_recv(id, get_type_answer, sizeof(get_type_answer)) == sizeof(get_type_answer))
+    struct __attribute__ ((packed))
     {
-      if(get_type_answer[0] == BYTE_TYPE && get_type_answer[1] == BYTE_LEN_1_BYTE)
-      {
-        return get_type_answer[2];
-      }
+      unsigned char type;
+      unsigned char length;
+    } header;
+    unsigned char value[256];
+  } packet =
+  {
+    .header =
+    {
+      .type = type,
+      .length = BYTE_LEN_0_BYTE
     }
-  }
+  };
 
-  return -1;
-}
-
-/*
- * This function should only be used in the initialization stages, i.e. before the mainloop.
- */
-int adapter_send_start(int id)
-{
-  unsigned char spoof_request[] = {BYTE_START_SPOOF, BYTE_LEN_0_BYTE};
-  if(serial_send(id, spoof_request, sizeof(spoof_request)) < sizeof(spoof_request))
+  if(serial_send(id, &packet.header, sizeof(packet.header)) < sizeof(packet.header))
   {
     fprintf(stderr, "serial_send\n");
     return -1;
   }
 
-  unsigned char spoof_answer[3];
-
-  if(serial_recv(id, spoof_answer, sizeof(spoof_answer)) < sizeof(spoof_answer))
+  /*
+   * The adapter may send a packet before it processes the command,
+   * so it is possible to receive a packet that is not the command response.
+   */
+  while(1)
   {
-    fprintf(stderr, "serial_recv\n");
-    return -1;
-  }
+    if(serial_recv(id, &packet.header, sizeof(packet.header)) < sizeof(packet.header))
+    {
+      fprintf(stderr, "can't read packet header\n");
+      return -1;
+    }
 
-  if(spoof_answer[0] != BYTE_START_SPOOF && spoof_answer[1] != BYTE_LEN_1_BYTE)
-  {
-    fprintf(stderr, "bad response\n");
-    return -1;
-  }
+    if(serial_recv(id, &packet.value, packet.header.length) < packet.header.length)
+    {
+      fprintf(stderr, "can't read packet data\n");
+      return -1;
+    }
 
-  if(spoof_answer[2] == BYTE_STATUS_SPOOFED)
-  {
-    return 1;
+    //Check this packet is the command response.
+    if(packet.header.type == type)
+    {
+      if(packet.header.length != BYTE_LEN_1_BYTE)
+      {
+        fprintf(stderr, "bad response\n");
+        return -1;
+      }
+
+      return packet.value[0];
+    }
   }
 
   return 0;
@@ -403,31 +408,46 @@ int adapter_send_start(int id)
 /*
  * This function should only be used in the initialization stages, i.e. before the mainloop.
  */
+int adapter_get_type(int id)
+{
+  return adapter_send_short_command(id, BYTE_TYPE);
+}
+
+/*
+ * This function should only be used in the initialization stages, i.e. before the mainloop.
+ */
+int adapter_send_start(int id)
+{
+  return adapter_send_short_command(id, BYTE_START_SPOOF);
+}
+
+/*
+ * This function should only be used in the initialization stages, i.e. before the mainloop.
+ */
 int adapter_get_status(int id)
 {
-  unsigned char get_status_request[] = {BYTE_STATUS, BYTE_LEN_0_BYTE};
-
-  if(serial_send(id, get_status_request, sizeof(get_status_request)) == sizeof(get_status_request))
-  {
-    unsigned char get_status_answer[3];
-
-    if(serial_recv(id, get_status_answer, sizeof(get_status_answer)) == sizeof(get_status_answer))
-    {
-      if(get_status_answer[0] == BYTE_STATUS && get_status_answer[1] == BYTE_LEN_1_BYTE)
-      {
-        return get_status_answer[2];
-      }
-    }
-  }
-
-  return -1;
+  return adapter_send_short_command(id, BYTE_STATUS);
 }
 
 int adapter_send_reset(int id)
 {
-  unsigned char reset_request[] = {BYTE_RESET, BYTE_LEN_0_BYTE};
+  struct __attribute__ ((packed))
+  {
+    struct __attribute__ ((packed))
+    {
+      unsigned char type;
+      unsigned char length;
+    } header;
+  } packet =
+  {
+    .header =
+    {
+      .type = BYTE_RESET,
+      .length = BYTE_LEN_0_BYTE
+    }
+  };
 
-  if(serial_send(id, reset_request, sizeof(reset_request)) != sizeof(reset_request))
+  if(serial_send(id, &packet, sizeof(packet)) != sizeof(packet))
   {
     return -1;
   }

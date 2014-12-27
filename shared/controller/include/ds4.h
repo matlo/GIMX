@@ -11,6 +11,9 @@
 #define DS4_USB_INTERRUPT_ENDPOINT_IN 4
 #define DS4_USB_INTERRUPT_ENDPOINT_OUT 3
 #define DS4_USB_INTERRUPT_PACKET_SIZE 64
+
+#define DS4_USB_HID_IN_REPORT_ID 0x01
+
 #ifndef WIN32
 #define DS4_DEVICE_NAME "Sony Computer Entertainment Wireless Controller"
 #else
@@ -19,6 +22,11 @@
 
 #define DS4_VENDOR 0x054c
 #define DS4_PRODUCT 0x05c4
+
+#define DS4_UP_MASK         0x01
+#define DS4_RIGHT_MASK      0x02
+#define DS4_DOWN_MASK       0x04
+#define DS4_LEFT_MASK       0x08
 
 #define DS4_SQUARE_MASK     0x10
 #define DS4_CROSS_MASK      0x20

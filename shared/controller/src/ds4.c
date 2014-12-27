@@ -273,7 +273,7 @@ static inline void update_finger(s_trackpad_finger* finger, int presence, int* a
  * Work in progress...
  * Do not assume the code in the following function is right!
  */
-static unsigned int ds4_report_build(int axis[AXIS_MAX], s_report* report)
+static unsigned int ds4_report_build(int axis[AXIS_MAX], s_report_packet* report)
 {
   s_report_ds4* ds4 = &report->value.ds4;
   unsigned char counter;

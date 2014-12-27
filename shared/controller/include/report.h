@@ -25,16 +25,16 @@ typedef union
   s_report_x360 x360;
   s_report_xone xone;
   s_report_t300rsPs4 t300rsPs4;
-} s_report_union;
+} s_report;
 
 typedef struct __attribute__ ((packed))
 {
   unsigned char packet_type;
   unsigned char value_len;
-  s_report_union value;
-} s_report;
+  s_report value;
+} s_report_packet;
 
-void report_register_builder(e_controller_type type, unsigned int (*fp)(int axis[AXIS_MAX], s_report* report));
-unsigned int report_build(e_controller_type type, int axis[AXIS_MAX], s_report* report);
+void report_register_builder(e_controller_type type, unsigned int (*fp)(int axis[AXIS_MAX], s_report_packet* report));
+unsigned int report_build(e_controller_type type, int axis[AXIS_MAX], s_report_packet* report);
 
 #endif /* REPORT_H_ */

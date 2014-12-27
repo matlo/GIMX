@@ -124,7 +124,7 @@ static s_controller_params ds3_params =
     .max_unsigned_axis_value = ds3_max_unsigned_axis_value
 };
 
-static unsigned int ds3_report_build(int axis[AXIS_MAX], s_report* report)
+static unsigned int ds3_report_build(int axis[AXIS_MAX], s_report_packet* report)
 {
   s_report_ds3* ds3 = &report->value.ds3;
   unsigned char buttons1 = 0x00;

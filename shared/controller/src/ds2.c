@@ -97,7 +97,7 @@ static s_controller_params ds2_params =
     .max_unsigned_axis_value = ds2_max_unsigned_axis_value
 };
 
-static unsigned int ds2_report_build(int axis[AXIS_MAX], s_report* report)
+static unsigned int ds2_report_build(int axis[AXIS_MAX], s_report_packet* report)
 {
   s_report_ds2* ds2 = &report->value.ds2;
 
