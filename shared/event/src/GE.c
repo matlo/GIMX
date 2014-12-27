@@ -533,7 +533,6 @@ void GE_TimerClose()
   timer_close(0);
 }
 
-#ifndef WIN32
 /*
  * \brief Tell if a joystick has rumble capabilities.
  * 
@@ -565,7 +564,6 @@ int GE_JoystickSetRumble(int id, unsigned short weak_timeout, unsigned short wea
   }
   return 0;
 }
-#endif
 
 /*
  * \brief Get events from devices.

@@ -11,7 +11,11 @@
 #define X360_VENDOR 0x045e
 #define X360_PRODUCT 0x028e
 
+#ifndef WIN32
 #define X360_NAME "Microsoft X-Box 360 pad"
+#else
+#define X360_NAME "X360 Controller"
+#endif
 
 #define X360_USB_INTERRUPT_ENDPOINT_IN 1
 #define X360_USB_INTERRUPT_ENDPOINT_OUT 2
@@ -66,7 +70,32 @@
 #define X360_AXIS_Z_ID  3
 #define X360_AXIS_RZ_ID 4
 #else
-#error Define the x360 button ids!
+#define X360_UP_ID    11
+#define X360_DOWN_ID  12
+#define X360_LEFT_ID  13
+#define X360_RIGHT_ID 14
+
+#define X360_START_ID 6
+#define X360_BACK_ID  4
+#define X360_LS_ID    7
+#define X360_RS_ID    8
+
+#define X360_LB_ID    9
+#define X360_RB_ID    10
+#define X360_GUIDE_ID 5
+
+#define X360_A_ID 0
+#define X360_B_ID 1
+#define X360_X_ID 2
+#define X360_Y_ID 3
+
+#define X360_LT_ID 4
+#define X360_RT_ID 5
+
+#define X360_AXIS_X_ID  0
+#define X360_AXIS_Y_ID  1
+#define X360_AXIS_Z_ID  2
+#define X360_AXIS_RZ_ID 3
 #endif
 
 typedef enum

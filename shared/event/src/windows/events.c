@@ -900,3 +900,15 @@ static int sdl_peep_events(GE_Event* events, int size)
 
   return preprocess_events(events, j);
 }
+
+int ev_joystick_has_ff_rumble(int joystick)
+{
+  //TODO
+  return 0;
+}
+
+int ev_joystick_set_ff_rumble(int joystick, unsigned short weak_timeout, unsigned short weak, unsigned short strong_timeout, unsigned short strong)
+{
+  //TODO
+  return 0;
+}
