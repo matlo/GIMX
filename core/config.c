@@ -811,6 +811,7 @@ void cfg_process_event(GE_Event* event)
   double dead_zone;
   e_shape shape;
   int value = 0;
+  double fvalue = 0;
   unsigned int nb_controls = 0;
   double mx;
   double my;
@@ -952,7 +953,7 @@ void cfg_process_event(GE_Event* event)
               /*
                * Axis to button.
                */
-              threshold = mapper->threshold * controller_get_axis_scale(controller->type, axis);
+              threshold = mapper->threshold;
               if(threshold > 0 && value > threshold)
               {
                 controller->axis[axis] = max_axis;
@@ -1002,20 +1003,16 @@ void cfg_process_event(GE_Event* event)
           break;
         case GE_MOUSEMOTION:
           mapper = mouse_axes[device][c_id][config]+control;
-          /*
-           * Check the mouse axis.
-           */
-          if (mapper->axis == AXIS_X)
+          mc = mouse_control + device;
+          if(mc->change)
           {
-            value = event->motion.xrel;
-          }
-          else if(mapper->axis == AXIS_Y)
-          {
-            value = event->motion.yrel;
+            mx = mc->x;
+            my = mc->y;
           }
           else
           {
-            continue;
+            mx = 0;
+            my = 0;
           }
           controller->send_command = 1;
           axis = mapper->axis_props.axis;
@@ -1030,17 +1027,6 @@ void cfg_process_event(GE_Event* event)
               exp = mapper->exponent;
               dead_zone = mapper->dead_zone;
               shape = mapper->shape;
-              mc = mouse_control + device;
-              if(mc->change)
-              {
-                mx = mc->x;
-                my = mc->y;
-              }
-              else
-              {
-                mx = 0;
-                my = 0;
-              }
               mode = cal_get_mouse(device, config)->mode;
               residue = mouse2axis(device, controller, mapper->axis, mx, my, &mapper->axis_props, exp, multiplier, dead_zone, shape, mode);
               if(mapper->axis == AXIS_X)
@@ -1054,16 +1040,24 @@ void cfg_process_event(GE_Event* event)
             }
             else
             {
+              if (mapper->axis == AXIS_X)
+              {
+                fvalue = mx;
+              }
+              else
+              {
+                fvalue = my;
+              }
               /*
                * Axis to button.
                */
               max_axis = controller_get_max_signed(controller->type, axis);
               threshold = mapper->threshold;
-              if(threshold > 0 && value > threshold)
+              if(threshold > 0 && fvalue > threshold)
               {
                 controller->axis[axis] = max_axis;
               }
-              else if(threshold < 0 && value < threshold)
+              else if(threshold < 0 && fvalue < threshold)
               {
                 controller->axis[axis] = max_axis;
               }

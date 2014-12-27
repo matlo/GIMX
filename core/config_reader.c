@@ -572,6 +572,7 @@ static int ProcessButtonElement(xmlNode * a_node)
   s_axis_props axis_props;
   s_mapper* p_mapper = NULL;
   s_mapper** pp_mapper = NULL;
+  s_mouse_cal* mcal;
 
   bid = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
 
@@ -651,6 +652,15 @@ static int ProcessButtonElement(xmlNode * a_node)
         case E_EVENT_TYPE_AXIS_UP:
           p_mapper->axis = r_event_id;
           p_mapper->threshold = r_threshold;
+          if(r_device_type == E_DEVICE_TYPE_MOUSE)
+          {
+            mcal = cal_get_mouse(r_device_id, r_config_id);
+            if(!mcal->buffer_size)
+            {
+              mcal->buffer_size = 1;
+              mcal->filter = 0;
+            }
+          }
           break;
         default:
           break;
