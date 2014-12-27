@@ -576,6 +576,7 @@ static int ProcessButtonElement(xmlNode * a_node)
   bid = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
 
   axis_props = controller_get_axis_index_from_name(bid);
+  axis_props.props = AXIS_PROP_TOGGLE;
 
   xmlFree(bid);
 
