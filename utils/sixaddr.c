@@ -35,7 +35,7 @@ int get_bdaddrs(libusb_device_handle* devh)
 
   if (res < 0)
   {
-    perror("USB_REQ_GET_CONFIGURATION");
+    fprintf(stderr, "Control transfer failed: %s.\n", libusb_strerror(res));
     return res;
   }
 
@@ -44,7 +44,7 @@ int get_bdaddrs(libusb_device_handle* devh)
 
   if (res < 0)
   {
-    perror("USB_REQ_GET_CONFIGURATION");
+    fprintf(stderr, "Control transfer failed: %s.\n", libusb_strerror(res));
   }
 
   return res;
