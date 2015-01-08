@@ -589,6 +589,7 @@ void XmlReader::ProcessIntensityListElement(xmlNode * a_node)
 void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
 {
     xmlNode* cur_node = NULL;
+    bool found;
     unsigned int config_index;
     stringstream ss;
     string id;
@@ -608,24 +609,26 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
         throw invalid_argument(message);
     }
 
-    for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
+    found = false;
+
+    for (cur_node = a_node->children; cur_node && !found; cur_node = cur_node->next)
     {
         if (cur_node->type == XML_ELEMENT_NODE)
         {
             if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_TRIGGER))
             {
                 ProcessTriggerElement(cur_node);
-                break;
+                found = true;
             }
             else
             {
-                string message("bad element name: " + string((char*)cur_node->name));
-                throw invalid_argument(message);
+                break;
             }
         }
     }
 
-    if(!cur_node)
+    // trigger element is mandatory
+    if(!found)
     {
         string message("missing trigger element");
         throw invalid_argument(message);
@@ -633,16 +636,21 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
 
     m_TempConfiguration.GetMouseOptionsList()->clear();
 
-    for (cur_node = cur_node->next; cur_node; cur_node = cur_node->next)
+    found = false;
+
+    for ( ; cur_node && !found; cur_node = cur_node->next)
     {
         if (cur_node->type == XML_ELEMENT_NODE)
         {
             if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_MOUSEOPTIONS_LIST))
             {
                 ProcessMouseOptionsListElement(cur_node);
+                found = true;
             }
             else
             {
+                // mouse_options_list is optional
+                // => keep cur_node for the next element processing
                 break;
             }
         }
@@ -650,62 +658,71 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
 
     m_TempConfiguration.GetIntensityList()->clear();
 
-    for (cur_node = cur_node->prev; cur_node; cur_node = cur_node->next)
+    found = false;
+
+    for ( ; cur_node && !found; cur_node = cur_node->next)
     {
         if (cur_node->type == XML_ELEMENT_NODE)
         {
             if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_INTENSITY_LIST))
             {
                 ProcessIntensityListElement(cur_node);
+                found = true;
             }
             else
             {
+                // intensity_list is optional
+                // => keep cur_node for the next element processing
                 break;
             }
         }
     }
 
-    for (cur_node = cur_node->prev; cur_node; cur_node = cur_node->next)
+    found = false;
+
+    for ( ; cur_node && !found; cur_node = cur_node->next)
     {
         if (cur_node->type == XML_ELEMENT_NODE)
         {
             if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_BUTTON_MAP))
             {
                 ProcessButtonMapElement(cur_node);
-                break;
+                found = true;
             }
             else
             {
-                string message(string("bad element name: ") + string((char*)cur_node->name));
-                throw invalid_argument(message);
+                break;//not found
             }
         }
     }
 
-    if(!cur_node)
+    // button_map is mandatory
+    if(!found)
     {
         string message(string("missing button_map element"));
         throw invalid_argument(message);
     }
 
-    for (cur_node = cur_node->next; cur_node; cur_node = cur_node->next)
+    found = false;
+
+    for ( ; cur_node && !found; cur_node = cur_node->next)
     {
         if (cur_node->type == XML_ELEMENT_NODE)
         {
             if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_AXIS_MAP))
             {
                 ProcessAxisMapElement(cur_node);
-                break;
+                found = true;
             }
             else
             {
-                string message(string("bad element name: ") + string((char*)cur_node->name));
-                throw invalid_argument(message);
+                break;//not found
             }
         }
     }
 
-    if(!cur_node)
+    // axis_map is mandatory
+    if(!found)
     {
         string message(string("missing axis_map element"));
         throw invalid_argument(message);
