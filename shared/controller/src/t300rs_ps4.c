@@ -12,7 +12,7 @@ static const char *t300rsPs4_axis_name[AXIS_MAX] =
 {
   [t300rsPs4a_wheel] = "wheel",
   [t300rsPs4a_gasPedal] = "gas pedal",
-  [t300rsPs4a_breakPedal] = "break pedal",
+  [t300rsPs4a_brakePedal] = "brake pedal",
   [t300rsPs4a_share] = "share",
   [t300rsPs4a_options] = "options",
   [t300rsPs4a_up] = "up",
@@ -37,7 +37,7 @@ static s_axis_name_dir axis_names[] =
   {.name = "wheel",        {.axis = t300rsPs4a_wheel,      .props = AXIS_PROP_CENTERED}},
 
   {.name = "gas pedal",    {.axis = t300rsPs4a_gasPedal,   .props = AXIS_PROP_POSITIVE}},
-  {.name = "break pedal",  {.axis = t300rsPs4a_breakPedal, .props = AXIS_PROP_POSITIVE}},
+  {.name = "break pedal",  {.axis = t300rsPs4a_brakePedal, .props = AXIS_PROP_POSITIVE}},
 
   {.name = "r2",           {.axis = t300rsPs4a_r2,         .props = AXIS_PROP_TOGGLE}},
   {.name = "l2",           {.axis = t300rsPs4a_l2,         .props = AXIS_PROP_TOGGLE}},
@@ -63,7 +63,7 @@ static int t300rsPs4_max_unsigned_axis_value[AXIS_MAX] =
 {
   [t300rsPs4a_wheel] = MAX_AXIS_VALUE_16BITS,
   [t300rsPs4a_gasPedal] = MAX_AXIS_VALUE_16BITS,
-  [t300rsPs4a_breakPedal] = MAX_AXIS_VALUE_16BITS,
+  [t300rsPs4a_brakePedal] = MAX_AXIS_VALUE_16BITS,
 
   [t300rsPs4a_up] = MAX_AXIS_VALUE_8BITS,
   [t300rsPs4a_right] = MAX_AXIS_VALUE_8BITS,
@@ -103,7 +103,7 @@ static s_report_t300rsPs4 init_report_t300rsPs4 =
   .unused0 = {},
   .wheel = CENTER_AXIS_VALUE_16BITS,
   .gasPedal = MAX_AXIS_VALUE_16BITS,
-  .breakPedal = MAX_AXIS_VALUE_16BITS,
+  .brakePedal = MAX_AXIS_VALUE_16BITS,
   .unknown1 = MAX_AXIS_VALUE_16BITS,
   .unknown2 = 0x00,
   .unknown3 = MAX_AXIS_VALUE_16BITS,
@@ -126,7 +126,7 @@ static unsigned int t300rsPs4_report_build(int axis[AXIS_MAX], s_report_packet* 
   t300rsPs4->wheel = clamp(0, axis[t300rsPs4a_wheel] + CENTER_AXIS_VALUE_16BITS, MAX_AXIS_VALUE_16BITS);
 
   t300rsPs4->gasPedal = clamp(0, MAX_AXIS_VALUE_16BITS - axis[t300rsPs4a_gasPedal], MAX_AXIS_VALUE_16BITS);
-  t300rsPs4->breakPedal = clamp(0, MAX_AXIS_VALUE_16BITS - axis[t300rsPs4a_breakPedal], MAX_AXIS_VALUE_16BITS);
+  t300rsPs4->brakePedal = clamp(0, MAX_AXIS_VALUE_16BITS - axis[t300rsPs4a_brakePedal], MAX_AXIS_VALUE_16BITS);
 
   if (axis[t300rsPs4a_right])
   {

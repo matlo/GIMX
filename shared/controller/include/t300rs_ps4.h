@@ -46,7 +46,7 @@ typedef enum
   t300rsPs4a_l3 = abs_axis_15,
   t300rsPs4a_r3 = abs_axis_16,
   t300rsPs4a_gasPedal = abs_axis_17,
-  t300rsPs4a_breakPedal = abs_axis_18,
+  t300rsPs4a_brakePedal = abs_axis_18,
 } e_t300rsPs4_axis_index;
 
 /*
@@ -64,7 +64,7 @@ typedef struct __attribute__ ((packed))
   unsigned char unused0[35];
   unsigned short wheel; //signed, center = 0x7FFF
   unsigned short gasPedal; //unsigned, released = 0xFFFF
-  unsigned short breakPedal; //unsigned, released = 0xFFFF
+  unsigned short brakePedal; //unsigned, released = 0xFFFF
   unsigned short unknown1; //0xFFFF
   unsigned char unknown2; //0x00
   unsigned short unknown3; //0xFFFF
