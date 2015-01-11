@@ -53,6 +53,7 @@ typedef enum
   g27Ps3a_r3 = abs_axis_16,
   g27Ps3a_gasPedal = abs_axis_17,
   g27Ps3a_brakePedal = abs_axis_18,
+  g27Ps3a_clutchPedal = abs_axis_19,
 } e_g27Ps3_axis_index;
 
 /*

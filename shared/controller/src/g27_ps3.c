@@ -99,7 +99,7 @@ static s_report_g27Ps3 init_report_g27Ps3 =
   .gasPedal = MAX_AXIS_VALUE_8BITS,
   .brakePedal = MAX_AXIS_VALUE_8BITS,
   .clutchPedal = MAX_AXIS_VALUE_8BITS,
-  .unknown = { 0x7B, 0x8A, 0x18},
+  .unknown = { 0x7B, 0x8A, 0x18 },
 };
 
 void g27Ps3_init_report(s_report_g27Ps3* g27Ps3)
@@ -119,6 +119,7 @@ static unsigned int g27Ps3_report_build(int axis[AXIS_MAX], s_report_packet* rep
 
   g27Ps3->gasPedal = clamp(0, MAX_AXIS_VALUE_8BITS - axis[g27Ps3a_gasPedal], MAX_AXIS_VALUE_8BITS);
   g27Ps3->brakePedal = clamp(0, MAX_AXIS_VALUE_8BITS - axis[g27Ps3a_brakePedal], MAX_AXIS_VALUE_8BITS);
+  g27Ps3->clutchPedal = clamp(0, MAX_AXIS_VALUE_8BITS - axis[g27Ps3a_clutchPedal], MAX_AXIS_VALUE_8BITS);
 
   if (axis[g27Ps3a_right])
   {

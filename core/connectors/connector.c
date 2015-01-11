@@ -110,15 +110,6 @@ int connector_init()
 
                     if(ret != -1)
                     {
-                      if(adapter->type == C_TYPE_DS4)
-                      {
-                        ds4_init_report(&adapter->report.value.ds4);
-                      }
-                      else if(adapter->type == C_TYPE_T300RS_PS4)
-                      {
-                        t300rsPs4_init_report(&adapter->report.value.t300rsPs4);
-                      }
-
                       int usb_res = usb_init(i, adapter->type);
                       if(usb_res < 0)
                       {
@@ -140,6 +131,21 @@ int connector_init()
 
           if(ret != -1)
           {
+            switch(adapter->type)
+            {
+              case C_TYPE_DS4:
+                ds4_init_report(&adapter->report.value.ds4);
+                break;
+              case C_TYPE_T300RS_PS4:
+                t300rsPs4_init_report(&adapter->report.value.t300rsPs4);
+                break;
+              case C_TYPE_G27_PS3:
+                g27Ps3_init_report(&adapter->report.value.g27Ps3);
+                break;
+              default:
+                break;
+            }
+
             if(adapter_send_start(i) < 0)
             {
               fprintf(stderr, _("Can't start the adapter.\n"));
