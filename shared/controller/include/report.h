@@ -14,6 +14,7 @@
 #include <x360.h>
 #include <xone.h>
 #include <t300rs_ps4.h>
+#include <g27_ps3.h>
 
 typedef union
 {
@@ -25,12 +26,13 @@ typedef union
   s_report_x360 x360;
   s_report_xone xone;
   s_report_t300rsPs4 t300rsPs4;
+  s_report_g27Ps3 g27Ps3;
 } s_report;
 
 typedef struct __attribute__ ((packed))
 {
-  unsigned char packet_type;
-  unsigned char value_len;
+  unsigned char type;
+  unsigned char length;
   s_report value;
 } s_report_packet;
 

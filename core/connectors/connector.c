@@ -129,25 +129,25 @@ int connector_init()
                           ret = -1;
                         }
                       }
-
-                      if(ret != -1)
-                      {
-                        if(adapter_send_start(i) < 0)
-                        {
-                          fprintf(stderr, _("Can't start the adapter.\n"));
-                          ret = -1;
-                        }
-                        else
-                        {
-                          serial_add_source(i);
-                        }
-                      }
                     }
                   }
                 }
                 break;
               default:
                 break;
+            }
+          }
+
+          if(ret != -1)
+          {
+            if(adapter_send_start(i) < 0)
+            {
+              fprintf(stderr, _("Can't start the adapter.\n"));
+              ret = -1;
+            }
+            else
+            {
+              serial_add_source(i);
             }
           }
         }
