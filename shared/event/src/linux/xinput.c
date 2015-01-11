@@ -315,7 +315,7 @@ void xinput_quit()
 
 /*
  * Grab the pointer into the window.
- * This function retries until success or 500ms have elapse.
+ * This function retries until success or 500ms have elapsed.
  */
 void xinput_grab(int mode)
 {
