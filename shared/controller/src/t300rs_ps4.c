@@ -37,7 +37,7 @@ static s_axis_name_dir axis_names[] =
   {.name = "wheel",        {.axis = t300rsPs4a_wheel,      .props = AXIS_PROP_CENTERED}},
 
   {.name = "gas pedal",    {.axis = t300rsPs4a_gasPedal,   .props = AXIS_PROP_POSITIVE}},
-  {.name = "break pedal",  {.axis = t300rsPs4a_brakePedal, .props = AXIS_PROP_POSITIVE}},
+  {.name = "brake pedal",  {.axis = t300rsPs4a_brakePedal, .props = AXIS_PROP_POSITIVE}},
 
   {.name = "r2",           {.axis = t300rsPs4a_r2,         .props = AXIS_PROP_TOGGLE}},
   {.name = "l2",           {.axis = t300rsPs4a_l2,         .props = AXIS_PROP_TOGGLE}},
