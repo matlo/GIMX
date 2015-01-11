@@ -7,6 +7,7 @@
 #define ADAPTER_H_
 
 #include <connectors/serial.h>
+#include <connectors/protocol.h>
 #include <controller2.h>
 #include <config.h>
 
@@ -61,7 +62,7 @@ int adapter_forward_control_out(int id, unsigned char* data, unsigned char lengt
 
 int adapter_forward_interrupt_out(int id, unsigned char endpoint, unsigned char* data, unsigned char length);
 
-int adapter_process_packet(int id, unsigned char* packet);
+int adapter_process_packet(int id, s_packet* packet);
 
 int adapter_get_type(int id);
 int adapter_send_start(int id);

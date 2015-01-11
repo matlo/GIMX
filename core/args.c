@@ -15,6 +15,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #endif
+#include <connectors/protocol.h>
 
 static void usage()
 {
@@ -243,7 +244,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         break;
 
       case 'p':
-        adapter_get(controller)->report.packet_type = BYTE_SEND_REPORT;
+        adapter_get(controller)->report.type = BYTE_SEND_REPORT;
         if(adapter_set_port(controller, optarg) < 0)
         {
           printf(_("port already used: `%s'\n"), optarg);

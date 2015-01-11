@@ -6,26 +6,6 @@
 #ifndef SERIAL_H_
 #define SERIAL_H_
 
-#define HEADER_SIZE 0x02
-#define BUFFER_SIZE 0xFF
-
-#define BYTE_TYPE        0x11
-#define BYTE_STATUS      0x22
-#define BYTE_START_SPOOF 0x33
-#define BYTE_SPOOF_DATA  0x44
-#define BYTE_RESET       0x55
-#define BYTE_DEBUG       0x99
-#define BYTE_OUT_REPORT  0xee
-#define BYTE_SEND_REPORT 0xff
-
-#define BYTE_STATUS_NSPOOFED 0x00
-#define BYTE_STATUS_SPOOFED  0x01
-#define BYTE_STATUS_NSTARTED 0x00
-#define BYTE_STATUS_STARTED  0x01
-
-#define BYTE_LEN_0_BYTE 0x00
-#define BYTE_LEN_1_BYTE 0x01
-
 int serial_connect(int id, char* portname);
 int serial_send(int id, void* pdata, unsigned int size);
 int serial_sendv(int id, void* pdata1, unsigned int size1, void* pdata2, unsigned int size2);

@@ -4,6 +4,7 @@
  */
 
 #include <connectors/serial.h>
+#include <connectors/protocol.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -32,10 +33,10 @@
 #define TTY_BAUDRATE B500000 //0.5Mbps
 #define SPI_BAUDRATE 4000000 //4Mbps
 
-static struct serial
+static struct
 {
   int fd;
-  unsigned char data[HEADER_SIZE+BUFFER_SIZE];
+  s_packet packet;
   unsigned char bread;
 } serials[MAX_CONTROLLERS] = {};
 
@@ -231,13 +232,15 @@ static int serial_callback(int id)
 {
   int nread;
   int ret = 0;
+  
+  unsigned char* base = (unsigned char*)&serials[id].packet;
 
   if(serials[id].bread < HEADER_SIZE)
   {
     /*
      * read the first two bytes first so as to retrieve the data length
      */
-    nread = read(serials[id].fd, serials[id].data+serials[id].bread, HEADER_SIZE-serials[id].bread);
+    nread = read(serials[id].fd, base+serials[id].bread, HEADER_SIZE-serials[id].bread);
 
     if(nread >= 0)
     {
@@ -254,15 +257,15 @@ static int serial_callback(int id)
     /*
      * read the data
      */
-    nread = read(serials[id].fd, serials[id].data+serials[id].bread, serials[id].data[1]-(serials[id].bread-HEADER_SIZE));
+    nread = read(serials[id].fd, base+serials[id].bread, serials[id].packet.header.length-(serials[id].bread-HEADER_SIZE));
 
     if(nread >= 0)
     {
       serials[id].bread += nread;
 
-      if(serials[id].data[1] + HEADER_SIZE == serials[id].bread)
+      if(serials[id].packet.header.length + HEADER_SIZE == serials[id].bread)
       {
-        ret = adapter_process_packet(id, serials[id].data);
+        ret = adapter_process_packet(id, &serials[id].packet);
 
         serials[id].bread = 0;
       }

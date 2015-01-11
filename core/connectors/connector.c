@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include "gimx.h"
 #include "connectors/connector.h"
+#include "connectors/protocol.h"
 #include "connectors/udp_con.h"
 #include "connectors/gpp_con.h"
 #include "connectors/usb_con.h"
@@ -315,7 +316,7 @@ int connector_send()
       else
       {
         s_report_packet* report = &adapter->report;
-        report->value_len = report_build(adapter->type, adapter->axis, report);
+        report->length = report_build(adapter->type, adapter->axis, report);
 
         switch(adapter->type)
         {
@@ -330,7 +331,7 @@ int connector_send()
         case C_TYPE_SIXAXIS:
           if(adapter->portname)
           {
-            ret = serial_send(i, report, 2+report->value_len);
+            ret = serial_send(i, report, 2+report->length);
           }
 #ifndef WIN32
           else if(adapter->bdaddr_dst)
@@ -343,8 +344,8 @@ int connector_send()
           if(adapter->portname)
           {
             report->value.ds4.report_id = DS4_USB_HID_IN_REPORT_ID;
-            report->value_len = DS4_USB_INTERRUPT_PACKET_SIZE;
-            ret = serial_send(i, report, HEADER_SIZE+report->value_len);
+            report->length = DS4_USB_INTERRUPT_PACKET_SIZE;
+            ret = serial_send(i, report, HEADER_SIZE+report->length);
           }
 #ifndef WIN32
           else if(adapter->bdaddr_dst)
@@ -356,8 +357,8 @@ int connector_send()
         case C_TYPE_T300RS_PS4:
           if(adapter->portname)
           {
-            report->value_len = DS4_USB_INTERRUPT_PACKET_SIZE;
-            ret = serial_send(i, report, HEADER_SIZE+report->value_len);
+            report->length = DS4_USB_INTERRUPT_PACKET_SIZE;
+            ret = serial_send(i, report, HEADER_SIZE+report->length);
           }
           break;
         case C_TYPE_GPP:
@@ -368,11 +369,11 @@ int connector_send()
           {
             if(adapter->type != C_TYPE_PS2_PAD)
             {
-              ret = serial_send(i, report, 2+report->value_len);
+              ret = serial_send(i, report, 2+report->length);
             }
             else
             {
-              ret = serial_send(i, &report->value.ds2, report->value_len);
+              ret = serial_send(i, &report->value.ds2, report->length);
             }
           }
           break;

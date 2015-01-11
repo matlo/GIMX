@@ -4,6 +4,7 @@
  */
 
 #include <connectors/usb_con.h>
+#include <connectors/protocol.h>
 #include <adapter.h>
 #include <mainloop.h>
 #include <report2event/report2event.h>
@@ -60,7 +61,7 @@ static struct
         .address = DS4_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN,
         .size = DS4_USB_INTERRUPT_PACKET_SIZE,
         .report_id = DS4_USB_HID_IN_REPORT_ID,
-        .report_length = sizeof(s_report_ds4)
+        .report_length = DS4_USB_INTERRUPT_PACKET_SIZE
       },
       .out =
       {
@@ -81,7 +82,7 @@ static struct
         .address = DS4_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN,
         .size = DS4_USB_INTERRUPT_PACKET_SIZE,
         .report_id = DS4_USB_HID_IN_REPORT_ID,
-        .report_length = sizeof(s_report_ds4)
+        .report_length = DS4_USB_INTERRUPT_PACKET_SIZE
       },
       .out =
       {

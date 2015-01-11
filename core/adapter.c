@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <mainloop.h>
 #include <connectors/usb_con.h>
+#include <connectors/protocol.h>
 
 static s_adapter adapter[MAX_CONTROLLERS] = {};
 
@@ -224,6 +225,7 @@ int adapter_forward_control_in(int id, unsigned char* data, unsigned char length
   if(adapter[id].portname >= 0)
   {
     unsigned char header[] = {BYTE_SPOOF_DATA, length};
+    //TODO: writev is not as efficient as it should be...
     if(serial_sendv(id, header, HEADER_SIZE, data, length) < 0)
     {
       return -1;
@@ -264,11 +266,11 @@ static void dump(unsigned char* packet, unsigned char length)
   printf("\n");
 }
 
-int adapter_process_packet(int id, unsigned char* packet)
+int adapter_process_packet(int id, s_packet* packet)
 {
-  unsigned char type = packet[0];
-  unsigned char length = packet[1];
-  unsigned char* data = packet+HEADER_SIZE;
+  unsigned char type = packet->header.type;
+  unsigned char length = packet->header.length;
+  unsigned char* data = packet->value;
 
   int ret = 0;
 
@@ -312,8 +314,10 @@ int adapter_process_packet(int id, unsigned char* packet)
     gettimeofday(&tv, NULL);
     printf("%ld.%06ld debug packet received (size = %d bytes)\n", tv.tv_sec, tv.tv_usec, length);
     dump(packet+2, length);*/
-    if(data[0] != 0x00)
+    if(data[0] == 0x35 && data[1] == 0x00)
     {
+      char test = data[5];
+      printf("%d\n", test);
       int i;
       int zeros = 0;
       for(i=length-1; i>=0; --i)
@@ -337,6 +341,9 @@ int adapter_process_packet(int id, unsigned char* packet)
   }
   else
   {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+        fprintf(stderr, "%ld.%06ld ", tv.tv_sec, tv.tv_usec);
     fprintf(stderr, "unhandled packet (type=0x%02x)\n", type);
   }
 
@@ -348,15 +355,7 @@ int adapter_process_packet(int id, unsigned char* packet)
  */
 static int adapter_send_short_command(int id, unsigned char type)
 {
-  struct __attribute__ ((packed))
-  {
-    struct __attribute__ ((packed))
-    {
-      unsigned char type;
-      unsigned char length;
-    } header;
-    unsigned char value[256];
-  } packet =
+  s_packet packet =
   {
     .header =
     {
@@ -431,23 +430,13 @@ int adapter_get_status(int id)
 
 int adapter_send_reset(int id)
 {
-  struct __attribute__ ((packed))
+  s_header header =
   {
-    struct __attribute__ ((packed))
-    {
-      unsigned char type;
-      unsigned char length;
-    } header;
-  } packet =
-  {
-    .header =
-    {
-      .type = BYTE_RESET,
-      .length = BYTE_LEN_0_BYTE
-    }
+    .type = BYTE_RESET,
+    .length = BYTE_LEN_0_BYTE
   };
 
-  if(serial_send(id, &packet, sizeof(packet)) != sizeof(packet))
+  if(serial_send(id, &header, sizeof(header)) != sizeof(header))
   {
     return -1;
   }
