@@ -12,7 +12,7 @@ static const char *g27Ps3_axis_name[AXIS_MAX] =
 {
   [g27Ps3a_wheel] = "wheel",
   [g27Ps3a_gasPedal] = "gas pedal",
-  [g27Ps3a_brakePedal] = "break pedal",
+  [g27Ps3a_brakePedal] = "brake pedal",
   [g27Ps3a_select] = "select",
   [g27Ps3a_start] = "start",
   [g27Ps3a_up] = "up",
