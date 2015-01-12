@@ -8,29 +8,6 @@
 
 #include <control.h>
 
-#define G27_CROSS_MASK      0x10
-#define G27_SQUARE_MASK     0x20
-#define G27_CIRCLE_MASK     0x40
-#define G27_TRIANGLE_MASK   0x80
-
-#define G27_R1_MASK         0x01
-#define G27_L1_MASK         0x02
-// not sure about l2 and r2
-#define G27_R2_MASK         0x04
-#define G27_L2_MASK         0x08
-
-#define G27_SELECT_MASK     0x10
-#define G27_START_MASK      0x20
-#define G27_R3_MASK         0x40
-#define G27_L3_MASK         0x80
-
-#define G27_GEAR_1_MASK     0x01
-#define G27_GEAR_2_MASK     0x02
-#define G27_GEAR_3_MASK     0x04
-#define G27_GEAR_4_MASK     0x08
-#define G27_GEAR_5_MASK     0x10
-#define G27_GEAR_6_MASK     0x20
-
 typedef enum
 {
   g27Ps3a_wheel = rel_axis_lstick_x,
@@ -54,6 +31,10 @@ typedef enum
   g27Ps3a_gasPedal = abs_axis_17,
   g27Ps3a_brakePedal = abs_axis_18,
   g27Ps3a_clutchPedal = abs_axis_19,
+  g27Ps3a_l4 = abs_axis_20,
+  g27Ps3a_r4 = abs_axis_21,
+  g27Ps3a_l5 = abs_axis_22,
+  g27Ps3a_r5 = abs_axis_23,
 } e_g27Ps3_axis_index;
 
 /*

@@ -801,7 +801,7 @@ void update_ubutton_axis(s_mapper* mapper, int c_id, int axis)
 void cfg_process_event(GE_Event* event)
 {
   s_mapper* mapper;
-  unsigned int axis;
+  int axis;
   unsigned int config;
   unsigned int c_id;
   unsigned int control;
@@ -914,11 +914,11 @@ void cfg_process_event(GE_Event* event)
           }
           controller->send_command = 1;
           axis = mapper->axis_props.axis;
-          multiplier = mapper->multiplier * controller_get_axis_scale(controller->type, axis);
-          exp = mapper->exponent;
-          dead_zone = mapper->dead_zone * controller_get_axis_scale(controller->type, axis);
           if(axis >= 0)
           {
+            multiplier = mapper->multiplier * controller_get_axis_scale(controller->type, axis);
+            exp = mapper->exponent;
+            dead_zone = mapper->dead_zone * controller_get_axis_scale(controller->type, axis);
             value = event->jaxis.value;
             max_axis = controller_get_max_signed(controller->type, axis);
             if(mapper->axis_props.props == AXIS_PROP_CENTERED)

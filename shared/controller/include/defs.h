@@ -67,7 +67,9 @@ typedef enum
   abs_axis_19,
   abs_axis_20,
   abs_axis_21,
-  abs_axis_max = abs_axis_21,
+  abs_axis_22,
+  abs_axis_23,
+  abs_axis_max = abs_axis_23,
   AXIS_MAX,
 } e_controller_axis_index;
 

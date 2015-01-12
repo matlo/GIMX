@@ -260,6 +260,7 @@ class configFrame: public wxFrame
         static const long ID_MENUITEMXBOX;
         static const long ID_MENUITEMJS;
         static const long ID_MENUITEMT300RSPS4;
+        static const long ID_MENUITEMG27PS3;
         static const long ID_MENUITEM8;
         static const long ID_MENUITEM9;
         static const long ID_MENUITEM10;
@@ -364,6 +365,7 @@ class configFrame: public wxFrame
         wxStaticLine* StaticLine1;
         wxStaticText* StaticTextShapePanelAxis;
         wxSpinCtrl* IntensitySteps;
+        wxMenuItem* MenuItemG27Ps3;
         wxButton* MouseOptionsAutoDetect;
         wxButton* IntensityAdd;
         wxButton* Button5;

@@ -8,6 +8,35 @@
 #include <controller2.h>
 #include <string.h>
 
+#define G27_CROSS_MASK      0x10
+#define G27_SQUARE_MASK     0x20
+#define G27_CIRCLE_MASK     0x40
+#define G27_TRIANGLE_MASK   0x80
+
+#define G27_R1_MASK         0x0001
+#define G27_L1_MASK         0x0002
+#define G27_R2_MASK         0x0004
+#define G27_L2_MASK         0x0008
+
+#define G27_SELECT_MASK     0x0010
+#define G27_START_MASK      0x0020
+#define G27_R3_MASK         0x0040
+#define G27_L3_MASK         0x0080
+
+#define G27_GEAR_1_MASK     0x0100
+#define G27_GEAR_2_MASK     0x0200
+#define G27_GEAR_3_MASK     0x0400
+#define G27_GEAR_4_MASK     0x0800
+#define G27_GEAR_5_MASK     0x1000
+#define G27_GEAR_6_MASK     0x2000
+
+// not sure about these
+#define G27_R4_MASK         0x4000
+#define G27_L4_MASK         0x8000
+
+#define G27_R5_MASK         0x0001
+#define G27_L5_MASK         0x0002
+
 static const char *g27Ps3_axis_name[AXIS_MAX] =
 {
   [g27Ps3a_wheel] = "wheel",
@@ -29,6 +58,10 @@ static const char *g27Ps3_axis_name[AXIS_MAX] =
   [g27Ps3a_r2] = "r2",
   [g27Ps3a_l3] = "l3",
   [g27Ps3a_r3] = "r3",
+  [g27Ps3a_l4] = "l4",
+  [g27Ps3a_r4] = "r4",
+  [g27Ps3a_l5] = "l5",
+  [g27Ps3a_r5] = "r5",
 };
 
 static s_axis_name_dir axis_names[] =
@@ -37,6 +70,7 @@ static s_axis_name_dir axis_names[] =
 
   {.name = "gas pedal",    {.axis = g27Ps3a_gasPedal,   .props = AXIS_PROP_POSITIVE}},
   {.name = "brake pedal",  {.axis = g27Ps3a_brakePedal, .props = AXIS_PROP_POSITIVE}},
+  {.name = "clutch pedal",  {.axis = g27Ps3a_clutchPedal, .props = AXIS_PROP_POSITIVE}},
 
   {.name = "r2",           {.axis = g27Ps3a_r2,         .props = AXIS_PROP_TOGGLE}},
   {.name = "l2",           {.axis = g27Ps3a_l2,         .props = AXIS_PROP_TOGGLE}},
@@ -56,6 +90,11 @@ static s_axis_name_dir axis_names[] =
   {.name = "square",       {.axis = g27Ps3a_square,     .props = AXIS_PROP_TOGGLE}},
   {.name = "cross",        {.axis = g27Ps3a_cross,      .props = AXIS_PROP_TOGGLE}},
   {.name = "triangle",     {.axis = g27Ps3a_triangle,   .props = AXIS_PROP_TOGGLE}},
+
+  {.name = "l4",           {.axis = g27Ps3a_l4,         .props = AXIS_PROP_TOGGLE}},
+  {.name = "l5",           {.axis = g27Ps3a_l5,         .props = AXIS_PROP_TOGGLE}},
+  {.name = "r4",           {.axis = g27Ps3a_r4,         .props = AXIS_PROP_TOGGLE}},
+  {.name = "r5",           {.axis = g27Ps3a_r5,         .props = AXIS_PROP_TOGGLE}},
 };
 
 static int g27Ps3_max_unsigned_axis_value[AXIS_MAX] =
@@ -82,6 +121,10 @@ static int g27Ps3_max_unsigned_axis_value[AXIS_MAX] =
   [g27Ps3a_l3] = MAX_AXIS_VALUE_8BITS,
   [g27Ps3a_r3] = MAX_AXIS_VALUE_8BITS,
   [g27Ps3a_ps] = MAX_AXIS_VALUE_8BITS,
+  [g27Ps3a_l4] = MAX_AXIS_VALUE_8BITS,
+  [g27Ps3a_r4] = MAX_AXIS_VALUE_8BITS,
+  [g27Ps3a_l5] = MAX_AXIS_VALUE_8BITS,
+  [g27Ps3a_r5] = MAX_AXIS_VALUE_8BITS,
 };
 
 static s_controller_params g27Ps3_params =
@@ -214,6 +257,22 @@ static unsigned int g27Ps3_report_build(int axis[AXIS_MAX], s_report_packet* rep
   if (axis[g27Ps3a_r3])
   {
     g27Ps3->buttons |= G27_R3_MASK;
+  }
+  if (axis[g27Ps3a_l4])
+  {
+    g27Ps3->buttons |= G27_L4_MASK;
+  }
+  if (axis[g27Ps3a_r4])
+  {
+    g27Ps3->buttons |= G27_R4_MASK;
+  }
+  if (axis[g27Ps3a_l5])
+  {
+    g27Ps3->wheel |= G27_R5_MASK;
+  }
+  if (axis[g27Ps3a_r5])
+  {
+    g27Ps3->buttons |= G27_L5_MASK;
   }
 
   return sizeof(*g27Ps3);
