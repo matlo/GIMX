@@ -314,30 +314,25 @@ int adapter_process_packet(int id, s_packet* packet)
     gettimeofday(&tv, NULL);
     printf("%ld.%06ld debug packet received (size = %d bytes)\n", tv.tv_sec, tv.tv_usec, length);
     dump(packet+2, length);*/
-    if(data[0] == 0x35 && data[1] == 0x00)
+    int i;
+    int zeros = 0;
+    for(i=length-1; i>=0; --i)
     {
-      char test = data[5];
-      printf("%d\n", test);
-      int i;
-      int zeros = 0;
-      for(i=length-1; i>=0; --i)
+      if(data[i] != 0x00)
       {
-        if(data[i] != 0x00)
-        {
-          zeros = length-1-i;
-          break;
-        }
+        zeros = length-1-i;
+        break;
       }
-      for(i=0; i<length-zeros; ++i)
-      {
-        printf("%02x ", data[i]);
-      }
-      printf("\n");
-      /*if(zeros)
-      {
-        printf("00 (%d times)\n", zeros);
-      }*/
     }
+    for(i=0; i<length-zeros; ++i)
+    {
+      printf("%02x ", data[i]);
+    }
+    printf("\n");
+    /*if(zeros)
+    {
+      printf("00 (%d times)\n", zeros);
+    }*/
   }
   else
   {
