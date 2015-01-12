@@ -32,9 +32,9 @@
 
 // not sure about these
 #define G27_R4_MASK         0x4000
-#define G27_L4_MASK         0x8000
+#define G27_R5_MASK         0x8000
 
-#define G27_R5_MASK         0x0001
+#define G27_L4_MASK         0x0001
 #define G27_L5_MASK         0x0002
 
 static const char *g27Ps3_axis_name[AXIS_MAX] =
@@ -103,6 +103,7 @@ static int g27Ps3_max_unsigned_axis_value[AXIS_MAX] =
 
   [g27Ps3a_gasPedal] = MAX_AXIS_VALUE_8BITS,
   [g27Ps3a_brakePedal] = MAX_AXIS_VALUE_8BITS,
+  [g27Ps3a_clutchPedal] = MAX_AXIS_VALUE_8BITS,
 
   [g27Ps3a_up] = MAX_AXIS_VALUE_8BITS,
   [g27Ps3a_right] = MAX_AXIS_VALUE_8BITS,
@@ -258,21 +259,21 @@ static unsigned int g27Ps3_report_build(int axis[AXIS_MAX], s_report_packet* rep
   {
     g27Ps3->buttons |= G27_R3_MASK;
   }
-  if (axis[g27Ps3a_l4])
-  {
-    g27Ps3->buttons |= G27_L4_MASK;
-  }
   if (axis[g27Ps3a_r4])
   {
     g27Ps3->buttons |= G27_R4_MASK;
   }
-  if (axis[g27Ps3a_l5])
-  {
-    g27Ps3->wheel |= G27_R5_MASK;
-  }
   if (axis[g27Ps3a_r5])
   {
-    g27Ps3->buttons |= G27_L5_MASK;
+    g27Ps3->buttons |= G27_R5_MASK;
+  }
+  if (axis[g27Ps3a_l4])
+  {
+    g27Ps3->wheel |= G27_L4_MASK;
+  }
+  if (axis[g27Ps3a_l5])
+  {
+    g27Ps3->wheel |= G27_L5_MASK;
   }
 
   return sizeof(*g27Ps3);
