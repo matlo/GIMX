@@ -49,7 +49,7 @@ all: updated $(BINS)
 gimx: $(OBJECTS)
 
 clean:
-	$(RM) $(OBJECTS)
+	$(RM) $(OBJECTS) $(BINS)
 
 #this rule triggers an update when $(DEPS) is updated
 updated: $(DEPS)
