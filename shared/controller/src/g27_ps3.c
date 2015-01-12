@@ -30,7 +30,6 @@
 #define G27_GEAR_5_MASK     0x1000
 #define G27_GEAR_6_MASK     0x2000
 
-// not sure about these
 #define G27_R4_MASK         0x4000
 #define G27_R5_MASK         0x8000
 
