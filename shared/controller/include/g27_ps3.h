@@ -44,7 +44,7 @@ typedef struct __attribute__ ((packed))
 {
   unsigned char hatAndButtons; //4 LSB = hat, 4 MSB = buttons
   unsigned short buttons;
-  unsigned short wheel; //big-endian, 14 MSB = axis
+  unsigned short buttonsAndWheel; //2 LSB = buttons, 14 MSB = axis
   unsigned char gasPedal;
   unsigned char brakePedal;
   unsigned char clutchPedal;

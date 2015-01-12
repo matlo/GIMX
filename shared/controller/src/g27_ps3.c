@@ -138,8 +138,8 @@ static s_controller_params g27Ps3_params =
 static s_report_g27Ps3 init_report_g27Ps3 =
 {
   .hatAndButtons = 0x08,
-  .buttons = 0x00,
-  .wheel = (MAX_AXIS_VALUE_14BITS << 2),
+  .buttons = 0x0000,
+  .buttonsAndWheel = (CENTER_AXIS_VALUE_14BITS << 2),
   .gasPedal = MAX_AXIS_VALUE_8BITS,
   .brakePedal = MAX_AXIS_VALUE_8BITS,
   .clutchPedal = MAX_AXIS_VALUE_8BITS,
@@ -159,7 +159,7 @@ static unsigned int g27Ps3_report_build(int axis[AXIS_MAX], s_report_packet* rep
 {
   s_report_g27Ps3* g27Ps3 = &report->value.g27Ps3;
 
-  g27Ps3->wheel = clamp(0, axis[g27Ps3a_wheel] + CENTER_AXIS_VALUE_14BITS, MAX_AXIS_VALUE_14BITS) << 2;
+  g27Ps3->buttonsAndWheel = clamp(0, axis[g27Ps3a_wheel] + CENTER_AXIS_VALUE_14BITS, MAX_AXIS_VALUE_14BITS) << 2;
 
   g27Ps3->gasPedal = clamp(0, MAX_AXIS_VALUE_8BITS - axis[g27Ps3a_gasPedal], MAX_AXIS_VALUE_8BITS);
   g27Ps3->brakePedal = clamp(0, MAX_AXIS_VALUE_8BITS - axis[g27Ps3a_brakePedal], MAX_AXIS_VALUE_8BITS);
@@ -269,11 +269,11 @@ static unsigned int g27Ps3_report_build(int axis[AXIS_MAX], s_report_packet* rep
   }
   if (axis[g27Ps3a_l4])
   {
-    g27Ps3->wheel |= G27_L4_MASK;
+    g27Ps3->buttonsAndWheel |= G27_L4_MASK;
   }
   if (axis[g27Ps3a_l5])
   {
-    g27Ps3->wheel |= G27_L5_MASK;
+    g27Ps3->buttonsAndWheel |= G27_L5_MASK;
   }
 
   return sizeof(*g27Ps3);
