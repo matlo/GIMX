@@ -39,8 +39,9 @@
 static const char *g27Ps3_axis_name[AXIS_MAX] =
 {
   [g27Ps3a_wheel] = "wheel",
-  [g27Ps3a_gasPedal] = "gas pedal",
-  [g27Ps3a_brakePedal] = "brake pedal",
+  [g27Ps3a_gasPedal] = "gas",
+  [g27Ps3a_brakePedal] = "brake",
+  [g27Ps3a_clutchPedal] = "clutch",
   [g27Ps3a_select] = "select",
   [g27Ps3a_start] = "start",
   [g27Ps3a_up] = "up",
@@ -67,9 +68,9 @@ static s_axis_name_dir axis_names[] =
 {
   {.name = "wheel",        {.axis = g27Ps3a_wheel,      .props = AXIS_PROP_CENTERED}},
 
-  {.name = "gas pedal",    {.axis = g27Ps3a_gasPedal,   .props = AXIS_PROP_POSITIVE}},
-  {.name = "brake pedal",  {.axis = g27Ps3a_brakePedal, .props = AXIS_PROP_POSITIVE}},
-  {.name = "clutch pedal",  {.axis = g27Ps3a_clutchPedal, .props = AXIS_PROP_POSITIVE}},
+  {.name = "gas",          {.axis = g27Ps3a_gasPedal,   .props = AXIS_PROP_POSITIVE}},
+  {.name = "brake",        {.axis = g27Ps3a_brakePedal, .props = AXIS_PROP_POSITIVE}},
+  {.name = "clutch",       {.axis = g27Ps3a_clutchPedal, .props = AXIS_PROP_POSITIVE}},
 
   {.name = "r2",           {.axis = g27Ps3a_r2,         .props = AXIS_PROP_TOGGLE}},
   {.name = "l2",           {.axis = g27Ps3a_l2,         .props = AXIS_PROP_TOGGLE}},

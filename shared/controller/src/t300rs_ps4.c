@@ -11,8 +11,8 @@
 static const char *t300rsPs4_axis_name[AXIS_MAX] =
 {
   [t300rsPs4a_wheel] = "wheel",
-  [t300rsPs4a_gasPedal] = "gas pedal",
-  [t300rsPs4a_brakePedal] = "brake pedal",
+  [t300rsPs4a_gasPedal] = "gas",
+  [t300rsPs4a_brakePedal] = "brake",
   [t300rsPs4a_share] = "share",
   [t300rsPs4a_options] = "options",
   [t300rsPs4a_up] = "up",
@@ -36,8 +36,8 @@ static s_axis_name_dir axis_names[] =
 {
   {.name = "wheel",        {.axis = t300rsPs4a_wheel,      .props = AXIS_PROP_CENTERED}},
 
-  {.name = "gas pedal",    {.axis = t300rsPs4a_gasPedal,   .props = AXIS_PROP_POSITIVE}},
-  {.name = "brake pedal",  {.axis = t300rsPs4a_brakePedal, .props = AXIS_PROP_POSITIVE}},
+  {.name = "gas",          {.axis = t300rsPs4a_gasPedal,   .props = AXIS_PROP_POSITIVE}},
+  {.name = "brake",        {.axis = t300rsPs4a_brakePedal, .props = AXIS_PROP_POSITIVE}},
 
   {.name = "r2",           {.axis = t300rsPs4a_r2,         .props = AXIS_PROP_TOGGLE}},
   {.name = "l2",           {.axis = t300rsPs4a_l2,         .props = AXIS_PROP_TOGGLE}},
