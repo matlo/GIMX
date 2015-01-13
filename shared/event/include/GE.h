@@ -364,6 +364,14 @@ typedef enum
   GE_MK_MODE_SINGLE_INPUT
 } GE_MK_Mode;
 
+typedef enum
+{
+  GE_JS_OTHER,
+  GE_JS_SIXAXIS,
+  GE_JS_DS4,
+  GE_JS_360PAD,
+} GE_JS_Type;
+
 #define EVENT_BUFFER_SIZE 256
 
 #define AXIS_X 0
@@ -391,7 +399,7 @@ int GE_GetDeviceId(GE_Event*);
 char* GE_JoystickName(int);
 int GE_JoystickVirtualId(int);
 void GE_SetJoystickUsed(int);
-int GE_IsSixaxis(int);
+GE_JS_Type GE_GetJSType(int id);
 int GE_RegisterJoystick(const char* name);
 
 const char* GE_MouseButtonName(int);

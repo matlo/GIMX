@@ -15,6 +15,8 @@
 #include <connectors/usb_con.h>
 #include <connectors/protocol.h>
 
+#include <connectors/ffb_logitech.h>
+
 static s_adapter adapter[MAX_CONTROLLERS] = {};
 
 /*
@@ -247,9 +249,9 @@ int adapter_forward_control_out(int id, unsigned char* data, unsigned char lengt
   return usb_send_control(id, data, length);
 }
 
-int adapter_forward_interrupt_out(int id, unsigned char endpoint, unsigned char* data, unsigned char length)
+int adapter_forward_interrupt_out(int id, unsigned char* data, unsigned char length)
 {
-  return usb_send_interrupt_out(id, endpoint, data, length);
+  return usb_send_interrupt_out(id, data, length);
 }
 
 static void dump(unsigned char* packet, unsigned char length)
@@ -287,25 +289,57 @@ int adapter_process_packet(int id, s_packet* packet)
   {
     int joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, id);
 
+    unsigned short weak = 0, strong = 0;
+    unsigned short weak_timeout = 0, strong_timeout = 0;
+    unsigned char send = 0;
+
     switch(adapter[id].type)
     {
       case C_TYPE_DS4:
-        //TODO
-        ret = adapter_forward_interrupt_out(id, DS4_USB_INTERRUPT_ENDPOINT_OUT, data, length);
-        if(ret < 0)
+        if(GE_GetJSType(joystick) == GE_JS_DS4)
         {
-          fprintf(stderr, "adapter_forward_interrupt_out failed\n");
+          ret = adapter_forward_interrupt_out(id, data, length);
+          if(ret < 0)
+          {
+            fprintf(stderr, "adapter_forward_interrupt_out failed\n");
+          }
+        }
+        else
+        {
+          weak = data[6] << 8;
+          strong = data[7] << 8;
+          send = 1;
+        }
+        break;
+      case C_TYPE_360_PAD:
+        if(GE_GetJSType(joystick) == GE_JS_360PAD)
+        {
+          ret = adapter_forward_interrupt_out(id, data, length);
+          if(ret < 0)
+          {
+            fprintf(stderr, "adapter_forward_interrupt_out failed\n");
+          }
+        }
+        else
+        {
+          weak = data[4] << 8;
+          strong = data[3] << 8;
+          send = 1;
         }
         break;
       case C_TYPE_SIXAXIS:
-        if(GE_JoystickHasRumble(joystick))
-        {
-          //TODO
-          //GE_JoystickSetRumble(joystick, buf[1], buf[2] << 8, buf[3], buf[4] << 8);
-        }
+        weak = data[2] << 8;
+        strong = data[4] << 8;
+        weak_timeout = data[1];
+        strong_timeout = data[3];
+        send = 1;
         break;
       default:
         break;
+    }
+    if(send && GE_JoystickHasRumble(joystick))
+    {
+      GE_JoystickSetRumble(joystick, weak_timeout, weak, strong_timeout, strong);
     }
   }
   else if(type == BYTE_DEBUG)
@@ -333,6 +367,7 @@ int adapter_process_packet(int id, s_packet* packet)
     {
       printf("00 (%d times)\n", zeros);
     }*/
+    ffb_logitech_decode(data, length);
   }
   else
   {

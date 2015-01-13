@@ -485,7 +485,7 @@ int usb_send_control(int usb_number, unsigned char* buffer, unsigned char length
   return 0;
 }
 
-int usb_send_interrupt_out(int usb_number, unsigned char endpoint, unsigned char* buffer, unsigned char length)
+int usb_send_interrupt_out(int usb_number, unsigned char* buffer, unsigned char length)
 {
   struct usb_state* state = usb_states+usb_number;
 
@@ -508,7 +508,7 @@ int usb_send_interrupt_out(int usb_number, unsigned char endpoint, unsigned char
 
   transfer->flags = LIBUSB_TRANSFER_FREE_BUFFER | LIBUSB_TRANSFER_FREE_TRANSFER;
 
-  libusb_fill_interrupt_transfer(transfer, state->devh, endpoint, buf, length, (libusb_transfer_cb_fn)usb_callback, usb_state_indexes+usb_number, 1000);
+  libusb_fill_interrupt_transfer(transfer, state->devh, controller[state->type].endpoints.out.address, buf, length, (libusb_transfer_cb_fn)usb_callback, usb_state_indexes+usb_number, 1000);
 
   int ret = libusb_submit_transfer(transfer);
   if(ret < 0)

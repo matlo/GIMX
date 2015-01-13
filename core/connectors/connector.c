@@ -315,7 +315,7 @@ int connector_send()
     {
       if(adapter->dst_fd >= 0)
       {
-        static unsigned char report[sizeof(adapter->axis)+2] = {0xff, sizeof(adapter->axis)};
+        static unsigned char report[sizeof(adapter->axis)+2] = { BYTE_SEND_REPORT, sizeof(adapter->axis) };
         memcpy(report+2, adapter->axis, sizeof(adapter->axis));
         ret = udp_send(adapter->dst_fd, report, sizeof(report));
       }

@@ -60,7 +60,7 @@ void adapter_set_axis(unsigned char c, int axis, int value);
 int adapter_forward_control_in(int id, unsigned char* data, unsigned char length);
 int adapter_forward_control_out(int id, unsigned char* data, unsigned char length);
 
-int adapter_forward_interrupt_out(int id, unsigned char endpoint, unsigned char* data, unsigned char length);
+int adapter_forward_interrupt_out(int id, unsigned char* data, unsigned char length);
 
 int adapter_process_packet(int id, s_packet* packet);
 

@@ -19,10 +19,22 @@
 
 #define BT_SIXAXIS_NAME "PLAYSTATION(R)3 Controller"
 
-static char* sixaxis_names[] =
+static struct
 {
-  "Sony PLAYSTATION(R)3 Controller",
-  "Sony Navigation Controller"
+  const char* name;
+  GE_JS_Type type;
+} js_types[] =
+{
+#ifndef WIN32
+  { "Sony PLAYSTATION(R)3 Controller", GE_JS_SIXAXIS },
+  { "Sony Navigation Controller", GE_JS_SIXAXIS },
+  { "Sony Computer Entertainment Wireless Controller", GE_JS_DS4 },
+  { "Microsoft X-Box 360 pad", GE_JS_360PAD },
+#else
+  { "PS4 Controller", GE_JS_DS4 },
+  { "X360 Controller", GE_JS_360PAD },
+  { "XBOX 360 For Windows (Controller)", GE_JS_360PAD },
+#endif
 };
 
 static struct
@@ -30,7 +42,7 @@ static struct
   char* name;
   int virtualIndex;
   unsigned char isUsed;
-  unsigned char isSixaxis;
+  GE_JS_Type type;
 } joysticks[GE_MAX_DEVICES] = {};
 
 static struct
@@ -113,12 +125,14 @@ int GE_initialize(unsigned char mkb_src)
       // Not found => the virtual index is 0.
       joysticks[i].virtualIndex = 0;
     }
-    // Determine if the joystick is a Sixaxis.
-    for (j = 0; j < sizeof(sixaxis_names) / sizeof(sixaxis_names[0]); ++j)
+    joysticks[i].type = GE_JS_OTHER; //default value
+    // Determine if the joystick type.
+    for (j = 0; j < sizeof(js_types) / sizeof(*js_types); ++j)
     {
-      if (!strcmp(joysticks[i].name, sixaxis_names[j]))
+      if (!strcmp(joysticks[i].name, js_types[j].name))
       {
-        joysticks[i].isSixaxis = 1;
+        joysticks[i].type = js_types[j].type;
+        break;
       }
     }
     i++;
@@ -382,13 +396,13 @@ int GE_KeyboardVirtualId(int id)
  * 
  * \return 1 if it is such a joystick, 0 otherwise.
  */
-int GE_IsSixaxis(int id)
+GE_JS_Type GE_GetJSType(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
-    return joysticks[id].isSixaxis;
+    return joysticks[id].type;
   }
-  return 0;
+  return GE_JS_OTHER;
 }
 
 /*

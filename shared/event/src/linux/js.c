@@ -117,7 +117,7 @@ static void js_process_event(int device, struct js_event* je)
       /*
        * Ugly patch for the sixaxis.
        */
-      if(GE_IsSixaxis(evt.jaxis.which) && evt.jaxis.axis > 3 && evt.jaxis.axis < 23)
+      if(GE_GetJSType(evt.jaxis.which) == GE_JS_SIXAXIS && evt.jaxis.axis > 3 && evt.jaxis.axis < 23)
       {
         evt.jaxis.value = (evt.jaxis.value + 32767) / 2;
       }
