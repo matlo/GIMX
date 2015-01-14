@@ -328,10 +328,8 @@ int adapter_process_packet(int id, s_packet* packet)
         }
         break;
       case C_TYPE_SIXAXIS:
-        weak = data[2] << 8;
-        strong = data[4] << 8;
-        weak_timeout = data[1];
-        strong_timeout = data[3];
+        weak = data[3] << 8;
+        strong = data[5] << 8;
         send = 1;
         break;
       default:
@@ -447,7 +445,7 @@ int adapter_get_type(int id)
  */
 int adapter_send_start(int id)
 {
-  return adapter_send_short_command(id, BYTE_START_SPOOF);
+  return adapter_send_short_command(id, BYTE_START);
 }
 
 /*

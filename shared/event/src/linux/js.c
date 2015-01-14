@@ -354,46 +354,40 @@ int js_set_ff_rumble(int index, unsigned short weak_timeout, unsigned short weak
     .value = 1 /* play: 1, stop: 0 */
   };
 
-  if(weak_timeout)
+  // Update the effect.
+  effect.id = joystick[index].force_feedback.weak_id;
+  effect.u.rumble.strong_magnitude = 0;
+  effect.u.rumble.weak_magnitude   = weak;
+  effect.replay.length = weak_timeout;
+  if (ioctl(fd, EVIOCSFF, &effect) == -1)
   {
-    // Update the effect.
-    effect.id = joystick[index].force_feedback.weak_id;
-    effect.u.rumble.strong_magnitude = 0;
-    effect.u.rumble.weak_magnitude   = weak;
-    effect.replay.length = weak_timeout;
-    if (ioctl(fd, EVIOCSFF, &effect) == -1)
-    {
-      perror("ioctl EVIOCSFF");
-      ret = -1;
-    }
-    // Play the effect.
-    play.code =  effect.id;
-    if (write(fd, (const void*) &play, sizeof(play)) == -1)
-    {
-      perror("write");
-      ret = -1;
-    }
+    perror("ioctl EVIOCSFF");
+    ret = -1;
+  }
+  // Play the effect.
+  play.code =  effect.id;
+  if (write(fd, (const void*) &play, sizeof(play)) == -1)
+  {
+    perror("write");
+    ret = -1;
   }
 
-  if(strong_timeout)
+  // Update the effect.
+  effect.id = joystick[index].force_feedback.strong_id;
+  effect.u.rumble.strong_magnitude = strong;
+  effect.u.rumble.weak_magnitude   = 0;
+  effect.replay.length = strong_timeout;
+  if (ioctl(fd, EVIOCSFF, &effect) == -1)
   {
-    // Update the effect.
-    effect.id = joystick[index].force_feedback.strong_id;
-    effect.u.rumble.strong_magnitude = strong;
-    effect.u.rumble.weak_magnitude   = 0;
-    effect.replay.length = strong_timeout;
-    if (ioctl(fd, EVIOCSFF, &effect) == -1)
-    {
-      perror("ioctl EVIOCSFF");
-      ret = -1;
-    }
-    // Play the effect.
-    play.code =  effect.id;
-    if (write(fd, (const void*) &play, sizeof(play)) == -1)
-    {
-      perror("write");
-      ret = -1;
-    }
+    perror("ioctl EVIOCSFF");
+    ret = -1;
+  }
+  // Play the effect.
+  play.code =  effect.id;
+  if (write(fd, (const void*) &play, sizeof(play)) == -1)
+  {
+    perror("write");
+    ret = -1;
   }
 
   return ret;
