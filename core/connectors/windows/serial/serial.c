@@ -17,7 +17,7 @@ static struct serial
   HANDLE handle;
   OVERLAPPED rOverlapped;
   OVERLAPPED wOverlapped;
-  unsigned char data[HEADER_SIZE+BUFFER_SIZE];
+  s_packet packet;
   unsigned char bread;
 } serials[MAX_CONTROLLERS] = {};
 
@@ -200,7 +200,7 @@ static int start_overlapped_read(int id, int remaining)
 {
   int ret = -1;
   
-  if(!ReadFile(serials[id].handle, (uint8_t*)serials[id].data+serials[id].bread, remaining, NULL, &serials[id].rOverlapped))
+  if(!ReadFile(serials[id].handle, (uint8_t*)&serials[id].packet+serials[id].bread, remaining, NULL, &serials[id].rOverlapped))
   {
     if(GetLastError() != ERROR_IO_PENDING)
     {
@@ -226,11 +226,11 @@ static int start_overlapped_read(int id, int remaining)
  */
 static int read_value(int id)
 {
-  int remaining = serials[id].data[1] - (serials[id].bread - HEADER_SIZE);
+  int remaining = serials[id].packet.header.length - (serials[id].bread - sizeof(serials->packet.header));
   
   if(remaining < 1)
   {
-    return serials[id].data[1];
+    return serials[id].packet.header.length;
   }
 
   return start_overlapped_read(id, remaining);
@@ -243,11 +243,11 @@ static int read_value(int id)
  */
 static int read_header(int id)
 {
-  int remaining = HEADER_SIZE - serials[id].bread;
+  int remaining = sizeof(serials->packet.header) - serials[id].bread;
   
   if(remaining < 1)
   {
-    return HEADER_SIZE;
+    return sizeof(serials->packet.header);
   }
 
   return start_overlapped_read(id, remaining);
@@ -271,7 +271,7 @@ int read_packet(int id)
      */
     if(ret >= 0)
     {
-      ret = adapter_process_packet(id, serials[id].data);
+      ret = adapter_process_packet(id, &serials[id].packet);
 
       serials[id].bread = 0;
     }
