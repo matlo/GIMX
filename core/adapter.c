@@ -290,7 +290,6 @@ int adapter_process_packet(int id, s_packet* packet)
     int joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, id);
 
     unsigned short weak = 0, strong = 0;
-    unsigned short weak_timeout = 0, strong_timeout = 0;
     unsigned char send = 0;
 
     switch(adapter[id].type)
@@ -337,7 +336,7 @@ int adapter_process_packet(int id, s_packet* packet)
     }
     if(send && GE_JoystickHasRumble(joystick))
     {
-      GE_JoystickSetRumble(joystick, weak_timeout, weak, strong_timeout, strong);
+      GE_JoystickSetRumble(joystick, 0, weak, 0, strong);
     }
   }
   else if(type == BYTE_DEBUG)
