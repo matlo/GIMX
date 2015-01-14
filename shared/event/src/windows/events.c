@@ -37,18 +37,56 @@ static struct
   SDL_GameController* controller;
   struct
   {
+    SDL_Haptic* haptic;
+    int effect_id;
+  } force_feedback;
+  struct
+  {
     int joystickHatButtonBaseIndex; // the base index of the generated hat buttons equals the number of physical buttons
     int joystickNbHat; // the number of hats
     unsigned char* joystickHat; // the current hat values
   } hat_info; // allows to convert hat axes to buttons
 } joysticks[GE_MAX_DEVICES] = {};
 
+static void open_haptic(int id, SDL_Joystick* joystick)
+{
+  SDL_Haptic* haptic = SDL_HapticOpenFromJoystick(joystick);
+  if(haptic)
+  {
+    if(SDL_HapticQuery(haptic) & SDL_HAPTIC_LEFTRIGHT)
+    {
+      SDL_HapticEffect effect =
+      {
+        .leftright =
+        {
+          .type = SDL_HAPTIC_LEFTRIGHT
+        }
+      };
+      int effect_id = SDL_HapticNewEffect(haptic, &effect);
+      if(effect_id >= 0)
+      {
+        joysticks[id].force_feedback.haptic = haptic;
+        joysticks[id].force_feedback.effect_id = effect_id;
+      }
+      else
+      {
+        fprintf(stderr, "SDL_HapticNewEffect: %s\n", SDL_GetError());
+        SDL_HapticClose(haptic);
+      }
+    }
+    else
+    {
+      SDL_HapticClose(haptic);
+    }
+  }
+}
+
 int ev_init(unsigned char mkb_src)
 {
   int i;
   
   /* Init SDL */
-  if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) < 0)
+  if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC) < 0)
   {
    fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
    return 0;
@@ -61,10 +99,12 @@ int ev_init(unsigned char mkb_src)
       SDL_GameController* controller = SDL_GameControllerOpen(i);
       if (controller)
       {
-        int instanceId = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller));
+        SDL_Joystick* joystick = SDL_GameControllerGetJoystick(controller);
+        int instanceId = SDL_JoystickInstanceID(joystick);
         if(instanceId >= 0)
         {
           joysticks[joysticks_nb].controller = controller;
+          open_haptic(joysticks_nb, joystick);
           instanceIdToIndex[instanceId] = joysticks_nb;
           ++joysticks_nb;
         }
@@ -88,6 +128,7 @@ int ev_init(unsigned char mkb_src)
         if(instanceId >= 0)
         {
           joysticks[joysticks_nb].joystick = joystick;
+          open_haptic(joysticks_nb, joystick);
           instanceIdToIndex[instanceId] = joysticks_nb;
           joysticks[joysticks_nb].hat_info.joystickHatButtonBaseIndex = SDL_JoystickNumButtons(joystick);
           joysticks[joysticks_nb].hat_info.joystickNbHat = SDL_JoystickNumHats(joystick);
@@ -213,19 +254,27 @@ void ev_joystick_close(int id)
     closed = 1;
     --joysticks_registered;
   }
-  else if(joysticks[id].joystick)
+  else
   {
-    SDL_JoystickClose(joysticks[id].joystick);
-    joysticks[id].joystick = NULL;
-    free(joysticks[id].hat_info.joystickHat);
-    joysticks[id].hat_info.joystickHat = NULL;
-    closed = 1;
-  }
-  else if(joysticks[id].controller)
-  {
-    SDL_GameControllerClose(joysticks[id].controller);
-    joysticks[id].controller = NULL;
-    closed = 1;
+    if(joysticks[id].force_feedback.haptic)
+    {
+      SDL_HapticClose(joysticks[id].force_feedback.haptic);
+      joysticks[id].force_feedback.haptic = NULL;
+    }
+    if(joysticks[id].joystick)
+    {
+      SDL_JoystickClose(joysticks[id].joystick);
+      joysticks[id].joystick = NULL;
+      free(joysticks[id].hat_info.joystickHat);
+      joysticks[id].hat_info.joystickHat = NULL;
+      closed = 1;
+    }
+    else if(joysticks[id].controller)
+    {
+      SDL_GameControllerClose(joysticks[id].controller);
+      joysticks[id].controller = NULL;
+      closed = 1;
+    }
   }
   if(closed)
   {
@@ -903,12 +952,41 @@ static int sdl_peep_events(GE_Event* events, int size)
 
 int ev_joystick_has_ff_rumble(int joystick)
 {
-  //TODO
-  return 0;
+  if(joystick < 0 || joystick >= joysticks_nb)
+  {
+    return 0;
+  }
+  return joysticks[joystick].force_feedback.haptic != NULL;
 }
 
 int ev_joystick_set_ff_rumble(int joystick, unsigned short weak_timeout, unsigned short weak, unsigned short strong_timeout, unsigned short strong)
 {
-  //TODO
+  if(!ev_joystick_has_ff_rumble(joystick))
+  {
+    return -1;
+  }
+  SDL_HapticEffect effect =
+  {
+    .leftright =
+    {
+      .type = SDL_HAPTIC_LEFTRIGHT,
+      .length = 0,
+      .large_magnitude = strong,
+      .small_magnitude = weak
+    }
+  };
+  if(SDL_HapticUpdateEffect(joysticks[joystick].force_feedback.haptic, joysticks[joystick].force_feedback.effect_id, &effect))
+  {
+    fprintf(stderr, "SDL_HapticUpdateEffect: %s\n", SDL_GetError());
+    return -1;
+  }
+  else
+  {
+    if(SDL_HapticRunEffect(joysticks[joystick].force_feedback.haptic, joysticks[joystick].force_feedback.effect_id, 1))
+    {
+      fprintf(stderr, "SDL_HapticRunEffect: %s\n", SDL_GetError());
+      return -1;
+    }
+  }
   return 0;
 }
