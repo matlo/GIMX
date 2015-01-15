@@ -19,6 +19,17 @@
 
 static s_adapter adapter[MAX_CONTROLLERS] = {};
 
+static struct
+{
+  unsigned char weak;
+  unsigned char strong;
+} motors[C_TYPE_MAX] =
+{
+  [C_TYPE_DS4]     = { .weak = 4, .strong = 5 },
+  [C_TYPE_360_PAD] = { .weak = 4, .strong = 3 },
+  [C_TYPE_SIXAXIS] = { .weak = 3, .strong = 5 },
+};
+
 /*
  * These tables are used to retrieve the default controller for a device and vice versa.
  */
@@ -289,7 +300,9 @@ int adapter_process_packet(int id, s_packet* packet)
   {
     int joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, id);
 
-    unsigned short weak = 0, strong = 0;
+    unsigned short weak = data[motors[adapter[id].type].weak] << 8;
+    unsigned short strong = data[motors[adapter[id].type].strong] << 8;
+
     unsigned char send = 0;
 
     switch(adapter[id].type)
@@ -305,8 +318,6 @@ int adapter_process_packet(int id, s_packet* packet)
         }
         else
         {
-          weak = data[4] << 8;
-          strong = data[5] << 8;
           send = 1;
         }
         break;
@@ -321,14 +332,10 @@ int adapter_process_packet(int id, s_packet* packet)
         }
         else
         {
-          weak = data[4] << 8;
-          strong = data[3] << 8;
           send = 1;
         }
         break;
       case C_TYPE_SIXAXIS:
-        weak = data[3] << 8;
-        strong = data[5] << 8;
         send = 1;
         break;
       default:
