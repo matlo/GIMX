@@ -300,9 +300,6 @@ int adapter_process_packet(int id, s_packet* packet)
   {
     int joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, id);
 
-    unsigned short weak = data[motors[adapter[id].type].weak] << 8;
-    unsigned short strong = data[motors[adapter[id].type].strong] << 8;
-
     unsigned char send = 0;
 
     switch(adapter[id].type)
@@ -349,8 +346,8 @@ int adapter_process_packet(int id, s_packet* packet)
         {
           .type = GE_JOYRUMBLE,
           .which = joystick,
-          .weak = weak,
-          .strong = strong
+          .weak = data[motors[adapter[id].type].weak] << 8,
+          .strong = data[motors[adapter[id].type].strong] << 8
         }
       };
       GE_PushEvent(&event);
@@ -381,7 +378,7 @@ int adapter_process_packet(int id, s_packet* packet)
     {
       printf("00 (%d times)\n", zeros);
     }*/
-    ffb_logitech_decode(data, length);
+    //ffb_logitech_decode(data, length);
   }
   else
   {
