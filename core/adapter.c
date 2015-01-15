@@ -305,8 +305,8 @@ int adapter_process_packet(int id, s_packet* packet)
         }
         else
         {
-          weak = data[6] << 8;
-          strong = data[7] << 8;
+          weak = data[4] << 8;
+          strong = data[5] << 8;
           send = 1;
         }
         break;
