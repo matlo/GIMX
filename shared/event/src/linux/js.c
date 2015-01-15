@@ -39,6 +39,7 @@ static struct
     int fd;
     int weak_id;
     int strong_id;
+    int (*rumble_cb)(int index, unsigned short weak, unsigned short strong);
   } force_feedback;
 } joystick[GE_MAX_DEVICES] = {};
 
@@ -325,7 +326,7 @@ int js_has_ff_rumble(int index)
 {
   if(index < j_num)
   {
-    return (joystick[index].force_feedback.fd != -1);
+    return (joystick[index].force_feedback.fd != -1) || (joystick[index].force_feedback.rumble_cb);
   }
   else
   {
@@ -333,60 +334,70 @@ int js_has_ff_rumble(int index)
   }
 }
 
-int js_set_ff_rumble(int index, unsigned short weak_timeout, unsigned short weak, unsigned short strong_timeout, unsigned short strong)
+int js_set_ff_rumble(int index, unsigned short weak, unsigned short strong)
 {
-  int fd;
-  if(index >= j_num || (fd = joystick[index].force_feedback.fd) < 0)
+  if(index < 0 || index >= j_num)
   {
     return -1;
   }
 
   int ret = 0;
 
-  struct ff_effect effect =
-  {
-    .type = FF_RUMBLE
-  };
+  int fd = joystick[index].force_feedback.fd;
 
-  struct input_event play =
+  if(fd >= 0)
   {
-    .type = EV_FF,
-    .value = 1 /* play: 1, stop: 0 */
-  };
+    struct ff_effect effect =
+    {
+      .type = FF_RUMBLE
+    };
 
-  // Update the effect.
-  effect.id = joystick[index].force_feedback.weak_id;
-  effect.u.rumble.strong_magnitude = 0;
-  effect.u.rumble.weak_magnitude   = weak;
-  effect.replay.length = weak_timeout;
-  if (ioctl(fd, EVIOCSFF, &effect) == -1)
-  {
-    perror("ioctl EVIOCSFF");
-    ret = -1;
-  }
-  // Play the effect.
-  play.code =  effect.id;
-  if (write(fd, (const void*) &play, sizeof(play)) == -1)
-  {
-    perror("write");
-    ret = -1;
-  }
+    struct input_event play =
+    {
+      .type = EV_FF,
+      .value = 1 /* play: 1, stop: 0 */
+    };
 
-  // Update the effect.
-  effect.id = joystick[index].force_feedback.strong_id;
-  effect.u.rumble.strong_magnitude = strong;
-  effect.u.rumble.weak_magnitude   = 0;
-  effect.replay.length = strong_timeout;
-  if (ioctl(fd, EVIOCSFF, &effect) == -1)
-  {
-    perror("ioctl EVIOCSFF");
-    ret = -1;
+    // Update the effect.
+    effect.id = joystick[index].force_feedback.weak_id;
+    effect.u.rumble.strong_magnitude = 0;
+    effect.u.rumble.weak_magnitude   = weak;
+    if (ioctl(fd, EVIOCSFF, &effect) == -1)
+    {
+      perror("ioctl EVIOCSFF");
+      ret = -1;
+    }
+    // Play the effect.
+    play.code =  effect.id;
+    if (write(fd, (const void*) &play, sizeof(play)) == -1)
+    {
+      perror("write");
+      ret = -1;
+    }
+
+    // Update the effect.
+    effect.id = joystick[index].force_feedback.strong_id;
+    effect.u.rumble.strong_magnitude = strong;
+    effect.u.rumble.weak_magnitude   = 0;
+    if (ioctl(fd, EVIOCSFF, &effect) == -1)
+    {
+      perror("ioctl EVIOCSFF");
+      ret = -1;
+    }
+    // Play the effect.
+    play.code =  effect.id;
+    if (write(fd, (const void*) &play, sizeof(play)) == -1)
+    {
+      perror("write");
+      ret = -1;
+    }
   }
-  // Play the effect.
-  play.code =  effect.id;
-  if (write(fd, (const void*) &play, sizeof(play)) == -1)
+  else if(joystick[index].force_feedback.rumble_cb)
   {
-    perror("write");
+    ret = joystick[index].force_feedback.rumble_cb(index, weak, strong);
+  }
+  else
+  {
     ret = -1;
   }
 
@@ -439,13 +450,14 @@ const char* js_get_name(int index)
   }
 }
 
-int js_register(const char* name)
+int js_register(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short))
 {
   int index = -1;
   if(j_num < GE_MAX_DEVICES)
   {
     index = j_num;
     joystick[index].name = strdup(name);
+    joystick[index].force_feedback.rumble_cb = rumble_cb;
     ++j_num;
   }
   return index;

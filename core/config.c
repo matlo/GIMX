@@ -101,6 +101,53 @@ inline s_intensity* cfg_get_axis_intensity(int controller, int config, int axis)
   return &(axis_intensity[controller][config][axis]);
 }
 
+static struct
+{
+  unsigned char nb;
+  unsigned long weak;
+  unsigned long strong;
+  unsigned char falling; //indicates that weak and strong were null in the last event
+  unsigned char off;
+} joystick_rumble[MAX_DEVICES] = {};
+
+inline void cfg_process_rumble_event(GE_Event* event)
+{
+  joystick_rumble[event->jrumble.which].weak += event->jrumble.weak;
+  joystick_rumble[event->jrumble.which].strong += event->jrumble.strong;
+  joystick_rumble[event->jrumble.which].nb++;
+  joystick_rumble[event->jrumble.which].falling =
+      (!event->jrumble.weak && !event->jrumble.strong)
+      && !joystick_rumble[event->jrumble.which].off;
+}
+
+void cfg_process_rumble()
+{
+  int i;
+  for (i = 0; i < MAX_DEVICES; ++i)
+  {
+    unsigned char nb = joystick_rumble[i].nb;
+
+    if(nb)
+    {
+      unsigned short weak = joystick_rumble[i].weak / nb;
+      unsigned short strong = joystick_rumble[i].strong / nb;
+
+      joystick_rumble[i].off = !weak && !strong;
+
+      if(!joystick_rumble[i].off || joystick_rumble[i].falling)
+      {
+        GE_JoystickSetRumble(i, weak, strong);
+
+        joystick_rumble[i].falling = 0;
+      }
+
+      joystick_rumble[i].nb = 0;
+      joystick_rumble[i].weak = 0;
+      joystick_rumble[i].strong = 0;
+    }
+  }
+}
+
 int cfg_is_joystick_used(int id)
 {
   int j, k;

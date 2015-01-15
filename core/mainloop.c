@@ -61,6 +61,8 @@ void mainloop()
     {
       done = 1;
     }
+
+    cfg_process_rumble();
     
     usb_poll_interrupts();
 

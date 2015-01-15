@@ -352,9 +352,9 @@ void GE_SetJoystickUsed(int id)
  * 
  * \return the id of the joystick, that can be used to forge an event
  */
-int GE_RegisterJoystick(const char* name)
+int GE_RegisterJoystick(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short))
 {
-  return ev_joystick_register(name);
+  return ev_joystick_register(name, rumble_cb);
 }
 
 /*
@@ -566,15 +566,17 @@ int GE_JoystickHasRumble(int id)
 /*
  * \brief Set the joystick rumble.
  *
- * \param id  the joystick index (in the [0..GE_MAX_DEVICES[ range)
+ * \param id    the joystick index (in the [0..GE_MAX_DEVICES[ range)
+ * \param weak  the weak motor magnitude
+ * \param strong  the weak strong magnitude
  *
  * \return -1 in case of error, 0 otherwise
  */
-int GE_JoystickSetRumble(int id, unsigned short weak_timeout, unsigned short weak, unsigned short strong_timeout, unsigned short strong)
+int GE_JoystickSetRumble(int id, unsigned short weak, unsigned short strong)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
-    return ev_joystick_set_ff_rumble(id, weak_timeout, weak, strong_timeout, strong);
+    return ev_joystick_set_ff_rumble(id, weak, strong);
   }
   return 0;
 }

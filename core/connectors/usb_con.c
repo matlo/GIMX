@@ -387,7 +387,7 @@ int usb_init(int usb_number, e_controller_type type)
             if(usb_poll_interrupt(usb_number) == LIBUSB_SUCCESS)
             {
               // register joystick
-              int device_id = GE_RegisterJoystick(controller[state->type].name);
+              int device_id = GE_RegisterJoystick(controller[state->type].name, NULL);
               if(device_id >= 0)
               {
                 state->joystick_id = device_id;

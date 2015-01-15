@@ -117,6 +117,8 @@ void cfg_config_activation();
 void cfg_intensity_lookup(GE_Event*);
 void cfg_process_event(GE_Event*);
 inline s_mouse_control* cfg_get_mouse_control(int);
+inline void cfg_process_rumble_event(GE_Event* event);
+void cfg_process_rumble();
 int cfg_is_joystick_used(int);
 void cfg_process_motion_event(GE_Event*);
 void cfg_process_motion();

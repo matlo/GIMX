@@ -224,13 +224,14 @@ const char* ev_joystick_name(int id)
   return SDL_JoystickName(joysticks[id].joystick);
 }
 
-int ev_joystick_register(const char* name)
+int ev_joystick_register(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short))
 {
   int index = -1;
   if(joysticks_nb < GE_MAX_DEVICES)
   {
     index = joysticks_nb;
     joysticks[index].name = strdup(name);
+    //TODO MLA: rumble callback
     ++joysticks_nb;
     ++joysticks_registered;
   }
@@ -959,7 +960,7 @@ int ev_joystick_has_ff_rumble(int joystick)
   return joysticks[joystick].force_feedback.haptic != NULL;
 }
 
-int ev_joystick_set_ff_rumble(int joystick, unsigned short weak_timeout, unsigned short weak, unsigned short strong_timeout, unsigned short strong)
+int ev_joystick_set_ff_rumble(int joystick, unsigned short weak, unsigned short strong)
 {
   if(!ev_joystick_has_ff_rumble(joystick))
   {

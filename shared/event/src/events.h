@@ -11,14 +11,14 @@ void ev_quit();
 
 void ev_set_caption (const char*, const char*);
 
-int ev_joystick_register(const char* name);
+int ev_joystick_register(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short));
 void ev_joystick_close(int);
 const char* ev_joystick_name(int);
 const char* ev_mouse_name(int);
 const char* ev_keyboard_name(int);
 
 int ev_joystick_has_ff_rumble(int joystick);
-int ev_joystick_set_ff_rumble(int joystick, unsigned short weak_timeout, unsigned short weak, unsigned short strong_timeout, unsigned short strong);
+int ev_joystick_set_ff_rumble(int joystick, unsigned short weak, unsigned short strong);
 
 void ev_grab_input(int);
 void ev_set_callback(int (*)(GE_Event*));

@@ -300,6 +300,7 @@ typedef enum {
        GE_JOYHATMOTION,    /**< Joystick hat position change */
        GE_JOYBUTTONDOWN,   /**< Joystick button pressed */
        GE_JOYBUTTONUP,     /**< Joystick button released */
+       GE_JOYRUMBLE,     /**< Joystick rumble */
        GE_QUIT,     /**< Joystick button released */
 } GE_EventType;
 
@@ -348,6 +349,13 @@ typedef struct GE_JoyButtonEvent {
   uint8_t state;  /**< GE_PRESSED or GE_RELEASED */
 } GE_JoyButtonEvent;
 
+typedef struct GE_JoyRumbleEvent {
+  uint8_t type; /**< GE_JOYRUMBLE */
+  uint8_t which;  /**< The joystick device index */
+  uint16_t weak; /**< Weak motor */
+  uint16_t strong;  /**< Strong motor */
+} GE_JoyRumbleEvent;
+
 typedef union GE_Event {
   uint8_t type;
   GE_KeyboardEvent key;
@@ -356,6 +364,7 @@ typedef union GE_Event {
   GE_JoyAxisEvent jaxis;
   GE_JoyHatEvent jhat;
   GE_JoyButtonEvent jbutton;
+  GE_JoyRumbleEvent jrumble;
 } GE_Event;
 
 typedef enum
@@ -400,7 +409,7 @@ char* GE_JoystickName(int);
 int GE_JoystickVirtualId(int);
 void GE_SetJoystickUsed(int);
 GE_JS_Type GE_GetJSType(int id);
-int GE_RegisterJoystick(const char* name);
+int GE_RegisterJoystick(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short));
 
 const char* GE_MouseButtonName(int);
 int GE_MouseButtonId(const char*);
@@ -411,7 +420,7 @@ GE_MK_Mode GE_GetMKMode();
 void GE_SetMKMode(GE_MK_Mode);
 
 int GE_JoystickHasRumble(int id);
-int GE_JoystickSetRumble(int id, unsigned short weak_timeout, unsigned short weak, unsigned short strong_timeout, unsigned short strong);
+int GE_JoystickSetRumble(int id, unsigned short weak, unsigned short strong);
 
 void GE_TimerStart(int usec);
 void GE_TimerClose();

@@ -336,7 +336,17 @@ int adapter_process_packet(int id, s_packet* packet)
     }
     if(send && GE_JoystickHasRumble(joystick))
     {
-      GE_JoystickSetRumble(joystick, 0, weak, 0, strong);
+      GE_Event event =
+      {
+        .jrumble =
+        {
+          .type = GE_JOYRUMBLE,
+          .which = joystick,
+          .weak = weak,
+          .strong = strong
+        }
+      };
+      GE_PushEvent(&event);
     }
   }
   else if(type == BYTE_DEBUG)

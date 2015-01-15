@@ -264,7 +264,17 @@ static int process_output_01(const uint8_t *buf, int len, struct sixaxis_state *
 
   if(GE_JoystickHasRumble(joystick))
   {
-    GE_JoystickSetRumble(joystick, 0, buf[2] << 8, 0, buf[4] << 8);
+    GE_Event event =
+    {
+      .jrumble =
+      {
+        .type = GE_JOYRUMBLE,
+        .which = joystick,
+        .weak = buf[2] << 8,
+        .strong = buf[4] << 8
+      }
+    };
+    GE_PushEvent(&event);
   }
 
   return 0;

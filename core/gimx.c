@@ -86,18 +86,23 @@ int ignore_event(GE_Event* event)
 
 int process_event(GE_Event* event)
 {
-  if (event->type != GE_MOUSEMOTION)
+  switch (event->type)
   {
-    if (!cal_skip_event(event))
-    {
-      cfg_process_event(event);
-    }
-  }
-  else
-  {
-    cfg_process_motion_event(event);
+    case GE_MOUSEMOTION:
+      cfg_process_motion_event(event);
+      break;
+    case GE_JOYRUMBLE:
+      cfg_process_rumble_event(event);
+      break;
+    default:
+      if (!cal_skip_event(event))
+      {
+        cfg_process_event(event);
+      }
+      break;
   }
 
+  //make sure to process the event before these two lines
   cfg_trigger_lookup(event);
   cfg_intensity_lookup(event);
 

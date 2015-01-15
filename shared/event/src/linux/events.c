@@ -110,9 +110,9 @@ int ev_init(unsigned char mkb_src)
   return 1;
 }
 
-int ev_joystick_register(const char* name)
+int ev_joystick_register(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short))
 {
-  return js_register(name);
+  return js_register(name, rumble_cb);
 }
 
 void ev_joystick_close(int id)
@@ -181,9 +181,9 @@ int ev_joystick_has_ff_rumble(int joystick)
   return js_has_ff_rumble(joystick);
 }
 
-int ev_joystick_set_ff_rumble(int joystick, unsigned short weak_timeout, unsigned short weak, unsigned short strong_timeout, unsigned short strong)
+int ev_joystick_set_ff_rumble(int joystick, unsigned short weak, unsigned short strong)
 {
-  return js_set_ff_rumble(joystick, weak_timeout, weak, strong_timeout, strong);
+  return js_set_ff_rumble(joystick, weak, strong);
 }
 
 static int (*event_callback)(GE_Event*) = NULL;

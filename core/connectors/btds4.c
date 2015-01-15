@@ -523,27 +523,107 @@ static int read_ps4_interrupt(int btds4_number)
   }
   else
   {
-    /*
-     * TODO MLA: process rumble!
-     */
-
-    /*switch(buf[2])
+    switch(buf[1])
     {
-      case 0xc0:
-        printf("0x%02x 0x%02x 0x%02x\n", buf[1], buf[7], buf[8]);
+      case 0x11:
+      case 0x15:
+      case 0x19:
+        {
+          int joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, btds4_number);
+
+          if(GE_GetJSType(joystick) == GE_JS_DS4 || GE_JoystickHasRumble(joystick))
+          {
+            GE_Event event =
+            {
+              .jrumble =
+              {
+                .type = GE_JOYRUMBLE,
+                .which = joystick,
+                .weak = buf[7] << 8,
+                .strong = buf[8] << 8
+              }
+            };
+            GE_PushEvent(&event);
+          }
+        }
         break;
-    }*/
-
-    /*int ret = l2cap_send(states[btds4_number].ds4_interrupt, buf, len, 0);
-
-    if(ret != len)
-    {
-      fprintf(stderr, "error writing ds4 interrupt\n");
-    }*/
+      default:
+        break;
+    }
   }
 
   return 0;
+}
 
+static int ds4_interrupt_rumble(int joystick, unsigned short weak, unsigned short strong)
+{
+  static struct __attribute__ ((packed))
+  {
+    unsigned char data[75];
+    unsigned char crc32[4];
+  } report =
+  {
+    .data =
+    {
+      0xa2, 0x11, 0xc0, 0x20, 0xf3, 0x04, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x43, 0x43,
+      0x00, 0x4d, 0x85, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00
+    }
+  };
+
+  int ret = 0;
+
+  int i;
+  for(i = 0; i < sizeof(states)/sizeof(*states); ++i)
+  {
+    if(states[i].joystick_id == joystick)
+    {
+      report.data[7] = weak >> 8;
+      report.data[8] = strong >> 8;
+
+#ifndef WIN32
+      MHASH td = mhash_init(MHASH_CRC32B);
+
+      if (td == MHASH_FAILED)
+      {
+        perror("mhash_init");
+      }
+
+      mhash(td, report.data, sizeof(report.data));
+#else
+      //TODO MLA
+#endif
+
+      unsigned int digest = 0; // crc32 will be stored here
+
+#ifndef WIN32
+      mhash_deinit(td, &digest);
+#endif
+
+      report.crc32[3] = digest >> 24;
+      report.crc32[2] = (digest >> 16) & 0xFF;
+      report.crc32[1] = (digest >> 8) & 0xFF;
+      report.crc32[0] = digest & 0xFF;
+
+      int len = sizeof(report);
+      ret = l2cap_send(states[i].ds4_interrupt, (unsigned char*)&report, len, 0);
+      if(ret != len)
+      {
+        fprintf(stderr, "error writing ds4 interrupt\n");
+      }
+
+      break;
+    }
+  }
+
+  return ret;
 }
 
 static int close_ps4_interrupt(int btds4_number)
@@ -752,7 +832,7 @@ int btds4_init(int btds4_number)
   state->ds4_sdp_pending = -1;
 
   memcpy(&state->bt_report, &init_report_btds4, sizeof(s_btds4_report));
-  state->joystick_id = GE_RegisterJoystick(DS4_DEVICE_NAME);
+  state->joystick_id = GE_RegisterJoystick(DS4_DEVICE_NAME, ds4_interrupt_rumble);
 
 #ifndef WIN32
   if(bt_mgmt_adapter_init(state->dongle_index) < 0)
