@@ -17,7 +17,10 @@ inline int timer_get()
 
 int timer_start(int usec)
 {
-  struct timespec period = {.tv_sec = 0, .tv_nsec = usec * 1000};
+  __time_t sec = usec / 1000000;
+  __time_t nsec = (usec - sec * 1000000) * 1000;
+
+  struct timespec period = {.tv_sec = sec, .tv_nsec = nsec};
 
   struct itimerspec new_value =
   {

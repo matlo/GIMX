@@ -467,9 +467,9 @@ int GE_GetDeviceId(GE_Event* e)
 /*
  * \brief Push an event into the event queue.
  * 
- * \param e  the event
+ * \param event  the event
  *
- * \return the device id.
+ * \return 0 in case of success, -1 in case of error.
  */
 int GE_PushEvent(GE_Event *event)
 {

@@ -33,7 +33,10 @@ int queue_push_event(GE_Event* ev)
     {
       queue_index_last = MAX_EVENTS-1;
     }
-    ret = 0;
+    else
+    {
+      ret = 0;
+    }
   }
   else if(queue_index_last+1 < queue_index_first)
   {
