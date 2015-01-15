@@ -531,7 +531,7 @@ static int read_ps4_interrupt(int btds4_number)
         {
           int joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, btds4_number);
 
-          if(GE_GetJSType(joystick) == GE_JS_DS4 || GE_JoystickHasRumble(joystick))
+          if(GE_JoystickHasRumble(joystick))
           {
             GE_Event event =
             {
