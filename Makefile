@@ -41,6 +41,7 @@ endif
 	cp -u -f /$(MSYSTEM)/bin/libtasn1-6.dll setup
 	cp -u -f /$(MSYSTEM)/bin/libssh2-1.dll setup
 	cp -u -f /$(MSYSTEM)/bin/SSLEAY32.dll setup
+	cp -u -f /$(MSYSTEM)/bin/libhidapi-0.dll setup
 	cp -u -f core/gimx setup/gimx.exe
 	cp -u -f config/gimx-config setup/gimx-config.exe
 	cp -u -f launcher/gimx-launcher setup/gimx-launcher.exe
