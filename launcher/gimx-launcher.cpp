@@ -1246,7 +1246,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
     else if(Output->GetStringSelection() == _(GPP_NAME))
     {
       command.Append(wxT(" --port "));
-      wxString path = hids[OutputChoice->GetSelection()];
+      wxString path = wxT("\"") + hids[OutputChoice->GetSelection()] + wxT("\"");
       command.Append(path);
     }
 

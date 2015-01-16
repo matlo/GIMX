@@ -12,6 +12,22 @@
 #define GPPKG_ENTER_CAPTURE     0x07
 #define GPPKG_LEAVE_CAPTURE     0x08
 
+#define REPORT_SIZE 64
+
+typedef struct __attribute__ ((packed))
+{
+  uint8_t type;
+  uint16_t length;
+  uint8_t first;
+} s_gppReportHeader;
+
+typedef struct __attribute__ ((packed))
+{
+  uint8_t reportId;
+  s_gppReportHeader header;
+  uint8_t data[REPORT_SIZE-sizeof(s_gppReportHeader)];
+} s_gppReport;
+
 #define CONSOLETUNER_VID 0x2508
 
 #define GPP_PID     0x0001
@@ -31,7 +47,7 @@ static struct
   char* path;
 } devices[MAX_CONTROLLERS] = {};
 
-int8_t gpppcprog_send(int id, uint8_t type, uint8_t *data, uint16_t lenght);
+int8_t gpppcprog_send(int id, uint8_t type, uint8_t *data, uint16_t length);
 
 static uint8_t is_device_opened(const char* device)
 {
@@ -186,29 +202,34 @@ int8_t gpppcprog_output(int id, int8_t *output)
       GCAPI_INPUT_TOTAL + 6));
 }
 
-int8_t gpppcprog_send(int id, uint8_t type, uint8_t *data, uint16_t lenght)
+int8_t gpppcprog_send(int id, uint8_t type, uint8_t *data, uint16_t length)
 {
-  uint8_t sndBuf[64];
+  s_gppReport report =
+  {
+    .reportId = 0x00,
+    .header =
+    {
+      .type = type,
+      .length = length,
+      .first = 1
+    }
+  };
   uint16_t sndLen;
   uint16_t i = 0;
 
-  *(sndBuf + 0) = type;						    // Report type
-  *((uint16_t *) (sndBuf + 1)) = lenght;           // Total length
-  *(sndBuf + 3) = 1;							// First Packet
   do
   {										// Data
-    if (lenght)
+    if (length)
     {
-      sndLen = (((i + 60) < lenght) ? 60 : (lenght - i));
-      memcpy(sndBuf + 4, data + i, sndLen);
+      sndLen = (((i + sizeof(report.data)) < length) ? sizeof(report.data) : (length - i));
+      memcpy(report.data, data + i, sndLen);
       i += sndLen;
     }
-    if (hid_write(devices[id].dev, sndBuf, 64) == -1)
+    if (hid_write(devices[id].dev, (unsigned char*)&report, sizeof(report)) == -1)
       return (0);
-    if (*(sndBuf + 3) == 1)
-      *(sndBuf + 3) = 0;
+    report.header.first = 0;
   }
-  while (i < lenght);
+  while (i < length);
   return (1);
 }
 
