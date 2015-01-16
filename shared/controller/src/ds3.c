@@ -226,16 +226,16 @@ static unsigned int ds3_report_build(int axis[AXIS_MAX], s_report_packet* report
 
   unsigned short value;
 
-  value = clamp(0, axis[sa_acc_x] + 512, 1023);
+  value = clamp(0, axis[sa_acc_x] + CENTER_AXIS_VALUE_10BITS, MAX_AXIS_VALUE_10BITS);
   ds3->acc_x[0] = value >> 8;
   ds3->acc_x[1] = value & 0xFF;
-  value = clamp(0, axis[sa_acc_y] + 512, 1023);
+  value = clamp(0, axis[sa_acc_y] + CENTER_AXIS_VALUE_10BITS, MAX_AXIS_VALUE_10BITS);
   ds3->acc_y[0] = value >> 8;
   ds3->acc_y[1] = value & 0xFF;
-  value = clamp(0, axis[sa_acc_z] + 400, 1023);
+  value = clamp(0, axis[sa_acc_z] + 400, MAX_AXIS_VALUE_10BITS);
   ds3->acc_z[0] = value >> 8;
   ds3->acc_z[1] = value & 0xFF;
-  value = clamp(0, axis[sa_gyro] + 512, 1023);
+  value = clamp(0, axis[sa_gyro] + CENTER_AXIS_VALUE_10BITS, MAX_AXIS_VALUE_10BITS);
   ds3->gyro[0] = value >> 8;
   ds3->gyro[1] = value & 0xFF;
 
