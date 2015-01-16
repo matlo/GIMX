@@ -14,14 +14,14 @@
 
 #define REPORT_SIZE 64
 
-typedef struct __attribute__ ((packed))
+typedef struct __attribute__ ((gcc_struct,packed))
 {
   uint8_t type;
   uint16_t length;
   uint8_t first;
 } s_gppReportHeader;
 
-typedef struct __attribute__ ((packed))
+typedef struct __attribute__ ((gcc_struct,packed))
 {
   uint8_t reportId;
   s_gppReportHeader header;
@@ -225,7 +225,7 @@ int8_t gpppcprog_send(int id, uint8_t type, uint8_t *data, uint16_t length)
       memcpy(report.data, data + i, sndLen);
       i += sndLen;
     }
-    if (hid_write(devices[id].dev, (unsigned char*)&report, sizeof(report)) == -1)
+    if (hid_write(devices[id].dev, (unsigned char*)&report, 64) == -1)
       return (0);
     report.header.first = 0;
   }

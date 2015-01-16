@@ -29,7 +29,7 @@ typedef union
   s_report_g27Ps3 g27Ps3;
 } s_report;
 
-typedef struct __attribute__ ((packed))
+typedef struct __attribute__ ((gcc_struct,packed))
 {
   unsigned char type;
   unsigned char length;

@@ -45,12 +45,12 @@ typedef enum
   E_FRICTION = 0x0E,
 } e_force;
 
-typedef struct __attribute__ ((packed))
+typedef struct __attribute__ ((gcc_struct,packed))
 {
   unsigned char cmdAndForce;
 } s_header;
 
-typedef struct __attribute__ ((packed))
+typedef struct __attribute__ ((gcc_struct,packed))
 {
   s_header header;
 

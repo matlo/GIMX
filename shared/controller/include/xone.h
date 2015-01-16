@@ -45,7 +45,7 @@ typedef enum
   xonea_RS = abs_axis_16,
 } e_xone_axis_index;
 
-typedef struct __attribute__ ((packed))
+typedef struct __attribute__ ((gcc_struct,packed))
 {
   /*
    * TODO XONE

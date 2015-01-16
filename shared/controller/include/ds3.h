@@ -37,7 +37,7 @@ typedef enum
   sa_r3 = abs_axis_16
 } e_ds3_abs_axis_index;
 
-typedef struct __attribute__ ((packed))
+typedef struct __attribute__ ((gcc_struct,packed))
 {
   unsigned char report_id;
   unsigned char unused1;

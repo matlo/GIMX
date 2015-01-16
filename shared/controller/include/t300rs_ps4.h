@@ -52,7 +52,7 @@ typedef enum
 /*
  *
  */
-typedef struct __attribute__ ((packed))
+typedef struct __attribute__ ((gcc_struct,packed))
 {
   unsigned char report_id; //0x01
   unsigned char X; //0x80
