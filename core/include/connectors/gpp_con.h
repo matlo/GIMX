@@ -10,7 +10,7 @@
 
 int gpp_connect(int id, const char* device);
 
-int gpp_send(int id, int axis[AXIS_MAX]);
+int gpp_send(int id, e_controller_type type, int axis[AXIS_MAX]);
 
 void gpp_disconnect(int id);
 

@@ -368,7 +368,7 @@ int connector_send()
           }
           break;
         case C_TYPE_GPP:
-          ret = gpp_send(i, adapter->axis);
+          ret = gpp_send(i, adapter->type, adapter->axis);
           break;
         default:
           if(adapter->portname)
