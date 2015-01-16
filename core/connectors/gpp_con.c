@@ -18,7 +18,19 @@ int gpp_connect(int id, const char* device)
     return -1;
   }
 
-  while(gpppcprog_input(id, &report, 100) != 1) {}
+  int i;
+  for(i = 0; i < 10; ++i)
+  {
+    if(gpppcprog_input(id, &report, 100) == 1)
+    {
+      break;
+    }
+  }
+
+  if(i == 10)
+  {
+    return -1;
+  }
   
   switch(report.console)
   {
