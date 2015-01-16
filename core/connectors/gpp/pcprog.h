@@ -252,10 +252,10 @@ typedef struct {
 /* -------------------------------------------------------------------------- */
 /*   FUNCTIONS PROTOTYPES                                                     */
 /* -------------------------------------------------------------------------- */
-int8_t gppcprog_connect();
-int8_t gppcprog_connected();
-void gppcprog_disconnect();
-int8_t gpppcprog_input(GCAPI_REPORT *report, int timeout);
-int8_t gpppcprog_output(int8_t *output);
+int8_t gppcprog_connect(int id, const char* device);
+int8_t gppcprog_connected(int id);
+void gppcprog_disconnect(int id);
+int8_t gpppcprog_input(int id, GCAPI_REPORT *report, int timeout);
+int8_t gpppcprog_output(int id, int8_t *output);
 
 #endif

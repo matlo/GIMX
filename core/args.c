@@ -17,6 +17,9 @@
 #endif
 #include <connectors/protocol.h>
 
+#define DEV_HIDRAW "/dev/hidraw"
+#define COM "COM"
+
 static void usage()
 {
 #ifndef WIN32
@@ -244,7 +247,14 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         break;
 
       case 'p':
-        adapter_get(controller)->report.type = BYTE_SEND_REPORT;
+        if(strstr(optarg, DEV_HIDRAW) || !strstr(optarg, COM))
+        {
+          adapter_get(controller)->type = C_TYPE_GPP;
+        }
+        else
+        {
+          adapter_get(controller)->report.type = BYTE_SEND_REPORT;
+        }
         if(adapter_set_port(controller, optarg) < 0)
         {
           printf(_("port already used: `%s'\n"), optarg);

@@ -43,7 +43,26 @@ int connector_init()
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
     adapter = adapter_get(i);
-    if(adapter->portname)
+    if(adapter->type == C_TYPE_GPP)
+    {
+      int rtype = gpp_connect(i, adapter->portname);
+      if (rtype < 0)
+      {
+        fprintf(stderr, _("No controller detected.\n"));
+        ret = -1;
+      }
+      else if(rtype < C_TYPE_MAX)
+      {
+        printf(_("Detected controller: %s.\n"), controller_get_name(rtype));
+        controller_gpp_set_params(rtype);
+      }
+      else
+      {
+        fprintf(stderr, _("Unknown GPP controller type.\n"));
+        ret = -1;
+      }
+    }
+    else if(adapter->portname)
     {
       if(serial_connect(i, adapter->portname) < 0)
       {
@@ -164,25 +183,6 @@ int connector_init()
         ret = -1;
       }
     }
-    else if(adapter->type == C_TYPE_GPP)
-    {
-      int rtype = gpp_connect();
-      if (rtype < 0)
-      {
-        fprintf(stderr, _("No controller detected.\n"));
-        ret = -1;
-      }
-      else if(rtype < C_TYPE_MAX)
-      {
-        printf(_("Detected controller: %s.\n"), controller_get_name(rtype));
-        controller_gpp_set_params(rtype);
-      }
-      else
-      {
-        fprintf(stderr, _("Unknown GPP controller type.\n"));
-        ret = -1;
-      }
-    }
     else
     {
       if(adapter->dst_ip)
@@ -296,7 +296,7 @@ void connector_clean()
     }
     else if(adapter->type == C_TYPE_GPP)
     {
-      gpp_disconnect();
+      gpp_disconnect(i);
     }
   }
 }
@@ -368,7 +368,7 @@ int connector_send()
           }
           break;
         case C_TYPE_GPP:
-          ret = gpp_send(adapter->axis);
+          ret = gpp_send(i, adapter->axis);
           break;
         default:
           if(adapter->portname)

@@ -83,6 +83,7 @@ class launcherFrame: public wxFrame
         void refreshGui();
         void autoBindControls(wxArrayString configs);
 
+        void readHidPorts();
         void readSerialPorts();
         void readConfigs();
         
@@ -178,6 +179,8 @@ class launcherFrame: public wxFrame
         wxLocale* locale;
 
         bool started;
+
+        wxArrayString hids;
 
         DECLARE_EVENT_TABLE()
 };

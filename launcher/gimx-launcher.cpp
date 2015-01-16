@@ -44,6 +44,7 @@
 #include "wx/numdlg.h"
 
 #include <time.h>
+#include <hidapi/hidapi.h>
 
 using namespace std;
 
@@ -69,6 +70,10 @@ using namespace std;
 
 #define BLUETOOTH_LK_DIR "/bluetooth"
 #define BLUETOOTH_LK_FILE "/linkkeys"
+
+#define GPP_NAME "GPP/Cronus/Titan"
+
+#define CONSOLETUNER_VID 0x2508
 
 wxString gimxConfigDir;
 wxString launcherDir;
@@ -469,6 +474,55 @@ void launcherFrame::readSerialPorts()
   }
 }
 #endif
+
+void launcherFrame::readHidPorts()
+{
+  struct hid_device_info *devs, *cur_dev;
+
+  wxString previous = OutputChoice->GetStringSelection();
+
+  OutputChoice->Clear();
+  hids.Clear();
+
+  devs = hid_enumerate(CONSOLETUNER_VID, 0x0);
+  cur_dev = devs;
+  while (cur_dev)
+  {
+    wxString device;
+    switch(cur_dev->product_id)
+    {
+      case 0x0001:
+        device = wxT("GPP (");
+        break;
+      case 0x0002:
+        device = wxT("Cronus (");
+        break;
+      case 0x0003:
+        device = wxT("Titan (");
+        break;
+      default:
+        break;
+    }
+    if(!device.IsEmpty())
+    {
+      device.append(wxString::Format(wxT("%i"),hids.GetCount()));
+      hids.Add(wxString(cur_dev->path, wxConvUTF8));
+      device.append(wxT(")"));
+      OutputChoice->SetSelection(OutputChoice->Append(device));
+    }
+    cur_dev = cur_dev->next;
+  }
+  hid_free_enumeration(devs);
+
+  if(previous != wxEmptyString)
+  {
+    OutputChoice->SetSelection(OutputChoice->FindString(previous));
+  }
+  if(OutputChoice->GetSelection() < 0)
+  {
+    OutputChoice->SetSelection(0);
+  }
+}
 
 void launcherFrame::readConfigs()
 {
@@ -934,11 +988,11 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
     Output->SetSelection( Output->Append(_("Bluetooth / PS3")) );
     Output->Append(_("Bluetooth / PS4"));
     Output->Append(_("DIY USB"));
-    Output->Append(_("GPP/Cronus"));
+    Output->Append(_(GPP_NAME));
     Output->Append(_("Remote GIMX"));
 #else
     Output->SetSelection( Output->Append(_("DIY USB")) );
-    Output->Append(_("GPP/Cronus"));
+    Output->Append(_(GPP_NAME));
     Output->Append(_("Remote GIMX"));
 #endif
 
@@ -1029,7 +1083,15 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
       return;
     }
 
-    if(Output->GetStringSelection() == _("DIY USB"))
+    if(Output->GetStringSelection() == _(GPP_NAME))
+    {
+      if(outputSelection.IsEmpty())
+      {
+        wxMessageBox( _("No device selected!"), _("Error"), wxICON_ERROR);
+        return;
+      }
+    }
+    else if(Output->GetStringSelection() == _("DIY USB"))
     {
       if(outputSelection.IsEmpty())
       {
@@ -1148,11 +1210,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
       command.Append(wxT(" --subpos"));
     }
 
-    if(Output->GetStringSelection() == _("GPP/Cronus"))
-    {
-      command.Append(wxT(" --type GPP"));
-    }
-    else if(Output->GetStringSelection() == _("Remote GIMX"))
+    if(Output->GetStringSelection() == _("Remote GIMX"))
     {
       command.Append(wxT(" --dst "));
       command.Append(outputSelection);
@@ -1184,6 +1242,12 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
       command.Append(wxT("/dev/"));
 #endif
       command.Append(outputSelection);
+    }
+    else if(Output->GetStringSelection() == _(GPP_NAME))
+    {
+      command.Append(wxT(" --port "));
+      wxString path = hids[OutputChoice->GetSelection()];
+      command.Append(path);
     }
 
     if(CheckBoxTerminal->IsChecked())
@@ -1316,6 +1380,14 @@ void launcherFrame::refresh()
           wxMessageBox( _("No Serial Port Detected!\n"), _("Error"), wxICON_ERROR);
       }
     }
+    else if(Output->GetStringSelection() == _(GPP_NAME))
+    {
+      readHidPorts();
+      if(started && OutputChoice->IsEmpty())
+      {
+          wxMessageBox( _("No device detected!\n"), _("Error"), wxICON_ERROR);
+      }
+    }
 }
 
 void launcherFrame::refreshGui()
@@ -1333,9 +1405,20 @@ void launcherFrame::OnMenuRefresh(wxCommandEvent& event)
 
 void launcherFrame::OnOutputSelect(wxCommandEvent& event)
 {
-    if(Output->GetStringSelection() == _("GPP/Cronus"))
+    if(Output->GetStringSelection() == _(GPP_NAME))
     {
-      OutputSizer->Show(false);
+      OutputSizer->Show(true);
+      OutputNewButton->Show(false);
+      OutputText->SetLabel(_("Device"));
+
+      readHidPorts();
+
+      refreshGui();
+
+      if(started && OutputChoice->IsEmpty())
+      {
+          wxMessageBox( _("No device detected!\n"), _("Error"), wxICON_ERROR);
+      }
     }
     else if(Output->GetStringSelection() == _("DIY USB"))
     {

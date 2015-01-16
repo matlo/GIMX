@@ -8,17 +8,17 @@
 #include "config.h"
 #include <controller2.h>
 
-int gpp_connect()
+int gpp_connect(int id, const char* device)
 {
   int ret = -1;
   GCAPI_REPORT report;
 
-  if(gppcprog_connect() != 1)
+  if(gppcprog_connect(id, device) != 1)
   {
     return -1;
   }
 
-  while(gpppcprog_input(&report, 100) != 1) {}
+  while(gpppcprog_input(id, &report, 100) != 1) {}
   
   switch(report.console)
   {
@@ -42,11 +42,13 @@ int gpp_connect()
   return ret;
 }
 
-int gpp_send(int axis[AXIS_MAX])
+int gpp_send(int id, int axis[AXIS_MAX])
 {
   int8_t output[GCAPI_INPUT_TOTAL] = {};
   int axis_value;
   int ret = 0;
+
+  //TODO: normalize values vs the controller type...
 
   output[PS3_UP] = axis[sa_up] * 100 / 255;
   output[PS3_DOWN] = axis[sa_down] * 100 / 255;
@@ -94,7 +96,7 @@ int gpp_send(int axis[AXIS_MAX])
   output[PS4_TOUCHX] = axis[ds4a_finger1_x] * 100 / 1919;
   output[PS4_TOUCHY] = axis[ds4a_finger1_y] * 100 / 919;
 
-  if(!gpppcprog_output(output))
+  if(!gpppcprog_output(id, output))
   {
     ret = -1;
   }
@@ -102,7 +104,7 @@ int gpp_send(int axis[AXIS_MAX])
   return ret;
 }
 
-void gpp_disconnect()
+void gpp_disconnect(int id)
 {
-  gppcprog_disconnect();
+  gppcprog_disconnect(id);
 }

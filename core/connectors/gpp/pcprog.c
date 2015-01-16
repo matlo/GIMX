@@ -1,91 +1,159 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include <hidapi/hidapi.h>
 #include "pcprog.h"
+
+#include <adapter.h>
 
 #define GPPKG_INPUT_REPORT      0x01
 #define GPPKG_OUTPUT_REPORT     0x04
 #define GPPKG_ENTER_CAPTURE     0x07
 #define GPPKG_LEAVE_CAPTURE     0x08
 
+#define CONSOLETUNER_VID 0x2508
+
+#define GPP_PID     0x0001
+#define CRONUS_PID  0x0002
+#define TITAN_PID   0x0003
+
 static unsigned short product_ids[] =
 {
-    0x0001, //GPP
-    0x0002, //Cronus
-    0x0003, //Titan
+  GPP_PID,
+  CRONUS_PID,
+  TITAN_PID,
 };
 
-static hid_device* dev = NULL;
+static struct
+{
+  hid_device* dev;
+  char* path;
+} devices[MAX_CONTROLLERS] = {};
 
-int8_t gpppcprog_send(uint8_t type, uint8_t *data, uint16_t lenght);
+int8_t gpppcprog_send(int id, uint8_t type, uint8_t *data, uint16_t lenght);
 
-int8_t gppcprog_connected_flag = 0;
+static uint8_t is_device_opened(const char* device)
+{
+  int i;
+  for(i = 0; i < sizeof(devices) / sizeof(*devices); ++i)
+  {
+    if(devices[i].path && !strcmp(devices[i].path, device))
+    {
+      return 1;
+    }
+  }
+  return 0;
+}
 
-int8_t gppcprog_connect()
+int8_t gppcprog_connect(int id, const char* device)
 {
   int r = 0;
 
-  gppcprog_disconnect();
+  gppcprog_disconnect(id);
 
-  // Connect to GPP/Cronus/Titan
-  int i;
-  for(i=0; i<sizeof(product_ids)/sizeof(*product_ids); ++i)
+  if(device)
   {
-    if ((dev = hid_open(0x2508, product_ids[i], NULL)))
+    // Connect to the given device
+
+    if(is_device_opened(device))
     {
-      break;
+      return -1;
+    }
+
+    devices[id].dev = hid_open_path(device);
+
+    if(devices[id].dev)
+    {
+      devices[id].path = strdup(device);
+    }
+    else
+    {
+      fprintf(stderr, "failed to open %s\n", device);
     }
   }
+  else
+  {
+    // Connect to any GPP/Cronus/Titan
 
-  if (!dev)
+    struct hid_device_info *devs, *cur_dev;
+
+    devs = hid_enumerate(CONSOLETUNER_VID, 0x0);
+    cur_dev = devs;
+    while (cur_dev)
+    {
+      int i;
+      for(i = 0; i < sizeof(product_ids) / sizeof(*product_ids); ++i)
+      {
+        if(cur_dev->product_id == product_ids[i])
+        {
+          if(!is_device_opened(cur_dev->path))
+          {
+            if ((devices[id].dev = hid_open_path(cur_dev->path)))
+            {
+              devices[id].path = strdup(cur_dev->path);
+              break;
+            }
+          }
+        }
+      }
+      if(devices[id].dev)
+      {
+        break;
+      }
+      cur_dev = cur_dev->next;
+    }
+    hid_free_enumeration(devs);
+  }
+
+  if (!devices[id].dev)
   {
     return -1;
   }
 
-  gppcprog_connected_flag = 1;
-
   // Enter Capture Mode
-  r = gpppcprog_send(GPPKG_ENTER_CAPTURE, NULL, 0);
+  r = gpppcprog_send(id, GPPKG_ENTER_CAPTURE, NULL, 0);
   if (r <= 0)
   {
-    gppcprog_disconnect();
+    gppcprog_disconnect(id);
     return r;
   }
 
   return 1;
 }
 
-int8_t gppcprog_connected()
+int8_t gppcprog_connected(int id)
 {
-  return (gppcprog_connected_flag);
+  return !devices[id].dev;
 }
 
-void gppcprog_disconnect()
+void gppcprog_disconnect(int id)
 {
-  if (gppcprog_connected_flag)
+  if (devices[id].dev)
   {
     // Leave Capture Mode
-    gpppcprog_send(GPPKG_LEAVE_CAPTURE, NULL, 0);
+    gpppcprog_send(id, GPPKG_LEAVE_CAPTURE, NULL, 0);
 
     // Disconnect to GPP
-    hid_close(dev);
-    gppcprog_connected_flag = 0;
+    hid_close(devices[id].dev);
+    devices[id].dev = NULL;
+    free(devices[id].path);
+    devices[id].path = NULL;
   }
   return;
 }
 
-int8_t gpppcprog_input(GCAPI_REPORT *report, int timeout)
+int8_t gpppcprog_input(int id, GCAPI_REPORT *report, int timeout)
 {
   int bytesReceived;
   uint8_t rcvBuf[64], i;
 
-  if (!gppcprog_connected_flag || report == NULL)
+  if (!devices[id].dev || report == NULL)
     return (-1);
-  bytesReceived = hid_read_timeout(dev, rcvBuf, 64, timeout);
+  bytesReceived = hid_read_timeout(devices[id].dev, rcvBuf, 64, timeout);
   if (bytesReceived < 0)
   {
-    gppcprog_disconnect();
+    gppcprog_disconnect(id);
     return (-1);
   }
   else if (bytesReceived && rcvBuf[0] == GPPKG_INPUT_REPORT)
@@ -109,16 +177,16 @@ int8_t gpppcprog_input(GCAPI_REPORT *report, int timeout)
   return (0);
 }
 
-int8_t gpppcprog_output(int8_t *output)
+int8_t gpppcprog_output(int id, int8_t *output)
 {
   uint8_t outputReport[GCAPI_INPUT_TOTAL + 6];
   memset(outputReport, 0x00, GCAPI_INPUT_TOTAL + 6);
   memcpy(outputReport, (uint8_t *) output, GCAPI_INPUT_TOTAL);
-  return (gpppcprog_send(GPPKG_OUTPUT_REPORT, outputReport,
+  return (gpppcprog_send(id, GPPKG_OUTPUT_REPORT, outputReport,
       GCAPI_INPUT_TOTAL + 6));
 }
 
-int8_t gpppcprog_send(uint8_t type, uint8_t *data, uint16_t lenght)
+int8_t gpppcprog_send(int id, uint8_t type, uint8_t *data, uint16_t lenght)
 {
   uint8_t sndBuf[64];
   uint16_t sndLen;
@@ -135,7 +203,7 @@ int8_t gpppcprog_send(uint8_t type, uint8_t *data, uint16_t lenght)
       memcpy(sndBuf + 4, data + i, sndLen);
       i += sndLen;
     }
-    if (hid_write(dev, sndBuf, 64) == -1)
+    if (hid_write(devices[id].dev, sndBuf, 64) == -1)
       return (0);
     if (*(sndBuf + 3) == 1)
       *(sndBuf + 3) = 0;

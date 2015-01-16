@@ -8,10 +8,10 @@
 
 #include <defs.h>
 
-int gpp_connect();
+int gpp_connect(int id, const char* device);
 
-int gpp_send(int axis[AXIS_MAX]);
+int gpp_send(int id, int axis[AXIS_MAX]);
 
-void gpp_disconnect();
+void gpp_disconnect(int id);
 
 #endif /* GPP_CON_H_ */
