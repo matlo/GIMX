@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <connectors/hid.h>
+#include <hidapi/hidapi.h>
 #include "pcprog.h"
 
 #define GPPKG_INPUT_REPORT      0x01
@@ -15,6 +15,8 @@ static unsigned short product_ids[] =
     0x0002, //Cronus
     0x0003, //Titan
 };
+
+static hid_device* dev = NULL;
 
 int8_t gpppcprog_send(uint8_t type, uint8_t *data, uint16_t lenght);
 
@@ -30,15 +32,15 @@ int8_t gppcprog_connect()
   int i;
   for(i=0; i<sizeof(product_ids)/sizeof(*product_ids); ++i)
   {
-    if ((r = rawhid_open(1, 0x2508, product_ids[i], 0xFFAB, 0x0200)) > 0)
+    if ((dev = hid_open(0x2508, product_ids[i], NULL)))
     {
       break;
     }
   }
 
-  if (r < 1)
+  if (!dev)
   {
-    return r;
+    return -1;
   }
 
   gppcprog_connected_flag = 1;
@@ -48,10 +50,10 @@ int8_t gppcprog_connect()
   if (r <= 0)
   {
     gppcprog_disconnect();
-    return (r);
+    return r;
   }
 
-  return (1);
+  return 1;
 }
 
 int8_t gppcprog_connected()
@@ -67,7 +69,7 @@ void gppcprog_disconnect()
     gpppcprog_send(GPPKG_LEAVE_CAPTURE, NULL, 0);
 
     // Disconnect to GPP
-    rawhid_close(0);
+    hid_close(dev);
     gppcprog_connected_flag = 0;
   }
   return;
@@ -80,7 +82,7 @@ int8_t gpppcprog_input(GCAPI_REPORT *report, int timeout)
 
   if (!gppcprog_connected_flag || report == NULL)
     return (-1);
-  bytesReceived = rawhid_recv(0, rcvBuf, 64, timeout);
+  bytesReceived = hid_read_timeout(dev, rcvBuf, 64, timeout);
   if (bytesReceived < 0)
   {
     gppcprog_disconnect();
@@ -133,7 +135,7 @@ int8_t gpppcprog_send(uint8_t type, uint8_t *data, uint16_t lenght)
       memcpy(sndBuf + 4, data + i, sndLen);
       i += sndLen;
     }
-    if (rawhid_send(0, sndBuf, 64, 1000) == -1)
+    if (hid_write(dev, sndBuf, 64) == -1)
       return (0);
     if (*(sndBuf + 3) == 1)
       *(sndBuf + 3) = 0;

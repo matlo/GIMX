@@ -20,7 +20,9 @@ endif
 LDLIBS += ../shared/event/GE.a -Wl,--whole-archive ../shared/controller/controller.a -Wl,--no-whole-archive
 
 ifneq ($(OS),Windows_NT)
-LDLIBS += -lXi -lX11
+LDLIBS += -lXi -lX11 -lhidapi-hidraw
+#else
+LDLIBS += -lhidapi
 endif
 
 ARFLAGS=rcs

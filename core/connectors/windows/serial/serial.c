@@ -12,7 +12,7 @@
 
 #include <adapter.h>
 
-static struct serial
+static struct
 {
   HANDLE handle;
   OVERLAPPED rOverlapped;
