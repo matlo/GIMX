@@ -21,7 +21,7 @@ LDLIBS += ../shared/event/GE.a -Wl,--whole-archive ../shared/controller/controll
 
 ifneq ($(OS),Windows_NT)
 LDLIBS += -lXi -lX11 -lhidapi-hidraw
-#else
+else
 LDLIBS += -lhidapi
 endif
 
