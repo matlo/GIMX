@@ -18,7 +18,11 @@
 #include <connectors/protocol.h>
 
 #define DEV_HIDRAW "/dev/hidraw"
-#define COM "COM"
+#ifndef WIN32
+#define DEV_SERIAL "/dev/tty"
+#else
+#define DEV_SERIAL "COM"
+#endif
 
 static void usage()
 {
@@ -247,7 +251,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         break;
 
       case 'p':
-        if(strstr(optarg, DEV_HIDRAW) || !strstr(optarg, COM))
+        if(strstr(optarg, DEV_HIDRAW) || !strstr(optarg, DEV_SERIAL))
         {
           adapter_get(controller)->type = C_TYPE_GPP;
         }
