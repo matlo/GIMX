@@ -18,7 +18,6 @@
 #include <termios.h>
 
 #include <sys/ioctl.h>
-#include <sys/uio.h>
 
 #include <libintl.h>
 #define _(STRING)    gettext(STRING)
@@ -41,9 +40,9 @@ static struct
 } serials[MAX_CONTROLLERS] = {};
 
 /*
- * This initializes the data before any other function of this file gets called.
+ * \brief Initialize all file descriptors to -1.
  */
-__attribute__((constructor (101))) static void struct_init(void)
+void serial_init()
 {
   int i;
   for(i=0; i<MAX_CONTROLLERS; ++i)
@@ -53,9 +52,13 @@ __attribute__((constructor (101))) static void struct_init(void)
 }
 
 /*
- * Connect to a serial port.
+ * \brief Open a tty port.
+ *
+ * \param portname  the serial port name, e.g. /dev/ttyUSB0 or /dev/ttyACM0
+ *
+ * \return a file descriptor or -1 in case of an error
  */
-int tty_connect(char* portname)
+static int tty_open(char* portname)
 {
   struct termios options;
   int fd;
@@ -88,7 +91,14 @@ int tty_connect(char* portname)
   return fd;
 }
 
-int spi_connect(char* portname)
+/*
+ * \brief Open a spi port.
+ *
+ * \param portname  the spi port name, e.g. /dev/spidev1.1
+ *
+ * \return a file descriptor or -1 in case of an error
+ */
+static int spi_open(char* portname)
 {
   int fd;
 
@@ -134,54 +144,60 @@ int spi_connect(char* portname)
   return fd;
 }
 
-int serial_connect(int id, char* portname)
+/*
+ * \brief Open a serial port. The serial port is registered for further operations.
+ *
+ * \param id        the instance id
+ * \param portname  the serial port to open, e.g. /dev/ttyUSB0, /dev/ttyACM0, /dev/spidev1.1
+ *
+ * \return 0 in case of a success, -1 in case of an error
+ */
+int serial_open(int id, char* portname)
 {
-  int fd = 0;
+  int ret = 0;
 
   if(strstr(portname, "tty"))
   {
-    fd = tty_connect(portname);
+    serials[id].fd = tty_open(portname);
   }
   else if(strstr(portname, "spi"))
   {
-    fd = spi_connect(portname);
-  }
-  else
-  {
-    fd = -1;
+    serials[id].fd = spi_open(portname);
   }
 
-  if(fd >= 0)
+  if(serials[id].fd < 0)
   {
-    serials[id].fd = fd;
+    ret = -1;
   }
 
-  return fd;
+  return ret;
 }
 
 /*
- * Send a data to the serial port.
+ * \brief Send data to the serial port.
+ *
+ * \param id     the serial port instance
+ * \param pdata  a pointer to the data to send
+ * \param size   the size in bytes of the data to send
+ *
+ * \return the number of bytes actually written, or -1 in case of an error
  */
 int serial_send(int id, void* pdata, unsigned int size)
 {
   return write(serials[id].fd, pdata, size);
 }
 
-int serial_sendv(int id, void* pdata1, unsigned int size1, void* pdata2, unsigned int size2)
-{
-  struct iovec ov[2] =
-  {
-      {.iov_base = pdata1, .iov_len = size1},
-      {.iov_base = pdata2, .iov_len = size2}
-  };
-  return writev(serials[id].fd, ov, sizeof(ov)/sizeof(*ov));
-}
-
 /*
- * This function tries to read 'size' bytes of data.
- * It blocks until 'size' bytes of data have been read or after 1s has elapsed.
+ * \brief This function tries to read 'size' bytes of data.
  *
+ * It blocks until 'size' bytes of data have been read or after 1s has elapsed.
  * It should only be used in the initialization stages, i.e. before the mainloop.
+ *
+ * \param id     the instance id
+ * \param pdata  the pointer where to store the data
+ * \param size   the number of bytes to retrieve
+ *
+ * \return the number of bytes actually read
  */
 int serial_recv(int id, void* pdata, unsigned int size)
 {
@@ -221,13 +237,31 @@ int serial_recv(int id, void* pdata, unsigned int size)
   return bread;
 }
 
-int serial_close(int fd)
+/*
+ * \brief This function closes a serial port.
+ *
+ * \param id  the instance id
+ *
+ * \return 0
+ */
+int serial_close(int id)
 {
-  usleep(10000);//sleep 10ms to leave enough time for the last packet to be sent
-  close(fd);
+  if(serials[id].fd >= 0)
+  {
+    usleep(10000);//sleep 10ms to leave enough time for the last packet to be sent
+    close(serials[id].fd);
+    serials[id].fd = -1;
+  }
   return 0;
 }
 
+/*
+ * \brief the serial callback for serial ports that are added as event sources.
+ *
+ * \param id  the instance id
+ *
+ * \return 0 in case of a success, -1 in case of an error
+ */
 static int serial_callback(int id)
 {
   int nread;
@@ -280,6 +314,11 @@ static int serial_callback(int id)
   return ret;
 }
 
+/*
+ * \brief Add a serial port as an event source.
+ *
+ * \param id  the instance id
+ */
 void serial_add_source(int id)
 {
   GE_AddSource(serials[id].fd, id, serial_callback, NULL, serial_close);

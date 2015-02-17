@@ -64,7 +64,7 @@ int connector_init()
     }
     else if(adapter->portname)
     {
-      if(serial_connect(i, adapter->portname) < 0)
+      if(serial_open(i, adapter->portname) < 0)
       {
         ret = -1;
       }
