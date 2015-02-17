@@ -4,13 +4,11 @@
  */
 
 #include <report2event/360Pad2event.h>
-#include <adapter.h>
+#include <controller2.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-
-//#define STICK_THRESHOLD 8*255
 
 inline void axis2event(int (*callback)(GE_Event*), GE_Event* event, unsigned char axis[2],
     unsigned char paxis[2], char invert, uint8_t axis_id)
@@ -22,16 +20,13 @@ inline void axis2event(int (*callback)(GE_Event*), GE_Event* event, unsigned cha
   prevAxisValue = (paxis[1] << 8) | paxis[0];
   if (axisValue != prevAxisValue)
   {
-//    if (abs(axisValue) > STICK_THRESHOLD || abs(prevAxisValue) > STICK_THRESHOLD)
-//    {
-      if(invert)
-      {
-        axisValue = ~axisValue;
-      }
-      event->jaxis.axis = axis_id;
-      event->jaxis.value = axisValue;
-      callback(event);
-//    }
+    if(invert)
+    {
+      axisValue = ~axisValue;
+    }
+    event->jaxis.axis = axis_id;
+    event->jaxis.value = axisValue;
+    callback(event);
   }
 }
 
