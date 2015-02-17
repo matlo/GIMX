@@ -27,9 +27,14 @@ static struct
 static int baudrate = 500000;
 
 /*
- * Connect to a serial port.
+ * \brief Open a serial port. The serial port is registered for further operations.
+ *
+ * \param id        the instance id
+ * \param portname  the serial port to open, e.g. COM9
+ *
+ * \return 0 in case of a success, -1 in case of an error
  */
-int serial_connect(int id, char* portname)
+int serial_open(int id, char* portname)
 {
   DWORD accessdirection = GENERIC_READ | GENERIC_WRITE;
   char scom[16];
@@ -83,10 +88,16 @@ int serial_connect(int id, char* portname)
 }
 
 /*
- * Send 'size' bytes of data.
+ * \brief Send data to the serial port.
+ *
  * This function blocks until the write completes.
- * 
  * Writing on a serial port that only has rx/tx lines should be fast since there's no feedback.
+ *
+ * \param id     the serial port instance
+ * \param pdata  a pointer to the data to send
+ * \param size   the size in bytes of the data to send
+ *
+ * \return the number of bytes actually written, or -1 in case of an error
  */
 int serial_send(int id, void* pdata, unsigned int size)
 {
@@ -122,24 +133,17 @@ int serial_send(int id, void* pdata, unsigned int size)
   return dwBytesWritten;
 }
 
-int serial_sendv(int id, void* pdata1, unsigned int size1, void* pdata2, unsigned int size2)
-{
-  if(serial_send(id, pdata1, size1) != size1)
-  {
-    return -1;
-  }
-  if(serial_send(id, pdata2, size2) != size2)
-  {
-    return -1;
-  }
-  return 0;
-}
-
 /*
- * This function tries to read 'size' bytes of data.
- * It blocks until 'size' bytes of data have been read or after 1s has elapsed.
+ * \brief This function tries to read 'size' bytes of data.
  *
+ * It blocks until 'size' bytes of data have been read or after 1s has elapsed.
  * It should only be used in the initialization stages, i.e. before the mainloop.
+ *
+ * \param id     the instance id
+ * \param pdata  the pointer where to store the data
+ * \param size   the number of bytes to retrieve
+ *
+ * \return the number of bytes actually read
  */
 int serial_recv(int id, void* pdata, unsigned int size)
 {
@@ -180,7 +184,11 @@ int serial_recv(int id, void* pdata, unsigned int size)
 }
 
 /*
- * Close the serial port.
+ * \brief This function closes a serial port.
+ *
+ * \param id  the instance id
+ *
+ * \return 0
  */
 int serial_close(int id)
 {
@@ -253,7 +261,7 @@ static int read_header(int id)
   return start_overlapped_read(id, remaining);
 }
 
-int read_packet(int id)
+static int read_packet(int id)
 {
   int ret = read_header(id);
   
@@ -280,6 +288,13 @@ int read_packet(int id)
   return ret;
 }
 
+/*
+ * \brief the serial callback for serial ports that are added as event sources.
+ *
+ * \param id  the instance id
+ *
+ * \return 0 in case of a success, -1 in case of an error
+ */
 static int serial_read_callback(int id)
 {
   DWORD dwBytesRead = 0;
@@ -297,6 +312,11 @@ static int serial_read_callback(int id)
   return 0;
 }
 
+/*
+ * \brief Add a serial port as an event source.
+ *
+ * \param id  the instance id
+ */
 void serial_add_source(int id)
 {
   while(read_packet(id) >= 0) ;
