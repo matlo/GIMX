@@ -8,11 +8,7 @@
 
 #include <libxml/xmlreader.h>
 
-#define DEFAULT_RADIUS 512
-#define DEFAULT_VELOCITY 1
-
 int read_config_file(const char*);
-void free_config();
 
 int GetIntProp(xmlNode*, char*, int*);
 int GetUnsignedIntProp(xmlNode*, char*, unsigned int*);

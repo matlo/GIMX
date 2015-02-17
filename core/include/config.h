@@ -57,44 +57,70 @@ typedef struct
 
 typedef struct
 {
+  unsigned int buffer_size;
+  double filter;
+  e_mouse_mode mode;
+}s_mouse_options;
+
+typedef struct
+{
   double* mx;
   double* my;
   double* ex;
   double* ey;
   int rd;
   int vel;
-  int* dzx;
-  int* dzy;
+  unsigned int* dzx;
+  unsigned int* dzy;
   e_shape* dzs;
-  unsigned int buffer_size;
-  double filter;
-  e_mouse_mode mode;
-  int dpi;
+  s_mouse_options options;
+  unsigned int dpi;
 }s_mouse_cal;
 
 typedef struct
 {
-  int nb_mappers;
-
   int button;
   int axis;
   int threshold;
   double multiplier;
   double exponent;
   e_shape shape;
-  int dead_zone;
+  unsigned int dead_zone;
 
   s_axis_props axis_props;
 }s_mapper;
 
 typedef struct
 {
-  int device_type;
-  int device_id;
-  int button;
-  int switch_back;
-  int delay; //ms
-}s_trigger;
+  int nb_mappers;
+  s_mapper* mappers;
+} s_mapper_table;
+
+typedef struct
+{
+  unsigned int controller_id;
+  unsigned int config_id;
+  struct
+  {
+    e_device_type type;
+    int id;
+  } device;
+  struct
+  {
+    e_event_type type;
+    int id;
+  } event;
+  union
+  {
+    s_mapper mapper;
+    struct
+    {
+      int switch_back;
+      int delay;
+    } trigger;
+    s_mouse_options mouse_options;
+  } params;
+}s_config_entry;
 
 typedef struct
 {
@@ -122,12 +148,13 @@ void cfg_process_rumble();
 int cfg_is_joystick_used(int);
 void cfg_process_motion_event(GE_Event*);
 void cfg_process_motion();
-inline s_trigger* cfg_get_trigger(int, int);
-inline s_intensity* cfg_get_axis_intensity(int, int, int);
-inline s_mapper** cfg_get_joystick_axes(int, int, int);
-inline s_mapper** cfg_get_joystick_buttons(int, int, int);
-inline s_mapper** cfg_get_mouse_axes(int, int, int);
-inline s_mapper** cfg_get_mouse_buttons(int, int, int);
-inline s_mapper** cfg_get_keyboard_buttons(int, int, int);
+inline void cfg_set_trigger(s_config_entry* entry);
+inline void cfg_set_controller_dpi(int controller, unsigned int dpi);
+inline void cfg_set_axis_intensity(s_config_entry* entry, int axis, s_intensity* intensity);
+void cfg_intensity_init();
+int cfg_add_binding(s_config_entry* entry);
+inline s_mapper_table* cfg_get_mouse_axes(int, int, int);
+void cfg_clean();
+void cfg_read_calibration();
 
 #endif /* CONFIG_H_ */
