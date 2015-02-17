@@ -171,6 +171,8 @@ int main(int argc, char *argv[])
 
   adapter_init();
 
+  serial_init();
+
   if(args_read(argc, argv, &gimx_params) < 0)
   {
     fprintf(stderr, _("Wrong argument.\n"));
@@ -250,6 +252,10 @@ int main(int argc, char *argv[])
 
   if(gimx_params.config_file)
   {
+    cal_init();
+
+    cfg_intensity_init();
+
     if(read_config_file(gimx_params.config_file) < 0)
     {
       fprintf(stderr, _("read_config_file failed\n"));
@@ -258,10 +264,17 @@ int main(int argc, char *argv[])
 
     if(GE_GetMKMode() == GE_MK_MODE_SINGLE_INPUT)
     {
-      free_config();
+      cfg_clean();
       GE_FreeMKames();
+
+      cal_init();
+
+      cfg_intensity_init();
+
       read_config_file(gimx_params.config_file);
     }
+
+    cfg_read_calibration();
   }
 
   GE_release_unused();
@@ -291,7 +304,7 @@ int main(int argc, char *argv[])
   QUIT:
 
   free_macros();
-  free_config();
+  cfg_clean();
   GE_quit();
   connector_clean();
 

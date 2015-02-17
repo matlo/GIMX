@@ -64,6 +64,11 @@ inline s_mouse_cal* cal_get_mouse(int mouse, int conf)
   return &(mouse_cal[mouse][conf]);
 }
 
+inline void cal_set_mouse(s_config_entry* entry)
+{
+  mouse_cal[entry->device.id][entry->config_id].options = entry->params.mouse_options;
+}
+
 static double distance = 0.1; //0.1 inches
 static int dots = 0;
 static int direction = 1;

@@ -27,21 +27,9 @@
 /*
  * These variables are used to read the configuration.
  */
-static unsigned int r_controller_id;
-static unsigned int r_config_id;
-static e_event_type r_event_type;
-static unsigned int r_event_id;
-static int r_threshold;
-static unsigned int r_deadZone;
-static double r_multiplier;
-static double r_exponent;
-static e_shape r_shape;
-static e_device_type r_device_type;
-static int r_device_id;
+static s_config_entry entry;
+
 static char r_device_name[128];
-static unsigned int r_config_dpi[MAX_CONTROLLERS];
-static unsigned int r_buffer_size;
-static double r_filter;
 
 const char* _UTF8_to_8BIT(const char* _utf8)
 {
@@ -83,7 +71,7 @@ int GetDeviceName(xmlNode* a_node)
 }
 
 /*
- * Get the device id and store it into r_device_id.
+ * Get the device id and store it into binding.device.id.
  * OK, return 0
  * error, return -1
  * device not found, return 1
@@ -93,19 +81,19 @@ static int GetDeviceId(xmlNode* a_node)
   int i;
   int ret;
 
-  ret = GetIntProp(a_node, X_ATTR_ID, &r_device_id);
+  ret = GetIntProp(a_node, X_ATTR_ID, &entry.device.id);
 
   if(ret != -1)
   {
-    if(r_device_type == E_DEVICE_TYPE_JOYSTICK)
+    if(entry.device.type == E_DEVICE_TYPE_JOYSTICK)
     {
       for (i = 0; i < MAX_DEVICES && GE_JoystickName(i); ++i)
       {
         if (!strcmp(r_device_name, GE_JoystickName(i)))
         {
-          if (r_device_id == GE_JoystickVirtualId(i))
+          if (entry.device.id == GE_JoystickVirtualId(i))
           {
-            r_device_id = i;
+            entry.device.id = i;
             GE_SetJoystickUsed(i);
             break;
           }
@@ -113,13 +101,13 @@ static int GetDeviceId(xmlNode* a_node)
       }
       if(i == MAX_DEVICES || !GE_JoystickName(i))
       {
-        gprintf(_("joystick not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), r_device_id);
+        gprintf(_("joystick not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), entry.device.id);
         ret = 1;
       }
     }
     else if(GE_GetMKMode() == GE_MK_MODE_SINGLE_INPUT)
     {
-      r_device_id = 0;
+      entry.device.id = 0;
     }
     else if(!strlen(r_device_name))
     {
@@ -131,41 +119,41 @@ static int GetDeviceId(xmlNode* a_node)
     }
     else
     {
-      if(r_device_type == E_DEVICE_TYPE_MOUSE)
+      if(entry.device.type == E_DEVICE_TYPE_MOUSE)
       {
         for (i = 0; i < MAX_DEVICES && GE_MouseName(i); ++i)
         {
           if (!strcmp(r_device_name, GE_MouseName(i)))
           {
-            if (r_device_id == GE_MouseVirtualId(i))
+            if (entry.device.id == GE_MouseVirtualId(i))
             {
-              r_device_id = i;
+              entry.device.id = i;
               break;
             }
           }
         }
         if(i == MAX_DEVICES || !GE_MouseName(i))
         {
-          gprintf(_("mouse not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), r_device_id);
+          gprintf(_("mouse not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), entry.device.id);
           ret = 1;
         }
       }
-      else if(r_device_type == E_DEVICE_TYPE_KEYBOARD)
+      else if(entry.device.type == E_DEVICE_TYPE_KEYBOARD)
       {
         for (i = 0; i < MAX_DEVICES && GE_KeyboardName(i); ++i)
         {
           if (!strcmp(r_device_name, GE_KeyboardName(i)))
           {
-            if (r_device_id == GE_KeyboardVirtualId(i))
+            if (entry.device.id == GE_KeyboardVirtualId(i))
             {
-              r_device_id = i;
+              entry.device.id = i;
               break;
             }
           }
         }
         if(i == MAX_DEVICES || !GE_KeyboardName(i))
         {
-          gprintf(_("keyboard not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), r_device_id);
+          gprintf(_("keyboard not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), entry.device.id);
           ret = 1;
         }
       }
@@ -176,7 +164,7 @@ static int GetDeviceId(xmlNode* a_node)
 }
 
 /*
- * Get the device type and store it into r_device_type.
+ * Get the device type and store it into binding.device.type.
  * OK, return 0
  * error, return -1
  */
@@ -191,19 +179,19 @@ int GetDeviceTypeProp(xmlNode * a_node)
   {
     if (!strncmp(type, X_ATTR_VALUE_KEYBOARD, strlen(X_ATTR_VALUE_KEYBOARD)))
     {
-      r_device_type = E_DEVICE_TYPE_KEYBOARD;
+      entry.device.type = E_DEVICE_TYPE_KEYBOARD;
     }
     else if (!strncmp(type, X_ATTR_VALUE_MOUSE, strlen(X_ATTR_VALUE_MOUSE)))
     {
-      r_device_type = E_DEVICE_TYPE_MOUSE;
+      entry.device.type = E_DEVICE_TYPE_MOUSE;
     }
     else if (!strncmp(type, X_ATTR_VALUE_JOYSTICK, strlen(X_ATTR_VALUE_JOYSTICK)))
     {
-      r_device_type = E_DEVICE_TYPE_JOYSTICK;
+      entry.device.type = E_DEVICE_TYPE_JOYSTICK;
     }
     else
     {
-      r_device_type = E_DEVICE_TYPE_UNKNOWN;
+      entry.device.type = E_DEVICE_TYPE_UNKNOWN;
     }
   }
   else
@@ -216,7 +204,7 @@ int GetDeviceTypeProp(xmlNode * a_node)
 }
 
 /*
- * Get the event id and store it into r_event_id.
+ * Get the event id and store it into entry.event.id.
  * OK, return 0
  * error, return -1
  */
@@ -231,16 +219,16 @@ static int GetEventId(xmlNode * a_node, char* attr_label)
   }
   else
   {
-    switch(r_device_type)
+    switch(entry.device.type)
     {
       case E_DEVICE_TYPE_KEYBOARD:
-        r_event_id = GE_KeyId(event_id);
+        entry.event.id = GE_KeyId(event_id);
         break;
       case E_DEVICE_TYPE_JOYSTICK:
-        r_event_id = atoi(event_id);
+        entry.event.id = atoi(event_id);
         break;
       case E_DEVICE_TYPE_MOUSE:
-        r_event_id = GE_MouseButtonId(event_id);
+        entry.event.id = GE_MouseButtonId(event_id);
         break;
       default:
         ret = -1;
@@ -324,55 +312,110 @@ static int ProcessEventElement(xmlNode * a_node)
   type = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_TYPE);
   if (!strncmp(type, X_ATTR_VALUE_BUTTON, strlen(X_ATTR_VALUE_BUTTON)))
   {
-    r_event_type = E_EVENT_TYPE_BUTTON;
+    entry.event.type = E_EVENT_TYPE_BUTTON;
   }
   else if (!strncmp(type, X_ATTR_VALUE_AXIS_DOWN, strlen(X_ATTR_VALUE_AXIS_DOWN)))
   {
-    r_event_type = E_EVENT_TYPE_AXIS_DOWN;
-    ret = GetIntProp(a_node, X_ATTR_THRESHOLD, &r_threshold);
+    entry.event.type = E_EVENT_TYPE_AXIS_DOWN;
+    ret = GetIntProp(a_node, X_ATTR_THRESHOLD, &entry.params.mapper.threshold);
   }
   else if (!strncmp(type, X_ATTR_VALUE_AXIS_UP, strlen(X_ATTR_VALUE_AXIS_UP)))
   {
-    r_event_type = E_EVENT_TYPE_AXIS_UP;
-    ret = GetIntProp(a_node, X_ATTR_THRESHOLD, &r_threshold);
+    entry.event.type = E_EVENT_TYPE_AXIS_UP;
+    ret = GetIntProp(a_node, X_ATTR_THRESHOLD, &entry.params.mapper.threshold);
   }
   else if (!strncmp(type, X_ATTR_VALUE_AXIS, strlen(X_ATTR_VALUE_AXIS)))
   {
-    r_event_type = E_EVENT_TYPE_AXIS;
+    entry.event.type = E_EVENT_TYPE_AXIS;
 
-    ret = GetUnsignedIntProp(a_node, X_ATTR_DEADZONE, &r_deadZone);
+    ret = GetUnsignedIntProp(a_node, X_ATTR_DEADZONE, &entry.params.mapper.dead_zone);
     if(ret == -1)
     {
-      r_deadZone = 0;
+      entry.params.mapper.dead_zone = 0;
     }
-    ret = GetDoubleProp(a_node, X_ATTR_MULTIPLIER, &r_multiplier);
+    ret = GetDoubleProp(a_node, X_ATTR_MULTIPLIER, &entry.params.mapper.multiplier);
     if(ret == -1)
     {
-      r_multiplier = 1;
+      entry.params.mapper.multiplier = 1;
     }
-    ret = GetDoubleProp(a_node, X_ATTR_EXPONENT, &r_exponent);
+    ret = GetDoubleProp(a_node, X_ATTR_EXPONENT, &entry.params.mapper.exponent);
     if(ret == -1)
     {
-      r_exponent = 1;
+      entry.params.mapper.exponent = 1;
       ret = 0;
     }
     shape = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_SHAPE);
-    r_shape = E_SHAPE_CIRCLE;//default value
+    entry.params.mapper.shape = E_SHAPE_CIRCLE;//default value
     if(shape)
     {
       if (!strncmp(shape, X_ATTR_VALUE_RECTANGLE, strlen(X_ATTR_VALUE_RECTANGLE)))
       {
-        r_shape = E_SHAPE_RECTANGLE;
+        entry.params.mapper.shape = E_SHAPE_RECTANGLE;
       }
     }
     xmlFree(shape);
-    r_buffer_size = 1;//default value
-    GetUnsignedIntProp(a_node, X_ATTR_BUFFERSIZE, &r_buffer_size);
-    r_filter = 0;//default value
-    GetDoubleProp(a_node, X_ATTR_FILTER, &r_filter);
+    /* for compatibility with old configurations */
+    GetUnsignedIntProp(a_node, X_ATTR_BUFFERSIZE, &entry.params.mouse_options.buffer_size);
+    GetDoubleProp(a_node, X_ATTR_FILTER, &entry.params.mouse_options.filter);
   }
 
-  ret = GetEventId(a_node, X_ATTR_ID);
+  if(ret == 0)
+  {
+    ret = GetEventId(a_node, X_ATTR_ID);
+
+    if(ret == 0)
+    {
+      switch(entry.event.type)
+      {
+        case E_EVENT_TYPE_BUTTON:
+          entry.params.mapper.button = entry.event.id;
+          break;
+        case E_EVENT_TYPE_AXIS:
+        case E_EVENT_TYPE_AXIS_DOWN:
+        case E_EVENT_TYPE_AXIS_UP:
+          entry.params.mapper.axis = entry.event.id;
+          break;
+        default:
+          ret = -1;
+          break;
+      }
+
+      if(ret == 0)
+      {
+        ret = cfg_add_binding(&entry);
+
+        if(ret == 0)
+        {
+          switch(entry.event.type)
+          {
+            case E_EVENT_TYPE_BUTTON:
+              adapter_set_device(entry.controller_id, entry.device.type, entry.device.id);
+              break;
+            case E_EVENT_TYPE_AXIS:
+            case E_EVENT_TYPE_AXIS_DOWN:
+            case E_EVENT_TYPE_AXIS_UP:
+              if(entry.device.type == E_DEVICE_TYPE_MOUSE)
+              {
+                s_mouse_cal* mcal = cal_get_mouse(entry.device.id, entry.config_id);
+                if(!mcal->options.buffer_size)
+                {
+                  entry.params.mouse_options.mode = E_MOUSE_MODE_AIMING;
+                  if(!entry.params.mouse_options.buffer_size)
+                  {
+                    entry.params.mouse_options.buffer_size = 1;
+                    entry.params.mouse_options.filter = 0;
+                  }
+                  cal_set_mouse(&entry);
+                }
+              }
+              break;
+            default:
+              break;
+          }
+        }
+      }
+    }
+  }
 
   xmlFree(type);
   return ret;
@@ -395,80 +438,15 @@ static int ProcessDeviceElement(xmlNode * a_node)
   return ret;
 }
 
-static s_mapper** get_mapper_table()
-{
-  s_mapper** pp_mapper = NULL;
-
-  if(r_device_id < 0) return NULL;
-
-  switch(r_device_type)
-  {
-    case E_DEVICE_TYPE_KEYBOARD:
-      pp_mapper = cfg_get_keyboard_buttons(r_device_id, r_controller_id, r_config_id);
-      break;
-    case E_DEVICE_TYPE_MOUSE:
-      switch(r_event_type)
-      {
-        case E_EVENT_TYPE_BUTTON:
-          pp_mapper = cfg_get_mouse_buttons(r_device_id, r_controller_id, r_config_id);
-          break;
-        case E_EVENT_TYPE_AXIS:
-        case E_EVENT_TYPE_AXIS_UP:
-        case E_EVENT_TYPE_AXIS_DOWN:
-          pp_mapper = cfg_get_mouse_axes(r_device_id, r_controller_id, r_config_id);
-          break;
-        default:
-          break;
-      }
-      break;
-    case E_DEVICE_TYPE_JOYSTICK:
-      switch(r_event_type)
-      {
-        case E_EVENT_TYPE_BUTTON:
-          pp_mapper = cfg_get_joystick_buttons(r_device_id, r_controller_id, r_config_id);
-          break;
-        case E_EVENT_TYPE_AXIS:
-        case E_EVENT_TYPE_AXIS_UP:
-        case E_EVENT_TYPE_AXIS_DOWN:
-          pp_mapper = cfg_get_joystick_axes(r_device_id, r_controller_id, r_config_id);
-          break;
-        default:
-          break;
-      }
-      break;
-    default:
-      break;
-  }
-  return pp_mapper;
-}
-
-static void allocate_mapper(s_mapper** pp_mapper)
-{
-  if(*pp_mapper)
-  {
-    *pp_mapper = realloc(*pp_mapper, ((*pp_mapper)->nb_mappers+1)*sizeof(s_mapper));
-    memset(*pp_mapper+(*pp_mapper)->nb_mappers, 0x00, sizeof(s_mapper));
-  }
-  else
-  {
-    *pp_mapper = calloc(1, sizeof(s_mapper));
-  }
-  (*pp_mapper)->nb_mappers++;
-}
-
 static int ProcessAxisElement(xmlNode * a_node)
 {
   int ret = 0;
   xmlNode* cur_node = NULL;
-  s_mapper** pp_mapper = NULL;
-  s_mapper* p_mapper = NULL;
-  s_mouse_cal* mcal;
-  s_axis_props axis_props;
   char* aid;
 
   aid = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
 
-  axis_props = controller_get_axis_index_from_name(aid);
+  entry.params.mapper.axis_props = controller_get_axis_index_from_name(aid);
 
   xmlFree(aid);
 
@@ -518,49 +496,6 @@ static int ProcessAxisElement(xmlNode * a_node)
     ret = -1;
   }
 
-  if(ret == 0)
-  {
-    pp_mapper = get_mapper_table();
-
-    if(pp_mapper)
-    {
-      allocate_mapper(pp_mapper);
-
-      p_mapper = *pp_mapper;
-
-      p_mapper = p_mapper+p_mapper->nb_mappers-1;
-
-      p_mapper->axis_props.axis = axis_props.axis;
-      p_mapper->axis_props.props = axis_props.props;
-
-      switch(r_event_type)
-      {
-        case E_EVENT_TYPE_BUTTON:
-          p_mapper->button = r_event_id;
-          adapter_set_device(r_controller_id, r_device_type, r_device_id);
-          break;
-        case E_EVENT_TYPE_AXIS:
-          p_mapper->axis = r_event_id;
-          p_mapper->dead_zone = r_deadZone;
-          p_mapper->multiplier = r_multiplier;
-          p_mapper->exponent = r_exponent;
-          p_mapper->shape = r_shape;
-          if(r_device_type == E_DEVICE_TYPE_MOUSE)
-          {
-            mcal = cal_get_mouse(r_device_id, r_config_id);
-            if(!mcal->buffer_size)
-            {
-              mcal->buffer_size = r_buffer_size;
-              mcal->filter = r_filter;
-            }
-          }
-          break;
-        default:
-          break;
-      }
-    }
-  }
-
   return ret;
 }
 
@@ -569,15 +504,11 @@ static int ProcessButtonElement(xmlNode * a_node)
   int ret = 0;
   xmlNode* cur_node = NULL;
   char* bid;
-  s_axis_props axis_props;
-  s_mapper* p_mapper = NULL;
-  s_mapper** pp_mapper = NULL;
-  s_mouse_cal* mcal;
 
   bid = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
 
-  axis_props = controller_get_axis_index_from_name(bid);
-  axis_props.props = AXIS_PROP_TOGGLE;
+  entry.params.mapper.axis_props = controller_get_axis_index_from_name(bid);
+  entry.params.mapper.axis_props.props = AXIS_PROP_TOGGLE;
 
   xmlFree(bid);
 
@@ -625,47 +556,6 @@ static int ProcessButtonElement(xmlNode * a_node)
   {
     printf("missing event element");
     ret = -1;
-  }
-
-  if(ret == 0)
-  {
-    pp_mapper = get_mapper_table();
-
-    if(pp_mapper)
-    {
-      allocate_mapper(pp_mapper);
-
-      p_mapper = *pp_mapper;
-
-      p_mapper = p_mapper + p_mapper->nb_mappers - 1;
-
-      p_mapper->axis_props.axis = axis_props.axis;
-      p_mapper->axis_props.props = axis_props.props;
-
-      switch (r_event_type)
-      {
-        case E_EVENT_TYPE_BUTTON:
-          p_mapper->button = r_event_id;
-          adapter_set_device(r_controller_id, r_device_type, r_device_id);
-          break;
-        case E_EVENT_TYPE_AXIS_DOWN:
-        case E_EVENT_TYPE_AXIS_UP:
-          p_mapper->axis = r_event_id;
-          p_mapper->threshold = r_threshold;
-          if(r_device_type == E_DEVICE_TYPE_MOUSE)
-          {
-            mcal = cal_get_mouse(r_device_id, r_config_id);
-            if(!mcal->buffer_size)
-            {
-              mcal->buffer_size = 1;
-              mcal->filter = 0;
-            }
-          }
-          break;
-        default:
-          break;
-      }
-    }
   }
 
   return ret;
@@ -721,13 +611,10 @@ static int ProcessTriggerElement(xmlNode * a_node)
 {
   int ret = 0;
   char* r_switch_back;
-  int switch_back = 0;
-  int delay = 0;
-  s_trigger* trigger;
 
   ret = GetDeviceTypeProp(a_node);
 
-  if(ret != -1 && r_device_type != E_DEVICE_TYPE_UNKNOWN)
+  if(ret != -1 && entry.device.type != E_DEVICE_TYPE_UNKNOWN)
   {
     ret = GetDeviceName(a_node);
 
@@ -747,23 +634,17 @@ static int ProcessTriggerElement(xmlNode * a_node)
     {
       if(!strncmp(r_switch_back, X_ATTR_VALUE_YES, sizeof(X_ATTR_VALUE_YES)))
       {
-        switch_back = 1;
+        entry.params.trigger.switch_back = 1;
       }
     }
     xmlFree(r_switch_back);
 
     //Optional
-    GetIntProp(a_node, X_ATTR_DELAY, &delay);
+    GetIntProp(a_node, X_ATTR_DELAY, &entry.params.trigger.delay);
 
     if(ret != -1)
     {
-      trigger = cfg_get_trigger(r_controller_id, r_config_id);
-      trigger->button = r_event_id;
-      trigger->device_id = r_device_id;
-      trigger->device_type = r_device_type;
-      trigger->switch_back = switch_back;
-      trigger->delay = delay;
-
+      cfg_set_trigger(&entry);
     }
   }
 
@@ -776,7 +657,7 @@ static int ProcessUpDownElement(xmlNode * a_node, int* device_type, int* device_
 
   ret = GetDeviceTypeProp(a_node);
 
-  if(ret != -1 && r_device_type != E_DEVICE_TYPE_UNKNOWN)
+  if(ret != -1 && entry.device.type != E_DEVICE_TYPE_UNKNOWN)
   {
     ret = GetDeviceName(a_node);
 
@@ -788,9 +669,9 @@ static int ProcessUpDownElement(xmlNode * a_node, int* device_type, int* device_
       {
         ret = GetEventId(a_node, X_ATTR_BUTTON_ID);
 
-        *button = r_event_id;
-        *device_id = r_device_id;
-        *device_type = r_device_type;
+        *button = entry.event.id;
+        *device_id = entry.device.id;
+        *device_type = entry.device.type;
       }
     }
   }
@@ -832,14 +713,14 @@ static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity, int
 
     if(ret != -1)
     {
-      intensity->dead_zone = dz * controller_get_axis_scale(adapter_get(r_controller_id)->type, axis);
+      intensity->dead_zone = dz * controller_get_axis_scale(adapter_get(entry.controller_id)->type, axis);
 
       shape = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_SHAPE);
       if(shape)
       {
         if (!strncmp(shape, X_ATTR_VALUE_RECTANGLE, strlen(X_ATTR_VALUE_RECTANGLE)))
         {
-          r_shape = E_SHAPE_RECTANGLE;
+          entry.params.mapper.shape = E_SHAPE_RECTANGLE;
         }
         else
         {
@@ -872,8 +753,8 @@ static int ProcessIntensityListElement(xmlNode * a_node)
   xmlNode* cur_node = NULL;
   int ret = 0;
   char* control;
-  s_intensity* intensity;
-  int axis;
+  s_intensity intensity;
+  int axis1, axis2;
 
   for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
   {
@@ -881,26 +762,31 @@ static int ProcessIntensityListElement(xmlNode * a_node)
     {
       if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_INTENSITY))
       {
+        axis1 = axis2 = -1;
+
         control = (char*) xmlGetProp(cur_node, (xmlChar*) X_ATTR_CONTROL);
+
         if(!strcmp(control, "left_stick") || !strcmp(control, "lstick"))
         {
-          intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, rel_axis_lstick_x);
-          ret = ProcessIntensityElement(cur_node, intensity, rel_axis_lstick_x);
-          memcpy(cfg_get_axis_intensity(r_controller_id, r_config_id, rel_axis_lstick_y), intensity, sizeof(s_intensity));
+          axis1 = rel_axis_lstick_x;
+          axis2 = rel_axis_lstick_y;
         }
         else if(!strcmp(control, "right_stick") || !strcmp(control, "rstick"))
         {
-          intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, rel_axis_rstick_x);
-          ret = ProcessIntensityElement(cur_node, intensity, rel_axis_rstick_x);
-          memcpy(cfg_get_axis_intensity(r_controller_id, r_config_id, rel_axis_rstick_y), intensity, sizeof(s_intensity));
+          axis1 = rel_axis_rstick_x;
+          axis2 = rel_axis_rstick_y;
         }
         else
         {
-          axis = control_get_index(control);
-          if(axis >= 0)
+          axis1 = control_get_index(control);
+        }
+        if(axis1 >= 0)
+        {
+          ret = ProcessIntensityElement(cur_node, &intensity, axis1);
+          cfg_set_axis_intensity(&entry, axis1, &intensity);
+          if(axis2 >= 0)
           {
-            intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, axis);
-            ret = ProcessIntensityElement(cur_node, intensity, axis);
+            cfg_set_axis_intensity(&entry, axis2, &intensity);
           }
         }
         xmlFree(control);
@@ -920,8 +806,6 @@ static int ProcessMouseOptionsListElement(xmlNode * a_node)
   xmlNode* cur_node = NULL;
   int ret = 0;
   char* prop;
-  e_mouse_mode mode;
-  s_mouse_cal* mcal;
 
   for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
   {
@@ -929,7 +813,7 @@ static int ProcessMouseOptionsListElement(xmlNode * a_node)
     {
       if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_MOUSE))
       {
-        r_device_type = E_DEVICE_TYPE_MOUSE;
+        entry.device.type = E_DEVICE_TYPE_MOUSE;
 
         ret = GetDeviceName(cur_node);
 
@@ -942,29 +826,31 @@ static int ProcessMouseOptionsListElement(xmlNode * a_node)
           {
             if (!strncmp(prop, X_ATTR_VALUE_AIMING, strlen(X_ATTR_VALUE_AIMING)))
             {
-              mode = E_MOUSE_MODE_AIMING;
+              entry.params.mouse_options.mode = E_MOUSE_MODE_AIMING;
             }
             else if (!strncmp(prop, X_ATTR_VALUE_DRIVING, strlen(X_ATTR_VALUE_DRIVING)))
             {
-              mode = E_MOUSE_MODE_DRIVING;
+              entry.params.mouse_options.mode = E_MOUSE_MODE_DRIVING;
             }
             else
             {
               //ret = -1;
               //Work-around empty mode bug.
-              mode = E_MOUSE_MODE_AIMING;
+              entry.params.mouse_options.mode = E_MOUSE_MODE_AIMING;
             }
 
             if(ret != -1)
             {
-              mcal = cal_get_mouse(r_device_id, r_config_id);
-              mcal->mode = mode;
-
-              ret = GetUnsignedIntProp(cur_node, X_ATTR_BUFFERSIZE, &mcal->buffer_size);
+              ret = GetUnsignedIntProp(cur_node, X_ATTR_BUFFERSIZE, &entry.params.mouse_options.buffer_size);
 
               if(ret != -1)
               {
-                ret = GetDoubleProp(cur_node, X_ATTR_FILTER, &mcal->filter);
+                ret = GetDoubleProp(cur_node, X_ATTR_FILTER, &entry.params.mouse_options.filter);
+
+                if(ret != -1)
+                {
+                  cal_set_mouse(&entry);
+                }
               }
             }
           }
@@ -989,18 +875,16 @@ static int ProcessConfigurationElement(xmlNode * a_node)
 {
   int ret = 0;
   xmlNode* cur_node = NULL;
-  s_intensity* intensity;
-  int i;
 
-  ret = GetUnsignedIntProp(a_node, X_ATTR_ID, &r_config_id);
+  ret = GetUnsignedIntProp(a_node, X_ATTR_ID, &entry.config_id);
 
   if(ret != -1)
   {
-    r_config_id--;
+    entry.config_id--;
 
-    if (r_config_id >= MAX_CONFIGURATIONS)
+    if (entry.config_id >= MAX_CONFIGURATIONS)
     {
-      printf("bad configuration id: %d\n", r_config_id);
+      printf("bad configuration id: %d\n", entry.config_id);
       ret = -1;
     }
   }
@@ -1045,18 +929,6 @@ static int ProcessConfigurationElement(xmlNode * a_node)
         break;
       }
     }
-  }
-
-  for(i=0; i<=AXIS_MAX; ++i)
-  {
-    intensity = cfg_get_axis_intensity(r_controller_id, r_config_id, i);
-    intensity->device_up_id = -1;
-    intensity->device_down_id = -1;
-    intensity->up_button = -1;
-    intensity->down_button = -1;
-    intensity->value = controller_get_max_signed(adapter_get(r_controller_id)->type, i);
-    intensity->max_value = controller_get_max_signed(adapter_get(r_controller_id)->type, i);
-    intensity->shape = E_SHAPE_RECTANGLE;
   }
 
   for (cur_node = cur_node->next; cur_node && ret != -1; cur_node = cur_node->next)
@@ -1130,23 +1002,27 @@ static int ProcessControllerElement(xmlNode * a_node)
   xmlNode* cur_node = NULL;
   int ret = 0;
 
-  ret = GetUnsignedIntProp(a_node, X_ATTR_ID, &r_controller_id);
+  ret = GetUnsignedIntProp(a_node, X_ATTR_ID, &entry.controller_id);
 
   if(ret != -1)
   {
-    r_controller_id--;
+    entry.controller_id--;
 
-    if (r_controller_id >= MAX_CONTROLLERS)
+    if (entry.controller_id >= MAX_CONTROLLERS)
     {
-      printf("bad controller id: %d\n", r_controller_id);
+      printf("bad controller id: %d\n", entry.controller_id);
       ret = -1;
     }
   }
 
   if(ret != -1)
   {
+    unsigned int dpi;
     /* optional */
-    GetUnsignedIntProp(a_node, X_ATTR_DPI, r_config_dpi+r_controller_id);
+    if(GetUnsignedIntProp(a_node, X_ATTR_DPI, &dpi) != -1)
+    {
+      cfg_set_controller_dpi(entry.controller_id, dpi);
+    }
   }
 
   for (cur_node = a_node->children; cur_node && ret != -1; cur_node = cur_node->next)
@@ -1251,97 +1127,6 @@ static int read_file(char* file_path)
   return ret;
 }
 
-static void read_calibration()
-{
-  int i, j, k;
-  s_mapper** pp_mapper;
-  s_mapper* p_mapper;
-  s_mouse_cal* mcal;
-  int found;
-
-  current_mouse = -1;
-
-  for(i=0; i<MAX_DEVICES; ++i)
-  {
-    found = 0;
-    for(j=0; j<MAX_CONTROLLERS && !found; ++j)
-    {
-      for(k=0; k<MAX_CONFIGURATIONS; ++k)
-      {
-        pp_mapper = cfg_get_mouse_axes(i, j, k);
-        mcal = cal_get_mouse(i, k);
-        /*if(*pp_mapper)
-        {
-          printf("mouse %u - profile %u - mode %u - bs %u - f %.02f\n", i, k, mcal->mode, mcal->buffer_size, mcal->filter);
-        }*/
-        for(p_mapper = *pp_mapper; p_mapper && p_mapper<*pp_mapper+(*pp_mapper)->nb_mappers; p_mapper++)
-        {
-          if(current_mouse < 0)
-          {
-            current_mouse = i;
-          }
-          if(p_mapper->axis == 0)
-          {
-            found = 1;
-            cal_set_controller(i, j);
-            mcal->mx = &p_mapper->multiplier;
-            mcal->ex = &p_mapper->exponent;
-            mcal->dzx = &p_mapper->dead_zone;
-            mcal->dzs = &p_mapper->shape;
-            mcal->rd = DEFAULT_RADIUS;
-            mcal->vel = DEFAULT_VELOCITY;
-            mcal->dpi = r_config_dpi[j];
-          }
-          else
-          {
-            found = 1;
-            cal_set_controller(i, j);
-            mcal->my = &p_mapper->multiplier;
-            mcal->ey = &p_mapper->exponent;
-            mcal->dzy = &p_mapper->dead_zone;
-          }
-        }
-      }
-    }
-  }
-
-  if(current_mouse < 0)
-  {
-    current_mouse = 0;
-  }
-}
-
-void free_config()
-{
-  s_mapper** mapper;
-  int i, j, k;
-  for(i=0; i<MAX_DEVICES; ++i)
-  {
-    for(j=0; j<MAX_CONTROLLERS; ++j)
-    {
-      for(k=0; k<MAX_CONFIGURATIONS; ++k)
-      {
-        mapper = cfg_get_keyboard_buttons(i, j, k);
-        free(*mapper);
-        *mapper = NULL;
-        mapper = cfg_get_mouse_buttons(i, j, k);
-        free(*mapper);
-        *mapper = NULL;
-        mapper = cfg_get_mouse_axes(i, j, k);
-        free(*mapper);
-        *mapper = NULL;
-        mapper = cfg_get_joystick_buttons(i, j, k);
-        free(*mapper);
-        *mapper = NULL;
-        mapper = cfg_get_joystick_axes(i, j, k);
-        free(*mapper);
-        *mapper = NULL;
-      }
-    }
-  }
-  cal_init();
-}
-
 /*
  * This function loads a config file.
  */
@@ -1356,8 +1141,6 @@ int read_config_file(const char* file)
     fprintf(stderr, "read_file failed\n");
     return -1;
   }
-
-  read_calibration();
 
   return 0;
 }
