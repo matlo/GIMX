@@ -237,9 +237,16 @@ int adapter_forward_control_in(int id, unsigned char* data, unsigned char length
 {
   if(adapter[id].portname >= 0)
   {
-    unsigned char header[] = {BYTE_SPOOF_DATA, length};
-    //TODO: writev is not as efficient as it should be...
-    if(serial_sendv(id, header, HEADER_SIZE, data, length) < 0)
+    s_packet packet =
+    {
+      .header =
+      {
+        .type = BYTE_SPOOF_DATA,
+        .length = length
+      }
+    };
+    memcpy(packet.value, data, length);
+    if(serial_send(id, &packet, sizeof(packet.header)+packet.header.length) < 0)
     {
       return -1;
     }
