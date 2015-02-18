@@ -142,7 +142,7 @@ void cfg_intensity_init()
         intensity->device_down_id = -1;
         intensity->up_button = -1;
         intensity->down_button = -1;
-        intensity->max_value = controller_get_max_signed(adapter_get(i)->type, i);
+        intensity->max_value = controller_get_max_signed(adapter_get(i)->type, k);
         intensity->value = intensity->max_value;
         intensity->shape = E_SHAPE_RECTANGLE;
       }
