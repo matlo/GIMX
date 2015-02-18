@@ -84,6 +84,51 @@ static inline void update_finger(s_trackpad_finger* current, s_trackpad_finger* 
   }
 }
 
+static inline void trigger2event(int (*callback)(GE_Event*), GE_Event* event, unsigned char trigger,
+    unsigned char ptrigger, uint8_t axis_id)
+{
+  int axisValue;
+  if (trigger != ptrigger)
+  {
+    event->jaxis.axis = axis_id;
+    axisValue = trigger * (MAX_AXIS_VALUE_16BITS / 2) / MAX_AXIS_VALUE_8BITS;
+    event->jaxis.value = clamp(0, axisValue, SHRT_MAX);
+    callback(event);
+  }
+}
+
+static inline void axis2event(int (*callback)(GE_Event*), GE_Event* event, unsigned char axis,
+    unsigned char paxis, uint8_t axis_id)
+{
+  int axisValue;
+  int prevAxisValue;
+
+  axisValue = axis - CENTER_AXIS_VALUE_8BITS;
+  prevAxisValue = paxis - CENTER_AXIS_VALUE_8BITS;
+  if(axisValue != prevAxisValue)
+  {
+    if(abs(axisValue) > STICK_THRESHOLD || abs(prevAxisValue) > STICK_THRESHOLD)
+    {
+      event->jaxis.axis = axis_id;
+      axisValue = axisValue * (MAX_AXIS_VALUE_16BITS/2) / (MAX_AXIS_VALUE_8BITS/2);
+      event->jaxis.value = clamp(SHRT_MIN, axisValue, SHRT_MAX);
+      callback(event);
+    }
+  }
+}
+
+static inline void button2event(int (*callback)(GE_Event*), GE_Event* event, unsigned short buttons,
+    unsigned short pbuttons, unsigned short button_mask, uint8_t button_id)
+{
+  unsigned short value;
+  if((value = (buttons & button_mask)) ^ (pbuttons & button_mask))
+  {
+    event->type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+    event->jbutton.button = button_id;
+    callback(event);
+  }
+}
+
 void ds42event(int adapter_id, s_report* current, s_report* previous,
     int joystick_id, int (*callback)(GE_Event*))
 {
@@ -96,8 +141,6 @@ void ds42event(int adapter_id, s_report* current, s_report* previous,
    * Buttons
    */
 
-  unsigned short value;
-
   unsigned char hatAndButtons = ds4_current->HatAndButtons;
   unsigned char prevHatAndButtons = ds4_previous->HatAndButtons;
 
@@ -107,120 +150,29 @@ void ds42event(int adapter_id, s_report* current, s_report* previous,
   unsigned char dirButtons = hatToButtons(hatAndButtons & 0x0F);
   unsigned char prevDirButtons = hatToButtons(prevHatAndButtons & 0x0F);
 
-  if((value = (dirButtons & DS4_UP_MASK)) ^ (prevDirButtons & DS4_UP_MASK))
-  {
-    event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    event.jbutton.button = DS4_UP_ID;
-    callback(&event);
-  }
-  if((value = (dirButtons & DS4_RIGHT_MASK)) ^ (prevDirButtons & DS4_RIGHT_MASK))
-  {
-    event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    event.jbutton.button = DS4_RIGHT_ID;
-    callback(&event);
-  }
-  if((value = (dirButtons & DS4_DOWN_MASK)) ^ (prevDirButtons & DS4_DOWN_MASK))
-  {
-    event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    event.jbutton.button = DS4_DOWN_ID;
-    callback(&event);
-  }
-  if((value = (dirButtons & DS4_LEFT_MASK)) ^ (prevDirButtons & DS4_LEFT_MASK))
-  {
-    event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    event.jbutton.button = DS4_LEFT_ID;
-    callback(&event);
-  }
+  button2event(callback, &event, dirButtons, prevDirButtons, DS4_UP_MASK, DS4_UP_ID);
+  button2event(callback, &event, dirButtons, prevDirButtons, DS4_RIGHT_MASK, DS4_RIGHT_ID);
+  button2event(callback, &event, dirButtons, prevDirButtons, DS4_DOWN_MASK, DS4_DOWN_ID);
+  button2event(callback, &event, dirButtons, prevDirButtons, DS4_LEFT_MASK, DS4_LEFT_ID);
 
-  if((value = (hatAndButtons & DS4_SQUARE_MASK)) ^ (prevHatAndButtons & DS4_SQUARE_MASK))
-  {
-    event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    event.jbutton.button = DS4_SQUARE_ID;
-    callback(&event);
-  }
-  if((value = (hatAndButtons & DS4_CROSS_MASK)) ^ (prevHatAndButtons & DS4_CROSS_MASK))
-  {
-    event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    event.jbutton.button = DS4_CROSS_ID;
-    callback(&event);
-  }
-  if((value = (hatAndButtons & DS4_CIRCLE_MASK)) ^ (prevHatAndButtons & DS4_CIRCLE_MASK))
-  {
-    event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    event.jbutton.button = DS4_CIRCLE_ID;
-    callback(&event);
-  }
-  if((value = (hatAndButtons & DS4_TRIANGLE_MASK)) ^ (prevHatAndButtons & DS4_TRIANGLE_MASK))
-  {
-    event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    event.jbutton.button = DS4_TRIANGLE_ID;
-    callback(&event);
-  }
+  button2event(callback, &event, hatAndButtons, prevHatAndButtons, DS4_SQUARE_MASK, DS4_SQUARE_ID);
+  button2event(callback, &event, hatAndButtons, prevHatAndButtons, DS4_CROSS_MASK, DS4_CROSS_ID);
+  button2event(callback, &event, hatAndButtons, prevHatAndButtons, DS4_CIRCLE_MASK, DS4_CIRCLE_ID);
+  button2event(callback, &event, hatAndButtons, prevHatAndButtons, DS4_TRIANGLE_MASK, DS4_TRIANGLE_ID);
 
-  if((value = (buttonsAndCounter & DS4_L1_MASK)) ^ (prevButtonsAndCounter & DS4_L1_MASK))
-  {
-    event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    event.jbutton.button = DS4_L1_ID;
-    callback(&event);
-  }
-  if((value = (buttonsAndCounter & DS4_R1_MASK)) ^ (prevButtonsAndCounter & DS4_R1_MASK))
-  {
-    event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    event.jbutton.button = DS4_R1_ID;
-    callback(&event);
-  }
+  button2event(callback, &event, buttonsAndCounter, prevButtonsAndCounter, DS4_L1_MASK, DS4_L1_ID);
+  button2event(callback, &event, buttonsAndCounter, prevButtonsAndCounter, DS4_R1_MASK, DS4_R1_ID);
 #ifndef WIN32
-  if((value = (buttonsAndCounter & DS4_L2_MASK)) ^ (prevButtonsAndCounter & DS4_L2_MASK))
-  {
-    event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    event.jbutton.button = DS4_L2_ID;
-    callback(&event);
-  }
-  if((value = (buttonsAndCounter & DS4_R2_MASK)) ^ (prevButtonsAndCounter & DS4_R2_MASK))
-  {
-    event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    event.jbutton.button = DS4_R2_ID;
-    callback(&event);
-  }
+  button2event(callback, &event, buttonsAndCounter, prevButtonsAndCounter, DS4_L2_MASK, DS4_L2_ID);
+  button2event(callback, &event, buttonsAndCounter, prevButtonsAndCounter, DS4_R2_MASK, DS4_R2_ID);
 #endif
 
-  if((value = (buttonsAndCounter & DS4_SHARE_MASK)) ^ (prevButtonsAndCounter & DS4_SHARE_MASK))
-  {
-    event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    event.jbutton.button = DS4_SHARE_ID;
-    callback(&event);
-  }
-  if((value = (buttonsAndCounter & DS4_OPTIONS_MASK)) ^ (prevButtonsAndCounter & DS4_OPTIONS_MASK))
-  {
-    event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    event.jbutton.button = DS4_OPTIONS_ID;
-    callback(&event);
-  }
-  if((value = (buttonsAndCounter & DS4_L3_MASK)) ^ (prevButtonsAndCounter & DS4_L3_MASK))
-  {
-    event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    event.jbutton.button = DS4_L3_ID;
-    callback(&event);
-  }
-  if((value = (buttonsAndCounter & DS4_R3_MASK)) ^ (prevButtonsAndCounter & DS4_R3_MASK))
-  {
-    event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    event.jbutton.button = DS4_R3_ID;
-    callback(&event);
-  }
-
-  if((value = (buttonsAndCounter & DS4_PS_MASK)) ^ (prevButtonsAndCounter & DS4_PS_MASK))
-  {
-    event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    event.jbutton.button = DS4_PS_ID;
-    callback(&event);
-  }
-  if((value = (buttonsAndCounter & DS4_TOUCHPAD_MASK)) ^ (prevButtonsAndCounter & DS4_TOUCHPAD_MASK))
-  {
-    event.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    event.jbutton.button = DS4_TOUCHPAD_ID;
-    callback(&event);
-  }
+  button2event(callback, &event, buttonsAndCounter, prevButtonsAndCounter, DS4_SHARE_MASK, DS4_SHARE_ID);
+  button2event(callback, &event, buttonsAndCounter, prevButtonsAndCounter, DS4_OPTIONS_MASK, DS4_OPTIONS_ID);
+  button2event(callback, &event, buttonsAndCounter, prevButtonsAndCounter, DS4_L3_MASK, DS4_L3_ID);
+  button2event(callback, &event, buttonsAndCounter, prevButtonsAndCounter, DS4_R3_MASK, DS4_R3_ID);
+  button2event(callback, &event, buttonsAndCounter, prevButtonsAndCounter, DS4_PS_MASK, DS4_PS_ID);
+  button2event(callback, &event, buttonsAndCounter, prevButtonsAndCounter, DS4_TOUCHPAD_MASK, DS4_TOUCHPAD_ID);
 
   /*
    * Axes
@@ -228,75 +180,13 @@ void ds42event(int adapter_id, s_report* current, s_report* previous,
 
   event.type = GE_JOYAXISMOTION;
 
-  int axisValue;
-  int prevAxisValue;
+  axis2event(callback, &event, ds4_current->X, ds4_previous->X, DS4_AXIS_X_ID);
+  axis2event(callback, &event, ds4_current->Y, ds4_previous->Y, DS4_AXIS_Y_ID);
+  axis2event(callback, &event, ds4_current->Z, ds4_previous->Z, DS4_AXIS_Z_ID);
+  axis2event(callback, &event, ds4_current->Rz, ds4_previous->Rz, DS4_AXIS_RZ_ID);
 
-  axisValue = ds4_current->X - CENTER_AXIS_VALUE_8BITS;
-  prevAxisValue = ds4_previous->X - CENTER_AXIS_VALUE_8BITS;
-  if(axisValue != prevAxisValue)
-  {
-    if(abs(axisValue) > STICK_THRESHOLD || abs(prevAxisValue) > STICK_THRESHOLD)
-    {
-      event.jaxis.axis = DS4_AXIS_X_ID;
-      axisValue = axisValue * (MAX_AXIS_VALUE_16BITS/2) / (MAX_AXIS_VALUE_8BITS/2);
-      event.jaxis.value = clamp(-(MAX_AXIS_VALUE_16BITS/2+1), axisValue, (MAX_AXIS_VALUE_16BITS/2));
-      callback(&event);
-    }
-  }
-  axisValue = ds4_current->Y - CENTER_AXIS_VALUE_8BITS;
-  prevAxisValue = ds4_previous->Y - CENTER_AXIS_VALUE_8BITS;
-  if(axisValue != prevAxisValue)
-  {
-    if(abs(axisValue) > STICK_THRESHOLD || abs(prevAxisValue) > STICK_THRESHOLD)
-    {
-      event.jaxis.axis = DS4_AXIS_Y_ID;
-      axisValue = axisValue * (MAX_AXIS_VALUE_16BITS/2) / (MAX_AXIS_VALUE_8BITS/2);
-      event.jaxis.value = clamp(-(MAX_AXIS_VALUE_16BITS/2+1), axisValue, (MAX_AXIS_VALUE_16BITS/2));
-      callback(&event);
-    }
-  }
-  axisValue = ds4_current->Z- CENTER_AXIS_VALUE_8BITS;
-  prevAxisValue = ds4_previous->Z - CENTER_AXIS_VALUE_8BITS;
-  if(axisValue != prevAxisValue)
-  {
-    if(abs(axisValue) > STICK_THRESHOLD || abs(prevAxisValue) > STICK_THRESHOLD)
-    {
-      event.jaxis.axis = DS4_AXIS_Z_ID;
-      axisValue = axisValue * (MAX_AXIS_VALUE_16BITS/2) / (MAX_AXIS_VALUE_8BITS/2);
-      event.jaxis.value = clamp(-(MAX_AXIS_VALUE_16BITS/2+1), axisValue, (MAX_AXIS_VALUE_16BITS/2));
-      callback(&event);
-    }
-  }
-  axisValue = ds4_current->Rz - CENTER_AXIS_VALUE_8BITS;
-  prevAxisValue = ds4_previous->Rz - CENTER_AXIS_VALUE_8BITS;
-  if(axisValue != prevAxisValue)
-  {
-    if(abs(axisValue) > STICK_THRESHOLD || abs(prevAxisValue) > STICK_THRESHOLD)
-    {
-      event.jaxis.axis = DS4_AXIS_RZ_ID;
-      axisValue = axisValue * (MAX_AXIS_VALUE_16BITS/2) / (MAX_AXIS_VALUE_8BITS/2);
-      event.jaxis.value = clamp(-(MAX_AXIS_VALUE_16BITS/2+1), axisValue, (MAX_AXIS_VALUE_16BITS/2));
-      callback(&event);
-    }
-  }
-  axisValue = ds4_current->Rx;
-  prevAxisValue = ds4_previous->Rx;
-  if(axisValue != prevAxisValue)
-  {
-    event.jaxis.axis = DS4_AXIS_L2_ID;
-    axisValue = axisValue * (MAX_AXIS_VALUE_16BITS/2) / MAX_AXIS_VALUE_8BITS;
-    event.jaxis.value = clamp(0, axisValue, MAX_AXIS_VALUE_16BITS/2);
-    callback(&event);
-  }
-  axisValue = ds4_current->Ry;
-  prevAxisValue = ds4_previous->Ry;
-  if(axisValue != prevAxisValue)
-  {
-    event.jaxis.axis = DS4_AXIS_R2_ID;
-    axisValue = axisValue * (MAX_AXIS_VALUE_16BITS/2) / MAX_AXIS_VALUE_8BITS;
-    event.jaxis.value = clamp(0, axisValue, MAX_AXIS_VALUE_16BITS/2);
-    callback(&event);
-  }
+  trigger2event(callback, &event, ds4_current->Rx, ds4_previous->Rx, DS4_AXIS_L2_ID);
+  trigger2event(callback, &event, ds4_current->Ry, ds4_previous->Ry, DS4_AXIS_R2_ID);
 
   //TODO MLA: refactor this
 
@@ -306,8 +196,8 @@ void ds42event(int adapter_id, s_report* current, s_report* previous,
   {
     // battery level
     adapter->report.value.ds4.battery_level = ds4_current->battery_level;
-    //we don't forward mic and phone state
-    //as we don't support mic and phone
+    // we don't forward mic and phone state
+    // as we don't support mic and phone
     adapter->report.value.ds4.ext = ds4_current->ext & 0x1F;
 
     // forward touchpad and motion sensing in bluetooth mode only

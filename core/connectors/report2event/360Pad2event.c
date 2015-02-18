@@ -10,7 +10,7 @@
 #include <string.h>
 #include <limits.h>
 
-inline void axis2event(int (*callback)(GE_Event*), GE_Event* event, unsigned char axis[2],
+static inline void axis2event(int (*callback)(GE_Event*), GE_Event* event, unsigned char axis[2],
     unsigned char paxis[2], char invert, uint8_t axis_id)
 {
   signed short axisValue;
@@ -30,7 +30,7 @@ inline void axis2event(int (*callback)(GE_Event*), GE_Event* event, unsigned cha
   }
 }
 
-inline void trigger2event(int (*callback)(GE_Event*), GE_Event* event, unsigned char trigger,
+static inline void trigger2event(int (*callback)(GE_Event*), GE_Event* event, unsigned char trigger,
     unsigned char ptrigger, uint8_t axis_id)
 {
   int axisValue;
@@ -43,7 +43,7 @@ inline void trigger2event(int (*callback)(GE_Event*), GE_Event* event, unsigned 
   }
 }
 
-inline void button2event(int (*callback)(GE_Event*), GE_Event* event, unsigned short buttons,
+static inline void button2event(int (*callback)(GE_Event*), GE_Event* event, unsigned short buttons,
     unsigned short pbuttons, unsigned short button_mask, uint8_t button_id)
 {
   unsigned short value;
