@@ -22,6 +22,18 @@ static struct
 } serials[MAX_CONTROLLERS] = {};
 
 /*
+ * \brief Initialize all handles to NULL.
+ */
+void serial_init()
+{
+  int i;
+  for(i=0; i<MAX_CONTROLLERS; ++i)
+  {
+    serials[i].handle = NULL;
+  }
+}
+
+/*
  * The baud rate in bps.
  */
 static int baudrate = 500000;
@@ -192,10 +204,16 @@ int serial_recv(int id, void* pdata, unsigned int size)
  */
 int serial_close(int id)
 {
-  usleep(10000);//sleep 10ms to leave enough time for the last packet to be sent
-  CloseHandle(serials[id].wOverlapped.hEvent);
-  CloseHandle(serials[id].rOverlapped.hEvent);
-  CloseHandle(serials[id].handle);
+  if(serials[id].handle != NULL)
+  {
+    usleep(10000);//sleep 10ms to leave enough time for the last packet to be sent
+    CloseHandle(serials[id].wOverlapped.hEvent);
+    serials[id].wOverlapped.hEvent = NULL;
+    CloseHandle(serials[id].rOverlapped.hEvent);
+    serials[id].rOverlapped.hEvent = NULL;
+    CloseHandle(serials[id].handle);
+    serials[id].handle = NULL;
+  }
   return 0;
 }
 
