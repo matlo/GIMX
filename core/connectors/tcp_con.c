@@ -50,7 +50,7 @@ int tcp_connect(unsigned int ip, unsigned short port)
       int iMode = 1;
       if(ioctlsocket(fd, FIONBIO, (u_long FAR*) &iMode) == SOCKET_ERROR)
       {
-        perror("ioctlsocket");
+        psockerror("ioctlsocket");
         error = 1;
       }
 #endif
@@ -106,6 +106,19 @@ int tcp_send(int fd, const unsigned char* buf, int length)
   if(ret < 0)
   {
     psockerror("send");
+  }
+  return ret;
+}
+
+/*
+ * Receive data from a tcp socket.
+ */
+int tcp_recv(int fd, unsigned char* buf, int len)
+{
+  int ret = recv(fd, (void*)buf, len, 0);
+  if(ret < 0)
+  {
+    psockerror("recv");
   }
   return ret;
 }
