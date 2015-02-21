@@ -98,7 +98,7 @@ int udp_connect(unsigned int ip, unsigned short port, int* type)
         const char* optval = (char*)&tv;
 #endif
         if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, optval, sizeof(tv)) < 0) {
-            perror("setsockopt SO_RCVTIMEO");
+            psockerror("setsockopt SO_RCVTIMEO");
             error = 1;
         }
         else
