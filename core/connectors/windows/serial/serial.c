@@ -51,52 +51,79 @@ int serial_open(int id, char* portname)
   DWORD accessdirection = GENERIC_READ | GENERIC_WRITE;
   char scom[16];
   snprintf(scom, sizeof(scom), "\\\\.\\%s", portname);
-  HANDLE handle = CreateFile(scom, accessdirection, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+  HANDLE handle, rHandle, wHandle;
+  handle = CreateFile(scom, accessdirection, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
   if (handle != INVALID_HANDLE_VALUE)
   {
     DCB dcbSerialParams = { 0 };
     dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-    if (!GetCommState(handle, &dcbSerialParams))
+    if (GetCommState(handle, &dcbSerialParams))
     {
-      CloseHandle(handle);
-      handle = INVALID_HANDLE_VALUE;
-    }
-    else
-    {
+      /*
+       * set serial port parameters
+       */
       dcbSerialParams.BaudRate = baudrate;
       dcbSerialParams.ByteSize = 8;
       dcbSerialParams.StopBits = ONESTOPBIT;
       dcbSerialParams.Parity = NOPARITY;
-      if (!SetCommState(handle, &dcbSerialParams))
-      {
-        CloseHandle(handle);
-        handle = INVALID_HANDLE_VALUE;
-      }
-      else
+      if (SetCommState(handle, &dcbSerialParams))
       {
         /*
          * disable timeouts
          */
         COMMTIMEOUTS timeouts = { 0 };
-        if (!SetCommTimeouts(handle, &timeouts))
+        if (SetCommTimeouts(handle, &timeouts))
+        {
+          /*
+           * create event objects for overlapped I/O
+           */
+          rHandle = CreateEvent(NULL, FALSE, FALSE, NULL);
+          if(rHandle != INVALID_HANDLE_VALUE)
+          {
+            wHandle = CreateEvent(NULL, FALSE, FALSE, NULL);
+            if(wHandle != INVALID_HANDLE_VALUE)
+            {
+              serials[id].handle = handle;
+              serials[id].rOverlapped.hEvent = rHandle;
+              serials[id].wOverlapped.hEvent = wHandle;
+            }
+            else
+            {
+              CloseHandle(rHandle);
+              rHandle = INVALID_HANDLE_VALUE;
+              CloseHandle(handle);
+              handle = INVALID_HANDLE_VALUE;
+            }
+          }
+          else
+          {
+            CloseHandle(handle);
+            handle = INVALID_HANDLE_VALUE;
+          }
+        }
+        else
         {
           CloseHandle(handle);
           handle = INVALID_HANDLE_VALUE;
         }
       }
+      else
+      {
+        CloseHandle(handle);
+        handle = INVALID_HANDLE_VALUE;
+      }
+    }
+    else
+    {
+      CloseHandle(handle);
+      handle = INVALID_HANDLE_VALUE;
     }
   }
   if(handle == INVALID_HANDLE_VALUE)
   {
     return -1;
   }
-  else
-  {
-    serials[id].handle = handle;
-    serials[id].rOverlapped.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-    serials[id].wOverlapped.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-    return 0;
-  }
+  return 0;
 }
 
 /*
