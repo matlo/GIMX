@@ -477,6 +477,28 @@ static unsigned int fill_handles(HANDLE handles[])
 
 static int sdl_peep_events(GE_Event* events, int size);
 
+void plasterror(const char* msg)
+{
+  DWORD error = GetLastError();
+  LPTSTR pBuffer = NULL;
+
+  if(!FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+          NULL,
+          error,
+          0,
+          (LPTSTR)&pBuffer,
+          0,
+          NULL))
+  {
+    fprintf(stderr, "%s failed with error: %lu\n", msg, error);
+  }
+  else
+  {
+    fprintf(stderr, "%s failed with error: %s\n", msg, pBuffer);
+    LocalFree(pBuffer);
+  }
+}
+
 void ev_pump_events()
 {
   int num_evt;
@@ -522,7 +544,7 @@ void ev_pump_events()
 
     if(result == WAIT_FAILED)
     {
-      fprintf(stderr, "MsgWaitForMultipleObjects failed with error %d\n", result);
+      plasterror("MsgWaitForMultipleObjects");
     }
     else if(result == WAIT_OBJECT_0 + count)
     {
@@ -624,7 +646,7 @@ void ev_pump_events()
              */
             if(WSAEnumNetworkEvents(sources[i].fd, handles[result], &NetworkEvents))
             {
-              fprintf(stderr, "WSAEnumNetworkEvents: %d\n", WSAGetLastError());
+              plasterror("WSAEnumNetworkEvents");
               sources[i].fp_cleanup(sources[i].id);
             }
             else
