@@ -7,7 +7,6 @@
 #define HAVE_RFCOMM
 #define REMOTE_DEVICE_DB remote_device_db_memory
 #define HAVE_TIME
-#define HAVE_MALLOC
 #define HAVE_BZERO
 #define ENABLE_LOG_INFO 
 #define ENABLE_LOG_ERROR

@@ -11,49 +11,35 @@
 #define ACL_MTU 1024
 #define L2CAP_MTU 1024
 
-int l2cap_connect(const char *bdaddr_src, const char *bdaddr_dest, unsigned short psm, int options)
+int l2cap_connect(int fd, const char *bdaddr_dest, unsigned short psm)
 {
-  bdaddr_t ba;
-  str2ba(bdaddr_dest, &ba);
-  bt_send_cmd(&l2cap_create_channel_mtu, ba.b, psm, L2CAP_MTU);
-
-  //TODO
-
-  return -1;
+  bdaddr_t dst;
+  str2ba(bdaddr_dest, &dst);
+  bdaddr_t dst_swapped;
+  baswap(&dst_swapped, &dst);
+  if( bt_send_cmd(fd, &l2cap_create_channel_mtu, dst_swapped.b, psm, L2CAP_MTU) < 0)
+  {
+    return -1;
+  }
+  return 0;
 }
 
-int l2cap_send(int fd, const unsigned char* buf, int len, int blocking)
+int l2cap_send(int fd, unsigned short channel, const unsigned char* buf, int len)
 {
-  //TODO
+  uint8_t header[sizeof(packet_header_t)];
+  bt_store_16(header, 0, L2CAP_DATA_PACKET);
+  bt_store_16(header, 2, channel);
+  bt_store_16(header, 4, len);
+
+  // Linux, MinGW and Cygwin
+  if(tcp_send(fd, (const void*)header, 6) < 0)
+  {
+    return -1;
+  }
+  if(tcp_send(fd, (const void*)buf, len) < 0)
+  {
+    return -1;
+  }
 
   return len;
 }
-
-int l2cap_recv(int fd, unsigned char* buf, int len)
-{
-  //TODO
-
-  return 0;
-}
-
-int l2cap_listen(unsigned short psm, int options)
-{
-  //TODO
-
-  return 0;
-}
-
-int l2cap_accept(int s, bdaddr_t* src, unsigned short* psm, unsigned short* cid)
-{
-  //TODO
-
-  return -1;
-}
-
-int l2cap_is_connected(int fd)
-{
-  //TODO
-
-  return 0;
-}
-

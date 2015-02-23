@@ -11,7 +11,7 @@
 #endif
 
 int tcp_connect(unsigned int ip, unsigned short port);
-void tcp_close(int fd);
+int tcp_close(int fd);
 int tcp_send(int fd, const unsigned char* buf, int length);
 int tcp_recv(int fd, unsigned char* buf, int len);
 

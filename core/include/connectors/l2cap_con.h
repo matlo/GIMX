@@ -14,9 +14,14 @@
 #define L2CAP_LM_ENCRYPT 0
 #endif
 
+#ifndef WIN32
 int l2cap_connect(const char *bdaddr_src, const char *bdaddr_dest, unsigned short psm, int options);
+int l2cap_send(int fd, const unsigned char* buf, int len, int blocking);
+#else
+int l2cap_connect(int fd, const char *bdaddr_dest, unsigned short psm);
+int l2cap_send(int fd, unsigned short channel, const unsigned char* buf, int len);
+#endif
 
-int l2cap_send(int, const unsigned char*, int, int);
 int acl_send_data (const char *bdaddr_dst, unsigned short cid, unsigned char *data, unsigned short plen);
 
 int l2cap_recv(int, unsigned char*, int len);

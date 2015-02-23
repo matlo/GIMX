@@ -16,8 +16,8 @@
 #include <report.h>
 #include "display.h"
 #include "stats.h"
-#ifndef WIN32
 #include "connectors/sixaxis.h"
+#ifndef WIN32
 #include "connectors/btds4.h"
 #endif
 
@@ -199,7 +199,6 @@ int connector_init()
           printf(_("Detected controller: %s.\n"), controller_get_name(adapter->type));
         }
       }
-#ifndef WIN32
       else if(adapter->bdaddr_dst)
       {
         if(adapter->type == C_TYPE_SIXAXIS
@@ -213,6 +212,7 @@ int connector_init()
             ret = -1;
           }
         }
+#ifndef WIN32
         else if(adapter->type == C_TYPE_DS4)
         {
           btds4_set_dongle(i, adapter->dongle_index);
@@ -228,9 +228,8 @@ int connector_init()
         {
           fprintf(stderr, _("Wrong controller type.\n"));
         }
-      }
 #endif
-
+      }
     }
     if(adapter->src_ip)
     {
@@ -262,7 +261,6 @@ void connector_clean()
       GE_RemoveSource(adapter->src_fd);
       udp_close(adapter->dst_fd);
     }
-#ifndef WIN32
     else if(adapter->bdaddr_dst)
     {
       if(adapter->type == C_TYPE_SIXAXIS
@@ -270,12 +268,13 @@ void connector_clean()
       {
         sixaxis_close(i);
       }
+#ifndef WIN32
       else if(adapter->type == C_TYPE_DS4)
       {
         btds4_close(i);
       }
-    }
 #endif
+    }
     else if(adapter->portname)
     {
       switch(adapter->type)
@@ -326,25 +325,21 @@ int connector_send()
 
         switch(adapter->type)
         {
-#ifndef WIN32
         case C_TYPE_DEFAULT:
           if(adapter->bdaddr_dst)
           {
             ret = sixaxis_send_interrupt(i, &report->value.ds3);
           }
           break;
-#endif
         case C_TYPE_SIXAXIS:
           if(adapter->portname)
           {
             ret = serial_send(i, report, 2+report->length);
           }
-#ifndef WIN32
           else if(adapter->bdaddr_dst)
           {
             ret = sixaxis_send_interrupt(i, &report->value.ds3);
           }
-#endif
           break;
         case C_TYPE_DS4:
           if(adapter->portname)

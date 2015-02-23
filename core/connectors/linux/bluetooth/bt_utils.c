@@ -21,24 +21,25 @@
  *
  * \return 0 if successful, -1 otherwise
  */
-int bt_get_device_bdaddr(int device_number, char bdaddr[18])
+int bt_get_device_bdaddr(int device_number, bdaddr_t* bdaddr)
 {
   int ret = 0;
 
-  bdaddr_t bda;
-
   int s = hci_open_dev (device_number);
-
-  if(hci_read_bd_addr(s, &bda, HCI_REQ_TIMEOUT) < 0)
+  if(s >= 0)
   {
-    ret = -1;
+    ret = hci_read_bd_addr(s, bdaddr, HCI_REQ_TIMEOUT);
+    if(ret < 0)
+    {
+      perror("hci_read_bd_addr");
+    }
+    close(s);
   }
   else
   {
-    ba2str(&bda, bdaddr);
+    perror("hci_open_dev");
+    ret = -1;
   }
-
-  close(s);
 
   return ret;
 }
@@ -56,13 +57,20 @@ int bt_write_device_class(int device_number, uint32_t devclass)
   int ret = 0;
 
   int s = hci_open_dev (device_number);
-
-  if(hci_write_class_of_dev(s, devclass, HCI_REQ_TIMEOUT) < 0)
+  if(s >= 0)
   {
+    ret = hci_write_class_of_dev(s, devclass, HCI_REQ_TIMEOUT);
+    if(ret < 0)
+    {
+      perror("hci_write_class_of_dev");
+    }
+    close(s);
+  }
+  else
+  {
+    perror("hci_open_dev");
     ret = -1;
   }
-
-  close(s);
 
   return ret;
 }
@@ -80,12 +88,16 @@ int bt_disconnect(char bdaddr[18])
   dd = hci_open_dev(hci_get_route(&cr->bdaddr));
   if (dd < 0)
   {
-    err = dd;
+    perror("hci_open_dev");
+    err = -1;
     goto cleanup;
   }
   err = ioctl(dd, HCIGETCONNINFO, (unsigned long) cr);
-  if (err)
+  if (err < 0)
+  {
+    perror("ioctl");
     goto cleanup;
+  }
 
   hci_disconnect(dd, cr->conn_info->handle, HCI_OE_USER_ENDED_CONNECTION, HCI_REQ_TIMEOUT);
 

@@ -40,7 +40,7 @@ OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/*/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/bluetooth/src/hci_cmds.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/bluetooth/src/utils.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/bluetooth/src/sdp_util.c))
-OBJECTS:=$(filter-out connectors/sixaxis.o,$(OBJECTS))
+#OBJECTS:=$(filter-out connectors/sixaxis.o,$(OBJECTS))
 OBJECTS:=$(filter-out connectors/btds4.o,$(OBJECTS))
 endif
 

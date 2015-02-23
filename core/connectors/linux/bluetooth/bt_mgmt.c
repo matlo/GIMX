@@ -317,13 +317,16 @@ static int read_link_keys(uint16_t index, uint16_t nb_keys, bdaddr_t bdaddrs[nb_
 {
   char file_path[PATH_MAX];
 
+  bdaddr_t ba;
   char dongle_bdaddr[18];
 
-  if(bt_get_device_bdaddr(index, dongle_bdaddr) < 0)
+  if(bt_get_device_bdaddr(index, &ba) < 0)
   {
     fprintf(stderr, "can't read device bdaddr\n");
     return -1;
   }
+
+  ba2str(&ba, dongle_bdaddr);
 
   snprintf(file_path, sizeof(file_path), "%s%s%s%s/%s", gimx_params.homedir, GIMX_DIR, BT_DIR, dongle_bdaddr, "linkkeys");
 
