@@ -27,9 +27,11 @@
 
 #define DS4_DEVICE_CLASS 0x2508
 
+#ifndef WIN32
 #define PSM_SDP           0x0001
 #define PSM_HID_CONTROL   0x0011
 #define PSM_HID_INTERRUPT 0x0013
+#endif
 
 #define SDP_PACKET_SIZE 1024
 
@@ -132,7 +134,10 @@ typedef struct __attribute__ ((gcc_struct,packed)) {
 } s_btds4_report;
 
 struct btds4_state {
-    char dongle_bdaddr[18];
+    struct {
+      char str[18];
+      bdaddr_t ba;
+    } dongle_bdaddr;
     char ps4_bdaddr[18];
     char ds4_bdaddr[18];
     int dongle_index;
@@ -258,9 +263,9 @@ static int close_ps4_sdp(int btds4_number)
   bt_disconnect(state->ps4_bdaddr);
 
   gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
-      state->dongle_bdaddr, state->ps4_bdaddr, PSM_HID_CONTROL);
+      state->dongle_bdaddr.str, state->ps4_bdaddr, PSM_HID_CONTROL);
 
-  if ((state->ps4_control_pending = l2cap_connect(state->dongle_bdaddr, state->ps4_bdaddr,
+  if ((state->ps4_control_pending = l2cap_connect(state->dongle_bdaddr.str, state->ps4_bdaddr,
       PSM_HID_CONTROL, L2CAP_LM_MASTER | L2CAP_LM_AUTH | L2CAP_LM_ENCRYPT)) < 0)
   {
     fprintf(stderr, "can't connect to control psm\n");
@@ -268,9 +273,9 @@ static int close_ps4_sdp(int btds4_number)
   }
 
   gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
-      state->dongle_bdaddr, state->ps4_bdaddr, PSM_HID_INTERRUPT);
+      state->dongle_bdaddr.str, state->ps4_bdaddr, PSM_HID_INTERRUPT);
 
-  if ((state->ps4_interrupt_pending = l2cap_connect(state->dongle_bdaddr, state->ps4_bdaddr,
+  if ((state->ps4_interrupt_pending = l2cap_connect(state->dongle_bdaddr.str, state->ps4_bdaddr,
       PSM_HID_INTERRUPT, L2CAP_LM_MASTER | L2CAP_LM_AUTH | L2CAP_LM_ENCRYPT)) < 0)
   {
     close(state->ps4_control_pending);
@@ -705,9 +710,9 @@ static int btds4_accept(int listen_fd)
           GE_AddSource(states[i].ds4_sdp, i, &read_ds4_sdp, NULL, &close_ds4_sdp);
 
           gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", states[i].dongle_index,
-              states[i].dongle_bdaddr, states[i].ps4_bdaddr, PSM_HID_CONTROL);
+              states[i].dongle_bdaddr.str, states[i].ps4_bdaddr, PSM_HID_CONTROL);
 
-          if ((states[i].ps4_control_pending = l2cap_connect(states[i].dongle_bdaddr, states[i].ps4_bdaddr,
+          if ((states[i].ps4_control_pending = l2cap_connect(states[i].dongle_bdaddr.str, states[i].ps4_bdaddr,
               PSM_HID_CONTROL, L2CAP_LM_MASTER | L2CAP_LM_AUTH | L2CAP_LM_ENCRYPT)) < 0)
           {
             fprintf(stderr, "can't connect to control psm\n");
@@ -717,9 +722,9 @@ static int btds4_accept(int listen_fd)
           GE_AddSource(states[i].ps4_control_pending, i, NULL, &connect_ps4_control, &connect_ps4_control);
 
           gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", states[i].dongle_index,
-              states[i].dongle_bdaddr, states[i].ps4_bdaddr, PSM_HID_INTERRUPT);
+              states[i].dongle_bdaddr.str, states[i].ps4_bdaddr, PSM_HID_INTERRUPT);
 
-          if ((states[i].ps4_interrupt_pending = l2cap_connect(states[i].dongle_bdaddr, states[i].ps4_bdaddr,
+          if ((states[i].ps4_interrupt_pending = l2cap_connect(states[i].dongle_bdaddr.str, states[i].ps4_bdaddr,
               PSM_HID_INTERRUPT, L2CAP_LM_MASTER | L2CAP_LM_AUTH | L2CAP_LM_ENCRYPT)) < 0)
           {
             close_ps4_control(i);
@@ -844,11 +849,12 @@ int btds4_init(int btds4_number)
   //TODO MLA
 #endif
 
-  if (bt_get_device_bdaddr(state->dongle_index, state->dongle_bdaddr) < 0)
+  if (bt_get_device_bdaddr(state->dongle_index, &state->dongle_bdaddr.ba) < 0)
   {
     fprintf(stderr, "failed to get device bdaddr\n");
     return -1;
   }
+  ba2str(&state->dongle_bdaddr.ba, state->dongle_bdaddr.str);
   state->btds4_number = btds4_number;
 
   if (bt_write_device_class(state->dongle_index, DS4_DEVICE_CLASS) < 0)
