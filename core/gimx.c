@@ -29,6 +29,7 @@
 #include "display.h"
 #include "mainloop.h"
 #include "connectors/connector.h"
+#include "connectors/bluetooth/bt_abs.h"
 #include "args.h"
 #include <adapter.h>
 #include <stats.h>
@@ -49,6 +50,7 @@ s_gimx_params gimx_params =
   .postpone_count = DEFAULT_POSTPONE_COUNT,
   .subpositions = 0,
   .window_events = 0,
+  .btstack = 0,
 };
 
 #ifdef WIN32
@@ -179,6 +181,11 @@ int main(int argc, char *argv[])
     goto QUIT;
   }
 
+  if(gimx_params.btstack)
+  {
+    bt_abs_value = E_BT_ABS_BTSTACK;
+  }
+
   if(connector_init() < 0)
   {
     fprintf(stderr, _("connector_init failed\n"));
@@ -235,6 +242,7 @@ int main(int argc, char *argv[])
   }
 
   //TODO MLA: if there is no config file:
+  // - there's no need to read macros
   // - there's no need to read inputs
   // - there's no need to grab the mouse
   if (!GE_initialize(src))
@@ -247,8 +255,6 @@ int main(int argc, char *argv[])
   {
     GE_grab();
   }
-
-  macros_init();
 
   if(gimx_params.config_file)
   {
@@ -279,7 +285,7 @@ int main(int argc, char *argv[])
 
   GE_release_unused();
 
-  macros_read();
+  macros_init();
 
   if(gimx_params.keygen)
   {
@@ -303,7 +309,7 @@ int main(int argc, char *argv[])
 
   QUIT:
 
-  free_macros();
+  macros_clean();
   cfg_clean();
   GE_quit();
   connector_clean();

@@ -18,8 +18,7 @@
 
 #include <poll.h>
 
-#include <connectors/bt_utils.h>
-#include <connectors/bt_utils.h>
+#include <connectors/bluetooth/bt_device_abs.h>
 #include <gimx.h>
 #include "../../directories.h"
 
@@ -320,7 +319,7 @@ static int read_link_keys(uint16_t index, uint16_t nb_keys, bdaddr_t bdaddrs[nb_
   bdaddr_t ba;
   char dongle_bdaddr[18];
 
-  if(bt_get_device_bdaddr(index, &ba) < 0)
+  if(bt_device_abs_get(bt_abs_value)->get_bdaddr(index, &ba) < 0)
   {
     fprintf(stderr, "can't read device bdaddr\n");
     return -1;

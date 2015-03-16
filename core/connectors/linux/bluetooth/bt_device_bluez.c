@@ -3,6 +3,7 @@
    License: GPLv3
 */
 
+#include <connectors/bluetooth/bt_device_abs.h>
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
 #include <bluetooth/hci_lib.h>
@@ -13,6 +14,12 @@
 
 #define HCI_REQ_TIMEOUT   1000
 
+static int bt_device_bluez_device_init()
+{
+  //TODO MLA
+  return 0;
+}
+
 /*
  * \brief This function gets the bluetooth device address for a given device number.
  *
@@ -21,19 +28,19 @@
  *
  * \return 0 if successful, -1 otherwise
  */
-int bt_get_device_bdaddr(int device_number, bdaddr_t* bdaddr)
+static int bt_device_bluez_get_device_bdaddr(int device_number, bdaddr_t* ba)
 {
   int ret = 0;
 
   int s = hci_open_dev (device_number);
   if(s >= 0)
   {
-    ret = hci_read_bd_addr(s, bdaddr, HCI_REQ_TIMEOUT);
+    ret = hci_read_bd_addr(s, ba, HCI_REQ_TIMEOUT);
     if(ret < 0)
     {
       perror("hci_read_bd_addr");
     }
-    close(s);
+    hci_close_dev(s);
   }
   else
   {
@@ -52,7 +59,7 @@ int bt_get_device_bdaddr(int device_number, bdaddr_t* bdaddr)
  *
  * \return 0 if successful, -1 otherwise
  */
-int bt_write_device_class(int device_number, uint32_t devclass)
+static int bt_device_bluez_write_device_class(int device_number, uint32_t devclass)
 {
   int ret = 0;
 
@@ -64,7 +71,7 @@ int bt_write_device_class(int device_number, uint32_t devclass)
     {
       perror("hci_write_class_of_dev");
     }
-    close(s);
+    hci_close_dev(s);
   }
   else
   {
@@ -75,48 +82,15 @@ int bt_write_device_class(int device_number, uint32_t devclass)
   return ret;
 }
 
-int bt_disconnect(char bdaddr[18])
+static s_bt_device_abs bt_device_bluez =
 {
-  int err = 0, dd;
-  struct hci_conn_info_req *cr = 0;
+    .init = bt_device_bluez_device_init,
+    .get_bdaddr = bt_device_bluez_get_device_bdaddr,
+    .write_device_class = bt_device_bluez_write_device_class,
+};
 
-  // find the connection handle to the specified bluetooth device
-  cr = (struct hci_conn_info_req*) malloc(
-      sizeof(struct hci_conn_info_req) + sizeof(struct hci_conn_info));
-  str2ba(bdaddr, &cr->bdaddr);
-  cr->type = ACL_LINK;
-  dd = hci_open_dev(hci_get_route(&cr->bdaddr));
-  if (dd < 0)
-  {
-    perror("hci_open_dev");
-    err = -1;
-    goto cleanup;
-  }
-  err = ioctl(dd, HCIGETCONNINFO, (unsigned long) cr);
-  if (err < 0)
-  {
-    perror("ioctl");
-    goto cleanup;
-  }
-
-  hci_disconnect(dd, cr->conn_info->handle, HCI_OE_USER_ENDED_CONNECTION, HCI_REQ_TIMEOUT);
-
-  //wait up to 5s for the disconnect to be completed
-  int i = 0;
-  while(i < 50 && !(ioctl(dd, HCIGETCONNINFO, (unsigned long) cr)))
-  {
-    usleep(100000);
-    ++i;
-  }
-
-  if(i == 50)
-  {
-    err = -1;
-  }
-
-  cleanup: free(cr);
-  if (dd >= 0)
-    close(dd);
-
-  return err;
+void bt_device_bluez_init(void) __attribute__((constructor (101)));
+void bt_device_bluez_init(void)
+{
+  bt_device_abs_register(E_BT_ABS_BLUEZ, &bt_device_bluez);
 }

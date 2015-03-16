@@ -6,8 +6,12 @@
 #ifndef TCP_CON_H_
 #define TCP_CON_H_
 
+#include <arpa/inet.h>
+
 #ifdef WIN32
 #include <connectors/windows/sockets.h>
+#else
+#define psockerror(msg) perror(msg)
 #endif
 
 int tcp_connect(unsigned int ip, unsigned short port);

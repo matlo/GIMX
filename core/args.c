@@ -64,7 +64,8 @@ static void usage()
   printf("  --refresh n: The refresh period, in ms. Forcing the refresh period is not recommended.\n");
   printf("  --src IP:port: Specifies a source IP+port to listen on. Ex: 127.0.0.1:51914.\n");
   printf("    This argument has to be placed before the --bdaddr and --port arguments.\n");
-
+  printf("  --btstack: use btstack for the bluetooth connection.\n");
+  printf("    Btstack is the only available connection method on Windows, and an alternative connection method on Linux.\n");
 }
 
 /*
@@ -122,6 +123,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"force-updates",  no_argument, &params->force_updates,  1},
     {"curses",         no_argument, &params->curses,         1},
     {"window-events",  no_argument, &params->window_events,  1},
+    {"btstack",        no_argument, &params->btstack,        1},
     /* These options don't set a flag. We distinguish them by their indices. */
     {"bdaddr",  required_argument, 0, 'b'},
     {"config",  required_argument, 0, 'c'},
@@ -358,6 +360,8 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     printf(_("curses flag is set\n"));
   if(params->window_events)
     printf(_("window_events flag is set\n"));
+  if(params->btstack)
+    printf(_("btstack flag is set\n"));
 
   if(!input)
   {

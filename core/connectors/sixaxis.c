@@ -14,18 +14,13 @@
 #include <errno.h>
 #include <GE.h>
 #include <connectors/sixaxis.h>
-#include <connectors/bt_utils.h>
-#include <connectors/l2cap_con.h>
+#include <connectors/bluetooth/bt_device_abs.h>
+#include <connectors/bluetooth/l2cap_abs.h>
 #include <config.h>
 #include "gimx.h"
 #include <adapter.h>
 
 #define DS3_DEVICE_CLASS 0x508
-
-#ifndef WIN32
-#define PSM_HID_CONTROL   0x0011
-#define PSM_HID_INTERRUPT 0x0013
-#endif
 
 #define HID_HANDSHAKE 0x0
 #define HID_GET_REPORT 0x4
@@ -61,17 +56,19 @@ struct sixaxis_state {
     int sixaxis_number;
     struct sixaxis_state_sys sys;
     s_report_ds3 user;
-#ifndef WIN32
-    int control_pending;
-    int interrupt_pending;
-    int control;
-    int interrupt;
-#else
-    int btstack_fd;
-    unsigned short handle;
-    unsigned short control_cid;
-    unsigned short interrupt_cid;
-#endif
+    struct
+    {
+      struct
+      {
+        int id;
+        int pending;
+      } control;
+      struct
+      {
+        int id;
+        int pending;
+      } interrupt;
+    } channels;
 };
 
 struct sixaxis_assemble_t {
@@ -89,6 +86,8 @@ struct sixaxis_process_t {
 static struct sixaxis_state states[MAX_CONTROLLERS] = {};
 static int debug = 0;
 
+static unsigned char buf[1024];
+
 static const char *hid_report_name[] =
 { "reserved", "input", "output", "feature" };
 
@@ -99,15 +98,8 @@ static void sixaxis_init(int sixaxis_number)
   state->sys.reporting_enabled = 0;
   state->sys.feature_ef_byte_6 = 0xb0;
 
-#ifndef WIN32
-  state->control_pending = -1;
-  state->interrupt_pending = -1;
-
-  state->control = -1;
-  state->interrupt = -1;
-#else
-  state->btstack_fd = -1;
-#endif
+  state->channels.control.id = -1;
+  state->channels.interrupt.id = -1;
 
   state->user.X = 128;
   state->user.Y = 128;
@@ -346,13 +338,14 @@ static struct sixaxis_process_t sixaxis_process[] =
 { HID_TYPE_FEATURE, 0xf4, process_feature_f4 },
 { 0 } };
 
-static int send_report(uint16_t psm, uint8_t type, uint8_t report,
-    struct sixaxis_state *state, int blocking)
+static int send_report(int sixaxis_number, uint16_t psm, uint8_t type, uint8_t report, int blocking)
 {
   uint8_t buf[128];
   int len = 0;
   int i;
   struct timeval tv;
+
+  struct sixaxis_state* state = states + sixaxis_number;
 
   /* Assemble report */
   for (i = 0; sixaxis_assemble[i].func; i++)
@@ -391,11 +384,7 @@ static int send_report(uint16_t psm, uint8_t type, uint8_t report,
 
   /* Send response.  Some messages (periodic input report) can be
    sent nonblocking, since they're not critical */
-#ifndef WIN32
-  return l2cap_send((psm == PSM_HID_CONTROL) ? state->control : state->interrupt, buf, len, blocking);
-#else
-  return l2cap_send(state->btstack_fd, (psm == PSM_HID_CONTROL) ? state->control_cid : state->interrupt_cid, buf, len);
-#endif
+  return l2cap_abs_get()->send((psm == PSM_HID_CONTROL) ? state->channels.control.id : state->channels.interrupt.id, buf, len, blocking);
 }
 
 static int process_report(uint8_t type, uint8_t report, const uint8_t *buf, int len,
@@ -435,8 +424,7 @@ static int process_report(uint8_t type, uint8_t report, const uint8_t *buf, int 
   return ret;
 }
 
-static int process(int psm, const unsigned char *buf, int len,
-    struct sixaxis_state *state)
+static int process(int sixaxis_number, int psm, const unsigned char *buf, int len)
 {
   uint8_t transaction;
   uint16_t maxsize;
@@ -446,6 +434,8 @@ static int process(int psm, const unsigned char *buf, int len,
   int ret = 0;
   struct timeval tv1, tv2;
   unsigned long time;
+
+  struct sixaxis_state* state = states + sixaxis_number;
 
   if (len < 1)
     return -1;
@@ -488,7 +478,7 @@ static int process(int psm, const unsigned char *buf, int len,
       {
         gettimeofday(&tv1, NULL);
       }
-      ret = send_report(psm, type, report, state, 1);
+      ret = send_report(sixaxis_number, psm, type, report, 1);
       if (debug >= 2)
       {
         gettimeofday(&tv2, NULL);
@@ -519,17 +509,10 @@ static int process(int psm, const unsigned char *buf, int len,
       if (psm == PSM_HID_CONTROL)
       {
         unsigned char foo = (HID_HANDSHAKE << 4) | 0x0;
-#ifndef WIN32
-        if (write(state->control, &foo, 1) < 1)
-        {
-          fprintf(stderr, "write error\n");
-        }
-#else
-        if (l2cap_send(state->btstack_fd, state->control_cid, &foo, 1) < 1)
+        if (l2cap_abs_get()->send(state->channels.control.id, &foo, 1, 1) < 1)
         {
           fprintf(stderr, "l2cap_send error\n");
         }
-#endif
 
         /*if(report == 0xf4)
          {
@@ -551,20 +534,17 @@ static int process(int psm, const unsigned char *buf, int len,
   return ret;
 }
 
-#ifndef WIN32
 static int read_control(int sixaxis_number)
 {
   int ret = 0;
 
   struct sixaxis_state* state = states + sixaxis_number;
 
-  unsigned char buf[1024];
-
-  ssize_t len = l2cap_recv(state->control, buf, 1024);
+  ssize_t len = l2cap_abs_get()->recv(state->channels.control.id, buf, sizeof(buf));
 
   if (len > 0)
   {
-    if (process(PSM_HID_CONTROL, buf, len, state) == -1)
+    if (process(sixaxis_number, PSM_HID_CONTROL, buf, len) == -1)
     {
       fprintf(stderr, "error processing ctrl\n");
     }
@@ -583,8 +563,13 @@ static int close_control(int sixaxis_number)
 {
   struct sixaxis_state* state = states + sixaxis_number;
 
-  close(state->control);
-  state->control = -1;
+  if(state->channels.control.id >= 0)
+  {
+    l2cap_abs_get()->close(state->channels.control.id);
+    state->channels.control.id = -1;
+    state->channels.control.pending = 0;
+  }
+
   state->sys.shutdown = 1;
   adapter_get(sixaxis_number)->send_command = 1;
 
@@ -597,13 +582,11 @@ static int read_interrupt(int sixaxis_number)
 
   struct sixaxis_state* state = states + sixaxis_number;
 
-  unsigned char buf[1024];
-
-  ssize_t len = l2cap_recv(state->interrupt, buf, 1024);
+  ssize_t len = l2cap_abs_get()->recv(state->channels.interrupt.id, buf, sizeof(buf));
 
   if (len > 0)
   {
-    if (process(PSM_HID_INTERRUPT, buf, len, state) == -1)
+    if (process(sixaxis_number, PSM_HID_INTERRUPT, buf, len) == -1)
     {
       fprintf(stderr, "error processing data\n");
     }
@@ -620,14 +603,18 @@ static int close_interrupt(int sixaxis_number)
 {
   struct sixaxis_state* state = states + sixaxis_number;
 
-  close(state->interrupt);
-  state->interrupt = -1;
+  if(state->channels.interrupt.id >= 0)
+  {
+    l2cap_abs_get()->close(state->channels.interrupt.id);
+    state->channels.interrupt.id = -1;
+    state->channels.interrupt.pending = 0;
+  }
+
   state->sys.shutdown = 1;
   adapter_get(sixaxis_number)->send_command = 1;
 
   return 1;
 }
-#endif
 
 int sixaxis_send_interrupt(int sixaxis_number, s_report_ds3* buf)
 {
@@ -638,59 +625,35 @@ int sixaxis_send_interrupt(int sixaxis_number, s_report_ds3* buf)
     return -1;
   }
 
-#ifndef WIN32
-  if(state->interrupt < 0)
+  if(state->channels.interrupt.id < 0 || state->channels.interrupt.pending)
   {
     return 0;
   }
-#else
-  if(state->interrupt_cid < 0)
-  {
-    return 0;
-  }
-#endif
 
   process_report(HID_TYPE_INPUT, 0x01, (unsigned char*) buf, sizeof(s_report_ds3), state);
 
-  return send_report(PSM_HID_INTERRUPT, HID_TYPE_INPUT, 0x01, state, 0);
+  return send_report(0, PSM_HID_INTERRUPT, HID_TYPE_INPUT, 0x01, 0);
 }
 
 void sixaxis_close(int sixaxis_number)
 {
   struct sixaxis_state* state = states + sixaxis_number;
 
-#ifndef WIN32
-  bt_disconnect(state->bdaddr_dst);
+  l2cap_abs_get()->disconnect(state->channels.control.id);
 
   close_interrupt(sixaxis_number);
   close_control(sixaxis_number);
-#else
-  bt_disconnect(state->btstack_fd, state->handle);
-#endif
 }
 
-#ifndef WIN32
 static int connect_interrupt(int sixaxis_number)
 {
   struct sixaxis_state* state = states + sixaxis_number;
 
-  if(l2cap_is_connected(state->interrupt_pending))
-  {
-    GE_RemoveSource(state->interrupt_pending);
-    state->interrupt = state->interrupt_pending;
-    state->interrupt_pending = -1;
-    GE_AddSource(state->interrupt, sixaxis_number, &read_interrupt, NULL, &close_interrupt);
-  }
-  else
-  {
-    GE_RemoveSource(state->interrupt_pending);
-    close(state->interrupt_pending);
-    state->interrupt_pending = -1;
-    fprintf(stderr, "can't connect to interrupt psm\n");
-    state->sys.shutdown = 1;
-    adapter_get(sixaxis_number)->send_command = 1;
-    return -1;
-  }
+  state->channels.interrupt.pending = 0;
+
+  gprintf("connected with hci%d = %s to %s\n", state->dongle_index, state->bdaddr_src.str, state->bdaddr_dst);
+
+  l2cap_abs_get()->add_source(state->channels.interrupt.id, sixaxis_number, read_interrupt, process, close_interrupt);
 
   return 0;
 }
@@ -699,167 +662,45 @@ static int connect_control(int sixaxis_number)
 {
   struct sixaxis_state* state = states + sixaxis_number;
 
-  if(l2cap_is_connected(state->control_pending))
+  state->channels.control.pending = 0;
+
+  gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
+    state->bdaddr_src.str, state->bdaddr_dst, PSM_HID_INTERRUPT);
+
+  if ((state->channels.interrupt.id = l2cap_abs_get()->connect(state->bdaddr_src.str, state->bdaddr_dst,
+      PSM_HID_INTERRUPT, L2CAP_ABS_LM_MASTER, sixaxis_number, connect_interrupt, close_interrupt)) < 0)
   {
-    gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
-      state->bdaddr_src.str, state->bdaddr_dst, PSM_HID_INTERRUPT);
-
-    if ((state->interrupt_pending = l2cap_connect(state->bdaddr_src.str, state->bdaddr_dst,
-        PSM_HID_INTERRUPT, L2CAP_LM_MASTER)) < 0)
-    {
-      GE_RemoveSource(state->control_pending);
-      close(state->control_pending);
-      state->control_pending = -1;
-      fprintf(stderr, "can't connect to interrupt psm\n");
-      return -1;
-    }
-
-    GE_RemoveSource(state->control_pending);
-    state->control = state->control_pending;
-    state->control_pending = -1;
-    GE_AddSource(state->control, sixaxis_number, &read_control, NULL, &close_control);
-
-    GE_AddSource(state->interrupt_pending, sixaxis_number, NULL, &connect_interrupt, &connect_interrupt);
-  }
-  else
-  {
-    GE_RemoveSource(state->control_pending);
-    close(state->control_pending);
-    state->control_pending = -1;
-    fprintf(stderr, "can't connect to control psm\n");
-    state->sys.shutdown = 1;
-    adapter_get(sixaxis_number)->send_command = 1;
+    fprintf(stderr, "can't connect to interrupt psm\n");
+    l2cap_abs_get()->close(state->channels.control.id);
     return -1;
   }
 
+  state->channels.interrupt.pending = 1;
+
+  l2cap_abs_get()->add_source(state->channels.control.id, sixaxis_number, read_control, process, close_control);
+
   return 0;
 }
-#endif
-
-#ifdef WIN32
-static int packet_handler(int sixaxis_number)
-{
-  static recv_data_t recv_data = {};
-
-  struct sixaxis_state* state = states + sixaxis_number;
-
-  bdaddr_t event_addr;
-  uint16_t psm, cid, handle;
-  int ret = bt_recv_packet(state->btstack_fd, &recv_data);
-  if(ret > 0)
-  {
-    ret = 0;
-
-    uint16_t packet_type = READ_BT_16(recv_data.buffer, 0);
-    uint16_t channel = READ_BT_16(recv_data.buffer, 2);
-    unsigned char* packet = recv_data.buffer+sizeof(packet_header_t);
-    int len = READ_BT_16( recv_data.buffer, 4);
-
-    switch(packet_type)
-    {
-    case L2CAP_DATA_PACKET:
-      if(channel == state->control_cid)
-      {
-        psm = PSM_HID_CONTROL;
-      }
-      else if(channel == state->interrupt_cid)
-      {
-        psm = PSM_HID_INTERRUPT;
-      }
-      else
-      {
-        fprintf(stderr, "invalid channel: %d\n", channel);
-        break;
-      }
-      if (process(psm, packet, len, state) == -1)
-      {
-        fprintf(stderr, "error processing data\n");
-      }
-      else
-      {
-        ret = (psm == PSM_HID_INTERRUPT) ? 1 : 0;
-      }
-      break;
-    case HCI_EVENT_PACKET:
-      switch (packet[0])
-      {
-      case L2CAP_EVENT_CHANNEL_OPENED:
-        // inform about new l2cap connection
-        memcpy(&event_addr, packet+3, sizeof(event_addr));
-        char bdaddr[18];
-        ba2str(&event_addr, bdaddr);
-        psm = READ_BT_16(packet, 11);
-        cid = READ_BT_16(packet, 13);
-        handle = READ_BT_16(packet, 9);
-
-        if (packet[2] == 0)
-        {
-          printf("Channel successfully opened: %s, handle 0x%02x, psm 0x%02x, local cid 0x%02x, remote cid 0x%02x\n",
-              bdaddr, state->handle, psm, cid,  READ_BT_16(packet, 15));
-
-          if(psm == PSM_HID_CONTROL)
-          {
-            state->control_cid = cid;
-            state->handle = handle;
-
-            gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
-              state->bdaddr_src.str, state->bdaddr_dst, PSM_HID_INTERRUPT);
-            if (l2cap_connect(state->btstack_fd, state->bdaddr_dst, PSM_HID_INTERRUPT) < 0)
-            {
-              fprintf(stderr, "can't connect to interrupt psm\n");
-            }
-          }
-          else if(psm == PSM_HID_INTERRUPT)
-          {
-            if(state->handle == handle)
-            {
-              state->interrupt_cid = cid;
-            }
-            else
-            {
-              fprintf(stderr, "invalid handle: %d\n", handle);
-            }
-          }
-          else
-          {
-            fprintf(stderr, "invalid psm: %d\n", psm);
-          }
-        } else {
-          printf("L2CAP connection to device %s failed. status code %u\n", bdaddr, packet[2]);
-        }
-        break;
-      default:
-        break;
-      }
-      break;
-    default:
-      break;
-    }
-
-  }
-  else
-  {
-    ret = 1;
-  }
-  return ret;
-}
-#endif
 
 int sixaxis_connect(int sixaxis_number)
 {
   struct sixaxis_state* state = states + sixaxis_number;
 
+  if(gimx_params.btstack && sixaxis_number)
+  {
+    fprintf(stderr, "multiple instances are not supported when using btstack\n");
+    return -1;
+  }
+
   sixaxis_init(sixaxis_number);
 
-#ifdef WIN32
-  state->btstack_fd = bt_connect();
-  if(state->btstack_fd < 0)
+  if(bt_device_abs_get()->init() < 0)
   {
-    fprintf(stderr, "failed to connect to btstack\n");
+    fprintf(stderr, "failed to initialize the bluetooth interface\n");
     return -1;
   }
 
-  if (bt_get_device_bdaddr(state->btstack_fd, state->dongle_index, &state->bdaddr_src.ba) < 0)
+  if (bt_device_abs_get()->get_bdaddr(state->dongle_index, &state->bdaddr_src.ba) < 0)
   {
     fprintf(stderr, "failed to get device address\n");
     return -1;
@@ -867,49 +708,23 @@ int sixaxis_connect(int sixaxis_number)
   ba2str(&state->bdaddr_src.ba, state->bdaddr_src.str);
   state->sixaxis_number = sixaxis_number;
 
-  if (bt_write_device_class(state->btstack_fd, state->dongle_index, DS3_DEVICE_CLASS) < 0)
-  {
-    fprintf(stderr, "failed to set device class\n");
-    return -1;
-  }
-
-  gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
-    state->bdaddr_src.str, state->bdaddr_dst, PSM_HID_CONTROL);
-
-  if (l2cap_connect(state->btstack_fd, state->bdaddr_dst, PSM_HID_CONTROL) < 0)
-  {
-    fprintf(stderr, "can't connect to control psm\n");
-    return -1;
-  }
-
-  GE_AddSource(state->btstack_fd, sixaxis_number, &packet_handler, NULL, &packet_handler);
-#else
-
-  if (bt_get_device_bdaddr(state->dongle_index, &state->bdaddr_src.ba) < 0)
+  if (bt_device_abs_get()->write_device_class(state->dongle_index, DS3_DEVICE_CLASS) < 0)
   {
     fprintf(stderr, "failed to get device address\n");
     return -1;
   }
-  ba2str(&state->bdaddr_src.ba, state->bdaddr_src.str);
-  state->sixaxis_number = sixaxis_number;
-
-  if (bt_write_device_class(state->dongle_index, DS3_DEVICE_CLASS) < 0)
-  {
-    fprintf(stderr, "failed to set device class\n");
-    return -1;
-  }
 
   gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
     state->bdaddr_src.str, state->bdaddr_dst, PSM_HID_CONTROL);
 
-  if (l2cap_connect(state->bdaddr_src.str, state->bdaddr_dst, PSM_HID_CONTROL, L2CAP_LM_MASTER) < 0)
+  if ((state->channels.control.id = l2cap_abs_get()->connect(state->bdaddr_src.str, state->bdaddr_dst,
+      PSM_HID_CONTROL, L2CAP_ABS_LM_MASTER, sixaxis_number, connect_control, close_control)) < 0)
   {
     fprintf(stderr, "can't connect to control psm\n");
     return -1;
   }
 
-  GE_AddSource(state->control, sixaxis_number, NULL, &connect_control, &connect_control);
-#endif
+  state->channels.control.pending = 1;
 
   return 0;
 }

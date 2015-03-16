@@ -70,7 +70,7 @@ static int macro_table_nb = 0;
  * Frees all allocated blocks pointed by macro_table.
  * Frees running_macro table.
  */
-void free_macros() {    
+void macros_clean() {
   free(running_macro);
 	int i;
 	for(i = 0; i < macro_table_nb; ++i)
@@ -858,21 +858,20 @@ static void read_macros() {
     free(macros);
 }
 
-/*
- * Initializes macro_table and reads macros from macro files.
- */
-void macros_init() {
-
-}
-
-
-void macros_read()
+static void macros_read()
 {
   read_macros();
   if(debug)
   {
     dump_scripts();
   }
+}
+
+/*
+ * Initializes macro_table and reads macros from macro files.
+ */
+void macros_init() {
+  macros_read();
 }
 
 static void macro_unalloc(int index)

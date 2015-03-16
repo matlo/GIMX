@@ -21,12 +21,13 @@ endif
 CPPFLAGS+=-Iinclude -I../shared/event/include -I../shared/controller/include
 ifneq ($(OS),Windows_NT)
 CPPFLAGS += -I/usr/include/libxml2
-else
-CPPFLAGS += -Iconnectors/windows/bluetooth/include -Iconnectors/windows/bluetooth/src
 endif
+CPPFLAGS += -Iconnectors/btstack/include -Iconnectors/btstack/src
 DEPS=../shared/event/GE.a ../shared/controller/controller.a
 
 OBJECTS := $(patsubst %.c,%.o,$(wildcard *.c))
+OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/btstack/*.c))
+OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/btstack/src/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/gpp/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/report2event/*.c))
@@ -37,9 +38,6 @@ else
 OBJECTS += $(patsubst %.c,%.o,$(wildcard system/windows/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/*/*.c))
-OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/bluetooth/src/hci_cmds.c))
-OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/bluetooth/src/utils.c))
-OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/bluetooth/src/sdp_util.c))
 #OBJECTS:=$(filter-out connectors/sixaxis.o,$(OBJECTS))
 OBJECTS:=$(filter-out connectors/btds4.o,$(OBJECTS))
 endif

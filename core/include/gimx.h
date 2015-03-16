@@ -34,6 +34,7 @@ typedef struct
   int subpositions;
   int window_events;
   int network_input;
+  int btstack;
 } s_gimx_params;
 
 extern s_gimx_params gimx_params;

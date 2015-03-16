@@ -12,14 +12,11 @@
 #else
 #include <connectors/windows/sockets.h>
 #endif
+#include <connectors/tcp_con.h>
 #include "gimx.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
-
-#ifndef WIN32
-#define psockerror(msg) perror(msg)
-#endif
 
 /*
  * Open a TCP socket and connect to ip:port.
