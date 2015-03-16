@@ -12,19 +12,14 @@
 #include <connectors/windows/bt_bdaddr.h>
 #endif
 
+#include <connectors/bluetooth/bt_abs.h>
+
 #define L2CAP_ABS_MAX_PEERS     7 // = MAX_CONTROLLERS
 #define L2CAP_ABS_MAX_CHANNELS  3 // = PSM_SDP + PSM_HID_CONTROL + PSM_HID_INTERRUPT
 
 #define PSM_SDP           0x01
 #define PSM_HID_CONTROL   0x11
 #define PSM_HID_INTERRUPT 0x13
-
-typedef enum
-{
-  E_L2CAP_ABS_BTSTACK,
-  E_L2CAP_ABS_BLUEZ,
-  E_L2CAP_ABS_MAX,
-} e_l2cap_abs;
 
 #define L2CAP_ABS_LM_MASTER  0x01
 #define L2CAP_ABS_LM_AUTH    0x02
@@ -60,7 +55,7 @@ typedef struct
   L2CAP_ABS_DISCONNECT disconnect;
 } s_l2cap_abs;
 
-void l2cap_abs_register(e_l2cap_abs index, s_l2cap_abs * value);
+void l2cap_abs_register(e_bt_abs index, s_l2cap_abs * value);
 s_l2cap_abs * l2cap_abs_get();
 
 #endif /* L2CAP_ABS_H_ */

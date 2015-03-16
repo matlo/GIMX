@@ -8,14 +8,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static s_l2cap_abs * l2cap_abs[E_L2CAP_ABS_MAX] = {};
+static s_l2cap_abs * l2cap_abs[E_BT_ABS_MAX] = {};
 
 s_l2cap_abs * l2cap_abs_get()
 {
   return l2cap_abs[bt_abs_value];
 }
 
-void l2cap_abs_register(e_l2cap_abs index, s_l2cap_abs * value)
+void l2cap_abs_register(e_bt_abs index, s_l2cap_abs * value)
 {
   l2cap_abs[index] = value;
 }

@@ -1,9 +1,7 @@
 /*
- * bt_abs.h
- *
- *  Created on: 14 mars 2015
- *      Author: matlo
- */
+ Copyright (c) 2015 Mathieu Laurendeau <mat.lau@laposte.net>
+   License: GPLv3
+*/
 
 #ifndef BT_ABS_H_
 #define BT_ABS_H_
@@ -11,7 +9,9 @@
 typedef enum
 {
   E_BT_ABS_BTSTACK,
+#ifndef WIN32
   E_BT_ABS_BLUEZ,
+#endif
   E_BT_ABS_MAX,
 } e_bt_abs;
 
