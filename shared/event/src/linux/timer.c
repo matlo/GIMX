@@ -49,8 +49,11 @@ int timer_start(int usec)
 
 int timer_close(int unused)
 {
-  close(tfd);
-  tfd = -1;
+  if(tfd >= 0)
+  {
+    close(tfd);
+    tfd = -1;
+  }
 
   return 1;
 }
