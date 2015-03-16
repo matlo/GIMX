@@ -10,7 +10,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
-#include <arpa/inet.h>
 
 #include <connectors/tcp_con.h>
 #include <connectors/bluetooth/btstack_common.h>

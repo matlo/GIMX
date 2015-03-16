@@ -6,11 +6,10 @@
 #ifndef TCP_CON_H_
 #define TCP_CON_H_
 
-#include <arpa/inet.h>
-
 #ifdef WIN32
 #include <connectors/windows/sockets.h>
 #else
+#include <arpa/inet.h>
 #define psockerror(msg) perror(msg)
 #endif
 

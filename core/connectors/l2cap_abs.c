@@ -6,6 +6,7 @@
 #include <connectors/bluetooth/l2cap_abs.h>
 #include <connectors/bluetooth/bt_abs.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 static s_l2cap_abs * l2cap_abs[E_L2CAP_ABS_MAX] = {};
 

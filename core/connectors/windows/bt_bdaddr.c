@@ -4,6 +4,21 @@
 */
 
 #include <connectors/windows/bt_bdaddr.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+/* Copy, swap, convert BD Address */
+inline int bacmp(const bdaddr_t *ba1, const bdaddr_t *ba2)
+{
+  return memcmp(ba1, ba2, sizeof(bdaddr_t));
+}
+
+inline void bacpy(bdaddr_t *dst, const bdaddr_t *src)
+{
+  memcpy(dst, src, sizeof(bdaddr_t));
+}
 
 int bachk(const char *str)
 {

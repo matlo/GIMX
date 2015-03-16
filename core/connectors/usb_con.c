@@ -8,7 +8,6 @@
 #include <adapter.h>
 #include <mainloop.h>
 #include <report2event/report2event.h>
-#include <gimx.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -28,8 +27,6 @@ static libusb_device** devs = NULL;
 static ssize_t cnt = 0;
 static int nb_opened = 0;
 
-#define REPORTS_MAX 2
-
 static struct
 {
   const char* name;
@@ -41,15 +38,8 @@ static struct
     {
       unsigned char address;
       unsigned short size;
-      struct
-      {
-        unsigned char nb;
-        struct
-        {
-          unsigned char report_id;
-          unsigned char report_length;
-        } elements[REPORTS_MAX];
-      } reports;
+      unsigned char report_id;
+      unsigned char report_length;
     } in;
     struct
     {
@@ -70,17 +60,8 @@ static struct
       {
         .address = DS4_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN,
         .size = DS4_USB_INTERRUPT_PACKET_SIZE,
-        .reports =
-        {
-          .nb = 1,
-          .elements =
-          {
-            {
-              .report_id = DS4_USB_HID_IN_REPORT_ID,
-              .report_length = DS4_USB_INTERRUPT_PACKET_SIZE
-            }
-          }
-        }
+        .report_id = DS4_USB_HID_IN_REPORT_ID,
+        .report_length = DS4_USB_INTERRUPT_PACKET_SIZE
       },
       .out =
       {
@@ -100,17 +81,8 @@ static struct
       {
         .address = DS4_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN,
         .size = DS4_USB_INTERRUPT_PACKET_SIZE,
-        .reports =
-        {
-          .nb = 1,
-          .elements =
-          {
-            {
-              .report_id = DS4_USB_HID_IN_REPORT_ID,
-              .report_length = DS4_USB_INTERRUPT_PACKET_SIZE
-            }
-          }
-        }
+        .report_id = DS4_USB_HID_IN_REPORT_ID,
+        .report_length = DS4_USB_INTERRUPT_PACKET_SIZE
       },
       .out =
       {
@@ -130,17 +102,8 @@ static struct
       {
         .address = X360_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN,
         .size = X360_USB_INTERRUPT_PACKET_SIZE,
-        .reports =
-        {
-          .nb = 1,
-          .elements =
-          {
-            {
-              .report_id = X360_USB_HID_IN_REPORT_ID,
-              .report_length = sizeof(s_report_x360)
-            }
-          }
-        }
+        .report_id = X360_USB_HID_IN_REPORT_ID,
+        .report_length = sizeof(s_report_x360)
       },
       .out =
       {
@@ -160,21 +123,8 @@ static struct
       {
         .address = XONE_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN,
         .size = XONE_USB_INTERRUPT_PACKET_SIZE,
-        .reports =
-        {
-          .nb = 2,
-          .elements =
-          {
-            {
-              .report_id = XONE_USB_HID_IN_REPORT_ID,
-              .report_length = sizeof(((s_report_xone*)NULL)->input)
-            },
-            {
-              .report_id = XONE_USB_HID_IN_GUIDE_REPORT_ID,
-              .report_length = sizeof(((s_report_xone*)NULL)->guide)
-            },
-          }
-        }
+        .report_id = XONE_USB_HID_IN_REPORT_ID,
+        .report_length = sizeof(s_report_xone)
       },
       .out =
       {
@@ -197,44 +147,10 @@ static struct usb_state {
 
 static int usb_poll_interrupt(int usb_number);
 
-static void process_report(int usb_number, struct usb_state * state, struct libusb_transfer * transfer)
-{
-  int i;
-  for(i = 0; i < controller[state->type].endpoints.in.reports.nb; ++i)
-  {
-    unsigned char report_id = controller[state->type].endpoints.in.reports.elements[i].report_id;
-    unsigned char report_length = controller[state->type].endpoints.in.reports.elements[i].report_length;
-    if(transfer->buffer[0] == report_id)
-    {
-      if(transfer->actual_length == report_length)
-      {
-        s_report* current = (s_report*) transfer->buffer;
-        s_report* previous = &state->report.value;
-
-        report2event(state->type, usb_number, (s_report*)current, (s_report*)previous, state->joystick_id);
-
-        if(state->type == C_TYPE_DS4 || state->type == C_TYPE_T300RS_PS4)
-        {
-          state->report.value.ds4 = current->ds4;
-        }
-        else if(state->type == C_TYPE_360_PAD)
-        {
-          state->report.value.x360 = current->x360;
-        }
-      }
-      else
-      {
-        fprintf(stderr, "incorrect report length on interrupt endpoint: received %d bytes, expected %d bytes\n", transfer->actual_length, report_length);
-      }
-      break;
-    }
-  }
-}
-
 void usb_callback(struct libusb_transfer* transfer)
 {
   int usb_number = *(int*)transfer->user_data;
-  struct usb_state * state = usb_states+usb_number;
+  struct usb_state* state = usb_states+usb_number;
 
   struct libusb_control_setup* setup = libusb_control_transfer_get_setup(transfer);
 
@@ -278,7 +194,29 @@ void usb_callback(struct libusb_transfer* transfer)
         if(transfer->actual_length <= controller[state->type].endpoints.in.size
             && transfer->actual_length > 0)
         {
-          process_report(usb_number, state, transfer);
+          if(transfer->buffer[0] == controller[state->type].endpoints.in.report_id)
+          {
+            if(transfer->actual_length == controller[state->type].endpoints.in.report_length)
+            {
+              s_report* current = (s_report*) transfer->buffer;
+              s_report* previous = &state->report.value;
+
+              report2event(state->type, usb_number, (s_report*)current, (s_report*)previous, state->joystick_id);
+
+              if(state->type == C_TYPE_DS4 || state->type == C_TYPE_T300RS_PS4)
+              {
+                state->report.value.ds4 = current->ds4;
+              }
+              else if(state->type == C_TYPE_360_PAD)
+              {
+                state->report.value.x360 = current->x360;
+              }
+            }
+            else
+            {
+              fprintf(stderr, "incorrect report length on interrupt endpoint: received %d bytes, expected %d bytes\n", transfer->actual_length, controller[state->type].endpoints.in.report_length);
+            }
+          }
         }
       }
     }
@@ -352,8 +290,8 @@ int usb_init(int usb_number, e_controller_type type)
 
   if(!controller[type].vendor || !controller[type].product)
   {
-    printf(_("no pass-through device is needed\n"));
-    return 0;
+    fprintf(stderr, "Controller type is missing a vendor id or a product id: %s.\n", controller_get_name(type));
+    return -1;
   }
 
   usb_state_indexes[usb_number] = usb_number;

@@ -6,6 +6,7 @@
 #include <connectors/bluetooth/bt_device_abs.h>
 #include <connectors/bluetooth/bt_abs.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 e_bt_abs bt_device_abs_value = DEFAULT_BT_ABS;
 
