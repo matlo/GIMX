@@ -62,7 +62,7 @@ static int l2cap_btstack_connect_channel(bdaddr_t event_addr, uint16_t psm, uint
   {
     if(!bacmp(&channels.entries[channel].ba, &event_addr) && channels.entries[channel].psm == psm)
     {
-      if(result == 0)
+      if(status == 0)
       {
         result = channels.entries[channel].connect_callback(channels.entries[channel].user);
         if(result == 0)
@@ -82,7 +82,7 @@ static int l2cap_btstack_connect_channel(bdaddr_t event_addr, uint16_t psm, uint
   return result;
 }
 
-static int l2cap_btstack_process_packet(uint16_t cid, uint16_t psm, unsigned char * packet, int len)
+static int l2cap_btstack_process_packet(uint16_t cid, unsigned char * packet, int len)
 {
   int result = -1;
 
@@ -91,7 +91,7 @@ static int l2cap_btstack_process_packet(uint16_t cid, uint16_t psm, unsigned cha
   {
     if(channels.entries[channel].cid == cid)
     {
-      result = channels.entries[channel].packet_callback(channels.entries[channel].user, psm, packet, len);
+      result = channels.entries[channel].packet_callback(channels.entries[channel].user, channels.entries[channel].psm, packet, len);
       break;
     }
   }
@@ -119,7 +119,7 @@ static int packet_handler(int unused)
     switch(packet_type)
     {
     case L2CAP_DATA_PACKET:
-      if (l2cap_btstack_process_packet(cid, psm, packet, len) == -1)
+      if ((ret = l2cap_btstack_process_packet(cid, packet, len)) == -1)
       {
         fprintf(stderr, "error processing data\n");
       }
@@ -179,7 +179,7 @@ int l2cap_btstack_connect(const char * bdaddr_src, const char * bdaddr_dest, uns
 
   int channel = channels.nb;
 
-  bacpy(&channels.entries[channel].ba, &dst);//TODO MLA: does this need to be swapped?
+  bacpy(&channels.entries[channel].ba, &dst);
   channels.entries[channel].psm = psm;
   channels.entries[channel].user = user;
   channels.entries[channel].connect_callback = connect_callback;
@@ -192,6 +192,12 @@ int l2cap_btstack_connect(const char * bdaddr_src, const char * bdaddr_dest, uns
 
 static int l2cap_btstack_send(int channel, const unsigned char* buf, int len, int ignored)
 {
+  if(!channels.entries[channel].cid)
+  {
+    fprintf(stderr, "connection is still pending\n");
+    return -1;
+  }
+
   return btstack_common_send_packet(L2CAP_DATA_PACKET, channels.entries[channel].cid, buf, len);
 }
 

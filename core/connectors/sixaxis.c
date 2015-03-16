@@ -531,6 +531,11 @@ static int process(int sixaxis_number, int psm, const unsigned char *buf, int le
       return -1;
   }
 
+  if(psm == PSM_HID_INTERRUPT)
+  {
+    ret = 1;
+  }
+
   return ret;
 }
 
