@@ -7,9 +7,7 @@
 #include <connectors/protocol.h>
 #include <adapter.h>
 #include <mainloop.h>
-#include <report2event/ds42event.h>
-#include <report2event/360Pad2event.h>
-#include <report2event/xOnePad2event.h>
+#include <report2event/report2event.h>
 #include <gimx.h>
 
 #include <stdio.h>
@@ -50,8 +48,6 @@ static struct
         {
           unsigned char report_id;
           unsigned char report_length;
-          void (*r2e)(int adapter_id, s_report* current, s_report* previous,
-                int joystick_id, int (*callback)(GE_Event*));
         } elements[REPORTS_MAX];
       } reports;
     } in;
@@ -81,8 +77,7 @@ static struct
           {
             {
               .report_id = DS4_USB_HID_IN_REPORT_ID,
-              .report_length = DS4_USB_INTERRUPT_PACKET_SIZE,
-              .r2e = ds42event
+              .report_length = DS4_USB_INTERRUPT_PACKET_SIZE
             }
           }
         }
@@ -112,8 +107,7 @@ static struct
           {
             {
               .report_id = DS4_USB_HID_IN_REPORT_ID,
-              .report_length = DS4_USB_INTERRUPT_PACKET_SIZE,
-              .r2e = ds42event
+              .report_length = DS4_USB_INTERRUPT_PACKET_SIZE
             }
           }
         }
@@ -143,8 +137,7 @@ static struct
           {
             {
               .report_id = X360_USB_HID_IN_REPORT_ID,
-              .report_length = sizeof(s_report_x360),
-              .r2e = _360Pad2event
+              .report_length = sizeof(s_report_x360)
             }
           }
         }
@@ -174,13 +167,11 @@ static struct
           {
             {
               .report_id = XONE_USB_HID_IN_REPORT_ID,
-              .report_length = sizeof(((s_report_xone*)NULL)->input),
-              .r2e = xOnePad2event
+              .report_length = sizeof(((s_report_xone*)NULL)->input)
             },
             {
               .report_id = XONE_USB_HID_IN_GUIDE_REPORT_ID,
-              .report_length = sizeof(((s_report_xone*)NULL)->guide),
-              .r2e = xOnePad2event
+              .report_length = sizeof(((s_report_xone*)NULL)->guide)
             },
           }
         }
@@ -204,13 +195,6 @@ static struct usb_state {
   s_report_packet report;
 } usb_states[MAX_CONTROLLERS];
 
-int (*event_callback)(GE_Event*) = NULL;
-
-void usb_con_set_callback(int (*fp)(GE_Event*))
-{
-  event_callback = fp;
-}
-
 static int usb_poll_interrupt(int usb_number);
 
 static void process_report(int usb_number, struct usb_state * state, struct libusb_transfer * transfer)
@@ -227,8 +211,7 @@ static void process_report(int usb_number, struct usb_state * state, struct libu
         s_report* current = (s_report*) transfer->buffer;
         s_report* previous = &state->report.value;
 
-        controller[state->type].endpoints.in.reports.elements[i].r2e(usb_number,
-            (s_report*)current, (s_report*)previous, state->joystick_id, event_callback);
+        report2event(state->type, usb_number, (s_report*)current, (s_report*)previous, state->joystick_id);
 
         if(state->type == C_TYPE_DS4 || state->type == C_TYPE_T300RS_PS4)
         {
