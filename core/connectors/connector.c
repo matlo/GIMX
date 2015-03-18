@@ -86,65 +86,51 @@ int connector_init()
             ret = -1;
           }
 
+          int status = adapter_get_status(i);
+
+          if(status < 0)
+          {
+            fprintf(stderr, _("Can't get adapter status.\n"));
+            ret = -1;
+          }
+
           if(ret != -1)
           {
             switch(adapter->type)
             {
-              case C_TYPE_360_PAD:
-              case C_TYPE_XONE_PAD:
               case C_TYPE_DS4:
               case C_TYPE_T300RS_PS4:
+                if(status == BYTE_STATUS_STARTED)
                 {
-                  int status = adapter_get_status(i);
-
-                  if(status < 0)
+                  if(adapter_send_reset(i) < 0)
                   {
-                    fprintf(stderr, _("Can't get adapter status.\n"));
+                    fprintf(stderr, _("Can't reset the adapter.\n"));
                     ret = -1;
                   }
                   else
                   {
-                    switch(adapter->type)
-                    {
-                      case C_TYPE_DS4:
-                      case C_TYPE_T300RS_PS4:
-                        if(status == BYTE_STATUS_STARTED)
-                        {
-                          if(adapter_send_reset(i) < 0)
-                          {
-                            fprintf(stderr, _("Can't reset the adapter.\n"));
-                            ret = -1;
-                          }
-                          else
-                          {
-                            printf(_("Reset sent to the adapter.\n"));
-                            //Leave time for the adapter to reinitialize.
-                            usleep(ADAPTER_RESET_TIME);
-                          }
-                        }
-                        break;
-                      default:
-                        break;
-                    }
-
-                    if(ret != -1)
-                    {
-                      int usb_res = usb_init(i, adapter->type);
-                      if(usb_res < 0)
-                      {
-                        if(adapter->type != C_TYPE_360_PAD
-                            || status != BYTE_STATUS_SPOOFED)
-                        {
-                          fprintf(stderr, _("No controller was found on USB buses.\n"));
-                          ret = -1;
-                        }
-                      }
-                    }
+                    printf(_("Reset sent to the adapter.\n"));
+                    //Leave time for the adapter to reinitialize.
+                    usleep(ADAPTER_RESET_TIME);
                   }
                 }
                 break;
               default:
                 break;
+            }
+          }
+
+          if(ret != -1)
+          {
+            int usb_res = usb_init(i, adapter->type);
+            if(usb_res < 0)
+            {
+              if(adapter->type != C_TYPE_360_PAD
+                  || status != BYTE_STATUS_SPOOFED)
+              {
+                fprintf(stderr, _("No controller was found on USB buses.\n"));
+                ret = -1;
+              }
             }
           }
 

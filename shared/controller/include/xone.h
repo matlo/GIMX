@@ -11,14 +11,39 @@
 #define XONE_VENDOR 0x045e
 #define XONE_PRODUCT 0x02d1
 
-//TODO XONE
-#define XONE_NAME "Controller"
+#ifndef WIN32
+#define XONE_NAME "Microsoft X-Box One pad"
+#else
+#define XONE_NAME "X360 Controller"
+#endif
 
 #define XONE_USB_INTERRUPT_ENDPOINT_IN 1
-#define XONE_USB_INTERRUPT_ENDPOINT_OUT 2
-#define XONE_USB_INTERRUPT_PACKET_SIZE 32
+#define XONE_USB_INTERRUPT_ENDPOINT_OUT 1
+#define XONE_USB_INTERRUPT_PACKET_SIZE 64
 
 #define XONE_USB_HID_IN_REPORT_ID 0x20
+
+#define XONE_LB_MASK    0x1000
+#define XONE_RB_MASK    0x2000
+#define XONE_LS_MASK    0x4000
+#define XONE_RS_MASK    0x8000
+
+#define XONE_UP_MASK    0x0100
+#define XONE_DOWN_MASK  0x0200
+#define XONE_LEFT_MASK  0x0400
+#define XONE_RIGHT_MASK 0x0800
+
+#define XONE_A_MASK     0x0010
+#define XONE_B_MASK     0x0020
+#define XONE_X_MASK     0x0040
+#define XONE_Y_MASK     0x0080
+
+#define XONE_MENU_MASK  0x0004
+#define XONE_VIEW_MASK  0x0008
+
+#define XONE_USB_HID_IN_GUIDE_REPORT_ID 0x07
+
+#define XONE_GUIDE_MASK 0x01
 
 typedef enum
 {
@@ -47,19 +72,30 @@ typedef enum
 
 typedef struct __attribute__ ((gcc_struct,packed))
 {
-  /*
-   * TODO XONE
-   */
   unsigned char type;
-  unsigned char size;
-  unsigned short buttons;
-  unsigned char ltrigger;
-  unsigned char rtrigger;
-  unsigned short xaxis;
-  unsigned short yaxis;
-  unsigned short zaxis;
-  unsigned short taxis;
-  unsigned char unused[6];
+  struct __attribute__ ((gcc_struct,packed))
+  {
+    unsigned char type;
+    unsigned char unknown;
+    unsigned char counter;
+    unsigned char size;
+    unsigned short buttons;
+    unsigned short ltrigger;
+    unsigned short rtrigger;
+    short xaxis;
+    short yaxis;
+    short zaxis;
+    short taxis;
+  } input;
+  struct __attribute__ ((gcc_struct,packed))
+  {
+    unsigned char type;
+    unsigned char unknown1;
+    unsigned char counter;
+    unsigned char size;
+    unsigned char button;
+    unsigned char unknown2;
+  } guide;
 } s_report_xone;
 
 #endif /* XONE_H_ */

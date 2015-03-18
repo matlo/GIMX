@@ -6,6 +6,7 @@
 #include <xone.h>
 #include <report.h>
 #include <controller2.h>
+#include <limits.h>
 
 static const char *xone_axis_name[AXIS_MAX] =
 {
@@ -101,111 +102,69 @@ static s_controller_params xone_params =
     .max_unsigned_axis_value = xone_max_unsigned_axis_value
 };
 
+static inline void axis2button(int axis[AXIS_MAX], e_xone_axis_index index,
+    unsigned short* buttons, unsigned short button_mask)
+{
+  if (axis[index])
+  {
+    (*buttons) |= button_mask;
+  }
+}
+
+static inline void axis2axis(int from, short * to)
+{
+  *to = clamp(SHRT_MIN, from, SHRT_MAX);
+}
+
 static unsigned int xone_report_build(int axis[AXIS_MAX], s_report_packet* report)
 {
   s_report_xone* xone = &report->value.xone;
 
-  int axis_value;
+  unsigned char guide_button = axis[xonea_guide] ? XONE_GUIDE_MASK : 0x00;
 
-  /*
-   * TODO XONE
-   */
-  
-  xone->type = 0x00;
-  xone->size = 0x14;
+  if(guide_button ^ xone->guide.button)
+  {
+    xone->type = xone->guide.type = XONE_USB_HID_IN_GUIDE_REPORT_ID;
+    xone->guide.unknown1 = 0x20;
+    xone->guide.counter++;
+    xone->guide.size = 0x02;
+    xone->guide.button = guide_button;
+    xone->guide.unknown2 = 0x5b;
+  }
+  else
+  {
+    xone->type = xone->input.type = XONE_USB_HID_IN_REPORT_ID;
+    xone->input.counter++;
+    xone->input.size = 0x0e;
 
-  xone->buttons = 0x0000;
+    xone->input.buttons = 0x0000;
 
-  if (axis[xonea_up])
-  {
-    xone->buttons |= 0x0001;
-  }
-  if (axis[xonea_down])
-  {
-    xone->buttons |= 0x0002;
-  }
-  if (axis[xonea_left])
-  {
-    xone->buttons |= 0x0004;
-  }
-  if (axis[xonea_right])
-  {
-    xone->buttons |= 0x0008;
-  }
+    axis2button(axis, xonea_up, &xone->input.buttons, XONE_UP_MASK);
+    axis2button(axis, xonea_down, &xone->input.buttons, XONE_DOWN_MASK);
+    axis2button(axis, xonea_left, &xone->input.buttons, XONE_LEFT_MASK);
+    axis2button(axis, xonea_right, &xone->input.buttons, XONE_RIGHT_MASK);
 
-  if (axis[xonea_menu])
-  {
-    xone->buttons |= 0x0010;
-  }
-  if (axis[xonea_view])
-  {
-    xone->buttons |= 0x0020;
-  }
-  if (axis[xonea_LS])
-  {
-    xone->buttons |= 0x0040;
-  }
-  if (axis[xonea_RS])
-  {
-    xone->buttons |= 0x0080;
-  }
+    axis2button(axis, xonea_view, &xone->input.buttons, XONE_VIEW_MASK);
+    axis2button(axis, xonea_menu, &xone->input.buttons, XONE_MENU_MASK);
+    axis2button(axis, xonea_LS, &xone->input.buttons, XONE_LS_MASK);
+    axis2button(axis, xonea_RS, &xone->input.buttons, XONE_RS_MASK);
 
-  if (axis[xonea_LB])
-  {
-    xone->buttons |= 0x0100;
-  }
-  if (axis[xonea_RB])
-  {
-    xone->buttons |= 0x0200;
-  }
-  if (axis[xonea_guide])
-  {
-    xone->buttons |= 0x0400;
-  }
+    axis2button(axis, xonea_LB, &xone->input.buttons, XONE_LB_MASK);
+    axis2button(axis, xonea_RB, &xone->input.buttons, XONE_RB_MASK);
+    axis2button(axis, xonea_guide, &xone->input.buttons, XONE_GUIDE_MASK);
 
-  if (axis[xonea_A])
-  {
-    xone->buttons |= 0x1000;
-  }
-  if (axis[xonea_B])
-  {
-    xone->buttons |= 0x2000;
-  }
-  if (axis[xonea_X])
-  {
-    xone->buttons |= 0x4000;
-  }
-  if (axis[xonea_Y])
-  {
-    xone->buttons |= 0x8000;
-  }
+    axis2button(axis, xonea_A, &xone->input.buttons, XONE_A_MASK);
+    axis2button(axis, xonea_B, &xone->input.buttons, XONE_B_MASK);
+    axis2button(axis, xonea_X, &xone->input.buttons, XONE_X_MASK);
+    axis2button(axis, xonea_Y, &xone->input.buttons, XONE_Y_MASK);
 
-  xone->ltrigger = clamp(0, axis[xonea_LT], MAX_AXIS_VALUE_8BITS);
-  xone->rtrigger = clamp(0, axis[xonea_RT], MAX_AXIS_VALUE_8BITS);
+    xone->input.ltrigger = clamp(0, axis[xonea_LT], UCHAR_MAX);
+    xone->input.rtrigger = clamp(0, axis[xonea_RT], UCHAR_MAX);
 
-  axis_value = axis[xonea_lstick_x];
-  xone->xaxis = clamp(-128, axis_value, 127) << 8;
-  if(axis_value > 127)
-  {
-    xone->xaxis |= 0xFF;
-  }
-  axis_value = - axis[xonea_lstick_y];
-  xone->yaxis = clamp(-128, axis_value, 127) << 8;
-  if(axis_value > 127)
-  {
-    xone->yaxis |= 0xFF;
-  }
-  axis_value = axis[xonea_rstick_x];
-  xone->zaxis = clamp(-128, axis_value, 127) << 8;
-  if(axis_value > 127)
-  {
-    xone->zaxis |= 0xFF;
-  }
-  axis_value = -axis[xonea_rstick_y];
-  xone->taxis = clamp(-128, axis_value, 127) << 8;
-  if(axis_value > 127)
-  {
-    xone->taxis |= 0xFF;
+    axis2axis(axis[xonea_lstick_x], &xone->input.xaxis);
+    axis2axis(axis[xonea_lstick_y], &xone->input.yaxis);
+    axis2axis(axis[xonea_rstick_x], &xone->input.zaxis);
+    axis2axis(axis[xonea_rstick_y], &xone->input.taxis);
   }
 
   return sizeof(*xone);
