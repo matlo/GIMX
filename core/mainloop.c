@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include <adapter.h>
 #include <connectors/usb_con.h>
-#include <report2event/report2event.h>
 
 static volatile int done = 0;
 
@@ -44,7 +43,7 @@ void mainloop()
     GE_SetCallback(process_event);
   }
 
-  report2event_set_callback(process_event);
+  usb_con_set_callback(process_event);
 
   while(!done)
   {

@@ -15,5 +15,6 @@ int usb_send_control(int usb_number, unsigned char* buffer, unsigned char length
 int usb_send_interrupt_out(int usb_number, unsigned char* buffer, unsigned char length);
 int usb_handle_events(int unused);
 void usb_poll_interrupts();
+void usb_con_set_callback(int (*fp)(GE_Event*));
 
 #endif /* USB_CON_H_ */
