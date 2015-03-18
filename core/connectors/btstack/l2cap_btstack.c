@@ -14,6 +14,7 @@
 #include <connectors/tcp_con.h>
 #include <connectors/bluetooth/btstack_common.h>
 #include <connectors/bluetooth/l2cap_abs.h>
+#include <connectors/windows/bt_bdaddr.h>
 #include <hci.h>
 #include <GE.h>
 
