@@ -12,7 +12,7 @@
 #define XONE_PRODUCT 0x02d1
 
 #ifndef WIN32
-#define XONE_NAME "Microsoft X-Box One pad"
+#define XONE_NAME "Microsoft X-Box 360 pad"
 #else
 #define XONE_NAME "X360 Controller"
 #endif
@@ -72,30 +72,36 @@ typedef enum
 
 typedef struct __attribute__ ((gcc_struct,packed))
 {
-  unsigned char type;
-  struct __attribute__ ((gcc_struct,packed))
+  union
   {
     unsigned char type;
-    unsigned char unknown;
-    unsigned char counter;
-    unsigned char size;
-    unsigned short buttons;
-    unsigned short ltrigger;
-    unsigned short rtrigger;
-    short xaxis;
-    short yaxis;
-    short zaxis;
-    short taxis;
-  } input;
-  struct __attribute__ ((gcc_struct,packed))
-  {
-    unsigned char type;
-    unsigned char unknown1;
-    unsigned char counter;
-    unsigned char size;
-    unsigned char button;
-    unsigned char unknown2;
-  } guide;
+    struct
+    {
+      struct __attribute__ ((gcc_struct,packed))
+      {
+        unsigned char type;
+        unsigned char unknown;
+        unsigned char counter;
+        unsigned char size;
+        unsigned short buttons;
+        unsigned short ltrigger;
+        unsigned short rtrigger;
+        short xaxis;
+        short yaxis;
+        short zaxis;
+        short taxis;
+      } input;
+      struct __attribute__ ((gcc_struct,packed))
+      {
+        unsigned char type;
+        unsigned char unknown1;
+        unsigned char counter;
+        unsigned char size;
+        unsigned char button;
+        unsigned char unknown2;
+      } guide;
+    } report;
+  };
 } s_report_xone;
 
 #endif /* XONE_H_ */

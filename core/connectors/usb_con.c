@@ -167,11 +167,11 @@ static struct
           {
             {
               .report_id = XONE_USB_HID_IN_REPORT_ID,
-              .report_length = sizeof(((s_report_xone*)NULL)->input)
+              .report_length = sizeof(((s_report_xone*)NULL)->report.input)
             },
             {
               .report_id = XONE_USB_HID_IN_GUIDE_REPORT_ID,
-              .report_length = sizeof(((s_report_xone*)NULL)->guide)
+              .report_length = sizeof(((s_report_xone*)NULL)->report.guide)
             },
           }
         }
@@ -220,6 +220,17 @@ static void process_report(int usb_number, struct usb_state * state, struct libu
         else if(state->type == C_TYPE_360_PAD)
         {
           state->report.value.x360 = current->x360;
+        }
+        else if(state->type == C_TYPE_XONE_PAD)
+        {
+          if(current->xone.type == XONE_USB_HID_IN_REPORT_ID)
+          {
+            state->report.value.xone.report.input = current->xone.report.input;
+          }
+          else if(current->xone.type == XONE_USB_HID_IN_GUIDE_REPORT_ID)
+          {
+            state->report.value.xone.report.guide = current->xone.report.guide;
+          }
         }
       }
       else

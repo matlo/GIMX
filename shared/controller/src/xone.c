@@ -72,10 +72,10 @@ static s_axis_name_dir axis_names[] =
 
 static int xone_max_unsigned_axis_value[AXIS_MAX] =
 {
-  [xonea_lstick_x] = MAX_AXIS_VALUE_8BITS,
-  [xonea_lstick_y] = MAX_AXIS_VALUE_8BITS,
-  [xonea_rstick_x] = MAX_AXIS_VALUE_8BITS,
-  [xonea_rstick_y] = MAX_AXIS_VALUE_8BITS,
+  [xonea_lstick_x] = MAX_AXIS_VALUE_16BITS,
+  [xonea_lstick_y] = MAX_AXIS_VALUE_16BITS,
+  [xonea_rstick_x] = MAX_AXIS_VALUE_16BITS,
+  [xonea_rstick_y] = MAX_AXIS_VALUE_16BITS,
   [xonea_view] = MAX_AXIS_VALUE_8BITS,
   [xonea_menu] = MAX_AXIS_VALUE_8BITS,
   [xonea_guide] = MAX_AXIS_VALUE_8BITS,
@@ -89,8 +89,8 @@ static int xone_max_unsigned_axis_value[AXIS_MAX] =
   [xonea_X] = MAX_AXIS_VALUE_8BITS,
   [xonea_LB] = MAX_AXIS_VALUE_8BITS,
   [xonea_RB] = MAX_AXIS_VALUE_8BITS,
-  [xonea_LT] = MAX_AXIS_VALUE_8BITS,
-  [xonea_RT] = MAX_AXIS_VALUE_8BITS,
+  [xonea_LT] = MAX_AXIS_VALUE_10BITS,
+  [xonea_RT] = MAX_AXIS_VALUE_10BITS,
   [xonea_LS] = MAX_AXIS_VALUE_8BITS,
   [xonea_RS] = MAX_AXIS_VALUE_8BITS,
 };
@@ -122,49 +122,49 @@ static unsigned int xone_report_build(int axis[AXIS_MAX], s_report_packet* repor
 
   unsigned char guide_button = axis[xonea_guide] ? XONE_GUIDE_MASK : 0x00;
 
-  if(guide_button ^ xone->guide.button)
+  if(guide_button ^ xone->report.guide.button)
   {
-    xone->type = xone->guide.type = XONE_USB_HID_IN_GUIDE_REPORT_ID;
-    xone->guide.unknown1 = 0x20;
-    xone->guide.counter++;
-    xone->guide.size = 0x02;
-    xone->guide.button = guide_button;
-    xone->guide.unknown2 = 0x5b;
+    xone->type = xone->report.guide.type = XONE_USB_HID_IN_GUIDE_REPORT_ID;
+    xone->report.guide.unknown1 = 0x20;
+    xone->report.guide.counter++;
+    xone->report.guide.size = 0x02;
+    xone->report.guide.button = guide_button;
+    xone->report.guide.unknown2 = 0x5b;
   }
   else
   {
-    xone->type = xone->input.type = XONE_USB_HID_IN_REPORT_ID;
-    xone->input.counter++;
-    xone->input.size = 0x0e;
+    xone->type = xone->report.input.type = XONE_USB_HID_IN_REPORT_ID;
+    xone->report.input.counter++;
+    xone->report.input.size = 0x0e;
 
-    xone->input.buttons = 0x0000;
+    xone->report.input.buttons = 0x0000;
 
-    axis2button(axis, xonea_up, &xone->input.buttons, XONE_UP_MASK);
-    axis2button(axis, xonea_down, &xone->input.buttons, XONE_DOWN_MASK);
-    axis2button(axis, xonea_left, &xone->input.buttons, XONE_LEFT_MASK);
-    axis2button(axis, xonea_right, &xone->input.buttons, XONE_RIGHT_MASK);
+    axis2button(axis, xonea_up, &xone->report.input.buttons, XONE_UP_MASK);
+    axis2button(axis, xonea_down, &xone->report.input.buttons, XONE_DOWN_MASK);
+    axis2button(axis, xonea_left, &xone->report.input.buttons, XONE_LEFT_MASK);
+    axis2button(axis, xonea_right, &xone->report.input.buttons, XONE_RIGHT_MASK);
 
-    axis2button(axis, xonea_view, &xone->input.buttons, XONE_VIEW_MASK);
-    axis2button(axis, xonea_menu, &xone->input.buttons, XONE_MENU_MASK);
-    axis2button(axis, xonea_LS, &xone->input.buttons, XONE_LS_MASK);
-    axis2button(axis, xonea_RS, &xone->input.buttons, XONE_RS_MASK);
+    axis2button(axis, xonea_view, &xone->report.input.buttons, XONE_VIEW_MASK);
+    axis2button(axis, xonea_menu, &xone->report.input.buttons, XONE_MENU_MASK);
+    axis2button(axis, xonea_LS, &xone->report.input.buttons, XONE_LS_MASK);
+    axis2button(axis, xonea_RS, &xone->report.input.buttons, XONE_RS_MASK);
 
-    axis2button(axis, xonea_LB, &xone->input.buttons, XONE_LB_MASK);
-    axis2button(axis, xonea_RB, &xone->input.buttons, XONE_RB_MASK);
-    axis2button(axis, xonea_guide, &xone->input.buttons, XONE_GUIDE_MASK);
+    axis2button(axis, xonea_LB, &xone->report.input.buttons, XONE_LB_MASK);
+    axis2button(axis, xonea_RB, &xone->report.input.buttons, XONE_RB_MASK);
+    axis2button(axis, xonea_guide, &xone->report.input.buttons, XONE_GUIDE_MASK);
 
-    axis2button(axis, xonea_A, &xone->input.buttons, XONE_A_MASK);
-    axis2button(axis, xonea_B, &xone->input.buttons, XONE_B_MASK);
-    axis2button(axis, xonea_X, &xone->input.buttons, XONE_X_MASK);
-    axis2button(axis, xonea_Y, &xone->input.buttons, XONE_Y_MASK);
+    axis2button(axis, xonea_A, &xone->report.input.buttons, XONE_A_MASK);
+    axis2button(axis, xonea_B, &xone->report.input.buttons, XONE_B_MASK);
+    axis2button(axis, xonea_X, &xone->report.input.buttons, XONE_X_MASK);
+    axis2button(axis, xonea_Y, &xone->report.input.buttons, XONE_Y_MASK);
 
-    xone->input.ltrigger = clamp(0, axis[xonea_LT], UCHAR_MAX);
-    xone->input.rtrigger = clamp(0, axis[xonea_RT], UCHAR_MAX);
+    xone->report.input.ltrigger = clamp(0, axis[xonea_LT], MAX_AXIS_VALUE_10BITS);
+    xone->report.input.rtrigger = clamp(0, axis[xonea_RT], MAX_AXIS_VALUE_10BITS);
 
-    axis2axis(axis[xonea_lstick_x], &xone->input.xaxis);
-    axis2axis(axis[xonea_lstick_y], &xone->input.yaxis);
-    axis2axis(axis[xonea_rstick_x], &xone->input.zaxis);
-    axis2axis(axis[xonea_rstick_y], &xone->input.taxis);
+    axis2axis(axis[xonea_lstick_x], &xone->report.input.xaxis);
+    axis2axis(axis[xonea_lstick_y], &xone->report.input.yaxis);
+    axis2axis(axis[xonea_rstick_x], &xone->report.input.zaxis);
+    axis2axis(axis[xonea_rstick_y], &xone->report.input.taxis);
   }
 
   return sizeof(*xone);

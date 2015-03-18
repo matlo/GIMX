@@ -11,24 +11,24 @@
 #include <limits.h>
 
 static inline void axis2event(int (*callback)(GE_Event*), GE_Event* event,
-    short axis, short paxis, uint8_t axis_id)
+    short axis, short paxis, char invert, uint8_t axis_id)
 {
   if (axis != paxis)
   {
     event->jaxis.axis = axis_id;
-    event->jaxis.value = paxis;
+    event->jaxis.value = invert ? ~axis : axis;
     callback(event);
   }
 }
 
-static inline void trigger2event(int (*callback)(GE_Event*), GE_Event* event, unsigned char trigger,
-    unsigned char ptrigger, uint8_t axis_id)
+static inline void trigger2event(int (*callback)(GE_Event*), GE_Event* event, unsigned short trigger,
+    unsigned short ptrigger, uint8_t axis_id)
 {
   int axisValue;
   if (trigger != ptrigger)
   {
     event->jaxis.axis = axis_id;
-    axisValue = trigger * (MAX_AXIS_VALUE_16BITS / 2) / MAX_AXIS_VALUE_8BITS;
+    axisValue = trigger * (MAX_AXIS_VALUE_16BITS / 2) / MAX_AXIS_VALUE_10BITS;
     event->jaxis.value = clamp(0, axisValue, SHRT_MAX);
     callback(event);
   }
@@ -60,8 +60,8 @@ void xOnePad2event(int adapter_id, s_report* current, s_report* previous,
      * Buttons
      */
 
-    unsigned short buttons = xone_current->input.buttons;
-    unsigned short prevButtons = xone_previous->input.buttons;
+    unsigned short buttons = xone_current->report.input.buttons;
+    unsigned short prevButtons = xone_previous->report.input.buttons;
 
     button2event(callback, &event, buttons, prevButtons, XONE_UP_MASK, X360_UP_ID);
     button2event(callback, &event, buttons, prevButtons, XONE_DOWN_MASK, X360_DOWN_ID);
@@ -87,21 +87,21 @@ void xOnePad2event(int adapter_id, s_report* current, s_report* previous,
 
     event.type = GE_JOYAXISMOTION;
 
-    axis2event(callback, &event, xone_current->input.xaxis, xone_previous->input.xaxis, X360_AXIS_X_ID);
-    axis2event(callback, &event, xone_current->input.yaxis, xone_previous->input.yaxis, X360_AXIS_Y_ID);
-    axis2event(callback, &event, xone_current->input.zaxis, xone_previous->input.zaxis, X360_AXIS_Z_ID);
-    axis2event(callback, &event, xone_current->input.taxis, xone_previous->input.taxis, X360_AXIS_RZ_ID);
+    axis2event(callback, &event, xone_current->report.input.xaxis, xone_previous->report.input.xaxis, 0, X360_AXIS_X_ID);
+    axis2event(callback, &event, xone_current->report.input.yaxis, xone_previous->report.input.yaxis, 1, X360_AXIS_Y_ID);
+    axis2event(callback, &event, xone_current->report.input.zaxis, xone_previous->report.input.zaxis, 0, X360_AXIS_Z_ID);
+    axis2event(callback, &event, xone_current->report.input.taxis, xone_previous->report.input.taxis, 1, X360_AXIS_RZ_ID);
 
-    trigger2event(callback, &event, xone_current->input.ltrigger, xone_previous->input.ltrigger, X360_LT_ID);
-    trigger2event(callback, &event, xone_current->input.rtrigger, xone_previous->input.rtrigger, X360_RT_ID);
+    trigger2event(callback, &event, xone_current->report.input.ltrigger, xone_previous->report.input.ltrigger, X360_LT_ID);
+    trigger2event(callback, &event, xone_current->report.input.rtrigger, xone_previous->report.input.rtrigger, X360_RT_ID);
   }
   else if(current->xone.type == XONE_USB_HID_IN_GUIDE_REPORT_ID)
   {
     s_report_xone* xone_current = &current->xone;
     s_report_xone* xone_previous = &previous->xone;
 
-    unsigned short buttons = xone_current->guide.button;
-    unsigned short prevButtons = xone_previous->guide.button;
+    unsigned short buttons = xone_current->report.guide.button;
+    unsigned short prevButtons = xone_previous->report.guide.button;
 
     button2event(callback, &event, buttons, prevButtons, XONE_GUIDE_MASK, X360_GUIDE_ID);
   }
