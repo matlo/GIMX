@@ -617,35 +617,35 @@ void dump_event(GE_Event* event)
   switch(event->type)
   {
     case GE_KEYDOWN:
-      printf("KEYDOWN %s\n", GE_KeyName(event->key.keysym));
+      gprintf("KEYDOWN %s\n", GE_KeyName(event->key.keysym));
       break;
     case GE_KEYUP:
-      printf("KEYUP %s\n", GE_KeyName(event->key.keysym));
+      gprintf("KEYUP %s\n", GE_KeyName(event->key.keysym));
       break;
     case GE_MOUSEBUTTONDOWN:
-      printf("MBUTTONDOWN %s\n", GE_MouseButtonName(event->button.button));
+      gprintf("MBUTTONDOWN %s\n", GE_MouseButtonName(event->button.button));
       break;
     case GE_MOUSEBUTTONUP:
-      printf("MBUTTONUP %s\n", GE_MouseButtonName(event->button.button));
+      gprintf("MBUTTONUP %s\n", GE_MouseButtonName(event->button.button));
       break;
     case GE_MOUSEMOTION:
       if(event->motion.xrel)
       {
-        printf("MAXIS 0 %d\n", event->motion.xrel);
+        gprintf("MAXIS 0 %d\n", event->motion.xrel);
       }
       else if(event->motion.yrel)
       {
-        printf("MAXIS 1 %d\n", event->motion.yrel);
+        gprintf("MAXIS 1 %d\n", event->motion.yrel);
       }
       break;
     case GE_JOYBUTTONDOWN:
-      printf("JBUTTONDOWN %d\n", event->jbutton.button);
+      gprintf("JBUTTONDOWN %d\n", event->jbutton.button);
       break;
     case GE_JOYBUTTONUP:
-      printf("JBUTTONUP %d\n", event->jbutton.button);
+      gprintf("JBUTTONUP %d\n", event->jbutton.button);
       break;
     case GE_JOYAXISMOTION:
-      printf("JAXIS %d %d\n", event->jaxis.axis, event->jaxis.value);
+      gprintf("JAXIS %d %d\n", event->jaxis.axis, event->jaxis.value);
       break;
   }
 }
