@@ -50,11 +50,11 @@ typedef struct
   L2CAP_ABS_CLOSE_CALLBACK close_callback;
 } s_listen_channel;
 
-static struct
-{
-  unsigned int nb;
-  s_listen_channel entries[L2CAP_ABS_MAX_CHANNELS];
-} listen_channels = {};
+//static struct
+//{
+//  unsigned int nb;
+//  s_listen_channel entries[L2CAP_ABS_MAX_CHANNELS];
+//} listen_channels = {};
 
 static int l2cap_btstack_connect_channel(bdaddr_t event_addr, uint16_t psm, uint16_t cid, uint16_t handle, uint8_t status)
 {
