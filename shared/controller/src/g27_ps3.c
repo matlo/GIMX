@@ -155,9 +155,11 @@ void g27Ps3_init_report(s_report_g27Ps3* g27Ps3)
  * Work in progress...
  * Do not assume the code in the following function is right!
  */
-static unsigned int g27Ps3_report_build(int axis[AXIS_MAX], s_report_packet* report)
+static unsigned int g27Ps3_report_build(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
-  s_report_g27Ps3* g27Ps3 = &report->value.g27Ps3;
+  unsigned int index = 0;
+  report[index].length = sizeof(s_report_g27Ps3);
+  s_report_g27Ps3* g27Ps3 = &report[index].value.g27Ps3;
 
   g27Ps3->buttonsAndWheel = clamp(0, axis[g27Ps3a_wheel] + CENTER_AXIS_VALUE_14BITS, MAX_AXIS_VALUE_14BITS) << 2;
 
@@ -276,7 +278,7 @@ static unsigned int g27Ps3_report_build(int axis[AXIS_MAX], s_report_packet* rep
     g27Ps3->buttonsAndWheel |= G27_L5_MASK;
   }
 
-  return sizeof(*g27Ps3);
+  return index;
 }
 
 void g27Ps3_init(void) __attribute__((constructor (101)));

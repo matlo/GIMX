@@ -14,12 +14,6 @@
 #include <connectors/windows/sockets.h>
 #endif
 
-#define BYTE_LEN_0_BYTE 0x00
-#define BYTE_LEN_1_BYTE 0x01
-
-#define BYTE_TYPE 0x11
-#define BYTE_SEND_REPORT 0xff
-
 int udp_listen(unsigned int ip, unsigned short port);
 int udp_connect(unsigned int ip, unsigned short port, int* type);
 int udp_send(int fd, unsigned char* buf, socklen_t buflen);

@@ -16,6 +16,8 @@
 #include <t300rs_ps4.h>
 #include <g27_ps3.h>
 
+#define MAX_REPORTS 2
+
 typedef union
 {
   s_report_joystick js;
@@ -36,7 +38,7 @@ typedef struct __attribute__ ((gcc_struct,packed))
   s_report value;
 } s_report_packet;
 
-void report_register_builder(e_controller_type type, unsigned int (*fp)(int axis[AXIS_MAX], s_report_packet* report));
-unsigned int report_build(e_controller_type type, int axis[AXIS_MAX], s_report_packet* report);
+void report_register_builder(e_controller_type type, unsigned int (*fp)(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS]));
+unsigned int report_build(e_controller_type type, int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS]);
 
 #endif /* REPORT_H_ */

@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static unsigned int (*func_ptr[C_TYPE_MAX])(int axis[AXIS_MAX], s_report_packet* report) = {};
+static unsigned int (*func_ptr[C_TYPE_MAX])(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS]) = {};
 
 void report_init(void) __attribute__((constructor (102)));
 void report_init(void)
@@ -23,11 +23,11 @@ void report_init(void)
   }
 }
 
-void report_register_builder(e_controller_type type, unsigned int (*fp)(int axis[AXIS_MAX], s_report_packet* report)) {
+void report_register_builder(e_controller_type type, unsigned int (*fp)(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])) {
   func_ptr[type] = fp;
 }
 
-unsigned int report_build(e_controller_type type, int axis[AXIS_MAX], s_report_packet* report)
+unsigned int report_build(e_controller_type type, int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
   unsigned int ret = 0;
   if(func_ptr[type])

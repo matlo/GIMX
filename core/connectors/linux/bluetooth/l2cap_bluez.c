@@ -65,6 +65,7 @@ static struct
   s_listen_channel channels[L2CAP_ABS_MAX_CHANNELS];
 } listen_channels = {};
 
+#if 0
 static int l2cap_bluez_set_flush_timeout(int channel, int timeout_ms)
 {
     int result = 0, dd;
@@ -108,6 +109,7 @@ static int l2cap_bluez_set_flush_timeout(int channel, int timeout_ms)
 
     return result;
 }
+#endif
 
 #define ACL_MTU 1024
 

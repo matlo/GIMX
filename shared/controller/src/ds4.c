@@ -273,9 +273,12 @@ static inline void update_finger(s_trackpad_finger* finger, int presence, int* a
  * Work in progress...
  * Do not assume the code in the following function is right!
  */
-static unsigned int ds4_report_build(int axis[AXIS_MAX], s_report_packet* report)
+static unsigned int ds4_report_build(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
-  s_report_ds4* ds4 = &report->value.ds4;
+  unsigned int index = 0;
+  report[index].length = sizeof(s_report_ds4);
+  s_report_ds4* ds4 = &report[index].value.ds4;
+
   unsigned char counter;
   unsigned short buttons = 0x0000;
 
@@ -404,7 +407,7 @@ static unsigned int ds4_report_build(int axis[AXIS_MAX], s_report_packet* report
 
   update_finger(&ds4->packet1.finger2, axis[ds4a_finger2], &axis[ds4a_finger2_x], &axis[ds4a_finger2_y]);
 
-  return sizeof(*ds4);
+  return index;
 }
 
 void ds4_init(void) __attribute__((constructor (101)));

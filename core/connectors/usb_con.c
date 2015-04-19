@@ -167,11 +167,11 @@ static struct
           {
             {
               .report_id = XONE_USB_HID_IN_REPORT_ID,
-              .report_length = sizeof(((s_report_xone*)NULL)->report.input)
+              .report_length = sizeof(((s_report_xone*)NULL)->input)
             },
             {
               .report_id = XONE_USB_HID_IN_GUIDE_REPORT_ID,
-              .report_length = sizeof(((s_report_xone*)NULL)->report.guide)
+              .report_length = sizeof(((s_report_xone*)NULL)->guide)
             },
           }
         }
@@ -192,10 +192,30 @@ static struct usb_state {
   libusb_device_handle* devh;
   unsigned char ack;
   int joystick_id;
-  s_report_packet report;
+  struct
+  {
+    unsigned char report_id;
+    s_report_packet report;
+  } reports[REPORTS_MAX];
 } usb_states[MAX_CONTROLLERS];
 
 static int usb_poll_interrupt(int usb_number);
+
+static int debug = 1;
+
+static void dump(unsigned char* packet, unsigned char length)
+{
+  int i;
+  for(i=0; i<length; ++i)
+  {
+    if(i && !(i%8))
+    {
+      gprintf("\n");
+    }
+    gprintf("0x%02x ", packet[i]);
+  }
+  gprintf("\n");
+}
 
 static void process_report(int usb_number, struct usb_state * state, struct libusb_transfer * transfer)
 {
@@ -209,27 +229,27 @@ static void process_report(int usb_number, struct usb_state * state, struct libu
       if(transfer->actual_length == report_length)
       {
         s_report* current = (s_report*) transfer->buffer;
-        s_report* previous = &state->report.value;
+        s_report* previous = &state->reports[i].report.value;
 
         report2event(state->type, usb_number, (s_report*)current, (s_report*)previous, state->joystick_id);
 
         if(state->type == C_TYPE_DS4 || state->type == C_TYPE_T300RS_PS4)
         {
-          state->report.value.ds4 = current->ds4;
+          previous->ds4 = current->ds4;
         }
         else if(state->type == C_TYPE_360_PAD)
         {
-          state->report.value.x360 = current->x360;
+          previous->x360 = current->x360;
         }
         else if(state->type == C_TYPE_XONE_PAD)
         {
-          if(current->xone.type == XONE_USB_HID_IN_REPORT_ID)
+          if(report_id == XONE_USB_HID_IN_REPORT_ID)
           {
-            state->report.value.xone.report.input = current->xone.report.input;
+            previous->xone.input = current->xone.input;
           }
-          else if(current->xone.type == XONE_USB_HID_IN_GUIDE_REPORT_ID)
+          else if(report_id == XONE_USB_HID_IN_GUIDE_REPORT_ID)
           {
-            state->report.value.xone.report.guide = current->xone.report.guide;
+            previous->xone.guide = current->xone.guide;
           }
         }
       }
@@ -238,6 +258,22 @@ static void process_report(int usb_number, struct usb_state * state, struct libu
         fprintf(stderr, "incorrect report length on interrupt endpoint: received %d bytes, expected %d bytes\n", transfer->actual_length, report_length);
       }
       break;
+    }
+  }
+
+  if(i == controller[state->type].endpoints.in.reports.nb)
+  {
+    if(state->type == C_TYPE_XONE_PAD)
+    {
+      if(debug)
+      {
+        gprintf("forward IN\n");
+        dump(transfer->buffer, transfer->actual_length);
+      }
+      if(adapter_forward_interrupt_in(usb_number, transfer->buffer, transfer->actual_length) < 0)
+      {
+        fprintf(stderr, "can't forward interrupt data to the adapter\n");
+      }
     }
   }
 }
@@ -264,14 +300,14 @@ void usb_callback(struct libusb_transfer* transfer)
           unsigned char *data = libusb_control_transfer_get_data(transfer);
           if(adapter_forward_control_in(usb_number, data, transfer->actual_length) < 0)
           {
-            fprintf(stderr, "can't forward data to the adapter\n");
+            fprintf(stderr, "can't forward control data to the adapter\n");
           }
         }
       }
     }
     else
     {
-      fprintf(stderr, "libusb_transfer failed with status %d (bmRequestType=0x%02x, bRequest=0x%02x, wValue=0x%04x)\n", transfer->status, setup->bmRequestType, setup->bRequest, setup->wValue);
+      fprintf(stderr, "libusb_transfer failed with status %s (bmRequestType=0x%02x, bRequest=0x%02x, wValue=0x%04x)\n", libusb_error_name(transfer->status), setup->bmRequestType, setup->bRequest, setup->wValue);
     }
   }
   else if(transfer->type == LIBUSB_TRANSFER_TYPE_INTERRUPT)
@@ -297,7 +333,7 @@ void usb_callback(struct libusb_transfer* transfer)
     {
       if(transfer->status != LIBUSB_TRANSFER_TIMED_OUT)
       {
-        fprintf(stderr, "libusb_transfer failed with status %d (endpoint=0x%02x)\n", transfer->status, transfer->endpoint);
+        fprintf(stderr, "libusb_transfer failed with status %s (endpoint=0x%02x)\n", libusb_error_name(transfer->status), transfer->endpoint);
       }
     }
   }
@@ -354,6 +390,22 @@ int usb_handle_events(int unused)
 #endif
 }
 
+static int usb_send_interrupt_out_sync(int usb_number, unsigned char* buffer, unsigned char length)
+{
+  struct usb_state* state = usb_states+usb_number;
+
+  int transferred;
+
+  int ret = libusb_interrupt_transfer(state->devh, controller[C_TYPE_XONE_PAD].endpoints.out.address, buffer, length, &transferred, 1000);
+  if(ret != LIBUSB_SUCCESS)
+  {
+    fprintf(stderr, "Error sending interrupt out: %s\n", libusb_strerror(ret));
+    return -1;
+  }
+
+  return 0;
+}
+
 int usb_init(int usb_number, e_controller_type type)
 {
   int ret = -1;
@@ -363,7 +415,7 @@ int usb_init(int usb_number, e_controller_type type)
 
   if(!controller[type].vendor || !controller[type].product)
   {
-    printf(_("no pass-through device is needed\n"));
+    gprintf(_("no pass-through device is needed\n"));
     return 0;
   }
 
@@ -413,7 +465,7 @@ int usb_init(int usb_number, e_controller_type type)
           ret = libusb_reset_device(devh);
           if(ret != LIBUSB_SUCCESS)
           {
-            fprintf(stderr, "libusb_detach_kernel_driver: %s.\n", libusb_strerror(ret));
+            fprintf(stderr, "libusb_reset_device: %s.\n", libusb_strerror(ret));
             libusb_close(devh);
             return -1;
           }
@@ -457,6 +509,18 @@ int usb_init(int usb_number, e_controller_type type)
 
             free(pfd_usb);
 #endif
+
+//            if(state->type == C_TYPE_XONE_PAD)
+//            {
+//              //warning: make sure not to make any libusb async io before this!
+//
+//              unsigned char activate_rumble0[] = { 0x05, 0x20, 0x00, 0x01, 0x00 };
+//              usb_send_interrupt_out_sync(usb_number, activate_rumble0, sizeof(activate_rumble0));
+//
+//              unsigned char activate_rumble[] = { 0x09, 0x00, 0x00, 0x09, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00 };
+//              usb_send_interrupt_out_sync(usb_number, activate_rumble, sizeof(activate_rumble));
+//            }
+
             if(usb_poll_interrupt(usb_number) == LIBUSB_SUCCESS)
             {
               // register joystick
@@ -465,6 +529,12 @@ int usb_init(int usb_number, e_controller_type type)
               {
                 state->joystick_id = device_id;
               }
+            }
+
+            int i;
+            for(i = 0; i < controller[state->type].endpoints.in.reports.nb; ++i)
+            {
+              usb_states[usb_number].reports[i].report_id = controller[state->type].endpoints.in.reports.elements[i].report_id;
             }
 
             return 0;
@@ -483,6 +553,17 @@ int usb_close(int usb_number)
 
   if(state->devh)
   {
+    if(state->type == C_TYPE_XONE_PAD)
+    {
+      int transferred;
+      unsigned char power_off[] = { 0x05, 0x20, 0x00, 0x01, 0x04 };
+      int ret = libusb_interrupt_transfer(state->devh, controller[C_TYPE_XONE_PAD].endpoints.out.address, power_off, sizeof(power_off), &transferred, 1000);
+      if(ret != LIBUSB_SUCCESS)
+      {
+        fprintf(stderr, "Error sending interrupt out: %s\n", libusb_strerror(ret));
+      }
+    }
+
     //TODO: cancel and free pending transfers
     libusb_release_interface(state->devh, 0);
 #if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)

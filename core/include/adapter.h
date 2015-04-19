@@ -39,7 +39,7 @@ typedef struct
   int change;
   int send_command;
   int ts_axis[AXIS_MAX][2]; //issue 15
-  s_report_packet report;
+  s_report_packet report[2]; //the xbox one guide button needs a dedicated report
 } s_adapter;
 
 void adapter_init();
@@ -58,6 +58,7 @@ int adapter_get_controller(e_device_type device_type, int device_id);
 void adapter_set_axis(unsigned char c, int axis, int value);
 
 int adapter_forward_control_in(int id, unsigned char* data, unsigned char length);
+int adapter_forward_interrupt_in(int id, unsigned char* data, unsigned char length);
 int adapter_forward_control_out(int id, unsigned char* data, unsigned char length);
 
 int adapter_forward_interrupt_out(int id, unsigned char* data, unsigned char length);

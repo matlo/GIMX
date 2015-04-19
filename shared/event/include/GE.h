@@ -379,6 +379,7 @@ typedef enum
   GE_JS_SIXAXIS,
   GE_JS_DS4,
   GE_JS_360PAD,
+  GE_JS_XONEPAD,
 } GE_JS_Type;
 
 #define EVENT_BUFFER_SIZE 256

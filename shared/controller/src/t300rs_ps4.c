@@ -119,9 +119,11 @@ void t300rsPs4_init_report(s_report_t300rsPs4* t300rsPs4)
  * Work in progress...
  * Do not assume the code in the following function is right!
  */
-static unsigned int t300rsPs4_report_build(int axis[AXIS_MAX], s_report_packet* report)
+static unsigned int t300rsPs4_report_build(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
-  s_report_t300rsPs4* t300rsPs4 = &report->value.t300rsPs4;
+  unsigned int index = 0;
+  report[index].length = sizeof(s_report_t300rsPs4);
+  s_report_t300rsPs4* t300rsPs4 = &report[index].value.t300rsPs4;
 
   t300rsPs4->wheel = clamp(0, axis[t300rsPs4a_wheel] + CENTER_AXIS_VALUE_16BITS, MAX_AXIS_VALUE_16BITS);
 
@@ -227,7 +229,7 @@ static unsigned int t300rsPs4_report_build(int axis[AXIS_MAX], s_report_packet* 
     t300rsPs4->Buttons |= T300RS_PS_MASK;
   }
 
-  return sizeof(*t300rsPs4);
+  return index;
 }
 
 void t300rsPs4_init(void) __attribute__((constructor (101)));

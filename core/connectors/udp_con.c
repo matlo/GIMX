@@ -4,6 +4,7 @@
  */
 
 #include <connectors/udp_con.h>
+#include <connectors/protocol.h>
 #ifndef WIN32
 #include <arpa/inet.h>
 #endif

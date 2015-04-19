@@ -30,6 +30,7 @@ static struct
   { "Sony Navigation Controller", GE_JS_SIXAXIS },
   { "Sony Computer Entertainment Wireless Controller", GE_JS_DS4 },
   { "Microsoft X-Box 360 pad", GE_JS_360PAD },
+  { "Microsoft X-Box One pad", GE_JS_XONEPAD },
 #else
   { "PS4 Controller", GE_JS_DS4 },
   { "X360 Controller", GE_JS_360PAD },

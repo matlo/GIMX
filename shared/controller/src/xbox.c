@@ -98,9 +98,11 @@ static s_controller_params xbox_params =
     .max_unsigned_axis_value = xbox_max_unsigned_axis_value
 };
 
-static unsigned int xbox_report_build(int axis[AXIS_MAX], s_report_packet* report)
+static unsigned int xbox_report_build(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
-  s_report_xbox* xbox = &report->value.xbox;
+  unsigned int index = 0;
+  report[index].length = sizeof(s_report_xbox);
+  s_report_xbox* xbox = &report[index].value.xbox;
 
   int axis_value;
 
@@ -177,7 +179,7 @@ static unsigned int xbox_report_build(int axis[AXIS_MAX], s_report_packet* repor
     xbox->taxis |= 0xFF;
   }
 
-  return sizeof(*xbox);
+  return index;
 }
 
 void xbox_init(void) __attribute__((constructor (101)));

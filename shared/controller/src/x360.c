@@ -119,9 +119,11 @@ inline void axis2axis(int from, unsigned char to[2])
 
 }
 
-static unsigned int x360_report_build(int axis[AXIS_MAX], s_report_packet* report)
+static unsigned int x360_report_build(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
-  s_report_x360* x360 = &report->value.x360;
+  unsigned int index = 0;
+  report[index].length = sizeof(s_report_x360);
+  s_report_x360* x360 = &report[index].value.x360;
 
   x360->type = X360_USB_HID_IN_REPORT_ID;
   x360->size = 0x14;
@@ -155,7 +157,7 @@ static unsigned int x360_report_build(int axis[AXIS_MAX], s_report_packet* repor
   axis2axis(axis[x360a_rstick_x], x360->zaxis);
   axis2axis(-axis[x360a_rstick_y], x360->taxis);
 
-  return sizeof(*x360);
+  return index;
 }
 
 void x360_init(void) __attribute__((constructor (101)));

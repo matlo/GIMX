@@ -125,7 +125,8 @@ int connector_init()
             int usb_res = usb_init(i, adapter->type);
             if(usb_res < 0)
             {
-              if(adapter->type != C_TYPE_360_PAD
+              if((adapter->type != C_TYPE_360_PAD
+                  && adapter->type != C_TYPE_XONE_PAD)
                   || status != BYTE_STATUS_SPOOFED)
               {
                 fprintf(stderr, _("No controller was found on USB buses.\n"));
@@ -139,13 +140,13 @@ int connector_init()
             switch(adapter->type)
             {
               case C_TYPE_DS4:
-                ds4_init_report(&adapter->report.value.ds4);
+                ds4_init_report(&adapter->report[0].value.ds4);
                 break;
               case C_TYPE_T300RS_PS4:
-                t300rsPs4_init_report(&adapter->report.value.t300rsPs4);
+                t300rsPs4_init_report(&adapter->report[0].value.t300rsPs4);
                 break;
               case C_TYPE_G27_PS3:
-                g27Ps3_init_report(&adapter->report.value.g27Ps3);
+                g27Ps3_init_report(&adapter->report[0].value.g27Ps3);
                 break;
               default:
                 break;
@@ -208,7 +209,7 @@ int connector_init()
             fprintf(stderr, _("Can't initialize btds4.\n"));
             ret = -1;
           }
-          ds4_init_report(&adapter->report.value.ds4);
+          ds4_init_report(&adapter->report[0].value.ds4);
         }
         else
         {
@@ -300,14 +301,15 @@ int connector_send()
     {
       if(adapter->dst_fd >= 0)
       {
-        static unsigned char report[sizeof(adapter->axis)+2] = { BYTE_SEND_REPORT, sizeof(adapter->axis) };
+        static unsigned char report[sizeof(adapter->axis)+2] = { BYTE_IN_REPORT, sizeof(adapter->axis) };
         memcpy(report+2, adapter->axis, sizeof(adapter->axis));
         ret = udp_send(adapter->dst_fd, report, sizeof(report));
       }
       else
       {
-        s_report_packet* report = &adapter->report;
-        report->length = report_build(adapter->type, adapter->axis, report);
+        unsigned int index = report_build(adapter->type, adapter->axis, adapter->report);
+
+        s_report_packet* report = adapter->report+index;
 
         switch(adapter->type)
         {
@@ -356,7 +358,7 @@ int connector_send()
           {
             if(adapter->type != C_TYPE_PS2_PAD)
             {
-              ret = serial_send(i, report, 2+report->length);
+              ret = serial_send(i, report, HEADER_SIZE+report->length);
             }
             else
             {

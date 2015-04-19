@@ -97,9 +97,11 @@ static s_controller_params ds2_params =
     .max_unsigned_axis_value = ds2_max_unsigned_axis_value
 };
 
-static unsigned int ds2_report_build(int axis[AXIS_MAX], s_report_packet* report)
+static unsigned int ds2_report_build(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
-  s_report_ds2* ds2 = &report->value.ds2;
+  unsigned int index = 0;
+  report[index].length = sizeof(s_report_ds2);
+  s_report_ds2* ds2 = &report[index].value.ds2;
 
   ds2->head = 0x5A;
   ds2->Bt1 = 0xFF;
@@ -178,7 +180,7 @@ static unsigned int ds2_report_build(int axis[AXIS_MAX], s_report_packet* report
     ds2->Bt1 &= ~0x80;
   }
 
-  return sizeof(*ds2);
+  return index;
 }
 
 void ds2_init(void) __attribute__((constructor (101)));

@@ -28,6 +28,7 @@ static struct
   [C_TYPE_DS4]     = { .weak = 4, .strong = 5 },
   [C_TYPE_360_PAD] = { .weak = 4, .strong = 3 },
   [C_TYPE_SIXAXIS] = { .weak = 3, .strong = 5 },
+  [C_TYPE_XONE_PAD] = { .weak = 7, .strong = 6 },
 };
 
 /*
@@ -44,6 +45,10 @@ void adapter_init()
     adapter[i].type = C_TYPE_DEFAULT;
     adapter[i].dst_fd = -1;
     adapter[i].src_fd = -1;
+    for(j = 0; j < MAX_REPORTS; ++j)
+    {
+      adapter[i].report[j].type = BYTE_IN_REPORT;
+    }
   }
   for(j=0; j<E_DEVICE_TYPE_NB; ++j)
   {
@@ -152,7 +157,7 @@ int adapter_network_read(int id)
       }
     }
     break;
-  case BYTE_SEND_REPORT:
+  case BYTE_IN_REPORT:
     if(buf[1] != sizeof(adapter->axis))
     {
       fprintf(stderr, "adapter_network_read: wrong packet size\n");
@@ -241,7 +246,36 @@ int adapter_forward_control_in(int id, unsigned char* data, unsigned char length
     {
       .header =
       {
-        .type = BYTE_SPOOF_DATA,
+        .type = BYTE_CONTROL_DATA,
+        .length = length
+      }
+    };
+    memcpy(packet.value, data, length);
+    if(serial_send(id, &packet, sizeof(packet.header)+packet.header.length) < 0)
+    {
+      return -1;
+    }
+    else
+    {
+      return 0;
+    }
+  }
+  else
+  {
+    fprintf(stderr, "no serial port opened for adapter %d\n", id);
+    return -1;
+  }
+}
+
+int adapter_forward_interrupt_in(int id, unsigned char* data, unsigned char length)
+{
+  if(adapter[id].portname >= 0)
+  {
+    s_packet packet =
+    {
+      .header =
+      {
+        .type = BYTE_IN_REPORT,
         .length = length
       }
     };
@@ -272,6 +306,8 @@ int adapter_forward_interrupt_out(int id, unsigned char* data, unsigned char len
   return usb_send_interrupt_out(id, data, length);
 }
 
+static int debug = 1;
+
 static void dump(unsigned char* packet, unsigned char length)
 {
   int i;
@@ -279,11 +315,11 @@ static void dump(unsigned char* packet, unsigned char length)
   {
     if(i && !(i%8))
     {
-      printf("\n");
+      gprintf("\n");
     }
-    printf("0x%02x ", packet[i]);
+    gprintf("0x%02x ", packet[i]);
   }
-  printf("\n");
+  gprintf("\n");
 }
 
 int adapter_process_packet(int id, s_packet* packet)
@@ -294,7 +330,7 @@ int adapter_process_packet(int id, s_packet* packet)
 
   int ret = 0;
 
-  if(type == BYTE_SPOOF_DATA)
+  if(type == BYTE_CONTROL_DATA)
   {
     ret = adapter_forward_control_out(id, data, length);
 
@@ -342,6 +378,25 @@ int adapter_process_packet(int id, s_packet* packet)
       case C_TYPE_SIXAXIS:
         send = 1;
         break;
+      case C_TYPE_XONE_PAD:
+        if(data[0] != XONE_USB_HID_RUMBLE_REPORT_ID || GE_GetJSType(joystick) == GE_JS_XONEPAD)
+        {
+          if(debug)
+          {
+            gprintf("forward OUT\n");
+            dump(data, length);
+          }
+          ret = adapter_forward_interrupt_out(id, data, length);
+          if(ret < 0)
+          {
+            fprintf(stderr, "adapter_forward_interrupt_out failed\n");
+          }
+        }
+        else
+        {
+          send = 1;
+        }
+        break;
       default:
         break;
     }
@@ -362,33 +417,10 @@ int adapter_process_packet(int id, s_packet* packet)
   }
   else if(type == BYTE_DEBUG)
   {
-    /*struct timeval tv;
+    struct timeval tv;
     gettimeofday(&tv, NULL);
-    printf("%ld.%06ld debug packet received (size = %d bytes)\n", tv.tv_sec, tv.tv_usec, length);
-    dump(packet+2, length);*/
-    if(data[0] == 0x35 && data[1] == 0x20)
-    {
-      printf("%d\n", (char)data[6]);
-      /*int i;
-      int zeros = 0;
-      for(i=length-1; i>=0; --i)
-      {
-        if(data[i] != 0x00)
-        {
-          zeros = length-1-i;
-          break;
-        }
-      }
-      for(i=0; i<length-zeros; ++i)
-      {
-        printf("%02x ", data[i]);
-      }
-      printf("\n");*/
-    }
-    /*if(zeros)
-    {
-      printf("00 (%d times)\n", zeros);
-    }*/
+    gprintf("%ld.%06ld debug packet received (size = %d bytes)\n", tv.tv_sec, tv.tv_usec, length);
+    dump(packet->value, length);
     //ffb_logitech_decode(data, length);
   }
   else

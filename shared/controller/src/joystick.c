@@ -98,9 +98,11 @@ static s_controller_params joystick_params =
     .max_unsigned_axis_value = joystick_max_unsigned_axis_value
 };
 
-static unsigned int joystick_report_build(int axis[AXIS_MAX], s_report_packet* report)
+static unsigned int joystick_report_build(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
-  s_report_joystick* js = &report->value.js;
+  unsigned int index = 0;
+  report[index].length = sizeof(s_report_joystick);
+  s_report_joystick* js = &report[index].value.js;
 
   js->X = clamp(0, axis[jsa_lstick_x] + CENTER_AXIS_VALUE_16BITS, MAX_AXIS_VALUE_16BITS);
   js->Y = clamp(0, axis[jsa_lstick_y] + CENTER_AXIS_VALUE_16BITS, MAX_AXIS_VALUE_16BITS);
@@ -208,7 +210,7 @@ static unsigned int joystick_report_build(int axis[AXIS_MAX], s_report_packet* r
     js->Hat = 0x0008;
   }
 
-  return sizeof(*js);
+  return index;
 }
 
 void joystick_init(void) __attribute__((constructor (101)));

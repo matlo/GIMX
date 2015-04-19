@@ -124,9 +124,12 @@ static s_controller_params ds3_params =
     .max_unsigned_axis_value = ds3_max_unsigned_axis_value
 };
 
-static unsigned int ds3_report_build(int axis[AXIS_MAX], s_report_packet* report)
+static unsigned int ds3_report_build(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
-  s_report_ds3* ds3 = &report->value.ds3;
+  unsigned int index = 0;
+  report[index].length = sizeof(s_report_ds3);
+  s_report_ds3* ds3 = &report[index].value.ds3;
+
   unsigned char buttons1 = 0x00;
   unsigned char buttons2 = 0x00;
   unsigned char buttons3 = 0x00;
@@ -249,7 +252,7 @@ static unsigned int ds3_report_build(int axis[AXIS_MAX], s_report_packet* report
   ds3->unknown2[13] = 0x01;
   ds3->unknown2[14] = 0x80;//no rumble
 
-  return sizeof(*ds3);
+  return index;
 }
 
 void ds3_init(void) __attribute__((constructor (101)));

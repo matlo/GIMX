@@ -12,7 +12,7 @@
 #define XONE_PRODUCT 0x02d1
 
 #ifndef WIN32
-#define XONE_NAME "Microsoft X-Box 360 pad"
+#define XONE_NAME "Microsoft X-Box One pad"
 #else
 #define XONE_NAME "X360 Controller"
 #endif
@@ -45,6 +45,8 @@
 
 #define XONE_GUIDE_MASK 0x01
 
+#define XONE_USB_HID_RUMBLE_REPORT_ID 0x09
+
 typedef enum
 {
   xonea_lstick_x = rel_axis_lstick_x,
@@ -74,33 +76,30 @@ typedef struct __attribute__ ((gcc_struct,packed))
 {
   union
   {
-    unsigned char type;
-    struct
+	  unsigned char type;
+    struct __attribute__ ((gcc_struct,packed))
     {
-      struct __attribute__ ((gcc_struct,packed))
-      {
-        unsigned char type;
-        unsigned char unknown;
-        unsigned char counter;
-        unsigned char size;
-        unsigned short buttons;
-        unsigned short ltrigger;
-        unsigned short rtrigger;
-        short xaxis;
-        short yaxis;
-        short zaxis;
-        short taxis;
-      } input;
-      struct __attribute__ ((gcc_struct,packed))
-      {
-        unsigned char type;
-        unsigned char unknown1;
-        unsigned char counter;
-        unsigned char size;
-        unsigned char button;
-        unsigned char unknown2;
-      } guide;
-    } report;
+      unsigned char type;
+      unsigned char unknown;
+      unsigned char counter;
+      unsigned char size;
+      unsigned short buttons;
+      unsigned short ltrigger;
+      unsigned short rtrigger;
+      short xaxis;
+      short yaxis;
+      short zaxis;
+      short taxis;
+    } input;
+    struct __attribute__ ((gcc_struct,packed))
+    {
+      unsigned char type;
+      unsigned char unknown1;
+      unsigned char counter;
+      unsigned char size;
+      unsigned char button;
+      unsigned char unknown2;
+    } guide;
   };
 } s_report_xone;
 
