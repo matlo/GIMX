@@ -503,6 +503,13 @@ void GE_AddSourceHandle(HANDLE handle, int id, int (*fp_read)(int), int (*fp_wri
 {
   ev_register_source_handle(handle, id, fp_read, fp_write, fp_cleanup);
 }
+/*
+ * Remove an event source.
+ */
+void GE_RemoveSourceHandle(HANDLE handle)
+{
+  ev_remove_source_handle(handle);
+}
 #endif
 
 /*

@@ -446,6 +446,20 @@ void ev_register_source_handle(HANDLE handle, int id, int (*fp_read)(int), int (
   }
 }
 
+void ev_remove_source_handle(HANDLE handle)
+{
+  int i;
+  for(i=0; i<max_source; ++i)
+  {
+    if(sources[i].handle == handle)
+    {
+      memmove(sources+i, sources+i+1, (max_source-i)*sizeof(*sources));
+      --max_source;
+      break;
+    }
+  }
+}
+
 void ev_remove_source(int fd)
 {
   int i;
