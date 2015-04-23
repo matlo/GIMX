@@ -714,8 +714,9 @@ static void read_configs_txt(const char* dir_path)
 {
   char** macros_realloc = NULL;
   char line[LINE_MAX];
-  char config[PATH_MAX];
-  char macro[PATH_MAX];
+  char config[LINE_MAX];
+  char macro[LINE_MAX];
+  char extra[LINE_MAX];
   char file_path[PATH_MAX];
   FILE* fp;
   int ret;
@@ -727,11 +728,21 @@ static void read_configs_txt(const char* dir_path)
     configs_txt_present = 1;
     while (fgets(line, LINE_MAX, fp)) {
       if (line[0] != '#') {
-        ret = sscanf(line, "%s %s", config, macro);
+        // As file names may contain spaces, use '/' as a separator.
+        // File names may not contain '/'.
+        ret = sscanf(line, "%[^/]/%[^\n]", config, macro);
 
         if(ret < 2) {
-          /* invalid line */
-          return;
+          // Handle former syntax that used spaces as a separator.
+          // This was bad as file names may contain spaces.
+          // Lines with more than one space are invalid, because
+          // there is no way to tell how to split them.
+          ret = sscanf(line, "%s%s%s", config, macro, extra);
+
+          if(ret != 2) {
+            fprintf(stderr, "configs.txt: invalid line: %s", line);
+            continue;
+          }
         }
 
         if(!strcmp(config, gimx_params.config_file))
