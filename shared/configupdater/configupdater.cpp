@@ -27,6 +27,15 @@ configupdater* configupdater::_singleton = NULL;
 #define CURL_INIT_FLAGS CURL_GLOBAL_NOTHING
 #endif
 
+#ifdef WIN32
+const char * configupdater::configs_url = "https://api.github.com/repos/matlo/GIMX-configurations/contents/Windows";
+const char * configupdater::configs_download_url = "https://raw.githubusercontent.com/matlo/GIMX-configurations/master/Windows/";
+#else
+const char * configupdater::configs_url = "https://api.github.com/repos/matlo/GIMX-configurations/contents/Linux";
+const char * configupdater::configs_download_url = "https://raw.githubusercontent.com/matlo/GIMX-configurations/master/Linux/";
+#endif
+const char * configupdater::configs_file = "configs";
+
 configupdater::configupdater()
 {
   curl_global_init(CURL_INIT_FLAGS);
@@ -43,16 +52,9 @@ static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
   return written;
 }
 
-list<string>* configupdater::getconfiglist()
+int configupdater::getconfiglist(const char * url)
 {
   int ret = -1;
-  
-  configlist.clear();
-  
-  if(configs_url.empty() || configs_file.empty())
-  {
-    return NULL;
-  }
 
   string output = "";
 
@@ -71,7 +73,11 @@ list<string>* configupdater::getconfiglist()
   {
     CURL *curl_handle = curl_easy_init();
 
-    curl_easy_setopt(curl_handle, CURLOPT_URL, configs_url.c_str());
+    struct curl_slist * headers = NULL;
+    headers = curl_slist_append(headers, "Accept: application/vnd.github.v3+json");
+
+    curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(curl_handle, CURLOPT_URL, url);
     curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);
     curl_easy_setopt(curl_handle, CURLOPT_FILE, outfile);
@@ -82,25 +88,33 @@ list<string>* configupdater::getconfiglist()
       ret = 0;
     }
 
+    curl_slist_free_all(headers);
     curl_easy_cleanup(curl_handle);
 
     fclose(outfile);
   }
-  
+
   if(ret != -1)
   {
-    ifstream infile;  
+    ifstream infile;
     infile.open(output.c_str());
-    
+
     while (infile.good())
     {
       string line;
       getline(infile, line);
-      size_t pos1 = line.find(".xml\">");
-      size_t pos2 = line.find("</a>");
-      if(pos1 != string::npos && pos2 != string::npos)
+      size_t pos1 = line.find("\"name\": ");
+      if(pos1 != string::npos)
       {
-        configlist.push_back(line.substr(pos1+6, pos2-pos1-6));
+        size_t pos2 = line.find("\"", pos1 + strlen("\"name\": "));
+        if(pos2 != string::npos)
+        {
+          size_t pos3 = line.find(".xml\",", pos2 + 1);
+          if(pos3 != string::npos)
+          {
+            configlist.push_back(line.substr(pos2 + 1, pos3 + 4 - (pos2 + 1)));
+          }
+        }
       }
     }
 
@@ -109,6 +123,15 @@ list<string>* configupdater::getconfiglist()
 
   remove(output.c_str());
 
+  return ret;
+}
+
+list<string>* configupdater::getconfiglist()
+{
+  configlist.clear();
+  
+  int ret = getconfiglist(configs_url);
+  
   return (ret != -1) ? &configlist : NULL;
 }
 
@@ -123,7 +146,7 @@ int configupdater::getconfigs(list<string>* cl)
   
   for(list<string>::iterator it = cl->begin(); it != cl->end(); ++it)
   {
-    string config = configs_url + *it;
+    string config = configs_download_url + *it;
     string output = configs_dir + *it;
     
     FILE* outfile = fopen(output.c_str(), "wb");

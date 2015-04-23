@@ -1552,7 +1552,7 @@ void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event)
   string dir = string(gimxConfigDir.mb_str(wxConvUTF8));
 
   configupdater* u = configupdater::getInstance();
-  u->SetParams(CONFIGS_URL, CONFIGS_FILE, dir);
+  u->setconfigdirectory(dir);
 
   list<string>* cl;
   list<string> cl_sel;

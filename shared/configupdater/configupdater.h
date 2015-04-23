@@ -3,9 +3,6 @@
  License: GPLv3
  */
 
-#define CONFIGS_URL "http://diyps3controller.googlecode.com/svn/trunk/configurations/"
-#define CONFIGS_FILE "configs"
-
 #include <string>
 #include <list>
 
@@ -14,10 +11,8 @@ using namespace std;
 class configupdater
 {
 public:
-  void SetParams(string cu, string cf, string cd)
+  void setconfigdirectory(string cd)
   {
-    configs_url = cu;
-    configs_file = cf;
     configs_dir = cd;
   }
   list<string>* getconfiglist();
@@ -34,10 +29,13 @@ public:
 private:
   configupdater();
   virtual ~configupdater();
-  string configs_url;
-  string configs_file;
+  int getconfiglist(const char * url);
   string configs_dir;
   list<string> configlist;
+
+  static const char * configs_url;
+  static const char * configs_download_url;
+  static const char * configs_file;
 
   static configupdater* _singleton;
 };
