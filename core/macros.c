@@ -83,9 +83,20 @@ void macros_clean() {
 /*
  * Allocates an element and initializes it to 0.
  */
-void allocate_element(s_macro_event** pt) {
-    (*pt) = realloc((*pt), sizeof(s_macro_event) * (++((*pt)->size)));
-    memset((*pt) + (*pt)->size - 1, 0x00, sizeof(s_macro_event));
+int allocate_element(s_macro_event** pt) {
+  void * ptr = realloc((*pt), sizeof(s_macro_event) * ((*pt)->size + 1));
+  if(ptr)
+  {
+    (*pt) = ptr;
+    memset((*pt) + (*pt)->size, 0x00, sizeof(s_macro_event));
+    ++((*pt)->size);
+    return 0;
+  }
+  else
+  {
+    fprintf(stderr, "%s(%d): realloc failed\n", __func__, __LINE__);
+    return -1;
+  }
 }
 
 int compare_events(GE_Event* e1, GE_Event* e2)
@@ -212,32 +223,47 @@ static s_macro_event** get_macro(const char* line)
       return NULL;
     }
     
-    macro_table_nb++;
-    macro_table = realloc(macro_table, macro_table_nb*sizeof(s_macro_event*));
-    macro_table[macro_table_nb-1] = NULL;
-    pt = &(macro_table[macro_table_nb-1]);
-
-    (*pt) = calloc(2, sizeof(s_macro_event));
-    (*pt)[0].size = 2;
-    (*pt)[0].active = ACTIVE_ON;
-    
-    (*pt)[1].event.type = etype;
-    switch(etype)
+    void * ptr = realloc(macro_table, (macro_table_nb + 1) * sizeof(s_macro_event*));
+    if(ptr)
     {
-      case GE_KEYDOWN:
-      case GE_KEYUP:
-        (*pt)[1].event.key.keysym = rbutton;
-      break;
-      case GE_MOUSEBUTTONDOWN:
-      case GE_MOUSEBUTTONUP:
-        (*pt)[1].event.button.button = rbutton;
-      break;
-      case GE_JOYBUTTONDOWN:
-      case GE_JOYBUTTONUP:
-        (*pt)[1].event.jbutton.button = rbutton;
-      break;
+      macro_table = ptr;
+      macro_table[macro_table_nb] = NULL;
+      pt = &(macro_table[macro_table_nb]);
+
+      (*pt) = calloc(2, sizeof(s_macro_event));
+      if(*pt)
+      {
+        (*pt)[0].size = 2;
+        (*pt)[0].active = ACTIVE_ON;
+
+        (*pt)[1].event.type = etype;
+        switch(etype)
+        {
+          case GE_KEYDOWN:
+          case GE_KEYUP:
+            (*pt)[1].event.key.keysym = rbutton;
+          break;
+          case GE_MOUSEBUTTONDOWN:
+          case GE_MOUSEBUTTONUP:
+            (*pt)[1].event.button.button = rbutton;
+          break;
+          case GE_JOYBUTTONDOWN:
+          case GE_JOYBUTTONUP:
+            (*pt)[1].event.jbutton.button = rbutton;
+          break;
+        }
+        ++macro_table_nb;
+        return pt;
+      }
+      else
+      {
+        fprintf(stderr, "%s(%d): calloc failed\n", __func__, __LINE__);
+      }
     }
-    return pt;
+    else
+    {
+      fprintf(stderr, "%s(%d): realloc failed\n", __func__, __LINE__);
+    }
   }
   return NULL;
 }
@@ -274,28 +300,31 @@ static void get_event(const char* line)
   {
     rbutton = GE_KeyId(argument[1]);
 
-    allocate_element(pcurrent);
-
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_KEYDOWN;
-    (*pcurrent)[(*pcurrent)->size - 1].event.key.keysym = rbutton;
+    if(allocate_element(pcurrent) != -1)
+    {
+      (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_KEYDOWN;
+      (*pcurrent)[(*pcurrent)->size - 1].event.key.keysym = rbutton;
+    }
   }
   else if (!strncmp(argument[0], "KEYUP", strlen("KEYUP")))
   {
     rbutton = GE_KeyId(argument[1]);
 
-    allocate_element(pcurrent);
-
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_KEYUP;
-    (*pcurrent)[(*pcurrent)->size - 1].event.key.keysym = rbutton;
+    if(allocate_element(pcurrent) != -1)
+    {
+      (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_KEYUP;
+      (*pcurrent)[(*pcurrent)->size - 1].event.key.keysym = rbutton;
+    }
   }
   else if (!strncmp(argument[0], "KEY", strlen("KEY")))
   {
     rbutton = GE_KeyId(argument[1]);
 
-    allocate_element(pcurrent);
-
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_KEYDOWN;
-    (*pcurrent)[(*pcurrent)->size - 1].event.key.keysym = rbutton;
+    if(allocate_element(pcurrent) != -1)
+    {
+      (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_KEYDOWN;
+      (*pcurrent)[(*pcurrent)->size - 1].event.key.keysym = rbutton;
+    }
 
     delay_nb = ceil((double)DEFAULT_DELAY / (gimx_params.refresh_period/1000));
     for(i=0; i<delay_nb; ++i)
@@ -303,37 +332,41 @@ static void get_event(const char* line)
       allocate_element(pcurrent);
     }
 
-    allocate_element(pcurrent);
-
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_KEYUP;
-    (*pcurrent)[(*pcurrent)->size - 1].event.key.keysym = rbutton;
+    if(allocate_element(pcurrent) != -1)
+    {
+      (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_KEYUP;
+      (*pcurrent)[(*pcurrent)->size - 1].event.key.keysym = rbutton;
+    }
   }
   else if (!strncmp(argument[0], "MBUTTONDOWN", strlen("MBUTTONDOWN")))
   {
     rbutton = GE_MouseButtonId(argument[1]);
 
-    allocate_element(pcurrent);
-
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_MOUSEBUTTONDOWN;
-    (*pcurrent)[(*pcurrent)->size - 1].event.button.button = rbutton;
+    if(allocate_element(pcurrent) != -1)
+    {
+      (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_MOUSEBUTTONDOWN;
+      (*pcurrent)[(*pcurrent)->size - 1].event.button.button = rbutton;
+    }
   }
   else if (!strncmp(argument[0], "MBUTTONUP", strlen("MBUTTONUP")))
   {
     rbutton = GE_MouseButtonId(argument[1]);
 
-    allocate_element(pcurrent);
-
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_MOUSEBUTTONUP;
-    (*pcurrent)[(*pcurrent)->size - 1].event.button.button = rbutton;
+    if(allocate_element(pcurrent) != -1)
+    {
+      (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_MOUSEBUTTONUP;
+      (*pcurrent)[(*pcurrent)->size - 1].event.button.button = rbutton;
+    }
   }
   else if (!strncmp(argument[0], "MBUTTON", strlen("MBUTTON")))
   {
     rbutton = GE_MouseButtonId(argument[1]);
 
-    allocate_element(pcurrent);
-
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_MOUSEBUTTONDOWN;
-    (*pcurrent)[(*pcurrent)->size - 1].event.button.button = rbutton;
+    if(allocate_element(pcurrent) != -1)
+    {
+      (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_MOUSEBUTTONDOWN;
+      (*pcurrent)[(*pcurrent)->size - 1].event.button.button = rbutton;
+    }
 
     delay_nb = ceil((double)DEFAULT_DELAY / (gimx_params.refresh_period/1000));
     for(i=0; i<delay_nb; ++i)
@@ -341,36 +374,40 @@ static void get_event(const char* line)
       allocate_element(pcurrent);
     }
 
-    allocate_element(pcurrent);
-
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_MOUSEBUTTONUP;
-    (*pcurrent)[(*pcurrent)->size - 1].event.button.button = rbutton;
+    if(allocate_element(pcurrent) != -1)
+    {
+      (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_MOUSEBUTTONUP;
+      (*pcurrent)[(*pcurrent)->size - 1].event.button.button = rbutton;
+    }
   }
   else if (!strncmp(argument[0], "JBUTTONDOWN", strlen("JBUTTONDOWN")))
   {
     rbutton = atoi(argument[1]);
 
-    allocate_element(pcurrent);
-
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_JOYBUTTONDOWN;
-    (*pcurrent)[(*pcurrent)->size - 1].event.jbutton.button = rbutton;
+    if(allocate_element(pcurrent) != -1)
+    {
+      (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_JOYBUTTONDOWN;
+      (*pcurrent)[(*pcurrent)->size - 1].event.jbutton.button = rbutton;
+    }
   }
   else if (!strncmp(argument[0], "JBUTTONUP", strlen("JBUTTONUP")))
   {
     rbutton = atoi(argument[1]);
 
-    allocate_element(pcurrent);
-
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_JOYBUTTONUP;
-    (*pcurrent)[(*pcurrent)->size - 1].event.jbutton.button = rbutton;
+    if(allocate_element(pcurrent) != -1)
+    {
+      (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_JOYBUTTONUP;
+      (*pcurrent)[(*pcurrent)->size - 1].event.jbutton.button = rbutton;
+    }
   }
   else if (!strncmp(argument[0], "JBUTTON", strlen("JBUTTON"))) {
     rbutton = atoi(argument[1]);
 
-    allocate_element(pcurrent);
-
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_JOYBUTTONDOWN;
-    (*pcurrent)[(*pcurrent)->size - 1].event.jbutton.button = rbutton;
+    if(allocate_element(pcurrent) != -1)
+    {
+      (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_JOYBUTTONDOWN;
+      (*pcurrent)[(*pcurrent)->size - 1].event.jbutton.button = rbutton;
+    }
 
     delay_nb = ceil((double)DEFAULT_DELAY / (gimx_params.refresh_period/1000));
     for(i=0; i<delay_nb; ++i)
@@ -378,10 +415,11 @@ static void get_event(const char* line)
       allocate_element(pcurrent);
     }
 
-    allocate_element(pcurrent);
-
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_JOYBUTTONUP;
-    (*pcurrent)[(*pcurrent)->size - 1].event.jbutton.button = rbutton;
+    if(allocate_element(pcurrent) != -1)
+    {
+      (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_JOYBUTTONUP;
+      (*pcurrent)[(*pcurrent)->size - 1].event.jbutton.button = rbutton;
+    }
   }
   else if (!strncmp(argument[0], "DELAY", strlen("DELAY")))
   {
@@ -402,11 +440,12 @@ static void get_event(const char* line)
     raxis = atoi(argument[1]);
     rvalue = atoi(argument[2]);
 
-    allocate_element(pcurrent);
-
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_JOYAXISMOTION;
-    (*pcurrent)[(*pcurrent)->size - 1].event.jaxis.axis = raxis;
-    (*pcurrent)[(*pcurrent)->size - 1].event.jaxis.value = rvalue;
+    if(allocate_element(pcurrent) != -1)
+    {
+      (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_JOYAXISMOTION;
+      (*pcurrent)[(*pcurrent)->size - 1].event.jaxis.axis = raxis;
+      (*pcurrent)[(*pcurrent)->size - 1].event.jaxis.value = rvalue;
+    }
   }
   else if (!strncmp(argument[0], "MAXIS", strlen("MAXIS")))
   {
@@ -419,16 +458,17 @@ static void get_event(const char* line)
     raxis = atoi(argument[1]);
     rvalue = atoi(argument[2]);
 
-    allocate_element(pcurrent);
-
-    (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_MOUSEMOTION;
-    if(raxis == AXIS_X)
+    if(allocate_element(pcurrent) != -1)
     {
-      (*pcurrent)[(*pcurrent)->size - 1].event.motion.xrel = rvalue;
-    }
-    else if(raxis == AXIS_Y)
-    {
-      (*pcurrent)[(*pcurrent)->size - 1].event.motion.yrel = rvalue;
+      (*pcurrent)[(*pcurrent)->size - 1].event.type = GE_MOUSEMOTION;
+      if(raxis == AXIS_X)
+      {
+        (*pcurrent)[(*pcurrent)->size - 1].event.motion.xrel = rvalue;
+      }
+      else if(raxis == AXIS_Y)
+      {
+        (*pcurrent)[(*pcurrent)->size - 1].event.motion.yrel = rvalue;
+      }
     }
   }
 }
@@ -712,7 +752,6 @@ static unsigned char configs_txt_present = 0;
 
 static void read_configs_txt(const char* dir_path)
 {
-  char** macros_realloc = NULL;
   char line[LINE_MAX];
   char config[LINE_MAX];
   char macro[LINE_MAX];
@@ -747,12 +786,23 @@ static void read_configs_txt(const char* dir_path)
 
         if(!strcmp(config, gimx_params.config_file))
         {
-          macros_realloc = realloc(macros, (nb_macros+1)*sizeof(char*));
-          if(macros_realloc)
+          char ** ptr = realloc(macros, (nb_macros+1)*sizeof(char*));
+          if(ptr)
           {
-            macros = macros_realloc;
+            macros = ptr;
             macros[nb_macros] = strdup(macro);
-            nb_macros++;
+            if(macros[nb_macros])
+            {
+              nb_macros++;
+            }
+            else
+            {
+              fprintf(stderr, "%s(%d): strdup failed\n", __func__, __LINE__);
+            }
+          }
+          else
+          {
+            fprintf(stderr, "%s(%d): realloc failed\n", __func__, __LINE__);
           }
         }
       }
@@ -774,7 +824,6 @@ static void read_macros() {
     unsigned int i, j;
     unsigned int nb_filenames = 0;
     char** filenames = NULL;
-    char** filenames_realloc;
 #ifdef WIN32
     struct stat buf;
 #endif
@@ -793,12 +842,23 @@ static void read_macros() {
 #ifndef WIN32
       if (d->d_type == DT_REG)
       {
-        filenames_realloc = realloc(filenames, (nb_filenames+1)*sizeof(char*));
-        if(filenames_realloc)
+        char ** ptr = realloc(filenames, (nb_filenames+1)*sizeof(char*));
+        if(ptr)
         {
-          filenames = filenames_realloc;
-          nb_filenames++;
-          filenames[nb_filenames-1] = strdup(d->d_name);
+          filenames = ptr;
+          filenames[nb_filenames] = strdup(d->d_name);
+          if(filenames[nb_filenames])
+          {
+            ++nb_filenames;
+          }
+          else
+          {
+            fprintf(stderr, "%s(%d): strdup failed\n", __func__, __LINE__);
+          }
+        }
+        else
+        {
+          fprintf(stderr, "%s(%d): realloc failed\n", __func__, __LINE__);
         }
       }
 #else
@@ -807,12 +867,23 @@ static void read_macros() {
       {
         if(S_ISREG(buf.st_mode))
         {
-          filenames_realloc = realloc(filenames, (nb_filenames+1)*sizeof(char*));
-          if(filenames_realloc)
+          char ** ptr = realloc(filenames, (nb_filenames+1)*sizeof(char*));
+          if(ptr)
           {
-            filenames = filenames_realloc;
-            nb_filenames++;
-            filenames[nb_filenames-1] = strdup(d->d_name);
+            filenames = ptr;
+            filenames[nb_filenames] = strdup(d->d_name);
+            if(filenames[nb_filenames])
+            {
+              ++nb_filenames;
+            }
+            else
+            {
+              fprintf(stderr, "%s(%d): strdup failed\n", __func__, __LINE__);
+            }
+          }
+          else
+          {
+            fprintf(stderr, "%s(%d): realloc failed\n", __func__, __LINE__);
           }
         }
       }
@@ -887,13 +958,16 @@ void macros_init() {
 
 static void macro_unalloc(int index)
 {
-  s_running_macro* running_macro_realloc;
   memmove(running_macro+index, running_macro+index+1, (running_macro_nb-index-1)*sizeof(s_running_macro));
-  running_macro_realloc = realloc(running_macro, (running_macro_nb-1)*sizeof(s_running_macro));
-  if(running_macro_realloc || !(running_macro_nb-1))
+  --running_macro_nb;
+  void * ptr = realloc(running_macro, running_macro_nb*sizeof(s_running_macro));
+  if(ptr || !running_macro_nb)
   {
-    running_macro = running_macro_realloc;
-    running_macro_nb--;
+    running_macro = ptr;
+  }
+  else
+  {
+    fprintf(stderr, "%s(%d): realloc failed\n", __func__, __LINE__);
   }
 }
 
@@ -922,14 +996,18 @@ static int macro_delete(GE_Event* event)
  */
 static void macro_add(GE_Event* event, int macro)
 {
-  s_running_macro* running_macro_realloc = realloc(running_macro, (running_macro_nb+1)*sizeof(s_running_macro));
-  if(running_macro_realloc)
+  void * ptr = realloc(running_macro, (running_macro_nb+1)*sizeof(s_running_macro));
+  if(ptr)
   {
-    running_macro = running_macro_realloc;
+    running_macro = ptr;
     running_macro[running_macro_nb].event = *event;
     running_macro[running_macro_nb].macro = macro;
     running_macro[running_macro_nb].index = 1;
     running_macro_nb++;
+  }
+  else
+  {
+    fprintf(stderr, "%s(%d): realloc failed\n", __func__, __LINE__);
   }
 }
 
