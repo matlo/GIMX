@@ -40,7 +40,7 @@ typedef struct
  * This table contains pending macros.
  * Dynamically allocated.
  */
-static s_running_macro* running_macro = { NULL };
+static s_running_macro * running_macro = NULL;
 static unsigned int running_macro_nb;
 
 #define ACTIVE_OFF 0
