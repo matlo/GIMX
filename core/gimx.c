@@ -33,6 +33,8 @@
 #include "args.h"
 #include <adapter.h>
 #include <stats.h>
+#include <pcprog.h>
+#include "../directories.h"
 
 #define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
 
@@ -174,6 +176,8 @@ int main(int argc, char *argv[])
   adapter_init();
 
   serial_init();
+
+  gpppcprog_read_user_ids(gimx_params.homedir, GIMX_DIR);
 
   if(args_read(argc, argv, &gimx_params) < 0)
   {

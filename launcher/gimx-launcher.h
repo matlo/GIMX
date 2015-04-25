@@ -180,6 +180,11 @@ class launcherFrame: public wxFrame
 
         bool started;
 
+        wxString userDir;
+        wxString gimxConfigDir;
+        wxString launcherDir;
+        wxString gimxDir;
+
         wxArrayString hids;
 
         DECLARE_EVENT_TABLE()

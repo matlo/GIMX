@@ -4,7 +4,7 @@
  */
 
 #include <string.h>
-#include "gpp/pcprog.h"
+#include "../../shared/gpp/pcprog.h"
 #include "config.h"
 #include <controller2.h>
 

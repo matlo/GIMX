@@ -1,11 +1,15 @@
+#include "pcprog.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <limits.h>
 
 #include <hidapi/hidapi.h>
-#include "pcprog.h"
 
-#include <adapter.h>
+#define USB_IDS_FILE "gpp.txt"
+
+#define MAX_GPP_DEVICES 8
 
 #define GPPKG_INPUT_REPORT      0x01
 #define GPPKG_OUTPUT_REPORT     0x04
@@ -28,24 +32,78 @@ typedef struct __attribute__ ((gcc_struct,packed))
   uint8_t data[REPORT_SIZE-sizeof(s_gppReportHeader)];
 } s_gppReport;
 
-#define CONSOLETUNER_VID 0x2508
-
-#define GPP_PID     0x0001
-#define CRONUS_PID  0x0002
-#define TITAN_PID   0x0003
-
-static unsigned short product_ids[] =
+/*
+ * https://www.consoletuner.com/kbase/compatible_devices_print.htm
+ * http://controllermax.com/manual/Content/compatible_devices.htm
+ */
+GCAPI_USB_IDS usb_ids[16] =
 {
-  GPP_PID,
-  CRONUS_PID,
-  TITAN_PID,
+    { .vid = 0x2508, .pid = 0x0001, .name = "GPP"                 }, //GPP, Cronus, CronusMAX, CronusMAX v2
+    { .vid = 0x2508, .pid = 0x0002, .name = "Cronus"              }, //Cronus
+    { .vid = 0x2508, .pid = 0x0003, .name = "Titan"               }, //Titan
+    { .vid = 0x2508, .pid = 0x0004, .name = "CronusMAX v2"        }, //CronusMAX v2
+    { .vid = 0x2008, .pid = 0x0001, .name = "CronusMAX PLUS (v3)" }, //CronusMAX PLUS (v3)
+
+    // remaining space is for user-defined values!
 };
+
+static unsigned int nb_usb_ids = 5;
+
+/*
+ * Read user-defined usb ids.
+ */
+void gpppcprog_read_user_ids(const char * user_directory, const char * app_directory)
+{
+  char file_path[PATH_MAX];
+  char line[LINE_MAX];
+  FILE * fp;
+  unsigned short vid;
+  unsigned short pid;
+
+  if(nb_usb_ids == sizeof(usb_ids) / sizeof(*usb_ids))
+  {
+    fprintf(stderr, "%s: no space for any user defined usb ids!\n", __func__);
+    return;
+  }
+
+  snprintf(file_path, sizeof(file_path), "%s/%s/%s", user_directory, app_directory, USB_IDS_FILE);
+
+  fp = fopen(file_path, "r");
+  if (fp)
+  {
+    while (fgets(line, LINE_MAX, fp))
+    {
+      if(sscanf(line, "%hx %hx", &vid, &pid) == 2)
+      {
+        if(nb_usb_ids == sizeof(usb_ids) / sizeof(*usb_ids))
+        {
+          fprintf(stderr, "%s: no more space for user defined usb ids!\n", __func__);
+          break;
+        }
+        if(vid && pid)
+        {
+          usb_ids[nb_usb_ids].vid = vid;
+          usb_ids[nb_usb_ids].pid = pid;
+          usb_ids[nb_usb_ids].name = "user-defined";
+          ++nb_usb_ids;
+        }
+      }
+    }
+    fclose(fp);
+  }
+}
+
+const GCAPI_USB_IDS * gpppcprog_get_ids(unsigned int * nb)
+{
+  *nb = nb_usb_ids;
+  return usb_ids;
+}
 
 static struct
 {
-  hid_device* dev;
-  char* path;
-} devices[MAX_CONTROLLERS] = {};
+  hid_device * dev;
+  char * path;
+} devices[MAX_GPP_DEVICES] = {};
 
 int8_t gpppcprog_send(int id, uint8_t type, uint8_t *data, uint16_t length);
 
@@ -94,14 +152,14 @@ int8_t gppcprog_connect(int id, const char* device)
 
     struct hid_device_info *devs, *cur_dev;
 
-    devs = hid_enumerate(CONSOLETUNER_VID, 0x0);
+    devs = hid_enumerate(0x0000, 0x0000);
     cur_dev = devs;
     while (cur_dev)
     {
       int i;
-      for(i = 0; i < sizeof(product_ids) / sizeof(*product_ids); ++i)
+      for(i = 0; i < sizeof(usb_ids) / sizeof(*usb_ids); ++i)
       {
-        if(cur_dev->product_id == product_ids[i])
+        if(cur_dev->vendor_id == usb_ids[i].vid && cur_dev->product_id == usb_ids[i].pid)
         {
           if(!is_device_opened(cur_dev->path))
           {

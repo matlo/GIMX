@@ -36,6 +36,7 @@
 #include "../directories.h"
 #include "../shared/updater/updater.h"
 #include "../shared/configupdater/configupdater.h"
+#include "../shared/gpp/pcprog.h"
 #include <ConfigurationFile.h>
 
 #include <wx/arrstr.h>
@@ -74,10 +75,6 @@ using namespace std;
 #define GPP_NAME "GPP/Cronus/Titan"
 
 #define CONSOLETUNER_VID 0x2508
-
-wxString gimxConfigDir;
-wxString launcherDir;
-wxString gimxDir;
 
 //(*IdInit(launcherFrame)
 const long launcherFrame::ID_STATICTEXT4 = wxNewId();
@@ -484,24 +481,22 @@ void launcherFrame::readHidPorts()
   OutputChoice->Clear();
   hids.Clear();
 
-  devs = hid_enumerate(CONSOLETUNER_VID, 0x0);
+  unsigned int nb_usb_ids;
+  const GCAPI_USB_IDS * usb_ids = gpppcprog_get_ids(&nb_usb_ids);
+
+  devs = hid_enumerate(0x0000, 0x0000);
   cur_dev = devs;
   while (cur_dev)
   {
     wxString device;
-    switch(cur_dev->product_id)
+    for(unsigned int i = 0; i < nb_usb_ids; ++i)
     {
-      case 0x0001:
-        device = wxT("GPP (");
+      if(usb_ids[i].vid == cur_dev->vendor_id && usb_ids[i].pid == cur_dev->product_id)
+      {
+        device.append(wxString(usb_ids[i].name, wxConvUTF8));
+        device.append(wxT(" ("));
         break;
-      case 0x0002:
-        device = wxT("Cronus (");
-        break;
-      case 0x0003:
-        device = wxT("Titan (");
-        break;
-      default:
-        break;
+      }
     }
     if(!device.IsEmpty())
     {
@@ -939,8 +934,10 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
       }
     }
 
+    userDir = wxStandardPaths::Get().GetUserConfigDir();
+
     //migrate old config file from gimx-bluetooth
-    wxString oldConfig = wxStandardPaths::Get().GetUserConfigDir() + wxT(BLUETOOTH_DIR) + wxT("/config");
+    wxString oldConfig = userDir + wxT(BLUETOOTH_DIR) + wxT("/config");
     wxString config = launcherDir + wxT(PS3_PAIRINGS);
     if(wxFile::Exists(oldConfig) && !wxFile::Exists(config))
     {
@@ -952,8 +949,8 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
     }
 
     //migrate old config/ directory if present
-    wxString oldGimxDir = wxStandardPaths::Get().GetUserConfigDir() + wxT(OLD_GIMX_DIR);
-    gimxDir = wxStandardPaths::Get().GetUserConfigDir() + wxT(GIMX_DIR);
+    wxString oldGimxDir = userDir + wxT(OLD_GIMX_DIR);
+    gimxDir = userDir + wxT(GIMX_DIR);
     if(wxDir::Exists(oldGimxDir) && !wxDir::Exists(gimxDir))
     {
       if(!wxRenameFile(oldGimxDir, gimxDir))
@@ -981,6 +978,8 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
         exit(-1);
       }
     }
+
+    gpppcprog_read_user_ids(userDir.mb_str(wxConvUTF8), GIMX_DIR);
 
     started = false;
 

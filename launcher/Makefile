@@ -22,7 +22,7 @@ ifeq ($(OS),Windows_NT)
 LDLIBS += -lSDL2 -lintl -liconv
 endif
 
-DEPS = ../shared/configeditor/configeditor.a ../shared/event/GE.a ../shared/updater/updater.a ../shared/configupdater/configupdater.a
+DEPS = ../shared/configeditor/configeditor.a ../shared/event/GE.a ../shared/updater/updater.a ../shared/configupdater/configupdater.a ../shared/gpp/gpp.a 
 
 OBJECTS := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 

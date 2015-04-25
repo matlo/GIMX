@@ -249,9 +249,24 @@ typedef struct {
     } input[GCAPI_INPUT_TOTAL];  // Input structure (for controller entries)
 } GCAPI_REPORT;
 
+typedef struct
+{
+  unsigned short vid;
+  unsigned short pid;
+  const char * name;
+} GCAPI_USB_IDS;
+
 /* -------------------------------------------------------------------------- */
 /*   FUNCTIONS PROTOTYPES                                                     */
 /* -------------------------------------------------------------------------- */
+#ifdef __cplusplus
+extern "C" {
+#endif
+void gpppcprog_read_user_ids(const char * user_directory, const char * app_directory);
+const GCAPI_USB_IDS * gpppcprog_get_ids(unsigned int * nb);
+#ifdef __cplusplus
+};
+#endif
 int8_t gppcprog_connect(int id, const char* device);
 int8_t gppcprog_connected(int id);
 void gppcprog_disconnect(int id);
