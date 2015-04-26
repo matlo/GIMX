@@ -114,7 +114,7 @@ int allocate_event(s_macro * pt) {
   }
   else
   {
-    fprintf(stderr, "%s(%d): realloc failed\n", __func__, __LINE__);
+    fprintf(stderr, "%s:%d realloc failed\n", __FILE__, __LINE__);
     return -1;
   }
 }
@@ -216,7 +216,7 @@ static void save_axis(GE_Event * event)
     }
     else
     {
-      fprintf(stderr, "%s(%d): realloc failed\n", __func__, __LINE__);
+      fprintf(stderr, "%s:%d realloc failed\n", __FILE__, __LINE__);
     }
   }
 }
@@ -421,7 +421,7 @@ static s_macro * get_macro(const char* line)
     }
     else
     {
-      fprintf(stderr, "%s(%d): realloc failed\n", __func__, __LINE__);
+      fprintf(stderr, "%s:%d realloc failed\n", __FILE__, __LINE__);
     }
   }
   return NULL;
@@ -971,12 +971,12 @@ static void read_configs_txt(const char* dir_path)
             }
             else
             {
-              fprintf(stderr, "%s(%d): strdup failed\n", __func__, __LINE__);
+              fprintf(stderr, "%s:%d strdup failed\n", __FILE__, __LINE__);
             }
           }
           else
           {
-            fprintf(stderr, "%s(%d): realloc failed\n", __func__, __LINE__);
+            fprintf(stderr, "%s:%d realloc failed\n", __FILE__, __LINE__);
           }
         }
       }
@@ -1031,12 +1031,12 @@ static void read_macros() {
           }
           else
           {
-            fprintf(stderr, "%s(%d): strdup failed\n", __func__, __LINE__);
+            fprintf(stderr, "%s:%d strdup failed\n", __FILE__, __LINE__);
           }
         }
         else
         {
-          fprintf(stderr, "%s(%d): realloc failed\n", __func__, __LINE__);
+          fprintf(stderr, "%s:%d realloc failed\n", __FILE__, __LINE__);
         }
       }
 #else
@@ -1056,12 +1056,12 @@ static void read_macros() {
             }
             else
             {
-              fprintf(stderr, "%s(%d): strdup failed\n", __func__, __LINE__);
+              fprintf(stderr, "%s:%d strdup failed\n", __FILE__, __LINE__);
             }
           }
           else
           {
-            fprintf(stderr, "%s(%d): realloc failed\n", __func__, __LINE__);
+            fprintf(stderr, "%s:%d realloc failed\n", __FILE__, __LINE__);
           }
         }
       }
@@ -1145,7 +1145,7 @@ static void macro_unalloc(int index)
   }
   else
   {
-    fprintf(stderr, "%s(%d): realloc failed\n", __func__, __LINE__);
+    fprintf(stderr, "%s:%d realloc failed\n", __FILE__, __LINE__);
   }
 }
 
@@ -1185,7 +1185,7 @@ static void macro_add(GE_Event* event, int macro)
   }
   else
   {
-    fprintf(stderr, "%s(%d): realloc failed\n", __func__, __LINE__);
+    fprintf(stderr, "%s:%d realloc failed\n", __FILE__, __LINE__);
   }
 }
 
