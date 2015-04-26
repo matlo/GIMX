@@ -33,9 +33,9 @@ endif
 	cp -u -f /$(MSYSTEM)/bin/libidn-11.dll setup
 	cp -u -f /$(MSYSTEM)/bin/librtmp-1.dll setup
 	cp -u -f /$(MSYSTEM)/bin/libgmp-10.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libgnutls-28.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libhogweed-2-5.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libnettle-4-7.dll setup
+	cp -u -f /$(MSYSTEM)/bin/libgnutls-30.dll setup
+	cp -u -f /$(MSYSTEM)/bin/libhogweed-4-0.dll setup
+	cp -u -f /$(MSYSTEM)/bin/libnettle-6-0.dll setup
 	cp -u -f /$(MSYSTEM)/bin/libp11-kit-0.dll setup
 	cp -u -f /$(MSYSTEM)/bin/libffi-6.dll setup
 	cp -u -f /$(MSYSTEM)/bin/libtasn1-6.dll setup
@@ -53,6 +53,8 @@ endif
     mkdir -p setup/share/locale/$$po/LC_MESSAGES; \
     msgfmt -o setup/share/locale/$$po/LC_MESSAGES/gimx.mo po/$$po.po; \
   done
+	mkdir -p setup/ssl/certs
+	cp -u -f /$(MSYSTEM)/ssl/certs/ca-bundle.crt setup/ssl/certs
 
 else
 install: all

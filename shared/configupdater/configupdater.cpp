@@ -22,7 +22,7 @@
 configupdater* configupdater::_singleton = NULL;
 
 #ifdef WIN32
-#define CURL_INIT_FLAGS CURL_GLOBAL_WIN32
+#define CURL_INIT_FLAGS (CURL_GLOBAL_WIN32 | CURL_GLOBAL_SSL)
 #else
 #define CURL_INIT_FLAGS CURL_GLOBAL_NOTHING
 #endif
@@ -62,7 +62,7 @@ int configupdater::getconfiglist(const char * url)
   char temp[MAX_PATH];
   if(!GetTempPathA(sizeof(temp), temp))
   {
-    return NULL;
+    return -1;
   }
   output.append(temp);
 #endif
@@ -71,25 +71,36 @@ int configupdater::getconfiglist(const char * url)
   FILE* outfile = fopen(output.c_str(), "wb");
   if(outfile)
   {
-    CURL *curl_handle = curl_easy_init();
+    CURL * curl_handle = curl_easy_init();
 
-    struct curl_slist * headers = NULL;
-    headers = curl_slist_append(headers, "Accept: application/vnd.github.v3+json");
-
-    curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
-    curl_easy_setopt(curl_handle, CURLOPT_URL, url);
-    curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
-    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);
-    curl_easy_setopt(curl_handle, CURLOPT_FILE, outfile);
-    curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
-    int res = curl_easy_perform(curl_handle);
-    if(res == CURLE_OK)
+    if(curl_handle)
     {
-      ret = 0;
-    }
+      struct curl_slist * headers = NULL;
+      headers = curl_slist_append(headers, "Accept: application/vnd.github.v3+json");
 
-    curl_slist_free_all(headers);
-    curl_easy_cleanup(curl_handle);
+      if(headers)
+      {
+        curl_easy_setopt(curl_handle, CURLOPT_CAINFO, "ssl/certs/ca-bundle.crt");
+        curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
+        curl_easy_setopt(curl_handle, CURLOPT_URL, url);
+        curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
+        curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl_handle, CURLOPT_FILE, outfile);
+        curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+        CURLcode res = curl_easy_perform(curl_handle);
+        if(res == CURLE_OK)
+        {
+          ret = 0;
+        }
+        else
+        {
+          fprintf(stderr, "%s:%d %s\n", __FILE__, __LINE__, curl_easy_strerror(res));
+        }
+
+        curl_slist_free_all(headers);
+      }
+      curl_easy_cleanup(curl_handle);
+    }
 
     fclose(outfile);
   }
@@ -154,18 +165,26 @@ int configupdater::getconfigs(list<string>* cl)
     {
       CURL *curl_handle = curl_easy_init();
 
-      curl_easy_setopt(curl_handle, CURLOPT_URL, config.c_str());
-      curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
-      curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);
-      curl_easy_setopt(curl_handle, CURLOPT_FILE, outfile);
-      curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
-      int res = curl_easy_perform(curl_handle);
-      if(res == CURLE_OK)
+      if(curl_handle)
       {
-        ret = 0;
-      }
+        curl_easy_setopt(curl_handle, CURLOPT_CAINFO, "ssl/certs/ca-bundle.crt");
+        curl_easy_setopt(curl_handle, CURLOPT_URL, config.c_str());
+        curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
+        curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl_handle, CURLOPT_FILE, outfile);
+        curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+        CURLcode res = curl_easy_perform(curl_handle);
+        if(res == CURLE_OK)
+        {
+          ret = 0;
+        }
+        else
+        {
+          fprintf(stderr, "%s:%d %s\n", __FILE__, __LINE__, curl_easy_strerror(res));
+        }
 
-      curl_easy_cleanup(curl_handle);
+        curl_easy_cleanup(curl_handle);
+      }
 
       fclose(outfile);
     }
