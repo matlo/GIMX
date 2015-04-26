@@ -379,7 +379,7 @@ int adapter_process_packet(int id, s_packet* packet)
         send = 1;
         break;
       case C_TYPE_XONE_PAD:
-        if(data[0] != XONE_USB_HID_RUMBLE_REPORT_ID || GE_GetJSType(joystick) == GE_JS_XONEPAD)
+        if(GE_GetJSType(joystick) == GE_JS_XONEPAD)
         {
           if(debug)
           {
