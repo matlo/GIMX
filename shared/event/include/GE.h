@@ -357,7 +357,11 @@ typedef struct GE_JoyRumbleEvent {
 } GE_JoyRumbleEvent;
 
 typedef union GE_Event {
-  uint8_t type;
+  struct
+  {
+    uint8_t type;
+    uint8_t which;
+  };
   GE_KeyboardEvent key;
   GE_MouseMotionEvent motion;
   GE_MouseButtonEvent button;

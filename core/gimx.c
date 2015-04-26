@@ -123,7 +123,10 @@ int process_event(GE_Event* event)
       break;
   }
 
-  macro_lookup(event);
+  if(event->type != GE_MOUSEMOTION)
+  {
+    macro_lookup(event);
+  }
 
   return 0;
 }

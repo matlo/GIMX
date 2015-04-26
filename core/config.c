@@ -14,6 +14,7 @@
 #include <GE.h>
 #include "calibration.h"
 #include "gimx.h"
+#include "macros.h"
 #include <adapter.h>
 
 #define DEFAULT_RADIUS 512
@@ -396,6 +397,10 @@ void cfg_process_motion()
       mouse_evt.motion.which = i;
       mouse_evt.type = GE_MOUSEMOTION;
       cfg_process_event(&mouse_evt);
+
+      mouse_evt.motion.xrel = mc->x;
+      mouse_evt.motion.yrel = mc->y;
+      macro_lookup(&mouse_evt);
     }
     mc->index++;
     mc->index %= MAX_BUFFERSIZE;
