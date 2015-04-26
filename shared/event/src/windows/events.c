@@ -285,7 +285,7 @@ void ev_joystick_close(int id)
     // but we don't care as we won't use it anymore.
     if(joysticks_opened == joysticks_registered)
     {
-      SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+      SDL_QuitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC);
     }
   }
 }

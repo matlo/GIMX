@@ -18,6 +18,7 @@
 #endif
 
 #define BT_SIXAXIS_NAME "PLAYSTATION(R)3 Controller"
+#define XONE_PAD_NAME "Microsoft X-Box One pad"
 
 static struct
 {
@@ -62,6 +63,8 @@ static int grab = GE_GRAB_OFF;
 
 static GE_MK_Mode mk_mode = GE_MK_MODE_MULTIPLE_INPUTS;
 
+static int initialized = 0;
+
 /*
  * Convert an ISO-8859-1 string to an UTF-8 string.
  * The returned string is hold in a statically allocated buffer that is modified at each call.
@@ -103,11 +106,25 @@ int GE_initialize(unsigned char mkb_src)
   i = 0;
   while (i < GE_MAX_DEVICES && (name = ev_joystick_name(i)))
   {
+    joysticks[i].type = GE_JS_OTHER; //default value
+
     if (!strncmp(name, BT_SIXAXIS_NAME, sizeof(BT_SIXAXIS_NAME) - 1))
     {
       // Rename QtSixA devices.
       name = "Sony PLAYSTATION(R)3 Controller";
+      joysticks[i].type = GE_JS_SIXAXIS;
     }
+#ifdef WIN32
+    if (!strncmp(name, XONE_PAD_NAME, sizeof(XONE_PAD_NAME) - 1))
+    {
+      // In Windows, rename joysticks that are named XONE_PAD_NAME.
+      // Such controllers are registered using GE_RegisterJoystick().
+      // It's currently not possible to distinguish Xbox One controllers
+      // from Xbox 360 controllers, as Xinput does not provide controller names.
+      name = "X360 Controller";
+      joysticks[i].type = GE_JS_XONEPAD;
+    }
+#endif
 
     joysticks[i].name = strdup(_8BIT_to_UTF8(name));
 
@@ -126,14 +143,16 @@ int GE_initialize(unsigned char mkb_src)
       // Not found => the virtual index is 0.
       joysticks[i].virtualIndex = 0;
     }
-    joysticks[i].type = GE_JS_OTHER; //default value
-    // Determine if the joystick type.
-    for (j = 0; j < sizeof(js_types) / sizeof(*js_types); ++j)
+    if(joysticks[i].type == GE_JS_OTHER)
     {
-      if (!strcmp(joysticks[i].name, js_types[j].name))
+      // Determine if the joystick type.
+      for (j = 0; j < sizeof(js_types) / sizeof(*js_types); ++j)
       {
-        joysticks[i].type = js_types[j].type;
-        break;
+        if (!strcmp(joysticks[i].name, js_types[j].name))
+        {
+          joysticks[i].type = js_types[j].type;
+          break;
+        }
       }
     }
     i++;
@@ -182,6 +201,8 @@ int GE_initialize(unsigned char mkb_src)
     }
     i++;
   }
+
+  initialized = 1;
 
   return 1;
 }
@@ -265,6 +286,8 @@ void GE_quit()
   }
   GE_FreeMKames();
   ev_quit();
+
+  initialized = 0;
 }
 
 /*
@@ -347,14 +370,21 @@ void GE_SetJoystickUsed(int id)
 /*
  * \brief Register a joystick to be emulated in software.
  * 
- * \remark This function can be called before calling GE_initialize.
+ * \remark This function has to be called before calling GE_initialize.
  *
  * \param name  the name of the joystick to register.
  * 
- * \return the id of the joystick, that can be used to forge an event
+ * \return the id of the joystick, that can be used to forge a GE_Event to pass as argument to GE_PushEvent(),
+ *         or -1 if the library was already initialized
  */
 int GE_RegisterJoystick(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short))
 {
+  if(initialized)
+  {
+    fprintf(stderr, "GE_RegisterJoystick has to be called before GE_initialize.\n");
+    return -1;
+  }
+
   return ev_joystick_register(name, rumble_cb);
 }
 
