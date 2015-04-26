@@ -390,21 +390,21 @@ int usb_handle_events(int unused)
 #endif
 }
 
-//static int usb_send_interrupt_out_sync(int usb_number, unsigned char* buffer, unsigned char length)
-//{
-//  struct usb_state* state = usb_states+usb_number;
-//
-//  int transferred;
-//
-//  int ret = libusb_interrupt_transfer(state->devh, controller[C_TYPE_XONE_PAD].endpoints.out.address, buffer, length, &transferred, 1000);
-//  if(ret != LIBUSB_SUCCESS)
-//  {
-//    fprintf(stderr, "Error sending interrupt out: %s\n", libusb_strerror(ret));
-//    return -1;
-//  }
-//
-//  return 0;
-//}
+static int usb_send_interrupt_out_sync(int usb_number, unsigned char* buffer, unsigned char length)
+{
+  struct usb_state* state = usb_states+usb_number;
+
+  int transferred;
+
+  int ret = libusb_interrupt_transfer(state->devh, controller[C_TYPE_XONE_PAD].endpoints.out.address, buffer, length, &transferred, 1000);
+  if(ret != LIBUSB_SUCCESS)
+  {
+    fprintf(stderr, "Error sending interrupt out: %s\n", libusb_strerror(ret));
+    return -1;
+  }
+
+  return 0;
+}
 
 int usb_init(int usb_number, e_controller_type type)
 {
@@ -555,13 +555,8 @@ int usb_close(int usb_number)
   {
     if(state->type == C_TYPE_XONE_PAD)
     {
-      int transferred;
       unsigned char power_off[] = { 0x05, 0x20, 0x00, 0x01, 0x04 };
-      int ret = libusb_interrupt_transfer(state->devh, controller[C_TYPE_XONE_PAD].endpoints.out.address, power_off, sizeof(power_off), &transferred, 1000);
-      if(ret != LIBUSB_SUCCESS)
-      {
-        fprintf(stderr, "Error sending interrupt out: %s\n", libusb_strerror(ret));
-      }
+      usb_send_interrupt_out_sync(usb_number, power_off, sizeof(power_off));
     }
 
     //TODO: cancel and free pending transfers
