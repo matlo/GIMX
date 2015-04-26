@@ -7,6 +7,10 @@
 
 #include <hidapi/hidapi.h>
 
+#ifdef WIN32
+#define LINE_MAX 1024
+#endif
+
 #define USB_IDS_FILE "gpp.txt"
 
 #define MAX_GPP_DEVICES 8
@@ -62,7 +66,7 @@ void gpppcprog_read_user_ids(const char * user_directory, const char * app_direc
 
   if(nb_usb_ids == sizeof(usb_ids) / sizeof(*usb_ids))
   {
-    fprintf(stderr, "%s: no space for any user defined usb ids!\n", __func__);
+    fprintf(stderr, "%s:%d no space for any user defined usb ids!\n", __FILE__, __LINE__);
     return;
   }
 
@@ -77,7 +81,7 @@ void gpppcprog_read_user_ids(const char * user_directory, const char * app_direc
       {
         if(nb_usb_ids == sizeof(usb_ids) / sizeof(*usb_ids))
         {
-          fprintf(stderr, "%s: no more space for user defined usb ids!\n", __func__);
+          fprintf(stderr, "%s:%d no more space for user defined usb ids!\n", __FILE__, __LINE__);
           break;
         }
         if(vid && pid)
