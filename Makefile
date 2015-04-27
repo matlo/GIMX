@@ -54,7 +54,7 @@ endif
     msgfmt -o setup/share/locale/$$po/LC_MESSAGES/gimx.mo po/$$po.po; \
   done
 	mkdir -p setup/ssl/certs
-	cp -u -f /$(MSYSTEM)/ssl/certs/ca-bundle.crt setup/ssl/certs
+	cp -u -f /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem setup/ssl/certs/ca-bundle.crt
 
 else
 install: all

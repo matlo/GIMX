@@ -80,7 +80,9 @@ int configupdater::getconfiglist(const char * url)
 
       if(headers)
       {
+#ifdef WIN32
         curl_easy_setopt(curl_handle, CURLOPT_CAINFO, "ssl/certs/ca-bundle.crt");
+#endif
         curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl_handle, CURLOPT_URL, url);
         curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
@@ -167,7 +169,9 @@ int configupdater::getconfigs(list<string>* cl)
 
       if(curl_handle)
       {
+#ifdef WIN32
         curl_easy_setopt(curl_handle, CURLOPT_CAINFO, "ssl/certs/ca-bundle.crt");
+#endif
         curl_easy_setopt(curl_handle, CURLOPT_URL, config.c_str());
         curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
         curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);

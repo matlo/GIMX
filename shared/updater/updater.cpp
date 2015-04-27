@@ -167,7 +167,7 @@ int updater::Update()
     curl_easy_setopt(curl_handle, CURLOPT_URL, download_url.c_str());
     curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
 #ifdef WIN32
-    curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(curl_handle, CURLOPT_CAINFO, "ssl/certs/ca-bundle.crt");
 #endif
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);
     curl_easy_setopt(curl_handle, CURLOPT_FILE, outfile);
@@ -182,7 +182,7 @@ int updater::Update()
     }
     else
     {
-      fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+      fprintf(stderr, "%s:%d %s\n", __FILE__, __LINE__, curl_easy_strerror(res));
     }
 
     curl_easy_cleanup(curl_handle);
