@@ -30,6 +30,49 @@ static int nb_opened = 0;
 
 #define REPORTS_MAX 2
 
+static struct libusb_transfer ** transfers = NULL;
+static unsigned int transfers_nb = 0;
+
+static int add_transfer(struct libusb_transfer * transfer)
+{
+  void * ptr = realloc(transfers, (transfers_nb + 1) * sizeof(*transfers));
+  if (ptr)
+  {
+    transfers = ptr;
+    transfers[transfers_nb] = transfer;
+    transfers_nb++;
+    return 0;
+  }
+  else
+  {
+    fprintf(stderr, "%s:%d realloc failed\n", __FILE__, __LINE__);
+    return -1;
+  }
+}
+
+static void remove_transfer(struct libusb_transfer * transfer)
+{
+  unsigned int i;
+  for (i = 0; i < transfers_nb; ++i)
+  {
+    if (transfers[i] == transfer)
+    {
+      memmove(transfers + i, transfers + i + 1, (transfers_nb - i - 1) * sizeof(*transfers));
+      transfers_nb--;
+      void * ptr = realloc(transfers, transfers_nb * sizeof(*transfers));
+      if (ptr || !transfers_nb)
+      {
+        transfers = ptr;
+      }
+      else
+      {
+        fprintf(stderr, "%s:%d realloc failed\n", __FILE__, __LINE__);
+      }
+      break;
+    }
+  }
+}
+
 static struct
 {
   const char* name;
@@ -307,7 +350,10 @@ void usb_callback(struct libusb_transfer* transfer)
     }
     else
     {
-      fprintf(stderr, "libusb_transfer failed with status %s (bmRequestType=0x%02x, bRequest=0x%02x, wValue=0x%04x)\n", libusb_error_name(transfer->status), setup->bmRequestType, setup->bRequest, setup->wValue);
+      if(transfer->status != LIBUSB_TRANSFER_CANCELLED)
+      {
+        fprintf(stderr, "libusb_transfer failed with status %s (bmRequestType=0x%02x, bRequest=0x%02x, wValue=0x%04x)\n", libusb_error_name(transfer->status), setup->bmRequestType, setup->bRequest, setup->wValue);
+      }
     }
   }
   else if(transfer->type == LIBUSB_TRANSFER_TYPE_INTERRUPT)
@@ -331,12 +377,37 @@ void usb_callback(struct libusb_transfer* transfer)
     }
     else
     {
-      if(transfer->status != LIBUSB_TRANSFER_TIMED_OUT)
+      if(transfer->status != LIBUSB_TRANSFER_TIMED_OUT && transfer->status != LIBUSB_TRANSFER_CANCELLED)
       {
         fprintf(stderr, "libusb_transfer failed with status %s (endpoint=0x%02x)\n", libusb_error_name(transfer->status), transfer->endpoint);
       }
     }
   }
+
+  remove_transfer(transfer);
+}
+
+static int submit_transfer(struct libusb_transfer * transfer)
+{
+  /*
+   * Don't submit the transfer if it can't be added in the 'transfers' table.
+   * Otherwise it would not be possible to cleanly cancel it.
+   */
+  int ret = add_transfer(transfer);
+
+  if (ret != -1)
+  {
+    ret = libusb_submit_transfer(transfer);
+    if (ret != LIBUSB_SUCCESS)
+    {
+      fprintf(stderr, "libusb_submit_transfer: %s.\n", libusb_strerror(ret));
+      remove_transfer(transfer);
+      free(transfer->buffer);
+      libusb_free_transfer(transfer);
+      return -1;
+    }
+  }
+  return ret;
 }
 
 static int usb_poll_interrupt(int usb_number)
@@ -347,14 +418,8 @@ static int usb_poll_interrupt(int usb_number)
   unsigned int size = controller[state->type].endpoints.in.size;
   unsigned char* buf = calloc(size, sizeof(char));
   libusb_fill_interrupt_transfer(transfer, state->devh, controller[state->type].endpoints.in.address, buf, size, (libusb_transfer_cb_fn)usb_callback, usb_state_indexes+usb_number, 1000);
-  int ret = libusb_submit_transfer(transfer);
-  if(ret < 0)
-  {
-    fprintf(stderr, "libusb_submit_transfer: %s.\n", libusb_strerror(ret));
-    free(transfer->buffer);
-    libusb_free_transfer(transfer);
-  }
-  else
+  int ret = submit_transfer(transfer);
+  if(ret != -1)
   {
     state->ack = 0;
   }
@@ -396,7 +461,7 @@ static int usb_send_interrupt_out_sync(int usb_number, unsigned char* buffer, un
 
   int transferred;
 
-  int ret = libusb_interrupt_transfer(state->devh, controller[C_TYPE_XONE_PAD].endpoints.out.address, buffer, length, &transferred, 1000);
+  int ret = libusb_interrupt_transfer(state->devh, controller[state->type].endpoints.out.address, buffer, length, &transferred, 1000);
   if(ret != LIBUSB_SUCCESS)
   {
     fprintf(stderr, "Error sending interrupt out: %s\n", libusb_strerror(ret));
@@ -547,6 +612,28 @@ int usb_init(int usb_number, e_controller_type type)
   return -1;
 }
 
+/*
+ * Cancel all pending tranfers.
+ */
+static void cancel_transfers()
+{
+  unsigned int i;
+  for (i = 0; i < transfers_nb; ++i)
+  {
+    libusb_cancel_transfer(transfers[i]);
+  }
+  while (transfers_nb)
+  {
+    if (libusb_handle_events(ctx) < 0)
+    {
+      break;
+    }
+  }
+  free(transfers);
+  transfers = NULL;
+  transfers_nb = 0;
+}
+
 int usb_close(int usb_number)
 {
   struct usb_state* state = usb_states+usb_number;
@@ -559,7 +646,8 @@ int usb_close(int usb_number)
       usb_send_interrupt_out_sync(usb_number, power_off, sizeof(power_off));
     }
 
-    //TODO: cancel and free pending transfers
+    cancel_transfers();
+
     libusb_release_interface(state->devh, 0);
 #if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)
 #ifndef WIN32
@@ -622,16 +710,7 @@ int usb_send_control(int usb_number, unsigned char* buffer, unsigned char length
 
   libusb_fill_control_transfer(transfer, state->devh, buf, (libusb_transfer_cb_fn)usb_callback, usb_state_indexes+usb_number, 1000);
 
-  int ret = libusb_submit_transfer(transfer);
-  if(ret < 0)
-  {
-    fprintf(stderr, "libusb_submit_transfer: %s.\n", libusb_strerror(ret));
-    free(transfer->buffer);
-    libusb_free_transfer(transfer);
-    return -1;
-  }
-
-  return 0;
+  return submit_transfer(transfer);
 }
 
 int usb_send_interrupt_out(int usb_number, unsigned char* buffer, unsigned char length)
@@ -659,14 +738,5 @@ int usb_send_interrupt_out(int usb_number, unsigned char* buffer, unsigned char 
 
   libusb_fill_interrupt_transfer(transfer, state->devh, controller[state->type].endpoints.out.address, buf, length, (libusb_transfer_cb_fn)usb_callback, usb_state_indexes+usb_number, 1000);
 
-  int ret = libusb_submit_transfer(transfer);
-  if(ret < 0)
-  {
-    fprintf(stderr, "libusb_submit_transfer: %s.\n", libusb_strerror(ret));
-    free(transfer->buffer);
-    libusb_free_transfer(transfer);
-    return -1;
-  }
-
-  return 0;
+  return submit_transfer(transfer);
 }
