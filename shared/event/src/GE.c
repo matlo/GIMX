@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <iconv.h>
 #include <timer.h>
+#include <stdio.h>
 #ifndef WIN32
 #include <poll.h>
 #else
