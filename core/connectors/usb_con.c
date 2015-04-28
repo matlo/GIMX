@@ -493,7 +493,7 @@ int usb_init(int usb_number, e_controller_type type)
   if(!ctx)
   {
     ret = libusb_init(&ctx);
-    if(ret < 0)
+    if(ret != LIBUSB_SUCCESS)
     {
       fprintf(stderr, "libusb_init: %s.\n", libusb_strerror(ret));
       return -1;
@@ -520,7 +520,7 @@ int usb_init(int usb_number, e_controller_type type)
       {
         libusb_device_handle* devh;
         ret = libusb_open(devs[dev_i], &devh);
-        if(ret < 0)
+        if(ret != LIBUSB_SUCCESS)
         {
           fprintf(stderr, "libusb_open: %s.\n", libusb_strerror(ret));
           return -1;
@@ -539,21 +539,28 @@ int usb_init(int usb_number, e_controller_type type)
           libusb_set_auto_detach_kernel_driver(devh, 1);
 #else
 #ifndef WIN32
-          if(libusb_kernel_driver_active(devh, 0))
+          ret = libusb_kernel_driver_active(devh, 0);
+          if(ret == 1)
           {
             ret = libusb_detach_kernel_driver(devh, 0);
-            if(ret < 0)
+            if(ret != LIBUSB_SUCCESS)
             {
               fprintf(stderr, "libusb_detach_kernel_driver: %s.\n", libusb_strerror(ret));
               libusb_close(devh);
               return -1;
             }
           }
+          else if(ret != LIBUSB_SUCCESS)
+          {
+            fprintf(stderr, "libusb_kernel_driver_active: %s.\n", libusb_strerror(ret));
+            libusb_close(devh);
+            return -1;
+          }
 #endif
 #endif
 
           ret = libusb_claim_interface(devh, 0);
-          if(ret < 0)
+          if(ret != LIBUSB_SUCCESS)
           {
             fprintf(stderr, "libusb_claim_interface: %s.\n", libusb_strerror(ret));
             libusb_close(devh);
@@ -624,7 +631,7 @@ static void cancel_transfers()
   }
   while (transfers_nb)
   {
-    if (libusb_handle_events(ctx) < 0)
+    if (libusb_handle_events(ctx) != LIBUSB_SUCCESS)
     {
       break;
     }
