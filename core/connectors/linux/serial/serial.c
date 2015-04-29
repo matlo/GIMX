@@ -184,7 +184,15 @@ int serial_open(int id, char* portname)
  */
 int serial_send(int id, void* pdata, unsigned int size)
 {
-  return write(serials[id].fd, pdata, size);
+  int ret = write(serials[id].fd, pdata, size);
+
+  if(ret == -1)
+  {
+    fprintf(stderr, "%s:%d ", __FILE__, __LINE__);
+    perror("write");
+  }
+
+  return ret;
 }
 
 /*
@@ -282,6 +290,7 @@ static int serial_callback(int id)
     }
     else
     {
+      fprintf(stderr, "%s:%d ", __FILE__, __LINE__);
       perror("read");
       ret = -1;
     }
@@ -306,6 +315,7 @@ static int serial_callback(int id)
     }
     else
     {
+      fprintf(stderr, "%s:%d ", __FILE__, __LINE__);
       perror("read");
       ret = -1;
     }

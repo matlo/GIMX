@@ -49,6 +49,7 @@ void adapter_init()
     {
       adapter[i].report[j].type = BYTE_IN_REPORT;
     }
+    adapter[i].status = 0;
   }
   for(j=0; j<E_DEVICE_TYPE_NB; ++j)
   {
@@ -303,6 +304,10 @@ int adapter_forward_control_out(int id, unsigned char* data, unsigned char lengt
 
 int adapter_forward_interrupt_out(int id, unsigned char* data, unsigned char length)
 {
+  if(adapter[id].type == C_TYPE_XONE_PAD && data[0] == 0x06 && data[1] == 0x20)
+  {
+    adapter[id].status = 1;
+  }
   return usb_send_interrupt_out(id, data, length);
 }
 
@@ -379,7 +384,7 @@ int adapter_process_packet(int id, s_packet* packet)
         send = 1;
         break;
       case C_TYPE_XONE_PAD:
-        if(GE_GetJSType(joystick) == GE_JS_XONEPAD)
+        if(GE_GetJSType(joystick) == GE_JS_XONEPAD || !adapter->status)
         {
           if(debug)
           {

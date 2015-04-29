@@ -115,6 +115,12 @@ int connector_init()
                   }
                 }
                 break;
+              case C_TYPE_XONE_PAD:
+                if(status == BYTE_STATUS_SPOOFED)
+                {
+                  adapter->status = 1;
+                }
+                break;
               default:
                 break;
             }
@@ -352,6 +358,12 @@ int connector_send()
           break;
         case C_TYPE_GPP:
           ret = gpp_send(i, adapter->type, adapter->axis);
+          break;
+        case C_TYPE_XONE_PAD:
+          if(adapter->status)
+          {
+            ret = serial_send(i, report, HEADER_SIZE+report->length);
+          }
           break;
         default:
           if(adapter->portname)

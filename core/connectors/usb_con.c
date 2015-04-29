@@ -306,7 +306,7 @@ static void process_report(int usb_number, struct usb_state * state, struct libu
 
   if(i == controller[state->type].endpoints.in.reports.nb)
   {
-    if(state->type == C_TYPE_XONE_PAD)
+    if(state->type == C_TYPE_XONE_PAD && !adapter_get(usb_number)->status)
     {
       if(debug)
       {
@@ -582,16 +582,17 @@ int usb_init(int usb_number, e_controller_type type)
             free(pfd_usb);
 #endif
 
-//            if(state->type == C_TYPE_XONE_PAD)
-//            {
-//              //warning: make sure not to make any libusb async io before this!
-//
-//              unsigned char activate_rumble0[] = { 0x05, 0x20, 0x00, 0x01, 0x00 };
-//              usb_send_interrupt_out_sync(usb_number, activate_rumble0, sizeof(activate_rumble0));
-//
-//              unsigned char activate_rumble[] = { 0x09, 0x00, 0x00, 0x09, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00 };
-//              usb_send_interrupt_out_sync(usb_number, activate_rumble, sizeof(activate_rumble));
-//            }
+            if(state->type == C_TYPE_XONE_PAD && adapter_get(usb_number)->status)
+            {
+              //
+              //warning: make sure not to make any libusb async io before this!
+
+              unsigned char activate[] = { 0x05, 0x20, 0x00, 0x01, 0x00 };
+              usb_send_interrupt_out_sync(usb_number, activate, sizeof(activate));
+
+              unsigned char activate_rumble[] = { 0x09, 0x00, 0x00, 0x09, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00 };
+              usb_send_interrupt_out_sync(usb_number, activate_rumble, sizeof(activate_rumble));
+            }
 
             if(usb_poll_interrupt(usb_number) == LIBUSB_SUCCESS)
             {
