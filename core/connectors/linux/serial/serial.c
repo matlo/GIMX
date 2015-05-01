@@ -188,8 +188,7 @@ int serial_send(int id, void* pdata, unsigned int size)
 
   if(ret == -1)
   {
-    fprintf(stderr, "%s:%d ", __FILE__, __LINE__);
-    perror("write");
+    fprintf(stderr, "%s:%d write: %m", __FILE__, __LINE__);
   }
 
   return ret;
@@ -290,8 +289,7 @@ static int serial_callback(int id)
     }
     else
     {
-      fprintf(stderr, "%s:%d ", __FILE__, __LINE__);
-      perror("read");
+      fprintf(stderr, "%s:%d read: %m", __FILE__, __LINE__);
       ret = -1;
     }
   }
@@ -315,8 +313,7 @@ static int serial_callback(int id)
     }
     else
     {
-      fprintf(stderr, "%s:%d ", __FILE__, __LINE__);
-      perror("read");
+      fprintf(stderr, "%s:%d read: %m", __FILE__, __LINE__);
       ret = -1;
     }
   }
