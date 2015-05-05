@@ -296,20 +296,23 @@ int xinput_init()
 
 void xinput_quit()
 {
-  ev_remove_source(ConnectionNumber(dpy));
-
-  XDestroyWindow(dpy, win);
-
-  XWarpPointer(dpy, None, DefaultRootWindow(dpy), 0, 0, 0, 0, mouse_coordinates.x, mouse_coordinates.y);
-
-  XCloseDisplay(dpy);
-  dpy = NULL;
-
-  int i;
-  for(i=0; i<nb_devices; ++i)
+  if(dpy)
   {
-    free(devices[i].name);
-    devices[i].name = NULL;
+    ev_remove_source(ConnectionNumber(dpy));
+
+    XDestroyWindow(dpy, win);
+
+    XWarpPointer(dpy, None, DefaultRootWindow(dpy), 0, 0, 0, 0, mouse_coordinates.x, mouse_coordinates.y);
+
+    XCloseDisplay(dpy);
+    dpy = NULL;
+
+    int i;
+    for(i=0; i<nb_devices; ++i)
+    {
+      free(devices[i].name);
+      devices[i].name = NULL;
+    }
   }
 }
 
