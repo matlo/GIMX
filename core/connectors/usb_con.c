@@ -240,6 +240,7 @@ static struct usb_state {
     unsigned char report_id;
     s_report_packet report;
   } reports[REPORTS_MAX];
+  unsigned char counter; // this is used for the Xbox One (interrupt out)
 } usb_states[MAX_CONTROLLERS];
 
 static int usb_poll_interrupt(int usb_number);
@@ -271,6 +272,11 @@ static void process_report(int usb_number, struct usb_state * state, struct libu
     {
       if(transfer->actual_length == report_length)
       {
+        if(state->type == C_TYPE_XONE_PAD && !adapter_get(usb_number)->status)
+        {
+          break;
+        }
+
         s_report* current = (s_report*) transfer->buffer;
         s_report* previous = &state->reports[i].report.value;
 
@@ -461,6 +467,11 @@ static int usb_send_interrupt_out_sync(int usb_number, unsigned char* buffer, un
 
   int transferred;
 
+  if(state->type == C_TYPE_XONE_PAD && length > 2)
+  {
+    buffer[2] = state->counter++;
+  }
+
   int ret = libusb_interrupt_transfer(state->devh, controller[state->type].endpoints.out.address, buffer, length, &transferred, 1000);
   if(ret != LIBUSB_SUCCESS)
   {
@@ -559,6 +570,14 @@ int usb_init(int usb_number, e_controller_type type)
 #endif
 #endif
 
+          ret = libusb_set_configuration(devh, 1);
+          if(ret != LIBUSB_SUCCESS)
+          {
+            fprintf(stderr, "libusb_set_configuration: %s.\n", libusb_strerror(ret));
+            libusb_close(devh);
+            return -1;
+          }
+
           ret = libusb_claim_interface(devh, 0);
           if(ret != LIBUSB_SUCCESS)
           {
@@ -584,7 +603,8 @@ int usb_init(int usb_number, e_controller_type type)
 
             if(state->type == C_TYPE_XONE_PAD && adapter_get(usb_number)->status)
             {
-              //
+              //if the authentication was already performed, activate the controller
+
               //warning: make sure not to make any libusb async io before this!
 
               unsigned char activate[] = { 0x05, 0x20, 0x00, 0x01, 0x00 };
@@ -739,6 +759,11 @@ int usb_send_interrupt_out(int usb_number, unsigned char* buffer, unsigned char 
   }
 
   memcpy(buf, buffer, length);
+
+  if(state->type == C_TYPE_XONE_PAD && length > 2)
+  {
+    buf[2] = state->counter++;
+  }
 
   struct libusb_transfer* transfer = libusb_alloc_transfer(0);
 

@@ -116,9 +116,24 @@ int connector_init()
                 }
                 break;
               case C_TYPE_XONE_PAD:
+              case C_TYPE_360_PAD:
                 if(status == BYTE_STATUS_SPOOFED)
                 {
                   adapter->status = 1;
+                }
+                else
+                {
+                  if(adapter_send_reset(i) < 0)
+                  {
+                    fprintf(stderr, _("Can't reset the adapter.\n"));
+                    ret = -1;
+                  }
+                  else
+                  {
+                    printf(_("Reset sent to the adapter.\n"));
+                    //Leave time for the adapter to reinitialize.
+                    usleep(ADAPTER_RESET_TIME);
+                  }
                 }
                 break;
               default:
