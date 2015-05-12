@@ -278,7 +278,8 @@ static s_macro * pcurrent = NULL;
 static s_macro * get_macro(const char* line)
 {
   int etype = -1;
-  int rbutton, raxis;
+  int rbutton = 0;
+  int raxis = 0;
   s_axis_range range;
   char argument[4][LINE_MAX];
   s_macro * pt;
