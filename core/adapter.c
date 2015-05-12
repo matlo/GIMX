@@ -311,7 +311,7 @@ int adapter_forward_interrupt_out(int id, unsigned char* data, unsigned char len
   return usb_send_interrupt_out(id, data, length);
 }
 
-static int debug = 1;
+static int debug = 0;
 
 static void dump(unsigned char* packet, unsigned char length)
 {

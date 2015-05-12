@@ -245,7 +245,7 @@ static struct usb_state {
 
 static int usb_poll_interrupt(int usb_number);
 
-static int debug = 1;
+static int debug = 0;
 
 static void dump(unsigned char* packet, unsigned char length)
 {
