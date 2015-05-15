@@ -5,6 +5,12 @@
 
 #include <stdio.h>
 
+#ifdef WIN32
+#define GIMX_PACKED __attribute__((gcc_struct, packed))
+#else
+#define GIMX_PACKED __attribute__((packed))
+#endif
+
 typedef enum
 {
   E_DOWNLOAD = 0x00,
@@ -45,12 +51,12 @@ typedef enum
   E_FRICTION = 0x0E,
 } e_force;
 
-typedef struct __attribute__ ((gcc_struct,packed))
+typedef struct GIMX_PACKED
 {
   unsigned char cmdAndForce;
 } s_header;
 
-typedef struct __attribute__ ((gcc_struct,packed))
+typedef struct GIMX_PACKED
 {
   s_header header;
 

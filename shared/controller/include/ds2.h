@@ -32,7 +32,7 @@ typedef enum
   ds2a_r3 = abs_axis_16,
 } e_ds2_axis_index;
 
-typedef struct __attribute__ ((gcc_struct,packed))
+typedef struct GIMX_PACKED
 {
   unsigned char head;
   unsigned char Bt1;

@@ -123,7 +123,7 @@ typedef enum
   x360a_RS = abs_axis_16,
 } e_x360_axis_index;
 
-typedef struct __attribute__ ((gcc_struct,packed))
+typedef struct GIMX_PACKED
 {
   unsigned char type;
   unsigned char size;

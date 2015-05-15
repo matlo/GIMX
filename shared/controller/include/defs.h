@@ -6,6 +6,12 @@
 #ifndef DEFS_H_
 #define DEFS_H_
 
+#ifdef WIN32
+#define GIMX_PACKED __attribute__((gcc_struct, packed))
+#else
+#define GIMX_PACKED __attribute__((packed))
+#endif
+
 typedef enum
 {
   C_TYPE_JOYSTICK = 0,

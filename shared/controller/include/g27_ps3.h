@@ -40,7 +40,7 @@ typedef enum
 /*
  *
  */
-typedef struct __attribute__ ((gcc_struct,packed))
+typedef struct GIMX_PACKED
 {
   unsigned char hatAndButtons; //4 LSB = hat, 4 MSB = buttons
   unsigned short buttons;

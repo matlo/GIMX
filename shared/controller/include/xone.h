@@ -68,12 +68,12 @@ typedef enum
   xonea_RS = abs_axis_16,
 } e_xone_axis_index;
 
-typedef struct __attribute__ ((gcc_struct,packed))
+typedef struct GIMX_PACKED
 {
   union
   {
 	  unsigned char type;
-    struct __attribute__ ((gcc_struct,packed))
+    struct GIMX_PACKED
     {
       unsigned char type;
       unsigned char unknown;
@@ -87,7 +87,7 @@ typedef struct __attribute__ ((gcc_struct,packed))
       short zaxis;
       short taxis;
     } input;
-    struct __attribute__ ((gcc_struct,packed))
+    struct GIMX_PACKED
     {
       unsigned char type;
       unsigned char unknown1;

@@ -118,7 +118,7 @@ struct btds4_state_sys {
     uint8_t rumble[2];
 };
 
-typedef struct __attribute__ ((gcc_struct,packed)) {
+typedef struct GIMX_PACKED {
   unsigned char header;
   unsigned char code;
   unsigned char unknown1;

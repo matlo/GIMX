@@ -143,27 +143,27 @@ typedef enum
   ds4a_finger2 = abs_axis_19,
 } e_ds4_axis_index;
 
-typedef struct __attribute__ ((gcc_struct,packed))
+typedef struct GIMX_PACKED
 {
   unsigned char id;
   unsigned char coords[3];
 } s_trackpad_finger;
 
-typedef struct __attribute__ ((gcc_struct,packed))
+typedef struct GIMX_PACKED
 {
   unsigned char counter;
   s_trackpad_finger finger1;
   s_trackpad_finger finger2;
 } s_trackpad_packet;
 
-typedef struct __attribute__ ((gcc_struct,packed))
+typedef struct GIMX_PACKED
 {
   short x;
   short y;
   short z;
 } s_motion_acc;
 
-typedef struct __attribute__ ((gcc_struct,packed))
+typedef struct GIMX_PACKED
 {
   short roll;
   short yaw;
@@ -173,7 +173,7 @@ typedef struct __attribute__ ((gcc_struct,packed))
 /*
  *
  */
-typedef struct __attribute__ ((gcc_struct,packed))
+typedef struct GIMX_PACKED
 {
   unsigned char report_id; //USB: 0x01, BT: 0x00
   unsigned char X;

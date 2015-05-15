@@ -8,15 +8,21 @@
 
 #include <limits.h>
 
+#ifdef WIN32
+#define GIMX_PACKED __attribute__((gcc_struct, packed))
+#else
+#define GIMX_PACKED __attribute__((packed))
+#endif
+
 #define BUFFER_SIZE (UCHAR_MAX+1)
 
-typedef struct __attribute__ ((gcc_struct,packed))
+typedef struct GIMX_PACKED
 {
   unsigned char type;
   unsigned char length;
 } s_header;
 
-typedef struct __attribute__ ((gcc_struct,packed))
+typedef struct GIMX_PACKED
 {
   s_header header;
   unsigned char value[BUFFER_SIZE];

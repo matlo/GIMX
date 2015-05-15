@@ -8,6 +8,12 @@
 #include <hidapi/hidapi.h>
 
 #ifdef WIN32
+#define GIMX_PACKED __attribute__((gcc_struct, packed))
+#else
+#define GIMX_PACKED __attribute__((packed))
+#endif
+
+#ifdef WIN32
 #define LINE_MAX 1024
 #endif
 
@@ -22,14 +28,14 @@
 
 #define REPORT_SIZE 64
 
-typedef struct __attribute__ ((gcc_struct,packed))
+typedef struct GIMX_PACKED
 {
   uint8_t type;
   uint16_t length;
   uint8_t first;
 } s_gppReportHeader;
 
-typedef struct __attribute__ ((gcc_struct,packed))
+typedef struct GIMX_PACKED
 {
   uint8_t reportId;
   s_gppReportHeader header;
