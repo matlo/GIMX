@@ -1,7 +1,25 @@
-DIRS=controller event updater configupdater configeditor gpp
+DIRS = controller event updater configupdater configeditor gpp
 
-all:
-	+for i in $(DIRS); do $(MAKE) -C $$i all; done
+BUILDDIRS = $(DIRS:%=build-%)
+INSTALLDIRS = $(DIRS:%=install-%)
+CLEANDIRS = $(DIRS:%=clean-%)
+UNINSTALLDIRS = $(DIRS:%=uninstall-%)
 
-clean:
-	+for i in $(DIRS); do $(MAKE) -C $$i clean; done
+all: $(BUILDDIRS)
+$(DIRS): $(BUILDDIRS)
+$(BUILDDIRS):
+	$(MAKE) -C $(@:build-%=%)
+
+build-configeditor: build-controller
+
+clean: $(CLEANDIRS)
+$(CLEANDIRS): 
+	$(MAKE) -C $(@:clean-%=%) clean
+
+install: $(INSTALLDIRS) all
+$(INSTALLDIRS): ;
+
+.PHONY: subdirs $(DIRS)
+.PHONY: subdirs $(BUILDDIRS)
+.PHONY: subdirs $(CLEANDIRS)
+.PHONY: all clean

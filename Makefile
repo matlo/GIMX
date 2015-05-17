@@ -1,14 +1,27 @@
-DIRS=shared utils core config launcher fpsconfig
+DIRS = utils shared core config launcher fpsconfig
 
 ifneq ($(OS),Windows_NT)
 DIRS+= po
 endif
 
-all:
-	+for i in $(DIRS); do $(MAKE) -C $$i all; done
+BUILDDIRS = $(DIRS:%=build-%)
+INSTALLDIRS = $(DIRS:%=install-%)
+CLEANDIRS = $(DIRS:%=clean-%)
+UNINSTALLDIRS = $(DIRS:%=uninstall-%)
 
-clean:
-	+for i in $(DIRS); do $(MAKE) -C $$i clean; done
+all: $(BUILDDIRS)
+$(DIRS): $(BUILDDIRS)
+$(BUILDDIRS):
+	$(MAKE) -C $(@:build-%=%)
+
+build-core: build-shared
+build-config: build-shared
+build-launcher: build-shared
+build-fpsconfig: build-shared
+
+clean: $(CLEANDIRS)
+$(CLEANDIRS): 
+	$(MAKE) -C $(@:clean-%=%) clean
 
 ifeq ($(OS),Windows_NT)
 install: all
@@ -56,12 +69,26 @@ endif
 	mkdir -p setup/ssl/certs
 	cp -u -f /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem setup/ssl/certs/ca-bundle.crt
 
+.PHONY: subdirs $(DIRS)
+.PHONY: subdirs $(BUILDDIRS)
+.PHONY: subdirs $(CLEANDIRS)
+.PHONY: all install clean
 else
-install: all
-	for i in $(DIRS); do $(MAKE) -C $$i install; done
 
-uninstall:
-	-for i in $(DIRS); do $(MAKE) -C $$i uninstall; done
+install: $(INSTALLDIRS) all
+$(INSTALLDIRS):
+	$(MAKE) -C $(@:install-%=%) install
+
+uninstall: $(UNINSTALLDIRS) all
+$(UNINSTALLDIRS):
+	$(MAKE) -C $(@:uninstall-%=%) uninstall
 
 really-clean: clean uninstall
+
+.PHONY: subdirs $(DIRS)
+.PHONY: subdirs $(BUILDDIRS)
+.PHONY: subdirs $(INSTALLDIRS)
+.PHONY: subdirs $(UNINSTALLDIRS)
+.PHONY: subdirs $(CLEANDIRS)
+.PHONY: all install uninstall clean
 endif
