@@ -78,6 +78,8 @@ static struct
   const char* name;
   unsigned short vendor;
   unsigned short product;
+  int configuration;
+  int interface;
   struct
   {
     struct
@@ -107,6 +109,8 @@ static struct
     .name = DS4_DEVICE_NAME,
     .vendor = DS4_VENDOR,
     .product = DS4_PRODUCT,
+    .configuration = 1,
+    .interface = 0,
     .endpoints =
     {
       .in =
@@ -137,6 +141,8 @@ static struct
     .name = DS4_DEVICE_NAME,
     .vendor = DS4_VENDOR,
     .product = DS4_PRODUCT,
+    .configuration = 1,
+    .interface = 0,
     .endpoints =
     {
       .in =
@@ -167,6 +173,8 @@ static struct
     .name = X360_NAME,
     .vendor = X360_VENDOR,
     .product = X360_PRODUCT,
+    .configuration = 1,
+    .interface = 0,
     .endpoints =
     {
       .in =
@@ -197,6 +205,8 @@ static struct
     .name = XONE_NAME,
     .vendor = XONE_VENDOR,
     .product = XONE_PRODUCT,
+    .configuration = 1,
+    .interface = 0,
     .endpoints =
     {
       .in =
@@ -570,15 +580,28 @@ int usb_init(int usb_number, e_controller_type type)
 #endif
 #endif
 
-          ret = libusb_set_configuration(devh, 1);
+          int config;
+
+          ret = libusb_get_configuration(devh, &config);
           if(ret != LIBUSB_SUCCESS)
           {
-            fprintf(stderr, "libusb_set_configuration: %s.\n", libusb_strerror(ret));
+            fprintf(stderr, "libusb_get_configuration: %s.\n", libusb_strerror(ret));
             libusb_close(devh);
             return -1;
           }
 
-          ret = libusb_claim_interface(devh, 0);
+          if(config != controller[state->type].configuration)
+          {
+            ret = libusb_set_configuration(devh, controller[state->type].configuration);
+            if(ret != LIBUSB_SUCCESS)
+            {
+              fprintf(stderr, "libusb_set_configuration: %s.\n", libusb_strerror(ret));
+              libusb_close(devh);
+              return -1;
+            }
+          }
+
+          ret = libusb_claim_interface(devh, controller[state->type].interface);
           if(ret != LIBUSB_SUCCESS)
           {
             fprintf(stderr, "libusb_claim_interface: %s.\n", libusb_strerror(ret));
