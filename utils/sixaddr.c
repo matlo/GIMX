@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
     ret = libusb_get_configuration(devh, &config);
     if(ret != LIBUSB_SUCCESS)
     {
-      fprintf(stderr, "libusb_set_configuration: %s.\n", libusb_strerror(ret));
+      fprintf(stderr, "Can't get configuration: %s.\n", libusb_strerror(ret));
       continue;
     }
 
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
       ret = libusb_set_configuration(devh, 1);
       if(ret != LIBUSB_SUCCESS)
       {
-        fprintf(stderr, "libusb_set_configuration: %s.\n", libusb_strerror(ret));
+        fprintf(stderr, "Can't set configuration: %s.\n", libusb_strerror(ret));
         continue;
       }
     }
