@@ -255,22 +255,6 @@ static struct usb_state {
 
 static int usb_poll_interrupt(int usb_number);
 
-static int debug = 0;
-
-static void dump(unsigned char* packet, unsigned char length)
-{
-  int i;
-  for(i=0; i<length; ++i)
-  {
-    if(i && !(i%8))
-    {
-      gprintf("\n");
-    }
-    gprintf("0x%02x ", packet[i]);
-  }
-  gprintf("\n");
-}
-
 static void process_report(int usb_number, struct usb_state * state, struct libusb_transfer * transfer)
 {
   int i;
@@ -324,11 +308,6 @@ static void process_report(int usb_number, struct usb_state * state, struct libu
   {
     if(state->type == C_TYPE_XONE_PAD && !adapter_get(usb_number)->status)
     {
-      if(debug)
-      {
-        gprintf("forward IN\n");
-        dump(transfer->buffer, transfer->actual_length);
-      }
       if(adapter_forward_interrupt_in(usb_number, transfer->buffer, transfer->actual_length) < 0)
       {
         fprintf(stderr, "can't forward interrupt data to the adapter\n");

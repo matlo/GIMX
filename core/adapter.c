@@ -239,10 +239,34 @@ int adapter_get_controller(e_device_type device_type, int device_id)
   return device_adapter[device_type-1][device_id];
 }
 
+static int debug = 0;
+
+static void dump(unsigned char* packet, unsigned char length)
+{
+  int i;
+  for(i=0; i<length; ++i)
+  {
+    if(i && !(i%8))
+    {
+      gprintf("\n");
+    }
+    gprintf("0x%02x ", packet[i]);
+  }
+  gprintf("\n");
+}
+
+#define DEBUG_PACKET(PACKET, LENGTH) \
+  if(debug) \
+  { \
+    gprintf("%s\n", __func__); \
+    dump(data, length); \
+  }
+
 int adapter_forward_control_in(int id, unsigned char* data, unsigned char length)
 {
   if(adapter[id].portname >= 0)
   {
+    DEBUG_PACKET(data, length)
     s_packet packet =
     {
       .header =
@@ -272,6 +296,7 @@ int adapter_forward_interrupt_in(int id, unsigned char* data, unsigned char leng
 {
   if(adapter[id].portname >= 0)
   {
+    DEBUG_PACKET(data, length)
     s_packet packet =
     {
       .header =
@@ -299,32 +324,18 @@ int adapter_forward_interrupt_in(int id, unsigned char* data, unsigned char leng
 
 int adapter_forward_control_out(int id, unsigned char* data, unsigned char length)
 {
+  DEBUG_PACKET(data, length)
   return usb_send_control(id, data, length);
 }
 
 int adapter_forward_interrupt_out(int id, unsigned char* data, unsigned char length)
 {
+  DEBUG_PACKET(data, length)
   if(adapter[id].type == C_TYPE_XONE_PAD && data[0] == 0x06 && data[1] == 0x20)
   {
     adapter[id].status = 1;
   }
   return usb_send_interrupt_out(id, data, length);
-}
-
-static int debug = 0;
-
-static void dump(unsigned char* packet, unsigned char length)
-{
-  int i;
-  for(i=0; i<length; ++i)
-  {
-    if(i && !(i%8))
-    {
-      gprintf("\n");
-    }
-    gprintf("0x%02x ", packet[i]);
-  }
-  gprintf("\n");
 }
 
 int adapter_process_packet(int id, s_packet* packet)
@@ -386,11 +397,6 @@ int adapter_process_packet(int id, s_packet* packet)
       case C_TYPE_XONE_PAD:
         if(GE_GetJSType(joystick) == GE_JS_XONEPAD || !adapter->status)
         {
-          if(debug)
-          {
-            gprintf("forward OUT\n");
-            dump(data, length);
-          }
           ret = adapter_forward_interrupt_out(id, data, length);
           if(ret < 0)
           {
