@@ -176,7 +176,7 @@ int process_device(libusb_device_handle* devh)
 #ifdef WIN32
       for(i=0; i<16; ++i)
       {
-        i_lk[i] = i_lk[i];
+        lk[i] = i_lk[i];
       }
 #endif
     }
@@ -187,9 +187,9 @@ int process_device(libusb_device_handle* devh)
   if (slave)
   {
 #ifdef WIN32
-    if (sscanf(master, "%2x:%2x:%2x:%2x:%2x:%2x", i_bdaddr, i_bdaddr+1, i_bdaddr+2, i_bdaddr+3, i_bdaddr+4, i_bdaddr+5) != 6)
+    if (sscanf(slave, "%2x:%2x:%2x:%2x:%2x:%2x", i_bdaddr, i_bdaddr+1, i_bdaddr+2, i_bdaddr+3, i_bdaddr+4, i_bdaddr+5) != 6)
 #else
-    if (sscanf(master, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx", bdaddr, bdaddr+1, bdaddr+2, bdaddr+3, bdaddr+4, bdaddr+5) != 6)
+    if (sscanf(slave, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx", bdaddr, bdaddr+1, bdaddr+2, bdaddr+3, bdaddr+4, bdaddr+5) != 6)
 #endif
     {
       usage();
