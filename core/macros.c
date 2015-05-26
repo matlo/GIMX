@@ -31,7 +31,19 @@ static unsigned char debug = 0;
 
 typedef struct
 {
-  GE_Event event;
+  short min;
+  short max;
+} s_axis_range;
+
+typedef struct
+{
+  GE_Event event; // the event that starts the macro
+  s_axis_range range; // for axis events, the axis range
+} s_event_id;
+
+typedef struct
+{
+  s_event_id id;
   int macro_index;
   int event_index;
 } s_running_macro;
@@ -49,21 +61,9 @@ static unsigned int running_macro_nb;
 #define TOGGLE_NO  0
 #define TOGGLE_YES 1
 
-typedef struct
-{
-  short min;
-  short max;
-} s_axis_range;
-
-typedef struct
-{
-  GE_Event event; // the event that starts the macro
-  s_axis_range range; // for axis events, the axis range
-} s_macro_id;
-
 typedef struct {
-  s_macro_id id;
-  GE_Event trigger; // the event that enables/disables the macro
+  s_event_id id;
+  s_event_id trigger; // the event that enables/disables the macro
   unsigned char active; // tells if the macro is enabled or not
   unsigned char toggle; // TOGGLE_YES: the trigger enables/disables only this macro
                         // TOGGLE_NO: the trigger also disables the macros that have toggle set to TOGGLE_NO
@@ -117,53 +117,6 @@ int allocate_event(s_macro * pt) {
     fprintf(stderr, "%s:%d realloc failed\n", __FILE__, __LINE__);
     return -1;
   }
-}
-
-int compare_events(GE_Event* e1, GE_Event* e2)
-{
-  int ret = 1;
-  if(e1->type == e2->type)
-  {
-    switch(e1->type)
-    {
-      case GE_KEYDOWN:
-      case GE_KEYUP:
-        if(e1->key.keysym == e2->key.keysym)
-        {
-          ret = 0;
-        }
-        break;
-      case GE_MOUSEBUTTONDOWN:
-      case GE_MOUSEBUTTONUP:
-        if(e1->button.button == e2->button.button)
-        {
-          ret = 0;
-        }
-        break;
-      case GE_JOYBUTTONDOWN:
-      case GE_JOYBUTTONUP:
-        if(e1->jbutton.button == e2->jbutton.button)
-        {
-          ret = 0;
-        }
-        break;
-      case GE_MOUSEMOTION:
-        ret = 0;
-        break;
-      case GE_JOYAXISMOTION:
-        if(e1->jaxis.axis == e2->jaxis.axis)
-        {
-          ret = 0;
-        }
-        break;
-      case GE_NOEVENT:
-        ret = 0;
-        break;
-      default:
-        break;
-    }
-  }
-  return ret;
 }
 
 static GE_Event * get_last_event(GE_Event * event)
@@ -231,31 +184,93 @@ int is_rising_edge(short current, short last, s_axis_range * range)
   return 0;
 }
 
-static int compare_macro_ids(GE_Event * event, s_macro_id * id)
+static int compare_events(GE_Event * event, s_event_id * id)
 {
-  if(compare_events(event, &id->event))
+  if(event->type != id->event.type)
   {
     return 1;
   }
+
+  switch(event->type)
+  {
+    case GE_KEYDOWN:
+    case GE_KEYUP:
+      if(event->key.keysym == id->event.key.keysym)
+      {
+        return 0;
+      }
+      else
+      {
+        return 1;
+      }
+    case GE_MOUSEBUTTONDOWN:
+    case GE_MOUSEBUTTONUP:
+      if(event->button.button == id->event.button.button)
+      {
+        return 0;
+      }
+      else
+      {
+        return 1;
+      }
+    case GE_JOYBUTTONDOWN:
+    case GE_JOYBUTTONUP:
+      if(event->jbutton.button == id->event.jbutton.button)
+      {
+        return 0;
+      }
+      else
+      {
+        return 1;
+      }
+    default:
+      break;
+  }
+
   GE_Event * last = get_last_event(event);
   if(last)
   {
     switch(event->type)
     {
       case GE_MOUSEMOTION:
-        if(id->event.motion.xrel && is_rising_edge(event->motion.xrel, last->motion.xrel, &id->range))
+        if(id->event.motion.xrel)
         {
-          return 0;
+          if(is_rising_edge(event->motion.xrel, last->motion.xrel, &id->range))
+          {
+            return 0;
+          }
+          else
+          {
+            return 1;
+          }
         }
-        else if(id->event.motion.yrel && is_rising_edge(event->motion.yrel, last->motion.yrel, &id->range))
+        else if(id->event.motion.yrel)
         {
-          return 0;
+          if(is_rising_edge(event->motion.yrel, last->motion.yrel, &id->range))
+          {
+            return 0;
+          }
+          else
+          {
+            return 1;
+          }
         }
         break;
       case GE_JOYAXISMOTION:
-        if(is_rising_edge(event->jaxis.value, last->jaxis.value, &id->range))
+        if(event->jaxis.axis == id->event.jaxis.axis)
         {
-          return 0;
+          if(is_rising_edge(event->jaxis.value, last->jaxis.value, &id->range))
+          {
+            return 0;
+          }
+          else
+          {
+            return 1;
+          }
+        }
+        else
+        {
+          return 1;
         }
         break;
       default:
@@ -714,20 +729,20 @@ void get_trigger(const char* line)
       return;
     }
     
-    pcurrent->trigger.type = etype;
+    pcurrent->trigger.event.type = etype;
     switch(etype)
     {
       case GE_KEYDOWN:
       case GE_KEYUP:
-        pcurrent->trigger.key.keysym = rbutton;
+        pcurrent->trigger.event.key.keysym = rbutton;
       break;
       case GE_MOUSEBUTTONDOWN:
       case GE_MOUSEBUTTONUP:
-        pcurrent->trigger.button.button = rbutton;
+        pcurrent->trigger.event.button.button = rbutton;
       break;
       case GE_JOYBUTTONDOWN:
       case GE_JOYBUTTONUP:
-        pcurrent->trigger.jbutton.button = rbutton;
+        pcurrent->trigger.event.jbutton.button = rbutton;
       break;
     }
 
@@ -869,6 +884,16 @@ void dump_event(GE_Event* event, int newline, int axisvalue)
   }
 }
 
+inline void dump_macro_id(s_macro * macro)
+{
+  dump_event(&macro->id.event, 0, 0);
+  if(macro->id.event.type == GE_MOUSEMOTION || macro->id.event.type == GE_JOYAXISMOTION)
+  {
+    gprintf(" [%hd,%hd]", macro->id.range.min, macro->id.range.max);
+  }
+  gprintf("\n");
+}
+
 /*
  * Displays macro_table.
  */
@@ -879,16 +904,11 @@ void dump_scripts() {
 
   for (macro = macros; macro < macros + macros_nb; ++macro) {
     gprintf("MACRO ");
-    dump_event(&macro->id.event, 0, 0);
-    if(macro->id.event.type == GE_MOUSEMOTION || macro->id.event.type == GE_JOYAXISMOTION)
-    {
-      gprintf(" [%hd,%hd]", macro->id.range.min, macro->id.range.max);
-    }
-    gprintf("\n");
-    if(macro->trigger.type)
+    dump_macro_id(macro);
+    if(macro->trigger.event.type)
     {
       gprintf("TRIGGER ");
-      dump_event(&macro->trigger, 1, 0);
+      dump_event(&macro->trigger.event, 1, 0);
     }
     if(macro->active == ACTIVE_ON)
     {
@@ -915,7 +935,10 @@ void dump_scripts() {
         gprintf("DELAY %d\n", delay_nb*(gimx_params.refresh_period/1000));
         delay_nb = 0;
       }
-      dump_event(event, 1, 0);
+      dump_event(event, 1, 1);
+    }
+    if(delay_nb) {
+      gprintf("DELAY %d\n", delay_nb*(gimx_params.refresh_period/1000));
     }
     gprintf("\n");
   }
@@ -1158,9 +1181,9 @@ static int macro_delete(GE_Event* event)
   int i;
   for(i=0; i<running_macro_nb; ++i)
   {
-    if(!compare_events(&running_macro[i].event, event))
+    if(!compare_events(event, &macros[running_macro[i].macro_index].id))
     {
-      if(GE_GetDeviceId(&running_macro[i].event) == GE_GetDeviceId(event))
+      if(GE_GetDeviceId(&running_macro[i].id.event) == GE_GetDeviceId(event))
       {
         macro_unalloc(i);
         return 1;
@@ -1179,7 +1202,8 @@ static void macro_add(GE_Event* event, int macro)
   if(ptr)
   {
     running_macro = ptr;
-    running_macro[running_macro_nb].event = *event;
+    running_macro[running_macro_nb].id.event = *event;
+    running_macro[running_macro_nb].id.range = macros[macro].id.range;
     running_macro[running_macro_nb].macro_index = macro;
     running_macro[running_macro_nb].event_index = 0;
     running_macro_nb++;
@@ -1198,7 +1222,7 @@ void macro_lookup(GE_Event* event)
   int i, j;
   for(i=0; i<macros_nb; ++i)
   {
-    if(macros[i].trigger.type != GE_NOEVENT)
+    if(macros[i].trigger.event.type != GE_NOEVENT)
     {
       /*
        * Check if macro has to be activated.
@@ -1209,19 +1233,24 @@ void macro_lookup(GE_Event* event)
         {
           if(macros[i].active == ACTIVE_OFF)
           {
+            gprintf("enable macro: ");
+            dump_event(&macros[i].id.event, 1, 0);
             macros[i].active = ACTIVE_ON;
             /*
              * Disable macros that have a different activation trigger.
              */
             for(j=0; j<macros_nb; ++j)
             {
-              if(macros[j].trigger.type == GE_NOEVENT)
+              if(macros[j].trigger.event.type == GE_NOEVENT)
               {
                 continue;
               }
               if(compare_events(event, &macros[j].trigger)
+                 && macros[j].toggle == TOGGLE_NO
                  && macros[j].active == ACTIVE_ON)
               {
+                gprintf("disable macro: ");
+                dump_event(&macros[j].id.event, 1, 0);
                 macros[j].active = ACTIVE_OFF;
               }
             }
@@ -1244,7 +1273,7 @@ void macro_lookup(GE_Event* event)
         }
       }
     }
-    if(!compare_macro_ids(event, &macros[i].id))
+    if(!compare_events(event, &macros[i].id))
     {
       if(macros[i].active == ACTIVE_ON)
       {
@@ -1254,13 +1283,13 @@ void macro_lookup(GE_Event* event)
         if(!macro_delete(event))
         {
           gprintf("start macro: ");
-          dump_event(&macros[i].id.event, 1, 0);
+          dump_macro_id(macros+i);
           macro_add(event, i);
         }
         else
         {
           gprintf("stop macro: ");
-          dump_event(&macros[i].id.event, 1, 0);
+          dump_macro_id(macros+i);
         }
       }
     }
@@ -1307,8 +1336,8 @@ unsigned int macro_process()
        * Find out the device that will be the source of the generated event.
        */
       dtype1 = get_event_device_type(&event);
-      dtype2 = get_event_device_type(&running_macro[i].event);
-      did = GE_GetDeviceId(&running_macro[i].event);
+      dtype2 = get_event_device_type(&running_macro[i].id.event);
+      did = GE_GetDeviceId(&running_macro[i].id.event);
       if(dtype1 != E_DEVICE_TYPE_UNKNOWN && dtype2 != E_DEVICE_TYPE_UNKNOWN && did >= 0)
       {
         /*
