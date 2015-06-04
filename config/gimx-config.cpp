@@ -1255,17 +1255,6 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
 
     FileDialog1->SetDirectory(default_directory);
 
-#ifdef WIN32
-    MenuController2->Enable(false);
-    MenuController3->Enable(false);
-    MenuController4->Enable(false);
-    MenuController5->Enable(false);
-    MenuController6->Enable(false);
-    MenuController7->Enable(false);
-    MenuItemCopyController->Enable(false);
-    MenuItemPasteController->Enable(false);
-#endif
-
     GridPanelButton->SetDefaultColSize(wxGRID_AUTOSIZE);
     GridPanelButton->SetRowLabelSize(20);
     GridPanelAxis->SetDefaultColSize(wxGRID_AUTOSIZE);
