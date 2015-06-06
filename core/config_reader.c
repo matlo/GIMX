@@ -629,6 +629,7 @@ static int ProcessTriggerElement(xmlNode * a_node)
     }
 
     //Optional
+    entry.params.trigger.switch_back = 0;
     r_switch_back = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_SWITCH_BACK);
     if(r_switch_back)
     {
@@ -640,6 +641,7 @@ static int ProcessTriggerElement(xmlNode * a_node)
     xmlFree(r_switch_back);
 
     //Optional
+    entry.params.trigger.delay = 0;
     GetIntProp(a_node, X_ATTR_DELAY, &entry.params.trigger.delay);
 
     if(ret != -1)
