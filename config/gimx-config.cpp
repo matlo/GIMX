@@ -2847,6 +2847,7 @@ void configFrame::OnButtonDeleteTrigger(wxCommandEvent& event)
 {
     ProfileTriggerDeviceType->SetLabel(wxEmptyString);
     ProfileTriggerDeviceName->SetLabel(wxEmptyString);
+    triggerTabDeviceName.clear();
     ProfileTriggerDeviceId->SetLabel(wxEmptyString);
     ProfileTriggerButtonId->SetLabel(wxEmptyString);
     CheckBoxSwitchBack->SetValue(false);
