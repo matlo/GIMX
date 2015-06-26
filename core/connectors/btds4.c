@@ -688,7 +688,7 @@ static int listen_accept_sdp(int channel, bdaddr_t * src)
      */
     str2ba(states[i].ps4_bdaddr, &cmp);
 
-    if(!memcmp(&src, &cmp, sizeof(src)))
+    if(!bacmp(src, &cmp))
     {
       states[i].ps4_channels.sdp.id = channel;
       l2cap_abs_get()->add_source(channel, i, read_ps4_sdp, process, close_ps4_sdp);
@@ -759,7 +759,7 @@ static int listen_accept_control(int channel, bdaddr_t * src)
      */
     str2ba(states[i].ds4_bdaddr, &cmp);
 
-    if(!memcmp(src, &cmp, sizeof(*src)))
+    if(!bacmp(src, &cmp))
     {
       states[i].ds4_channels.control.id = channel;
       if(states[i].ps4_channels.control.id >= 0 && !states[i].ps4_channels.control.pending)
@@ -791,7 +791,7 @@ static int listen_accept_interrupt(int channel, bdaddr_t * src)
      */
     str2ba(states[i].ds4_bdaddr, &cmp);
 
-    if(!memcmp(src, &cmp, sizeof(*src)))
+    if(!bacmp(src, &cmp))
     {
       states[i].ds4_channels.interrupt.id = channel;
       if(states[i].ps4_channels.interrupt.id >= 0 && !states[i].ps4_channels.interrupt.pending)
