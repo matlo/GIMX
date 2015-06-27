@@ -32,10 +32,10 @@ static void usage()
   printf("  bt_device_index: The bluetooth device index (ex: 0 for hci0, 1 for hci1, etc). Optional, default value is 0.\n");
   printf("  ps3_bt_address: The bluetooth device address of the PS3.\n");
 
-  printf("PS4+bluetooth: gimx --type DS4 --config filename --hci bt_device_index --bdaddr ps3_bt_address\n");
+  printf("PS4+bluetooth: gimx --type DS4 --config filename --hci bt_device_index --bdaddr ps4_bt_address\n");
   printf("  filename: The name of the config file, in the ~/.gimx/config directory (ex: \"File name.xml\").\n");
   printf("  bt_device_index: The bluetooth device index (ex: 0 for hci0, 1 for hci1, etc). Optional, default value is 0.\n");
-  printf("  ps3_bt_address: The bluetooth device address of the PS3.\n");
+  printf("  ps4_bt_address: The bluetooth device address of the PS4.\n");
 #endif
   printf("DIY USB adapter: gimx --config filename --port portname\n");
   printf("  filename: The name of the config file, in the ~/.gimx/config directory (ex: \"File name.xml\").\n");
