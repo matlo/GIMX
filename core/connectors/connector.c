@@ -136,6 +136,11 @@ int connector_init()
                   }
                 }
                 break;
+              case C_TYPE_SIXAXIS:
+                //TODO MLA: fix the EMUPS3 firmware and remove this!
+                gimx_params.force_updates = 0;
+                printf(_("Disable force updates to work-around #335.\n"));
+                break;
               default:
                 break;
             }
