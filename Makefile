@@ -24,37 +24,13 @@ $(CLEANDIRS):
 	$(MAKE) -C $(@:clean-%=%) clean
 
 ifeq ($(OS),Windows_NT)
+DLLS=$(shell ldd {core,config,fpsconfig,launcher}/*.exe | grep mingw | cut -f 3 -d' ' | sort | uniq)
 install: all
 	mkdir -p setup
-ifeq ($(MSYSTEM),MINGW32)
-	cp -u -f /$(MSYSTEM)/bin/libgcc_s_dw2-1.dll setup
-else
-	cp -u -f /$(MSYSTEM)/bin/libgcc_s_seh-1.dll setup
-endif
-	cp -u -f /$(MSYSTEM)/bin/libiconv-2.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libintl-8.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libpdcursesw.dll setup
-	cp -u -f /$(MSYSTEM)/bin/SDL2.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libusb-1.0.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libxml2-2.dll setup
-	cp -u -f /$(MSYSTEM)/bin/liblzma-5.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libwinpthread-1.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libstdc++-6.dll setup
-	cp -u -f /$(MSYSTEM)/bin/zlib1.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libcurl-4.dll setup
-	cp -u -f /$(MSYSTEM)/bin/LIBEAY32.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libidn-11.dll setup
-	cp -u -f /$(MSYSTEM)/bin/librtmp-1.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libgmp-10.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libgnutls-30.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libhogweed-4-0.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libnettle-6-0.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libp11-kit-0.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libffi-6.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libtasn1-6.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libssh2-1.dll setup
-	cp -u -f /$(MSYSTEM)/bin/SSLEAY32.dll setup
-	cp -u -f /$(MSYSTEM)/bin/libhidapi-0.dll setup
+	for DLL in $(DLLS); \
+    do \
+	  cp -u -f $$DLL setup; \
+    done
 	cp -u -f core/gimx setup/gimx.exe
 	cp -u -f config/gimx-config setup/gimx-config.exe
 	cp -u -f launcher/gimx-launcher setup/gimx-launcher.exe
