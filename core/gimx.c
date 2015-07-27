@@ -29,6 +29,7 @@
 #include "display.h"
 #include "mainloop.h"
 #include "connectors/connector.h"
+#include "connectors/hidasync.h"
 #include "connectors/bluetooth/bt_abs.h"
 #include "args.h"
 #include <adapter.h>
@@ -180,6 +181,8 @@ int main(int argc, char *argv[])
 
   serial_init();
 
+  hidsaync_init();
+
   gpppcprog_read_user_ids(gimx_params.homedir, GIMX_DIR);
 
   if(args_read(argc, argv, &gimx_params) < 0)
@@ -320,6 +323,8 @@ int main(int argc, char *argv[])
   cfg_clean();
   GE_quit();
   connector_clean();
+  
+  hidasync_quit();
 
   xmlCleanupParser();
 

@@ -13,6 +13,7 @@
 #include "connectors/gpp_con.h"
 #include "connectors/usb_con.h"
 #include <adapter.h>
+#include <connectors/hidasync.h>
 #include <report.h>
 #include "display.h"
 #include "stats.h"
@@ -92,6 +93,15 @@ int connector_init()
           {
             fprintf(stderr, _("Can't get adapter status.\n"));
             ret = -1;
+          }
+
+          switch(adapter->type)
+          {
+            case C_TYPE_T300RS_PS4:
+              adapter->ffb_id = hidasync_open_ids(0x046d, 0xca03);
+              break;
+            default:
+              break;
           }
 
           if(ret != -1)

@@ -41,6 +41,7 @@ typedef struct
   int ts_axis[AXIS_MAX][2]; //issue 15
   s_report_packet report[2]; //the xbox one guide button needs a dedicated report
   int status;
+  int ffb_id;
 } s_adapter;
 
 void adapter_init();

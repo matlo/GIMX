@@ -17,6 +17,8 @@
 
 #include <connectors/ffb_logitech.h>
 
+#include <connectors/hidasync.h>
+
 static s_adapter adapter[MAX_CONTROLLERS] = {};
 
 static struct
@@ -408,6 +410,10 @@ int adapter_process_packet(int id, s_packet* packet)
           send = 1;
         }
         break;
+        break;
+      case C_TYPE_T300RS_PS4:
+        //TODO MLA
+        break;
       default:
         break;
     }
@@ -433,6 +439,11 @@ int adapter_process_packet(int id, s_packet* packet)
     gprintf("%ld.%06ld debug packet received (size = %d bytes)\n", tv.tv_sec, tv.tv_usec, length);
     dump(packet->value, length);
     //ffb_logitech_decode(data, length);
+    if(data[0] == 0x30 && data[1] != 0xf8)
+    {
+      hidasync_write(adapter[id].ffb_id, data+1, 8);
+      gprintf("send ffb report\n");
+    }
   }
   else
   {
