@@ -476,7 +476,7 @@ static int adapter_serial_read_cb(int id, const void * buf, unsigned int count)
   else
   {
     // this is a critical error (no possible recovering)
-    fprintf(stderr, "%s:%d %s: invalid data size (count=%u, available=%u)\n", __FILE__, __LINE__, __func__, count, sizeof(s_packet) - adapter[id].bread);
+    fprintf(stderr, "%s:%d %s: invalid data size (count=%u, available=%lu)\n", __FILE__, __LINE__, __func__, count, sizeof(s_packet) - adapter[id].bread);
     return -1;
   }
   return ret;
