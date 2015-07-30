@@ -50,13 +50,13 @@ void async_print_error(const char * file, int line, const char * msg) {
   }
 }
 
-inline int async_check_device(int device) {
+inline int async_check_device(int device, const char * file, unsigned int line, const char * func) {
   if(device < 0 || device >= ASYNC_MAX_DEVICES) {
-      fprintf(stderr, "%s:%d %s: invalid device (%d)\n", __FILE__, __LINE__, __func__, device);
+      fprintf(stderr, "%s:%d %s: invalid device (%d)\n", file, line, func, device);
       return -1;
   }
   if(devices[device].handle == INVALID_HANDLE_VALUE) {
-      fprintf(stderr, "%s:%d %s: no such device (%d)\n", __FILE__, __LINE__, __func__, device);
+      fprintf(stderr, "%s:%d %s: no such device (%d)\n", file, line, func, device);
       return -1;
   }
   return 0;
@@ -106,21 +106,15 @@ static int queue_write(int device, const char * buf, unsigned int count) {
 }
 
 static int dequeue_write(int device) {
-  --devices[device].write.queue.nb;
-  free(devices[device].write.queue.data[0].buf);
-  memmove(devices[device].write.queue.data, devices[device].write.queue.data + 1, devices[device].write.queue.nb);
+  if(devices[device].write.queue.nb > 0) {
+      --devices[device].write.queue.nb;
+      free(devices[device].write.queue.data[0].buf);
+      memmove(devices[device].write.queue.data, devices[device].write.queue.data + 1, devices[device].write.queue.nb);
+  }
   return devices[device].write.queue.nb - 1;
 }
 
 static int set_overlapped(int device) {
-    /*
-     * disable timeouts
-     */
-    COMMTIMEOUTS timeouts = { 0 };
-    if (SetCommTimeouts(devices[device].handle, &timeouts) == FALSE) {
-        ASYNC_PRINT_ERROR("SetCommTimeouts")
-        return -1;
-    }
     /*
      * create event objects for overlapped I/O
      */
@@ -139,9 +133,10 @@ static int set_overlapped(int device) {
 
 int async_open_path(const char * path, int print) {
     DWORD accessdirection = GENERIC_READ | GENERIC_WRITE;
+    DWORD sharemode = FILE_SHARE_READ | FILE_SHARE_WRITE;
     int ret = -1;
     if(path != NULL) {
-        HANDLE handle = CreateFile(path, accessdirection, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+        HANDLE handle = CreateFile(path, accessdirection, sharemode, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
         if(handle != INVALID_HANDLE_VALUE) {
             ret = add_device(path, handle, print);
             if(ret == -1) {
@@ -389,7 +384,7 @@ int async_set_read_size(int device, unsigned int size) {
     if(size > devices[device].read.count) {
         void * ptr = realloc(devices[device].read.buf, size);
         if(ptr == NULL) {
-    	    fprintf(stderr, "%s:%d %s: can't allocate a buffer\n", __FILE__, __LINE__, __func__);
+    	      fprintf(stderr, "%s:%d %s: can't allocate a buffer\n", __FILE__, __LINE__, __func__);
             return -1;
         }
         devices[device].read.buf = ptr;

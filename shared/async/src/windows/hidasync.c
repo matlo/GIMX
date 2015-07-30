@@ -64,14 +64,14 @@ int hidasync_open_ids(unsigned short vendor, unsigned short product)
   info = SetupDiGetClassDevs(&guid, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
   if(info != INVALID_HANDLE_VALUE) {
     for(index = 0; ; ++index) {
-	  iface.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA);
+	    iface.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA);
       if(SetupDiEnumDeviceInterfaces(info, NULL, &guid, index, &iface) == FALSE) {
         break; //no more device
       }
       if(SetupDiGetInterfaceDeviceDetail(info, &iface, NULL, 0, &reqd_size, NULL) == FALSE) {
         if(GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
           continue;
-	}
+	      }
       }
       details = calloc(reqd_size, sizeof(char));
       if(details == NULL) {
@@ -79,23 +79,22 @@ int hidasync_open_ids(unsigned short vendor, unsigned short product)
         continue;
       }
       details->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA);
-      if(SetupDiGetDeviceInterfaceDetail(info, &iface, details, reqd_size, NULL, NULL) == TRUE) {
-	
-        int device = open_path(details->DevicePath, 0);
+      if(SetupDiGetDeviceInterfaceDetail(info, &iface, details, reqd_size, NULL, NULL) == FALSE) {
+        ASYNC_PRINT_ERROR("SetupDiGetDeviceInterfaceDetail")
         free(details);
         details = NULL;
-
-        if(device >= 0) {
-          if(devices[device].hid.vendor == vendor && devices[device].hid.product == product)
-          {
-            ret = device;
-            break;
-          }
-          async_close(device);
-        }
+        continue;
       }
-      else {
-        ASYNC_PRINT_ERROR("SetupDiGetDeviceInterfaceDetail")
+      int device = open_path(details->DevicePath, 0);
+      free(details);
+      details = NULL;
+      if(device >= 0) {
+        if(devices[device].hid.vendor == vendor && devices[device].hid.product == product)
+        {
+          ret = device;
+          break;
+        }
+        async_close(device);
       }
     }
   }

@@ -11,6 +11,17 @@
 
 static int set_serial_params(int device, unsigned int baudrate) {
   
+  /*
+   * disable timeouts
+   */
+  COMMTIMEOUTS timeouts = { 0 };
+  if (SetCommTimeouts(devices[device].handle, &timeouts) == FALSE) {
+      ASYNC_PRINT_ERROR("SetCommTimeouts")
+      return -1;
+  }
+  /*
+   * set baudrate
+   */
   DCB dcbSerialParams = { 0 };
   dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
   if (!GetCommState(devices[device].handle, &dcbSerialParams))

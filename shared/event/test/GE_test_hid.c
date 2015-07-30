@@ -69,11 +69,12 @@ int main(int argc, char* argv[])
   setlinebuf(stdout);
 #endif
 
-  int hid = hidasync_open_ids(0x046d, 0xc07d);
-  hidasync_register(hid, 42, hid_read, NULL, hid_close, REGISTER_FUNCTION);
+  int hid = hidasync_open_ids(0x046d, 0xc218);
 
   if(hid >= 0)
   {
+    hidasync_register(hid, 42, hid_read, NULL, hid_close, REGISTER_FUNCTION);
+    
     GE_SetCallback(process_event);
 
     GE_TimerStart(PERIOD);
@@ -86,11 +87,15 @@ int main(int argc, char* argv[])
     }
 
     GE_TimerClose();
+    
+    hidasync_close(hid);
+  }
+  else
+  {
+    fprintf(stderr, "hid device not found\n");
   }
 
   GE_quit();
-
-  hidasync_close(hid);
 
   printf("Exiting\n");
 

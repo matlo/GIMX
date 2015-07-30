@@ -81,9 +81,9 @@ extern s_device devices[ASYNC_MAX_DEVICES];
 void async_print_error(const char * file, int line, const char * msg);
 #define ASYNC_PRINT_ERROR(msg) async_print_error(__FILE__, __LINE__, msg);
 
-int async_check_device(int device);
+inline int async_check_device(int device, const char * file, unsigned int line, const char * func);
 #define ASYNC_CHECK_DEVICE(device) \
-  if(async_check_device(device) < 0) { \
+  if(async_check_device(device, __FILE__, __LINE__, __func__) < 0) { \
     return -1; \
   }
 

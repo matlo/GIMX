@@ -394,6 +394,7 @@ static struct
   int id;
   HANDLE handle;
   int (*fp_read)(int);
+  int (*fp_write)(int);
   int (*fp_cleanup)(int);
 } sources[MAX_SOURCES] = {};
 
@@ -441,6 +442,7 @@ void ev_register_source_handle(HANDLE handle, int id, int (*fp_read)(int), int (
     sources[max_source].id = id;
     sources[max_source].handle = handle;
     sources[max_source].fp_read = fp_read;
+    sources[max_source].fp_write = fp_write;
     sources[max_source].fp_cleanup = fp_cleanup;
     ++max_source;
   }
@@ -480,7 +482,7 @@ static unsigned int fill_handles(HANDLE handles[])
   int i;
   for(i=0; i<max_source; ++i)
   {
-    if(sources[i].fp_read)
+    if(sources[i].fp_read || sources[i].fp_write)
     {
       handles[i] = sources[i].handle;
     }
@@ -687,9 +689,19 @@ void ev_pump_events()
             /*
              * Serial source
              */
-            if(sources[i].fp_read(sources[i].id))
+            if(sources[i].fp_read != NULL)
             {
-              done = 1;
+              if(sources[i].fp_read(sources[i].id))
+              {
+                done = 1;
+              }
+            }
+            if(sources[i].fp_write != NULL)
+            {
+              if(sources[i].fp_write(sources[i].id))
+              {
+                done = 1;
+              }
             }
           }
           break;

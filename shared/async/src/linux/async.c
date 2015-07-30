@@ -41,13 +41,13 @@ void async_print_error(const char * file, int line, const char * msg) {
   fprintf(stderr, "%s:%d %s failed with error: %m\n", file, line, msg);
 }
 
-inline int async_check_device(int device) {
+inline int async_check_device(int device, const char * file, unsigned int line, const char * func) {
   if(device < 0 || device >= ASYNC_MAX_DEVICES) {
-      fprintf(stderr, "%s:%d %s: invalid device (%d)\n", __FILE__, __LINE__, __func__, device);
+      fprintf(stderr, "%s:%d %s: invalid device (%d)\n", file, line, func, device);
       return -1;
   }
   if(devices[device].fd == -1) {
-      fprintf(stderr, "%s:%d %s: no such device (%d)\n", __FILE__, __LINE__, __func__, device);
+      fprintf(stderr, "%s:%d %s: no such device (%d)\n", file, line, func, device);
       return -1;
   }
   return 0;
