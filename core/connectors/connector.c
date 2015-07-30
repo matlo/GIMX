@@ -13,7 +13,8 @@
 #include "connectors/gpp_con.h"
 #include "connectors/usb_con.h"
 #include <adapter.h>
-#include <connectors/hidasync.h>
+#include <hidasync.h>
+#include <serialasync.h>
 #include <report.h>
 #include "display.h"
 #include "stats.h"
@@ -28,6 +29,8 @@
 #else
 #include <winsock2.h>
 #endif
+
+#define BAUDRATE 500000 //bps
 
 /*
  * The adapter restarts about 15ms after receiving the reset command.
@@ -65,7 +68,8 @@ int connector_init()
     }
     else if(adapter->portname)
     {
-      if(serial_open(i, adapter->portname) < 0)
+      adapter->serialdevice = serialasync_open(adapter->portname, BAUDRATE);
+      if(adapter->serialdevice < 0)
       {
         ret = -1;
       }
@@ -193,9 +197,10 @@ int connector_init()
               fprintf(stderr, _("Can't start the adapter.\n"));
               ret = -1;
             }
-            else
+            else if(adapter_start_serialasync(i) < 0)
             {
-              serial_add_source(i);
+              fprintf(stderr, _("Can't start the serial asynchronous processing.\n"));
+              ret = -1;
             }
           }
         }
@@ -298,7 +303,7 @@ void connector_clean()
       }
 #endif
     }
-    else if(adapter->portname)
+    else if(adapter->serialdevice >= 0)
     {
       switch(adapter->type)
       {
@@ -314,7 +319,7 @@ void connector_clean()
         default:
           break;
       }
-      serial_close(i);
+      serialasync_close(adapter->serialdevice);
     }
     else if(adapter->type == C_TYPE_GPP)
     {
@@ -356,9 +361,9 @@ int connector_send()
           }
           break;
         case C_TYPE_SIXAXIS:
-          if(adapter->portname)
+          if(adapter->serialdevice >= 0)
           {
-            ret = serial_send(i, report, 2+report->length);
+            ret = serialasync_write(adapter->serialdevice, report, 2+report->length);
           }
           else if(adapter->bdaddr_dst)
           {
@@ -366,11 +371,11 @@ int connector_send()
           }
           break;
         case C_TYPE_DS4:
-          if(adapter->portname)
+          if(adapter->serialdevice >= 0)
           {
             report->value.ds4.report_id = DS4_USB_HID_IN_REPORT_ID;
             report->length = DS4_USB_INTERRUPT_PACKET_SIZE;
-            ret = serial_send(i, report, HEADER_SIZE+report->length);
+            ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
           }
 #ifndef WIN32
           else if(adapter->bdaddr_dst)
@@ -380,10 +385,10 @@ int connector_send()
 #endif
           break;
         case C_TYPE_T300RS_PS4:
-          if(adapter->portname)
+          if(adapter->serialdevice >= 0)
           {
             report->length = DS4_USB_INTERRUPT_PACKET_SIZE;
-            ret = serial_send(i, report, HEADER_SIZE+report->length);
+            ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
           }
           break;
         case C_TYPE_GPP:
@@ -392,19 +397,19 @@ int connector_send()
         case C_TYPE_XONE_PAD:
           if(adapter->status)
           {
-            ret = serial_send(i, report, HEADER_SIZE+report->length);
+            ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
           }
           break;
         default:
-          if(adapter->portname)
+          if(adapter->serialdevice >= 0)
           {
             if(adapter->type != C_TYPE_PS2_PAD)
             {
-              ret = serial_send(i, report, HEADER_SIZE+report->length);
+              ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
             }
             else
             {
-              ret = serial_send(i, &report->value.ds2, report->length);
+              ret = serialasync_write(adapter->serialdevice, &report->value.ds2, report->length);
             }
           }
           break;

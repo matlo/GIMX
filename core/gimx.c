@@ -179,10 +179,6 @@ int main(int argc, char *argv[])
 
   adapter_init();
 
-  serial_init();
-
-  hidsaync_init();
-
   gpppcprog_read_user_ids(gimx_params.homedir, GIMX_DIR);
 
   if(args_read(argc, argv, &gimx_params) < 0)
@@ -323,8 +319,6 @@ int main(int argc, char *argv[])
   cfg_clean();
   GE_quit();
   connector_clean();
-  
-  hidasync_quit();
 
   xmlCleanupParser();
 

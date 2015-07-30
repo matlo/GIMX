@@ -19,6 +19,14 @@
 
 #include <connectors/hidasync.h>
 
+#define SERIAL_TIMEOUT 1 //second
+
+#ifdef WIN32
+#define REGISTER_FUNCTION GE_AddSourceHandle
+#else
+#define REGISTER_FUNCTION GE_AddSource
+#endif
+
 static s_adapter adapter[MAX_CONTROLLERS] = {};
 
 static struct
@@ -47,6 +55,8 @@ void adapter_init()
     adapter[i].type = C_TYPE_DEFAULT;
     adapter[i].dst_fd = -1;
     adapter[i].src_fd = -1;
+    adapter[i].serialdevice = -1;
+    adapter[i].bread = 0;
     for(j = 0; j < MAX_REPORTS; ++j)
     {
       adapter[i].report[j].type = BYTE_IN_REPORT;
@@ -264,21 +274,21 @@ static void dump(unsigned char* packet, unsigned char length)
     dump(data, length); \
   }
 
-int adapter_forward_control_in(int id, unsigned char* data, unsigned char length)
+static int adapter_forward(int id, unsigned char type, unsigned char* data, unsigned char length)
 {
-  if(adapter[id].portname >= 0)
+  if(adapter[id].serialdevice >= 0)
   {
     DEBUG_PACKET(data, length)
     s_packet packet =
     {
       .header =
       {
-        .type = BYTE_CONTROL_DATA,
+        .type = type,
         .length = length
       }
     };
     memcpy(packet.value, data, length);
-    if(serial_send(id, &packet, sizeof(packet.header)+packet.header.length) < 0)
+    if(serialasync_write(adapter[id].serialdevice, &packet, sizeof(packet.header)+packet.header.length) < 0)
     {
       return -1;
     }
@@ -294,34 +304,14 @@ int adapter_forward_control_in(int id, unsigned char* data, unsigned char length
   }
 }
 
+int adapter_forward_control_in(int id, unsigned char* data, unsigned char length)
+{
+  return adapter_forward(id, BYTE_CONTROL_DATA, data, length);
+}
+
 int adapter_forward_interrupt_in(int id, unsigned char* data, unsigned char length)
 {
-  if(adapter[id].portname >= 0)
-  {
-    DEBUG_PACKET(data, length)
-    s_packet packet =
-    {
-      .header =
-      {
-        .type = BYTE_IN_REPORT,
-        .length = length
-      }
-    };
-    memcpy(packet.value, data, length);
-    if(serial_send(id, &packet, sizeof(packet.header)+packet.header.length) < 0)
-    {
-      return -1;
-    }
-    else
-    {
-      return 0;
-    }
-  }
-  else
-  {
-    fprintf(stderr, "no serial port opened for adapter %d\n", id);
-    return -1;
-  }
+  return adapter_forward(id, BYTE_IN_REPORT, data, length);
 }
 
 int adapter_forward_control_out(int id, unsigned char* data, unsigned char length)
@@ -456,10 +446,71 @@ int adapter_process_packet(int id, s_packet* packet)
   return ret;
 }
 
+static int adapter_serial_read_cb(int id, const void * buf, unsigned int count)
+{
+  int ret = 0;
+  
+  if(adapter[id].bread + count < sizeof(s_packet)) {
+    memcpy((unsigned char *)&adapter[id].packet + adapter[id].bread, buf, count);
+    adapter[id].bread += count;
+    unsigned int remaining;
+    if(adapter[id].bread < sizeof(s_header))
+    {
+      remaining = sizeof(s_header) - adapter[id].bread;
+    }
+    else
+    {
+      remaining = adapter[id].packet.header.length - (adapter[id].bread - sizeof(s_header));
+    }
+    if(remaining == 0)
+    {
+      ret = adapter_process_packet(id, &adapter[id].packet);
+      adapter[id].bread = 0;
+      serialasync_set_read_size(adapter[id].serialdevice, sizeof(s_header));
+    }
+    else
+    {
+      serialasync_set_read_size(adapter[id].serialdevice, remaining);
+    }
+  }
+  else
+  {
+    // this is a critical error (no possible recovering)
+    fprintf(stderr, "%s:%d %s: invalid data size (count=%u, available=%u)\n", __FILE__, __LINE__, __func__, count, sizeof(s_packet) - adapter[id].bread);
+    return -1;
+  }
+  return ret;
+}
+
+static int adapter_serial_write_cb(int id)
+{
+  //TODO MLA
+  return 0;
+}
+
+static int adapter_serial_close_cb(int id)
+{
+  //TODO MLA
+  return 0;
+}
+
+int adapter_start_serialasync(int id)
+{
+  if(serialasync_set_read_size(adapter[id].serialdevice, sizeof(s_header)) < 0)
+  {
+    return -1;
+  }
+  if(serialasync_register(adapter[id].serialdevice, id, adapter_serial_read_cb, adapter_serial_write_cb, adapter_serial_close_cb, REGISTER_FUNCTION) < 0)
+  {
+    return -1;
+  }
+  return 0;
+}
+
 /*
  * This function should only be used in the initialization stages, i.e. before the mainloop.
  */
-static int adapter_send_short_command(int id, unsigned char type)
+static int adapter_send_short_command(int device, unsigned char type)
 {
   s_packet packet =
   {
@@ -470,7 +521,7 @@ static int adapter_send_short_command(int id, unsigned char type)
     }
   };
 
-  if(serial_send(id, &packet.header, sizeof(packet.header)) < sizeof(packet.header))
+  if(serialasync_write_timeout(device, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT) < sizeof(packet.header))
   {
     fprintf(stderr, "serial_send\n");
     return -1;
@@ -482,13 +533,13 @@ static int adapter_send_short_command(int id, unsigned char type)
    */
   while(1)
   {
-    if(serial_recv(id, &packet.header, sizeof(packet.header)) < sizeof(packet.header))
+    if(serialasync_read_timeout(device, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT) < sizeof(packet.header))
     {
       fprintf(stderr, "can't read packet header\n");
       return -1;
     }
 
-    if(serial_recv(id, &packet.value, packet.header.length) < packet.header.length)
+    if(serialasync_read_timeout(device, &packet.value, packet.header.length, SERIAL_TIMEOUT) < packet.header.length)
     {
       fprintf(stderr, "can't read packet data\n");
       return -1;
@@ -513,28 +564,28 @@ static int adapter_send_short_command(int id, unsigned char type)
 /*
  * This function should only be used in the initialization stages, i.e. before the mainloop.
  */
-int adapter_get_type(int id)
+int adapter_get_type(int device)
 {
-  return adapter_send_short_command(id, BYTE_TYPE);
+  return adapter_send_short_command(device, BYTE_TYPE);
 }
 
 /*
  * This function should only be used in the initialization stages, i.e. before the mainloop.
  */
-int adapter_send_start(int id)
+int adapter_send_start(int device)
 {
-  return adapter_send_short_command(id, BYTE_START);
+  return adapter_send_short_command(device, BYTE_START);
 }
 
 /*
  * This function should only be used in the initialization stages, i.e. before the mainloop.
  */
-int adapter_get_status(int id)
+int adapter_get_status(int device)
 {
-  return adapter_send_short_command(id, BYTE_STATUS);
+  return adapter_send_short_command(device, BYTE_STATUS);
 }
 
-int adapter_send_reset(int id)
+int adapter_send_reset(int device)
 {
   s_header header =
   {
@@ -542,7 +593,7 @@ int adapter_send_reset(int id)
     .length = BYTE_LEN_0_BYTE
   };
 
-  if(serial_send(id, &header, sizeof(header)) != sizeof(header))
+  if(serialasync_write_timeout(device, &header, sizeof(header), SERIAL_TIMEOUT) != sizeof(header))
   {
     return -1;
   }
