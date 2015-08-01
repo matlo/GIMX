@@ -54,6 +54,7 @@ typedef struct {
     {
       OVERLAPPED overlapped;
       s_queue queue;
+      unsigned int size;
     } write;
 #endif
     struct {

@@ -15,8 +15,26 @@ int open_path(const char * path, int print) {
   if(device >= 0) {
     HIDD_ATTRIBUTES attributes = { .Size = sizeof(HIDD_ATTRIBUTES) };
     if(HidD_GetAttributes(devices[device].handle, &attributes) == TRUE) {
-        devices[device].hid.vendor = attributes.VendorID;
-        devices[device].hid.product = attributes.ProductID;
+        PHIDP_PREPARSED_DATA preparsedData;
+        HIDP_CAPS hidCapabilities;
+        if(HidD_GetPreparsedData(devices[device].handle, &preparsedData) == TRUE) {
+            if(HidP_GetCaps(preparsedData, &hidCapabilities) == HIDP_STATUS_SUCCESS ) {
+                devices[device].write.size = hidCapabilities.OutputReportByteLength;
+                devices[device].hid.vendor = attributes.VendorID;
+                devices[device].hid.product = attributes.ProductID;
+            }
+            else {
+                ASYNC_PRINT_ERROR("HidP_GetCaps")
+                async_close(device);
+                device = -1;
+            }
+            HidD_FreePreparsedData(preparsedData);
+        }
+        else {
+            ASYNC_PRINT_ERROR("HidD_GetPreparsedData")
+            async_close(device);
+            device = -1;
+        }
     }
     else {
         ASYNC_PRINT_ERROR("HidD_GetAttributes")

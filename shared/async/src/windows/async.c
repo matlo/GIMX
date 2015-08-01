@@ -28,7 +28,7 @@ void clean(void) {
     }
 }
 
-void async_print_error(const char * file, int line, const char * msg) {
+inline void async_print_error(const char * file, int line, const char * msg) {
   
   DWORD error = GetLastError();
   LPTSTR pBuffer = NULL;
@@ -93,12 +93,16 @@ static int queue_write(int device, const char * buf, unsigned int count) {
       fprintf(stderr, "%s:%d %s: no space left in write queue for device (%d)\n", __FILE__, __LINE__, __func__, device);
       return -1;
   }
-  void * dup = malloc(count);
+  if(count < devices[device].write.size) {
+      count = devices[device].write.size;
+  }
+  void * dup = malloc(count + 1);
   if(!dup) {
       fprintf(stderr, "%s:%d %s: malloc failed\n", __FILE__, __LINE__, __func__);
       return -1;
   }
-  memcpy(dup, buf, count);
+  *(unsigned char *)dup = 0x00;
+  memcpy(dup + 1, buf, count);
   devices[device].write.queue.data[devices[device].write.queue.nb].buf = dup;
   devices[device].write.queue.data[devices[device].write.queue.nb].count = count;
   ++devices[device].write.queue.nb;
