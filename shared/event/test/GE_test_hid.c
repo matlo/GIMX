@@ -80,8 +80,8 @@ int main(int argc, char* argv[])
 
     GE_TimerStart(PERIOD);
     
-    //Download and Play Force 
-    unsigned char ff[] = {0x00, 0x51, 0x00, 0xff, 0xff};
+    //Download and Play Force               weak        strong
+    unsigned char ff[] = {0x00, 0x51, 0x00, 0x7f, 0x00, 0x7f};
     hidasync_write(hid, ff, sizeof(ff));
 
     while(!done)
