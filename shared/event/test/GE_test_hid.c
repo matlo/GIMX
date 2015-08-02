@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 
     GE_TimerStart(PERIOD);
     
-    unsigned char ff[] = {0x42, 0x00, 0xff, 0xff};
+    unsigned char ff[] = {0x00, 0x42, 0x00, 0xff, 0xff};
     hidasync_write(hid, ff, sizeof(ff));
 
     while(!done)
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 
     GE_TimerClose();
     
-    unsigned char stop[] = {0x42};
+    unsigned char stop[] = {0x00, 0x42};
     hidasync_write(hid, stop, sizeof(stop));
     
     hidasync_close(hid);

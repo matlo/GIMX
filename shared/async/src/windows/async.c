@@ -96,13 +96,12 @@ static int queue_write(int device, const char * buf, unsigned int count) {
   if(count < devices[device].write.size) {
       count = devices[device].write.size;
   }
-  void * dup = malloc(count + 1);
+  void * dup = malloc(count);
   if(!dup) {
       fprintf(stderr, "%s:%d %s: malloc failed\n", __FILE__, __LINE__, __func__);
       return -1;
   }
-  *(unsigned char *)dup = 0x00;
-  memcpy(dup + 1, buf, count);
+  memcpy(dup, buf, count);
   devices[device].write.queue.data[devices[device].write.queue.nb].buf = dup;
   devices[device].write.queue.data[devices[device].write.queue.nb].count = count;
   ++devices[device].write.queue.nb;
