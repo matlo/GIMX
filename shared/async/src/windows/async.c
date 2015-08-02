@@ -96,7 +96,7 @@ static int queue_write(int device, const char * buf, unsigned int count) {
   if(count < devices[device].write.size) {
       count = devices[device].write.size;
   }
-  void * dup = malloc(count);
+  void * dup = calloc(count, sizeof(char));
   if(!dup) {
       fprintf(stderr, "%s:%d %s: malloc failed\n", __FILE__, __LINE__, __func__);
       return -1;
