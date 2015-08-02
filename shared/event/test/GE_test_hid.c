@@ -69,6 +69,7 @@ int main(int argc, char* argv[])
   setlinebuf(stdout);
 #endif
 
+  //Open Logitech RumblePad 2
   int hid = hidasync_open_ids(0x046d, 0xc218);
 
   if(hid >= 0)
@@ -79,7 +80,8 @@ int main(int argc, char* argv[])
 
     GE_TimerStart(PERIOD);
     
-    unsigned char ff[] = {0x00, 0x42, 0x00, 0xff, 0xff};
+    //Download and Play Force 
+    unsigned char ff[] = {0x00, 0x51, 0x00, 0xff, 0xff};
     hidasync_write(hid, ff, sizeof(ff));
 
     while(!done)
@@ -91,7 +93,8 @@ int main(int argc, char* argv[])
 
     GE_TimerClose();
     
-    unsigned char stop[] = {0x00, 0x42};
+    //Stop Force
+    unsigned char stop[] = {0x00, 0xf3};
     hidasync_write(hid, stop, sizeof(stop));
     
     hidasync_close(hid);
