@@ -20,6 +20,7 @@ static const char* controller_names[C_TYPE_MAX] =
   [C_TYPE_XONE_PAD] = "XOnePad",
   [C_TYPE_T300RS_PS4] = "T300RS PS4",
   [C_TYPE_G27_PS3] = "G27 PS3",
+  [C_TYPE_G29_PS4] = "G29 PS4",
   [C_TYPE_GPP]      = "GPP",
   [C_TYPE_DEFAULT]  = "none",
 };

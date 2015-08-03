@@ -402,11 +402,14 @@ int adapter_process_packet(int id, s_packet* packet)
         break;
         break;
       case C_TYPE_T300RS_PS4:
+        //TODO MLA
+        break;
+      case C_TYPE_G29_PS4:
         if(adapter[id].ffb_id >= 0)
         {
           if(data[0] == 0x30 && data[1] != 0xf8)
           {
-            hidasync_write(adapter[id].ffb_id, data+1, 8);
+            hidasync_write(adapter[id].ffb_id, data+1, 7);
           }
         }
         break;

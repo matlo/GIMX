@@ -102,6 +102,7 @@ int connector_init()
           switch(adapter->type)
           {
             case C_TYPE_T300RS_PS4:
+            case C_TYPE_G29_PS4:
               adapter->ffb_id = hidasync_open_ids(0x046d, 0xca03);
               break;
             default:
@@ -114,6 +115,7 @@ int connector_init()
             {
               case C_TYPE_DS4:
               case C_TYPE_T300RS_PS4:
+              case C_TYPE_G29_PS4:
                 if(status == BYTE_STATUS_STARTED)
                 {
                   if(adapter_send_reset(i) < 0)
@@ -184,6 +186,9 @@ int connector_init()
                 break;
               case C_TYPE_T300RS_PS4:
                 t300rsPs4_init_report(&adapter->report[0].value.t300rsPs4);
+                break;
+              case C_TYPE_G29_PS4:
+                g29Ps4_init_report(&adapter->report[0].value.g29Ps4);
                 break;
               case C_TYPE_G27_PS3:
                 g27Ps3_init_report(&adapter->report[0].value.g27Ps3);
@@ -313,6 +318,7 @@ void connector_clean()
           break;
         case C_TYPE_DS4:
         case C_TYPE_T300RS_PS4:
+        case C_TYPE_G29_PS4:
           usb_close(i);
           adapter_send_reset(i);
           break;
@@ -385,6 +391,7 @@ int connector_send()
 #endif
           break;
         case C_TYPE_T300RS_PS4:
+        case C_TYPE_G29_PS4:
           if(adapter->serialdevice >= 0)
           {
             report->length = DS4_USB_INTERRUPT_PACKET_SIZE;

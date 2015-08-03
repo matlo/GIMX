@@ -168,6 +168,38 @@ static struct
       }
     }
   },
+  [C_TYPE_G29_PS4] =
+  {
+    .name = DS4_DEVICE_NAME,
+    .vendor = DS4_VENDOR,
+    .product = DS4_PRODUCT,
+    .configuration = 1,
+    .interface = 0,
+    .endpoints =
+    {
+      .in =
+      {
+        .address = DS4_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN,
+        .size = DS4_USB_INTERRUPT_PACKET_SIZE,
+        .reports =
+        {
+          .nb = 1,
+          .elements =
+          {
+            {
+              .report_id = DS4_USB_HID_IN_REPORT_ID,
+              .report_length = DS4_USB_INTERRUPT_PACKET_SIZE
+            }
+          }
+        }
+      },
+      .out =
+      {
+        .address = DS4_USB_INTERRUPT_ENDPOINT_OUT | LIBUSB_ENDPOINT_OUT,
+        .size = DS4_USB_INTERRUPT_PACKET_SIZE
+      }
+    }
+  },
   [C_TYPE_360_PAD] =
   {
     .name = X360_NAME,
@@ -276,9 +308,9 @@ static void process_report(int usb_number, struct usb_state * state, struct libu
 
         report2event(state->type, usb_number, (s_report*)current, (s_report*)previous, state->joystick_id);
 
-        if(state->type == C_TYPE_DS4 || state->type == C_TYPE_T300RS_PS4)
+        if(state->type == C_TYPE_DS4 || state->type == C_TYPE_T300RS_PS4 || state->type == C_TYPE_G29_PS4)
         {
-          previous->ds4 = current->ds4;
+          memcpy(&previous->ds4, &current->ds4, report_length); //s_report_ds4 is larger than report_length bytes!
         }
         else if(state->type == C_TYPE_360_PAD)
         {

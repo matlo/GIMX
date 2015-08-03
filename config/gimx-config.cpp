@@ -172,6 +172,7 @@ const long configFrame::ID_MENUITEMXBOX = wxNewId();
 const long configFrame::ID_MENUITEMJS = wxNewId();
 const long configFrame::ID_MENUITEMT300RSPS4 = wxNewId();
 const long configFrame::ID_MENUITEMG27PS3 = wxNewId();
+const long configFrame::ID_MENUITEMG29PS4 = wxNewId();
 const long configFrame::ID_MENUITEM8 = wxNewId();
 const long configFrame::ID_MENUITEM9 = wxNewId();
 const long configFrame::ID_MENUITEM10 = wxNewId();
@@ -1078,6 +1079,8 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     MenuType->Append(MenuItemT300rsPs4);
     MenuItemG27Ps3 = new wxMenuItem(MenuType, ID_MENUITEMG27PS3, _("G27 PS3"), wxEmptyString, wxITEM_RADIO);
     MenuType->Append(MenuItemG27Ps3);
+    MenuItemG29Ps4 = new wxMenuItem(MenuType, ID_MENUITEMG29PS4, _("G29 PS4"), wxEmptyString, wxITEM_RADIO);
+    MenuType->Append(MenuItemG29Ps4);
     MenuBar1->Append(MenuType, _("Type"));
     MenuConfiguration = new wxMenu();
     MenuConfiguration1 = new wxMenuItem(MenuConfiguration, ID_MENUITEM8, _("1"), wxEmptyString, wxITEM_RADIO);
@@ -1182,6 +1185,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEMJS,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuTypeItemSelected);
     Connect(ID_MENUITEMT300RSPS4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuTypeItemSelected);
     Connect(ID_MENUITEMG27PS3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuTypeItemSelected);
+    Connect(ID_MENUITEMG29PS4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuTypeItemSelected);
     Connect(ID_MENUITEM8,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration);
     Connect(ID_MENUITEM9,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration);
     Connect(ID_MENUITEM10,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration);
@@ -2053,6 +2057,9 @@ void configFrame::LoadControllerType()
       break;
     case C_TYPE_G27_PS3:
       MenuType->Check(ID_MENUITEMG27PS3, true);
+      break;
+    case C_TYPE_G29_PS4:
+      MenuType->Check(ID_MENUITEMG29PS4, true);
       break;
     case C_TYPE_GPP:
     case C_TYPE_DEFAULT:
@@ -3879,6 +3886,10 @@ void configFrame::OnMenuTypeItemSelected(wxCommandEvent& event)
   else if(MenuItemG27Ps3->IsChecked())
   {
     newType = C_TYPE_G27_PS3;
+  }
+  else if(MenuItemG29Ps4->IsChecked())
+  {
+    newType = C_TYPE_G29_PS4;
   }
 
   Controller* controller = configFile.GetController(currentController);

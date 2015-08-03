@@ -23,6 +23,7 @@ typedef enum
   C_TYPE_XONE_PAD,
   C_TYPE_T300RS_PS4,
   C_TYPE_G27_PS3,
+  C_TYPE_G29_PS4,
   // <- add new types here
   C_TYPE_GPP,
   C_TYPE_DEFAULT,
