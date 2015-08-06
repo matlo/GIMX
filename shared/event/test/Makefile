@@ -2,7 +2,7 @@
 
 OBJS=common.o
 LDLIBS=../GE.a ../../async/async.a
-BINS=GE_test GE_test_hid
+BINS=GE_test GE_test_hid GE_test_serial
 ifeq ($(OS),Windows_NT)
 LDLIBS += $(shell sdl2-config --libs) -liconv -lws2_32 -lwinmm -lhid -lsetupapi
 LDLIBS:=$(filter-out -mwindows,$(LDLIBS))
@@ -21,3 +21,5 @@ clean:
 GE_test: $(OBJS) $(DEPS)
 
 GE_test_hid: $(OBJS) $(DEPS)
+
+GE_test_serial: $(OBJS) $(DEPS)

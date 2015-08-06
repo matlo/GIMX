@@ -13,7 +13,7 @@
 #include <string.h>
 #include <unistd.h>
 
-static int tty_set_params(int device, unsigned int baudrate)
+static int tty_set_params(int device, speed_t baudrate)
 {
   struct termios options;
   
@@ -69,6 +69,43 @@ static int spi_set_params(int device, unsigned int baudrate)
   return 0;
 }
 
+speed_t get_baudrate(unsigned int baudrate) {
+  switch(baudrate) {
+    case 57600:
+      return B57600;
+    case 115200:
+      return B115200;
+    case 230400:
+      return B230400;
+    case 460800:
+      return B460800;
+    case 500000:
+      return B500000;
+    case 576000:
+      return B576000;
+    case 921600:
+      return B921600;
+    case 1000000:
+      return B1000000;
+    case 1152000:
+      return B1152000;
+    case 1500000:
+      return B1500000;
+    case 2000000:
+      return B2000000;
+    case 2500000:
+      return B2500000;
+    case 3000000:
+      return B3000000;
+    case 3500000:
+      return B3500000;
+    case 4000000:
+      return B4000000;
+    default:
+      return 0;
+  }
+}
+
 /*
  * \brief Open a serial device. The serial device is registered for further operations.
  *
@@ -90,7 +127,15 @@ int serialasync_open(char * port, unsigned int baudrate) {
   
   if(strstr(port, "tty"))
   {
-    ret = tty_set_params(device, baudrate);
+    speed_t speed = get_baudrate(baudrate);
+
+    if(speed) {
+      ret = tty_set_params(device, speed);
+    }
+    else {
+      fprintf(stderr, "%s:%d %s: invalid baudrate (%u)\n", __FILE__, __LINE__, __func__, baudrate);
+      ret = -1;
+    }
   }
   else if(strstr(port, "spi"))
   {
