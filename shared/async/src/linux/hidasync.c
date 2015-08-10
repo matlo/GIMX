@@ -4,31 +4,7 @@
  */
 
 #include <hidasync.h>
-
-#include <stdio.h>
-#include <linux/hidraw.h>
-#include <string.h>
-#include <sys/ioctl.h>
-#include <dirent.h>
-#include <stdlib.h>
-
-static int open_path(const char * path, int print) {
-  
-  int device = async_open_path(path, print);
-  if(device >= 0) {
-    struct hidraw_devinfo info;
-    if(ioctl(devices[device].fd, HIDIOCGRAWINFO, &info) != -1) {
-        devices[device].hid.vendor = info.vendor;
-        devices[device].hid.product = info.product;
-    }
-    else {
-        ASYNC_PRINT_ERROR("ioctl HIDIOCGRAWINFO")
-        async_close(device);
-        device = -1;
-    }
-  }
-  return device;
-}
+#include <usbhidasync.h>
 
 /*
  * \brief Open a hid device.
@@ -40,14 +16,7 @@ static int open_path(const char * path, int print) {
  */
 int hidasync_open_path(const char * device_path) {
 
-    return open_path(device_path, 1);
-}
-
-#define DEV "/dev"
-#define HIDRAW_DEV_NAME "hidraw"
-
-static int is_hidraw_device(const struct dirent *dir) {
-  return strncmp(HIDRAW_DEV_NAME, dir->d_name, sizeof(HIDRAW_DEV_NAME)-1) == 0;
+    return usbhidasync_open_path(device_path);
 }
 
 /*
@@ -59,46 +28,9 @@ static int is_hidraw_device(const struct dirent *dir) {
  * \return the identifier of the opened device (to be used in further operations), \
  * or -1 in case of failure (e.g. no device found).
  */
-int hidasync_open_ids(unsigned short vendor, unsigned short product)
-{
-  int ret = -1;
+int hidasync_open_ids(unsigned short vendor, unsigned short product) {
 
-  char path[sizeof("/dev/hidraw255")];
-  struct dirent ** namelist_hidraw;
-  int n_hidraw;
-  int i;
-
-  /*
-   * TODO MLA: use libudev instead
-   */
-
-  // scan /dev for hidrawX devices
-  n_hidraw = scandir(DEV, &namelist_hidraw, is_hidraw_device, alphasort);
-  if (n_hidraw >= 0)
-  {
-    for (i = 0; i < n_hidraw; ++i)
-    {
-      snprintf(path, sizeof(path), "%s/%s", DEV, namelist_hidraw[i]->d_name);
-
-      int device = open_path(path, 0);
-
-      if(device >= 0) {
-        if(devices[device].hid.vendor == vendor && devices[device].hid.product == product)
-        {
-          ret = device;
-          break;
-        }
-        hidasync_close(device);
-      }
-    }
-    for (i = 0; i < n_hidraw; ++i)
-    {
-      free(namelist_hidraw[i]);
-    }
-    free(namelist_hidraw);
-  }
-
-  return ret;
+  return usbhidasync_open_ids(vendor, product);
 }
 
 /*
@@ -112,14 +44,8 @@ int hidasync_open_ids(unsigned short vendor, unsigned short product)
  */
 int hidasync_get_ids(int device, unsigned short * vendor, unsigned short * product) {
 
-    ASYNC_CHECK_DEVICE(device)
-
-    *vendor = devices[device].hid.vendor;
-    *product = devices[device].hid.product;
-
-    return 0;
+    return usbhidasync_get_ids(device, vendor, product);
 }
-
 
 /*
  * \brief Read from a hid device, with a timeout. Use this function in a synchronous context.
@@ -133,7 +59,7 @@ int hidasync_get_ids(int device, unsigned short * vendor, unsigned short * produ
  */
 int hidasync_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
 
-  return async_read_timeout(device, buf, count, timeout);
+  return usbhidasync_read_timeout(device, buf, count, timeout);
 }
 
 /*
@@ -151,10 +77,8 @@ int hidasync_read_timeout(int device, void * buf, unsigned int count, unsigned i
  * \return 0 in case of success, or -1 in case of error
  */
 int hidasync_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register) {
-
-    async_set_read_size(device, HIDASYNC_MAX_TRANSFER_SIZE);
     
-    return async_register(device, user, fp_read, fp_write, fp_close, fp_register);
+    return usbhidasync_register(device, user, fp_read, fp_write, fp_close, fp_register);
 }
 
 /*
@@ -169,7 +93,7 @@ int hidasync_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_W
  */
 int hidasync_write_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
 
-    return async_write_timeout(device, buf, count, timeout);
+    return usbhidasync_write_timeout(device, buf, count, timeout);
 }
 
 /*
@@ -183,7 +107,7 @@ int hidasync_write_timeout(int device, void * buf, unsigned int count, unsigned 
  */
 int hidasync_write(int device, const void * buf, unsigned int count) {
 
-    return async_write(device, buf, count);
+    return usbhidasync_write(device, buf, count);
 }
 
 /*
@@ -195,6 +119,6 @@ int hidasync_write(int device, const void * buf, unsigned int count) {
  */
 int hidasync_close(int device) {
 
-    return async_close(device);
+    return usbhidasync_close(device);
 }
 

@@ -17,5 +17,6 @@ int hidasync_close(int device);
 int hidasync_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout);
 int hidasync_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register);
 int hidasync_write(int device, const void * buf, unsigned int count);
+int hidasync_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout);
 
 #endif /* HIDASYNC_H_ */

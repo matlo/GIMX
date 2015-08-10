@@ -7,7 +7,7 @@ ifeq ($(OS),Windows_NT)
 LDLIBS += $(shell sdl2-config --libs) -liconv -lws2_32 -lwinmm -lhid -lsetupapi
 LDLIBS:=$(filter-out -mwindows,$(LDLIBS))
 else
-LDLIBS += -lXi -lX11
+LDLIBS += -lXi -lX11 -lusb-1.0
 endif
 
 CPPFLAGS +=-I../include -I../../async/include

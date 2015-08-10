@@ -16,8 +16,8 @@
 
 s_device devices[ASYNC_MAX_DEVICES] = { };
 
-void init(void) __attribute__((constructor (101)));
-void init(void)
+void async_init(void) __attribute__((constructor (101)));
+void async_init(void)
 {
     int i;
     for (i = 0; i < ASYNC_MAX_DEVICES; ++i) {
@@ -25,14 +25,14 @@ void init(void)
     }
 }
 
-void clean(void) __attribute__((destructor (101)));
-void clean(void)
+void async_clean(void) __attribute__((destructor (101)));
+void async_clean(void)
 {
     int i;
     for (i = 0; i < ASYNC_MAX_DEVICES; ++i) {
         if(devices[i].fd != -1) {
             async_close(i);
-	      }
+        }
     }
 }
 

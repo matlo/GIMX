@@ -44,8 +44,14 @@ static void dump(const unsigned char * packet, unsigned char length)
 
 int hid_read(int user, const void * buf, unsigned int count)
 {
-  printf("user: %d\n", user);
+  printf("read user: %d\n", user);
   dump((unsigned char *)buf, count);
+  return 0;
+}
+
+int hid_write(int user)
+{
+  printf("write user: %d\n", user);
   return 0;
 }
 
@@ -74,28 +80,29 @@ int main(int argc, char* argv[])
 
   if(hid >= 0)
   {
-    hidasync_register(hid, 42, hid_read, NULL, hid_close, REGISTER_FUNCTION);
-    
-    GE_SetCallback(process_event);
-
-    GE_TimerStart(PERIOD);
-    
-    //Download and Play Force               weak        strong
-    unsigned char ff[] = {0x00, 0x51, 0x00, 0x7f, 0x00, 0x7f};
-    hidasync_write(hid, ff, sizeof(ff));
-
-    while(!done)
+    if(hidasync_register(hid, 42, hid_read, hid_write, hid_close, REGISTER_FUNCTION) != -1)
     {
-      GE_PumpEvents();
+      GE_SetCallback(process_event);
 
-      //do something periodically
+      GE_TimerStart(PERIOD);
+
+      while(!done)
+      {
+        GE_PumpEvents();
+
+        //do something periodically
+
+        //Download and Play Force               weak        strong
+        unsigned char ff[] = {0x00, 0x51, 0x00, 0x7f, 0x00, 0x7f};
+        hidasync_write(hid, ff, sizeof(ff));
+      }
+
+      GE_TimerClose();
+
+      //Stop Force
+      unsigned char stop[] = {0x00, 0xf3};
+      hidasync_write_timeout(hid, stop, sizeof(stop), 1);
     }
-
-    GE_TimerClose();
-    
-    //Stop Force
-    unsigned char stop[] = {0x00, 0xf3};
-    hidasync_write(hid, stop, sizeof(stop));
     
     hidasync_close(hid);
   }
