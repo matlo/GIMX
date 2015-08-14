@@ -22,4 +22,6 @@ GE_test: $(OBJS) $(DEPS)
 
 GE_test_hid: $(OBJS) $(DEPS)
 
+GE_test_uhid: $(OBJS) $(DEPS)
+
 GE_test_serial: $(OBJS) $(DEPS)
