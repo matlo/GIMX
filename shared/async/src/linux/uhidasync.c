@@ -486,8 +486,8 @@ int uhidasync_create(const char * name, unsigned short vendor, unsigned short pr
                     .country = hidDesc->countryCode,
                     // Make sure no device specific driver is loaded.
                     .bus = BUS_VIRTUAL,
-                    .vendor = 0x0000,
-                    .product = 0x0000,
+                    .vendor = vendor,
+                    .product = product,
             }
     };
 
