@@ -26,97 +26,93 @@
 
 static int uhid = -1;
 
-static void terminate(int sig)
-{
-  done = 1;
+static void terminate(int sig) {
+    done = 1;
 }
 
-static void dump(const unsigned char * packet, unsigned char length)
-{
-  int i;
-  for(i=0; i<length; ++i)
-  {
-    if(i && !(i%8))
-    {
-      printf("\n");
+static void dump(const unsigned char * packet, unsigned char length) {
+    int i;
+    for (i = 0; i < length; ++i) {
+        if (i && !(i % 8)) {
+            printf("\n");
+        }
+        printf("0x%02x ", packet[i]);
     }
-    printf("0x%02x ", packet[i]);
-  }
-  printf("\n");
+    printf("\n");
 }
 
-int hid_read(int user, const void * buf, unsigned int count)
-{
-  printf("read user: %d\n", user);
-  dump((unsigned char *)buf, count);
-  uhidasync_write(uhid, buf, count);
-  return 0;
+int hid_read(int user, const void * buf, unsigned int count) {
+    printf("read user: %d\n", user);
+    dump((unsigned char *) buf, count);
+    uhidasync_write(uhid, buf, count);
+    return 0;
 }
 
-int hid_write(int user)
-{
-  printf("write user: %d\n", user);
-  return 0;
+int hid_close(int user) {
+    printf("close user: %d\n", user);
+    return 0;
 }
 
-int hid_close(int user)
-{
-  printf("close user: %d\n", user);
-  return 0;
-}
+int main(int argc, char* argv[]) {
 
-int main(int argc, char* argv[])
-{
-  if (!GE_initialize(GE_MKB_SOURCE_NONE))
-  {
-    fprintf(stderr, "GE_initialize failed\n");
-    exit(-1);
-  }
-
-  (void) signal(SIGINT, terminate);
+    (void) signal(SIGINT, terminate);
 
 #ifndef WIN32
-  setlinebuf(stdout);
+    setlinebuf(stdout);
 #endif
 
-  //Open Logitech Momo racing
-  int hid = hidasync_open_ids(0x046d, 0xca03);
+    //Open Logitech Momo racing
+    int hid = hidasync_open_ids(0x046d, 0xca03);
 
-  uhid = uhidasync_create("Logitech  Logitech MOMO Racing");
+    if (hid >= 0) {
 
-  display_devices();
+        const s_hid_info * hidInfo = hidasync_get_hid_info(hid);
+        dump(hidInfo->reportDescriptor, hidInfo->reportDescriptorLength);
 
-  if(hid >= 0 && uhid >= 0)
-  {
-    if(hidasync_register(hid, 42, hid_read, hid_write, hid_close, REGISTER_FUNCTION) != -1)
-    {
-      GE_SetCallback(process_event);
+        //Create a virtual hid device
+        uhid = uhidasync_create("Logitech  Logitech MOMO Racing", 0x046d, 0xca03, hidInfo);
 
-      GE_TimerStart(PERIOD);
+        if (uhid >= 0) {
 
-      while(!done)
-      {
-        GE_PumpEvents();
+            if (GE_initialize(GE_MKB_SOURCE_NONE)) {
 
-        //do something periodically
+                display_devices();
 
-      }
+                if (hidasync_register(hid, 42, hid_read, NULL, hid_close, REGISTER_FUNCTION) != -1) {
 
-      GE_TimerClose();
+                    GE_SetCallback(process_event);
 
+                    GE_TimerStart(PERIOD);
+
+                    while (!done) {
+
+                        GE_PumpEvents();
+
+                        //do something periodically
+
+                    }
+
+                    GE_TimerClose();
+
+                }
+            } else {
+                fprintf(stderr, "GE_initialize failed\n");
+                exit(-1);
+            }
+
+            hidasync_close(hid);
+        }
+
+        uhidasync_close(uhid);
+
+    } else {
+
+        fprintf(stderr, "hid device not found\n");
     }
-    
-    hidasync_close(hid);
-    uhidasync_close(uhid);
-  }
-  else
-  {
-    fprintf(stderr, "hid device not found\n");
-  }
 
-  GE_quit();
+    GE_quit();
 
-  printf("Exiting\n");
+    printf("Exiting\n");
 
-  return 0;
+    return 0;
 }
