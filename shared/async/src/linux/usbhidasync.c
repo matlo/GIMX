@@ -18,7 +18,7 @@ typedef struct {
 	struct {
 		int number;
 		int alternateSetting;
-		int hidDescriptorLength;
+		s_hid_info hidInfo;
 	} interface;
 	struct {
 		struct {
@@ -45,11 +45,6 @@ static struct {
 		ASYNC_CLOSE_CALLBACK fp_close;
 	} callback;
 	int pending_transfers;
-	struct
-	{
-		unsigned char * desc;
-		unsigned int size;
-	} hid_desc;
 } usbdevices[USBHIDASYNC_MAX_DEVICES] = { };
 
 #if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)
@@ -145,9 +140,9 @@ inline int usbhidasync_check_device(int device, const char * file, unsigned int 
 	}
 	return 0;
 }
-#define USBHIDASYNC_CHECK_DEVICE(device) \
+#define USBHIDASYNC_CHECK_DEVICE(device,retValue) \
   if(usbhidasync_check_device(device, __FILE__, __LINE__, __func__) < 0) { \
-    return -1; \
+    return retValue; \
   }
 
 static char * make_path(libusb_device * dev) {
@@ -317,6 +312,47 @@ int usbhidasync_read_timeout(int device, void * buf, unsigned int count, unsigne
 	return 0;
 }
 
+#ifdef WIN32
+#define PACKED __attribute__((gcc_struct, packed))
+#else
+#define PACKED __attribute__((packed))
+#endif
+
+typedef struct PACKED
+{
+	unsigned char bLength;
+	unsigned char bDescriptorType;
+	unsigned short bcdHID;
+	unsigned char bCountryCode;
+	unsigned char bNumDescriptors;
+	unsigned char bReportDescriptorType;
+	unsigned short wReportDescriptorLength;
+} s_hid_descriptor;
+
+static s_hid_info probe_hid(const unsigned char * extra, int extra_length) {
+
+	s_hid_info hidInfo = { };	
+	
+	unsigned int pos;
+	for (pos = 0; pos < extra_length && extra[pos]; pos += extra[pos]) {
+
+		if(extra[pos] < sizeof(s_hid_descriptor)) {
+			continue;
+		}
+
+		s_hid_descriptor * hidDescriptor = (s_hid_descriptor *) (extra + pos);
+
+		if (hidDescriptor->bDescriptorType == LIBUSB_DT_HID && hidDescriptor->bReportDescriptorType == LIBUSB_DT_REPORT) {
+			hidInfo.version = hidDescriptor->bcdHID;
+			hidInfo.countryCode = hidDescriptor->bCountryCode;
+			hidInfo.reportDescriptorLength = hidDescriptor->wReportDescriptorLength;
+			return hidInfo;
+		}
+	}
+
+	return hidInfo;
+}
+
 /*
  * Look for an interface that is from the HID class and that has at least one interrupt endpoint.
  * Return the following properties:
@@ -325,6 +361,7 @@ int usbhidasync_read_timeout(int device, void * buf, unsigned int count, unsigne
  * - bAlternateSetting
  * - interrupt in endpoint: bEndpointAddress, wMaxPacketSize
  * - interrupt out endpoint: bEndpointAddress, wMaxPacketSize
+ * - hid info (version, country, report descriptor)
  */
 static s_config probe_device(libusb_device * dev, struct libusb_device_descriptor * desc) {
 
@@ -345,14 +382,14 @@ static s_config probe_device(libusb_device * dev, struct libusb_device_descripto
 			for (alt = 0; alt < interface->num_altsetting && config.configuration == -1; ++alt) {
 				const struct libusb_interface_descriptor * interfaceDesc = interface->altsetting + alt;
 				if (interfaceDesc->bInterfaceClass == LIBUSB_CLASS_HID) {
-					//TODO MLA: get the HID descriptor
+					config.configuration = configuration->bConfigurationValue;
+					config.interface.number = itf;
+					config.interface.alternateSetting = alt;
+                    config.interface.hidInfo = probe_hid(interfaceDesc->extra, interfaceDesc->extra_length);
 					int ep;
 					for (ep = 0; ep < interfaceDesc->bNumEndpoints; ++ep) {
 						const struct libusb_endpoint_descriptor * endpoint = interfaceDesc->endpoint + ep;
 						if ((endpoint->bmAttributes & 0b00000011) == LIBUSB_TRANSFER_TYPE_INTERRUPT) {
-							config.configuration = configuration->bConfigurationValue;
-							config.interface.number = itf;
-							config.interface.alternateSetting = alt;
 							if ((endpoint->bEndpointAddress & 0b10000000) == LIBUSB_ENDPOINT_IN) {
 								if (config.endpoints.in.address == 0) {
 									config.endpoints.in.address = endpoint->bEndpointAddress;
@@ -437,6 +474,25 @@ int claim_device(int device, libusb_device * dev) {
 		PRINT_ERROR_LIBUSB("libusb_set_interface_alt_setting", ret)
 		usbhidasync_close(device);
 		return -1;
+	}
+
+	s_hid_info * hidInfo = &usbdevices[device].config.interface.hidInfo;
+	if(hidInfo->reportDescriptorLength > 0) {
+		hidInfo->reportDescriptor = calloc(hidInfo->reportDescriptorLength, sizeof(unsigned char));
+		if (hidInfo->reportDescriptor == NULL) {
+			PRINT_ERROR_ALLOC_FAILED("calloc");
+			usbhidasync_close(device);
+			return -1;
+		}
+		int ret = libusb_control_transfer( usbdevices[device].devh, LIBUSB_ENDPOINT_IN | LIBUSB_RECIPIENT_INTERFACE, LIBUSB_REQUEST_GET_DESCRIPTOR, (LIBUSB_DT_REPORT << 8) | 0, 0, hidInfo->reportDescriptor, hidInfo->reportDescriptorLength, 1000); 
+		if (ret < 0) {
+			PRINT_ERROR_LIBUSB("libusb_get_descriptor", ret)
+			usbhidasync_close(device);
+			return -1;
+		}
+                else {
+			hidInfo->reportDescriptorLength = ret;
+		}
 	}
 
 	return 0;
@@ -546,7 +602,7 @@ int usbhidasync_open_path(const char * path) {
 
 int usbhidasync_get_ids(int device, unsigned short * vendor, unsigned short * product) {
 
-	USBHIDASYNC_CHECK_DEVICE(device)
+	USBHIDASYNC_CHECK_DEVICE(device, -1)
 
 	*vendor = usbdevices[device].vendor;
 	*product = usbdevices[device].product;
@@ -554,9 +610,16 @@ int usbhidasync_get_ids(int device, unsigned short * vendor, unsigned short * pr
 	return 0;
 }
 
+const s_hid_info * usbhidasync_get_hid_info(int device) {
+
+	USBHIDASYNC_CHECK_DEVICE(device, NULL)
+	
+	return &usbdevices[device].config.interface.hidInfo;
+}
+
 static int close_callback(int device) {
 
-	USBHIDASYNC_CHECK_DEVICE(device)
+	USBHIDASYNC_CHECK_DEVICE(device, -1)
 
 	return usbdevices[device].callback.fp_close(usbdevices[device].callback.user);
 }
@@ -564,7 +627,7 @@ static int close_callback(int device) {
 int usbhidasync_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write,
 		ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register) {
 
-	USBHIDASYNC_CHECK_DEVICE(device)
+	USBHIDASYNC_CHECK_DEVICE(device, -1)
 
 	if (fp_read != NULL && usbdevices[device].config.endpoints.in.address == 0x00) {
 
@@ -623,7 +686,7 @@ static void cancel_transfers(int device) {
 
 int usbhidasync_close(int device) {
 
-	USBHIDASYNC_CHECK_DEVICE(device)
+	USBHIDASYNC_CHECK_DEVICE(device, -1)
 
 	cancel_transfers(device);
 
@@ -637,6 +700,8 @@ int usbhidasync_close(int device) {
 	usbdevices[device].devh = NULL;
 	free(usbdevices[device].path);
 	usbdevices[device].path = NULL;
+	free(usbdevices[device].config.interface.hidInfo.reportDescriptor);
+	usbdevices[device].config.interface.hidInfo.reportDescriptor = NULL;
 	--nb_opened;
 	if (!nb_opened) {
 		while (transfers_nb) {
@@ -660,7 +725,7 @@ int usbhidasync_close(int device) {
 
 int usbhidasync_write(int device, const void * buf, unsigned int count) {
 
-	USBHIDASYNC_CHECK_DEVICE(device)
+	USBHIDASYNC_CHECK_DEVICE(device, -1)
 
 	if (usbdevices[device].callback.fp_write == NULL) {
 

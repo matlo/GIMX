@@ -6,7 +6,9 @@
 #ifndef UHIDASYNC_H_
 #define UHIDASYNC_H_
 
-int uhidasync_create(const char * name, unsigned short vendor, unsigned short product);
+#include <hidasync.h>
+
+int uhidasync_create(const char * name, unsigned short vendor, unsigned short product, const s_hid_info * hidDesc);
 int uhidasync_close(int device);
 int uhidasync_write(int device, const void * buf, unsigned int count);
 

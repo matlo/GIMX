@@ -47,6 +47,19 @@ int hidasync_get_ids(int device, unsigned short * vendor, unsigned short * produ
     return usbhidasync_get_ids(device, vendor, product);
 }
 
+
+/*
+ * \brief Get info for a hid device.
+ *
+ * \param device  the identifier of the hid device
+ *
+ * \return the hid info
+ */
+const s_hid_info * hidasync_get_hid_info(int device) {
+
+    return usbhidasync_get_hid_info(device);
+}
+
 /*
  * \brief Read from a hid device, with a timeout. Use this function in a synchronous context.
  *
