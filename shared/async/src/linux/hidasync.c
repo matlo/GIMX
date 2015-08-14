@@ -91,7 +91,7 @@ int hidasync_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_W
  *
  * \return the number of bytes actually written (0 in case of timeout)
  */
-int hidasync_write_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
+int hidasync_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout) {
 
     return usbhidasync_write_timeout(device, buf, count, timeout);
 }
