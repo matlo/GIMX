@@ -46,6 +46,8 @@ typedef struct
   s_report_packet report[2]; //the xbox one guide button needs a dedicated report
   int status;
   int ffb_id;
+  int ffb_busy;
+  int uhid_id;
 } s_adapter;
 
 void adapter_init();
@@ -63,6 +65,7 @@ int adapter_get_controller(e_device_type device_type, int device_id);
 
 void adapter_set_axis(unsigned char c, int axis, int value);
 
+int adapter_start_hidasync(int id);
 int adapter_start_serialasync(int id);
 
 int adapter_forward_control_in(int id, unsigned char* data, unsigned char length);

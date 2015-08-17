@@ -29,7 +29,6 @@
 #include "display.h"
 #include "mainloop.h"
 #include "connectors/connector.h"
-#include "connectors/hidasync.h"
 #include "connectors/bluetooth/bt_abs.h"
 #include "args.h"
 #include <adapter.h>

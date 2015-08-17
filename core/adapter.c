@@ -15,9 +15,9 @@
 #include <connectors/usb_con.h>
 #include <connectors/protocol.h>
 
-#include <connectors/ffb_logitech.h>
+#include <ffb_logitech.h>
 
-#include <connectors/hidasync.h>
+#include <hidasync.h>
 
 #define SERIAL_TIMEOUT 1 //second
 
@@ -56,6 +56,8 @@ void adapter_init()
     adapter[i].dst_fd = -1;
     adapter[i].src_fd = -1;
     adapter[i].serialdevice = -1;
+    adapter[i].ffb_id = -1;
+    adapter[i].uhid_id = -1;
     adapter[i].bread = 0;
     for(j = 0; j < MAX_REPORTS; ++j)
     {
@@ -409,7 +411,15 @@ int adapter_process_packet(int id, s_packet* packet)
         {
           if(data[0] == 0x30 && data[1] != 0xf8)
           {
-            hidasync_write(adapter[id].ffb_id, data+1, 7);
+            ffb_logitech_process_report(data + 1);
+            unsigned char report[8] = {};
+            if(!adapter[id].ffb_busy && ffb_logitech_get_report(report + 1))
+            {
+              if(hidasync_write(adapter[id].ffb_id, report, sizeof(report)) >= 0)
+              {
+                adapter->ffb_busy = 1;
+              }
+            }
           }
         }
         break;
@@ -448,6 +458,36 @@ int adapter_process_packet(int id, s_packet* packet)
   }
 
   return ret;
+}
+
+static int adapter_hid_write_cb(int id)
+{
+  s_adapter * adapter = adapter_get(id);
+  adapter->ffb_busy = 0;
+
+  unsigned char report[8] = {};
+  if(ffb_logitech_get_report(report + 1))
+  {
+    if(hidasync_write(adapter[id].ffb_id, report, sizeof(report)) >= 0)
+    {
+      adapter->ffb_busy = 1;
+    }
+  }
+  return 0;
+}
+
+static int adapter_hid_close_cb(int id)
+{
+  return 0;
+}
+
+int adapter_start_hidasync(int id)
+{
+  if(hidasync_register(adapter->ffb_id, id, NULL, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
+  {
+    return -1;
+  }
+  return 0;
 }
 
 static int adapter_serial_read_cb(int id, const void * buf, unsigned int count)

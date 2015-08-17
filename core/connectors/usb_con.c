@@ -708,9 +708,9 @@ int usb_close(int usb_number)
       usb_send_interrupt_out_sync(usb_number, power_off, sizeof(power_off));
     }
 
-    cancel_transfers();
+    cancel_transfers();//TODO MLA: selective cancels
 
-    libusb_release_interface(state->devh, 0);
+    libusb_release_interface(state->devh, controller[state->type].interface);
 #if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)
 #ifndef WIN32
     libusb_attach_kernel_driver(state->devh, 0);

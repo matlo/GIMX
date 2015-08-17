@@ -733,13 +733,13 @@ int usbhidasync_write(int device, const void * buf, unsigned int count) {
 		return -1;
 	}
 
-	if (count >= usbdevices[device].config.endpoints.out.size) {
+	if (count > usbdevices[device].config.endpoints.out.size) {
 
 		PRINT_ERROR_OTHER("incorrect write size")
 		return -1;
 	}
 
-	unsigned char * buffer = calloc(usbdevices[device].config.endpoints.out.size, sizeof(unsigned char));
+	unsigned char * buffer = calloc(usbdevices[device].config.endpoints.out.size - 1, sizeof(unsigned char));
 	if (buffer == NULL) {
 		PRINT_ERROR_ALLOC_FAILED("calloc")
 		return -1;

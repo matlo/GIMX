@@ -14,6 +14,7 @@
 #include "connectors/usb_con.h"
 #include <adapter.h>
 #include <hidasync.h>
+#include <uhidasync.h>
 #include <serialasync.h>
 #include <report.h>
 #include "display.h"
@@ -104,6 +105,20 @@ int connector_init()
             case C_TYPE_T300RS_PS4:
             case C_TYPE_G29_PS4:
               adapter->ffb_id = hidasync_open_ids(0x046d, 0xca03);
+              if(adapter->ffb_id >= 0)
+              {
+				const s_hid_info * hidInfo = hidasync_get_hid_info(adapter->ffb_id);
+				adapter->uhid_id = uhidasync_create("Logitech  Logitech MOMO Racing", 0x046d, 0xca03, hidInfo);
+				if(adapter->uhid_id >= 0)
+				{
+				  adapter_start_serialasync(i);
+				}
+				else
+				{
+				  hidasync_close(adapter->ffb_id);
+				  adapter->ffb_id = -1;
+				}
+              }
               break;
             default:
               break;
@@ -310,6 +325,25 @@ void connector_clean()
     }
     else if(adapter->serialdevice >= 0)
     {
+      switch(adapter->type)
+      {
+        case C_TYPE_T300RS_PS4:
+        case C_TYPE_G29_PS4:
+          if(adapter->ffb_id >= 0)
+          {
+            hidasync_close(adapter->ffb_id);
+            adapter->ffb_id = -1;
+          }
+          if(adapter->uhid_id >= 0)
+          {
+            uhidasync_close(adapter->uhid_id);
+            adapter->uhid_id = -1;
+          }
+          break;
+        default:
+          break;
+      }
+
       switch(adapter->type)
       {
         case C_TYPE_360_PAD:
