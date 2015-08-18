@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
         dump(hidInfo->reportDescriptor, hidInfo->reportDescriptorLength);
 
         //Create a virtual hid device
-        uhid = uhidasync_create("Logitech  Logitech MOMO Racing", 0x046d, 0xca03, hidInfo);
+        uhid = uhidasync_create("Logitech  Logitech MOMO Racing ", 0x046d, 0xca03, hidInfo);
 
         if (uhid >= 0) {
 
