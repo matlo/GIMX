@@ -16,8 +16,8 @@
 #include <connectors/protocol.h>
 
 #include <ffb_logitech.h>
-
 #include <hidasync.h>
+#include <uhidasync.h>
 
 #define SERIAL_TIMEOUT 1 //second
 
@@ -332,6 +332,21 @@ int adapter_forward_interrupt_out(int id, unsigned char* data, unsigned char len
   return usb_send_interrupt_out(id, data, length);
 }
 
+static void adapter_send_next_hid_report(int id)
+{
+  if(!adapter[id].ffb_busy)
+  {
+    unsigned char report[8] = {};
+    if(ffb_logitech_get_report(report + 1))
+    {
+      if(hidasync_write(adapter[id].ffb_id, report, sizeof(report)) == 0)
+      {
+        adapter->ffb_busy = 1;
+      }
+    }
+  }
+}
+
 int adapter_process_packet(int id, s_packet* packet)
 {
   unsigned char type = packet->header.type;
@@ -409,17 +424,10 @@ int adapter_process_packet(int id, s_packet* packet)
       case C_TYPE_G29_PS4:
         if(adapter[id].ffb_id >= 0)
         {
-          if(data[0] == 0x30 && data[1] != 0xf8)
+          if(data[0] == 0x30)
           {
             ffb_logitech_process_report(data + 1);
-            unsigned char report[8] = {};
-            if(!adapter[id].ffb_busy && ffb_logitech_get_report(report + 1))
-            {
-              if(hidasync_write(adapter[id].ffb_id, report, sizeof(report)) >= 0)
-              {
-                adapter->ffb_busy = 1;
-              }
-            }
+            adapter_send_next_hid_report(id);
           }
         }
         break;
@@ -462,17 +470,8 @@ int adapter_process_packet(int id, s_packet* packet)
 
 static int adapter_hid_write_cb(int id)
 {
-  s_adapter * adapter = adapter_get(id);
-  adapter->ffb_busy = 0;
-
-  unsigned char report[8] = {};
-  if(ffb_logitech_get_report(report + 1))
-  {
-    if(hidasync_write(adapter[id].ffb_id, report, sizeof(report)) >= 0)
-    {
-      adapter->ffb_busy = 1;
-    }
-  }
+  adapter[id].ffb_busy = 0;
+  adapter_send_next_hid_report(id);
   return 0;
 }
 
@@ -481,9 +480,18 @@ static int adapter_hid_close_cb(int id)
   return 0;
 }
 
+static int adapter_hid_read_cb(int id, const void * buf, unsigned int count)
+{
+  if(adapter[id].uhid_id >= 0)
+  {
+    uhidasync_write(adapter[id].uhid_id, buf, count);
+  }
+  return 0;
+}
+
 int adapter_start_hidasync(int id)
 {
-  if(hidasync_register(adapter->ffb_id, id, NULL, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
+  if(hidasync_register(adapter[id].ffb_id, id, adapter_hid_read_cb, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
   {
     return -1;
   }

@@ -108,10 +108,10 @@ int connector_init()
               if(adapter->ffb_id >= 0)
               {
 				const s_hid_info * hidInfo = hidasync_get_hid_info(adapter->ffb_id);
-				adapter->uhid_id = uhidasync_create("Logitech  Logitech MOMO Racing", 0x046d, 0xca03, hidInfo);
+				adapter->uhid_id = uhidasync_create("Logitech  Logitech MOMO Racing ", 0x046d, 0xca03, hidInfo);
 				if(adapter->uhid_id >= 0)
 				{
-				  adapter_start_serialasync(i);
+				  adapter_start_hidasync(i);
 				}
 				else
 				{

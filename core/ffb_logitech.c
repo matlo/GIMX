@@ -187,6 +187,11 @@ static void fifo_remove(unsigned char force) {
 
 void ffb_logitech_process_report(unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE]) {
 
+    if(data[0] == CMD_EXTENDED_COMMAND) {
+        dprintf("> %s %02x\n", get_cmd_name(data[0]), data[0]);
+        return;
+    }
+
     unsigned char slots = data[0] & 0xf0;
     unsigned char cmd = data[0] & 0x0f;
 
