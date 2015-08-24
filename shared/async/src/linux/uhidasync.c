@@ -434,12 +434,14 @@ static struct {
     unsigned short product;
     unsigned char * rdesc;
     unsigned short length;
-} rdesc_fixed[] = { { USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WHEEL, df_rdesc_fixed, sizeof(df_rdesc_fixed) }, {
-        USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOMO_WHEEL, momo_rdesc_fixed, sizeof(momo_rdesc_fixed) }, {
-        USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2, momo2_rdesc_fixed, sizeof(momo2_rdesc_fixed) }, {
-        USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_VIBRATION_WHEEL, fv_rdesc_fixed, sizeof(fv_rdesc_fixed) }, {
-        USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_DFP_WHEEL, dfp_rdesc_fixed, sizeof(dfp_rdesc_fixed) }, {
-        USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WII_WHEEL, wii_rdesc_fixed, sizeof(wii_rdesc_fixed) }, };
+} rdesc_fixed[] = {
+        { USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WHEEL, df_rdesc_fixed, sizeof(df_rdesc_fixed) },
+        { USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOMO_WHEEL, momo_rdesc_fixed, sizeof(momo_rdesc_fixed) },
+        { USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2, momo2_rdesc_fixed, sizeof(momo2_rdesc_fixed) },
+        { USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_VIBRATION_WHEEL, fv_rdesc_fixed, sizeof(fv_rdesc_fixed) },
+        { USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_DFP_WHEEL, dfp_rdesc_fixed, sizeof(dfp_rdesc_fixed) },
+        { USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WII_WHEEL, wii_rdesc_fixed, sizeof(wii_rdesc_fixed) },
+};
 
 static int get_fixed_rdesc(unsigned short vendor, unsigned short product) {
 
@@ -452,9 +454,9 @@ static int get_fixed_rdesc(unsigned short vendor, unsigned short product) {
     return -1;
 }
 
-int uhidasync_create(const char * name, unsigned short vendor, unsigned short product, const s_hid_info * hidDesc) {
+int uhidasync_create(const s_hid_info * hidDesc) {
 
-    if (name == NULL || hidDesc == NULL) {
+    if (hidDesc == NULL) {
 
         PRINT_ERROR_OTHER("invalid argument")
         return -1;
@@ -471,7 +473,7 @@ int uhidasync_create(const char * name, unsigned short vendor, unsigned short pr
     unsigned short rd_size = hidDesc->reportDescriptorLength;
 
     // Some devices have a bad report descriptor, so fix it just like the kernel does.
-    int fixed = get_fixed_rdesc(vendor, product);
+    int fixed = get_fixed_rdesc(hidDesc->vendorId, hidDesc->productId);
     if (fixed != -1) {
         rd_data = rdesc_fixed[fixed].rdesc;
         rd_size = rdesc_fixed[fixed].length;
@@ -486,19 +488,12 @@ int uhidasync_create(const char * name, unsigned short vendor, unsigned short pr
                     .country = hidDesc->countryCode,
                     // Make sure no device specific driver is loaded.
                     .bus = BUS_VIRTUAL,
-                    .vendor = vendor,
-                    .product = product,
+                    .vendor = hidDesc->vendorId,
+                    .product = hidDesc->productId,
             }
     };
 
-    if (strlen(name) >= sizeof(ev.u.create.name)) {
-
-        PRINT_ERROR_OTHER("name is too long")
-        close(fd);
-        return -1;
-    }
-
-    strcpy((char *) ev.u.create.name, name);
+    snprintf((char *) ev.u.create.name, sizeof(ev.u.create.name), "%s %s", hidDesc->manufacturerString, hidDesc->productString);
 
     if (uhid_write(fd, &ev) < 0) {
         close(fd);

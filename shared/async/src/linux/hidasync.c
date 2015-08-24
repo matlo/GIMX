@@ -34,21 +34,6 @@ int hidasync_open_ids(unsigned short vendor, unsigned short product) {
 }
 
 /*
- * \brief Get the USB ids of a hid device.
- *
- * \param device  the identifier of the hid device
- * \param vendor  where to store the vendor id
- * \param product where to store the product id
- *
- * \return 0 in case of success, or -1 in case of failure (i.e. bad device identifier).
- */
-int hidasync_get_ids(int device, unsigned short * vendor, unsigned short * product) {
-
-    return usbhidasync_get_ids(device, vendor, product);
-}
-
-
-/*
  * \brief Get info for a hid device.
  *
  * \param device  the identifier of the hid device

@@ -33,6 +33,13 @@
 
 #define BAUDRATE 500000 //bps
 
+#define DEVICE_VID  0x046d
+#define DEVICE_PID  0xca03
+
+/*
+#define DEVICE_VID  0x046d
+#define DEVICE_PID  0xc293*/
+
 /*
  * The adapter restarts about 15ms after receiving the reset command.
  * This time is doubled so as to include the reset command transfer duration.
@@ -104,11 +111,11 @@ int connector_init()
           {
             case C_TYPE_T300RS_PS4:
             case C_TYPE_G29_PS4:
-              adapter->ffb_id = hidasync_open_ids(0x046d, 0xca03);
+              adapter->ffb_id = hidasync_open_ids(DEVICE_VID, DEVICE_PID);
               if(adapter->ffb_id >= 0)
               {
 				const s_hid_info * hidInfo = hidasync_get_hid_info(adapter->ffb_id);
-				adapter->uhid_id = uhidasync_create("Logitech  Logitech MOMO Racing ", 0x046d, 0xca03, hidInfo);
+				adapter->uhid_id = uhidasync_create(hidInfo);
 				if(adapter->uhid_id >= 0)
 				{
 				  adapter_start_hidasync(i);

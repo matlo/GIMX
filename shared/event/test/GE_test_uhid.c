@@ -16,6 +16,12 @@
 #include <uhidasync.h>
 #include "common.h"
 
+#define DEVICE_VID  0x046d
+#define DEVICE_PID  0xca03
+
+/*#define DEVICE_VID  0x046d
+#define DEVICE_PID  0xc293*/
+
 #define PERIOD 10000//microseconds
 
 #ifdef WIN32
@@ -62,7 +68,7 @@ int main(int argc, char* argv[]) {
 #endif
 
     //Open Logitech Momo racing
-    int hid = hidasync_open_ids(0x046d, 0xca03);
+    int hid = hidasync_open_ids(DEVICE_VID, DEVICE_PID);
 
     if (hid >= 0) {
 
@@ -70,7 +76,7 @@ int main(int argc, char* argv[]) {
         dump(hidInfo->reportDescriptor, hidInfo->reportDescriptorLength);
 
         //Create a virtual hid device
-        uhid = uhidasync_create("Logitech  Logitech MOMO Racing ", 0x046d, 0xca03, hidInfo);
+        uhid = uhidasync_create(hidInfo);
 
         if (uhid >= 0) {
 
