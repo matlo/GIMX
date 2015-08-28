@@ -34,6 +34,29 @@ int hidasync_open_ids(unsigned short vendor, unsigned short product) {
 }
 
 /*
+ * \brief Enumerate hid devices.
+ *
+ * \param vendor  the vendor id to look for
+ * \param product the product id to look for (ignored if vendor is 0)
+ *
+ * \return the hid devices
+ */
+s_hid_dev * hidasync_enumerate(unsigned short vendor, unsigned short product) {
+
+    return usbhidasync_enumerate(vendor, product);
+}
+
+/*
+ * \brief Free the memory allocated by hidasync_enumerate.
+ *
+ * \param hid_devs  the hid devices returned by hidasync_enumerate
+ */
+void hidasync_free_enumeration(s_hid_dev * hid_devs) {
+
+    usbhidasync_free_enumeration(hid_devs);
+}
+
+/*
  * \brief Get info for a hid device.
  *
  * \param device  the identifier of the hid device

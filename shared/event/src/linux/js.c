@@ -11,6 +11,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <linux/joystick.h>
+#include <linux/uhid.h>
 #include <poll.h>
 #include "js.h"
 #include <timer.h>
@@ -41,6 +42,7 @@ static struct
     int strong_id;
     int (*rumble_cb)(int index, unsigned short weak, unsigned short strong);
   } force_feedback;
+  int uhid_id;
 } joystick[GE_MAX_DEVICES] = {};
 
 static int j_num; // the number of joysticks
@@ -48,7 +50,8 @@ static int j_num; // the number of joysticks
 /*
  * This initializes the data before any other function of this file gets called.
  */
-__attribute__((constructor (101))) static void struct_init(void)
+void js_init_static(void) __attribute__((constructor (101)));
+void js_init_static(void)
 {
   j_num = 0;
   int i;
@@ -56,6 +59,7 @@ __attribute__((constructor (101))) static void struct_init(void)
   {
     joystick[i].fd = -1;
     joystick[i].force_feedback.fd = -1;
+    joystick[i].uhid_id = -1;
   }
 }
 
@@ -191,14 +195,102 @@ static int is_ev_device(const struct dirent *dir) {
   return strncmp(EV_DEV_NAME, dir->d_name, sizeof(EV_DEV_NAME)-1) == 0;
 }
 
+static int open_evdev(const char * js_name)
+{
+  char dir_event[sizeof("/sys/class/input/js255/device/")];
+  char event[sizeof("/sys/class/input/js255/device/event255")];
+  struct dirent **namelist_ev;
+  int n_ev;
+  int j;
+  int fd_ev = -1;
+
+  snprintf(dir_event, sizeof(dir_event), "/sys/class/input/%s/device/", js_name);
+
+  // scan /sys/class/input/jsX/device/ for eventY devices
+  n_ev = scandir(dir_event, &namelist_ev, is_ev_device, alphasort);
+  if (n_ev >= 0)
+  {
+    for(j=0; j<n_ev; ++j)
+    {
+      if(fd_ev == -1)
+      {
+        snprintf(event, sizeof(event), "%s/%s", DEV_INPUT, namelist_ev[j]->d_name);
+        // open the eventY device
+        fd_ev = open (event, O_RDWR | O_NONBLOCK);
+      }
+      free(namelist_ev[j]);
+    }
+    free(namelist_ev);
+  }
+  return fd_ev;
+}
+
+static void get_uhid_id(int index, int fd_ev)
+{
+  char uniq[sizeof(((struct uhid_event *) NULL)->u.create.uniq)] = {};
+  if (ioctl(fd_ev, EVIOCGUNIQ(sizeof(uniq)), &uniq) == -1)
+  {
+    perror("ioctl EVIOCGUNIQ failed");
+    return;
+  }
+  pid_t pid;
+  int uhid_id;
+  if(sscanf(uniq, "GIMX %d %d", &pid, &uhid_id) == 2)
+  {
+    if(pid == getpid())
+    {
+      joystick[index].uhid_id = uhid_id;
+    }
+  }
+}
+
+static int start_ff(int index, int fd_ev)
+{
+  unsigned long features[4];
+  if (ioctl(fd_ev, EVIOCGBIT(EV_FF, sizeof(features)), features) == -1)
+  {
+    perror("ioctl EV_FF");
+    return -1;
+  }
+  if (test_bit(FF_RUMBLE, features))
+  {
+    // Upload a "weak" effect.
+    struct ff_effect weak =
+    {
+      .type = FF_RUMBLE,
+      .id = -1
+    };
+    if (ioctl(fd_ev, EVIOCSFF, &weak) == -1)
+    {
+      perror("ioctl EVIOCSFF");
+      return -1;
+    }
+    // Upload a "strong" effect.
+    struct ff_effect strong =
+    {
+      .type = FF_RUMBLE,
+      .id = -1,
+    };
+    if (ioctl(fd_ev, EVIOCSFF, &strong) == -1)
+    {
+      perror("ioctl EVIOCSFF");
+      return -1;
+    }
+    // Store the ids so that the effects can be updated and played later.
+    joystick[index].force_feedback.fd = fd_ev;
+    joystick[index].force_feedback.weak_id = weak.id;
+    joystick[index].force_feedback.strong_id = strong.id;
+    return 0;
+  }
+  return -1;
+}
+
 int js_init()
 {
   int ret = 0;
-  int i, j;
-  int fd_js, fd_ev;
+  int i;
+  int fd_js;
   char js_file[sizeof("/dev/input/js255")];
-  char dir_event[sizeof("/sys/class/input/js255/device/")];
-  char event[sizeof("/sys/class/input/js255/device/event255")];
   char name[1024] = {0};
 
   struct dirent **namelist_js;
@@ -231,69 +323,14 @@ int js_init()
           joystick[j_num].hat_info.button_nb = buttons;
           ev_register_source(joystick[j_num].fd, j_num, &js_process_events, NULL, &js_close);
 
-          struct dirent **namelist_ev;
-          int n_ev;
-
-          snprintf(dir_event, sizeof(dir_event), "/sys/class/input/%s/device/", namelist_js[i]->d_name);
-          
-          // scan /sys/class/input/jsX/device/ for eventY devices
-          n_ev = scandir(dir_event, &namelist_ev, is_ev_device, alphasort);
-          if (n_ev >= 0)
+          int fd_ev = open_evdev(namelist_js[i]->d_name);
+          if(fd_ev >= 0)
           {
-            for(j=0; j<n_ev && !ret; ++j)
+            get_uhid_id(j_num, fd_ev);
+            if(start_ff(j_num, fd_ev) == -1)
             {
-              snprintf(event, sizeof(event), "%s/%s", DEV_INPUT, namelist_ev[j]->d_name);
-
-              // open the eventY device
-              fd_ev = open (event, O_RDWR | O_NONBLOCK);
-              if(fd_ev != -1)
-              {
-                unsigned long features[4];
-                if (ioctl(fd_ev, EVIOCGBIT(EV_FF, sizeof(features)), features) == -1)
-                {
-                  perror("ioctl EV_FF");
-                  close(fd_ev);
-                  continue;
-                }
-                if (test_bit(FF_RUMBLE, features))
-                {
-                  // Upload a "weak" effect.
-                  struct ff_effect weak =
-                  {
-                    .type = FF_RUMBLE,
-                    .id = -1
-                  };
-                  if (ioctl(fd_ev, EVIOCSFF, &weak) == -1)
-                  {
-                    perror("ioctl EVIOCSFF");
-                    close(fd_ev);
-                    continue;
-                  }
-                  // Upload a "strong" effect.
-                  struct ff_effect strong =
-                  {
-                    .type = FF_RUMBLE,
-                    .id = -1,
-                  };
-                  if (ioctl(fd_ev, EVIOCSFF, &strong) == -1)
-                  {
-                    perror("ioctl EVIOCSFF");
-                    close(fd_ev);
-                    continue;
-                  }
-                  // Store the ids so that the effects can be updated and played later.
-                  joystick[j_num].force_feedback.fd = fd_ev;
-                  joystick[j_num].force_feedback.weak_id = weak.id;
-                  joystick[j_num].force_feedback.strong_id = strong.id;
-                }
-                else
-                {
-                  close(fd_ev);
-                }
-              }
-              free(namelist_ev[j]);
+              close(fd_ev); //no need to keep it opened
             }
-            free(namelist_ev);
           }
 
           j_num++;
@@ -404,12 +441,19 @@ int js_set_ff_rumble(int index, unsigned short weak, unsigned short strong)
   return ret;
 }
 
+int js_get_uhid_id(int index)
+{
+  return joystick[index].uhid_id;
+}
+
 int js_close(int index)
 {
   if(index < j_num)
   {
     free(joystick[index].name);
     joystick[index].name = NULL;
+
+    joystick[index].uhid_id = -1;
 
     if(joystick[index].fd >= 0)
     {

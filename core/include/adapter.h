@@ -45,8 +45,8 @@ typedef struct
   int ts_axis[AXIS_MAX][2]; //issue 15
   s_report_packet report[2]; //the xbox one guide button needs a dedicated report
   int status;
-  int ffb_id;
-  int ffb_busy;
+  int hid_id;
+  int hid_busy;
   int uhid_id;
 } s_adapter;
 
@@ -62,6 +62,8 @@ int adapter_network_close(int id);
 void adapter_set_device(int controller, e_device_type device_type, int device_id);
 int adapter_get_device(e_device_type device_type, int controller);
 int adapter_get_controller(e_device_type device_type, int device_id);
+
+void adapter_set_uhid_id(int controller, int uhid_id);
 
 void adapter_set_axis(unsigned char c, int axis, int value);
 

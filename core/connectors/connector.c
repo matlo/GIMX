@@ -107,30 +107,6 @@ int connector_init()
             ret = -1;
           }
 
-          switch(adapter->type)
-          {
-            case C_TYPE_T300RS_PS4:
-            case C_TYPE_G29_PS4:
-              adapter->ffb_id = hidasync_open_ids(DEVICE_VID, DEVICE_PID);
-              if(adapter->ffb_id >= 0)
-              {
-				const s_hid_info * hidInfo = hidasync_get_hid_info(adapter->ffb_id);
-				adapter->uhid_id = uhidasync_create(hidInfo);
-				if(adapter->uhid_id >= 0)
-				{
-				  adapter_start_hidasync(i);
-				}
-				else
-				{
-				  hidasync_close(adapter->ffb_id);
-				  adapter->ffb_id = -1;
-				}
-              }
-              break;
-            default:
-              break;
-          }
-
           if(ret != -1)
           {
             switch(adapter->type)
@@ -336,10 +312,10 @@ void connector_clean()
       {
         case C_TYPE_T300RS_PS4:
         case C_TYPE_G29_PS4:
-          if(adapter->ffb_id >= 0)
+          if(adapter->hid_id >= 0)
           {
-            hidasync_close(adapter->ffb_id);
-            adapter->ffb_id = -1;
+            hidasync_close(adapter->hid_id);
+            adapter->hid_id = -1;
           }
           if(adapter->uhid_id >= 0)
           {

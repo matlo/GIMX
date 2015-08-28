@@ -35,6 +35,7 @@
 #include <stats.h>
 #include <pcprog.h>
 #include "../directories.h"
+#include <uhid_joystick.h>
 
 #define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
 
@@ -239,6 +240,8 @@ int main(int argc, char *argv[])
     goto QUIT;
   }
 
+  uhid_joystick_open_all();
+
   unsigned char src = GE_MKB_SOURCE_PHYSICAL;
 
   if(gimx_params.window_events)
@@ -290,6 +293,8 @@ int main(int argc, char *argv[])
 
   GE_release_unused();
 
+  uhid_joystick_close_unused();
+
   macros_init();
 
   if(gimx_params.keygen)
@@ -317,6 +322,7 @@ int main(int argc, char *argv[])
   macros_clean();
   cfg_clean();
   GE_quit();
+  uhid_joystick_close_all();
   connector_clean();
 
   xmlCleanupParser();

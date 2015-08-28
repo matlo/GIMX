@@ -18,6 +18,7 @@
 #include <ffb_logitech.h>
 #include <hidasync.h>
 #include <uhidasync.h>
+#include <uhid_joystick.h>
 
 #define SERIAL_TIMEOUT 1 //second
 
@@ -56,7 +57,7 @@ void adapter_init()
     adapter[i].dst_fd = -1;
     adapter[i].src_fd = -1;
     adapter[i].serialdevice = -1;
-    adapter[i].ffb_id = -1;
+    adapter[i].hid_id = -1;
     adapter[i].uhid_id = -1;
     adapter[i].bread = 0;
     for(j = 0; j < MAX_REPORTS; ++j)
@@ -334,14 +335,14 @@ int adapter_forward_interrupt_out(int id, unsigned char* data, unsigned char len
 
 static void adapter_send_next_hid_report(int id)
 {
-  if(!adapter[id].ffb_busy)
+  if(!adapter[id].hid_busy)
   {
     unsigned char report[8] = {};
     if(ffb_logitech_get_report(report + 1))
     {
-      if(hidasync_write(adapter[id].ffb_id, report, sizeof(report)) == 0)
+      if(hidasync_write(adapter[id].hid_id, report, sizeof(report)) == 0)
       {
-        adapter->ffb_busy = 1;
+        adapter->hid_busy = 1;
       }
     }
   }
@@ -422,7 +423,7 @@ int adapter_process_packet(int id, s_packet* packet)
         //TODO MLA
         break;
       case C_TYPE_G29_PS4:
-        if(adapter[id].ffb_id >= 0)
+        if(adapter[id].hid_id >= 0)
         {
           if(data[0] == 0x30)
           {
@@ -470,7 +471,7 @@ int adapter_process_packet(int id, s_packet* packet)
 
 static int adapter_hid_write_cb(int id)
 {
-  adapter[id].ffb_busy = 0;
+  adapter[id].hid_busy = 0;
   adapter_send_next_hid_report(id);
   return 0;
 }
@@ -489,13 +490,29 @@ static int adapter_hid_read_cb(int id, const void * buf, unsigned int count)
   return 0;
 }
 
-int adapter_start_hidasync(int id)
+static int start_hidasync(int id)
 {
-  if(hidasync_register(adapter[id].ffb_id, id, adapter_hid_read_cb, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
+  if(hidasync_register(adapter[id].hid_id, id, adapter_hid_read_cb, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
   {
     return -1;
   }
   return 0;
+}
+
+void adapter_set_uhid_id(int controller, int uhid_id)
+{
+  if(controller < 0 || controller >= MAX_CONTROLLERS)
+  {
+    fprintf(stderr, "%s: invalid controller\n", __func__);
+    return;
+  }
+
+  if(adapter[controller].uhid_id < 0)
+  {
+    adapter[controller].uhid_id = uhid_id;
+    adapter[controller].hid_id = uhid_joystick_get_hid_id(uhid_id);
+    start_hidasync(controller);
+  }
 }
 
 static int adapter_serial_read_cb(int id, const void * buf, unsigned int count)

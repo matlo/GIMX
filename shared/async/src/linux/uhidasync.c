@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
 
 #define UHID_MAX_DEVICES 256
 
@@ -23,7 +24,7 @@
 
 static struct {
     int fd;
-
+    int opened;
 } uhidasync_devices[UHID_MAX_DEVICES] = { };
 
 void uhidasync_init(void) __attribute__((constructor (101)));
@@ -46,18 +47,18 @@ void uhidasync_clean(void) {
 
 inline int uhidasync_check_device(int device, const char * file, unsigned int line, const char * func) {
     if (device < 0 || device >= UHID_MAX_DEVICES) {
-        PRINT_ERROR_OTHER("invalid device")
+        fprintf(stderr, "%s:%d %s: invalid device\n", file, line, func);
         return -1;
     }
-    if (uhidasync_devices[device].fd == -1) {
-        PRINT_ERROR_OTHER("no such device")
+    if (uhidasync_devices[device].fd < 0) {
+        fprintf(stderr, "%s:%d %s: no such device\n", file, line, func);
         return -1;
     }
     return 0;
 }
-#define uhidasync_CHECK_DEVICE(device) \
+#define UHIDASYNC_CHECK_DEVICE(device,retValue) \
   if(uhidasync_check_device(device, __FILE__, __LINE__, __func__) < 0) { \
-    return -1; \
+    return retValue; \
   }
 
 static int add_device(int fd) {
@@ -84,18 +85,6 @@ static int uhid_write(int fd, const struct uhid_event *ev) {
         return 0;
     }
 }
-
-#define USB_VENDOR_ID_LOGITECH          0x046d
-
-#define USB_DEVICE_ID_LOGITECH_WHEEL        0xc294
-#define USB_DEVICE_ID_LOGITECH_MOMO_WHEEL    0xc295
-#define USB_DEVICE_ID_LOGITECH_DFP_WHEEL    0xc298
-#define USB_DEVICE_ID_LOGITECH_G25_WHEEL    0xc299
-#define USB_DEVICE_ID_LOGITECH_DFGT_WHEEL    0xc29a
-#define USB_DEVICE_ID_LOGITECH_G27_WHEEL    0xc29b
-#define USB_DEVICE_ID_LOGITECH_WII_WHEEL    0xc29c
-#define USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2      0xca03
-#define USB_DEVICE_ID_LOGITECH_VIBRATION_WHEEL  0xca04
 
 /* Fixed report descriptors for Logitech Driving Force (and Pro)
  * wheel controllers
@@ -329,6 +318,51 @@ static __u8 momo_rdesc_fixed[] = { 0x05, 0x01, /*  Usage Page (Desktop),        
         0xC0 /*  End Collection                      */
 };
 
+//TODO MLA: try to separate the pedal axes
+static __u8 ffgp_rdesc_fixed[] = {
+        0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
+        0x09, 0x04,        // Usage (Joystick)
+        0xA1, 0x01,        // Collection (Application)
+        0xA1, 0x02,        //   Collection (Logical)
+        0x95, 0x01,        //     Report Count (1)
+        0x75, 0x0A,        //     Report Size (10)
+        0x15, 0x00,        //     Logical Minimum (0)
+        0x26, 0xFF, 0x03,  //     Logical Maximum (1023)
+        0x35, 0x00,        //     Physical Minimum (0)
+        0x46, 0xFF, 0x03,  //     Physical Maximum (1023)
+        0x09, 0x30,        //     Usage (X)
+        0x81, 0x02,        //     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+        0x95, 0x06,        //     Report Count (6)
+        0x75, 0x01,        //     Report Size (1)
+        0x25, 0x01,        //     Logical Maximum (1)
+        0x45, 0x01,        //     Physical Maximum (1)
+        0x05, 0x09,        //     Usage Page (Button)
+        0x19, 0x01,        //     Usage Minimum (0x01)
+        0x29, 0x06,        //     Usage Maximum (0x06)
+        0x81, 0x02,        //     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+        0x95, 0x01,        //     Report Count (1)
+        0x75, 0x08,        //     Report Size (8)
+        0x26, 0xFF, 0x00,  //     Logical Maximum (255)
+        0x46, 0xFF, 0x00,  //     Physical Maximum (255)
+        0x06, 0x00, 0xFF,  //     Usage Page (Vendor Defined 0xFF00)
+        0x09, 0x01,        //     Usage (0x01)
+        0x81, 0x02,        //     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+        0x05, 0x01,        //     Usage Page (Generic Desktop Ctrls)
+        0x09, 0x31,        //     Usage (Y)
+        0x81, 0x02,        //     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+        0x06, 0x00, 0xFF,  //     Usage Page (Vendor Defined 0xFF00)
+        0x09, 0x01,        //     Usage (0x01)
+        0x95, 0x03,        //     Report Count (3)
+        0x81, 0x02,        //     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+        0xC0,              //   End Collection
+        0xA1, 0x02,        //   Collection (Logical)
+        0x09, 0x02,        //     Usage (0x02)
+        0x95, 0x07,        //     Report Count (7)
+        0x91, 0x02,        //     Output (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+        0xC0,              //   End Collection
+        0xC0,              // End Collection
+};
+
 static __u8 momo2_rdesc_fixed[] = { 0x05, 0x01, /*  Usage Page (Desktop),               */
         0x09, 0x04, /*  Usage (Joystik),                    */
         0xA1, 0x01, /*  Collection (Application),           */
@@ -435,6 +469,7 @@ static struct {
     unsigned char * rdesc;
     unsigned short length;
 } rdesc_fixed[] = {
+        { USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WINGMAN_FFG, ffgp_rdesc_fixed, sizeof(ffgp_rdesc_fixed) },
         { USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WHEEL, df_rdesc_fixed, sizeof(df_rdesc_fixed) },
         { USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOMO_WHEEL, momo_rdesc_fixed, sizeof(momo_rdesc_fixed) },
         { USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2, momo2_rdesc_fixed, sizeof(momo2_rdesc_fixed) },
@@ -469,6 +504,13 @@ int uhidasync_create(const s_hid_info * hidDesc) {
         return -1;
     }
 
+    int device = add_device(fd);
+
+    if (device < 0) {
+        close(fd);
+        return -1;
+    }
+
     unsigned char * rd_data = hidDesc->reportDescriptor;
     unsigned short rd_size = hidDesc->reportDescriptorLength;
 
@@ -494,32 +536,78 @@ int uhidasync_create(const s_hid_info * hidDesc) {
     };
 
     snprintf((char *) ev.u.create.name, sizeof(ev.u.create.name), "%s %s", hidDesc->manufacturerString, hidDesc->productString);
+    snprintf((char *) ev.u.create.uniq, sizeof(ev.u.create.uniq), "GIMX %d %d", getpid(), device);
 
     if (uhid_write(fd, &ev) < 0) {
-        close(fd);
+        uhidasync_close(device);
         return -1;
-    }
-
-    int device = add_device(fd);
-
-    if (device < 0) {
-        close(fd);
     }
 
     return device;
 }
 
+static int uhid_read(int device) {
+
+    struct uhid_event ev;
+    ssize_t ret;
+
+    memset(&ev, 0, sizeof(ev));
+    ret = read(uhidasync_devices[device].fd, &ev, sizeof(ev));
+    if (ret == -1) {
+        if (errno == EAGAIN) {
+            return 0;
+        }
+        PRINT_ERROR_ERRNO("read")
+        return -1;
+    }
+
+    switch (ev.type) {
+    case UHID_START:
+        break;
+    case UHID_STOP:
+        break;
+    case UHID_OPEN:
+        uhidasync_devices[device].opened = 1;
+        break;
+    case UHID_CLOSE:
+        uhidasync_devices[device].opened = 0;
+        break;
+    case UHID_OUTPUT:
+        break;
+    case UHID_OUTPUT_EV:
+        break;
+    default:
+        break;
+    }
+
+    return ret;
+}
+
+int uhidasync_is_opened(int device) {
+
+    UHIDASYNC_CHECK_DEVICE(device, 0)
+
+    while(uhid_read(device) > 0) {}
+
+    return uhidasync_devices[device].opened;
+}
+
 int uhidasync_close(int device) {
+
+    UHIDASYNC_CHECK_DEVICE(device, -1)
 
     struct uhid_event ev = { .type = UHID_DESTROY };
     uhid_write(uhidasync_devices[device].fd, &ev);
     close(uhidasync_devices[device].fd);
     uhidasync_devices[device].fd = -1;
+    uhidasync_devices[device].opened = 0;
 
-    return 0;
+    return 1;
 }
 
 int uhidasync_write(int device, const void * buf, unsigned int count) {
+
+    UHIDASYNC_CHECK_DEVICE(device, -1)
 
     if (count > UHID_DATA_MAX) {
 

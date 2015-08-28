@@ -131,11 +131,11 @@ void usbhidasync_clean(void) {
 
 inline int usbhidasync_check_device(int device, const char * file, unsigned int line, const char * func) {
 	if (device < 0 || device >= USBHIDASYNC_MAX_DEVICES) {
-		PRINT_ERROR_OTHER("invalid device")
+    fprintf(stderr, "%s:%d %s: invalid device\n", file, line, func);
 		return -1;
 	}
 	if (usbdevices[device].devh == NULL) {
-		PRINT_ERROR_OTHER("no such device")
+    fprintf(stderr, "%s:%d %s: no such device\n", file, line, func);
 		return -1;
 	}
 	return 0;
@@ -331,8 +331,8 @@ typedef struct PACKED
 
 static s_hid_info probe_hid(const unsigned char * extra, int extra_length) {
 
-	s_hid_info hidInfo = { };	
-	
+	s_hid_info hidInfo = { };
+
 	unsigned int pos;
 	for (pos = 0; pos < extra_length && extra[pos]; pos += extra[pos]) {
 
@@ -385,7 +385,9 @@ static s_config probe_device(libusb_device * dev, struct libusb_device_descripto
 					config.configuration = configuration->bConfigurationValue;
 					config.interface.number = itf;
 					config.interface.alternateSetting = alt;
-                    config.hidInfo = probe_hid(interfaceDesc->extra, interfaceDesc->extra_length);
+          config.hidInfo = probe_hid(interfaceDesc->extra, interfaceDesc->extra_length);
+          config.hidInfo.vendorId = desc->idVendor;
+          config.hidInfo.productId = desc->idProduct;
 					int ep;
 					for (ep = 0; ep < interfaceDesc->bNumEndpoints; ++ep) {
 						const struct libusb_endpoint_descriptor * endpoint = interfaceDesc->endpoint + ep;
@@ -519,6 +521,98 @@ static int claim_device(int device, libusb_device * dev, struct libusb_device_de
 	return 0;
 }
 
+s_hid_dev * usbhidasync_enumerate(unsigned short vendor, unsigned short product) {
+
+  s_hid_dev * hid_devs = NULL;
+  unsigned int nb_hid_devs = 0;
+
+  int ret = -1;
+  int dev_i;
+
+  if (!ctx) {
+    ret = libusb_init(&ctx);
+    if (ret != LIBUSB_SUCCESS) {
+      PRINT_ERROR_LIBUSB("libusb_init", ret)
+      return NULL;
+    }
+  }
+
+  if (!devs) {
+    cnt = libusb_get_device_list(ctx, &devs);
+    if (cnt < 0) {
+      PRINT_ERROR_LIBUSB("libusb_get_device_list", cnt)
+      return NULL;
+    }
+  }
+
+  for (dev_i = 0; dev_i < cnt; ++dev_i) {
+    struct libusb_device_descriptor desc;
+    ret = libusb_get_device_descriptor(devs[dev_i], &desc);
+    if (!ret) {
+      if(vendor) {
+        if (desc.idVendor != vendor) {
+          continue;
+        }
+        if(product) {
+          if(desc.idProduct != product) {
+            continue;
+          }
+        }
+      }
+
+      s_config config = probe_device(devs[dev_i], &desc);
+      if (config.configuration == -1) {
+        continue;
+      }
+
+      char * path = strdup(make_path(devs[dev_i]));
+
+      if(path == NULL) {
+        PRINT_ERROR_OTHER("strdup failed")
+        continue;
+      }
+
+      void * ptr = realloc(hid_devs, (nb_hid_devs + 1) * sizeof(*hid_devs));
+
+      if(ptr == NULL) {
+        PRINT_ERROR_ALLOC_FAILED("realloc")
+        free(path);
+        continue;
+      }
+
+      hid_devs = ptr;
+
+      if(nb_hid_devs > 0) {
+        hid_devs[nb_hid_devs - 1].next = 1;
+      }
+
+      hid_devs[nb_hid_devs].path = path;
+      hid_devs[nb_hid_devs].vendorId = desc.idVendor;
+      hid_devs[nb_hid_devs].productId = desc.idProduct;
+      hid_devs[nb_hid_devs].next = 0;
+
+      ++nb_hid_devs;
+    }
+  }
+
+  return hid_devs;
+}
+
+void usbhidasync_free_enumeration(s_hid_dev * hid_devs) {
+
+    s_hid_dev * current;
+    for(current = hid_devs; ; ++current) {
+
+        free(current->path);
+
+        if(current->next == 0) {
+            break;
+        }
+    }
+    free(hid_devs);
+//TODO MLA + libusb_close
+}
+
 int usbhidasync_open_ids(unsigned short vendor, unsigned short product) {
 	int ret = -1;
 	int dev_i;
@@ -545,7 +639,7 @@ int usbhidasync_open_ids(unsigned short vendor, unsigned short product) {
 		if (!ret) {
 			if (desc.idVendor == vendor && desc.idProduct == product) {
 				s_config config = probe_device(devs[dev_i], &desc);
-				if (config.configuration == 0) {
+				if (config.configuration == -1) {
 					continue;
 				}
 
@@ -601,7 +695,7 @@ int usbhidasync_open_path(const char * path) {
 		ret = libusb_get_device_descriptor(devs[dev_i], &desc);
 		if (!ret) {
 			s_config config = probe_device(devs[dev_i], &desc);
-			if (config.configuration == 0) {
+			if (config.configuration == -1) {
 				continue;
 			}
 
@@ -624,7 +718,7 @@ int usbhidasync_open_path(const char * path) {
 const s_hid_info * usbhidasync_get_hid_info(int device) {
 
 	USBHIDASYNC_CHECK_DEVICE(device, NULL)
-	
+
 	return &usbdevices[device].config.hidInfo;
 }
 
@@ -701,7 +795,8 @@ int usbhidasync_close(int device) {
 
 	cancel_transfers(device);
 
-	libusb_release_interface(usbdevices[device].devh, usbdevices[device].config.interface.number);
+	//TODO MLA: fix this.
+	//libusb_release_interface(usbdevices[device].devh, usbdevices[device].config.interface.number);
 #if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)
 #ifndef WIN32
 	libusb_attach_kernel_driver(usbdevices[device].devh, 0);

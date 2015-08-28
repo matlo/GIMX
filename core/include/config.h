@@ -104,6 +104,7 @@ typedef struct
   {
     e_device_type type;
     int id;
+    int uhid_id;
   } device;
   struct
   {

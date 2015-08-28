@@ -186,6 +186,11 @@ int ev_joystick_set_ff_rumble(int joystick, unsigned short weak, unsigned short 
   return js_set_ff_rumble(joystick, weak, strong);
 }
 
+int ev_joystick_get_uhid_id(int joystick)
+{
+  return js_get_uhid_id(joystick);
+}
+
 static int (*event_callback)(GE_Event*) = NULL;
 
 void ev_set_callback(int (*fp)(GE_Event*))

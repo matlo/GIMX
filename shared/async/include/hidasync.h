@@ -21,8 +21,19 @@ typedef struct {
     char * productString;
 } s_hid_info;
 
+struct hid_device;
+
+typedef struct {
+    unsigned short vendorId;
+    unsigned short productId;
+    char * path;
+    int next;
+} s_hid_dev;
+
 int hidasync_open_path(const char * device_path);
 int hidasync_open_ids(unsigned short vendor, unsigned short product);
+s_hid_dev * hidasync_enumerate(unsigned short vendor, unsigned short product);
+void  hidasync_free_enumeration(s_hid_dev * devs);
 const s_hid_info * hidasync_get_hid_info(int device);
 int hidasync_close(int device);
 int hidasync_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout);
