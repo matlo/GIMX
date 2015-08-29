@@ -606,7 +606,7 @@ static int l2cap_bluez_connect_accept(int listen_channel)
 
   if(listen_channels.channels[listen_channel].accept_callback(channel, &src))
   {
-    //TODO MLA
+    //TODO MLA: close the channel
   }
 
   return 0;

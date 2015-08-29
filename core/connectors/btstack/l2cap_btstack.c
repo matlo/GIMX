@@ -207,14 +207,14 @@ static int l2cap_btstack_send(int channel, const unsigned char* buf, int len, in
 static int l2cap_btstack_listen(int user, unsigned short psm, int options,
     L2CAP_ABS_LISTEN_ACCEPT_CALLBACK read_callback, L2CAP_ABS_CLOSE_CALLBACK close_callback)
 {
-  //TODO MLA
+  //TODO MLA: implement btstack listen
   fprintf(stderr, "btstack_listen is not implemented yet\n");
   return -1;
 }
 
 static int l2cap_btstack_close(int channel)
 {
-  //TODO MLA
+  //TODO MLA: implement btstack close
   fprintf(stderr, "btstack_close is not implemented yet\n");
   return -1;
 }

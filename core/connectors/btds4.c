@@ -511,7 +511,7 @@ static int close_ps4_control(int btds4_number)
 
 static int process(int sixaxis_number, int psm, const unsigned char *buf, int len)
 {
-  //TODO MLA
+  //TODO MLA: this function could probably be removed
   return 0;
 }
 
@@ -617,7 +617,7 @@ static int ds4_interrupt_rumble(int joystick, unsigned short weak, unsigned shor
 
       mhash(td, report.data, sizeof(report.data));
 #else
-      //TODO MLA
+      //TODO MLA: windows port
 #endif
 
       unsigned int digest = 0; // crc32 will be stored here
@@ -873,7 +873,7 @@ int btds4_init(int btds4_number)
     return -1;
   }
 #else
-  //TODO MLA
+  //TODO MLA: windows port
 #endif
 
   if (bt_device_abs_get()->get_bdaddr(state->dongle_index, &state->dongle_bdaddr.ba) < 0)
@@ -981,7 +981,7 @@ int btds4_send_interrupt(int btds4_number, s_report_ds4* report, int active)
 
   mhash(td, &state->bt_report, sizeof(state->bt_report)-4);
 #else
-  //TODO MLA
+  //TODO MLA: windows port
 #endif
 
   unsigned int digest = 0; // crc32 will be stored here

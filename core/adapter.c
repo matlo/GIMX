@@ -420,7 +420,7 @@ int adapter_process_packet(int id, s_packet* packet)
         break;
         break;
       case C_TYPE_T300RS_PS4:
-        //TODO MLA
+        //TODO MLA: decode and process T300RS FFB reports
         break;
       case C_TYPE_G29_PS4:
         if(adapter[id].hid_id >= 0)
@@ -553,13 +553,13 @@ static int adapter_serial_read_cb(int id, const void * buf, unsigned int count)
 
 static int adapter_serial_write_cb(int id)
 {
-  //TODO MLA
+  //TODO MLA: anything to do in the serial write callback?
   return 0;
 }
 
 static int adapter_serial_close_cb(int id)
 {
-  //TODO MLA
+  //TODO MLA: anything to do in the serial close callback?
   return 0;
 }
 
