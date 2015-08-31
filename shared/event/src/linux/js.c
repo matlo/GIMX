@@ -178,8 +178,8 @@ static int js_process_events(int index)
 }
 
 #define DEV_INPUT "/dev/input"
-#define JS_DEV_NAME "js"
-#define EV_DEV_NAME "event"
+#define JS_DEV_NAME "js%u"
+#define EV_DEV_NAME "event%u"
 
 #define BITS_PER_LONG (sizeof(long) * 8)
 #define OFF(x)  ((x)%BITS_PER_LONG)
@@ -188,11 +188,19 @@ static int js_process_events(int index)
 #define test_bit(bit, array)    ((array[LONG(bit)] >> OFF(bit)) & 1)
 
 static int is_js_device(const struct dirent *dir) {
-  return strncmp(JS_DEV_NAME, dir->d_name, sizeof(JS_DEV_NAME)-1) == 0;
+  unsigned int num;
+  if(dir->d_type == DT_CHR && sscanf(dir->d_name, JS_DEV_NAME, &num) == 1 && num < 256) {
+    return 1;
+  }
+  return 0;
 }
 
-static int is_ev_device(const struct dirent *dir) {
-  return strncmp(EV_DEV_NAME, dir->d_name, sizeof(EV_DEV_NAME)-1) == 0;
+static int is_event_dir(const struct dirent *dir) {
+  unsigned int num;
+  if(dir->d_type == DT_DIR && sscanf(dir->d_name, EV_DEV_NAME, &num) == 1 && num < 256) {
+    return 1;
+  }
+  return 0;
 }
 
 static int open_evdev(const char * js_name)
@@ -207,7 +215,7 @@ static int open_evdev(const char * js_name)
   snprintf(dir_event, sizeof(dir_event), "/sys/class/input/%s/device/", js_name);
 
   // scan /sys/class/input/jsX/device/ for eventY devices
-  n_ev = scandir(dir_event, &namelist_ev, is_ev_device, alphasort);
+  n_ev = scandir(dir_event, &namelist_ev, is_event_dir, alphasort);
   if (n_ev >= 0)
   {
     for(j=0; j<n_ev; ++j)

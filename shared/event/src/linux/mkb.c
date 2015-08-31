@@ -266,10 +266,14 @@ static int mkb_process_events(int device)
 }
 
 #define DEV_INPUT "/dev/input"
-#define EVENT_DEV_NAME "event"
+#define EV_DEV_NAME "event%u"
 
-static int is_event_device(const struct dirent *dir) {
-  return strncmp(EVENT_DEV_NAME, dir->d_name, sizeof(EVENT_DEV_NAME)-1) == 0;
+static int is_event_file(const struct dirent *dir) {
+  unsigned int num;
+  if(dir->d_type == DT_CHR && sscanf(dir->d_name, EV_DEV_NAME, &num) == 1 && num < 256) {
+    return 1;
+  }
+  return 0;
 }
 
 int mkb_init()
@@ -314,7 +318,7 @@ int mkb_init()
   struct dirent **namelist;
   int n;
 
-  n = scandir(DEV_INPUT, &namelist, is_event_device, alphasort);
+  n = scandir(DEV_INPUT, &namelist, is_event_file, alphasort);
   if (n >= 0)
   {
     for(i=0; i<n && !ret; ++i)
