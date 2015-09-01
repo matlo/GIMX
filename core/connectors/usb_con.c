@@ -521,6 +521,7 @@ int usb_init(int usb_number, e_controller_type type)
   memset(state, 0x00, sizeof(*state));
   state->joystick_id = -1;
   state->type = type;
+  state->ack = 1;
 
   if(!ctx)
   {
@@ -665,17 +666,6 @@ int usb_init(int usb_number, e_controller_type type)
   }
 
   return -1;
-}
-
-int usb_start_poll(int usb_number)
-{
-  int ret = 0;
-
-  if(usb_poll_interrupt(usb_number) != LIBUSB_SUCCESS)
-  {
-    ret = -1;
-  }
-  return ret;
 }
 
 /*

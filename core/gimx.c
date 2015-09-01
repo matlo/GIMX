@@ -29,6 +29,7 @@
 #include "display.h"
 #include "mainloop.h"
 #include "connectors/bluetooth/bt_abs.h"
+#include "connectors/usb_con.h"
 #include "args.h"
 #include <adapter.h>
 #include <stats.h>
@@ -341,6 +342,8 @@ int main(int argc, char *argv[])
     fprintf(stderr, _("adapter_start failed\n"));
     goto QUIT;
   }
+
+  usb_poll_interrupts();
 
   mainloop();
 
