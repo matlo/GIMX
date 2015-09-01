@@ -391,7 +391,7 @@ static int ProcessEventElement(xmlNode * a_node)
           {
             case E_EVENT_TYPE_BUTTON:
               adapter_set_device(entry.controller_id, entry.device.type, entry.device.id);
-              if(entry.device.uhid_id >= 0)
+              if(entry.device.type == E_DEVICE_TYPE_JOYSTICK && entry.device.uhid_id >= 0)
               {
                 adapter_set_uhid_id(entry.controller_id, entry.device.uhid_id);
               }

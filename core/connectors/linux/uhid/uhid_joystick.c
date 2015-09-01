@@ -54,12 +54,7 @@ void uhid_joystick_clean(void) __attribute__((destructor (101)));
 void uhid_joystick_clean(void) {
     int i;
     for (i = 0; i < UHID_JOYSTICK_MAX_DEVICES; ++i) {
-        if (uhid_joystick_devices[i].hid >= 0) {
-            hidasync_close(uhid_joystick_devices[i].hid);
-        }
-        if (uhid_joystick_devices[i].uhid >= 0) {
-            uhidasync_close(uhid_joystick_devices[i].uhid);
-        }
+        uhid_joystick_close(i);
     }
 }
 

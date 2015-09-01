@@ -846,7 +846,7 @@ static s_btds4_report init_report_btds4 = {
     }
 };
 
-int btds4_init(int btds4_number)
+int btds4_init(int btds4_number, int dongle_index, const char * bdaddr_dst)
 {
   struct btds4_state* state = states+btds4_number;
 
@@ -862,6 +862,9 @@ int btds4_init(int btds4_number)
     fprintf(stderr, "multiple instances are not supported when using btstack\n");
     return -1;
   }
+
+  state->dongle_index = dongle_index;
+  strncpy(state->ps4_bdaddr, bdaddr_dst, sizeof(state->ps4_bdaddr));
 
   memcpy(&state->bt_report, &init_report_btds4, sizeof(s_btds4_report));
   state->joystick_id = GE_RegisterJoystick(DS4_DEVICE_NAME, ds4_interrupt_rumble);
@@ -919,20 +922,6 @@ int btds4_init(int btds4_number)
   }
 
   return 0;
-}
-
-void btds4_set_bdaddr(int btds4_number, char* dst)
-{
-  struct btds4_state* state = states+btds4_number;
-
-  strncpy(state->ps4_bdaddr, dst, sizeof(state->ps4_bdaddr));
-}
-
-void btds4_set_dongle(int btds4_number, int dongle_index)
-{
-  struct btds4_state* state = states+btds4_number;
-
-  state->dongle_index = dongle_index;
 }
 
 #define INACTIVITY_THRESHOLD 6000 //6000x10ms=60s

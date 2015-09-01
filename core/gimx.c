@@ -28,7 +28,6 @@
 #include "calibration.h"
 #include "display.h"
 #include "mainloop.h"
-#include "connectors/connector.h"
 #include "connectors/bluetooth/bt_abs.h"
 #include "args.h"
 #include <adapter.h>
@@ -177,8 +176,6 @@ int main(int argc, char *argv[])
     printf("Warning: failed to set process priority\n");
   }
 
-  adapter_init();
-
   gpppcprog_read_user_ids(gimx_params.homedir, GIMX_DIR);
 
   if(args_read(argc, argv, &gimx_params) < 0)
@@ -192,9 +189,9 @@ int main(int argc, char *argv[])
     bt_abs_value = E_BT_ABS_BTSTACK;
   }
 
-  if(connector_init() < 0)
+  if(adapter_detect() < 0)
   {
-    fprintf(stderr, _("connector_init failed\n"));
+    fprintf(stderr, _("adapter_detect failed\n"));
     goto QUIT;
   }
 
@@ -236,11 +233,32 @@ int main(int argc, char *argv[])
   }
   if(event)
   {
-    connector_send();
+    if(adapter_start() < 0)
+    {
+      fprintf(stderr, _("adapter_start failed\n"));
+      goto QUIT;
+    }
+    adapter_send();
     goto QUIT;
   }
 
-  uhid_joystick_open_all();
+  int ffb = 0;
+  for(controller=0; controller<MAX_CONTROLLERS; ++controller)
+  {
+    switch(adapter_get(controller)->type)
+    {
+    case C_TYPE_G29_PS4:
+      ffb = 1;
+      break;
+    default:
+      break;
+    }
+  }
+
+  if(ffb)
+  {
+    uhid_joystick_open_all();
+  }
 
   unsigned char src = GE_MKB_SOURCE_PHYSICAL;
 
@@ -293,7 +311,11 @@ int main(int argc, char *argv[])
 
   GE_release_unused();
 
-  uhid_joystick_close_unused();
+  if(ffb)
+  {
+    gprintf("closing unused uhid joysticks (it may take a few seconds)\n");
+    uhid_joystick_close_unused();
+  }
 
   macros_init();
 
@@ -313,6 +335,12 @@ int main(int argc, char *argv[])
 
   cfg_trigger_init();
 
+  if(adapter_start() < 0)
+  {
+    fprintf(stderr, _("adapter_start failed\n"));
+    goto QUIT;
+  }
+
   mainloop();
 
   gprintf(_("Exiting\n"));
@@ -322,8 +350,12 @@ int main(int argc, char *argv[])
   macros_clean();
   cfg_clean();
   GE_quit();
-  uhid_joystick_close_all();
-  connector_clean();
+  if(ffb)
+  {
+    gprintf("closing uhid joysticks (it may take a few seconds)\n");
+    uhid_joystick_close_all();
+  }
+  adapter_clean();
 
   xmlCleanupParser();
 

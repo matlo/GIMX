@@ -10,9 +10,7 @@
 #include <stdbool.h>
 #include <ds4.h>
 
-void btds4_set_bdaddr(int btds4_number, char* dst);
-void btds4_set_dongle(int btds4_number, int dongle_index);
-int btds4_init(int btds4_number);
+int btds4_init(int btds4_number, int dongle_index, const char * bdaddr_dst);
 void btds4_close(int btds4_number);
 int btds4_send_interrupt(int btds4_number, s_report_ds4* report, int active);
 

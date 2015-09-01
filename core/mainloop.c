@@ -6,7 +6,6 @@
 #include <GE.h>
 #include "gimx.h"
 #include "calibration.h"
-#include "connectors/connector.h"
 #include "macros.h"
 #include <stdio.h>
 #include <adapter.h>
@@ -57,7 +56,7 @@ void mainloop()
 
     cfg_config_activation();
 
-    if(connector_send() < 0)
+    if(adapter_send() < 0)
     {
       done = 1;
     }

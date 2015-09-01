@@ -50,7 +50,11 @@ typedef struct
   int uhid_id;
 } s_adapter;
 
-void adapter_init();
+int adapter_detect();
+int adapter_start();
+int adapter_send();
+void adapter_clean();
+
 inline s_adapter* adapter_get(unsigned char index);
 int adapter_set_port(unsigned char index, char* portname);
 

@@ -795,8 +795,7 @@ int usbhidasync_close(int device) {
 
 	cancel_transfers(device);
 
-	//TODO MLA: fix this.
-	//libusb_release_interface(usbdevices[device].devh, usbdevices[device].config.interface.number);
+	libusb_release_interface(usbdevices[device].devh, usbdevices[device].config.interface.number);
 #if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)
 #ifndef WIN32
 	libusb_attach_kernel_driver(usbdevices[device].devh, 0);
