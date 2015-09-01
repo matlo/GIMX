@@ -857,6 +857,10 @@ int adapter_start()
         fprintf(stderr, _("Can't start the serial asynchronous processing.\n"));
         ret = -1;
       }
+      else
+      {
+        ret = usb_start_poll(i);
+      }
     }
     else if(adapter->bdaddr_dst)
     {

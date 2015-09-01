@@ -313,8 +313,9 @@ int main(int argc, char *argv[])
 
   if(ffb)
   {
-    gprintf("closing unused uhid joysticks (it may take a few seconds)\n");
+    gprintf("closing unused uhid joysticks...");fflush(stdout);
     uhid_joystick_close_unused();
+    gprintf(" done\n");
   }
 
   macros_init();

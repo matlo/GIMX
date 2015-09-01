@@ -648,15 +648,8 @@ int usb_init(int usb_number, e_controller_type type)
               usb_send_interrupt_out_sync(usb_number, activate_rumble, sizeof(activate_rumble));
             }
 
-            if(usb_poll_interrupt(usb_number) == LIBUSB_SUCCESS)
-            {
-              // register joystick
-              int device_id = GE_RegisterJoystick(controller[state->type].name, NULL);
-              if(device_id >= 0)
-              {
-                state->joystick_id = device_id;
-              }
-            }
+            // register joystick
+            state->joystick_id = GE_RegisterJoystick(controller[state->type].name, NULL);
 
             int i;
             for(i = 0; i < controller[state->type].endpoints.in.reports.nb; ++i)
@@ -672,6 +665,17 @@ int usb_init(int usb_number, e_controller_type type)
   }
 
   return -1;
+}
+
+int usb_start_poll(int usb_number)
+{
+  int ret = 0;
+
+  if(usb_poll_interrupt(usb_number) != LIBUSB_SUCCESS)
+  {
+    ret = -1;
+  }
+  return ret;
 }
 
 /*
