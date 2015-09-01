@@ -58,11 +58,6 @@ void adapter_clean();
 inline s_adapter* adapter_get(unsigned char index);
 int adapter_set_port(unsigned char index, char* portname);
 
-void adapter_dump_state(int id);
-
-int adapter_network_read(int id);
-int adapter_network_close(int id);
-
 void adapter_set_device(int controller, e_device_type device_type, int device_id);
 int adapter_get_device(e_device_type device_type, int controller);
 int adapter_get_controller(e_device_type device_type, int device_id);
@@ -71,20 +66,7 @@ void adapter_set_uhid_id(int controller, int uhid_id);
 
 void adapter_set_axis(unsigned char c, int axis, int value);
 
-int adapter_start_hidasync(int id);
-int adapter_start_serialasync(int id);
-
 int adapter_forward_control_in(int id, unsigned char* data, unsigned char length);
 int adapter_forward_interrupt_in(int id, unsigned char* data, unsigned char length);
-int adapter_forward_control_out(int id, unsigned char* data, unsigned char length);
-
-int adapter_forward_interrupt_out(int id, unsigned char* data, unsigned char length);
-
-int adapter_process_packet(int id, s_packet* packet);
-
-int adapter_get_type(int device);
-int adapter_send_start(int device);
-int adapter_get_status(int device);
-int adapter_send_reset(int device);
 
 #endif /* ADAPTER_H_ */
