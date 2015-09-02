@@ -20,7 +20,7 @@ endif
 LDLIBS += ../shared/event/GE.a -Wl,--whole-archive ../shared/controller/controller.a ../shared/async/async.a -Wl,--no-whole-archive ../shared/gpp/gpp.a
 
 ifneq ($(OS),Windows_NT)
-LDLIBS += -lXi -lX11 -Wl,-Bstatic -lhidapi-hidraw -Wl,-Bdynamic -ludev
+LDLIBS += -lXi -lX11 -Wl,-Bstatic -lhidapi-hidraw -Wl,-Bdynamic -ludev -lusb-1.0
 else
 LDLIBS += -lhidapi
 endif
