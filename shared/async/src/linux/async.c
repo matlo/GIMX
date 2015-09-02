@@ -30,7 +30,7 @@ void async_clean(void)
 {
     int i;
     for (i = 0; i < ASYNC_MAX_DEVICES; ++i) {
-        if(devices[i].fd != -1) {
+        if(devices[i].fd >= 0) {
             async_close(i);
         }
     }

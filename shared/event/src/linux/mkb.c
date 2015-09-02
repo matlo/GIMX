@@ -283,23 +283,6 @@ int mkb_init()
   int fd;
   char device[sizeof("/dev/input/event255")];
 
-  /*
-   * Avoid the enter key from being still pressed after the process exit.
-   * This is only done if the process is launched in a terminal.
-   */
-  /*
-   * TODO MLA: find something better...
-   */
-  /*if(isatty(fileno(stdin)))
-  {
-    sleep(1);
-  }*/
-
-  struct termios term;
-  tcgetattr(STDOUT_FILENO, &term);
-  term.c_lflag &= ~ECHO;
-  tcsetattr(STDOUT_FILENO, TCSANOW, &term);
-
   memset(devices, 0x00, sizeof(devices));
   max_device_id = -1;
   k_num = 0;
@@ -359,14 +342,6 @@ int mkb_init()
     ret = -1;
   }
 
-  if(ret < 0)
-  {
-    struct termios term;
-    tcgetattr(STDOUT_FILENO, &term);
-    term.c_lflag |= ECHO;
-    tcsetattr(STDOUT_FILENO, TCSANOW, &term);
-  }
-
   return ret;
 }
 
@@ -423,10 +398,6 @@ void mkb_quit()
     mkb_close_device(i);
   }
 
-  struct termios term;
-  tcgetattr(STDOUT_FILENO, &term);
-  term.c_lflag |= ECHO;
-  tcsetattr(STDOUT_FILENO, TCSANOW, &term);
   if(!grab)
   {
     tcflush(STDIN_FILENO, TCIFLUSH);
