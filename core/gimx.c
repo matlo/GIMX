@@ -15,6 +15,7 @@
 #include <pwd.h> //to get the homedir
 #include <sys/types.h> //to get the homedir
 #include <unistd.h> //to get the homedir
+#include <termios.h> //to disable/enable echo
 #else
 #include <winsock2.h>
 #include <windows.h>
@@ -134,6 +135,7 @@ int process_event(GE_Event* event)
 
 int main(int argc, char *argv[])
 {
+  int ffb = 0;
   GE_Event kgevent = {.type = GE_KEYDOWN};
 
   (void) signal(SIGINT, terminate);
@@ -211,12 +213,6 @@ int main(int argc, char *argv[])
     goto QUIT;
   }
 
-  if(gimx_params.curses)
-  {
-    display_init();
-    stats_init(0);
-  }
-
   gimx_params.frequency_scale = (double) DEFAULT_REFRESH_PERIOD / gimx_params.refresh_period;
 
   /*
@@ -226,10 +222,15 @@ int main(int argc, char *argv[])
   unsigned char controller;
   for(controller=0; controller<MAX_CONTROLLERS; ++controller)
   {
-    if(adapter_get(controller)->event)
+    s_adapter * adapter = adapter_get(controller);
+    if(adapter->event)
     {
-      adapter_get(controller)->send_command = 1;
+      adapter->send_command = 1;
       event = 1;
+      if(adapter->dst_fd < 0)
+      {
+        printf("The --event argument may require running two gimx instances.\n");
+      }
     }
   }
   if(event)
@@ -243,7 +244,7 @@ int main(int argc, char *argv[])
     goto QUIT;
   }
 
-  int ffb = 0;
+#ifndef WIN32
   for(controller=0; controller<MAX_CONTROLLERS; ++controller)
   {
     switch(adapter_get(controller)->type)
@@ -260,6 +261,7 @@ int main(int argc, char *argv[])
   {
     uhid_joystick_open_all();
   }
+#endif
 
   unsigned char src = GE_MKB_SOURCE_PHYSICAL;
 
@@ -312,12 +314,14 @@ int main(int argc, char *argv[])
 
   GE_release_unused();
 
+#ifndef WIN32
   if(ffb)
   {
     gprintf("closing unused uhid joysticks...");fflush(stdout);
     uhid_joystick_close_unused();
     gprintf(" done\n");
   }
+#endif
 
   macros_init();
 
@@ -337,6 +341,21 @@ int main(int argc, char *argv[])
 
   cfg_trigger_init();
 
+  if(gimx_params.curses)
+  {
+    display_init();
+    stats_init(0);
+  }
+#ifndef WIN32
+  else
+  {
+    struct termios term;
+    tcgetattr(STDOUT_FILENO, &term);
+    term.c_lflag &= ~ECHO;
+    tcsetattr(STDOUT_FILENO, TCSANOW, &term);
+  }
+#endif
+
   if(adapter_start() < 0)
   {
     fprintf(stderr, _("adapter_start failed\n"));
@@ -354,11 +373,13 @@ int main(int argc, char *argv[])
   macros_clean();
   cfg_clean();
   GE_quit();
+#ifndef WIN32
   if(ffb)
   {
     gprintf("closing uhid joysticks (it may take a few seconds)\n");
     uhid_joystick_close_all();
   }
+#endif
   adapter_clean();
 
   xmlCleanupParser();
@@ -367,6 +388,15 @@ int main(int argc, char *argv[])
   {
     display_end();
   }
+#ifndef WIN32
+  else
+  {
+    struct termios term;
+    tcgetattr(STDOUT_FILENO, &term);
+    term.c_lflag |= ECHO;
+    tcsetattr(STDOUT_FILENO, TCSANOW, &term);
+  }
+#endif
 
   return 0;
 }
