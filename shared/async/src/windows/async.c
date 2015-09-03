@@ -136,7 +136,7 @@ static int set_overlapped(int device) {
 
 int async_open_path(const char * path, int print) {
     DWORD accessdirection = GENERIC_READ | GENERIC_WRITE;
-    DWORD sharemode = FILE_SHARE_READ | FILE_SHARE_WRITE;
+    DWORD sharemode = FILE_SHARE_READ;
     int ret = -1;
     if(path != NULL) {
         HANDLE handle = CreateFile(path, accessdirection, sharemode, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
@@ -365,8 +365,12 @@ static int write_callback(int device) {
     }
 
     while(dequeue_write(device) != -1) {
-        if(write_internal(device) < 0) {
-            ret = -1;
+        dwBytesWritten = write_internal(device);
+        if(dwBytesWritten == 0) {
+            break; // IO is pending, completion will execute write_callback
+        }
+        else if(dwBytesWritten < 0) {
+            ret = -1; // IO failed, report this error
         }
     }
 
