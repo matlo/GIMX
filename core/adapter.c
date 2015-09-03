@@ -72,7 +72,9 @@ void adapter_init_static(void)
     adapter[i].src_fd = -1;
     adapter[i].serialdevice = -1;
     adapter[i].hid_id = -1;
+#ifndef WIN32
     adapter[i].uhid_id = -1;
+#endif
     adapter[i].bread = 0;
     for(j = 0; j < MAX_REPORTS; ++j)
     {
@@ -496,6 +498,7 @@ static int adapter_hid_close_cb(int id)
   return 1;
 }
 
+#ifndef WIN32
 static int adapter_hid_read_cb(int id, const void * buf, unsigned int count)
 {
   if(adapter[id].uhid_id >= 0)
@@ -529,6 +532,68 @@ void adapter_set_uhid_id(int controller, int uhid_id)
     start_hidasync(controller);
   }
 }
+#else
+void adapter_set_usb_ids(int controller, unsigned short vendor, unsigned short product)
+{
+  if(controller < 0 || controller >= MAX_CONTROLLERS)
+  {
+    fprintf(stderr, "%s: invalid controller\n", __func__);
+    return;
+  }
+
+  if(adapter_device[E_DEVICE_TYPE_JOYSTICK - 1][controller] >= 0)
+  {
+    adapter[controller].usb_ids.vendor = vendor;
+    adapter[controller].usb_ids.product = product;
+  }
+}
+
+static unsigned short lg_wheel_products[] = {
+  USB_DEVICE_ID_LOGITECH_WINGMAN_FFG,
+  USB_DEVICE_ID_LOGITECH_WHEEL,
+  USB_DEVICE_ID_LOGITECH_MOMO_WHEEL,
+  USB_DEVICE_ID_LOGITECH_DFP_WHEEL,
+  USB_DEVICE_ID_LOGITECH_G25_WHEEL,
+  USB_DEVICE_ID_LOGITECH_DFGT_WHEEL,
+  USB_DEVICE_ID_LOGITECH_G27_WHEEL,
+  USB_DEVICE_ID_LOGITECH_WII_WHEEL,
+  USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2,
+  USB_DEVICE_ID_LOGITECH_VIBRATION_WHEEL,
+};
+
+static int is_logitech_wheel(unsigned short vendor, unsigned short product) {
+
+  if(vendor != USB_VENDOR_ID_LOGITECH)
+  {
+    return 0;
+  }
+  int i;
+  for(i = 0; i < sizeof(lg_wheel_products) / sizeof(*lg_wheel_products); ++i)
+  {
+    if(lg_wheel_products[i] == product)
+    {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+static int start_hid(int id)
+{
+  if(is_logitech_wheel(adapter[id].usb_ids.product, adapter[id].usb_ids.product))
+  {
+		adapter[id].hid_id = hidasync_open_ids(adapter[id].usb_ids.product, adapter[id].usb_ids.product);
+		if(adapter[id].hid_id >= 0)
+		{
+			if(hidasync_register(adapter[id].hid_id, id, NULL, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
+			{
+				return -1;
+			}
+		}
+  }
+  return 0;
+}
+#endif
 
 static int adapter_serial_read_cb(int id, const void * buf, unsigned int count)
 {
@@ -774,6 +839,20 @@ int adapter_detect()
                 break;
             }
           }
+
+#ifdef WIN32
+          if(ret != -1)
+					{
+						switch(adapter->type)
+						{
+						case C_TYPE_G29_PS4:
+							start_hid(i);
+							break;
+						default:
+							break;
+						}
+					}
+#endif
 
           if(ret != -1)
           {

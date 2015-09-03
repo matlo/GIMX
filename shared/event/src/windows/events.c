@@ -46,6 +46,11 @@ static struct
     int joystickNbHat; // the number of hats
     unsigned char* joystickHat; // the current hat values
   } hat_info; // allows to convert hat axes to buttons
+  struct
+  {
+	  unsigned short vendor;
+	  unsigned short product;
+  } usb_ids;
 } joysticks[GE_MAX_DEVICES] = {};
 
 static void open_haptic(int id, SDL_Joystick* joystick)
@@ -103,6 +108,9 @@ int ev_init(unsigned char mkb_src)
         int instanceId = SDL_JoystickInstanceID(joystick);
         if(instanceId >= 0)
         {
+          SDL_JoystickGUID guid = SDL_JoystickGetDeviceGUID(instanceId);
+          joysticks[joysticks_nb].usb_ids.vendor = guid.data[1] << 8 | guid.data[0];
+          joysticks[joysticks_nb].usb_ids.product = guid.data[3] << 8 | guid.data[2];
           joysticks[joysticks_nb].controller = controller;
           open_haptic(joysticks_nb, joystick);
           instanceIdToIndex[instanceId] = joysticks_nb;
@@ -127,6 +135,9 @@ int ev_init(unsigned char mkb_src)
         int instanceId = SDL_JoystickInstanceID(joystick);
         if(instanceId >= 0)
         {
+          SDL_JoystickGUID guid = SDL_JoystickGetDeviceGUID(instanceId);
+          joysticks[joysticks_nb].usb_ids.vendor = guid.data[1] << 8 | guid.data[0];
+          joysticks[joysticks_nb].usb_ids.product = guid.data[3] << 8 | guid.data[2];
           joysticks[joysticks_nb].joystick = joystick;
           open_haptic(joysticks_nb, joystick);
           instanceIdToIndex[instanceId] = joysticks_nb;
@@ -1037,5 +1048,16 @@ int ev_joystick_set_ff_rumble(int joystick, unsigned short weak, unsigned short 
       return -1;
     }
   }
+  return 0;
+}
+
+int ev_joystick_get_usb_ids(int joystick, unsigned short * vendor, unsigned short * product)
+{
+  if(joystick < 0 || joystick >= joysticks_nb)
+  {
+	return -1;
+  }
+  *vendor = joysticks[joystick].usb_ids.vendor;
+  *product = joysticks[joystick].usb_ids.product;
   return 0;
 }

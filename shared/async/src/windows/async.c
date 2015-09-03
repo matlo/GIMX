@@ -425,15 +425,15 @@ int async_write(int device, const void * buf, unsigned int count) {
 
     int res = queue_write(device, buf, count);
     if(res < 0) {
-        return -1;
+        return -1; // cannot be queued
     }
     else if(res > 0) {
-        return 0;
+        return 0; // another IO is pending
     }
 
     int ret = write_internal(device);
-    if(ret < 0) {
-        dequeue_write(device);
+    if(ret != 0) {
+        dequeue_write(device); // IO failed or completed
     }
 
     return ret;

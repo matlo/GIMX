@@ -47,7 +47,15 @@ typedef struct
   int status;
   int hid_id;
   int hid_busy;
+#ifndef WIN32
   int uhid_id;
+#else
+  struct
+  {
+	unsigned short vendor;
+	unsigned short product;
+  } usb_ids;
+#endif
 } s_adapter;
 
 int adapter_detect();
@@ -62,7 +70,11 @@ void adapter_set_device(int controller, e_device_type device_type, int device_id
 int adapter_get_device(e_device_type device_type, int controller);
 int adapter_get_controller(e_device_type device_type, int device_id);
 
+#ifndef WIN32
 void adapter_set_uhid_id(int controller, int uhid_id);
+#else
+void adapter_set_usb_ids(int controller, unsigned short vendor, unsigned short product);
+#endif
 
 void adapter_set_axis(unsigned char c, int axis, int value);
 

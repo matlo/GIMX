@@ -22,7 +22,7 @@ LDLIBS += ../shared/event/GE.a -Wl,--whole-archive ../shared/controller/controll
 ifneq ($(OS),Windows_NT)
 LDLIBS += -lXi -lX11 -Wl,-Bstatic -lhidapi-hidraw -Wl,-Bdynamic -ludev -lusb-1.0
 else
-LDLIBS += -lhidapi
+LDLIBS += -lhidapi -lhid -lsetupapi
 endif
 
 ARFLAGS=rcs

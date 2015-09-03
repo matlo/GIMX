@@ -438,6 +438,7 @@ void GE_AddSource(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int
 #ifdef WIN32
 void GE_AddSourceHandle(HANDLE handle, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int));
 void GE_RemoveSourceHandle(HANDLE handle);
+int GE_JoystickGetUsbIds(int id, unsigned short * vendor, unsigned short * product);
 #else
 int GE_JoystickGetUHidId(int id);
 #endif

@@ -104,7 +104,15 @@ typedef struct
   {
     e_device_type type;
     int id;
+#ifndef WIN32
     int uhid_id;
+#else
+    struct
+    {
+      unsigned short vendor;
+      unsigned short product;
+    } usb_ids;
+#endif
   } device;
   struct
   {

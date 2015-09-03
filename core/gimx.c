@@ -135,7 +135,9 @@ int process_event(GE_Event* event)
 
 int main(int argc, char *argv[])
 {
+#ifndef WIN32
   int ffb = 0;
+#endif
   GE_Event kgevent = {.type = GE_KEYDOWN};
 
   (void) signal(SIGINT, terminate);

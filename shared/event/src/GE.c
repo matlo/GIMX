@@ -625,6 +625,11 @@ int GE_JoystickGetUHidId(int id)
 {
   return ev_joystick_get_uhid_id(id);
 }
+#else
+int GE_JoystickGetUsbIds(int id, unsigned short * vendor, unsigned short * product)
+{
+  return ev_joystick_get_usb_ids(id, vendor, product);
+}
 #endif
 
 /*
