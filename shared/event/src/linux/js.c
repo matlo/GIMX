@@ -238,7 +238,6 @@ static void get_uhid_id(int index, int fd_ev)
   char uniq[sizeof(((struct uhid_event *) NULL)->u.create.uniq)] = {};
   if (ioctl(fd_ev, EVIOCGUNIQ(sizeof(uniq)), &uniq) == -1)
   {
-    perror("ioctl EVIOCGUNIQ failed");
     return;
   }
   pid_t pid;
