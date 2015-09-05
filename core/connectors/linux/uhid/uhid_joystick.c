@@ -199,10 +199,6 @@ static int set_evdev_correction(int uhid) {
           }
           close(fd);
         }
-        else
-        {
-          PRINT_ERROR_ERRNO("open")
-        }
       }
       free(namelist[i]);
     }
