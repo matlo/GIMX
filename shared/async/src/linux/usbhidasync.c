@@ -435,6 +435,9 @@ static int get_string_descriptor_ascii(libusb_device_handle *dev, uint8_t desc_i
         break;
     }
   }
+  if(i == 5) {
+      PRINT_ERROR_LIBUSB("libusb_get_string_descriptor_ascii", LIBUSB_ERROR_TIMEOUT)
+  }
   return ret;
 }
 
@@ -526,7 +529,6 @@ static int claim_device(int device, libusb_device * dev, struct libusb_device_de
 	      char manufacturerString[126] = "";
         ret = get_string_descriptor_ascii(usbdevices[device].devh, desc->iManufacturer, (unsigned char *) manufacturerString, sizeof(manufacturerString));
         if (ret < 0) {
-            PRINT_ERROR_LIBUSB("libusb_get_string_descriptor_ascii", ret)
             usbhidasync_close(device);
             return -1;
         }
@@ -539,7 +541,6 @@ static int claim_device(int device, libusb_device * dev, struct libusb_device_de
         char productString[126] = "";
         ret = get_string_descriptor_ascii(usbdevices[device].devh, desc->iProduct, (unsigned char *) productString, sizeof(productString));
         if (ret < 0) {
-            PRINT_ERROR_LIBUSB("libusb_get_string_descriptor_ascii", ret)
             usbhidasync_close(device);
             return -1;
         }
