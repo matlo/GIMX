@@ -535,7 +535,21 @@ int uhidasync_create(const s_hid_info * hidDesc) {
             }
     };
 
-    snprintf((char *) ev.u.create.name, sizeof(ev.u.create.name), "%s %s", hidDesc->manufacturerString, hidDesc->productString);
+    char * dest = (char *) ev.u.create.name;
+    if(hidDesc->manufacturerString) {
+        strncat(dest, hidDesc->manufacturerString, sizeof(ev.u.create.name) - 1);
+    }
+    if(hidDesc->productString) {
+        if(hidDesc->manufacturerString) {
+            strncat(dest, " ", sizeof(ev.u.create.name) - strlen(dest) - 1);
+        }
+        strncat(dest, hidDesc->productString, sizeof(ev.u.create.name) - strlen(dest) - 1);
+    }
+
+    if (!strlen(dest)) {
+        snprintf(dest, sizeof(ev.u.create.name), "HID %04x:%04x", hidDesc->vendorId, hidDesc->productId);
+    }
+
     snprintf((char *) ev.u.create.uniq, sizeof(ev.u.create.uniq), "GIMX %d %d", getpid(), device);
 
     if (uhid_write(fd, &ev) < 0) {

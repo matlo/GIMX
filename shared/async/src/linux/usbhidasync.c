@@ -414,6 +414,30 @@ static s_config probe_device(libusb_device * dev, struct libusb_device_descripto
 	return config;
 }
 
+/*
+ * This is a wrapper around libusb_get_string_descriptor_ascii.
+ * If libusb_get_string_descriptor_ascii returns a timeout, it is called again.
+ * libusb_get_string_descriptor_ascii can be called up to 5 times, thus the execution of this function can take up to 5s.
+ */
+static int get_string_descriptor_ascii(libusb_device_handle *dev, uint8_t desc_index, unsigned char *data, int length) {
+
+  int ret;
+  int i;
+  for(i = 0; i < 5; ++i) {
+    ret = libusb_get_string_descriptor_ascii(dev, desc_index, data, length);
+    if (ret < 0) {
+        if(ret != LIBUSB_ERROR_TIMEOUT) {
+          PRINT_ERROR_LIBUSB("libusb_get_string_descriptor_ascii", ret)
+          break;
+        }
+    }
+    else {
+        break;
+    }
+  }
+  return ret;
+}
+
 static int claim_device(int device, libusb_device * dev, struct libusb_device_descriptor * desc) {
 
 	int ret = libusb_open(dev, &usbdevices[device].devh);
@@ -498,25 +522,31 @@ static int claim_device(int device, libusb_device * dev, struct libusb_device_de
 		}
 	}
 
-	char manufacturerString[126] = "(no manufacturer string)";
-
     if(desc->iManufacturer != 0) {
-        ret = libusb_get_string_descriptor_ascii(usbdevices[device].devh, desc->iManufacturer, (unsigned char *) manufacturerString, sizeof(manufacturerString));
+	      char manufacturerString[126] = "";
+        ret = get_string_descriptor_ascii(usbdevices[device].devh, desc->iManufacturer, (unsigned char *) manufacturerString, sizeof(manufacturerString));
         if (ret < 0) {
             PRINT_ERROR_LIBUSB("libusb_get_string_descriptor_ascii", ret)
+            usbhidasync_close(device);
+            return -1;
+        }
+        if(ret > 0) {
+            hidInfo->manufacturerString = strdup(manufacturerString);
         }
     }
-    hidInfo->manufacturerString = strdup(manufacturerString);
-
-    char productString[126] = "(no product string)";
 
     if(desc->iProduct != 0) {
-        ret = libusb_get_string_descriptor_ascii(usbdevices[device].devh, desc->iProduct, (unsigned char *) productString, sizeof(productString));
+        char productString[126] = "";
+        ret = get_string_descriptor_ascii(usbdevices[device].devh, desc->iProduct, (unsigned char *) productString, sizeof(productString));
         if (ret < 0) {
             PRINT_ERROR_LIBUSB("libusb_get_string_descriptor_ascii", ret)
+            usbhidasync_close(device);
+            return -1;
+        }
+        if(ret > 0) {
+            hidInfo->productString = strdup(productString);
         }
     }
-    hidInfo->productString = strdup(productString);
 
 	return 0;
 }
