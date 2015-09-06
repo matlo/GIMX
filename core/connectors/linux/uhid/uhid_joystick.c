@@ -194,6 +194,12 @@ static int set_evdev_correction(int uhid) {
                   }
                 }
                 ret = 0;
+                char name[1024] = {};
+                if (ioctl(fd, EVIOCGNAME(sizeof(name) - 1), name) < 0)
+                {
+                  PRINT_ERROR_ERRNO("ioctl EVIOCGNAME")
+                }
+                printf("reset flat/fuzz values for \"%s\" (%s)\n", name, device);
               }
             }
           }
