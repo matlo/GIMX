@@ -354,7 +354,7 @@ static void adapter_send_next_hid_report(int id)
   if(!adapter[id].hid_busy)
   {
     unsigned char report[8] = {};
-    if(ffb_logitech_get_report(report + 1))
+    if(ffb_logitech_get_report(id, report + 1) > 0)
     {
       if(hidasync_write(adapter[id].hid_id, report, sizeof(report)) == 0)
       {
@@ -443,7 +443,7 @@ static int adapter_process_packet(int id, s_packet* packet)
         {
           if(data[0] == 0x30)
           {
-            ffb_logitech_process_report(data + 1);
+            ffb_logitech_process_report(id, data + 1);
             adapter_send_next_hid_report(id);
           }
         }
@@ -472,7 +472,6 @@ static int adapter_process_packet(int id, s_packet* packet)
     gettimeofday(&tv, NULL);
     gprintf("%ld.%06ld debug packet received (size = %d bytes)\n", tv.tv_sec, tv.tv_usec, length);
     dump(packet->value, length);
-    //ffb_logitech_decode(data, length);
   }
   else
   {

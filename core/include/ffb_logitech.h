@@ -8,7 +8,7 @@
 
 #define FFB_LOGITECH_OUTPUT_REPORT_SIZE 7
 
-void ffb_logitech_process_report(unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE]);
-int ffb_logitech_get_report(unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE]);
+void ffb_logitech_process_report(int device, unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE]);
+int ffb_logitech_get_report(int device, unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE]);
 
 #endif /* FFB_LOGITECH_H_ */
