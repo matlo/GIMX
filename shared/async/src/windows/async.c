@@ -112,7 +112,7 @@ static int dequeue_write(int device) {
   if(devices[device].write.queue.nb > 0) {
       --devices[device].write.queue.nb;
       free(devices[device].write.queue.data[0].buf);
-      memmove(devices[device].write.queue.data, devices[device].write.queue.data + 1, devices[device].write.queue.nb);
+      memmove(devices[device].write.queue.data, devices[device].write.queue.data + 1, devices[device].write.queue.nb * sizeof(*devices[device].write.queue.data));
   }
   return devices[device].write.queue.nb - 1;
 }
@@ -136,7 +136,7 @@ static int set_overlapped(int device) {
 
 int async_open_path(const char * path, int print) {
     DWORD accessdirection = GENERIC_READ | GENERIC_WRITE;
-    DWORD sharemode = FILE_SHARE_READ;
+    DWORD sharemode = FILE_SHARE_READ | FILE_SHARE_WRITE;
     int ret = -1;
     if(path != NULL) {
         HANDLE handle = CreateFile(path, accessdirection, sharemode, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
@@ -372,6 +372,10 @@ static int write_callback(int device) {
         else if(dwBytesWritten < 0) {
             ret = -1; // IO failed, report this error
         }
+    }
+
+    if(devices[device].callback.fp_write) {
+        devices[device].callback.fp_write(devices[device].callback.user);
     }
 
     return ret;

@@ -579,9 +579,9 @@ static int is_logitech_wheel(unsigned short vendor, unsigned short product) {
 
 static int start_hid(int id)
 {
-  if(is_logitech_wheel(adapter[id].usb_ids.product, adapter[id].usb_ids.product))
+  if(is_logitech_wheel(adapter[id].usb_ids.vendor, adapter[id].usb_ids.product))
   {
-		adapter[id].hid_id = hidasync_open_ids(adapter[id].usb_ids.product, adapter[id].usb_ids.product);
+		adapter[id].hid_id = hidasync_open_ids(adapter[id].usb_ids.vendor, adapter[id].usb_ids.product);
 		if(adapter[id].hid_id >= 0)
 		{
 			if(hidasync_register(adapter[id].hid_id, id, NULL, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
@@ -839,20 +839,6 @@ int adapter_detect()
             }
           }
 
-#ifdef WIN32
-          if(ret != -1)
-					{
-						switch(adapter->type)
-						{
-						case C_TYPE_G29_PS4:
-							start_hid(i);
-							break;
-						default:
-							break;
-						}
-					}
-#endif
-
           if(ret != -1)
           {
             int usb_res = usb_init(i, adapter->type);
@@ -925,6 +911,17 @@ int adapter_start()
     adapter = adapter_get(i);
     if(adapter->serialdevice >= 0)
     {
+
+#ifdef WIN32
+			switch(adapter->type)
+			{
+			case C_TYPE_G29_PS4:
+				start_hid(i);
+				break;
+			default:
+				break;
+			}
+#endif
       if(adapter_send_short_command(i, BYTE_START) < 0)
       {
         fprintf(stderr, _("Can't start the adapter.\n"));

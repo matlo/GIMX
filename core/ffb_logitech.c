@@ -337,7 +337,7 @@ static void decode_extended(unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE])
 
 static void decode_command(unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE]) {
 
-    dprintf("%s %02x", get_cmd_name(data[0]), data[0]);
+    dprintf("%s ", get_cmd_name(data[0]));
 
     switch(data[0] & 0x0f) {
     case CMD_DOWNLOAD:
@@ -345,7 +345,7 @@ static void decode_command(unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE]) 
     case CMD_REFRESH_FORCE:
         dprintf(" - %s", get_ftype_name(data[1]));
         dprintf(" - ");
-        dump(data + 2, sizeof(data) - 2);
+        dump(data + 2, FFB_LOGITECH_OUTPUT_REPORT_SIZE - 2);
         break;
     case CMD_PLAY:
     case CMD_STOP:
@@ -365,7 +365,7 @@ static void decode_command(unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE]) 
         break;
     case CMD_SET_DEFAULT_SPRING:
         dprintf(" - ");
-        dump(data + 1, sizeof(data) - 1);
+        dump(data + 1, FFB_LOGITECH_OUTPUT_REPORT_SIZE - 1);
         break;
     case CMD_SET_DEAD_BAND:
         dprintf(" - %s", data[1] ? "ON" : "OFF");

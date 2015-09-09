@@ -108,7 +108,7 @@ int ev_init(unsigned char mkb_src)
         int instanceId = SDL_JoystickInstanceID(joystick);
         if(instanceId >= 0)
         {
-          SDL_JoystickGUID guid = SDL_JoystickGetDeviceGUID(instanceId);
+          SDL_JoystickGUID guid = SDL_JoystickGetDeviceGUID(i);
           joysticks[joysticks_nb].usb_ids.vendor = guid.data[1] << 8 | guid.data[0];
           joysticks[joysticks_nb].usb_ids.product = guid.data[3] << 8 | guid.data[2];
           joysticks[joysticks_nb].controller = controller;
@@ -135,7 +135,7 @@ int ev_init(unsigned char mkb_src)
         int instanceId = SDL_JoystickInstanceID(joystick);
         if(instanceId >= 0)
         {
-          SDL_JoystickGUID guid = SDL_JoystickGetDeviceGUID(instanceId);
+          SDL_JoystickGUID guid = SDL_JoystickGetDeviceGUID(i);
           joysticks[joysticks_nb].usb_ids.vendor = guid.data[1] << 8 | guid.data[0];
           joysticks[joysticks_nb].usb_ids.product = guid.data[3] << 8 | guid.data[2];
           joysticks[joysticks_nb].joystick = joystick;
