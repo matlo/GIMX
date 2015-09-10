@@ -410,15 +410,21 @@ int async_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRIT
 
     ASYNC_CHECK_DEVICE(device)
     
-    while(read_packet(device) >= 0) ;
+    if(fp_read) {
+        while(read_packet(device) >= 0) ;
+    }
 
     devices[device].callback.user = user;
     devices[device].callback.fp_read = fp_read;
     devices[device].callback.fp_write = fp_write;
     devices[device].callback.fp_close = fp_close;
 
-    fp_register(devices[device].read.overlapped.hEvent, device, read_callback, NULL, close_callback);
-    fp_register(devices[device].write.overlapped.hEvent, device, NULL, write_callback, close_callback);
+    if(fp_read) {
+        fp_register(devices[device].read.overlapped.hEvent, device, read_callback, NULL, close_callback);
+    }
+    if(fp_write) {
+        fp_register(devices[device].write.overlapped.hEvent, device, NULL, write_callback, close_callback);
+    }
 
     return 0;
 }
