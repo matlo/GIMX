@@ -56,6 +56,7 @@ int hid_read(int user, const void * buf, unsigned int count) {
 
 int hid_close(int user) {
     printf("close user: %d\n", user);
+    done = 1;
     return 0;
 }
 
