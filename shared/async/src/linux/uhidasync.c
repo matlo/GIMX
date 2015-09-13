@@ -515,7 +515,7 @@ int uhidasync_create(const s_hid_info * hidDesc) {
     unsigned short rd_size = hidDesc->reportDescriptorLength;
 
     // Some devices have a bad report descriptor, so fix it just like the kernel does.
-    int fixed = get_fixed_rdesc(hidDesc->vendorId, hidDesc->productId);
+    int fixed = get_fixed_rdesc(hidDesc->vendor_id, hidDesc->product_id);
     if (fixed != -1) {
         rd_data = rdesc_fixed[fixed].rdesc;
         rd_size = rdesc_fixed[fixed].length;
@@ -530,8 +530,8 @@ int uhidasync_create(const s_hid_info * hidDesc) {
                     .country = hidDesc->countryCode,
                     // Make sure no device specific driver is loaded.
                     .bus = BUS_VIRTUAL,
-                    .vendor = hidDesc->vendorId,
-                    .product = hidDesc->productId,
+                    .vendor = hidDesc->vendor_id,
+                    .product = hidDesc->product_id,
             }
     };
 
@@ -547,7 +547,7 @@ int uhidasync_create(const s_hid_info * hidDesc) {
     }
 
     if (!strlen(dest)) {
-        snprintf(dest, sizeof(ev.u.create.name), "HID %04x:%04x", hidDesc->vendorId, hidDesc->productId);
+        snprintf(dest, sizeof(ev.u.create.name), "HID %04x:%04x", hidDesc->vendor_id, hidDesc->product_id);
     }
 
     snprintf((char *) ev.u.create.uniq, sizeof(ev.u.create.uniq), "GIMX %d %d", getpid(), device);

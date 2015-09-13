@@ -35,8 +35,6 @@ typedef struct {
 static struct {
 	char * path;
 	libusb_device_handle * devh;
-	unsigned short vendor;
-	unsigned short product;
 	s_config config;
 	struct {
 		int user;
@@ -269,47 +267,43 @@ int handle_events(int unused) {
 }
 
 int usbhidasync_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout) {
-	int transferred;
+	int transfered;
 
-	if (count >= usbdevices[device].config.endpoints.out.size) {
+  int length = count;
 
-		PRINT_ERROR_OTHER("incorrect write size")
-		return -1;
-	}
+  if(((unsigned char *)buf)[0] == 0x00) {
+    --length;
+    ++buf;
+  }
 
-	unsigned char * buffer = calloc(usbdevices[device].config.endpoints.out.size, sizeof(unsigned char));
-	if (buffer == NULL) {
+  if (length > usbdevices[device].config.endpoints.out.size) {
 
-		PRINT_ERROR_ALLOC_FAILED("calloc")
-		return -1;
-	}
-
-	memcpy(buffer, buf + 1, count - 1);
+    PRINT_ERROR_OTHER("incorrect write size")
+    return -1;
+  }
 
 	int ret = libusb_interrupt_transfer(usbdevices[device].devh, usbdevices[device].config.endpoints.out.address,
-			(void *) buffer, usbdevices[device].config.endpoints.out.size - 1, &transferred, timeout * 1000);
-	if (ret != LIBUSB_SUCCESS) {
+			(void *) buf, length, &transfered, timeout * 1000);
+	if (ret != LIBUSB_SUCCESS && ret != LIBUSB_ERROR_TIMEOUT) {
 
 		PRINT_ERROR_LIBUSB("libusb_interrupt_transfer", ret)
-		free(buffer);
 		return -1;
 	}
 
-	free(buffer);
-	return 0;
+	return count;
 }
 
 int usbhidasync_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
-	int transferred;
+	int transfered;
 
 	int ret = libusb_interrupt_transfer(usbdevices[device].devh, usbdevices[device].config.endpoints.in.address,
-			(void *) buf, count, &transferred, timeout * 1000);
-	if (ret != LIBUSB_SUCCESS) {
+			(void *) buf, count, &transfered, timeout * 1000);
+	if (ret != LIBUSB_SUCCESS && ret != LIBUSB_ERROR_TIMEOUT) {
 		PRINT_ERROR_LIBUSB("libusb_interrupt_transfer", ret)
 		return -1;
 	}
 
-	return 0;
+	return transfered;
 }
 
 #ifdef WIN32
@@ -386,8 +380,8 @@ static s_config probe_device(libusb_device * dev, struct libusb_device_descripto
 					config.interface.number = itf;
 					config.interface.alternateSetting = alt;
           config.hidInfo = probe_hid(interfaceDesc->extra, interfaceDesc->extra_length);
-          config.hidInfo.vendorId = desc->idVendor;
-          config.hidInfo.productId = desc->idProduct;
+          config.hidInfo.vendor_id = desc->idVendor;
+          config.hidInfo.product_id = desc->idProduct;
 					int ep;
 					for (ep = 0; ep < interfaceDesc->bNumEndpoints; ++ep) {
 						const struct libusb_endpoint_descriptor * endpoint = interfaceDesc->endpoint + ep;
@@ -520,7 +514,7 @@ static int claim_device(int device, libusb_device * dev, struct libusb_device_de
 			usbhidasync_close(device);
 			return -1;
 		}
-                else {
+    else {
 			hidInfo->reportDescriptorLength = ret;
 		}
 	}
@@ -618,8 +612,8 @@ s_hid_dev * usbhidasync_enumerate(unsigned short vendor, unsigned short product)
       }
 
       hid_devs[nb_hid_devs].path = path;
-      hid_devs[nb_hid_devs].vendorId = desc.idVendor;
-      hid_devs[nb_hid_devs].productId = desc.idProduct;
+      hid_devs[nb_hid_devs].vendor_id = desc.idVendor;
+      hid_devs[nb_hid_devs].product_id = desc.idProduct;
       hid_devs[nb_hid_devs].next = 0;
 
       ++nb_hid_devs;
@@ -680,9 +674,10 @@ int usbhidasync_open_ids(unsigned short vendor, unsigned short product) {
 				}
 
 				if (claim_device(device, devs[dev_i], &desc) != -1) {
-					usbdevices[device].vendor = desc.idVendor;
-					usbdevices[device].product = desc.idProduct;
 					return device;
+				}
+				else {
+          usbhidasync_close(device);
 				}
 			}
 		}
@@ -736,10 +731,11 @@ int usbhidasync_open_path(const char * path) {
 			}
 
 			if (claim_device(device, devs[dev_i], &desc) != -1) {
-				usbdevices[device].vendor = desc.idVendor;
-				usbdevices[device].product = desc.idProduct;
 				return device;
 			}
+      else {
+        usbhidasync_close(device);
+      }
 		}
 	}
 
@@ -873,19 +869,25 @@ int usbhidasync_write(int device, const void * buf, unsigned int count) {
 		return -1;
 	}
 
-	if (count > usbdevices[device].config.endpoints.out.size) {
+  if(((unsigned char *)buf)[0] == 0x00) {
+    --count;
+    ++buf;
+  }
 
-		PRINT_ERROR_OTHER("incorrect write size")
-		return -1;
-	}
+  if (count > usbdevices[device].config.endpoints.out.size) {
 
-	unsigned char * buffer = calloc(usbdevices[device].config.endpoints.out.size - 1, sizeof(unsigned char));
-	if (buffer == NULL) {
-		PRINT_ERROR_ALLOC_FAILED("calloc")
-		return -1;
-	}
+    PRINT_ERROR_OTHER("incorrect write size")
+    return -1;
+  }
 
-	memcpy(buffer, buf + 1, count - 1);
+  unsigned char * buffer = malloc(count * sizeof(unsigned char));
+  if (buffer == NULL) {
+
+    PRINT_ERROR_ALLOC_FAILED("calloc")
+    return -1;
+  }
+
+  memcpy(buffer, buf, count);
 
 	struct libusb_transfer * transfer = libusb_alloc_transfer(0);
 	if (transfer == NULL) {
@@ -896,7 +898,7 @@ int usbhidasync_write(int device, const void * buf, unsigned int count) {
 	}
 
 	libusb_fill_interrupt_transfer(transfer, usbdevices[device].devh, usbdevices[device].config.endpoints.out.address,
-			buffer, usbdevices[device].config.endpoints.out.size - 1, (libusb_transfer_cb_fn) usb_callback,
+			buffer, count, (libusb_transfer_cb_fn) usb_callback,
 			(void *) (unsigned long) device, 1000);
 
 	return submit_transfer(transfer);
