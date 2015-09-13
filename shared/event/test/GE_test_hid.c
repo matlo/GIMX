@@ -92,9 +92,21 @@ int main(int argc, char* argv[])
 
         //do something periodically
 
-        //Download and Play Force               weak        strong
-        unsigned char ff[] = {0x00, 0x51, 0x00, 0x7f, 0x00, 0x7f};
-        hidasync_write(hid, ff, sizeof(ff));
+        static int i = 1;
+        if(i == 1) {
+          //Download and Play Force               weak        strong
+          unsigned char ff[] = {0x00, 0x51, 0x00, 0x7f, 0x00, 0x7f, 0x00, 0x00};
+          hidasync_write(hid, ff, sizeof(ff));
+        }
+        else if(i == 100) {
+          //Stop Force
+          unsigned char stop[] = {0x00, 0xf3};
+          hidasync_write(hid, stop, sizeof(stop));
+        }
+        else if(i == 200) {
+          i = 0;
+        }
+        ++i;
       }
 
       GE_TimerClose();
