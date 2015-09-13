@@ -18,18 +18,9 @@ int gpp_connect(int id, const char* device)
     return -1;
   }
 
-  int i;
-  for(i = 0; i < 10; ++i)
+  if(gpppcprog_input(id, &report, 1) != 1)
   {
-    if(gpppcprog_input(id, &report, 100) == 1)
-    {
-      break;
-    }
-  }
-
-  if(i == 10)
-  {
-    return -1;
+      return -1;
   }
   
   switch(report.console)
@@ -117,6 +108,11 @@ int gpp_send(int id, e_controller_type type, int axis[AXIS_MAX])
   }
 
   return ret;
+}
+
+int8_t gpp_start_async(int id, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register)
+{
+  return gpppcprog_start_async(id, fp_read, fp_write, fp_close, fp_register);
 }
 
 void gpp_disconnect(int id)

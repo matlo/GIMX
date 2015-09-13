@@ -5,14 +5,6 @@
 #include <stdio.h>
 #include <limits.h>
 
-#include <hidapi/hidapi.h>
-
-#ifdef WIN32
-#define GIMX_PACKED __attribute__((gcc_struct, packed))
-#else
-#define GIMX_PACKED __attribute__((packed))
-#endif
-
 #ifdef WIN32
 #define LINE_MAX 1024
 #endif
@@ -26,7 +18,7 @@
 #define GPPKG_ENTER_CAPTURE     0x07
 #define GPPKG_LEAVE_CAPTURE     0x08
 
-#define REPORT_SIZE 64
+#define REPORT_SIZE 63
 
 typedef struct GIMX_PACKED
 {
@@ -37,7 +29,6 @@ typedef struct GIMX_PACKED
 
 typedef struct GIMX_PACKED
 {
-  uint8_t reportId;
   s_gppReportHeader header;
   uint8_t data[REPORT_SIZE-sizeof(s_gppReportHeader)];
 } s_gppReport;
@@ -111,18 +102,41 @@ const GCAPI_USB_IDS * gpppcprog_get_ids(unsigned int * nb)
 
 static struct
 {
-  hid_device * dev;
+  int device;
   char * path;
-} devices[MAX_GPP_DEVICES] = {};
+  ASYNC_READ_CALLBACK fp_read;
+  ASYNC_WRITE_CALLBACK fp_write;
+  ASYNC_CLOSE_CALLBACK fp_close;
+} gpp_devices[MAX_GPP_DEVICES] = {};
 
-int8_t gpppcprog_send(int id, uint8_t type, uint8_t *data, uint16_t length);
+void gpppcprog_init(void) __attribute__((constructor (101)));
+void gpppcprog_init(void)
+{
+    int i;
+    for (i = 0; i < MAX_GPP_DEVICES; ++i) {
+        gpp_devices[i].device = -1;
+    }
+}
+
+void gpppcprog_clean(void) __attribute__((destructor (101)));
+void gpppcprog_clean(void)
+{
+    int i;
+    for (i = 0; i < MAX_GPP_DEVICES; ++i) {
+        if(gpp_devices[i].device >= 0) {
+            hidasync_close(gpp_devices[i].device);
+        }
+    }
+}
+
+int8_t gpppcprog_send(int id, uint8_t type, uint8_t * data, uint16_t length);
 
 static uint8_t is_device_opened(const char* device)
 {
   int i;
-  for(i = 0; i < sizeof(devices) / sizeof(*devices); ++i)
+  for(i = 0; i < sizeof(gpp_devices) / sizeof(*gpp_devices); ++i)
   {
-    if(devices[i].path && !strcmp(devices[i].path, device))
+    if(gpp_devices[i].path && !strcmp(gpp_devices[i].path, device))
     {
       return 1;
     }
@@ -130,41 +144,40 @@ static uint8_t is_device_opened(const char* device)
   return 0;
 }
 
-int8_t gppcprog_connect(int id, const char* device)
+int8_t gppcprog_connect(int id, const char * path)
 {
   int r = 0;
 
   gppcprog_disconnect(id);
 
-  if(device)
+  if(path)
   {
     // Connect to the given device
 
-    if(is_device_opened(device))
+    if(is_device_opened(path))
     {
       return -1;
     }
 
-    devices[id].dev = hid_open_path(device);
+    gpp_devices[id].device = hidasync_open_path(path);
 
-    if(devices[id].dev)
+    if(gpp_devices[id].device >= 0)
     {
-      devices[id].path = strdup(device);
+      gpp_devices[id].path = strdup(path);
     }
     else
     {
-      fprintf(stderr, "failed to open %s\n", device);
+      fprintf(stderr, "failed to open %s\n", path);
     }
   }
   else
   {
     // Connect to any GPP/Cronus/Titan
 
-    struct hid_device_info *devs, *cur_dev;
+    s_hid_dev *devs, *cur_dev;
 
-    devs = hid_enumerate(0x0000, 0x0000);
-    cur_dev = devs;
-    while (cur_dev)
+    devs = hidasync_enumerate(0x0000, 0x0000);
+    for(cur_dev = devs; ; ++cur_dev)
     {
       int i;
       for(i = 0; i < sizeof(usb_ids) / sizeof(*usb_ids); ++i)
@@ -173,24 +186,26 @@ int8_t gppcprog_connect(int id, const char* device)
         {
           if(!is_device_opened(cur_dev->path))
           {
-            if ((devices[id].dev = hid_open_path(cur_dev->path)))
+            if ((gpp_devices[id].device = hidasync_open_path(cur_dev->path)) >= 0)
             {
-              devices[id].path = strdup(cur_dev->path);
+              gpp_devices[id].path = strdup(cur_dev->path);
               break;
             }
           }
         }
       }
-      if(devices[id].dev)
+      if(gpp_devices[id].device >= 0)
       {
         break;
       }
-      cur_dev = cur_dev->next;
+      if(cur_dev->next == 0) {
+          break;
+      }
     }
-    hid_free_enumeration(devs);
+    hidasync_free_enumeration(devs);
   }
 
-  if (!devices[id].dev)
+  if (gpp_devices[id].device < 0)
   {
     return -1;
   }
@@ -208,21 +223,21 @@ int8_t gppcprog_connect(int id, const char* device)
 
 int8_t gppcprog_connected(int id)
 {
-  return !devices[id].dev;
+  return gpp_devices[id].device < 0;
 }
 
 void gppcprog_disconnect(int id)
 {
-  if (devices[id].dev)
+  if (gpp_devices[id].device >= 0)
   {
     // Leave Capture Mode
     gpppcprog_send(id, GPPKG_LEAVE_CAPTURE, NULL, 0);
 
     // Disconnect to GPP
-    hid_close(devices[id].dev);
-    devices[id].dev = NULL;
-    free(devices[id].path);
-    devices[id].path = NULL;
+    hidasync_close(gpp_devices[id].device);
+    gpp_devices[id].device = -1;
+    free(gpp_devices[id].path);
+    gpp_devices[id].path = NULL;
   }
   return;
 }
@@ -230,11 +245,11 @@ void gppcprog_disconnect(int id)
 int8_t gpppcprog_input(int id, GCAPI_REPORT *report, int timeout)
 {
   int bytesReceived;
-  uint8_t rcvBuf[64], i;
+  uint8_t rcvBuf[64];
 
-  if (!devices[id].dev || report == NULL)
+  if (gpp_devices[id].device < 0 || report == NULL)
     return (-1);
-  bytesReceived = hid_read_timeout(devices[id].dev, rcvBuf, 64, timeout);
+  bytesReceived = hidasync_read_timeout(gpp_devices[id].device, rcvBuf, 64, timeout);
   if (bytesReceived < 0)
   {
     gppcprog_disconnect(id);
@@ -242,39 +257,50 @@ int8_t gpppcprog_input(int id, GCAPI_REPORT *report, int timeout)
   }
   else if (bytesReceived && rcvBuf[0] == GPPKG_INPUT_REPORT)
   {
-    int8_t *rep01 = (int8_t *) (rcvBuf + 7);
-    report->controller = *rep01++;
-    report->console = *rep01++;
-    report->led[0] = *rep01++;
-    report->led[1] = *rep01++;
-    report->led[2] = *rep01++;
-    report->led[3] = *rep01++;
-    report->rumble[0] = *rep01++;
-    report->rumble[1] = *rep01++;
-    report->battery_level = *rep01++;
-    for (i = 0; i < GCAPI_INPUT_TOTAL; i++)
-    {
-      report->input[i].value = *rep01++;
-    }
+    *report = *(GCAPI_REPORT *)(rcvBuf + 7);
     return (1);
   }
   return (0);
 }
 
-int8_t gpppcprog_output(int id, int8_t *output)
+static int read_callback(int user, const void * buf, unsigned int count)
 {
-  uint8_t outputReport[GCAPI_INPUT_TOTAL + 6];
-  memset(outputReport, 0x00, GCAPI_INPUT_TOTAL + 6);
-  memcpy(outputReport, (uint8_t *) output, GCAPI_INPUT_TOTAL);
-  return (gpppcprog_send(id, GPPKG_OUTPUT_REPORT, outputReport,
-      GCAPI_INPUT_TOTAL + 6));
+  if(((unsigned char *)buf)[0] == GPPKG_INPUT_REPORT) {
+    return gpp_devices[user].fp_read(user, buf, count);
+  }
+  return 0;
 }
 
-int8_t gpppcprog_send(int id, uint8_t type, uint8_t *data, uint16_t length)
+static int write_callback(int user)
+{
+  return gpp_devices[user].fp_write(user);
+}
+
+static int close_callback(int user)
+{
+  return gpp_devices[user].fp_close(user);
+}
+
+int8_t gpppcprog_start_async(int id, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register)
+{
+  gpp_devices[id].fp_read = fp_read;
+  gpp_devices[id].fp_write = fp_write;
+  gpp_devices[id].fp_close = fp_close;
+
+  return hidasync_register(gpp_devices[id].device, id, read_callback, write_callback, close_callback, fp_register);
+}
+
+int8_t gpppcprog_output(int id, int8_t *output)
+{
+  uint8_t outputReport[GCAPI_INPUT_TOTAL + 6] = {};
+  memcpy(outputReport, output, sizeof(outputReport));
+  return gpppcprog_send(id, GPPKG_OUTPUT_REPORT, outputReport, sizeof(outputReport));
+}
+
+int8_t gpppcprog_send(int id, uint8_t type, uint8_t * data, uint16_t length)
 {
   s_gppReport report =
   {
-    .reportId = 0x00,
     .header =
     {
       .type = type,
@@ -293,8 +319,14 @@ int8_t gpppcprog_send(int id, uint8_t type, uint8_t *data, uint16_t length)
       memcpy(report.data, data + i, sndLen);
       i += sndLen;
     }
-    if (hid_write(devices[id].dev, (unsigned char*)&report, 64) == -1)
-      return (0);
+    if(gpp_devices[id].fp_write) {
+      if (hidasync_write(gpp_devices[id].device, (unsigned char*)&report, sizeof(report)) == -1)
+        return (0);
+    }
+    else {
+      if (hidasync_write_timeout(gpp_devices[id].device, (unsigned char*)&report, sizeof(report), 1) == -1)
+        return (0);
+    }
     report.header.first = 0;
   }
   while (i < length);

@@ -45,7 +45,7 @@
 #include "wx/numdlg.h"
 
 #include <time.h>
-#include <hidapi/hidapi.h>
+#include "../shared/async/include/hidasync.h"
 
 using namespace std;
 
@@ -474,7 +474,7 @@ void launcherFrame::readSerialPorts()
 
 void launcherFrame::readHidPorts()
 {
-  struct hid_device_info *devs, *cur_dev;
+  s_hid_dev *devs, *cur_dev;
 
   wxString previous = OutputChoice->GetStringSelection();
 
@@ -484,9 +484,8 @@ void launcherFrame::readHidPorts()
   unsigned int nb_usb_ids;
   const GCAPI_USB_IDS * usb_ids = gpppcprog_get_ids(&nb_usb_ids);
 
-  devs = hid_enumerate(0x0000, 0x0000);
-  cur_dev = devs;
-  while (cur_dev)
+  devs = hidasync_enumerate(0x0000, 0x0000);
+  for(cur_dev = devs; ; ++cur_dev)
   {
     wxString device;
     for(unsigned int i = 0; i < nb_usb_ids; ++i)
@@ -505,9 +504,11 @@ void launcherFrame::readHidPorts()
       device.append(wxT(")"));
       OutputChoice->SetSelection(OutputChoice->Append(device));
     }
-    cur_dev = cur_dev->next;
+    if(cur_dev->next == 0) {
+        break;
+    }
   }
-  hid_free_enumeration(devs);
+  hidasync_free_enumeration(devs);
 
   if(previous != wxEmptyString)
   {

@@ -241,23 +241,22 @@ int cfg_add_binding(s_config_entry* entry)
   return ret;
 }
 
+#define JOYSTICK_RUMBLE_REFRESH_PERIOD 20000
+
 static struct
 {
-  unsigned char nb;
-  unsigned long weak;
-  unsigned long strong;
-  unsigned char falling; //indicates that weak and strong were null in the last event
-  unsigned char off;
+  unsigned short weak;
+  unsigned short strong;
+  unsigned char updated; //an update has been received
+  unsigned char active; //the rumble is active
+  int elapsed; //the time elapsed since the last GE_JoystickSetRumble() call
 } joystick_rumble[MAX_DEVICES] = {};
 
 inline void cfg_process_rumble_event(GE_Event* event)
 {
-  joystick_rumble[event->jrumble.which].weak += event->jrumble.weak;
-  joystick_rumble[event->jrumble.which].strong += event->jrumble.strong;
-  joystick_rumble[event->jrumble.which].nb++;
-  joystick_rumble[event->jrumble.which].falling =
-      (!event->jrumble.weak && !event->jrumble.strong)
-      && !joystick_rumble[event->jrumble.which].off;
+  joystick_rumble[event->jrumble.which].weak = event->jrumble.weak;
+  joystick_rumble[event->jrumble.which].strong = event->jrumble.strong;
+  joystick_rumble[event->jrumble.which].updated = 1;
 }
 
 void cfg_process_rumble()
@@ -265,25 +264,26 @@ void cfg_process_rumble()
   int i;
   for (i = 0; i < MAX_DEVICES; ++i)
   {
-    unsigned char nb = joystick_rumble[i].nb;
+    joystick_rumble[i].elapsed += gimx_params.refresh_period;
 
-    if(nb)
+    if(joystick_rumble[i].updated && joystick_rumble[i].elapsed >= JOYSTICK_RUMBLE_REFRESH_PERIOD)
     {
-      unsigned short weak = joystick_rumble[i].weak / nb;
-      unsigned short strong = joystick_rumble[i].strong / nb;
+      unsigned short weak = joystick_rumble[i].weak;
+      unsigned short strong = joystick_rumble[i].strong;
 
-      joystick_rumble[i].off = !weak && !strong;
+      unsigned char active = weak || strong;
 
-      if(!joystick_rumble[i].off || joystick_rumble[i].falling)
+      if(joystick_rumble[i].active || active)
       {
         GE_JoystickSetRumble(i, weak, strong);
-
-        joystick_rumble[i].falling = 0;
       }
 
-      joystick_rumble[i].nb = 0;
+      joystick_rumble[i].active = active;
+
       joystick_rumble[i].weak = 0;
       joystick_rumble[i].strong = 0;
+      joystick_rumble[i].updated = 0;
+      joystick_rumble[i].elapsed = 0;
     }
   }
 }

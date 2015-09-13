@@ -434,7 +434,6 @@ static int adapter_process_packet(int id, s_packet* packet)
           send = 1;
         }
         break;
-        break;
       case C_TYPE_T300RS_PS4:
         //TODO MLA: decode and process T300RS FFB reports
         break;
@@ -900,6 +899,42 @@ int adapter_detect()
   return ret;
 }
 
+static int adapter_gpp_read(int id, const void * buf, unsigned int count)
+{
+  GCAPI_REPORT * report = (GCAPI_REPORT *)(buf + 7);
+
+  int joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, id);
+
+  if(GE_JoystickHasRumble(joystick))
+  {
+    GE_Event event =
+    {
+      .jrumble =
+      {
+        .type = GE_JOYRUMBLE,
+        .which = joystick,
+        .weak = report->rumble[0] << 8,
+        .strong = report->rumble[1] << 8
+      }
+    };
+    GE_PushEvent(&event);
+  }
+
+  return 0;
+}
+
+static int adapter_gpp_write(int id)
+{
+  //TODO MLA: anything to do in the serial write callback?
+  return 0;
+}
+
+static int adapter_gpp_close(int id)
+{
+  //TODO MLA: anything to do in the serial close callback?
+  return 0;
+}
+
 int adapter_start()
 {
   int ret = 0;
@@ -973,6 +1008,10 @@ int adapter_start()
       {
         GE_AddSource(adapter->src_fd, i, adapter_network_read, NULL, adapter_network_close);
       }
+    }
+    else if(adapter->type == C_TYPE_GPP)
+    {
+      ret = gpp_start_async(i, adapter_gpp_read, adapter_gpp_write, adapter_gpp_close, REGISTER_FUNCTION);
     }
   }
   return ret;
