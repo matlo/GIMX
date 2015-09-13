@@ -18,10 +18,11 @@
 #define GPPKG_ENTER_CAPTURE     0x07
 #define GPPKG_LEAVE_CAPTURE     0x08
 
-#define REPORT_SIZE 63
+#define REPORT_SIZE 64
 
 typedef struct GIMX_PACKED
 {
+  uint8_t reportId;
   uint8_t type;
   uint16_t length;
   uint8_t first;
@@ -303,6 +304,7 @@ int8_t gpppcprog_send(int id, uint8_t type, uint8_t * data, uint16_t length)
   {
     .header =
     {
+      .reportId = 0x00,
       .type = type,
       .length = length,
       .first = 1
