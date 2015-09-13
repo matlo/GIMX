@@ -38,8 +38,7 @@ static struct
   struct
   {
     int fd;
-    int weak_id;
-    int strong_id;
+    int rumble_id;
     int (*rumble_cb)(int index, unsigned short weak, unsigned short strong);
   } force_feedback;
   int uhid_id;
@@ -261,32 +260,20 @@ static int start_ff(int index, int fd_ev)
   }
   if (test_bit(FF_RUMBLE, features))
   {
-    // Upload a "weak" effect.
-    struct ff_effect weak =
+    // Upload a rumble effect.
+    struct ff_effect rumble =
     {
       .type = FF_RUMBLE,
       .id = -1
     };
-    if (ioctl(fd_ev, EVIOCSFF, &weak) == -1)
-    {
-      perror("ioctl EVIOCSFF");
-      return -1;
-    }
-    // Upload a "strong" effect.
-    struct ff_effect strong =
-    {
-      .type = FF_RUMBLE,
-      .id = -1,
-    };
-    if (ioctl(fd_ev, EVIOCSFF, &strong) == -1)
+    if (ioctl(fd_ev, EVIOCSFF, &rumble) == -1)
     {
       perror("ioctl EVIOCSFF");
       return -1;
     }
     // Store the ids so that the effects can be updated and played later.
     joystick[index].force_feedback.fd = fd_ev;
-    joystick[index].force_feedback.weak_id = weak.id;
-    joystick[index].force_feedback.strong_id = strong.id;
+    joystick[index].force_feedback.rumble_id = rumble.id;
     return 0;
   }
   return -1;
@@ -403,26 +390,9 @@ int js_set_ff_rumble(int index, unsigned short weak, unsigned short strong)
     };
 
     // Update the effect.
-    effect.id = joystick[index].force_feedback.weak_id;
-    effect.u.rumble.strong_magnitude = 0;
-    effect.u.rumble.weak_magnitude   = weak;
-    if (ioctl(fd, EVIOCSFF, &effect) == -1)
-    {
-      perror("ioctl EVIOCSFF");
-      ret = -1;
-    }
-    // Play the effect.
-    play.code =  effect.id;
-    if (write(fd, (const void*) &play, sizeof(play)) == -1)
-    {
-      perror("write");
-      ret = -1;
-    }
-
-    // Update the effect.
-    effect.id = joystick[index].force_feedback.strong_id;
+    effect.id = joystick[index].force_feedback.rumble_id;
     effect.u.rumble.strong_magnitude = strong;
-    effect.u.rumble.weak_magnitude   = 0;
+    effect.u.rumble.weak_magnitude   = weak;
     if (ioctl(fd, EVIOCSFF, &effect) == -1)
     {
       perror("ioctl EVIOCSFF");
