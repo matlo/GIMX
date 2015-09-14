@@ -22,7 +22,6 @@
 
 typedef struct GIMX_PACKED
 {
-  uint8_t reportId;
   uint8_t type;
   uint16_t length;
   uint8_t first;
@@ -30,6 +29,7 @@ typedef struct GIMX_PACKED
 
 typedef struct GIMX_PACKED
 {
+  uint8_t reportId;
   s_gppReportHeader header;
   uint8_t data[REPORT_SIZE-sizeof(s_gppReportHeader)];
 } s_gppReport;
@@ -302,9 +302,9 @@ int8_t gpppcprog_send(int id, uint8_t type, uint8_t * data, uint16_t length)
 {
   s_gppReport report =
   {
+    .reportId = 0x00,
     .header =
     {
-      .reportId = 0x00,
       .type = type,
       .length = length,
       .first = 1
