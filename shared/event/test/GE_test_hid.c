@@ -58,6 +58,7 @@ int hid_write(int user)
 int hid_close(int user)
 {
   printf("close user: %d\n", user);
+  done = 1;
   return 0;
 }
 
