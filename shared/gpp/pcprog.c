@@ -231,6 +231,9 @@ void gppcprog_disconnect(int id)
 {
   if (gpp_devices[id].device >= 0)
   {
+    //make sure the write is synchronous
+    gpp_devices[id].fp_write = NULL;
+
     // Leave Capture Mode
     gpppcprog_send(id, GPPKG_LEAVE_CAPTURE, NULL, 0);
 
@@ -274,7 +277,11 @@ static int read_callback(int user, const void * buf, unsigned int count)
 
 static int write_callback(int user)
 {
-  return gpp_devices[user].fp_write(user);
+  if(gpp_devices[user].fp_write)
+  {
+    return gpp_devices[user].fp_write(user);
+  }
+  return 0;
 }
 
 static int close_callback(int user)
