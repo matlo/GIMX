@@ -222,13 +222,14 @@ int async_set_read_size(int device, unsigned int size) {
 
     ASYNC_CHECK_DEVICE(device)
     
-    if(size > devices[device].read.count) {
+    if(size > devices[device].read.size) {
         void * ptr = realloc(devices[device].read.buf, size);
         if(ptr == NULL) {
     	    fprintf(stderr, "%s:%d %s: can't allocate a buffer\n", __FILE__, __LINE__, __func__);
             return -1;
         }
         devices[device].read.buf = ptr;
+        devices[device].read.size = size;
     }
     
     devices[device].read.count = size;
