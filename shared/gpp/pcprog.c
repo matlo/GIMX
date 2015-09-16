@@ -298,11 +298,9 @@ int8_t gpppcprog_start_async(int id, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CA
   return hidasync_register(gpp_devices[id].device, id, read_callback, write_callback, close_callback, fp_register);
 }
 
-int8_t gpppcprog_output(int id, int8_t *output)
+int8_t gpppcprog_output(int id, int8_t output[GCAPI_OUTPUT_TOTAL])
 {
-  uint8_t outputReport[GCAPI_INPUT_TOTAL + 6] = {};
-  memcpy(outputReport, output, sizeof(outputReport));
-  return gpppcprog_send(id, GPPKG_OUTPUT_REPORT, outputReport, sizeof(outputReport));
+  return gpppcprog_send(id, GPPKG_OUTPUT_REPORT, (uint8_t *)output, GCAPI_OUTPUT_TOTAL);
 }
 
 int8_t gpppcprog_send(int id, uint8_t type, uint8_t * data, uint16_t length)

@@ -277,7 +277,7 @@ int8_t gppcprog_connect(int id, const char * path);
 int8_t gppcprog_connected(int id);
 void gppcprog_disconnect(int id);
 int8_t gpppcprog_input(int id, GCAPI_REPORT * report, int timeout);
-int8_t gpppcprog_output(int id, int8_t * output);
+int8_t gpppcprog_output(int id, int8_t output[GCAPI_OUTPUT_TOTAL]);
 int8_t gpppcprog_start_async(int id, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register);
 
 #endif

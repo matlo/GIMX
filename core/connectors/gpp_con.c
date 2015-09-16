@@ -52,7 +52,7 @@ inline int8_t scale_axis(e_controller_type type, int index, int axis[AXIS_MAX])
 
 int gpp_send(int id, e_controller_type type, int axis[AXIS_MAX])
 {
-  int8_t output[GCAPI_INPUT_TOTAL] = {};
+  int8_t output[GCAPI_OUTPUT_TOTAL] = {};
   int axis_value;
   int ret = 0;
 
