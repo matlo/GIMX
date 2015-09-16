@@ -241,7 +241,8 @@ int async_read_timeout(int device, void * buf, unsigned int count, unsigned int 
     dwBytesRead = count;
   }
 
-  if (dwBytesRead > 0) {
+  // skip the eventual leading null byte for hid devices
+  if (devices[device].hid.vendor != 0x0000 && dwBytesRead > 0) {
     if (((unsigned char*)buf)[0] == 0x00) {
       --dwBytesRead;
       memmove(buf, buf + 1, dwBytesRead);
@@ -330,7 +331,8 @@ static int read_packet(int device) {
   
   if(devices[device].read.bread) {
     if(devices[device].callback.fp_read != NULL) {
-      if (((unsigned char*)devices[device].read.buf)[0] == 0x00) {
+      // skip the eventual leading null byte for hid devices
+      if (devices[device].hid.vendor != 0x0000 && ((unsigned char*)devices[device].read.buf)[0] == 0x00) {
         --devices[device].read.bread;
         memmove(devices[device].read.buf, devices[device].read.buf + 1, devices[device].read.bread);
       }
