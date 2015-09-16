@@ -296,6 +296,10 @@ int usbhidasync_write_timeout(int device, const void * buf, unsigned int count, 
 int usbhidasync_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
 	int transfered;
 
+	if(count > usbdevices[device].config.endpoints.in.size) {
+	  count = usbdevices[device].config.endpoints.in.size;
+	}
+
 	int ret = libusb_interrupt_transfer(usbdevices[device].devh, usbdevices[device].config.endpoints.in.address,
 			(void *) buf, count, &transfered, timeout * 1000);
 	if (ret != LIBUSB_SUCCESS && ret != LIBUSB_ERROR_TIMEOUT) {
