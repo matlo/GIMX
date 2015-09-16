@@ -12,8 +12,6 @@
 extern "C" {
 #endif
 
-#define HIDASYNC_MAX_TRANSFER_SIZE 64
-
 #define USB_VENDOR_ID_LOGITECH          0x046d
 
 #define USB_DEVICE_ID_LOGITECH_WINGMAN_FFG  0xc293

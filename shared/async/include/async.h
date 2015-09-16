@@ -48,6 +48,7 @@ typedef struct {
       char * buf;
       unsigned int count;
       unsigned int bread;
+      unsigned int size;
     } read;
 #ifdef WIN32
     struct

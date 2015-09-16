@@ -9,8 +9,12 @@
 #include <Hidsdi.h>
 #include <Setupapi.h>
 
+#define PRINT_ERROR_ALLOC_FAILED(func) fprintf(stderr, "%s:%d %s: %s failed\n", __FILE__, __LINE__, __func__, func);
+
+#define PRINT_ERROR_OTHER(msg) fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
+
 int open_path(const char * path, int print) {
-  
+
   int device = async_open_path(path, print);
   if(device >= 0) {
     HIDD_ATTRIBUTES attributes = { .Size = sizeof(HIDD_ATTRIBUTES) };
@@ -20,6 +24,7 @@ int open_path(const char * path, int print) {
         if(HidD_GetPreparsedData(devices[device].handle, &preparsedData) == TRUE) {
             if(HidP_GetCaps(preparsedData, &hidCapabilities) == HIDP_STATUS_SUCCESS ) {
                 devices[device].write.size = hidCapabilities.OutputReportByteLength;
+                async_set_read_size(device, hidCapabilities.InputReportByteLength);
                 devices[device].hid.vendor = attributes.VendorID;
                 devices[device].hid.product = attributes.ProductID;
             }
@@ -43,6 +48,110 @@ int open_path(const char * path, int print) {
     }
   }
   return device;
+}
+
+s_hid_dev * hidasync_enumerate(unsigned short vendor, unsigned short product) {
+
+  s_hid_dev * hid_devs = NULL;
+  unsigned int nb_hid_devs = 0;
+
+  GUID guid;
+	HidD_GetHidGuid(&guid);
+
+	HDEVINFO info = SetupDiGetClassDevs(&guid, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
+
+	if(info != INVALID_HANDLE_VALUE) {
+		int index;
+		for(index = 0; ; ++index) {
+			SP_DEVICE_INTERFACE_DATA iface;
+			iface.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA);
+			if(SetupDiEnumDeviceInterfaces(info, NULL, &guid, index, &iface) == FALSE) {
+				break; //no more device
+			}
+			DWORD reqd_size;
+			if(SetupDiGetInterfaceDeviceDetail(info, &iface, NULL, 0, &reqd_size, NULL) == FALSE) {
+				if(GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
+					continue;
+				}
+			}
+			SP_DEVICE_INTERFACE_DETAIL_DATA * details = calloc(reqd_size, sizeof(char));
+			if(details == NULL) {
+				fprintf(stderr, "%s:%d calloc failed\n", __FILE__, __LINE__);
+				continue;
+			}
+			details->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA);
+			if(SetupDiGetDeviceInterfaceDetail(info, &iface, details, reqd_size, NULL, NULL) == FALSE) {
+				ASYNC_PRINT_ERROR("SetupDiGetDeviceInterfaceDetail")
+				free(details);
+				continue;
+			}
+			int device = open_path(details->DevicePath, 0);
+			free(details);
+
+			if(device >= 0) {
+				if(vendor) {
+					if (devices[device].hid.vendor != vendor) {
+						async_close(device);
+						continue;
+					}
+					if(product) {
+						if(devices[device].hid.product != product) {
+							async_close(device);
+							continue;
+						}
+					}
+				}
+
+				char * path = strdup(devices[device].path);
+
+				if(path == NULL) {
+					PRINT_ERROR_OTHER("strdup failed")
+	        async_close(device);
+					continue;
+				}
+
+				void * ptr = realloc(hid_devs, (nb_hid_devs + 1) * sizeof(*hid_devs));
+
+				if(ptr == NULL) {
+					PRINT_ERROR_ALLOC_FAILED("realloc")
+					free(path);
+					async_close(device);
+					continue;
+				}
+
+				hid_devs = ptr;
+
+				if(nb_hid_devs > 0) {
+					hid_devs[nb_hid_devs - 1].next = 1;
+				}
+
+				hid_devs[nb_hid_devs].path = path;
+				hid_devs[nb_hid_devs].vendor_id = devices[device].hid.vendor;
+				hid_devs[nb_hid_devs].product_id = devices[device].hid.product;
+				hid_devs[nb_hid_devs].next = 0;
+
+				++nb_hid_devs;
+
+				async_close(device);
+			}
+		}
+	}
+
+  return hid_devs;
+}
+
+void hidasync_free_enumeration(s_hid_dev * hid_devs) {
+
+  s_hid_dev * current;
+  for(current = hid_devs; ; ++current) {
+
+      free(current->path);
+
+      if(current->next == 0) {
+          break;
+      }
+  }
+  free(hid_devs);
 }
 
 /*
@@ -180,11 +289,6 @@ int hidasync_read_timeout(int device, void * buf, unsigned int count, unsigned i
  * \return 0 in case of success, or -1 in case of error
  */
 int hidasync_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register) {
-
-    if(async_set_read_size(device, HIDASYNC_MAX_TRANSFER_SIZE) < 0) {
-      
-      return -1;
-    }
     
     return async_register(device, user, fp_read, fp_write, fp_close, fp_register);
 }

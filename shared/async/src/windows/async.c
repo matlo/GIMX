@@ -165,20 +165,28 @@ int async_close(int device) {
 
     DWORD dwBytesTransfered;
 
-    CancelIo(devices[device].handle);
-    if (!GetOverlappedResult(devices[device].handle, &devices[device].read.overlapped, &dwBytesTransfered, TRUE)) { //block until completion
-        ASYNC_PRINT_ERROR("GetOverlappedResult")
-        return -1;
-    }
-    if (!GetOverlappedResult(devices[device].handle, &devices[device].write.overlapped, &dwBytesTransfered, TRUE)) { //block until completion
-        ASYNC_PRINT_ERROR("GetOverlappedResult")
-        return -1;
+    if(devices[device].handle != INVALID_HANDLE_VALUE) {
+      if(devices[device].read.overlapped.hEvent != INVALID_HANDLE_VALUE) {
+        if(CancelIoEx(devices[device].handle, &devices[device].read.overlapped) != ERROR_NOT_FOUND) {
+          if (!GetOverlappedResult(devices[device].handle, &devices[device].read.overlapped, &dwBytesTransfered, TRUE)) { //block until completion
+            ASYNC_PRINT_ERROR("GetOverlappedResult")
+          }
+        }
+      }
+      if(devices[device].write.overlapped.hEvent != INVALID_HANDLE_VALUE) {
+        if(CancelIoEx(devices[device].handle, &devices[device].write.overlapped) != ERROR_NOT_FOUND) {
+        	if (!GetOverlappedResult(devices[device].handle, &devices[device].write.overlapped, &dwBytesTransfered, TRUE)) { //block until completion
+            ASYNC_PRINT_ERROR("GetOverlappedResult")
+        	}
+        }
+      }
     }
 
     while(dequeue_write(device) != -1) ;
 
     free(devices[device].read.buf);
     devices[device].read.buf = NULL;
+    devices[device].read.size = 0;
 
     CloseHandle(devices[device].read.overlapped.hEvent);
     devices[device].read.overlapped.hEvent = INVALID_HANDLE_VALUE;
@@ -231,6 +239,13 @@ int async_read_timeout(int device, void * buf, unsigned int count, unsigned int 
   else
   {
     dwBytesRead = count;
+  }
+
+  if (dwBytesRead > 0) {
+    if (((unsigned char*)buf)[0] == 0x00) {
+      --dwBytesRead;
+      memmove(buf, buf + 1, dwBytesRead);
+    }
   }
 
   return dwBytesRead;
@@ -297,8 +312,13 @@ static int start_overlapped_read(int device) {
   }
   else
   {
+    DWORD dwBytesRead;
+    if (!GetOverlappedResult(devices[device].handle, &devices[device].read.overlapped, &dwBytesRead, FALSE)) {
+      ASYNC_PRINT_ERROR("GetOverlappedResult")
+      return -1;
+    }
     // the read immediately completed
-    ret = devices[device].read.bread = devices[device].read.count;
+    ret = devices[device].read.bread = dwBytesRead;
   }
   
   return ret;
@@ -307,9 +327,17 @@ static int start_overlapped_read(int device) {
 static int read_packet(int device) {
   
   if(devices[device].read.bread) {
-    devices[device].callback.fp_read(devices[device].callback.user, (const char *)devices[device].read.buf, devices[device].read.bread);
+    if(devices[device].callback.fp_read != NULL) {
+      if (((unsigned char*)devices[device].read.buf)[0] == 0x00) {
+        --devices[device].read.bread;
+        memmove(devices[device].read.buf, devices[device].read.buf + 1, devices[device].read.bread);
+      }
+      devices[device].callback.fp_read(devices[device].callback.user, (const char *)devices[device].read.buf, devices[device].read.bread);
+    }
     devices[device].read.bread = 0;
   }
+
+  memset(devices[device].read.buf, 0x00, devices[device].read.size);
 
   return start_overlapped_read(device);
 }
@@ -344,7 +372,10 @@ static int write_internal(int device) {
       }
     }
     else {
-      dwBytesWritten = devices[device].write.queue.data[0].count;
+      if (!GetOverlappedResult(devices[device].handle, &devices[device].write.overlapped, &dwBytesWritten, FALSE)) {
+        ASYNC_PRINT_ERROR("GetOverlappedResult")
+        return -1;
+      }
     }
 
     return dwBytesWritten;
@@ -390,29 +421,29 @@ static int close_callback(int device) {
 
 int async_set_read_size(int device, unsigned int size) {
 
-  ASYNC_CHECK_DEVICE(device)
+    ASYNC_CHECK_DEVICE(device)
     
-    if(size > devices[device].read.count) {
+    if(size > devices[device].read.size) {
         void * ptr = realloc(devices[device].read.buf, size);
         if(ptr == NULL) {
-    	      fprintf(stderr, "%s:%d %s: can't allocate a buffer\n", __FILE__, __LINE__, __func__);
+            fprintf(stderr, "%s:%d %s: can't allocate a buffer\n", __FILE__, __LINE__, __func__);
             return -1;
         }
         devices[device].read.buf = ptr;
+        memset(devices[device].read.buf, 0x00, size);
+        devices[device].read.size = size;
     }
   
-  devices[device].read.count = size;
-  
-  return 0;
+    devices[device].read.count = size;
+
+    return 0;
 }
 
 int async_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register) {
 
     ASYNC_CHECK_DEVICE(device)
     
-    if(fp_read) {
-        while(read_packet(device) >= 0) ;
-    }
+    while(read_packet(device) >= 0) ;
 
     devices[device].callback.user = user;
     devices[device].callback.fp_read = fp_read;

@@ -249,11 +249,11 @@ void gppcprog_disconnect(int id)
 int8_t gpppcprog_input(int id, GCAPI_REPORT *report, int timeout)
 {
   int bytesReceived;
-  uint8_t rcvBuf[64];
+  uint8_t rcvBuf[65] = {};
 
   if (gpp_devices[id].device < 0 || report == NULL)
     return (-1);
-  bytesReceived = hidasync_read_timeout(gpp_devices[id].device, rcvBuf, 64, timeout);
+  bytesReceived = hidasync_read_timeout(gpp_devices[id].device, rcvBuf, sizeof(rcvBuf), timeout);
   if (bytesReceived < 0)
   {
     gppcprog_disconnect(id);
