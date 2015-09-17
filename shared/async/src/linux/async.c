@@ -103,11 +103,13 @@ int async_close(int device) {
     ASYNC_CHECK_DEVICE(device)
 
     close(devices[device].fd);
-    devices[device].fd = -1;
+
     free(devices[device].path);
-    devices[device].path = NULL;
     free(devices[device].read.buf);
-    devices[device].read.buf = NULL;
+
+    memset(devices + device, 0x00, sizeof(*devices));
+
+    devices[device].fd = -1;
 
     return 0;
 }

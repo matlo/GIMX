@@ -10,11 +10,17 @@
 
 s_device devices[ASYNC_MAX_DEVICES] = { };
 
+static void reset_handles(int device) {
+    devices[device].handle = INVALID_HANDLE_VALUE;
+    devices[device].read.overlapped.hEvent = INVALID_HANDLE_VALUE;
+    devices[device].write.overlapped.hEvent = INVALID_HANDLE_VALUE;
+}
+
 void init(void) __attribute__((constructor (101)));
 void init(void) {
     int i;
     for (i = 0; i < ASYNC_MAX_DEVICES; ++i) {
-        devices[i].handle = INVALID_HANDLE_VALUE;
+        reset_handles(i);
     }
 }
 
@@ -183,17 +189,15 @@ int async_close(int device) {
     while(dequeue_write(device) != -1) ;
 
     free(devices[device].read.buf);
-    devices[device].read.buf = NULL;
-    devices[device].read.size = 0;
+    free(devices[device].path);
 
     CloseHandle(devices[device].read.overlapped.hEvent);
-    devices[device].read.overlapped.hEvent = INVALID_HANDLE_VALUE;
     CloseHandle(devices[device].write.overlapped.hEvent);
-    devices[device].write.overlapped.hEvent = INVALID_HANDLE_VALUE;
     CloseHandle(devices[device].handle);
-    devices[device].handle = INVALID_HANDLE_VALUE;
-    free(devices[device].path);
-    devices[device].path = NULL;
+
+    memset(devices + device, 0x00, sizeof(*devices));
+
+    reset_handles(device);
 
     return 0;
 }

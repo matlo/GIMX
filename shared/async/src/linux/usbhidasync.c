@@ -114,7 +114,6 @@ static void remove_transfer(struct libusb_transfer * transfer) {
 
 void usbhidasync_init(void) __attribute__((constructor (101)));
 void usbhidasync_init(void) {
-	nb_opened = 0;
 }
 
 void usbhidasync_clean(void) __attribute__((destructor (101)));
@@ -222,7 +221,11 @@ static int poll_interrupt(int device) {
 }
 
 static void usb_callback(struct libusb_transfer* transfer) {
+
 	int device = (unsigned long) transfer->user_data;
+
+	//make sure the device still exists, in case something went wrong
+	USBHIDASYNC_CHECK_DEVICE(device,/* void */)
 
 	if (transfer->type == LIBUSB_TRANSFER_TYPE_INTERRUPT) {
 		if (transfer->status == LIBUSB_TRANSFER_COMPLETED) {
@@ -481,6 +484,7 @@ static int claim_device(int device, libusb_device * dev, struct libusb_device_de
 	}
 
 	if (configuration != usbdevices[device].config.configuration) {
+		//warning: this is a blocking function
 		ret = libusb_set_configuration(usbdevices[device].devh, usbdevices[device].config.configuration);
 		if (ret != LIBUSB_SUCCESS) {
 			PRINT_ERROR_LIBUSB("libusb_set_configuration", ret)
@@ -496,6 +500,7 @@ static int claim_device(int device, libusb_device * dev, struct libusb_device_de
 		return -1;
 	}
 
+	//warning: this is a blocking function
 	ret = libusb_set_interface_alt_setting(usbdevices[device].devh, usbdevices[device].config.interface.number,
 			usbdevices[device].config.interface.alternateSetting);
 	if (ret != LIBUSB_SUCCESS) {
@@ -627,6 +632,23 @@ s_hid_dev * usbhidasync_enumerate(unsigned short vendor, unsigned short product)
   return hid_devs;
 }
 
+static void usb_cleanup() {
+  if(nb_opened == 0) {
+    while (transfers_nb) {
+      if (libusb_handle_events(ctx) != LIBUSB_SUCCESS) {
+        break;
+      }
+    }
+    free(transfers);
+    transfers = NULL;
+    transfers_nb = 0;
+    libusb_free_device_list(devs, 1);
+    devs = NULL;
+    libusb_exit(ctx);
+    ctx = NULL;
+  }
+}
+
 void usbhidasync_free_enumeration(s_hid_dev * hid_devs) {
 
     s_hid_dev * current;
@@ -639,7 +661,7 @@ void usbhidasync_free_enumeration(s_hid_dev * hid_devs) {
         }
     }
     free(hid_devs);
-//TODO MLA + libusb_close
+    usb_cleanup();
 }
 
 int usbhidasync_open_ids(unsigned short vendor, unsigned short product) {
@@ -826,39 +848,23 @@ int usbhidasync_close(int device) {
 
 	cancel_transfers(device);
 
-	libusb_release_interface(usbdevices[device].devh, usbdevices[device].config.interface.number);
+	libusb_release_interface(usbdevices[device].devh, usbdevices[device].config.interface.number); //warning: this is a blocking function
 #if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)
 #ifndef WIN32
 	libusb_attach_kernel_driver(usbdevices[device].devh, 0);
 #endif
 #endif
 	libusb_close(usbdevices[device].devh);
-	usbdevices[device].devh = NULL;
+
 	free(usbdevices[device].path);
-	usbdevices[device].path = NULL;
 	free(usbdevices[device].config.hidInfo.reportDescriptor);
-    usbdevices[device].config.hidInfo.reportDescriptor = NULL;
-    free(usbdevices[device].config.hidInfo.manufacturerString);
-    usbdevices[device].config.hidInfo.manufacturerString = NULL;
-    free(usbdevices[device].config.hidInfo.productString);
-    usbdevices[device].config.hidInfo.productString = NULL;
-	--nb_opened;
-	if (!nb_opened) {
-		while (transfers_nb) {
+  free(usbdevices[device].config.hidInfo.manufacturerString);
+  free(usbdevices[device].config.hidInfo.productString);
 
-			if (libusb_handle_events(ctx) != LIBUSB_SUCCESS) {
+  memset(usbdevices + device, 0x00, sizeof(*usbdevices));
 
-				break;
-			}
-		}
-		free(transfers);
-		transfers = NULL;
-		transfers_nb = 0;
-		libusb_free_device_list(devs, 1);
-		devs = NULL;
-		libusb_exit(ctx);
-		ctx = NULL;
-	}
+  --nb_opened;
+  usb_cleanup();
 
 	return 1;
 }
