@@ -97,6 +97,8 @@ int ev_init(unsigned char mkb_src)
    return 0;
   }
 
+  SDL_GameControllerAddMappingsFromFile("gamecontrollerdb.txt");
+
   for (i = 0; i < SDL_NumJoysticks() && joysticks_nb < GE_MAX_DEVICES; ++i)
   {
     if (SDL_IsGameController(i))
