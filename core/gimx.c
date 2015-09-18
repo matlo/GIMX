@@ -15,6 +15,7 @@
 #include <pwd.h> //to get the homedir
 #include <sys/types.h> //to get the homedir
 #include <unistd.h> //to get the homedir
+#include <termios.h> //to disable/enable echo
 #else
 #include <winsock2.h>
 #include <windows.h>
@@ -28,13 +29,14 @@
 #include "calibration.h"
 #include "display.h"
 #include "mainloop.h"
-#include "connectors/connector.h"
 #include "connectors/bluetooth/bt_abs.h"
+#include "connectors/usb_con.h"
 #include "args.h"
 #include <adapter.h>
 #include <stats.h>
 #include <pcprog.h>
 #include "../directories.h"
+#include <uhid_joystick.h>
 
 #define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
 
@@ -133,6 +135,9 @@ int process_event(GE_Event* event)
 
 int main(int argc, char *argv[])
 {
+#ifndef WIN32
+  int ffb = 0;
+#endif
   GE_Event kgevent = {.type = GE_KEYDOWN};
 
   (void) signal(SIGINT, terminate);
@@ -176,10 +181,6 @@ int main(int argc, char *argv[])
     printf("Warning: failed to set process priority\n");
   }
 
-  adapter_init();
-
-  serial_init();
-
   gpppcprog_read_user_ids(gimx_params.homedir, GIMX_DIR);
 
   if(args_read(argc, argv, &gimx_params) < 0)
@@ -193,9 +194,9 @@ int main(int argc, char *argv[])
     bt_abs_value = E_BT_ABS_BTSTACK;
   }
 
-  if(connector_init() < 0)
+  if(adapter_detect() < 0)
   {
-    fprintf(stderr, _("connector_init failed\n"));
+    fprintf(stderr, _("adapter_detect failed\n"));
     goto QUIT;
   }
 
@@ -214,12 +215,6 @@ int main(int argc, char *argv[])
     goto QUIT;
   }
 
-  if(gimx_params.curses)
-  {
-    display_init();
-    stats_init(0);
-  }
-
   gimx_params.frequency_scale = (double) DEFAULT_REFRESH_PERIOD / gimx_params.refresh_period;
 
   /*
@@ -229,17 +224,46 @@ int main(int argc, char *argv[])
   unsigned char controller;
   for(controller=0; controller<MAX_CONTROLLERS; ++controller)
   {
-    if(adapter_get(controller)->event)
+    s_adapter * adapter = adapter_get(controller);
+    if(adapter->event)
     {
-      adapter_get(controller)->send_command = 1;
+      adapter->send_command = 1;
       event = 1;
+      if(adapter->dst_fd < 0)
+      {
+        printf("The --event argument may require running two gimx instances.\n");
+      }
     }
   }
   if(event)
   {
-    connector_send();
+    if(adapter_start() < 0)
+    {
+      fprintf(stderr, _("adapter_start failed\n"));
+      goto QUIT;
+    }
+    adapter_send();
     goto QUIT;
   }
+
+#ifndef WIN32
+  for(controller=0; controller<MAX_CONTROLLERS; ++controller)
+  {
+    switch(adapter_get(controller)->type)
+    {
+    case C_TYPE_G29_PS4:
+      ffb = 1;
+      break;
+    default:
+      break;
+    }
+  }
+
+  if(ffb)
+  {
+    uhid_joystick_open_all();
+  }
+#endif
 
   unsigned char src = GE_MKB_SOURCE_PHYSICAL;
 
@@ -292,6 +316,15 @@ int main(int argc, char *argv[])
 
   GE_release_unused();
 
+#ifndef WIN32
+  if(ffb)
+  {
+    gprintf("closing unused uhid joysticks...");fflush(stdout);
+    uhid_joystick_close_unused();
+    gprintf(" done\n");
+  }
+#endif
+
   macros_init();
 
   if(gimx_params.keygen)
@@ -310,6 +343,29 @@ int main(int argc, char *argv[])
 
   cfg_trigger_init();
 
+  if(gimx_params.curses)
+  {
+    display_init();
+    stats_init(0);
+  }
+#ifndef WIN32
+  else
+  {
+    struct termios term;
+    tcgetattr(STDOUT_FILENO, &term);
+    term.c_lflag &= ~ECHO;
+    tcsetattr(STDOUT_FILENO, TCSANOW, &term);
+  }
+#endif
+
+  if(adapter_start() < 0)
+  {
+    fprintf(stderr, _("adapter_start failed\n"));
+    goto QUIT;
+  }
+
+  usb_poll_interrupts();
+
   mainloop();
 
   gprintf(_("Exiting\n"));
@@ -319,7 +375,14 @@ int main(int argc, char *argv[])
   macros_clean();
   cfg_clean();
   GE_quit();
-  connector_clean();
+#ifndef WIN32
+  if(ffb)
+  {
+    gprintf("closing uhid joysticks (it may take a few seconds)\n");
+    uhid_joystick_close_all();
+  }
+#endif
+  adapter_clean();
 
   xmlCleanupParser();
 
@@ -327,6 +390,15 @@ int main(int argc, char *argv[])
   {
     display_end();
   }
+#ifndef WIN32
+  else
+  {
+    struct termios term;
+    tcgetattr(STDOUT_FILENO, &term);
+    term.c_lflag |= ECHO;
+    tcsetattr(STDOUT_FILENO, TCSANOW, &term);
+  }
+#endif
 
   return 0;
 }

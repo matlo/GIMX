@@ -266,10 +266,14 @@ static int mkb_process_events(int device)
 }
 
 #define DEV_INPUT "/dev/input"
-#define EVENT_DEV_NAME "event"
+#define EV_DEV_NAME "event%u"
 
-static int is_event_device(const struct dirent *dir) {
-  return strncmp(EVENT_DEV_NAME, dir->d_name, sizeof(EVENT_DEV_NAME)-1) == 0;
+static int is_event_file(const struct dirent *dir) {
+  unsigned int num;
+  if(dir->d_type == DT_CHR && sscanf(dir->d_name, EV_DEV_NAME, &num) == 1 && num < 256) {
+    return 1;
+  }
+  return 0;
 }
 
 int mkb_init()
@@ -278,23 +282,6 @@ int mkb_init()
   int i, j;
   int fd;
   char device[sizeof("/dev/input/event255")];
-
-  /*
-   * Avoid the enter key from being still pressed after the process exit.
-   * This is only done if the process is launched in a terminal.
-   */
-  /*
-   * TODO MLA: find something better...
-   */
-  /*if(isatty(fileno(stdin)))
-  {
-    sleep(1);
-  }*/
-
-  struct termios term;
-  tcgetattr(STDOUT_FILENO, &term);
-  term.c_lflag &= ~ECHO;
-  tcsetattr(STDOUT_FILENO, TCSANOW, &term);
 
   memset(devices, 0x00, sizeof(devices));
   max_device_id = -1;
@@ -314,7 +301,7 @@ int mkb_init()
   struct dirent **namelist;
   int n;
 
-  n = scandir(DEV_INPUT, &namelist, is_event_device, alphasort);
+  n = scandir(DEV_INPUT, &namelist, is_event_file, alphasort);
   if (n >= 0)
   {
     for(i=0; i<n && !ret; ++i)
@@ -353,14 +340,6 @@ int mkb_init()
   {
     fprintf(stderr, "can't scan directory %s: %s\n", DEV_INPUT, strerror(errno));
     ret = -1;
-  }
-
-  if(ret < 0)
-  {
-    struct termios term;
-    tcgetattr(STDOUT_FILENO, &term);
-    term.c_lflag |= ECHO;
-    tcsetattr(STDOUT_FILENO, TCSANOW, &term);
   }
 
   return ret;
@@ -419,10 +398,6 @@ void mkb_quit()
     mkb_close_device(i);
   }
 
-  struct termios term;
-  tcgetattr(STDOUT_FILENO, &term);
-  term.c_lflag |= ECHO;
-  tcsetattr(STDOUT_FILENO, TCSANOW, &term);
   if(!grab)
   {
     tcflush(STDIN_FILENO, TCIFLUSH);

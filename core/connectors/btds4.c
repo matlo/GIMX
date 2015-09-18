@@ -511,7 +511,7 @@ static int close_ps4_control(int btds4_number)
 
 static int process(int sixaxis_number, int psm, const unsigned char *buf, int len)
 {
-  //TODO MLA
+  //TODO MLA: this function could probably be removed
   return 0;
 }
 
@@ -617,7 +617,7 @@ static int ds4_interrupt_rumble(int joystick, unsigned short weak, unsigned shor
 
       mhash(td, report.data, sizeof(report.data));
 #else
-      //TODO MLA
+      //TODO MLA: windows port
 #endif
 
       unsigned int digest = 0; // crc32 will be stored here
@@ -846,7 +846,7 @@ static s_btds4_report init_report_btds4 = {
     }
 };
 
-int btds4_init(int btds4_number)
+int btds4_init(int btds4_number, int dongle_index, const char * bdaddr_dst)
 {
   struct btds4_state* state = states+btds4_number;
 
@@ -863,6 +863,9 @@ int btds4_init(int btds4_number)
     return -1;
   }
 
+  state->dongle_index = dongle_index;
+  strncpy(state->ps4_bdaddr, bdaddr_dst, sizeof(state->ps4_bdaddr));
+
   memcpy(&state->bt_report, &init_report_btds4, sizeof(s_btds4_report));
   state->joystick_id = GE_RegisterJoystick(DS4_DEVICE_NAME, ds4_interrupt_rumble);
 
@@ -873,7 +876,7 @@ int btds4_init(int btds4_number)
     return -1;
   }
 #else
-  //TODO MLA
+  //TODO MLA: windows port
 #endif
 
   if (bt_device_abs_get()->get_bdaddr(state->dongle_index, &state->dongle_bdaddr.ba) < 0)
@@ -919,20 +922,6 @@ int btds4_init(int btds4_number)
   }
 
   return 0;
-}
-
-void btds4_set_bdaddr(int btds4_number, char* dst)
-{
-  struct btds4_state* state = states+btds4_number;
-
-  strncpy(state->ps4_bdaddr, dst, sizeof(state->ps4_bdaddr));
-}
-
-void btds4_set_dongle(int btds4_number, int dongle_index)
-{
-  struct btds4_state* state = states+btds4_number;
-
-  state->dongle_index = dongle_index;
 }
 
 #define INACTIVITY_THRESHOLD 6000 //6000x10ms=60s
@@ -981,7 +970,7 @@ int btds4_send_interrupt(int btds4_number, s_report_ds4* report, int active)
 
   mhash(td, &state->bt_report, sizeof(state->bt_report)-4);
 #else
-  //TODO MLA
+  //TODO MLA: windows port
 #endif
 
   unsigned int digest = 0; // crc32 will be stored here

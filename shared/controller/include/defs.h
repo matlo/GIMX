@@ -23,6 +23,7 @@ typedef enum
   C_TYPE_XONE_PAD,
   C_TYPE_T300RS_PS4,
   C_TYPE_G27_PS3,
+  C_TYPE_G29_PS4,
   // <- add new types here
   C_TYPE_GPP,
   C_TYPE_DEFAULT,
@@ -75,7 +76,14 @@ typedef enum
   abs_axis_21,
   abs_axis_22,
   abs_axis_23,
-  abs_axis_max = abs_axis_23,
+  abs_axis_24,
+  abs_axis_25,
+  abs_axis_26,
+  abs_axis_27,
+  abs_axis_28,
+  abs_axis_29,
+  abs_axis_30,
+  abs_axis_max = abs_axis_30,
   AXIS_MAX,
 } e_controller_axis_index;
 

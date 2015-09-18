@@ -23,12 +23,14 @@
 #define G27_R3_MASK         0x0040
 #define G27_L3_MASK         0x0080
 
-#define G27_GEAR_1_MASK     0x0100
-#define G27_GEAR_2_MASK     0x0200
-#define G27_GEAR_3_MASK     0x0400
-#define G27_GEAR_4_MASK     0x0800
-#define G27_GEAR_5_MASK     0x1000
-#define G27_GEAR_6_MASK     0x2000
+#define G27_SHIFTER_1_MASK     0x0100
+#define G27_SHIFTER_2_MASK     0x0200
+#define G27_SHIFTER_3_MASK     0x0400
+#define G27_SHIFTER_4_MASK     0x0800
+#define G27_SHIFTER_5_MASK     0x1000
+#define G27_SHIFTER_6_MASK     0x2000
+
+//TODO MLA: reverse
 
 #define G27_R4_MASK         0x4000
 #define G27_R5_MASK         0x8000
@@ -62,6 +64,13 @@ static const char *g27Ps3_axis_name[AXIS_MAX] =
   [g27Ps3a_r4] = "r4",
   [g27Ps3a_l5] = "l5",
   [g27Ps3a_r5] = "r5",
+  [g27Ps3a_gearShifter1] = "gear shifter 1",
+  [g27Ps3a_gearShifter2] = "gear shifter 2",
+  [g27Ps3a_gearShifter3] = "gear shifter 3",
+  [g27Ps3a_gearShifter4] = "gear shifter 4",
+  [g27Ps3a_gearShifter5] = "gear shifter 5",
+  [g27Ps3a_gearShifter6] = "gear shifter 6",
+  //[g27Ps3a_gearShifterR] = "gear shifter R",
 };
 
 static s_axis_name_dir axis_names[] =
@@ -95,6 +104,14 @@ static s_axis_name_dir axis_names[] =
   {.name = "l5",           {.axis = g27Ps3a_l5,         .props = AXIS_PROP_TOGGLE}},
   {.name = "r4",           {.axis = g27Ps3a_r4,         .props = AXIS_PROP_TOGGLE}},
   {.name = "r5",           {.axis = g27Ps3a_r5,         .props = AXIS_PROP_TOGGLE}},
+
+  {.name = "gear shifter 1",    {.axis = g27Ps3a_gearShifter1,   .props = AXIS_PROP_TOGGLE}},
+  {.name = "gear shifter 2",    {.axis = g27Ps3a_gearShifter2,   .props = AXIS_PROP_TOGGLE}},
+  {.name = "gear shifter 3",    {.axis = g27Ps3a_gearShifter3,   .props = AXIS_PROP_TOGGLE}},
+  {.name = "gear shifter 4",    {.axis = g27Ps3a_gearShifter4,   .props = AXIS_PROP_TOGGLE}},
+  {.name = "gear shifter 5",    {.axis = g27Ps3a_gearShifter5,   .props = AXIS_PROP_TOGGLE}},
+  {.name = "gear shifter 6",    {.axis = g27Ps3a_gearShifter6,   .props = AXIS_PROP_TOGGLE}},
+  //{.name = "gear shifter R",    {.axis = g27Ps3a_gearShifterR,   .props = AXIS_PROP_TOGGLE}},
 };
 
 static int g27Ps3_max_unsigned_axis_value[AXIS_MAX] =
@@ -268,6 +285,30 @@ static unsigned int g27Ps3_report_build(int axis[AXIS_MAX], s_report_packet repo
   if (axis[g27Ps3a_r5])
   {
     g27Ps3->buttons |= G27_R5_MASK;
+  }
+  if (axis[g27Ps3a_gearShifter1])
+  {
+    g27Ps3->buttons |= G27_SHIFTER_1_MASK;
+  }
+  if (axis[g27Ps3a_gearShifter2])
+  {
+    g27Ps3->buttons |= G27_SHIFTER_2_MASK;
+  }
+  if (axis[g27Ps3a_gearShifter3])
+  {
+    g27Ps3->buttons |= G27_SHIFTER_3_MASK;
+  }
+  if (axis[g27Ps3a_gearShifter4])
+  {
+    g27Ps3->buttons |= G27_SHIFTER_4_MASK;
+  }
+  if (axis[g27Ps3a_gearShifter5])
+  {
+    g27Ps3->buttons |= G27_SHIFTER_5_MASK;
+  }
+  if (axis[g27Ps3a_gearShifter6])
+  {
+    g27Ps3->buttons |= G27_SHIFTER_6_MASK;
   }
   if (axis[g27Ps3a_l4])
   {

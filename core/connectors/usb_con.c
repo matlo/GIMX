@@ -168,6 +168,38 @@ static struct
       }
     }
   },
+  [C_TYPE_G29_PS4] =
+  {
+    .name = DS4_DEVICE_NAME,
+    .vendor = DS4_VENDOR,
+    .product = DS4_PRODUCT,
+    .configuration = 1,
+    .interface = 0,
+    .endpoints =
+    {
+      .in =
+      {
+        .address = DS4_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN,
+        .size = DS4_USB_INTERRUPT_PACKET_SIZE,
+        .reports =
+        {
+          .nb = 1,
+          .elements =
+          {
+            {
+              .report_id = DS4_USB_HID_IN_REPORT_ID,
+              .report_length = DS4_USB_INTERRUPT_PACKET_SIZE
+            }
+          }
+        }
+      },
+      .out =
+      {
+        .address = DS4_USB_INTERRUPT_ENDPOINT_OUT | LIBUSB_ENDPOINT_OUT,
+        .size = DS4_USB_INTERRUPT_PACKET_SIZE
+      }
+    }
+  },
   [C_TYPE_360_PAD] =
   {
     .name = X360_NAME,
@@ -276,9 +308,9 @@ static void process_report(int usb_number, struct usb_state * state, struct libu
 
         report2event(state->type, usb_number, (s_report*)current, (s_report*)previous, state->joystick_id);
 
-        if(state->type == C_TYPE_DS4 || state->type == C_TYPE_T300RS_PS4)
+        if(state->type == C_TYPE_DS4 || state->type == C_TYPE_T300RS_PS4 || state->type == C_TYPE_G29_PS4)
         {
-          previous->ds4 = current->ds4;
+          memcpy(&previous->ds4, &current->ds4, report_length); //s_report_ds4 is larger than report_length bytes!
         }
         else if(state->type == C_TYPE_360_PAD)
         {
@@ -489,6 +521,7 @@ int usb_init(int usb_number, e_controller_type type)
   memset(state, 0x00, sizeof(*state));
   state->joystick_id = -1;
   state->type = type;
+  state->ack = 1;
 
   if(!ctx)
   {
@@ -616,15 +649,8 @@ int usb_init(int usb_number, e_controller_type type)
               usb_send_interrupt_out_sync(usb_number, activate_rumble, sizeof(activate_rumble));
             }
 
-            if(usb_poll_interrupt(usb_number) == LIBUSB_SUCCESS)
-            {
-              // register joystick
-              int device_id = GE_RegisterJoystick(controller[state->type].name, NULL);
-              if(device_id >= 0)
-              {
-                state->joystick_id = device_id;
-              }
-            }
+            // register joystick
+            state->joystick_id = GE_RegisterJoystick(controller[state->type].name, NULL);
 
             int i;
             for(i = 0; i < controller[state->type].endpoints.in.reports.nb; ++i)
@@ -676,9 +702,9 @@ int usb_close(int usb_number)
       usb_send_interrupt_out_sync(usb_number, power_off, sizeof(power_off));
     }
 
-    cancel_transfers();
+    cancel_transfers();//TODO MLA: selective cancels
 
-    libusb_release_interface(state->devh, 0);
+    libusb_release_interface(state->devh, controller[state->type].interface);
 #if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)
 #ifndef WIN32
     libusb_attach_kernel_driver(state->devh, 0);

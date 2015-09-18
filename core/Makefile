@@ -18,12 +18,12 @@ else
 LDLIBS += $(shell sdl2-config --libs) `xml2-config --libs` -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl -lusb-1.0 -lwinmm
 LDLIBS:=$(filter-out -mwindows,$(LDLIBS))
 endif
-CPPFLAGS+=-Iinclude -I../shared/event/include -I../shared/controller/include -I../shared/gpp
+CPPFLAGS+=-Iinclude -I../shared/event/include -I../shared/controller/include -I../shared/async/include -I../shared/gpp
 ifneq ($(OS),Windows_NT)
 CPPFLAGS += -I/usr/include/libxml2
 endif
 CPPFLAGS += -Iconnectors/btstack/include -Iconnectors/btstack/src
-DEPS=../shared/event/GE.a ../shared/controller/controller.a ../shared/gpp/gpp.a
+DEPS=../shared/event/GE.a ../shared/controller/controller.a ../shared/async/async.a ../shared/gpp/gpp.a
 
 OBJECTS := $(patsubst %.c,%.o,$(wildcard *.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/btstack/*.c))

@@ -115,20 +115,6 @@ static void sixaxis_init(int sixaxis_number)
   state->user.gyro[1] = 512 & 0xFF;
 }
 
-void sixaxis_set_bdaddr(int sixaxis_number, char* dst)
-{
-  struct sixaxis_state* state = states+sixaxis_number;
-
-  strncpy(state->bdaddr_dst, dst, sizeof(state->bdaddr_dst));
-}
-
-void sixaxis_set_dongle(int sixaxis_number, int dongle_index)
-{
-  struct sixaxis_state* state = states+sixaxis_number;
-
-  state->dongle_index = dongle_index;
-}
-
 /* Main input report from Sixaxis -- assemble it */
 static int assemble_input_01(uint8_t *buf, int maxlen, struct sixaxis_state *state)
 {
@@ -687,7 +673,7 @@ static int connect_control(int sixaxis_number)
   return 0;
 }
 
-int sixaxis_connect(int sixaxis_number)
+int sixaxis_connect(int sixaxis_number, int dongle_index, const char * bdaddr_dst)
 {
   struct sixaxis_state* state = states + sixaxis_number;
 
@@ -696,6 +682,9 @@ int sixaxis_connect(int sixaxis_number)
     fprintf(stderr, "multiple instances are not supported when using btstack\n");
     return -1;
   }
+
+  state->dongle_index = dongle_index;
+  strncpy(state->bdaddr_dst, bdaddr_dst, sizeof(state->bdaddr_dst));
 
   sixaxis_init(sixaxis_number);
 

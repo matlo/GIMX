@@ -620,6 +620,18 @@ int GE_JoystickSetRumble(int id, unsigned short weak, unsigned short strong)
   return 0;
 }
 
+#ifndef WIN32
+int GE_JoystickGetUHidId(int id)
+{
+  return ev_joystick_get_uhid_id(id);
+}
+#else
+int GE_JoystickGetUsbIds(int id, unsigned short * vendor, unsigned short * product)
+{
+  return ev_joystick_get_usb_ids(id, vendor, product);
+}
+#endif
+
 /*
  * \brief Get events from devices.
  *        In Linux:

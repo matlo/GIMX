@@ -1,6 +1,14 @@
 #ifndef PCPROG_H
 #define PCPROG_H
 
+#include <hidasync.h>
+
+#ifdef WIN32
+#define GIMX_PACKED __attribute__((gcc_struct, packed))
+#else
+#define GIMX_PACKED __attribute__((packed))
+#endif
+
 /* Exact-width Integer Types
  */
 #include <stdint.h>
@@ -236,16 +244,14 @@
  *
  *  Read-only data structure.
  */
-typedef struct {
-    uint8_t console;             // Receives values established by the #defines CONSOLE_*
+typedef struct GIMX_PACKED {
     uint8_t controller;          // Values from #defines CONTROLLER_* and EXTENSION_*
+    uint8_t console;             // Receives values established by the #defines CONSOLE_*
     uint8_t led[4];              // Four LED - #defines LED_*
     uint8_t rumble[2];           // Two rumbles - Range: [0 ~ 100] %
     uint8_t battery_level;       // Battery level - Range: [0 ~ 10] 0 = empty, 10 = full
     struct {
         int8_t value;            // Current value - Range: [-100 ~ 100] %
-        int8_t prev_value;       // Previous value - Range: [-100 ~ 100] %
-        uint32_t press_tv;       // Time marker for the button press event
     } input[GCAPI_INPUT_TOTAL];  // Input structure (for controller entries)
 } GCAPI_REPORT;
 
@@ -267,10 +273,11 @@ const GCAPI_USB_IDS * gpppcprog_get_ids(unsigned int * nb);
 #ifdef __cplusplus
 };
 #endif
-int8_t gppcprog_connect(int id, const char* device);
+int8_t gppcprog_connect(int id, const char * path);
 int8_t gppcprog_connected(int id);
 void gppcprog_disconnect(int id);
-int8_t gpppcprog_input(int id, GCAPI_REPORT *report, int timeout);
-int8_t gpppcprog_output(int id, int8_t *output);
+int8_t gpppcprog_input(int id, GCAPI_REPORT * report, int timeout);
+int8_t gpppcprog_output(int id, int8_t output[GCAPI_OUTPUT_TOTAL]);
+int8_t gpppcprog_start_async(int id, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register);
 
 #endif

@@ -200,48 +200,48 @@ void ds42event(int adapter_id, s_report* current, s_report* previous,
     // as we don't support mic and phone
     adapter->report[0].value.ds4.ext = ds4_current->ext & 0x1F;
 
-    // forward touchpad and motion sensing in bluetooth mode only
+    /*
+     * Touchpad
+     *
+     * The touchpad does not generate joystick events.
+     * => wrap the touchpad directly to the emulated touchpad.
+     */
+
+    int send_command = 0;
+
+    s_trackpad_finger* finger;
+    s_trackpad_finger* prevFinger;
+    int* presence;
+    int* axis_x;
+    int* axis_y;
+
+    finger = &ds4_current->packet1.finger1;
+    prevFinger = &adapter->report[0].value.ds4.packet1.finger1;
+    presence = &adapter->axis[ds4a_finger1];
+    axis_x = &adapter->axis[ds4a_finger1_x];
+    axis_y = &adapter->axis[ds4a_finger1_y];
+    update_finger(finger, prevFinger, presence, axis_x, axis_y);
+
+    if(*presence == 1)
+    {
+      send_command = 1;
+    }
+
+    finger = &ds4_current->packet1.finger2;
+    prevFinger = &adapter->report[0].value.ds4.packet1.finger2;
+    presence = &adapter->axis[ds4a_finger2];
+    axis_x = &adapter->axis[ds4a_finger2_x];
+    axis_y = &adapter->axis[ds4a_finger2_y];
+    update_finger(finger, prevFinger, presence, axis_x, axis_y);
+
+    if(*presence == 1)
+    {
+      send_command = 1;
+    }
+
+    // forward motion sensing in bluetooth mode only
     if(adapter->bdaddr_dst)
     {
-      /*
-       * Touchpad
-       *
-       * The touchpad does not generate joystick events.
-       * => wrap the touchpad directly to the emulated touchpad.
-       */
-
-      int send_command = 0;
-
-      s_trackpad_finger* finger;
-      s_trackpad_finger* prevFinger;
-      int* presence;
-      int* axis_x;
-      int* axis_y;
-
-      finger = &ds4_current->packet1.finger1;
-      prevFinger = &adapter->report[0].value.ds4.packet1.finger1;
-      presence = &adapter->axis[ds4a_finger1];
-      axis_x = &adapter->axis[ds4a_finger1_x];
-      axis_y = &adapter->axis[ds4a_finger1_y];
-      update_finger(finger, prevFinger, presence, axis_x, axis_y);
-
-      if(*presence == 1)
-      {
-        send_command = 1;
-      }
-
-      finger = &ds4_current->packet1.finger2;
-      prevFinger = &adapter->report[0].value.ds4.packet1.finger2;
-      presence = &adapter->axis[ds4a_finger2];
-      axis_x = &adapter->axis[ds4a_finger2_x];
-      axis_y = &adapter->axis[ds4a_finger2_y];
-      update_finger(finger, prevFinger, presence, axis_x, axis_y);
-
-      if(*presence == 1)
-      {
-        send_command = 1;
-      }
-
       /*
        * Motion sensing
        */

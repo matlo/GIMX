@@ -16,7 +16,7 @@
 
 static int bt_device_bluez_device_init()
 {
-  //TODO MLA
+  //TODO MLA: move bt_mgmt_adapter_init here
   return 0;
 }
 

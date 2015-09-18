@@ -24,6 +24,10 @@ static struct
   {
     .r2e = ds42event
   },
+  [C_TYPE_G29_PS4] =
+  {
+    .r2e = ds42event
+  },
   [C_TYPE_360_PAD] =
   {
     .r2e = _360Pad2event

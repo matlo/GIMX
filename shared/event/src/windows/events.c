@@ -46,6 +46,11 @@ static struct
     int joystickNbHat; // the number of hats
     unsigned char* joystickHat; // the current hat values
   } hat_info; // allows to convert hat axes to buttons
+  struct
+  {
+	  unsigned short vendor;
+	  unsigned short product;
+  } usb_ids;
 } joysticks[GE_MAX_DEVICES] = {};
 
 static void open_haptic(int id, SDL_Joystick* joystick)
@@ -92,6 +97,8 @@ int ev_init(unsigned char mkb_src)
    return 0;
   }
 
+  SDL_GameControllerAddMappingsFromFile("gamecontrollerdb.txt");
+
   for (i = 0; i < SDL_NumJoysticks() && joysticks_nb < GE_MAX_DEVICES; ++i)
   {
     if (SDL_IsGameController(i))
@@ -103,6 +110,9 @@ int ev_init(unsigned char mkb_src)
         int instanceId = SDL_JoystickInstanceID(joystick);
         if(instanceId >= 0)
         {
+          SDL_JoystickGUID guid = SDL_JoystickGetDeviceGUID(i);
+          joysticks[joysticks_nb].usb_ids.vendor = guid.data[1] << 8 | guid.data[0];
+          joysticks[joysticks_nb].usb_ids.product = guid.data[3] << 8 | guid.data[2];
           joysticks[joysticks_nb].controller = controller;
           open_haptic(joysticks_nb, joystick);
           instanceIdToIndex[instanceId] = joysticks_nb;
@@ -127,6 +137,9 @@ int ev_init(unsigned char mkb_src)
         int instanceId = SDL_JoystickInstanceID(joystick);
         if(instanceId >= 0)
         {
+          SDL_JoystickGUID guid = SDL_JoystickGetDeviceGUID(i);
+          joysticks[joysticks_nb].usb_ids.vendor = guid.data[1] << 8 | guid.data[0];
+          joysticks[joysticks_nb].usb_ids.product = guid.data[3] << 8 | guid.data[2];
           joysticks[joysticks_nb].joystick = joystick;
           open_haptic(joysticks_nb, joystick);
           instanceIdToIndex[instanceId] = joysticks_nb;
@@ -394,6 +407,7 @@ static struct
   int id;
   HANDLE handle;
   int (*fp_read)(int);
+  int (*fp_write)(int);
   int (*fp_cleanup)(int);
 } sources[MAX_SOURCES] = {};
 
@@ -441,6 +455,7 @@ void ev_register_source_handle(HANDLE handle, int id, int (*fp_read)(int), int (
     sources[max_source].id = id;
     sources[max_source].handle = handle;
     sources[max_source].fp_read = fp_read;
+    sources[max_source].fp_write = fp_write;
     sources[max_source].fp_cleanup = fp_cleanup;
     ++max_source;
   }
@@ -480,7 +495,7 @@ static unsigned int fill_handles(HANDLE handles[])
   int i;
   for(i=0; i<max_source; ++i)
   {
-    if(sources[i].fp_read)
+    if(sources[i].fp_read || sources[i].fp_write)
     {
       handles[i] = sources[i].handle;
     }
@@ -687,9 +702,19 @@ void ev_pump_events()
             /*
              * Serial source
              */
-            if(sources[i].fp_read(sources[i].id))
+            if(sources[i].fp_read != NULL)
             {
-              done = 1;
+              if(sources[i].fp_read(sources[i].id))
+              {
+                done = 1;
+              }
+            }
+            if(sources[i].fp_write != NULL)
+            {
+              if(sources[i].fp_write(sources[i].id))
+              {
+                done = 1;
+              }
             }
           }
           break;
@@ -1025,5 +1050,16 @@ int ev_joystick_set_ff_rumble(int joystick, unsigned short weak, unsigned short 
       return -1;
     }
   }
+  return 0;
+}
+
+int ev_joystick_get_usb_ids(int joystick, unsigned short * vendor, unsigned short * product)
+{
+  if(joystick < 0 || joystick >= joysticks_nb)
+  {
+	return -1;
+  }
+  *vendor = joysticks[joystick].usb_ids.vendor;
+  *product = joysticks[joystick].usb_ids.product;
   return 0;
 }

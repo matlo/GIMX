@@ -95,6 +95,13 @@ static int GetDeviceId(xmlNode* a_node)
           {
             entry.device.id = i;
             GE_SetJoystickUsed(i);
+#ifndef WIN32
+            entry.device.uhid_id = GE_JoystickGetUHidId(i);
+#else
+            entry.device.usb_ids.vendor = 0;
+            entry.device.usb_ids.product = 0;
+            GE_JoystickGetUsbIds(i, &entry.device.usb_ids.vendor, &entry.device.usb_ids.product);
+#endif
             break;
           }
         }
@@ -390,6 +397,17 @@ static int ProcessEventElement(xmlNode * a_node)
           {
             case E_EVENT_TYPE_BUTTON:
               adapter_set_device(entry.controller_id, entry.device.type, entry.device.id);
+#ifndef WIN32
+              if(entry.device.type == E_DEVICE_TYPE_JOYSTICK && entry.device.uhid_id >= 0)
+              {
+                adapter_set_uhid_id(entry.controller_id, entry.device.uhid_id);
+              }
+#else
+              if(entry.device.type == E_DEVICE_TYPE_JOYSTICK && entry.device.usb_ids.vendor && entry.device.usb_ids.product)
+              {
+                adapter_set_usb_ids(entry.controller_id, entry.device.usb_ids.vendor, entry.device.usb_ids.product);
+              }
+#endif
               break;
             case E_EVENT_TYPE_AXIS:
             case E_EVENT_TYPE_AXIS_DOWN:
