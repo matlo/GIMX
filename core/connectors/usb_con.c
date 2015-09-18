@@ -17,7 +17,7 @@
 #include <libusb-1.0/libusb.h>
 
 #if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)
-const char * LIBUSB_CALL libusb_strerror(enum libusb_error errcode)
+static const char * LIBUSB_CALL libusb_strerror(enum libusb_error errcode)
 {
   return libusb_error_name(errcode);
 }

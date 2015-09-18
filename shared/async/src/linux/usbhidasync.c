@@ -46,13 +46,13 @@ static struct {
 } usbdevices[USBHIDASYNC_MAX_DEVICES] = { };
 
 #if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)
-const char * LIBUSB_CALL libusb_strerror(enum libusb_error errcode)
+static const char * LIBUSB_CALL libusb_strerror(enum libusb_error errcode)
 {
 	return libusb_error_name(errcode);
 }
 #endif
 
-void print_error_libusb(const char * file, int line, const char * func, const char * libusbfunc, int ret) {
+static void print_error_libusb(const char * file, int line, const char * func, const char * libusbfunc, int ret) {
 
 	fprintf(stderr, "%s:%d %s: %s failed with error: %s\n", file, line, func, libusbfunc, libusb_strerror(ret));
 }
