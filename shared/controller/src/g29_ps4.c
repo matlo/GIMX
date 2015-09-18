@@ -8,11 +8,37 @@
 #include <controller2.h>
 #include <string.h>
 
+#define G29_SQUARE_MASK     0x10
+#define G29_CROSS_MASK      0x20
+#define G29_CIRCLE_MASK     0x40
+#define G29_TRIANGLE_MASK   0x80
+
+#define G29_L1_MASK         0x0001
+#define G29_R1_MASK         0x0002
+#define G29_L2_MASK         0x0004
+#define G29_R2_MASK         0x0008
+
+#define G29_SHARE_MASK      0x0010
+#define G29_OPTIONS_MASK    0x0020
+#define G29_L3_MASK         0x0040
+#define G29_R3_MASK         0x0080
+
+#define G29_PS_MASK         0x0100
+
+#define G29_GEAR_SHIFTER_1_MASK  0x01
+#define G29_GEAR_SHIFTER_2_MASK  0x02
+#define G29_GEAR_SHIFTER_3_MASK  0x04
+#define G29_GEAR_SHIFTER_4_MASK  0x08
+#define G29_GEAR_SHIFTER_5_MASK  0x10
+#define G29_GEAR_SHIFTER_6_MASK  0x20
+#define G29_GEAR_SHIFTER_R_MASK  0x80
+
 static const char *g29Ps4_axis_name[AXIS_MAX] =
 {
   [g29Ps4a_wheel] = "wheel",
   [g29Ps4a_gasPedal] = "gas",
   [g29Ps4a_brakePedal] = "brake",
+  [g29Ps4a_clutchPedal] = "clutch",
   [g29Ps4a_share] = "share",
   [g29Ps4a_options] = "options",
   [g29Ps4a_up] = "up",
@@ -38,6 +64,7 @@ static s_axis_name_dir axis_names[] =
 
   {.name = "gas",          {.axis = g29Ps4a_gasPedal,   .props = AXIS_PROP_POSITIVE}},
   {.name = "brake",        {.axis = g29Ps4a_brakePedal, .props = AXIS_PROP_POSITIVE}},
+  {.name = "clutch",        {.axis = g29Ps4a_clutchPedal, .props = AXIS_PROP_POSITIVE}},
 
   {.name = "r2",           {.axis = g29Ps4a_r2,         .props = AXIS_PROP_TOGGLE}},
   {.name = "l2",           {.axis = g29Ps4a_l2,         .props = AXIS_PROP_TOGGLE}},
@@ -57,6 +84,14 @@ static s_axis_name_dir axis_names[] =
   {.name = "square",       {.axis = g29Ps4a_square,     .props = AXIS_PROP_TOGGLE}},
   {.name = "cross",        {.axis = g29Ps4a_cross,      .props = AXIS_PROP_TOGGLE}},
   {.name = "triangle",     {.axis = g29Ps4a_triangle,   .props = AXIS_PROP_TOGGLE}},
+
+  {.name = "gear shifter 1",    {.axis = g29Ps4a_gearShifter1,   .props = AXIS_PROP_TOGGLE}},
+  {.name = "gear shifter 2",    {.axis = g29Ps4a_gearShifter2,   .props = AXIS_PROP_TOGGLE}},
+  {.name = "gear shifter 3",    {.axis = g29Ps4a_gearShifter3,   .props = AXIS_PROP_TOGGLE}},
+  {.name = "gear shifter 4",    {.axis = g29Ps4a_gearShifter4,   .props = AXIS_PROP_TOGGLE}},
+  {.name = "gear shifter 5",    {.axis = g29Ps4a_gearShifter5,   .props = AXIS_PROP_TOGGLE}},
+  {.name = "gear shifter 6",    {.axis = g29Ps4a_gearShifter6,   .props = AXIS_PROP_TOGGLE}},
+  {.name = "gear shifter R",    {.axis = g29Ps4a_gearShifterR,   .props = AXIS_PROP_TOGGLE}},
 };
 
 static int g29Ps4_max_unsigned_axis_value[AXIS_MAX] =
@@ -64,6 +99,7 @@ static int g29Ps4_max_unsigned_axis_value[AXIS_MAX] =
   [g29Ps4a_wheel] = MAX_AXIS_VALUE_16BITS,
   [g29Ps4a_gasPedal] = MAX_AXIS_VALUE_16BITS,
   [g29Ps4a_brakePedal] = MAX_AXIS_VALUE_16BITS,
+  [g29Ps4a_clutchPedal] = MAX_AXIS_VALUE_16BITS,
 
   [g29Ps4a_up] = MAX_AXIS_VALUE_8BITS,
   [g29Ps4a_right] = MAX_AXIS_VALUE_8BITS,
@@ -104,8 +140,8 @@ static s_report_g29Ps4 init_report_g29Ps4 =
   .wheel = CENTER_AXIS_VALUE_16BITS,
   .gasPedal = MAX_AXIS_VALUE_16BITS,
   .brakePedal = MAX_AXIS_VALUE_16BITS,
-  .unknown1 = MAX_AXIS_VALUE_16BITS,
-  .unknown2 = 0x00,
+  .clutchPedal = MAX_AXIS_VALUE_16BITS,
+  .Buttons2 = 0x00,
   .unknown3 = MAX_AXIS_VALUE_16BITS,
   .unused1 = {},
 };
@@ -129,6 +165,7 @@ static unsigned int g29Ps4_report_build(int axis[AXIS_MAX], s_report_packet repo
 
   g29Ps4->gasPedal = clamp(0, MAX_AXIS_VALUE_16BITS - axis[g29Ps4a_gasPedal], MAX_AXIS_VALUE_16BITS);
   g29Ps4->brakePedal = clamp(0, MAX_AXIS_VALUE_16BITS - axis[g29Ps4a_brakePedal], MAX_AXIS_VALUE_16BITS);
+  g29Ps4->clutchPedal = clamp(0, MAX_AXIS_VALUE_16BITS - axis[g29Ps4a_clutchPedal], MAX_AXIS_VALUE_16BITS);
 
   if (axis[g29Ps4a_right])
   {
@@ -227,6 +264,37 @@ static unsigned int g29Ps4_report_build(int axis[AXIS_MAX], s_report_packet repo
   if (axis[g29Ps4a_ps])
   {
     g29Ps4->Buttons |= G29_PS_MASK;
+  }
+
+  g29Ps4->Buttons2 = 0x00;
+
+  if (axis[g29Ps4a_gearShifter1])
+  {
+    g29Ps4->Buttons2 |= G29_GEAR_SHIFTER_1_MASK;
+  }
+  if (axis[g29Ps4a_gearShifter2])
+  {
+    g29Ps4->Buttons2 |= G29_GEAR_SHIFTER_2_MASK;
+  }
+  if (axis[g29Ps4a_gearShifter3])
+  {
+    g29Ps4->Buttons2 |= G29_GEAR_SHIFTER_3_MASK;
+  }
+  if (axis[g29Ps4a_gearShifter4])
+  {
+    g29Ps4->Buttons2 |= G29_GEAR_SHIFTER_4_MASK;
+  }
+  if (axis[g29Ps4a_gearShifter5])
+  {
+    g29Ps4->Buttons2 |= G29_GEAR_SHIFTER_5_MASK;
+  }
+  if (axis[g29Ps4a_gearShifter6])
+  {
+    g29Ps4->Buttons2 |= G29_GEAR_SHIFTER_6_MASK;
+  }
+  if (axis[g29Ps4a_gearShifterR])
+  {
+    g29Ps4->Buttons2 |= G29_GEAR_SHIFTER_R_MASK;
   }
 
   return index;

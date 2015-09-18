@@ -8,23 +8,6 @@
 
 #include <control.h>
 
-#define G29_SQUARE_MASK     0x10
-#define G29_CROSS_MASK      0x20
-#define G29_CIRCLE_MASK     0x40
-#define G29_TRIANGLE_MASK   0x80
-
-#define G29_L1_MASK         0x0001
-#define G29_R1_MASK         0x0002
-#define G29_L2_MASK         0x0004
-#define G29_R2_MASK         0x0008
-
-#define G29_SHARE_MASK      0x0010
-#define G29_OPTIONS_MASK    0x0020
-#define G29_L3_MASK         0x0040
-#define G29_R3_MASK         0x0080
-
-#define G29_PS_MASK         0x0100
-
 typedef enum
 {
   g29Ps4a_wheel = rel_axis_lstick_x,
@@ -47,6 +30,14 @@ typedef enum
   g29Ps4a_r3 = abs_axis_16,
   g29Ps4a_gasPedal = abs_axis_17,
   g29Ps4a_brakePedal = abs_axis_18,
+  g29Ps4a_clutchPedal = abs_axis_19,
+  g29Ps4a_gearShifter1 = abs_axis_20,
+  g29Ps4a_gearShifter2 = abs_axis_21,
+  g29Ps4a_gearShifter3 = abs_axis_22,
+  g29Ps4a_gearShifter4 = abs_axis_23,
+  g29Ps4a_gearShifter5 = abs_axis_24,
+  g29Ps4a_gearShifter6 = abs_axis_25,
+  g29Ps4a_gearShifterR = abs_axis_26,
 } e_g29Ps4_axis_index;
 
 /*
@@ -65,8 +56,8 @@ typedef struct GIMX_PACKED
   unsigned short wheel; //signed, center = 0x7FFF
   unsigned short gasPedal; //unsigned, released = 0xFFFF
   unsigned short brakePedal; //unsigned, released = 0xFFFF
-  unsigned short unknown1; //0xFFFF
-  unsigned char unknown2; //0x00
+  unsigned short clutchPedal; //unsigned, released = 0xFFFF
+  unsigned char Buttons2;
   unsigned short unknown3; //0xFFFF
   unsigned char unused1[10];
 } s_report_g29Ps4;
