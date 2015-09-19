@@ -11,7 +11,6 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <linux/joystick.h>
-#include <linux/uhid.h>
 #include <poll.h>
 #include "js.h"
 #include <timer.h>
@@ -234,7 +233,7 @@ static int open_evdev(const char * js_name)
 
 static void get_uhid_id(int index, int fd_ev)
 {
-  char uniq[sizeof(((struct uhid_event *) NULL)->u.create.uniq)] = {};
+  char uniq[64] = {};
   if (ioctl(fd_ev, EVIOCGUNIQ(sizeof(uniq)), &uniq) == -1)
   {
     return;
