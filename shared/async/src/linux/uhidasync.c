@@ -5,7 +5,11 @@
 
 #include <uhidasync.h>
 
+#ifndef __ARM_ARCH_6__
 #include <linux/uhid.h>
+#else
+#include <rpi/uhid.h>
+#endif
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
