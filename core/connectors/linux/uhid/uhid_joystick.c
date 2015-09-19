@@ -11,7 +11,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <linux/input.h>
-#include <linux/uhid.h>
 #include <dirent.h>
 #include <string.h>
 
@@ -147,7 +146,7 @@ static int set_evdev_correction(int uhid) {
         fd = open (device, O_RDONLY);
         if(fd != -1)
         {
-          char uniq[sizeof(((struct uhid_create_req*)NULL)->uniq)] = {};
+          char uniq[64] = {};
           if(ioctl(fd, EVIOCGUNIQ(sizeof(uniq)), uniq) != -1)
           {
             pid_t pid;
