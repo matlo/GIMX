@@ -7,7 +7,7 @@
 #define ASYNC_H_
 
 #ifdef WIN32
-#include <winsock2.h>
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
 
@@ -64,18 +64,20 @@ typedef struct {
         ASYNC_WRITE_CALLBACK fp_write;
         ASYNC_CLOSE_CALLBACK fp_close;
     } callback;
-    union
+    struct
     {
-      struct
-      {
-        unsigned short vendor;
-        unsigned short product;
-      } hid;
-      struct
-      {
-        
-      } serial;
-    };
+      unsigned short vendor;
+      unsigned short product;
+    } hid;
+    struct
+    {
+#ifdef WIN32
+      unsigned char restoreParams;
+      DCB prevParams;
+      unsigned char restoreTimeouts;
+      COMMTIMEOUTS prevTimeouts;
+#endif
+    } serial;
 } s_device;
 
 extern s_device devices[ASYNC_MAX_DEVICES];

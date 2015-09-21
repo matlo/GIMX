@@ -17,7 +17,7 @@
 #include <unistd.h> //to get the homedir
 #include <termios.h> //to disable/enable echo
 #else
-#include <winsock2.h>
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shlobj.h> //to get the homedir
 #include <unistd.h> //usleep

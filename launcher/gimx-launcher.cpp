@@ -20,9 +20,7 @@
 #include <sstream>
 #include <limits.h>
 #include <string.h>
-#ifdef WIN32
-#include <windows.h>
-#else
+#ifndef WIN32
 #include <pwd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -46,6 +44,7 @@
 
 #include <time.h>
 #include "../shared/async/include/hidasync.h"
+#include "../shared/async/include/serialasync.h"
 
 using namespace std;
 
@@ -367,10 +366,7 @@ int launcherFrame::setDongleAddress(vector<DongleInfo>& dongleInfos, int dongleI
 #ifdef WIN32
 void launcherFrame::readSerialPorts()
 {
-  HANDLE hSerial;
-  DWORD accessdirection = /*GENERIC_READ |*/GENERIC_WRITE;
   char portname[16];
-  wchar_t szCOM[16];
   int i;
   wxString previous = OutputChoice->GetStringSelection();
 
@@ -378,29 +374,12 @@ void launcherFrame::readSerialPorts()
 
   for(i=0; i<MAX_PORT_ID; ++i)
   {
-    wsprintf(szCOM, L"\\\\.\\COM%d", i);
-    hSerial = CreateFile(szCOM, accessdirection, 0, 0, OPEN_EXISTING, 0, 0);
-    if (hSerial != INVALID_HANDLE_VALUE)
-    {
-      DCB oldDcbSerialParams = { 0 };
-      oldDcbSerialParams.DCBlength = sizeof(oldDcbSerialParams);
-      if (GetCommState(hSerial, &oldDcbSerialParams))
-      {
-        DCB newDcbSerialParams;
-        memcpy(&newDcbSerialParams, &oldDcbSerialParams, sizeof(newDcbSerialParams));
-        newDcbSerialParams.BaudRate = 500000;
-        newDcbSerialParams.ByteSize = 8;
-        newDcbSerialParams.StopBits = ONESTOPBIT;
-        newDcbSerialParams.Parity = NOPARITY;
-        if (SetCommState(hSerial, &newDcbSerialParams))//test port parameters
-        {
-          snprintf(portname, sizeof(portname), "COM%d", i);
-          OutputChoice->SetSelection(OutputChoice->Append(wxString(portname, wxConvUTF8)));
-        }
-        SetCommState(hSerial, &oldDcbSerialParams);//restore port parameters, do not care about any error
-      }
+    snprintf(portname, sizeof(portname), "COM%d", i);
+    int device = serialasync_open(portname, 500000);
+    if(device >= 0) {
+      OutputChoice->SetSelection(OutputChoice->Append(wxString(portname, wxConvUTF8)));
+      serialasync_close(device);
     }
-    CloseHandle(hSerial);
   }
 
   if(previous != wxEmptyString)
@@ -1604,16 +1583,16 @@ void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event)
       }
 
       if(!cl_sel.empty())
-	    {
-	      wxMessageBox(_("Download is complete!"), _("Info"), wxICON_INFORMATION);
-	      if(!InputChoice->IsEmpty())
-	      {
-	        int answer = wxMessageBox(_("Auto-bind and convert?"), _("Confirm"), wxYES_NO);
+      {
+        wxMessageBox(_("Download is complete!"), _("Info"), wxICON_INFORMATION);
+        if(!InputChoice->IsEmpty())
+        {
+          int answer = wxMessageBox(_("Auto-bind and convert?"), _("Confirm"), wxYES_NO);
           if (answer == wxYES)
           {
             autoBindControls(configs);
           }
-	      }
+        }
         readConfigs();
         InputChoice->SetSelection(InputChoice->FindString(wxString(cl_sel.front().c_str(), wxConvUTF8)));
       }

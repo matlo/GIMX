@@ -5,7 +5,6 @@
 
 #include <serialasync.h>
 
-#include <windows.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -14,27 +13,33 @@ static int set_serial_params(int device, unsigned int baudrate) {
   /*
    * disable timeouts
    */
-  COMMTIMEOUTS timeouts = { 0 };
-  if (SetCommTimeouts(devices[device].handle, &timeouts) == FALSE) {
+  COMMTIMEOUTS * prevTimeouts = &devices[device].serial.prevTimeouts;
+  if (GetCommTimeouts(devices[device].handle, prevTimeouts) == 0) {
+      ASYNC_PRINT_ERROR("GetCommTimeouts")
+      return -1;
+  }
+  devices[device].serial.restoreTimeouts = 1;
+  COMMTIMEOUTS newTimeouts = { 0 };
+  if (SetCommTimeouts(devices[device].handle, &newTimeouts) == 0) {
       ASYNC_PRINT_ERROR("SetCommTimeouts")
       return -1;
   }
   /*
    * set baudrate
    */
-  DCB dcbSerialParams = { 0 };
-  dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-  if (!GetCommState(devices[device].handle, &dcbSerialParams))
-  {
+  DCB * prevSerialParams = &devices[device].serial.prevParams;
+  prevSerialParams->DCBlength = sizeof(*prevSerialParams);
+  if (GetCommState(devices[device].handle, prevSerialParams) == 0) {
     ASYNC_PRINT_ERROR("GetCommState")
     return -1;
   }
-  dcbSerialParams.BaudRate = baudrate;
-  dcbSerialParams.ByteSize = 8;
-  dcbSerialParams.StopBits = ONESTOPBIT;
-  dcbSerialParams.Parity = NOPARITY;
-  if (!SetCommState(devices[device].handle, &dcbSerialParams))
-  {
+  devices[device].serial.restoreParams = 1;
+  DCB newSerialParams = *prevSerialParams;
+  newSerialParams.BaudRate = baudrate;
+  newSerialParams.ByteSize = 8;
+  newSerialParams.StopBits = ONESTOPBIT;
+  newSerialParams.Parity = NOPARITY;
+  if (SetCommState(devices[device].handle, &newSerialParams) == 0) {
     ASYNC_PRINT_ERROR("SetCommState")
     return -1;
   }
@@ -157,6 +162,13 @@ int serialasync_write(int device, const void * buf, unsigned int count) {
 int serialasync_close(int device) {
 
     usleep(10000);//sleep 10ms to leave enough time for the last packet to be sent
-    
+
+    if (devices[device].serial.restoreParams && SetCommState(devices[device].handle, &devices[device].serial.prevParams) == 0) {
+        ASYNC_PRINT_ERROR("SetCommState")
+    }
+    if(devices[device].serial.restoreTimeouts && SetCommTimeouts(devices[device].handle, &devices[device].serial.prevTimeouts) == 0) {
+        ASYNC_PRINT_ERROR("SetCommTimeouts")
+    }
+
     return async_close(device);
 }
