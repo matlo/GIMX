@@ -238,18 +238,23 @@ void adapter_set_device(int controller, e_device_type device_type, int device_id
   }
   else if(adapter_device[type_index][controller] != device_id)
   {
-    gprintf(_("macros are not not available for: "));
-    if(device_type == E_DEVICE_TYPE_KEYBOARD)
+    static unsigned char warned[E_DEVICE_TYPE_NB][MAX_DEVICES] = {};
+    if(warned[type_index][device_id] == 0)
     {
-      gprintf(_("keyboard %s (%d)\n"), GE_KeyboardName(device_id), GE_KeyboardVirtualId(device_id));
-    }
-    else if(device_type == E_DEVICE_TYPE_MOUSE)
-    {
-      gprintf(_("mouse %s (%d)\n"), GE_MouseName(device_id), GE_MouseVirtualId(device_id));
-    }
-    else if(device_type == E_DEVICE_TYPE_JOYSTICK)
-    {
-      gprintf(_("joystick %s (%d)\n"), GE_JoystickName(device_id), GE_JoystickVirtualId(device_id));
+      warned[type_index][device_id] = 1;
+      gprintf(_("macros are not available for: "));
+      if(device_type == E_DEVICE_TYPE_KEYBOARD)
+      {
+        gprintf(_("keyboard %s (%d)\n"), GE_KeyboardName(device_id), GE_KeyboardVirtualId(device_id));
+      }
+      else if(device_type == E_DEVICE_TYPE_MOUSE)
+      {
+        gprintf(_("mouse %s (%d)\n"), GE_MouseName(device_id), GE_MouseVirtualId(device_id));
+      }
+      else if(device_type == E_DEVICE_TYPE_JOYSTICK)
+      {
+        gprintf(_("joystick %s (%d)\n"), GE_JoystickName(device_id), GE_JoystickVirtualId(device_id));
+      }
     }
   }
 }
@@ -580,14 +585,14 @@ static int start_hid(int id)
 {
   if(is_logitech_wheel(adapter[id].usb_ids.vendor, adapter[id].usb_ids.product))
   {
-		adapter[id].hid_id = hidasync_open_ids(adapter[id].usb_ids.vendor, adapter[id].usb_ids.product);
-		if(adapter[id].hid_id >= 0)
-		{
-			if(hidasync_register(adapter[id].hid_id, id, NULL, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
-			{
-				return -1;
-			}
-		}
+    adapter[id].hid_id = hidasync_open_ids(adapter[id].usb_ids.vendor, adapter[id].usb_ids.product);
+    if(adapter[id].hid_id >= 0)
+    {
+      if(hidasync_register(adapter[id].hid_id, id, NULL, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
+      {
+        return -1;
+      }
+    }
   }
   return 0;
 }
@@ -948,14 +953,14 @@ int adapter_start()
     {
 
 #ifdef WIN32
-			switch(adapter->type)
-			{
-			case C_TYPE_G29_PS4:
-				start_hid(i);
-				break;
-			default:
-				break;
-			}
+      switch(adapter->type)
+      {
+      case C_TYPE_G29_PS4:
+        start_hid(i);
+        break;
+      default:
+        break;
+      }
 #endif
       if(adapter_send_short_command(i, BYTE_START) < 0)
       {

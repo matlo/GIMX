@@ -427,7 +427,7 @@ msgid "Exiting\n"
 msgstr "Sortie\n"
 
 #: ../core/adapter.c:185
-msgid "macros are not not available for: "
+msgid "macros are not available for: "
 msgstr "les macros ne sont pas disponibles pour : "
 
 #: ../core/adapter.c:188

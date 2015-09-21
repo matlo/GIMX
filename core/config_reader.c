@@ -70,6 +70,31 @@ int GetDeviceName(xmlNode* a_node)
   return ret;
 }
 
+static void warnDeviceNotFound()
+{
+  static unsigned char warned[E_DEVICE_TYPE_NB][MAX_DEVICES] = {};
+  int type_index = entry.device.type - 1;
+  if(type_index < 0 || type_index >= E_DEVICE_TYPE_NB || warned[type_index][entry.device.id] != 0)
+  {
+    return;
+  }
+  switch(entry.device.type)
+  {
+  case E_DEVICE_TYPE_JOYSTICK:
+    gprintf(_("joystick not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), entry.device.id);
+    break;
+  case E_DEVICE_TYPE_MOUSE:
+    gprintf(_("mouse not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), entry.device.id);
+    break;
+  case E_DEVICE_TYPE_KEYBOARD:
+    gprintf(_("keyboard not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), entry.device.id);
+    break;
+  case E_DEVICE_TYPE_UNKNOWN:
+    return;
+  }
+  warned[type_index][entry.device.id] = 1;
+}
+
 /*
  * Get the device id and store it into binding.device.id.
  * OK, return 0
@@ -82,6 +107,11 @@ static int GetDeviceId(xmlNode* a_node)
   int ret;
 
   ret = GetIntProp(a_node, X_ATTR_ID, &entry.device.id);
+
+  if(entry.device.id < 0 || entry.device.id >= MAX_DEVICES)
+  {
+    ret = -1;
+  }
 
   if(ret != -1)
   {
@@ -108,7 +138,7 @@ static int GetDeviceId(xmlNode* a_node)
       }
       if(i == MAX_DEVICES || !GE_JoystickName(i))
       {
-        gprintf(_("joystick not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), entry.device.id);
+        warnDeviceNotFound();
         ret = 1;
       }
     }
@@ -141,7 +171,7 @@ static int GetDeviceId(xmlNode* a_node)
         }
         if(i == MAX_DEVICES || !GE_MouseName(i))
         {
-          gprintf(_("mouse not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), entry.device.id);
+          warnDeviceNotFound();
           ret = 1;
         }
       }
@@ -160,7 +190,7 @@ static int GetDeviceId(xmlNode* a_node)
         }
         if(i == MAX_DEVICES || !GE_KeyboardName(i))
         {
-          gprintf(_("keyboard not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), entry.device.id);
+          warnDeviceNotFound();
           ret = 1;
         }
       }
