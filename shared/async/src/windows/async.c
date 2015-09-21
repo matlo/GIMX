@@ -8,6 +8,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 s_device devices[ASYNC_MAX_DEVICES] = { };
 
@@ -17,12 +18,27 @@ static void reset_handles(int device) {
     devices[device].write.overlapped.hEvent = INVALID_HANDLE_VALUE;
 }
 
+static BOOL (__stdcall *pCancelIoEx)(HANDLE, LPOVERLAPPED) = NULL;
+
+static inline void setup_cancel_io(void)
+{
+  HMODULE hKernel32 = GetModuleHandleA("KERNEL32");
+  if (hKernel32 != NULL) {
+    pCancelIoEx = (BOOL (__stdcall *)(HANDLE,LPOVERLAPPED)) GetProcAddress(hKernel32, "CancelIoEx");
+  }
+  if(pCancelIoEx == NULL) {
+    fprintf(stderr, "%s:%d %s failed to get CancelIo hook\n", __FILE__, __LINE__, __func__);
+    exit(-1);
+  }
+}
+
 void init(void) __attribute__((constructor (101)));
 void init(void) {
     int i;
     for (i = 0; i < ASYNC_MAX_DEVICES; ++i) {
         reset_handles(i);
     }
+    setup_cancel_io();
 }
 
 void clean(void) __attribute__((destructor (101)));
@@ -173,14 +189,14 @@ int async_close(int device) {
     DWORD dwBytesTransfered;
 
     if(devices[device].read.overlapped.hEvent != INVALID_HANDLE_VALUE) {
-      if(CancelIoEx(devices[device].handle, &devices[device].read.overlapped) != ERROR_NOT_FOUND) {
+      if(pCancelIoEx(devices[device].handle, &devices[device].read.overlapped) != ERROR_NOT_FOUND) {
         if (!GetOverlappedResult(devices[device].handle, &devices[device].read.overlapped, &dwBytesTransfered, TRUE)) { //block until completion
           ASYNC_PRINT_ERROR("GetOverlappedResult")
         }
       }
     }
     if(devices[device].write.overlapped.hEvent != INVALID_HANDLE_VALUE) {
-      if(CancelIoEx(devices[device].handle, &devices[device].write.overlapped) != ERROR_NOT_FOUND) {
+      if(pCancelIoEx(devices[device].handle, &devices[device].write.overlapped) != ERROR_NOT_FOUND) {
         if (!GetOverlappedResult(devices[device].handle, &devices[device].write.overlapped, &dwBytesTransfered, TRUE)) { //block until completion
           ASYNC_PRINT_ERROR("GetOverlappedResult")
         }
@@ -224,7 +240,7 @@ int async_read_timeout(int device, void * buf, unsigned int count, unsigned int 
         }
         break;
       case WAIT_TIMEOUT:
-        if(!CancelIoEx(devices[device].handle, &devices[device].read.overlapped)) {
+        if(!pCancelIoEx(devices[device].handle, &devices[device].read.overlapped)) {
             ASYNC_PRINT_ERROR("CancelIoEx")
             return -1;
         }
@@ -275,7 +291,7 @@ int async_write_timeout(int device, const void * buf, unsigned int count, unsign
         }
         break;
       case WAIT_TIMEOUT:
-        if(!CancelIoEx(devices[device].handle, &devices[device].write.overlapped)) {
+        if(!pCancelIoEx(devices[device].handle, &devices[device].write.overlapped)) {
           ASYNC_PRINT_ERROR("CancelIoEx")
           return -1;
         }
