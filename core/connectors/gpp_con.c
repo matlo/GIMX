@@ -99,8 +99,12 @@ int gpp_send(int id, e_controller_type type, int axis[AXIS_MAX])
   output[PS3_GYRO] = clamp(-100, axis_value, 100);
 
   output[PS4_TOUCH] = axis[ds4a_finger1] ? 100 : 0;
-  output[PS4_TOUCHX] = scale_axis(type, ds4a_finger1_x, axis);
-  output[PS4_TOUCHY] = scale_axis(type, ds4a_finger1_y, axis);
+
+  axis_value = scale_axis(type, ds4a_finger1_x, axis);
+  output[PS4_TOUCHX] = clamp(-100, axis_value, 100);
+
+  axis_value = scale_axis(type, ds4a_finger1_y, axis);
+  output[PS4_TOUCHY] = clamp(-100, axis_value, 100);
 
   if(!gpppcprog_output(id, output))
   {
