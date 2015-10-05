@@ -6,7 +6,17 @@
 #ifndef XBOX_H_
 #define XBOX_H_
 
-#include <control.h>
+#include <defs.h>
+
+#define XBOX_UP_MASK    0x01
+#define XBOX_DOWN_MASK  0x02
+#define XBOX_LEFT_MASK  0x04
+#define XBOX_RIGHT_MASK 0x08
+
+#define XBOX_START_MASK 0x10
+#define XBOX_BACK_MASK  0x20
+#define XBOX_LS_MASK    0x40
+#define XBOX_RS_MASK    0x80
 
 typedef enum
 {

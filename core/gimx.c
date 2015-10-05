@@ -205,13 +205,13 @@ int main(int argc, char *argv[])
     /*
      * TODO MLA: per controller refresh period?
      */
-    gimx_params.refresh_period = controller_get_default_refresh_period(adapter_get(0)->type);
+    gimx_params.refresh_period = controller_get_default_refresh_period(adapter_get(0)->ctype);
     gimx_params.postpone_count = 3 * DEFAULT_REFRESH_PERIOD / gimx_params.refresh_period;
     printf(_("using default refresh period: %.02fms\n"), (double)gimx_params.refresh_period/1000);
   }
-  else if(gimx_params.refresh_period < controller_get_min_refresh_period(adapter_get(0)->type))
+  else if(gimx_params.refresh_period < controller_get_min_refresh_period(adapter_get(0)->ctype))
   {
-    fprintf(stderr, "Refresh period should be at least %.02fms\n", (double)controller_get_min_refresh_period(adapter_get(0)->type)/1000);
+    fprintf(stderr, "Refresh period should be at least %.02fms\n", (double)controller_get_min_refresh_period(adapter_get(0)->ctype)/1000);
     goto QUIT;
   }
 
@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
 #ifndef WIN32
   for(controller=0; controller<MAX_CONTROLLERS; ++controller)
   {
-    switch(adapter_get(controller)->type)
+    switch(adapter_get(controller)->ctype)
     {
     case C_TYPE_G29_PS4:
       ffb = 1;

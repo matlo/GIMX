@@ -6,32 +6,33 @@
 #include <ds2.h>
 #include <report.h>
 #include <controller2.h>
+#include <string.h>
 
-static const char *ds2_axis_name[AXIS_MAX] =
+static s_axis axes[AXIS_MAX] =
 {
-  [ds2a_lstick_x] = "lstick x",
-  [ds2a_lstick_y] = "lstick y",
-  [ds2a_rstick_x] = "rstick x",
-  [ds2a_rstick_y] = "rstick y",
-  [ds2a_select] = "select",
-  [ds2a_start] = "start",
-  [ds2a_up] = "up",
-  [ds2a_right] = "right",
-  [ds2a_down] = "down",
-  [ds2a_left] = "left",
-  [ds2a_triangle] = "triangle",
-  [ds2a_circle] = "circle",
-  [ds2a_cross] = "cross",
-  [ds2a_square] = "square",
-  [ds2a_l1] = "l1",
-  [ds2a_r1] = "r1",
-  [ds2a_l2] = "l2",
-  [ds2a_r2] = "r2",
-  [ds2a_l3] = "l3",
-  [ds2a_r3] = "r3",
+    [ds2a_lstick_x] = { .name = "lstick x", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [ds2a_lstick_y] = { .name = "lstick y", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [ds2a_rstick_x] = { .name = "rstick x", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [ds2a_rstick_y] = { .name = "rstick y", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [ds2a_select] =   { .name = "select",   .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [ds2a_start] =    { .name = "start",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [ds2a_up] =       { .name = "up",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [ds2a_right] =    { .name = "right",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [ds2a_down] =     { .name = "down",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [ds2a_left] =     { .name = "left",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [ds2a_triangle] = { .name = "triangle", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [ds2a_circle] =   { .name = "circle",   .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [ds2a_cross] =    { .name = "cross",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [ds2a_square] =   { .name = "square",   .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [ds2a_l1] =       { .name = "l1",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [ds2a_r1] =       { .name = "r1",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [ds2a_l2] =       { .name = "l2",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [ds2a_r2] =       { .name = "r2",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [ds2a_l3] =       { .name = "l3",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [ds2a_r3] =       { .name = "r3",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
 };
 
-static s_axis_name_dir axis_names[] =
+static s_axis_name_dir axis_name_dirs[] =
 {
   {.name = "rstick x",     {.axis = ds2a_rstick_x, .props = AXIS_PROP_CENTERED}},
   {.name = "rstick y",     {.axis = ds2a_rstick_y, .props = AXIS_PROP_CENTERED}},
@@ -66,44 +67,29 @@ static s_axis_name_dir axis_names[] =
   {.name = "triangle",     {.axis = ds2a_triangle, .props = AXIS_PROP_TOGGLE}},
 };
 
-static int ds2_max_unsigned_axis_value[AXIS_MAX] =
+static s_report_ds2 default_report =
 {
-  [ds2a_lstick_x] = MAX_AXIS_VALUE_8BITS,
-  [ds2a_lstick_y] = MAX_AXIS_VALUE_8BITS,
-  [ds2a_rstick_x] = MAX_AXIS_VALUE_8BITS,
-  [ds2a_rstick_y] = MAX_AXIS_VALUE_8BITS,
-  [ds2a_select] = MAX_AXIS_VALUE_8BITS,
-  [ds2a_start] = MAX_AXIS_VALUE_8BITS,
-  [ds2a_up] = MAX_AXIS_VALUE_8BITS,
-  [ds2a_right] = MAX_AXIS_VALUE_8BITS,
-  [ds2a_down] = MAX_AXIS_VALUE_8BITS,
-  [ds2a_left] = MAX_AXIS_VALUE_8BITS,
-  [ds2a_triangle] = MAX_AXIS_VALUE_8BITS,
-  [ds2a_circle] = MAX_AXIS_VALUE_8BITS,
-  [ds2a_cross] = MAX_AXIS_VALUE_8BITS,
-  [ds2a_square] = MAX_AXIS_VALUE_8BITS,
-  [ds2a_l1] = MAX_AXIS_VALUE_8BITS,
-  [ds2a_r1] = MAX_AXIS_VALUE_8BITS,
-  [ds2a_l2] = MAX_AXIS_VALUE_8BITS,
-  [ds2a_r2] = MAX_AXIS_VALUE_8BITS,
-  [ds2a_l3] = MAX_AXIS_VALUE_8BITS,
-  [ds2a_r3] = MAX_AXIS_VALUE_8BITS,
+  .head = 0x5A,
+  .Bt1 = 0xFF,
+  .Bt2 = 0xFF,
+
+  .Z = CENTER_AXIS_VALUE_8BITS,
+  .Rz = CENTER_AXIS_VALUE_8BITS,
+  .X = CENTER_AXIS_VALUE_8BITS,
+  .Y = CENTER_AXIS_VALUE_8BITS,
 };
 
-static s_controller_params ds2_params =
+static void init_report(s_report * report)
 {
-    .min_refresh_period = 16000,
-    .default_refresh_period = 16000,
-    .max_unsigned_axis_value = ds2_max_unsigned_axis_value
-};
+  memcpy(report, &default_report, sizeof(default_report));
+}
 
-static unsigned int ds2_report_build(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
+static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
   unsigned int index = 0;
   report[index].length = sizeof(s_report_ds2);
   s_report_ds2* ds2 = &report[index].value.ds2;
 
-  ds2->head = 0x5A;
   ds2->Bt1 = 0xFF;
   ds2->Bt2 = 0xFF;
 
@@ -183,14 +169,18 @@ static unsigned int ds2_report_build(int axis[AXIS_MAX], s_report_packet report[
   return index;
 }
 
+static s_controller controller =
+{
+    .name = "PS2pad",
+    .refresh_period = { .min_value = 16000, .default_value = 16000 },
+    .axes = axes,
+    .axis_name_dirs = { .nb = sizeof(axis_name_dirs)/sizeof(*axis_name_dirs), .values = axis_name_dirs },
+    .fp_build_report = build_report,
+    .fp_init_report = init_report,
+};
+
 void ds2_init(void) __attribute__((constructor (101)));
 void ds2_init(void)
 {
-  controller_register_axis_names(C_TYPE_PS2_PAD, sizeof(axis_names)/sizeof(*axis_names), axis_names);
-
-  controller_register_params(C_TYPE_PS2_PAD, &ds2_params);
-
-  control_register_names(C_TYPE_PS2_PAD, ds2_axis_name);
-
-  report_register_builder(C_TYPE_PS2_PAD, ds2_report_build);
+  controller_register(C_TYPE_PS2_PAD, &controller);
 }

@@ -6,7 +6,7 @@
 #ifndef X360_H_
 #define X360_H_
 
-#include <control.h>
+#include <defs.h>
 
 #define X360_VENDOR 0x045e
 #define X360_PRODUCT 0x028e
@@ -130,10 +130,10 @@ typedef struct GIMX_PACKED
   unsigned short buttons;
   unsigned char ltrigger;
   unsigned char rtrigger;
-  unsigned char xaxis[2];
-  unsigned char yaxis[2];
-  unsigned char zaxis[2];
-  unsigned char taxis[2];
+  short xaxis;
+  short yaxis;
+  short zaxis;
+  short taxis;
   unsigned char unused[6];
 } s_report_x360;
 

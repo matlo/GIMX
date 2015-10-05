@@ -6,7 +6,7 @@
 #ifndef T300RS_H_
 #define T300RS_H_
 
-#include <control.h>
+#include <defs.h>
 
 #define T300RS_SQUARE_MASK     0x10
 #define T300RS_CROSS_MASK      0x20
@@ -70,7 +70,5 @@ typedef struct GIMX_PACKED
   unsigned short unknown3; //0xFFFF
   unsigned char unused1[10];
 } s_report_t300rsPs4;
-
-void t300rsPs4_init_report(s_report_t300rsPs4* t300rsPs4);
 
 #endif /* T300RS_H_ */

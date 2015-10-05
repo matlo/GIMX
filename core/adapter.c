@@ -21,6 +21,7 @@
 #ifndef WIN32
 #include "connectors/btds4.h"
 #endif
+#include <controller2.h>
 
 #include <ffb_logitech.h>
 #include <hidasync.h>
@@ -67,7 +68,8 @@ void adapter_init_static(void)
   unsigned int i, j;
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
-    adapter[i].type = C_TYPE_DEFAULT;
+    adapter[i].atype = E_ADAPTER_TYPE_NONE;
+    adapter[i].ctype = C_TYPE_NONE;
     adapter[i].dst_fd = -1;
     adapter[i].src_fd = -1;
     adapter[i].serialdevice = -1;
@@ -147,7 +149,7 @@ static void adapter_dump_state(int id)
 
   for (i = 0; i < AXIS_MAX; i++) {
       if (axis[i])
-          printf(", %s (%d)", control_get_name(adapter->type, i), axis[i]);
+          printf(", %s (%d)", controller_get_axis_name(adapter->ctype, i), axis[i]);
   }
 
   printf("\n");
@@ -181,7 +183,7 @@ static int adapter_network_read(int id)
   case BYTE_TYPE:
     {
       // send the answer
-      unsigned char answer[3] = {BYTE_TYPE, BYTE_LEN_1_BYTE, adapter[id].type};
+      unsigned char answer[3] = {BYTE_TYPE, BYTE_LEN_1_BYTE, adapter[id].ctype};
       if (udp_sendto(adapter[id].src_fd, answer, sizeof(answer), (struct sockaddr*) &sa, salen) < 0)
       {
         fprintf(stderr, "adapter_network_read: can't send controller type\n");
@@ -201,7 +203,7 @@ static int adapter_network_read(int id)
     break;
   }
   // require a report to be sent immediately, except for a Sixaxis controller working over bluetooth
-  if((adapter[id].type == C_TYPE_SIXAXIS || adapter[id].type == C_TYPE_DEFAULT) && adapter[id].bdaddr_dst)
+  if(adapter[id].ctype == C_TYPE_SIXAXIS && adapter[id].atype == E_ADAPTER_TYPE_BLUETOOTH)
   {
     return 0;
   }
@@ -347,7 +349,7 @@ static int adapter_forward_control_out(int id, unsigned char* data, unsigned cha
 static int adapter_forward_interrupt_out(int id, unsigned char* data, unsigned char length)
 {
   DEBUG_PACKET(data, length)
-  if(adapter[id].type == C_TYPE_XONE_PAD && data[0] == 0x06 && data[1] == 0x20)
+  if(adapter[id].ctype == C_TYPE_XONE_PAD && data[0] == 0x06 && data[1] == 0x20)
   {
     adapter[id].status = 1;
   }
@@ -392,7 +394,7 @@ static int adapter_process_packet(int id, s_packet* packet)
 
     unsigned char send = 0;
 
-    switch(adapter[id].type)
+    switch(adapter[id].ctype)
     {
       case C_TYPE_DS4:
         if(GE_GetJSType(joystick) == GE_JS_DS4)
@@ -463,8 +465,8 @@ static int adapter_process_packet(int id, s_packet* packet)
         {
           .type = GE_JOYRUMBLE,
           .which = joystick,
-          .weak = data[motors[adapter[id].type].weak] << 8,
-          .strong = data[motors[adapter[id].type].strong] << 8
+          .weak = data[motors[adapter[id].ctype].weak] << 8,
+          .strong = data[motors[adapter[id].ctype].strong] << 8
         }
       };
       GE_PushEvent(&event);
@@ -738,7 +740,7 @@ int adapter_detect()
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
     adapter = adapter_get(i);
-    if(adapter->type == C_TYPE_GPP)
+    if(adapter->atype == E_ADAPTER_TYPE_GPP)
     {
       int rtype = gpp_connect(i, adapter->portname);
       if (rtype < 0)
@@ -749,7 +751,7 @@ int adapter_detect()
       else if(rtype < C_TYPE_MAX)
       {
         printf(_("Detected controller: %s.\n"), controller_get_name(rtype));
-        controller_gpp_set_params(rtype);
+        adapter->ctype = rtype;
       }
       else
       {
@@ -757,147 +759,137 @@ int adapter_detect()
         ret = -1;
       }
     }
-    else if(adapter->portname)
+    else if(adapter->atype == E_ADAPTER_TYPE_DIY_USB)
     {
-      adapter->serialdevice = serialasync_open(adapter->portname, BAUDRATE);
-      if(adapter->serialdevice < 0)
+      if(adapter->portname)
       {
-        ret = -1;
-      }
-      else
-      {
-        int rtype = adapter_send_short_command(i, BYTE_TYPE);
-
-        if(rtype >= 0)
+        adapter->serialdevice = serialasync_open(adapter->portname, BAUDRATE);
+        if(adapter->serialdevice < 0)
         {
-          printf(_("Detected USB adapter: %s.\n"), controller_get_name(rtype));
+          ret = -1;
+        }
+        else
+        {
+          int rtype = adapter_send_short_command(i, BYTE_TYPE);
 
-          if(adapter->type == C_TYPE_DEFAULT)
+          if(rtype >= 0)
           {
-            adapter->type = rtype;
-          }
-          else if(adapter->type != rtype)
-          {
-            fprintf(stderr, _("Wrong controller type.\n"));
-            ret = -1;
-          }
+            printf(_("Detected USB adapter: %s.\n"), controller_get_name(rtype));
 
-          int status = adapter_send_short_command(i, BYTE_STATUS);
-
-          if(status < 0)
-          {
-            fprintf(stderr, _("Can't get adapter status.\n"));
-            ret = -1;
-          }
-
-          if(ret != -1)
-          {
-            switch(adapter->type)
+            if(adapter->ctype == C_TYPE_NONE)
             {
-              case C_TYPE_DS4:
-              case C_TYPE_T300RS_PS4:
-              case C_TYPE_G29_PS4:
-                if(status == BYTE_STATUS_STARTED)
-                {
-                  if(adapter_send_reset(i) < 0)
-                  {
-                    fprintf(stderr, _("Can't reset the adapter.\n"));
-                    ret = -1;
-                  }
-                  else
-                  {
-                    printf(_("Reset sent to the adapter.\n"));
-                    //Leave time for the adapter to reinitialize.
-                    usleep(ADAPTER_RESET_TIME);
-                  }
-                }
-                break;
-              case C_TYPE_XONE_PAD:
-              case C_TYPE_360_PAD:
-                if(status == BYTE_STATUS_SPOOFED)
-                {
-                  adapter->status = 1;
-                }
-                else
-                {
-                  if(adapter_send_reset(i) < 0)
-                  {
-                    fprintf(stderr, _("Can't reset the adapter.\n"));
-                    ret = -1;
-                  }
-                  else
-                  {
-                    printf(_("Reset sent to the adapter.\n"));
-                    //Leave time for the adapter to reinitialize.
-                    usleep(ADAPTER_RESET_TIME);
-                  }
-                }
-                break;
-              case C_TYPE_SIXAXIS:
-                //TODO MLA: fix the EMUPS3 firmware and remove this!
-                gimx_params.force_updates = 0;
-                printf(_("Disable force updates to work-around #335.\n"));
-                break;
-              default:
-                break;
+              adapter->ctype = rtype;
             }
-          }
-
-          if(ret != -1)
-          {
-            int usb_res = usb_init(i, adapter->type);
-            if(usb_res < 0)
+            else if(adapter->ctype != rtype)
             {
-              if((adapter->type != C_TYPE_360_PAD
-                  && adapter->type != C_TYPE_XONE_PAD)
-                  || status != BYTE_STATUS_SPOOFED)
+              fprintf(stderr, _("Wrong controller type.\n"));
+              ret = -1;
+            }
+
+            int status = adapter_send_short_command(i, BYTE_STATUS);
+
+            if(status < 0)
+            {
+              fprintf(stderr, _("Can't get adapter status.\n"));
+              ret = -1;
+            }
+
+            if(ret != -1)
+            {
+              switch(adapter->ctype)
               {
-                fprintf(stderr, _("No controller was found on USB buses.\n"));
-                ret = -1;
+                case C_TYPE_DS4:
+                case C_TYPE_T300RS_PS4:
+                case C_TYPE_G29_PS4:
+                  if(status == BYTE_STATUS_STARTED)
+                  {
+                    if(adapter_send_reset(i) < 0)
+                    {
+                      fprintf(stderr, _("Can't reset the adapter.\n"));
+                      ret = -1;
+                    }
+                    else
+                    {
+                      printf(_("Reset sent to the adapter.\n"));
+                      //Leave time for the adapter to reinitialize.
+                      usleep(ADAPTER_RESET_TIME);
+                    }
+                  }
+                  break;
+                case C_TYPE_XONE_PAD:
+                case C_TYPE_360_PAD:
+                  if(status == BYTE_STATUS_SPOOFED)
+                  {
+                    adapter->status = 1;
+                  }
+                  else
+                  {
+                    if(adapter_send_reset(i) < 0)
+                    {
+                      fprintf(stderr, _("Can't reset the adapter.\n"));
+                      ret = -1;
+                    }
+                    else
+                    {
+                      printf(_("Reset sent to the adapter.\n"));
+                      //Leave time for the adapter to reinitialize.
+                      usleep(ADAPTER_RESET_TIME);
+                    }
+                  }
+                  break;
+                case C_TYPE_SIXAXIS:
+                  //TODO MLA: fix the EMUPS3 firmware and remove this!
+                  gimx_params.force_updates = 0;
+                  printf(_("Disable force updates to work-around #335.\n"));
+                  break;
+                default:
+                  break;
               }
             }
-          }
 
-          if(ret != -1)
-          {
-            switch(adapter->type)
+            if(ret != -1)
             {
-              case C_TYPE_DS4:
-                ds4_init_report(&adapter->report[0].value.ds4);
-                break;
-              case C_TYPE_T300RS_PS4:
-                t300rsPs4_init_report(&adapter->report[0].value.t300rsPs4);
-                break;
-              case C_TYPE_G29_PS4:
-                g29Ps4_init_report(&adapter->report[0].value.g29Ps4);
-                break;
-              case C_TYPE_G27_PS3:
-                g27Ps3_init_report(&adapter->report[0].value.g27Ps3);
-                break;
-              default:
-                break;
+              int usb_res = usb_init(i, adapter->ctype);
+              if(usb_res < 0)
+              {
+                if((adapter->ctype != C_TYPE_360_PAD
+                    && adapter->ctype != C_TYPE_XONE_PAD)
+                    || status != BYTE_STATUS_SPOOFED)
+                {
+                  fprintf(stderr, _("No controller was found on USB buses.\n"));
+                  ret = -1;
+                }
+              }
+            }
+
+            if(ret != -1)
+            {
+              controller_init_report(adapter->ctype, &adapter->report[0].value);
             }
           }
         }
-      }
-      if(adapter->type == C_TYPE_DEFAULT)
-      {
-        fprintf(stderr, _("No controller detected.\n"));
-        ret = -1;
+        if(adapter->ctype == C_TYPE_NONE)
+        {
+          fprintf(stderr, _("No controller detected.\n"));
+          ret = -1;
+        }
       }
     }
-    else if(adapter->dst_ip)
+    else if(adapter->atype == E_ADAPTER_TYPE_REMOTE_GIMX)
     {
-      adapter->dst_fd = udp_connect(adapter->dst_ip, adapter->dst_port, (int *)&adapter->type);
-      if(adapter->dst_fd < 0)
+      if(adapter->dst_ip)
       {
-        struct in_addr addr = { .s_addr = adapter->dst_ip };
-        fprintf(stderr, _("Can't connect to: %s:%d.\n"), inet_ntoa(addr), adapter->dst_port);
-        ret = -1;
-      }
-      else
-      {
-        printf(_("Detected controller: %s.\n"), controller_get_name(adapter->type));
+        adapter->dst_fd = udp_connect(adapter->dst_ip, adapter->dst_port, (int *)&adapter->ctype);
+        if(adapter->dst_fd < 0)
+        {
+          struct in_addr addr = { .s_addr = adapter->dst_ip };
+          fprintf(stderr, _("Can't connect to: %s:%d.\n"), inet_ntoa(addr), adapter->dst_port);
+          ret = -1;
+        }
+        else
+        {
+          printf(_("Detected controller: %s.\n"), controller_get_name(adapter->ctype));
+        }
       }
     }
   }
@@ -949,58 +941,62 @@ int adapter_start()
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
     adapter = adapter_get(i);
-    if(adapter->serialdevice >= 0)
+    if(adapter->atype == E_ADAPTER_TYPE_DIY_USB)
     {
-
+      if(adapter->serialdevice >= 0)
+      {
 #ifdef WIN32
-      switch(adapter->type)
-      {
-      case C_TYPE_G29_PS4:
-        start_hid(i);
-        break;
-      default:
-        break;
-      }
+        switch(adapter->type)
+        {
+        case C_TYPE_G29_PS4:
+          start_hid(i);
+          break;
+        default:
+          break;
+        }
 #endif
-      if(adapter_send_short_command(i, BYTE_START) < 0)
-      {
-        fprintf(stderr, _("Can't start the adapter.\n"));
-        ret = -1;
-      }
-      else if(adapter_start_serialasync(i) < 0)
-      {
-        fprintf(stderr, _("Can't start the serial asynchronous processing.\n"));
-        ret = -1;
+        if(adapter_send_short_command(i, BYTE_START) < 0)
+        {
+          fprintf(stderr, _("Can't start the adapter.\n"));
+          ret = -1;
+        }
+        else if(adapter_start_serialasync(i) < 0)
+        {
+          fprintf(stderr, _("Can't start the serial asynchronous processing.\n"));
+          ret = -1;
+        }
       }
     }
-    else if(adapter->bdaddr_dst)
+    else if(adapter->atype == E_ADAPTER_TYPE_BLUETOOTH)
     {
-      if(adapter->type == C_TYPE_SIXAXIS
-          || adapter->type == C_TYPE_DEFAULT)
+      if(adapter->bdaddr_dst)
       {
-        if(sixaxis_connect(i, adapter->dongle_index, adapter->bdaddr_dst) < 0)
+        if(adapter->ctype == C_TYPE_SIXAXIS)
         {
-          fprintf(stderr, _("Can't initialize sixaxis.\n"));
-          ret = -1;
+          if(sixaxis_connect(i, adapter->dongle_index, adapter->bdaddr_dst) < 0)
+          {
+            fprintf(stderr, _("Can't initialize sixaxis.\n"));
+            ret = -1;
+          }
+        }
+  #ifndef WIN32
+        else if(adapter->ctype == C_TYPE_DS4)
+        {
+          if(btds4_init(i, adapter->dongle_index, adapter->bdaddr_dst) < 0)
+          {
+            fprintf(stderr, _("Can't initialize btds4.\n"));
+            ret = -1;
+          }
+          controller_init_report(C_TYPE_DS4, &adapter->report[0].value);
+        }
+  #endif
+        else
+        {
+          fprintf(stderr, _("Wrong controller type.\n"));
         }
       }
-#ifndef WIN32
-      else if(adapter->type == C_TYPE_DS4)
-      {
-        if(btds4_init(i, adapter->dongle_index, adapter->bdaddr_dst) < 0)
-        {
-          fprintf(stderr, _("Can't initialize btds4.\n"));
-          ret = -1;
-        }
-        ds4_init_report(&adapter->report[0].value.ds4);
-      }
-      else
-      {
-        fprintf(stderr, _("Wrong controller type.\n"));
-      }
-#endif
     }
-    else if(adapter->type == C_TYPE_GPP)
+    else if(adapter->atype == E_ADAPTER_TYPE_GPP)
     {
       ret = gpp_start_async(i, adapter_gpp_read, adapter_gpp_write, adapter_gpp_close, REGISTER_FUNCTION);
     }
@@ -1033,73 +1029,53 @@ int adapter_send()
   {
     adapter = adapter_get(i);
 
+    if(adapter->ctype == C_TYPE_NONE)
+    {
+      continue;
+    }
+
     if (gimx_params.force_updates || adapter->send_command)
     {
-      if(adapter->dst_fd >= 0)
+      if(adapter->atype == E_ADAPTER_TYPE_REMOTE_GIMX)
       {
-        static unsigned char report[sizeof(adapter->axis)+2] = { BYTE_IN_REPORT, sizeof(adapter->axis) };
-        memcpy(report+2, adapter->axis, sizeof(adapter->axis));
-        ret = udp_send(adapter->dst_fd, report, sizeof(report));
-      }
-      else
-      {
-        unsigned int index = report_build(adapter->type, adapter->axis, adapter->report);
-
-        s_report_packet* report = adapter->report+index;
-
-        switch(adapter->type)
+        if(adapter->dst_fd >= 0)
         {
-        case C_TYPE_DEFAULT:
-          if(adapter->bdaddr_dst)
+          static unsigned char report[sizeof(adapter->axis)+2] = { BYTE_IN_REPORT, sizeof(adapter->axis) };
+          memcpy(report+2, adapter->axis, sizeof(adapter->axis));
+          ret = udp_send(adapter->dst_fd, report, sizeof(report));
+        }
+      }
+      else if(adapter->atype == E_ADAPTER_TYPE_DIY_USB)
+      {
+        if(adapter->serialdevice >= 0)
+        {
+          unsigned int index = controller_build_report(adapter->ctype, adapter->axis, adapter->report);
+
+          s_report_packet* report = adapter->report+index;
+
+          switch(adapter->ctype)
           {
-            ret = sixaxis_send_interrupt(i, &report->value.ds3);
-          }
-          break;
-        case C_TYPE_SIXAXIS:
-          if(adapter->serialdevice >= 0)
-          {
-            ret = serialasync_write(adapter->serialdevice, report, 2+report->length);
-          }
-          else if(adapter->bdaddr_dst)
-          {
-            ret = sixaxis_send_interrupt(i, &report->value.ds3);
-          }
-          break;
-        case C_TYPE_DS4:
-          if(adapter->serialdevice >= 0)
-          {
+          case C_TYPE_SIXAXIS:
+            ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
+            break;
+          case C_TYPE_DS4:
             report->value.ds4.report_id = DS4_USB_HID_IN_REPORT_ID;
             report->length = DS4_USB_INTERRUPT_PACKET_SIZE;
             ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
-          }
-#ifndef WIN32
-          else if(adapter->bdaddr_dst)
-          {
-            ret = btds4_send_interrupt(i, &report->value.ds4, adapter->send_command);
-          }
-#endif
-          break;
-        case C_TYPE_T300RS_PS4:
-        case C_TYPE_G29_PS4:
-          if(adapter->serialdevice >= 0)
-          {
+            break;
+          case C_TYPE_T300RS_PS4:
+          case C_TYPE_G29_PS4:
             report->length = DS4_USB_INTERRUPT_PACKET_SIZE;
             ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
-          }
-          break;
-        case C_TYPE_GPP:
-          ret = gpp_send(i, adapter->type, adapter->axis);
-          break;
-        case C_TYPE_XONE_PAD:
-          if(adapter->status)
-          {
-            ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
-          }
-          break;
-        default:
-          if(adapter->serialdevice >= 0)
-          {
-            if(adapter->type != C_TYPE_PS2_PAD)
+            break;
+          case C_TYPE_XONE_PAD:
+            if(adapter->status)
+            {
+              ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
+            }
+            break;
+          default:
+            if(adapter->ctype != C_TYPE_PS2_PAD)
             {
               ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
             }
@@ -1107,10 +1083,38 @@ int adapter_send()
             {
               ret = serialasync_write(adapter->serialdevice, &report->value.ds2, report->length);
             }
+            break;
           }
-          break;
         }
       }
+      else if(adapter->atype == E_ADAPTER_TYPE_BLUETOOTH)
+      {
+        if(adapter->bdaddr_dst)
+        {
+          unsigned int index = controller_build_report(adapter->ctype, adapter->axis, adapter->report);
+
+          s_report_packet* report = adapter->report+index;
+
+          switch(adapter->ctype)
+          {
+          case C_TYPE_SIXAXIS:
+            ret = sixaxis_send_interrupt(i, &report->value.ds3);
+            break;
+#ifndef WIN32
+          case C_TYPE_DS4:
+            ret = btds4_send_interrupt(i, &report->value.ds4, adapter->send_command);
+            break;
+#endif
+          default:
+            break;
+          }
+        }
+      }
+      else if(adapter->atype == E_ADAPTER_TYPE_GPP)
+      {
+        ret = gpp_send(i, adapter->ctype, adapter->axis);
+      }
+
 
       if(gimx_params.curses)
       {
@@ -1129,10 +1133,18 @@ int adapter_send()
         }
         if(gimx_params.curses)
         {
-          display_run(adapter_get(0)->type, adapter_get(0)->axis);
+          display_run(adapter_get(0)->ctype, adapter_get(0)->axis);
         }
 
         adapter->send_command = 0;
+      }
+
+      if(adapter->ctype == C_TYPE_DS4)
+      {
+        adapter->axis[ds4a_finger1_x] = 0;
+        adapter->axis[ds4a_finger1_y] = 0;
+        adapter->axis[ds4a_finger2_x] = 0;
+        adapter->axis[ds4a_finger2_y] = 0;
       }
     }
   }
@@ -1146,45 +1158,53 @@ void adapter_clean()
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
     adapter = adapter_get(i);
-    if(adapter->dst_fd >= 0)
+    if(adapter->atype == E_ADAPTER_TYPE_REMOTE_GIMX)
     {
-      GE_RemoveSource(adapter->src_fd);
-      udp_close(adapter->dst_fd);
-    }
-    else if(adapter->bdaddr_dst)
-    {
-      if(adapter->type == C_TYPE_SIXAXIS
-          || adapter->type == C_TYPE_DEFAULT)
+      if(adapter->dst_fd >= 0)
       {
-        sixaxis_close(i);
+        GE_RemoveSource(adapter->src_fd);
+        udp_close(adapter->dst_fd);
       }
+    }
+    else if(adapter->atype == E_ADAPTER_TYPE_BLUETOOTH)
+    {
+      if(adapter->bdaddr_dst)
+      {
+        if(adapter->ctype == C_TYPE_SIXAXIS)
+        {
+          sixaxis_close(i);
+        }
 #ifndef WIN32
-      else if(adapter->type == C_TYPE_DS4)
-      {
-        btds4_close(i);
-      }
+        else if(adapter->ctype == C_TYPE_DS4)
+        {
+          btds4_close(i);
+        }
 #endif
-    }
-    else if(adapter->serialdevice >= 0)
-    {
-      switch(adapter->type)
-      {
-        case C_TYPE_360_PAD:
-        case C_TYPE_XONE_PAD:
-          usb_close(i);
-          break;
-        case C_TYPE_DS4:
-        case C_TYPE_T300RS_PS4:
-        case C_TYPE_G29_PS4:
-          usb_close(i);
-          adapter_send_reset(i);
-          break;
-        default:
-          break;
       }
-      serialasync_close(adapter->serialdevice);
     }
-    else if(adapter->type == C_TYPE_GPP)
+    else if(adapter->atype == E_ADAPTER_TYPE_DIY_USB)
+    {
+      if(adapter->serialdevice >= 0)
+      {
+        switch(adapter->ctype)
+        {
+          case C_TYPE_360_PAD:
+          case C_TYPE_XONE_PAD:
+            usb_close(i);
+            break;
+          case C_TYPE_DS4:
+          case C_TYPE_T300RS_PS4:
+          case C_TYPE_G29_PS4:
+            usb_close(i);
+            adapter_send_reset(i);
+            break;
+          default:
+            break;
+        }
+        serialasync_close(adapter->serialdevice);
+      }
+    }
+    else if(adapter->atype == E_ADAPTER_TYPE_GPP)
     {
       gpp_disconnect(i);
     }

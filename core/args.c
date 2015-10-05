@@ -170,7 +170,12 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         break;
 
       case 'b':
+        adapter_get(controller)->atype = E_ADAPTER_TYPE_BLUETOOTH;
         adapter_get(controller)->bdaddr_dst = optarg;
+        if(adapter_get(controller)->ctype == C_TYPE_NONE)
+        {
+          adapter_get(controller)->ctype = C_TYPE_SIXAXIS;
+        }
         ++controller;
         printf(_("option -b with value `%s'\n"), optarg);
         break;
@@ -193,7 +198,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
           }
           else
           {
-            if((axis = control_get_index(axis_label)) != -1)
+            if((axis = controller_get_axis_index(axis_label)) != -1)
             {
               printf(_("option -e with value `%s(%d)'\n"), axis_label, value);
               adapter_set_axis(controller, axis, value);
@@ -223,6 +228,8 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         }
         else
         {
+          adapter_get(controller)->atype = E_ADAPTER_TYPE_REMOTE_GIMX;
+          ++controller;
           printf(_("option -d with value `%s'\n"), optarg);
         }
         break;
@@ -255,7 +262,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
       case 'p':
         if(strstr(optarg, DEV_HIDRAW) || !strstr(optarg, DEV_SERIAL))
         {
-          adapter_get(controller)->type = C_TYPE_GPP;
+          adapter_get(controller)->atype = E_ADAPTER_TYPE_GPP;
         }
         if(adapter_set_port(controller, optarg) < 0)
         {
@@ -264,6 +271,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         }
         else
         {
+          adapter_get(controller)->atype = E_ADAPTER_TYPE_DIY_USB;
           ++controller;
           printf(_("option -p with value `%s'\n"), optarg);
         }
@@ -287,43 +295,43 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         printf(_("option -t with value `%s'\n"), optarg);
         if (!strcmp(optarg, "joystick"))
         {
-          adapter_get(controller)->type = C_TYPE_JOYSTICK;
+          adapter_get(controller)->ctype = C_TYPE_JOYSTICK;
         }
         else if (!strcmp(optarg, "360pad"))
         {
-          adapter_get(controller)->type = C_TYPE_360_PAD;
+          adapter_get(controller)->ctype = C_TYPE_360_PAD;
         }
         else if (!strcmp(optarg, "Sixaxis"))
         {
-          adapter_get(controller)->type = C_TYPE_SIXAXIS;
+          adapter_get(controller)->ctype = C_TYPE_SIXAXIS;
         }
         else if (!strcmp(optarg, "PS2pad"))
         {
-          adapter_get(controller)->type = C_TYPE_PS2_PAD;
+          adapter_get(controller)->ctype = C_TYPE_PS2_PAD;
         }
         else if (!strcmp(optarg, "GPP"))
         {
-          adapter_get(controller)->type = C_TYPE_GPP;
+          adapter_get(controller)->atype = E_ADAPTER_TYPE_GPP;
         }
         else if (!strcmp(optarg, "XboxPad"))
         {
-          adapter_get(controller)->type = C_TYPE_XBOX_PAD;
+          adapter_get(controller)->ctype = C_TYPE_XBOX_PAD;
         }
         else if (!strcmp(optarg, "DS4"))
         {
-          adapter_get(controller)->type = C_TYPE_DS4;
+          adapter_get(controller)->ctype = C_TYPE_DS4;
         }
         else if (!strcmp(optarg, "T300RS_PS4"))
         {
-          adapter_get(controller)->type = C_TYPE_T300RS_PS4;
+          adapter_get(controller)->ctype = C_TYPE_T300RS_PS4;
         }
         else if (!strcmp(optarg, "G27_PS3"))
         {
-          adapter_get(controller)->type = C_TYPE_G27_PS3;
+          adapter_get(controller)->ctype = C_TYPE_G27_PS3;
         }
         else if (!strcmp(optarg, "G29_PS4"))
         {
-          adapter_get(controller)->type = C_TYPE_G29_PS4;
+          adapter_get(controller)->ctype = C_TYPE_G29_PS4;
         }
         else
         {

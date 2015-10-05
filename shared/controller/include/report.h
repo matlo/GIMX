@@ -40,7 +40,4 @@ typedef struct GIMX_PACKED
   s_report value;
 } s_report_packet;
 
-void report_register_builder(e_controller_type type, unsigned int (*fp)(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS]));
-unsigned int report_build(e_controller_type type, int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS]);
-
 #endif /* REPORT_H_ */

@@ -6,32 +6,34 @@
 #include <xbox.h>
 #include <report.h>
 #include <controller2.h>
+#include <limits.h>
+#include <string.h>
 
-static const char *xbox_axis_name[AXIS_MAX] =
+static s_axis axes[AXIS_MAX] =
 {
-  [xboxa_lstick_x] = "lstick x",
-  [xboxa_lstick_y] = "lstick y",
-  [xboxa_rstick_x] = "rstick x",
-  [xboxa_rstick_y] = "rstick y",
-  [xboxa_back] = "back",
-  [xboxa_start] = "start",
-  [xboxa_up] = "up",
-  [xboxa_right] = "right",
-  [xboxa_down] = "down",
-  [xboxa_left] = "left",
-  [xboxa_Y] = "Y",
-  [xboxa_B] = "B",
-  [xboxa_A] = "A",
-  [xboxa_X] = "X",
-  [xboxa_white] = "white",
-  [xboxa_black] = "black",
-  [xboxa_LT] = "LT",
-  [xboxa_RT] = "RT",
-  [xboxa_LS] = "LS",
-  [xboxa_RS] = "RS",
+  [xboxa_lstick_x]  = { .name = "lstick x", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xboxa_lstick_y]  = { .name = "lstick y", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xboxa_rstick_x]  = { .name = "rstick x", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xboxa_rstick_y]  = { .name = "rstick y", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xboxa_back]      = { .name = "back",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xboxa_start]     = { .name = "start",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xboxa_up]        = { .name = "up",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xboxa_right]     = { .name = "right",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xboxa_down]      = { .name = "down",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xboxa_left]      = { .name = "left",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xboxa_Y]         = { .name = "Y",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xboxa_B]         = { .name = "B",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xboxa_A]         = { .name = "A",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xboxa_X]         = { .name = "X",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xboxa_white]     = { .name = "white",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xboxa_black]     = { .name = "black",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xboxa_LT]        = { .name = "LT",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xboxa_RT]        = { .name = "RT",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xboxa_LS]        = { .name = "LS",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xboxa_RS]        = { .name = "RS",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
 };
 
-static s_axis_name_dir axis_names[] =
+static s_axis_name_dir axis_name_dirs[] =
 {
   {.name = "rstick x",     {.axis = xboxa_rstick_x, .props = AXIS_PROP_CENTERED}},
   {.name = "rstick y",     {.axis = xboxa_rstick_y, .props = AXIS_PROP_CENTERED}},
@@ -67,83 +69,62 @@ static s_axis_name_dir axis_names[] =
   {.name = "RS",           {.axis = xboxa_RS,       .props = AXIS_PROP_TOGGLE}},
 };
 
-static int xbox_max_unsigned_axis_value[AXIS_MAX] =
+static s_report_xbox default_report =
 {
-  [xboxa_lstick_x] = MAX_AXIS_VALUE_8BITS,
-  [xboxa_lstick_y] = MAX_AXIS_VALUE_8BITS,
-  [xboxa_rstick_x] = MAX_AXIS_VALUE_8BITS,
-  [xboxa_rstick_y] = MAX_AXIS_VALUE_8BITS,
-  [xboxa_back] = MAX_AXIS_VALUE_8BITS,
-  [xboxa_start] = MAX_AXIS_VALUE_8BITS,
-  [xboxa_up] = MAX_AXIS_VALUE_8BITS,
-  [xboxa_right] = MAX_AXIS_VALUE_8BITS,
-  [xboxa_down] = MAX_AXIS_VALUE_8BITS,
-  [xboxa_left] = MAX_AXIS_VALUE_8BITS,
-  [xboxa_Y] = MAX_AXIS_VALUE_8BITS,
-  [xboxa_B] = MAX_AXIS_VALUE_8BITS,
-  [xboxa_A] = MAX_AXIS_VALUE_8BITS,
-  [xboxa_X] = MAX_AXIS_VALUE_8BITS,
-  [xboxa_white] = MAX_AXIS_VALUE_8BITS,
-  [xboxa_black] = MAX_AXIS_VALUE_8BITS,
-  [xboxa_LT] = MAX_AXIS_VALUE_8BITS,
-  [xboxa_RT] = MAX_AXIS_VALUE_8BITS,
-  [xboxa_LS] = MAX_AXIS_VALUE_8BITS,
-  [xboxa_RS] = MAX_AXIS_VALUE_8BITS,
+  .type = 0x00,
+  .size = 0x14,
+  .buttons = 0x00,
+  .ununsed2 = 0x00,
+  .btnA = 0x00,
+  .btnB = 0x00,
+  .btnX = 0x00,
+  .btnY = 0x00,
+  .btnBlack = 0x00,
+  .btnWhite = 0x00,
+  .ltrigger = 0x00,
+  .rtrigger = 0x00,
+  .xaxis = 0x0000,
+  .yaxis = 0x0000,
+  .zaxis = 0x0000,
+  .taxis = 0x0000,
 };
 
-static s_controller_params xbox_params =
+static void init_report(s_report * report)
 {
-    .min_refresh_period = 4000,
-    .default_refresh_period = 8000,
-    .max_unsigned_axis_value = xbox_max_unsigned_axis_value
-};
+  memcpy(report, &default_report, sizeof(default_report));
+}
 
-static unsigned int xbox_report_build(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
+static inline void axis2button(int axis[AXIS_MAX], e_xone_axis_index index,
+    unsigned char* buttons, unsigned short button_mask)
+{
+  if (axis[index])
+  {
+    (*buttons) |= button_mask;
+  }
+}
+
+static inline void axis2axis(int from, short * to)
+{
+  *to = clamp(SHRT_MIN, from, SHRT_MAX);
+}
+
+static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
   unsigned int index = 0;
   report[index].length = sizeof(s_report_xbox);
   s_report_xbox* xbox = &report[index].value.xbox;
 
-  int axis_value;
-
-  xbox->type = 0x00;
-  xbox->size = 0x14;
-
   xbox->buttons = 0x00;
 
-  if (axis[xboxa_up])
-  {
-    xbox->buttons |= 0x01;
-  }
-  if (axis[xboxa_down])
-  {
-    xbox->buttons |= 0x02;
-  }
-  if (axis[xboxa_left])
-  {
-    xbox->buttons |= 0x04;
-  }
-  if (axis[xboxa_right])
-  {
-    xbox->buttons |= 0x08;
-  }
+  axis2button(axis, xboxa_up, &xbox->buttons, XBOX_UP_MASK);
+  axis2button(axis, xboxa_down, &xbox->buttons, XBOX_DOWN_MASK);
+  axis2button(axis, xboxa_left, &xbox->buttons, XBOX_LEFT_MASK);
+  axis2button(axis, xboxa_right, &xbox->buttons, XBOX_RIGHT_MASK);
 
-  if (axis[xboxa_start])
-  {
-    xbox->buttons |= 0x10;
-  }
-  if (axis[xboxa_back])
-  {
-    xbox->buttons |= 0x20;
-  }
-  if (axis[xboxa_LS])
-  {
-    xbox->buttons |= 0x40;
-  }
-  if (axis[xboxa_RS])
-  {
-    xbox->buttons |= 0x80;
-  }
+  axis2button(axis, xboxa_start, &xbox->buttons, XBOX_START_MASK);
+  axis2button(axis, xboxa_back, &xbox->buttons, XBOX_BACK_MASK);
+  axis2button(axis, xboxa_LS, &xbox->buttons, XBOX_LS_MASK);
+  axis2button(axis, xboxa_RS, &xbox->buttons, XBOX_RS_MASK);
 
   xbox->ltrigger = clamp(0, axis[xboxa_LT], MAX_AXIS_VALUE_8BITS);
   xbox->rtrigger = clamp(0, axis[xboxa_RT], MAX_AXIS_VALUE_8BITS);
@@ -154,42 +135,27 @@ static unsigned int xbox_report_build(int axis[AXIS_MAX], s_report_packet report
   xbox->btnWhite = clamp(0, axis[xboxa_white], MAX_AXIS_VALUE_8BITS);
   xbox->btnBlack = clamp(0, axis[xboxa_black], MAX_AXIS_VALUE_8BITS);
 
-  axis_value = axis[xboxa_lstick_x];
-  xbox->xaxis = clamp(-128, axis_value, 127) << 8;
-  if(axis_value > 127)
-  {
-    xbox->xaxis |= 0xFF;
-  }
-  axis_value = - axis[xboxa_lstick_y];
-  xbox->yaxis = clamp(-128, axis_value, 127) << 8;
-  if(axis_value > 127)
-  {
-    xbox->yaxis |= 0xFF;
-  }
-  axis_value = axis[xboxa_rstick_x];
-  xbox->zaxis = clamp(-128, axis_value, 127) << 8;
-  if(axis_value > 127)
-  {
-    xbox->zaxis |= 0xFF;
-  }
-  axis_value = -axis[xboxa_rstick_y];
-  xbox->taxis = clamp(-128, axis_value, 127) << 8;
-  if(axis_value > 127)
-  {
-    xbox->taxis |= 0xFF;
-  }
+  axis2axis(axis[xboxa_lstick_x], &xbox->xaxis);
+  axis2axis(-axis[xboxa_lstick_y], &xbox->yaxis);
+  axis2axis(axis[xboxa_rstick_x], &xbox->zaxis);
+  axis2axis(-axis[xboxa_rstick_y], &xbox->taxis);
 
   return index;
 }
 
+static s_controller controller =
+{
+  .name = "XboxPad",
+  .refresh_period = { .min_value = 4000, .default_value = 8000 },
+  .axes = axes,
+  .axis_name_dirs = { .nb = sizeof(axis_name_dirs)/sizeof(*axis_name_dirs), .values = axis_name_dirs },
+  .fp_build_report = build_report,
+  .fp_init_report = init_report,
+};
+
 void xbox_init(void) __attribute__((constructor (101)));
 void xbox_init(void)
 {
-  controller_register_axis_names(C_TYPE_XBOX_PAD, sizeof(axis_names)/sizeof(*axis_names), axis_names);
-
-  controller_register_params(C_TYPE_XBOX_PAD, &xbox_params);
-
-  control_register_names(C_TYPE_XBOX_PAD, xbox_axis_name);
-
-  report_register_builder(C_TYPE_XBOX_PAD, xbox_report_build);
+  controller_register(C_TYPE_XBOX_PAD, &controller);
 }
+

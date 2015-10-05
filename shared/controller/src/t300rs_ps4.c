@@ -8,31 +8,32 @@
 #include <controller2.h>
 #include <string.h>
 
-static const char *t300rsPs4_axis_name[AXIS_MAX] =
+static s_axis axes[AXIS_MAX] =
 {
-  [t300rsPs4a_wheel] = "wheel",
-  [t300rsPs4a_gasPedal] = "gas",
-  [t300rsPs4a_brakePedal] = "brake",
-  [t300rsPs4a_share] = "share",
-  [t300rsPs4a_options] = "options",
-  [t300rsPs4a_up] = "up",
-  [t300rsPs4a_right] = "right",
-  [t300rsPs4a_down] = "down",
-  [t300rsPs4a_left] = "left",
-  [t300rsPs4a_triangle] = "triangle",
-  [t300rsPs4a_circle] = "circle",
-  [t300rsPs4a_cross] = "cross",
-  [t300rsPs4a_square] = "square",
-  [t300rsPs4a_l1] = "l1",
-  [t300rsPs4a_r1] = "r1",
-  [t300rsPs4a_l2] = "l2",
-  [t300rsPs4a_r2] = "r2",
-  [t300rsPs4a_l3] = "l3",
-  [t300rsPs4a_r3] = "r3",
-  [t300rsPs4a_ps] = "PS",
+  [t300rsPs4a_wheel] =      { .name = "wheel",    .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
+  [t300rsPs4a_gasPedal] =   { .name = "gas",      .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
+  [t300rsPs4a_brakePedal] = { .name = "brake",    .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
+  
+  [t300rsPs4a_share] =      { .name = "share",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [t300rsPs4a_options] =    { .name = "options",  .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [t300rsPs4a_up] =         { .name = "up",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [t300rsPs4a_right] =      { .name = "right",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [t300rsPs4a_down] =       { .name = "down",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [t300rsPs4a_left] =       { .name = "left",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [t300rsPs4a_triangle] =   { .name = "triangle", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [t300rsPs4a_circle] =     { .name = "circle",   .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [t300rsPs4a_cross] =      { .name = "cross",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [t300rsPs4a_square] =     { .name = "square",   .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [t300rsPs4a_l1] =         { .name = "l1",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [t300rsPs4a_r1] =         { .name = "r1",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [t300rsPs4a_l2] =         { .name = "l2",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [t300rsPs4a_r2] =         { .name = "r2",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [t300rsPs4a_l3] =         { .name = "l3",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [t300rsPs4a_r3] =         { .name = "r3",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [t300rsPs4a_ps] =         { .name = "PS",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
 };
 
-static s_axis_name_dir axis_names[] =
+static s_axis_name_dir axis_name_dirs[] =
 {
   {.name = "wheel",        {.axis = t300rsPs4a_wheel,      .props = AXIS_PROP_CENTERED}},
 
@@ -59,39 +60,7 @@ static s_axis_name_dir axis_names[] =
   {.name = "triangle",     {.axis = t300rsPs4a_triangle,   .props = AXIS_PROP_TOGGLE}},
 };
 
-static int t300rsPs4_max_unsigned_axis_value[AXIS_MAX] =
-{
-  [t300rsPs4a_wheel] = MAX_AXIS_VALUE_16BITS,
-  [t300rsPs4a_gasPedal] = MAX_AXIS_VALUE_16BITS,
-  [t300rsPs4a_brakePedal] = MAX_AXIS_VALUE_16BITS,
-
-  [t300rsPs4a_up] = MAX_AXIS_VALUE_8BITS,
-  [t300rsPs4a_right] = MAX_AXIS_VALUE_8BITS,
-  [t300rsPs4a_down] = MAX_AXIS_VALUE_8BITS,
-  [t300rsPs4a_left] = MAX_AXIS_VALUE_8BITS,
-  [t300rsPs4a_square] = MAX_AXIS_VALUE_8BITS,
-  [t300rsPs4a_cross] = MAX_AXIS_VALUE_8BITS,
-  [t300rsPs4a_circle] = MAX_AXIS_VALUE_8BITS,
-  [t300rsPs4a_triangle] = MAX_AXIS_VALUE_8BITS,
-  [t300rsPs4a_l1] = MAX_AXIS_VALUE_8BITS,
-  [t300rsPs4a_r1] = MAX_AXIS_VALUE_8BITS,
-  [t300rsPs4a_l2] = MAX_AXIS_VALUE_8BITS,
-  [t300rsPs4a_r2] = MAX_AXIS_VALUE_8BITS,
-  [t300rsPs4a_share] = MAX_AXIS_VALUE_8BITS,
-  [t300rsPs4a_options] = MAX_AXIS_VALUE_8BITS,
-  [t300rsPs4a_l3] = MAX_AXIS_VALUE_8BITS,
-  [t300rsPs4a_r3] = MAX_AXIS_VALUE_8BITS,
-  [t300rsPs4a_ps] = MAX_AXIS_VALUE_8BITS,
-};
-
-static s_controller_params t300rsPs4_params =
-{
-    .min_refresh_period = 1000,
-    .default_refresh_period = 5000,
-    .max_unsigned_axis_value = t300rsPs4_max_unsigned_axis_value
-};
-
-static s_report_t300rsPs4 init_report_t300rsPs4 =
+static s_report_t300rsPs4 default_report =
 {
   .report_id = 0x01,
   .X = 0x80,
@@ -110,16 +79,16 @@ static s_report_t300rsPs4 init_report_t300rsPs4 =
   .unused1 = {},
 };
 
-void t300rsPs4_init_report(s_report_t300rsPs4* t300rsPs4)
+static void init_report(s_report * report)
 {
-  memcpy(t300rsPs4, &init_report_t300rsPs4, sizeof(s_report_t300rsPs4));
+  memcpy(report, &default_report, sizeof(default_report));
 }
 
 /*
  * Work in progress...
  * Do not assume the code in the following function is right!
  */
-static unsigned int t300rsPs4_report_build(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
+static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
   unsigned int index = 0;
   report[index].length = sizeof(s_report_t300rsPs4);
@@ -232,14 +201,19 @@ static unsigned int t300rsPs4_report_build(int axis[AXIS_MAX], s_report_packet r
   return index;
 }
 
+static s_controller controller =
+{
+  .name = "T300RS PS4",
+  .refresh_period = { .min_value = 1000, .default_value = 5000 },
+  .axes = axes,
+  .axis_name_dirs = { .nb = sizeof(axis_name_dirs)/sizeof(*axis_name_dirs), .values = axis_name_dirs },
+  .fp_build_report = build_report,
+  .fp_init_report = init_report,
+};
+
 void t300rsPs4_init(void) __attribute__((constructor (101)));
 void t300rsPs4_init(void)
 {
-  controller_register_axis_names(C_TYPE_T300RS_PS4, sizeof(axis_names)/sizeof(*axis_names), axis_names);
-
-  controller_register_params(C_TYPE_T300RS_PS4, &t300rsPs4_params);
-
-  control_register_names(C_TYPE_T300RS_PS4, t300rsPs4_axis_name);
-
-  report_register_builder(C_TYPE_T300RS_PS4, t300rsPs4_report_build);
+  controller_register(C_TYPE_T300RS_PS4, &controller);
 }
+

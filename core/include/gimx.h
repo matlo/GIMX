@@ -17,8 +17,6 @@
  */
 #define TCP_PORT 21313
 
-#define DEFAULT_REFRESH_PERIOD 11250 //=11.25ms
-
 typedef struct
 {
   char* homedir;

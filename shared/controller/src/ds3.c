@@ -8,35 +8,37 @@
 #include <controller2.h>
 #include <string.h>
 
-static const char *ds3_axis_name[AXIS_MAX] = {
-    [sa_lstick_x] = "lstick x",
-    [sa_lstick_y] = "lstick y",
-    [sa_rstick_x] = "rstick x",
-    [sa_rstick_y] = "rstick y",
-    [sa_acc_x] = "acc x",
-    [sa_acc_y] = "acc y",
-    [sa_acc_z] = "acc z",
-    [sa_gyro] = "gyro",
-    [sa_select] = "select",
-    [sa_start] = "start",
-    [sa_ps] = "PS",
-    [sa_up] = "up",
-    [sa_right] = "right",
-    [sa_down] = "down",
-    [sa_left] = "left",
-    [sa_triangle] = "triangle",
-    [sa_circle] = "circle",
-    [sa_cross] = "cross",
-    [sa_square] = "square",
-    [sa_l1] = "l1",
-    [sa_r1] = "r1",
-    [sa_l2] = "l2",
-    [sa_r2] = "r2",
-    [sa_l3] = "l3",
-    [sa_r3] = "r3",
+static s_axis axes[AXIS_MAX] = {
+    [sa_lstick_x] = { .name = "lstick x", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [sa_lstick_y] = { .name = "lstick y", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [sa_rstick_x] = { .name = "rstick x", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [sa_rstick_y] = { .name = "rstick y", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    
+    [sa_acc_x] =    { .name = "acc x",    .max_unsigned_value = MAX_AXIS_VALUE_10BITS },
+    [sa_acc_y] =    { .name = "acc y",    .max_unsigned_value = MAX_AXIS_VALUE_10BITS },
+    [sa_acc_z] =    { .name = "acc z",    .max_unsigned_value = MAX_AXIS_VALUE_10BITS },
+    [sa_gyro] =     { .name = "gyro",     .max_unsigned_value = MAX_AXIS_VALUE_10BITS },
+    
+    [sa_select] =   { .name = "select",   .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [sa_start] =    { .name = "start",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [sa_ps] =       { .name = "PS",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [sa_up] =       { .name = "up",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [sa_right] =    { .name = "right",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [sa_down] =     { .name = "down",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [sa_left] =     { .name = "left",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [sa_triangle] = { .name = "triangle", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [sa_circle] =   { .name = "circle",   .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [sa_cross] =    { .name = "cross",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [sa_square] =   { .name = "square",   .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [sa_l1] =       { .name = "l1",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [sa_r1] =       { .name = "r1",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [sa_l2] =       { .name = "l2",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [sa_r2] =       { .name = "r2",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [sa_l3] =       { .name = "l3",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+    [sa_r3] =       { .name = "r3",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
 };
 
-static s_axis_name_dir axis_names[] =
+static s_axis_name_dir axis_name_dirs[] =
 {
   {.name = "rstick x",     {.axis = sa_rstick_x, .props = AXIS_PROP_CENTERED}},
   {.name = "rstick y",     {.axis = sa_rstick_y, .props = AXIS_PROP_CENTERED}},
@@ -88,43 +90,62 @@ static s_axis_name_dir axis_names[] =
   {.name = "l3",           {.axis = sa_l3,       .props = AXIS_PROP_TOGGLE}},
 };
 
-static int ds3_max_unsigned_axis_value[AXIS_MAX] =
+#define STORE_MOTION(value)
+
+static s_report_ds3 default_report =
 {
-  [sa_lstick_x] = MAX_AXIS_VALUE_8BITS,
-  [sa_lstick_y] = MAX_AXIS_VALUE_8BITS,
-  [sa_rstick_x] = MAX_AXIS_VALUE_8BITS,
-  [sa_rstick_y] = MAX_AXIS_VALUE_8BITS,
-  [sa_acc_x] = MAX_AXIS_VALUE_10BITS,
-  [sa_acc_y] = MAX_AXIS_VALUE_10BITS,
-  [sa_acc_z] = MAX_AXIS_VALUE_10BITS,
-  [sa_gyro] = MAX_AXIS_VALUE_10BITS,
-  [sa_select] = MAX_AXIS_VALUE_8BITS,
-  [sa_start] = MAX_AXIS_VALUE_8BITS,
-  [sa_ps] = MAX_AXIS_VALUE_8BITS,
-  [sa_up] = MAX_AXIS_VALUE_8BITS,
-  [sa_right] = MAX_AXIS_VALUE_8BITS,
-  [sa_down] = MAX_AXIS_VALUE_8BITS,
-  [sa_left] = MAX_AXIS_VALUE_8BITS,
-  [sa_triangle] = MAX_AXIS_VALUE_8BITS,
-  [sa_circle] = MAX_AXIS_VALUE_8BITS,
-  [sa_cross] = MAX_AXIS_VALUE_8BITS,
-  [sa_square] = MAX_AXIS_VALUE_8BITS,
-  [sa_l1] = MAX_AXIS_VALUE_8BITS,
-  [sa_r1] = MAX_AXIS_VALUE_8BITS,
-  [sa_l2] = MAX_AXIS_VALUE_8BITS,
-  [sa_r2] = MAX_AXIS_VALUE_8BITS,
-  [sa_l3] = MAX_AXIS_VALUE_8BITS,
-  [sa_r3] = MAX_AXIS_VALUE_8BITS,
+  .report_id = 0x01,
+  .unused1 = 0x00,
+  .buttons1 = 0x00,
+  .buttons2 = 0x00,
+  .buttons3 = 0x00,
+  .unused2 = 0x00,
+  .X = CENTER_AXIS_VALUE_8BITS,
+  .Y = CENTER_AXIS_VALUE_8BITS,
+  .Z = CENTER_AXIS_VALUE_8BITS,
+  .Rz = CENTER_AXIS_VALUE_8BITS,
+  .unknown1 = {},
+  .up = 0x00,
+  .right = 0x00,
+  .down = 0x00,
+  .left = 0x00,
+  .l2 = 0x00,
+  .r2 = 0x00,
+  .l1 = 0x00,
+  .r1 = 0x00,
+  .triangle = 0x00,
+  .circle = 0x00,
+  .cross = 0x00,
+  .square = 0x00,
+  .unknown2 = {
+    [3] = 0x03,//not charging
+    [4] = 0x05,//fully charged
+    [5] = 0x10,//cable plugged in, no rumble
+    [10] = 0x02,
+    [11] = 0xff,
+    [12] = 0x77,
+    [13] = 0x01,
+    [14] = 0x80,//no rumble
+  },
+  .acc_x = { CENTER_AXIS_VALUE_10BITS >> 8, CENTER_AXIS_VALUE_10BITS & 0xff },
+  .acc_y = { CENTER_AXIS_VALUE_10BITS >> 8, CENTER_AXIS_VALUE_10BITS & 0xff },
+  .acc_z = { 400 >> 8, 400 & 0xff },
+  .gyro = { CENTER_AXIS_VALUE_10BITS >> 8, CENTER_AXIS_VALUE_10BITS & 0xff },
 };
 
-static s_controller_params ds3_params =
+static void init_report(s_report * report)
 {
-    .min_refresh_period = 1000,
-    .default_refresh_period = 10000,
-    .max_unsigned_axis_value = ds3_max_unsigned_axis_value
-};
+  memcpy(report, &default_report, sizeof(default_report));
+}
 
-static unsigned int ds3_report_build(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
+static inline void axis2axis(int from, unsigned char to[2], int center, int max)
+{
+  int value = clamp(0, from + center, max);
+  to[0] = value >> 8;
+  to[1] = value & 0xFF;
+}
+
+static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
   unsigned int index = 0;
   report[index].length = sizeof(s_report_ds3);
@@ -133,8 +154,6 @@ static unsigned int ds3_report_build(int axis[AXIS_MAX], s_report_packet report[
   unsigned char buttons1 = 0x00;
   unsigned char buttons2 = 0x00;
   unsigned char buttons3 = 0x00;
-
-  ds3->report_id = 0x01;
 
   ds3->X = clamp(0, axis[sa_lstick_x] + CENTER_AXIS_VALUE_8BITS, MAX_AXIS_VALUE_8BITS);
   ds3->Y = clamp(0, axis[sa_lstick_y] + CENTER_AXIS_VALUE_8BITS, MAX_AXIS_VALUE_8BITS);
@@ -227,50 +246,26 @@ static unsigned int ds3_report_build(int axis[AXIS_MAX], s_report_packet report[
   ds3->cross = axis[sa_cross];
   ds3->square = axis[sa_square];
 
-  unsigned short value;
-
-  value = clamp(0, axis[sa_acc_x] + CENTER_AXIS_VALUE_10BITS, MAX_AXIS_VALUE_10BITS);
-  ds3->acc_x[0] = value >> 8;
-  ds3->acc_x[1] = value & 0xFF;
-  value = clamp(0, axis[sa_acc_y] + CENTER_AXIS_VALUE_10BITS, MAX_AXIS_VALUE_10BITS);
-  ds3->acc_y[0] = value >> 8;
-  ds3->acc_y[1] = value & 0xFF;
-  value = clamp(0, axis[sa_acc_z] + 400, MAX_AXIS_VALUE_10BITS);
-  ds3->acc_z[0] = value >> 8;
-  ds3->acc_z[1] = value & 0xFF;
-  value = clamp(0, axis[sa_gyro] + CENTER_AXIS_VALUE_10BITS, MAX_AXIS_VALUE_10BITS);
-  ds3->gyro[0] = value >> 8;
-  ds3->gyro[1] = value & 0xFF;
-
-  ds3->unknown2[3] = 0x03;//not charging
-  ds3->unknown2[4] = 0x05;//fully charged
-  ds3->unknown2[5] = 0x10;//cable plugged in, no rumble
-
-  ds3->unknown2[10] = 0x02;
-  ds3->unknown2[11] = 0xff;
-  ds3->unknown2[12] = 0x77;
-  ds3->unknown2[13] = 0x01;
-  ds3->unknown2[14] = 0x80;//no rumble
+  axis2axis(axis[sa_acc_x], ds3->acc_x, CENTER_AXIS_VALUE_10BITS, MAX_AXIS_VALUE_10BITS);
+  axis2axis(axis[sa_acc_y], ds3->acc_y, CENTER_AXIS_VALUE_10BITS, MAX_AXIS_VALUE_10BITS);
+  axis2axis(axis[sa_acc_z], ds3->acc_z, 400, MAX_AXIS_VALUE_10BITS);
+  axis2axis(axis[sa_gyro], ds3->gyro, CENTER_AXIS_VALUE_10BITS, MAX_AXIS_VALUE_10BITS);
 
   return index;
 }
 
+static s_controller controller =
+{
+  .name = "Sixaxis",
+  .refresh_period = { .min_value = 1000, .default_value = 10000 },
+  .axes = axes,
+  .axis_name_dirs = { .nb = sizeof(axis_name_dirs)/sizeof(*axis_name_dirs), .values = axis_name_dirs },
+  .fp_build_report = build_report,
+  .fp_init_report = init_report,
+};
+
 void ds3_init(void) __attribute__((constructor (101)));
 void ds3_init(void)
 {
-  controller_register_axis_names(C_TYPE_SIXAXIS, sizeof(axis_names)/sizeof(*axis_names), axis_names);
-  controller_register_axis_names(C_TYPE_DEFAULT, sizeof(axis_names)/sizeof(*axis_names), axis_names);
-  controller_register_axis_names(C_TYPE_GPP, sizeof(axis_names)/sizeof(*axis_names), axis_names);
-
-  controller_register_params(C_TYPE_SIXAXIS, &ds3_params);
-  controller_register_params(C_TYPE_DEFAULT, &ds3_params);
-  controller_register_params(C_TYPE_GPP, &ds3_params);
-
-  control_register_names(C_TYPE_SIXAXIS, ds3_axis_name);
-  control_register_names(C_TYPE_DEFAULT, ds3_axis_name);
-  control_register_names(C_TYPE_GPP, ds3_axis_name);
-
-  report_register_builder(C_TYPE_SIXAXIS, ds3_report_build);
-  report_register_builder(C_TYPE_DEFAULT, ds3_report_build);
-  report_register_builder(C_TYPE_GPP, ds3_report_build);
+  controller_register(C_TYPE_SIXAXIS, &controller);
 }

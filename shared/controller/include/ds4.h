@@ -6,7 +6,7 @@
 #ifndef DS4_H_
 #define DS4_H_
 
-#include <control.h>
+#include <defs.h>
 
 #define DS4_USB_INTERRUPT_ENDPOINT_IN 4
 #define DS4_USB_INTERRUPT_ENDPOINT_OUT 3
@@ -198,7 +198,5 @@ typedef struct GIMX_PACKED
   s_trackpad_packet packet4;
   unsigned char _unknown5[2];
 } s_report_ds4;
-
-void ds4_init_report(s_report_ds4* ds4);
 
 #endif /* DS4_H_ */

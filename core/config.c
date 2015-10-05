@@ -135,6 +135,10 @@ void cfg_intensity_init()
   int i, j, k;
   for (i = 0; i < MAX_CONTROLLERS; ++i)
   {
+    if(adapter_get(i)->ctype == C_TYPE_NONE)
+    {
+      continue;
+    }
     for (j = 0; j < MAX_CONFIGURATIONS; ++j)
     {
       for (k = 0; k < AXIS_MAX; ++k)
@@ -145,7 +149,7 @@ void cfg_intensity_init()
         intensity->device_down_id = -1;
         intensity->up_button = -1;
         intensity->down_button = -1;
-        intensity->max_value = controller_get_max_signed(adapter_get(i)->type, k);
+        intensity->max_value = controller_get_max_signed(adapter_get(i)->ctype, k);
         intensity->value = intensity->max_value;
         intensity->shape = E_SHAPE_RECTANGLE;
       }
@@ -547,12 +551,16 @@ void cfg_intensity_lookup(GE_Event* e)
 
   for(c_id=0; c_id<MAX_CONTROLLERS; ++c_id)
   {
+    if(adapter_get(c_id)->ctype == C_TYPE_NONE)
+    {
+      continue;
+    }
     for(a_id=0; a_id<AXIS_MAX; ++a_id)
     {
       if(update_intensity(device_type, device_id, button_id, c_id, a_id))
       {
         update_stick(c_id, a_id);
-        gprintf(_("controller %d configuration %d axis %s intensity: %.0f\n"), c_id, cfg_controllers[c_id].current->index, control_get_name(adapter_get(c_id)->type, a_id), axis_intensity[c_id][cfg_controllers[c_id].current->index][a_id].value);
+        gprintf(_("controller %d configuration %d axis %s intensity: %.0f\n"), c_id, cfg_controllers[c_id].current->index, controller_get_axis_name(adapter_get(c_id)->ctype, a_id), axis_intensity[c_id][cfg_controllers[c_id].current->index][a_id].value);
       }
     }
   }
@@ -858,7 +866,7 @@ static double mouse2axis(int device, s_adapter* controller, int which, double x,
   int new_state;
   int axis = axis_props->axis;
 
-  max_axis = controller_get_max_signed(controller->type, axis);
+  max_axis = controller_get_max_signed(controller->ctype, axis);
   if(axis_props->props == AXIS_PROP_CENTERED)
   {
     min_axis = -max_axis;
@@ -868,8 +876,8 @@ static double mouse2axis(int device, s_adapter* controller, int which, double x,
     min_axis = 0;
   }
 
-  multiplier *= controller_get_axis_scale(controller->type, axis);
-  dz *= controller_get_axis_scale(controller->type, axis);
+  multiplier *= controller_get_axis_scale(controller->ctype, axis);
+  dz *= controller_get_axis_scale(controller->ctype, axis);
 
   if(which == AXIS_X)
   {
@@ -1130,7 +1138,7 @@ void cfg_process_event(GE_Event* event)
           }
           controller->send_command = 1;
           axis = mapper->axis_props.axis;
-          if(axis >= 0)
+          if(axis >= 0 && axis < AXIS_MAX)
           {
             update_dbutton_axis(mapper, c_id, axis);
           }
@@ -1146,7 +1154,7 @@ void cfg_process_event(GE_Event* event)
           }
           controller->send_command = 1;
           axis = mapper->axis_props.axis;
-          if(axis >= 0)
+          if(axis >= 0 && axis < AXIS_MAX)
           {
             update_ubutton_axis(mapper, c_id, axis);
           }
@@ -1162,13 +1170,13 @@ void cfg_process_event(GE_Event* event)
           }
           controller->send_command = 1;
           axis = mapper->axis_props.axis;
-          if(axis >= 0)
+          if(axis >= 0 && axis < AXIS_MAX)
           {
-            multiplier = mapper->multiplier * controller_get_axis_scale(controller->type, axis);
+            multiplier = mapper->multiplier * controller_get_axis_scale(controller->ctype, axis);
             exp = mapper->exponent;
-            dead_zone = mapper->dead_zone * controller_get_axis_scale(controller->type, axis);
+            dead_zone = mapper->dead_zone * controller_get_axis_scale(controller->ctype, axis);
             value = event->jaxis.value;
-            max_axis = controller_get_max_signed(controller->type, axis);
+            max_axis = controller_get_max_signed(controller->ctype, axis);
             if(mapper->axis_props.props == AXIS_PROP_CENTERED)
             {
               min_axis = -max_axis;
@@ -1228,7 +1236,7 @@ void cfg_process_event(GE_Event* event)
           }
           controller->send_command = 1;
           axis = mapper->axis_props.axis;
-          if(axis >= 0)
+          if(axis >= 0 && axis < AXIS_MAX)
           {
             update_dbutton_axis(mapper, c_id, axis);
           }
@@ -1244,7 +1252,7 @@ void cfg_process_event(GE_Event* event)
           }
           controller->send_command = 1;
           axis = mapper->axis_props.axis;
-          if(axis >= 0)
+          if(axis >= 0 && axis < AXIS_MAX)
           {
             update_ubutton_axis(mapper, c_id, axis);
           }
@@ -1264,7 +1272,7 @@ void cfg_process_event(GE_Event* event)
           }
           controller->send_command = 1;
           axis = mapper->axis_props.axis;
-          if(axis >= 0)
+          if(axis >= 0 && axis < AXIS_MAX)
           {
             multiplier = mapper->multiplier;
             if(multiplier)
@@ -1299,7 +1307,7 @@ void cfg_process_event(GE_Event* event)
               /*
                * Axis to button.
                */
-              max_axis = controller_get_max_signed(controller->type, axis);
+              max_axis = controller_get_max_signed(controller->ctype, axis);
               threshold = mapper->threshold;
               if(threshold > 0 && fvalue > threshold)
               {
@@ -1327,7 +1335,7 @@ void cfg_process_event(GE_Event* event)
           }
           controller->send_command = 1;
           axis = mapper->axis_props.axis;
-          if(axis >= 0)
+          if(axis >= 0 && axis < AXIS_MAX)
           {
             update_dbutton_axis(mapper, c_id, axis);
           }
@@ -1350,7 +1358,7 @@ void cfg_process_event(GE_Event* event)
           }
           controller->send_command = 1;
           axis = mapper->axis_props.axis;
-          if(axis >= 0)
+          if(axis >= 0 && axis < AXIS_MAX)
           {
             update_ubutton_axis(mapper, c_id, axis);
           }

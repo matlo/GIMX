@@ -102,6 +102,13 @@ static void translation_test()
     return;
   }
 
+  e_controller_type ctype = adapter_get(cal_get_controller(current_mouse))->ctype;
+
+  if(ctype == C_TYPE_NONE)
+  {
+    return;
+  }
+
   if (dots <= 0)
   {
     dots = distance * dpi;
@@ -127,7 +134,7 @@ static void translation_test()
     direction *= -1;
     if (direction > 0)
     {
-      if ((dz - mul + mul * pow(step * 2 * gimx_params.frequency_scale, exp)) * controller_get_axis_scale(adapter_get(cal_get_controller(current_mouse))->type, rel_axis_2) > controller_get_mean_unsigned(adapter_get(0)->type, rel_axis_2))
+      if ((dz - mul + mul * pow(step * 2 * gimx_params.frequency_scale, exp)) * controller_get_axis_scale(ctype, rel_axis_2) > controller_get_mean_unsigned(ctype, rel_axis_2))
       {
         step = 1;
         distance = 0.1;
@@ -500,6 +507,13 @@ void cal_button(int which, int button)
   s_mouse_control* mc = cfg_get_mouse_control(current_mouse);
   s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
 
+  e_controller_type ctype = adapter_get(cal_get_controller(current_mouse))->ctype;
+
+  if(ctype == C_TYPE_NONE)
+  {
+    return;
+  }
+
   switch (button)
   {
     case GE_BTN_WHEELUP:
@@ -539,9 +553,9 @@ void cal_button(int which, int button)
           if (mcal->dzx)
           {
             *mcal->dzx += 1;
-            if (*mcal->dzx > controller_get_mean_unsigned(adapter_get(cal_get_controller(current_mouse))->type, rel_axis_rstick_x) / controller_get_axis_scale(adapter_get(cal_get_controller(current_mouse))->type, rel_axis_rstick_x))
+            if (*mcal->dzx > controller_get_mean_unsigned(ctype, rel_axis_rstick_x) / controller_get_axis_scale(ctype, rel_axis_rstick_x))
             {
-              *mcal->dzx = controller_get_mean_unsigned(adapter_get(cal_get_controller(current_mouse))->type, rel_axis_rstick_x) / controller_get_axis_scale(adapter_get(cal_get_controller(current_mouse))->type, rel_axis_rstick_x);
+              *mcal->dzx = controller_get_mean_unsigned(ctype, rel_axis_rstick_x) / controller_get_axis_scale(ctype, rel_axis_rstick_x);
             }
             mc->merge_x[mc->index] = 1;
             mc->merge_y[mc->index] = 0;
@@ -552,9 +566,9 @@ void cal_button(int which, int button)
           if (mcal->dzy)
           {
             *mcal->dzy += 1;
-            if (*mcal->dzy > controller_get_mean_unsigned(adapter_get(cal_get_controller(current_mouse))->type, rel_axis_rstick_x) / controller_get_axis_scale(adapter_get(cal_get_controller(current_mouse))->type, rel_axis_rstick_x))
+            if (*mcal->dzy > controller_get_mean_unsigned(ctype, rel_axis_rstick_x) / controller_get_axis_scale(ctype, rel_axis_rstick_x))
             {
-              *mcal->dzy = controller_get_mean_unsigned(adapter_get(cal_get_controller(current_mouse))->type, rel_axis_rstick_x) / controller_get_axis_scale(adapter_get(cal_get_controller(current_mouse))->type, rel_axis_rstick_x);
+              *mcal->dzy = controller_get_mean_unsigned(ctype, rel_axis_rstick_x) / controller_get_axis_scale(ctype, rel_axis_rstick_x);
             }
             mc->merge_x[mc->index] = 0;
             mc->merge_y[mc->index] = 1;

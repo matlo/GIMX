@@ -7,33 +7,37 @@
 #include <report.h>
 #include <controller2.h>
 #include <limits.h>
+#include <string.h>
 
-static const char *xone_axis_name[AXIS_MAX] =
+static s_axis axes[AXIS_MAX] =
 {
-  [xonea_lstick_x] = "lstick x",
-  [xonea_lstick_y] = "lstick y",
-  [xonea_rstick_x] = "rstick x",
-  [xonea_rstick_y] = "rstick y",
-  [xonea_view] = "view",
-  [xonea_menu] = "menu",
-  [xonea_guide] = "guide",
-  [xonea_up] = "up",
-  [xonea_right] = "right",
-  [xonea_down] = "down",
-  [xonea_left] = "left",
-  [xonea_Y] = "Y",
-  [xonea_B] = "B",
-  [xonea_A] = "A",
-  [xonea_X] = "X",
-  [xonea_LB] = "LB",
-  [xonea_RB] = "RB",
-  [xonea_LT] = "LT",
-  [xonea_RT] = "RT",
-  [xonea_LS] = "LS",
-  [xonea_RS] = "RS",
+  [xonea_lstick_x]  = { .name = "lstick x", .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
+  [xonea_lstick_y]  = { .name = "lstick y", .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
+  [xonea_rstick_x]  = { .name = "rstick x", .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
+  [xonea_rstick_y]  = { .name = "rstick y", .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
+  
+  [xonea_view]      = { .name = "view",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xonea_menu]      = { .name = "menu",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xonea_guide]     = { .name = "guide",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xonea_up]        = { .name = "up",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xonea_right]     = { .name = "right",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xonea_down]      = { .name = "down",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xonea_left]      = { .name = "left",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xonea_Y]         = { .name = "Y",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xonea_B]         = { .name = "B",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xonea_A]         = { .name = "A",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xonea_X]         = { .name = "X",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xonea_LB]        = { .name = "LB",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xonea_RB]        = { .name = "RB",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  
+  [xonea_LT]        = { .name = "LT",       .max_unsigned_value = MAX_AXIS_VALUE_10BITS },
+  [xonea_RT]        = { .name = "RT",       .max_unsigned_value = MAX_AXIS_VALUE_10BITS },
+  
+  [xonea_LS]        = { .name = "LS",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [xonea_RS]        = { .name = "RS",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
 };
 
-static s_axis_name_dir axis_names[] =
+static s_axis_name_dir axis_name_dirs[] =
 {
   {.name = "rstick x",     {.axis = xonea_rstick_x, .props = AXIS_PROP_CENTERED}},
   {.name = "rstick y",     {.axis = xonea_rstick_y, .props = AXIS_PROP_CENTERED}},
@@ -70,37 +74,27 @@ static s_axis_name_dir axis_names[] =
   {.name = "Y",            {.axis = xonea_Y,        .props = AXIS_PROP_TOGGLE}},
 };
 
-static int xone_max_unsigned_axis_value[AXIS_MAX] =
+static s_report_xone default_report =
 {
-  [xonea_lstick_x] = MAX_AXIS_VALUE_16BITS,
-  [xonea_lstick_y] = MAX_AXIS_VALUE_16BITS,
-  [xonea_rstick_x] = MAX_AXIS_VALUE_16BITS,
-  [xonea_rstick_y] = MAX_AXIS_VALUE_16BITS,
-  [xonea_view] = MAX_AXIS_VALUE_8BITS,
-  [xonea_menu] = MAX_AXIS_VALUE_8BITS,
-  [xonea_guide] = MAX_AXIS_VALUE_8BITS,
-  [xonea_up] = MAX_AXIS_VALUE_8BITS,
-  [xonea_right] = MAX_AXIS_VALUE_8BITS,
-  [xonea_down] = MAX_AXIS_VALUE_8BITS,
-  [xonea_left] = MAX_AXIS_VALUE_8BITS,
-  [xonea_Y] = MAX_AXIS_VALUE_8BITS,
-  [xonea_B] = MAX_AXIS_VALUE_8BITS,
-  [xonea_A] = MAX_AXIS_VALUE_8BITS,
-  [xonea_X] = MAX_AXIS_VALUE_8BITS,
-  [xonea_LB] = MAX_AXIS_VALUE_8BITS,
-  [xonea_RB] = MAX_AXIS_VALUE_8BITS,
-  [xonea_LT] = MAX_AXIS_VALUE_10BITS,
-  [xonea_RT] = MAX_AXIS_VALUE_10BITS,
-  [xonea_LS] = MAX_AXIS_VALUE_8BITS,
-  [xonea_RS] = MAX_AXIS_VALUE_8BITS,
+  .input = {
+    .type = XONE_USB_HID_IN_REPORT_ID,
+    .unknown = 0x00,
+    .counter = 0x00,
+    .size = 0x0e,
+    .buttons = 0x00,
+    .ltrigger = 0x0000,
+    .rtrigger = 0x0000,
+    .xaxis = 0x0000,
+    .yaxis = 0x0000,
+    .zaxis = 0x0000,
+    .taxis = 0x0000,
+  }
 };
 
-static s_controller_params xone_params =
+static void init_report(s_report * report)
 {
-    .min_refresh_period = 1000,
-    .default_refresh_period = 4000,
-    .max_unsigned_axis_value = xone_max_unsigned_axis_value
-};
+  memcpy(report, &default_report, sizeof(default_report));
+}
 
 static inline void axis2button(int axis[AXIS_MAX], e_xone_axis_index index,
     unsigned short* buttons, unsigned short button_mask)
@@ -116,7 +110,7 @@ static inline void axis2axis(int from, short * to)
   *to = clamp(SHRT_MIN, from, SHRT_MAX);
 }
 
-static unsigned int xone_report_build(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
+static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
   unsigned int index;
 
@@ -178,14 +172,19 @@ static unsigned int xone_report_build(int axis[AXIS_MAX], s_report_packet report
   return index;
 }
 
+static s_controller controller =
+{
+  .name = "XOnePad",
+  .refresh_period = { .min_value = 1000, .default_value = 4000 },
+  .axes = axes,
+  .axis_name_dirs = { .nb = sizeof(axis_name_dirs)/sizeof(*axis_name_dirs), .values = axis_name_dirs },
+  .fp_build_report = build_report,
+  .fp_init_report = init_report,
+};
+
 void xone_init(void) __attribute__((constructor (101)));
 void xone_init(void)
 {
-  controller_register_axis_names(C_TYPE_XONE_PAD, sizeof(axis_names)/sizeof(*axis_names), axis_names);
-
-  controller_register_params(C_TYPE_XONE_PAD, &xone_params);
-
-  control_register_names(C_TYPE_XONE_PAD, xone_axis_name);
-
-  report_register_builder(C_TYPE_XONE_PAD, xone_report_build);
+  controller_register(C_TYPE_XONE_PAD, &controller);
 }
+

@@ -6,7 +6,7 @@
 #ifndef XONE_H_
 #define XONE_H_
 
-#include <control.h>
+#include <defs.h>
 
 #define XONE_VENDOR 0x045e
 #define XONE_PRODUCT 0x02d1

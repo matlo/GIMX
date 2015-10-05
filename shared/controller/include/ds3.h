@@ -6,7 +6,7 @@
 #ifndef DS3_H_
 #define DS3_H_
 
-#include <control.h>
+#include <defs.h>
 
 typedef enum
 {

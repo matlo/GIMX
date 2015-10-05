@@ -8,39 +8,41 @@
 #include <controller2.h>
 #include <string.h>
 
-static const char *ds4_axis_name[AXIS_MAX] =
+static s_axis axes[AXIS_MAX] =
 {
-  [ds4a_lstick_x] = "lstick x",
-  [ds4a_lstick_y] = "lstick y",
-  [ds4a_rstick_x] = "rstick x",
-  [ds4a_rstick_y] = "rstick y",
-  [ds4a_finger1_x] = "finger1 x",
-  [ds4a_finger1_y] = "finger1 y",
-  [ds4a_finger2_x] = "finger2 x",
-  [ds4a_finger2_y] = "finger2 y",
-  [ds4a_share] = "share",
-  [ds4a_options] = "options",
-  [ds4a_up] = "up",
-  [ds4a_right] = "right",
-  [ds4a_down] = "down",
-  [ds4a_left] = "left",
-  [ds4a_triangle] = "triangle",
-  [ds4a_circle] = "circle",
-  [ds4a_cross] = "cross",
-  [ds4a_square] = "square",
-  [ds4a_l1] = "l1",
-  [ds4a_r1] = "r1",
-  [ds4a_l2] = "l2",
-  [ds4a_r2] = "r2",
-  [ds4a_l3] = "l3",
-  [ds4a_r3] = "r3",
-  [ds4a_ps] = "PS",
-  [ds4a_touchpad] = "touchpad",
-  [ds4a_finger1] = "finger1",
-  [ds4a_finger2] = "finger2",
+  [ds4a_lstick_x] =  { .name = "lstick x",  .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_lstick_y] =  { .name = "lstick y",  .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_rstick_x] =  { .name = "rstick x",  .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_rstick_y] =  { .name = "rstick y",  .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  
+  [ds4a_finger1_x] = { .name = "finger1 x", .max_unsigned_value = DS4_TRACKPAD_MAX_X },
+  [ds4a_finger1_y] = { .name = "finger1 y", .max_unsigned_value = DS4_TRACKPAD_MAX_Y },
+  [ds4a_finger2_x] = { .name = "finger2 x", .max_unsigned_value = DS4_TRACKPAD_MAX_X },
+  [ds4a_finger2_y] = { .name = "finger2 y", .max_unsigned_value = DS4_TRACKPAD_MAX_Y },
+  
+  [ds4a_share] =     { .name = "share",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_options] =   { .name = "options",   .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_up] =        { .name = "up",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_right] =     { .name = "right",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_down] =      { .name = "down",      .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_left] =      { .name = "left",      .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_triangle] =  { .name = "triangle",  .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_circle] =    { .name = "circle",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_cross] =     { .name = "cross",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_square] =    { .name = "square",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_l1] =        { .name = "l1",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_r1] =        { .name = "r1",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_l2] =        { .name = "l2",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_r2] =        { .name = "r2",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_l3] =        { .name = "l3",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_r3] =        { .name = "r3",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_ps] =        { .name = "PS",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_touchpad] =  { .name = "touchpad",  .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_finger1] =   { .name = "finger1",   .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [ds4a_finger2] =   { .name = "finger2",   .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
 };
 
-static s_axis_name_dir axis_names[] =
+static s_axis_name_dir axis_name_dirs[] =
 {
   {.name = "rstick x",     {.axis = ds4a_rstick_x, .props = AXIS_PROP_CENTERED}},
   {.name = "rstick y",     {.axis = ds4a_rstick_y, .props = AXIS_PROP_CENTERED}},
@@ -95,46 +97,7 @@ static s_axis_name_dir axis_names[] =
   {.name = "finger2",      {.axis = ds4a_finger2,  .props = AXIS_PROP_TOGGLE}},
 };
 
-static int ds4_max_unsigned_axis_value[AXIS_MAX] =
-{
-  [ds4a_lstick_x] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_lstick_y] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_rstick_x] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_rstick_y] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_finger1_x] = DS4_TRACKPAD_MAX_X,
-  [ds4a_finger1_y] = DS4_TRACKPAD_MAX_Y,
-  [ds4a_finger2_x] = DS4_TRACKPAD_MAX_X,
-  [ds4a_finger2_y] = DS4_TRACKPAD_MAX_Y,
-  [ds4a_up] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_right] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_down] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_left] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_square] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_cross] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_circle] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_triangle] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_l1] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_r1] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_l2] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_r2] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_share] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_options] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_l3] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_r3] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_ps] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_touchpad] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_finger1] = MAX_AXIS_VALUE_8BITS,
-  [ds4a_finger2] = MAX_AXIS_VALUE_8BITS,
-};
-
-static s_controller_params ds4_params =
-{
-    .min_refresh_period = 1000,
-    .default_refresh_period = 10000,
-    .max_unsigned_axis_value = ds4_max_unsigned_axis_value
-};
-
-static s_report_ds4 init_report_ds4 =
+static s_report_ds4 default_report =
 {
   .report_id = 0x00,
   .X = 0x80,
@@ -212,9 +175,9 @@ static s_report_ds4 init_report_ds4 =
   ._unknown5 = {0x00, 0x00},
 };
 
-void ds4_init_report(s_report_ds4* ds4)
+static void init_report(s_report * report)
 {
-  memcpy(ds4, &init_report_ds4, sizeof(s_report_ds4));
+  memcpy(report, &default_report, sizeof(default_report));
 }
 
 /*
@@ -264,16 +227,9 @@ static inline void update_finger(s_trackpad_finger* finger, int presence, int* a
     //finger absent
     finger->id |= 0x80;
   }
-
-  *axis_x = 0;
-  *axis_y = 0;
 }
 
-/*
- * Work in progress...
- * Do not assume the code in the following function is right!
- */
-static unsigned int ds4_report_build(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
+static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
   unsigned int index = 0;
   report[index].length = sizeof(s_report_ds4);
@@ -410,14 +366,19 @@ static unsigned int ds4_report_build(int axis[AXIS_MAX], s_report_packet report[
   return index;
 }
 
+static s_controller controller =
+{
+  .name = "DS4",
+  .refresh_period = { .min_value = 1000, .default_value = 10000 },
+  .axes = axes,
+  .axis_name_dirs = { .nb = sizeof(axis_name_dirs)/sizeof(*axis_name_dirs), .values = axis_name_dirs },
+  .fp_build_report = build_report,
+  .fp_init_report = init_report,
+};
+
 void ds4_init(void) __attribute__((constructor (101)));
 void ds4_init(void)
 {
-  controller_register_axis_names(C_TYPE_DS4, sizeof(axis_names)/sizeof(*axis_names), axis_names);
-
-  controller_register_params(C_TYPE_DS4, &ds4_params);
-
-  control_register_names(C_TYPE_DS4, ds4_axis_name);
-
-  report_register_builder(C_TYPE_DS4, ds4_report_build);
+  controller_register(C_TYPE_DS4, &controller);
 }
+

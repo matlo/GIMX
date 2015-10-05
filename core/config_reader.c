@@ -763,7 +763,7 @@ static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity, int
 
     if(ret != -1)
     {
-      intensity->dead_zone = dz * controller_get_axis_scale(adapter_get(entry.controller_id)->type, axis);
+      intensity->dead_zone = dz * controller_get_axis_scale(adapter_get(entry.controller_id)->ctype, axis);
 
       shape = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_SHAPE);
       if(shape)
@@ -828,7 +828,7 @@ static int ProcessIntensityListElement(xmlNode * a_node)
         }
         else
         {
-          axis1 = control_get_index(control);
+          axis1 = controller_get_axis_index(control);
         }
         if(axis1 >= 0)
         {

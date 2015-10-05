@@ -10,22 +10,13 @@
 #include <string.h>
 #include <limits.h>
 
-static inline void axis2event(int (*callback)(GE_Event*), GE_Event* event, unsigned char axis[2],
-    unsigned char paxis[2], char invert, uint8_t axis_id)
+static inline void axis2event(int (*callback)(GE_Event*), GE_Event* event, short axis,
+    short paxis, char invert, uint8_t axis_id)
 {
-  signed short axisValue;
-  signed short prevAxisValue;
-
-  axisValue = (axis[1] << 8) | axis[0];
-  prevAxisValue = (paxis[1] << 8) | paxis[0];
-  if (axisValue != prevAxisValue)
+  if (axis != paxis)
   {
-    if(invert)
-    {
-      axisValue = ~axisValue;
-    }
     event->jaxis.axis = axis_id;
-    event->jaxis.value = axisValue;
+    event->jaxis.value = invert ? ~axis : axis;
     callback(event);
   }
 }

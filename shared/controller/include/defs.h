@@ -12,6 +12,16 @@
 #define GIMX_PACKED __attribute__((packed))
 #endif
 
+#define MAX_AXIS_VALUE_8BITS 255
+#define MAX_AXIS_VALUE_10BITS 1023
+#define MAX_AXIS_VALUE_14BITS 16383
+#define MAX_AXIS_VALUE_16BITS 65535
+
+#define CENTER_AXIS_VALUE_8BITS (MAX_AXIS_VALUE_8BITS/2+1)
+#define CENTER_AXIS_VALUE_10BITS (MAX_AXIS_VALUE_10BITS/2+1)
+#define CENTER_AXIS_VALUE_14BITS (MAX_AXIS_VALUE_14BITS/2+1)
+#define CENTER_AXIS_VALUE_16BITS (MAX_AXIS_VALUE_16BITS/2+1)
+
 typedef enum
 {
   C_TYPE_JOYSTICK = 0,
@@ -25,9 +35,8 @@ typedef enum
   C_TYPE_G27_PS3,
   C_TYPE_G29_PS4,
   // <- add new types here
-  C_TYPE_GPP,
-  C_TYPE_DEFAULT,
-  C_TYPE_MAX
+  C_TYPE_NONE,
+  C_TYPE_MAX = C_TYPE_NONE,
 } e_controller_type;
 
 typedef struct

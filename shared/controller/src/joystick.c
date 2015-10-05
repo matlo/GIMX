@@ -6,32 +6,34 @@
 #include <joystick.h>
 #include <report.h>
 #include <controller2.h>
+#include <string.h>
 
-static const char *joystick_axis_name[AXIS_MAX] =
+static s_axis axes[AXIS_MAX] =
 {
-  [jsa_lstick_x] = "lstick x",
-  [jsa_lstick_y] = "lstick y",
-  [jsa_rstick_x] = "rstick x",
-  [jsa_rstick_y] = "rstick y",
-  [jsa_B8] = "select",
-  [jsa_B9] = "start",
-  [jsa_up] = "up",
-  [jsa_right] = "right",
-  [jsa_down] = "down",
-  [jsa_left] = "left",
-  [jsa_B3] = "triangle",
-  [jsa_B2] = "circle",
-  [jsa_B1] = "cross",
-  [jsa_B0] = "square",
-  [jsa_B4] = "l1",
-  [jsa_B5] = "r1",
-  [jsa_B6] = "l2",
-  [jsa_B7] = "r2",
-  [jsa_B10] = "l3",
-  [jsa_B11] = "r3",
+  [jsa_lstick_x]  = { .name = "lstick x", .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
+  [jsa_lstick_y]  = { .name = "lstick y", .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
+  [jsa_rstick_x]  = { .name = "rstick x", .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
+  [jsa_rstick_y]  = { .name = "rstick y", .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
+  
+  [jsa_B8]        = { .name = "select",   .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [jsa_B9]        = { .name = "start",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [jsa_up]        = { .name = "up",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [jsa_right]     = { .name = "right",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [jsa_down]      = { .name = "down",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [jsa_left]      = { .name = "left",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [jsa_B3]        = { .name = "triangle", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [jsa_B2]        = { .name = "circle",   .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [jsa_B1]        = { .name = "cross",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [jsa_B0]        = { .name = "square",   .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [jsa_B4]        = { .name = "l1",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [jsa_B5]        = { .name = "r1",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [jsa_B6]        = { .name = "l2",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [jsa_B7]        = { .name = "r2",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [jsa_B10]       = { .name = "l3",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [jsa_B11]       = { .name = "r3",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
 };
 
-static s_axis_name_dir axis_names[] =
+static s_axis_name_dir axis_name_dirs[] =
 {
   {.name = "rstick x",     {.axis = jsa_rstick_x, .props = AXIS_PROP_CENTERED}},
   {.name = "rstick y",     {.axis = jsa_rstick_y, .props = AXIS_PROP_CENTERED}},
@@ -66,39 +68,22 @@ static s_axis_name_dir axis_names[] =
   {.name = "triangle",     {.axis = jsa_B3,       .props = AXIS_PROP_TOGGLE}},
 };
 
-static int joystick_max_unsigned_axis_value[AXIS_MAX] =
+static s_report_joystick default_report =
 {
-  [jsa_lstick_x] = MAX_AXIS_VALUE_16BITS,
-  [jsa_lstick_y] = MAX_AXIS_VALUE_16BITS,
-  [jsa_rstick_x] = MAX_AXIS_VALUE_16BITS,
-  [jsa_rstick_y] = MAX_AXIS_VALUE_16BITS,
-  [jsa_up] = MAX_AXIS_VALUE_8BITS,
-  [jsa_right] = MAX_AXIS_VALUE_8BITS,
-  [jsa_down] = MAX_AXIS_VALUE_8BITS,
-  [jsa_left] = MAX_AXIS_VALUE_8BITS,
-  [jsa_B0] = MAX_AXIS_VALUE_8BITS,
-  [jsa_B1] = MAX_AXIS_VALUE_8BITS,
-  [jsa_B2] = MAX_AXIS_VALUE_8BITS,
-  [jsa_B3] = MAX_AXIS_VALUE_8BITS,
-  [jsa_B4] = MAX_AXIS_VALUE_8BITS,
-  [jsa_B5] = MAX_AXIS_VALUE_8BITS,
-  [jsa_B6] = MAX_AXIS_VALUE_8BITS,
-  [jsa_B7] = MAX_AXIS_VALUE_8BITS,
-  [jsa_B8] = MAX_AXIS_VALUE_8BITS,
-  [jsa_B9] = MAX_AXIS_VALUE_8BITS,
-  [jsa_B10] = MAX_AXIS_VALUE_8BITS,
-  [jsa_B11] = MAX_AXIS_VALUE_8BITS,
-  [jsa_B12] = MAX_AXIS_VALUE_8BITS,
+  .X = CENTER_AXIS_VALUE_16BITS,
+  .Y = CENTER_AXIS_VALUE_16BITS,
+  .Z = CENTER_AXIS_VALUE_16BITS,
+  .Rz = CENTER_AXIS_VALUE_16BITS,
+  .Hat = 0x0008,
+  .Bt = 0x0000,
 };
 
-static s_controller_params joystick_params =
+static void init_report(s_report * report)
 {
-    .min_refresh_period = 1000,
-    .default_refresh_period = 4000,
-    .max_unsigned_axis_value = joystick_max_unsigned_axis_value
-};
+  memcpy(report, &default_report, sizeof(default_report));
+}
 
-static unsigned int joystick_report_build(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
+static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
   unsigned int index = 0;
   report[index].length = sizeof(s_report_joystick);
@@ -213,14 +198,19 @@ static unsigned int joystick_report_build(int axis[AXIS_MAX], s_report_packet re
   return index;
 }
 
+static s_controller controller =
+{
+  .name = "joystick",
+  .refresh_period = { .min_value = 1000, .default_value = 4000 },
+  .axes = axes,
+  .axis_name_dirs = { .nb = sizeof(axis_name_dirs)/sizeof(*axis_name_dirs), .values = axis_name_dirs },
+  .fp_build_report = build_report,
+  .fp_init_report = init_report,
+};
+
 void joystick_init(void) __attribute__((constructor (101)));
 void joystick_init(void)
 {
-  controller_register_axis_names(C_TYPE_JOYSTICK, sizeof(axis_names)/sizeof(*axis_names), axis_names);
-
-  controller_register_params(C_TYPE_JOYSTICK, &joystick_params);
-
-  control_register_names(C_TYPE_JOYSTICK, joystick_axis_name);
-
-  report_register_builder(C_TYPE_JOYSTICK, joystick_report_build);
+  controller_register(C_TYPE_JOYSTICK, &controller);
 }
+

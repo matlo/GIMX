@@ -6,7 +6,7 @@
 #ifndef G29_PS4_H_
 #define G29_PS4_H_
 
-#include <control.h>
+#include <defs.h>
 
 typedef enum
 {
@@ -61,7 +61,5 @@ typedef struct GIMX_PACKED
   unsigned short unknown3; //0xFFFF
   unsigned char unused1[10];
 } s_report_g29Ps4;
-
-void g29Ps4_init_report(s_report_g29Ps4* g29Ps4);
 
 #endif /* G29_PS4_H_ */

@@ -9,61 +9,40 @@
 #include <string.h>
 #include <unistd.h>
 
-static const char* controller_names[C_TYPE_MAX] =
-{
-  [C_TYPE_JOYSTICK] = "joystick",
-  [C_TYPE_360_PAD]  = "360pad",
-  [C_TYPE_SIXAXIS]  = "Sixaxis",
-  [C_TYPE_PS2_PAD]  = "PS2pad",
-  [C_TYPE_XBOX_PAD] = "XboxPad",
-  [C_TYPE_DS4]      = "DS4",
-  [C_TYPE_XONE_PAD] = "XOnePad",
-  [C_TYPE_T300RS_PS4] = "T300RS PS4",
-  [C_TYPE_G27_PS3] = "G27 PS3",
-  [C_TYPE_G29_PS4] = "G29 PS4",
-  [C_TYPE_GPP]      = "GPP",
-  [C_TYPE_DEFAULT]  = "none",
-};
+s_controller * controllers[C_TYPE_MAX] = {};
 
-const char* controller_get_name(e_controller_type type)
+inline int clamp(int min, int val, int max)
+{
+  if (val < min)
+    return min;
+  if (val > max)
+    return max;
+  return val;
+}
+
+const char * controller_get_name(e_controller_type type)
 {
   if(type < C_TYPE_MAX)
   {
-    return controller_names[type];
+    return controllers[type]->name;
   }
-  return controller_names[C_TYPE_SIXAXIS];
+  return "none";
 }
 
 e_controller_type controller_get_type(const char* name)
 {
-  int i;
-  for(i=0; i<C_TYPE_MAX; ++i) {
-    if(!strcmp(controller_names[i], name)) {
-      return i;
+  int type;
+  for(type = 0; type < C_TYPE_MAX; ++type) {
+    if(!strcmp(controllers[type]->name, name)) {
+      return type;
     }
   }
   return C_TYPE_SIXAXIS;
 }
 
-static s_controller_params* controller_params[C_TYPE_MAX] = {};
-
-void controller_register_params(e_controller_type type, s_controller_params* params)
+void controller_register(e_controller_type type, s_controller * controller)
 {
-  controller_params[type] = params;
-}
-
-typedef struct
-{
-  int nb;
-  s_axis_name_dir* axis_names;
-} s_entry;
-
-static s_entry controller_axis_names[C_TYPE_MAX] = {};
-
-void controller_register_axis_names(e_controller_type type, int nb, s_axis_name_dir* axis_names)
-{
-  controller_axis_names[type].nb = nb;
-  controller_axis_names[type].axis_names = axis_names;
+  controllers[type] = controller;
 }
 
 void controller_init(void) __attribute__((constructor (102)));
@@ -72,37 +51,44 @@ void controller_init(void)
   int type;
   for(type=0; type<C_TYPE_MAX; ++type)
   {
-    if(!controller_params[type])
+    if(controllers[type] == NULL)
     {
-      fprintf(stderr, "Controller '%s' is missing parameters!\n", controller_names[type]);
+      fprintf(stderr, "Controller '%s' is missing parameters!\n", controllers[type]->name);
       exit(-1);
     }
-    if(!controller_axis_names[type].axis_names)
+    if(!controllers[type]->axis_name_dirs.values)
     {
-      fprintf(stderr, "Controller '%s' is missing axis names!\n", controller_names[type]);
+      fprintf(stderr, "Controller '%s' is missing axis names!\n", controllers[type]->name);
       exit(-1);
     }
   }
 }
 
-void controller_gpp_set_params(e_controller_type type)
-{
-  controller_params[C_TYPE_GPP] = controller_params[type];
-}
-
 int controller_get_min_refresh_period(e_controller_type type)
 {
-  return controller_params[type]->min_refresh_period;
+  if(type < C_TYPE_MAX)
+  {
+    return controllers[type]->refresh_period.min_value;
+  }
+  return DEFAULT_REFRESH_PERIOD;
 }
 
 int controller_get_default_refresh_period(e_controller_type type)
 {
-  return controller_params[type]->default_refresh_period;
+  if(type < C_TYPE_MAX)
+  {
+    return controllers[type]->refresh_period.default_value;
+  }
+  return DEFAULT_REFRESH_PERIOD;
 }
 
 inline int controller_get_max_unsigned(e_controller_type type, int axis)
 {
-  return controller_params[type]->max_unsigned_axis_value[axis];
+  if(type < C_TYPE_MAX && axis < AXIS_MAX)
+  {
+    return controllers[type]->axes[axis].max_unsigned_value;
+  }
+  return DEFAULT_MAX_AXIS_VALUE;
 }
 
 inline int controller_get_max_signed(e_controller_type type, int axis)
@@ -133,7 +119,7 @@ inline double controller_get_axis_scale(e_controller_type type, int axis)
   return (double) controller_get_max_unsigned(type, axis) / DEFAULT_MAX_AXIS_VALUE;
 }
 
-static const s_axis_name_dir axis_names[] =
+static const s_axis_name_dir name_dirs[] =
 {
     {.name = "rel_axis_0",   {.axis = rel_axis_0,  .props = AXIS_PROP_CENTERED}},
     {.name = "rel_axis_1",   {.axis = rel_axis_1,  .props = AXIS_PROP_CENTERED}},
@@ -268,11 +254,11 @@ s_axis_props controller_get_axis_index_from_name(const char* name)
 {
   int i;
   s_axis_props none = {-1, AXIS_PROP_NONE};
-  for(i=0; i<sizeof(axis_names)/sizeof(*axis_names); ++i)
+  for(i=0; i<sizeof(name_dirs)/sizeof(*name_dirs); ++i)
   {
-    if(!strcmp(axis_names[i].name, name))
+    if(!strcmp(name_dirs[i].name, name))
     {
-      return axis_names[i].axis_props;
+      return name_dirs[i].axis_props;
     }
   }
   return none;
@@ -281,12 +267,12 @@ s_axis_props controller_get_axis_index_from_name(const char* name)
 const char* controller_get_generic_axis_name_from_index(s_axis_props axis_props)
 {
   int i;
-  for(i=0; i<sizeof(axis_names)/sizeof(*axis_names); ++i)
+  for(i=0; i<sizeof(name_dirs)/sizeof(*name_dirs); ++i)
   {
-    if(axis_names[i].axis_props.axis == axis_props.axis
-        && axis_names[i].axis_props.props == axis_props.props)
+    if(name_dirs[i].axis_props.axis == axis_props.axis
+        && name_dirs[i].axis_props.props == axis_props.props)
     {
-      return axis_names[i].name;
+      return name_dirs[i].name;
     }
   }
   return "";
@@ -294,13 +280,16 @@ const char* controller_get_generic_axis_name_from_index(s_axis_props axis_props)
 
 const char* controller_get_specific_axis_name_from_index(e_controller_type type, s_axis_props axis_props)
 {
-  int i;
-  for(i=0; i<controller_axis_names[type].nb; ++i)
+  if(type < C_TYPE_MAX)
   {
-    if(controller_axis_names[type].axis_names[i].axis_props.axis == axis_props.axis
-        && controller_axis_names[type].axis_names[i].axis_props.props == axis_props.props)
+    int i;
+    for(i=0; i<controllers[type]->axis_name_dirs.nb; ++i)
     {
-      return controller_axis_names[type].axis_names[i].name;
+      if(controllers[type]->axis_name_dirs.values[i].axis_props.axis == axis_props.axis
+          && controllers[type]->axis_name_dirs.values[i].axis_props.props == axis_props.props)
+      {
+        return controllers[type]->axis_name_dirs.values[i].name;
+      }
     }
   }
   return "";
@@ -308,13 +297,77 @@ const char* controller_get_specific_axis_name_from_index(e_controller_type type,
 
 s_axis_props controller_get_axis_index_from_specific_name(e_controller_type type, const char* name)
 {
-  int i;
-  for(i=0; i<controller_axis_names[type].nb; ++i)
+  if(type < C_TYPE_MAX)
   {
-    if(!strcmp(controller_axis_names[type].axis_names[i].name, name))
+    int i;
+    for(i=0; i<controllers[type]->axis_name_dirs.nb; ++i)
     {
-      return controller_axis_names[type].axis_names[i].axis_props;
+      if(!strcmp(controllers[type]->axis_name_dirs.values[i].name, name))
+      {
+        return controllers[type]->axis_name_dirs.values[i].axis_props;
+      }
     }
   }
   return controller_get_axis_index_from_name(name);
+}
+
+unsigned int controller_build_report(e_controller_type type, int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
+{
+  if(type < C_TYPE_MAX)
+  {
+    return controllers[type]->fp_build_report(axis, report);
+  }
+  return 0;
+}
+
+void controller_init_report(e_controller_type type, s_report * report)
+{
+  if(type < C_TYPE_MAX)
+  {
+    controllers[type]->fp_init_report(report);
+  }
+}
+
+const char* controller_get_axis_name(e_controller_type type, e_controller_axis_index index)
+{
+  return controllers[type]->axes[index].name;
+}
+
+int controller_get_axis_index(const char* name)
+{
+  unsigned int axis;
+
+  if(sscanf(name, "rel_axis_%u", &axis) == 1)
+  {
+    if(axis > rel_axis_max)
+    {
+      return -1;
+    }
+  }
+  else if(sscanf(name, "abs_axis_%u", &axis) == 1)
+  {
+    axis += abs_axis_0;
+
+    if(axis > abs_axis_max)
+    {
+      return -1;
+    }
+  }
+  else
+  {
+    //handle old configs
+    int i;
+    for(i=0; i<AXIS_MAX; ++i)
+    {
+      if(controllers[C_TYPE_SIXAXIS]->axes[i].name)
+      {
+        if(!strcmp(controllers[C_TYPE_SIXAXIS]->axes[i].name, name))
+        {
+          return i;
+        }
+      }
+    }
+  }
+
+  return axis;
 }

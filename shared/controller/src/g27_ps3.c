@@ -38,42 +38,43 @@
 #define G27_L4_MASK         0x0001
 #define G27_L5_MASK         0x0002
 
-static const char *g27Ps3_axis_name[AXIS_MAX] =
+static s_axis axes[AXIS_MAX] =
 {
-  [g27Ps3a_wheel] = "wheel",
-  [g27Ps3a_gasPedal] = "gas",
-  [g27Ps3a_brakePedal] = "brake",
-  [g27Ps3a_clutchPedal] = "clutch",
-  [g27Ps3a_select] = "select",
-  [g27Ps3a_start] = "start",
-  [g27Ps3a_up] = "up",
-  [g27Ps3a_right] = "right",
-  [g27Ps3a_down] = "down",
-  [g27Ps3a_left] = "left",
-  [g27Ps3a_triangle] = "triangle",
-  [g27Ps3a_circle] = "circle",
-  [g27Ps3a_cross] = "cross",
-  [g27Ps3a_square] = "square",
-  [g27Ps3a_l1] = "l1",
-  [g27Ps3a_r1] = "r1",
-  [g27Ps3a_l2] = "l2",
-  [g27Ps3a_r2] = "r2",
-  [g27Ps3a_l3] = "l3",
-  [g27Ps3a_r3] = "r3",
-  [g27Ps3a_l4] = "l4",
-  [g27Ps3a_r4] = "r4",
-  [g27Ps3a_l5] = "l5",
-  [g27Ps3a_r5] = "r5",
-  [g27Ps3a_gearShifter1] = "gear shifter 1",
-  [g27Ps3a_gearShifter2] = "gear shifter 2",
-  [g27Ps3a_gearShifter3] = "gear shifter 3",
-  [g27Ps3a_gearShifter4] = "gear shifter 4",
-  [g27Ps3a_gearShifter5] = "gear shifter 5",
-  [g27Ps3a_gearShifter6] = "gear shifter 6",
-  //[g27Ps3a_gearShifterR] = "gear shifter R",
+  [g27Ps3a_wheel]        = { .name = "wheel",          .max_unsigned_value = MAX_AXIS_VALUE_14BITS },
+  
+  [g27Ps3a_gasPedal]     = { .name = "gas",            .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_brakePedal]   = { .name = "brake",          .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_clutchPedal]  = { .name = "clutch",         .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_select]       = { .name = "select",         .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_start]        = { .name = "start",          .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_up]           = { .name = "up",             .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_right]        = { .name = "right",          .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_down]         = { .name = "down",           .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_left]         = { .name = "left",           .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_triangle]     = { .name = "triangle",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_circle]       = { .name = "circle",         .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_cross]        = { .name = "cross",          .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_square]       = { .name = "square",         .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_l1]           = { .name = "l1",             .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_r1]           = { .name = "r1",             .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_l2]           = { .name = "l2",             .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_r2]           = { .name = "r2",             .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_l3]           = { .name = "l3",             .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_r3]           = { .name = "r3",             .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_l4]           = { .name = "l4",             .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_r4]           = { .name = "r4",             .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_l5]           = { .name = "l5",             .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_r5]           = { .name = "r5",             .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_gearShifter1] = { .name = "gear shifter 1", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_gearShifter2] = { .name = "gear shifter 2", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_gearShifter3] = { .name = "gear shifter 3", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_gearShifter4] = { .name = "gear shifter 4", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_gearShifter5] = { .name = "gear shifter 5", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_gearShifter6] = { .name = "gear shifter 6", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  //[g27Ps3a_gearShifterR] = { .name = "gear shifter R", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
 };
 
-static s_axis_name_dir axis_names[] =
+static s_axis_name_dir axis_name_dirs[] =
 {
   {.name = "wheel",        {.axis = g27Ps3a_wheel,      .props = AXIS_PROP_CENTERED}},
 
@@ -114,45 +115,7 @@ static s_axis_name_dir axis_names[] =
   //{.name = "gear shifter R",    {.axis = g27Ps3a_gearShifterR,   .props = AXIS_PROP_TOGGLE}},
 };
 
-static int g27Ps3_max_unsigned_axis_value[AXIS_MAX] =
-{
-  [g27Ps3a_wheel] = MAX_AXIS_VALUE_14BITS,
-
-  [g27Ps3a_gasPedal] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_brakePedal] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_clutchPedal] = MAX_AXIS_VALUE_8BITS,
-
-  [g27Ps3a_up] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_right] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_down] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_left] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_square] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_cross] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_circle] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_triangle] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_l1] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_r1] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_l2] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_r2] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_select] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_start] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_l3] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_r3] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_ps] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_l4] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_r4] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_l5] = MAX_AXIS_VALUE_8BITS,
-  [g27Ps3a_r5] = MAX_AXIS_VALUE_8BITS,
-};
-
-static s_controller_params g27Ps3_params =
-{
-    .min_refresh_period = 1000,
-    .default_refresh_period = 10000,
-    .max_unsigned_axis_value = g27Ps3_max_unsigned_axis_value
-};
-
-static s_report_g27Ps3 init_report_g27Ps3 =
+static s_report_g27Ps3 default_report =
 {
   .hatAndButtons = 0x08,
   .buttons = 0x0000,
@@ -163,16 +126,16 @@ static s_report_g27Ps3 init_report_g27Ps3 =
   .unknown = { 0x7B, 0x8A, 0x18 },
 };
 
-void g27Ps3_init_report(s_report_g27Ps3* g27Ps3)
+static void init_report(s_report * report)
 {
-  memcpy(g27Ps3, &init_report_g27Ps3, sizeof(s_report_g27Ps3));
+  memcpy(report, &default_report, sizeof(default_report));
 }
 
 /*
  * Work in progress...
  * Do not assume the code in the following function is right!
  */
-static unsigned int g27Ps3_report_build(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
+static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
   unsigned int index = 0;
   report[index].length = sizeof(s_report_g27Ps3);
@@ -322,14 +285,19 @@ static unsigned int g27Ps3_report_build(int axis[AXIS_MAX], s_report_packet repo
   return index;
 }
 
+static s_controller controller =
+{
+  .name = "G27 PS3",
+  .refresh_period = { .min_value = 1000, .default_value = 10000 },
+  .axes = axes,
+  .axis_name_dirs = { .nb = sizeof(axis_name_dirs)/sizeof(*axis_name_dirs), .values = axis_name_dirs },
+  .fp_build_report = build_report,
+  .fp_init_report = init_report,
+};
+
 void g27Ps3_init(void) __attribute__((constructor (101)));
 void g27Ps3_init(void)
 {
-  controller_register_axis_names(C_TYPE_G27_PS3, sizeof(axis_names)/sizeof(*axis_names), axis_names);
-
-  controller_register_params(C_TYPE_G27_PS3, &g27Ps3_params);
-
-  control_register_names(C_TYPE_G27_PS3, g27Ps3_axis_name);
-
-  report_register_builder(C_TYPE_G27_PS3, g27Ps3_report_build);
+  controller_register(C_TYPE_G27_PS3, &controller);
 }
+

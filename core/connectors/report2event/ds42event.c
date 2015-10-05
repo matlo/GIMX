@@ -192,7 +192,7 @@ void ds42event(int adapter_id, s_report* current, s_report* previous,
 
   s_adapter* adapter = adapter_get(adapter_id);
 
-  if(adapter->type == C_TYPE_DS4)
+  if(adapter->ctype == C_TYPE_DS4)
   {
     // battery level
     adapter->report[0].value.ds4.battery_level = ds4_current->battery_level;
@@ -253,12 +253,12 @@ void ds42event(int adapter_id, s_report* current, s_report* previous,
       adapter->report[0].value.ds4._time = ds4_current->_time;
       adapter->report[0].value.ds4.motion_acc = ds4_current->motion_acc;
       adapter->report[0].value.ds4.motion_gyro = ds4_current->motion_gyro;
+    }
 
-      // remember to send a report if the touchpad status changed
-      if(send_command)
-      {
-        adapter->send_command = 1;
-      }
+    // remember to send a report if the touchpad status changed
+    if(send_command)
+    {
+      adapter->send_command = 1;
     }
   }
 }

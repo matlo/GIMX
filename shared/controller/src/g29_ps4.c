@@ -33,32 +33,33 @@
 #define G29_GEAR_SHIFTER_6_MASK  0x20
 #define G29_GEAR_SHIFTER_R_MASK  0x80
 
-static const char *g29Ps4_axis_name[AXIS_MAX] =
+static s_axis axes[AXIS_MAX] =
 {
-  [g29Ps4a_wheel] = "wheel",
-  [g29Ps4a_gasPedal] = "gas",
-  [g29Ps4a_brakePedal] = "brake",
-  [g29Ps4a_clutchPedal] = "clutch",
-  [g29Ps4a_share] = "share",
-  [g29Ps4a_options] = "options",
-  [g29Ps4a_up] = "up",
-  [g29Ps4a_right] = "right",
-  [g29Ps4a_down] = "down",
-  [g29Ps4a_left] = "left",
-  [g29Ps4a_triangle] = "triangle",
-  [g29Ps4a_circle] = "circle",
-  [g29Ps4a_cross] = "cross",
-  [g29Ps4a_square] = "square",
-  [g29Ps4a_l1] = "l1",
-  [g29Ps4a_r1] = "r1",
-  [g29Ps4a_l2] = "l2",
-  [g29Ps4a_r2] = "r2",
-  [g29Ps4a_l3] = "l3",
-  [g29Ps4a_r3] = "r3",
-  [g29Ps4a_ps] = "PS",
+  [g29Ps4a_wheel]       = { .name = "wheel",    .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
+  [g29Ps4a_gasPedal]    = { .name = "gas",      .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
+  [g29Ps4a_brakePedal]  = { .name = "brake",    .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
+  [g29Ps4a_clutchPedal] = { .name = "clutch",   .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
+  
+  [g29Ps4a_share]       = { .name = "share",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_options]     = { .name = "options",  .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_up]          = { .name = "up",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_right]       = { .name = "right",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_down]        = { .name = "down",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_left]        = { .name = "left",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_triangle]    = { .name = "triangle", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_circle]      = { .name = "circle",   .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_cross]       = { .name = "cross",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_square]      = { .name = "square",   .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_l1]          = { .name = "l1",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_r1]          = { .name = "r1",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_l2]          = { .name = "l2",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_r2]          = { .name = "r2",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_l3]          = { .name = "l3",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_r3]          = { .name = "r3",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_ps]          = { .name = "PS",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
 };
 
-static s_axis_name_dir axis_names[] =
+static s_axis_name_dir axis_name_dirs[] =
 {
   {.name = "wheel",        {.axis = g29Ps4a_wheel,      .props = AXIS_PROP_CENTERED}},
 
@@ -94,40 +95,7 @@ static s_axis_name_dir axis_names[] =
   {.name = "gear shifter R",    {.axis = g29Ps4a_gearShifterR,   .props = AXIS_PROP_TOGGLE}},
 };
 
-static int g29Ps4_max_unsigned_axis_value[AXIS_MAX] =
-{
-  [g29Ps4a_wheel] = MAX_AXIS_VALUE_16BITS,
-  [g29Ps4a_gasPedal] = MAX_AXIS_VALUE_16BITS,
-  [g29Ps4a_brakePedal] = MAX_AXIS_VALUE_16BITS,
-  [g29Ps4a_clutchPedal] = MAX_AXIS_VALUE_16BITS,
-
-  [g29Ps4a_up] = MAX_AXIS_VALUE_8BITS,
-  [g29Ps4a_right] = MAX_AXIS_VALUE_8BITS,
-  [g29Ps4a_down] = MAX_AXIS_VALUE_8BITS,
-  [g29Ps4a_left] = MAX_AXIS_VALUE_8BITS,
-  [g29Ps4a_square] = MAX_AXIS_VALUE_8BITS,
-  [g29Ps4a_cross] = MAX_AXIS_VALUE_8BITS,
-  [g29Ps4a_circle] = MAX_AXIS_VALUE_8BITS,
-  [g29Ps4a_triangle] = MAX_AXIS_VALUE_8BITS,
-  [g29Ps4a_l1] = MAX_AXIS_VALUE_8BITS,
-  [g29Ps4a_r1] = MAX_AXIS_VALUE_8BITS,
-  [g29Ps4a_l2] = MAX_AXIS_VALUE_8BITS,
-  [g29Ps4a_r2] = MAX_AXIS_VALUE_8BITS,
-  [g29Ps4a_share] = MAX_AXIS_VALUE_8BITS,
-  [g29Ps4a_options] = MAX_AXIS_VALUE_8BITS,
-  [g29Ps4a_l3] = MAX_AXIS_VALUE_8BITS,
-  [g29Ps4a_r3] = MAX_AXIS_VALUE_8BITS,
-  [g29Ps4a_ps] = MAX_AXIS_VALUE_8BITS,
-};
-
-static s_controller_params g29Ps4_params =
-{
-    .min_refresh_period = 1000,
-    .default_refresh_period = 5000,
-    .max_unsigned_axis_value = g29Ps4_max_unsigned_axis_value
-};
-
-static s_report_g29Ps4 init_report_g29Ps4 =
+static s_report_g29Ps4 default_report =
 {
   .report_id = 0x01,
   .X = 0x80,
@@ -146,16 +114,16 @@ static s_report_g29Ps4 init_report_g29Ps4 =
   .unused1 = {},
 };
 
-void g29Ps4_init_report(s_report_g29Ps4* g29Ps4)
+static void init_report(s_report * report)
 {
-  memcpy(g29Ps4, &init_report_g29Ps4, sizeof(s_report_g29Ps4));
+  memcpy(report, &default_report, sizeof(default_report));
 }
 
 /*
  * Work in progress...
  * Do not assume the code in the following function is right!
  */
-static unsigned int g29Ps4_report_build(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
+static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
   unsigned int index = 0;
   report[index].length = sizeof(s_report_g29Ps4);
@@ -300,14 +268,19 @@ static unsigned int g29Ps4_report_build(int axis[AXIS_MAX], s_report_packet repo
   return index;
 }
 
+static s_controller controller =
+{
+  .name = "G29 PS4",
+  .refresh_period = { .min_value = 1000, .default_value = 5000 },
+  .axes = axes,
+  .axis_name_dirs = { .nb = sizeof(axis_name_dirs)/sizeof(*axis_name_dirs), .values = axis_name_dirs },
+  .fp_build_report = build_report,
+  .fp_init_report = init_report,
+};
+
 void g29Ps4_init(void) __attribute__((constructor (101)));
 void g29Ps4_init(void)
 {
-  controller_register_axis_names(C_TYPE_G29_PS4, sizeof(axis_names)/sizeof(*axis_names), axis_names);
-
-  controller_register_params(C_TYPE_G29_PS4, &g29Ps4_params);
-
-  control_register_names(C_TYPE_G29_PS4, g29Ps4_axis_name);
-
-  report_register_builder(C_TYPE_G29_PS4, g29Ps4_report_build);
+  controller_register(C_TYPE_G29_PS4, &controller);
 }
+

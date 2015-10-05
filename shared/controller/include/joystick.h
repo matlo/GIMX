@@ -6,7 +6,7 @@
 #ifndef JOYSTICK_H_
 #define JOYSTICK_H_
 
-#include <control.h>
+#include <defs.h>
 
 typedef enum
 {

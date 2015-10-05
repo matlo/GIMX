@@ -7,33 +7,35 @@
 #include <report.h>
 #include <controller2.h>
 #include <limits.h>
+#include <string.h>
 
-static const char *x360_axis_name[AXIS_MAX] =
+static s_axis axes[AXIS_MAX] =
 {
-  [x360a_lstick_x] = "lstick x",
-  [x360a_lstick_y] = "lstick y",
-  [x360a_rstick_x] = "rstick x",
-  [x360a_rstick_y] = "rstick y",
-  [x360a_back] = "back",
-  [x360a_start] = "start",
-  [x360a_guide] = "guide",
-  [x360a_up] = "up",
-  [x360a_right] = "right",
-  [x360a_down] = "down",
-  [x360a_left] = "left",
-  [x360a_Y] = "Y",
-  [x360a_B] = "B",
-  [x360a_A] = "A",
-  [x360a_X] = "X",
-  [x360a_LB] = "LB",
-  [x360a_RB] = "RB",
-  [x360a_LT] = "LT",
-  [x360a_RT] = "RT",
-  [x360a_LS] = "LS",
-  [x360a_RS] = "RS",
+  [x360a_lstick_x]  = { .name = "lstick x", .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
+  [x360a_lstick_y]  = { .name = "lstick y", .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
+  [x360a_rstick_x]  = { .name = "rstick x", .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
+  [x360a_rstick_y]  = { .name = "rstick y", .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
+  
+  [x360a_back]      = { .name = "back",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [x360a_start]     = { .name = "start",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [x360a_guide]     = { .name = "guide",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [x360a_up]        = { .name = "up",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [x360a_right]     = { .name = "right",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [x360a_down]      = { .name = "down",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [x360a_left]      = { .name = "left",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [x360a_Y]         = { .name = "Y",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [x360a_B]         = { .name = "B",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [x360a_A]         = { .name = "A",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [x360a_X]         = { .name = "X",        .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [x360a_LB]        = { .name = "LB",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [x360a_RB]        = { .name = "RB",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [x360a_LT]        = { .name = "LT",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [x360a_RT]        = { .name = "RT",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [x360a_LS]        = { .name = "LS",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [x360a_RS]        = { .name = "RS",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
 };
 
-static s_axis_name_dir axis_names[] =
+static s_axis_name_dir axis_name_dirs[] =
 {
   {.name = "rstick x",     {.axis = x360a_rstick_x, .props = AXIS_PROP_CENTERED}},
   {.name = "rstick y",     {.axis = x360a_rstick_y, .props = AXIS_PROP_CENTERED}},
@@ -70,37 +72,24 @@ static s_axis_name_dir axis_names[] =
   {.name = "Y",            {.axis = x360a_Y,        .props = AXIS_PROP_TOGGLE}},
 };
 
-static int x360_max_unsigned_axis_value[AXIS_MAX] =
+static s_report_x360 default_report =
 {
-  [x360a_lstick_x] = MAX_AXIS_VALUE_16BITS,
-  [x360a_lstick_y] = MAX_AXIS_VALUE_16BITS,
-  [x360a_rstick_x] = MAX_AXIS_VALUE_16BITS,
-  [x360a_rstick_y] = MAX_AXIS_VALUE_16BITS,
-  [x360a_back] = MAX_AXIS_VALUE_8BITS,
-  [x360a_start] = MAX_AXIS_VALUE_8BITS,
-  [x360a_guide] = MAX_AXIS_VALUE_8BITS,
-  [x360a_up] = MAX_AXIS_VALUE_8BITS,
-  [x360a_right] = MAX_AXIS_VALUE_8BITS,
-  [x360a_down] = MAX_AXIS_VALUE_8BITS,
-  [x360a_left] = MAX_AXIS_VALUE_8BITS,
-  [x360a_Y] = MAX_AXIS_VALUE_8BITS,
-  [x360a_B] = MAX_AXIS_VALUE_8BITS,
-  [x360a_A] = MAX_AXIS_VALUE_8BITS,
-  [x360a_X] = MAX_AXIS_VALUE_8BITS,
-  [x360a_LB] = MAX_AXIS_VALUE_8BITS,
-  [x360a_RB] = MAX_AXIS_VALUE_8BITS,
-  [x360a_LT] = MAX_AXIS_VALUE_8BITS,
-  [x360a_RT] = MAX_AXIS_VALUE_8BITS,
-  [x360a_LS] = MAX_AXIS_VALUE_8BITS,
-  [x360a_RS] = MAX_AXIS_VALUE_8BITS,
+  .type = X360_USB_HID_IN_REPORT_ID,
+  .size = 0x14,
+  .buttons = 0x0000,
+  .ltrigger = 0x00,
+  .rtrigger = 0x00,
+  .xaxis = 0x0000,
+  .yaxis = 0x0000,
+  .zaxis = 0x0000,
+  .taxis = 0x0000,
+  .unused = {},
 };
 
-static s_controller_params x360_params =
+static void init_report(s_report * report)
 {
-    .min_refresh_period = 1000,
-    .default_refresh_period = 8000,
-    .max_unsigned_axis_value = x360_max_unsigned_axis_value
-};
+  memcpy(report, &default_report, sizeof(default_report));
+}
 
 inline void axis2button(int axis[AXIS_MAX], e_x360_axis_index index,
     unsigned short* buttons, unsigned short button_mask)
@@ -111,22 +100,16 @@ inline void axis2button(int axis[AXIS_MAX], e_x360_axis_index index,
   }
 }
 
-inline void axis2axis(int from, unsigned char to[2])
+static inline void axis2axis(int from, short * to)
 {
-  signed short value = clamp(SHRT_MIN, from, SHRT_MAX);
-  to[0] = value & 0xFF;
-  to[1] = (value >> 8) & 0xFF;
-
+  *to = clamp(SHRT_MIN, from, SHRT_MAX);
 }
 
-static unsigned int x360_report_build(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
+static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
   unsigned int index = 0;
   report[index].length = sizeof(s_report_x360);
   s_report_x360* x360 = &report[index].value.x360;
-
-  x360->type = X360_USB_HID_IN_REPORT_ID;
-  x360->size = 0x14;
 
   x360->buttons = 0x0000;
 
@@ -152,22 +135,27 @@ static unsigned int x360_report_build(int axis[AXIS_MAX], s_report_packet report
   x360->ltrigger = clamp(0, axis[x360a_LT], UCHAR_MAX);
   x360->rtrigger = clamp(0, axis[x360a_RT], UCHAR_MAX);
 
-  axis2axis(axis[x360a_lstick_x], x360->xaxis);
-  axis2axis(-axis[x360a_lstick_y], x360->yaxis);
-  axis2axis(axis[x360a_rstick_x], x360->zaxis);
-  axis2axis(-axis[x360a_rstick_y], x360->taxis);
+  axis2axis(axis[x360a_lstick_x], &x360->xaxis);
+  axis2axis(-axis[x360a_lstick_y], &x360->yaxis);
+  axis2axis(axis[x360a_rstick_x], &x360->zaxis);
+  axis2axis(-axis[x360a_rstick_y], &x360->taxis);
 
   return index;
 }
 
+static s_controller controller =
+{
+  .name = "360pad",
+  .refresh_period = { .min_value = 1000, .default_value = 8000 },
+  .axes = axes,
+  .axis_name_dirs = { .nb = sizeof(axis_name_dirs)/sizeof(*axis_name_dirs), .values = axis_name_dirs },
+  .fp_build_report = build_report,
+  .fp_init_report = init_report,
+};
+
 void x360_init(void) __attribute__((constructor (101)));
 void x360_init(void)
 {
-  controller_register_axis_names(C_TYPE_360_PAD, sizeof(axis_names)/sizeof(*axis_names), axis_names);
-
-  controller_register_params(C_TYPE_360_PAD, &x360_params);
-
-  control_register_names(C_TYPE_360_PAD, x360_axis_name);
-
-  report_register_builder(C_TYPE_360_PAD, x360_report_build);
+  controller_register(C_TYPE_360_PAD, &controller);
 }
+

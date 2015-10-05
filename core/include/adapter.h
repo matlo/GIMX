@@ -22,6 +22,15 @@
 #define MAX_DEVICES 256
 #define MAX_CONTROLS 256
 
+typedef enum
+{
+  E_ADAPTER_TYPE_NONE,
+  E_ADAPTER_TYPE_BLUETOOTH,
+  E_ADAPTER_TYPE_DIY_USB,
+  E_ADAPTER_TYPE_REMOTE_GIMX,
+  E_ADAPTER_TYPE_GPP,
+} e_adapter_type;
+
 typedef struct
 {
   char* bdaddr_dst;
@@ -37,7 +46,8 @@ typedef struct
   in_addr_t src_ip;
   unsigned short src_port;
   int src_fd;
-  e_controller_type type;
+  e_adapter_type atype;
+  e_controller_type ctype;
   int event;
   int axis[AXIS_MAX];
   int change;

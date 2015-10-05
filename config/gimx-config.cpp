@@ -2061,9 +2061,7 @@ void configFrame::LoadControllerType()
     case C_TYPE_G29_PS4:
       MenuType->Check(ID_MENUITEMG29PS4, true);
       break;
-    case C_TYPE_GPP:
-    case C_TYPE_DEFAULT:
-    case C_TYPE_MAX:
+    case C_TYPE_NONE:
       break;
   }
 

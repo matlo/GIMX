@@ -26,7 +26,7 @@ void mainloop()
   GE_Event* event;
   unsigned int running_macros;
 
-  if(!adapter_get(0)->bdaddr_dst || adapter_get(0)->type == C_TYPE_DS4)
+  if(!adapter_get(0)->bdaddr_dst || adapter_get(0)->ctype == C_TYPE_DS4)
   {
     GE_TimerStart(gimx_params.refresh_period);
   }

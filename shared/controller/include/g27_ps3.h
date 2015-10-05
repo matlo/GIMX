@@ -6,7 +6,7 @@
 #ifndef G27_PS3_H_
 #define G27_PS3_H_
 
-#include <control.h>
+#include <defs.h>
 
 typedef enum
 {
@@ -57,7 +57,5 @@ typedef struct GIMX_PACKED
   unsigned char clutchPedal;
   unsigned char unknown[3];
 } s_report_g27Ps3;
-
-void g27Ps3_init_report(s_report_g27Ps3* g27Ps3);
 
 #endif /* G27_PS3_H_ */
