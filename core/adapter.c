@@ -1000,7 +1000,12 @@ int adapter_start()
       }
 #endif
     }
-    else if(adapter->src_ip)
+    else if(adapter->type == C_TYPE_GPP)
+    {
+      ret = gpp_start_async(i, adapter_gpp_read, adapter_gpp_write, adapter_gpp_close, REGISTER_FUNCTION);
+    }
+
+    if(adapter->src_ip)
     {
       adapter->src_fd = udp_listen(adapter->src_ip, adapter->src_port);
       if(adapter->src_fd < 0)
@@ -1013,10 +1018,6 @@ int adapter_start()
       {
         GE_AddSource(adapter->src_fd, i, adapter_network_read, NULL, adapter_network_close);
       }
-    }
-    else if(adapter->type == C_TYPE_GPP)
-    {
-      ret = gpp_start_async(i, adapter_gpp_read, adapter_gpp_write, adapter_gpp_close, REGISTER_FUNCTION);
     }
   }
   return ret;
