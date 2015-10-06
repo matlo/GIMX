@@ -946,7 +946,7 @@ int adapter_start()
       if(adapter->serialdevice >= 0)
       {
 #ifdef WIN32
-        switch(adapter->type)
+        switch(adapter->ctype)
         {
         case C_TYPE_G29_PS4:
           start_hid(i);
