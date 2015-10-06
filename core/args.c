@@ -260,9 +260,17 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         break;
 
       case 'p':
-        if(strstr(optarg, DEV_HIDRAW) || !strstr(optarg, DEV_SERIAL))
+        if(adapter_get(controller)->atype == E_ADAPTER_TYPE_NONE)
         {
-          adapter_get(controller)->atype = E_ADAPTER_TYPE_GPP;
+          // no adapter type specified => try to guess it from the port
+          if(strstr(optarg, DEV_HIDRAW) || !strstr(optarg, DEV_SERIAL))
+          {
+            adapter_get(controller)->atype = E_ADAPTER_TYPE_GPP;
+          }
+          else
+          {
+            adapter_get(controller)->atype = E_ADAPTER_TYPE_DIY_USB;
+          }
         }
         if(adapter_set_port(controller, optarg) < 0)
         {
@@ -271,7 +279,6 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         }
         else
         {
-          adapter_get(controller)->atype = E_ADAPTER_TYPE_DIY_USB;
           ++controller;
           printf(_("option -p with value `%s'\n"), optarg);
         }
