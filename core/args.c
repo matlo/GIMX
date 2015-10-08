@@ -188,19 +188,23 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
 
       case 'e':
         {
-          char axis_label[9] = {};
+          char * label = NULL;
           int axis;
           int value;
-          if(sscanf(optarg, "%8[^(](%d)", axis_label, &value) != 2)
+          if(sscanf(optarg, "%m[^(](%d)", &label, &value) != 2)
           {
             fprintf(stderr, _("Bad event format: %s\n"), optarg);
             ret = -1;
           }
           else
           {
-            if((axis = controller_get_axis_index(axis_label)) != -1)
+            // strip trailing spaces
+            char * end;
+            for (end = label + strlen(label) - 1; end > label && *end == ' '; --end) {}
+            *(end + 1) = '\0';
+            if((axis = controller_get_axis_index(label)) != -1)
             {
-              printf(_("option -e with value `%s(%d)'\n"), axis_label, value);
+              printf(_("option -e with value `%s(%d)'\n"), label, value);
               adapter_set_axis(controller, axis, value);
               adapter_get(controller)->event = 1;
               input = 1;
@@ -210,6 +214,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
               fprintf(stderr, _("Bad axis name for event: %s\n"), optarg);
               ret = -1;
             }
+            free(label);
           }
         }
         break;

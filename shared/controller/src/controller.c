@@ -335,7 +335,7 @@ const char* controller_get_axis_name(e_controller_type type, e_controller_axis_i
 
 int controller_get_axis_index(const char* name)
 {
-  unsigned int axis;
+  unsigned int axis = -1;
 
   if(sscanf(name, "rel_axis_%u", &axis) == 1)
   {
