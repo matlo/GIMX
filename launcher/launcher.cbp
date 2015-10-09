@@ -43,8 +43,8 @@
 		</Linker>
 		<Unit filename="launcherApp.cpp" />
 		<Unit filename="launcherApp.h" />
-		<Unit filename="launcherMain.cpp" />
-		<Unit filename="launcherMain.h" />
+		<Unit filename="gimx-launcher.cpp" />
+		<Unit filename="gimx-launcher.h" />
 		<Unit filename="wx_pch.h">
 			<Option compile="1" />
 			<Option weight="0" />
@@ -56,7 +56,7 @@
 			<wxsmith version="1">
 				<gui name="wxWidgets" src="launcherApp.cpp" main="launcherFrame" init_handlers="necessary" language="CPP" />
 				<resources>
-					<wxFrame wxs="wxsmith/launcherframe.wxs" src="launcherMain.cpp" hdr="launcherMain.h" name="launcherFrame" language="CPP" />
+					<wxFrame wxs="wxsmith/launcherframe.wxs" src="gimx-launcher.cpp" hdr="gimx-launcher.h" name="launcherFrame" language="CPP" />
 				</resources>
 			</wxsmith>
 			<debugger />

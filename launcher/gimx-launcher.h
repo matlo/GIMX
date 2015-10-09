@@ -121,9 +121,10 @@ class launcherFrame: public wxFrame
         static const long ID_STATICTEXT2;
         static const long ID_CHOICE5;
         static const long ID_BUTTON4;
+        static const long ID_STATICTEXT5;
+        static const long ID_CHOICE4;
+        static const long ID_STATICTEXT6;
         static const long ID_CHECKBOX1;
-        static const long ID_CHECKBOX2;
-        static const long ID_CHECKBOX3;
         static const long ID_BUTTON1;
         static const long ID_BUTTON3;
         static const long ID_PANEL1;
@@ -142,12 +143,10 @@ class launcherFrame: public wxFrame
         //*)
 
         //(*Declarations(launcherFrame)
-        wxStaticBoxSizer* MouseSizer;
-        wxCheckBox* CheckBoxTerminal;
         wxChoice* Output;
+        wxChoice* ProcessOutputChoice;
         wxFlexGridSizer* FlexGridSizer1;
         wxPanel* Panel1;
-        wxCheckBox* CheckBoxGui;
         wxStatusBar* StatusBar1;
         wxMenuItem* MenuAutoBindControls;
         wxButton* ButtonCheck;
@@ -159,6 +158,7 @@ class launcherFrame: public wxFrame
         wxMenuItem* MenuUpdate;
         wxFlexGridSizer* OutputSizer;
         wxStaticText* StaticText1;
+        wxStaticText* StaticText3;
         wxFlexGridSizer* IOSizer;
         wxChoice* OutputChoice;
         wxMenuItem* MenuRefresh;
@@ -168,12 +168,14 @@ class launcherFrame: public wxFrame
         wxStaticText* StaticText4;
         wxCheckBox* CheckBoxGrab;
         wxFlexGridSizer* SourceIpSizer;
+        wxStaticText* StaticText5;
         wxStaticText* StaticText2;
         wxMenuItem* MenuItem4;
         wxButton* ButtonStart;
         wxMenuItem* MenuEditConfig;
         wxSingleInstanceChecker SingleInstanceChecker1;
         wxStaticText* OutputText;
+        wxFlexGridSizer* MouseSizer;
         //*)
 
         wxLocale* locale;
@@ -182,6 +184,7 @@ class launcherFrame: public wxFrame
 
         wxString userDir;
         wxString gimxConfigDir;
+        wxString gimxLogDir;
         wxString launcherDir;
         wxString gimxDir;
 

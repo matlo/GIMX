@@ -55,6 +55,8 @@ s_gimx_params gimx_params =
   .subpositions = 0,
   .window_events = 0,
   .btstack = 0,
+  .logfilename = NULL,
+  .logfile = NULL,
 };
 
 #ifdef WIN32
@@ -385,6 +387,11 @@ int main(int argc, char *argv[])
   adapter_clean();
 
   xmlCleanupParser();
+
+  if(gimx_params.logfile)
+  {
+    fclose(gimx_params.logfile);
+  }
 
   if(gimx_params.curses)
   {

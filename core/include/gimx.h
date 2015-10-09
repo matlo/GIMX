@@ -7,6 +7,7 @@
 #define GIMX_H_
 
 #include <GE.h>
+#include <stdio.h>
 
 #include <libintl.h>
 #include <locale.h>
@@ -33,6 +34,8 @@ typedef struct
   int window_events;
   int network_input;
   int btstack;
+  char * logfilename;
+  FILE * logfile;
 } s_gimx_params;
 
 extern s_gimx_params gimx_params;

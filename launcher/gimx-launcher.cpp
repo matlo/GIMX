@@ -71,6 +71,8 @@ using namespace std;
 #define BLUETOOTH_LK_DIR "/bluetooth"
 #define BLUETOOTH_LK_FILE "/linkkeys"
 
+#define LOG_FILE "log.txt"
+
 #define GPP_NAME "GPP/Cronus/Titan"
 
 #define CONSOLETUNER_VID 0x2508
@@ -86,9 +88,10 @@ const long launcherFrame::ID_CHOICE2 = wxNewId();
 const long launcherFrame::ID_STATICTEXT2 = wxNewId();
 const long launcherFrame::ID_CHOICE5 = wxNewId();
 const long launcherFrame::ID_BUTTON4 = wxNewId();
+const long launcherFrame::ID_STATICTEXT5 = wxNewId();
+const long launcherFrame::ID_CHOICE4 = wxNewId();
+const long launcherFrame::ID_STATICTEXT6 = wxNewId();
 const long launcherFrame::ID_CHECKBOX1 = wxNewId();
-const long launcherFrame::ID_CHECKBOX2 = wxNewId();
-const long launcherFrame::ID_CHECKBOX3 = wxNewId();
 const long launcherFrame::ID_BUTTON1 = wxNewId();
 const long launcherFrame::ID_BUTTON3 = wxNewId();
 const long launcherFrame::ID_PANEL1 = wxNewId();
@@ -113,13 +116,13 @@ END_EVENT_TABLE()
 
 /*
  * \brief This function performs a synchronous execution of a given command, and parses the command output.
- * 
+ *
  * \param command    the command to execute
  * \param firstLine  in case the output is a list of line blocks, this indicates an entry delimiter
  * \param params     the list of strings to look for in the command output
  * \param results    the values parsed from the command output
  * \param nbResults  specifies the size of the results array
- * 
+ *
  * \return 0 if command exited with 0, -1 otherwise
  */
 static int readCommandResults(wxString command, wxString firstLine, wxArrayString params, wxArrayString results[], int nbResults)
@@ -147,13 +150,13 @@ static int readCommandResults(wxString command, wxString firstLine, wxArrayStrin
             results[index].Add(wxEmptyString);
           }
         }
-        
+
         //firstLine has not been found yet
         if(index < 0)
         {
           continue;
         }
-        
+
         for(unsigned int i=0; i<params.GetCount(); ++i)
         {
           //check if line contains something interesting
@@ -178,7 +181,7 @@ static int readCommandResults(wxString command, wxString firstLine, wxArrayStrin
 
 /*
  * \brief Read the bluetooth pairings with a given tool.
- * 
+ *
  * \param bluetoothPairings  the vector to store the pairings
  * \param tool               the tool, e.g. sixaddr or ds4tool
  */
@@ -214,20 +217,20 @@ void launcherFrame::readPairings(vector<BluetoothPairing>& bluetoothPairings, wx
 
 /*
  * \brief Read bluetooth device properties.
- * 
+ *
  * \param dongleInfos  the vector to store the properties
  */
 void launcherFrame::readDongles(vector<DongleInfo>& dongleInfos)
 {
   //retrieve the hci indexes
-  
+
   wxArrayString hciDevices;
-  
+
   wxString firstLine = wxT("hci");
   wxArrayString params;
   params.Add(wxT("hci"));
   wxArrayString results[7];
-  
+
   int res = readCommandResults(wxT("hciconfig"), firstLine, params, results, sizeof(results)/sizeof(*results));
 
   if(res != -1)
@@ -246,18 +249,18 @@ void launcherFrame::readDongles(vector<DongleInfo>& dongleInfos)
   {
     return;
   }
-  
+
   wxString firstLine1 = wxT("BD Address: ");
   wxArrayString params1;
   params1.Add(wxT("BD Address: "));
   params1.Add(wxT("Manufacturer: "));
   wxArrayString results1[1];
-  
+
   wxString firstLine2 = wxT("Chip version: ");
   wxArrayString params2;
   params2.Add(wxT("Chip version: "));
   wxArrayString results2[1];
-  
+
   for(unsigned int i=0; i<hciDevices.GetCount(); ++i)
   {
     wxString device = wxT("hci");
@@ -303,7 +306,7 @@ int launcherFrame::setDongleAddress(vector<DongleInfo>& dongleInfos, int dongleI
     int res;
 
     int pos = -1;
-    
+
     for(unsigned int i=0; i<dongleInfos.size(); ++i)
     {
       if(dongleInfos[i].address == address)
@@ -769,10 +772,8 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer8;
     wxFlexGridSizer* FlexGridSizer2;
     wxMenu* Menu1;
-    wxFlexGridSizer* FlexGridSizer11;
     wxFlexGridSizer* FlexGridSizer7;
-    wxStaticBoxSizer* StaticBoxSizer6;
-    wxFlexGridSizer* FlexGridSizer10;
+    wxFlexGridSizer* FlexGridSizer3;
     wxMenuBar* MenuBar1;
     wxMenu* Menu2;
     wxFlexGridSizer* FlexGridSizer5;
@@ -813,24 +814,24 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
     SourceIpSizer->Add(Button1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     IOSizer->Add(SourceIpSizer, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer1->Add(IOSizer, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer8 = new wxFlexGridSizer(1, 2, 0, 0);
-    MouseSizer = new wxStaticBoxSizer(wxVERTICAL, Panel1, _("Mouse"));
-    FlexGridSizer10 = new wxFlexGridSizer(1, 1, 0, 0);
-    CheckBoxGrab = new wxCheckBox(Panel1, ID_CHECKBOX1, _("grab"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX1"));
+    FlexGridSizer8 = new wxFlexGridSizer(2, 1, 0, 0);
+    FlexGridSizer3 = new wxFlexGridSizer(1, 2, 0, 0);
+    StaticText3 = new wxStaticText(Panel1, ID_STATICTEXT5, _("Messages"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT5"));
+    FlexGridSizer3->Add(StaticText3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ProcessOutputChoice = new wxChoice(Panel1, ID_CHOICE4, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE4"));
+    ProcessOutputChoice->SetSelection( ProcessOutputChoice->Append(_("none")) );
+    ProcessOutputChoice->Append(_("curses"));
+    ProcessOutputChoice->Append(_("text"));
+    ProcessOutputChoice->Append(_("log file"));
+    FlexGridSizer3->Add(ProcessOutputChoice, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer8->Add(FlexGridSizer3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    MouseSizer = new wxFlexGridSizer(1, 2, 0, 0);
+    StaticText5 = new wxStaticText(Panel1, ID_STATICTEXT6, _("Grab mouse"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT6"));
+    MouseSizer->Add(StaticText5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    CheckBoxGrab = new wxCheckBox(Panel1, ID_CHECKBOX1, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX1"));
     CheckBoxGrab->SetValue(true);
-    FlexGridSizer10->Add(CheckBoxGrab, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    MouseSizer->Add(FlexGridSizer10, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    MouseSizer->Add(CheckBoxGrab, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer8->Add(MouseSizer, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticBoxSizer6 = new wxStaticBoxSizer(wxHORIZONTAL, Panel1, _("Output"));
-    FlexGridSizer11 = new wxFlexGridSizer(0, 3, 0, 0);
-    CheckBoxGui = new wxCheckBox(Panel1, ID_CHECKBOX2, _("gui"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX2"));
-    CheckBoxGui->SetValue(false);
-    FlexGridSizer11->Add(CheckBoxGui, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    CheckBoxTerminal = new wxCheckBox(Panel1, ID_CHECKBOX3, _("terminal"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX3"));
-    CheckBoxTerminal->SetValue(false);
-    FlexGridSizer11->Add(CheckBoxTerminal, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticBoxSizer6->Add(FlexGridSizer11, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer8->Add(StaticBoxSizer6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer1->Add(FlexGridSizer8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer7 = new wxFlexGridSizer(1, 2, 0, 0);
     ButtonCheck = new wxButton(Panel1, ID_BUTTON1, _("Check"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON1"));
@@ -881,8 +882,6 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
     Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&launcherFrame::OnOutputNewButtonClick);
     Connect(ID_CHOICE2,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&launcherFrame::OnInputSelect);
     Connect(ID_BUTTON4,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&launcherFrame::OnInputNewButtonClick);
-    Connect(ID_CHECKBOX2,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&launcherFrame::OnCheckBoxGuiClick);
-    Connect(ID_CHECKBOX3,wxEVT_COMMAND_CHECKBOX_CLICKED,(wxObjectEventFunction)&launcherFrame::OnCheckBoxTerminalClick);
     Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&launcherFrame::OnButtonCheckClick1);
     Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&launcherFrame::OnButtonStartClick);
     Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnMenuEditConfig);
@@ -955,6 +954,15 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
       if(!wxMkdir(gimxConfigDir))
       {
         wxMessageBox( _("Can't init directory: ") + gimxConfigDir, _("Error"), wxICON_ERROR);
+        exit(-1);
+      }
+    }
+    gimxLogDir = gimxDir + wxT(LOG_DIR);
+    if(!wxDir::Exists(gimxLogDir))
+    {
+      if(!wxMkdir(gimxLogDir))
+      {
+        wxMessageBox( _("Can't init directory: ") + gimxLogDir, _("Error"), wxICON_ERROR);
         exit(-1);
       }
     }
@@ -1113,7 +1121,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
         wxMessageBox( _("Dongle not found!"), _("Error"), wxICON_ERROR);
         return;
       }
-      
+
       hciIndex = dongleInfo.hci.Mid(3);
     }
 
@@ -1164,6 +1172,20 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
 #endif
     command.Append(wxT("gimx"));
 
+    if(ProcessOutputChoice->GetStringSelection() == _("curses"))
+    {
+      command.Append(wxT(" --curses"));
+    }
+    else if(ProcessOutputChoice->GetStringSelection() == _("text"))
+    {
+      command.Append(wxT(" --status"));
+    }
+    else if(ProcessOutputChoice->GetStringSelection() == _("log file"))
+    {
+      command.Append(wxT(" --status --log "));
+      command.Append(wxT(LOG_FILE));
+    }
+
     if(Input->GetStringSelection() == _("Network"))
     {
       command.Append(wxT(" --src "));
@@ -1184,7 +1206,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
       command.Append(wxT(" --config \""));
       command.Append(InputChoice->GetStringSelection());
       command.Append(wxT("\""));
-      
+
       if(Output->GetStringSelection() != _("Remote GIMX"))
       {
         command.Append(wxT(" --force-updates"));
@@ -1232,15 +1254,6 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
       command.Append(path);
     }
 
-    if(CheckBoxTerminal->IsChecked())
-    {
-        command.Append(wxT(" --status"));
-    }
-    else if(CheckBoxGui->IsChecked())
-    {
-      command.Append(wxT(" --curses"));
-    }
-
     StatusBar1->SetStatusText(_("Press Shift+Esc to exit."));
 
     ButtonStart->Enable(false);
@@ -1272,17 +1285,18 @@ void launcherFrame::OnProcessTerminated(wxProcess *process, int status)
       OnMenuSave(event);
     }
 
+    if(ProcessOutputChoice->GetStringSelection() == _("log file"))
+    {
+
+#ifdef WIN32
+      gimxConfigDir.Replace(wxT("/"), wxT("\\"));
+      wxExecute(wxT("explorer ") + gimxLogDir + wxT(LOG_FILE), wxEXEC_ASYNC, NULL);
+#else
+      wxExecute(wxT("xdg-open ") + gimxLogDir + wxT(LOG_FILE), wxEXEC_ASYNC, NULL);
+#endif
+    }
+
     SetFocus();
-}
-
-void launcherFrame::OnCheckBoxGuiClick(wxCommandEvent& event)
-{
-    CheckBoxTerminal->SetValue(false);
-}
-
-void launcherFrame::OnCheckBoxTerminalClick(wxCommandEvent& event)
-{
-    CheckBoxGui->SetValue(false);
 }
 
 void launcherFrame::OnButtonCheckClick1(wxCommandEvent& event)
@@ -1743,9 +1757,9 @@ int launcherFrame::choosePairing(BluetoothPairing& pairing)
   {
     return -1;
   }
-    
+
   pairing = bluetoothPairings[dialogSixaxis.GetSelection()];
-  
+
   return 0;
 }
 
@@ -1767,7 +1781,7 @@ int launcherFrame::chooseDongle(wxString address, DongleInfo& dongleInfo)
   {
       return -1;
   }
-  
+
   if(!address.IsEmpty())
   {
     for(unsigned int i=0; i<dongleInfos.size(); ++i)
@@ -1778,7 +1792,7 @@ int launcherFrame::chooseDongle(wxString address, DongleInfo& dongleInfo)
         return 0;
       }
     }
-    
+
     if(Output->GetStringSelection() == _("Bluetooth / PS4"))
     {
       return -1;
@@ -1808,7 +1822,7 @@ int launcherFrame::chooseDongle(wxString address, DongleInfo& dongleInfo)
   {
     return -1;
   }
-  
+
   int dongleIndex = dialogDongles.GetSelection();
   dongleInfo = dongleInfos[dongleIndex];
 
@@ -1823,7 +1837,7 @@ int launcherFrame::chooseDongle(wxString address, DongleInfo& dongleInfo)
       return -1;
     }
   }
-  
+
   return 0;
 }
 
@@ -1841,7 +1855,7 @@ int launcherFrame::ps3Setup()
       return -1;
     }
   }
-  
+
   DongleInfo dongleInfo;
 
   //choose a bluetooth device
@@ -1854,7 +1868,7 @@ int launcherFrame::ps3Setup()
       return -1;
     }
   }
-  
+
   wxString pairing = btPairing.controller + wxT(" ") + btPairing.console;
   int pos = OutputChoice->FindString(pairing);
   if(pos == wxNOT_FOUND)
@@ -1898,7 +1912,7 @@ int launcherFrame::ps4Setup()
   wxString ds4Bdaddr;
   wxString ps4LinkKey;
   wxString ps4Bdaddr;
-  
+
   //choose a bluetooth device
 
   while(chooseDongle(wxEmptyString, dongleInfo) < 0)
@@ -1909,7 +1923,7 @@ int launcherFrame::ps4Setup()
       return -1;
     }
   }
-  
+
   //choose a ds4
 
   while(choosePairing(btPairing) < 0)
@@ -1920,7 +1934,7 @@ int launcherFrame::ps4Setup()
       return -1;
     }
   }
-  
+
   ds4Bdaddr = btPairing.controller;
 
   ds4LinkKey = generateLinkKey();
@@ -1956,9 +1970,9 @@ int launcherFrame::ps4Setup()
       return -1;
     }
   } while(1);
-  
+
   //set teensy slave address
-  
+
   command.Clear();
   command.Append(wxT("ds4tool -t -s "));
   command.Append(dongleInfo.address);
@@ -1967,7 +1981,7 @@ int launcherFrame::ps4Setup()
     wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
     return -1;
   }
-  
+
   //blank master address & link key
 
   command.Clear();
@@ -1992,7 +2006,7 @@ int launcherFrame::ps4Setup()
     readPairings(pairings, wxT("ds4tool -t"));
 
   } while(pairings.empty() || pairings[0].linkKey == wxT("00000000000000000000000000000000"));
-  
+
   ps4Bdaddr = pairings[0].console;
   ps4LinkKey = pairings[0].linkKey;
 

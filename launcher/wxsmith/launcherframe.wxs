@@ -140,25 +140,29 @@
 				</object>
 				<object class="sizeritem">
 					<object class="wxFlexGridSizer" variable="FlexGridSizer8" member="no">
-						<cols>2</cols>
-						<rows>1</rows>
+						<cols>1</cols>
+						<rows>2</rows>
 						<object class="sizeritem">
-							<object class="wxStaticBoxSizer" variable="MouseSizer" member="yes">
-								<label>Mouse</label>
-								<orient>wxVERTICAL</orient>
+							<object class="wxFlexGridSizer" variable="FlexGridSizer3" member="no">
+								<cols>2</cols>
+								<rows>1</rows>
 								<object class="sizeritem">
-									<object class="wxFlexGridSizer" variable="FlexGridSizer10" member="no">
-										<cols>1</cols>
-										<rows>1</rows>
-										<object class="sizeritem">
-											<object class="wxCheckBox" name="ID_CHECKBOX1" variable="CheckBoxGrab" member="yes">
-												<label>grab</label>
-												<checked>1</checked>
-											</object>
-											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-											<border>5</border>
-											<option>1</option>
-										</object>
+									<object class="wxStaticText" name="ID_STATICTEXT5" variable="StaticText3" member="yes">
+										<label>Messages</label>
+									</object>
+									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+									<border>5</border>
+									<option>1</option>
+								</object>
+								<object class="sizeritem">
+									<object class="wxChoice" name="ID_CHOICE4" variable="ProcessOutputChoice" member="yes">
+										<content>
+											<item>none</item>
+											<item>curses</item>
+											<item>text</item>
+											<item>log file</item>
+										</content>
+										<selection>0</selection>
 									</object>
 									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 									<border>5</border>
@@ -170,29 +174,20 @@
 							<option>1</option>
 						</object>
 						<object class="sizeritem">
-							<object class="wxStaticBoxSizer" variable="StaticBoxSizer6" member="no">
-								<label>Output</label>
+							<object class="wxFlexGridSizer" variable="MouseSizer" member="yes">
+								<cols>2</cols>
+								<rows>1</rows>
 								<object class="sizeritem">
-									<object class="wxFlexGridSizer" variable="FlexGridSizer11" member="no">
-										<cols>3</cols>
-										<object class="sizeritem">
-											<object class="wxCheckBox" name="ID_CHECKBOX2" variable="CheckBoxGui" member="yes">
-												<label>gui</label>
-												<handler function="OnCheckBoxGuiClick" entry="EVT_CHECKBOX" />
-											</object>
-											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-											<border>5</border>
-											<option>1</option>
-										</object>
-										<object class="sizeritem">
-											<object class="wxCheckBox" name="ID_CHECKBOX3" variable="CheckBoxTerminal" member="yes">
-												<label>terminal</label>
-												<handler function="OnCheckBoxTerminalClick" entry="EVT_CHECKBOX" />
-											</object>
-											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-											<border>5</border>
-											<option>1</option>
-										</object>
+									<object class="wxStaticText" name="ID_STATICTEXT6" variable="StaticText5" member="yes">
+										<label>Grab mouse</label>
+									</object>
+									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+									<border>5</border>
+									<option>1</option>
+								</object>
+								<object class="sizeritem">
+									<object class="wxCheckBox" name="ID_CHECKBOX1" variable="CheckBoxGrab" member="yes">
+										<checked>1</checked>
 									</object>
 									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 									<border>5</border>

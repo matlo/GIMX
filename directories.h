@@ -23,5 +23,6 @@
 #define CONFIG_DIR "config/"
 #define MACRO_DIR "macros/"
 #define BT_DIR "bluetooth/"
+#define LOG_DIR "log/"
 
 #endif /* DIRECTORIES_H_ */

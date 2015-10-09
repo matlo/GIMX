@@ -16,6 +16,8 @@
 #include <arpa/inet.h>
 #endif
 #include <connectors/protocol.h>
+#include "../directories.h"
+#include <unistd.h>
 
 #define DEV_HIDRAW "/dev/hidraw"
 #ifndef WIN32
@@ -66,6 +68,8 @@ static void usage()
   printf("    This argument has to be placed before the --bdaddr and --port arguments.\n");
   printf("  --btstack: use btstack for the bluetooth connection.\n");
   printf("    Btstack is the only available connection method on Windows, and an alternative connection method on Linux.\n");
+  printf("  --log filename: write messages into a log file instead of the standard output.\n");
+  printf("    filename: The name of the log file, in the ~/.gimx/log directory (ex: log.txt).\n");
 }
 
 /*
@@ -132,6 +136,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"hci",     required_argument, 0, 'h'},
     {"help",    no_argument,       0, 'm'},
     {"keygen",  required_argument, 0, 'k'},
+    {"log",     required_argument, 0, 'l'},
     {"port",    required_argument, 0, 'p'},
     {"refresh", required_argument, 0, 'r'},
     {"src",     required_argument, 0, 's'},
@@ -145,7 +150,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     /* getopt_long stores the option index here. */
     int option_index = 0;
 
-    c = getopt_long (argc, argv, "b:c:d:e:h:k:p:r:s:t:vm", long_options, &option_index);
+    c = getopt_long (argc, argv, "b:c:d:e:h:k:l:p:r:s:t:vm", long_options, &option_index);
 
     /* Detect the end of the options. */
     if (c == -1)
@@ -264,6 +269,43 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         printf(_("option -k with value `%s'\n"), optarg);
         break;
 
+      case 'l':
+        if(params->logfilename == NULL)
+        {
+          if(!params->curses)
+          {
+            params->logfilename = optarg;
+            if(params->logfilename && strlen(params->logfilename))
+            {
+              char file_path[PATH_MAX];
+              snprintf(file_path, sizeof(file_path), "%s%s%s%s", params->homedir, GIMX_DIR, LOG_DIR, params->logfilename);
+              params->logfile = fopen(file_path, "w");
+              if(params->logfile != NULL)
+              {
+                dup2(fileno(params->logfile), fileno(stdout));
+                dup2(fileno(params->logfile), fileno(stderr));
+              }
+              else
+              {
+                printf(_("can't open log file (%s)\n"), file_path);
+                ret = -1;
+              }
+            }
+            printf(_("option -l with value `%s'\n"), optarg);
+          }
+          else
+          {
+            printf(_("log file can't be used with curses\n"));
+            ret = -1;
+          }
+        }
+        else
+        {
+          printf(_("only one log file can be specified\n"));
+          ret = -1;
+        }
+        break;
+
       case 'p':
         if(adapter_get(controller)->atype == E_ADAPTER_TYPE_NONE)
         {
@@ -369,7 +411,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     }
   }
 
-  if(params->status)
+  if(params->status || params->logfilename)
     params->curses = 0;
 
   if(!params->grab)
