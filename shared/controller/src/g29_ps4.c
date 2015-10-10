@@ -57,6 +57,14 @@ static s_axis axes[AXIS_MAX] =
   [g29Ps4a_l3]          = { .name = "l3",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
   [g29Ps4a_r3]          = { .name = "r3",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
   [g29Ps4a_ps]          = { .name = "PS",       .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+
+  [g29Ps4a_gearShifter1] = {.name = "gear shifter 1", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_gearShifter2] = {.name = "gear shifter 2", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_gearShifter3] = {.name = "gear shifter 3", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_gearShifter4] = {.name = "gear shifter 4", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_gearShifter5] = {.name = "gear shifter 5", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_gearShifter6] = {.name = "gear shifter 6", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_gearShifterR] = {.name = "gear shifter R", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
 };
 
 static s_axis_name_dir axis_name_dirs[] =
