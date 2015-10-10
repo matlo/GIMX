@@ -26,6 +26,9 @@
 #define DEV_SERIAL "COM"
 #endif
 
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+
 static void usage()
 {
 #ifndef WIN32
@@ -69,7 +72,7 @@ static void usage()
   printf("  --btstack: use btstack for the bluetooth connection.\n");
   printf("    Btstack is the only available connection method on Windows, and an alternative connection method on Linux.\n");
   printf("  --log filename: write messages into a log file instead of the standard output.\n");
-  printf("    filename: The name of the log file, in the ~/.gimx/log directory (ex: log.txt).\n");
+  printf("    filename: The name of the log file, in the ~/.gimx/log directory (make sure this folder exists).\n");
 }
 
 /*
@@ -193,10 +196,10 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
 
       case 'e':
         {
-          char * label = NULL;
+          char label[AXIS_NAME_MAX_SIZE];
           int axis;
           int value;
-          if(sscanf(optarg, "%m[^(](%d)", &label, &value) != 2)
+          if(sscanf(optarg, "%"STR(AXIS_NAME_MAX_SIZE)"[^(](%d)", label, &value) != 2)
           {
             fprintf(stderr, _("Bad event format: %s\n"), optarg);
             ret = -1;
@@ -219,7 +222,6 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
               fprintf(stderr, _("Bad axis name for event: %s\n"), optarg);
               ret = -1;
             }
-            free(label);
           }
         }
         break;

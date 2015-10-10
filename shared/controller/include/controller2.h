@@ -32,9 +32,11 @@ typedef struct {
 #define AXIS_PROP_NEGATIVE 0x04
 #define AXIS_PROP_CENTERED 0x08
 
+#define AXIS_NAME_MAX_SIZE 16
+
 typedef struct
 {
-  const char * name;
+  const char name[AXIS_NAME_MAX_SIZE];
   int max_unsigned_value;
 } s_axis;
 

@@ -1287,9 +1287,8 @@ void launcherFrame::OnProcessTerminated(wxProcess *process, int status)
 
     if(ProcessOutputChoice->GetStringSelection() == _("log file"))
     {
-
 #ifdef WIN32
-      gimxConfigDir.Replace(wxT("/"), wxT("\\"));
+      gimxLogDir.Replace(wxT("/"), wxT("\\"));
       wxExecute(wxT("explorer ") + gimxLogDir + wxT(LOG_FILE), wxEXEC_ASYNC, NULL);
 #else
       wxExecute(wxT("xdg-open ") + gimxLogDir + wxT(LOG_FILE), wxEXEC_ASYNC, NULL);

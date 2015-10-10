@@ -191,14 +191,20 @@ int async_close(int device) {
     if(devices[device].read.overlapped.hEvent != INVALID_HANDLE_VALUE) {
       if(pCancelIoEx(devices[device].handle, &devices[device].read.overlapped) != ERROR_NOT_FOUND) {
         if (!GetOverlappedResult(devices[device].handle, &devices[device].read.overlapped, &dwBytesTransfered, TRUE)) { //block until completion
-          ASYNC_PRINT_ERROR("GetOverlappedResult")
+          if(GetLastError() != ERROR_OPERATION_ABORTED)
+          {
+            ASYNC_PRINT_ERROR("GetOverlappedResult")
+          }
         }
       }
     }
     if(devices[device].write.overlapped.hEvent != INVALID_HANDLE_VALUE) {
       if(pCancelIoEx(devices[device].handle, &devices[device].write.overlapped) != ERROR_NOT_FOUND) {
         if (!GetOverlappedResult(devices[device].handle, &devices[device].write.overlapped, &dwBytesTransfered, TRUE)) { //block until completion
-          ASYNC_PRINT_ERROR("GetOverlappedResult")
+          if(GetLastError() != ERROR_OPERATION_ABORTED)
+          {
+            ASYNC_PRINT_ERROR("GetOverlappedResult")
+          }
         }
       }
     }
