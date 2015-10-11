@@ -467,7 +467,7 @@ void launcherFrame::readHidPorts()
   const GCAPI_USB_IDS * usb_ids = gpppcprog_get_ids(&nb_usb_ids);
 
   devs = hidasync_enumerate(0x0000, 0x0000);
-  for(cur_dev = devs; ; ++cur_dev)
+  for(cur_dev = devs; cur_dev != NULL; ++cur_dev)
   {
     wxString device;
     for(unsigned int i = 0; i < nb_usb_ids; ++i)

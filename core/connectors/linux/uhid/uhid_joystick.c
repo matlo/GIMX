@@ -222,7 +222,7 @@ int uhid_joystick_open_all() {
     s_hid_dev * hid_devs = hidasync_enumerate(0x0000, 0x0000);
 
     s_hid_dev * current;
-    for(current = hid_devs; ; ++current) {
+    for(current = hid_devs; current != NULL; ++current) {
 
         if(is_logitech_wheel(current->vendor_id, current->product_id)) {
 

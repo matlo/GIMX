@@ -178,7 +178,7 @@ int8_t gppcprog_connect(int id, const char * path)
     s_hid_dev *devs, *cur_dev;
 
     devs = hidasync_enumerate(0x0000, 0x0000);
-    for(cur_dev = devs; ; ++cur_dev)
+    for(cur_dev = devs; cur_dev != NULL; ++cur_dev)
     {
       int i;
       for(i = 0; i < sizeof(usb_ids) / sizeof(*usb_ids); ++i)
