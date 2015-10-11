@@ -652,7 +652,7 @@ static void usb_cleanup() {
 void usbhidasync_free_enumeration(s_hid_dev * hid_devs) {
 
     s_hid_dev * current;
-    for(current = hid_devs; ; ++current) {
+    for(current = hid_devs; current != NULL; ++current) {
 
         free(current->path);
 
