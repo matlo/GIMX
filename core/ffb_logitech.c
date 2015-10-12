@@ -125,7 +125,7 @@ static struct {
 };
 
 static const char * get_ext_cmd_name(unsigned char ext) {
-    int i;
+    unsigned int i;
     for (i = 0; i < sizeof(ext_cmd_names) / sizeof(*ext_cmd_names); ++i) {
         if(ext_cmd_names[i].value == ext) {
             return ext_cmd_names[i].name;

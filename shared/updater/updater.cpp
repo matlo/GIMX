@@ -190,8 +190,7 @@ int updater::Update()
     fclose(outfile);
 
 #ifdef WIN32
-    STARTUPINFOA startupInfo =
-    { 0};
+    STARTUPINFOA startupInfo = STARTUPINFO();
     startupInfo.cb = sizeof(startupInfo);
     PROCESS_INFORMATION processInformation;
 

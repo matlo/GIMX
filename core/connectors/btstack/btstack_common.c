@@ -14,7 +14,7 @@
 
 static int btstack_fd = -1;
 
-static recv_data_t recv_data = {};
+static recv_data_t recv_data = { {}, 0, 0 };
 
 static uint8_t hci_cmd_buffer[HCI_ACL_BUFFER_SIZE];
 

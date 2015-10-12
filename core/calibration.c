@@ -659,26 +659,18 @@ void cal_button(int which, int button)
           }
           break;
         case DZX:
-          if (mcal->dzx)
+          if (mcal->dzx && *mcal->dzx > 0)
           {
             *mcal->dzx -= 1;
-            if (*mcal->dzx < 0)
-            {
-              *mcal->dzx = 0;
-            }
             mc->merge_x[mc->index] = -1;
             mc->merge_y[mc->index] = 0;
             mc->change = 1;
           }
           break;
         case DZY:
-          if (mcal->dzy)
+          if (mcal->dzy && *mcal->dzy > 0)
           {
             *mcal->dzy -= 1;
-            if (*mcal->dzy < 0)
-            {
-              *mcal->dzy = 0;
-            }
             mc->merge_x[mc->index] = 0;
             mc->merge_y[mc->index] = -1;
             mc->change = 1;

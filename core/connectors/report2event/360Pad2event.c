@@ -49,7 +49,7 @@ static inline void button2event(int (*callback)(GE_Event*), GE_Event* event, uns
 void _360Pad2event(int adapter_id, s_report* current, s_report* previous,
     int joystick_id, int (*callback)(GE_Event*))
 {
-  GE_Event event = { .jbutton.which = joystick_id };
+  GE_Event event = { .jbutton = { .which = joystick_id } };
 
   s_report_x360* x360_current = &current->x360;
   s_report_x360* x360_previous = &previous->x360;

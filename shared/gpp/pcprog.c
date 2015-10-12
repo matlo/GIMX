@@ -134,7 +134,7 @@ int8_t gpppcprog_send(int id, uint8_t type, uint8_t * data, uint16_t length);
 
 static uint8_t is_device_opened(const char* device)
 {
-  int i;
+  unsigned int i;
   for(i = 0; i < sizeof(gpp_devices) / sizeof(*gpp_devices); ++i)
   {
     if(gpp_devices[i].path && !strcmp(gpp_devices[i].path, device))
@@ -180,7 +180,7 @@ int8_t gppcprog_connect(int id, const char * path)
     devs = hidasync_enumerate(0x0000, 0x0000);
     for(cur_dev = devs; cur_dev != NULL; ++cur_dev)
     {
-      int i;
+      unsigned int i;
       for(i = 0; i < sizeof(usb_ids) / sizeof(*usb_ids); ++i)
       {
         if(cur_dev->vendor_id == usb_ids[i].vid && cur_dev->product_id == usb_ids[i].pid)
@@ -322,7 +322,7 @@ int8_t gpppcprog_send(int id, uint8_t type, uint8_t * data, uint16_t length)
   {										// Data
     if (length)
     {
-      sndLen = (((i + sizeof(report.data)) < length) ? sizeof(report.data) : (length - i));
+      sndLen = (((i + sizeof(report.data)) < length) ? sizeof(report.data) : (uint16_t)(length - i));
       memcpy(report.data, data + i, sndLen);
       i += sndLen;
     }

@@ -599,7 +599,7 @@ static int ds4_interrupt_rumble(int joystick, unsigned short weak, unsigned shor
 
   int ret = 0;
 
-  int i;
+  unsigned int i;
   for(i = 0; i < sizeof(states)/sizeof(*states); ++i)
   {
     if(states[i].joystick_id == joystick)
@@ -680,7 +680,7 @@ static int listen_accept_sdp(int channel, bdaddr_t * src)
 {
   bdaddr_t cmp;
 
-  int i;
+  unsigned int i;
   for(i=0; i<sizeof(states)/sizeof(*states); ++i)
   {
     /*
@@ -751,7 +751,7 @@ static int listen_accept_sdp(int channel, bdaddr_t * src)
 static int listen_accept_control(int channel, bdaddr_t * src)
 {
   bdaddr_t cmp;
-  int i;
+  unsigned int i;
   for(i=0; i<sizeof(states)/sizeof(*states); ++i)
   {
     /*
@@ -783,7 +783,7 @@ static int listen_accept_control(int channel, bdaddr_t * src)
 static int listen_accept_interrupt(int channel, bdaddr_t * src)
 {
   bdaddr_t cmp;
-  int i;
+  unsigned int i;
   for(i=0; i<sizeof(states)/sizeof(*states); ++i)
   {
     /*

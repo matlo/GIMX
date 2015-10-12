@@ -50,7 +50,7 @@ static struct
 {
   unsigned int nb;
   s_channel channels[L2CAP_ABS_MAX_PEERS*L2CAP_ABS_MAX_CHANNELS];
-} channels = {};
+} channels = { 0, { } };
 
 typedef struct
 {
@@ -63,7 +63,7 @@ static struct
 {
   unsigned int nb;
   s_listen_channel channels[L2CAP_ABS_MAX_CHANNELS];
-} listen_channels = {};
+} listen_channels = { 0, { } };
 
 #if 0
 static int l2cap_bluez_set_flush_timeout(int channel, int timeout_ms)
@@ -225,7 +225,7 @@ static int l2cap_bluez_acl_send_data (int channel, unsigned char *data, unsigned
 
 static int l2cap_bluez_setsockopt(int fd, int link_mode)
 {
-  struct l2cap_options l2o = {};
+  struct l2cap_options l2o = { 0 };
   socklen_t len = sizeof(l2o);
 
   int lm = 0;
@@ -280,7 +280,7 @@ static int l2cap_bluez_setsockopt(int fd, int link_mode)
 static int l2cap_bluez_get_devid(bdaddr_t * ba_dst, int * devid)
 {
   *devid = hci_get_route(ba_dst);
-  if(devid < 0)
+  if(*devid < 0)
   {
     fprintf(stderr, "can't get device id for destination\n");
     return -1;
@@ -312,7 +312,7 @@ static int l2cap_bluez_get_handle(int fd, uint16_t * handle)
 {
   int result = 0;
 
-  struct l2cap_conninfo l2ci = {};
+  struct l2cap_conninfo l2ci = { 0 };
   socklen_t len = sizeof(l2ci);
 
   if(getsockopt(fd, SOL_L2CAP, L2CAP_CONNINFO, &l2ci, &len) < 0)
@@ -332,7 +332,7 @@ static int l2cap_bluez_get_outgoing_mtu(int fd, uint16_t * omtu)
 {
   int result = 0;
 
-  struct l2cap_options l2o = {};
+  struct l2cap_options l2o = { 0 };
   socklen_t len = sizeof(l2o);
 
   if(getsockopt(fd, SOL_L2CAP, L2CAP_OPTIONS, &l2o, &len) < 0)

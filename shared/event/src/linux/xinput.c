@@ -217,7 +217,7 @@ int xinput_init()
   memset(devices, 0x00, sizeof(devices));
   nb_devices = 0;
 
-  int i;
+  unsigned int i;
   for(i=0; i<sizeof(device_index)/sizeof(*device_index); ++i)
   {
     device_index[i] = -1;
@@ -244,7 +244,7 @@ int xinput_init()
 
   xdevices = XIQueryDevice(dpy, XIAllDevices, &nxdevices);
 
-  for (i = 0; i < nxdevices; i++)
+  for (i = 0; nxdevices > 0 && i < (unsigned int) nxdevices; i++)
   {
       xdevice = &xdevices[i];
 

@@ -49,7 +49,7 @@ static inline void button2event(int (*callback)(GE_Event*), GE_Event* event, uns
 void xOnePad2event(int adapter_id, s_report* current, s_report* previous,
     int joystick_id, int (*callback)(GE_Event*))
 {
-  GE_Event event = { .jbutton.which = joystick_id };
+  GE_Event event = { .jbutton = { .which = joystick_id } };
 
   if(current->xone.input.type == XONE_USB_HID_IN_REPORT_ID)
   {

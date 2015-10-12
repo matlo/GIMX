@@ -41,8 +41,8 @@
 static ManyMouseEvent input_events[MAX_EVENTS];
 static volatile int input_events_read = 0;
 static volatile int input_events_write = 0;
-static int available_mice = 0;
-static int available_keyboards = 0;
+static unsigned int available_mice = 0;
+static unsigned int available_keyboards = 0;
 static int did_api_lookup = 0;
 static HWND raw_hwnd = NULL;
 static const char *class_name = "ManyMouseRawInputCatcher";
@@ -227,7 +227,7 @@ static void queue_event(const ManyMouseEvent *event)
 
 static void queue_from_rawinput(const RAWINPUT *raw, UINT align)
 {
-    int i;
+    unsigned int i;
     const RAWINPUTHEADER *header = &raw->header;
     const RAWMOUSE *mouse = (void*)&raw->data.mouse + align;
     const RAWKEYBOARD *keyboard = (void*)&raw->data.keyboard + align;
@@ -721,7 +721,7 @@ static void init_mouse(const RAWINPUTDEVICELIST *dev)
     if (dev->dwType != RIM_TYPEMOUSE && dev->dwType != RIM_TYPEKEYBOARD)
         return;  /* keyboard or some other fruity thing. */
 
-    if (pGetRawInputDeviceInfoA(dev->hDevice, RIDI_DEVICENAME, NULL, &ct) < 0)
+    if (pGetRawInputDeviceInfoA(dev->hDevice, RIDI_DEVICENAME, NULL, &ct) == (UINT)-1)
         return;
 
     /* ct == is chars, not bytes, but we used the ASCII version. */
@@ -729,7 +729,7 @@ static void init_mouse(const RAWINPUTDEVICELIST *dev)
     if (buf == NULL)
         return;
 
-    if (pGetRawInputDeviceInfoA(dev->hDevice, RIDI_DEVICENAME, buf, &ct) < 0)
+    if (pGetRawInputDeviceInfoA(dev->hDevice, RIDI_DEVICENAME, buf, &ct) == (UINT)-1)
         return;
 
     buf[ct] = '\0';  /* make sure it's null-terminated. */
@@ -772,7 +772,7 @@ static void init_mouse(const RAWINPUTDEVICELIST *dev)
     /* avoiding memcmp here so we don't get a C runtime dependency... */
     if (ct >= sizeof (rdp_ident) - 1)
     {
-        int i;
+        unsigned int i;
         for (i = 0; i < sizeof (rdp_ident) - 1; i++)
         {
             if (buf[i] != rdp_ident[i])
@@ -799,7 +799,7 @@ static void init_mouse(const RAWINPUTDEVICELIST *dev)
       available_keyboards++;
     }
 	
-    int i;
+    unsigned int i;
     for(i=0; i<available_keyboards; ++i)
     {
       keystates[i] = calloc(MAX_DEVICES, sizeof(unsigned char));
@@ -856,7 +856,7 @@ static void windows_wminput_quit(void)
     rid[1].dwFlags |= RIDEV_REMOVE;
     pRegisterRawInputDevices(rid, 2, sizeof (rid[0]));
     cleanup_window();
-    int i;
+    unsigned int i;
     for(i=0; i<available_keyboards; ++i)
     {
       free(keystates[i]);
@@ -918,7 +918,7 @@ static int check_for_disconnects(ManyMouseEvent *ev)
 static int windows_wminput_poll(ManyMouseEvent *ev, unsigned int max)
 {
     MSG Msg;
-    int found = 0;
+    unsigned int found = 0;
     
     if(buff)
     {

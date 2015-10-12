@@ -303,7 +303,7 @@ void ev_joystick_close(int id)
   }
 }
 
-static int m_num = 0;
+static unsigned int m_num = 0;
 
 const char* ev_mouse_name(int id)
 {
@@ -312,7 +312,7 @@ const char* ev_mouse_name(int id)
     const char* name = ManyMouse_MouseName(id);
     if(name)
     {
-      if(id+1 > m_num)
+      if((unsigned int)id+1 > m_num)
       {
         m_num = id+1;
       }
@@ -463,7 +463,7 @@ void ev_register_source_handle(HANDLE handle, int id, int (*fp_read)(int), int (
 
 void ev_remove_source_handle(HANDLE handle)
 {
-  int i;
+  unsigned int i;
   for(i=0; i<max_source; ++i)
   {
     if(sources[i].handle == handle)
@@ -477,7 +477,7 @@ void ev_remove_source_handle(HANDLE handle)
 
 void ev_remove_source(int fd)
 {
-  int i;
+	unsigned int i;
   for(i=0; i<max_source; ++i)
   {
     if(sources[i].fd == fd)
@@ -492,7 +492,7 @@ void ev_remove_source(int fd)
 
 static unsigned int fill_handles(HANDLE handles[])
 {
-  int i;
+	unsigned int i;
   for(i=0; i<max_source; ++i)
   {
     if(sources[i].fp_read || sources[i].fp_write)
@@ -533,7 +533,7 @@ void ev_pump_events()
   int num_evt;
   static GE_Event events[EVENT_BUFFER_SIZE];
   GE_Event* event;
-  int i;
+  unsigned int i;
 
   static struct
   {
@@ -545,7 +545,7 @@ void ev_pump_events()
 
   HANDLE hTimer = timer_get();
 
-  int result;
+  DWORD result;
   int done = 0;
   int count;
 
@@ -883,7 +883,7 @@ static int joystick_hat_button(GE_Event* event, unsigned char hat_dir)
 
 static unsigned char get_joystick_hat(GE_Event* event)
 {
-  if(event->jhat.which >= 0 && event->jhat.hat < joysticks[event->jhat.which].hat_info.joystickNbHat)
+  if(event->jhat.hat < joysticks[event->jhat.which].hat_info.joystickNbHat)
   {
     return joysticks[event->jhat.which].hat_info.joystickHat[event->jhat.hat];
   }
@@ -892,7 +892,7 @@ static unsigned char get_joystick_hat(GE_Event* event)
 
 static void set_joystick_hat(GE_Event* event)
 {
-  if(event->jhat.which >= 0 && event->jhat.hat < joysticks[event->jhat.which].hat_info.joystickNbHat)
+  if(event->jhat.hat < joysticks[event->jhat.which].hat_info.joystickNbHat)
   {
     joysticks[event->jhat.which].hat_info.joystickHat[event->jhat.hat] = event->jhat.value;
   }

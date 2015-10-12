@@ -484,7 +484,7 @@ static struct {
 
 static int get_fixed_rdesc(unsigned short vendor, unsigned short product) {
 
-    int i;
+    unsigned int i;
     for (i = 0; i < sizeof(rdesc_fixed) / sizeof(*rdesc_fixed); ++i) {
         if (rdesc_fixed[i].vendor == vendor && rdesc_fixed[i].product == product) {
             return i;

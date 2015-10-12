@@ -211,7 +211,7 @@ static unsigned int fill_fds(nfds_t nfds, struct pollfd fds[nfds])
 {
   unsigned int pos = 0;
 
-  int i;
+  unsigned int i;
   for(i=0; i<nfds; ++i)
   {
     if(sources[i].event)
@@ -235,7 +235,7 @@ static unsigned int fill_fds(nfds_t nfds, struct pollfd fds[nfds])
  */
 void ev_pump_events(void)
 {
-  int i;
+  unsigned int i;
   int res;
 
   if(event_callback == NULL)

@@ -331,7 +331,8 @@ void cfg_process_motion_event(GE_Event* event)
 
 void cfg_process_motion()
 {
-  int i, j, k;
+  int i, k;
+  unsigned int j;
   int weight;
   int divider;
   s_mouse_control* mc;
@@ -589,7 +590,7 @@ void cfg_trigger_init()
 
 static inline s_event get_event(GE_Event * event)
 {
-  s_event e = {};
+  s_event e = { 0, 0, 0 };
 
   e.device_id = GE_GetDeviceId(event);
 

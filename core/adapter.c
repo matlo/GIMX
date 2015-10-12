@@ -572,7 +572,7 @@ static int is_logitech_wheel(unsigned short vendor, unsigned short product) {
   {
     return 0;
   }
-  int i;
+  unsigned int i;
   for(i = 0; i < sizeof(lg_wheel_products) / sizeof(*lg_wheel_products); ++i)
   {
     if(lg_wheel_products[i] == product)
@@ -675,7 +675,8 @@ static int adapter_send_short_command(int device, unsigned char type)
     }
   };
 
-  if(serialasync_write_timeout(device, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT) < sizeof(packet.header))
+  int ret = serialasync_write_timeout(device, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
+  if(ret < 0 || (unsigned int)ret < sizeof(packet.header))
   {
     fprintf(stderr, "serial_send\n");
     return -1;
@@ -687,13 +688,15 @@ static int adapter_send_short_command(int device, unsigned char type)
    */
   while(1)
   {
-    if(serialasync_read_timeout(device, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT) < sizeof(packet.header))
+    ret = serialasync_read_timeout(device, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
+    if(ret < 0 || (unsigned int)ret < sizeof(packet.header))
     {
       fprintf(stderr, "can't read packet header\n");
       return -1;
     }
 
-    if(serialasync_read_timeout(device, &packet.value, packet.header.length, SERIAL_TIMEOUT) < packet.header.length)
+    ret = serialasync_read_timeout(device, &packet.value, packet.header.length, SERIAL_TIMEOUT);
+    if(ret < 0 || (unsigned int)ret < packet.header.length)
     {
       fprintf(stderr, "can't read packet data\n");
       return -1;
@@ -780,7 +783,7 @@ int adapter_detect()
             {
               adapter->ctype = rtype;
             }
-            else if(adapter->ctype != rtype)
+            else if(adapter->ctype != (e_controller_type) rtype)
             {
               fprintf(stderr, _("Wrong controller type.\n"));
               ret = -1;

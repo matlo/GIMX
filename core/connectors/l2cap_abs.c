@@ -23,7 +23,7 @@ void l2cap_abs_register(e_bt_abs index, s_l2cap_abs * value)
 void l2cap_abs_init(void) __attribute__((constructor (102)));
 void l2cap_abs_init(void)
 {
-  int index;
+  unsigned int index;
   for(index = 0; index < sizeof(l2cap_abs) / sizeof(*l2cap_abs); ++index)
   {
     if(!l2cap_abs[index])

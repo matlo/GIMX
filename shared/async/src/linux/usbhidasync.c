@@ -73,7 +73,7 @@ static struct libusb_transfer ** transfers = NULL;
 static unsigned int transfers_nb = 0;
 
 static int add_transfer(struct libusb_transfer * transfer) {
-	int i;
+	unsigned int i;
 	for (i = 0; i < transfers_nb; ++i) {
 		if (transfers[i] == transfer) {
 			return 0;
@@ -330,9 +330,9 @@ typedef struct PACKED
 	unsigned short wReportDescriptorLength;
 } s_hid_descriptor;
 
-static s_hid_info probe_hid(const unsigned char * extra, int extra_length) {
+static s_hid_info probe_hid(const unsigned char * extra, unsigned int extra_length) {
 
-	s_hid_info hidInfo = { };
+	s_hid_info hidInfo = { 0 };
 
 	unsigned int pos;
 	for (pos = 0; pos < extra_length && extra[pos]; pos += extra[pos]) {
@@ -827,7 +827,7 @@ static void cancel_transfers(int device) {
 	unsigned int i;
 	for (i = 0; i < transfers_nb; ++i) {
 
-		if ((unsigned long) (transfers[i]->user_data) == device) {
+		if ((unsigned long) (transfers[i]->user_data) == (unsigned long) device) {
 
 			libusb_cancel_transfer(transfers[i]);
 		}

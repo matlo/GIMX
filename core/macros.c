@@ -1178,7 +1178,7 @@ static void macro_unalloc(int index)
  */
 static int macro_delete(GE_Event* event)
 {
-  int i;
+  unsigned int i;
   for(i=0; i<running_macro_nb; ++i)
   {
     if(!compare_events(event, &macros[running_macro[i].macro_index].id))
@@ -1324,7 +1324,7 @@ int get_event_device_type(GE_Event* ev)
  */
 unsigned int macro_process()
 {
-  int i, j;
+  unsigned int i, j;
   int dtype1, dtype2, did;
   GE_Event event;
   for(i=0; i<running_macro_nb; ++i)

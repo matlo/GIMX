@@ -101,7 +101,7 @@ static int read_ip(char* optarg, in_addr_t* ip, unsigned short* port)
     *sep = ' ';//Temporarily separate the address and the port
     *ip = inet_addr(optarg);//parse the IP
     //parse the port
-    if(sscanf(sep + 1, "%hu%n", port, &pos) != 1 || pos != (len - (sep + 1 - optarg)))
+    if(sscanf(sep + 1, "%hu%n", port, &pos) != 1 || (unsigned int)pos != (len - (sep + 1 - optarg)))
     {
       ret = -1;
     }

@@ -132,7 +132,7 @@ static inline void button2event(int (*callback)(GE_Event*), GE_Event* event, uns
 void ds42event(int adapter_id, s_report* current, s_report* previous,
     int joystick_id, int (*callback)(GE_Event*))
 {
-  GE_Event event = { .jbutton.which = joystick_id };
+  GE_Event event = { .jbutton = { .which = joystick_id } };
 
   s_report_ds4* ds4_current = &current->ds4;
   s_report_ds4* ds4_previous = &previous->ds4;

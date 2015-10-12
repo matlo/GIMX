@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
 #ifndef WIN32
   int ffb = 0;
 #endif
-  GE_Event kgevent = {.type = GE_KEYDOWN};
+  GE_Event kgevent = { .key = { .type = GE_KEYDOWN } };
 
   (void) signal(SIGINT, terminate);
   (void) signal(SIGTERM, terminate);

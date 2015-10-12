@@ -41,7 +41,7 @@ static struct
 {
   unsigned int nb;
   s_channel entries[L2CAP_ABS_MAX_PEERS*L2CAP_ABS_MAX_CHANNELS];
-} channels = {};
+} channels = { 0, { } };
 
 typedef struct
 {
@@ -60,7 +60,7 @@ static int l2cap_btstack_connect_channel(bdaddr_t event_addr, uint16_t psm, uint
 {
   int result = -1;
 
-  int channel;
+  unsigned int channel;
   for(channel = 0; channel < channels.nb; ++channel)
   {
     if(!bacmp(&channels.entries[channel].ba, &event_addr) && channels.entries[channel].psm == psm)
@@ -89,7 +89,7 @@ static int l2cap_btstack_process_packet(uint16_t cid, unsigned char * packet, in
 {
   int result = -1;
 
-  int channel;
+  unsigned int channel;
   for(channel = 0; channel < channels.nb; ++channel)
   {
     if(channels.entries[channel].cid == cid)
@@ -104,7 +104,7 @@ static int l2cap_btstack_process_packet(uint16_t cid, unsigned char * packet, in
 
 static int packet_handler(int unused)
 {
-  static recv_data_t recv_data = {};
+  static recv_data_t recv_data = { {}, 0, 0 };
 
   bdaddr_t event_addr;
   uint16_t psm = 0, cid, handle;

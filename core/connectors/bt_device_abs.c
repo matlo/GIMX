@@ -25,7 +25,7 @@ void bt_device_abs_register(e_bt_abs index, s_bt_device_abs * value)
 void bt_device_abs_init(void) __attribute__((constructor (102)));
 void bt_device_abs_init(void)
 {
-  int index;
+  unsigned int index;
   for(index = 0; index < sizeof(bt_device_abs) / sizeof(*bt_device_abs); ++index)
   {
     if(!bt_device_abs[index])

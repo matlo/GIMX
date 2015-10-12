@@ -11,7 +11,6 @@
 
 static unsigned char noflag_keys[0xFF] =
 {
-  [0x76] = KEY_ZENKAKUHANKAKU,
   [0x57] = KEY_F11,
   [0x58] = KEY_F12,
   [0x73] = KEY_RO,
@@ -63,7 +62,6 @@ static unsigned char e0flag_keys[0xFF] =
   [0x5E] = KEY_POWER,
   [0x5B] = KEY_LEFTMETA,
   [0x5C] = KEY_RIGHTMETA,
-  [0x24] = KEY_STOP,
   [0x21] = KEY_CALC,
   [0x5F] = KEY_SLEEP,
   [0x63] = KEY_WAKEUP,
@@ -75,7 +73,7 @@ static unsigned char e0flag_keys[0xFF] =
   [0x19] = KEY_NEXTSONG,
   [0x22] = KEY_PLAYPAUSE,
   [0x10] = KEY_PREVIOUSSONG,
-  [0x24] = KEY_STOPCD,
+  [0x24] = KEY_STOP,
   [0x32] = KEY_HOMEPAGE,
   [0x67] = KEY_REFRESH,
   [0x37] = KEY_PRINT,

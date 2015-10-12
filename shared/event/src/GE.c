@@ -146,8 +146,8 @@ int GE_initialize(unsigned char mkb_src)
     }
     if(joysticks[i].type == GE_JS_OTHER)
     {
-      // Determine if the joystick type.
-      for (j = 0; j < sizeof(js_types) / sizeof(*js_types); ++j)
+      // Determine the joystick type.
+      for (j = 0; (unsigned int) j < sizeof(js_types) / sizeof(*js_types); ++j)
       {
         if (!strcmp(joysticks[i].name, js_types[j].name))
         {

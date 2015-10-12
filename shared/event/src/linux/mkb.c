@@ -234,7 +234,7 @@ static struct input_event ie[MAX_EVENTS];
 static int mkb_process_events(int device)
 {
   unsigned int size = sizeof(ie);
-  int j;
+  unsigned int j;
   int r;
 
   int tfd = timer_get();

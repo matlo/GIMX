@@ -118,7 +118,7 @@ static void sixaxis_init(int sixaxis_number)
 /* Main input report from Sixaxis -- assemble it */
 static int assemble_input_01(uint8_t *buf, int maxlen, struct sixaxis_state *state)
 {
-  if (maxlen < sizeof(s_report_ds3) - 1)
+  if ((unsigned int)maxlen < sizeof(s_report_ds3) - 1)
     return -1;
 
   memcpy(buf, ((uint8_t*) &state->user) + 1, sizeof(s_report_ds3) - 1);
@@ -138,7 +138,7 @@ static int assemble_input_01(uint8_t *buf, int maxlen, struct sixaxis_state *sta
 /* Main input report from Sixaxis -- decode it */
 static int process_input_01(const uint8_t *buf, int len, struct sixaxis_state *state)
 {
-  if (len < sizeof(s_report_ds3))
+  if ((unsigned int) len < sizeof(s_report_ds3))
     return -1;
 
   memcpy(&state->user, buf, sizeof(s_report_ds3));

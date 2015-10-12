@@ -252,7 +252,7 @@ static const s_axis_name_dir name_dirs[] =
 
 s_axis_props controller_get_axis_index_from_name(const char* name)
 {
-  int i;
+  unsigned int i;
   s_axis_props none = {-1, AXIS_PROP_NONE};
   for(i=0; i<sizeof(name_dirs)/sizeof(*name_dirs); ++i)
   {
@@ -266,7 +266,7 @@ s_axis_props controller_get_axis_index_from_name(const char* name)
 
 const char* controller_get_generic_axis_name_from_index(s_axis_props axis_props)
 {
-  int i;
+  unsigned int i;
   for(i=0; i<sizeof(name_dirs)/sizeof(*name_dirs); ++i)
   {
     if(name_dirs[i].axis_props.axis == axis_props.axis

@@ -472,7 +472,7 @@ int usb_handle_events(int unused)
 #else
   if(ctx != NULL)
   {
-    struct timeval tv = {};
+    struct timeval tv = { 0 };
     return libusb_handle_events_timeout(ctx, &tv);
   }
   else

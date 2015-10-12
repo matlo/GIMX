@@ -265,7 +265,7 @@ static const char* keynames[] =
  */
 uint16_t get_key_from_buffer(const char* buffer)
 {
-  int i;
+  unsigned int i;
 
   for (i = 0; i < sizeof(keynames)/sizeof(*keynames); i++)
   {
@@ -295,7 +295,7 @@ extern const char* butnames[GE_MOUSE_BUTTONS_MAX];
 
 const char* get_chars_from_button(int but)
 {
-  if(but >= 0 && but <sizeof(butnames)/sizeof(*butnames))
+  if(but >= 0 && (unsigned int) but < sizeof(butnames)/sizeof(*butnames))
   {
     return butnames[but];
   }
@@ -305,7 +305,7 @@ const char* get_chars_from_button(int but)
 int get_mouse_event_id_from_buffer(const char* event_id)
 {
   unsigned int r_event_id = -1;
-  int i;
+  unsigned int i;
 
   if (!strncmp(event_id, MOUSE_AXIS_X, sizeof(MOUSE_AXIS_X)))
   {

@@ -143,7 +143,7 @@ static struct js_event je[MAX_EVENTS];
 static int js_process_events(int index)
 {
   unsigned int size = sizeof(je);
-  int j;
+  unsigned int j;
   int r;
 
   int tfd = timer_get();

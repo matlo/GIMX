@@ -104,7 +104,7 @@ static int is_logitech_wheel(unsigned short vendor, unsigned short product) {
     if(vendor != USB_VENDOR_ID_LOGITECH) {
         return 0;
     }
-    int i;
+    unsigned int i;
     for(i = 0; i < sizeof(lg_wheel_products) / sizeof(*lg_wheel_products); ++i) {
         if(lg_wheel_products[i] == product) {
             return 1;
@@ -155,7 +155,7 @@ static int set_evdev_correction(int uhid) {
             {
               if(pid == getpid() && id == uhid)
               {
-                struct input_absinfo absinfo = {};
+                struct input_absinfo absinfo = { 0 };
                 if(ioctl(fd, EVIOCGABS(ABS_X), &absinfo) != -1)
                 {
                   absinfo.flat = 0;

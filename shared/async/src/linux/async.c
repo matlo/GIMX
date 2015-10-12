@@ -116,7 +116,9 @@ int async_close(int device) {
 
 int async_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
 
-  int bread = 0;
+  ASYNC_CHECK_DEVICE(device)
+
+  unsigned int bread = 0;
   int res;
 
   fd_set readfds;
@@ -154,7 +156,9 @@ int async_read_timeout(int device, void * buf, unsigned int count, unsigned int 
 
 int async_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout) {
 
-  int bwritten = 0;
+  ASYNC_CHECK_DEVICE(device)
+
+  unsigned int bwritten = 0;
   int res;
 
   fd_set writefds;
@@ -257,11 +261,11 @@ int async_write(int device, const void * buf, unsigned int count) {
 
     ASYNC_CHECK_DEVICE(device)
 
-    unsigned int ret = write(devices[device].fd, buf, count);
+    int ret = write(devices[device].fd, buf, count);
     if (ret == -1) {
         ASYNC_PRINT_ERROR("write")
     }
-    else if(ret != count) {
+    else if((unsigned int) ret != count) {
         fprintf(stderr, "%s:%d write: only %u written (requested %u)\n", __FILE__, __LINE__, ret, count);
     }
     

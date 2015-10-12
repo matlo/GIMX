@@ -20,7 +20,7 @@
 #define ACL_MTU 1024
 #define L2CAP_MTU 1024
 
-static recv_data_t recv_data = {};
+static recv_data_t recv_data = { {}, 0, 0 };
 
 int bt_device_btstack_device_init()
 {
@@ -51,7 +51,7 @@ int bt_device_btstack_get_device_bdaddr(int ignored, bdaddr_t* bdaddr)
       {
         if (COMMAND_COMPLETE_EVENT(packet, btstack_hci_read_bd_addr))
         {
-          int i;
+          unsigned int i;
           for(i=0; i<sizeof(bdaddr->b); ++i)
           {
             bdaddr->b[i] = packet[OFFSET_OF_DATA_IN_COMMAND_COMPLETE + 1 + i];
