@@ -172,6 +172,13 @@ static const s_axis_name_dir name_dirs[] =
     {.name = "abs_axis_21",  {.axis = abs_axis_21, .props = AXIS_PROP_POSITIVE}},
     {.name = "abs_axis_22",  {.axis = abs_axis_22, .props = AXIS_PROP_POSITIVE}},
     {.name = "abs_axis_23",  {.axis = abs_axis_23, .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_24",  {.axis = abs_axis_24, .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_25",  {.axis = abs_axis_25, .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_26",  {.axis = abs_axis_26, .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_27",  {.axis = abs_axis_27, .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_28",  {.axis = abs_axis_28, .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_29",  {.axis = abs_axis_29, .props = AXIS_PROP_POSITIVE}},
+    {.name = "abs_axis_30",  {.axis = abs_axis_30, .props = AXIS_PROP_POSITIVE}},
 
     {.name = "abs_axis_0",   {.axis = abs_axis_0,  .props = AXIS_PROP_TOGGLE}},
     {.name = "abs_axis_1",   {.axis = abs_axis_1,  .props = AXIS_PROP_TOGGLE}},
@@ -197,6 +204,13 @@ static const s_axis_name_dir name_dirs[] =
     {.name = "abs_axis_21",  {.axis = abs_axis_21, .props = AXIS_PROP_TOGGLE}},
     {.name = "abs_axis_22",  {.axis = abs_axis_22, .props = AXIS_PROP_TOGGLE}},
     {.name = "abs_axis_23",  {.axis = abs_axis_23, .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_24",  {.axis = abs_axis_24, .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_25",  {.axis = abs_axis_25, .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_26",  {.axis = abs_axis_26, .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_27",  {.axis = abs_axis_27, .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_28",  {.axis = abs_axis_28, .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_29",  {.axis = abs_axis_29, .props = AXIS_PROP_TOGGLE}},
+    {.name = "abs_axis_30",  {.axis = abs_axis_30, .props = AXIS_PROP_TOGGLE}},
 
     //the below values are kept for compatibility with old configurations
 
