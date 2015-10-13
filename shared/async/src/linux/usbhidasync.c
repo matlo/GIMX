@@ -43,6 +43,7 @@ static struct {
 		ASYNC_CLOSE_CALLBACK fp_close;
 	} callback;
 	int pending_transfers;
+	int closing;
 } usbdevices[USBHIDASYNC_MAX_DEVICES] = { };
 
 #if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)
@@ -243,7 +244,7 @@ static void usb_callback(struct libusb_transfer* transfer) {
 		}
 
 		if (transfer->endpoint == usbdevices[device].config.endpoints.in.address
-				&& transfer->status != LIBUSB_TRANSFER_CANCELLED) {
+				&& transfer->status != LIBUSB_TRANSFER_CANCELLED && !usbdevices[device].closing) {
 
 			submit_transfer(transfer);
 		} else {
@@ -845,6 +846,8 @@ static void cancel_transfers(int device) {
 int usbhidasync_close(int device) {
 
 	USBHIDASYNC_CHECK_DEVICE(device, -1)
+
+  usbdevices[device].closing = 1;
 
 	cancel_transfers(device);
 
