@@ -40,6 +40,10 @@ void XmlWritter::CreateEventNode(xmlNodePtr parent_node, Event* event)
     xmlNodePtr e_node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_EVENT, NULL);
     xmlNewProp(e_node, BAD_CAST X_ATTR_TYPE, BAD_CAST (const char*) event->GetType().c_str());
     xmlNewProp(e_node, BAD_CAST X_ATTR_ID, BAD_CAST (const char*) event->GetId().c_str());
+    if(!strcmp((const char*) parent_node->name, X_NODE_CORRECTION))
+    {
+      return;
+    }
     if(event->GetType().find("axis") != string::npos)
     {
         if(strcmp((const char*) parent_node->name, X_NODE_AXIS))
@@ -146,6 +150,27 @@ void XmlWritter::CreateMouseOptionsNodes(xmlNodePtr parent_node)
     }
 }
 
+void XmlWritter::CreateJoystickCorrectionsNodes(xmlNodePtr parent_node)
+{
+    xmlNodePtr corrections = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_JOYSTICK_CORRECTIONS_LIST, NULL);
+
+    list<JoystickCorrection>* i_list = m_ConfigurationFile->GetController(m_CurrentController)->GetConfiguration(m_CurrentConfiguration)->GetJoystickCorrectionsList();
+
+    for(list<JoystickCorrection>::iterator it = i_list->begin(); it!=i_list->end(); ++it)
+    {
+      xmlNodePtr correction = xmlNewChild(corrections, NULL, BAD_CAST X_NODE_CORRECTION, NULL);
+
+      xmlNewProp(correction, BAD_CAST X_ATTR_LOW_VALUE, BAD_CAST (const char*) it->GetLowValue().c_str());
+      xmlNewProp(correction, BAD_CAST X_ATTR_LOW_COEF, BAD_CAST (const char*) it->GetLowCoef().c_str());
+
+      xmlNewProp(correction, BAD_CAST X_ATTR_HIGH_VALUE, BAD_CAST (const char*) it->GetHighValue().c_str());
+      xmlNewProp(correction, BAD_CAST X_ATTR_HIGH_COEF, BAD_CAST (const char*) it->GetHighCoef().c_str());
+
+      CreateDeviceNode(correction, it->GetJoystick());
+      CreateEventNode(correction, it->GetAxis());
+    }
+}
+
 void XmlWritter::CreateIntensityNodes(xmlNodePtr parent_node)
 {
     char steps[4];
@@ -235,6 +260,8 @@ void XmlWritter::CreateConfigurationNodes(xmlNodePtr parent_node)
         CreateButtonMapNode(node);
 
         CreateAxisMapNode(node);
+
+        CreateJoystickCorrectionsNodes(node);
     }
 }
 

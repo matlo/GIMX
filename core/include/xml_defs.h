@@ -58,4 +58,11 @@
 #define X_ATTR_VALUE_AIMING "Aiming"
 #define X_ATTR_VALUE_DRIVING "Driving"
 
+#define X_NODE_JOYSTICK_CORRECTIONS_LIST "joystick_corrections_list"
+#define X_NODE_CORRECTION "correction"
+#define X_ATTR_LOW_VALUE "low_value"
+#define X_ATTR_LOW_COEF "low_coef"
+#define X_ATTR_HIGH_VALUE "high_value"
+#define X_ATTR_HIGH_COEF "high_coef"
+
 #endif /* XML_DEFS_H_ */

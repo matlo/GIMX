@@ -91,6 +91,23 @@ const long configFrame::ID_BUTTON21 = wxNewId();
 const long configFrame::ID_BUTTON22 = wxNewId();
 const long configFrame::ID_BUTTON23 = wxNewId();
 const long configFrame::ID_PANEL6 = wxNewId();
+const long configFrame::ID_STATICTEXT6 = wxNewId();
+const long configFrame::ID_STATICTEXT11 = wxNewId();
+const long configFrame::ID_STATICTEXT12 = wxNewId();
+const long configFrame::ID_STATICTEXT24 = wxNewId();
+const long configFrame::ID_STATICTEXT19 = wxNewId();
+const long configFrame::ID_BUTTON15 = wxNewId();
+const long configFrame::ID_STATICLINE14 = wxNewId();
+const long configFrame::ID_STATICTEXT23 = wxNewId();
+const long configFrame::ID_TEXTCTRL1 = wxNewId();
+const long configFrame::ID_TEXTCTRL2 = wxNewId();
+const long configFrame::ID_TEXTCTRL4 = wxNewId();
+const long configFrame::ID_TEXTCTRL5 = wxNewId();
+const long configFrame::ID_GRID5 = wxNewId();
+const long configFrame::ID_BUTTON16 = wxNewId();
+const long configFrame::ID_BUTTON17 = wxNewId();
+const long configFrame::ID_BUTTON18 = wxNewId();
+const long configFrame::ID_PANEL7 = wxNewId();
 const long configFrame::ID_NOTEBOOK2 = wxNewId();
 const long configFrame::ID_PANEL1 = wxNewId();
 const long configFrame::ID_STATICTEXT38 = wxNewId();
@@ -527,6 +544,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     //(*Initialize(configFrame)
     wxFlexGridSizer* FlexGridSizer30;
     wxFlexGridSizer* FlexGridSizer46;
+    wxStaticBoxSizer* StaticBoxSizer2;
     wxFlexGridSizer* FlexGridSizer21;
     wxFlexGridSizer* FlexGridSizer28;
     wxMenuItem* MenuItem1;
@@ -536,24 +554,30 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer1;
     wxFlexGridSizer* FlexGridSizer2;
     wxFlexGridSizer* FlexGridSizer25;
+    wxFlexGridSizer* FlexGridSizer51;
     wxFlexGridSizer* FlexGridSizer15;
     wxStaticBoxSizer* StaticBoxSizer7;
+    wxFlexGridSizer* FlexGridSizer50;
     wxStaticBoxSizer* StaticBoxSizer5;
     wxFlexGridSizer* FlexGridSizer17;
     wxGridSizer* GridSizer3;
     wxFlexGridSizer* FlexGridSizer29;
+    wxFlexGridSizer* FlexGridSizer11;
     wxFlexGridSizer* FlexGridSizer19;
     wxFlexGridSizer* FlexGridSizer48;
     wxFlexGridSizer* FlexGridSizer47;
     wxStaticBoxSizer* StaticBoxSizer12;
     wxFlexGridSizer* FlexGridSizer41;
+    wxFlexGridSizer* FlexGridSizer40;
     wxFlexGridSizer* FlexGridSizer7;
     wxFlexGridSizer* FlexGridSizer4;
     wxFlexGridSizer* FlexGridSizer9;
+    wxFlexGridSizer* FlexGridSizer26;
     wxFlexGridSizer* FlexGridSizer14;
     wxStaticBoxSizer* StaticBoxSizer3;
     wxFlexGridSizer* FlexGridSizer6;
     wxFlexGridSizer* FlexGridSizer33;
+    wxFlexGridSizer* FlexGridSizer38;
     wxFlexGridSizer* FlexGridSizer27;
     wxFlexGridSizer* FlexGridSizer37;
     wxFlexGridSizer* FlexGridSizer42;
@@ -568,9 +592,11 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer16;
     wxFlexGridSizer* FlexGridSizer34;
     wxFlexGridSizer* FlexGridSizer23;
+    wxFlexGridSizer* FlexGridSizer10;
     wxFlexGridSizer* FlexGridSizer13;
     wxMenuBar* MenuBar1;
     wxMenuItem* MenuItemAbout;
+    wxFlexGridSizer* FlexGridSizer53;
     wxFlexGridSizer* FlexGridSizer18;
     wxFlexGridSizer* FlexGridSizer49;
     wxFlexGridSizer* FlexGridSizer36;
@@ -582,6 +608,8 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     wxFlexGridSizer* FlexGridSizer5;
     wxFlexGridSizer* FlexGridSizer24;
     wxMenu* MenuHelp;
+    wxFlexGridSizer* FlexGridSizer52;
+    wxStaticBoxSizer* StaticBoxSizer1;
     wxFlexGridSizer* FlexGridSizer32;
     wxFlexGridSizer* FlexGridSizer20;
 
@@ -793,9 +821,84 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     PanelIntensity->SetSizer(FlexGridSizer15);
     FlexGridSizer15->Fit(PanelIntensity);
     FlexGridSizer15->SetSizeHints(PanelIntensity);
+    PanelJoystickCorrections = new wxPanel(Notebook2, ID_PANEL7, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL7"));
+    FlexGridSizer10 = new wxFlexGridSizer(2, 1, 0, 0);
+    FlexGridSizer11 = new wxFlexGridSizer(1, 5, 0, 0);
+    StaticBoxSizer1 = new wxStaticBoxSizer(wxHORIZONTAL, PanelJoystickCorrections, _("Joystick"));
+    FlexGridSizer26 = new wxFlexGridSizer(1, 3, 0, 0);
+    JoystickCorrectionsType = new wxStaticText(PanelJoystickCorrections, ID_STATICTEXT6, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT6"));
+    JoystickCorrectionsType->Hide();
+    FlexGridSizer26->Add(JoystickCorrectionsType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    JoystickCorrectionsName = new wxStaticText(PanelJoystickCorrections, ID_STATICTEXT11, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT11"));
+    FlexGridSizer26->Add(JoystickCorrectionsName, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    JoystickCorrectionsId = new wxStaticText(PanelJoystickCorrections, ID_STATICTEXT12, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT12"));
+    FlexGridSizer26->Add(JoystickCorrectionsId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticBoxSizer1->Add(FlexGridSizer26, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer11->Add(StaticBoxSizer1, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticBoxSizer2 = new wxStaticBoxSizer(wxHORIZONTAL, PanelJoystickCorrections, _("Axis"));
+    FlexGridSizer53 = new wxFlexGridSizer(1, 1, 0, 0);
+    JoystickCorrectionsAxis = new wxStaticText(PanelJoystickCorrections, ID_STATICTEXT24, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT24"));
+    FlexGridSizer53->Add(JoystickCorrectionsAxis, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticBoxSizer2->Add(FlexGridSizer53, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer11->Add(StaticBoxSizer2, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer38 = new wxFlexGridSizer(2, 1, 0, 0);
+    StaticText13 = new wxStaticText(PanelJoystickCorrections, ID_STATICTEXT19, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT19"));
+    FlexGridSizer38->Add(StaticText13, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    JoystickCorrectionsAutoDetect = new wxButton(PanelJoystickCorrections, ID_BUTTON15, _("Auto detect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON15"));
+    FlexGridSizer38->Add(JoystickCorrectionsAutoDetect, 1, wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL, 5);
+    FlexGridSizer11->Add(FlexGridSizer38, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticLine14 = new wxStaticLine(PanelJoystickCorrections, ID_STATICLINE14, wxDefaultPosition, wxSize(-1,50), wxLI_VERTICAL, _T("ID_STATICLINE14"));
+    FlexGridSizer11->Add(StaticLine14, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer40 = new wxFlexGridSizer(2, 1, 0, 0);
+    StaticText15 = new wxStaticText(PanelJoystickCorrections, ID_STATICTEXT23, _("Broken-line correction parameters"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT23"));
+    FlexGridSizer40->Add(StaticText15, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer50 = new wxFlexGridSizer(1, 4, 0, 0);
+    JoystickCorrectionsLowValue = new wxTextCtrl(PanelJoystickCorrections, ID_TEXTCTRL1, _("0"), wxDefaultPosition, wxSize(50,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL1"));
+    JoystickCorrectionsLowValue->SetToolTip(_("Low value [-32767..32767]"));
+    FlexGridSizer50->Add(JoystickCorrectionsLowValue, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    JoystickCorrectionsLowCoef = new wxTextCtrl(PanelJoystickCorrections, ID_TEXTCTRL2, _("1"), wxDefaultPosition, wxSize(90,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL2"));
+    JoystickCorrectionsLowCoef->SetToolTip(_("Low coef"));
+    FlexGridSizer50->Add(JoystickCorrectionsLowCoef, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    JoystickCorrectionsHighValue = new wxTextCtrl(PanelJoystickCorrections, ID_TEXTCTRL4, _("0"), wxDefaultPosition, wxSize(50,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL4"));
+    JoystickCorrectionsHighValue->SetToolTip(_("High value [-32767..32767]"));
+    FlexGridSizer50->Add(JoystickCorrectionsHighValue, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    JoystickCorrectionsHighCoef = new wxTextCtrl(PanelJoystickCorrections, ID_TEXTCTRL5, _("1"), wxDefaultPosition, wxSize(90,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL5"));
+    JoystickCorrectionsHighCoef->SetToolTip(_("High coef"));
+    FlexGridSizer50->Add(JoystickCorrectionsHighCoef, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer40->Add(FlexGridSizer50, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer11->Add(FlexGridSizer40, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer10->Add(FlexGridSizer11, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer51 = new wxFlexGridSizer(1, 2, 0, 0);
+    GridJoystickCorrections = new wxGrid(PanelJoystickCorrections, ID_GRID5, wxDefaultPosition, wxDefaultSize, wxVSCROLL, _T("ID_GRID5"));
+    GridJoystickCorrections->CreateGrid(0,7);
+    GridJoystickCorrections->EnableEditing(false);
+    GridJoystickCorrections->EnableGridLines(true);
+    GridJoystickCorrections->SetColLabelValue(0, _("Joystick"));
+    GridJoystickCorrections->SetColLabelValue(1, wxEmptyString);
+    GridJoystickCorrections->SetColLabelValue(2, _("Axis"));
+    GridJoystickCorrections->SetColLabelValue(3, _("Low value"));
+    GridJoystickCorrections->SetColLabelValue(4, _("Low coef"));
+    GridJoystickCorrections->SetColLabelValue(5, _("High value"));
+    GridJoystickCorrections->SetColLabelValue(6, _("High coef"));
+    GridJoystickCorrections->SetDefaultCellFont( GridJoystickCorrections->GetFont() );
+    GridJoystickCorrections->SetDefaultCellTextColour( GridJoystickCorrections->GetForegroundColour() );
+    FlexGridSizer51->Add(GridJoystickCorrections, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer52 = new wxFlexGridSizer(2, 1, 0, 0);
+    JoystickCorrectionAdd = new wxButton(PanelJoystickCorrections, ID_BUTTON16, _("Add"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON16"));
+    FlexGridSizer52->Add(JoystickCorrectionAdd, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    JoystickCorrectionRemove = new wxButton(PanelJoystickCorrections, ID_BUTTON17, _("Remove"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON17"));
+    FlexGridSizer52->Add(JoystickCorrectionRemove, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    JoystickCorrectionModify = new wxButton(PanelJoystickCorrections, ID_BUTTON18, _("Modify"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON18"));
+    FlexGridSizer52->Add(JoystickCorrectionModify, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer51->Add(FlexGridSizer52, 1, wxALL|wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL, 5);
+    FlexGridSizer10->Add(FlexGridSizer51, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    PanelJoystickCorrections->SetSizer(FlexGridSizer10);
+    FlexGridSizer10->Fit(PanelJoystickCorrections);
+    FlexGridSizer10->SetSizeHints(PanelJoystickCorrections);
     Notebook2->AddPage(PanelTrigger, _("Profile trigger"), false);
     Notebook2->AddPage(PanelMouseOptions, _("Mouse options"), false);
     Notebook2->AddPage(PanelIntensity, _("Axis intensity"), false);
+    Notebook2->AddPage(PanelJoystickCorrections, _("Joystick corrections"), false);
     GridSizer3->Add(Notebook2, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     PanelOverall->SetSizer(GridSizer3);
     GridSizer3->Fit(PanelOverall);
@@ -1141,6 +1244,14 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(ID_BUTTON21,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnIntensityAddClick);
     Connect(ID_BUTTON22,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnIntensityRemoveClick);
     Connect(ID_BUTTON23,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnIntensityModifyClick);
+    Connect(ID_BUTTON15,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnJoystickCorrectionsAutoDetectClick);
+    Connect(ID_TEXTCTRL1,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
+    Connect(ID_TEXTCTRL2,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
+    Connect(ID_TEXTCTRL4,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
+    Connect(ID_TEXTCTRL5,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
+    Connect(ID_BUTTON16,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnJoystickCorrectionsAddClick);
+    Connect(ID_BUTTON17,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnJoystickCorrectionsRemoveClick);
+    Connect(ID_BUTTON18,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnJoystickCorrectionsModifyClick);
     Connect(ID_CHOICE4,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&configFrame::OnButtonTabEventTypeSelect);
     Connect(ID_BUTTON8,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonTabAutoDetectClick);
     Connect(ID_BUTTON4,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonAddPanelButton);
@@ -1934,6 +2045,9 @@ void configFrame::reset_buttons()
   MouseOptionsModify->SetLabel(_("Modify"));
   MouseOptionsAdd->Enable();
   MouseOptionsRemove->Enable();
+  JoystickCorrectionModify->SetLabel(_("Modify"));
+  JoystickCorrectionAdd->Enable();
+  JoystickCorrectionRemove->Enable();
 }
 
 /*
@@ -1945,6 +2059,7 @@ void configFrame::save_current()
     std::list<ControlMapper>* axisMappers;
     std::list<Intensity>* intensityList;
     std::list<MouseOptions>* mouseOptionsList;
+    std::list<JoystickCorrection>* joystickCorrectionsList;
 
     Controller* controller = configFile.GetController(currentController);
     Configuration* configuration = controller->GetConfiguration(currentConfiguration);
@@ -1985,6 +2100,21 @@ void configFrame::save_current()
               wxAtoi(GridIntensity->GetCellValue(i, 6)),
               reverseTranslate(string(GridIntensity->GetCellValue(i, 7).mb_str(wxConvUTF8))),
               wxAtoi(GridIntensity->GetCellValue(i, 8))));
+    }
+    //Save Joystick Corrections
+    joystickCorrectionsList = configuration->GetJoystickCorrectionsList();
+    joystickCorrectionsList->erase(joystickCorrectionsList->begin(), joystickCorrectionsList->end());
+    for(int i=0; i<GridJoystickCorrections->GetNumberRows(); i++)
+    {
+      joystickCorrectionsList->push_front(
+          JoystickCorrection(
+              string(GridJoystickCorrections->GetCellValue(i, 0).mb_str(wxConvUTF8)),
+              string(GridJoystickCorrections->GetCellValue(i, 1).mb_str(wxConvUTF8)),
+              string(GridJoystickCorrections->GetCellValue(i, 2).mb_str(wxConvUTF8)),
+              string(GridJoystickCorrections->GetCellValue(i, 3).mb_str(wxConvUTF8)),
+              string(GridJoystickCorrections->GetCellValue(i, 4).mb_str(wxConvUTF8)),
+              string(GridJoystickCorrections->GetCellValue(i, 5).mb_str(wxConvUTF8)),
+              string(GridJoystickCorrections->GetCellValue(i, 6).mb_str(wxConvUTF8))));
     }
     //Save ControlMappers
     buttonMappers = configuration->GetButtonMapperList();
@@ -2077,6 +2207,7 @@ void configFrame::load_current()
     std::list<ControlMapper>* axisMappers;
     std::list<Intensity>* intensityList;
     std::list<MouseOptions>* mouseOptionsList;
+    std::list<JoystickCorrection>* joystickCorrectionsList;
 
     Controller* controller = configFile.GetController(currentController);
     Configuration* configuration = controller->GetConfiguration(currentConfiguration);
@@ -2162,6 +2293,21 @@ void configFrame::load_current()
       GridIntensity->SetCellValue(0, 8, steps);
     }
     GridIntensity->AutoSizeColumns();
+    //Load joystick corrections
+    GridJoystickCorrections->DeleteRows(0, GridJoystickCorrections->GetNumberRows());
+    joystickCorrectionsList = configuration->GetJoystickCorrectionsList();
+    for(std::list<JoystickCorrection>::iterator it = joystickCorrectionsList->begin(); it!=joystickCorrectionsList->end(); ++it)
+    {
+      GridJoystickCorrections->InsertRows();
+      GridJoystickCorrections->SetCellValue(0, 0, wxString(it->GetJoystick()->GetName().c_str(),wxConvUTF8));
+      GridJoystickCorrections->SetCellValue(0, 1, wxString(it->GetJoystick()->GetId().c_str(),wxConvUTF8));
+      GridJoystickCorrections->SetCellValue(0, 2, wxString(it->GetAxis()->GetId().c_str(),wxConvUTF8));
+      GridJoystickCorrections->SetCellValue(0, 3, wxString(it->GetLowValue().c_str(),wxConvUTF8));
+      GridJoystickCorrections->SetCellValue(0, 4, wxString(it->GetLowCoef().c_str(),wxConvUTF8));
+      GridJoystickCorrections->SetCellValue(0, 5, wxString(it->GetHighValue().c_str(),wxConvUTF8));
+      GridJoystickCorrections->SetCellValue(0, 6, wxString(it->GetHighCoef().c_str(),wxConvUTF8));
+    }
+    GridJoystickCorrections->AutoSizeColumns();
     //Load buttonMappers
     GridPanelButton->DeleteRows(0, GridPanelButton->GetNumberRows());
     buttonMappers = configuration->GetButtonMapperList();
@@ -2264,6 +2410,7 @@ void configFrame::refresh_gui()
 {
     PanelTrigger->Layout();
     PanelMouseOptions->Layout();
+    PanelJoystickCorrections->Layout();
     PanelIntensity->Layout();
     PanelOverall->Layout();
     PanelButton->Layout();
@@ -3115,10 +3262,7 @@ void configFrame::OnMenuSetMouseDPI(wxCommandEvent& event)
 }
 
 /*
- * \brief Method called on a wxTextCtrl edition. \
- *        Only applicable for AxisTabDeadZone, AxisTabSensitivity, \
- *        AxisTabAcceleration, AxisTabBufferSize or AxisTabFilter. \
- *        It sets the mouse DPI for the current controller.
+ * \brief Method called on a wxTextCtrl edition.
  */
 void configFrame::OnTextCtrl(wxCommandEvent& event)
 {
@@ -3205,6 +3349,36 @@ void configFrame::OnTextCtrl(wxCommandEvent& event)
         else if(value > 1)
         {
             text->SetValue(wxT("1.00"));
+        }
+    }
+    else if(text == JoystickCorrectionsLowValue || text == JoystickCorrectionsHighValue)
+    {
+        if(!str.ToLong(&lvalue))
+        {
+            text->SetValue(wxT("0"));
+        }
+        else if(lvalue < SHRT_MIN)
+        {
+            text->SetValue(wxString::Format(wxT("%i"),SHRT_MIN));
+        }
+        else if(lvalue > SHRT_MAX)
+        {
+            text->SetValue(wxString::Format(wxT("%i"),SHRT_MAX));
+        }
+    }
+    else if(text == JoystickCorrectionsLowCoef || text == JoystickCorrectionsHighCoef)
+    {
+        if(!str.ToLong(&lvalue))
+        {
+            text->SetValue(wxT("1"));
+        }
+        else if(lvalue < INT_MIN)
+        {
+            text->SetValue(wxString::Format(wxT("%i"),INT_MIN));
+        }
+        else if(lvalue > INT_MAX)
+        {
+            text->SetValue(wxString::Format(wxT("%i"),INT_MAX));
         }
     }
 }
@@ -3655,10 +3829,10 @@ void configFrame::OnMouseOptionsAutoDetectClick(wxCommandEvent& event)
  * \brief Check if options are already defined for a given mouse.
  *
  * \param device_name  the mouse name
- * \param device_id    the mouse id *
+ * \param device_id    the mouse id
  * \param gridIndex  an index in GridMouseOption, or -1
  *
- * \return true if mouse options are already define, false otherwise.
+ * \return true if mouse options are already defined, false otherwise.
  */
 bool configFrame::isMouseOptionsDefined(wxString device_name, wxString device_id, int gridIndex)
 {
@@ -3684,6 +3858,12 @@ bool configFrame::isMouseOptionsDefined(wxString device_name, wxString device_id
  */
 void configFrame::OnMouseOptionsAddClick(wxCommandEvent& event)
 {
+  if(MouseOptionsId->GetLabel().IsEmpty())
+  {
+    wxMessageBox(_("Please detect a mouse!"), _("Error"), wxICON_ERROR);
+    return;
+  }
+
   if(isMouseOptionsDefined(wxString(mouseTabDeviceName.c_str(), wxConvUTF8), MouseOptionsId->GetLabel(), -1))
   {
     wxMessageBox(_("Mouse options already defined!"), _("Error"), wxICON_ERROR);
@@ -3910,4 +4090,153 @@ void configFrame::OnMenuItemWindowEventsSelected(wxCommandEvent& event)
   {
     evcatch->SetWindowEvents(false);
   }
+}
+
+
+/*
+ * \brief Check if a correction is already defined for a given joystick axis.
+ *
+ * \param device_name  the joystick name
+ * \param device_id    the joystick id
+ * \param axis_id      the axis id
+ * \param gridIndex  an index in GridJoystickCorrections, or -1
+ *
+ * \return true if a correction is already defined, false otherwise.
+ */
+bool configFrame::isJoystickCorrectionDefined(wxString device_name, wxString device_id, wxString axis_id, int gridIndex)
+{
+  for(int i=0; i<GridJoystickCorrections->GetNumberRows(); i++)
+  {
+    if(gridIndex >= 0 && i == gridIndex)
+    {
+      continue;
+    }
+
+    if(GridJoystickCorrections->GetCellValue(i, 0) == device_name
+       && GridJoystickCorrections->GetCellValue(i, 1) == device_id
+       && GridJoystickCorrections->GetCellValue(i, 2) == axis_id)
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void configFrame::OnJoystickCorrectionsAddClick(wxCommandEvent& event)
+{
+  if(JoystickCorrectionsAxis->GetLabel().IsEmpty())
+  {
+    wxMessageBox(_("Please detect a joystick axis!"), _("Error"), wxICON_ERROR);
+    return;
+  }
+
+  if(isJoystickCorrectionDefined(wxString(joystickTabDeviceName.c_str(), wxConvUTF8), JoystickCorrectionsId->GetLabel(), JoystickCorrectionsAxis->GetLabel(), -1))
+  {
+    wxMessageBox(_("Joystick axis options already defined!"), _("Error"), wxICON_ERROR);
+    return;
+  }
+
+  GridJoystickCorrections->InsertRows();
+  GridJoystickCorrections->SetCellValue(0, 0, wxString(joystickTabDeviceName.c_str(), wxConvUTF8));
+  GridJoystickCorrections->SetCellValue(0, 1, JoystickCorrectionsId->GetLabel());
+  GridJoystickCorrections->SetCellValue(0, 2, JoystickCorrectionsAxis->GetLabel());
+  GridJoystickCorrections->SetCellValue(0, 3, JoystickCorrectionsLowValue->GetValue());
+  GridJoystickCorrections->SetCellValue(0, 4, JoystickCorrectionsLowCoef->GetValue());
+  GridJoystickCorrections->SetCellValue(0, 5, JoystickCorrectionsHighValue->GetValue());
+  GridJoystickCorrections->SetCellValue(0, 6, JoystickCorrectionsHighCoef->GetValue());
+
+  GridJoystickCorrections->AutoSizeColumns();
+
+  refresh_gui();
+}
+
+void configFrame::OnJoystickCorrectionsRemoveClick(wxCommandEvent& event)
+{
+  configFrame::DeleteSelectedRows(GridJoystickCorrections);
+  refresh_gui();
+}
+
+void configFrame::OnJoystickCorrectionsModifyClick(wxCommandEvent& event)
+{
+  wxArrayInt array = GetGridSelectedRows(GridJoystickCorrections);
+  int count = array.GetCount();
+
+  if(JoystickCorrectionModify->GetLabel() == _("Modify"))
+  {
+      if(count == 0)
+      {
+          wxMessageBox( _("Please select a line of the table."), _("Info"), wxICON_INFORMATION);
+          return;
+      }
+      else if(count > 1)
+      {
+          wxMessageBox( _("Please select a SINGLE line of the table."), _("Info"), wxICON_INFORMATION);
+          return;
+      }
+
+      gridJoystickCorrectionsMod = array.Item(0);
+
+      joystickTabDeviceName = string(GridJoystickCorrections->GetCellValue(gridJoystickCorrectionsMod, 0).mb_str(wxConvUTF8));
+      string name = joystickTabDeviceName;
+      if(name.size() > 20)
+      {
+        name = name.substr(0,20);
+        name.append("...");
+      }
+      JoystickCorrectionsName->SetLabel(wxString(name.c_str(), wxConvUTF8));
+      JoystickCorrectionsId->SetLabel(GridJoystickCorrections->GetCellValue(gridJoystickCorrectionsMod, 1));
+      JoystickCorrectionsAxis->SetLabel(GridJoystickCorrections->GetCellValue(gridJoystickCorrectionsMod, 2));
+      JoystickCorrectionsLowValue->SetValue(GridJoystickCorrections->GetCellValue(gridJoystickCorrectionsMod, 3));
+      JoystickCorrectionsLowCoef->SetValue(GridJoystickCorrections->GetCellValue(gridJoystickCorrectionsMod, 4));
+      JoystickCorrectionsHighValue->SetValue(GridJoystickCorrections->GetCellValue(gridJoystickCorrectionsMod, 5));
+      JoystickCorrectionsHighCoef->SetValue(GridJoystickCorrections->GetCellValue(gridJoystickCorrectionsMod, 6));
+      JoystickCorrectionAdd->Disable();
+      JoystickCorrectionRemove->Disable();
+      JoystickCorrectionModify->SetLabel(_("Apply"));
+  }
+  else
+  {
+      if (JoystickCorrectionsId->GetLabel().IsEmpty())
+      {
+        wxMessageBox(_("Please detect a joystick axis!"), _("Error"), wxICON_ERROR);
+        return;
+      }
+
+      if(isJoystickCorrectionDefined(wxString(joystickTabDeviceName.c_str(), wxConvUTF8), JoystickCorrectionsId->GetLabel(), JoystickCorrectionsAxis->GetLabel(), gridJoystickCorrectionsMod))
+      {
+        wxMessageBox(_("Joystick axis options already defined!"), _("Error"), wxICON_ERROR);
+        return;
+      }
+
+      GridJoystickCorrections->SetCellValue(gridJoystickCorrectionsMod, 0, wxString(joystickTabDeviceName.c_str(), wxConvUTF8));
+      GridJoystickCorrections->SetCellValue(gridJoystickCorrectionsMod, 1, JoystickCorrectionsId->GetLabel());
+      GridJoystickCorrections->SetCellValue(gridJoystickCorrectionsMod, 2, JoystickCorrectionsAxis->GetLabel());
+      GridJoystickCorrections->SetCellValue(gridJoystickCorrectionsMod, 3, JoystickCorrectionsLowValue->GetValue());
+      GridJoystickCorrections->SetCellValue(gridJoystickCorrectionsMod, 4, JoystickCorrectionsLowCoef->GetValue());
+      GridJoystickCorrections->SetCellValue(gridJoystickCorrectionsMod, 5, JoystickCorrectionsHighValue->GetValue());
+      GridJoystickCorrections->SetCellValue(gridJoystickCorrectionsMod, 6, JoystickCorrectionsHighCoef->GetValue());
+
+      JoystickCorrectionAdd->Enable();
+      JoystickCorrectionRemove->Enable();
+      JoystickCorrectionModify->SetLabel(_("Modify"));
+  }
+  GridJoystickCorrections->AutoSizeColumns();
+  refresh_gui();
+}
+
+void configFrame::OnJoystickCorrectionsAutoDetectClick(wxCommandEvent& event)
+{
+  JoystickCorrectionsAutoDetect->Enable(false);
+
+  JoystickCorrectionsType->SetLabel(wxT(""));
+
+  while(JoystickCorrectionsType->GetLabel() != _("joystick"))
+  {
+    auto_detect(JoystickCorrectionsType, &joystickTabDeviceName, JoystickCorrectionsName, JoystickCorrectionsId, _("axis"), JoystickCorrectionsAxis);
+  }
+
+  JoystickCorrectionsAutoDetect->Enable(true);
+
+  refresh_gui();
 }

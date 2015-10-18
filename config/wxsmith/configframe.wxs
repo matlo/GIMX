@@ -721,6 +721,259 @@
 											</object>
 											<label>Axis intensity</label>
 										</object>
+										<object class="notebookpage">
+											<object class="wxPanel" name="ID_PANEL7" variable="PanelJoystickCorrections" member="yes">
+												<object class="wxFlexGridSizer" variable="FlexGridSizer10" member="no">
+													<cols>1</cols>
+													<rows>2</rows>
+													<object class="sizeritem">
+														<object class="wxFlexGridSizer" variable="FlexGridSizer11" member="no">
+															<cols>5</cols>
+															<rows>1</rows>
+															<object class="sizeritem">
+																<object class="wxStaticBoxSizer" variable="StaticBoxSizer1" member="no">
+																	<label>Joystick</label>
+																	<object class="sizeritem">
+																		<object class="wxFlexGridSizer" variable="FlexGridSizer26" member="no">
+																			<cols>3</cols>
+																			<rows>1</rows>
+																			<object class="sizeritem">
+																				<object class="wxStaticText" name="ID_STATICTEXT6" variable="JoystickCorrectionsType" member="yes">
+																					<label></label>
+																					<hidden>1</hidden>
+																				</object>
+																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																				<border>5</border>
+																				<option>1</option>
+																			</object>
+																			<object class="sizeritem">
+																				<object class="wxStaticText" name="ID_STATICTEXT11" variable="JoystickCorrectionsName" member="yes">
+																					<label></label>
+																				</object>
+																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																				<border>5</border>
+																				<option>1</option>
+																			</object>
+																			<object class="sizeritem">
+																				<object class="wxStaticText" name="ID_STATICTEXT12" variable="JoystickCorrectionsId" member="yes">
+																					<label></label>
+																				</object>
+																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																				<border>5</border>
+																				<option>1</option>
+																			</object>
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																</object>
+																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+															<object class="sizeritem">
+																<object class="wxStaticBoxSizer" variable="StaticBoxSizer2" member="no">
+																	<label>Axis</label>
+																	<object class="sizeritem">
+																		<object class="wxFlexGridSizer" variable="FlexGridSizer53" member="no">
+																			<cols>1</cols>
+																			<rows>1</rows>
+																			<object class="sizeritem">
+																				<object class="wxStaticText" name="ID_STATICTEXT24" variable="JoystickCorrectionsAxis" member="yes">
+																					<label></label>
+																				</object>
+																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																				<border>5</border>
+																				<option>1</option>
+																			</object>
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																</object>
+																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+															<object class="sizeritem">
+																<object class="wxFlexGridSizer" variable="FlexGridSizer38" member="no">
+																	<cols>1</cols>
+																	<rows>2</rows>
+																	<object class="sizeritem">
+																		<object class="wxStaticText" name="ID_STATICTEXT19" variable="StaticText13" member="yes">
+																			<label></label>
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																	<object class="sizeritem">
+																		<object class="wxButton" name="ID_BUTTON15" variable="JoystickCorrectionsAutoDetect" member="yes">
+																			<label>Auto detect</label>
+																			<handler function="OnJoystickCorrectionsAutoDetectClick" entry="EVT_BUTTON" />
+																		</object>
+																		<flag>wxALL|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																</object>
+																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+															<object class="sizeritem">
+																<object class="wxStaticLine" name="ID_STATICLINE14" variable="StaticLine14" member="yes">
+																	<size>-1,50</size>
+																	<style>wxLI_VERTICAL</style>
+																</object>
+																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+															<object class="sizeritem">
+																<object class="wxFlexGridSizer" variable="FlexGridSizer40" member="no">
+																	<cols>1</cols>
+																	<rows>2</rows>
+																	<object class="sizeritem">
+																		<object class="wxStaticText" name="ID_STATICTEXT23" variable="StaticText15" member="yes">
+																			<label>Broken-line correction parameters</label>
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																	<object class="sizeritem">
+																		<object class="wxFlexGridSizer" variable="FlexGridSizer50" member="no">
+																			<cols>4</cols>
+																			<rows>1</rows>
+																			<object class="sizeritem">
+																				<object class="wxTextCtrl" name="ID_TEXTCTRL1" variable="JoystickCorrectionsLowValue" member="yes">
+																					<value>0</value>
+																					<size>50,-1</size>
+																					<tooltip>Low value [-32767..32767]</tooltip>
+																					<handler function="OnTextCtrl" entry="EVT_TEXT" />
+																				</object>
+																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																				<border>5</border>
+																				<option>1</option>
+																			</object>
+																			<object class="sizeritem">
+																				<object class="wxTextCtrl" name="ID_TEXTCTRL2" variable="JoystickCorrectionsLowCoef" member="yes">
+																					<value>1</value>
+																					<size>90,-1</size>
+																					<tooltip>Low coef</tooltip>
+																					<handler function="OnTextCtrl" entry="EVT_TEXT" />
+																				</object>
+																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																				<border>5</border>
+																				<option>1</option>
+																			</object>
+																			<object class="sizeritem">
+																				<object class="wxTextCtrl" name="ID_TEXTCTRL4" variable="JoystickCorrectionsHighValue" member="yes">
+																					<value>0</value>
+																					<size>50,-1</size>
+																					<tooltip>High value [-32767..32767]</tooltip>
+																					<handler function="OnTextCtrl" entry="EVT_TEXT" />
+																				</object>
+																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																				<border>5</border>
+																				<option>1</option>
+																			</object>
+																			<object class="sizeritem">
+																				<object class="wxTextCtrl" name="ID_TEXTCTRL5" variable="JoystickCorrectionsHighCoef" member="yes">
+																					<value>1</value>
+																					<size>90,-1</size>
+																					<tooltip>High coef</tooltip>
+																					<handler function="OnTextCtrl" entry="EVT_TEXT" />
+																				</object>
+																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																				<border>5</border>
+																				<option>1</option>
+																			</object>
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																</object>
+																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+														</object>
+														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+														<border>5</border>
+														<option>1</option>
+													</object>
+													<object class="sizeritem">
+														<object class="wxFlexGridSizer" variable="FlexGridSizer51" member="no">
+															<cols>2</cols>
+															<rows>1</rows>
+															<object class="sizeritem">
+																<object class="wxGrid" name="ID_GRID5" variable="GridJoystickCorrections" member="yes">
+																	<cols>7</cols>
+																	<readonly>1</readonly>
+																	<collabels>
+																		<item>Joystick</item>
+																		<item></item>
+																		<item>Axis</item>
+																		<item>Low value</item>
+																		<item>Low coef</item>
+																		<item>High value</item>
+																		<item>High coef</item>
+																	</collabels>
+																	<style>wxVSCROLL</style>
+																</object>
+																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+															</object>
+															<object class="sizeritem">
+																<object class="wxFlexGridSizer" variable="FlexGridSizer52" member="no">
+																	<cols>1</cols>
+																	<rows>2</rows>
+																	<object class="sizeritem">
+																		<object class="wxButton" name="ID_BUTTON16" variable="JoystickCorrectionAdd" member="yes">
+																			<label>Add</label>
+																			<handler function="OnJoystickCorrectionsAddClick" entry="EVT_BUTTON" />
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																	<object class="sizeritem">
+																		<object class="wxButton" name="ID_BUTTON17" variable="JoystickCorrectionRemove" member="yes">
+																			<label>Remove</label>
+																			<handler function="OnJoystickCorrectionsRemoveClick" entry="EVT_BUTTON" />
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																	<object class="sizeritem">
+																		<object class="wxButton" name="ID_BUTTON18" variable="JoystickCorrectionModify" member="yes">
+																			<label>Modify</label>
+																			<handler function="OnJoystickCorrectionsModifyClick" entry="EVT_BUTTON" />
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																</object>
+																<flag>wxALL|wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+														</object>
+														<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+														<border>5</border>
+														<option>1</option>
+													</object>
+												</object>
+											</object>
+											<label>Joystick corrections</label>
+										</object>
 									</object>
 									<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 									<border>5</border>

@@ -16,7 +16,8 @@ Configuration::~Configuration()
 }
 
 Configuration::Configuration(const Configuration& other):m_Trigger(other.m_Trigger), m_IntensityList(other.m_IntensityList),
-    m_MouseOptionsList(other.m_MouseOptionsList), m_ButtonMappers(other.m_ButtonMappers), m_AxisMappers(other.m_AxisMappers)
+    m_MouseOptionsList(other.m_MouseOptionsList), m_ButtonMappers(other.m_ButtonMappers), m_AxisMappers(other.m_AxisMappers),
+    m_JoystickCorrectionsList(other.m_JoystickCorrectionsList)
 {
     //copy ctor
 }
@@ -29,6 +30,7 @@ Configuration& Configuration::operator=(const Configuration& rhs)
     m_MouseOptionsList = rhs.m_MouseOptionsList;
     m_ButtonMappers = rhs.m_ButtonMappers;
     m_AxisMappers = rhs.m_AxisMappers;
+    m_JoystickCorrectionsList = rhs.m_JoystickCorrectionsList;
     return *this;
 }
 
@@ -51,6 +53,10 @@ bool Configuration::IsEmpty()
     return false;
   }
   if(m_AxisMappers.size())
+  {
+    return false;
+  }
+  if(m_JoystickCorrectionsList.size())
   {
     return false;
   }

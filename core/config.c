@@ -81,6 +81,39 @@ static s_mouse_control mouse_control[MAX_DEVICES] = {};
 static s_mapper_table joystick_buttons[MAX_DEVICES][MAX_CONTROLLERS][MAX_CONFIGURATIONS];
 static s_mapper_table joystick_axes[MAX_DEVICES][MAX_CONTROLLERS][MAX_CONFIGURATIONS];
 
+static struct
+{
+  unsigned int nb;
+  s_js_corr * corr;
+} js_corr[MAX_DEVICES] = {};
+
+void cfg_add_js_corr(uint8_t device, s_js_corr * corr)
+{
+  void * ptr = realloc(js_corr[device].corr, (js_corr[device].nb + 1) * sizeof(*(js_corr->corr)));
+  if(ptr == NULL)
+  {
+    fprintf(stderr, "%s:%d %s: realloc failed\n", __FILE__, __LINE__, __func__);
+    return;
+  }
+  js_corr[device].corr = ptr;
+  js_corr[device].corr[js_corr[device].nb].axis = corr->axis;
+  memcpy(js_corr[device].corr[js_corr[device].nb].coef, corr->coef, sizeof(corr->coef));
+  ++(js_corr[device].nb);
+}
+
+static s_js_corr * get_js_corr(uint8_t device, uint8_t axis)
+{
+  unsigned int i;
+  for (i = 0; i < js_corr[device].nb; ++i)
+  {
+    if(js_corr[device].corr[i].axis == axis)
+    {
+      return js_corr[device].corr + i;
+    }
+  }
+  return NULL;
+}
+
 inline s_mapper_table* cfg_get_joystick_axes(int device, int controller, int config)
 {
   return &(joystick_axes[device][controller][config]);
@@ -1188,6 +1221,13 @@ void cfg_process_event(GE_Event* event)
             }
             if(multiplier)
             {
+              s_js_corr * corr = get_js_corr(event->jaxis.which, event->jaxis.axis);
+              if(corr != NULL)
+              {
+                value = value > corr->coef[0] ? (value < corr->coef[1] ? 0 :
+                        ((corr->coef[3] * (value - corr->coef[1])) >> 14)) :
+                        ((corr->coef[2] * (value - corr->coef[0])) >> 14);
+              }
               /*
                * Axis to axis.
                */
@@ -1401,6 +1441,9 @@ void cfg_clean()
         table->nb_mappers = 0;
       }
     }
+    free(js_corr[i].corr);
+    js_corr[i].corr = NULL;
+    js_corr[i].nb = 0;
   }
 }
 

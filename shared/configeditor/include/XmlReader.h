@@ -56,6 +56,13 @@
 
 #define X_ATTR_MODE "mode"
 
+#define X_NODE_JOYSTICK_CORRECTIONS_LIST "joystick_corrections_list"
+#define X_NODE_CORRECTION "correction"
+#define X_ATTR_LOW_VALUE "low_value"
+#define X_ATTR_LOW_COEF "low_coef"
+#define X_ATTR_HIGH_VALUE "high_value"
+#define X_ATTR_HIGH_COEF "high_coef"
+
 class XmlReader
 {
     public:
@@ -78,6 +85,8 @@ class XmlReader
         void AddMouseOptions(Device* device, string buffersize, string filter);
         void ProcessIntensityElement(xmlNode * a_node);
         void ProcessIntensityListElement(xmlNode * a_node);
+        void ProcessJoystickCorrectionsListElement(xmlNode * a_node);
+        void ProcessCorrectionElement(xmlNode * a_node);
         void ProcessButtonMapElement(xmlNode * a_node);
         void ProcessAxisMapElement(xmlNode * a_node);
         void ProcessButtonElement(xmlNode * a_node);
@@ -91,6 +100,7 @@ class XmlReader
         ControlMapper m_TempAxisMapper;
         Trigger m_TempTrigger;
         MouseOptions m_TempMouseOptions;
+        JoystickCorrection m_TempJoystickCorrection;
         Intensity m_TempIntensity;
         Configuration m_TempConfiguration;
         Controller m_TempController;

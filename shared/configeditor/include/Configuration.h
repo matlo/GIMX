@@ -12,6 +12,7 @@
 #include <Intensity.h>
 #include <ControlMapper.h>
 #include <MouseOptions.h>
+#include <JoystickCorrection.h>
 #include <list>
 
 class Configuration
@@ -27,6 +28,8 @@ class Configuration
         void SetIntensityList(std::list<Intensity> val) { m_IntensityList = val; }
         std::list<MouseOptions>* GetMouseOptionsList() { return &m_MouseOptionsList; }
         void SetMouseOptionsList(std::list<MouseOptions> val) { m_MouseOptionsList = val; }
+        std::list<JoystickCorrection>* GetJoystickCorrectionsList() { return &m_JoystickCorrectionsList; }
+        void SetJoystickCorrectionsList(std::list<JoystickCorrection> val) { m_JoystickCorrectionsList = val; }
         std::list<ControlMapper>* GetButtonMapperList() { return &m_ButtonMappers; }
         std::list<ControlMapper>* GetAxisMapperList() { return &m_AxisMappers; }
         void SetButtonMappers(std::list<ControlMapper> bml) { m_ButtonMappers = bml; }
@@ -39,6 +42,7 @@ class Configuration
         std::list<MouseOptions> m_MouseOptionsList;
         std::list<ControlMapper> m_ButtonMappers;
         std::list<ControlMapper> m_AxisMappers;
+        std::list<JoystickCorrection> m_JoystickCorrectionsList;
 };
 
 #endif // CONFIGURATION_H

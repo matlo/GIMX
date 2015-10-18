@@ -64,6 +64,12 @@ typedef struct
 
 typedef struct
 {
+  unsigned int axis;
+  int coef[4];
+} s_js_corr;
+
+typedef struct
+{
   double* mx;
   double* my;
   double* ex;
@@ -128,6 +134,7 @@ typedef struct
       int delay;
     } trigger;
     s_mouse_options mouse_options;
+    s_js_corr joystick_correction;
   } params;
 }s_config_entry;
 
@@ -165,5 +172,6 @@ int cfg_add_binding(s_config_entry* entry);
 inline s_mapper_table* cfg_get_mouse_axes(int, int, int);
 void cfg_clean();
 void cfg_read_calibration();
+void cfg_add_js_corr(uint8_t device, s_js_corr * corr);
 
 #endif /* CONFIG_H_ */

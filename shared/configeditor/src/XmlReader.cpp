@@ -586,6 +586,99 @@ void XmlReader::ProcessIntensityListElement(xmlNode * a_node)
   }
 }
 
+void XmlReader::ProcessCorrectionElement(xmlNode * a_node)
+{
+    xmlNode* cur_node = NULL;
+    char* prop;
+
+    prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_LOW_VALUE);
+    m_TempJoystickCorrection.SetLowValue(string(prop?prop:"0"));
+    xmlFree(prop);
+
+    prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_LOW_COEF);
+    m_TempJoystickCorrection.SetLowCoef(string(prop?prop:"1"));
+    xmlFree(prop);
+
+    prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_HIGH_VALUE);
+    m_TempJoystickCorrection.SetHighValue(string(prop?prop:"0"));
+    xmlFree(prop);
+
+    prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_HIGH_COEF);
+    m_TempJoystickCorrection.SetHighCoef(string(prop?prop:"1"));
+    xmlFree(prop);
+
+    for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
+    {
+        if (cur_node->type == XML_ELEMENT_NODE)
+        {
+            if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_DEVICE))
+            {
+                ProcessDeviceElement(cur_node);
+                break;
+            }
+            else
+            {
+                string message(string("bad element name: ") + string((char*)cur_node->name));
+                throw invalid_argument(message);
+            }
+        }
+    }
+
+    if(!cur_node)
+    {
+        string message(string("missing device element"));
+        throw invalid_argument(message);
+    }
+
+    for (cur_node = cur_node->next; cur_node; cur_node = cur_node->next)
+    {
+        if (cur_node->type == XML_ELEMENT_NODE)
+        {
+            if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_EVENT))
+            {
+                ProcessEventElement(cur_node);
+                break;
+            }
+            else
+            {
+                string message(string("bad element name: ") + string((char*)cur_node->name));
+                throw invalid_argument(message);
+            }
+        }
+    }
+
+    if(!cur_node)
+    {
+        string message("missing event element");
+        throw invalid_argument(message);
+    }
+
+    m_TempJoystickCorrection.SetJoystick(m_TempDevice);
+    m_TempJoystickCorrection.SetAxis(m_TempEvent);
+
+    m_TempConfiguration.GetJoystickCorrectionsList()->push_back(m_TempJoystickCorrection);
+}
+
+void XmlReader::ProcessJoystickCorrectionsListElement(xmlNode * a_node)
+{
+  xmlNode* cur_node = NULL;
+
+  for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
+  {
+      if (cur_node->type == XML_ELEMENT_NODE)
+      {
+          if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_CORRECTION))
+          {
+              ProcessCorrectionElement(cur_node);
+          }
+          else
+          {
+              break;
+          }
+      }
+  }
+}
+
 void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
 {
     xmlNode* cur_node = NULL;
@@ -726,6 +819,28 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
     {
         string message(string("missing axis_map element"));
         throw invalid_argument(message);
+    }
+
+    found = false;
+
+    m_TempConfiguration.GetJoystickCorrectionsList()->clear();
+
+    for ( ; cur_node && !found; cur_node = cur_node->next)
+    {
+        if (cur_node->type == XML_ELEMENT_NODE)
+        {
+            if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_JOYSTICK_CORRECTIONS_LIST))
+            {
+                ProcessJoystickCorrectionsListElement(cur_node);
+                found = true;
+            }
+            else
+            {
+                // this node is optional
+                // => keep cur_node for the next element processing
+                break;
+            }
+        }
     }
 
     m_TempController.SetConfiguration(m_TempConfiguration, config_index);

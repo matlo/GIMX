@@ -340,7 +340,7 @@ int GetDoubleProp(xmlNode * a_node, char* a_attr, double* a_double)
   return ret;
 }
 
-static int ProcessEventElement(xmlNode * a_node)
+static int ProcessEventElement(xmlNode * a_node, unsigned char mapper)
 {
   int ret = 0;
   char* type;
@@ -400,7 +400,7 @@ static int ProcessEventElement(xmlNode * a_node)
   {
     ret = GetEventId(a_node, X_ATTR_ID);
 
-    if(ret == 0)
+    if(ret == 0 && mapper)
     {
       switch(entry.event.type)
       {
@@ -527,7 +527,7 @@ static int ProcessAxisElement(xmlNode * a_node)
     {
       if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_EVENT))
       {
-        ret = ProcessEventElement(cur_node);
+        ret = ProcessEventElement(cur_node, 1);
         break;
       }
       else
@@ -589,7 +589,7 @@ static int ProcessButtonElement(xmlNode * a_node)
     {
       if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_EVENT))
       {
-        ret = ProcessEventElement(cur_node);
+        ret = ProcessEventElement(cur_node, 1);
         break;
       }
       else
@@ -921,6 +921,113 @@ static int ProcessMouseOptionsListElement(xmlNode * a_node)
   return ret;
 }
 
+static int ProcessCorrectionElement(xmlNode * a_node)
+{
+  int ret = 0;
+
+  if(GetIntProp(a_node, X_ATTR_LOW_VALUE, &entry.params.joystick_correction.coef[0]) == -1)
+  {
+    printf("missing %s attribute\n", X_ATTR_LOW_VALUE);
+    return -1;
+  }
+
+  if(GetIntProp(a_node, X_ATTR_HIGH_VALUE, &entry.params.joystick_correction.coef[1]) == -1)
+  {
+    printf("missing %s attribute\n", X_ATTR_HIGH_VALUE);
+    return -1;
+  }
+
+  if(GetIntProp(a_node, X_ATTR_LOW_COEF, &entry.params.joystick_correction.coef[2]) == -1)
+  {
+    printf("missing %s attribute\n", X_ATTR_LOW_COEF);
+    return -1;
+  }
+
+  if(GetIntProp(a_node, X_ATTR_HIGH_COEF, &entry.params.joystick_correction.coef[3]) == -1)
+  {
+    printf("missing %s attribute\n", X_ATTR_HIGH_COEF);
+    return -1;
+  }
+
+  xmlNode* cur_node = NULL;
+  for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
+  {
+    if (cur_node->type == XML_ELEMENT_NODE)
+    {
+      if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_DEVICE))
+      {
+        ret = ProcessDeviceElement(cur_node);
+        break;
+      }
+      else
+      {
+        printf("bad element name: %s", cur_node->name);
+        ret = -1;
+      }
+    }
+  }
+
+  if (!cur_node)
+  {
+    printf("missing device element");
+    ret = -1;
+  }
+
+  for (cur_node = cur_node->next; cur_node && ret == 0; cur_node = cur_node->next)
+  {
+    if (cur_node->type == XML_ELEMENT_NODE)
+    {
+      if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_EVENT))
+      {
+        ret = ProcessEventElement(cur_node, 0);
+        break;
+      }
+      else
+      {
+        printf("bad element name: %s", cur_node->name);
+        ret = -1;
+      }
+    }
+  }
+
+  if (!cur_node)
+  {
+    printf("missing event element");
+    ret = -1;
+  }
+
+  if(ret != -1)
+  {
+    entry.params.joystick_correction.axis = entry.event.id;
+    cfg_add_js_corr(entry.device.id, &entry.params.joystick_correction);
+  }
+
+  return ret;
+}
+
+static int ProcessJoystickCorrectionsListElement(xmlNode * a_node)
+{
+  int ret = 0;
+  xmlNode* cur_node = NULL;
+
+  for (cur_node = a_node->children; cur_node && ret != -1; cur_node = cur_node->next)
+  {
+    if (cur_node->type == XML_ELEMENT_NODE)
+    {
+      if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_CORRECTION))
+      {
+        ret = ProcessCorrectionElement(cur_node);
+      }
+      else
+      {
+        printf("bad element name: %s", cur_node->name);
+        ret = -1;
+      }
+    }
+  }
+  return ret;
+}
+
 static int ProcessConfigurationElement(xmlNode * a_node)
 {
   int ret = 0;
@@ -1042,6 +1149,23 @@ static int ProcessConfigurationElement(xmlNode * a_node)
   {
     printf("missing axis_map element");
     ret = -1;
+  }
+
+  for (cur_node = cur_node->next; cur_node && ret != -1; cur_node = cur_node->next)
+  {
+    if (cur_node->type == XML_ELEMENT_NODE)
+    {
+      if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_JOYSTICK_CORRECTIONS_LIST))
+      {
+        ret = ProcessJoystickCorrectionsListElement(cur_node);
+        break;
+      }
+      else
+      {
+        printf("bad element name: %s", cur_node->name);
+        ret = -1;
+      }
+    }
   }
 
   return ret;
