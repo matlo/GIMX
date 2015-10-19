@@ -99,8 +99,11 @@ static int uhid_write(int fd, const struct uhid_event *ev) {
  * These descriptors remove the combined Y axis and instead report
  * separate throttle (Y) and brake (RZ).
  */
-static __u8 df_rdesc_fixed[] = { 0x05, 0x01, /*  Usage Page (Desktop),                   */
-        0x09, 0x04, /*  Usage (Joystik),                        */
+static __u8 df_rdesc_fixed[] = {
+        0x05, 0x01, /*  Usage Page (Desktop),                   */
+//      0x09, 0x04, /*  Usage (Joystik),                        */
+        //Replacing the usage is a trick to force the kernel not to apply deadzones.
+        0x09, 0x08, /*  Usage (Multi-axis Controller),          */
         0xA1, 0x01, /*  Collection (Application),               */
         0xA1, 0x02, /*      Collection (Logical),               */
         0x95, 0x01, /*          Report Count (1),               */
@@ -164,8 +167,11 @@ static __u8 df_rdesc_fixed[] = { 0x05, 0x01, /*  Usage Page (Desktop),          
         0xC0 /*  End Collection                          */
 };
 
-static __u8 dfp_rdesc_fixed[] = { 0x05, 0x01, /*  Usage Page (Desktop),                   */
-        0x09, 0x04, /*  Usage (Joystik),                        */
+static __u8 dfp_rdesc_fixed[] = {
+        0x05, 0x01, /*  Usage Page (Desktop),                   */
+//      0x09, 0x04, /*  Usage (Joystik),                        */
+        //Replacing the usage is a trick to force the kernel not to apply deadzones.
+        0x09, 0x08, /*  Usage (Multi-axis Controller),          */
         0xA1, 0x01, /*  Collection (Application),               */
         0xA1, 0x02, /*      Collection (Logical),               */
         0x95, 0x01, /*          Report Count (1),               */
@@ -211,8 +217,11 @@ static __u8 dfp_rdesc_fixed[] = { 0x05, 0x01, /*  Usage Page (Desktop),         
         0xC0 /*  End Collection                          */
 };
 
-static __u8 fv_rdesc_fixed[] = { 0x05, 0x01, /*  Usage Page (Desktop),                   */
-        0x09, 0x04, /*  Usage (Joystik),                        */
+static __u8 fv_rdesc_fixed[] = {
+        0x05, 0x01, /*  Usage Page (Desktop),                   */
+//      0x09, 0x04, /*  Usage (Joystik),                        */
+        //Replacing the usage is a trick to force the kernel not to apply deadzones.
+        0x09, 0x08, /*  Usage (Multi-axis Controller),          */
         0xA1, 0x01, /*  Collection (Application),               */
         0xA1, 0x02, /*      Collection (Logical),               */
         0x95, 0x01, /*          Report Count (1),               */
@@ -277,8 +286,11 @@ static __u8 fv_rdesc_fixed[] = { 0x05, 0x01, /*  Usage Page (Desktop),          
         0xC0 /*  End Collection                          */
 };
 
-static __u8 momo_rdesc_fixed[] = { 0x05, 0x01, /*  Usage Page (Desktop),               */
-        0x09, 0x04, /*  Usage (Joystik),                    */
+static __u8 momo_rdesc_fixed[] = {
+        0x05, 0x01, /*  Usage Page (Desktop),               */
+//      0x09, 0x04, /*  Usage (Joystik),                    */
+        //Replacing the usage is a trick to force the kernel not to apply deadzones.
+        0x09, 0x08, /*  Usage (Multi-axis Controller),      */
         0xA1, 0x01, /*  Collection (Application),           */
         0xA1, 0x02, /*      Collection (Logical),           */
         0x95, 0x01, /*          Report Count (1),           */
@@ -325,7 +337,9 @@ static __u8 momo_rdesc_fixed[] = { 0x05, 0x01, /*  Usage Page (Desktop),        
 //TODO MLA: try to separate the pedal axes
 static __u8 ffgp_rdesc_fixed[] = {
         0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
-        0x09, 0x04,        // Usage (Joystick)
+//      0x09, 0x04,        // Usage (Joystick)
+        //Replacing the usage is a trick to force the kernel not to apply deadzones.
+        0x09, 0x08, /*  Usage (Multi-axis Controller),          */
         0xA1, 0x01,        // Collection (Application)
         0xA1, 0x02,        //   Collection (Logical)
         0x95, 0x01,        //     Report Count (1)
@@ -367,8 +381,11 @@ static __u8 ffgp_rdesc_fixed[] = {
         0xC0,              // End Collection
 };
 
-static __u8 momo2_rdesc_fixed[] = { 0x05, 0x01, /*  Usage Page (Desktop),               */
-        0x09, 0x04, /*  Usage (Joystik),                    */
+static __u8 momo2_rdesc_fixed[] = {
+        0x05, 0x01, /*  Usage Page (Desktop),               */
+//      0x09, 0x04, /*  Usage (Joystik),                    */
+        //Replacing the usage is a trick to force the kernel not to apply deadzones.
+        0x09, 0x08, /*  Usage (Multi-axis Controller),      */
         0xA1, 0x01, /*  Collection (Application),           */
         0xA1, 0x02, /*      Collection (Logical),           */
         0x95, 0x01, /*          Report Count (1),           */
@@ -417,8 +434,11 @@ static __u8 momo2_rdesc_fixed[] = { 0x05, 0x01, /*  Usage Page (Desktop),       
 /*
  * See http://wiibrew.org/wiki/Logitech_USB_steering_wheel
  */
-static __u8 wii_rdesc_fixed[] = { 0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
-        0x09, 0x04,        // Usage (Joystick)
+static __u8 wii_rdesc_fixed[] = {
+        0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
+//      0x09, 0x04,        // Usage (Joystick)
+        //Replacing the usage is a trick to force the kernel not to apply deadzones.
+        0x09, 0x08,        //  Usage (Multi-axis Controller)
         0xA1, 0x01,        // Collection (Application)
         0xA1, 0x02,        //   Collection (Logical)
         0x95, 0x01,        //     Report Count (1)
@@ -493,6 +513,64 @@ static int get_fixed_rdesc(unsigned short vendor, unsigned short product) {
     return -1;
 }
 
+typedef struct __attribute__((packed))
+{
+    unsigned char bSize : 2;
+    unsigned char bType : 2;
+    unsigned char bTag : 4;
+} s_item_header;
+
+#define BTYPE_LOCAL 2
+
+#define BTAG_LONG_ITEM 0b1111
+
+typedef struct __attribute__((packed))
+{
+    s_item_header header;
+    unsigned char data[0];
+} s_short_item;
+
+#define USAGE_JOYSTICK             0x04
+#define USAGE_GAMEPAD              0x05
+#define USAGE_MULTIAXIS_CONTROLLER 0x08
+
+typedef struct __attribute__((packed))
+{
+    s_item_header header;
+    unsigned char bDataSize;
+    unsigned char bLongItemTag;
+    unsigned char data[0];
+} s_long_item;
+
+static void fix_rdesc_usage(unsigned char * rdesc, unsigned short size) {
+  unsigned char * pos;
+  unsigned char dataSize, headerSize;
+  for (pos = rdesc; pos + 1 < rdesc + size; pos += (dataSize + headerSize)) {
+    s_item_header * header = (s_item_header *)pos;
+    if (header->bTag == BTAG_LONG_ITEM) {
+      s_long_item * item = (s_long_item *)pos;
+      dataSize = item->bDataSize;
+      headerSize = sizeof(item->header) + sizeof(item->bDataSize) + sizeof(item->bLongItemTag);
+    } else {
+      s_short_item * item = (s_short_item *)pos;
+      static unsigned char sizes[] = { 0, 1, 2, 4 };
+      dataSize = sizes[item->header.bSize];
+      headerSize = sizeof(item->header);
+      if (dataSize == 1 && item->header.bType == BTYPE_LOCAL) {
+        switch (item->data[0])
+        {
+        case USAGE_JOYSTICK:
+        case USAGE_GAMEPAD:
+          item->data[0] = USAGE_MULTIAXIS_CONTROLLER;
+          break;
+        default:
+          break;
+        }
+      }
+    }
+  }
+}
+
 int uhidasync_create(const s_hid_info * hidDesc) {
 
     if (hidDesc == NULL) {
@@ -523,6 +601,10 @@ int uhidasync_create(const s_hid_info * hidDesc) {
     if (fixed != -1) {
         rd_data = rdesc_fixed[fixed].rdesc;
         rd_size = rdesc_fixed[fixed].length;
+    } else {
+        // Change Joystick and Gamepad usages to Multiaxis Controller usage.
+        // This prevents the kernel from applying deadzones.
+        fix_rdesc_usage(rd_data, rd_size);
     }
 
     struct uhid_event ev = {

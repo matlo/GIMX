@@ -4,15 +4,9 @@
  */
 
 #include <uhid_joystick.h>
-
+#include <hidasync.h>
 #include <uhidasync.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <linux/input.h>
-#include <dirent.h>
-#include <string.h>
 
 #define UHID_JOYSTICK_MAX_DEVICES 256
 
@@ -113,110 +107,6 @@ static int is_logitech_wheel(unsigned short vendor, unsigned short product) {
     return 0;
 }
 
-#define DEV_INPUT "/dev/input"
-#define EV_DEV_NAME "event%u"
-
-static int is_event_file(const struct dirent *dir) {
-  unsigned int num;
-  if(dir->d_type == DT_CHR && sscanf(dir->d_name, EV_DEV_NAME, &num) == 1 && num < 256) {
-    return 1;
-  }
-  return 0;
-}
-
-static int set_evdev_correction(int uhid) {
-
-  int ret = -1;
-  int i;
-  int fd;
-  char device[sizeof("/dev/input/event255")];
-
-  struct dirent **namelist;
-  int n;
-
-  n = scandir(DEV_INPUT, &namelist, is_event_file, alphasort);
-  if (n >= 0)
-  {
-    for(i = 0; i < n; ++i)
-    {
-      if(ret == -1)
-      {
-        snprintf(device, sizeof(device), "%s/%s", DEV_INPUT, namelist[i]->d_name);
-
-        fd = open (device, O_RDONLY);
-        if(fd != -1)
-        {
-          char uniq[64] = {};
-          if(ioctl(fd, EVIOCGUNIQ(sizeof(uniq)), uniq) != -1)
-          {
-            pid_t pid;
-            int id;
-            if(sscanf(uniq, "GIMX %d %d", &pid, &id) == 2)
-            {
-              if(pid == getpid() && id == uhid)
-              {
-                struct input_absinfo absinfo = { 0 };
-                if(ioctl(fd, EVIOCGABS(ABS_X), &absinfo) != -1)
-                {
-                  absinfo.flat = 0;
-                  absinfo.fuzz = 0;
-                  if(ioctl(fd, EVIOCSABS(ABS_X), &absinfo) < 0)
-                  {
-                    PRINT_ERROR_ERRNO("ioctl EVIOCSABS ABS_X")
-                  }
-                }
-                if(ioctl(fd, EVIOCGABS(ABS_Y), &absinfo) != -1)
-                {
-                  absinfo.flat = 0;
-                  absinfo.fuzz = 0;
-                  if(ioctl(fd, EVIOCSABS(ABS_Y), &absinfo) < 0)
-                  {
-                    PRINT_ERROR_ERRNO("ioctl EVIOCSABS ABS_Y")
-                  }
-                }
-                if(ioctl(fd, EVIOCGABS(ABS_Z), &absinfo) != -1)
-                {
-                  absinfo.flat = 0;
-                  absinfo.fuzz = 0;
-                  if(ioctl(fd, EVIOCSABS(ABS_Z), &absinfo) < 0)
-                  {
-                    PRINT_ERROR_ERRNO("ioctl EVIOCSABS ABS_Z")
-                  }
-                }
-                if(ioctl(fd, EVIOCGABS(ABS_RZ), &absinfo) != -1)
-                {
-                  absinfo.flat = 0;
-                  absinfo.fuzz = 0;
-                  if(ioctl(fd, EVIOCSABS(ABS_RZ), &absinfo) < 0)
-                  {
-                    PRINT_ERROR_ERRNO("ioctl EVIOCSABS ABS_RZ")
-                  }
-                }
-                ret = 0;
-                char name[1024] = {};
-                if (ioctl(fd, EVIOCGNAME(sizeof(name) - 1), name) < 0)
-                {
-                  PRINT_ERROR_ERRNO("ioctl EVIOCGNAME")
-                }
-                printf("reset flat/fuzz values for \"%s\" (%s)\n", name, device);
-              }
-            }
-          }
-          close(fd);
-        }
-      }
-      free(namelist[i]);
-    }
-    free(namelist);
-  }
-  else
-  {
-    PRINT_ERROR_ERRNO("scandir")
-  }
-
-  return ret;
-}
-
 int uhid_joystick_open_all() {
 
     s_hid_dev * hid_devs = hidasync_enumerate(0x0000, 0x0000);
@@ -232,13 +122,6 @@ int uhid_joystick_open_all() {
                 const s_hid_info * hid_info = hidasync_get_hid_info(hid);
                 int uhid = uhidasync_create(hid_info);
                 if(uhid >= 0) {
-
-                    if(set_evdev_correction(uhid) == -1) {
-                        PRINT_ERROR_OTHER("cannot set evdev correction")
-                        hidasync_close(hid);
-                        uhidasync_close(uhid);
-                        continue;
-                    }
 
                     if(add_device(hid, uhid) < 0) {
 
