@@ -329,7 +329,7 @@ static void decode_extended(unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE])
       break;
     default:
       dprintf(" - ");
-      dump(data + 2, sizeof(data) - 2);
+      dump(data + 2, FFB_LOGITECH_OUTPUT_REPORT_SIZE - 2);
       break;
     }
     dprintf("\n");
@@ -343,12 +343,12 @@ static void decode_command(unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE]) 
     case CMD_DOWNLOAD:
     case CMD_DOWNLOAD_AND_PLAY:
     case CMD_REFRESH_FORCE:
+    case CMD_PLAY:
+    case CMD_STOP:
         dprintf(" - %s", get_ftype_name(data[1]));
         dprintf(" - ");
         dump(data + 2, FFB_LOGITECH_OUTPUT_REPORT_SIZE - 2);
         break;
-    case CMD_PLAY:
-    case CMD_STOP:
     case CMD_DEFAULT_SPRING_ON:
     case CMD_DEFAULT_SPRING_OFF:
     case CMD_NORMAL_MODE:
@@ -396,24 +396,72 @@ void ffb_logitech_process_report(int device, unsigned char data[FFB_LOGITECH_OUT
         unsigned char slots = data[0] & 0xf0;
         unsigned char cmd = data[0] & 0x0f;
 
-        s_force * forces = ffb_lg_device[device].forces;
-        int i;
-        for (i = 0; i < FORCES_NB; ++i) {
-            if (slots & forces[i].mask) {
-                if (cmd == CMD_DOWNLOAD_AND_PLAY) {
-                    forces[i].send = 1;
-                    forces[i].active = 1;
-                    memcpy(forces[i].parameters, data + 1, sizeof(forces[i].parameters));
-                } else if (cmd == CMD_STOP) {
-                    forces[i].send = 1;
-                    forces[i].active = 0;
-                    memset(forces[i].parameters, 0x00, sizeof(forces[i].parameters));
-                } else {
-                    continue;
-                }
-                s_cmd cmd = { forces[i].mask, 0x00 };
-                fifo_push(device, cmd);
+        switch(cmd)
+        {
+        case CMD_DOWNLOAD:
+        case CMD_DOWNLOAD_AND_PLAY:
+        case CMD_PLAY:
+        case CMD_STOP:
+        case CMD_REFRESH_FORCE:
+        {
+            int i;
+            s_force * forces = ffb_lg_device[device].forces;
+            if (slots == 0xf0)
+            {
+              // stop all forces, whatever their current states
+              // this is useful at startup, where all forces are considered stopped
+              for (i = 0; i < FORCES_NB; ++i) {
+                  forces[i].send = 1;
+                  forces[i].active = 0;
+                  memset(forces[i].parameters, 0x00, sizeof(forces[i].parameters));
+                  s_cmd cmd = { forces[i].mask, 0x00 };
+                  fifo_push(device, cmd);
+              }
+              break;
             }
+            for (i = 0; i < FORCES_NB; ++i) {
+                if (slots & forces[i].mask) {
+                    if (cmd == CMD_DOWNLOAD) {
+                        memcpy(forces[i].parameters, data + 1, sizeof(forces[i].parameters));
+                        continue; // don't send anything yet
+                    } else if (cmd == CMD_DOWNLOAD_AND_PLAY || cmd == CMD_REFRESH_FORCE) {
+                        if(forces[i].active && !memcmp(forces[i].parameters, data + 1, sizeof(forces[i].parameters))) {
+                            dprintf("> no change\n");
+                            continue; // no change
+                        }
+                        forces[i].send = 1;
+                        forces[i].active = 1;
+                        memcpy(forces[i].parameters, data + 1, sizeof(forces[i].parameters));
+                    } else if (cmd == CMD_PLAY) {
+                        if(forces[i].active) {
+                            dprintf("> already playing\n");
+                            continue; // already playing
+                        }
+                        forces[i].send = 1;
+                        forces[i].active = 1;
+                    } else if (cmd == CMD_STOP) {
+                        if(!forces[i].active) {
+                            dprintf("> already stopped\n");
+                            continue; // already stopped
+                        }
+                        forces[i].send = 1;
+                        forces[i].active = 0;
+                        memset(forces[i].parameters, 0x00, sizeof(forces[i].parameters));
+                    } else {
+                        continue;
+                    }
+                    s_cmd cmd = { forces[i].mask, 0x00 };
+                    fifo_push(device, cmd);
+                }
+            }
+        }
+        break;
+        default:
+        {
+            s_cmd cmd = { data[0], 0x00 };
+            fifo_push(device, cmd);
+        }
+        break;
         }
     }
     else {
@@ -442,6 +490,9 @@ void ffb_logitech_process_report(int device, unsigned char data[FFB_LOGITECH_OUT
                     memcpy(ext_cmd->cmd, data, sizeof(ext_cmd->cmd));
                     ext_cmd->send = 1;
                     fifo_push(device, cmd);
+                }
+                else {
+                    dprintf("> no change\n");
                 }
                 break;
             }
@@ -493,20 +544,32 @@ int ffb_logitech_get_report(int device, unsigned char data[FFB_LOGITECH_OUTPUT_R
     if (cmd.cmd) {
         dprintf("< ");
         if(cmd.cmd != CMD_EXTENDED_COMMAND) {
-            unsigned char index = slot_index[cmd.cmd >> 4];
-            if (forces[index].active) {
-                data[0] = cmd.cmd | CMD_DOWNLOAD_AND_PLAY;
-                memcpy(data + 1, forces[index].parameters, sizeof(forces[i].parameters));
-            } else {
-                stop_forces(device, cmd.cmd);
-                data[0] = cmd.cmd | CMD_STOP;
+            if(cmd.cmd & 0x0f)
+            {
+                data[0] = cmd.cmd;
+                fifo_remove(device, cmd);
+                if(debug) {
+                    decode_command(data);
+                }
+                return 1;
             }
-            if(debug) {
-                decode_command(data);
+            else
+            {
+                unsigned char index = slot_index[cmd.cmd >> 4];
+                if (forces[index].active) {
+                    data[0] = cmd.cmd | CMD_DOWNLOAD_AND_PLAY;
+                    memcpy(data + 1, forces[index].parameters, sizeof(forces[i].parameters));
+                } else {
+                    stop_forces(device, cmd.cmd);
+                    data[0] = cmd.cmd | CMD_STOP;
+                }
+                fifo_remove(device, cmd);
+                forces[index].send = 0;
+                if(debug) {
+                    decode_command(data);
+                }
+                return 1;
             }
-            fifo_remove(device, cmd);
-            forces[index].send = 0;
-            return 1;
         }
         else {
             int i;
