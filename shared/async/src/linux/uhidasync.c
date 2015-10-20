@@ -551,11 +551,19 @@ static void fix_rdesc_usage(unsigned char * rdesc, unsigned short size) {
       s_long_item * item = (s_long_item *)pos;
       dataSize = item->bDataSize;
       headerSize = sizeof(item->header) + sizeof(item->bDataSize) + sizeof(item->bLongItemTag);
+      if(pos + headerSize + dataSize >= rdesc + size) {
+        PRINT_ERROR_OTHER("invalid report descriptor")
+        break;
+      }
     } else {
       s_short_item * item = (s_short_item *)pos;
       static unsigned char sizes[] = { 0, 1, 2, 4 };
       dataSize = sizes[item->header.bSize];
       headerSize = sizeof(item->header);
+      if(pos + headerSize + dataSize >= rdesc + size) {
+        PRINT_ERROR_OTHER("invalid report descriptor")
+        break;
+      }
       if (dataSize == 1 && item->header.bType == BTYPE_LOCAL) {
         switch (item->data[0])
         {
