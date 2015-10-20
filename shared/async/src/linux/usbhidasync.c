@@ -645,8 +645,10 @@ static void usb_cleanup() {
     transfers_nb = 0;
     libusb_free_device_list(devs, 1);
     devs = NULL;
-    libusb_exit(ctx);
-    ctx = NULL;
+    if(ctx) {
+      libusb_exit(ctx);
+      ctx = NULL;
+    }
   }
 }
 

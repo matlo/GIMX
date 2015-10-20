@@ -717,8 +717,10 @@ int usb_close(int usb_number)
     {
       libusb_free_device_list(devs, 1);
       devs = NULL;
-      libusb_exit(ctx);
-      ctx = NULL;
+      if(ctx) {
+        libusb_exit(ctx);
+        ctx = NULL;
+      }
     }
   }
 
