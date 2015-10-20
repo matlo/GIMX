@@ -5,8 +5,10 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <ffb_logitech.h>
+#include <hidasync.h>
 #include <adapter.h>
 
 #define FSLOT_1 0x10
@@ -591,3 +593,119 @@ int ffb_logitech_get_report(int device, unsigned char data[FFB_LOGITECH_OUTPUT_R
     return 0;
 }
 
+static unsigned short lg_wheel_products[] = {
+    USB_DEVICE_ID_LOGITECH_WINGMAN_FFG,
+    USB_DEVICE_ID_LOGITECH_WHEEL,
+    USB_DEVICE_ID_LOGITECH_MOMO_WHEEL,
+    USB_DEVICE_ID_LOGITECH_DFP_WHEEL,
+    USB_DEVICE_ID_LOGITECH_G25_WHEEL,
+    USB_DEVICE_ID_LOGITECH_DFGT_WHEEL,
+    USB_DEVICE_ID_LOGITECH_G27_WHEEL,
+    USB_DEVICE_ID_LOGITECH_WII_WHEEL,
+    USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2,
+    USB_DEVICE_ID_LOGITECH_VIBRATION_WHEEL,
+};
+
+int ffb_logitech_is_logitech_wheel(unsigned short vendor, unsigned short product) {
+
+    if(vendor != USB_VENDOR_ID_LOGITECH) {
+        return 0;
+    }
+    unsigned int i;
+    for(i = 0; i < sizeof(lg_wheel_products) / sizeof(*lg_wheel_products); ++i) {
+        if(lg_wheel_products[i] == product) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+typedef struct
+{
+  unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE];
+} s_native_mode;
+
+static struct
+{
+  unsigned short product;
+  s_native_mode command;
+} native_modes[] =
+{
+    { USB_DEVICE_ID_LOGITECH_DFGT_WHEEL, { { 0xf8, 0x09, 0x03, 0x01 } } },
+    { USB_DEVICE_ID_LOGITECH_G27_WHEEL,  { { 0xf8, 0x09, 0x04, 0x01 } } },
+    { USB_DEVICE_ID_LOGITECH_G25_WHEEL,  { { 0xf8, 0x10 } } },
+    { USB_DEVICE_ID_LOGITECH_DFP_WHEEL,  { { 0xf8, 0x01 } } },
+};
+
+static s_native_mode * get_native_mode_command(unsigned short product, unsigned short bcdDevice)
+{
+  unsigned short native = 0x0000;
+
+  if(((USB_DEVICE_ID_LOGITECH_WHEEL == product) || (USB_DEVICE_ID_LOGITECH_DFP_WHEEL == product))
+      && (0x1300 == (bcdDevice & 0xff00))) {
+    native = USB_DEVICE_ID_LOGITECH_DFGT_WHEEL;
+  } else if(((USB_DEVICE_ID_LOGITECH_WHEEL == product) || (USB_DEVICE_ID_LOGITECH_DFP_WHEEL == product) || (USB_DEVICE_ID_LOGITECH_G25_WHEEL == product))
+      && (0x1230 == (bcdDevice & 0xfff0))) {
+    native = USB_DEVICE_ID_LOGITECH_G27_WHEEL;
+  } else if(((USB_DEVICE_ID_LOGITECH_WHEEL == product) || (USB_DEVICE_ID_LOGITECH_DFP_WHEEL == product))
+      && (0x1200 == (bcdDevice & 0xff00))) {
+    native = USB_DEVICE_ID_LOGITECH_G25_WHEEL;
+  } else if((USB_DEVICE_ID_LOGITECH_WHEEL == product)
+      && (0x1000 == (bcdDevice & 0xf000))) {
+    native = USB_DEVICE_ID_LOGITECH_DFP_WHEEL;
+  }
+
+  unsigned int i;
+  for (i = 0; i < sizeof(native_modes) / sizeof(*native_modes); ++i) {
+    if (native_modes[i].product == native) {
+      return &native_modes[i].command;
+    }
+  }
+
+  return NULL;
+}
+
+void ffb_logitech_set_native_mode() {
+    static int done = 0;
+    if(done) {
+      return;
+    }
+    done = 1;
+    s_hid_dev * hid_devs = hidasync_enumerate(USB_VENDOR_ID_LOGITECH, 0x0000);
+    s_hid_dev * current;
+    for(current = hid_devs; current != NULL; ++current) {
+        if(ffb_logitech_is_logitech_wheel(current->vendor_id, current->product_id)) {
+            int hid = hidasync_open_path(current->path);
+            if(hid >= 0) {
+                unsigned char reset = 0;
+                const s_hid_info * hid_info = hidasync_get_hid_info(hid);
+                if(hid_info != NULL) {
+                  s_native_mode * command = get_native_mode_command(hid_info->product_id, hid_info->bcdDevice);
+                  if(command) {
+                    reset = 1;
+                    int ret = hidasync_write_timeout(hid, command->data, sizeof(command->data), 1);
+                    if(ret == 0) {
+                      fprintf(stderr, "cannot set native mode for %s\n", current->path);
+                    }
+                  }
+                }
+                hidasync_close(hid);
+                if(reset) {
+                  // wait up to 5 seconds for the device to reset
+                  int cpt = 0;
+                  while((hid = hidasync_open_path(current->path)) < 0 && cpt < 50) {
+                    usleep(100000);
+                  }
+                  if(hid >= 0) {
+                    hidasync_close(hid);
+                  }
+                }
+            }
+        }
+        if(current->next == 0) {
+            break;
+        }
+    }
+
+    hidasync_free_enumeration(hid_devs);
+}

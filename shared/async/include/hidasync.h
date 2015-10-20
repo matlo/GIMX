@@ -28,6 +28,7 @@ extern "C" {
 typedef struct {
     unsigned short vendor_id;
     unsigned short product_id;
+    unsigned short bcdDevice;
     unsigned short version;
     unsigned char countryCode;
     unsigned char * reportDescriptor;

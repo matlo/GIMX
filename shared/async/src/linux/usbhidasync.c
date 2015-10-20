@@ -390,6 +390,7 @@ static s_config probe_device(libusb_device * dev, struct libusb_device_descripto
           config.hidInfo = probe_hid(interfaceDesc->extra, interfaceDesc->extra_length);
           config.hidInfo.vendor_id = desc->idVendor;
           config.hidInfo.product_id = desc->idProduct;
+          config.hidInfo.bcdDevice = desc->bcdDevice;
 					int ep;
 					for (ep = 0; ep < interfaceDesc->bNumEndpoints; ++ep) {
 						const struct libusb_endpoint_descriptor * endpoint = interfaceDesc->endpoint + ep;

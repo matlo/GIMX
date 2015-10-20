@@ -6,6 +6,7 @@
 #include <uhid_joystick.h>
 #include <hidasync.h>
 #include <uhidasync.h>
+#include <ffb_logitech.h>
 #include <stdio.h>
 
 #define UHID_JOYSTICK_MAX_DEVICES 256
@@ -80,41 +81,14 @@ static int add_device(int hid, int uhid) {
     return -1;
 }
 
-static unsigned short lg_wheel_products[] = {
-    USB_DEVICE_ID_LOGITECH_WINGMAN_FFG,
-    USB_DEVICE_ID_LOGITECH_WHEEL,
-    USB_DEVICE_ID_LOGITECH_MOMO_WHEEL,
-    USB_DEVICE_ID_LOGITECH_DFP_WHEEL,
-    USB_DEVICE_ID_LOGITECH_G25_WHEEL,
-    USB_DEVICE_ID_LOGITECH_DFGT_WHEEL,
-    USB_DEVICE_ID_LOGITECH_G27_WHEEL,
-    USB_DEVICE_ID_LOGITECH_WII_WHEEL,
-    USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2,
-    USB_DEVICE_ID_LOGITECH_VIBRATION_WHEEL,
-};
-
-static int is_logitech_wheel(unsigned short vendor, unsigned short product) {
-
-    if(vendor != USB_VENDOR_ID_LOGITECH) {
-        return 0;
-    }
-    unsigned int i;
-    for(i = 0; i < sizeof(lg_wheel_products) / sizeof(*lg_wheel_products); ++i) {
-        if(lg_wheel_products[i] == product) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
 int uhid_joystick_open_all() {
 
-    s_hid_dev * hid_devs = hidasync_enumerate(0x0000, 0x0000);
+    s_hid_dev * hid_devs = hidasync_enumerate(USB_VENDOR_ID_LOGITECH, 0x0000);
 
     s_hid_dev * current;
     for(current = hid_devs; current != NULL; ++current) {
 
-        if(is_logitech_wheel(current->vendor_id, current->product_id)) {
+        if(ffb_logitech_is_logitech_wheel(current->vendor_id, current->product_id)) {
 
             int hid = hidasync_open_path(current->path);
             if(hid >= 0) {

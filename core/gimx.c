@@ -37,6 +37,7 @@
 #include <pcprog.h>
 #include "../directories.h"
 #include <uhid_joystick.h>
+#include <ffb_logitech.h>
 
 #define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
 
@@ -195,6 +196,8 @@ int main(int argc, char *argv[])
   {
     bt_abs_value = E_BT_ABS_BTSTACK;
   }
+
+  ffb_logitech_set_native_mode();
 
   if(adapter_detect() < 0)
   {
