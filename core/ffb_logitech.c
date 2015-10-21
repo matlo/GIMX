@@ -685,7 +685,9 @@ void ffb_logitech_set_native_mode() {
                     reset = 1;
                     int ret = hidasync_write_timeout(hid, command->data, sizeof(command->data), 1);
                     if(ret == 0) {
-                      fprintf(stderr, "cannot set native mode for %s\n", current->path);
+                      fprintf(stderr, "cannot enable native mode for HID device %s (%04x:%04x)\n", current->path, current->vendor_id, current->product_id);
+                    } else {
+                      printf("native mode enabled for HID device %s (%04x:%04x)\n", current->path, current->vendor_id, current->product_id);
                     }
                   }
                 }
@@ -703,6 +705,8 @@ void ffb_logitech_set_native_mode() {
                   }
                   if(hid >= 0) {
                     hidasync_close(hid);
+                  } else {
+                    fprintf(stderr, "HID device %s (%04x:%04x) not found\n", current->path, current->vendor_id, current->product_id);
                   }
                 }
             }
