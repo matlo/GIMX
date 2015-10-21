@@ -23,6 +23,20 @@ typedef void (* ASYNC_REGISTER_SOURCE)(int fd, int id, int (*fp_read)(int), int 
 typedef void (* ASYNC_REGISTER_SOURCE)(HANDLE handle, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int));
 #endif
 
+typedef struct {
+    unsigned short vendor_id;
+    unsigned short product_id;
+    unsigned short bcdDevice;
+#ifndef WIN32
+    unsigned short version;
+    unsigned char countryCode;
+    unsigned char * reportDescriptor;
+    unsigned short reportDescriptorLength;
+    char * manufacturerString;
+    char * productString;
+#endif
+} s_hid_info;
+
 typedef struct
 {
   struct
@@ -64,11 +78,9 @@ typedef struct {
         ASYNC_WRITE_CALLBACK fp_write;
         ASYNC_CLOSE_CALLBACK fp_close;
     } callback;
-    struct
-    {
-      unsigned short vendor;
-      unsigned short product;
-    } hid;
+#ifdef WIN32
+    s_hid_info hidInfo;
+#endif
     struct
     {
 #ifdef WIN32
@@ -86,9 +98,9 @@ void async_print_error(const char * file, int line, const char * msg);
 #define ASYNC_PRINT_ERROR(msg) async_print_error(__FILE__, __LINE__, msg);
 
 inline int async_check_device(int device, const char * file, unsigned int line, const char * func);
-#define ASYNC_CHECK_DEVICE(device) \
+#define ASYNC_CHECK_DEVICE(device,retValue) \
   if(async_check_device(device, __FILE__, __LINE__, __func__) < 0) { \
-    return -1; \
+    return retValue; \
   }
 
 int async_open_path(const char * path, int print);

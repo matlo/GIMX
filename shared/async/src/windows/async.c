@@ -184,7 +184,7 @@ int async_open_path(const char * path, int print) {
 
 int async_close(int device) {
 
-    ASYNC_CHECK_DEVICE(device)
+    ASYNC_CHECK_DEVICE(device, -1)
 
     DWORD dwBytesTransfered;
 
@@ -277,7 +277,7 @@ int async_read_timeout(int device, void * buf, unsigned int count, unsigned int 
   }
 
   // skip the eventual leading null byte for hid devices
-  if (devices[device].hid.vendor != 0x0000 && dwBytesRead > 0) {
+  if (devices[device].hidInfo.vendor_id != 0x0000 && dwBytesRead > 0) {
     if (((unsigned char*)buf)[0] == 0x00) {
       --dwBytesRead;
       memmove(buf, buf + 1, dwBytesRead);
@@ -369,7 +369,7 @@ static int read_packet(int device) {
   if(devices[device].read.bread) {
     if(devices[device].callback.fp_read != NULL) {
       // skip the eventual leading null byte for hid devices
-      if (devices[device].hid.vendor != 0x0000 && ((unsigned char*)devices[device].read.buf)[0] == 0x00) {
+      if (devices[device].hidInfo.vendor_id != 0x0000 && ((unsigned char*)devices[device].read.buf)[0] == 0x00) {
         --devices[device].read.bread;
         memmove(devices[device].read.buf, devices[device].read.buf + 1, devices[device].read.bread);
       }
@@ -383,7 +383,7 @@ static int read_packet(int device) {
 
 static int read_callback(int device) {
 
-    ASYNC_CHECK_DEVICE(device)
+    ASYNC_CHECK_DEVICE(device, -1)
     
     DWORD dwBytesRead = 0;
 
@@ -422,7 +422,7 @@ static int write_internal(int device) {
 
 static int write_callback(int device) {
 
-    ASYNC_CHECK_DEVICE(device)
+    ASYNC_CHECK_DEVICE(device, -1)
 
     int ret = 0;
 
@@ -453,14 +453,14 @@ static int write_callback(int device) {
 
 static int close_callback(int device) {
 
-    ASYNC_CHECK_DEVICE(device)
+    ASYNC_CHECK_DEVICE(device, -1)
 
     return devices[device].callback.fp_close(devices[device].callback.user);
 }
 
 int async_set_read_size(int device, unsigned int size) {
 
-    ASYNC_CHECK_DEVICE(device)
+    ASYNC_CHECK_DEVICE(device, -1)
     
     if(size > devices[device].read.size) {
         void * ptr = realloc(devices[device].read.buf, size);
@@ -479,7 +479,7 @@ int async_set_read_size(int device, unsigned int size) {
 
 int async_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register) {
 
-    ASYNC_CHECK_DEVICE(device)
+    ASYNC_CHECK_DEVICE(device, -1)
     
     while(read_packet(device) >= 0) ;
 
@@ -500,7 +500,7 @@ int async_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRIT
 
 int async_write(int device, const void * buf, unsigned int count) {
 
-    ASYNC_CHECK_DEVICE(device)
+    ASYNC_CHECK_DEVICE(device, -1)
 
     int res = queue_write(device, buf, count);
     if(res < 0) {

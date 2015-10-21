@@ -25,8 +25,9 @@ int open_path(const char * path, int print) {
             if(HidP_GetCaps(preparsedData, &hidCapabilities) == HIDP_STATUS_SUCCESS ) {
                 devices[device].write.size = hidCapabilities.OutputReportByteLength;
                 async_set_read_size(device, hidCapabilities.InputReportByteLength);
-                devices[device].hid.vendor = attributes.VendorID;
-                devices[device].hid.product = attributes.ProductID;
+                devices[device].hidInfo.vendor_id = attributes.VendorID;
+                devices[device].hidInfo.product_id = attributes.ProductID;
+                devices[device].hidInfo.bcdDevice = attributes.VersionNumber;
             }
             else {
                 ASYNC_PRINT_ERROR("HidP_GetCaps")
@@ -90,12 +91,12 @@ s_hid_dev * hidasync_enumerate(unsigned short vendor, unsigned short product) {
 
 			if(device >= 0) {
 				if(vendor) {
-					if (devices[device].hid.vendor != vendor) {
+					if (devices[device].hidInfo.vendor_id != vendor) {
 						async_close(device);
 						continue;
 					}
 					if(product) {
-						if(devices[device].hid.product != product) {
+						if(devices[device].hidInfo.product_id != product) {
 							async_close(device);
 							continue;
 						}
@@ -126,8 +127,8 @@ s_hid_dev * hidasync_enumerate(unsigned short vendor, unsigned short product) {
 				}
 
 				hid_devs[nb_hid_devs].path = path;
-				hid_devs[nb_hid_devs].vendor_id = devices[device].hid.vendor;
-				hid_devs[nb_hid_devs].product_id = devices[device].hid.product;
+				hid_devs[nb_hid_devs].vendor_id = devices[device].hidInfo.vendor_id;
+				hid_devs[nb_hid_devs].product_id = devices[device].hidInfo.product_id;
 				hid_devs[nb_hid_devs].next = 0;
 
 				++nb_hid_devs;
@@ -216,7 +217,7 @@ int hidasync_open_ids(unsigned short vendor, unsigned short product)
       free(details);
       details = NULL;
       if(device >= 0) {
-        if(devices[device].hid.vendor == vendor && devices[device].hid.product == product)
+        if(devices[device].hidInfo.vendor_id == vendor && devices[device].hidInfo.product_id == product)
         {
           ret = device;
           break;
@@ -230,22 +231,17 @@ int hidasync_open_ids(unsigned short vendor, unsigned short product)
 }
 
 /*
- * \brief Get the USB ids of a hid device.
+ * \brief Get info for a hid device.
  *
  * \param device  the identifier of the hid device
- * \param vendor  where to store the vendor id
- * \param product where to store the product id
  *
- * \return 0 in case of success, or -1 in case of failure (i.e. bad device identifier).
+ * \return the hid info
  */
-int hidasync_get_ids(int device, unsigned short * vendor, unsigned short * product) {
+const s_hid_info * hidasync_get_hid_info(int device) {
 
-    ASYNC_CHECK_DEVICE(device)
+    ASYNC_CHECK_DEVICE(device, NULL)
 
-    *vendor = devices[device].hid.vendor;
-    *product = devices[device].hid.product;
-
-    return 0;
+    return &devices[device].hidInfo;
 }
 
 /*

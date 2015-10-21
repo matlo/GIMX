@@ -25,18 +25,6 @@ extern "C" {
 #define USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2      0xca03
 #define USB_DEVICE_ID_LOGITECH_VIBRATION_WHEEL  0xca04
 
-typedef struct {
-    unsigned short vendor_id;
-    unsigned short product_id;
-    unsigned short bcdDevice;
-    unsigned short version;
-    unsigned char countryCode;
-    unsigned char * reportDescriptor;
-    unsigned short reportDescriptorLength;
-    char * manufacturerString;
-    char * productString;
-} s_hid_info;
-
 struct hid_device;
 
 typedef struct {

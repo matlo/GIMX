@@ -12,7 +12,6 @@ int usbhidasync_open_ids(unsigned short vendor, unsigned short product);
 s_hid_dev * usbhidasync_enumerate(unsigned short vendor, unsigned short product);
 void usbhidasync_free_enumeration(s_hid_dev * hid_devs);
 int usbhidasync_open_path(const char * path);
-int usbhidasync_get_ids(int device, unsigned short * vendor, unsigned short * product);
 const s_hid_info * usbhidasync_get_hid_info(int device);
 int usbhidasync_close(int device);
 int usbhidasync_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout);
