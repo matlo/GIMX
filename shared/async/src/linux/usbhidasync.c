@@ -147,8 +147,20 @@ inline int usbhidasync_check_device(int device, const char * file, unsigned int 
   }
 
 static char * make_path(libusb_device * dev) {
-	static char str[] = "00:00";
-	snprintf(str, sizeof(str), "%02x:%02x", libusb_get_bus_number(dev), libusb_get_device_address(dev));
+	uint8_t path[1 + 7] = { };
+	int pathLen = sizeof(path) / sizeof(*path);
+	static char str[sizeof(path) / sizeof(*path) * 3];
+	path[0] = libusb_get_bus_number(dev);
+	int ret = libusb_get_port_numbers(dev, path + 1, pathLen - 1);
+	if(ret < 0) {
+    PRINT_ERROR_LIBUSB("libusb_get_port_numbers", ret)
+    return NULL;
+	}
+  int i;
+  for (i = 0; i < ret + 1; ++i) {
+    snprintf(str + i * 3, sizeof(str) - i * 3, "%02x:", path[i]);
+  }
+  str[(ret + 1) * 3 - 1] = '\0';
 	return str;
 }
 
@@ -590,15 +602,18 @@ s_hid_dev * usbhidasync_enumerate(unsigned short vendor, unsigned short product)
         continue;
       }
 
-      char * path = strdup(make_path(devs[dev_i]));
-
+      const char * spath = make_path(devs[dev_i]);
+      if(spath == NULL) {
+        continue;
+      }
+      
+      char * path = strdup(spath);
       if(path == NULL) {
         PRINT_ERROR_OTHER("strdup failed")
         continue;
       }
 
       void * ptr = realloc(hid_devs, (nb_hid_devs + 1) * sizeof(*hid_devs));
-
       if(ptr == NULL) {
         PRINT_ERROR_ALLOC_FAILED("realloc")
         free(path);
@@ -667,8 +682,13 @@ int usbhidasync_open_ids(unsigned short vendor, unsigned short product) {
 				if (config.configuration == -1) {
 					continue;
 				}
+				
+        const char * spath = make_path(devs[dev_i]);
+        if(spath == NULL) {
+          continue;
+        }
 
-				int device = add_device(make_path(devs[dev_i]), &config, 0);
+				int device = add_device(spath, &config, 0);
 				if (device < 0) {
 					continue;
 				}
@@ -697,10 +717,8 @@ int usbhidasync_open_path(const char * path) {
 	static ssize_t cnt = 0;
 	int dev_i;
 
-	unsigned char bus, address;
-
-	if (sscanf(path, "%hhx:%hhx", &bus, &address) != 2) {
-		PRINT_ERROR_OTHER("invalid path");
+	if (path == NULL) {
+		PRINT_ERROR_OTHER("path is NULL");
 		return -1;
 	}
 
@@ -716,7 +734,8 @@ int usbhidasync_open_path(const char * path) {
   }
 
 	for (dev_i = 0; dev_i < cnt; ++dev_i) {
-		if (bus != libusb_get_bus_number(devs[dev_i]) || address != libusb_get_device_address(devs[dev_i])) {
+	  const char * spath = make_path(devs[dev_i]);
+		if (spath == NULL || strcmp(spath, path)) {
 			continue;
 		}
 		struct libusb_device_descriptor desc;
@@ -727,7 +746,7 @@ int usbhidasync_open_path(const char * path) {
 				continue;
 			}
 
-			int device = add_device(make_path(devs[dev_i]), &config, 0);
+			int device = add_device(path, &config, 0);
 			if (device < 0) {
 				continue;
 			}
