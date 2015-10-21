@@ -683,30 +683,43 @@ void ffb_logitech_set_native_mode() {
                   s_native_mode * command = get_native_mode_command(hid_info->product_id, hid_info->bcdDevice);
                   if(command) {
                     reset = 1;
+                    // send the native mode command
                     int ret = hidasync_write_timeout(hid, command->data, sizeof(command->data), 1);
                     if(ret == 0) {
-                      fprintf(stderr, "cannot enable native mode for HID device %s (%04x:%04x)\n", current->path, current->vendor_id, current->product_id);
+                      fprintf(stderr, "failed to send native mode command for HID device %s (PID=%04x)\n", current->path, current->product_id);
                     } else {
-                      printf("native mode enabled for HID device %s (%04x:%04x)\n", current->path, current->vendor_id, current->product_id);
+                      printf("native mode command sent to HID device %s (PID=%04x)\n", current->path, current->product_id);
                     }
+                  } else {
+                    printf("native mode is already enabled for HID device %s (PID=%04x)\n", current->path, current->product_id);
                   }
                 }
                 hidasync_close(hid);
                 if(reset) {
                   // wait up to 5 seconds for the device to reset
                   int cpt = 0;
-                  while((hid = hidasync_open_path(current->path)) < 0 && cpt < 5) {
-                    //sleep 1 second between each retry
+                  do
+                  {
+                    // sleep 1 second between each retry
                     int i;
-                    for (i = 0; i < 10; ++i) {
+                    for (i = 0; i < 10; ++i)
+                    {
                       usleep(100000);
                     }
                     ++cpt;
-                  }
+                  } while((hid = hidasync_open_path(current->path)) < 0 && cpt < 5);
                   if(hid >= 0) {
+                    const s_hid_info * hid_info = hidasync_get_hid_info(hid);
+                    // verify that the native mode is enabled
+                    s_native_mode * command = get_native_mode_command(hid_info->product_id, hid_info->bcdDevice);
+                    if(command) {
+                      fprintf(stderr, "failed to enable native mode for HID device %s\n", current->path);
+                    } else {
+                      printf("native mode enabled for HID device %s (PID=%04x)\n", current->path, hid_info->product_id);
+                    }
                     hidasync_close(hid);
                   } else {
-                    fprintf(stderr, "HID device %s (%04x:%04x) not found\n", current->path, current->vendor_id, current->product_id);
+                    fprintf(stderr, "HID device %s not found\n", current->path);
                   }
                 }
             }
