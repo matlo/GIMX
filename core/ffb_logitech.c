@@ -693,8 +693,13 @@ void ffb_logitech_set_native_mode() {
                 if(reset) {
                   // wait up to 5 seconds for the device to reset
                   int cpt = 0;
-                  while((hid = hidasync_open_path(current->path)) < 0 && cpt < 50) {
-                    usleep(100000);
+                  while((hid = hidasync_open_path(current->path)) < 0 && cpt < 5) {
+                    //sleep 1 second between each retry
+                    int i;
+                    for (i = 0; i < 10; ++i) {
+                      usleep(100000);
+                    }
+                    ++cpt;
                   }
                   if(hid >= 0) {
                     hidasync_close(hid);
