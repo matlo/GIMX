@@ -70,7 +70,7 @@ int serial_read(int user, const void * buf, unsigned int count)
   }
   else
   {
-    int i;
+    unsigned int i;
     for(i = 0; i < sizeof(packet); ++i)
     {
       packet[i]++;
