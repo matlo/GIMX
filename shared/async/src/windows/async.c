@@ -291,6 +291,10 @@ int async_write_timeout(int device, const void * buf, unsigned int count, unsign
 
   DWORD dwBytesWritten = 0;
 
+  if(count < devices[device].write.size) {
+      count = devices[device].write.size;
+  }
+
   if(!WriteFile(devices[device].handle, buf, count, NULL, &devices[device].write.overlapped)) {
     if(GetLastError() != ERROR_IO_PENDING) {
       ASYNC_PRINT_ERROR("WriteFile")
@@ -513,6 +517,7 @@ int async_write(int device, const void * buf, unsigned int count) {
     int ret = write_internal(device);
     if(ret != 0) {
         dequeue_write(device); // IO failed or completed
+        //TODO MLA: manage disconnection
     }
 
     return ret;
