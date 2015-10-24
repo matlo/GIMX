@@ -568,7 +568,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
       }
       else
       {
-        wxMessageBox( _("Cannot open config file: ") + wxString(file, wxConvUTF8), _("Error"), wxICON_ERROR);
+        wxMessageBox( _("Cannot open config file: ") + file, _("Error"), wxICON_ERROR);
       }
     }
 
