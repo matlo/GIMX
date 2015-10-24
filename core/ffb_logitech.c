@@ -342,11 +342,13 @@ static void decode_command(unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE]) 
     dprintf("%s ", get_cmd_name(data[0]));
 
     switch(data[0] & 0x0f) {
+    case CMD_PLAY:
+    case CMD_STOP:
+        dprintf(" 0x%02x", data[0]);
+        break;
     case CMD_DOWNLOAD:
     case CMD_DOWNLOAD_AND_PLAY:
     case CMD_REFRESH_FORCE:
-    case CMD_PLAY:
-    case CMD_STOP:
         dprintf(" - %s", get_ftype_name(data[1]));
         dprintf(" - ");
         dump(data + 2, FFB_LOGITECH_OUTPUT_REPORT_SIZE - 2);
@@ -631,10 +633,10 @@ static struct
   s_native_mode command;
 } native_modes[] =
 {
-    { USB_DEVICE_ID_LOGITECH_DFGT_WHEEL, { { 0xf8, 0x09, 0x03, 0x01 } } },
-    { USB_DEVICE_ID_LOGITECH_G27_WHEEL,  { { 0xf8, 0x09, 0x04, 0x01 } } },
-    { USB_DEVICE_ID_LOGITECH_G25_WHEEL,  { { 0xf8, 0x10 } } },
-    { USB_DEVICE_ID_LOGITECH_DFP_WHEEL,  { { 0xf8, 0x01 } } },
+    { USB_DEVICE_ID_LOGITECH_DFGT_WHEEL, { { 0x00, 0xf8, 0x09, 0x03, 0x01 } } },
+    { USB_DEVICE_ID_LOGITECH_G27_WHEEL,  { { 0x00, 0xf8, 0x09, 0x04, 0x01 } } },
+    { USB_DEVICE_ID_LOGITECH_G25_WHEEL,  { { 0x00, 0xf8, 0x10 } } },
+    { USB_DEVICE_ID_LOGITECH_DFP_WHEEL,  { { 0x00, 0xf8, 0x01 } } },
 };
 
 static s_native_mode * get_native_mode_command(unsigned short product, unsigned short bcdDevice)
