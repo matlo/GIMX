@@ -13,6 +13,8 @@
 
 #define USBHIDASYNC_MAX_DEVICES 256
 
+#define USBHIDASYNC_OUT_TIMEOUT 20 // ms
+
 typedef struct {
   int configuration;
   struct {
@@ -64,8 +66,6 @@ static void print_error_libusb(const char * file, int line, const char * func, c
 #define PRINT_ERROR_OTHER(msg) fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
 
 static libusb_context* ctx = NULL;
-
-#define REPORTS_MAX 2
 
 static struct libusb_transfer ** transfers = NULL;
 static unsigned int transfers_nb = 0;
@@ -240,7 +240,10 @@ static void usb_callback(struct libusb_transfer* transfer) {
   int device = (unsigned long) transfer->user_data;
 
   //make sure the device still exists, in case something went wrong
-  USBHIDASYNC_CHECK_DEVICE(device,/* void */)
+  if(usbhidasync_check_device(device, __FILE__, __LINE__, __func__) < 0) {
+    remove_transfer(transfer);
+    return;
+  }
 
   if (transfer->type == LIBUSB_TRANSFER_TYPE_INTERRUPT) {
     if (transfer->status == LIBUSB_TRANSFER_COMPLETED) {
@@ -251,7 +254,11 @@ static void usb_callback(struct libusb_transfer* transfer) {
         usbdevices[device].callback.fp_write(usbdevices[device].callback.user);
       }
     } else {
-      if (transfer->status != LIBUSB_TRANSFER_TIMED_OUT && transfer->status != LIBUSB_TRANSFER_CANCELLED) {
+      if (transfer->endpoint == usbdevices[device].config.endpoints.out.address) {
+        usbdevices[device].callback.fp_write(usbdevices[device].callback.user);
+      }
+      if (transfer->endpoint == usbdevices[device].config.endpoints.out.address
+          || (transfer->status != LIBUSB_TRANSFER_TIMED_OUT && transfer->status != LIBUSB_TRANSFER_CANCELLED)) {
         fprintf(stderr, "libusb_transfer failed with status %s (endpoint=0x%02x)\n",
             libusb_error_name(transfer->status), transfer->endpoint);
       }
@@ -909,7 +916,7 @@ int usbhidasync_write(int device, const void * buf, unsigned int count) {
   }
 
   libusb_fill_interrupt_transfer(transfer, usbdevices[device].devh, usbdevices[device].config.endpoints.out.address,
-      buffer, count, (libusb_transfer_cb_fn) usb_callback, (void *) (unsigned long) device, 1000);
+      buffer, count, (libusb_transfer_cb_fn) usb_callback, (void *) (unsigned long) device, USBHIDASYNC_OUT_TIMEOUT);
 
   return submit_transfer(transfer);
 }
