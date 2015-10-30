@@ -11,11 +11,12 @@
 #include <signal.h>
 #include <errno.h>
 #include <string.h>
+#include <limits.h>
 
 #include <hidasync.h>
 #include "common.h"
 
-#define PERIOD 10000//microseconds
+#define PERIOD 5000 //milliseconds
 
 #ifdef WIN32
 #define REGISTER_FUNCTION GE_AddSourceHandle
@@ -23,41 +24,60 @@
 #define REGISTER_FUNCTION GE_AddSource
 #endif
 
-static void terminate(int sig)
-{
+typedef struct {
+  unsigned short length;
+  unsigned char data[8];
+} s_packet;
+
+static struct {
+  unsigned short vid;
+  unsigned short pid;
+  s_packet init;
+  s_packet rumble_start;
+  s_packet rumble_stop;
+  s_packet clean;
+} commands[] = {
+    {
+        .vid = 0x046d,
+        .pid = 0xc218,
+        .rumble_start = { 8, { 0x00, 0x51, 0x00, 0x7f, 0x00, 0x7f, 0x00, 0x00 } },
+        .rumble_stop = { 2, { 0x00, 0xf3 } },
+    }
+};
+
+static int cindex = -1;
+
+static void terminate(int sig) {
   done = 1;
 }
 
 #ifdef WIN32
-BOOL WINAPI ConsoleHandler(DWORD dwType)
-{
-    switch(dwType) {
+BOOL WINAPI ConsoleHandler(DWORD dwType) {
+  switch(dwType) {
     case CTRL_CLOSE_EVENT:
     case CTRL_LOGOFF_EVENT:
     case CTRL_SHUTDOWN_EVENT:
 
-      done = 1;//signal the main thread to terminate
+    done = 1; //signal the main thread to terminate
 
-      //Returning would make the process exit!
-      //We just make the handler sleep until the main thread exits,
-      //or until the maximum execution time for this handler is reached.
-      Sleep(10000);
+    //Returning would make the process exit!
+    //We just make the handler sleep until the main thread exits,
+    //or until the maximum execution time for this handler is reached.
+    Sleep(10000);
 
-      return TRUE;
+    return TRUE;
     default:
-      break;
-    }
-    return FALSE;
+    break;
+  }
+  return FALSE;
 }
 #endif
 
-static void dump(const unsigned char * packet, unsigned char length)
-{
+static void dump(const unsigned char * packet, unsigned char length) {
+
   int i;
-  for(i=0; i<length; ++i)
-  {
-    if(i && !(i%8))
-    {
+  for (i = 0; i < length; ++i) {
+    if (i && !(i % 8)) {
       printf("\n");
     }
     printf("0x%02x ", packet[i]);
@@ -65,35 +85,102 @@ static void dump(const unsigned char * packet, unsigned char length)
   printf("\n");
 }
 
-int hid_read(int user, const void * buf, unsigned int count)
-{
-  printf("read user: %d\n", user);
-  dump((unsigned char *)buf, count);
+int hid_read(int user, const void * buf, unsigned int count) {
+
+  printf("%s\n", __func__);
+  dump((unsigned char *) buf, count);
   fflush(stdout);
   return 0;
 }
 
-int hid_write(int user)
-{
+static int hid_busy = 0;
+
+int hid_write(int user) {
+
+  hid_busy = 0;
   return 0;
 }
 
-int hid_close(int user)
-{
+int hid_close(int user) {
+
   printf("close user: %d\n", user);
   done = 1;
   return 0;
 }
 
-int ignore_event(GE_Event* event)
-{
+int ignore_event(GE_Event* event) {
+
   return 0;
 }
 
-int main(int argc, char* argv[])
-{
-  if (!GE_initialize(GE_MKB_SOURCE_NONE))
-  {
+void hid_task(int device) {
+
+  if(cindex < 0) {
+    return;
+  }
+
+  if (!hid_busy) {
+    static int i = 1;
+
+    if (i == 200) {
+      i = 0;
+    } else if (i >= 100) {
+      if (i == 100) {
+        printf("Stop rumble\n");
+        fflush(stdout);
+      }
+      hidasync_write(device, commands[cindex].rumble_stop.data, commands[cindex].rumble_stop.length);
+      hid_busy = 1;
+    } else if (i >= 1) {
+      if (i == 1) {
+        printf("Start rumble\n");
+        fflush(stdout);
+      }
+      hidasync_write(device, commands[cindex].rumble_start.data, commands[cindex].rumble_start.length);
+      hid_busy = 1;
+    }
+    ++i;
+  }
+}
+
+char * hid_select() {
+
+  char * path = NULL;
+
+  s_hid_dev * hid_devs = hidasync_enumerate(0x0000, 0x0000);
+  if (hid_devs == NULL) {
+    fprintf(stderr, "No HID device detected!\n");
+    return NULL;
+  }
+  printf("Available HID devices:\n");
+  unsigned int index = 0;
+  s_hid_dev * current;
+  for (current = hid_devs; current != NULL; ++current) {
+    printf("%d VID 0x%04x PID 0x%04x PATH %s\n", index++, current->vendor_id, current->product_id, current->path);
+    if (current->next == 0) {
+      break;
+    }
+  }
+
+  printf("Select the HID device number: ");
+  unsigned int choice = UINT_MAX;
+  if (scanf("%d", &choice) == 1 && choice < index) {
+    path = strdup(hid_devs[choice].path);
+    if(path == NULL) {
+      fprintf(stderr, "can't duplicate path.\n");
+    }
+  } else {
+    fprintf(stderr, "Invalid choice.\n");
+  }
+
+  hidasync_free_enumeration(hid_devs);
+
+  return path;
+}
+
+int main(int argc, char* argv[]) {
+
+  if (!GE_initialize(GE_MKB_SOURCE_NONE)) {
     fprintf(stderr, "GE_initialize failed\n");
     exit(-1);
   }
@@ -101,63 +188,53 @@ int main(int argc, char* argv[])
   (void) signal(SIGINT, terminate);
   (void) signal(SIGTERM, terminate);
 
-  //Open Logitech RumblePad 2
-  int hid = hidasync_open_ids(0x046d, 0xc218);
+  char * path = hid_select();
 
-  if(hid >= 0)
-  {
-    if(hidasync_register(hid, 42, hid_read, hid_write, hid_close, REGISTER_FUNCTION) != -1)
-    {
+  if(path == NULL) {
+    fprintf(stderr, "No HID device selected!\n");
+    GE_quit();
+    exit(-1);
+  }
+
+  int device = hidasync_open_path(path);
+
+  if (device >= 0) {
+
+    const s_hid_info * hid_info = hidasync_get_hid_info(device);
+
+    unsigned int i;
+    for (i = 0; i < sizeof(commands) / sizeof(*commands); ++i) {
+      if(commands[i].vid == hid_info->vendor_id && commands[i].pid == hid_info->product_id) {
+        cindex = i;
+      }
+    }
+
+    printf("Opened device: VID 0x%04x PID 0x%04x PATH %s\n", hid_info->vendor_id, hid_info->product_id, path);
+
+    if (hidasync_register(device, 42, hid_read, hid_write, hid_close, REGISTER_FUNCTION) != -1) {
+
       GE_SetCallback(ignore_event);
 
       GE_TimerStart(PERIOD);
 
-      while(!done)
-      {
+      while (!done) {
+
         GE_PumpEvents();
 
-        //do something periodically
-
-        static int i = 1;
-
-        if(i == 200) {
-          i = 0;
-        } else if(i >= 100) {
-          if(i == 100) {
-            printf("stop\n");
-            fflush(stdout);
-          }
-          //Stop Force
-          unsigned char stop[] = {0x00, 0xf3};
-          hidasync_write(hid, stop, sizeof(stop));
-        }
-        else if(i >= 1) {
-          if(i == 1) {
-            printf("play\n");
-            fflush(stdout);
-          }
-          //Download and Play Force               weak        strong
-          unsigned char ff[] = {0x00, 0x51, 0x00, 0x7f, 0x00, 0x7f, 0x00, 0x00};
-          hidasync_write(hid, ff, sizeof(ff));
-        }
-        ++i;
+        hid_task(device);
       }
 
       GE_TimerClose();
 
-      printf("stop\n");
-      fflush(stdout);
-      //Stop Force
-      unsigned char stop[] = {0x00, 0xf3};
-      hidasync_write_timeout(hid, stop, sizeof(stop), 1);
+      if(cindex >= 0) {
+        hidasync_write_timeout(device, commands[cindex].rumble_stop.data, commands[cindex].rumble_stop.length, 1);
+      }
     }
-    
-    hidasync_close(hid);
+
+    hidasync_close(device);
   }
-  else
-  {
-    fprintf(stderr, "hid device not found\n");
-  }
+
+  free(path);
 
   GE_quit();
 
