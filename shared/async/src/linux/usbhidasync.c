@@ -292,6 +292,9 @@ int handle_events(int unused) {
 }
 
 int usbhidasync_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout) {
+
+  USBHIDASYNC_CHECK_DEVICE(device, -1)
+
   int transfered;
 
   int length = count;
@@ -319,6 +322,9 @@ int usbhidasync_write_timeout(int device, const void * buf, unsigned int count, 
 }
 
 int usbhidasync_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
+
+  USBHIDASYNC_CHECK_DEVICE(device, -1)
+
   int transfered;
 
   if (count > usbdevices[device].config.endpoints.in.size) {
@@ -793,15 +799,9 @@ int usbhidasync_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYN
 
   USBHIDASYNC_CHECK_DEVICE(device, -1)
 
-  if (fp_read != NULL && usbdevices[device].config.endpoints.in.address == 0x00) {
+  if (usbdevices[device].callback.fp_read != NULL && usbdevices[device].config.endpoints.in.address == 0x00) {
 
-    PRINT_ERROR_OTHER("device has no interrupt in endpoint")
-    return -1;
-  }
-
-  if (fp_write != NULL && usbdevices[device].config.endpoints.out.address == 0x00) {
-
-    PRINT_ERROR_OTHER("device has no interrupt out endpoint")
+    PRINT_ERROR_OTHER("this device has no HID IN endpoint!")
     return -1;
   }
 
@@ -850,7 +850,10 @@ static void cancel_transfers(int device) {
 
 int usbhidasync_close(int device) {
 
-  USBHIDASYNC_CHECK_DEVICE(device, -1)
+  if (device < 0 || device >= USBHIDASYNC_MAX_DEVICES) {
+    PRINT_ERROR_OTHER("invalid device");
+    return -1;
+  }
 
   if (usbdevices[device].devh) {
 
@@ -880,6 +883,12 @@ int usbhidasync_close(int device) {
 int usbhidasync_write(int device, const void * buf, unsigned int count) {
 
   USBHIDASYNC_CHECK_DEVICE(device, -1)
+
+  if (usbdevices[device].config.endpoints.out.address == 0x00) {
+
+    PRINT_ERROR_OTHER("this device has no HID OUT endpoint!")
+    return -1;
+  }
 
   if (usbdevices[device].callback.fp_write == NULL) {
 

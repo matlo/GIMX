@@ -233,6 +233,8 @@ int async_close(int device) {
 
 int async_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
 
+  ASYNC_CHECK_DEVICE(device, -1)
+
   DWORD dwBytesRead = 0;
 
   memset(buf, 0x00, count);
@@ -288,6 +290,8 @@ int async_read_timeout(int device, void * buf, unsigned int count, unsigned int 
 }
 
 int async_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout) {
+
+  ASYNC_CHECK_DEVICE(device, -1)
 
   DWORD dwBytesWritten = 0;
 
