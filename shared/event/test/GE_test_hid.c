@@ -16,7 +16,9 @@
 #include <hidasync.h>
 #include "common.h"
 
-#define PERIOD 5000 //milliseconds
+#define PERIOD 5000 //microseconds
+#define RUMBLE_PERIOD 1000000 //microseconds
+#define FF_PERIOD 80000 //microseconds
 
 #ifdef WIN32
 #define REGISTER_FUNCTION GE_AddSourceHandle
@@ -26,26 +28,50 @@
 
 typedef struct {
   unsigned short length;
-  unsigned char data[8];
+  unsigned char data[65];
 } s_packet;
 
 static struct {
   unsigned short vid;
   unsigned short pid;
-  s_packet init;
-  s_packet rumble_start;
-  s_packet rumble_stop;
-  s_packet clean;
-} commands[] = {
+  s_packet start;
+  s_packet stop;
+} rumble_cmds[] = {
     {
         .vid = 0x046d,
         .pid = 0xc218,
-        .rumble_start = { 8, { 0x00, 0x51, 0x00, 0x7f, 0x00, 0x7f, 0x00, 0x00 } },
-        .rumble_stop = { 2, { 0x00, 0xf3 } },
+        .start = { 8, { 0x00, 0x51, 0x00, 0x7f, 0x00, 0x7f, 0x00, 0x00 } },
+        .stop =  { 2, { 0x00, 0xf3 } },
+    },
+    {
+        .vid = 0x054c,
+        .pid = 0x05c4,
+        .start = { 9, { 0x05, 0xff, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00 } },
+        .stop =  { 9, { 0x05, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00 } },
     }
 };
 
-static int cindex = -1;
+static int rumble_index = -1;
+
+static struct {
+  unsigned short vid;
+  unsigned short pid;
+  s_packet stop;
+  s_packet left;
+  s_packet right;
+} ff_cmds[] = {
+    {
+        .vid = 0x046d,
+        .pid = 0xc29a,
+        .stop = { 8, { 0x00, 0xf3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } }, // stop all forces
+        .left  = { 8, { 0x00, 0x11, 0x08, 0x60, 0x80, 0x00, 0x00, 0x00 } },
+        .right = { 8, { 0x00, 0x11, 0x08, 0xa0, 0x80, 0x00, 0x00, 0x00 } },
+    },
+};
+
+static int ff_index = -1;
+
+static int device = -1;
 
 static void terminate(int sig) {
   done = 1;
@@ -87,6 +113,9 @@ static void dump(const unsigned char * packet, unsigned char length) {
 
 int hid_read(int user, const void * buf, unsigned int count) {
 
+  struct timeval t;
+  gettimeofday(&t, NULL);
+  printf("%ld.%06ld ", t.tv_sec, t.tv_usec);
   printf("%s\n", __func__);
   dump((unsigned char *) buf, count);
   fflush(stdout);
@@ -95,15 +124,100 @@ int hid_read(int user, const void * buf, unsigned int count) {
 
 static int hid_busy = 0;
 
+static int counter = 0;
+
+void rumble_task(int device) {
+
+  if(rumble_index < 0) {
+    return;
+  }
+
+  static int rumble = 0;
+
+  if (!hid_busy) {
+
+    if (counter >= RUMBLE_PERIOD / PERIOD) {
+      if(rumble) {
+        printf("Stop rumble\n");
+      } else {
+        printf("Start rumble\n");
+      }
+      fflush(stdout);
+      rumble = !rumble;
+      counter = 0;
+    }
+
+    if(rumble) {
+      hidasync_write(device, rumble_cmds[rumble_index].start.data, rumble_cmds[rumble_index].start.length);
+    } else  {
+      hidasync_write(device, rumble_cmds[rumble_index].stop.data, rumble_cmds[rumble_index].stop.length);
+    }
+    hid_busy = 1;
+  }
+}
+
+void ff_task(int device) {
+
+  if(ff_index < 0) {
+    return;
+  }
+
+  static int ff_play = 0;
+  static int ff_dir = 0;
+
+  if (!hid_busy) {
+
+    if (counter >= RUMBLE_PERIOD / PERIOD) {
+      if(ff_play) {
+        printf("Stop rumble\n");
+      } else {
+        printf("Start rumble\n");
+      }
+      fflush(stdout);
+      ff_play = !ff_play;
+      counter = 0;
+    }
+
+    if(ff_play) {
+      static int cpt = 0;
+      if(ff_dir) {
+        hidasync_write(device, ff_cmds[ff_index].left.data, ff_cmds[ff_index].left.length);
+      } else {
+        hidasync_write(device, ff_cmds[ff_index].right.data, ff_cmds[ff_index].right.length);
+      }
+      ++cpt;
+      if(cpt == FF_PERIOD / PERIOD) {
+        ff_dir = !ff_dir;
+        cpt = 0;
+      }
+    } else  {
+      hidasync_write(device, ff_cmds[ff_index].stop.data, ff_cmds[ff_index].stop.length);
+    }
+    hid_busy = 1;
+  }
+}
+
+void hid_task(int device) {
+
+  if(done) {
+    return;
+  }
+  rumble_task(device);
+  ff_task(device);
+}
+
 int hid_write(int user) {
 
+  /*struct timeval t;
+  gettimeofday(&t, NULL);
+  printf("%ld.%06ld %s\n", t.tv_sec, t.tv_usec, __func__);*/
   hid_busy = 0;
+  hid_task(device);
   return 0;
 }
 
 int hid_close(int user) {
 
-  printf("close user: %d\n", user);
   done = 1;
   return 0;
 }
@@ -111,36 +225,6 @@ int hid_close(int user) {
 int ignore_event(GE_Event* event) {
 
   return 0;
-}
-
-void hid_task(int device) {
-
-  if(cindex < 0) {
-    return;
-  }
-
-  if (!hid_busy) {
-    static int i = 1;
-
-    if (i == 200) {
-      i = 0;
-    } else if (i >= 100) {
-      if (i == 100) {
-        printf("Stop rumble\n");
-        fflush(stdout);
-      }
-      hidasync_write(device, commands[cindex].rumble_stop.data, commands[cindex].rumble_stop.length);
-      hid_busy = 1;
-    } else if (i >= 1) {
-      if (i == 1) {
-        printf("Start rumble\n");
-        fflush(stdout);
-      }
-      hidasync_write(device, commands[cindex].rumble_start.data, commands[cindex].rumble_start.length);
-      hid_busy = 1;
-    }
-    ++i;
-  }
 }
 
 char * hid_select() {
@@ -196,16 +280,21 @@ int main(int argc, char* argv[]) {
     exit(-1);
   }
 
-  int device = hidasync_open_path(path);
+  device = hidasync_open_path(path);
 
   if (device >= 0) {
 
     const s_hid_info * hid_info = hidasync_get_hid_info(device);
 
     unsigned int i;
-    for (i = 0; i < sizeof(commands) / sizeof(*commands); ++i) {
-      if(commands[i].vid == hid_info->vendor_id && commands[i].pid == hid_info->product_id) {
-        cindex = i;
+    for (i = 0; i < sizeof(rumble_cmds) / sizeof(*rumble_cmds); ++i) {
+      if(rumble_cmds[i].vid == hid_info->vendor_id && rumble_cmds[i].pid == hid_info->product_id) {
+        rumble_index = i;
+      }
+    }
+    for (i = 0; i < sizeof(ff_cmds) / sizeof(*ff_cmds); ++i) {
+      if(ff_cmds[i].vid == hid_info->vendor_id && ff_cmds[i].pid == hid_info->product_id) {
+        ff_index = i;
       }
     }
 
@@ -217,17 +306,23 @@ int main(int argc, char* argv[]) {
 
       GE_TimerStart(PERIOD);
 
-      while (!done) {
+      hid_task(device);
+
+      while (!done || hid_busy) {
 
         GE_PumpEvents();
 
-        hid_task(device);
+        ++counter;
       }
 
       GE_TimerClose();
 
-      if(cindex >= 0) {
-        hidasync_write_timeout(device, commands[cindex].rumble_stop.data, commands[cindex].rumble_stop.length, 1);
+      if(rumble_index >= 0) {
+        hidasync_write_timeout(device, rumble_cmds[rumble_index].stop.data, rumble_cmds[rumble_index].stop.length, 1);
+      }
+
+      if(ff_index >= 0) {
+        hidasync_write_timeout(device, ff_cmds[ff_index].stop.data, ff_cmds[ff_index].stop.length, 1);
       }
     }
 
