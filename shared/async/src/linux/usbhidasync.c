@@ -295,6 +295,12 @@ int usbhidasync_write_timeout(int device, const void * buf, unsigned int count, 
 
   USBHIDASYNC_CHECK_DEVICE(device, -1)
 
+  if (usbdevices[device].config.endpoints.out.address == 0x00) {
+
+    PRINT_ERROR_OTHER("the device has no HID OUT endpoint")
+    return -1;
+  }
+
   int transfered;
 
   int length = count;
@@ -324,6 +330,12 @@ int usbhidasync_write_timeout(int device, const void * buf, unsigned int count, 
 int usbhidasync_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
 
   USBHIDASYNC_CHECK_DEVICE(device, -1)
+
+  if (usbdevices[device].config.endpoints.in.address == 0x00) {
+
+    PRINT_ERROR_OTHER("the device has no HID IN endpoint")
+    return -1;
+  }
 
   int transfered;
 
@@ -801,9 +813,11 @@ int usbhidasync_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYN
 
   if (usbdevices[device].callback.fp_read != NULL && usbdevices[device].config.endpoints.in.address == 0x00) {
 
-    PRINT_ERROR_OTHER("this device has no HID IN endpoint!")
+    PRINT_ERROR_OTHER("the device has no HID IN endpoint")
     return -1;
   }
+
+  // Checking the presence of a HID OUT endpoint is done in the usbhidasync_write* functions.
 
   const struct libusb_pollfd** pfd_usb = libusb_get_pollfds(ctx);
   int poll_i;
@@ -886,7 +900,7 @@ int usbhidasync_write(int device, const void * buf, unsigned int count) {
 
   if (usbdevices[device].config.endpoints.out.address == 0x00) {
 
-    PRINT_ERROR_OTHER("this device has no HID OUT endpoint!")
+    PRINT_ERROR_OTHER("the device has no HID OUT endpoint")
     return -1;
   }
 

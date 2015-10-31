@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define PRINT_ERROR_OTHER(msg) fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
+
 s_device devices[ASYNC_MAX_DEVICES] = { };
 
 static void reset_handles(int device) {
@@ -345,7 +347,13 @@ int async_write_timeout(int device, const void * buf, unsigned int count, unsign
  * If the read is pending, it returns -1.
  */
 static int start_overlapped_read(int device) {
-  
+
+  if(devices[device].read.buf == NULL) {
+
+    PRINT_ERROR_OTHER("the read buffer is NULL")
+    return -1;
+  }
+
   int ret = -1;
 
   memset(devices[device].read.buf, 0x00, devices[device].read.count);

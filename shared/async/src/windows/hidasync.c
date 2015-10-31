@@ -268,6 +268,12 @@ int hidasync_close(int device) {
  */
 int hidasync_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
 
+  if(devices[device].read.size == 0) {
+
+    PRINT_ERROR_OTHER("the device has no HID IN endpoint")
+    return -1;
+  }
+
   return async_read_timeout(device, buf, count, timeout);
 }
 
@@ -286,7 +292,7 @@ int hidasync_read_timeout(int device, void * buf, unsigned int count, unsigned i
  */
 int hidasync_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register) {
     
-    return async_register(device, user, fp_read, fp_write, fp_close, fp_register);
+  return async_register(device, user, fp_read, fp_write, fp_close, fp_register);
 }
 
 /*
@@ -300,9 +306,15 @@ int hidasync_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_W
  * \param count   the number of bytes in buf
  * \param timeout the maximum time to wait for the completion, in seconds
  *
- * \return the number of bytes actually written (0 in case of timeout)
+ * \return the number of bytes actually written (0 in case of timeout, -1 in case of error)
  */
 int hidasync_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout) {
+
+  if(devices[device].write.size == 0) {
+
+    PRINT_ERROR_OTHER("the device has no HID OUT endpoint")
+    return -1;
+  }
 
   return async_write_timeout(device, buf, count, timeout);
 }
@@ -318,5 +330,11 @@ int hidasync_write_timeout(int device, const void * buf, unsigned int count, uns
  */
 int hidasync_write(int device, const void * buf, unsigned int count) {
 
-    return async_write(device, buf, count);
+  if(devices[device].write.size == 0) {
+
+    PRINT_ERROR_OTHER("the device has no HID OUT endpoint")
+    return -1;
+  }
+
+  return async_write(device, buf, count);
 }
