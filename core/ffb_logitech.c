@@ -232,19 +232,22 @@ static inline void fifo_push(int device, s_cmd cmd) {
     for (i = 0; i < FIFO_SIZE; ++i) {
         if (!fifo[i].cmd) {
             fifo[i] = cmd; //add
-            dprintf("push %02x", cmd.cmd);
-            if(cmd.cmd == CMD_EXTENDED_COMMAND) {
-                dprintf(" %02x", cmd.ext);
-            }
-            dprintf("\n");
+            dprintf("push:");
             break;
         } else if (compare_cmd(fifo[i], cmd)) {
-            break; //already present
+            dprintf("already queued:");
+            break;
         }
     }
     if(i == FIFO_SIZE) {
         PRINT_ERROR_OTHER("no more space in fifo")
+        dprintf("can't push:");
     }
+    dprintf(" %02x", cmd.cmd);
+    if(cmd.cmd == CMD_EXTENDED_COMMAND) {
+        dprintf(" %02x", cmd.ext);
+    }
+    dprintf("\n");
 }
 
 static inline s_cmd fifo_pop(int device) {
