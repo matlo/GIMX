@@ -275,11 +275,11 @@ static int read_callback(int user, const void * buf, unsigned int count)
   return 0;
 }
 
-static int write_callback(int user)
+static int write_callback(int user, int transfered)
 {
   if(gpp_devices[user].fp_write)
   {
-    return gpp_devices[user].fp_write(user);
+    return gpp_devices[user].fp_write(user, transfered);
   }
   return 0;
 }

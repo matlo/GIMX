@@ -190,6 +190,7 @@ static struct
     s_force forces[FORCES_NB];
     s_ext_cmd ext_cmds[EXT_CMD_NB];
     s_cmd fifo[FIFO_SIZE];
+    s_ffb_report last_report;
 } ffb_lg_device[MAX_CONTROLLERS] = {};
 
 void ffb_lg_init_static(void) __attribute__((constructor (101)));
@@ -400,6 +401,23 @@ void ffb_logitech_process_report(int device, unsigned char data[FFB_LOGITECH_OUT
         unsigned char slots = data[0] & 0xf0;
         unsigned char cmd = data[0] & 0x0f;
 
+        int i;
+        s_force * forces = ffb_lg_device[device].forces;
+
+        if (cmd == CMD_STOP && slots == 0xf0)
+        {
+          // stop all forces, whatever their current states
+          // this is useful at startup, where all forces are considered stopped
+          for (i = 0; i < FORCES_NB; ++i) {
+              forces[i].send = 1;
+              forces[i].active = 0;
+              memset(forces[i].parameters, 0x00, sizeof(forces[i].parameters));
+              s_cmd cmd = { forces[i].mask, 0x00 };
+              fifo_push(device, cmd);
+          }
+          return;
+        }
+
         switch(cmd)
         {
         case CMD_DOWNLOAD:
@@ -408,21 +426,6 @@ void ffb_logitech_process_report(int device, unsigned char data[FFB_LOGITECH_OUT
         case CMD_STOP:
         case CMD_REFRESH_FORCE:
         {
-            int i;
-            s_force * forces = ffb_lg_device[device].forces;
-            if (slots == 0xf0)
-            {
-              // stop all forces, whatever their current states
-              // this is useful at startup, where all forces are considered stopped
-              for (i = 0; i < FORCES_NB; ++i) {
-                  forces[i].send = 1;
-                  forces[i].active = 0;
-                  memset(forces[i].parameters, 0x00, sizeof(forces[i].parameters));
-                  s_cmd cmd = { forces[i].mask, 0x00 };
-                  fifo_push(device, cmd);
-              }
-              break;
-            }
             for (i = 0; i < FORCES_NB; ++i) {
                 if (slots & forces[i].mask) {
                     if (cmd == CMD_DOWNLOAD) {
@@ -518,15 +521,62 @@ static void stop_forces(int device, unsigned char mask) {
     STOP(device, mask, FSLOT_4)
 }
 
-int ffb_logitech_get_report(int device, unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE]) {
+void ffb_logitech_recover(int device) {
+
+  if (device < 0 || device >= MAX_CONTROLLERS) {
+      fprintf(stderr, "%s:%d %s: invalid device (%d)", __FILE__, __LINE__, __func__, device);
+      return;
+  }
+
+  dprintf("> recover\n");
+
+  unsigned char * data = ffb_lg_device[device].last_report.data + 1;
+
+  if(data[0] != CMD_EXTENDED_COMMAND) {
+
+    unsigned char slots = data[0] & 0xf0;
+
+    s_force * forces = ffb_lg_device[device].forces;
+
+    int i;
+    for (i = 0; i < FORCES_NB; ++i) {
+        if (slots & forces[i].mask) {
+            forces[i].send = 1;
+            s_cmd cmd = { forces[i].mask, 0x00 };
+            fifo_push(device, cmd);
+        }
+    }
+
+  } else {
+
+    s_ext_cmd * ext_cmds = ffb_lg_device[device].ext_cmds;
+
+    int i;
+    for (i = 0; i < EXT_CMD_NB; ++i) {
+        if(ext_cmds[i].cmd[1] == data[1]) {
+            ext_cmds[i].send = 1;
+            s_cmd cmd = { CMD_EXTENDED_COMMAND, data[1] };
+            fifo_push(device, cmd);
+        }
+    }
+  }
+}
+
+static inline void clear_report(int device) {
+
+  memset(ffb_lg_device[device].last_report.data, 0x00, sizeof(ffb_lg_device[device].last_report.data));
+}
+
+s_ffb_report * ffb_logitech_get_report(int device) {
 
     if (device < 0 || device >= MAX_CONTROLLERS) {
         fprintf(stderr, "%s:%d %s: invalid device (%d)", __FILE__, __LINE__, __func__, device);
-        return -1;
+        return NULL;
     }
 
     int i;
     s_force * forces = ffb_lg_device[device].forces;
+    unsigned char * data = ffb_lg_device[device].last_report.data + 1;
 
     unsigned char mask = 0;
     // look for forces to stop
@@ -538,14 +588,16 @@ int ffb_logitech_get_report(int device, unsigned char data[FFB_LOGITECH_OUTPUT_R
 
     // if multiple forces have to be stopped, then stop them
     if (fslot_nbits[mask >> 4] > 1) {
+        clear_report(device);
         data[0] = mask | CMD_STOP;
         stop_forces(device, mask);
         dprintf("< %s %02x\n", get_cmd_name(data[0]), data[0]);
-        return 1;
+        return &ffb_lg_device[device].last_report;
     }
 
     s_cmd cmd = fifo_pop(device);
     if (cmd.cmd) {
+        clear_report(device);
         dprintf("< ");
         if(cmd.cmd != CMD_EXTENDED_COMMAND) {
             if(cmd.cmd & 0x0f)
@@ -555,7 +607,7 @@ int ffb_logitech_get_report(int device, unsigned char data[FFB_LOGITECH_OUTPUT_R
                 if(debug) {
                     decode_command(data);
                 }
-                return 1;
+                return &ffb_lg_device[device].last_report;
             }
             else
             {
@@ -572,7 +624,7 @@ int ffb_logitech_get_report(int device, unsigned char data[FFB_LOGITECH_OUTPUT_R
                 if(debug) {
                     decode_command(data);
                 }
-                return 1;
+                return &ffb_lg_device[device].last_report;
             }
         }
         else {
@@ -586,13 +638,13 @@ int ffb_logitech_get_report(int device, unsigned char data[FFB_LOGITECH_OUTPUT_R
                     }
                     fifo_remove(device, cmd);
                     ext_cmd->send = 0;
-                    return 1;
+                    return &ffb_lg_device[device].last_report;
                 }
             }
         }
     }
 
-    return 0;
+    return NULL;
 }
 
 static unsigned short lg_wheel_products[] = {

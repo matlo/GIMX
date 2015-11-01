@@ -360,10 +360,10 @@ static void adapter_send_next_hid_report(int id)
 {
   if(!adapter[id].hid_busy)
   {
-    unsigned char report[8] = {};
-    if(ffb_logitech_get_report(id, report + 1) > 0)
+    s_ffb_report * report = ffb_logitech_get_report(id);
+    if(report != NULL)
     {
-      if(hidasync_write(adapter[id].hid_id, report, sizeof(report)) == 0)
+      if(hidasync_write(adapter[id].hid_id, report->data, sizeof(report->data)) == 0)
       {
         adapter->hid_busy = 1;
       }
@@ -490,9 +490,12 @@ static int adapter_process_packet(int id, s_packet* packet)
   return ret;
 }
 
-static int adapter_hid_write_cb(int id)
+static int adapter_hid_write_cb(int id, int transfered)
 {
   adapter[id].hid_busy = 0;
+  if(transfered == -1) {
+    ffb_logitech_recover(id);
+  }
   adapter_send_next_hid_report(id);
   return 0;
 }
@@ -636,7 +639,7 @@ static int adapter_serial_read_cb(int id, const void * buf, unsigned int count)
   return ret;
 }
 
-static int adapter_serial_write_cb(int id)
+static int adapter_serial_write_cb(int id, int transfered)
 {
   //TODO MLA: anything to do in the serial write callback?
   return 0;
@@ -923,7 +926,7 @@ static int adapter_gpp_read(int id, const void * buf, unsigned int count)
   return 0;
 }
 
-static int adapter_gpp_write(int id)
+static int adapter_gpp_write(int id, int transfered)
 {
   //TODO MLA: anything to do in the serial write callback?
   return 0;

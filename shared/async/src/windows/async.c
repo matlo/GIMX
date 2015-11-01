@@ -461,7 +461,7 @@ static int write_callback(int device) {
     }
 
     if(devices[device].callback.fp_write) {
-        devices[device].callback.fp_write(devices[device].callback.user);
+        devices[device].callback.fp_write(devices[device].callback.user, ret == 0 ? dwBytesWritten : -1);
     }
 
     return ret;

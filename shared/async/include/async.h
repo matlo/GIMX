@@ -15,7 +15,7 @@
 #define ASYNC_MAX_WRITE_QUEUE_SIZE 2
 
 typedef int (* ASYNC_READ_CALLBACK)(int user, const void * buf, unsigned int count);
-typedef int (* ASYNC_WRITE_CALLBACK)(int user);
+typedef int (* ASYNC_WRITE_CALLBACK)(int user, int transfered);
 typedef int (* ASYNC_CLOSE_CALLBACK)(int user);
 #ifndef WIN32
 typedef void (* ASYNC_REGISTER_SOURCE)(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int));

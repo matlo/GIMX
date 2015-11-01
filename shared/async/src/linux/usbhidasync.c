@@ -251,11 +251,11 @@ static void usb_callback(struct libusb_transfer* transfer) {
         usbdevices[device].callback.fp_read(usbdevices[device].callback.user, transfer->buffer,
             transfer->actual_length);
       } else if (transfer->endpoint == usbdevices[device].config.endpoints.out.address) {
-        usbdevices[device].callback.fp_write(usbdevices[device].callback.user);
+        usbdevices[device].callback.fp_write(usbdevices[device].callback.user, transfer->actual_length);
       }
     } else {
       if (transfer->endpoint == usbdevices[device].config.endpoints.out.address) {
-        usbdevices[device].callback.fp_write(usbdevices[device].callback.user);
+        usbdevices[device].callback.fp_write(usbdevices[device].callback.user, -1);
       }
       if (transfer->endpoint == usbdevices[device].config.endpoints.out.address
           || (transfer->status != LIBUSB_TRANSFER_TIMED_OUT && transfer->status != LIBUSB_TRANSFER_CANCELLED)) {
