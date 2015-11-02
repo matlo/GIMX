@@ -493,8 +493,8 @@ static int adapter_process_packet(int id, s_packet* packet)
 static int adapter_hid_write_cb(int id, int transfered)
 {
   adapter[id].hid_busy = 0;
-  if(transfered == -1) {
-    ffb_logitech_recover(id);
+  if(transfered != -1) {
+    ffb_logitech_ack(id);
   }
   adapter_send_next_hid_report(id);
   return 0;

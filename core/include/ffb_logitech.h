@@ -14,7 +14,7 @@ typedef struct {
 
 void ffb_logitech_process_report(int device, unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE]);
 s_ffb_report * ffb_logitech_get_report(int device);
-void ffb_logitech_recover(int device);
+void ffb_logitech_ack(int device);
 
 int ffb_logitech_is_logitech_wheel(unsigned short vendor, unsigned short product);
 void ffb_logitech_set_native_mode();
