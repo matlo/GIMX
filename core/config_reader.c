@@ -29,6 +29,11 @@
  */
 static s_config_entry entry;
 
+static void reset_entry()
+{
+  memset(&entry, 0x00, sizeof(entry));
+}
+
 static char r_device_name[128];
 
 const char* _UTF8_to_8BIT(const char* _utf8)
@@ -365,35 +370,38 @@ static int ProcessEventElement(xmlNode * a_node, unsigned char mapper)
   {
     entry.event.type = E_EVENT_TYPE_AXIS;
 
-    ret = GetUnsignedIntProp(a_node, X_ATTR_DEADZONE, &entry.params.mapper.dead_zone);
-    if(ret == -1)
+    if(mapper)
     {
-      entry.params.mapper.dead_zone = 0;
-    }
-    ret = GetDoubleProp(a_node, X_ATTR_MULTIPLIER, &entry.params.mapper.multiplier);
-    if(ret == -1)
-    {
-      entry.params.mapper.multiplier = 1;
-    }
-    ret = GetDoubleProp(a_node, X_ATTR_EXPONENT, &entry.params.mapper.exponent);
-    if(ret == -1)
-    {
-      entry.params.mapper.exponent = 1;
-      ret = 0;
-    }
-    shape = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_SHAPE);
-    entry.params.mapper.shape = E_SHAPE_CIRCLE;//default value
-    if(shape)
-    {
-      if (!strncmp(shape, X_ATTR_VALUE_RECTANGLE, strlen(X_ATTR_VALUE_RECTANGLE)))
+      ret = GetUnsignedIntProp(a_node, X_ATTR_DEADZONE, &entry.params.mapper.dead_zone);
+      if(ret == -1)
       {
-        entry.params.mapper.shape = E_SHAPE_RECTANGLE;
+        entry.params.mapper.dead_zone = 0;
       }
+      ret = GetDoubleProp(a_node, X_ATTR_MULTIPLIER, &entry.params.mapper.multiplier);
+      if(ret == -1)
+      {
+        entry.params.mapper.multiplier = 1;
+      }
+      ret = GetDoubleProp(a_node, X_ATTR_EXPONENT, &entry.params.mapper.exponent);
+      if(ret == -1)
+      {
+        entry.params.mapper.exponent = 1;
+        ret = 0;
+      }
+      shape = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_SHAPE);
+      entry.params.mapper.shape = E_SHAPE_CIRCLE;//default value
+      if(shape)
+      {
+        if (!strncmp(shape, X_ATTR_VALUE_RECTANGLE, strlen(X_ATTR_VALUE_RECTANGLE)))
+        {
+          entry.params.mapper.shape = E_SHAPE_RECTANGLE;
+        }
+      }
+      xmlFree(shape);
+      /* for compatibility with old configurations */
+      GetUnsignedIntProp(a_node, X_ATTR_BUFFERSIZE, &entry.params.mouse_options.buffer_size);
+      GetDoubleProp(a_node, X_ATTR_FILTER, &entry.params.mouse_options.filter);
     }
-    xmlFree(shape);
-    /* for compatibility with old configurations */
-    GetUnsignedIntProp(a_node, X_ATTR_BUFFERSIZE, &entry.params.mouse_options.buffer_size);
-    GetDoubleProp(a_node, X_ATTR_FILTER, &entry.params.mouse_options.filter);
   }
 
   if(ret == 0)
@@ -492,6 +500,8 @@ static int ProcessAxisElement(xmlNode * a_node)
   xmlNode* cur_node = NULL;
   char* aid;
 
+  reset_entry();
+
   aid = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
 
   entry.params.mapper.axis_props = controller_get_axis_index_from_name(aid);
@@ -552,6 +562,8 @@ static int ProcessButtonElement(xmlNode * a_node)
   int ret = 0;
   xmlNode* cur_node = NULL;
   char* bid;
+
+  reset_entry();
 
   bid = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
 
@@ -659,6 +671,8 @@ static int ProcessTriggerElement(xmlNode * a_node)
 {
   int ret = 0;
   char* r_switch_back;
+
+  reset_entry();
 
   ret = GetDeviceTypeProp(a_node);
 
@@ -812,6 +826,8 @@ static int ProcessIntensityListElement(xmlNode * a_node)
     {
       if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_INTENSITY))
       {
+        reset_entry();
+
         axis1 = axis2 = -1;
 
         control = (char*) xmlGetProp(cur_node, (xmlChar*) X_ATTR_CONTROL);
@@ -863,6 +879,8 @@ static int ProcessMouseOptionsListElement(xmlNode * a_node)
     {
       if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_MOUSE))
       {
+        reset_entry();
+
         entry.device.type = E_DEVICE_TYPE_MOUSE;
 
         ret = GetDeviceName(cur_node);
@@ -924,6 +942,8 @@ static int ProcessMouseOptionsListElement(xmlNode * a_node)
 static int ProcessCorrectionElement(xmlNode * a_node)
 {
   int ret = 0;
+
+  reset_entry();
 
   if(GetIntProp(a_node, X_ATTR_LOW_VALUE, &entry.params.joystick_correction.coef[0]) == -1)
   {
