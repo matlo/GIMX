@@ -257,6 +257,7 @@ int main(int argc, char *argv[])
     switch(adapter_get(controller)->ctype)
     {
     case C_TYPE_G29_PS4:
+    case C_TYPE_G27_PS3:
       ffb = 1;
       break;
     default:

@@ -209,6 +209,7 @@ static int submit_transfer(struct libusb_transfer * transfer) {
 
 static void usb_callback(struct libusb_transfer* transfer);
 
+//TODO MLA: usbhidasync_poll
 static int poll_interrupt(int device) {
 
   unsigned int address = usbdevices[device].config.endpoints.in.address;

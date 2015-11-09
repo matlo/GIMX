@@ -71,7 +71,7 @@ static s_axis axes[AXIS_MAX] =
   [g27Ps3a_gearShifter4] = { .name = "gear shifter 4", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
   [g27Ps3a_gearShifter5] = { .name = "gear shifter 5", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
   [g27Ps3a_gearShifter6] = { .name = "gear shifter 6", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
-  //[g27Ps3a_gearShifterR] = { .name = "gear shifter R", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g27Ps3a_gearShifterR] = { .name = "gear shifter R", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
 };
 
 static s_axis_name_dir axis_name_dirs[] =
@@ -112,7 +112,7 @@ static s_axis_name_dir axis_name_dirs[] =
   {.name = "gear shifter 4",    {.axis = g27Ps3a_gearShifter4,   .props = AXIS_PROP_TOGGLE}},
   {.name = "gear shifter 5",    {.axis = g27Ps3a_gearShifter5,   .props = AXIS_PROP_TOGGLE}},
   {.name = "gear shifter 6",    {.axis = g27Ps3a_gearShifter6,   .props = AXIS_PROP_TOGGLE}},
-  //{.name = "gear shifter R",    {.axis = g27Ps3a_gearShifterR,   .props = AXIS_PROP_TOGGLE}},
+  {.name = "gear shifter R",    {.axis = g27Ps3a_gearShifterR,   .props = AXIS_PROP_TOGGLE}},
 };
 
 static s_report_g27Ps3 default_report =
@@ -123,7 +123,7 @@ static s_report_g27Ps3 default_report =
   .gasPedal = MAX_AXIS_VALUE_8BITS,
   .brakePedal = MAX_AXIS_VALUE_8BITS,
   .clutchPedal = MAX_AXIS_VALUE_8BITS,
-  .unknown = { 0x7B, 0x8A, 0x18 },
+  .shifter = { 0x80, 0x80, 0x9c },
 };
 
 static void init_report(s_report * report)
@@ -249,29 +249,56 @@ static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_
   {
     g27Ps3->buttons |= G27_R5_MASK;
   }
+  g27Ps3->shifter.x = 0x80;
+  g27Ps3->shifter.y = 0x80;
+  g27Ps3->shifter.b = 0x9c;
   if (axis[g27Ps3a_gearShifter1])
   {
+    g27Ps3->shifter.x = 0x55;
+    g27Ps3->shifter.y = 0xff;
+    g27Ps3->shifter.b = 0xdc;
     g27Ps3->buttons |= G27_SHIFTER_1_MASK;
   }
   if (axis[g27Ps3a_gearShifter2])
   {
+    g27Ps3->shifter.x = 0x55;
+    g27Ps3->shifter.y = 0x00;
+    g27Ps3->shifter.b = 0xdc;
     g27Ps3->buttons |= G27_SHIFTER_2_MASK;
   }
   if (axis[g27Ps3a_gearShifter3])
   {
+    g27Ps3->shifter.x = 0x80;
+    g27Ps3->shifter.y = 0xff;
+    g27Ps3->shifter.b = 0xdc;
     g27Ps3->buttons |= G27_SHIFTER_3_MASK;
   }
   if (axis[g27Ps3a_gearShifter4])
   {
+    g27Ps3->shifter.x = 0x80;
+    g27Ps3->shifter.y = 0x00;
+    g27Ps3->shifter.b = 0xdc;
     g27Ps3->buttons |= G27_SHIFTER_4_MASK;
   }
   if (axis[g27Ps3a_gearShifter5])
   {
+    g27Ps3->shifter.x = 0xab;
+    g27Ps3->shifter.y = 0xff;
+    g27Ps3->shifter.b = 0xdc;
     g27Ps3->buttons |= G27_SHIFTER_5_MASK;
   }
   if (axis[g27Ps3a_gearShifter6])
   {
+    g27Ps3->shifter.x = 0xab;
+    g27Ps3->shifter.y = 0x00;
+    g27Ps3->shifter.b = 0xdc;
     g27Ps3->buttons |= G27_SHIFTER_6_MASK;
+  }
+  if (axis[g27Ps3a_gearShifterR])
+  {
+    g27Ps3->shifter.x = 0xab;
+    g27Ps3->shifter.y = 0x00;
+    g27Ps3->shifter.b = 0xdd;
   }
   if (axis[g27Ps3a_l4])
   {

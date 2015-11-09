@@ -31,17 +31,17 @@ typedef enum
   g27Ps3a_gasPedal = abs_axis_17,
   g27Ps3a_brakePedal = abs_axis_18,
   g27Ps3a_clutchPedal = abs_axis_19,
-  g27Ps3a_l4 = abs_axis_20,
-  g27Ps3a_r4 = abs_axis_21,
-  g27Ps3a_l5 = abs_axis_22,
-  g27Ps3a_r5 = abs_axis_23,
-  g27Ps3a_gearShifter1 = abs_axis_24,
-  g27Ps3a_gearShifter2 = abs_axis_25,
-  g27Ps3a_gearShifter3 = abs_axis_26,
-  g27Ps3a_gearShifter4 = abs_axis_27,
-  g27Ps3a_gearShifter5 = abs_axis_28,
-  g27Ps3a_gearShifter6 = abs_axis_29,
-  g27Ps3a_gearShifterR = abs_axis_30,
+  g27Ps3a_gearShifter1 = abs_axis_20,
+  g27Ps3a_gearShifter2 = abs_axis_21,
+  g27Ps3a_gearShifter3 = abs_axis_22,
+  g27Ps3a_gearShifter4 = abs_axis_23,
+  g27Ps3a_gearShifter5 = abs_axis_24,
+  g27Ps3a_gearShifter6 = abs_axis_25,
+  g27Ps3a_gearShifterR = abs_axis_26,
+  g27Ps3a_l4 = abs_axis_27,
+  g27Ps3a_r4 = abs_axis_28,
+  g27Ps3a_l5 = abs_axis_29,
+  g27Ps3a_r5 = abs_axis_30,
 } e_g27Ps3_axis_index;
 
 /*
@@ -55,7 +55,12 @@ typedef struct GIMX_PACKED
   unsigned char gasPedal;
   unsigned char brakePedal;
   unsigned char clutchPedal;
-  unsigned char unknown[3];
+  struct GIMX_PACKED
+  {
+    unsigned char x;
+    unsigned char y;
+    unsigned char b;
+  } shifter;
 } s_report_g27Ps3;
 
 #endif /* G27_PS3_H_ */

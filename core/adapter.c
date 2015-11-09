@@ -444,6 +444,13 @@ static int adapter_process_packet(int id, s_packet* packet)
       case C_TYPE_T300RS_PS4:
         //TODO MLA: decode and process T300RS FFB reports
         break;
+      case C_TYPE_G27_PS3:
+        if(adapter[id].hid_id >= 0)
+        {
+          ffb_logitech_process_report(id, data);
+          adapter_send_next_hid_report(id);
+        }
+        break;
       case C_TYPE_G29_PS4:
         if(adapter[id].hid_id >= 0)
         {
@@ -807,6 +814,7 @@ int adapter_detect()
                 case C_TYPE_DS4:
                 case C_TYPE_T300RS_PS4:
                 case C_TYPE_G29_PS4:
+                case C_TYPE_G27_PS3:
                   if(status == BYTE_STATUS_STARTED)
                   {
                     if(adapter_send_reset(i) < 0)
@@ -955,6 +963,7 @@ int adapter_start()
         switch(adapter->ctype)
         {
         case C_TYPE_G29_PS4:
+        case C_TYPE_G27_PS3:
           start_hid(i);
           break;
         default:
@@ -1201,6 +1210,7 @@ void adapter_clean()
           case C_TYPE_DS4:
           case C_TYPE_T300RS_PS4:
           case C_TYPE_G29_PS4:
+          case C_TYPE_G27_PS3:
             usb_close(i);
             adapter_send_reset(i);
             break;
