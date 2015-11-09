@@ -30,7 +30,15 @@
 #define G27_SHIFTER_5_MASK     0x1000
 #define G27_SHIFTER_6_MASK     0x2000
 
-//TODO MLA: reverse
+#define G27_SHIFTER_CENTER 0x80
+#define G27_SHIFTER_LEFT   0x55
+#define G27_SHIFTER_RIGHT  0xab
+#define G27_SHIFTER_DOWN   0x00
+#define G27_SHIFTER_UP     0xff
+
+#define G27_SHIFTER_DEFAULT_BITS    0x9c
+#define G27_SHIFTER_REVERSE_ENGAGED 0x40
+#define G27_SHIFTER_STICK_DOWN      0x01
 
 #define G27_R4_MASK         0x4000
 #define G27_R5_MASK         0x8000
@@ -123,7 +131,7 @@ static s_report_g27Ps3 default_report =
   .gasPedal = MAX_AXIS_VALUE_8BITS,
   .brakePedal = MAX_AXIS_VALUE_8BITS,
   .clutchPedal = MAX_AXIS_VALUE_8BITS,
-  .shifter = { 0x80, 0x80, 0x9c },
+  .shifter = { G27_SHIFTER_CENTER, G27_SHIFTER_CENTER, G27_SHIFTER_DEFAULT_BITS },
 };
 
 static void init_report(s_report * report)
@@ -249,56 +257,50 @@ static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_
   {
     g27Ps3->buttons |= G27_R5_MASK;
   }
-  g27Ps3->shifter.x = 0x80;
-  g27Ps3->shifter.y = 0x80;
-  g27Ps3->shifter.b = 0x9c;
+  g27Ps3->shifter.x = G27_SHIFTER_CENTER;
+  g27Ps3->shifter.y = G27_SHIFTER_CENTER;
+  g27Ps3->shifter.b = G27_SHIFTER_DEFAULT_BITS;
   if (axis[g27Ps3a_gearShifter1])
   {
-    g27Ps3->shifter.x = 0x55;
-    g27Ps3->shifter.y = 0xff;
-    g27Ps3->shifter.b = 0xdc;
+    g27Ps3->shifter.x = G27_SHIFTER_LEFT;
+    g27Ps3->shifter.y = G27_SHIFTER_UP;
     g27Ps3->buttons |= G27_SHIFTER_1_MASK;
   }
   if (axis[g27Ps3a_gearShifter2])
   {
-    g27Ps3->shifter.x = 0x55;
-    g27Ps3->shifter.y = 0x00;
-    g27Ps3->shifter.b = 0xdc;
+    g27Ps3->shifter.x = G27_SHIFTER_LEFT;
+    g27Ps3->shifter.y = G27_SHIFTER_DOWN;
     g27Ps3->buttons |= G27_SHIFTER_2_MASK;
   }
   if (axis[g27Ps3a_gearShifter3])
   {
-    g27Ps3->shifter.x = 0x80;
-    g27Ps3->shifter.y = 0xff;
-    g27Ps3->shifter.b = 0xdc;
+    g27Ps3->shifter.x = G27_SHIFTER_CENTER;
+    g27Ps3->shifter.y = G27_SHIFTER_UP;
     g27Ps3->buttons |= G27_SHIFTER_3_MASK;
   }
   if (axis[g27Ps3a_gearShifter4])
   {
-    g27Ps3->shifter.x = 0x80;
-    g27Ps3->shifter.y = 0x00;
-    g27Ps3->shifter.b = 0xdc;
+    g27Ps3->shifter.x = G27_SHIFTER_CENTER;
+    g27Ps3->shifter.y = G27_SHIFTER_DOWN;
     g27Ps3->buttons |= G27_SHIFTER_4_MASK;
   }
   if (axis[g27Ps3a_gearShifter5])
   {
-    g27Ps3->shifter.x = 0xab;
-    g27Ps3->shifter.y = 0xff;
-    g27Ps3->shifter.b = 0xdc;
+    g27Ps3->shifter.x = G27_SHIFTER_RIGHT;
+    g27Ps3->shifter.y = G27_SHIFTER_UP;
     g27Ps3->buttons |= G27_SHIFTER_5_MASK;
   }
   if (axis[g27Ps3a_gearShifter6])
   {
-    g27Ps3->shifter.x = 0xab;
-    g27Ps3->shifter.y = 0x00;
-    g27Ps3->shifter.b = 0xdc;
+    g27Ps3->shifter.x = G27_SHIFTER_RIGHT;
+    g27Ps3->shifter.y = G27_SHIFTER_DOWN;
     g27Ps3->buttons |= G27_SHIFTER_6_MASK;
   }
   if (axis[g27Ps3a_gearShifterR])
   {
-    g27Ps3->shifter.x = 0xab;
-    g27Ps3->shifter.y = 0x00;
-    g27Ps3->shifter.b = 0xdd;
+    g27Ps3->shifter.x = G27_SHIFTER_RIGHT;
+    g27Ps3->shifter.y = G27_SHIFTER_DOWN;
+    g27Ps3->shifter.b |= (G27_SHIFTER_REVERSE_ENGAGED | G27_SHIFTER_STICK_DOWN);
   }
   if (axis[g27Ps3a_l4])
   {
