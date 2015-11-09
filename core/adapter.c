@@ -779,6 +779,7 @@ int adapter_detect()
         adapter->serialdevice = serialasync_open(adapter->portname, BAUDRATE);
         if(adapter->serialdevice < 0)
         {
+          fprintf(stderr, _("Check the wiring (maybe you swapped Rx and Tx?).\n"));
           ret = -1;
         }
         else
