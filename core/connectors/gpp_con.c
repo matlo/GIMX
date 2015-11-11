@@ -7,6 +7,7 @@
 #include "../../shared/gpp/pcprog.h"
 #include "config.h"
 #include <controller2.h>
+#include "adapter.h"
 
 int gpp_connect(int id, const char* device)
 {
@@ -52,61 +53,74 @@ inline int scale_axis(e_controller_type type, int index, int axis[AXIS_MAX])
 
 int gpp_send(int id, e_controller_type type, int axis[AXIS_MAX])
 {
-  int8_t output[GCAPI_OUTPUT_TOTAL] = {};
+  static int8_t output[MAX_CONTROLLERS][GCAPI_INPUT_TOTAL] = {};
   int axis_value;
   int ret = 0;
 
-  output[PS3_UP] = scale_axis(type, sa_up, axis);
-  output[PS3_DOWN] = scale_axis(type, sa_down, axis);
-  output[PS3_LEFT] = scale_axis(type, sa_left, axis);
-  output[PS3_RIGHT] = scale_axis(type, sa_right, axis);
-  output[PS3_START] = axis[sa_start] ? 100 : 0;
-  output[PS3_SELECT] = axis[sa_select] ? 100 : 0;
-  output[PS3_L3] = scale_axis(type, sa_l3, axis);
-  output[PS3_R3] = scale_axis(type, sa_r3, axis);
-  output[PS3_L1] = scale_axis(type, sa_l1, axis);
-  output[PS3_R1] = scale_axis(type, sa_r1, axis);
-  output[PS3_PS] = axis[sa_ps] ? 100 : 0;
-  output[PS3_CROSS] = scale_axis(type, sa_cross, axis);
-  output[PS3_CIRCLE] = scale_axis(type, sa_circle, axis);
-  output[PS3_SQUARE] = scale_axis(type, sa_square, axis);
-  output[PS3_TRIANGLE] = scale_axis(type, sa_triangle, axis);
-  output[PS3_L2] = scale_axis(type, sa_l2, axis);
-  output[PS3_R2] = scale_axis(type, sa_r2, axis);
+  output[id][PS3_UP] = scale_axis(type, sa_up, axis);
+  output[id][PS3_DOWN] = scale_axis(type, sa_down, axis);
+  output[id][PS3_LEFT] = scale_axis(type, sa_left, axis);
+  output[id][PS3_RIGHT] = scale_axis(type, sa_right, axis);
+  output[id][PS3_START] = axis[sa_start] ? 100 : 0;
+  output[id][PS3_SELECT] = axis[sa_select] ? 100 : 0;
+  output[id][PS3_L3] = scale_axis(type, sa_l3, axis);
+  output[id][PS3_R3] = scale_axis(type, sa_r3, axis);
+  output[id][PS3_L1] = scale_axis(type, sa_l1, axis);
+  output[id][PS3_R1] = scale_axis(type, sa_r1, axis);
+  output[id][PS3_PS] = axis[sa_ps] ? 100 : 0;
+  output[id][PS3_CROSS] = scale_axis(type, sa_cross, axis);
+  output[id][PS3_CIRCLE] = scale_axis(type, sa_circle, axis);
+  output[id][PS3_SQUARE] = scale_axis(type, sa_square, axis);
+  output[id][PS3_TRIANGLE] = scale_axis(type, sa_triangle, axis);
+  output[id][PS3_L2] = scale_axis(type, sa_l2, axis);
+  output[id][PS3_R2] = scale_axis(type, sa_r2, axis);
 
   axis_value = scale_axis(type, sa_lstick_x, axis);
-  output[PS3_LX] = clamp(-100, axis_value, 100);
+  output[id][PS3_LX] = clamp(-100, axis_value, 100);
 
   axis_value = scale_axis(type, sa_lstick_y, axis);
-  output[PS3_LY] = clamp(-100, axis_value, 100);
+  output[id][PS3_LY] = clamp(-100, axis_value, 100);
 
   axis_value = scale_axis(type, sa_rstick_x, axis);
-  output[PS3_RX] = clamp(-100, axis_value, 100);
+  output[id][PS3_RX] = clamp(-100, axis_value, 100);
 
   axis_value = scale_axis(type, sa_rstick_y, axis);
-  output[PS3_RY] = clamp(-100, axis_value, 100);
+  output[id][PS3_RY] = clamp(-100, axis_value, 100);
 
-  axis_value = scale_axis(type, sa_acc_x, axis);
-  output[PS3_ACCX] = clamp(-100, axis_value, 100);
+  if(type == C_TYPE_SIXAXIS)
+  {
+    axis_value = scale_axis(type, sa_acc_x, axis);
+    output[id][PS3_ACCX] = clamp(-100, axis_value, 100);
 
-  axis_value = scale_axis(type, sa_acc_y, axis);
-  output[PS3_ACCY] = clamp(-100, axis_value, 100);
+    axis_value = scale_axis(type, sa_acc_y, axis);
+    output[id][PS3_ACCY] = clamp(-100, axis_value, 100);
 
-  axis_value = scale_axis(type, sa_acc_z, axis);
-  output[PS3_ACCZ] = clamp(-100, axis_value, 100);
+    axis_value = scale_axis(type, sa_acc_z, axis);
+    output[id][PS3_ACCZ] = clamp(-100, axis_value, 100);
 
-  axis_value = scale_axis(type, sa_gyro, axis);
-  output[PS3_GYRO] = clamp(-100, axis_value, 100);
+    axis_value = scale_axis(type, sa_gyro, axis);
+    output[id][PS3_GYRO] = clamp(-100, axis_value, 100);
+  }
+  else if(type == C_TYPE_DS4)
+  {
+    output[id][PS4_TOUCH] = axis[ds4a_touchpad] ? 100 : 0;
 
-  output[PS4_TOUCH] = axis[ds4a_finger1] ? 100 : 0;
+    if(axis[ds4a_finger1])
+    {
+      axis_value = output[id][PS4_TOUCHX] + scale_axis(type, ds4a_finger1_x, axis);
+      output[id][PS4_TOUCHX] = clamp(-100, axis_value, 100);
 
-  axis_value = scale_axis(type, ds4a_finger1_x, axis);
-  output[PS4_TOUCHX] = clamp(-100, axis_value, 100);
+      axis_value = output[id][PS4_TOUCHY] + scale_axis(type, ds4a_finger1_y, axis);
+      output[id][PS4_TOUCHY] = clamp(-100, axis_value, 100);
+    }
+    else
+    {
+      output[id][PS4_TOUCHX] = 0;
+      output[id][PS4_TOUCHY] = 0;
+    }
+  }
 
-  axis_value = scale_axis(type, ds4a_finger1_y, axis);
-  output[PS4_TOUCHY] = clamp(-100, axis_value, 100);
-
-  if(!gpppcprog_output(id, output))
+  if(!gpppcprog_output(id, output[id]))
   {
     ret = -1;
   }
