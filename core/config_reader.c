@@ -31,7 +31,9 @@ static s_config_entry entry;
 
 static void reset_entry()
 {
-  memset(&entry, 0x00, sizeof(entry));
+  memset(&entry.device, 0x00, sizeof(entry.device));
+  memset(&entry.event, 0x00, sizeof(entry.event));
+  memset(&entry.params, 0x00, sizeof(entry.params));
 }
 
 static char r_device_name[128];
