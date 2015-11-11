@@ -45,7 +45,7 @@ int gpp_connect(int id, const char* device)
   return ret;
 }
 
-inline int8_t scale_axis(e_controller_type type, int index, int axis[AXIS_MAX])
+inline int scale_axis(e_controller_type type, int index, int axis[AXIS_MAX])
 {
   return axis[index] * 100 / controller_get_max_signed(type, index);
 }
