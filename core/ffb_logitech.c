@@ -673,6 +673,8 @@ static unsigned short lg_wheel_products[] = {
     USB_DEVICE_ID_LOGITECH_WII_WHEEL,
     USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2,
     USB_DEVICE_ID_LOGITECH_VIBRATION_WHEEL,
+    USB_DEVICE_ID_LOGITECH_G920_WHEEL,
+    USB_DEVICE_ID_LOGITECH_G29_WHEEL,
 };
 
 int ffb_logitech_is_logitech_wheel(unsigned short vendor, unsigned short product) {

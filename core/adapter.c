@@ -563,39 +563,9 @@ void adapter_set_usb_ids(int controller, unsigned short vendor, unsigned short p
   }
 }
 
-static unsigned short lg_wheel_products[] = {
-  USB_DEVICE_ID_LOGITECH_WINGMAN_FFG,
-  USB_DEVICE_ID_LOGITECH_WHEEL,
-  USB_DEVICE_ID_LOGITECH_MOMO_WHEEL,
-  USB_DEVICE_ID_LOGITECH_DFP_WHEEL,
-  USB_DEVICE_ID_LOGITECH_G25_WHEEL,
-  USB_DEVICE_ID_LOGITECH_DFGT_WHEEL,
-  USB_DEVICE_ID_LOGITECH_G27_WHEEL,
-  USB_DEVICE_ID_LOGITECH_WII_WHEEL,
-  USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2,
-  USB_DEVICE_ID_LOGITECH_VIBRATION_WHEEL,
-};
-
-static int is_logitech_wheel(unsigned short vendor, unsigned short product) {
-
-  if(vendor != USB_VENDOR_ID_LOGITECH)
-  {
-    return 0;
-  }
-  unsigned int i;
-  for(i = 0; i < sizeof(lg_wheel_products) / sizeof(*lg_wheel_products); ++i)
-  {
-    if(lg_wheel_products[i] == product)
-    {
-      return 1;
-    }
-  }
-  return 0;
-}
-
 static int start_hid(int id)
 {
-  if(is_logitech_wheel(adapter[id].usb_ids.vendor, adapter[id].usb_ids.product))
+  if(ffb_logitech_is_logitech_wheel(adapter[id].usb_ids.vendor, adapter[id].usb_ids.product))
   {
     adapter[id].hid_id = hidasync_open_ids(adapter[id].usb_ids.vendor, adapter[id].usb_ids.product);
     if(adapter[id].hid_id >= 0)
