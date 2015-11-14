@@ -84,10 +84,6 @@ static void init_report(s_report * report)
   memcpy(report, &default_report, sizeof(default_report));
 }
 
-/*
- * Work in progress...
- * Do not assume the code in the following function is right!
- */
 static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
   unsigned int index = 0;
