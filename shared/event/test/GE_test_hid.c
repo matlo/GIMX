@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <string.h>
 #include <limits.h>
+#include <sys/time.h>
 
 #include <hidasync.h>
 #include "common.h"
