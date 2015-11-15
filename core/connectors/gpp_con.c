@@ -115,8 +115,8 @@ int gpp_send(int id, e_controller_type type, int axis[AXIS_MAX])
     }
     else
     {
-      output[id][PS4_TOUCHX] = 0;
-      output[id][PS4_TOUCHY] = 0;
+      output[id][PS4_TOUCHX] = 101;
+      output[id][PS4_TOUCHY] = 101;
     }
   }
 
