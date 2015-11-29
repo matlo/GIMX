@@ -27,8 +27,6 @@ extern "C" {
 #define USB_DEVICE_ID_LOGITECH_G920_WHEEL       0xc262
 #define USB_DEVICE_ID_LOGITECH_G29_WHEEL        0xc24f
 
-struct hid_device;
-
 typedef struct {
     unsigned short vendor_id;
     unsigned short product_id;

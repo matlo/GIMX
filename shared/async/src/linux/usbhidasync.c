@@ -555,7 +555,7 @@ static int claim_device(int device, libusb_device * dev, struct libusb_device_de
         LIBUSB_REQUEST_GET_DESCRIPTOR, (LIBUSB_DT_REPORT << 8) | 0, 0, hidInfo->reportDescriptor,
         hidInfo->reportDescriptorLength, 1000);
     if (ret < 0) {
-      PRINT_ERROR_LIBUSB("libusb_get_descriptor", ret)
+      PRINT_ERROR_LIBUSB("libusb_control_transfer", ret)
       return -1;
     } else {
       hidInfo->reportDescriptorLength = ret;
