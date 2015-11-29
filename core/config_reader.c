@@ -750,8 +750,6 @@ static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity, int
   xmlNode* cur_node = NULL;
   int ret = 0;
   char* shape;
-  unsigned int steps;
-  unsigned int dz;
 
   for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
   {
@@ -759,11 +757,11 @@ static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity, int
     {
       if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_UP))
       {
-        ret = ProcessUpDownElement(cur_node, &intensity->device_up_type, &intensity->device_up_id, &intensity->up_button);
+        ret = ProcessUpDownElement(cur_node, &intensity->up.device.type, &intensity->up.device.id, &intensity->up.button);
       }
       else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_DOWN))
       {
-        ret = ProcessUpDownElement(cur_node, &intensity->device_down_type, &intensity->device_down_id, &intensity->down_button);
+        ret = ProcessUpDownElement(cur_node, &intensity->down.device.type, &intensity->down.device.id, &intensity->down.button);
       }
       else
       {
@@ -773,24 +771,22 @@ static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity, int
     }
   }
 
-  if(ret != -1 && (intensity->device_down_id != -1 || intensity->device_up_id != -1))
+  if(ret != -1 && (intensity->down.button != -1 || intensity->up.button != -1))
   {
-    ret = GetUnsignedIntProp(a_node, X_ATTR_DEADZONE, &dz);
+    ret = GetUnsignedIntProp(a_node, X_ATTR_DEADZONE, &intensity->params.dead_zone);
 
     if(ret != -1)
     {
-      intensity->dead_zone = dz * controller_get_axis_scale(adapter_get(entry.controller_id)->ctype, axis);
-
       shape = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_SHAPE);
       if(shape)
       {
         if (!strncmp(shape, X_ATTR_VALUE_RECTANGLE, strlen(X_ATTR_VALUE_RECTANGLE)))
         {
-          entry.params.mapper.shape = E_SHAPE_RECTANGLE;
+          intensity->params.shape = E_SHAPE_RECTANGLE;
         }
         else
         {
-          intensity->shape = E_SHAPE_CIRCLE;
+          intensity->params.shape = E_SHAPE_CIRCLE;
         }
       }
       else
@@ -801,12 +797,7 @@ static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity, int
 
       if(ret != -1)
       {
-        ret = GetUnsignedIntProp(a_node, X_ATTR_STEPS, &steps);
-
-        if(ret != -1)
-        {
-          intensity->step = (double)(intensity->value - intensity->dead_zone) / steps;
-        }
+        ret = GetUnsignedIntProp(a_node, X_ATTR_STEPS, &intensity->params.steps);
       }
     }
   }
@@ -819,7 +810,6 @@ static int ProcessIntensityListElement(xmlNode * a_node)
   xmlNode* cur_node = NULL;
   int ret = 0;
   char* control;
-  s_intensity intensity;
   int axis1, axis2;
 
   for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
@@ -829,6 +819,7 @@ static int ProcessIntensityListElement(xmlNode * a_node)
       if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_INTENSITY))
       {
         reset_entry();
+        s_intensity intensity = { .down.button = -1, .up.button = -1 };
 
         axis1 = axis2 = -1;
 

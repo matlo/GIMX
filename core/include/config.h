@@ -140,17 +140,34 @@ typedef struct
 
 typedef struct
 {
-  int device_up_type;
-  int device_up_id;
-  int up_button;
-  int device_down_type;
-  int device_down_id;
-  int down_button;
-  double dead_zone;
-  e_shape shape;
-  double step;
+  struct
+  {
+    struct
+    {
+      int type;
+      int id;
+    } device;
+    int button; // -1 means no down button
+  } down;
+  struct
+  {
+    struct
+    {
+      int type;
+      int id;
+    } device;
+    int button; // -1 means no up button
+  } up;
+  struct
+  {
+    unsigned int dead_zone;
+    e_shape shape;
+    unsigned int steps;
+  } params;
   double value;
   double max_value;
+  double step;
+  double dead_zone;
 }s_intensity;
 
 void cfg_trigger_init();

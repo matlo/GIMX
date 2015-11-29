@@ -153,14 +153,21 @@ inline void cfg_set_controller_dpi(int controller, unsigned int dpi)
   controller_dpi[controller] = dpi;
 }
 
-inline s_intensity* cfg_get_axis_intensity(int controller, int config, int axis)
-{
-  return &(axis_intensity[controller][config][axis]);
-}
-
 inline void cfg_set_axis_intensity(s_config_entry* entry, int axis, s_intensity* intensity)
 {
-  axis_intensity[entry->controller_id][entry->config_id][axis] = *intensity;
+  s_intensity * target = axis_intensity[entry->controller_id][entry->config_id] + axis;
+
+  if (intensity->down.button != -1)
+  {
+    target->down = intensity->down;
+  }
+  if (intensity->up.button != -1)
+  {
+    target->up = intensity->up;
+  }
+  target->params = intensity->params;
+  target->dead_zone = (double) intensity->params.dead_zone * controller_get_axis_scale(adapter_get(entry->controller_id)->ctype, axis);
+  target->step = (target->max_value - target->dead_zone) / intensity->params.steps;
 }
 
 void cfg_intensity_init()
@@ -178,13 +185,10 @@ void cfg_intensity_init()
       {
         s_intensity* intensity = &(axis_intensity[i][j][k]);
 
-        intensity->device_up_id = -1;
-        intensity->device_down_id = -1;
-        intensity->up_button = -1;
-        intensity->down_button = -1;
+        intensity->up.button = -1;
+        intensity->down.button = -1;
         intensity->max_value = controller_get_max_signed(adapter_get(i)->ctype, k);
         intensity->value = intensity->max_value;
-        intensity->shape = E_SHAPE_RECTANGLE;
       }
     }
   }
@@ -472,12 +476,12 @@ static void update_stick(int c_id, int axis)
   s_intensity* intensity = &axis_intensity[c_id][cfg_controllers[c_id].current->index][axis];
   double value = intensity->value;
 
-  if(intensity->down_button == -1 && intensity->up_button == -1)
+  if(intensity->down.button == -1 && intensity->up.button == -1)
   {
     return;
   }
 
-  if (axis <= rel_axis_rstick_y && intensity->shape == E_SHAPE_CIRCLE)
+  if (axis <= rel_axis_rstick_y && intensity->params.shape == E_SHAPE_CIRCLE)
   {
     if (adapter_get(c_id)->axis[axis] && adapter_get(c_id)->axis[axis+1])
     {
@@ -519,30 +523,30 @@ static int update_intensity(int device_type, int device_id, int button, int c_id
   
   s_intensity* intensity = &axis_intensity[c_id][cfg_controllers[c_id].current->index][axis];
 
-  if (intensity->device_up_type == device_type && device_id == intensity->device_up_id && button == intensity->up_button)
+  if (intensity->up.device.type == device_type && device_id == intensity->up.device.id && button == intensity->up.button)
   {
     intensity->value += intensity->step;
     if (intensity->value > intensity->max_value)
     {
-      if (intensity->down_button != -1)
+      if (intensity->down.button != -1)
       {
         intensity->value = intensity->max_value;
       }
       else
       {
-        intensity->value = (double) intensity->dead_zone + intensity->step;
+        intensity->value = intensity->dead_zone + intensity->step;
       }
     }
     ret = 1;
   }
-  else if (intensity->device_down_type == device_type && device_id == intensity->device_down_id && button == intensity->down_button)
+  else if (intensity->down.device.type == device_type && device_id == intensity->down.device.id && button == intensity->down.button)
   {
     intensity->value -= intensity->step;
     if (intensity->value < intensity->dead_zone + intensity->step)
     {
-      if (intensity->up_button != -1)
+      if (intensity->up.button != -1)
       {
-        intensity->value = (double) intensity->dead_zone + intensity->step;
+        intensity->value = intensity->dead_zone + intensity->step;
       }
       else
       {
