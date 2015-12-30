@@ -11,10 +11,9 @@
 #include <termios.h>
 #include <poll.h>
 #include "events.h"
-#include <timer.h>
 #include <sys/signalfd.h>
 #include <math.h>
-#include <GE.h>
+#include <ginput.h>
 #include <string.h>
 #include "mkb.h"
 #include "js.h"
@@ -225,14 +224,6 @@ static unsigned int fill_fds(nfds_t nfds, struct pollfd fds[nfds])
   return pos;
 }
 
-/*
- * If a timer wasn't set (tfd < 0):
- * - this function blocks until an event is received
- * - it only reads a single event and returns
- * If a timer was set (tfd > 0):
- * - this function processes each received event
- * - it returns as soon as the timer expires
- */
 void ev_pump_events(void)
 {
   unsigned int i;

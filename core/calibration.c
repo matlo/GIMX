@@ -4,7 +4,6 @@
  */
 
 #include "calibration.h"
-#include <GE.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,6 +13,7 @@
 #include "config_writter.h"
 #include "gimx.h"
 #include <adapter.h>
+#include <ginput.h>
 #include "display.h"
 #include "mainloop.h"
 

@@ -5,7 +5,7 @@
  *      Author: matlo
  */
 
-#include <GE.h>
+#include <ginput.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>

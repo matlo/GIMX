@@ -3,14 +3,13 @@
  License: GPLv3
  */
 
-#include <GE.h>
+#include <ginput.h>
 #include <events.h>
 #include <queue.h>
 #include <conversion.h>
 #include <string.h>
 #include <stdlib.h>
 #include <iconv.h>
-#include <timer.h>
 #include <stdio.h>
 #ifndef WIN32
 #include <poll.h>
@@ -519,74 +518,6 @@ void GE_SetCallback(int(*fp)(GE_Event*))
 }
 
 /*
- * Add an event source.
- */
-void GE_AddSource(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int))
-{
-  ev_register_source(fd, id, fp_read, fp_write, fp_cleanup);
-}
-
-#ifdef WIN32
-/*
- * Add an event source.
- */
-void GE_AddSourceHandle(HANDLE handle, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int))
-{
-  ev_register_source_handle(handle, id, fp_read, fp_write, fp_cleanup);
-}
-/*
- * Remove an event source.
- */
-void GE_RemoveSourceHandle(HANDLE handle)
-{
-  ev_remove_source_handle(handle);
-}
-#endif
-
-/*
- * Remove an event source.
- */
-void GE_RemoveSource(int fd)
-{
-  ev_remove_source(fd);
-}
-
-/*
- * \brief Start a timer to make GE_PumpEvents return periodically.
- * 
- * \param period  the period of the timer (microseconds).
- */
-void GE_TimerStart(int usec)
-{
-#ifndef WIN32
-  int tfd = timer_start(usec);
-
-  if(tfd >= 0)
-  {
-    ev_register_source(tfd, 0, &timer_read, NULL, &timer_close);
-  }
-#else
-  timer_start(usec);
-#endif
-}
-
-/*
- * \brief Stop the timer.
- */
-void GE_TimerClose()
-{
-#ifndef WIN32
-  int tfd = timer_get();
-
-  if(tfd >= 0)
-  {
-    ev_remove_source(tfd);
-  }
-#endif
-  timer_close(0);
-}
-
-/*
  * \brief Tell if a joystick has rumble capabilities.
  * 
  * \param id  the joystick index (in the [0..GE_MAX_DEVICES[ range)
@@ -631,19 +562,6 @@ int GE_JoystickGetUsbIds(int id, unsigned short * vendor, unsigned short * produ
   return ev_joystick_get_usb_ids(id, vendor, product);
 }
 #endif
-
-/*
- * \brief Get events from devices.
- *        In Linux:
- *        - it is mandatory to call GE_SetCallback once before calling this function.
- *        - if GE_TimerStart wasn't previously called, this function will block undefinitely.
- *        In Windows:
- *        - this function queues all pending events and returns.
- */
-void GE_PumpEvents()
-{
-  ev_pump_events();
-}
 
 /*
  * \brief Get all events from the event queue.

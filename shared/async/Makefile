@@ -6,7 +6,7 @@ OBJECTS := $(patsubst %.c,%.o,$(wildcard src/linux/*.c))
 else
 OBJECTS := $(patsubst %.c,%.o,$(wildcard src/windows/*.c))
 endif
-CPPFLAGS+=-Iinclude -Isrc
+CPPFLAGS+=-Iinclude -Isrc -I../event/include
 
 all: $(LIBNAME)
 

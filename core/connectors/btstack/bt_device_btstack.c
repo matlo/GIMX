@@ -15,7 +15,6 @@
 #include <connectors/bluetooth/btstack_common.h>
 #include <connectors/bluetooth/bt_device_abs.h>
 #include <hci.h>
-#include <GE.h>
 
 #define ACL_MTU 1024
 #define L2CAP_MTU 1024

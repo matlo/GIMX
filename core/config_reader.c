@@ -7,7 +7,7 @@
 #include "config_reader.h"
 #include <xml_defs.h>
 #include "config.h"
-#include <GE.h>
+#include <ginput.h>
 #include "calibration.h"
 #include <limits.h>
 #include <dirent.h>

@@ -6,6 +6,8 @@
 #ifndef ASYNC_H_
 #define ASYNC_H_
 
+#include <gpoll.h>
+
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -18,9 +20,9 @@ typedef int (* ASYNC_READ_CALLBACK)(int user, const void * buf, unsigned int cou
 typedef int (* ASYNC_WRITE_CALLBACK)(int user, int transfered);
 typedef int (* ASYNC_CLOSE_CALLBACK)(int user);
 #ifndef WIN32
-typedef void (* ASYNC_REGISTER_SOURCE)(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int));
+typedef GPOLL_REGISTER_FD ASYNC_REGISTER_SOURCE;
 #else
-typedef void (* ASYNC_REGISTER_SOURCE)(HANDLE handle, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int));
+typedef GPOLL_REGISTER_HANDLE ASYNC_REGISTER_SOURCE;
 #endif
 
 typedef struct {

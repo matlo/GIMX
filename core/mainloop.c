@@ -3,7 +3,9 @@
  License: GPLv3
  */
 
-#include <GE.h>
+#include <ginput.h>
+#include <gpoll.h>
+#include <gtimer.h>
 #include "gimx.h"
 #include "calibration.h"
 #include "macros.h"
@@ -12,11 +14,28 @@
 #include <connectors/usb_con.h>
 #include <report2event/report2event.h>
 
+#ifdef WIN32
+#define REGISTER_FUNCTION GE_AddSourceHandle
+#else
+#define REGISTER_FUNCTION gpoll_register_fd
+#endif
+
 static volatile int done = 0;
 
 void set_done()
 {
   done = 1;
+}
+
+static int timer_read(int user)
+{
+  return 1;
+}
+
+static int timer_close(int timer)
+{
+  set_done();
+  return 1;
 }
 
 void mainloop()
@@ -25,10 +44,15 @@ void mainloop()
   int num_evt;
   GE_Event* event;
   unsigned int running_macros;
+  int timer = -1;
 
   if(!adapter_get(0)->bdaddr_dst || adapter_get(0)->ctype == C_TYPE_DS4)
   {
-    GE_TimerStart(gimx_params.refresh_period);
+    timer = gtimer_start(0, gimx_params.refresh_period, timer_read, timer_close, REGISTER_FUNCTION);
+    if (timer < 0)
+    {
+      done = 1;
+    }
   }
 
   /*
@@ -48,9 +72,9 @@ void mainloop()
   while(!done)
   {
     /*
-     * GE_PumpEvents should always be executed as it drives the period.
+     * gpoll should always be executed as it drives the period.
      */
-    GE_PumpEvents();
+    gpoll();
 
     cfg_process_motion();
 
@@ -102,6 +126,8 @@ void mainloop()
       done = 1;
     }
   }
-    
-  GE_TimerClose();
+
+  if (timer >= 0) {
+    gtimer_close(timer);
+  }
 }

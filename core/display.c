@@ -14,7 +14,7 @@
 #include "display.h"
 
 #include "calibration.h"
-#include <GE.h>
+#include <ginput.h>
 #include "gimx.h"
 #include <adapter.h>
 #include <stats.h>

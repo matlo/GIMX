@@ -292,6 +292,10 @@ int handle_events(int unused) {
 #endif
 }
 
+int handle_write_events(int unused1, int unused2) {
+  return handle_events(unused1);
+}
+
 int usbhidasync_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout) {
 
   USBHIDASYNC_CHECK_DEVICE(device, -1)
@@ -824,7 +828,7 @@ int usbhidasync_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYN
   int poll_i;
   for (poll_i = 0; pfd_usb[poll_i] != NULL; ++poll_i) {
 
-    fp_register(pfd_usb[poll_i]->fd, device, handle_events, handle_events, close_callback);
+    fp_register(pfd_usb[poll_i]->fd, device, handle_events, handle_write_events, close_callback);
   }
   free(pfd_usb);
 

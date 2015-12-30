@@ -6,8 +6,8 @@
 #ifndef REPORT2EVENT_H_
 #define REPORT2EVENT_H_
 
-#include <GE.h>
-#include <adapter.h>
+#include <controller2.h>
+#include <ginput.h>
 
 void report2event_set_callback(int (*fp)(GE_Event*));
 void report2event(e_controller_type type, int adapter_id, s_report* current,

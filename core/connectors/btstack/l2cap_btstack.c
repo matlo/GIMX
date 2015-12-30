@@ -18,7 +18,7 @@
 #include <connectors/windows/bt_bdaddr.h>
 #endif
 #include <hci.h>
-#include <GE.h>
+#include <gpoll.h>
 
 #define ACL_MTU 1024
 #define L2CAP_MTU 1024
@@ -178,7 +178,7 @@ int l2cap_btstack_connect(const char * bdaddr_src, const char * bdaddr_dest, uns
   }
 
   //TODO MLA: this is required only once, maybe this should be moved?
-  GE_AddSource(btstack_common_getfd(), 0, &packet_handler, NULL, &packet_handler);
+  gpoll_register_fd(btstack_common_getfd(), 0, &packet_handler, NULL, &packet_handler);
 
   int channel = channels.nb;
 

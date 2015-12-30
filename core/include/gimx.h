@@ -6,7 +6,7 @@
 #ifndef GIMX_H_
 #define GIMX_H_
 
-#include <GE.h>
+#include <ginput.h>
 #include <stdio.h>
 
 #include <libintl.h>

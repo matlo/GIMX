@@ -6,7 +6,7 @@
 #ifndef CONVERSION_H_
 #define CONVERSION_H_
 
-#include <GE.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {

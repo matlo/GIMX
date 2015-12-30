@@ -5,6 +5,7 @@
 
 #include <connectors/bluetooth/l2cap_abs.h>
 #include <gimx.h>
+#include <gpoll.h>
 
 #include <bluetooth/l2cap.h>
 #include <bluetooth/hci.h>
@@ -377,7 +378,7 @@ static int l2cap_bluez_is_connected(int fd)
   return 0;
 }
 
-static int l2cap_bluez_connect_channel(int channel)
+static int l2cap_bluez_connect_channel(int channel, int unused)
 {
   int result = 0;
 
@@ -385,7 +386,7 @@ static int l2cap_bluez_connect_channel(int channel)
 
   if(l2cap_bluez_is_connected(fd))
   {
-    GE_RemoveSource(fd);
+    gpoll_remove_fd(fd);
 
     if(channels.channels[channel].connect_callback(channels.channels[channel].user))
     {
@@ -428,6 +429,11 @@ static int l2cap_bluez_connect_channel(int channel)
     channels.channels[channel].close_callback(channels.channels[channel].user);
   }
   return result;
+}
+
+static int l2cap_bluez_close_channel(int channel)
+{
+  return l2cap_bluez_connect_channel(channel, 0);
 }
 
 static int l2cap_bluez_connect(const char * bdaddr_src, const char * bdaddr_dest, unsigned short psm, int options,
@@ -484,7 +490,7 @@ static int l2cap_bluez_connect(const char * bdaddr_src, const char * bdaddr_dest
     channels.channels[channel].connect_callback = connect_callback;
     channels.channels[channel].close_callback = close_callback;
 
-    GE_AddSource(fd, channel, NULL, l2cap_bluez_connect_channel, l2cap_bluez_connect_channel);
+    gpoll_register_fd(fd, channel, NULL, l2cap_bluez_connect_channel, l2cap_bluez_close_channel);
 
     ++channels.nb;
 
@@ -493,7 +499,7 @@ static int l2cap_bluez_connect(const char * bdaddr_src, const char * bdaddr_dest
 
 static int l2cap_bluez_close(int channel)
 {
-  GE_RemoveSource(channels.channels[channel].fd);
+  gpoll_remove_fd(channels.channels[channel].fd);
   close(channels.channels[channel].fd);
   channels.channels[channel].fd = -1;
 
@@ -668,7 +674,7 @@ static int l2cap_bluez_listen(int user, unsigned short psm, int options,
   listen_channels.channels[channel].accept_callback = read_callback;
   listen_channels.channels[channel].close_callback = close_callback;
 
-  GE_AddSource(listen_channels.channels[channel].fd, channel, l2cap_bluez_connect_accept, NULL, l2cap_bluez_connect_accept);
+  gpoll_register_fd(listen_channels.channels[channel].fd, channel, l2cap_bluez_connect_accept, NULL, l2cap_bluez_connect_accept);
 
   ++listen_channels.nb;
 
@@ -680,7 +686,7 @@ static int l2cap_bluez_listen(int user, unsigned short psm, int options,
 static void l2cap_bluez_add_source(int channel, int user, L2CAP_ABS_READ_CALLBACK read_callback, L2CAP_ABS_PACKET_CALLBACK packet_callback, L2CAP_ABS_CLOSE_CALLBACK close_callback)
 {
   channels.channels[channel].user = user;
-  GE_AddSource(channels.channels[channel].fd, channels.channels[channel].user, read_callback, NULL, close_callback);
+  gpoll_register_fd(channels.channels[channel].fd, channels.channels[channel].user, read_callback, NULL, close_callback);
 }
 
 static int l2cap_bluez_disconnect(int channel)

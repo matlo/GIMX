@@ -6,7 +6,6 @@
 #ifndef USB_CON_H_
 #define USB_CON_H_
 
-#include <GE.h>
 #include <defs.h>
 
 int usb_init(int usb_number, e_controller_type type);

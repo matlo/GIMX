@@ -9,7 +9,8 @@ NAME=$(shell basename $(shell pwd))
 
 CPPFLAGS += -I../shared/configeditor/include \
       -I../shared/controller/include \
-      -I../shared/async/include
+      -I../shared/async/include \
+      -I../shared/event/include
 CPPFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP `curl-config --cflags`
 LDLIBS := ../shared/configeditor/configeditor.a \
       $(LDLIBS) \

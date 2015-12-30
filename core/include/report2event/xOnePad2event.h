@@ -6,8 +6,8 @@
 #ifndef XONEPAD2EVENT_H_
 #define XONEPAD2EVENT_H_
 
-#include <GE.h>
-#include <adapter.h>
+#include <controller2.h>
+#include <ginput.h>
 
 void xOnePad2event(int adapter_id, s_report* current, s_report* previous,
     int joystick_id, int (*callback)(GE_Event*));

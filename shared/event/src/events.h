@@ -2,7 +2,7 @@
 #ifndef EVENTS_H_
 #define EVENTS_H_
 
-#include <GE.h>
+#include <ginput.h>
 
 #define MAX_EVENTS 256
 

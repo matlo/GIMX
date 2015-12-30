@@ -1,8 +1,6 @@
 /*
- * GE_Windows.h
- *
- *  Created on: 3 avr. 2013
- *      Author: matlo
+ Copyright (c) 2015 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #ifndef GE_WINDOWS_H_

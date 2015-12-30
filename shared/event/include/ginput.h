@@ -16,7 +16,7 @@
 #include "GE_Windows.h"
 typedef void* HANDLE;
 #else
-#include "GE_Linux.h"
+#include "ginput_linux.h"
 #include <sys/time.h>
 #endif
 
@@ -427,22 +427,15 @@ void GE_SetMKMode(GE_MK_Mode);
 int GE_JoystickHasRumble(int id);
 int GE_JoystickSetRumble(int id, unsigned short weak, unsigned short strong);
 
-void GE_TimerStart(int usec);
-void GE_TimerClose();
-void GE_PumpEvents();
 int GE_PeepEvents(GE_Event*, int);
 int GE_PushEvent(GE_Event*);
 void GE_SetCallback(int(*)(GE_Event*));
 
-void GE_AddSource(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int));
 #ifdef WIN32
-void GE_AddSourceHandle(HANDLE handle, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int));
-void GE_RemoveSourceHandle(HANDLE handle);
 int GE_JoystickGetUsbIds(int id, unsigned short * vendor, unsigned short * product);
 #else
 int GE_JoystickGetUHidId(int id);
 #endif
-void GE_RemoveSource(int fd);
 
 #ifdef __cplusplus
 }

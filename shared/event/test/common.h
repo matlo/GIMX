@@ -8,7 +8,7 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
-#include <GE.h>
+#include <ginput.h>
 
 extern volatile int done;
 

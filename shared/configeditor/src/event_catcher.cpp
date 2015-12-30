@@ -6,7 +6,9 @@
 #include "event_catcher.h"
 #include <unistd.h>
 #include <sstream>
-#include <GE.h>
+#include <ginput.h>
+#include <gpoll.h>
+#include <gtimer.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -357,6 +359,17 @@ int process_event(GE_Event* event)
   return 0;
 }
 
+static int timer_read(int user)
+{
+  return 1;
+}
+
+static int timer_close(int timer)
+{
+  event_catcher::getInstance()->SetDone();
+  return 1;
+}
+
 void event_catcher::run(string device_type, string event_type)
 {
     axis_first_nb = 0;
@@ -374,16 +387,23 @@ void event_catcher::run(string device_type, string event_type)
 
     done = 0;
 
-    GE_TimerStart(PERIOD);
+    int timer = gtimer_start(0, PERIOD, timer_read, timer_close, gpoll_register_fd);
+    if (timer < 0)
+    {
+      done = 1;
+    }
 
     GE_SetCallback(process_event);
 	
     while (!done)
     {
-        GE_PumpEvents();
+        gpoll();
     }
 
-    GE_TimerClose();
+    if (timer >= 0)
+    {
+      gtimer_close(timer);
+    }
 
     clean();
 }

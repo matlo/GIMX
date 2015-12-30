@@ -6,7 +6,7 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-#include <GE.h>
+#include <ginput.h>
 #include <controller2.h>
 
 #define MAX_BUFFERSIZE 256

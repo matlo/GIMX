@@ -6,7 +6,7 @@
 #ifndef QUEUE_H_
 #define QUEUE_H_
 
-#include <GE.h>
+#include <ginput.h>
 
 void queue_init();
 int queue_push_event(GE_Event* ev);

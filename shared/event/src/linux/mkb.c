@@ -3,7 +3,7 @@
  License: GPLv3
  */
 
-#include <GE.h>
+#include <ginput.h>
 #include <events.h>
 #include <queue.h>
 #include "mkb.h"
@@ -16,7 +16,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <timer.h>
 #include <dirent.h>
 
 #define eprintf(...) if(debug) printf(__VA_ARGS__)
@@ -231,36 +230,16 @@ static void mkb_process_event(int device, struct input_event* ie)
 
 static struct input_event ie[MAX_EVENTS];
 
-static int mkb_process_events(int device)
-{
-  unsigned int size = sizeof(ie);
-  unsigned int j;
-  int r;
+static int mkb_process_events(int device) {
 
-  int tfd = timer_get();
-
-  if(tfd < 0)
-  {
-    //read a single event
-    size = sizeof(*ie);
-  }
-
-  if((r = read(devices[device].fd, ie, size)) > 0)
-  {
-    for(j=0; j<r/sizeof(*ie); ++j)
-    {
-      mkb_process_event(device, ie+j);
-
-      if(event_callback == GE_PushEvent)
-      {
-        return 1;
-      }
+  int res = read(devices[device].fd, ie, sizeof(ie));
+  if (res > 0) {
+    unsigned int j;
+    for (j = 0; j < res / sizeof(*ie); ++j) {
+      mkb_process_event(device, ie + j);
     }
-
-    if(r < 0 && errno != EAGAIN)
-    {
-      mkb_close_device(device);
-    }
+  } else if (res < 0 && errno != EAGAIN) {
+    mkb_close_device(device);
   }
   return 0;
 }

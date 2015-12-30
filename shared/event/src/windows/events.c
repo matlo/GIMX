@@ -5,7 +5,7 @@
 
 #include <SDL.h>
 #include "winmm/manymouse.h"
-#include <GE.h>
+#include <ginput.h>
 #include <events.h>
 #include <math.h>
 #include <winsock2.h>

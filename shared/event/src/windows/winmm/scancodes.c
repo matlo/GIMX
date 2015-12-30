@@ -1,5 +1,5 @@
 
-#include <GE.h>
+#include <ginput.h>
 
 /* WinUser.h won't include rawinput stuff without this... */
 #if (_WIN32_WINNT < 0x0501)

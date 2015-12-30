@@ -3,7 +3,7 @@
  License: GPLv3
  */
 
-#include <GE.h>
+#include <ginput.h>
 #include <events.h>
 #include <errno.h>
 #include <stdio.h>

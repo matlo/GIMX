@@ -3,7 +3,6 @@
  License: GPLv3
  */
 
-#include <GE.h>
 #include <events.h>
 #include <errno.h>
 #include <unistd.h>
@@ -13,10 +12,10 @@
 #include <linux/joystick.h>
 #include <poll.h>
 #include "js.h"
-#include <timer.h>
 #include <string.h>
 #include <stdlib.h>
 #include <dirent.h>
+#include <ginput.h>
 
 #define eprintf(...) if(debug) printf(__VA_ARGS__)
 
@@ -41,7 +40,7 @@ static struct
     int (*rumble_cb)(int index, unsigned short weak, unsigned short strong);
   } force_feedback;
   int uhid_id;
-} joystick[GE_MAX_DEVICES] = {};
+} joysticks[GE_MAX_DEVICES] = {};
 
 static int j_num; // the number of joysticks
 
@@ -55,9 +54,9 @@ void js_init_static(void)
   int i;
   for(i=0; i<GE_MAX_DEVICES; ++i)
   {
-    joystick[i].fd = -1;
-    joystick[i].force_feedback.fd = -1;
-    joystick[i].uhid_id = -1;
+    joysticks[i].fd = -1;
+    joysticks[i].force_feedback.fd = -1;
+    joysticks[i].uhid_id = -1;
   }
 }
 
@@ -68,7 +67,7 @@ void js_set_callback(int (*fp)(GE_Event*))
   event_callback = fp;
 }
 
-static void js_process_event(int device, struct js_event* je)
+static void js_process_event(int joystick, struct js_event* je)
 {
   GE_Event evt = {};
 
@@ -80,12 +79,12 @@ static void js_process_event(int device, struct js_event* je)
   if(je->type & JS_EVENT_BUTTON)
   {
     evt.type = je->value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-    evt.jbutton.which = device;
+    evt.jbutton.which = joystick;
     evt.jbutton.button = je->number;
   }
   else if(je->type & JS_EVENT_AXIS)
   {
-    int axis = joystick[device].hat_info.ax_map[je->number];
+    int axis = joysticks[joystick].hat_info.ax_map[je->number];
     if(axis >= ABS_HAT0X && axis <= ABS_HAT3Y)
     {
       // convert hat axes to buttons
@@ -95,26 +94,26 @@ static void js_process_event(int device, struct js_event* je)
       axis -= ABS_HAT0X;
       if(!je->value)
       {
-        value = joystick[device].hat_info.hat_value[axis];
-        joystick[device].hat_info.hat_value[axis] = 0;
+        value = joysticks[joystick].hat_info.hat_value[axis];
+        joysticks[joystick].hat_info.hat_value[axis] = 0;
       }
       else
       {
         value = je->value/32767;
-        joystick[device].hat_info.hat_value[axis] = value;
+        joysticks[joystick].hat_info.hat_value[axis] = value;
       }
       button = axis + value + 2*(axis/2);
       if(button < 4*(axis/2))
       {
         button += 4;
       }
-      evt.jbutton.which = device;
-      evt.jbutton.button = button + joystick[device].hat_info.button_nb;
+      evt.jbutton.which = joystick;
+      evt.jbutton.button = button + joysticks[joystick].hat_info.button_nb;
     }
     else
     {
       evt.type = GE_JOYAXISMOTION;
-      evt.jaxis.which = device;
+      evt.jaxis.which = joystick;
       evt.jaxis.axis = je->number;
       evt.jaxis.value = je->value;
       /*
@@ -132,7 +131,7 @@ static void js_process_event(int device, struct js_event* je)
    */
   if(evt.type != GE_NOEVENT)
   {
-    eprintf("event from joystick: %s\n", joystick[device].name);
+    eprintf("event from joystick: %s\n", joysticks[joystick].name);
     eprintf("type: %d number: %d value: %d\n", je->type, je->number, je->value);
     event_callback(&evt);
   }
@@ -140,38 +139,18 @@ static void js_process_event(int device, struct js_event* je)
 
 static struct js_event je[MAX_EVENTS];
 
-static int js_process_events(int index)
-{
-  unsigned int size = sizeof(je);
-  unsigned int j;
-  int r;
+static int js_process_events(int joystick) {
 
-  int tfd = timer_get();
-
-  if(tfd < 0)
-  {
-    //read a single event
-    size = sizeof(*je);
+  int res = read(joysticks[joystick].fd, je, sizeof(je));
+  if (res > 0) {
+    unsigned int j;
+    for (j = 0; j < res / sizeof(*je); ++j) {
+      js_process_event(joystick, je + j);
+    }
+  } else if (res < 0 && errno != EAGAIN) {
+    js_close(joystick);
   }
 
-  if((r = read(joystick[index].fd, je, size)) > 0)
-  {
-    for(j=0; j<r/sizeof(*je); ++j)
-    {
-      js_process_event(index, je+j);
-
-      if(event_callback == GE_PushEvent)
-      {
-        return 1;
-      }
-    }
-
-    if(r < 0 && errno != EAGAIN)
-    {
-      js_close(index);
-    }
-  }
-  
   return 0;
 }
 
@@ -231,7 +210,7 @@ static int open_evdev(const char * js_name)
   return fd_ev;
 }
 
-static void get_uhid_id(int index, int fd_ev)
+static void get_uhid_id(int joystick, int fd_ev)
 {
   char uniq[64] = {};
   if (ioctl(fd_ev, EVIOCGUNIQ(sizeof(uniq)), &uniq) == -1)
@@ -244,12 +223,12 @@ static void get_uhid_id(int index, int fd_ev)
   {
     if(pid == getpid())
     {
-      joystick[index].uhid_id = uhid_id;
+      joysticks[joystick].uhid_id = uhid_id;
     }
   }
 }
 
-static int start_ff(int index, int fd_ev)
+static int start_ff(int joystick, int fd_ev)
 {
   unsigned long features[4];
   if (ioctl(fd_ev, EVIOCGBIT(EV_FF, sizeof(features)), features) == -1)
@@ -271,8 +250,8 @@ static int start_ff(int index, int fd_ev)
       return -1;
     }
     // Store the ids so that the effects can be updated and played later.
-    joystick[index].force_feedback.fd = fd_ev;
-    joystick[index].force_feedback.rumble_id = rumble.id;
+    joysticks[joystick].force_feedback.fd = fd_ev;
+    joysticks[joystick].force_feedback.rumble_id = rumble.id;
     return 0;
   }
   return -1;
@@ -309,12 +288,12 @@ int js_init()
         }
         // get the number of buttons and the axis map, to allow converting hat axes to buttons
         unsigned char buttons;
-        if (ioctl (fd_js, JSIOCGBUTTONS, &buttons) >= 0 && ioctl (fd_js, JSIOCGAXMAP, &joystick[j_num].hat_info.ax_map) >= 0)
+        if (ioctl (fd_js, JSIOCGBUTTONS, &buttons) >= 0 && ioctl (fd_js, JSIOCGAXMAP, &joysticks[j_num].hat_info.ax_map) >= 0)
         {
-          joystick[j_num].name = strdup(name);
-          joystick[j_num].fd = fd_js;
-          joystick[j_num].hat_info.button_nb = buttons;
-          ev_register_source(joystick[j_num].fd, j_num, &js_process_events, NULL, &js_close);
+          joysticks[j_num].name = strdup(name);
+          joysticks[j_num].fd = fd_js;
+          joysticks[j_num].hat_info.button_nb = buttons;
+          ev_register_source(joysticks[j_num].fd, j_num, &js_process_events, NULL, &js_close);
 
           int fd_ev = open_evdev(namelist_js[i]->d_name);
           if(fd_ev >= 0)
@@ -352,11 +331,11 @@ int js_init()
   return ret;
 }
 
-int js_has_ff_rumble(int index)
+int js_has_ff_rumble(int joystick)
 {
-  if(index < j_num)
+  if(joystick < j_num)
   {
-    return (joystick[index].force_feedback.fd != -1) || (joystick[index].force_feedback.rumble_cb);
+    return (joysticks[joystick].force_feedback.fd != -1) || (joysticks[joystick].force_feedback.rumble_cb);
   }
   else
   {
@@ -364,16 +343,16 @@ int js_has_ff_rumble(int index)
   }
 }
 
-int js_set_ff_rumble(int index, unsigned short weak, unsigned short strong)
+int js_set_ff_rumble(int joystick, unsigned short weak, unsigned short strong)
 {
-  if(index < 0 || index >= j_num)
+  if(joystick < 0 || joystick >= j_num)
   {
     return -1;
   }
 
   int ret = 0;
 
-  int fd = joystick[index].force_feedback.fd;
+  int fd = joysticks[joystick].force_feedback.fd;
 
   if(fd >= 0)
   {
@@ -389,7 +368,7 @@ int js_set_ff_rumble(int index, unsigned short weak, unsigned short strong)
     };
 
     // Update the effect.
-    effect.id = joystick[index].force_feedback.rumble_id;
+    effect.id = joysticks[joystick].force_feedback.rumble_id;
     effect.u.rumble.strong_magnitude = strong;
     effect.u.rumble.weak_magnitude   = weak;
     if (ioctl(fd, EVIOCSFF, &effect) == -1)
@@ -405,9 +384,9 @@ int js_set_ff_rumble(int index, unsigned short weak, unsigned short strong)
       ret = -1;
     }
   }
-  else if(joystick[index].force_feedback.rumble_cb)
+  else if(joysticks[joystick].force_feedback.rumble_cb)
   {
-    ret = joystick[index].force_feedback.rumble_cb(index, weak, strong);
+    ret = joysticks[joystick].force_feedback.rumble_cb(joystick, weak, strong);
   }
   else
   {
@@ -417,30 +396,30 @@ int js_set_ff_rumble(int index, unsigned short weak, unsigned short strong)
   return ret;
 }
 
-int js_get_uhid_id(int index)
+int js_get_uhid_id(int joystick)
 {
-  return joystick[index].uhid_id;
+  return joysticks[joystick].uhid_id;
 }
 
-int js_close(int index)
+int js_close(int joystick)
 {
-  if(index < j_num)
+  if(joystick < j_num)
   {
-    free(joystick[index].name);
-    joystick[index].name = NULL;
+    free(joysticks[joystick].name);
+    joysticks[joystick].name = NULL;
 
-    joystick[index].uhid_id = -1;
+    joysticks[joystick].uhid_id = -1;
 
-    if(joystick[index].fd >= 0)
+    if(joysticks[joystick].fd >= 0)
     {
-      ev_remove_source(joystick[index].fd);
-      close(joystick[index].fd);
-      joystick[index].fd = -1;
+      ev_remove_source(joysticks[joystick].fd);
+      close(joysticks[joystick].fd);
+      joysticks[joystick].fd = -1;
     }
-    if(joystick[index].force_feedback.fd >= 0)
+    if(joysticks[joystick].force_feedback.fd >= 0)
     {
-      close(joystick[index].force_feedback.fd);
-      joystick[index].force_feedback.fd = -1;
+      close(joysticks[joystick].force_feedback.fd);
+      joysticks[joystick].force_feedback.fd = -1;
     }
   }
 
@@ -458,11 +437,11 @@ void js_quit()
   j_num = 0;
 }
 
-const char* js_get_name(int index)
+const char* js_get_name(int joystick)
 {
-  if(index < j_num)
+  if(joystick < j_num)
   {
-    return joystick[index].name;
+    return joysticks[joystick].name;
   }
   else
   {
@@ -476,8 +455,8 @@ int js_register(const char* name, int (*rumble_cb)(int, unsigned short, unsigned
   if(j_num < GE_MAX_DEVICES)
   {
     index = j_num;
-    joystick[index].name = strdup(name);
-    joystick[index].force_feedback.rumble_cb = rumble_cb;
+    joysticks[index].name = strdup(name);
+    joysticks[index].force_feedback.rumble_cb = rumble_cb;
     ++j_num;
   }
   return index;

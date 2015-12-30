@@ -22,6 +22,7 @@
 #include "connectors/btds4.h"
 #endif
 #include <controller2.h>
+#include <gpoll.h>
 
 #include <ffb_logitech.h>
 #include <hidasync.h>
@@ -37,9 +38,9 @@
 #define ADAPTER_RESET_TIME 30000 //microseconds
 
 #ifdef WIN32
-#define REGISTER_FUNCTION GE_AddSourceHandle
+#define REGISTER_FUNCTION gpoll_register_handle
 #else
-#define REGISTER_FUNCTION GE_AddSource
+#define REGISTER_FUNCTION gpoll_register_fd
 #endif
 
 static s_adapter adapter[MAX_CONTROLLERS] = {};
@@ -998,7 +999,7 @@ int adapter_start()
       }
       else
       {
-        GE_AddSource(adapter->src_fd, i, adapter_network_read, NULL, adapter_network_close);
+        gpoll_register_fd(adapter->src_fd, i, adapter_network_read, NULL, adapter_network_close);
       }
     }
   }
@@ -1148,7 +1149,7 @@ void adapter_clean()
     {
       if(adapter->dst_fd >= 0)
       {
-        GE_RemoveSource(adapter->src_fd);
+        gpoll_remove_fd(adapter->src_fd);
         udp_close(adapter->dst_fd);
       }
     }

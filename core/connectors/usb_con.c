@@ -482,6 +482,11 @@ int usb_handle_events(int unused)
 #endif
 }
 
+static int usb_handle_write_events(int unused1, int unused2)
+{
+  return usb_handle_events(unused1);
+}
+
 static int usb_send_interrupt_out_sync(int usb_number, unsigned char* buffer, unsigned char length)
 {
   struct usb_state* state = usb_states+usb_number;
@@ -630,7 +635,7 @@ int usb_init(int usb_number, e_controller_type type)
             int poll_i;
             for (poll_i=0; pfd_usb[poll_i] != NULL; ++poll_i)
             {
-              GE_AddSource(pfd_usb[poll_i]->fd, usb_number, usb_handle_events, usb_handle_events, usb_close);
+              gpoll_register_fd(pfd_usb[poll_i]->fd, usb_number, usb_handle_events, usb_handle_write_events, usb_close);
             }
 
             free(pfd_usb);
