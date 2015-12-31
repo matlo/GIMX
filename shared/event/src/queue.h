@@ -10,6 +10,6 @@
 
 void queue_init();
 int queue_push_event(GE_Event* ev);
-int queue_peep_events(GE_Event *events, int numevents);
+int queue_pop_events(GE_Event *events, int numevents);
 
 #endif

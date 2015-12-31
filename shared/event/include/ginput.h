@@ -13,7 +13,7 @@
 #define GE_MOUSE_BUTTONS_MAX 12
 
 #ifdef WIN32
-#include "GE_Windows.h"
+#include "ginput_windows.h"
 typedef void* HANDLE;
 #else
 #include "ginput_linux.h"
@@ -427,7 +427,7 @@ void GE_SetMKMode(GE_MK_Mode);
 int GE_JoystickHasRumble(int id);
 int GE_JoystickSetRumble(int id, unsigned short weak, unsigned short strong);
 
-int GE_PeepEvents(GE_Event*, int);
+int GE_queue_pop(GE_Event*, int);
 int GE_PushEvent(GE_Event*);
 
 #ifdef WIN32
@@ -435,6 +435,8 @@ int GE_JoystickGetUsbIds(int id, unsigned short * vendor, unsigned short * produ
 #else
 int GE_JoystickGetUHidId(int id);
 #endif
+
+void GE_sync_process();
 
 #ifdef __cplusplus
 }

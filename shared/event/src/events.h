@@ -32,5 +32,6 @@ int ev_joystick_get_usb_ids(int joystick, unsigned short * vendor, unsigned shor
 
 void ev_grab_input(int);
 void ev_pump_events();
+void ev_sync_process();
 
 #endif /* EVENTS_H_ */

@@ -54,6 +54,8 @@ int main(int argc, char* argv[])
   {
     gpoll();
 
+    GE_sync_process();
+
     //do something periodically
   }
 

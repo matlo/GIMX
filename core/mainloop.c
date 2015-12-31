@@ -64,6 +64,8 @@ void mainloop()
      */
     gpoll();
 
+    GE_sync_process();
+
     cfg_process_motion();
 
     cfg_config_activation();
@@ -93,7 +95,7 @@ void mainloop()
      * by macros and calibration tests, and the --keygen argument.
      */
 
-    num_evt = GE_PeepEvents(events, sizeof(events) / sizeof(events[0]));
+    num_evt = GE_queue_pop(events, sizeof(events) / sizeof(events[0]));
 
     if (num_evt == EVENT_BUFFER_SIZE)
     {

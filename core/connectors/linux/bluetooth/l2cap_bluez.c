@@ -378,7 +378,7 @@ static int l2cap_bluez_is_connected(int fd)
   return 0;
 }
 
-static int l2cap_bluez_connect_channel(int channel, int unused)
+static int l2cap_bluez_connect_channel(int channel)
 {
   int result = 0;
 

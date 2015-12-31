@@ -555,6 +555,14 @@ int GE_JoystickGetUsbIds(int id, unsigned short * vendor, unsigned short * produ
 #endif
 
 /*
+ * \brief Process all events from non-asynchronous sources.
+ */
+void GE_sync_process()
+{
+  ev_sync_process();
+}
+
+/*
  * \brief Get all events from the event queue.
  * 
  * \param events  the buffer to store the events
@@ -562,9 +570,9 @@ int GE_JoystickGetUsbIds(int id, unsigned short * vendor, unsigned short * produ
  * 
  * \return the number of retrieved events.
  */
-int GE_PeepEvents(GE_Event *events, int numevents)
+int GE_queue_pop(GE_Event *events, int numevents)
 {
-  return queue_peep_events(events, numevents);
+  return queue_pop_events(events, numevents);
 }
 
 /*

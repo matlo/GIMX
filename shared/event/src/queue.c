@@ -48,7 +48,7 @@ int queue_push_event(GE_Event* ev)
   return ret;
 }
 
-int queue_peep_events(GE_Event *events, int numevents)
+int queue_pop_events(GE_Event *events, int numevents)
 {
   int i;
   int j = 0;

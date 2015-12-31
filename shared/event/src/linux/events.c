@@ -153,3 +153,8 @@ int ev_joystick_get_uhid_id(int joystick)
 {
   return js_get_uhid_id(joystick);
 }
+
+void ev_sync_process()
+{
+  // All inputs are asynchronous on Linux!
+}

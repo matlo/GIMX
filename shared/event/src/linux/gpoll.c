@@ -103,7 +103,7 @@ void gpoll(void) {
           }
         }
         if (fds[i].revents & POLLOUT) {
-          if (sources[fds[i].fd].fp_write(sources[fds[i].fd].user, 0)) {
+          if (sources[fds[i].fd].fp_write(sources[fds[i].fd].user)) {
             return;
           }
         }
