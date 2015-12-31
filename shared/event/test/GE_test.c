@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     done = 1;
   }
   
-  //GE_grab();
+  GE_grab();
 
   while(!done)
   {
