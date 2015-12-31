@@ -27,6 +27,8 @@ event_catcher::~event_catcher()
     //dtor
 }
 
+int process_event(GE_Event* event);
+
 int event_catcher::init()
 {
     unsigned char src = GE_MKB_SOURCE_PHYSICAL;
@@ -36,7 +38,7 @@ int event_catcher::init()
       src = GE_MKB_SOURCE_WINDOW_SYSTEM;
     }
     
-    if(!GE_initialize(src))
+    if(!GE_initialize(src, process_event))
     {
       return -1;
     }
@@ -392,8 +394,6 @@ void event_catcher::run(string device_type, string event_type)
     {
       done = 1;
     }
-
-    GE_SetCallback(process_event);
 	
     while (!done)
     {

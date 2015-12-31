@@ -6,6 +6,8 @@
  */
 
 #include <ginput.h>
+#include <gpoll.h>
+#include <gtimer.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -18,9 +20,9 @@
 #define PERIOD 10000//microseconds
 
 #ifdef WIN32
-#define REGISTER_FUNCTION GE_AddSourceHandle
+#define REGISTER_FUNCTION gpoll_register_handle
 #else
-#define REGISTER_FUNCTION GE_AddSource
+#define REGISTER_FUNCTION gpoll_register_fd
 #endif
 
 static void terminate(int sig)
@@ -92,7 +94,7 @@ int serial_close(int user)
 
 int main(int argc, char* argv[])
 {
-  if (!GE_initialize(GE_MKB_SOURCE_NONE))
+  if (!GE_initialize(GE_MKB_SOURCE_NONE, process_event))
   {
     fprintf(stderr, "GE_initialize failed\n");
     exit(-1);
@@ -112,20 +114,23 @@ int main(int argc, char* argv[])
     
     serialasync_set_read_size(serial, sizeof(packet));
 
-    GE_SetCallback(process_event);
-
-    GE_TimerStart(PERIOD);
+    int timer = gtimer_start(42, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
+    if (timer < 0) {
+      done = 1;
+    }
 
     serialasync_write(serial, packet, sizeof(packet));
 
     while(!done)
     {
-      GE_PumpEvents();
+      gpoll();
 
       //do something periodically
     }
 
-    GE_TimerClose();
+    if (timer >= 0) {
+      gtimer_close(timer);
+    }
     
     serialasync_close(serial);
   }

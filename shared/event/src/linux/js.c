@@ -3,19 +3,19 @@
  License: GPLv3
  */
 
+#include "js.h"
 #include <events.h>
+#include <ginput.h>
+#include <gpoll.h>
 #include <errno.h>
 #include <unistd.h>
 #include <termios.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <linux/joystick.h>
-#include <poll.h>
-#include "js.h"
 #include <string.h>
 #include <stdlib.h>
 #include <dirent.h>
-#include <ginput.h>
 
 #define eprintf(...) if(debug) printf(__VA_ARGS__)
 
@@ -137,9 +137,9 @@ static void js_process_event(int joystick, struct js_event* je)
   }
 }
 
-static struct js_event je[MAX_EVENTS];
-
 static int js_process_events(int joystick) {
+
+  static struct js_event je[MAX_EVENTS];
 
   int res = read(joysticks[joystick].fd, je, sizeof(je));
   if (res > 0) {
@@ -293,7 +293,7 @@ int js_init()
           joysticks[j_num].name = strdup(name);
           joysticks[j_num].fd = fd_js;
           joysticks[j_num].hat_info.button_nb = buttons;
-          ev_register_source(joysticks[j_num].fd, j_num, &js_process_events, NULL, &js_close);
+          gpoll_register_fd(joysticks[j_num].fd, j_num, &js_process_events, NULL, &js_close);
 
           int fd_ev = open_evdev(namelist_js[i]->d_name);
           if(fd_ev >= 0)
@@ -412,7 +412,7 @@ int js_close(int joystick)
 
     if(joysticks[joystick].fd >= 0)
     {
-      ev_remove_source(joysticks[joystick].fd);
+      gpoll_remove_fd(joysticks[joystick].fd);
       close(joysticks[joystick].fd);
       joysticks[joystick].fd = -1;
     }

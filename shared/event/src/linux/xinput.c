@@ -4,13 +4,12 @@
  */
 
 #include <ginput.h>
-#include <events.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <poll.h>
+#include <gpoll.h>
 #include "xinput.h"
 #include <X11/Xlib.h>
 #include <X11/extensions/XInput2.h>
@@ -277,7 +276,7 @@ int xinput_init()
 
   XIFreeDeviceInfo(xdevices);
 
-  ev_register_source(ConnectionNumber(dpy), i, &xinput_process_events, NULL, &xinput_close);
+  gpoll_register_fd(ConnectionNumber(dpy), i, &xinput_process_events, NULL, &xinput_close);
 
   XEvent xevent;
 
@@ -298,7 +297,7 @@ void xinput_quit()
 {
   if(dpy)
   {
-    ev_remove_source(ConnectionNumber(dpy));
+    gpoll_remove_fd(ConnectionNumber(dpy));
 
     XDestroyWindow(dpy, win);
 

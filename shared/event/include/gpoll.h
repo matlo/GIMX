@@ -3,8 +3,8 @@
  License: GPLv3
  */
 
-#ifndef EVENTS_H_
-#define EVENTS_H_
+#ifndef GPOLL_H_
+#define GPOLL_H_
 
 typedef int (* GPOLL_READ_CALLBACK)(int user);
 typedef int (* GPOLL_WRITE_CALLBACK)(int user, int transfered);
@@ -35,4 +35,4 @@ void gpoll_remove_handle(HANDLE handle);
 }
 #endif
 
-#endif /* EVENTS_H_ */
+#endif /* GPOLL_H_ */

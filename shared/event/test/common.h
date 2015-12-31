@@ -1,8 +1,6 @@
 /*
- * common.h
- *
- *  Created on: 14 janv. 2013
- *      Author: matlo
+ Copyright (c) 2015 Mathieu Laurendeau
+ License: GPLv3
  */
 
 #ifndef COMMON_H_
@@ -14,5 +12,10 @@ extern volatile int done;
 
 void display_devices();
 int process_event(GE_Event*);
+
+int timer_close(int user);
+int timer_read(int user) ;
+
+char * hid_select();
 
 #endif /* COMMON_H_ */

@@ -1,17 +1,15 @@
 /*
- * linux_test.c
- *
- *  Created on: 13 janv. 2013
- *      Author: matlo
+ Copyright (c) 2015 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #include <ginput.h>
+#include <gpoll.h>
+#include <gtimer.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <errno.h>
-#include <string.h>
-#include <limits.h>
 #include <sys/time.h>
 
 #include <hidasync.h>
@@ -22,9 +20,9 @@
 #define FF_PERIOD 80000 //microseconds
 
 #ifdef WIN32
-#define REGISTER_FUNCTION GE_AddSourceHandle
+#define REGISTER_FUNCTION gpoll_register_handle
 #else
-#define REGISTER_FUNCTION GE_AddSource
+#define REGISTER_FUNCTION gpoll_register_fd
 #endif
 
 typedef struct {
@@ -72,7 +70,7 @@ static struct {
 
 static int ff_index = -1;
 
-static int device = -1;
+static int hid = -1;
 
 static void terminate(int sig) {
   done = 1;
@@ -207,18 +205,18 @@ void hid_task(int device) {
   ff_task(device);
 }
 
-int hid_write(int user) {
+int hid_write(int user, int transfered) {
 
   /*struct timeval t;
   gettimeofday(&t, NULL);
   printf("%ld.%06ld %s\n", t.tv_sec, t.tv_usec, __func__);*/
   hid_busy = 0;
-  hid_task(device);
+  hid_task(hid);
   return 0;
 }
 
 int hid_close(int user) {
-
+  printf("close user: %d\n", user);
   done = 1;
   return 0;
 }
@@ -228,47 +226,8 @@ int ignore_event(GE_Event* event) {
   return 0;
 }
 
-char * hid_select() {
-
-  char * path = NULL;
-
-  s_hid_dev * hid_devs = hidasync_enumerate(0x0000, 0x0000);
-  if (hid_devs == NULL) {
-    fprintf(stderr, "No HID device detected!\n");
-    return NULL;
-  }
-  printf("Available HID devices:\n");
-  unsigned int index = 0;
-  s_hid_dev * current;
-  for (current = hid_devs; current != NULL; ++current) {
-    printf("%d VID 0x%04x PID 0x%04x PATH %s\n", index++, current->vendor_id, current->product_id, current->path);
-    if (current->next == 0) {
-      break;
-    }
-  }
-
-  printf("Select the HID device number: ");
-  unsigned int choice = UINT_MAX;
-  if (scanf("%d", &choice) == 1 && choice < index) {
-    path = strdup(hid_devs[choice].path);
-    if(path == NULL) {
-      fprintf(stderr, "can't duplicate path.\n");
-    }
-  } else {
-    fprintf(stderr, "Invalid choice.\n");
-  }
-
-  hidasync_free_enumeration(hid_devs);
-
-  return path;
-}
 
 int main(int argc, char* argv[]) {
-
-  if (!GE_initialize(GE_MKB_SOURCE_NONE)) {
-    fprintf(stderr, "GE_initialize failed\n");
-    exit(-1);
-  }
 
   (void) signal(SIGINT, terminate);
   (void) signal(SIGTERM, terminate);
@@ -281,11 +240,13 @@ int main(int argc, char* argv[]) {
     exit(-1);
   }
 
-  device = hidasync_open_path(path);
+  hid = hidasync_open_path(path);
 
-  if (device >= 0) {
+  if (hid >= 0) {
 
-    const s_hid_info * hid_info = hidasync_get_hid_info(device);
+    const s_hid_info * hid_info = hidasync_get_hid_info(hid);
+
+    printf("Opened device: VID 0x%04x PID 0x%04x PATH %s\n", hid_info->vendor_id, hid_info->product_id, path);
 
     unsigned int i;
     for (i = 0; i < sizeof(rumble_cmds) / sizeof(*rumble_cmds); ++i) {
@@ -299,35 +260,41 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    printf("Opened device: VID 0x%04x PID 0x%04x PATH %s\n", hid_info->vendor_id, hid_info->product_id, path);
+    if (GE_initialize(GE_MKB_SOURCE_NONE, ignore_event)) {
 
-    if (hidasync_register(device, 42, hid_read, hid_write, hid_close, REGISTER_FUNCTION) != -1) {
+      if (hidasync_register(hid, 42, hid_read, hid_write, hid_close, REGISTER_FUNCTION) != -1) {
 
-      GE_SetCallback(ignore_event);
+        int timer = gtimer_start(42, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
+        if (timer < 0) {
+          done = 1;
+        }
 
-      GE_TimerStart(PERIOD);
+        hid_task(hid);
 
-      hid_task(device);
+        while (!done || hid_busy) {
 
-      while (!done || hid_busy) {
+          gpoll();
 
-        GE_PumpEvents();
+          ++counter;
+        }
 
-        ++counter;
+        if (timer >= 0) {
+          gtimer_close(timer);
+        }
+
+        if(rumble_index >= 0) {
+          hidasync_write_timeout(hid, rumble_cmds[rumble_index].stop.data, rumble_cmds[rumble_index].stop.length, 1);
+        }
+
+        if(ff_index >= 0) {
+          hidasync_write_timeout(hid, ff_cmds[ff_index].stop.data, ff_cmds[ff_index].stop.length, 1);
+        }
       }
-
-      GE_TimerClose();
-
-      if(rumble_index >= 0) {
-        hidasync_write_timeout(device, rumble_cmds[rumble_index].stop.data, rumble_cmds[rumble_index].stop.length, 1);
-      }
-
-      if(ff_index >= 0) {
-        hidasync_write_timeout(device, ff_cmds[ff_index].stop.data, ff_cmds[ff_index].stop.length, 1);
-      }
+    } else {
+      fprintf(stderr, "GE_initialize failed\n");
     }
 
-    hidasync_close(device);
+    hidasync_close(hid);
   }
 
   free(path);

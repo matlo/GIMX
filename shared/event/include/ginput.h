@@ -398,7 +398,7 @@ typedef enum
 extern "C" {
 #endif
 
-int GE_initialize(unsigned char mkb_src);
+int GE_initialize(unsigned char mkb_src, int(*fp)(GE_Event*));
 void GE_grab_toggle();
 void GE_grab();
 void GE_release_unused();
@@ -429,7 +429,6 @@ int GE_JoystickSetRumble(int id, unsigned short weak, unsigned short strong);
 
 int GE_PeepEvents(GE_Event*, int);
 int GE_PushEvent(GE_Event*);
-void GE_SetCallback(int(*)(GE_Event*));
 
 #ifdef WIN32
 int GE_JoystickGetUsbIds(int id, unsigned short * vendor, unsigned short * product);

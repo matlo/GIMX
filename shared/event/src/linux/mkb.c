@@ -12,7 +12,7 @@
 #include <termios.h>
 #include <fcntl.h>
 #include <linux/input.h>
-#include <poll.h>
+#include <gpoll.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -228,9 +228,9 @@ static void mkb_process_event(int device, struct input_event* ie)
   }
 }
 
-static struct input_event ie[MAX_EVENTS];
-
 static int mkb_process_events(int device) {
+
+  static struct input_event ie[MAX_EVENTS];
 
   int res = read(devices[device].fd, ie, sizeof(ie));
   if (res > 0) {
@@ -298,7 +298,7 @@ int mkb_init()
             ioctl(devices[i].fd, EVIOCGRAB, (void *)1);
           }
           max_device_id = i;
-          ev_register_source(devices[i].fd, i, &mkb_process_events, NULL, &mkb_close_device);
+          gpoll_register_fd(devices[i].fd, i, &mkb_process_events, NULL, &mkb_close_device);
         }
         else
         {
@@ -358,7 +358,7 @@ int mkb_close_device(int id)
   devices[id].name = NULL;
   if(devices[id].fd >= 0)
   {
-    ev_remove_source(devices[id].fd);
+    gpoll_remove_fd(devices[id].fd);
     close(devices[id].fd);
     devices[id].fd = -1;
   }

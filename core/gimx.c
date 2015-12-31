@@ -278,11 +278,25 @@ int main(int argc, char *argv[])
     src = GE_MKB_SOURCE_WINDOW_SYSTEM;
   }
 
+  int(*fp)(GE_Event*) = NULL;
+
+  /*
+   * Non-generated events are ignored if the --keygen argument is used.
+   */
+  if(gimx_params.keygen)
+  {
+    fp = ignore_event;
+  }
+  else
+  {
+    fp = process_event;
+  }
+
   //TODO MLA: if there is no config file:
   // - there's no need to read macros
   // - there's no need to read inputs
   // - there's no need to grab the mouse
-  if (!GE_initialize(src))
+  if (!GE_initialize(src, fp))
   {
     fprintf(stderr, _("GE_initialize failed\n"));
     goto QUIT;

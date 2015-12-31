@@ -1,125 +1,133 @@
 /*
- * linux_test.c
- *
- *  Created on: 13 janv. 2013
- *      Author: matlo
+ Copyright (c) 2015 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #include <ginput.h>
+#include <gpoll.h>
+#include <gtimer.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <errno.h>
-#include <string.h>
+#include <sys/time.h>
 
 #include <hidasync.h>
 #include <uhidasync.h>
 #include "common.h"
 
-#define DEVICE_VID  0x046d
-#define DEVICE_PID  0xca03
-
-/*#define DEVICE_VID  0x046d
-#define DEVICE_PID  0xc293*/
-
 #define PERIOD 10000//microseconds
 
 #ifdef WIN32
-#define REGISTER_FUNCTION GE_AddSourceHandle
+#define REGISTER_FUNCTION gpoll_register_handle
 #else
-#define REGISTER_FUNCTION GE_AddSource
+#define REGISTER_FUNCTION gpoll_register_fd
 #endif
 
 static int uhid = -1;
 
 static void terminate(int sig) {
-    done = 1;
+  done = 1;
 }
 
 static void dump(const unsigned char * packet, unsigned char length) {
-    int i;
-    for (i = 0; i < length; ++i) {
-        if (i && !(i % 8)) {
-            printf("\n");
-        }
-        printf("0x%02x ", packet[i]);
+  int i;
+  for (i = 0; i < length; ++i) {
+    if (i && !(i % 8)) {
+      printf("\n");
     }
-    printf("\n");
+    printf("0x%02x ", packet[i]);
+  }
+  printf("\n");
 }
 
 int hid_read(int user, const void * buf, unsigned int count) {
-    printf("read user: %d\n", user);
-    dump((unsigned char *) buf, count);
-    uhidasync_write(uhid, buf, count);
-    return 0;
+
+  struct timeval t;
+  gettimeofday(&t, NULL);
+  printf("%ld.%06ld ", t.tv_sec, t.tv_usec);
+  printf("%s\n", __func__);
+  dump((unsigned char *) buf, count);
+  fflush(stdout);
+  uhidasync_write(uhid, buf, count);
+  return 0;
 }
 
 int hid_close(int user) {
-    printf("close user: %d\n", user);
-    done = 1;
-    return 0;
+  printf("close user: %d\n", user);
+  done = 1;
+  return 0;
 }
 
 int main(int argc, char* argv[]) {
 
-    (void) signal(SIGINT, terminate);
+  (void) signal(SIGINT, terminate);
+  (void) signal(SIGTERM, terminate);
 
-#ifndef WIN32
-    setlinebuf(stdout);
-#endif
+  char * path = hid_select();
 
-    //Open Logitech Momo racing
-    int hid = hidasync_open_ids(DEVICE_VID, DEVICE_PID);
+  if (path == NULL) {
+    fprintf(stderr, "No HID device selected!\n");
+    GE_quit();
+    exit(-1);
+  }
 
-    if (hid >= 0) {
+  int hid = hidasync_open_path(path);
 
-        const s_hid_info * hidInfo = hidasync_get_hid_info(hid);
-        dump(hidInfo->reportDescriptor, hidInfo->reportDescriptorLength);
+  if (hid >= 0) {
 
-        //Create a virtual hid device
-        uhid = uhidasync_create(hidInfo);
+    const s_hid_info * hid_info = hidasync_get_hid_info(hid);
 
-        if (uhid >= 0) {
+    printf("Opened device: VID 0x%04x PID 0x%04x PATH %s\n", hid_info->vendor_id, hid_info->product_id, path);
 
-            if (GE_initialize(GE_MKB_SOURCE_NONE)) {
+    const s_hid_info * hidInfo = hidasync_get_hid_info(hid);
+    dump(hidInfo->reportDescriptor, hidInfo->reportDescriptorLength);
 
-                display_devices();
+    //Create a virtual hid device
+    uhid = uhidasync_create(hidInfo);
 
-                if (hidasync_register(hid, 42, hid_read, NULL, hid_close, REGISTER_FUNCTION) != -1) {
+    if (uhid >= 0) {
 
-                    GE_SetCallback(process_event);
+      if (GE_initialize(GE_MKB_SOURCE_PHYSICAL, process_event)) {
 
-                    GE_TimerStart(PERIOD);
+        display_devices();
 
-                    while (!done) {
+        if (hidasync_register(hid, 42, hid_read, NULL, hid_close, REGISTER_FUNCTION) != -1) {
 
-                        GE_PumpEvents();
+          int timer = gtimer_start(42, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
+          if (timer < 0) {
+            done = 1;
+          }
 
-                        //do something periodically
+          while (!done) {
 
-                    }
+            gpoll();
 
-                    GE_TimerClose();
+            //do something periodically
 
-                }
-            } else {
-                fprintf(stderr, "GE_initialize failed\n");
-                exit(-1);
-            }
+          }
 
-            hidasync_close(hid);
+          if (timer >= 0) {
+            gtimer_close(timer);
+          }
+
         }
+      } else {
+        fprintf(stderr, "GE_initialize failed\n");
+      }
 
-        uhidasync_close(uhid);
-
-    } else {
-
-        fprintf(stderr, "hid device not found\n");
+      hidasync_close(hid);
     }
 
-    GE_quit();
+    uhidasync_close(uhid);
 
-    printf("Exiting\n");
+  }
 
-    return 0;
+  free(path);
+
+  GE_quit();
+
+  printf("Exiting\n");
+
+  return 0;
 }

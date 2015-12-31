@@ -55,18 +55,6 @@ void mainloop()
     }
   }
 
-  /*
-   * Non-generated events are ignored if the --keygen argument is used.
-   */
-  if(gimx_params.keygen)
-  {
-    GE_SetCallback(ignore_event);
-  }
-  else
-  {
-    GE_SetCallback(process_event);
-  }
-
   report2event_set_callback(process_event);
 
   while(!done)

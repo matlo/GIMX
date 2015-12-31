@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2015 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -86,19 +86,20 @@ static const char* _8BIT_to_UTF8(const char* _8bit)
 /*
  * \bried Initializes the GE library.
  *
- * \param mkb_src GE_MKB_SOURCE_PHYSICAL: use evdev under Linux and raw inputs under Windows.
- *                GE_MKB_SOURCE_WINDOW_SYSTEM: use X inputs under Linux and the SDL library under Windows.
+ * \param mkb_src  GE_MKB_SOURCE_PHYSICAL: use evdev under Linux and raw inputs under Windows.
+ *                 GE_MKB_SOURCE_WINDOW_SYSTEM: use X inputs under Linux and the SDL library under Windows.
+ * \param callback the callback to process input events (cannot be NULL)
  *
  * \return 1 if successful
  *         0 in case of error
  */
-int GE_initialize(unsigned char mkb_src)
+int GE_initialize(unsigned char mkb_src, int(*callback)(GE_Event*))
 {
   int i = 0;
   int j;
   const char* name;
 
-  if (!ev_init(mkb_src))
+  if (!ev_init(mkb_src, callback))
   {
     return 0;
   }
@@ -505,16 +506,6 @@ int GE_GetDeviceId(GE_Event* e)
 int GE_PushEvent(GE_Event *event)
 {
   return queue_push_event(event);
-}
-
-/*
- * \brief Set a callback function for processing events.
- *
- * \param fp  the callback function
- */
-void GE_SetCallback(int(*fp)(GE_Event*))
-{
-  ev_set_callback(fp);
 }
 
 /*

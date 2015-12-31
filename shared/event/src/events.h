@@ -1,3 +1,7 @@
+/*
+ Copyright (c) 2015 Mathieu Laurendeau
+ License: GPLv3
+ */
 
 #ifndef EVENTS_H_
 #define EVENTS_H_
@@ -6,7 +10,7 @@
 
 #define MAX_EVENTS 256
 
-int ev_init(unsigned char mkb_src);
+int ev_init(unsigned char mkb_src, int(*callback)(GE_Event*));
 void ev_quit();
 
 void ev_set_caption (const char*, const char*);
@@ -27,15 +31,6 @@ int ev_joystick_get_usb_ids(int joystick, unsigned short * vendor, unsigned shor
 #endif
 
 void ev_grab_input(int);
-void ev_set_callback(int (*)(GE_Event*));
 void ev_pump_events();
-
-void ev_register_source(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int));
-#ifdef WIN32
-void ev_register_source_handle(HANDLE handle, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int));
-void ev_remove_source_handle(HANDLE handle);
-#endif
-void ev_remove_source(int fd);
-inline void ev_set_next_event(GE_Event* event);
 
 #endif /* EVENTS_H_ */

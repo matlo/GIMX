@@ -20,60 +20,18 @@
 #include "xinput.h"
 #include <queue.h>
 
-static struct
-{
-  int id;
-  int (*fp_read)(int);
-  int (*fp_write)(int);
-  int (*fp_cleanup)(int);
-  short int event;
-} sources[FD_SETSIZE] = {};
-
-static int max_source = 0;
-
 static unsigned char mkb_source;
 
-void ev_register_source(int fd, int id, int (*fp_read)(int), int (*fp_write)(int), int (*fp_cleanup)(int))
-{
-  if(!fp_cleanup)
-  {
-    fprintf(stderr, "%s: the cleanup function is mandatory.", __FUNCTION__);
-    return;
-  }
-  if(fd < FD_SETSIZE)
-  {
-    sources[fd].id = id;
-    if(fp_read)
-    {
-      sources[fd].event |= POLLIN;
-      sources[fd].fp_read = fp_read;
-    }
-    if(fp_write)
-    {
-      sources[fd].event |= POLLOUT;
-      sources[fd].fp_write = fp_write;
-    }
-    sources[fd].fp_cleanup = fp_cleanup;
-    if(fd > max_source)
-    {
-      max_source = fd;
-    }
-  }
-}
-
-void ev_remove_source(int fd)
-{
-  if(fd < FD_SETSIZE)
-  {
-    memset(sources+fd, 0x00, sizeof(*sources));
-  }
-}
-
-int ev_init(unsigned char mkb_src)
+int ev_init(unsigned char mkb_src, int(*callback)(GE_Event*))
 {
   int ret;
 
   mkb_source = mkb_src;
+
+  if (callback == NULL) {
+    fprintf(stderr, "callback cannot be NULL\n");
+    return 0;
+  }
 
   if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
   {
@@ -84,6 +42,8 @@ int ev_init(unsigned char mkb_src)
       fprintf(stderr, "mkb_init failed.\n");
       return 0;
     }
+
+    mkb_set_callback(callback);
   }
   else if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
   {
@@ -94,6 +54,8 @@ int ev_init(unsigned char mkb_src)
       fprintf(stderr, "xinput_init failed.\n");
       return 0;
     }
+
+    xinput_set_callback(callback);
   }
 
   ret = js_init();
@@ -103,6 +65,8 @@ int ev_init(unsigned char mkb_src)
     fprintf(stderr, "jsdev_init failed.\n");
     return 0;
   }
+
+  js_set_callback(callback);
 
   queue_init();
 
@@ -188,89 +152,4 @@ int ev_joystick_set_ff_rumble(int joystick, unsigned short weak, unsigned short 
 int ev_joystick_get_uhid_id(int joystick)
 {
   return js_get_uhid_id(joystick);
-}
-
-static int (*event_callback)(GE_Event*) = NULL;
-
-void ev_set_callback(int (*fp)(GE_Event*))
-{
-  event_callback = fp;
-  if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
-  {
-    mkb_set_callback(fp);
-  }
-  else if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
-  {
-    xinput_set_callback(fp);
-  }
-  js_set_callback(fp);
-}
-
-static unsigned int fill_fds(nfds_t nfds, struct pollfd fds[nfds])
-{
-  unsigned int pos = 0;
-
-  unsigned int i;
-  for(i=0; i<nfds; ++i)
-  {
-    if(sources[i].event)
-    {
-      fds[pos].fd = i;
-      fds[pos].events = sources[i].event;
-      ++pos;
-    }
-  }
-
-  return pos;
-}
-
-void ev_pump_events(void)
-{
-  unsigned int i;
-  int res;
-
-  if(event_callback == NULL)
-  {
-    fprintf(stderr, "ev_set_callback should be called first!\n");
-    return;
-  }
-
-  while(1)
-  {
-    struct pollfd fds[max_source+1];
-
-    nfds_t nfds = fill_fds(max_source+1, fds);
-
-    if(poll(fds, nfds, -1) > 0)
-    {
-      for(i=0; i<nfds; ++i)
-      {
-        if(fds[i].revents & (POLLERR | POLLHUP | POLLNVAL))
-        {
-          res = sources[fds[i].fd].fp_cleanup(sources[fds[i].fd].id);
-          ev_remove_source(fds[i].fd);
-          if(res)
-          {
-            return;
-          }
-          continue;
-        }
-        if(fds[i].revents & POLLIN)
-        {
-          if(sources[fds[i].fd].fp_read(sources[fds[i].fd].id))
-		  		{
-            return;
-          }
-        }
-        if(fds[i].revents & POLLOUT)
-        {
-          if(sources[fds[i].fd].fp_write(sources[fds[i].fd].id))
-          {
-            return;
-          }
-        }
-      }
-    }
-  }
-
 }

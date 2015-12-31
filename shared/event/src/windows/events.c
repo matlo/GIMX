@@ -53,6 +53,8 @@ static struct
   } usb_ids;
 } joysticks[GE_MAX_DEVICES] = {};
 
+static int (*event_callback)(GE_Event*) = NULL;
+
 static void open_haptic(int id, SDL_Joystick* joystick)
 {
   SDL_Haptic* haptic = SDL_HapticOpenFromJoystick(joystick);
@@ -86,10 +88,17 @@ static void open_haptic(int id, SDL_Joystick* joystick)
   }
 }
 
-int ev_init(unsigned char mkb_src)
+int ev_init(unsigned char mkb_src, int(*callback)(GE_Event*))
 {
   int i;
+
+  if (callback == NULL) {
+    fprintf(stderr, "callback cannot be NULL\n");
+    return 0;
+  }
   
+  event_callback = callback;
+
   /* Init SDL */
   if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC) < 0)
   {
@@ -390,13 +399,6 @@ void ev_grab_input(int mode)
       SDL_SetRelativeMouseMode(SDL_FALSE);
     }
   }
-}
-
-static int (*event_callback)(GE_Event*) = NULL;
-
-void ev_set_callback(int (*fp)(GE_Event*))
-{
-  event_callback = fp;
 }
 
 #define MAX_SOURCES (MAXIMUM_WAIT_OBJECTS-1)

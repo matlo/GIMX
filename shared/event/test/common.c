@@ -1,12 +1,13 @@
 /*
- * common.c
- *
- *  Created on: 14 janv. 2013
- *      Author: matlo
+ Copyright (c) 2015 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
-#include <stdio.h>
 #include "common.h"
+#include <stdio.h>
+#include <limits.h>
+#include <hidasync.h>
+#include <string.h>
 
 volatile int done = 0;
 
@@ -103,4 +104,51 @@ int process_event(GE_Event* event)
   fflush(stdout);
 #endif
   return 0;
+}
+
+int timer_close(int user) {
+  done = 1;
+  return 1;
+}
+
+int timer_read(int user) {
+  /*
+   * Returning a non-zero value makes gpoll return, allowing to check the 'done' variable.
+   */
+  return 1;
+}
+
+char * hid_select() {
+
+  char * path = NULL;
+
+  s_hid_dev * hid_devs = hidasync_enumerate(0x0000, 0x0000);
+  if (hid_devs == NULL) {
+    fprintf(stderr, "No HID device detected!\n");
+    return NULL;
+  }
+  printf("Available HID devices:\n");
+  unsigned int index = 0;
+  s_hid_dev * current;
+  for (current = hid_devs; current != NULL; ++current) {
+    printf("%d VID 0x%04x PID 0x%04x PATH %s\n", index++, current->vendor_id, current->product_id, current->path);
+    if (current->next == 0) {
+      break;
+    }
+  }
+
+  printf("Select the HID device number: ");
+  unsigned int choice = UINT_MAX;
+  if (scanf("%d", &choice) == 1 && choice < index) {
+    path = strdup(hid_devs[choice].path);
+    if(path == NULL) {
+      fprintf(stderr, "can't duplicate path.\n");
+    }
+  } else {
+    fprintf(stderr, "Invalid choice.\n");
+  }
+
+  hidasync_free_enumeration(hid_devs);
+
+  return path;
 }

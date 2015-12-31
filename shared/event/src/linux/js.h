@@ -6,11 +6,9 @@
 #ifndef JS_H_
 #define JS_H_
 
-#include <poll.h>
+#include <ginput.h>
 
 int js_init();
-int js_get_nfds();
-int js_fill_fds(nfds_t max, struct pollfd fds[]);
 int js_close(int id);
 void js_quit();
 const char* js_get_name(int index);
