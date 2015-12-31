@@ -431,11 +431,6 @@ static int l2cap_bluez_connect_channel(int channel)
   return result;
 }
 
-static int l2cap_bluez_close_channel(int channel)
-{
-  return l2cap_bluez_connect_channel(channel, 0);
-}
-
 static int l2cap_bluez_connect(const char * bdaddr_src, const char * bdaddr_dest, unsigned short psm, int options,
     int user, L2CAP_ABS_CONNECT_CALLBACK connect_callback, L2CAP_ABS_CLOSE_CALLBACK close_callback)
 {
@@ -490,7 +485,7 @@ static int l2cap_bluez_connect(const char * bdaddr_src, const char * bdaddr_dest
     channels.channels[channel].connect_callback = connect_callback;
     channels.channels[channel].close_callback = close_callback;
 
-    gpoll_register_fd(fd, channel, NULL, l2cap_bluez_connect_channel, l2cap_bluez_close_channel);
+    gpoll_register_fd(fd, channel, NULL, l2cap_bluez_connect_channel, l2cap_bluez_connect_channel);
 
     ++channels.nb;
 

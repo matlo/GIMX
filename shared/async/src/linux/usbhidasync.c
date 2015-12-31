@@ -828,7 +828,7 @@ int usbhidasync_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYN
   int poll_i;
   for (poll_i = 0; pfd_usb[poll_i] != NULL; ++poll_i) {
 
-    fp_register(pfd_usb[poll_i]->fd, device, handle_events, handle_write_events, close_callback);
+    fp_register(pfd_usb[poll_i]->fd, device, handle_events, handle_events, close_callback);
   }
   free(pfd_usb);
 

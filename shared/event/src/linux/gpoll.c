@@ -16,7 +16,7 @@
 static struct {
   int user;
   int (*fp_read)(int);
-  int (*fp_write)(int, int);
+  int (*fp_write)(int);
   int (*fp_close)(int);
   short int event;
 } sources[MAX_SOURCES] = { };
