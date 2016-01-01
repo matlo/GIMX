@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2015 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 #include <ffb_logitech.h>
-#include <hidasync.h>
+#include <ghid.h>
 #include <adapter.h>
 
 #define FSLOT_1 0x10
@@ -742,20 +742,20 @@ void ffb_logitech_set_native_mode() {
       return;
     }
     done = 1;
-    s_hid_dev * hid_devs = hidasync_enumerate(USB_VENDOR_ID_LOGITECH, 0x0000);
+    s_hid_dev * hid_devs = ghid_enumerate(USB_VENDOR_ID_LOGITECH, 0x0000);
     s_hid_dev * current;
     for(current = hid_devs; current != NULL; ++current) {
         if(ffb_logitech_is_logitech_wheel(current->vendor_id, current->product_id)) {
-            int hid = hidasync_open_path(current->path);
+            int hid = ghid_open_path(current->path);
             if(hid >= 0) {
                 unsigned char reset = 0;
-                const s_hid_info * hid_info = hidasync_get_hid_info(hid);
+                const s_hid_info * hid_info = ghid_get_hid_info(hid);
                 if(hid_info != NULL) {
                   s_native_mode * command = get_native_mode_command(hid_info->product_id, hid_info->bcdDevice);
                   if(command) {
                     reset = 1;
                     // send the native mode command
-                    int ret = hidasync_write_timeout(hid, command->data, sizeof(command->data), 1);
+                    int ret = ghid_write_timeout(hid, command->data, sizeof(command->data), 1);
                     if(ret == 0) {
                       fprintf(stderr, "failed to send native mode command for HID device %s (PID=%04x)\n", current->path, current->product_id);
                     } else {
@@ -765,7 +765,7 @@ void ffb_logitech_set_native_mode() {
                     printf("native mode is already enabled for HID device %s (PID=%04x)\n", current->path, current->product_id);
                   }
                 }
-                hidasync_close(hid);
+                ghid_close(hid);
                 if(reset) {
                   // wait up to 5 seconds for the device to reset
                   int cpt = 0;
@@ -778,9 +778,9 @@ void ffb_logitech_set_native_mode() {
                       usleep(100000);
                     }
                     ++cpt;
-                  } while((hid = hidasync_open_path(current->path)) < 0 && cpt < 5);
+                  } while((hid = ghid_open_path(current->path)) < 0 && cpt < 5);
                   if(hid >= 0) {
-                    const s_hid_info * hid_info = hidasync_get_hid_info(hid);
+                    const s_hid_info * hid_info = ghid_get_hid_info(hid);
                     // verify that the native mode is enabled
                     s_native_mode * command = get_native_mode_command(hid_info->product_id, hid_info->bcdDevice);
                     if(command) {
@@ -788,7 +788,7 @@ void ffb_logitech_set_native_mode() {
                     } else {
                       printf("native mode enabled for HID device %s (PID=%04x)\n", current->path, hid_info->product_id);
                     }
-                    hidasync_close(hid);
+                    ghid_close(hid);
                   } else {
                     fprintf(stderr, "HID device %s not found\n", current->path);
                   }
@@ -800,5 +800,5 @@ void ffb_logitech_set_native_mode() {
         }
     }
 
-    hidasync_free_enumeration(hid_devs);
+    ghid_free_enumeration(hid_devs);
 }

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2012 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -7,7 +7,7 @@
 #define GPP_CON_H_
 
 #include <defs.h>
-#include <hidasync.h>
+#include <ghid.h>
 #include <pcprog.h>
 
 int gpp_connect(int id, const char* device);

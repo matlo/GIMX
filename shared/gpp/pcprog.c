@@ -125,7 +125,7 @@ void gpppcprog_clean(void)
     int i;
     for (i = 0; i < MAX_GPP_DEVICES; ++i) {
         if(gpp_devices[i].device >= 0) {
-            hidasync_close(gpp_devices[i].device);
+            ghid_close(gpp_devices[i].device);
         }
     }
 }
@@ -160,7 +160,7 @@ int8_t gppcprog_connect(int id, const char * path)
       return -1;
     }
 
-    gpp_devices[id].device = hidasync_open_path(path);
+    gpp_devices[id].device = ghid_open_path(path);
 
     if(gpp_devices[id].device >= 0)
     {
@@ -177,7 +177,7 @@ int8_t gppcprog_connect(int id, const char * path)
 
     s_hid_dev *devs, *cur_dev;
 
-    devs = hidasync_enumerate(0x0000, 0x0000);
+    devs = ghid_enumerate(0x0000, 0x0000);
     for(cur_dev = devs; cur_dev != NULL; ++cur_dev)
     {
       unsigned int i;
@@ -187,7 +187,7 @@ int8_t gppcprog_connect(int id, const char * path)
         {
           if(!is_device_opened(cur_dev->path))
           {
-            if ((gpp_devices[id].device = hidasync_open_path(cur_dev->path)) >= 0)
+            if ((gpp_devices[id].device = ghid_open_path(cur_dev->path)) >= 0)
             {
               gpp_devices[id].path = strdup(cur_dev->path);
               break;
@@ -203,7 +203,7 @@ int8_t gppcprog_connect(int id, const char * path)
           break;
       }
     }
-    hidasync_free_enumeration(devs);
+    ghid_free_enumeration(devs);
   }
 
   if (gpp_devices[id].device < 0)
@@ -238,7 +238,7 @@ void gppcprog_disconnect(int id)
     gpppcprog_send(id, GPPKG_LEAVE_CAPTURE, NULL, 0);
 
     // Disconnect to GPP
-    hidasync_close(gpp_devices[id].device);
+    ghid_close(gpp_devices[id].device);
     gpp_devices[id].device = -1;
     free(gpp_devices[id].path);
     gpp_devices[id].path = NULL;
@@ -253,7 +253,7 @@ int8_t gpppcprog_input(int id, GCAPI_REPORT *report, int timeout)
 
   if (gpp_devices[id].device < 0 || report == NULL)
     return (-1);
-  bytesReceived = hidasync_read_timeout(gpp_devices[id].device, rcvBuf, sizeof(rcvBuf), timeout);
+  bytesReceived = ghid_read_timeout(gpp_devices[id].device, rcvBuf, sizeof(rcvBuf), timeout);
   if (bytesReceived < 0)
   {
     gppcprog_disconnect(id);
@@ -295,7 +295,7 @@ int8_t gpppcprog_start_async(int id, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CA
   gpp_devices[id].fp_write = fp_write;
   gpp_devices[id].fp_close = fp_close;
 
-  return hidasync_register(gpp_devices[id].device, id, read_callback, write_callback, close_callback, fp_register);
+  return ghid_register(gpp_devices[id].device, id, read_callback, write_callback, close_callback, fp_register);
 }
 
 int8_t gpppcprog_output(int id, int8_t output[GCAPI_INPUT_TOTAL])
@@ -327,11 +327,11 @@ int8_t gpppcprog_send(int id, uint8_t type, uint8_t * data, uint16_t length)
       i += sndLen;
     }
     if(gpp_devices[id].fp_write) {
-      if (hidasync_write(gpp_devices[id].device, (unsigned char*)&report, sizeof(report)) == -1)
+      if (ghid_write(gpp_devices[id].device, (unsigned char*)&report, sizeof(report)) == -1)
         return (0);
     }
     else {
-      if (hidasync_write_timeout(gpp_devices[id].device, (unsigned char*)&report, sizeof(report), 1) == -1)
+      if (ghid_write_timeout(gpp_devices[id].device, (unsigned char*)&report, sizeof(report), 1) == -1)
         return (0);
     }
     report.header.first = 0;

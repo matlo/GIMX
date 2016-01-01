@@ -1,13 +1,12 @@
 /*
- Copyright (c) 2015 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
-
-#include <hidasync.h>
 
 #include <stdio.h>
 #include <Hidsdi.h>
 #include <Setupapi.h>
+#include <ghid.h>
 
 #define PRINT_ERROR_ALLOC_FAILED(func) fprintf(stderr, "%s:%d %s: %s failed\n", __FILE__, __LINE__, __func__, func);
 
@@ -51,7 +50,7 @@ int open_path(const char * path, int print) {
   return device;
 }
 
-s_hid_dev * hidasync_enumerate(unsigned short vendor, unsigned short product) {
+s_hid_dev * ghid_enumerate(unsigned short vendor, unsigned short product) {
 
   s_hid_dev * hid_devs = NULL;
   unsigned int nb_hid_devs = 0;
@@ -141,7 +140,7 @@ s_hid_dev * hidasync_enumerate(unsigned short vendor, unsigned short product) {
   return hid_devs;
 }
 
-void hidasync_free_enumeration(s_hid_dev * hid_devs) {
+void ghid_free_enumeration(s_hid_dev * hid_devs) {
 
   s_hid_dev * current;
   for(current = hid_devs; current != NULL; ++current) {
@@ -163,7 +162,7 @@ void hidasync_free_enumeration(s_hid_dev * hid_devs) {
  * \return the identifier of the opened device (to be used in further operations), \
  * or -1 in case of failure (e.g. bad path, device already opened).
  */
-int hidasync_open_path(const char * path) {
+int ghid_open_path(const char * path) {
     
   return open_path(path, 1);
 }
@@ -177,7 +176,7 @@ int hidasync_open_path(const char * path) {
  * \return the identifier of the opened device (to be used in further operations), \
  * or -1 in case of failure (e.g. no device found).
  */
-int hidasync_open_ids(unsigned short vendor, unsigned short product)
+int ghid_open_ids(unsigned short vendor, unsigned short product)
 {
   int ret = -1;
 
@@ -237,7 +236,7 @@ int hidasync_open_ids(unsigned short vendor, unsigned short product)
  *
  * \return the hid info
  */
-const s_hid_info * hidasync_get_hid_info(int device) {
+const s_hid_info * ghid_get_hid_info(int device) {
 
     ASYNC_CHECK_DEVICE(device, NULL)
 
@@ -251,7 +250,7 @@ const s_hid_info * hidasync_get_hid_info(int device) {
  *
  * \return 0 in case of success, or -1 in case of failure (i.e. bad device identifier).
  */
-int hidasync_close(int device) {
+int ghid_close(int device) {
 
     return async_close(device);
 }
@@ -266,7 +265,7 @@ int hidasync_close(int device) {
  *
  * \return the number of bytes actually read
  */
-int hidasync_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
+int ghid_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
 
   if(devices[device].read.size == 0) {
 
@@ -290,7 +289,7 @@ int hidasync_read_timeout(int device, void * buf, unsigned int count, unsigned i
  *
  * \return 0 in case of success, or -1 in case of error
  */
-int hidasync_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register) {
+int ghid_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register) {
     
   return async_register(device, user, fp_read, fp_write, fp_close, fp_register);
 }
@@ -308,7 +307,7 @@ int hidasync_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_W
  *
  * \return the number of bytes actually written (0 in case of timeout, -1 in case of error)
  */
-int hidasync_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout) {
+int ghid_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout) {
 
   if(devices[device].write.size == 0) {
 
@@ -328,7 +327,7 @@ int hidasync_write_timeout(int device, const void * buf, unsigned int count, uns
  *
  * \return -1 in case of error, 0 in case of pending write, or the number of bytes written
  */
-int hidasync_write(int device, const void * buf, unsigned int count) {
+int ghid_write(int device, const void * buf, unsigned int count) {
 
   if(devices[device].write.size == 0) {
 

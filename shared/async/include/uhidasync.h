@@ -1,12 +1,12 @@
 /*
- Copyright (c) 2015 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
 #ifndef UHIDASYNC_H_
 #define UHIDASYNC_H_
 
-#include <hidasync.h>
+#include "ghid.h"
 
 int uhidasync_create(const s_hid_info * hidDesc);
 int uhidasync_close(int device);

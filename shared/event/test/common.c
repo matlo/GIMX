@@ -6,7 +6,7 @@
 #include "common.h"
 #include <stdio.h>
 #include <limits.h>
-#include <hidasync.h>
+#include <ghid.h>
 #include <string.h>
 
 volatile int done = 0;
@@ -122,7 +122,7 @@ char * hid_select() {
 
   char * path = NULL;
 
-  s_hid_dev * hid_devs = hidasync_enumerate(0x0000, 0x0000);
+  s_hid_dev * hid_devs = ghid_enumerate(0x0000, 0x0000);
   if (hid_devs == NULL) {
     fprintf(stderr, "No HID device detected!\n");
     return NULL;
@@ -148,7 +148,7 @@ char * hid_select() {
     fprintf(stderr, "Invalid choice.\n");
   }
 
-  hidasync_free_enumeration(hid_devs);
+  ghid_free_enumeration(hid_devs);
 
   return path;
 }

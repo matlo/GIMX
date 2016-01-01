@@ -12,7 +12,7 @@
 #include <errno.h>
 #include <sys/time.h>
 
-#include <hidasync.h>
+#include <ghid.h>
 #include <uhidasync.h>
 #include "common.h"
 
@@ -72,15 +72,15 @@ int main(int argc, char* argv[]) {
     exit(-1);
   }
 
-  int hid = hidasync_open_path(path);
+  int hid = ghid_open_path(path);
 
   if (hid >= 0) {
 
-    const s_hid_info * hid_info = hidasync_get_hid_info(hid);
+    const s_hid_info * hid_info = ghid_get_hid_info(hid);
 
     printf("Opened device: VID 0x%04x PID 0x%04x PATH %s\n", hid_info->vendor_id, hid_info->product_id, path);
 
-    const s_hid_info * hidInfo = hidasync_get_hid_info(hid);
+    const s_hid_info * hidInfo = ghid_get_hid_info(hid);
     dump(hidInfo->reportDescriptor, hidInfo->reportDescriptorLength);
 
     //Create a virtual hid device
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
 
         display_devices();
 
-        if (hidasync_register(hid, 42, hid_read, NULL, hid_close, REGISTER_FUNCTION) != -1) {
+        if (ghid_register(hid, 42, hid_read, NULL, hid_close, REGISTER_FUNCTION) != -1) {
 
           int timer = gtimer_start(42, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
           if (timer < 0) {
@@ -116,7 +116,7 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "GE_initialize failed\n");
       }
 
-      hidasync_close(hid);
+      ghid_close(hid);
     }
 
     uhidasync_close(uhid);

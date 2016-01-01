@@ -12,7 +12,7 @@
 #include <errno.h>
 #include <sys/time.h>
 
-#include <hidasync.h>
+#include <ghid.h>
 #include "common.h"
 
 #define PERIOD 5000 //microseconds
@@ -147,9 +147,9 @@ void rumble_task(int device) {
     }
 
     if(rumble) {
-      hidasync_write(device, rumble_cmds[rumble_index].start.data, rumble_cmds[rumble_index].start.length);
+      ghid_write(device, rumble_cmds[rumble_index].start.data, rumble_cmds[rumble_index].start.length);
     } else  {
-      hidasync_write(device, rumble_cmds[rumble_index].stop.data, rumble_cmds[rumble_index].stop.length);
+      ghid_write(device, rumble_cmds[rumble_index].stop.data, rumble_cmds[rumble_index].stop.length);
     }
     hid_busy = 1;
   }
@@ -180,9 +180,9 @@ void ff_task(int device) {
     if(ff_play) {
       static int cpt = 0;
       if(ff_dir) {
-        hidasync_write(device, ff_cmds[ff_index].left.data, ff_cmds[ff_index].left.length);
+        ghid_write(device, ff_cmds[ff_index].left.data, ff_cmds[ff_index].left.length);
       } else {
-        hidasync_write(device, ff_cmds[ff_index].right.data, ff_cmds[ff_index].right.length);
+        ghid_write(device, ff_cmds[ff_index].right.data, ff_cmds[ff_index].right.length);
       }
       ++cpt;
       if(cpt == FF_PERIOD / PERIOD) {
@@ -190,7 +190,7 @@ void ff_task(int device) {
         cpt = 0;
       }
     } else  {
-      hidasync_write(device, ff_cmds[ff_index].stop.data, ff_cmds[ff_index].stop.length);
+      ghid_write(device, ff_cmds[ff_index].stop.data, ff_cmds[ff_index].stop.length);
     }
     hid_busy = 1;
   }
@@ -240,11 +240,11 @@ int main(int argc, char* argv[]) {
     exit(-1);
   }
 
-  hid = hidasync_open_path(path);
+  hid = ghid_open_path(path);
 
   if (hid >= 0) {
 
-    const s_hid_info * hid_info = hidasync_get_hid_info(hid);
+    const s_hid_info * hid_info = ghid_get_hid_info(hid);
 
     printf("Opened device: VID 0x%04x PID 0x%04x PATH %s\n", hid_info->vendor_id, hid_info->product_id, path);
 
@@ -262,7 +262,7 @@ int main(int argc, char* argv[]) {
 
     if (GE_initialize(GE_MKB_SOURCE_NONE, ignore_event)) {
 
-      if (hidasync_register(hid, 42, hid_read, hid_write, hid_close, REGISTER_FUNCTION) != -1) {
+      if (ghid_register(hid, 42, hid_read, hid_write, hid_close, REGISTER_FUNCTION) != -1) {
 
         int timer = gtimer_start(42, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
         if (timer < 0) {
@@ -283,18 +283,18 @@ int main(int argc, char* argv[]) {
         }
 
         if(rumble_index >= 0) {
-          hidasync_write_timeout(hid, rumble_cmds[rumble_index].stop.data, rumble_cmds[rumble_index].stop.length, 1);
+          ghid_write_timeout(hid, rumble_cmds[rumble_index].stop.data, rumble_cmds[rumble_index].stop.length, 1);
         }
 
         if(ff_index >= 0) {
-          hidasync_write_timeout(hid, ff_cmds[ff_index].stop.data, ff_cmds[ff_index].stop.length, 1);
+          ghid_write_timeout(hid, ff_cmds[ff_index].stop.data, ff_cmds[ff_index].stop.length, 1);
         }
       }
     } else {
       fprintf(stderr, "GE_initialize failed\n");
     }
 
-    hidasync_close(hid);
+    ghid_close(hid);
   }
 
   free(path);

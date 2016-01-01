@@ -6,7 +6,7 @@
 #ifndef USBHIDASYNC_H_
 #define USBHIDASYNC_H_
 
-#include <hidasync.h>
+#include "ghid.h"
 
 int usbhidasync_open_ids(unsigned short vendor, unsigned short product);
 s_hid_dev * usbhidasync_enumerate(unsigned short vendor, unsigned short product);

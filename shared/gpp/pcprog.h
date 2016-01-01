@@ -1,7 +1,8 @@
 #ifndef PCPROG_H
+
 #define PCPROG_H
 
-#include <hidasync.h>
+#include <ghid.h>
 
 #ifdef WIN32
 #define GIMX_PACKED __attribute__((gcc_struct, packed))

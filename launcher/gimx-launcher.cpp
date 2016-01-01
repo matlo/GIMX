@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -43,7 +43,7 @@
 #include "wx/numdlg.h"
 
 #include <time.h>
-#include "../shared/async/include/hidasync.h"
+#include <ghid.h>
 #include <gserial.h>
 
 using namespace std;
@@ -466,7 +466,7 @@ void launcherFrame::readHidPorts()
   unsigned int nb_usb_ids;
   const GCAPI_USB_IDS * usb_ids = gpppcprog_get_ids(&nb_usb_ids);
 
-  devs = hidasync_enumerate(0x0000, 0x0000);
+  devs = ghid_enumerate(0x0000, 0x0000);
   for(cur_dev = devs; cur_dev != NULL; ++cur_dev)
   {
     wxString device;
@@ -490,7 +490,7 @@ void launcherFrame::readHidPorts()
         break;
     }
   }
-  hidasync_free_enumeration(devs);
+  ghid_free_enumeration(devs);
 
   if(previous != wxEmptyString)
   {

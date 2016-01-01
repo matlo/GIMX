@@ -1,10 +1,10 @@
 /*
- Copyright (c) 2015 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
 #include <uhid_joystick.h>
-#include <hidasync.h>
+#include <ghid.h>
 #include <uhidasync.h>
 #include <ffb_logitech.h>
 #include <stdio.h>
@@ -35,7 +35,7 @@ void uhid_joystick_init(void) {
 static void uhid_joystick_close(int id) {
 
     if (uhid_joystick_devices[id].hid >= 0) {
-        hidasync_close(uhid_joystick_devices[id].hid);
+        ghid_close(uhid_joystick_devices[id].hid);
         uhid_joystick_devices[id].hid = -1;
     }
     if (uhid_joystick_devices[id].uhid >= 0) {
@@ -83,24 +83,24 @@ static int add_device(int hid, int uhid) {
 
 int uhid_joystick_open_all() {
 
-    s_hid_dev * hid_devs = hidasync_enumerate(USB_VENDOR_ID_LOGITECH, 0x0000);
+    s_hid_dev * hid_devs = ghid_enumerate(USB_VENDOR_ID_LOGITECH, 0x0000);
 
     s_hid_dev * current;
     for(current = hid_devs; current != NULL; ++current) {
 
         if(ffb_logitech_is_logitech_wheel(current->vendor_id, current->product_id)) {
 
-            int hid = hidasync_open_path(current->path);
+            int hid = ghid_open_path(current->path);
             if(hid >= 0) {
 
-                const s_hid_info * hid_info = hidasync_get_hid_info(hid);
+                const s_hid_info * hid_info = ghid_get_hid_info(hid);
                 int uhid = uhidasync_create(hid_info);
                 if(uhid >= 0) {
 
                     if(add_device(hid, uhid) < 0) {
 
                         PRINT_ERROR_OTHER("cannot add device")
-                        hidasync_close(hid);
+                        ghid_close(hid);
                         uhidasync_close(uhid);
                         continue;
                     }
@@ -112,7 +112,7 @@ int uhid_joystick_open_all() {
         }
     }
 
-    hidasync_free_enumeration(hid_devs);
+    ghid_free_enumeration(hid_devs);
 
     return 0;
 }

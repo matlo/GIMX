@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2014 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -25,7 +25,7 @@
 #include <gpoll.h>
 
 #include <ffb_logitech.h>
-#include <hidasync.h>
+#include <ghid.h>
 #include <uhidasync.h>
 #include <uhid_joystick.h>
 
@@ -364,7 +364,7 @@ static void adapter_send_next_hid_report(int id)
     s_ffb_report * report = ffb_logitech_get_report(id);
     if(report != NULL)
     {
-      if(hidasync_write(adapter[id].hid_id, report->data, sizeof(report->data)) == 0)
+      if(ghid_write(adapter[id].hid_id, report->data, sizeof(report->data)) == 0)
       {
         adapter->hid_busy = 1;
       }
@@ -526,7 +526,7 @@ static int adapter_hid_read_cb(int id, const void * buf, unsigned int count)
 
 static int start_hidasync(int id)
 {
-  if(hidasync_register(adapter[id].hid_id, id, adapter_hid_read_cb, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
+  if(ghid_register(adapter[id].hid_id, id, adapter_hid_read_cb, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
   {
     return -1;
   }
@@ -571,7 +571,7 @@ static int start_hid(int id)
     adapter[id].hid_id = hidasync_open_ids(adapter[id].usb_ids.vendor, adapter[id].usb_ids.product);
     if(adapter[id].hid_id >= 0)
     {
-      if(hidasync_register(adapter[id].hid_id, id, NULL, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
+      if(ghid_register(adapter[id].hid_id, id, NULL, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
       {
         return -1;
       }
