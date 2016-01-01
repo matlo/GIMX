@@ -14,7 +14,7 @@ volatile int done = 0;
 void display_devices()
 {
   int i;
-  char* name;
+  const char * name;
 
   i = 0;
   printf("Keyboards:\n");
