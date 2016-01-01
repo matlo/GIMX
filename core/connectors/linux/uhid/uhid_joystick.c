@@ -5,7 +5,7 @@
 
 #include <uhid_joystick.h>
 #include <ghid.h>
-#include <uhidasync.h>
+#include <guhid.h>
 #include <ffb_logitech.h>
 #include <stdio.h>
 
@@ -39,7 +39,7 @@ static void uhid_joystick_close(int id) {
         uhid_joystick_devices[id].hid = -1;
     }
     if (uhid_joystick_devices[id].uhid >= 0) {
-        uhidasync_close(uhid_joystick_devices[id].uhid);
+        guhid_close(uhid_joystick_devices[id].uhid);
         uhid_joystick_devices[id].uhid = -1;
     }
 }
@@ -94,14 +94,14 @@ int uhid_joystick_open_all() {
             if(hid >= 0) {
 
                 const s_hid_info * hid_info = ghid_get_hid_info(hid);
-                int uhid = uhidasync_create(hid_info);
+                int uhid = guhid_create(hid_info);
                 if(uhid >= 0) {
 
                     if(add_device(hid, uhid) < 0) {
 
                         PRINT_ERROR_OTHER("cannot add device")
                         ghid_close(hid);
-                        uhidasync_close(uhid);
+                        guhid_close(uhid);
                         continue;
                     }
                 }
@@ -143,7 +143,7 @@ int uhid_joystick_close_unused() {
             && uhid_joystick_devices[i].hid < 0) {
             continue;
         }
-        if(uhidasync_is_opened(i) == 0) {
+        if(guhid_is_opened(i) == 0) {
             uhid_joystick_close(i);
         }
     }

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2015 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -13,7 +13,7 @@
 #include <sys/time.h>
 
 #include <ghid.h>
-#include <uhidasync.h>
+#include <guhid.h>
 #include "common.h"
 
 #define PERIOD 10000//microseconds
@@ -49,7 +49,7 @@ int hid_read(int user, const void * buf, unsigned int count) {
   printf("%s\n", __func__);
   dump((unsigned char *) buf, count);
   fflush(stdout);
-  uhidasync_write(uhid, buf, count);
+  guhid_write(uhid, buf, count);
   return 0;
 }
 
@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
     dump(hidInfo->reportDescriptor, hidInfo->reportDescriptorLength);
 
     //Create a virtual hid device
-    uhid = uhidasync_create(hidInfo);
+    uhid = guhid_create(hidInfo);
 
     if (uhid >= 0) {
 
@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
       ghid_close(hid);
     }
 
-    uhidasync_close(uhid);
+    guhid_close(uhid);
 
   }
 

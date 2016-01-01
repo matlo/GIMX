@@ -1,9 +1,9 @@
 /*
- Copyright (c) 2015 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
-#include <uhidasync.h>
+#include <guhid.h>
 
 #ifndef __ARM_ARCH_6__
 #include <linux/uhid.h>
@@ -44,7 +44,7 @@ void uhidasync_clean(void) {
     int i;
     for (i = 0; i < UHID_MAX_DEVICES; ++i) {
         if (uhidasync_devices[i].fd >= 0) {
-            uhidasync_close(i);
+            guhid_close(i);
         }
     }
 }
@@ -579,7 +579,7 @@ static void fix_rdesc_usage(unsigned char * rdesc, unsigned short size) {
   }
 }
 
-int uhidasync_create(const s_hid_info * hidDesc) {
+int guhid_create(const s_hid_info * hidDesc) {
 
     if (hidDesc == NULL) {
 
@@ -647,7 +647,7 @@ int uhidasync_create(const s_hid_info * hidDesc) {
     snprintf((char *) ev.u.create.uniq, sizeof(ev.u.create.uniq), "GIMX %d %d", getpid(), device);
 
     if (uhid_write(fd, &ev) < 0) {
-        uhidasync_close(device);
+        guhid_close(device);
         return -1;
     }
 
@@ -691,7 +691,7 @@ static int uhid_read(int device) {
     return ret;
 }
 
-int uhidasync_is_opened(int device) {
+int guhid_is_opened(int device) {
 
     UHIDASYNC_CHECK_DEVICE(device, 0)
 
@@ -700,7 +700,7 @@ int uhidasync_is_opened(int device) {
     return uhidasync_devices[device].opened;
 }
 
-int uhidasync_close(int device) {
+int guhid_close(int device) {
 
     UHIDASYNC_CHECK_DEVICE(device, -1)
 
@@ -713,7 +713,7 @@ int uhidasync_close(int device) {
     return 1;
 }
 
-int uhidasync_write(int device, const void * buf, unsigned int count) {
+int guhid_write(int device, const void * buf, unsigned int count) {
 
     UHIDASYNC_CHECK_DEVICE(device, -1)
 

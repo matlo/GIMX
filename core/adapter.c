@@ -26,7 +26,7 @@
 
 #include <ffb_logitech.h>
 #include <ghid.h>
-#include <uhidasync.h>
+#include <guhid.h>
 #include <uhid_joystick.h>
 
 #define BAUDRATE 500000 //bps
@@ -519,7 +519,7 @@ static int adapter_hid_read_cb(int id, const void * buf, unsigned int count)
 {
   if(adapter[id].uhid_id >= 0)
   {
-    uhidasync_write(adapter[id].uhid_id, buf, count);
+    guhid_write(adapter[id].uhid_id, buf, count);
   }
   return 0;
 }
