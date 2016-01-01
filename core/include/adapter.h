@@ -9,7 +9,7 @@
 #include <connectors/protocol.h>
 #include <controller2.h>
 #include <config.h>
-#include <serialasync.h>
+#include <gserial.h>
 
 #ifndef WIN32
 #include <netinet/in.h>

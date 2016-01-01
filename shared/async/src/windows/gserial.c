@@ -3,7 +3,7 @@
  License: GPLv3
  */
 
-#include <serialasync.h>
+#include <gserial.h>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -55,7 +55,7 @@ static int set_serial_params(int device, unsigned int baudrate) {
  * \return the identifier of the opened device (to be used in further operations), \
  * or -1 in case of failure (e.g. no device found).
  */
-int serialasync_open(char * port, unsigned int baudrate) {
+int gserial_open(char * port, unsigned int baudrate) {
 
   char scom[sizeof("\\\\.\\") + strlen(port)];
   snprintf(scom, sizeof(scom), "\\\\.\\%s", port);
@@ -83,7 +83,7 @@ int serialasync_open(char * port, unsigned int baudrate) {
  *
  * \return the number of bytes actually read
  */
-int serialasync_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
+int gserial_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
 
   return async_read_timeout(device, buf, count, timeout);
 }
@@ -96,7 +96,7 @@ int serialasync_read_timeout(int device, void * buf, unsigned int count, unsigne
  *
  * \return 0 in case of success, or -1 in case of error
  */
-int serialasync_set_read_size(int device, unsigned int size) {
+int gserial_set_read_size(int device, unsigned int size) {
 
   return async_set_read_size(device, size);
 }
@@ -115,7 +115,7 @@ int serialasync_set_read_size(int device, unsigned int size) {
  *
  * \return 0 in case of success, or -1 in case of error
  */
-int serialasync_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register) {
+int gserial_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register) {
 
     return async_register(device, user, fp_read, fp_write, fp_close, fp_register);
 }
@@ -133,7 +133,7 @@ int serialasync_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYN
  *
  * \return the number of bytes actually written (0 in case of timeout)
  */
-int serialasync_write_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
+int gserial_write_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
 
     return async_write_timeout(device, buf, count, timeout);
 }
@@ -147,7 +147,7 @@ int serialasync_write_timeout(int device, void * buf, unsigned int count, unsign
  *
  * \return -1 in case of error, 0 in case of pending write, or the number of bytes written
  */
-int serialasync_write(int device, const void * buf, unsigned int count) {
+int gserial_write(int device, const void * buf, unsigned int count) {
 
     return async_write(device, buf, count);
 }
@@ -159,7 +159,7 @@ int serialasync_write(int device, const void * buf, unsigned int count) {
  *
  * \return 0 in case of a success, -1 in case of an error
  */
-int serialasync_close(int device) {
+int gserial_close(int device) {
 
     usleep(10000);//sleep 10ms to leave enough time for the last packet to be sent
 

@@ -41,18 +41,6 @@ void async_print_error(const char * file, int line, const char * msg) {
   fprintf(stderr, "%s:%d %s failed with error: %m\n", file, line, msg);
 }
 
-inline int async_check_device(int device, const char * file, unsigned int line, const char * func) {
-  if(device < 0 || device >= ASYNC_MAX_DEVICES) {
-      fprintf(stderr, "%s:%d %s: invalid device (%d)\n", file, line, func, device);
-      return -1;
-  }
-  if(devices[device].fd == -1) {
-      fprintf(stderr, "%s:%d %s: no such device (%d)\n", file, line, func, device);
-      return -1;
-  }
-  return 0;
-}
-
 static int add_device(const char * path, int fd, int print) {
     int i;
     for (i = 0; i < ASYNC_MAX_DEVICES; ++i) {
@@ -243,7 +231,7 @@ int async_set_read_size(int device, unsigned int size) {
     return 0;
 }
 
-int async_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register) {
+int async_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_FD fp_register) {
 
     ASYNC_CHECK_DEVICE(device, -1)
     

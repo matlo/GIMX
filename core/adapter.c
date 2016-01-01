@@ -315,7 +315,7 @@ static int adapter_forward(int id, unsigned char type, unsigned char* data, unsi
       }
     };
     memcpy(packet.value, data, length);
-    if(serialasync_write(adapter[id].serialdevice, &packet, sizeof(packet.header)+packet.header.length) < 0)
+    if(gserial_write(adapter[id].serialdevice, &packet, sizeof(packet.header)+packet.header.length) < 0)
     {
       return -1;
     }
@@ -601,11 +601,11 @@ static int adapter_serial_read_cb(int id, const void * buf, unsigned int count)
     {
       ret = adapter_process_packet(id, &adapter[id].packet);
       adapter[id].bread = 0;
-      serialasync_set_read_size(adapter[id].serialdevice, sizeof(s_header));
+      gserial_set_read_size(adapter[id].serialdevice, sizeof(s_header));
     }
     else
     {
-      serialasync_set_read_size(adapter[id].serialdevice, remaining);
+      gserial_set_read_size(adapter[id].serialdevice, remaining);
     }
   }
   else
@@ -631,11 +631,11 @@ static int adapter_serial_close_cb(int id)
 
 static int adapter_start_serialasync(int id)
 {
-  if(serialasync_set_read_size(adapter[id].serialdevice, sizeof(s_header)) < 0)
+  if(gserial_set_read_size(adapter[id].serialdevice, sizeof(s_header)) < 0)
   {
     return -1;
   }
-  if(serialasync_register(adapter[id].serialdevice, id, adapter_serial_read_cb, adapter_serial_write_cb, adapter_serial_close_cb, REGISTER_FUNCTION) < 0)
+  if(gserial_register(adapter[id].serialdevice, id, adapter_serial_read_cb, adapter_serial_write_cb, adapter_serial_close_cb, REGISTER_FUNCTION) < 0)
   {
     return -1;
   }
@@ -656,7 +656,7 @@ static int adapter_send_short_command(int device, unsigned char type)
     }
   };
 
-  int ret = serialasync_write_timeout(device, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
+  int ret = gserial_write_timeout(device, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
   if(ret < 0 || (unsigned int)ret < sizeof(packet.header))
   {
     fprintf(stderr, "serial_send\n");
@@ -669,14 +669,14 @@ static int adapter_send_short_command(int device, unsigned char type)
    */
   while(1)
   {
-    ret = serialasync_read_timeout(device, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
+    ret = gserial_read_timeout(device, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
     if(ret < 0 || (unsigned int)ret < sizeof(packet.header))
     {
       fprintf(stderr, "can't read packet header\n");
       return -1;
     }
 
-    ret = serialasync_read_timeout(device, &packet.value, packet.header.length, SERIAL_TIMEOUT);
+    ret = gserial_read_timeout(device, &packet.value, packet.header.length, SERIAL_TIMEOUT);
     if(ret < 0 || (unsigned int)ret < packet.header.length)
     {
       fprintf(stderr, "can't read packet data\n");
@@ -707,7 +707,7 @@ static int adapter_send_reset(int device)
     .length = BYTE_LEN_0_BYTE
   };
 
-  if(serialasync_write_timeout(device, &header, sizeof(header), SERIAL_TIMEOUT) != sizeof(header))
+  if(gserial_write_timeout(device, &header, sizeof(header), SERIAL_TIMEOUT) != sizeof(header))
   {
     return -1;
   }
@@ -747,7 +747,7 @@ int adapter_detect()
     {
       if(adapter->portname)
       {
-        adapter->serialdevice = serialasync_open(adapter->portname, BAUDRATE);
+        adapter->serialdevice = gserial_open(adapter->portname, BAUDRATE);
         if(adapter->serialdevice < 0)
         {
           fprintf(stderr, _("Check the wiring (maybe you swapped Rx and Tx?).\n"));
@@ -1043,32 +1043,32 @@ int adapter_send()
           switch(adapter->ctype)
           {
           case C_TYPE_SIXAXIS:
-            ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
+            ret = gserial_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
             break;
           case C_TYPE_DS4:
             report->value.ds4.report_id = DS4_USB_HID_IN_REPORT_ID;
             report->length = DS4_USB_INTERRUPT_PACKET_SIZE;
-            ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
+            ret = gserial_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
             break;
           case C_TYPE_T300RS_PS4:
           case C_TYPE_G29_PS4:
             report->length = DS4_USB_INTERRUPT_PACKET_SIZE;
-            ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
+            ret = gserial_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
             break;
           case C_TYPE_XONE_PAD:
             if(adapter->status)
             {
-              ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
+              ret = gserial_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
             }
             break;
           default:
             if(adapter->ctype != C_TYPE_PS2_PAD)
             {
-              ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
+              ret = gserial_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
             }
             else
             {
-              ret = serialasync_write(adapter->serialdevice, &report->value.ds2, report->length);
+              ret = gserial_write(adapter->serialdevice, &report->value.ds2, report->length);
             }
             break;
           }
@@ -1189,7 +1189,7 @@ void adapter_clean()
           default:
             break;
         }
-        serialasync_close(adapter->serialdevice);
+        gserial_close(adapter->serialdevice);
       }
     }
     else if(adapter->atype == E_ADAPTER_TYPE_GPP)

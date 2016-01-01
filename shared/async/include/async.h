@@ -8,6 +8,8 @@
 
 #include <gpoll.h>
 
+#include <stdio.h>
+
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -99,7 +101,17 @@ extern s_device devices[ASYNC_MAX_DEVICES];
 void async_print_error(const char * file, int line, const char * msg);
 #define ASYNC_PRINT_ERROR(msg) async_print_error(__FILE__, __LINE__, msg);
 
-inline int async_check_device(int device, const char * file, unsigned int line, const char * func);
+static inline int async_check_device(int device, const char * file, unsigned int line, const char * func) {
+  if(device < 0 || device >= ASYNC_MAX_DEVICES) {
+      fprintf(stderr, "%s:%d %s: invalid device (%d)\n", file, line, func, device);
+      return -1;
+  }
+  if(devices[device].fd == -1) {
+      fprintf(stderr, "%s:%d %s: no such device (%d)\n", file, line, func, device);
+      return -1;
+  }
+  return 0;
+}
 #define ASYNC_CHECK_DEVICE(device,retValue) \
   if(async_check_device(device, __FILE__, __LINE__, __func__) < 0) { \
     return retValue; \

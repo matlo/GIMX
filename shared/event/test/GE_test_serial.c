@@ -14,7 +14,7 @@
 #include <errno.h>
 #include <string.h>
 
-#include <serialasync.h>
+#include <gserial.h>
 #include "common.h"
 
 #define PERIOD 10000//microseconds
@@ -55,7 +55,7 @@ int serial_read(int user, const void * buf, unsigned int count)
   memcpy(result + read, buf, count);
   read += count;
 
-  serialasync_set_read_size(serial, sizeof(packet) - read);
+  gserial_set_read_size(serial, sizeof(packet) - read);
 
   if(read < sizeof(packet))
   {
@@ -77,10 +77,10 @@ int serial_read(int user, const void * buf, unsigned int count)
     {
       packet[i]++;
     }
-    serialasync_write(serial, packet, sizeof(packet));
+    gserial_write(serial, packet, sizeof(packet));
 
     read = 0;
-    serialasync_set_read_size(serial, sizeof(packet));
+    gserial_set_read_size(serial, sizeof(packet));
   }
 
   return 0;
@@ -106,20 +106,20 @@ int main(int argc, char* argv[])
   setlinebuf(stdout);
 #endif
 
-  serial = serialasync_open("/dev/ttyUSB0", 500000);
+  serial = gserial_open("/dev/ttyUSB0", 500000);
 
   if(serial >= 0)
   {
-    serialasync_register(serial, 42, serial_read, NULL, serial_close, REGISTER_FUNCTION);
+    gserial_register(serial, 42, serial_read, NULL, serial_close, REGISTER_FUNCTION);
     
-    serialasync_set_read_size(serial, sizeof(packet));
+    gserial_set_read_size(serial, sizeof(packet));
 
     int timer = gtimer_start(42, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
     if (timer < 0) {
       done = 1;
     }
 
-    serialasync_write(serial, packet, sizeof(packet));
+    gserial_write(serial, packet, sizeof(packet));
 
     while(!done)
     {
@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
       gtimer_close(timer);
     }
     
-    serialasync_close(serial);
+    gserial_close(serial);
   }
   else
   {

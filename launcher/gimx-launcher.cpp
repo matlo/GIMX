@@ -44,7 +44,7 @@
 
 #include <time.h>
 #include "../shared/async/include/hidasync.h"
-#include "../shared/async/include/serialasync.h"
+#include <gserial.h>
 
 using namespace std;
 
