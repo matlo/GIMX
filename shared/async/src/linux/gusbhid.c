@@ -1,9 +1,9 @@
 /*
- Copyright (c) 2015 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
-#include <usbhidasync.h>
+#include <gusbhid.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -124,7 +124,7 @@ void usbhidasync_clean(void) {
   int i;
   for (i = 0; i < USBHIDASYNC_MAX_DEVICES; ++i) {
     if (usbdevices[i].devh != NULL) {
-      usbhidasync_close(i);
+      gusbhid_close(i);
     }
   }
   libusb_exit(ctx);
@@ -296,7 +296,7 @@ int handle_write_events(int unused1, int unused2) {
   return handle_events(unused1);
 }
 
-int usbhidasync_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout) {
+int gusbhid_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout) {
 
   USBHIDASYNC_CHECK_DEVICE(device, -1)
 
@@ -332,7 +332,7 @@ int usbhidasync_write_timeout(int device, const void * buf, unsigned int count, 
   return count;
 }
 
-int usbhidasync_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
+int gusbhid_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
 
   USBHIDASYNC_CHECK_DEVICE(device, -1)
 
@@ -593,7 +593,7 @@ static int claim_device(int device, libusb_device * dev, struct libusb_device_de
   return 0;
 }
 
-s_hid_dev * usbhidasync_enumerate(unsigned short vendor, unsigned short product) {
+s_hid_dev * gusbhid_enumerate(unsigned short vendor, unsigned short product) {
 
   s_hid_dev * hid_devs = NULL;
   unsigned int nb_hid_devs = 0;
@@ -673,7 +673,7 @@ s_hid_dev * usbhidasync_enumerate(unsigned short vendor, unsigned short product)
   return hid_devs;
 }
 
-void usbhidasync_free_enumeration(s_hid_dev * hid_devs) {
+void gusbhid_free_enumeration(s_hid_dev * hid_devs) {
 
   s_hid_dev * current;
   for (current = hid_devs; current != NULL; ++current) {
@@ -687,7 +687,7 @@ void usbhidasync_free_enumeration(s_hid_dev * hid_devs) {
   free(hid_devs);
 }
 
-int usbhidasync_open_ids(unsigned short vendor, unsigned short product) {
+int gusbhid_open_ids(unsigned short vendor, unsigned short product) {
 
   int ret = -1;
 
@@ -730,7 +730,7 @@ int usbhidasync_open_ids(unsigned short vendor, unsigned short product) {
           libusb_free_device_list(devs, 1);
           return device;
         } else {
-          usbhidasync_close(device);
+          gusbhid_close(device);
         }
       }
     }
@@ -741,7 +741,7 @@ int usbhidasync_open_ids(unsigned short vendor, unsigned short product) {
   return -1;
 }
 
-int usbhidasync_open_path(const char * path) {
+int gusbhid_open_path(const char * path) {
 
   int ret = -1;
 
@@ -787,7 +787,7 @@ int usbhidasync_open_path(const char * path) {
         libusb_free_device_list(devs, 1);
         return device;
       } else {
-        usbhidasync_close(device);
+        gusbhid_close(device);
       }
     }
   }
@@ -797,7 +797,7 @@ int usbhidasync_open_path(const char * path) {
   return -1;
 }
 
-const s_hid_info * usbhidasync_get_hid_info(int device) {
+const s_hid_info * gusbhid_get_hid_info(int device) {
 
   USBHIDASYNC_CHECK_DEVICE(device, NULL)
 
@@ -811,7 +811,7 @@ static int close_callback(int device) {
   return usbdevices[device].callback.fp_close(usbdevices[device].callback.user);
 }
 
-int usbhidasync_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write,
+int gusbhid_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write,
     ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register) {
 
   USBHIDASYNC_CHECK_DEVICE(device, -1)
@@ -867,7 +867,7 @@ static void cancel_transfers(int device) {
   }
 }
 
-int usbhidasync_close(int device) {
+int gusbhid_close(int device) {
 
   if (device < 0 || device >= USBHIDASYNC_MAX_DEVICES) {
     PRINT_ERROR_OTHER("invalid device");
@@ -899,7 +899,7 @@ int usbhidasync_close(int device) {
   return 1;
 }
 
-int usbhidasync_write(int device, const void * buf, unsigned int count) {
+int gusbhid_write(int device, const void * buf, unsigned int count) {
 
   USBHIDASYNC_CHECK_DEVICE(device, -1)
 

@@ -4,7 +4,7 @@
  */
 
 #include <ghid.h>
-#include <usbhidasync.h>
+#include <gusbhid.h>
 
 /*
  * \brief Open a hid device.
@@ -16,7 +16,7 @@
  */
 int ghid_open_path(const char * device_path) {
 
-    return usbhidasync_open_path(device_path);
+    return gusbhid_open_path(device_path);
 }
 
 /*
@@ -30,7 +30,7 @@ int ghid_open_path(const char * device_path) {
  */
 int ghid_open_ids(unsigned short vendor, unsigned short product) {
 
-  return usbhidasync_open_ids(vendor, product);
+  return gusbhid_open_ids(vendor, product);
 }
 
 /*
@@ -43,7 +43,7 @@ int ghid_open_ids(unsigned short vendor, unsigned short product) {
  */
 s_hid_dev * ghid_enumerate(unsigned short vendor, unsigned short product) {
 
-    return usbhidasync_enumerate(vendor, product);
+    return gusbhid_enumerate(vendor, product);
 }
 
 /*
@@ -53,7 +53,7 @@ s_hid_dev * ghid_enumerate(unsigned short vendor, unsigned short product) {
  */
 void ghid_free_enumeration(s_hid_dev * hid_devs) {
 
-    usbhidasync_free_enumeration(hid_devs);
+    gusbhid_free_enumeration(hid_devs);
 }
 
 /*
@@ -65,7 +65,7 @@ void ghid_free_enumeration(s_hid_dev * hid_devs) {
  */
 const s_hid_info * ghid_get_hid_info(int device) {
 
-    return usbhidasync_get_hid_info(device);
+    return gusbhid_get_hid_info(device);
 }
 
 /*
@@ -80,7 +80,7 @@ const s_hid_info * ghid_get_hid_info(int device) {
  */
 int ghid_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
 
-  return usbhidasync_read_timeout(device, buf, count, timeout);
+  return gusbhid_read_timeout(device, buf, count, timeout);
 }
 
 /*
@@ -99,7 +99,7 @@ int ghid_read_timeout(int device, void * buf, unsigned int count, unsigned int t
  */
 int ghid_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register) {
     
-    return usbhidasync_register(device, user, fp_read, fp_write, fp_close, fp_register);
+    return gusbhid_register(device, user, fp_read, fp_write, fp_close, fp_register);
 }
 
 /*
@@ -114,7 +114,7 @@ int ghid_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE
  */
 int ghid_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout) {
 
-    return usbhidasync_write_timeout(device, buf, count, timeout);
+    return gusbhid_write_timeout(device, buf, count, timeout);
 }
 
 /*
@@ -128,7 +128,7 @@ int ghid_write_timeout(int device, const void * buf, unsigned int count, unsigne
  */
 int ghid_write(int device, const void * buf, unsigned int count) {
 
-    return usbhidasync_write(device, buf, count);
+    return gusbhid_write(device, buf, count);
 }
 
 /*
@@ -140,6 +140,6 @@ int ghid_write(int device, const void * buf, unsigned int count) {
  */
 int ghid_close(int device) {
 
-    return usbhidasync_close(device);
+    return gusbhid_close(device);
 }
 
