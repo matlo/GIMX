@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
 
   if (path == NULL) {
     fprintf(stderr, "No HID device selected!\n");
-    GE_quit();
+    ginput_quit();
     exit(-1);
   }
 
@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
 
     if (uhid >= 0) {
 
-      if (GE_initialize(GE_MKB_SOURCE_PHYSICAL, process_event)) {
+      if (ginput_init(GE_MKB_SOURCE_PHYSICAL, process_event)) {
 
         display_devices();
 
@@ -125,7 +125,7 @@ int main(int argc, char* argv[]) {
 
   free(path);
 
-  GE_quit();
+  ginput_quit();
 
   printf("Exiting\n");
 

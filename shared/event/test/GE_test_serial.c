@@ -94,7 +94,7 @@ int serial_close(int user)
 
 int main(int argc, char* argv[])
 {
-  if (!GE_initialize(GE_MKB_SOURCE_NONE, process_event))
+  if (!ginput_init(GE_MKB_SOURCE_NONE, process_event))
   {
     fprintf(stderr, "GE_initialize failed\n");
     exit(-1);
@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
     fprintf(stderr, "error opening serial device\n");
   }
 
-  GE_quit();
+  ginput_quit();
 
   printf("Exiting\n");
 

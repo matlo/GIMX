@@ -93,7 +93,7 @@ static const char* _8BIT_to_UTF8(const char* _8bit)
  * \return 1 if successful
  *         0 in case of error
  */
-int GE_initialize(unsigned char mkb_src, int(*callback)(GE_Event*))
+int ginput_init(unsigned char mkb_src, int(*callback)(GE_Event*))
 {
   int i = 0;
   int j;
@@ -211,7 +211,7 @@ int GE_initialize(unsigned char mkb_src, int(*callback)(GE_Event*))
 /*
  * \brief Release unused stuff. It currently only releases unused joysticks.
  */
-void GE_release_unused()
+void ginput_release_unused()
 {
   int i;
   for (i = 0; i < GE_MAX_DEVICES && joysticks[i].name; ++i)
@@ -228,7 +228,7 @@ void GE_release_unused()
 /*
  * \brief Grab/Release the mouse cursor (Windows) or grab/release all keyboard and mouse event devices (Linux).
  */
-void GE_grab_toggle()
+void ginput_grab_toggle()
 {
   if (grab)
   {
@@ -245,7 +245,7 @@ void GE_grab_toggle()
 /*
  * \brief Grab the mouse.
  */
-void GE_grab()
+void ginput_grab()
 {
   ev_grab_input(GE_GRAB_ON);
   grab = 1;
@@ -254,7 +254,7 @@ void GE_grab()
 /*
  * \brief Free the mouse and keyboard names.
  */
-void GE_FreeMKames()
+void ginput_free_mk_names()
 {
   int i;
   for (i = 0; i < GE_MAX_DEVICES && mice[i].name; ++i)
@@ -272,7 +272,7 @@ void GE_FreeMKames()
 /*
  * \brief Quit the GE library (free allocated data, release devices...).
  */
-void GE_quit()
+void ginput_quit()
 {
   int i;
 
@@ -285,7 +285,7 @@ void GE_quit()
       ev_joystick_close(i);
     }
   }
-  GE_FreeMKames();
+  ginput_free_mk_names();
   ev_quit();
 
   initialized = 0;
@@ -298,7 +298,7 @@ void GE_quit()
  * 
  * \return the mouse name if present, NULL otherwise.
  */
-char* GE_MouseName(int id)
+const char * ginput_mouse_name(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
@@ -314,7 +314,7 @@ char* GE_MouseName(int id)
  * 
  * \return the keyboard name if present, NULL otherwise.
  */
-char* GE_KeyboardName(int id)
+const char * ginput_keyboard_name(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
@@ -330,7 +330,7 @@ char* GE_KeyboardName(int id)
  * 
  * \return the joystick name if present, NULL otherwise.
  */
-char* GE_JoystickName(int id)
+const char * ginput_joystick_name(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
@@ -346,7 +346,7 @@ char* GE_JoystickName(int id)
  * 
  * \return the joystick virtual id if present, NULL otherwise.
  */
-int GE_JoystickVirtualId(int id)
+int ginput_joystick_virtual_id(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
@@ -360,7 +360,7 @@ int GE_JoystickVirtualId(int id)
  * 
  * \param id  the joystick index (in the [0..GE_MAX_DEVICES[ range)
  */
-void GE_SetJoystickUsed(int id)
+void ginput_set_joystick_used(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
@@ -378,7 +378,7 @@ void GE_SetJoystickUsed(int id)
  * \return the id of the joystick, that can be used to forge a GE_Event to pass as argument to GE_PushEvent(),
  *         or -1 if the library was already initialized
  */
-int GE_RegisterJoystick(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short))
+int ginput_register_joystick(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short))
 {
   if(initialized)
   {
@@ -396,7 +396,7 @@ int GE_RegisterJoystick(const char* name, int (*rumble_cb)(int, unsigned short, 
  * 
  * \return the mouse virtual id if present, NULL otherwise.
  */
-int GE_MouseVirtualId(int id)
+int ginput_mouse_virtual_id(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
@@ -412,7 +412,7 @@ int GE_MouseVirtualId(int id)
  * 
  * \return the keyboard virtual id if present, NULL otherwise.
  */
-int GE_KeyboardVirtualId(int id)
+int ginput_keyboard_virtual_id(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
@@ -428,7 +428,7 @@ int GE_KeyboardVirtualId(int id)
  * 
  * \return 1 if it is such a joystick, 0 otherwise.
  */
-GE_JS_Type GE_GetJSType(int id)
+GE_JS_Type ginput_get_js_type(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
@@ -443,7 +443,7 @@ GE_JS_Type GE_GetJSType(int id)
  * \return value GE_MK_MODE_MULTIPLE_INPUTS multiple mice and  multiple keyboards (default value),
  *               GE_MK_MODE_SINGLE_INPUT    single mouse and single keyboard
  */
-inline GE_MK_Mode GE_GetMKMode()
+inline GE_MK_Mode ginput_get_mk_mode()
 {
   return mk_mode;
 }
@@ -454,7 +454,7 @@ inline GE_MK_Mode GE_GetMKMode()
  * \param value GE_MK_MODE_MULTIPLE_INPUTS multiple mice and  multiple keyboards (default value),
  *              GE_MK_MODE_SINGLE_INPUT    single mouse and single keyboard
  */
-inline void GE_SetMKMode(GE_MK_Mode value)
+inline void ginput_set_mk_mode(GE_MK_Mode value)
 {
   mk_mode = value;
 }
@@ -466,7 +466,7 @@ inline void GE_SetMKMode(GE_MK_Mode value)
  *
  * \return the device id (0 if the event is from a mouse or a keyboard and the mk mode is GE_MK_MODE_SINGLE_INPUT).
  */
-int GE_GetDeviceId(GE_Event* e)
+int ginput_get_device_id(GE_Event* e)
 {
   /*
    * 'which' should always be at that place
@@ -486,7 +486,7 @@ int GE_GetDeviceId(GE_Event* e)
     case GE_MOUSEBUTTONDOWN:
     case GE_MOUSEBUTTONUP:
     case GE_MOUSEMOTION:
-      if (GE_GetMKMode() == GE_MK_MODE_SINGLE_INPUT)
+      if (ginput_get_mk_mode() == GE_MK_MODE_SINGLE_INPUT)
       {
         device_id = 0;
       }
@@ -503,7 +503,7 @@ int GE_GetDeviceId(GE_Event* e)
  *
  * \return 0 in case of success, -1 in case of error.
  */
-int GE_PushEvent(GE_Event *event)
+int ginput_queue_push(GE_Event *event)
 {
   return queue_push_event(event);
 }
@@ -515,7 +515,7 @@ int GE_PushEvent(GE_Event *event)
  * 
  * \return 1 if the joystick has rumble capabilities, false otherwise
  */
-int GE_JoystickHasRumble(int id)
+int ginput_joystick_has_rumble(int id)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
@@ -533,7 +533,7 @@ int GE_JoystickHasRumble(int id)
  *
  * \return -1 in case of error, 0 otherwise
  */
-int GE_JoystickSetRumble(int id, unsigned short weak, unsigned short strong)
+int ginput_joystick_set_rumble(int id, unsigned short weak, unsigned short strong)
 {
   if (id >= 0 && id < GE_MAX_DEVICES)
   {
@@ -543,12 +543,12 @@ int GE_JoystickSetRumble(int id, unsigned short weak, unsigned short strong)
 }
 
 #ifndef WIN32
-int GE_JoystickGetUHidId(int id)
+int ginput_joystick_get_uhid_id(int id)
 {
   return ev_joystick_get_uhid_id(id);
 }
 #else
-int GE_JoystickGetUsbIds(int id, unsigned short * vendor, unsigned short * product)
+int ginput_joystick_get_usb_ids(int id, unsigned short * vendor, unsigned short * product)
 {
   return ev_joystick_get_usb_ids(id, vendor, product);
 }
@@ -557,7 +557,7 @@ int GE_JoystickGetUsbIds(int id, unsigned short * vendor, unsigned short * produ
 /*
  * \brief Process all events from non-asynchronous sources.
  */
-void GE_sync_process()
+void ginput_sync_process()
 {
   ev_sync_process();
 }
@@ -570,7 +570,7 @@ void GE_sync_process()
  * 
  * \return the number of retrieved events.
  */
-int GE_queue_pop(GE_Event *events, int numevents)
+int ginput_queue_pop(GE_Event *events, int numevents)
 {
   return queue_pop_events(events, numevents);
 }
@@ -582,7 +582,7 @@ int GE_queue_pop(GE_Event *events, int numevents)
  *
  * \return the button name
  */
-const char* GE_MouseButtonName(int button)
+const char* ginput_mouse_button_name(int button)
 {
   return get_chars_from_button(button);
 }
@@ -594,7 +594,7 @@ const char* GE_MouseButtonName(int button)
  *
  * \return the button id
  */
-int GE_MouseButtonId(const char* name)
+int ginput_mouse_button_id(const char* name)
 {
   return get_mouse_event_id_from_buffer(name);
 }
@@ -606,7 +606,7 @@ int GE_MouseButtonId(const char* name)
  *
  * \return the key name
  */
-const char* GE_KeyName(uint16_t key)
+const char* ginput_key_name(uint16_t key)
 {
   return get_chars_from_key(key);
 }
@@ -618,7 +618,7 @@ const char* GE_KeyName(uint16_t key)
  *
  * \return the key id
  */
-uint16_t GE_KeyId(const char* name)
+uint16_t ginput_key_id(const char* name)
 {
   return get_key_from_buffer(name);
 }

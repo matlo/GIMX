@@ -248,15 +248,15 @@ void adapter_set_device(int controller, e_device_type device_type, int device_id
       gprintf(_("macros are not available for: "));
       if(device_type == E_DEVICE_TYPE_KEYBOARD)
       {
-        gprintf(_("keyboard %s (%d)\n"), GE_KeyboardName(device_id), GE_KeyboardVirtualId(device_id));
+        gprintf(_("keyboard %s (%d)\n"), ginput_keyboard_name(device_id), ginput_keyboard_virtual_id(device_id));
       }
       else if(device_type == E_DEVICE_TYPE_MOUSE)
       {
-        gprintf(_("mouse %s (%d)\n"), GE_MouseName(device_id), GE_MouseVirtualId(device_id));
+        gprintf(_("mouse %s (%d)\n"), ginput_mouse_name(device_id), ginput_mouse_virtual_id(device_id));
       }
       else if(device_type == E_DEVICE_TYPE_JOYSTICK)
       {
-        gprintf(_("joystick %s (%d)\n"), GE_JoystickName(device_id), GE_JoystickVirtualId(device_id));
+        gprintf(_("joystick %s (%d)\n"), ginput_joystick_name(device_id), ginput_joystick_virtual_id(device_id));
       }
     }
   }
@@ -398,7 +398,7 @@ static int adapter_process_packet(int id, s_packet* packet)
     switch(adapter[id].ctype)
     {
       case C_TYPE_DS4:
-        if(GE_GetJSType(joystick) == GE_JS_DS4)
+        if(ginput_get_js_type(joystick) == GE_JS_DS4)
         {
           ret = adapter_forward_interrupt_out(id, data, length);
           if(ret < 0)
@@ -412,7 +412,7 @@ static int adapter_process_packet(int id, s_packet* packet)
         }
         break;
       case C_TYPE_360_PAD:
-        if(GE_GetJSType(joystick) == GE_JS_360PAD)
+        if(ginput_get_js_type(joystick) == GE_JS_360PAD)
         {
           ret = adapter_forward_interrupt_out(id, data, length);
           if(ret < 0)
@@ -429,7 +429,7 @@ static int adapter_process_packet(int id, s_packet* packet)
         send = 1;
         break;
       case C_TYPE_XONE_PAD:
-        if(GE_GetJSType(joystick) == GE_JS_XONEPAD || !adapter->status)
+        if(ginput_get_js_type(joystick) == GE_JS_XONEPAD || !adapter->status)
         {
           ret = adapter_forward_interrupt_out(id, data, length);
           if(ret < 0)
@@ -465,7 +465,7 @@ static int adapter_process_packet(int id, s_packet* packet)
       default:
         break;
     }
-    if(send && GE_JoystickHasRumble(joystick))
+    if(send && ginput_joystick_has_rumble(joystick))
     {
       GE_Event event =
       {
@@ -477,7 +477,7 @@ static int adapter_process_packet(int id, s_packet* packet)
           .strong = data[motors[adapter[id].ctype].strong] << 8
         }
       };
-      GE_PushEvent(&event);
+      ginput_queue_push(&event);
     }
   }
   else if(type == BYTE_DEBUG)
@@ -888,7 +888,7 @@ static int adapter_gpp_read(int id, const void * buf, unsigned int count)
 
   int joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, id);
 
-  if(GE_JoystickHasRumble(joystick))
+  if(ginput_joystick_has_rumble(joystick))
   {
     GE_Event event =
     {
@@ -900,7 +900,7 @@ static int adapter_gpp_read(int id, const void * buf, unsigned int count)
         .strong = report->rumble[1] << 8
       }
     };
-    GE_PushEvent(&event);
+    ginput_queue_push(&event);
   }
 
   return 0;

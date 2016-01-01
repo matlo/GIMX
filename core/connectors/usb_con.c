@@ -650,7 +650,7 @@ int usb_init(int usb_number, e_controller_type type)
             }
 
             // register joystick
-            state->joystick_id = GE_RegisterJoystick(controller[state->type].name, NULL);
+            state->joystick_id = ginput_register_joystick(controller[state->type].name, NULL);
 
             int i;
             for(i = 0; i < controller[state->type].endpoints.in.reports.nb; ++i)

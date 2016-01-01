@@ -316,7 +316,7 @@ void cfg_process_rumble()
 
       if(joystick_rumble[i].active || active)
       {
-        GE_JoystickSetRumble(i, weak, strong);
+        ginput_joystick_set_rumble(i, weak, strong);
       }
 
       joystick_rumble[i].active = active;
@@ -357,7 +357,7 @@ inline s_mouse_control* cfg_get_mouse_control(int id)
 
 void cfg_process_motion_event(GE_Event* event)
 {
-  s_mouse_control* mc = cfg_get_mouse_control(GE_GetDeviceId(event));
+  s_mouse_control* mc = cfg_get_mouse_control(ginput_get_device_id(event));
   if(mc)
   {
     mc->merge_x[mc->index] += event->motion.xrel;
@@ -567,7 +567,7 @@ void cfg_intensity_lookup(GE_Event* e)
   int c_id, a_id;
   int device_type;
   int button_id;
-  unsigned int device_id = GE_GetDeviceId(e);
+  unsigned int device_id = ginput_get_device_id(e);
 
   switch( e->type )
   {
@@ -629,7 +629,7 @@ static inline s_event get_event(GE_Event * event)
 {
   s_event e = { 0, 0, 0 };
 
-  e.device_id = GE_GetDeviceId(event);
+  e.device_id = ginput_get_device_id(event);
 
   switch( event->type )
   {
@@ -860,7 +860,7 @@ static int postpone_event(unsigned int device, GE_Event* event)
   {
     if (mc->postpone[event->button.button] + 1 < gimx_params.postpone_count)
     {
-      GE_PushEvent(event);
+      ginput_queue_push(event);
       mc->postpone[event->button.button]++;
       ret = 1;
     }
@@ -882,7 +882,7 @@ static int postpone_event(unsigned int device, GE_Event* event)
         /* do not postpone the event if it has to trigger a switch back */
         if(!next->trigger.switch_back)
         {
-          GE_PushEvent(event);
+          ginput_queue_push(event);
           ret = 1;
           break;
         }
@@ -1130,7 +1130,7 @@ void cfg_process_event(GE_Event* event)
   e_mouse_mode mode;
   s_adapter* controller;
 
-  unsigned int device = GE_GetDeviceId(event);
+  unsigned int device = ginput_get_device_id(event);
 
   for(c_id=0; c_id<MAX_CONTROLLERS; ++c_id)
   {

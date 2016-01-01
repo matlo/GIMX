@@ -38,7 +38,7 @@ int event_catcher::init()
       src = GE_MKB_SOURCE_WINDOW_SYSTEM;
     }
     
-    if(!GE_initialize(src, process_event))
+    if(!ginput_init(src, process_event))
     {
       return -1;
     }
@@ -52,14 +52,14 @@ bool event_catcher::check_device(string device_type, string device_name, string 
     int nb = 0;
     stringstream ss;
     int did;
-    char* name;
+    const char * name;
 
     ss << device_id;
     ss >> did;
 
     if(device_type == "keyboard")
     {
-      while((name = GE_KeyboardName(i)))
+      while((name = ginput_keyboard_name(i)))
       {
         if(name == device_name)
         {
@@ -77,7 +77,7 @@ bool event_catcher::check_device(string device_type, string device_name, string 
     }
     else if(device_type == "mouse")
     {
-      while((name = GE_MouseName(i)))
+      while((name = ginput_mouse_name(i)))
       {
         if(name == device_name)
         {
@@ -95,7 +95,7 @@ bool event_catcher::check_device(string device_type, string device_name, string 
     }
     else if(device_type == "joystick")
     {
-      while((name = GE_JoystickName(i)))
+      while((name = ginput_joystick_name(i)))
       {
         if(name == device_name)
         {
@@ -116,7 +116,7 @@ bool event_catcher::check_device(string device_type, string device_name, string 
 
 void event_catcher::clean()
 {
-    GE_quit();
+    ginput_quit();
 }
 
 typedef struct
@@ -183,11 +183,11 @@ int process_event(GE_Event* event)
       {
           evcatch->SetDeviceType("keyboard");
           stringstream ss1;
-          ss1 << GE_KeyboardVirtualId(event->key.which);
+          ss1 << ginput_keyboard_virtual_id(event->key.which);
           evcatch->SetDeviceId(ss1.str());
-          evcatch->SetDeviceName(GE_KeyboardName(event->key.which));
+          evcatch->SetDeviceName(ginput_keyboard_name(event->key.which));
           evcatch->SetEventType("button");
-          event_id = GE_KeyName(event->key.keysym);
+          event_id = ginput_key_name(event->key.keysym);
           evcatch->SetEventId(event_id);
           evcatch->SetDone();
       }
@@ -201,11 +201,11 @@ int process_event(GE_Event* event)
       {
           evcatch->SetDeviceType("mouse");
           stringstream ss1;
-          ss1 << GE_MouseVirtualId(event->button.which);
+          ss1 << ginput_mouse_virtual_id(event->button.which);
           evcatch->SetDeviceId(ss1.str());
-          evcatch->SetDeviceName(GE_MouseName(event->button.which));
+          evcatch->SetDeviceName(ginput_mouse_name(event->button.which));
           evcatch->SetEventType("button");
-          event_id = GE_MouseButtonName(event->button.button);
+          event_id = ginput_mouse_button_name(event->button.button);
           evcatch->SetEventId(event_id);
           evcatch->SetDone();
       }
@@ -219,9 +219,9 @@ int process_event(GE_Event* event)
       {
           evcatch->SetDeviceType("joystick");
           stringstream ss1;
-          ss1 << GE_JoystickVirtualId(event->jbutton.which);
+          ss1 << ginput_joystick_virtual_id(event->jbutton.which);
           evcatch->SetDeviceId(ss1.str());
-          evcatch->SetDeviceName(GE_JoystickName(event->jbutton.which));
+          evcatch->SetDeviceName(ginput_joystick_name(event->jbutton.which));
           evcatch->SetEventType("button");
           int ib = event->jbutton.button;
           stringstream ss2;
@@ -241,9 +241,9 @@ int process_event(GE_Event* event)
           {
               evcatch->SetDeviceType("mouse");
               stringstream ss1;
-              ss1 << GE_MouseVirtualId(event->motion.which);
+              ss1 << ginput_mouse_virtual_id(event->motion.which);
               evcatch->SetDeviceId(ss1.str());
-              evcatch->SetDeviceName(GE_MouseName(event->motion.which));
+              evcatch->SetDeviceName(ginput_mouse_name(event->motion.which));
               evcatch->SetEventType("axis");
               evcatch->SetDone();
               if(abs(event->motion.xrel) > abs(event->motion.yrel))
@@ -262,9 +262,9 @@ int process_event(GE_Event* event)
           {
               evcatch->SetDeviceType("mouse");
               stringstream ss1;
-              ss1 << GE_MouseVirtualId(event->motion.which);
+              ss1 << ginput_mouse_virtual_id(event->motion.which);
               evcatch->SetDeviceId(ss1.str());
-              evcatch->SetDeviceName(GE_MouseName(event->motion.which));
+              evcatch->SetDeviceName(ginput_mouse_name(event->motion.which));
               evcatch->SetEventType("axis");
               evcatch->SetDone();
               if(event->motion.xrel > event->motion.yrel)
@@ -283,9 +283,9 @@ int process_event(GE_Event* event)
           {
               evcatch->SetDeviceType("mouse");
               stringstream ss1;
-              ss1 << GE_MouseVirtualId(event->motion.which);
+              ss1 << ginput_mouse_virtual_id(event->motion.which);
               evcatch->SetDeviceId(ss1.str());
-              evcatch->SetDeviceName(GE_MouseName(event->motion.which));
+              evcatch->SetDeviceName(ginput_mouse_name(event->motion.which));
               evcatch->SetEventType("axis");
               evcatch->SetDone();
               if(event->motion.xrel < event->motion.yrel)
@@ -310,9 +310,9 @@ int process_event(GE_Event* event)
           {
               evcatch->SetDeviceType("joystick");
               stringstream ss1;
-              ss1 << GE_JoystickVirtualId(event->jaxis.which);
+              ss1 << ginput_joystick_virtual_id(event->jaxis.which);
               evcatch->SetDeviceId(ss1.str());
-              evcatch->SetDeviceName(GE_JoystickName(event->jaxis.which));
+              evcatch->SetDeviceName(ginput_joystick_name(event->jaxis.which));
               evcatch->SetEventType("axis");
               int ia = event->jaxis.axis;
               stringstream ss2;
@@ -327,9 +327,9 @@ int process_event(GE_Event* event)
           {
               evcatch->SetDeviceType("joystick");
               stringstream ss1;
-              ss1 << GE_JoystickVirtualId(event->jaxis.which);
+              ss1 << ginput_joystick_virtual_id(event->jaxis.which);
               evcatch->SetDeviceId(ss1.str());
-              evcatch->SetDeviceName(GE_JoystickName(event->jaxis.which));
+              evcatch->SetDeviceName(ginput_joystick_name(event->jaxis.which));
               evcatch->SetEventType("axis");
               int ia = event->jaxis.axis;
               stringstream ss2;
@@ -344,9 +344,9 @@ int process_event(GE_Event* event)
           {
               evcatch->SetDeviceType("joystick");
               stringstream ss1;
-              ss1 << GE_JoystickVirtualId(event->jaxis.which);
+              ss1 << ginput_joystick_virtual_id(event->jaxis.which);
               evcatch->SetDeviceId(ss1.str());
-              evcatch->SetDeviceName(GE_JoystickName(event->jaxis.which));
+              evcatch->SetDeviceName(ginput_joystick_name(event->jaxis.which));
               evcatch->SetEventType("axis");
               int ia = event->jaxis.axis;
               stringstream ss2;
@@ -385,7 +385,7 @@ void event_catcher::run(string device_type, string event_type)
 
     init();
 
-    GE_grab();
+    ginput_grab();
 
     done = 0;
 

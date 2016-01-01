@@ -199,7 +199,7 @@ static void cal_display()
 
   if (current_cal != NONE)
   {
-    gprintf(_("calibrating mouse %s (%d)\n"), GE_MouseName(current_mouse), GE_MouseVirtualId(current_mouse));
+    gprintf(_("calibrating mouse %s (%d)\n"), ginput_mouse_name(current_mouse), ginput_mouse_virtual_id(current_mouse));
     gprintf(_("calibrating conf %d\n"), current_conf + 1);
     gprintf(_("sensibility:"));
     if (mcal->mx)
@@ -328,7 +328,7 @@ void cal_key(int device_id, int sym, int down)
         {
           if (current_cal == NONE)
           {
-            if(GE_GetMKMode() == GE_MK_MODE_MULTIPLE_INPUTS)
+            if(ginput_get_mk_mode() == GE_MK_MODE_MULTIPLE_INPUTS)
             {
               current_cal = MC;
               gprintf(_("mouse selection\n"));
@@ -351,7 +351,7 @@ void cal_key(int device_id, int sym, int down)
         }
         else if(current_cal != NONE)
         {
-          if(GE_GetMKMode() == GE_MK_MODE_MULTIPLE_INPUTS)
+          if(ginput_get_mk_mode() == GE_MK_MODE_MULTIPLE_INPUTS)
           {
             current_cal = MC;
             gprintf(_("mouse selection\n"));
@@ -494,7 +494,7 @@ void cal_key(int device_id, int sym, int down)
 
   if (lalt && ralt)
   {
-    GE_grab_toggle();
+    ginput_grab_toggle();
   }
 }
 
@@ -521,7 +521,7 @@ void cal_button(int which, int button)
       {
         case MC:
           current_mouse += 1;
-          if (!GE_MouseName(current_mouse))
+          if (!ginput_mouse_name(current_mouse))
           {
             current_mouse -= 1;
           }

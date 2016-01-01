@@ -236,7 +236,7 @@ int main(int argc, char* argv[]) {
 
   if(path == NULL) {
     fprintf(stderr, "No HID device selected!\n");
-    GE_quit();
+    ginput_quit();
     exit(-1);
   }
 
@@ -260,7 +260,7 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    if (GE_initialize(GE_MKB_SOURCE_NONE, ignore_event)) {
+    if (ginput_init(GE_MKB_SOURCE_NONE, ignore_event)) {
 
       if (ghid_register(hid, 42, hid_read, hid_write, hid_close, REGISTER_FUNCTION) != -1) {
 
@@ -299,7 +299,7 @@ int main(int argc, char* argv[]) {
 
   free(path);
 
-  GE_quit();
+  ginput_quit();
 
   printf("Exiting\n");
 

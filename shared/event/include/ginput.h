@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -398,45 +398,45 @@ typedef enum
 extern "C" {
 #endif
 
-int GE_initialize(unsigned char mkb_src, int(*fp)(GE_Event*));
-void GE_grab_toggle();
-void GE_grab();
-void GE_release_unused();
-void GE_quit();
-void GE_FreeMKames();
+int ginput_init(unsigned char mkb_src, int(*fp)(GE_Event*));
+void ginput_grab_toggle();
+void ginput_grab();
+void ginput_release_unused();
+void ginput_quit();
+void ginput_free_mk_names();
 
-char* GE_MouseName(int);
-char* GE_KeyboardName(int);
-int GE_MouseVirtualId(int);
-int GE_KeyboardVirtualId(int);
-int GE_GetDeviceId(GE_Event*);
-char* GE_JoystickName(int);
-int GE_JoystickVirtualId(int);
-void GE_SetJoystickUsed(int);
-GE_JS_Type GE_GetJSType(int id);
-int GE_RegisterJoystick(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short));
+const char * ginput_mouse_name(int);
+const char * ginput_keyboard_name(int);
+int ginput_mouse_virtual_id(int);
+int ginput_keyboard_virtual_id(int);
+int ginput_get_device_id(GE_Event*);
+const char * ginput_joystick_name(int);
+int ginput_joystick_virtual_id(int);
+void ginput_set_joystick_used(int);
+GE_JS_Type ginput_get_js_type(int id);
+int ginput_register_joystick(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short));
 
-const char* GE_MouseButtonName(int);
-int GE_MouseButtonId(const char*);
-const char* GE_KeyName(uint16_t);
-uint16_t GE_KeyId(const char*);
+const char * ginput_mouse_button_name(int);
+int ginput_mouse_button_id(const char*);
+const char * ginput_key_name(uint16_t);
+uint16_t ginput_key_id(const char*);
 
-GE_MK_Mode GE_GetMKMode();
-void GE_SetMKMode(GE_MK_Mode);
+GE_MK_Mode ginput_get_mk_mode();
+void ginput_set_mk_mode(GE_MK_Mode);
 
-int GE_JoystickHasRumble(int id);
-int GE_JoystickSetRumble(int id, unsigned short weak, unsigned short strong);
+int ginput_joystick_has_rumble(int id);
+int ginput_joystick_set_rumble(int id, unsigned short weak, unsigned short strong);
 
-int GE_queue_pop(GE_Event*, int);
-int GE_PushEvent(GE_Event*);
+int ginput_queue_pop(GE_Event*, int);
+int ginput_queue_push(GE_Event*);
 
 #ifdef WIN32
-int GE_JoystickGetUsbIds(int id, unsigned short * vendor, unsigned short * product);
+int ginput_joystick_get_usb_ids(int id, unsigned short * vendor, unsigned short * product);
 #else
-int GE_JoystickGetUHidId(int id);
+int ginput_joystick_get_uhid_id(int id);
 #endif
 
-void GE_sync_process();
+void ginput_sync_process();
 
 #ifdef __cplusplus
 }

@@ -550,7 +550,7 @@ static int read_ps4_interrupt(int btds4_number)
         {
           int joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, btds4_number);
 
-          if(GE_JoystickHasRumble(joystick))
+          if(ginput_joystick_has_rumble(joystick))
           {
             GE_Event event =
             {
@@ -562,7 +562,7 @@ static int read_ps4_interrupt(int btds4_number)
                 .strong = buf[8] << 8
               }
             };
-            GE_PushEvent(&event);
+            ginput_queue_push(&event);
           }
         }
         break;
@@ -867,7 +867,7 @@ int btds4_init(int btds4_number, int dongle_index, const char * bdaddr_dst)
   strncpy(state->ps4_bdaddr, bdaddr_dst, sizeof(state->ps4_bdaddr));
 
   memcpy(&state->bt_report, &init_report_btds4, sizeof(s_btds4_report));
-  state->joystick_id = GE_RegisterJoystick(DS4_DEVICE_NAME, ds4_interrupt_rumble);
+  state->joystick_id = ginput_register_joystick(DS4_DEVICE_NAME, ds4_interrupt_rumble);
 
 #ifndef WIN32
   if(bt_mgmt_adapter_init(state->dongle_index) < 0)

@@ -263,7 +263,7 @@ static int process_output_01(const uint8_t *buf, int len, struct sixaxis_state *
   int controller = (state-states)/sizeof(*state);
   int joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, controller);
 
-  if(GE_JoystickHasRumble(joystick))
+  if(ginput_joystick_has_rumble(joystick))
   {
     GE_Event event =
     {
@@ -275,7 +275,7 @@ static int process_output_01(const uint8_t *buf, int len, struct sixaxis_state *
         .strong = buf[4] << 8
       }
     };
-    GE_PushEvent(&event);
+    ginput_queue_push(&event);
   }
 
   return 0;

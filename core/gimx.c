@@ -296,7 +296,7 @@ int main(int argc, char *argv[])
   // - there's no need to read macros
   // - there's no need to read inputs
   // - there's no need to grab the mouse
-  if (!GE_initialize(src, fp))
+  if (!ginput_init(src, fp))
   {
     fprintf(stderr, _("GE_initialize failed\n"));
     goto QUIT;
@@ -304,7 +304,7 @@ int main(int argc, char *argv[])
 
   if(gimx_params.grab)
   {
-    GE_grab();
+    ginput_grab();
   }
 
   if(gimx_params.config_file)
@@ -319,10 +319,10 @@ int main(int argc, char *argv[])
       goto QUIT;
     }
 
-    if(GE_GetMKMode() == GE_MK_MODE_SINGLE_INPUT)
+    if(ginput_get_mk_mode() == GE_MK_MODE_SINGLE_INPUT)
     {
       cfg_clean();
-      GE_FreeMKames();
+      ginput_free_mk_names();
 
       cal_init();
 
@@ -334,7 +334,7 @@ int main(int argc, char *argv[])
     cfg_read_calibration();
   }
 
-  GE_release_unused();
+  ginput_release_unused();
 
 #ifndef WIN32
   if(ffb)
@@ -349,7 +349,7 @@ int main(int argc, char *argv[])
 
   if(gimx_params.keygen)
   {
-    kgevent.key.keysym = GE_KeyId(gimx_params.keygen);
+    kgevent.key.keysym = ginput_key_id(gimx_params.keygen);
     if(kgevent.key.keysym)
     {
       macro_lookup(&kgevent);
@@ -394,7 +394,7 @@ int main(int argc, char *argv[])
 
   macros_clean();
   cfg_clean();
-  GE_quit();
+  ginput_quit();
 #ifndef WIN32
   if(ffb)
   {

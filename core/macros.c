@@ -311,28 +311,28 @@ static s_macro * get_macro(const char* line)
     {
       if(!strncmp(argument[1], "KEYDOWN", strlen("KEYDOWN")))
       {
-        if((rbutton = GE_KeyId(argument[2])))
+        if((rbutton = ginput_key_id(argument[2])))
         {
           etype = GE_KEYDOWN;
         }
       }
       else if(!strncmp(argument[1], "KEYUP", strlen("KEYUP")))
       {
-        if((rbutton = GE_KeyId(argument[2])))
+        if((rbutton = ginput_key_id(argument[2])))
         {
           etype = GE_KEYUP;
         }
       }
       else if(!strncmp(argument[1], "MBUTTONDOWN", strlen ("MBUTTONDOWN")))
       {
-        if((rbutton = GE_MouseButtonId(argument[2])) >= 0)
+        if((rbutton = ginput_mouse_button_id(argument[2])) >= 0)
         {
           etype = GE_MOUSEBUTTONDOWN;
         }
       }
       else if(!strncmp(argument[1], "MBUTTONUP", strlen("MBUTTONUP")))
       {
-        if((rbutton = GE_MouseButtonId(argument[2])) >= 0)
+        if((rbutton = ginput_mouse_button_id(argument[2])) >= 0)
         {
           etype = GE_MOUSEBUTTONUP;
         }
@@ -383,7 +383,7 @@ static s_macro * get_macro(const char* line)
       /*
        * For compatibility with previous macro files.
        */
-      if((rbutton = GE_KeyId(argument[1])))
+      if((rbutton = ginput_key_id(argument[1])))
       {
         etype = GE_KEYDOWN;
       }
@@ -473,7 +473,7 @@ static void get_event(const char* line)
   
   if (!strncmp(argument[0], "KEYDOWN", strlen("KEYDOWN")))
   {
-    rbutton = GE_KeyId(argument[1]);
+    rbutton = ginput_key_id(argument[1]);
 
     if(allocate_event(pcurrent) != -1)
     {
@@ -483,7 +483,7 @@ static void get_event(const char* line)
   }
   else if (!strncmp(argument[0], "KEYUP", strlen("KEYUP")))
   {
-    rbutton = GE_KeyId(argument[1]);
+    rbutton = ginput_key_id(argument[1]);
 
     if(allocate_event(pcurrent) != -1)
     {
@@ -493,7 +493,7 @@ static void get_event(const char* line)
   }
   else if (!strncmp(argument[0], "KEY", strlen("KEY")))
   {
-    rbutton = GE_KeyId(argument[1]);
+    rbutton = ginput_key_id(argument[1]);
 
     if(allocate_event(pcurrent) != -1)
     {
@@ -515,7 +515,7 @@ static void get_event(const char* line)
   }
   else if (!strncmp(argument[0], "MBUTTONDOWN", strlen("MBUTTONDOWN")))
   {
-    rbutton = GE_MouseButtonId(argument[1]);
+    rbutton = ginput_mouse_button_id(argument[1]);
 
     if(allocate_event(pcurrent) != -1)
     {
@@ -525,7 +525,7 @@ static void get_event(const char* line)
   }
   else if (!strncmp(argument[0], "MBUTTONUP", strlen("MBUTTONUP")))
   {
-    rbutton = GE_MouseButtonId(argument[1]);
+    rbutton = ginput_mouse_button_id(argument[1]);
 
     if(allocate_event(pcurrent) != -1)
     {
@@ -535,7 +535,7 @@ static void get_event(const char* line)
   }
   else if (!strncmp(argument[0], "MBUTTON", strlen("MBUTTON")))
   {
-    rbutton = GE_MouseButtonId(argument[1]);
+    rbutton = ginput_mouse_button_id(argument[1]);
 
     if(allocate_event(pcurrent) != -1)
     {
@@ -672,28 +672,28 @@ void get_trigger(const char* line)
     {
       if(!strncmp(argument[1], "KEYDOWN", strlen("KEYDOWN")))
       {
-        if((rbutton = GE_KeyId(argument[2])))
+        if((rbutton = ginput_key_id(argument[2])))
         {
           etype = GE_KEYDOWN;
         }
       }
       else if(!strncmp(argument[1], "KEYUP", strlen("KEYUP")))
       {
-        if((rbutton = GE_KeyId(argument[2])))
+        if((rbutton = ginput_key_id(argument[2])))
         {
           etype = GE_KEYUP;
         }
       }
       else if(!strncmp(argument[1], "MBUTTONDOWN", strlen ("MBUTTONDOWN")))
       {
-        if((rbutton = GE_MouseButtonId(argument[2])) >= 0)
+        if((rbutton = ginput_mouse_button_id(argument[2])) >= 0)
         {
           etype = GE_MOUSEBUTTONDOWN;
         }
       }
       else if(!strncmp(argument[1], "MBUTTONUP", strlen("MBUTTONUP")))
       {
-        if((rbutton = GE_MouseButtonId(argument[2])) >= 0)
+        if((rbutton = ginput_mouse_button_id(argument[2])) >= 0)
         {
           etype = GE_MOUSEBUTTONUP;
         }
@@ -718,7 +718,7 @@ void get_trigger(const char* line)
       /*
        * For compatibility with previous macro files.
        */
-      if((rbutton = GE_KeyId(argument[1])))
+      if((rbutton = ginput_key_id(argument[1])))
       {
         etype = GE_KEYDOWN;
       }
@@ -832,16 +832,16 @@ void dump_event(GE_Event* event, int newline, int axisvalue)
   switch(event->type)
   {
     case GE_KEYDOWN:
-      gprintf("KEYDOWN %s", GE_KeyName(event->key.keysym));
+      gprintf("KEYDOWN %s", ginput_key_name(event->key.keysym));
       break;
     case GE_KEYUP:
-      gprintf("KEYUP %s", GE_KeyName(event->key.keysym));
+      gprintf("KEYUP %s", ginput_key_name(event->key.keysym));
       break;
     case GE_MOUSEBUTTONDOWN:
-      gprintf("MBUTTONDOWN %s", GE_MouseButtonName(event->button.button));
+      gprintf("MBUTTONDOWN %s", ginput_mouse_button_name(event->button.button));
       break;
     case GE_MOUSEBUTTONUP:
-      gprintf("MBUTTONUP %s", GE_MouseButtonName(event->button.button));
+      gprintf("MBUTTONUP %s", ginput_mouse_button_name(event->button.button));
       break;
     case GE_MOUSEMOTION:
       if(event->motion.xrel)
@@ -1183,7 +1183,7 @@ static int macro_delete(GE_Event* event)
   {
     if(!compare_events(event, &macros[running_macro[i].macro_index].id))
     {
-      if(GE_GetDeviceId(&running_macro[i].id.event) == GE_GetDeviceId(event))
+      if(ginput_get_device_id(&running_macro[i].id.event) == ginput_get_device_id(event))
       {
         macro_unalloc(i);
         return 1;
@@ -1337,7 +1337,7 @@ unsigned int macro_process()
        */
       dtype1 = get_event_device_type(&event);
       dtype2 = get_event_device_type(&running_macro[i].id.event);
-      did = GE_GetDeviceId(&running_macro[i].id.event);
+      did = ginput_get_device_id(&running_macro[i].id.event);
       if(dtype1 != E_DEVICE_TYPE_UNKNOWN && dtype2 != E_DEVICE_TYPE_UNKNOWN && did >= 0)
       {
         /*
@@ -1365,7 +1365,7 @@ unsigned int macro_process()
           did = 0;
         }
         event.which = did;
-        GE_PushEvent(&event);
+        ginput_queue_push(&event);
       }
 
       // next event

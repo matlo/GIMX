@@ -29,7 +29,7 @@ static void terminate(int sig)
 
 int main(int argc, char* argv[])
 {
-  if (!GE_initialize(GE_MKB_SOURCE_PHYSICAL, process_event))
+  if (!ginput_init(GE_MKB_SOURCE_PHYSICAL, process_event))
   {
     fprintf(stderr, "GE_initialize failed\n");
     exit(-1);
@@ -48,13 +48,13 @@ int main(int argc, char* argv[])
     done = 1;
   }
   
-  GE_grab();
+  ginput_grab();
 
   while(!done)
   {
     gpoll();
 
-    GE_sync_process();
+    ginput_sync_process();
 
     //do something periodically
   }
@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
     gtimer_close(timer);
   }
 
-  GE_quit();
+  ginput_quit();
 
   printf("Exiting\n");
 

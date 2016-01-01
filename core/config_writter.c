@@ -156,24 +156,24 @@ static int ProcessDeviceElement(xmlNode * a_node)
       }
       xmlFree(prop);
 
-      if(GE_GetMKMode() == GE_MK_MODE_SINGLE_INPUT)
+      if(ginput_get_mk_mode() == GE_MK_MODE_SINGLE_INPUT)
       {
         r_device_id = 0;
       }
       else
       {
-        for (i = 0; i < MAX_DEVICES && GE_MouseName(i); ++i)
+        for (i = 0; i < MAX_DEVICES && ginput_mouse_name(i); ++i)
         {
-          if (!strcmp(r_device_name, GE_MouseName(i)))
+          if (!strcmp(r_device_name, ginput_mouse_name(i)))
           {
-            if (r_device_id == GE_MouseVirtualId(i))
+            if (r_device_id == ginput_mouse_virtual_id(i))
             {
               r_device_id = i;
               break;
             }
           }
         }
-        if(i == MAX_DEVICES || !GE_MouseName(i))
+        if(i == MAX_DEVICES || !ginput_mouse_name(i))
         {
           r_device_id = -1;
         }

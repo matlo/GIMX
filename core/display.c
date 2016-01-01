@@ -74,14 +74,14 @@ void display_calibration()
   }
   clrtoeol();
   wmove(wcal, 1, 1);
-  if(GE_GetMKMode() == GE_MK_MODE_MULTIPLE_INPUTS)
+  if(ginput_get_mk_mode() == GE_MK_MODE_MULTIPLE_INPUTS)
   {
     waddstr(wcal, "Mouse:");
     if(current_cal == MC)
     {
       wattron(wcal, COLOR_PAIR(4));
     }
-    snprintf(line, COLS, " %s (%d) (F1) ", GE_MouseName(current_mouse), GE_MouseVirtualId(current_mouse));
+    snprintf(line, COLS, " %s (%d) (F1) ", ginput_mouse_name(current_mouse), ginput_mouse_virtual_id(current_mouse));
     waddstr(wcal, line);
     if(current_cal == MC)
     {
