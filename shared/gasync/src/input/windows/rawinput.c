@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2015 Mathieu Laurendeau
+  Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
   License: GPLv3
 
   This code is derived from the manymouse library: https://icculus.org/manymouse/
@@ -28,9 +28,9 @@
      Ryan C. Gordon <icculus@icculus.org>
  */
 
-#include "../../../../gasync/src/input/windows/rawinput.h"
+#include "rawinput.h"
 
-#include "../../../../gasync/src/input/windows/scancodes.h"
+#include "scancodes.h"
 
 /* WinUser.h won't include rawinput stuff without this... */
 #if (_WIN32_WINNT < 0x0501)

@@ -1,9 +1,9 @@
 /*
- Copyright (c) 2015 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
-#include "../../../../gasync/include/gtimer.h"
+#include <gtimer.h>
 
 #include <sys/timerfd.h>
 #include <unistd.h>

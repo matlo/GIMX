@@ -1,12 +1,12 @@
 /*
- Copyright (c) 2014 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
 #ifndef QUEUE_H_
 #define QUEUE_H_
 
-#include "../../../gasync/include/ginput.h"
+#include <ginput.h>
 
 void queue_init();
 int queue_push_event(GE_Event* ev);

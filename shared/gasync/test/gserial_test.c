@@ -1,8 +1,6 @@
 /*
- * linux_test.c
- *
- *  Created on: 13 janv. 2013
- *      Author: matlo
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #include <stdio.h>
@@ -12,10 +10,10 @@
 #include <string.h>
 
 #include <gserial.h>
-#include "../../gasync/include/ginput.h"
-#include "../../gasync/include/gpoll.h"
-#include "../../gasync/include/gtimer.h"
-#include "../../gasync/test/common.h"
+#include <ginput.h>
+#include <gpoll.h>
+#include <gtimer.h>
+#include "common.h"
 
 #define PERIOD 10000//microseconds
 

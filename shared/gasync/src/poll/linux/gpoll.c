@@ -1,9 +1,9 @@
 /*
- Copyright (c) 2015 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
-#include "../../../../gasync/include/gpoll.h"
+#include <gpoll.h>
 
 #include <stdio.h>
 #include <poll.h>

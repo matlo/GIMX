@@ -1,12 +1,12 @@
 /*
- Copyright (c) 2015 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
 #ifndef EVENTS_H_
 #define EVENTS_H_
 
-#include "../../../gasync/include/ginput.h"
+#include <ginput.h>
 
 #define MAX_EVENTS 256
 

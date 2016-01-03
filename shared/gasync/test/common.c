@@ -1,9 +1,9 @@
 /*
- Copyright (c) 2015 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
-#include "../../gasync/test/common.h"
+#include "common.h"
 
 #include <stdio.h>
 #include <limits.h>

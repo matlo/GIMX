@@ -11,10 +11,10 @@
 
 #include <ghid.h>
 #include <guhid.h>
-#include "../../gasync/include/ginput.h"
-#include "../../gasync/include/gpoll.h"
-#include "../../gasync/include/gtimer.h"
-#include "../../gasync/test/common.h"
+#include <ginput.h>
+#include <gpoll.h>
+#include <gtimer.h>
+#include "common.h"
 
 #define PERIOD 10000//microseconds
 

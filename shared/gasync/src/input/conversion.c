@@ -1,13 +1,13 @@
 /*
- Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
-#include "../../../gasync/src/input/conversion.h"
+#include "conversion.h"
 
 #include <string.h>
 
-#include "../../../gasync/src/input/events.h"
+#include "events.h"
 
 static const char* keynames[] =
 {

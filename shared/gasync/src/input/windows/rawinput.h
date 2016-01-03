@@ -1,12 +1,12 @@
 /*
- Copyright (c) 2015 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
 #ifndef RAWINPUT_H_
 #define RAWINPUT_H_
 
-#include "../../../../gasync/include/ginput.h"
+#include <ginput.h>
 
 #define RAWINPUT_CLASS_NAME "RawInputCatcher"
 #define RAWINPUT_WINDOW_NAME "RawInputMsgWindow"

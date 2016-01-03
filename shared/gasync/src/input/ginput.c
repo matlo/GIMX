@@ -1,18 +1,18 @@
 /*
- Copyright (c) 2015 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
-#include "../../../gasync/include/ginput.h"
+#include <ginput.h>
 
 #include <string.h>
 #include <stdlib.h>
 #include <iconv.h>
 #include <stdio.h>
 
-#include "../../../gasync/src/input/conversion.h"
-#include "../../../gasync/src/input/events.h"
-#include "../../../gasync/src/input/queue.h"
+#include "conversion.h"
+#include "events.h"
+#include "queue.h"
 #ifndef WIN32
 #include <poll.h>
 #else

@@ -1,15 +1,15 @@
 /*
- Copyright (c) 2015 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
-#include "../../../../gasync/include/gpoll.h"
+#include <gpoll.h>
 
 #include <winsock2.h>
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
-#include "../../../../gasync/src/input/windows/rawinput.h"
+#include "../../input/windows/rawinput.h"
 
 #define PRINT_ERROR_OTHER(msg) fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
 

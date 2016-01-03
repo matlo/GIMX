@@ -1,18 +1,18 @@
 /*
- Copyright (c) 2012 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
-#include "../../../../gasync/src/input/events.h"
+#include "../events.h"
 
 #include <SDL.h>
 #include <math.h>
 #include <winsock2.h>
 #include <windows.h>
 
-#include "../../../../gasync/include/ginput.h"
-#include "../../../../gasync/src/input/queue.h"
-#include "../../../../gasync/src/input/windows/rawinput.h"
+#include <ginput.h>
+#include "../queue.h"
+#include "rawinput.h"
 
 #define SCREEN_WIDTH  1
 #define SCREEN_HEIGHT 1

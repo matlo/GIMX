@@ -1,12 +1,12 @@
 /*
- Copyright (c) 2015 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
 #ifndef COMMON_H_
 #define COMMON_H_
 
-#include "../../gasync/include/ginput.h"
+#include <ginput.h>
 
 extern volatile int done;
 

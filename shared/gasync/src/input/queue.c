@@ -1,10 +1,10 @@
 /*
- Copyright (c) 2014 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
 #include <stdio.h>
-#include "../../../gasync/src/input/events.h"
+#include "events.h"
 
 static int debug = 0;
 

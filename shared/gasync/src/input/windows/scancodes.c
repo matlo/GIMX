@@ -1,5 +1,9 @@
+/*
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
+ */
 
-#include "../../../../gasync/include/ginput.h"
+#include <ginput.h>
 
 /* WinUser.h won't include rawinput stuff without this... */
 #if (_WIN32_WINNT < 0x0501)
