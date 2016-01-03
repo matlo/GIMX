@@ -274,51 +274,46 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    if (ginput_init(GE_MKB_SOURCE_NONE, ignore_event)) {
+    if (ghid_register(hid, 42, hid_read, hid_write, hid_close, REGISTER_FUNCTION) != -1) {
 
-      if (ghid_register(hid, 42, hid_read, hid_write, hid_close, REGISTER_FUNCTION) != -1) {
-
-        int timer = gtimer_start(42, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
-        if (timer < 0) {
-          done = 1;
-        }
-
-        hid_task(hid);
-
-        int ret = ghid_poll(hid);
-        if (ret < 0) {
-          done = 1;
-        }
-
-        while (!done || hid_busy) {
-
-          gpoll();
-
-          ++counter;
-        }
-
-        if (timer >= 0) {
-          gtimer_close(timer);
-        }
-
-        if(rumble_index >= 0) {
-          ghid_write_timeout(hid, rumble_cmds[rumble_index].stop.data, rumble_cmds[rumble_index].stop.length, 1000);
-        }
-
-        if(ff_index >= 0) {
-          ghid_write_timeout(hid, ff_cmds[ff_index].stop.data, ff_cmds[ff_index].stop.length, 1000);
-        }
+      int timer = gtimer_start(42, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
+      if (timer < 0) {
+        done = 1;
       }
-    } else {
-      fprintf(stderr, "GE_initialize failed\n");
-    }
 
-    ghid_close(hid);
+      hid_task(hid);
+
+      int ret = ghid_poll(hid);
+      if (ret < 0) {
+        done = 1;
+      }
+
+      while (!done || hid_busy) {
+
+        gpoll();
+
+        ++counter;
+      }
+
+      if (timer >= 0) {
+        gtimer_close(timer);
+      }
+
+      if(rumble_index >= 0) {
+        ghid_write_timeout(hid, rumble_cmds[rumble_index].stop.data, rumble_cmds[rumble_index].stop.length, 1000);
+      }
+
+      if(ff_index >= 0) {
+        ghid_write_timeout(hid, ff_cmds[ff_index].stop.data, ff_cmds[ff_index].stop.length, 1000);
+      }
+
+      ghid_close(hid);
+    }
+  } else {
+    fprintf(stderr, "GE_initialize failed\n");
   }
 
   free(path);
-
-  ginput_quit();
 
   printf("Exiting\n");
 

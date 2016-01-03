@@ -232,7 +232,7 @@ int gusbhid_poll(int device) {
   }
 
   libusb_fill_interrupt_transfer(transfer, usbdevices[device].devh, address, buf, size,
-      (libusb_transfer_cb_fn) usb_callback, (void *) (unsigned long) device, 1000);
+      (libusb_transfer_cb_fn) usb_callback, (void *) (unsigned long) device, 0);
 
   return submit_transfer(transfer);
 }
@@ -257,7 +257,9 @@ static void usb_callback(struct libusb_transfer* transfer) {
           fprintf(stderr, "libusb_transfer failed with status %s (endpoint=0x%02x)\n",
               libusb_error_name(transfer->status), transfer->endpoint);
         }
-        if (transfer->endpoint == usbdevices[device].config.endpoints.out.address) {
+        if (transfer->endpoint == usbdevices[device].config.endpoints.in.address) {
+          usbdevices[device].callback.fp_read(usbdevices[device].callback.user, NULL, -1);
+        } else if (transfer->endpoint == usbdevices[device].config.endpoints.out.address) {
           usbdevices[device].callback.fp_write(usbdevices[device].callback.user, -1);
         }
       }
