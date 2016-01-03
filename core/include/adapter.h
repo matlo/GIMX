@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2014 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -55,8 +55,11 @@ typedef struct
   int ts_axis[AXIS_MAX][2]; //issue 15
   s_report_packet report[2]; //the xbox one guide button needs a dedicated report
   int status;
-  int hid_id;
-  int hid_busy;
+  struct {
+    int id;
+    int write_pending;
+    int read_pending;
+  } hid;
 #ifndef WIN32
   int uhid_id;
 #else
@@ -81,6 +84,7 @@ int adapter_get_device(e_device_type device_type, int controller);
 int adapter_get_controller(e_device_type device_type, int device_id);
 
 #ifndef WIN32
+int adapter_hid_poll();
 void adapter_set_uhid_id(int controller, int uhid_id);
 #else
 void adapter_set_usb_ids(int controller, unsigned short vendor, unsigned short product);

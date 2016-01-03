@@ -103,12 +103,24 @@ int ghid_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE
 }
 
 /*
+ * \brief Read from a hid device, asynchronously.
+ *
+ * \param device the hid device
+ *
+ * \return 0 in case of success, or -1 in case of error
+ */
+int ghid_poll(int device) {
+
+    return gusbhid_poll(device);
+}
+
+/*
  * \brief Write to a serial device, with a timeout. Use this function in a synchronous context.
  *
  * \param device  the identifier of the serial device
  * \param buf     the buffer containing the data to write
  * \param count   the number of bytes in buf
- * \param timeout the maximum time to wait for the completion, in seconds
+ * \param timeout the maximum time to wait for the completion, in milliseconds
  *
  * \return the number of bytes actually written (0 in case of timeout)
  */

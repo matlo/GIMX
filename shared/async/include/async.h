@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2015 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -18,8 +18,8 @@
 #define ASYNC_MAX_DEVICES 256
 #define ASYNC_MAX_WRITE_QUEUE_SIZE 2
 
-typedef int (* ASYNC_READ_CALLBACK)(int user, const void * buf, unsigned int count);
-typedef int (* ASYNC_WRITE_CALLBACK)(int user, int transfered);
+typedef int (* ASYNC_READ_CALLBACK)(int user, const void * buf, int status);
+typedef int (* ASYNC_WRITE_CALLBACK)(int user, int status);
 typedef int (* ASYNC_CLOSE_CALLBACK)(int user);
 #ifndef WIN32
 typedef GPOLL_REGISTER_FD ASYNC_REGISTER_SOURCE;

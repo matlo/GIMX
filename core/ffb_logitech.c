@@ -755,7 +755,7 @@ void ffb_logitech_set_native_mode() {
                   if(command) {
                     reset = 1;
                     // send the native mode command
-                    int ret = ghid_write_timeout(hid, command->data, sizeof(command->data), 1);
+                    int ret = ghid_write_timeout(hid, command->data, sizeof(command->data), 1000);
                     if(ret == 0) {
                       fprintf(stderr, "failed to send native mode command for HID device %s (PID=%04x)\n", current->path, current->product_id);
                     } else {

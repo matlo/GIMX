@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2010 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -78,6 +78,8 @@ void mainloop()
     cfg_process_rumble();
     
     usb_poll_interrupts();
+
+    adapter_hid_poll();
 
 #ifdef WIN32
     usb_handle_events(0);

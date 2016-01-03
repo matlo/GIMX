@@ -110,14 +110,28 @@ static void dump(const unsigned char * packet, unsigned char length) {
   printf("\n");
 }
 
-int hid_read(int user, const void * buf, unsigned int count) {
+int hid_read(int user, const void * buf, int status) {
 
-  struct timeval t;
-  gettimeofday(&t, NULL);
-  printf("%ld.%06ld ", t.tv_sec, t.tv_usec);
-  printf("%s\n", __func__);
-  dump((unsigned char *) buf, count);
-  fflush(stdout);
+  if (status < 0) {
+    done = 1;
+    return 1;
+  }
+
+  int ret = ghid_poll(hid);
+  if (ret < 0) {
+    done = 1;
+    return 1;
+  }
+
+  if (status > 0) {
+    struct timeval t;
+    gettimeofday(&t, NULL);
+    printf("%ld.%06ld ", t.tv_sec, t.tv_usec);
+    printf("%s\n", __func__);
+    dump((unsigned char *) buf, status);
+    fflush(stdout);
+  }
+
   return 0;
 }
 
@@ -271,6 +285,11 @@ int main(int argc, char* argv[]) {
 
         hid_task(hid);
 
+        int ret = ghid_poll(hid);
+        if (ret < 0) {
+          done = 1;
+        }
+
         while (!done || hid_busy) {
 
           gpoll();
@@ -283,11 +302,11 @@ int main(int argc, char* argv[]) {
         }
 
         if(rumble_index >= 0) {
-          ghid_write_timeout(hid, rumble_cmds[rumble_index].stop.data, rumble_cmds[rumble_index].stop.length, 1);
+          ghid_write_timeout(hid, rumble_cmds[rumble_index].stop.data, rumble_cmds[rumble_index].stop.length, 1000);
         }
 
         if(ff_index >= 0) {
-          ghid_write_timeout(hid, ff_cmds[ff_index].stop.data, ff_cmds[ff_index].stop.length, 1);
+          ghid_write_timeout(hid, ff_cmds[ff_index].stop.data, ff_cmds[ff_index].stop.length, 1000);
         }
       }
     } else {

@@ -246,7 +246,7 @@ int async_read_timeout(int device, void * buf, unsigned int count, unsigned int 
       ASYNC_PRINT_ERROR("ReadFile")
       return -1;
     }
-    int ret = WaitForSingleObject(devices[device].read.overlapped.hEvent, timeout * 1000);
+    int ret = WaitForSingleObject(devices[device].read.overlapped.hEvent, timeout);
     switch (ret)
     {
       case WAIT_OBJECT_0:
@@ -306,7 +306,7 @@ int async_write_timeout(int device, const void * buf, unsigned int count, unsign
       ASYNC_PRINT_ERROR("WriteFile")
       return -1;
     }
-    int ret = WaitForSingleObject(devices[device].write.overlapped.hEvent, timeout*1000);
+    int ret = WaitForSingleObject(devices[device].write.overlapped.hEvent, timeout);
     switch (ret) {
       case WAIT_OBJECT_0:
         if (!GetOverlappedResult(devices[device].handle, &devices[device].write.overlapped, &dwBytesWritten, FALSE)) {
@@ -499,19 +499,25 @@ int async_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRIT
     
     while(read_packet(device) >= 0) ;
 
-    devices[device].callback.user = user;
-    devices[device].callback.fp_read = fp_read;
-    devices[device].callback.fp_write = fp_write;
-    devices[device].callback.fp_close = fp_close;
+    int ret = 0;
 
-    if(fp_read) {
-        fp_register(devices[device].read.overlapped.hEvent, device, read_callback, NULL, close_callback);
+    if (fp_read) {
+        ret = fp_register(devices[device].read.overlapped.hEvent, device, read_callback, NULL, close_callback);
     }
-    if(fp_write) {
-        fp_register(devices[device].write.overlapped.hEvent, device, NULL, write_callback, close_callback);
+    if (ret != -1) {
+        if(fp_write) {
+            ret = fp_register(devices[device].write.overlapped.hEvent, device, NULL, write_callback, close_callback);
+        }
     }
 
-    return 0;
+    if (ret != -1) {
+      devices[device].callback.user = user;
+      devices[device].callback.fp_read = fp_read;
+      devices[device].callback.fp_write = fp_write;
+      devices[device].callback.fp_close = fp_close;
+    }
+
+    return ret;
 }
 
 int async_write(int device, const void * buf, unsigned int count) {

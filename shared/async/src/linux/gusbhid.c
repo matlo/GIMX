@@ -209,8 +209,9 @@ static int submit_transfer(struct libusb_transfer * transfer) {
 
 static void usb_callback(struct libusb_transfer* transfer);
 
-//TODO MLA: usbhidasync_poll
-static int poll_interrupt(int device) {
+int gusbhid_poll(int device) {
+
+  USBHIDASYNC_CHECK_DEVICE(device, -1)
 
   unsigned int address = usbdevices[device].config.endpoints.in.address;
   unsigned int size = usbdevices[device].config.endpoints.in.size;
@@ -241,39 +242,29 @@ static void usb_callback(struct libusb_transfer* transfer) {
   int device = (unsigned long) transfer->user_data;
 
   //make sure the device still exists, in case something went wrong
-  if(usbhidasync_check_device(device, __FILE__, __LINE__, __func__) < 0) {
-    remove_transfer(transfer);
-    return;
-  }
-
-  if (transfer->type == LIBUSB_TRANSFER_TYPE_INTERRUPT) {
-    if (transfer->status == LIBUSB_TRANSFER_COMPLETED) {
-      if (transfer->endpoint == usbdevices[device].config.endpoints.in.address) {
-        usbdevices[device].callback.fp_read(usbdevices[device].callback.user, transfer->buffer,
-            transfer->actual_length);
-      } else if (transfer->endpoint == usbdevices[device].config.endpoints.out.address) {
-        usbdevices[device].callback.fp_write(usbdevices[device].callback.user, transfer->actual_length);
-      }
-    } else {
-      if (transfer->endpoint == usbdevices[device].config.endpoints.out.address
-          || (transfer->status != LIBUSB_TRANSFER_TIMED_OUT && transfer->status != LIBUSB_TRANSFER_CANCELLED)) {
-        fprintf(stderr, "libusb_transfer failed with status %s (endpoint=0x%02x)\n",
-            libusb_error_name(transfer->status), transfer->endpoint);
-      }
-      if (transfer->endpoint == usbdevices[device].config.endpoints.out.address) {
-        usbdevices[device].callback.fp_write(usbdevices[device].callback.user, -1);
+  if(usbhidasync_check_device(device, __FILE__, __LINE__, __func__) == 0) {
+    if (transfer->type == LIBUSB_TRANSFER_TYPE_INTERRUPT) {
+      if (transfer->status == LIBUSB_TRANSFER_COMPLETED) {
+        if (transfer->endpoint == usbdevices[device].config.endpoints.in.address) {
+          usbdevices[device].callback.fp_read(usbdevices[device].callback.user, transfer->buffer,
+              transfer->actual_length);
+        } else if (transfer->endpoint == usbdevices[device].config.endpoints.out.address) {
+          usbdevices[device].callback.fp_write(usbdevices[device].callback.user, transfer->actual_length);
+        }
+      } else {
+        if (transfer->endpoint == usbdevices[device].config.endpoints.out.address
+            || (transfer->status != LIBUSB_TRANSFER_TIMED_OUT && transfer->status != LIBUSB_TRANSFER_CANCELLED)) {
+          fprintf(stderr, "libusb_transfer failed with status %s (endpoint=0x%02x)\n",
+              libusb_error_name(transfer->status), transfer->endpoint);
+        }
+        if (transfer->endpoint == usbdevices[device].config.endpoints.out.address) {
+          usbdevices[device].callback.fp_write(usbdevices[device].callback.user, -1);
+        }
       }
     }
-
-    if (transfer->endpoint == usbdevices[device].config.endpoints.in.address
-        && transfer->status != LIBUSB_TRANSFER_CANCELLED && !usbdevices[device].closing) {
-
-      submit_transfer(transfer);
-    } else {
-
-      remove_transfer(transfer);
-    }
   }
+
+  remove_transfer(transfer);
 }
 
 int handle_events(int unused) {
@@ -322,7 +313,7 @@ int gusbhid_write_timeout(int device, const void * buf, unsigned int count, unsi
   }
 
   int ret = libusb_interrupt_transfer(usbdevices[device].devh, usbdevices[device].config.endpoints.out.address,
-      (void *) buf, length, &transfered, timeout * 1000);
+      (void *) buf, length, &transfered, timeout);
   if (ret != LIBUSB_SUCCESS && ret != LIBUSB_ERROR_TIMEOUT) {
 
     PRINT_ERROR_LIBUSB("libusb_interrupt_transfer", ret)
@@ -349,7 +340,7 @@ int gusbhid_read_timeout(int device, void * buf, unsigned int count, unsigned in
   }
 
   int ret = libusb_interrupt_transfer(usbdevices[device].devh, usbdevices[device].config.endpoints.in.address,
-      (void *) buf, count, &transfered, timeout * 1000);
+      (void *) buf, count, &transfered, timeout);
   if (ret != LIBUSB_SUCCESS && ret != LIBUSB_ERROR_TIMEOUT) {
     PRINT_ERROR_LIBUSB("libusb_interrupt_transfer", ret)
     return -1;
@@ -824,25 +815,24 @@ int gusbhid_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WR
 
   // Checking the presence of a HID OUT endpoint is done in the usbhidasync_write* functions.
 
+  int ret = 0;
+
   const struct libusb_pollfd** pfd_usb = libusb_get_pollfds(ctx);
   int poll_i;
-  for (poll_i = 0; pfd_usb[poll_i] != NULL; ++poll_i) {
+  for (poll_i = 0; pfd_usb[poll_i] != NULL && ret != -1; ++poll_i) {
 
-    fp_register(pfd_usb[poll_i]->fd, device, handle_events, handle_events, close_callback);
+    ret = fp_register(pfd_usb[poll_i]->fd, device, handle_events, handle_events, close_callback);
   }
   free(pfd_usb);
 
-  usbdevices[device].callback.user = user;
-  usbdevices[device].callback.fp_read = fp_read;
-  usbdevices[device].callback.fp_write = fp_write;
-  usbdevices[device].callback.fp_close = fp_close;
-
-  if (usbdevices[device].callback.fp_read != NULL) {
-
-    poll_interrupt(device);
+  if (ret != -1) {
+    usbdevices[device].callback.user = user;
+    usbdevices[device].callback.fp_read = fp_read;
+    usbdevices[device].callback.fp_write = fp_write;
+    usbdevices[device].callback.fp_close = fp_close;
   }
 
-  return 0;
+  return ret;
 }
 
 /*

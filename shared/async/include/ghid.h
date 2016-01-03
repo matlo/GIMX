@@ -43,6 +43,7 @@ int ghid_close(int device);
 int ghid_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout);
 int ghid_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write,
     ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register);
+int ghid_poll(int device);
 int ghid_write(int device, const void * buf, unsigned int count);
 int ghid_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout);
 

@@ -267,11 +267,24 @@ int8_t gpppcprog_input(int id, GCAPI_REPORT *report, int timeout)
   return (0);
 }
 
-static int read_callback(int user, const void * buf, unsigned int count)
+static int read_callback(int user, const void * buf, int status)
 {
-  if(((unsigned char *)buf)[0] == GPPKG_INPUT_REPORT) {
-    return gpp_devices[user].fp_read(user, buf, count);
+  if (status < 0) {
+    return 1;
   }
+
+#ifndef WIN32
+  //TODO MLA: only 1 poll in each period
+  int ret = ghid_poll(gpp_devices[user].device);
+  if (ret < 0) {
+    return 1;
+  }
+#endif
+
+  if(status > 0 && ((unsigned char *)buf)[0] == GPPKG_INPUT_REPORT) {
+    return gpp_devices[user].fp_read(user, buf, status);
+  }
+
   return 0;
 }
 
@@ -295,7 +308,19 @@ int8_t gpppcprog_start_async(int id, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CA
   gpp_devices[id].fp_write = fp_write;
   gpp_devices[id].fp_close = fp_close;
 
-  return ghid_register(gpp_devices[id].device, id, read_callback, write_callback, close_callback, fp_register);
+  int ret = ghid_register(gpp_devices[id].device, id, read_callback, write_callback, close_callback, fp_register);
+  if (ret < 0) {
+    return -1;
+  }
+
+#ifndef WIN32
+  ret = ghid_poll(gpp_devices[id].device);
+  if (ret < 0) {
+    return -1;
+  }
+#endif
+
+  return 0;
 }
 
 int8_t gpppcprog_output(int id, int8_t output[GCAPI_INPUT_TOTAL])
@@ -331,7 +356,7 @@ int8_t gpppcprog_send(int id, uint8_t type, uint8_t * data, uint16_t length)
         return (0);
     }
     else {
-      if (ghid_write_timeout(gpp_devices[id].device, (unsigned char*)&report, sizeof(report), 1) == -1)
+      if (ghid_write_timeout(gpp_devices[id].device, (unsigned char*)&report, sizeof(report), 1000) == -1)
         return (0);
     }
     report.header.first = 0;

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2014 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -9,6 +9,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #define STICK_THRESHOLD 8
 

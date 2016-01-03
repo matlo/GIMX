@@ -25,6 +25,7 @@
 #endif
 
 static int uhid = -1;
+static int hid = -1;
 
 static void terminate(int sig) {
   done = 1;
@@ -41,15 +42,29 @@ static void dump(const unsigned char * packet, unsigned char length) {
   printf("\n");
 }
 
-int hid_read(int user, const void * buf, unsigned int count) {
+int hid_read(int user, const void * buf, int status) {
 
-  struct timeval t;
-  gettimeofday(&t, NULL);
-  printf("%ld.%06ld ", t.tv_sec, t.tv_usec);
-  printf("%s\n", __func__);
-  dump((unsigned char *) buf, count);
-  fflush(stdout);
-  guhid_write(uhid, buf, count);
+  if (status < 0) {
+    done = 1;
+    return 1;
+  }
+
+  int ret = ghid_poll(hid);
+  if (ret < 0) {
+    done = 1;
+    return 1;
+  }
+
+  if (status > 0) {
+    struct timeval t;
+    gettimeofday(&t, NULL);
+    printf("%ld.%06ld ", t.tv_sec, t.tv_usec);
+    printf("%s\n", __func__);
+    dump((unsigned char *) buf, status);
+    fflush(stdout);
+    guhid_write(uhid, buf, status);
+  }
+
   return 0;
 }
 
@@ -72,7 +87,7 @@ int main(int argc, char* argv[]) {
     exit(-1);
   }
 
-  int hid = ghid_open_path(path);
+  hid = ghid_open_path(path);
 
   if (hid >= 0) {
 
@@ -99,6 +114,11 @@ int main(int argc, char* argv[]) {
             done = 1;
           }
 
+          int ret = ghid_poll(hid);
+          if (ret < 0) {
+            done = 1;
+          }
+
           while (!done) {
 
             gpoll();
@@ -120,7 +140,6 @@ int main(int argc, char* argv[]) {
     }
 
     guhid_close(uhid);
-
   }
 
   free(path);

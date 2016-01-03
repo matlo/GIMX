@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2015 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -111,7 +111,9 @@ int async_read_timeout(int device, void * buf, unsigned int count, unsigned int 
 
   fd_set readfds;
 
-  struct timeval tv = {.tv_sec = timeout, .tv_usec = 0};
+  time_t sec = timeout / 1000;
+  __suseconds_t usec = (timeout - sec * 1000) * 1000;
+  struct timeval tv = {.tv_sec = sec, .tv_usec = usec};
 
   while(bread != count)
   {
@@ -151,7 +153,9 @@ int async_write_timeout(int device, const void * buf, unsigned int count, unsign
 
   fd_set writefds;
 
-  struct timeval tv = {.tv_sec = timeout, .tv_usec = 0};
+  time_t sec = timeout / 1000;
+  __suseconds_t usec = (timeout - sec * 1000) * 1000;
+  struct timeval tv = {.tv_sec = sec, .tv_usec = usec};
 
   while(bwritten != count)
   {
@@ -194,12 +198,8 @@ static int read_callback(int device) {
     if(ret < 0) {
         ASYNC_PRINT_ERROR("read")
     }
-    else
-    {
-        devices[device].callback.fp_read(devices[device].callback.user, (const char *)devices[device].read.buf, ret);
-    }
 
-    return 0;
+    return devices[device].callback.fp_read(devices[device].callback.user, (const char *)devices[device].read.buf, ret);
 }
 
 /*
@@ -240,9 +240,7 @@ int async_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRIT
     //fp_write is ignored
     devices[device].callback.fp_close = fp_close;
 
-    fp_register(devices[device].fd, device, read_callback, NULL, close_callback);
-
-    return 0;
+    return fp_register(devices[device].fd, device, read_callback, NULL, close_callback);
 }
 
 int async_write(int device, const void * buf, unsigned int count) {

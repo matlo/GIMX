@@ -1,12 +1,10 @@
 /*
- Copyright (c) 2014 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
 #ifndef PROTOCOL_H_
 #define PROTOCOL_H_
-
-#include <limits.h>
 
 #ifdef WIN32
 #define GIMX_PACKED __attribute__((gcc_struct, packed))
@@ -14,7 +12,7 @@
 #define GIMX_PACKED __attribute__((packed))
 #endif
 
-#define BUFFER_SIZE (UCHAR_MAX+1)
+#define BUFFER_SIZE 254
 
 typedef struct GIMX_PACKED
 {

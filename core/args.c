@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2012 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -18,6 +18,7 @@
 #include <connectors/protocol.h>
 #include "../directories.h"
 #include <unistd.h>
+#include <limits.h>
 
 #define DEV_HIDRAW "/dev/hidraw"
 #ifndef WIN32
