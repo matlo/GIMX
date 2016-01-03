@@ -9,8 +9,7 @@ NAME=$(shell basename $(shell pwd))
 
 CPPFLAGS += -I../shared/configeditor/include \
       -I../shared/controller/include \
-      -I../shared/async/include \
-      -I../shared/event/include
+      -I../shared/gasync/include
 CPPFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP `curl-config --cflags`
 LDLIBS := ../shared/configeditor/configeditor.a \
       $(LDLIBS) \
@@ -26,10 +25,9 @@ LDLIBS += -lSDL2 -lintl -liconv
 endif
 
 DEPS = ../shared/configeditor/configeditor.a \
-      ../shared/event/GE.a \
+      ../shared/gasync/gasync.a \
       ../shared/updater/updater.a \
       ../shared/configupdater/configupdater.a \
-       ../shared/async/async.a \
       ../shared/gpp/gpp.a 
 
 OBJECTS := $(patsubst %.cpp,%.o,$(wildcard *.cpp))

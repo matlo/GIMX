@@ -1,4 +1,4 @@
-DIRS = controller event updater configupdater configeditor async gpp
+DIRS = controller updater configupdater configeditor gasync gpp
 
 BUILDDIRS = $(DIRS:%=build-%)
 INSTALLDIRS = $(DIRS:%=install-%)
