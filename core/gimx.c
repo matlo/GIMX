@@ -1,12 +1,10 @@
 /*
- Copyright (c) 2010 Mathieu Laurendeau <mat.lau@laposte.net>
- Copyright (c) 2009 Jim Paris <jim@jtan.com>
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
 #include <stdio.h> //fprintf
 #include <locale.h> //internationalization
-#include <prio.h> //to set the thread priority
 #include <signal.h> //to catch SIGINT
 #include <errno.h> //to print errors
 #include <string.h> //to print errors
@@ -38,6 +36,7 @@
 #include "../directories.h"
 #include <uhid_joystick.h>
 #include <ffb_logitech.h>
+#include <gprio.h>
 
 #define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
 
@@ -179,7 +178,7 @@ int main(int argc, char *argv[])
   gimx_params.homedir = path;
 #endif
 
-  if( set_prio() < 0 )
+  if (gprio() < 0)
   {
     printf("Warning: failed to set process priority\n");
   }

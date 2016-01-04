@@ -1,12 +1,12 @@
 /*
- Copyright (c) 2010 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
 #include <sched.h>
 #include <stdio.h>
 
-int set_prio()
+int gprio()
 {
   /*
    * Set highest priority & scheduler policy.
