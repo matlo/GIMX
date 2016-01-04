@@ -81,7 +81,7 @@ static int rawinput_callback(GE_Event * raw_event) {
         case GE_BTN_WHEELLEFT:
         case GE_BTN_WHEELRIGHT:
           raw_event->button.type = GE_MOUSEBUTTONUP;
-          queue_push_event(raw_event);
+          event_callback(raw_event);
           break;
       }
     }

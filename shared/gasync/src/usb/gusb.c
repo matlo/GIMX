@@ -89,7 +89,7 @@ static int add_transfer(struct libusb_transfer * transfer) {
     transfers = ptr;
     transfers[transfers_nb] = transfer;
     transfers_nb++;
-    usbdevices[(unsigned long) transfer->user_data].pending_transfers++;
+    usbdevices[(intptr_t) transfer->user_data].pending_transfers++;
     return 0;
   } else {
     PRINT_ERROR_ALLOC_FAILED("realloc")
@@ -109,7 +109,7 @@ static void remove_transfer(struct libusb_transfer * transfer) {
       } else {
         PRINT_ERROR_ALLOC_FAILED("realloc")
       }
-      usbdevices[(unsigned long) transfer->user_data].pending_transfers--;
+      usbdevices[(intptr_t) transfer->user_data].pending_transfers--;
       free(transfer->buffer);
       libusb_free_transfer(transfer);
       break;
@@ -263,7 +263,7 @@ static int submit_transfer(struct libusb_transfer * transfer) {
 
 static void usb_callback(struct libusb_transfer* transfer) {
 
-  int device = (unsigned long) transfer->user_data;
+  int device = (intptr_t) transfer->user_data;
 
   //make sure the device still exists, in case something went wrong
   if(usbasync_check_device(device, __FILE__, __LINE__, __func__) < 0) {
@@ -346,7 +346,7 @@ int gusb_poll(int device, unsigned char endpoint) {
   switch (usbdevices[device].endpoints[endpointIndex].in.type) {
   case LIBUSB_TRANSFER_TYPE_INTERRUPT:
     libusb_fill_interrupt_transfer(transfer, usbdevices[device].devh, endpoint, buf, size,
-        (libusb_transfer_cb_fn) usb_callback, (void *) (unsigned long) device, 0);
+        (libusb_transfer_cb_fn) usb_callback, (void *) (intptr_t) device, 0);
     break;
   default:
     PRINT_ERROR_OTHER("unsupported endpoint type")
@@ -358,18 +358,23 @@ int gusb_poll(int device, unsigned char endpoint) {
   return submit_transfer(transfer);
 }
 
-static int handle_events(int unused) {
+int gusb_handle_events(int unused) {
 #ifndef WIN32
   return libusb_handle_events(ctx);
 #else
   if(ctx != NULL)
   {
-    struct timeval tv = {};
-    return libusb_handle_events_timeout(ctx, &tv);
+    struct timeval tv = { 0 };
+    int ret = libusb_handle_events_timeout(ctx, &tv);
+    if (ret != LIBUSB_SUCCESS) {
+      PRINT_ERROR_LIBUSB("libusb_handle_events_timeout", ret)
+      return -1;
+    }
+    return 0;
   }
   else
   {
-    return 0;
+    return -1;
   }
 #endif
 }
@@ -1141,7 +1146,7 @@ int gusb_register(int device, int user, USBASYNC_READ_CALLBACK fp_read, USBASYNC
   int poll_i;
   for (poll_i = 0; pfd_usb[poll_i] != NULL && ret != -1; ++poll_i) {
 
-    ret = fp_register(pfd_usb[poll_i]->fd, device, handle_events, handle_events, close_callback);
+    ret = fp_register(pfd_usb[poll_i]->fd, device, gusb_handle_events, gusb_handle_events, close_callback);
   }
   free(pfd_usb);
 
@@ -1162,7 +1167,7 @@ static void cancel_transfers(int device) {
   unsigned int i;
   for (i = 0; i < transfers_nb; ++i) {
 
-    if ((unsigned long) (transfers[i]->user_data) == (unsigned long) device) {
+    if ((intptr_t) (transfers[i]->user_data) == (intptr_t) device) {
 
       libusb_cancel_transfer(transfers[i]);
     }
@@ -1276,11 +1281,11 @@ int gusb_write(int device, unsigned char endpoint, const void * buf, unsigned in
   if (endpoint == 0) {
 
     libusb_fill_control_transfer(transfer, usbdevices[device].devh,
-        buffer, (libusb_transfer_cb_fn) usb_callback, (void *) (unsigned long) device, 50);
+        buffer, (libusb_transfer_cb_fn) usb_callback, (void *) (intptr_t) device, 50);
   } else {
 
     libusb_fill_interrupt_transfer(transfer, usbdevices[device].devh, endpoint,
-        buffer, count, (libusb_transfer_cb_fn) usb_callback, (void *) (unsigned long) device, USBASYNC_OUT_TIMEOUT);
+        buffer, count, (libusb_transfer_cb_fn) usb_callback, (void *) (intptr_t) device, USBASYNC_OUT_TIMEOUT);
   }
 
   return submit_transfer(transfer);

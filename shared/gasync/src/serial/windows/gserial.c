@@ -3,7 +3,7 @@
  License: GPLv3
  */
 
-#include "../../../../include/gserial.h"
+#include <gserial.h>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -55,7 +55,7 @@ static int set_serial_params(int device, unsigned int baudrate) {
  * \return the identifier of the opened device (to be used in further operations), \
  * or -1 in case of failure (e.g. no device found).
  */
-int gserial_open(char * port, unsigned int baudrate) {
+int gserial_open(const char * port, unsigned int baudrate) {
 
   char scom[sizeof("\\\\.\\") + strlen(port)];
   snprintf(scom, sizeof(scom), "\\\\.\\%s", port);

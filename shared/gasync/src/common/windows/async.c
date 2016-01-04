@@ -75,18 +75,6 @@ inline void async_print_error(const char * file, int line, const char * msg) {
   }
 }
 
-inline int async_check_device(int device, const char * file, unsigned int line, const char * func) {
-  if(device < 0 || device >= ASYNC_MAX_DEVICES) {
-      fprintf(stderr, "%s:%d %s: invalid device (%d)\n", file, line, func, device);
-      return -1;
-  }
-  if(devices[device].handle == INVALID_HANDLE_VALUE) {
-      fprintf(stderr, "%s:%d %s: no such device (%d)\n", file, line, func, device);
-      return -1;
-  }
-  return 0;
-}
-
 static int add_device(const char * path, HANDLE handle, int print) {
     int i;
     for (i = 0; i < ASYNC_MAX_DEVICES; ++i) {

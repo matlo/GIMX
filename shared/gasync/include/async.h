@@ -107,7 +107,11 @@ static inline int async_check_device(int device, const char * file, unsigned int
       fprintf(stderr, "%s:%d %s: invalid device (%d)\n", file, line, func, device);
       return -1;
   }
+#ifndef WIN32
   if(devices[device].fd == -1) {
+#else
+  if(devices[device].handle == INVALID_HANDLE_VALUE) {
+#endif
       fprintf(stderr, "%s:%d %s: no such device (%d)\n", file, line, func, device);
       return -1;
   }

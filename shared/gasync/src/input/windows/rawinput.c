@@ -52,10 +52,6 @@
 #define RI_MOUSE_HWHEEL 0x0800
 
 #define MAX_EVENTS 1024
-static GE_Event raw_events[MAX_EVENTS];
-static volatile int raw_events_read = 0;
-static volatile int raw_events_write = 0;
-#define INC_INDEX(INDEX) (INDEX) = (((INDEX) + 1) % MAX_EVENTS);
 
 static HWND raw_hwnd = NULL;
 static const char * class_name = RAWINPUT_CLASS_NAME;
@@ -78,17 +74,7 @@ static struct {
 
 static int (*event_callback)(GE_Event*) = NULL;
 
-static void queue_event(const GE_Event * event) {
-
-  raw_events[raw_events_write] = *event;
-  INC_INDEX(raw_events_write)
-  if (raw_events_write == raw_events_read) {
-    //TODO MLA: log error
-    INC_INDEX(raw_events_read)
-  }
-}
-
-static void queue_from_rawinput(const RAWINPUT * raw, UINT align) {
+static void rawinput_handler(const RAWINPUT * raw, UINT align) {
 
     unsigned int device;
     const RAWINPUTHEADER * header = &raw->header;
@@ -109,18 +95,18 @@ static void queue_from_rawinput(const RAWINPUT * raw, UINT align) {
         return;
       }
 
-      if (mouse->usFlags & MOUSE_MOVE_RELATIVE) {
+      if (mouse->usFlags == MOUSE_MOVE_RELATIVE) {
           event.type = GE_MOUSEMOTION;
           event.motion.which = device;
           if (mouse->lLastX != 0) {
             event.motion.xrel = mouse->lLastX;
             event.motion.yrel = 0;
-            queue_event(&event);
+            event_callback(&event);
           }
           if (mouse->lLastY != 0) {
             event.motion.xrel = 0;
             event.motion.yrel = mouse->lLastY;
-            queue_event(&event);
+            event_callback(&event);
           }
       }
 
@@ -129,13 +115,13 @@ static void queue_from_rawinput(const RAWINPUT * raw, UINT align) {
           event.type = GE_MOUSEBUTTONDOWN; \
           event.button.which = device; \
           event.button.button = BUTTON; \
-          queue_event(&event); \
+          event_callback(&event); \
         } \
         if (mouse->usButtonFlags & RI_MOUSE_BUTTON_##ID##_UP) { \
           event.type = GE_MOUSEBUTTONUP; \
           event.button.which = device; \
           event.button.button = BUTTON; \
-          queue_event(&event); \
+          event_callback(&event); \
         } \
       }
 
@@ -153,7 +139,7 @@ static void queue_from_rawinput(const RAWINPUT * raw, UINT align) {
             event.type = GE_MOUSEBUTTONDOWN; \
             event.button.which = device; \
             event.button.button = ((SHORT) mouse->usButtonData) > 0 ? BUTTON_PLUS : BUTTON_MINUS; \
-            queue_event(&event); \
+            event_callback(&event); \
           } \
         } \
       }\
@@ -192,7 +178,7 @@ static void queue_from_rawinput(const RAWINPUT * raw, UINT align) {
       } else {
         event.key.type = GE_KEYDOWN;
       }
-      queue_event(&event);
+      event_callback(&event);
 
     } else {
       return;
@@ -223,7 +209,7 @@ static void wminput_handler(WPARAM wParam, LPARAM lParam)
       return;
   }
 
-  queue_from_rawinput((RAWINPUT *) lpb, 0);
+  rawinput_handler((RAWINPUT *) lpb, 0);
 }
 
 BOOL bIsWow64 = FALSE;
@@ -242,9 +228,9 @@ void wminput_handler_buff()
   
   for (i = 0; i < nInput; ++i) {
     if(bIsWow64) {
-      queue_from_rawinput((RAWINPUT *) RawInputs + i, 8);
+      rawinput_handler((RAWINPUT *) RawInputs + i, 8);
     } else {
-      queue_from_rawinput((RAWINPUT *) RawInputs + i, 0);
+      rawinput_handler((RAWINPUT *) RawInputs + i, 0);
     }
   }
 }
@@ -273,8 +259,6 @@ static LRESULT CALLBACK RawWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
 
 static int init_event_queue(void)
 {
-    raw_events_read = raw_events_write = 0;
-
     HANDLE hInstance = GetModuleHandle(NULL);
     
     WNDCLASSEX wce = {
@@ -520,6 +504,11 @@ static void init_device(const RAWINPUTDEVICELIST * dev) {
 
 int rawinput_init(int (*callback)(GE_Event*)) {
 
+  if (callback == NULL) {
+    //TODO MLA: log error
+    return -1;
+  }
+
   event_callback = callback;
 
   available_mice = 0;
@@ -624,10 +613,5 @@ void rawinput_poll() {
       /* process messages including WM_INPUT ones */
       DispatchMessage(&Msg);
     }
-  }
-
-  while (raw_events_read != raw_events_write) {
-    event_callback(raw_events + raw_events_read);
-    INC_INDEX(raw_events_read)
   }
 }

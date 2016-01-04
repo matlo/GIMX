@@ -551,7 +551,7 @@ int adapter_hid_poll() {
   return 0;
 }
 
-static int start_hidasync(int adapter)
+static int start_ghid(int adapter)
 {
   int ret = ghid_register(adapters[adapter].hid.id, adapter, adapter_hid_read_cb, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION);
   if(ret < 0)
@@ -579,7 +579,7 @@ void adapter_set_uhid_id(int adapter, int uhid_id)
   {
     adapters[adapter].uhid_id = uhid_id;
     adapters[adapter].hid.id = uhid_joystick_get_hid_id(uhid_id);
-    start_hidasync(adapter);
+    start_ghid(adapter);
   }
 }
 #else
@@ -602,10 +602,10 @@ static int start_hid(int adapter)
 {
   if(ffb_logitech_is_logitech_wheel(adapters[adapter].usb_ids.vendor, adapters[adapter].usb_ids.product))
   {
-    adapters[adapter].hid.id = hidasync_open_ids(adapters[adapter].usb_ids.vendor, adapters[adapter].usb_ids.product);
+    adapters[adapter].hid.id = ghid_open_ids(adapters[adapter].usb_ids.vendor, adapters[adapter].usb_ids.product);
     if(adapters[adapter].hid.id >= 0)
     {
-      if(ghid_register(adapters[adapter].hid.id, id, NULL, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
+      if(ghid_register(adapters[adapter].hid.id, adapter, NULL, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
       {
         return -1;
       }

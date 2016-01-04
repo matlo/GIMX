@@ -4,6 +4,7 @@
  */
 
 #include <stdio.h>
+#include <windows.h>
 #include <Hidsdi.h>
 #include <Setupapi.h>
 #include <ghid.h>

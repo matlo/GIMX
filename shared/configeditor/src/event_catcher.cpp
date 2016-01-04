@@ -12,6 +12,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef WIN32
+#define REGISTER_FUNCTION gpoll_register_handle
+#else
+#define REGISTER_FUNCTION gpoll_register_fd
+#endif
+
 #define PERIOD 10000//microseconds
 
 event_catcher* event_catcher::_singleton = NULL;
@@ -389,7 +395,7 @@ void event_catcher::run(string device_type, string event_type)
 
     done = 0;
 
-    int timer = gtimer_start(0, PERIOD, timer_read, timer_close, gpoll_register_fd);
+    int timer = gtimer_start(0, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
     if (timer < 0)
     {
       done = 1;

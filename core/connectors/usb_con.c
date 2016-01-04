@@ -61,7 +61,7 @@ static struct
     {
       .in =
       {
-        .address = DS4_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN,
+        .address = DS4_USB_INTERRUPT_ENDPOINT_IN | USB_DIR_IN,
         .size = DS4_USB_INTERRUPT_PACKET_SIZE,
         .reports =
         {
@@ -77,7 +77,7 @@ static struct
       },
       .out =
       {
-        .address = DS4_USB_INTERRUPT_ENDPOINT_OUT | LIBUSB_ENDPOINT_OUT,
+        .address = DS4_USB_INTERRUPT_ENDPOINT_OUT | USB_DIR_OUT,
         .size = DS4_USB_INTERRUPT_PACKET_SIZE
       }
     }
@@ -93,7 +93,7 @@ static struct
     {
       .in =
       {
-        .address = DS4_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN,
+        .address = DS4_USB_INTERRUPT_ENDPOINT_IN | USB_DIR_IN,
         .size = DS4_USB_INTERRUPT_PACKET_SIZE,
         .reports =
         {
@@ -109,7 +109,7 @@ static struct
       },
       .out =
       {
-        .address = DS4_USB_INTERRUPT_ENDPOINT_OUT | LIBUSB_ENDPOINT_OUT,
+        .address = DS4_USB_INTERRUPT_ENDPOINT_OUT | USB_DIR_OUT,
         .size = DS4_USB_INTERRUPT_PACKET_SIZE
       }
     }
@@ -125,7 +125,7 @@ static struct
     {
       .in =
       {
-        .address = DS4_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN,
+        .address = DS4_USB_INTERRUPT_ENDPOINT_IN | USB_DIR_IN,
         .size = DS4_USB_INTERRUPT_PACKET_SIZE,
         .reports =
         {
@@ -141,7 +141,7 @@ static struct
       },
       .out =
       {
-        .address = DS4_USB_INTERRUPT_ENDPOINT_OUT | LIBUSB_ENDPOINT_OUT,
+        .address = DS4_USB_INTERRUPT_ENDPOINT_OUT | USB_DIR_OUT,
         .size = DS4_USB_INTERRUPT_PACKET_SIZE
       }
     }
@@ -157,7 +157,7 @@ static struct
     {
       .in =
       {
-        .address = X360_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN,
+        .address = X360_USB_INTERRUPT_ENDPOINT_IN | USB_DIR_IN,
         .size = X360_USB_INTERRUPT_PACKET_SIZE,
         .reports =
         {
@@ -173,7 +173,7 @@ static struct
       },
       .out =
       {
-        .address = X360_USB_INTERRUPT_ENDPOINT_OUT | LIBUSB_ENDPOINT_OUT,
+        .address = X360_USB_INTERRUPT_ENDPOINT_OUT | USB_DIR_OUT,
         .size = X360_USB_INTERRUPT_PACKET_SIZE
       }
     }
@@ -189,7 +189,7 @@ static struct
     {
       .in =
       {
-        .address = XONE_USB_INTERRUPT_ENDPOINT_IN | LIBUSB_ENDPOINT_IN,
+        .address = XONE_USB_INTERRUPT_ENDPOINT_IN | USB_DIR_IN,
         .size = XONE_USB_INTERRUPT_PACKET_SIZE,
         .reports =
         {
@@ -209,7 +209,7 @@ static struct
       },
       .out =
       {
-        .address = XONE_USB_INTERRUPT_ENDPOINT_OUT | LIBUSB_ENDPOINT_OUT,
+        .address = XONE_USB_INTERRUPT_ENDPOINT_OUT | USB_DIR_OUT,
         .size = XONE_USB_INTERRUPT_PACKET_SIZE
       }
     }

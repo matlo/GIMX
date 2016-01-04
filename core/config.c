@@ -858,7 +858,7 @@ static int postpone_event(unsigned int device, GE_Event* event)
    || event->button.button == GE_BTN_WHEELRIGHT
    || event->button.button == GE_BTN_WHEELLEFT)
   {
-    if (mc->postpone[event->button.button] + 1 < gimx_params.postpone_count)
+    if (mc->postpone[event->button.button] < gimx_params.postpone_count)
     {
       ginput_queue_push(event);
       mc->postpone[event->button.button]++;

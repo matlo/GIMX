@@ -15,7 +15,7 @@
 #include <report2event/report2event.h>
 
 #ifdef WIN32
-#define REGISTER_FUNCTION GE_AddSourceHandle
+#define REGISTER_FUNCTION gpoll_register_handle
 #else
 #define REGISTER_FUNCTION gpoll_register_fd
 #endif
@@ -79,10 +79,15 @@ void mainloop()
     
     usb_poll_interrupts();
 
+#ifndef WIN32
     adapter_hid_poll();
+#endif
 
 #ifdef WIN32
-    usb_handle_events(0);
+    if (gusb_handle_events(0) < 0)
+    {
+      done = 1;
+    }
 #endif
 
     /*

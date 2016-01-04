@@ -6,14 +6,91 @@
 #ifndef GUSB_H_
 #define GUSB_H_
 
-#include <libusb-1.0/libusb.h>
-#include <linux/usb/ch9.h>
 #include "gpoll.h"
 
 #ifdef WIN32
 #define PACKED __attribute__((gcc_struct, packed))
 #else
 #define PACKED __attribute__((packed))
+#endif
+
+#ifndef WIN32
+#include <linux/usb/ch9.h>
+#else
+#define USB_DIR_OUT			0
+#define USB_DIR_IN			0x80
+
+typedef unsigned char __u8;
+typedef unsigned short __le16;
+
+struct usb_descriptor_header {
+	__u8  bLength;
+	__u8  bDescriptorType;
+} __attribute__ ((packed));
+
+struct usb_device_descriptor {
+	__u8  bLength;
+	__u8  bDescriptorType;
+
+	__le16 bcdUSB;
+	__u8  bDeviceClass;
+	__u8  bDeviceSubClass;
+	__u8  bDeviceProtocol;
+	__u8  bMaxPacketSize0;
+	__le16 idVendor;
+	__le16 idProduct;
+	__le16 bcdDevice;
+	__u8  iManufacturer;
+	__u8  iProduct;
+	__u8  iSerialNumber;
+	__u8  bNumConfigurations;
+} PACKED;
+
+struct usb_config_descriptor {
+	__u8  bLength;
+	__u8  bDescriptorType;
+
+	__le16 wTotalLength;
+	__u8  bNumInterfaces;
+	__u8  bConfigurationValue;
+	__u8  iConfiguration;
+	__u8  bmAttributes;
+	__u8  bMaxPower;
+} PACKED;
+
+struct usb_string_descriptor {
+	__u8  bLength;
+	__u8  bDescriptorType;
+
+	__le16 wData[1];
+} PACKED;
+
+struct usb_interface_descriptor {
+	__u8  bLength;
+	__u8  bDescriptorType;
+
+	__u8  bInterfaceNumber;
+	__u8  bAlternateSetting;
+	__u8  bNumEndpoints;
+	__u8  bInterfaceClass;
+	__u8  bInterfaceSubClass;
+	__u8  bInterfaceProtocol;
+	__u8  iInterface;
+} PACKED;
+
+struct usb_endpoint_descriptor {
+	__u8  bLength;
+	__u8  bDescriptorType;
+
+	__u8  bEndpointAddress;
+	__u8  bmAttributes;
+	__le16 wMaxPacketSize;
+	__u8  bInterval;
+
+	// only in audio endpoints
+	__u8  bRefresh;
+	__u8  bSynchAddress;
+} PACKED;
 #endif
 
 struct usb_hid_descriptor {
@@ -91,5 +168,6 @@ int gusb_write(int device, unsigned char endpoint, const void * buf, unsigned in
 int gusb_write_timeout(int device, unsigned char endpoint, const void * buf, unsigned int count,
     unsigned int timeout);
 int gusb_poll(int device, unsigned char endpoint);
+int gusb_handle_events(int unused);
 
 #endif /* GUSB_H_ */

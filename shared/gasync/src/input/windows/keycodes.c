@@ -3,7 +3,7 @@
  License: GPLv3
  */
 
-#include <events.h>
+#include "../events.h"
 
 /*
  * This table gives a correspondence between a char string and a button code.
