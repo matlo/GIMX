@@ -1,7 +1,7 @@
 -include ../../../Makedefs
 
 OBJS=common.o
-LDLIBS=../gasync.a
+LDLIBS=../gasync.a -lm
 BINS=ginput_test ghid_test gserial_test
 ifeq ($(OS),Windows_NT)
 LDLIBS += $(shell sdl2-config --libs) -liconv -lws2_32 -lwinmm -lhid -lsetupapi
