@@ -10,6 +10,7 @@
 #include <string.h>
 #include <math.h>
 #include <getopt.h>
+#include <sys/time.h>
 
 #include <gserial.h>
 #include <ginput.h>

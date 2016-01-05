@@ -6,6 +6,7 @@
 #include <ginput.h>
 #include <gpoll.h>
 #include <gtimer.h>
+#include <gusb.h>
 #include "gimx.h"
 #include "calibration.h"
 #include "macros.h"
