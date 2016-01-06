@@ -101,9 +101,9 @@ int ginput_init(unsigned char mkb_src, int(*callback)(GE_Event*))
   int j;
   const char* name;
 
-  if (!ev_init(mkb_src, callback))
+  if (ev_init(mkb_src, callback) < 0)
   {
-    return 0;
+    return -1;
   }
 
   i = 0;
@@ -207,7 +207,7 @@ int ginput_init(unsigned char mkb_src, int(*callback)(GE_Event*))
 
   initialized = 1;
 
-  return 1;
+  return 0;
 }
 
 /*

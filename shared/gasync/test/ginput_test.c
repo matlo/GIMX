@@ -29,7 +29,7 @@ static void terminate(int sig)
 
 int main(int argc, char* argv[])
 {
-  if (!ginput_init(GE_MKB_SOURCE_PHYSICAL, process_event))
+  if (ginput_init(GE_MKB_SOURCE_PHYSICAL, process_event) < 0)
   {
     fprintf(stderr, "GE_initialize failed\n");
     exit(-1);

@@ -1,9 +1,10 @@
 /*
- Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
 #include <gserial.h>
+#include <gerror.h>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -15,13 +16,13 @@ static int set_serial_params(int device, unsigned int baudrate) {
    */
   COMMTIMEOUTS * prevTimeouts = &devices[device].serial.prevTimeouts;
   if (GetCommTimeouts(devices[device].handle, prevTimeouts) == 0) {
-      ASYNC_PRINT_ERROR("GetCommTimeouts")
+      PRINT_ERROR_GETLASTERROR("GetCommTimeouts")
       return -1;
   }
   devices[device].serial.restoreTimeouts = 1;
   COMMTIMEOUTS newTimeouts = { 0 };
   if (SetCommTimeouts(devices[device].handle, &newTimeouts) == 0) {
-      ASYNC_PRINT_ERROR("SetCommTimeouts")
+      PRINT_ERROR_GETLASTERROR("SetCommTimeouts")
       return -1;
   }
   /*
@@ -30,7 +31,7 @@ static int set_serial_params(int device, unsigned int baudrate) {
   DCB * prevSerialParams = &devices[device].serial.prevParams;
   prevSerialParams->DCBlength = sizeof(*prevSerialParams);
   if (GetCommState(devices[device].handle, prevSerialParams) == 0) {
-    ASYNC_PRINT_ERROR("GetCommState")
+    PRINT_ERROR_GETLASTERROR("GetCommState")
     return -1;
   }
   devices[device].serial.restoreParams = 1;
@@ -40,7 +41,7 @@ static int set_serial_params(int device, unsigned int baudrate) {
   newSerialParams.StopBits = ONESTOPBIT;
   newSerialParams.Parity = NOPARITY;
   if (SetCommState(devices[device].handle, &newSerialParams) == 0) {
-    ASYNC_PRINT_ERROR("SetCommState")
+    PRINT_ERROR_GETLASTERROR("SetCommState")
     return -1;
   }
   return 0;
@@ -164,10 +165,10 @@ int gserial_close(int device) {
     usleep(10000);//sleep 10ms to leave enough time for the last packet to be sent
 
     if (devices[device].serial.restoreParams && SetCommState(devices[device].handle, &devices[device].serial.prevParams) == 0) {
-        ASYNC_PRINT_ERROR("SetCommState")
+        PRINT_ERROR_GETLASTERROR("SetCommState")
     }
     if(devices[device].serial.restoreTimeouts && SetCommTimeouts(devices[device].handle, &devices[device].serial.prevTimeouts) == 0) {
-        ASYNC_PRINT_ERROR("SetCommTimeouts")
+        PRINT_ERROR_GETLASTERROR("SetCommTimeouts")
     }
 
     return async_close(device);

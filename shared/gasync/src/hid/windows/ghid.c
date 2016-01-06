@@ -8,10 +8,7 @@
 #include <Hidsdi.h>
 #include <Setupapi.h>
 #include <ghid.h>
-
-#define PRINT_ERROR_ALLOC_FAILED(func) fprintf(stderr, "%s:%d %s: %s failed\n", __FILE__, __LINE__, __func__, func);
-
-#define PRINT_ERROR_OTHER(msg) fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
+#include <gerror.h>
 
 int open_path(const char * path, int print) {
 
@@ -30,20 +27,20 @@ int open_path(const char * path, int print) {
                 devices[device].hidInfo.bcdDevice = attributes.VersionNumber;
             }
             else {
-                ASYNC_PRINT_ERROR("HidP_GetCaps")
+                PRINT_ERROR_GETLASTERROR("HidP_GetCaps")
                 async_close(device);
                 device = -1;
             }
             HidD_FreePreparsedData(preparsedData);
         }
         else {
-            ASYNC_PRINT_ERROR("HidD_GetPreparsedData")
+            PRINT_ERROR_GETLASTERROR("HidD_GetPreparsedData")
             async_close(device);
             device = -1;
         }
     }
     else {
-        ASYNC_PRINT_ERROR("HidD_GetAttributes")
+        PRINT_ERROR_GETLASTERROR("HidD_GetAttributes")
         async_close(device);
         device = -1;
     }
@@ -77,12 +74,12 @@ s_hid_dev * ghid_enumerate(unsigned short vendor, unsigned short product) {
 			}
 			SP_DEVICE_INTERFACE_DETAIL_DATA * details = calloc(reqd_size, sizeof(char));
 			if(details == NULL) {
-				fprintf(stderr, "%s:%d calloc failed\n", __FILE__, __LINE__);
+				PRINT_ERROR_ALLOC_FAILED("calloc")
 				continue;
 			}
 			details->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA);
 			if(SetupDiGetDeviceInterfaceDetail(info, &iface, details, reqd_size, NULL, NULL) == FALSE) {
-				ASYNC_PRINT_ERROR("SetupDiGetDeviceInterfaceDetail")
+				PRINT_ERROR_GETLASTERROR("SetupDiGetDeviceInterfaceDetail")
 				free(details);
 				continue;
 			}
@@ -203,12 +200,12 @@ int ghid_open_ids(unsigned short vendor, unsigned short product)
       }
       details = calloc(reqd_size, sizeof(char));
       if(details == NULL) {
-        fprintf(stderr, "%s:%d calloc failed\n", __FILE__, __LINE__);
+        PRINT_ERROR_ALLOC_FAILED("calloc")
         continue;
       }
       details->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA);
       if(SetupDiGetDeviceInterfaceDetail(info, &iface, details, reqd_size, NULL, NULL) == FALSE) {
-        ASYNC_PRINT_ERROR("SetupDiGetDeviceInterfaceDetail")
+        PRINT_ERROR_GETLASTERROR("SetupDiGetDeviceInterfaceDetail")
         free(details);
         details = NULL;
         continue;

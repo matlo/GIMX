@@ -4,6 +4,7 @@
  */
 
 #include <guhid.h>
+#include <gerror.h>
 
 #ifndef __ARM_ARCH_6__
 #include <linux/uhid.h>
@@ -19,12 +20,6 @@
 #define UHID_MAX_DEVICES 256
 
 #define UHID_PATH "/dev/uhid"
-
-#define PRINT_ERROR_ALLOC_FAILED(func) fprintf(stderr, "%s:%d %s: %s failed\n", __FILE__, __LINE__, __func__, func);
-
-#define PRINT_ERROR_OTHER(msg) fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
-
-#define PRINT_ERROR_ERRNO(msg) fprintf(stderr, "%s:%d %s: %s failed with error: %m\n", __FILE__, __LINE__, __func__, msg);
 
 static struct {
     int fd;

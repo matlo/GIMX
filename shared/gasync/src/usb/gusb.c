@@ -4,6 +4,7 @@
  */
 
 #include <gusb.h>
+#include <gerror.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -51,26 +52,7 @@ static struct {
   int closing;
 } usbdevices[USBASYNC_MAX_DEVICES] = { };
 
-#if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)
-static const char * LIBUSB_CALL libusb_strerror(enum libusb_error errcode)
-{
-  return libusb_error_name(errcode);
-}
-#endif
-
-static void print_error_libusb(const char * file, int line, const char * func, const char * libusbfunc, int ret) {
-
-  fprintf(stderr, "%s:%d %s: %s failed with error: %s\n", file, line, func, libusbfunc, libusb_strerror(ret));
-}
-#define PRINT_ERROR_LIBUSB(libusbfunc,ret) print_error_libusb(__FILE__, __LINE__, __func__, libusbfunc, ret);
-
-#define PRINT_ERROR_ALLOC_FAILED(func) fprintf(stderr, "%s:%d %s: %s failed\n", __FILE__, __LINE__, __func__, func);
-
 #define PRINT_ERROR_INVALID_ENDPOINT(msg, endpoint) fprintf(stderr, "%s:%d %s: %s: 0x%02x\n", __FILE__, __LINE__, __func__, msg, endpoint);
-
-#define PRINT_ERROR_OTHER(msg) fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
-
-#define PRINT_TRANSFER_ERROR(transfer) fprintf(stderr, "libusb_transfer failed with status %s (endpoint=0x%02x)\n", libusb_error_name(transfer->status), transfer->endpoint);
 
 static libusb_context* ctx = NULL;
 

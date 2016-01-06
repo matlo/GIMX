@@ -4,6 +4,7 @@
  */
 
 #include <gserial.h>
+#include <gerror.h>
 
 #include <stdio.h>
 #include <linux/spi/spidev.h>
@@ -17,10 +18,10 @@
 static int tty_set_params(int device, speed_t baudrate)
 {
   struct termios options;
-  
+
   if(tcgetattr(devices[device].fd, &options) < 0)
   {
-    ASYNC_PRINT_ERROR("tcgetattr")
+    PRINT_ERROR_ERRNO("tcgetattr")
     return -1;
   }
   cfsetispeed(&options, baudrate);
@@ -28,7 +29,7 @@ static int tty_set_params(int device, speed_t baudrate)
   cfmakeraw(&options);
   if(tcsetattr(devices[device].fd, TCSANOW, &options) < 0)
   {
-    ASYNC_PRINT_ERROR("tcsetattr")
+    PRINT_ERROR_ERRNO("tcsetattr")
     return -1;
   }
   tcflush(devices[device].fd, TCIFLUSH);
@@ -43,27 +44,27 @@ static int spi_set_params(int device, unsigned int baudrate)
 
   if(ioctl(devices[device].fd, SPI_IOC_WR_MAX_SPEED_HZ, &baudrate) < 0)
   {
-    ASYNC_PRINT_ERROR("ioctl SPI_IOC_WR_MAX_SPEED_HZ")
+    PRINT_ERROR_ERRNO("ioctl SPI_IOC_WR_MAX_SPEED_HZ")
     return -1;
   }
   else if(ioctl(devices[device].fd, SPI_IOC_WR_BITS_PER_WORD, &bits) < 0)
   {
-    ASYNC_PRINT_ERROR("ioctl SPI_IOC_WR_BITS_PER_WORD")
+    PRINT_ERROR_ERRNO("ioctl SPI_IOC_WR_BITS_PER_WORD")
     return -1;
   }
   else if(ioctl(devices[device].fd, SPI_IOC_RD_BITS_PER_WORD, &bits) < 0)
   {
-    ASYNC_PRINT_ERROR("ioctl SPI_IOC_RD_BITS_PER_WORD")
+    PRINT_ERROR_ERRNO("ioctl SPI_IOC_RD_BITS_PER_WORD")
     return -1;
   }
   else if (ioctl (devices[device].fd, SPI_IOC_WR_MODE, &mode) < 0)
   {
-    ASYNC_PRINT_ERROR("ioctl SPI_IOC_WR_MODE")
+    PRINT_ERROR_ERRNO("ioctl SPI_IOC_WR_MODE")
     return -1;
   }
   else if (ioctl (devices[device].fd, SPI_IOC_RD_MODE, &mode) < 0)
   {
-    ASYNC_PRINT_ERROR("ioctl SPI_IOC_RD_MODE")
+    PRINT_ERROR_ERRNO("ioctl SPI_IOC_RD_MODE")
     return -1;
   }
 

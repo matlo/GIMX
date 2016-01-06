@@ -16,6 +16,7 @@
 #include <dirent.h>
 #include <ginput.h>
 #include <gpoll.h>
+#include <gerror.h>
 #include "../events.h"
 #include "../queue.h"
 
@@ -62,19 +63,19 @@ static int mkb_read_type(int index, int fd)
   int has_scroll = 0;
 
   if (ioctl(fd, EVIOCGNAME(sizeof(name) - 1), name) < 0) {
-    fprintf(stderr, "ioctl EVIOCGNAME failed: %s\n", strerror(errno));
+    PRINT_ERROR_ERRNO("ioctl EVIOCGNAME")
     return -1;
   }
 
   len = ioctl(fd, EVIOCGBIT(EV_REL, sizeof(rel_bitmask)), rel_bitmask);
   if (len < 0) {
-    fprintf(stderr, "ioctl EVIOCGBIT failed: %s\n", strerror(errno));
+    PRINT_ERROR_ERRNO("ioctl EVIOCGBIT")
     return -1;
   }
 
   len = ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(key_bitmask)), key_bitmask);
   if (len < 0) {
-    fprintf(stderr, "ioctl EVIOCGBIT failed: %s\n", strerror(errno));
+    PRINT_ERROR_ERRNO("ioctl EVIOCGBIT")
     return -1;
   }
 
@@ -105,6 +106,13 @@ static int mkb_read_type(int index, int fd)
     return -1;
   }
 
+  devices[index].name = strdup(name);
+  if (devices[index].name == NULL)
+  {
+    PRINT_ERROR_ERRNO("strdup")
+    return -1;
+  }
+
   if(has_keys)
   {
     devices[index].type = DEVTYPE_KEYBOARD;
@@ -118,17 +126,10 @@ static int mkb_read_type(int index, int fd)
     m_num++;
   }
 
-  devices[index].name = strdup(name);
-
   return 0;
 }
 
 static int (*event_callback)(GE_Event*) = NULL;
-
-void mkb_set_callback(int (*fp)(GE_Event*))
-{
-  event_callback = fp;
-}
 
 static void mkb_process_event(int device, struct input_event* ie)
 {
@@ -256,7 +257,7 @@ static int is_event_file(const struct dirent *dir) {
   return 0;
 }
 
-int mkb_init()
+int mkb_init(int (*callback)(GE_Event*))
 {
   int ret = 0;
   int i, j;
@@ -267,6 +268,14 @@ int mkb_init()
   max_device_id = -1;
   k_num = 0;
   m_num = 0;
+
+  if (callback == NULL)
+  {
+    PRINT_ERROR_OTHER("callback is NULL")
+    return -1;
+  }
+
+  event_callback = callback;
 
   for(i=0; i<GE_MAX_DEVICES; ++i)
   {
@@ -306,9 +315,9 @@ int mkb_init()
           close(fd);
         }
       }
-      else if(errno == EACCES)
+      else
       {
-        fprintf(stderr, "can't open %s: %s\n", device, strerror(errno));
+        PRINT_ERROR_ERRNO("open")
         ret = -1;
       }
 
@@ -318,7 +327,7 @@ int mkb_init()
   }
   else
   {
-    fprintf(stderr, "can't scan directory %s: %s\n", DEV_INPUT, strerror(errno));
+    PRINT_ERROR_ERRNO("scandir")
     ret = -1;
   }
 

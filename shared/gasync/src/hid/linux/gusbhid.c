@@ -4,6 +4,7 @@
  */
 
 #include <gusbhid.h>
+#include <gerror.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -47,23 +48,6 @@ static struct {
   int pending_transfers;
   int closing;
 } usbdevices[USBHIDASYNC_MAX_DEVICES] = { };
-
-#if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)
-static const char * LIBUSB_CALL libusb_strerror(enum libusb_error errcode)
-{
-  return libusb_error_name(errcode);
-}
-#endif
-
-static void print_error_libusb(const char * file, int line, const char * func, const char * libusbfunc, int ret) {
-
-  fprintf(stderr, "%s:%d %s: %s failed with error: %s\n", file, line, func, libusbfunc, libusb_strerror(ret));
-}
-#define PRINT_ERROR_LIBUSB(libusbfunc,ret) print_error_libusb(__FILE__, __LINE__, __func__, libusbfunc, ret);
-
-#define PRINT_ERROR_ALLOC_FAILED(func) fprintf(stderr, "%s:%d %s: %s failed\n", __FILE__, __LINE__, __func__, func);
-
-#define PRINT_ERROR_OTHER(msg) fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
 
 static libusb_context* ctx = NULL;
 
@@ -132,11 +116,11 @@ void usbhidasync_clean(void) {
 
 inline int usbhidasync_check_device(int device, const char * file, unsigned int line, const char * func) {
   if (device < 0 || device >= USBHIDASYNC_MAX_DEVICES) {
-    fprintf(stderr, "%s:%d %s: invalid device\n", file, line, func);
+    PRINT_ERROR_OTHER("invalid device")
     return -1;
   }
   if (usbdevices[device].devh == NULL) {
-    fprintf(stderr, "%s:%d %s: no such device\n", file, line, func);
+    PRINT_ERROR_OTHER("no such device")
     return -1;
   }
   return 0;
@@ -254,8 +238,7 @@ static void usb_callback(struct libusb_transfer* transfer) {
       } else {
         if (transfer->endpoint == usbdevices[device].config.endpoints.out.address
             || (transfer->status != LIBUSB_TRANSFER_TIMED_OUT && transfer->status != LIBUSB_TRANSFER_CANCELLED)) {
-          fprintf(stderr, "libusb_transfer failed with status %s (endpoint=0x%02x)\n",
-              libusb_error_name(transfer->status), transfer->endpoint);
+          PRINT_TRANSFER_ERROR(transfer)
         }
         if (transfer->endpoint == usbdevices[device].config.endpoints.in.address) {
           usbdevices[device].callback.fp_read(usbdevices[device].callback.user, NULL, -1);

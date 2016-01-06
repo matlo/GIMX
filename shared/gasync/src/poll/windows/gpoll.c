@@ -11,7 +11,7 @@
 #include <string.h>
 #include "../../input/windows/rawinput.h"
 
-#define PRINT_ERROR_OTHER(msg) fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
+#include <gerror.h>
 
 #define MAX_SOURCES (MAXIMUM_WAIT_OBJECTS-1)
 
@@ -169,20 +169,6 @@ static int fill_handles(HANDLE handles[]) {
   return count;
 }
 
-void plasterror(const char* msg) {
-
-  DWORD error = GetLastError();
-  LPTSTR pBuffer = NULL;
-
-  if (!FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, error, 0, (LPTSTR) & pBuffer, 0,
-      NULL)) {
-    fprintf(stderr, "%s failed with error: %lu\n", msg, error);
-  } else {
-    fprintf(stderr, "%s failed with error: %s\n", msg, pBuffer);
-    LocalFree(pBuffer);
-  }
-}
-
 void gpoll() {
 
   int i;
@@ -202,7 +188,7 @@ void gpoll() {
     result = MsgWaitForMultipleObjects(count, handles, FALSE, INFINITE, dwWakeMask);
 
     if (result == WAIT_FAILED) {
-      plasterror("MsgWaitForMultipleObjects");
+      PRINT_ERROR_GETLASTERROR("MsgWaitForMultipleObjects")
     } else if (result == WAIT_OBJECT_0 + count) {
 
       if(mkb_source == GE_MKB_SOURCE_PHYSICAL) {
@@ -217,12 +203,12 @@ void gpoll() {
              * Network source
              */
             if (WSAEnumNetworkEvents(sources[i].fd, handles[result], &NetworkEvents)) {
-              plasterror("WSAEnumNetworkEvents");
+              PRINT_ERROR_GETLASTERROR("WSAEnumNetworkEvents")
               sources[i].fp_cleanup(sources[i].user);
             } else {
               if (NetworkEvents.lNetworkEvents & FD_READ) {
                 if (NetworkEvents.iErrorCode[FD_READ_BIT]) {
-                  fprintf(stderr, "iErrorCode[FD_READ_BIT] is set\n");
+                  PRINT_ERROR_OTHER("iErrorCode[FD_READ_BIT] is set");
                   sources[i].fp_cleanup(sources[i].user);
                 } else {
                   if (sources[i].fp_read(sources[i].user)) {

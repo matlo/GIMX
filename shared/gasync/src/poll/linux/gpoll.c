@@ -4,14 +4,14 @@
  */
 
 #include <gpoll.h>
+#include <gerror.h>
 
 #include <stdio.h>
+#include <errno.h>
 #include <poll.h>
 #include <string.h>
 
 #define MAX_SOURCES 1024
-
-#define PRINT_ERROR_OTHER(msg) fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
 
 static struct {
   int user;
@@ -107,6 +107,10 @@ void gpoll(void) {
             return;
           }
         }
+      }
+    } else {
+      if(errno != EINTR) {
+        PRINT_ERROR_ERRNO("poll")
       }
     }
   }

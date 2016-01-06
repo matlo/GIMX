@@ -17,6 +17,7 @@
 #include <string.h>
 
 #include <ginput.h>
+#include <gerror.h>
 #include "js.h"
 #include "mkb.h"
 #include "xinput.h"
@@ -26,53 +27,36 @@ static unsigned char mkb_source;
 
 int ev_init(unsigned char mkb_src, int(*callback)(GE_Event*))
 {
-  int ret;
-
   mkb_source = mkb_src;
 
   if (callback == NULL) {
-    fprintf(stderr, "callback cannot be NULL\n");
-    return 0;
+    PRINT_ERROR_OTHER("callback is NULL")
+    return -1;
   }
 
   if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
   {
-    ret = mkb_init();
-
-    if(ret < 0)
+    if(mkb_init(callback) < 0)
     {
-      fprintf(stderr, "mkb_init failed.\n");
-      return 0;
+      return -1;
     }
-
-    mkb_set_callback(callback);
   }
   else if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
   {
-    ret = xinput_init();
-
-    if(ret < 0)
+    if(xinput_init(callback) < 0)
     {
-      fprintf(stderr, "xinput_init failed.\n");
-      return 0;
+      return -1;
     }
-
-    xinput_set_callback(callback);
   }
 
-  ret = js_init();
-
-  if(ret < 0)
+  if(js_init(callback) < 0)
   {
-    fprintf(stderr, "jsdev_init failed.\n");
-    return 0;
+    return -1;
   }
-
-  js_set_callback(callback);
 
   queue_init();
 
-  return 1;
+  return 0;
 }
 
 int ev_joystick_register(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short))

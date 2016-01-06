@@ -4,6 +4,7 @@
  */
 
 #include <async.h>
+#include <gerror.h>
 
 #include <stdio.h>
 #include <errno.h>
@@ -34,11 +35,6 @@ void async_clean(void)
             async_close(i);
         }
     }
-}
-
-void async_print_error(const char * file, int line, const char * msg) {
-  
-  fprintf(stderr, "%s:%d %s failed with error: %m\n", file, line, msg);
 }
 
 static int add_device(const char * path, int fd, int print) {
@@ -79,7 +75,7 @@ int async_open_path(const char * path, int print) {
         }
         else {
             if(print) {
-                ASYNC_PRINT_ERROR("open")
+                PRINT_ERROR_ERRNO("open")
             }
         }
     }
@@ -131,12 +127,13 @@ int async_read_timeout(int device, void * buf, unsigned int count, unsigned int 
         }
       }
     }
-    else if(status == EINTR)
+    else if(errno == EINTR)
     {
       continue;
     }
     else
     {
+      PRINT_ERROR_ERRNO("select")
       break;
     }
   }
@@ -173,12 +170,13 @@ int async_write_timeout(int device, const void * buf, unsigned int count, unsign
         }
       }
     }
-    else if(status == EINTR)
+    else if(errno == EINTR)
     {
       continue;
     }
     else
     {
+      PRINT_ERROR_ERRNO("select")
       break;
     }
   }
@@ -192,11 +190,11 @@ int async_write_timeout(int device, const void * buf, unsigned int count, unsign
 static int read_callback(int device) {
 
     ASYNC_CHECK_DEVICE(device, -1)
-    
+
     int ret = read(devices[device].fd, devices[device].read.buf, devices[device].read.count);
-    
+
     if(ret < 0) {
-        ASYNC_PRINT_ERROR("read")
+        PRINT_ERROR_ERRNO("read")
     }
 
     return devices[device].callback.fp_read(devices[device].callback.user, (const char *)devices[device].read.buf, ret);
@@ -215,26 +213,26 @@ static int close_callback(int device) {
 int async_set_read_size(int device, unsigned int size) {
 
     ASYNC_CHECK_DEVICE(device, -1)
-    
+
     if(size > devices[device].read.size) {
         void * ptr = realloc(devices[device].read.buf, size);
         if(ptr == NULL) {
-    	    fprintf(stderr, "%s:%d %s: can't allocate a buffer\n", __FILE__, __LINE__, __func__);
+            PRINT_ERROR_ALLOC_FAILED("realloc")
             return -1;
         }
         devices[device].read.buf = ptr;
         devices[device].read.size = size;
     }
-    
+
     devices[device].read.count = size;
-    
+
     return 0;
 }
 
 int async_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_FD fp_register) {
 
     ASYNC_CHECK_DEVICE(device, -1)
-    
+
     devices[device].callback.user = user;
     devices[device].callback.fp_read = fp_read;
     //fp_write is ignored
@@ -249,12 +247,12 @@ int async_write(int device, const void * buf, unsigned int count) {
 
     int ret = write(devices[device].fd, buf, count);
     if (ret == -1) {
-        ASYNC_PRINT_ERROR("write")
+        PRINT_ERROR_ERRNO("write")
     }
     else if((unsigned int) ret != count) {
         fprintf(stderr, "%s:%d write: only %u written (requested %u)\n", __FILE__, __LINE__, ret, count);
     }
-    
+
     return ret;
 }
 

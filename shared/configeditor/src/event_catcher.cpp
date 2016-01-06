@@ -44,7 +44,7 @@ int event_catcher::init()
       src = GE_MKB_SOURCE_WINDOW_SYSTEM;
     }
     
-    if(!ginput_init(src, process_event))
+    if(ginput_init(src, process_event) < 0)
     {
       return -1;
     }

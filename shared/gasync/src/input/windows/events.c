@@ -129,7 +129,7 @@ int ev_init(unsigned char mkb_src, int(*callback)(GE_Event*))
 
   if (callback == NULL) {
     fprintf(stderr, "callback cannot be NULL\n");
-    return 0;
+    return -1;
   }
   
   event_callback = callback;
@@ -138,7 +138,7 @@ int ev_init(unsigned char mkb_src, int(*callback)(GE_Event*))
   if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC) < 0)
   {
    fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
-   return 0;
+   return -1;
   }
 
   SDL_GameControllerAddMappingsFromFile("gamecontrollerdb.txt");
@@ -170,7 +170,7 @@ int ev_init(unsigned char mkb_src, int(*callback)(GE_Event*))
       else
       {
         fprintf(stderr, "Could not open gamecontroller %i: %s\n", i, SDL_GetError());
-        return 0;
+        return -1;
       }
     }
     else
@@ -215,7 +215,7 @@ int ev_init(unsigned char mkb_src, int(*callback)(GE_Event*))
   {
     if(rawinput_init(rawinput_callback) < 0)
     {
-      return 0;
+      return -1;
     }
   }
   else if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
@@ -223,7 +223,7 @@ int ev_init(unsigned char mkb_src, int(*callback)(GE_Event*))
     if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0)
     {
       fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
-      return 0;
+      return -1;
     }
 
     /* Init video */
@@ -232,13 +232,13 @@ int ev_init(unsigned char mkb_src, int(*callback)(GE_Event*))
     if (window == NULL)
     {
       fprintf(stderr, "Unable to create video surface: %s\n", SDL_GetError());
-      return 0;
+      return -1;
     }
   }
 
   queue_init();
 
-  return 1;
+  return 0;
 }
 
 void ev_quit(void)

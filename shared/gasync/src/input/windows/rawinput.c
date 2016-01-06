@@ -42,6 +42,8 @@
 #include <windows.h>
 #include <setupapi.h>
 
+#include <gerror.h>
+
 #define MAX_DEVICES 256
 #define MAX_KEYS 256
 
@@ -194,18 +196,16 @@ static void wminput_handler(WPARAM wParam, LPARAM lParam)
   GetRawInputData((HRAWINPUT) lParam, RID_INPUT, NULL, &dwSize, sizeof (RAWINPUTHEADER));
 
   if (dwSize == 0) {
-    //TODO MLA: log error
     return;
   }
 
   lpb = (LPBYTE) malloc(dwSize);
   if (lpb == NULL) {
-      //TODO MLA: log error
+      PRINT_ERROR_ALLOC_FAILED("malloc")
       return;
   }
 
   if (GetRawInputData((HRAWINPUT) lParam, RID_INPUT, lpb, &dwSize, sizeof (RAWINPUTHEADER)) != dwSize) {
-      //TODO MLA: log error
       return;
   }
 
@@ -278,7 +278,7 @@ static int init_event_queue(void)
     raw_hwnd = CreateWindow(class_name, win_name, WS_POPUP | WS_VISIBLE | WS_SYSMENU, cursor_pos.x, cursor_pos.y, 1, 1, NULL, NULL, hInstance, NULL);
 
     if (raw_hwnd == NULL) {
-      //TODO MLA: log error
+      PRINT_ERROR_GETLASTERROR("CreateWindow")
       return 0;
     }
 
@@ -297,8 +297,8 @@ static int init_event_queue(void)
       }
     };
     
-    if (!RegisterRawInputDevices(rid, 2, sizeof (*rid))) {
-        //TODO MLA: log error
+    if (RegisterRawInputDevices(rid, 2, sizeof (*rid)) == FALSE) {
+        PRINT_ERROR_GETLASTERROR("RegisterRawInputDevices")
         return 0;
     }
     
@@ -339,7 +339,7 @@ static int get_devinfos() {
   const DWORD flags = DIGCF_ALLCLASSES | DIGCF_PRESENT;
   hdevinfo = SetupDiGetClassDevs(NULL, NULL, NULL, flags);
   if (hdevinfo == INVALID_HANDLE_VALUE) {
-    //TODO MLA: log error
+    PRINT_ERROR_GETLASTERROR("SetupDiGetClassDevs")
     return -1;
   }
   
@@ -353,7 +353,7 @@ static int get_devinfos() {
       if (result == FALSE && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
         char * buf = malloc(bufsize);
         if (buf == NULL) {
-          //TODO MLA: log error
+          PRINT_ERROR_ALLOC_FAILED("malloc")
           continue;
         }
         result = SetupDiGetDeviceInstanceId(hdevinfo, &data, buf, bufsize, NULL);
@@ -362,14 +362,16 @@ static int get_devinfos() {
           devinfos[nb_devinfos].data = data;
           ++nb_devinfos;
         } else {
-          //TODO MLA: log error
+          PRINT_ERROR_GETLASTERROR("SetupDiGetDeviceInstanceId")
           free(buf);
         }
       } else {
-        //TODO MLA: log error
+        PRINT_ERROR_GETLASTERROR("SetupDiGetDeviceInstanceId")
       }
     } else if (GetLastError() == ERROR_NO_MORE_ITEMS) {
       break;
+    } else {
+      PRINT_ERROR_GETLASTERROR("SetupDiEnumDeviceInfo")
     }
   }
 
@@ -412,18 +414,16 @@ static char * get_dev_name_by_instance(const char * devinstance) {
       if (name != NULL) {
         result = SetupDiGetDeviceRegistryProperty(hdevinfo, devdata, SPDRP_DEVICEDESC, NULL, (PBYTE) name, size, NULL);
         if (result == FALSE) {
-          //TODO MLA: log error
+          PRINT_ERROR_GETLASTERROR("SetupDiGetDeviceRegistryProperty")
           free(name);
           name = NULL;
         }
       } else {
-        //TODO MLA: log error
+        PRINT_ERROR_ALLOC_FAILED("malloc")
       }
     } else {
-      //TODO MLA: log error
+      PRINT_ERROR_GETLASTERROR("SetupDiGetDeviceRegistryProperty")
     }
-  } else {
-    //TODO MLA: log error
   }
   
   return name;
@@ -437,18 +437,18 @@ static void init_device(const RAWINPUTDEVICELIST * dev) {
 
   UINT count = 0;
   if (GetRawInputDeviceInfo(dev->hDevice, RIDI_DEVICENAME, NULL, &count) == (UINT)-1) {
-    //TODO MLA: log error
+    PRINT_ERROR_GETLASTERROR("GetRawInputDeviceInfo")
     return;
   }
 
   char * buf = (char *) calloc(count + 1, sizeof(char));
   if (buf == NULL) {
-    //TODO MLA: log error
+    PRINT_ERROR_ALLOC_FAILED("calloc")
     return;
   }
 
   if (GetRawInputDeviceInfo(dev->hDevice, RIDI_DEVICENAME, buf, &count) == (UINT)-1) {
-    //TODO MLA: log error
+    PRINT_ERROR_GETLASTERROR("GetRawInputDeviceInfo")
     return;
   }
   
@@ -482,8 +482,6 @@ static void init_device(const RAWINPUTDEVICELIST * dev) {
     if (mice[available_mice].name != NULL) {
       mice[available_mice].handle = dev->hDevice;
       available_mice++;
-    } else {
-      //TODO MLA: log error
     }
   }
   else if(dev->dwType == RIM_TYPEKEYBOARD) {
@@ -494,7 +492,6 @@ static void init_device(const RAWINPUTDEVICELIST * dev) {
         keyboards[available_keyboards].handle = dev->hDevice;
         available_keyboards++;
       } else {
-        //TODO MLA: log error
         free(keyboards[available_keyboards].name);
         keyboards[available_keyboards].name = NULL;
       }
@@ -505,7 +502,7 @@ static void init_device(const RAWINPUTDEVICELIST * dev) {
 int rawinput_init(int (*callback)(GE_Event*)) {
 
   if (callback == NULL) {
-    //TODO MLA: log error
+    PRINT_ERROR_OTHER("callback is NULL")
     return -1;
   }
 
@@ -521,7 +518,7 @@ int rawinput_init(int (*callback)(GE_Event*)) {
   UINT count = 0;
   UINT result = GetRawInputDeviceList(NULL, &count, sizeof(RAWINPUTDEVICELIST));
   if (result == (UINT)-1) {
-    //TODO MLA: log error
+    PRINT_ERROR_GETLASTERROR("GetRawInputDeviceList")
   } else if (count > 0) {
     RAWINPUTDEVICELIST * devlist = (PRAWINPUTDEVICELIST) malloc(count * sizeof(RAWINPUTDEVICELIST));
     result = GetRawInputDeviceList(devlist, &count, sizeof(RAWINPUTDEVICELIST));

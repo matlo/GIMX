@@ -99,9 +99,6 @@ typedef struct {
 
 extern s_device devices[ASYNC_MAX_DEVICES];
 
-void async_print_error(const char * file, int line, const char * msg);
-#define ASYNC_PRINT_ERROR(msg) async_print_error(__FILE__, __LINE__, msg);
-
 static inline int async_check_device(int device, const char * file, unsigned int line, const char * func) {
   if(device < 0 || device >= ASYNC_MAX_DEVICES) {
       fprintf(stderr, "%s:%d %s: invalid device (%d)\n", file, line, func, device);

@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
 
     if (uhid >= 0) {
 
-      if (ginput_init(GE_MKB_SOURCE_PHYSICAL, process_event)) {
+      if (ginput_init(GE_MKB_SOURCE_PHYSICAL, process_event) == 0) {
 
         display_devices();
 

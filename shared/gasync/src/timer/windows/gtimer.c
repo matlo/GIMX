@@ -4,6 +4,7 @@
  */
 
 #include <gtimer.h>
+#include <gerror.h>
 
 #include <windows.h>
 #include <unistd.h>
@@ -11,9 +12,6 @@
 #include <stdint.h>
 
 static HANDLE hTimer = NULL;
-
-#define PRINT_ERROR_ERRNO(msg) fprintf(stderr, "%s:%d %s: %s failed with error: %m\n", __FILE__, __LINE__, __func__, msg);
-#define PRINT_ERROR_OTHER(msg) fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
 
 #define MAX_TIMERS 32
 
@@ -72,21 +70,28 @@ int gtimer_start(int user, int usec, GPOLL_READ_CALLBACK fp_read, GPOLL_CLOSE_CA
     PRINT_ERROR_OTHER("no slot available")
     return -1;
   }
-  
+
   if (nb_timers == 0) {
     timeBeginPeriod(1);
   }
 
   hTimer = CreateWaitableTimer(NULL, FALSE, NULL);
   if (hTimer != INVALID_HANDLE_VALUE) {
-    LARGE_INTEGER li = { .QuadPart = -(usec*10) };
-    if(!SetWaitableTimer(hTimer, &li, usec / 1000, NULL, NULL, FALSE)) {
-      fprintf(stderr, "SetWaitableTimer failed.\n");
+    LONG period = usec / 1000;
+    if (period * 1000 != usec) {
+      PRINT_ERROR_OTHER("timer accuracy is only 1ms on Windows")
+    }
+    if (period == 0) {
+      period = 1;
+    }
+    LARGE_INTEGER li = { .QuadPart = -(period * 10000) };
+    if (!SetWaitableTimer(hTimer, &li, period, NULL, NULL, FALSE)) {
+      PRINT_ERROR_GETLASTERROR("SetWaitableTimer")
       CloseHandle(hTimer);
       hTimer = INVALID_HANDLE_VALUE;
     }
   } else {
-    fprintf(stderr, "CreateWaitableTimer failed.\n");
+    PRINT_ERROR_GETLASTERROR("CreateWaitableTimer")
   }
 
   int ret = fp_register(hTimer, slot, read_callback, NULL, close_callback);
@@ -94,7 +99,7 @@ int gtimer_start(int user, int usec, GPOLL_READ_CALLBACK fp_read, GPOLL_CLOSE_CA
     CloseHandle(hTimer);
     hTimer = INVALID_HANDLE_VALUE;
   }
-  
+
   if (hTimer != INVALID_HANDLE_VALUE) {
     ++nb_timers;
     timers[slot].handle = hTimer;

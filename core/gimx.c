@@ -295,7 +295,7 @@ int main(int argc, char *argv[])
   // - there's no need to read macros
   // - there's no need to read inputs
   // - there's no need to grab the mouse
-  if (!ginput_init(src, fp))
+  if (ginput_init(src, fp) < 0)
   {
     fprintf(stderr, _("GE_initialize failed\n"));
     goto QUIT;

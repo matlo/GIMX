@@ -82,12 +82,13 @@ void mainloop()
       break;
     }
   }
+  int usb_timer = -1;
   if (i != MAX_CONTROLLERS)
   {
     /*
      * Create a 1ms periodic timer to handle libusb events.
      */
-    int usb_timer = gtimer_start(0, 1000, usb_timer_read, usb_timer_close, REGISTER_FUNCTION);
+    usb_timer = gtimer_start(0, 1000, usb_timer_read, usb_timer_close, REGISTER_FUNCTION);
     if (usb_timer < 0)
     {
       done = 1;
