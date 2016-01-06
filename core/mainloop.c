@@ -33,11 +33,28 @@ static int timer_read(int user)
   return 1;
 }
 
-static int timer_close(int timer)
+static int timer_close(int user)
 {
   set_done();
   return 1;
 }
+
+#ifndef __linux__
+static int usb_timer_read(int user)
+{
+  if (gusb_handle_events(0) < 0)
+  {
+    done = 1;
+  }
+  return 0;
+}
+
+static int usb_timer_close(int user)
+{
+  done = 1;
+  return 1;
+}
+#endif
 
 void mainloop()
 {
@@ -55,6 +72,28 @@ void mainloop()
       done = 1;
     }
   }
+
+#ifndef __linux__
+  unsigned int i;
+  for (i = 0; i < MAX_CONTROLLERS; ++i)
+  {
+    if (adapter_is_usb_auth_required(i))
+    {
+      break;
+    }
+  }
+  if (i != MAX_CONTROLLERS)
+  {
+    /*
+     * Create a 1ms periodic timer to handle libusb events.
+     */
+    int usb_timer = gtimer_start(0, 1000, usb_timer_read, usb_timer_close, REGISTER_FUNCTION);
+    if (usb_timer < 0)
+    {
+      done = 1;
+    }
+  }
+#endif
 
   report2event_set_callback(process_event);
 
@@ -82,13 +121,6 @@ void mainloop()
 
 #ifndef WIN32
     adapter_hid_poll();
-#endif
-
-#ifdef WIN32
-    if (gusb_handle_events(0) < 0)
-    {
-      done = 1;
-    }
 #endif
 
     /*
@@ -125,7 +157,14 @@ void mainloop()
     }
   }
 
-  if (timer >= 0) {
+#ifndef __linux__
+  if (usb_timer >= 0)
+  {
+    gtimer_close(usb_timer);
+  }
+#endif
+  if (timer >= 0)
+  {
     gtimer_close(timer);
   }
 }

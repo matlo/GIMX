@@ -1246,3 +1246,25 @@ void adapter_clean()
     }
   }
 }
+
+int adapter_is_usb_auth_required(int adapter)
+{
+  if (adapters[adapter].atype != E_ADAPTER_TYPE_DIY_USB)
+  {
+    return 0;
+  }
+  if (controller_is_auth_required(adapters[adapter].ctype))
+  {
+    if (adapters[adapter].ctype != C_TYPE_360_PAD
+        && adapters[adapter].ctype != C_TYPE_XONE_PAD)
+    {
+      return 1;
+    }
+    else if(adapters[adapter].status == 0)
+    {
+      return 1;
+    }
+  }
+  return 0;
+
+}

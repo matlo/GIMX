@@ -79,20 +79,22 @@ void adapter_clean();
 inline s_adapter* adapter_get(unsigned char index);
 int adapter_set_port(unsigned char index, char* portname);
 
-void adapter_set_device(int controller, e_device_type device_type, int device_id);
-int adapter_get_device(e_device_type device_type, int controller);
+void adapter_set_device(int adapter, e_device_type device_type, int device_id);
+int adapter_get_device(e_device_type device_type, int adapter);
 int adapter_get_controller(e_device_type device_type, int device_id);
 
 #ifndef WIN32
 int adapter_hid_poll();
-void adapter_set_uhid_id(int controller, int uhid_id);
+void adapter_set_uhid_id(int adapter, int uhid_id);
 #else
-void adapter_set_usb_ids(int controller, unsigned short vendor, unsigned short product);
+void adapter_set_usb_ids(int adapter, unsigned short vendor, unsigned short product);
 #endif
 
-void adapter_set_axis(unsigned char c, int axis, int value);
+void adapter_set_axis(unsigned char adapter, int axis, int value);
 
-int adapter_forward_control_in(int id, unsigned char* data, unsigned char length);
-int adapter_forward_interrupt_in(int id, unsigned char* data, unsigned char length);
+int adapter_forward_control_in(int adapter, unsigned char* data, unsigned char length);
+int adapter_forward_interrupt_in(int adapter, unsigned char* data, unsigned char length);
+
+int adapter_is_usb_auth_required(int adapter);
 
 #endif /* ADAPTER_H_ */
