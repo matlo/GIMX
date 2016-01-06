@@ -385,3 +385,8 @@ int controller_get_axis_index(const char* name)
 
   return axis;
 }
+
+int controller_is_auth_required(e_controller_type type)
+{
+  return controllers[type]->auth_required;
+}
