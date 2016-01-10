@@ -288,6 +288,7 @@ void display_calibration()
   wclrtoeol(wcal);
   box(wcal, 0 , 0);
   wnoutrefresh(wcal);
+  doupdate();
 }
 
 void display_init()
