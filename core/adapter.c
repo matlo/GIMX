@@ -768,12 +768,12 @@ int adapter_detect()
       int rtype = gpp_connect(i, adapter->portname);
       if (rtype < 0)
       {
-        fprintf(stderr, _("No controller detected.\n"));
+        fprintf(stderr, _("No GPP detected.\n"));
         ret = -1;
       }
       else if(rtype < C_TYPE_MAX)
       {
-        printf(_("Detected controller: %s.\n"), controller_get_name(rtype));
+        printf(_("GPP detected, controller type is: %s.\n"), controller_get_name(rtype));
         adapter->ctype = rtype;
       }
       else
@@ -798,7 +798,7 @@ int adapter_detect()
 
           if(rtype >= 0)
           {
-            printf(_("Detected USB adapter: %s.\n"), controller_get_name(rtype));
+            printf(_("USB adapter detected, controller type is: %s.\n"), controller_get_name(rtype));
 
             if(adapter->ctype == C_TYPE_NONE)
             {
@@ -895,7 +895,6 @@ int adapter_detect()
         }
         if(adapter->ctype == C_TYPE_NONE)
         {
-          fprintf(stderr, _("No controller detected.\n"));
           ret = -1;
         }
       }
@@ -913,7 +912,7 @@ int adapter_detect()
         }
         else
         {
-          printf(_("Detected controller: %s.\n"), controller_get_name(adapter->ctype));
+          printf(_("Remote GIMX detected, controller type is: %s.\n"), controller_get_name(adapter->ctype));
         }
       }
     }

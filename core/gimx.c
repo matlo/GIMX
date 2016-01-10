@@ -37,6 +37,7 @@
 #include <uhid_joystick.h>
 #include <ffb_logitech.h>
 #include <gprio.h>
+#include <gerror.h>
 
 #define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
 
@@ -147,9 +148,9 @@ int main(int argc, char *argv[])
 #ifndef WIN32
   (void) signal(SIGHUP, terminate);
 #else
-  if (!SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, TRUE))
+  if (SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, TRUE) == 0)
   {
-    fprintf(stderr, "Unable to install handler!\n");
+    PRINT_ERROR_GETLASTERROR("SetConsoleCtrlHandler")
     exit(-1);
   }
 #endif
@@ -172,7 +173,7 @@ int main(int argc, char *argv[])
   static char path[MAX_PATH];
   if(SHGetFolderPath( NULL, CSIDL_APPDATA , NULL, 0, path ))
   {
-    fprintf(stderr, "Can't get the user directory.\n");
+    PRINT_ERROR_OTHER("SHGetFolderPath")
     goto QUIT;
   }
   gimx_params.homedir = path;
@@ -180,14 +181,14 @@ int main(int argc, char *argv[])
 
   if (gprio() < 0)
   {
-    printf("Warning: failed to set process priority\n");
+    PRINT_ERROR_OTHER("failed to set process priority")
   }
 
   gpppcprog_read_user_ids(gimx_params.homedir, GIMX_DIR);
 
   if(args_read(argc, argv, &gimx_params) < 0)
   {
-    fprintf(stderr, _("Wrong argument.\n"));
+    PRINT_ERROR_OTHER(_("wrong argument"))
     goto QUIT;
   }
 
@@ -200,7 +201,7 @@ int main(int argc, char *argv[])
 
   if(adapter_detect() < 0)
   {
-    fprintf(stderr, _("adapter_detect failed\n"));
+    PRINT_ERROR_OTHER(_("no adapter detected"))
     goto QUIT;
   }
 
@@ -243,7 +244,7 @@ int main(int argc, char *argv[])
   {
     if(adapter_start() < 0)
     {
-      fprintf(stderr, _("adapter_start failed\n"));
+      PRINT_ERROR_OTHER(_("failed to start the adapter"))
       goto QUIT;
     }
     adapter_send();
@@ -297,7 +298,6 @@ int main(int argc, char *argv[])
   // - there's no need to grab the mouse
   if (ginput_init(src, fp) < 0)
   {
-    fprintf(stderr, _("GE_initialize failed\n"));
     goto QUIT;
   }
 
@@ -314,7 +314,6 @@ int main(int argc, char *argv[])
 
     if(read_config_file(gimx_params.config_file) < 0)
     {
-      fprintf(stderr, _("read_config_file failed\n"));
       goto QUIT;
     }
 
@@ -379,7 +378,7 @@ int main(int argc, char *argv[])
 
   if(adapter_start() < 0)
   {
-    fprintf(stderr, _("adapter_start failed\n"));
+    PRINT_ERROR_OTHER(_("failed to start the adapter"))
     goto QUIT;
   }
 
