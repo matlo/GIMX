@@ -58,6 +58,7 @@ typedef struct {
     {
 #ifdef WIN32
       OVERLAPPED overlapped;
+      HANDLE handle;
 #endif
       char * buf;
       unsigned int count;
@@ -68,6 +69,7 @@ typedef struct {
     struct
     {
       OVERLAPPED overlapped;
+      HANDLE handle;
       s_queue queue;
       unsigned int size;
     } write;
