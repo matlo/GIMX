@@ -11,8 +11,6 @@
 #include <stdio.h>
 #include <stdint.h>
 
-static HANDLE hTimer = NULL;
-
 #define MAX_TIMERS 32
 
 static struct {
@@ -75,7 +73,7 @@ int gtimer_start(int user, int usec, GPOLL_READ_CALLBACK fp_read, GPOLL_CLOSE_CA
     timeBeginPeriod(1);
   }
 
-  hTimer = CreateWaitableTimer(NULL, FALSE, NULL);
+  HANDLE hTimer = CreateWaitableTimer(NULL, FALSE, NULL);
   if (hTimer != INVALID_HANDLE_VALUE) {
     LONG period = usec / 1000;
     if (period * 1000 != usec) {
@@ -122,7 +120,7 @@ int gtimer_close(int timer) {
   CHECK_TIMER(timer, -1)
 
   gpoll_remove_handle(timers[timer].handle);
-  CloseHandle(hTimer);
+  CloseHandle(timers[timer].handle);
   memset(timers + timer, 0x00, sizeof(*timers));
   timers[timer].handle = INVALID_HANDLE_VALUE;
 
