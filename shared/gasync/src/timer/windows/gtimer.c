@@ -36,6 +36,16 @@ void gtimer_init(void) {
   }
 }
 
+void gtimer_clean(void) __attribute__((destructor (101)));
+void gtimer_clean(void) {
+  unsigned int i;
+  for (i = 0; i < sizeof(timers) / sizeof(*timers); ++i) {
+    if (timers[i].handle != INVALID_HANDLE_VALUE) {
+      gtimer_close(i);
+    }
+  }
+}
+
 static int get_slot() {
   unsigned int i;
   for (i = 0; i < sizeof(timers) / sizeof(*timers); ++i) {
@@ -60,7 +70,7 @@ static int read_callback(int timer) {
   return timers[timer].fp_read(timers[timer].user);
 }
 
-int gtimer_start(int user, int usec, GPOLL_READ_CALLBACK fp_read, GPOLL_CLOSE_CALLBACK fp_close,
+int gtimer_start(int user, unsigned int usec, GPOLL_READ_CALLBACK fp_read, GPOLL_CLOSE_CALLBACK fp_close,
     GPOLL_REGISTER_HANDLE fp_register) {
 
   int slot = get_slot();

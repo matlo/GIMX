@@ -66,7 +66,7 @@ void mainloop()
 
   if(!adapter_get(0)->bdaddr_dst || adapter_get(0)->ctype == C_TYPE_DS4)
   {
-    timer = gtimer_start(0, gimx_params.refresh_period, timer_read, timer_close, REGISTER_FUNCTION);
+    timer = gtimer_start(0, (unsigned int)gimx_params.refresh_period, timer_read, timer_close, REGISTER_FUNCTION);
     if (timer < 0)
     {
       done = 1;

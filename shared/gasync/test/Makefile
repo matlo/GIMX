@@ -2,7 +2,7 @@
 
 OBJS=common.o
 LDLIBS=../gasync.a -lm
-BINS=ginput_test ghid_test gserial_test
+BINS=ginput_test ghid_test gserial_test gtimer_test
 ifeq ($(OS),Windows_NT)
 LDLIBS += $(shell sdl2-config --libs) -liconv -lws2_32 -lwinmm -lhid -lsetupapi
 LDLIBS:=$(filter-out -mwindows,$(LDLIBS))
@@ -26,3 +26,5 @@ ghid_test: $(OBJS) $(DEPS)
 guhid_test: $(OBJS) $(DEPS)
 
 gserial_test: $(OBJS) $(DEPS)
+
+gtimer_test: $(DEPS)
