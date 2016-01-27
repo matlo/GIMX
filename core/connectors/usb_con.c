@@ -311,7 +311,7 @@ static int usb_read_callback(int user, unsigned char endpoint, const void * buf,
       return -1;
     }
 
-    if (status > 0) {
+    if (status >= 0) {
 
       int ret = adapter_forward_control_in(user, (unsigned char *)buf, status);
       if (ret < 0) {
