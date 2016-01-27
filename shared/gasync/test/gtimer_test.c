@@ -157,12 +157,16 @@ int main(int argc, char* argv[]) {
       done = 1;
       break;
     }
+#ifndef WIN32
+    gettimeofday(&timers[i].t0, NULL);
+#else
     FILETIME ftime;
     GetSystemTimeAsFileTime(&ftime);
     timers[i].t0.HighPart = ftime.dwHighDateTime;
     timers[i].t0.LowPart = ftime.dwLowDateTime;
+#endif
   }
-  
+
   while(!done) {
     gpoll();
   }
