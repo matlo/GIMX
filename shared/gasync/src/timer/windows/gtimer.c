@@ -86,7 +86,7 @@ int gtimer_start(int user, unsigned int usec, GPOLL_READ_CALLBACK fp_read, GPOLL
   HANDLE hTimer = CreateWaitableTimer(NULL, FALSE, NULL);
   if (hTimer != INVALID_HANDLE_VALUE) {
     LONG period = usec / 1000;
-    if (period * 1000 != usec) {
+    if (period * 1000UL != usec) {
       PRINT_ERROR_OTHER("timer accuracy is only 1ms on Windows")
     }
     if (period == 0) {

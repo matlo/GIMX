@@ -16,6 +16,10 @@
 #include <gprio.h>
 
 #ifdef WIN32
+#include <windows.h>
+#endif
+
+#ifdef WIN32
 #define REGISTER_FUNCTION gpoll_register_handle
 #else
 #define REGISTER_FUNCTION gpoll_register_fd
@@ -48,19 +52,31 @@ static volatile int done = 0;
 static struct {
   unsigned int usec;
   int timer;
+#ifndef WIN32
   struct timeval t0;
   struct timeval t1;
+#else
+  LARGE_INTEGER t0;
+  LARGE_INTEGER t1;
+#endif
+  unsigned char tolerance;
 } timers[] = {
-    { 1000, -1, {0, 0}, {0, 0} },
-    { 2000, -1, {0, 0}, {0, 0} },
-    { 3000, -1, {0, 0}, {0, 0} },
-    { 4000, -1, {0, 0}, {0, 0} },
-    { 5000, -1, {0, 0}, {0, 0} },
-    { 6000, -1, {0, 0}, {0, 0} },
-    { 7000, -1, {0, 0}, {0, 0} },
-    { 8000, -1, {0, 0}, {0, 0} },
-    { 9000, -1, {0, 0}, {0, 0} },
-    { 10000, -1, {0, 0}, {0, 0} },
+#ifndef WIN32
+    { 1000, -1, {0, 0}, {0, 0}, 10 },
+    { 2000, -1, {0, 0}, {0, 0}, 10 },
+    { 3000, -1, {0, 0}, {0, 0}, 10 },
+    { 4000, -1, {0, 0}, {0, 0}, 10 },
+    { 5000, -1, {0, 0}, {0, 0}, 10 },
+    { 6000, -1, {0, 0}, {0, 0}, 10 },
+    { 7000, -1, {0, 0}, {0, 0}, 10 },
+    { 8000, -1, {0, 0}, {0, 0}, 10 },
+    { 9000, -1, {0, 0}, {0, 0}, 10 },
+    { 10000, -1, {0, 0}, {0, 0}, 10 },
+#else
+    { 1000, -1, {}, {}, 50 },
+    { 4000, -1, {}, {}, 25 },
+    { 10000, -1, {}, {}, 10 },
+#endif
 };
 
 static void terminate(int sig) {
@@ -73,6 +89,7 @@ static int timer_close_callback(int user) {
   return 1;
 }
 
+#ifndef WIN32
 static int timer_read_callback(int user) {
 
   gettimeofday(&timers[user].t1, NULL);
@@ -84,8 +101,9 @@ static int timer_read_callback(int user) {
     timersub(&timers[user].t0, &timers[user].t1, &res);
   }
   unsigned int percent = (res.tv_sec * 1000000 + res.tv_usec) * 100 / timers[user].usec;
-  if (percent <= 90 || percent >= 110) {
-    printf("timer is off by more than 10 percent: period=%uµs, value=%u%%\n", timers[user].usec, percent);
+  if (percent <= (100UL - timers[user].tolerance) || percent >= (100UL + timers[user].tolerance)) {
+    printf("timer is off by more than %u percent: period=%uµs, value=%u%%\n", timers[user].tolerance, timers[user].usec, percent);
+    fflush(stdout);
   }
 
   struct timeval add = { .tv_sec = 0, .tv_usec = timers[user].usec };
@@ -94,14 +112,41 @@ static int timer_read_callback(int user) {
 
   return 1; // Returning a non-zero value makes gpoll return, allowing to check the 'done' variable.
 }
+#else
+/*
+ * Timers on Windows are very inacurrate and drift.
+ * => calculate the next timeout from now.
+ */
+static int timer_read_callback(int user) {
+
+  FILETIME ftime;
+  GetSystemTimeAsFileTime(&ftime);
+  timers[user].t1.HighPart = ftime.dwHighDateTime;
+  timers[user].t1.LowPart = ftime.dwLowDateTime;
+
+  LONGLONG tdiff;
+  if (timers[user].t1.QuadPart > timers[user].t0.QuadPart) {
+    tdiff = timers[user].t1.QuadPart - timers[user].t0.QuadPart;
+  } else {
+    tdiff = timers[user].t0.QuadPart - timers[user].t1.QuadPart;
+  }
+
+  unsigned int percent = (timers[user].usec + tdiff / 10) * 100 / timers[user].usec;
+  if (percent <= (100UL - timers[user].tolerance) || percent >= (100UL + timers[user].tolerance)) {
+    printf("timer is off by more than %u percent: period=%uµs, value=%u%%\n", timers[user].tolerance, timers[user].usec, percent);
+    fflush(stdout);
+  }
+
+  timers[user].t1.QuadPart += timers[user].usec * 10;
+  timers[user].t0 = timers[user].t1;
+
+  return 1; // Returning a non-zero value makes gpoll return, allowing to check the 'done' variable.
+}
+#endif
 
 int main(int argc, char* argv[]) {
 
   (void) signal(SIGINT, terminate);
-
-#ifndef WIN32
-  setlinebuf(stdout);
-#endif
 
   gprio();
 
@@ -112,7 +157,10 @@ int main(int argc, char* argv[]) {
       done = 1;
       break;
     }
-    gettimeofday(&timers[i].t0, NULL);
+    FILETIME ftime;
+    GetSystemTimeAsFileTime(&ftime);
+    timers[i].t0.HighPart = ftime.dwHighDateTime;
+    timers[i].t0.LowPart = ftime.dwLowDateTime;
   }
   
   while(!done) {

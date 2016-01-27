@@ -38,10 +38,20 @@ void gpoll_init(void) {
   }
 }
 
-static int get_slot() {
+static int get_slot(HANDLE handle) {
   unsigned int i;
   for (i = 0; i < sizeof(sources) / sizeof(*sources); ++i) {
-    if (sources[i].handle == INVALID_HANDLE_VALUE) {
+    if (sources[i].handle == handle) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+static int get_slot_fd(int fd) {
+  unsigned int i;
+  for (i = 0; i < sizeof(sources) / sizeof(*sources); ++i) {
+    if (sources[i].fd == fd) {
       return i;
     }
   }
@@ -68,9 +78,12 @@ int gpoll_register_fd(int fd, int user, GPOLL_READ_CALLBACK fp_read, GPOLL_WRITE
     return -1;
   }
 
-  int slot = get_slot();
+  int slot = get_slot_fd(fd);
   if (slot < 0) {
-    PRINT_ERROR_OTHER("no slot available")
+    slot = get_slot(INVALID_HANDLE_VALUE);
+    if (slot < 0) {
+      PRINT_ERROR_OTHER("no slot available")
+    }
   }
 
   HANDLE evt = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -109,10 +122,13 @@ int gpoll_register_handle(HANDLE handle, int user, GPOLL_READ_CALLBACK fp_read, 
     return -1;
   }
 
-  int slot = get_slot();
+  int slot = get_slot(handle);
   if (slot < 0) {
-    PRINT_ERROR_OTHER("no slot available")
-    return -1;
+    slot = get_slot(INVALID_HANDLE_VALUE);
+    if (slot < 0) {
+      PRINT_ERROR_OTHER("no slot available")
+      return -1;
+    }
   }
 
   sources[slot].fd = -1;
