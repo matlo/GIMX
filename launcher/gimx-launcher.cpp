@@ -430,7 +430,7 @@ void launcherFrame::readSerialPorts()
 
   for (bool cont = dir.GetFirst(&file, filespec, wxDIR_FILES); cont;  cont = dir.GetNext(&file))
   {
-    if(file.StartsWith(wxT("ttyUSB")) || file.StartsWith(wxT("ttyACM")))
+    if(file.StartsWith(wxT("ttyUSB")) || file.StartsWith(wxT("ttyACM")) || file.StartsWith(wxT("ttyAMA")))
     {
       if(!line.empty() && wxString(line.c_str(), wxConvUTF8) == file)
       {
