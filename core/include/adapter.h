@@ -73,7 +73,7 @@ int adapter_start();
 int adapter_send();
 void adapter_clean();
 
-inline s_adapter* adapter_get(unsigned char index);
+s_adapter* adapter_get(unsigned char index);
 int adapter_set_port(unsigned char index, char* portname);
 
 void adapter_set_device(int controller, e_device_type device_type, int device_id);

@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-inline TIMER timer_get();
+TIMER timer_get();
 TIMER timer_start(int usec);
 int timer_close(int unused);
 int timer_read(int unused);

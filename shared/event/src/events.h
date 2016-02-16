@@ -36,6 +36,6 @@ void ev_register_source_handle(HANDLE handle, int id, int (*fp_read)(int), int (
 void ev_remove_source_handle(HANDLE handle);
 #endif
 void ev_remove_source(int fd);
-inline void ev_set_next_event(GE_Event* event);
+void ev_set_next_event(GE_Event* event);
 
 #endif /* EVENTS_H_ */

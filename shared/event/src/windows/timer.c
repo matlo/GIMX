@@ -10,7 +10,7 @@
 
 static HANDLE hTimer = NULL;
 
-inline HANDLE timer_get()
+HANDLE timer_get()
 {
   return hTimer;
 }
