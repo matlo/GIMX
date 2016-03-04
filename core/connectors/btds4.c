@@ -869,6 +869,13 @@ int btds4_init(int btds4_number, int dongle_index, const char * bdaddr_dst)
   memcpy(&state->bt_report, &init_report_btds4, sizeof(s_btds4_report));
   state->joystick_id = GE_RegisterJoystick(DS4_DEVICE_NAME, ds4_interrupt_rumble);
 
+  return 0;
+}
+
+int btds4_listen(int btds4_number)
+{
+  struct btds4_state * state = states + btds4_number;
+
 #ifndef WIN32
   if(bt_mgmt_adapter_init(state->dongle_index) < 0)
   {
@@ -892,11 +899,6 @@ int btds4_init(int btds4_number, int dongle_index, const char * bdaddr_dst)
     fprintf(stderr, "failed to set device class\n");
     return -1;
   }
-
-  /*
-   * todo: open a USB device, add event sources, and deactivate following code if successful
-   */
-
   if(listening_channels.sdp < 0)
   {
     if((listening_channels.sdp = l2cap_abs_get()->listen(btds4_number, PSM_SDP, L2CAP_ABS_LM_MASTER, listen_accept_sdp, listen_close)) < 0)
