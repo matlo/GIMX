@@ -207,7 +207,7 @@ void hid_task(int device) {
   ff_task(device);
 }
 
-int hid_write(int user) {
+int hid_write(int user, int transfered) {
 
   /*struct timeval t;
   gettimeofday(&t, NULL);
