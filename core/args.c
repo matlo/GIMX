@@ -18,6 +18,7 @@
 #include <connectors/protocol.h>
 #include "../directories.h"
 #include <unistd.h>
+#include "log.h"
 
 #define DEV_HIDRAW "/dev/hidraw"
 #ifndef WIN32
@@ -435,6 +436,11 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
   {
     fprintf(stderr, "At least a config file, an event, or a source IP:port should be specified as argument.\n");
     ret = -1;
+  }
+
+  if(params->logfile)
+  {
+    log_info();
   }
 
   return ret;
