@@ -1262,6 +1262,8 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
 
     MyProcess *process = new MyProcess(this, command);
 
+    startTime = wxGetUTCTime();
+
     if(!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process))
     {
       wxMessageBox( _("can't start gimx!"), _("Error"), wxICON_ERROR);
@@ -1293,6 +1295,20 @@ void launcherFrame::OnProcessTerminated(wxProcess *process, int status)
 #else
       wxExecute(wxT("xdg-open ") + gimxLogDir + wxT(LOG_FILE), wxEXEC_ASYNC, NULL);
 #endif
+    }
+    else
+    {
+      long int endTime = wxGetUTCTime();
+      if(endTime - startTime < 5)
+      {
+        int answer = wxMessageBox(_("GIMX ran less than 5 seconds. Would you like to generate a log report?"), _("Confirm"), wxYES_NO | wxCANCEL);
+        if (answer == wxYES)
+        {
+          ProcessOutputChoice->SetSelection(ProcessOutputChoice->FindString(_("log file")));
+          wxCommandEvent event;
+          OnButtonStartClick(event);
+        }
+      }
     }
 
     SetFocus();
