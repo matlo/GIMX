@@ -877,6 +877,7 @@ int adapter_detect()
         }
       }
     }
+#ifndef WIN32
     else if(adapter->atype == E_ADAPTER_TYPE_BLUETOOTH)
     {
       if (adapter->ctype == C_TYPE_DS4)
@@ -888,6 +889,7 @@ int adapter_detect()
         controller_init_report(C_TYPE_DS4, &adapter->report[0].value);
       }
     }
+#endif
   }
   return ret;
 }
@@ -976,7 +978,7 @@ int adapter_start()
             ret = -1;
           }
         }
-  #ifndef WIN32
+#ifndef WIN32
         else if(adapter->ctype == C_TYPE_DS4)
         {
           if(btds4_listen(i) < 0)
@@ -984,7 +986,7 @@ int adapter_start()
             ret = -1;
           }
         }
-  #endif
+#endif
         else
         {
           fprintf(stderr, _("Wrong controller type.\n"));
