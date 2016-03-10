@@ -88,7 +88,7 @@ void print_kernel() {
   if (dwVersion < 0x80000000) {
     dwBuild = (DWORD)(HIWORD(dwVersion));
   }
-  printf(" %d.%d (%d)\n", dwMajorVersion, dwMinorVersion, dwBuild);
+  printf("%d.%d (%d)\n", dwMajorVersion, dwMinorVersion, dwBuild);
 #endif
 }
 
