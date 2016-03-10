@@ -6,6 +6,10 @@
 #include <gimx.h>
 #include "../info.h"
 #include <stdlib.h>
+#if defined(_WIN32)
+#include <windows.h>
+#include <VersionHelpers.h>
+#endif
 
 void print_version() {
   printf("GIMX %s %s\n", INFO_VERSION, INFO_ARCH);
