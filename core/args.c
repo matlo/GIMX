@@ -350,50 +350,18 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
 
       case 't':
         printf(_("option -t with value `%s'\n"), optarg);
-        if (!strcmp(optarg, "joystick"))
-        {
-          adapter_get(controller)->ctype = C_TYPE_JOYSTICK;
-        }
-        else if (!strcmp(optarg, "360pad"))
-        {
-          adapter_get(controller)->ctype = C_TYPE_360_PAD;
-        }
-        else if (!strcmp(optarg, "Sixaxis"))
-        {
-          adapter_get(controller)->ctype = C_TYPE_SIXAXIS;
-        }
-        else if (!strcmp(optarg, "PS2pad"))
-        {
-          adapter_get(controller)->ctype = C_TYPE_PS2_PAD;
-        }
-        else if (!strcmp(optarg, "GPP"))
+        if (!strcmp(optarg, "GPP"))
         {
           adapter_get(controller)->atype = E_ADAPTER_TYPE_GPP;
         }
-        else if (!strcmp(optarg, "XboxPad"))
-        {
-          adapter_get(controller)->ctype = C_TYPE_XBOX_PAD;
-        }
-        else if (!strcmp(optarg, "DS4"))
-        {
-          adapter_get(controller)->ctype = C_TYPE_DS4;
-        }
-        else if (!strcmp(optarg, "T300RS_PS4"))
-        {
-          adapter_get(controller)->ctype = C_TYPE_T300RS_PS4;
-        }
-        else if (!strcmp(optarg, "G27_PS3"))
-        {
-          adapter_get(controller)->ctype = C_TYPE_G27_PS3;
-        }
-        else if (!strcmp(optarg, "G29_PS4"))
-        {
-          adapter_get(controller)->ctype = C_TYPE_G29_PS4;
-        }
         else
         {
-          fprintf(stderr, "Bad controller type: %s\n", optarg);
-          ret = -1;
+          adapter_get(controller)->ctype = controller_get_type(optarg);
+          if (adapter_get(controller)->ctype == C_TYPE_NONE)
+          {
+            fprintf(stderr, "Bad controller type: %s\n", optarg);
+            ret = -1;
+          }
         }
         break;
 

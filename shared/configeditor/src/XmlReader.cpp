@@ -898,6 +898,10 @@ void XmlReader::ProcessControllerElement(xmlNode * a_node)
     m_TempController.SetMouseDPI(idpi);
 
     e_controller_type type = controller_get_type(ctype.c_str());
+    if (type == C_TYPE_NONE)
+    {
+      type = C_TYPE_SIXAXIS;
+    }
 
     m_TempController.SetControllerType(type);
 

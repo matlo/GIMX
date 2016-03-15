@@ -37,7 +37,7 @@ e_controller_type controller_get_type(const char* name)
       return type;
     }
   }
-  return C_TYPE_SIXAXIS;
+  return C_TYPE_NONE;
 }
 
 void controller_register(e_controller_type type, s_controller * controller)
