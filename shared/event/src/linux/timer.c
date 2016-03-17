@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <sys/time.h>
+#include <inttypes.h>
 
 static int tfd = -1;
 
@@ -73,7 +75,9 @@ int timer_read(int unused)
   {
     if(exp > 1)
     {
-      fprintf (stderr, "Timer fired several times...\n");
+      struct timeval tv;
+      gettimeofday(&tv, NULL);
+      fprintf (stderr, "%ld.%06ld timer fired %" PRIu64 " times...\n", tv.tv_sec, tv.tv_usec, exp);
     }
     return 1;
   }
