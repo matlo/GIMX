@@ -49,7 +49,6 @@ static struct {
     USBASYNC_CLOSE_CALLBACK fp_close;
   } callback;
   int pending_transfers;
-  int closing;
 } usbdevices[USBASYNC_MAX_DEVICES] = { };
 
 #define PRINT_ERROR_INVALID_ENDPOINT(msg, endpoint) fprintf(stderr, "%s:%d %s: %s: 0x%02x\n", __FILE__, __LINE__, __func__, msg, endpoint);
@@ -1172,8 +1171,6 @@ int gusb_close(int device) {
   }
 
   if (usbdevices[device].devh) {
-
-    usbdevices[device].closing = 1;
 
     cancel_transfers(device);
 

@@ -46,7 +46,6 @@ static struct {
     ASYNC_CLOSE_CALLBACK fp_close;
   } callback;
   int pending_transfers;
-  int closing;
 } usbdevices[USBHIDASYNC_MAX_DEVICES] = { };
 
 static libusb_context* ctx = NULL;
@@ -130,10 +129,10 @@ inline int usbhidasync_check_device(int device, const char * file, unsigned int 
     return retValue; \
   }
 
-static char * make_path(libusb_device * dev) {
+static char * make_path(libusb_device * dev, int interface_number, int interface_alt_setting) {
   uint8_t path[1 + 7] = { };
   int pathLen = sizeof(path) / sizeof(*path);
-  static char str[sizeof(path) / sizeof(*path) * 3];
+  static char str[(sizeof(path) / sizeof(*path) + 2) * 3];
   path[0] = libusb_get_bus_number(dev);
   int ret = libusb_get_port_numbers(dev, path + 1, pathLen - 1);
   if (ret < 0) {
@@ -144,7 +143,7 @@ static char * make_path(libusb_device * dev) {
   for (i = 0; i < ret + 1; ++i) {
     snprintf(str + i * 3, sizeof(str) - i * 3, "%02x:", path[i]);
   }
-  str[(ret + 1) * 3 - 1] = '\0';
+  snprintf(str + i * 3, sizeof(str) - i * 3, "%02x:%02x", interface_number, interface_alt_setting);
   return str;
 }
 
@@ -386,56 +385,65 @@ static s_hid_info probe_hid(const unsigned char * extra, unsigned int extra_leng
  * - interrupt out endpoint: bEndpointAddress, wMaxPacketSize
  * - hid info (version, country, report descriptor)
  */
-static s_config probe_device(libusb_device * dev, struct libusb_device_descriptor * desc) {
+static s_config * probe_device(libusb_device * dev, struct libusb_device_descriptor * desc, unsigned int * config_nb) {
 
-  s_config config = { .configuration = -1 };
+  s_config * configs = NULL;
+  *config_nb = 0;
 
   int cfg;
-  for (cfg = 0; cfg < desc->bNumConfigurations && config.configuration == -1; ++cfg) {
+  for (cfg = 0; cfg < desc->bNumConfigurations; ++cfg) {
     struct libusb_config_descriptor * configuration;
     int ret = libusb_get_config_descriptor(dev, cfg, &configuration);
     if (ret != LIBUSB_SUCCESS) {
       PRINT_ERROR_LIBUSB("libusb_get_config_descriptor", ret)
-      return config;
+      break;
     }
     int itf;
-    for (itf = 0; itf < configuration->bNumInterfaces && config.configuration == -1; ++itf) {
+    for (itf = 0; itf < configuration->bNumInterfaces; ++itf) {
       int alt;
       const struct libusb_interface * interface = configuration->interface + itf;
-      for (alt = 0; alt < interface->num_altsetting && config.configuration == -1; ++alt) {
+      for (alt = 0; alt < interface->num_altsetting; ++alt) {
         const struct libusb_interface_descriptor * interfaceDesc = interface->altsetting + alt;
         if (interfaceDesc->bInterfaceClass == LIBUSB_CLASS_HID) {
-          config.configuration = configuration->bConfigurationValue;
-          config.interface.number = itf;
-          config.interface.alternateSetting = alt;
-          config.hidInfo = probe_hid(interfaceDesc->extra, interfaceDesc->extra_length);
-          config.hidInfo.vendor_id = desc->idVendor;
-          config.hidInfo.product_id = desc->idProduct;
-          config.hidInfo.bcdDevice = desc->bcdDevice;
+          void * ptr = realloc(configs, (*config_nb + 1) * sizeof(*configs));
+          if (ptr == NULL) {
+              PRINT_ERROR_ALLOC_FAILED("realloc")
+              break;
+          }
+          configs = (s_config *) ptr;
+          memset(configs + *config_nb, 0x00, sizeof(*configs));
+          configs[*config_nb].configuration = configuration->bConfigurationValue;
+          configs[*config_nb].interface.number = itf;
+          configs[*config_nb].interface.alternateSetting = alt;
+          configs[*config_nb].hidInfo = probe_hid(interfaceDesc->extra, interfaceDesc->extra_length);
+          configs[*config_nb].hidInfo.vendor_id = desc->idVendor;
+          configs[*config_nb].hidInfo.product_id = desc->idProduct;
+          configs[*config_nb].hidInfo.bcdDevice = desc->bcdDevice;
           int ep;
           for (ep = 0; ep < interfaceDesc->bNumEndpoints; ++ep) {
             const struct libusb_endpoint_descriptor * endpoint = interfaceDesc->endpoint + ep;
             if ((endpoint->bmAttributes & 0b00000011) == LIBUSB_TRANSFER_TYPE_INTERRUPT) {
               if ((endpoint->bEndpointAddress & 0b10000000) == LIBUSB_ENDPOINT_IN) {
-                if (config.endpoints.in.address == 0) {
-                  config.endpoints.in.address = endpoint->bEndpointAddress;
-                  config.endpoints.in.size = endpoint->wMaxPacketSize;
+                if (configs[*config_nb].endpoints.in.address == 0) {
+                  configs[*config_nb].endpoints.in.address = endpoint->bEndpointAddress;
+                  configs[*config_nb].endpoints.in.size = endpoint->wMaxPacketSize;
                 }
               } else {
-                if (config.endpoints.out.address == 0) {
-                  config.endpoints.out.address = endpoint->bEndpointAddress;
-                  config.endpoints.out.size = endpoint->wMaxPacketSize;
+                if (configs[*config_nb].endpoints.out.address == 0) {
+                  configs[*config_nb].endpoints.out.address = endpoint->bEndpointAddress;
+                  configs[*config_nb].endpoints.out.size = endpoint->wMaxPacketSize;
                 }
               }
             }
           }
+          ++(*config_nb);
         }
       }
     }
     libusb_free_config_descriptor(configuration);
   }
 
-  return config;
+  return configs;
 }
 
 /*
@@ -532,7 +540,7 @@ static int claim_device(int device, libusb_device * dev, struct libusb_device_de
       return -1;
     }
     ret = libusb_control_transfer(usbdevices[device].devh, LIBUSB_ENDPOINT_IN | LIBUSB_RECIPIENT_INTERFACE,
-        LIBUSB_REQUEST_GET_DESCRIPTOR, (LIBUSB_DT_REPORT << 8) | 0, 0, hidInfo->reportDescriptor,
+        LIBUSB_REQUEST_GET_DESCRIPTOR, (LIBUSB_DT_REPORT << 8) | 0, usbdevices[device].config.interface.number, hidInfo->reportDescriptor,
         hidInfo->reportDescriptorLength, 1000);
     if (ret < 0) {
       PRINT_ERROR_LIBUSB("libusb_control_transfer", ret)
@@ -606,41 +614,43 @@ s_hid_dev * gusbhid_enumerate(unsigned short vendor, unsigned short product) {
         }
       }
 
-      s_config config = probe_device(devs[dev_i], &desc);
-      if (config.configuration == -1) {
-        continue;
+      unsigned int config_nb;
+      s_config * configs = probe_device(devs[dev_i], &desc, &config_nb);
+
+      unsigned int config_i;
+      for (config_i = 0; config_i < config_nb; ++config_i) {
+
+          const char * spath = make_path(devs[dev_i], configs[config_i].interface.number, configs[config_i].interface.alternateSetting);
+          if (spath == NULL) {
+            continue;
+          }
+
+          char * path = strdup(spath);
+          if (path == NULL) {
+            PRINT_ERROR_OTHER("strdup failed")
+            continue;
+          }
+
+          void * ptr = realloc(hid_devs, (nb_hid_devs + 1) * sizeof(*hid_devs));
+          if (ptr == NULL) {
+            PRINT_ERROR_ALLOC_FAILED("realloc")
+            free(path);
+            continue;
+          }
+
+          hid_devs = ptr;
+
+          if (nb_hid_devs > 0) {
+            hid_devs[nb_hid_devs - 1].next = 1;
+          }
+
+          hid_devs[nb_hid_devs].path = path;
+          hid_devs[nb_hid_devs].vendor_id = desc.idVendor;
+          hid_devs[nb_hid_devs].product_id = desc.idProduct;
+          hid_devs[nb_hid_devs].next = 0;
+
+          ++nb_hid_devs;
       }
-
-      const char * spath = make_path(devs[dev_i]);
-      if (spath == NULL) {
-        continue;
-      }
-
-      char * path = strdup(spath);
-      if (path == NULL) {
-        PRINT_ERROR_OTHER("strdup failed")
-        continue;
-      }
-
-      void * ptr = realloc(hid_devs, (nb_hid_devs + 1) * sizeof(*hid_devs));
-      if (ptr == NULL) {
-        PRINT_ERROR_ALLOC_FAILED("realloc")
-        free(path);
-        continue;
-      }
-
-      hid_devs = ptr;
-
-      if (nb_hid_devs > 0) {
-        hid_devs[nb_hid_devs - 1].next = 1;
-      }
-
-      hid_devs[nb_hid_devs].path = path;
-      hid_devs[nb_hid_devs].vendor_id = desc.idVendor;
-      hid_devs[nb_hid_devs].product_id = desc.idProduct;
-      hid_devs[nb_hid_devs].next = 0;
-
-      ++nb_hid_devs;
     }
   }
 
@@ -687,26 +697,29 @@ int gusbhid_open_ids(unsigned short vendor, unsigned short product) {
     ret = libusb_get_device_descriptor(devs[dev_i], &desc);
     if (!ret) {
       if (desc.idVendor == vendor && desc.idProduct == product) {
-        s_config config = probe_device(devs[dev_i], &desc);
-        if (config.configuration == -1) {
-          continue;
-        }
 
-        const char * spath = make_path(devs[dev_i]);
-        if (spath == NULL) {
-          continue;
-        }
+        unsigned int config_nb;
+        s_config * configs = probe_device(devs[dev_i], &desc, &config_nb);
 
-        int device = add_device(spath, &config, 0);
-        if (device < 0) {
-          continue;
-        }
+        unsigned int config_i;
+        for (config_i = 0; config_i < config_nb; ++config_i) {
 
-        if (claim_device(device, devs[dev_i], &desc) != -1) {
-          libusb_free_device_list(devs, 1);
-          return device;
-        } else {
-          gusbhid_close(device);
+            const char * spath = make_path(devs[dev_i], configs[config_i].interface.number, configs[config_i].interface.alternateSetting);
+            if (spath == NULL) {
+              continue;
+            }
+
+            int device = add_device(spath, configs + config_i, 0);
+            if (device < 0) {
+              continue;
+            }
+
+            if (claim_device(device, devs[dev_i], &desc) != -1) {
+              libusb_free_device_list(devs, 1);
+              return device;
+            } else {
+              gusbhid_close(device);
+            }
         }
       }
     }
@@ -742,28 +755,29 @@ int gusbhid_open_path(const char * path) {
   }
 
   for (dev_i = 0; dev_i < cnt; ++dev_i) {
-    const char * spath = make_path(devs[dev_i]);
-    if (spath == NULL || strcmp(spath, path)) {
-      continue;
-    }
     struct libusb_device_descriptor desc;
     ret = libusb_get_device_descriptor(devs[dev_i], &desc);
     if (!ret) {
-      s_config config = probe_device(devs[dev_i], &desc);
-      if (config.configuration == -1) {
-        continue;
-      }
+      unsigned int config_nb;
+      s_config * configs = probe_device(devs[dev_i], &desc, &config_nb);
+      unsigned int config_i;
+      for (config_i = 0; config_i < config_nb; ++config_i) {
+          const char * spath = make_path(devs[dev_i], configs[config_i].interface.number, configs[config_i].interface.alternateSetting);
+          if (spath == NULL || strcmp(spath, path)) {
+            continue;
+          }
 
-      int device = add_device(path, &config, 0);
-      if (device < 0) {
-        continue;
-      }
+          int device = add_device(path, configs + config_i, 0);
+          if (device < 0) {
+            continue;
+          }
 
-      if (claim_device(device, devs[dev_i], &desc) != -1) {
-        libusb_free_device_list(devs, 1);
-        return device;
-      } else {
-        gusbhid_close(device);
+          if (claim_device(device, devs[dev_i], &desc) != -1) {
+            libusb_free_device_list(devs, 1);
+            return device;
+          } else {
+            gusbhid_close(device);
+          }
       }
     }
   }
@@ -850,8 +864,6 @@ int gusbhid_close(int device) {
   }
 
   if (usbdevices[device].devh) {
-
-    usbdevices[device].closing = 1;
 
     cancel_transfers(device);
 
