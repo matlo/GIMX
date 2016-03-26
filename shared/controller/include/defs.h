@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2014 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau
  License: GPLv3
  */
 
@@ -34,6 +34,8 @@ typedef enum
   C_TYPE_T300RS_PS4,
   C_TYPE_G27_PS3,
   C_TYPE_G29_PS4,
+  C_TYPE_DF_PS2,
+  C_TYPE_DFP_PS2,
   // <- add new types here
   C_TYPE_NONE,
   C_TYPE_MAX = C_TYPE_NONE,

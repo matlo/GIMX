@@ -1812,6 +1812,16 @@
 					<handler function="OnMenuTypeItemSelected" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
+				<object class="wxMenuItem" name="ID_MENUITEMDFPS2" variable="MenuItemDfPs2" member="yes">
+					<label>Driving Force PS2</label>
+					<handler function="OnMenuTypeItemSelected" entry="EVT_MENU" />
+					<radio>1</radio>
+				</object>
+				<object class="wxMenuItem" name="ID_MENUITEMDFPPS2" variable="MenuItemDfpPs2" member="yes">
+					<label>Driving Force Pro PS2</label>
+					<handler function="OnMenuTypeItemSelected" entry="EVT_MENU" />
+					<radio>1</radio>
+				</object>
 			</object>
 			<object class="wxMenu" variable="MenuConfiguration" member="yes">
 				<label>Profile</label>

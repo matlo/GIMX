@@ -284,6 +284,8 @@ class configFrame: public wxFrame
         static const long ID_MENUITEMT300RSPS4;
         static const long ID_MENUITEMG27PS3;
         static const long ID_MENUITEMG29PS4;
+        static const long ID_MENUITEMDFPS2;
+        static const long ID_MENUITEMDFPPS2;
         static const long ID_MENUITEM8;
         static const long ID_MENUITEM9;
         static const long ID_MENUITEM10;
@@ -345,6 +347,8 @@ class configFrame: public wxFrame
         wxCheckBox* CheckBoxSwitchBack;
         wxStaticLine* StaticLine10;
         wxMenuItem* MenuItemG29Ps4;
+        wxMenuItem* MenuItemDfPs2;
+        wxMenuItem* MenuItemDfpPs2;
         wxStaticText* IntensityButtonId;
         wxGrid* GridMouseOption;
         wxTextCtrl* MouseOptionsBuffer;
