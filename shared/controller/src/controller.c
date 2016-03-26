@@ -53,12 +53,12 @@ void controller_init(void)
   {
     if(controllers[type] == NULL)
     {
-      fprintf(stderr, "Controller '%s' is missing parameters!\n", controllers[type]->name);
+      fprintf(stderr, "Controller %d is missing parameters!\n", type);
       exit(-1);
     }
     if(!controllers[type]->axis_name_dirs.values)
     {
-      fprintf(stderr, "Controller '%s' is missing axis names!\n", controllers[type]->name);
+      fprintf(stderr, "Controller %d is missing axis names!\n", type);
       exit(-1);
     }
   }
