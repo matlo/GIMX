@@ -8,19 +8,19 @@
 #include <controller2.h>
 #include <string.h>
 
-#define DF_SQUARE_MASK     0x8000
-#define DF_CROSS_MASK      0x4000
-#define DF_TRIANGLE_MASK   0x2000
+#define DF_CROSS_MASK      0x0400
+#define DF_SQUARE_MASK     0x0800
 #define DF_CIRCLE_MASK     0x1000
-#define DF_R1_MASK         0x0800
-#define DF_L1_MASK         0x0400
+#define DF_TRIANGLE_MASK   0x2000
+#define DF_R1_MASK         0x4000
+#define DF_L1_MASK         0x8000
 
-#define DF_L3_MASK         0x20
-#define DF_R3_MASK         0x10
-#define DF_START_MASK      0x08
-#define DF_SELECT_MASK     0x04
-#define DF_L2_MASK         0x02
 #define DF_R2_MASK         0x01
+#define DF_L2_MASK         0x02
+#define DF_SELECT_MASK     0x04
+#define DF_START_MASK      0x08
+#define DF_R3_MASK         0x10
+#define DF_L3_MASK         0x20
 
 static s_axis axes[AXIS_MAX] =
 {

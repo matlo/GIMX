@@ -8,19 +8,21 @@
 #include <controller2.h>
 #include <string.h>
 
-#define DFP_CROSS_MASK      0x4000
-#define DFP_SQUARE_MASK     0x8000
+#define DFP_CROSS_MASK           0x4000
+#define DFP_SQUARE_MASK          0x8000
 
-#define DFP_CIRCLE_MASK     0x0001
-#define DFP_TRIANGLE_MASK   0x0002
-#define DFP_R1_MASK         0x0004
-#define DFP_L1_MASK         0x0008
-#define DFP_L2_MASK         0x0010
-#define DFP_R2_MASK         0x0020
-#define DFP_START_MASK      0x0040
-#define DFP_SELECT_MASK     0x0080
-#define DFP_L3_MASK         0x0100
-#define DFP_R3_MASK         0x0200
+#define DFP_CIRCLE_MASK          0x0001
+#define DFP_TRIANGLE_MASK        0x0002
+#define DFP_R1_MASK              0x0004
+#define DFP_L1_MASK              0x0008
+#define DFP_R2_MASK              0x0010
+#define DFP_L2_MASK              0x0020
+#define DFP_SELECT_MASK          0x0040
+#define DFP_START_MASK           0x0080
+#define DFP_R3_MASK              0x0100
+#define DFP_L3_MASK              0x0200
+#define DFP_SHIFTER_BACK_MASK    0x0400
+#define DFP_SHIFTER_FORWARD_MASK 0x0800
 
 static s_axis axes[AXIS_MAX] =
 {
@@ -197,6 +199,14 @@ static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_
   if (axis[dfpPs2a_r3])
   {
     dfpPs2->hatAndButtons |= DFP_R3_MASK;
+  }
+  if (axis[dfpPs2a_shifter_forward])
+  {
+    dfpPs2->hatAndButtons |= DFP_SHIFTER_FORWARD_MASK;
+  }
+  if (axis[dfpPs2a_shifter_back])
+  {
+    dfpPs2->hatAndButtons |= DFP_SHIFTER_BACK_MASK;
   }
 
   return index;
