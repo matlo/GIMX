@@ -108,7 +108,7 @@ static const char* keynames[] =
     "KP_ENTER",
     "RCTRL",
     "KP_DIVIDE",
-    "PRINT",
+    "SYSRQ",
     "RALT",
     "LINEFEED",
     "HOME",

@@ -38,6 +38,7 @@ static unsigned char noflag_keys[0xFF] =
   [0x6E] = KEY_F23,
   [0x76] = KEY_F24,
   [0x56] = KEY_102ND,
+  [0x54] = KEY_PRINT, // SYSRQ
 };
 
 static unsigned char e0flag_keys[0xFF] =
@@ -76,7 +77,7 @@ static unsigned char e0flag_keys[0xFF] =
   [0x24] = KEY_STOP,
   [0x32] = KEY_HOMEPAGE,
   [0x67] = KEY_REFRESH,
-  [0x37] = KEY_PRINT,
+  [0x37] = KEY_PRINT, // PRINTSCREEN
   [0x65] = KEY_SEARCH,
   [0x6D] = KEY_MEDIA,
   [0x5D] = KEY_COMPOSE,
