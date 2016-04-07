@@ -1053,7 +1053,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     FlexGridSizer30->Add(AxisTabSensitivity, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     AxisTabAcceleration = new wxTextCtrl(PanelAxis, ID_TEXTCTRL10, wxEmptyString, wxDefaultPosition, wxSize(55,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL10"));
     AxisTabAcceleration->Disable();
-    AxisTabAcceleration->SetToolTip(_("Acceleration [0.00..2.00]"));
+    AxisTabAcceleration->SetToolTip(_("Acceleration [0.00..]"));
     FlexGridSizer30->Add(AxisTabAcceleration, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     AxisTabShape = new wxChoice(PanelAxis, ID_CHOICE1, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
     AxisTabShape->SetSelection( AxisTabShape->Append(wxEmptyString) );
@@ -3328,11 +3328,7 @@ void configFrame::OnTextCtrl(wxCommandEvent& event)
         }
         else if(value < 0)
         {
-            text->SetValue(wxT("0.00"));
-        }
-        else if(value > 2)
-        {
-            text->SetValue(wxT("2.00"));
+            text->SetValue(wxT("1.00"));
         }
     }
     else if(text == MouseOptionsBuffer)

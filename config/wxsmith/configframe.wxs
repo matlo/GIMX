@@ -1498,7 +1498,7 @@
 													<object class="wxTextCtrl" name="ID_TEXTCTRL10" variable="AxisTabAcceleration" member="yes">
 														<size>55,-1</size>
 														<enabled>0</enabled>
-														<tooltip>Acceleration [0.00..2.00]</tooltip>
+														<tooltip>Acceleration [0.00..]</tooltip>
 														<handler function="OnTextCtrl" entry="EVT_TEXT" />
 													</object>
 													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
