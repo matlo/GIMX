@@ -651,6 +651,8 @@ s_hid_dev * gusbhid_enumerate(unsigned short vendor, unsigned short product) {
 
           ++nb_hid_devs;
       }
+
+      free(configs);
     }
   }
 
@@ -716,11 +718,14 @@ int gusbhid_open_ids(unsigned short vendor, unsigned short product) {
 
             if (claim_device(device, devs[dev_i], &desc) != -1) {
               libusb_free_device_list(devs, 1);
+              free(configs);
               return device;
             } else {
               gusbhid_close(device);
             }
         }
+
+        free(configs);
       }
     }
   }
@@ -774,11 +779,13 @@ int gusbhid_open_path(const char * path) {
 
           if (claim_device(device, devs[dev_i], &desc) != -1) {
             libusb_free_device_list(devs, 1);
+            free(configs);
             return device;
           } else {
             gusbhid_close(device);
           }
       }
+      free(configs);
     }
   }
 
