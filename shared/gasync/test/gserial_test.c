@@ -234,9 +234,19 @@ int main(int argc, char* argv[]) {
 
   gettimeofday(&t0, NULL );
 
+  // start a timer to periodically check the 'done' variable
+  int timer = gtimer_start(42, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
+  if (timer < 0) {
+    done = 1;
+  }
+
   while (!done) {
 
     gpoll();
+  }
+
+  if (timer >= 0) {
+    gtimer_close(timer);
   }
 
   gserial_close(serial);
