@@ -13,8 +13,6 @@
 int ev_init(unsigned char mkb_src, int(*callback)(GE_Event*));
 void ev_quit();
 
-void ev_set_caption (const char*, const char*);
-
 int ev_joystick_register(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short));
 void ev_joystick_close(int);
 const char* ev_joystick_name(int);

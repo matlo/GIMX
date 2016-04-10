@@ -142,6 +142,8 @@ static void rawinput_handler(const RAWINPUT * raw, UINT align) {
             event.button.which = device; \
             event.button.button = ((SHORT) mouse->usButtonData) > 0 ? BUTTON_PLUS : BUTTON_MINUS; \
             event_callback(&event); \
+            event.type = GE_MOUSEBUTTONUP; \
+            event_callback(&event); \
           } \
         } \
       }\
@@ -164,6 +166,9 @@ static void rawinput_handler(const RAWINPUT * raw, UINT align) {
       }
       
       scanCode = get_keycode(keyboard->Flags, keyboard->MakeCode);
+      if (scanCode == 0) {
+        return;
+      }
             
       if(keyboard->Flags & RI_KEY_BREAK) {
         keyboards[device].keystates[scanCode] = 0;

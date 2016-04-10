@@ -86,7 +86,7 @@ static unsigned char e0flag_keys[0xFF] =
   [0x5D] = KEY_COMPOSE,
 };
 
-inline unsigned char get_keycode(unsigned short flags, unsigned short scancode)
+unsigned char get_keycode(unsigned short flags, unsigned short scancode)
 {
   if(scancode > 0xFF)
   {

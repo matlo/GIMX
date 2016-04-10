@@ -29,6 +29,8 @@ typedef int (* GPOLL_REGISTER_HANDLE)(HANDLE handle, int id, GPOLL_READ_CALLBACK
 int gpoll_register_handle(HANDLE handle, int user, GPOLL_READ_CALLBACK fp_read, GPOLL_WRITE_CALLBACK fp_write, GPOLL_CLOSE_CALLBACK fp_close);
 void gpoll_remove_handle(HANDLE handle);
 
+void gpoll_set_rawinput_callback(void (*callback)());
+
 #endif
 
 #ifdef __cplusplus

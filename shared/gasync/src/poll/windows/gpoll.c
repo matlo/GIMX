@@ -27,7 +27,7 @@ static struct
 
 static int max_source = 0;
 
-unsigned char mkb_source = GE_MKB_SOURCE_NONE;
+static void (* rawinput_callback)() = NULL;
 
 void gpoll_init(void) __attribute__((constructor (101)));
 void gpoll_init(void) {
@@ -197,7 +197,7 @@ void gpoll() {
 
     unsigned int dwWakeMask = 0;
 
-    if(mkb_source == GE_MKB_SOURCE_PHYSICAL) {
+    if(rawinput_callback != NULL) {
       dwWakeMask = QS_RAWINPUT;
     }
 
@@ -206,9 +206,8 @@ void gpoll() {
     if (result == WAIT_FAILED) {
       PRINT_ERROR_GETLASTERROR("MsgWaitForMultipleObjects")
     } else if (result == WAIT_OBJECT_0 + count) {
-
-      if(mkb_source == GE_MKB_SOURCE_PHYSICAL) {
-        rawinput_poll();
+      if(rawinput_callback != NULL) {
+        rawinput_callback();
       }
     } else {
       for (i = 0; i <= max_source; ++i) {
@@ -253,4 +252,9 @@ void gpoll() {
       }
     }
   } while (!done);
+}
+
+void gpoll_set_rawinput_callback(void (*callback)())
+{
+  rawinput_callback = callback;
 }
