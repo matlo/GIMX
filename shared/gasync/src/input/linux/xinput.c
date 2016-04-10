@@ -14,6 +14,7 @@
 #include <X11/extensions/XInput2.h>
 #include <ginput.h>
 #include <gpoll.h>
+#include <gerror.h>
 
 static Display* dpy = NULL;
 static Window win;
@@ -41,11 +42,6 @@ static struct
   int x;
   int y;
 } mouse_coordinates;
-
-void xinput_set_callback(int (*fp)(GE_Event*))
-{
-  event_callback = fp;
-}
 
 inline uint8_t get_button(int detail)
 {
@@ -207,7 +203,7 @@ static Window create_win(Display *dpy)
   return win;
 }
 
-int xinput_init()
+int xinput_init(int (*callback)(GE_Event*))
 {
   int ret = 0;
   int event, error;
@@ -216,6 +212,14 @@ int xinput_init()
 
   memset(devices, 0x00, sizeof(devices));
   nb_devices = 0;
+
+  if (callback == NULL)
+  {
+    PRINT_ERROR_OTHER("callback is NULL")
+    return -1;
+  }
+
+  event_callback = callback;
 
   unsigned int i;
   for(i=0; i<sizeof(device_index)/sizeof(*device_index); ++i)

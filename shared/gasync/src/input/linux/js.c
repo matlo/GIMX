@@ -16,6 +16,7 @@
 #include <dirent.h>
 #include <ginput.h>
 #include <gpoll.h>
+#include <gerror.h>
 #include "../events.h"
 
 #define eprintf(...) if(debug) printf(__VA_ARGS__)
@@ -62,11 +63,6 @@ void js_init_static(void)
 }
 
 static int (*event_callback)(GE_Event*) = NULL;
-
-void js_set_callback(int (*fp)(GE_Event*))
-{
-  event_callback = fp;
-}
 
 static void js_process_event(int joystick, struct js_event* je)
 {
@@ -258,7 +254,7 @@ static int start_ff(int joystick, int fd_ev)
   return -1;
 }
 
-int js_init()
+int js_init(int (*callback)(GE_Event*))
 {
   int ret = 0;
   int i;
@@ -268,6 +264,14 @@ int js_init()
 
   struct dirent **namelist_js;
   int n_js;
+
+  if (callback == NULL)
+  {
+    PRINT_ERROR_OTHER("callback is NULL")
+    return -1;
+  }
+
+  event_callback = callback;
 
   // scan /dev/input for jsX devices
   n_js = scandir(DEV_INPUT, &namelist_js, is_js_device, alphasort);
