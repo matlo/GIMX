@@ -22,11 +22,7 @@ const char* sdlinput_keyboard_name(int);
 int sdlinput_joystick_has_ff_rumble(int joystick);
 int sdlinput_joystick_set_ff_rumble(int joystick, unsigned short weak, unsigned short strong);
 
-#ifndef WIN32
-int sdlinput_joystick_get_uhid_id(int joystick);
-#else
 int sdlinput_joystick_get_usb_ids(int joystick, unsigned short * vendor, unsigned short * product);
-#endif
 
 void sdlinput_sync_process();
 
