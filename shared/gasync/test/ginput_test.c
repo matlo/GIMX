@@ -25,21 +25,42 @@
 static void terminate(int sig)
 {
   done = 1;
+  fprintf(stderr, "%s\n", __func__);
+}
+
+int mkb_select() {
+
+  printf("Available mouse and keyboard input methods:\n");
+  printf("%d none\n", GE_MKB_SOURCE_NONE);
+  printf("%d physical\n", GE_MKB_SOURCE_PHYSICAL);
+  printf("%d window system\n", GE_MKB_SOURCE_WINDOW_SYSTEM);
+
+  printf("Select the input method: ");
+  fflush(stdout);
+  unsigned int choice = UINT_MAX;
+  if (scanf("%d", &choice) == 1 && choice <= GE_MKB_SOURCE_WINDOW_SYSTEM) {
+    return choice;
+  }
+
+  fprintf(stderr, "Invalid choice.\n");
+  return -1;
 }
 
 int main(int argc, char* argv[])
 {
-  if (ginput_init(GE_MKB_SOURCE_PHYSICAL, process_event) < 0)
+  int mkb_source = mkb_select();
+
+  if (mkb_source < 0)
   {
-    fprintf(stderr, "GE_initialize failed\n");
+    exit(-1);
+  }
+
+  if (ginput_init(mkb_source, process_event) < 0)
+  {
     exit(-1);
   }
 
   (void) signal(SIGINT, terminate);
-
-#ifndef WIN32
-  setlinebuf(stdout);
-#endif
 
   display_devices();
 
@@ -65,7 +86,7 @@ int main(int argc, char* argv[])
 
   ginput_quit();
 
-  printf("Exiting\n");
+  printf("Exiting\n");fflush(stdout);
 
   return 0;
 }

@@ -4,6 +4,7 @@
  */
 
 #include "sdlinput.h"
+#include "keycodes.h"
 
 #include <SDL.h>
 
@@ -11,7 +12,6 @@
 
 #define SCREEN_WIDTH  1
 #define SCREEN_HEIGHT 1
-#define TITLE "gimx"
 
 static unsigned char mkb_source;
 
@@ -119,7 +119,7 @@ int sdlinput_init(unsigned char mkb_src, int(*callback)(GE_Event*))
     }
 
     /* Init video */
-    window = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+    window = SDL_CreateWindow(SDLINPUT_WINDOW_NAME, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
         SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_BORDERLESS);
     if (window == NULL)
     {
@@ -369,8 +369,6 @@ void sdlinput_sync_process()
   }
 }
 
-extern unsigned char get_keycode_from_scancode(unsigned short scancode);
-
 static inline int convert_s2g(SDL_Event* se, GE_Event* ge, int size)
 {
   int nb = 1;
@@ -398,7 +396,7 @@ static inline int convert_s2g(SDL_Event* se, GE_Event* ge, int size)
     ge->button.button = se->button.button;
     break;
   case SDL_MOUSEWHEEL:
-    if (size > 2)
+    if (size >= 2)
     {
       ge->type = GE_MOUSEBUTTONDOWN;
       ge->button.which = 0;

@@ -56,9 +56,7 @@ void display_devices()
     printf("  none\n");
   }
   
-#ifdef WIN32
   fflush(stdout);
-#endif
 }
 
 int process_event(GE_Event* event)
@@ -101,9 +99,7 @@ int process_event(GE_Event* event)
       printf("Joystick: %s (%u) - axis: %d value: %d\n", ginput_joystick_name(event->jaxis.which), ginput_joystick_virtual_id(event->jaxis.which), event->jaxis.axis, event->jaxis.value);
       break;
   }
-#ifdef WIN32
   fflush(stdout);
-#endif
   return 0;
 }
 
@@ -139,6 +135,7 @@ char * hid_select() {
   }
 
   printf("Select the HID device number: ");
+  fflush(stdout);
   unsigned int choice = UINT_MAX;
   if (scanf("%d", &choice) == 1 && choice < index) {
     path = strdup(hid_devs[choice].path);

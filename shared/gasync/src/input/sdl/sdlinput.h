@@ -8,7 +8,7 @@
 
 #include <ginput.h>
 
-#define MAX_EVENTS 256
+#define SDLINPUT_WINDOW_NAME "SDLInputMsgWindow"
 
 int sdlinput_init(unsigned char mkb_src, int(*callback)(GE_Event*));
 void sdlinput_quit();

@@ -21,7 +21,6 @@ void rawinput_quit(void);
 const char * rawinput_mouse_name(unsigned int mouse);
 const char * rawinput_keyboard_name(unsigned int keyboard);
 
-void rawinput_set_callback(int (*fp)(GE_Event*));
 void rawinput_poll();
 
 #ifdef __cplusplus

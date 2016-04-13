@@ -122,11 +122,16 @@ void ev_grab_input(int mode)
     {
       SDL_SetRelativeMouseMode(SDL_TRUE);
 
-      hwnd = FindWindow(NULL, "gimx");
+      hwnd = FindWindow(NULL, SDLINPUT_WINDOW_NAME);
     }
 
     if(hwnd)
     {
+      // Reading from stdin before initializing ginput prevents the capture window from reaching the foreground...
+      // This is a hack to work-around this issue.
+      ShowWindow(hwnd, SW_MINIMIZE);
+      ShowWindow(hwnd, SW_RESTORE);
+
       //clip the mouse cursor into the window
       RECT _clip;
 
