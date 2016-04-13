@@ -18,7 +18,6 @@
 #include <gpoll.h>
 #include <gerror.h>
 #include "../events.h"
-#include "../queue.h"
 
 #define eprintf(...) if(debug) printf(__VA_ARGS__)
 
@@ -224,7 +223,7 @@ static void mkb_process_event(int device, struct input_event* ie)
       if(ie->code == REL_WHEEL || ie->code == REL_HWHEEL)
       {
         evt.type = GE_MOUSEBUTTONUP;
-        queue_push_event(&evt);
+        event_callback(&evt);
       }
     }
   }

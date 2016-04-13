@@ -9,7 +9,6 @@
 
 #include <ginput.h>
 #include <gpoll.h>
-#include "../queue.h"
 #include "rawinput.h"
 #include "../sdl/sdlinput.h"
 
@@ -38,8 +37,6 @@ int ev_init(unsigned char mkb_src, int(*callback)(GE_Event*))
   }
 
   gpoll_set_rawinput_callback(rawinput_poll);
-
-  queue_init();
 
   return 0;
 }

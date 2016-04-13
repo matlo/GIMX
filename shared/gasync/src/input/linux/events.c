@@ -21,7 +21,6 @@
 #include "js.h"
 #include "mkb.h"
 #include "xinput.h"
-#include "../queue.h"
 
 static unsigned char mkb_source;
 
@@ -53,8 +52,6 @@ int ev_init(unsigned char mkb_src, int(*callback)(GE_Event*))
   {
     return -1;
   }
-
-  queue_init();
 
   return 0;
 }

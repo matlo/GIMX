@@ -205,6 +205,8 @@ int ginput_init(unsigned char mkb_src, int(*callback)(GE_Event*))
     i++;
   }
 
+  queue_init();
+
   initialized = 1;
 
   return 0;
