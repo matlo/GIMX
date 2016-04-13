@@ -114,32 +114,32 @@ static s_js_corr * get_js_corr(uint8_t device, uint8_t axis)
   return NULL;
 }
 
-inline s_mapper_table* cfg_get_joystick_axes(int device, int controller, int config)
+s_mapper_table* cfg_get_joystick_axes(int device, int controller, int config)
 {
   return &(joystick_axes[device][controller][config]);
 }
 
-inline s_mapper_table* cfg_get_joystick_buttons(int device, int controller, int config)
+s_mapper_table* cfg_get_joystick_buttons(int device, int controller, int config)
 {
   return &(joystick_buttons[device][controller][config]);
 }
 
-inline s_mapper_table* cfg_get_mouse_axes(int device, int controller, int config)
+s_mapper_table* cfg_get_mouse_axes(int device, int controller, int config)
 {
   return &(mouse_axes[device][controller][config]);
 }
 
-inline s_mapper_table* cfg_get_mouse_buttons(int device, int controller, int config)
+s_mapper_table* cfg_get_mouse_buttons(int device, int controller, int config)
 {
   return &(mouse_buttons[device][controller][config]);
 }
 
-inline s_mapper_table* cfg_get_keyboard_buttons(int device, int controller, int config)
+s_mapper_table* cfg_get_keyboard_buttons(int device, int controller, int config)
 {
   return &(keyboard_buttons[device][controller][config]);
 }
 
-inline void cfg_set_trigger(s_config_entry* entry)
+void cfg_set_trigger(s_config_entry* entry)
 {
   cfg_controllers[entry->controller_id].profiles[entry->config_id].trigger.event.button = entry->event.id;
   cfg_controllers[entry->controller_id].profiles[entry->config_id].trigger.event.device_id = entry->device.id;
@@ -148,12 +148,12 @@ inline void cfg_set_trigger(s_config_entry* entry)
   cfg_controllers[entry->controller_id].profiles[entry->config_id].trigger.delay = entry->params.trigger.delay;
 }
 
-inline void cfg_set_controller_dpi(int controller, unsigned int dpi)
+void cfg_set_controller_dpi(int controller, unsigned int dpi)
 {
   controller_dpi[controller] = dpi;
 }
 
-inline void cfg_set_axis_intensity(s_config_entry* entry, int axis, s_intensity* intensity)
+void cfg_set_axis_intensity(s_config_entry* entry, int axis, s_intensity* intensity)
 {
   s_intensity * target = axis_intensity[entry->controller_id][entry->config_id] + axis;
 
@@ -293,7 +293,7 @@ static struct
   int elapsed; //the time elapsed since the last GE_JoystickSetRumble() call
 } joystick_rumble[MAX_DEVICES] = {};
 
-inline void cfg_process_rumble_event(GE_Event* event)
+void cfg_process_rumble_event(GE_Event* event)
 {
   joystick_rumble[event->jrumble.which].weak = event->jrumble.weak;
   joystick_rumble[event->jrumble.which].strong = event->jrumble.strong;
@@ -346,7 +346,7 @@ int cfg_is_joystick_used(int id)
   return used;
 }
 
-inline s_mouse_control* cfg_get_mouse_control(int id)
+s_mouse_control* cfg_get_mouse_control(int id)
 {
   if(id >= 0)
   {

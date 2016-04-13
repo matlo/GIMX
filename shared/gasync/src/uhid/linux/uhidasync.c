@@ -44,7 +44,7 @@ void uhidasync_clean(void) {
     }
 }
 
-inline int uhidasync_check_device(int device, const char * file, unsigned int line, const char * func) {
+static inline int uhidasync_check_device(int device, const char * file, unsigned int line, const char * func) {
     if (device < 0 || device >= UHID_MAX_DEVICES) {
         fprintf(stderr, "%s:%d %s: invalid device\n", file, line, func);
         return -1;

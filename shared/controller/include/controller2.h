@@ -59,7 +59,7 @@ typedef struct
   void (*fp_init_report)(s_report * report);
 } s_controller;
 
-inline int clamp(int min, int val, int max);
+int clamp(int min, int val, int max);
 
 const char* controller_get_name(e_controller_type type);
 e_controller_type controller_get_type(const char* name);
@@ -69,10 +69,10 @@ void controller_register(e_controller_type type, s_controller * controller);
 int controller_get_min_refresh_period(e_controller_type type);
 int controller_get_default_refresh_period(e_controller_type type);
 
-inline int controller_get_max_signed(e_controller_type, int);
-inline int controller_get_max_unsigned(e_controller_type, int);
-inline int controller_get_mean_unsigned(e_controller_type, int);
-inline double controller_get_axis_scale(e_controller_type, int);
+int controller_get_max_signed(e_controller_type, int);
+int controller_get_max_unsigned(e_controller_type, int);
+int controller_get_mean_unsigned(e_controller_type, int);
+double controller_get_axis_scale(e_controller_type, int);
 
 s_axis_props controller_get_axis_index_from_name(const char*);
 

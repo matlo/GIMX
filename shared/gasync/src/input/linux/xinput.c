@@ -43,7 +43,7 @@ static struct
   int y;
 } mouse_coordinates;
 
-inline uint8_t get_button(int detail)
+static inline uint8_t get_button(int detail)
 {
   switch(detail)
   {

@@ -447,7 +447,7 @@ GE_JS_Type ginput_get_js_type(int id)
  * \return value GE_MK_MODE_MULTIPLE_INPUTS multiple mice and  multiple keyboards (default value),
  *               GE_MK_MODE_SINGLE_INPUT    single mouse and single keyboard
  */
-inline GE_MK_Mode ginput_get_mk_mode()
+GE_MK_Mode ginput_get_mk_mode()
 {
   return mk_mode;
 }
@@ -458,7 +458,7 @@ inline GE_MK_Mode ginput_get_mk_mode()
  * \param value GE_MK_MODE_MULTIPLE_INPUTS multiple mice and  multiple keyboards (default value),
  *              GE_MK_MODE_SINGLE_INPUT    single mouse and single keyboard
  */
-inline void ginput_set_mk_mode(GE_MK_Mode value)
+void ginput_set_mk_mode(GE_MK_Mode value)
 {
   mk_mode = value;
 }

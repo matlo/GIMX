@@ -113,7 +113,7 @@ void usbhidasync_clean(void) {
   libusb_exit(ctx);
 }
 
-inline int usbhidasync_check_device(int device, const char * file, unsigned int line, const char * func) {
+static inline int usbhidasync_check_device(int device, const char * file, unsigned int line, const char * func) {
   if (device < 0 || device >= USBHIDASYNC_MAX_DEVICES) {
     PRINT_ERROR_OTHER("invalid device")
     return -1;
