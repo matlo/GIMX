@@ -26,4 +26,6 @@ int sdlinput_joystick_get_usb_ids(int joystick, unsigned short * vendor, unsigne
 
 void sdlinput_sync_process();
 
+void sdlinput_grab(int mode);
+
 #endif /* SDLINPUT_H_ */

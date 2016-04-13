@@ -73,20 +73,7 @@ const char* ev_keyboard_name(int id)
 
 void ev_grab_input(int mode)
 {
-  int i;
-
-  if(mode == GE_GRAB_ON)
-  {
-    SDL_SetRelativeMouseMode(SDL_TRUE);
-
-    //TODO MLA
-  }
-  else
-  {
-    //TODO MLA
-
-    SDL_SetRelativeMouseMode(SDL_FALSE);
-  }
+  sdlinput_grab(mode);
 }
 
 void ev_sync_process()
