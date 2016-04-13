@@ -8,6 +8,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <string.h>
+#include <limits.h>
 
 #include <ginput.h>
 #include <gpoll.h>
@@ -25,7 +26,6 @@
 static void terminate(int sig)
 {
   done = 1;
-  fprintf(stderr, "%s\n", __func__);
 }
 
 int mkb_select() {
