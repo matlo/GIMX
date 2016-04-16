@@ -12,9 +12,10 @@ CXXFLAGS += -Wall -Wextra -Wno-unused-parameter -s -O3
 #CFLAGS += -Wall -Wextra -Wno-unused-parameter -O0 -g
 #CXXFLAGS += -Wall -Wextra -Wno-unused-parameter -O0 -g
 
+CPPFLAGS += `xml2-config --cflags`
 ifeq ($(OS),Windows_NT)
 CC = gcc
-CPPFLAGS += `xml2-config --cflags` `sdl2-config --cflags`
+CPPFLAGS += `sdl2-config --cflags`
 endif
 
 LDLIBS += -Wl,--whole-archive ../shared/controller/controller.a -Wl,--no-whole-archive ../shared/gasync/gasync.a ../shared/gpp/gpp.a
