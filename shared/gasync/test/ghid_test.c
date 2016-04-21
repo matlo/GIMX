@@ -237,12 +237,6 @@ int hid_close(int user) {
   return 0;
 }
 
-int ignore_event(GE_Event* event) {
-
-  return 0;
-}
-
-
 int main(int argc, char* argv[]) {
 
   (void) signal(SIGINT, terminate);
@@ -252,7 +246,6 @@ int main(int argc, char* argv[]) {
 
   if(path == NULL) {
     fprintf(stderr, "No HID device selected!\n");
-    ginput_quit();
     exit(-1);
   }
 
