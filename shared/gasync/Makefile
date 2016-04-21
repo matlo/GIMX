@@ -2,9 +2,11 @@ include ../../Makedefs
 
 LIBNAME=$(shell basename $(shell pwd)).a
 OBJECTS := $(patsubst %.c,%.o,$(wildcard src/*.c))
-OBJECTS := $(patsubst %.c,%.o,$(wildcard src/*/*.c))
+OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/*.c))
+OBJECTS += $(patsubst %.c,%.o,$(wildcard src/input/hid/*.c))
 ifneq ($(OS),Windows_NT)
 OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/linux/*.c))
+#OBJECTS:=$(filter-out src/uhid/linux/uhidasync.o,$(OBJECTS))
 else
 OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/windows/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/sdl/*.c))

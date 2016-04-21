@@ -18,6 +18,7 @@
 #else
 #include <windows.h>
 #endif
+#include "hid/hidinput.h"
 
 #define BT_SIXAXIS_NAME "PLAYSTATION(R)3 Controller"
 #define XONE_PAD_NAME "Microsoft X-Box One pad"
@@ -100,6 +101,11 @@ int ginput_init(unsigned char mkb_src, int(*callback)(GE_Event*))
   int i = 0;
   int j;
   const char* name;
+
+  if (hidinput_init(callback) < 0)
+  {
+      return -1;
+  }
 
   if (ev_init(mkb_src, callback) < 0)
   {
@@ -291,6 +297,8 @@ void ginput_quit()
   }
   ginput_free_mk_names();
   ev_quit();
+
+  hidinput_quit();
 
   initialized = 0;
 }
