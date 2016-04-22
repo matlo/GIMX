@@ -377,7 +377,7 @@ static s_controller controller =
   .fp_init_report = init_report,
 };
 
-void ds4_init(void) __attribute__((constructor (101)));
+void ds4_init(void) __attribute__((constructor));
 void ds4_init(void)
 {
   controller_register(C_TYPE_DS4, &controller);

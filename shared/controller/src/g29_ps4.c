@@ -283,7 +283,7 @@ static s_controller controller =
   .fp_init_report = init_report,
 };
 
-void g29Ps4_init(void) __attribute__((constructor (101)));
+void g29Ps4_init(void) __attribute__((constructor));
 void g29Ps4_init(void)
 {
   controller_register(C_TYPE_G29_PS4, &controller);

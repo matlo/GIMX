@@ -110,7 +110,7 @@ static struct
   ASYNC_CLOSE_CALLBACK fp_close;
 } gpp_devices[MAX_GPP_DEVICES] = {};
 
-void gpppcprog_init(void) __attribute__((constructor (101)));
+void gpppcprog_init(void) __attribute__((constructor));
 void gpppcprog_init(void)
 {
     int i;
@@ -119,7 +119,7 @@ void gpppcprog_init(void)
     }
 }
 
-void gpppcprog_clean(void) __attribute__((destructor (101)));
+void gpppcprog_clean(void) __attribute__((destructor));
 void gpppcprog_clean(void)
 {
     int i;

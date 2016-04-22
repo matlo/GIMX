@@ -93,7 +93,7 @@ static void remove_transfer(struct libusb_transfer * transfer) {
   }
 }
 
-void usbhidasync_init(void) __attribute__((constructor (101)));
+void usbhidasync_init(void) __attribute__((constructor));
 void usbhidasync_init(void) {
   int ret = libusb_init(&ctx);
   if (ret != LIBUSB_SUCCESS) {
@@ -102,7 +102,7 @@ void usbhidasync_init(void) {
   }
 }
 
-void usbhidasync_clean(void) __attribute__((destructor (101)));
+void usbhidasync_clean(void) __attribute__((destructor));
 void usbhidasync_clean(void) {
   int i;
   for (i = 0; i < USBHIDASYNC_MAX_DEVICES; ++i) {

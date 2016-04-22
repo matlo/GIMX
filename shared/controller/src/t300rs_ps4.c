@@ -208,7 +208,7 @@ static s_controller controller =
   .fp_init_report = init_report,
 };
 
-void t300rsPs4_init(void) __attribute__((constructor (101)));
+void t300rsPs4_init(void) __attribute__((constructor));
 void t300rsPs4_init(void)
 {
   controller_register(C_TYPE_T300RS_PS4, &controller);

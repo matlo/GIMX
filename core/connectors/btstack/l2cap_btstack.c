@@ -248,7 +248,7 @@ static s_l2cap_abs l2cap_btstack =
     .disconnect = l2cap_btstack_disconnect,
 };
 
-void l2cap_btstack_init(void) __attribute__((constructor (101)));
+void l2cap_btstack_init(void) __attribute__((constructor));
 void l2cap_btstack_init(void)
 {
   l2cap_abs_register(E_BT_ABS_BTSTACK, &l2cap_btstack);

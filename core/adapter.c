@@ -63,7 +63,7 @@ static struct
 static int adapter_device[E_DEVICE_TYPE_NB][MAX_CONTROLLERS];
 static int device_adapter[E_DEVICE_TYPE_NB][MAX_DEVICES];
 
-void adapter_init_static(void) __attribute__((constructor (101)));
+void adapter_init_static(void) __attribute__((constructor));
 void adapter_init_static(void)
 {
   unsigned int i, j;

@@ -23,7 +23,7 @@ static struct {
 
 } uhid_joystick_devices[UHID_JOYSTICK_MAX_DEVICES] = { };
 
-void uhid_joystick_init(void) __attribute__((constructor (101)));
+void uhid_joystick_init(void) __attribute__((constructor));
 void uhid_joystick_init(void) {
     int i;
     for (i = 0; i < UHID_JOYSTICK_MAX_DEVICES; ++i) {
@@ -44,7 +44,7 @@ static void uhid_joystick_close(int id) {
     }
 }
 
-void uhid_joystick_clean(void) __attribute__((destructor (101)));
+void uhid_joystick_clean(void) __attribute__((destructor));
 void uhid_joystick_clean(void) {
     int i;
     for (i = 0; i < UHID_JOYSTICK_MAX_DEVICES; ++i) {

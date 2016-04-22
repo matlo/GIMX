@@ -27,7 +27,7 @@ static struct {
     return RETVALUE; \
   }
 
-void gtimer_init(void) __attribute__((constructor (101)));
+void gtimer_init(void) __attribute__((constructor));
 void gtimer_init(void) {
   unsigned int i;
   for (i = 0; i < sizeof(timers) / sizeof(*timers); ++i) {
@@ -35,7 +35,7 @@ void gtimer_init(void) {
   }
 }
 
-void gtimer_clean(void) __attribute__((destructor (101)));
+void gtimer_clean(void) __attribute__((destructor));
 void gtimer_clean(void) {
   unsigned int i;
   for (i = 0; i < sizeof(timers) / sizeof(*timers); ++i) {

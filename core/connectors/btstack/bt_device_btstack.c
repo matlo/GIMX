@@ -101,7 +101,7 @@ static s_bt_device_abs bt_device_btstack =
     .write_device_class = bt_device_btstack_write_device_class,
 };
 
-void bt_device_btstack_init(void) __attribute__((constructor (101)));
+void bt_device_btstack_init(void) __attribute__((constructor));
 void bt_device_btstack_init(void)
 {
   bt_device_abs_register(E_BT_ABS_BTSTACK, &bt_device_btstack);

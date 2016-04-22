@@ -180,7 +180,7 @@ static s_controller controller =
     .fp_init_report = init_report,
 };
 
-void ds2_init(void) __attribute__((constructor (101)));
+void ds2_init(void) __attribute__((constructor));
 void ds2_init(void)
 {
   controller_register(C_TYPE_PS2_PAD, &controller);

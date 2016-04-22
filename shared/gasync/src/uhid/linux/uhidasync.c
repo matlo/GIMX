@@ -26,7 +26,7 @@ static struct {
     int opened;
 } uhidasync_devices[UHID_MAX_DEVICES] = { };
 
-void uhidasync_init(void) __attribute__((constructor (101)));
+void uhidasync_init(void) __attribute__((constructor));
 void uhidasync_init(void) {
     int i;
     for (i = 0; i < UHID_MAX_DEVICES; ++i) {
@@ -34,7 +34,7 @@ void uhidasync_init(void) {
     }
 }
 
-void uhidasync_clean(void) __attribute__((destructor (101)));
+void uhidasync_clean(void) __attribute__((destructor));
 void uhidasync_clean(void) {
     int i;
     for (i = 0; i < UHID_MAX_DEVICES; ++i) {

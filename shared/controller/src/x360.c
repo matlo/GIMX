@@ -154,7 +154,7 @@ static s_controller controller =
   .fp_init_report = init_report,
 };
 
-void x360_init(void) __attribute__((constructor (101)));
+void x360_init(void) __attribute__((constructor));
 void x360_init(void)
 {
   controller_register(C_TYPE_360_PAD, &controller);

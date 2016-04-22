@@ -154,7 +154,7 @@ static s_controller controller =
   .fp_init_report = init_report,
 };
 
-void xbox_init(void) __attribute__((constructor (101)));
+void xbox_init(void) __attribute__((constructor));
 void xbox_init(void)
 {
   controller_register(C_TYPE_XBOX_PAD, &controller);

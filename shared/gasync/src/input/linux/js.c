@@ -49,7 +49,7 @@ static int j_num; // the number of joysticks
 /*
  * This initializes the data before any other function of this file gets called.
  */
-void js_init_static(void) __attribute__((constructor (101)));
+void js_init_static(void) __attribute__((constructor));
 void js_init_static(void)
 {
   j_num = 0;

@@ -193,7 +193,7 @@ static struct
     s_ffb_report last_report;
 } ffb_lg_device[MAX_CONTROLLERS] = {};
 
-void ffb_lg_init_static(void) __attribute__((constructor (101)));
+void ffb_lg_init_static(void) __attribute__((constructor));
 void ffb_lg_init_static(void)
 {
     unsigned int i, j;

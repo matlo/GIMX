@@ -45,25 +45,6 @@ void controller_register(e_controller_type type, s_controller * controller)
   controllers[type] = controller;
 }
 
-void controller_init(void) __attribute__((constructor (102)));
-void controller_init(void)
-{
-  int type;
-  for(type=0; type<C_TYPE_MAX; ++type)
-  {
-    if(controllers[type] == NULL)
-    {
-      fprintf(stderr, "Controller '%s' is missing parameters!\n", controllers[type]->name);
-      exit(-1);
-    }
-    if(!controllers[type]->axis_name_dirs.values)
-    {
-      fprintf(stderr, "Controller '%s' is missing axis names!\n", controllers[type]->name);
-      exit(-1);
-    }
-  }
-}
-
 int controller_get_min_refresh_period(e_controller_type type)
 {
   if(type < C_TYPE_MAX)

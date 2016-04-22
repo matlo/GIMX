@@ -183,7 +183,7 @@ static s_controller controller =
   .fp_init_report = init_report,
 };
 
-void xone_init(void) __attribute__((constructor (101)));
+void xone_init(void) __attribute__((constructor));
 void xone_init(void)
 {
   controller_register(C_TYPE_XONE_PAD, &controller);

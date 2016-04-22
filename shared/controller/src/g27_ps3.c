@@ -321,7 +321,7 @@ static s_controller controller =
   .fp_init_report = init_report,
 };
 
-void g27Ps3_init(void) __attribute__((constructor (101)));
+void g27Ps3_init(void) __attribute__((constructor));
 void g27Ps3_init(void)
 {
   controller_register(C_TYPE_G27_PS3, &controller);

@@ -29,7 +29,7 @@ static int max_source = 0;
 
 static void (* rawinput_callback)() = NULL;
 
-void gpoll_init(void) __attribute__((constructor (101)));
+void gpoll_init(void) __attribute__((constructor));
 void gpoll_init(void) {
   unsigned int i;
   for (i = 0; i < sizeof(sources) / sizeof(*sources); ++i) {

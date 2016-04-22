@@ -33,7 +33,7 @@ static inline void setup_cancel_io(void)
   }
 }
 
-void init(void) __attribute__((constructor (101)));
+void init(void) __attribute__((constructor));
 void init(void) {
     int i;
     for (i = 0; i < ASYNC_MAX_DEVICES; ++i) {
@@ -42,7 +42,7 @@ void init(void) {
     setup_cancel_io();
 }
 
-void clean(void) __attribute__((destructor (101)));
+void clean(void) __attribute__((destructor));
 void clean(void) {
     int i;
     for (i = 0; i < ASYNC_MAX_DEVICES; ++i) {
