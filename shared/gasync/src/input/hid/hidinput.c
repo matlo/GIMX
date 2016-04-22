@@ -27,7 +27,23 @@ static struct {
     int joystick;
     s_hidinput_driver * driver;
     unsigned char prev[MAX_REPORT_SIZE];
-} hid_devices[MAX_DEVICES];
+} hid_devices[MAX_DEVICES] = {};
+
+static void init_device(int device) {
+
+  memset(hid_devices + device, 0x00, sizeof(*hid_devices));
+  hid_devices[device].hid = -1;
+  hid_devices[device].joystick = -1;
+}
+
+void hidinput_constructor(void) __attribute__((constructor));
+void hidinput_constructor(void) {
+
+  unsigned int i;
+  for (i = 0; i < sizeof(hid_devices) / sizeof(*hid_devices); ++i) {
+      init_device(i);
+  }
+}
 
 void hidinput_destructor(void) __attribute__((destructor));
 void hidinput_destructor(void) {
@@ -54,13 +70,13 @@ static int close_device(int device) {
 
     if (hid_devices[device].hid >= 0) {
         ghid_close(hid_devices[device].hid);
-        hid_devices[device].hid = -1;
     }
 
     if (hid_devices[device].joystick >= 0) {
         // TODO MLA: remove joystick
-        hid_devices[device].joystick = -1;
     }
+
+    init_device(device);
 
     return 0;
 }
@@ -104,7 +120,7 @@ static int add_device(int device, int joystick, int driver) {
             return i;
         }
     }
-    PRINT_ERROR_OTHER("failed to add controller")
+    PRINT_ERROR_OTHER("no slot available")
     return -1;
 }
 
