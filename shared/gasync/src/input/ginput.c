@@ -19,6 +19,7 @@
 #include <windows.h>
 #endif
 #include "hid/hidinput.h"
+#include <gerror.h>
 
 #define BT_SIXAXIS_NAME "PLAYSTATION(R)3 Controller"
 #define XONE_PAD_NAME "Microsoft X-Box One pad"
@@ -87,7 +88,7 @@ static const char* _8BIT_to_UTF8(const char* _8bit)
 }
 
 /*
- * \bried Initializes the GE library.
+ * \bried Initializes the library.
  *
  * \param mkb_src  GE_MKB_SOURCE_PHYSICAL: use evdev under Linux and raw inputs under Windows.
  *                 GE_MKB_SOURCE_WINDOW_SYSTEM: use X inputs under Linux and the SDL library under Windows.
@@ -127,7 +128,7 @@ int ginput_init(unsigned char mkb_src, int(*callback)(GE_Event*))
     if (!strncmp(name, XONE_PAD_NAME, sizeof(XONE_PAD_NAME) - 1))
     {
       // In Windows, rename joysticks that are named XONE_PAD_NAME.
-      // Such controllers are registered using GE_RegisterJoystick().
+      // Such controllers are registered using ginput_register_joystick().
       // It's currently not possible to distinguish Xbox One controllers
       // from Xbox 360 controllers, as Xinput does not provide controller names.
       name = "X360 Controller";
@@ -280,7 +281,7 @@ void ginput_free_mk_names()
 }
 
 /*
- * \brief Quit the GE library (free allocated data, release devices...).
+ * \brief Quit the library (free allocated data, release devices...).
  */
 void ginput_quit()
 {
@@ -368,7 +369,7 @@ int ginput_joystick_virtual_id(int id)
 }
 
 /*
- * \brief Set a joystick to the "used" state, so that a call to GE_release_unused will keep it open.
+ * \brief Set a joystick to the "used" state, so that a call to ginput_release_unused will keep it open.
  * 
  * \param id  the joystick index (in the [0..GE_MAX_DEVICES[ range)
  */
@@ -383,18 +384,18 @@ void ginput_set_joystick_used(int id)
 /*
  * \brief Register a joystick to be emulated in software.
  * 
- * \remark This function has to be called before calling GE_initialize.
+ * \remark This function has to be called before calling ginput_init.
  *
  * \param name  the name of the joystick to register.
  * 
- * \return the id of the joystick, that can be used to forge a GE_Event to pass as argument to GE_PushEvent(),
+ * \return the id of the joystick, that can be used to forge a GE_Event,
  *         or -1 if the library was already initialized
  */
 int ginput_register_joystick(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short))
 {
   if(initialized)
   {
-    fprintf(stderr, "GE_RegisterJoystick has to be called before GE_initialize.\n");
+    PRINT_ERROR_OTHER("this function can only be called before ginput_init");
     return -1;
   }
 
