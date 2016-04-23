@@ -335,3 +335,8 @@ int ghid_write(int device, const void * buf, unsigned int count) {
 
   return async_write(device, buf, count);
 }
+
+int ghid_poll(int device) {
+
+    return 0;
+}

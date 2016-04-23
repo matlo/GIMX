@@ -117,13 +117,11 @@ int hid_read(int user, const void * buf, int status) {
     return 1;
   }
 
-#ifndef WIN32
   int ret = ghid_poll(hid);
   if (ret < 0) {
     done = 1;
     return 1;
   }
-#endif
 
   if (status > 0) {
     struct timeval t;
@@ -278,12 +276,10 @@ int main(int argc, char* argv[]) {
 
       hid_task(hid);
 
-#ifndef WIN32
       int ret = ghid_poll(hid);
       if (ret < 0) {
         done = 1;
       }
-#endif
 
       while (!done || hid_busy) {
 

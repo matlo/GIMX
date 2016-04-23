@@ -4,14 +4,22 @@
  */
 
 #include "hidinput.h"
+#ifndef WIN32
+#include <arpa/inet.h>
+#else
+#include <windows.h>
+#include <winsock2.h>
+#endif
 #include <stdlib.h>
 #include <gerror.h>
 #include <stdint.h>
-#include <arpa/inet.h>
+#include <string.h>
 
 #define STEAM_CONTROLLER_VID            0x28de
 #define WIRELESS_STEAM_CONTROLLER_PID   0x1142
 #define WIRED_STEAM_CONTROLLER_PID      0x1042
+
+#define WIRELESS_INTERFACE_NUMBER 4
 
 #define HID_REPORT_SIZE 64
 
@@ -27,6 +35,39 @@ static int (*event_callback)(GE_Event*) = NULL;
 static int init(int(*callback)(GE_Event*)) {
 
     event_callback = callback;
+
+    return 0;
+}
+
+/*
+ * Each USB dongle results in 5 consecutive interfaces:
+ * - the 1st one is a boot keyboard and mouse
+ * - each other interface is a wireless controller.
+ */
+static int probe(int hid) {
+
+    static unsigned char count = 0;
+
+    const s_hid_info * hid_info = ghid_get_hid_info(hid);
+
+    if (hid_info == NULL) {
+        return -1;
+    }
+
+    if (hid_info->product_id == WIRED_STEAM_CONTROLLER_PID) {
+        count = 0;
+        return 0;
+    }
+
+    ++count;
+
+    if (count == 1) {
+        return -1; // skip 1st interface
+    }
+
+    if (count > WIRELESS_INTERFACE_NUMBER) {
+        count = 0;
+    }
 
     return 0;
 }
@@ -67,6 +108,11 @@ static int process(int joystick, const void * report, unsigned int size, const v
 
     if (current->status != htons(0x013c)) {
         return -1;
+    }
+
+    if (previous->status == 0x0000) {
+        // skip first report so as to allow detecting pad buttons
+        return 0;
     }
 
     GE_Event button = { .jbutton = { .which = joystick } };
@@ -154,6 +200,7 @@ static int process(int joystick, const void * report, unsigned int size, const v
 static s_hidinput_driver driver = {
         .ids = ids,
         .init = init,
+        .probe = probe,
         .process = process,
 };
 

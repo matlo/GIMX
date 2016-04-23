@@ -7,6 +7,7 @@
 #define HIDINPUT_H_
 
 #include <ginput.h>
+#include <ghid.h>
 
 typedef struct {
     unsigned short vendor;
@@ -17,6 +18,7 @@ typedef struct {
 typedef struct {
     s_hidinput_ids * ids;
     int (* init)(int(*callback)(GE_Event*));
+    int (* probe)(int hid);
     int (* process)(int joystick, const void * report, unsigned int size, const void * prev);
 } s_hidinput_driver;
 

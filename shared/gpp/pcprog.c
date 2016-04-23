@@ -273,13 +273,11 @@ static int read_callback(int user, const void * buf, int status)
     return 1;
   }
 
-#ifndef WIN32
   //TODO MLA: only 1 poll in each period
   int ret = ghid_poll(gpp_devices[user].device);
   if (ret < 0) {
     return 1;
   }
-#endif
 
   if(status > 0 && ((unsigned char *)buf)[0] == GPPKG_INPUT_REPORT) {
     return gpp_devices[user].fp_read(user, buf, status);
@@ -313,12 +311,10 @@ int8_t gpppcprog_start_async(int id, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CA
     return -1;
   }
 
-#ifndef WIN32
   ret = ghid_poll(gpp_devices[id].device);
   if (ret < 0) {
     return -1;
   }
-#endif
 
   return 0;
 }

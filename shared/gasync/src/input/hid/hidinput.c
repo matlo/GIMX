@@ -4,7 +4,6 @@
  */
 
 #include "hidinput.h"
-#include <ghid.h>
 #include <gpoll.h>
 #include <gerror.h>
 #include <stdlib.h>
@@ -109,19 +108,49 @@ static int close_callback(int device) {
     return 0;
 }
 
-static int add_device(int device, int joystick, int driver) {
+static int add_device(int device, unsigned int driver) {
 
     unsigned int i;
     for (i = 0; i < sizeof(hid_devices) / sizeof(*hid_devices); ++i) {
         if (hid_devices[i].hid < 0) {
             hid_devices[i].hid = device;
             hid_devices[i].driver = drivers[driver];
-            hid_devices[i].joystick = joystick;
             return i;
         }
     }
     PRINT_ERROR_OTHER("no slot available")
     return -1;
+}
+
+static void probe_device(unsigned int driver, int hid, const char * name) {
+
+    if (drivers[driver]->probe(hid) < 0) {
+        return;
+    }
+
+    int device = add_device(hid, driver);
+    if (device < 0) {
+        ghid_close(hid);
+        return;
+    }
+
+    if (ghid_register(hid, device, read_callback, write_callback, close_callback, REGISTER_FUNCTION) < 0) {
+        close_device(device);
+        return;
+    }
+
+    if (ghid_poll(hid) < 0) {
+        close_device(device);
+        return;
+    }
+
+    hid_devices[device].joystick = ginput_register_joystick(name, NULL);
+    if (hid_devices[device].joystick < 0) {
+        close_device(device);
+        return;
+    }
+
+    return;
 }
 
 int hidinput_init(int(*callback)(GE_Event*)) {
@@ -145,30 +174,9 @@ int hidinput_init(int(*callback)(GE_Event*)) {
             s_hid_dev * current;
             for (current = hid_devs; current != NULL; ++current) {
                 int hid = ghid_open_path(current->path);
-                if (hid < 0) {
-                    return -1;
+                if (hid >= 0) {
+                    probe_device(driver, hid, drivers[driver]->ids[id].name);
                 }
-                int joystick = ginput_register_joystick(drivers[driver]->ids[id].name, NULL);
-                if (joystick < 0) {
-                    ghid_close(hid);
-                    return -1;
-                }
-                int device = add_device(hid, joystick, driver);
-                if (device < 0) {
-                    ghid_close(hid);
-                    // TODO MLA: remove joystick
-                    return -1;
-                }
-                if (ghid_register(hid, device, read_callback, write_callback, close_callback, REGISTER_FUNCTION) < 0) {
-                    close_device(device);
-                    return -1;
-                }
-#ifndef WIN32
-                if (ghid_poll(hid) < 0) {
-                    close_device(device);
-                    return -1;
-                }
-#endif
                 if (current->next == 0) {
                     break;
                 }
