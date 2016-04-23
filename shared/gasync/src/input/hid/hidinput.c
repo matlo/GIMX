@@ -54,7 +54,7 @@ void hidinput_destructor(void) {
 
 int hidinput_register(s_hidinput_driver * driver) {
 
-    void * ptr = realloc(drivers, nb_drivers * sizeof(*drivers));
+    void * ptr = realloc(drivers, (nb_drivers + 1) * sizeof(*drivers));
     if (ptr == NULL) {
         PRINT_ERROR_ALLOC_FAILED("realloc")
         return -1;
