@@ -46,6 +46,9 @@ static int init(int(*callback)(GE_Event*)) {
  */
 static int probe(int hid) {
 
+#ifdef WIN32
+    return 0; // on Windows the HID API does not provide access to mice and keyboards
+#else
     static unsigned char count = 0;
 
     const s_hid_info * hid_info = ghid_get_hid_info(hid);
@@ -70,6 +73,7 @@ static int probe(int hid) {
     }
 
     return 0;
+#endif
 }
 
 #ifdef WIN32
@@ -117,14 +121,30 @@ static int process(int joystick, const void * report, unsigned int size, const v
 
     GE_Event button = { .jbutton = { .which = joystick } };
 
+    uint8_t inhibit[3] = {};
+
     unsigned int i;
     for (i = 0; i < sizeof(current->buttons) / sizeof(*current->buttons); ++i) {
         uint8_t mask;
         for (mask = 0x80; mask != 0; mask >>= 1) {
             uint8_t value;
             if ((value = (current->buttons[i] & mask)) ^ (previous->buttons[i] & mask)) {
-                button.jbutton.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
-                event_callback(&button);
+                if (i == 2 && mask == 0x40) {
+                    inhibit[2] |= 0x02;
+                }
+            }
+        }
+    }
+
+    for (i = 0; i < sizeof(current->buttons) / sizeof(*current->buttons); ++i) {
+        uint8_t mask;
+        for (mask = 0x80; mask != 0; mask >>= 1) {
+            uint8_t value;
+            if ((value = (current->buttons[i] & mask)) ^ (previous->buttons[i] & mask)) {
+                if ((inhibit[i] & mask) == 0) {
+                    button.jbutton.type = value ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+                    event_callback(&button);
+                }
             }
             ++button.jbutton.button;
         }
@@ -148,21 +168,27 @@ static int process(int joystick, const void * report, unsigned int size, const v
 
     ++axis.jaxis.axis;
 
-    // pads
+    // left pad (active when pad is touched)
 
-    if ((current->buttons[2] & 0x08) && current->left_x != previous->left_x) {
-        axis.jaxis.value = current->left_x;
-        event_callback(&axis);
+    if ((current->buttons[2] & 0x08)) { // pad touched
+        if (current->left_x != previous->left_x) {
+            axis.jaxis.value = current->left_x;
+            event_callback(&axis);
+        }
     }
 
     ++axis.jaxis.axis;
 
-    if ((current->buttons[2] & 0x08) && current->left_y != previous->left_y) {
-        axis.jaxis.value = current->left_y;
-        event_callback(&axis);
+    if ((current->buttons[2] & 0x08)) { // pad touched
+        if (current->left_y != previous->left_y) {
+            axis.jaxis.value = current->left_y;
+            event_callback(&axis);
+        }
     }
 
     ++axis.jaxis.axis;
+
+    // right pad
 
     if (current->right_x != previous->right_x) {
         axis.jaxis.value = current->right_x;
@@ -178,18 +204,22 @@ static int process(int joystick, const void * report, unsigned int size, const v
 
     ++axis.jaxis.axis;
 
-    // stick
+    // stick (active when pad is not touched)
 
-    if (!(current->buttons[2] & 0x08) && current->left_x != previous->left_x) {
-        axis.jaxis.value = current->left_x;
-        event_callback(&axis);
+    if (!(current->buttons[2] & 0x08)) {
+        if (current->left_x != previous->left_x) {
+            axis.jaxis.value = current->left_x;
+            event_callback(&axis);
+        }
     }
 
     ++axis.jaxis.axis;
 
-    if (!(current->buttons[2] & 0x08) && current->left_y != previous->left_y) {
-        axis.jaxis.value = current->left_y;
-        event_callback(&axis);
+    if (!(current->buttons[2] & 0x08)) {
+        if (current->left_y != previous->left_y) {
+            axis.jaxis.value = current->left_y;
+            event_callback(&axis);
+        }
     }
 
     ++axis.jaxis.axis;
