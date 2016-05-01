@@ -8,7 +8,6 @@
 
 #include <stdio.h>
 #include <errno.h>
-#include <poll.h>
 #include <string.h>
 
 #define MAX_SOURCES 1024
