@@ -125,6 +125,7 @@ static int add_device(int device, unsigned int driver) {
 static void probe_device(unsigned int driver, int hid, const char * name) {
 
     if (drivers[driver]->probe(hid) < 0) {
+        ghid_close(hid);
         return;
     }
 
