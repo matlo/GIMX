@@ -65,7 +65,7 @@ static int add_transfer(struct libusb_transfer * transfer) {
     transfers = ptr;
     transfers[transfers_nb] = transfer;
     transfers_nb++;
-    usbdevices[(unsigned long) transfer->user_data].pending_transfers++;
+    usbdevices[(intptr_t) transfer->user_data].pending_transfers++;
     return 0;
   } else {
     PRINT_ERROR_ALLOC_FAILED("realloc")
@@ -85,7 +85,7 @@ static void remove_transfer(struct libusb_transfer * transfer) {
       } else {
         PRINT_ERROR_ALLOC_FAILED("realloc")
       }
-      usbdevices[(unsigned long) transfer->user_data].pending_transfers--;
+      usbdevices[(intptr_t) transfer->user_data].pending_transfers--;
       free(transfer->buffer);
       libusb_free_transfer(transfer);
       break;
@@ -100,7 +100,7 @@ void usbhidasync_init(void) {
     PRINT_ERROR_LIBUSB("libusb_init", ret)
     exit(-1);
   }
-}
+  }
 
 void usbhidasync_clean(void) __attribute__((destructor));
 void usbhidasync_clean(void) {
@@ -222,7 +222,7 @@ int gusbhid_poll(int device) {
 
 static void usb_callback(struct libusb_transfer* transfer) {
 
-  int device = (unsigned long) transfer->user_data;
+  int device = (intptr_t) transfer->user_data;
 
   //make sure the device still exists, in case something went wrong
   if(usbhidasync_check_device(device, __FILE__, __LINE__, __func__) == 0) {
@@ -319,7 +319,7 @@ int gusbhid_read_timeout(int device, void * buf, unsigned int count, unsigned in
     return -1;
   }
 
-  int transfered;
+  int transfered = 0;
 
   if (count > usbdevices[device].config.endpoints.in.size) {
     count = usbdevices[device].config.endpoints.in.size;
@@ -834,10 +834,10 @@ int gusbhid_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WR
   free(pfd_usb);
 
   if (ret != -1) {
-    usbdevices[device].callback.user = user;
-    usbdevices[device].callback.fp_read = fp_read;
-    usbdevices[device].callback.fp_write = fp_write;
-    usbdevices[device].callback.fp_close = fp_close;
+  usbdevices[device].callback.user = user;
+  usbdevices[device].callback.fp_read = fp_read;
+  usbdevices[device].callback.fp_write = fp_write;
+  usbdevices[device].callback.fp_close = fp_close;
   }
 
   return ret;
@@ -850,7 +850,7 @@ static void cancel_transfers(int device) {
   unsigned int i;
   for (i = 0; i < transfers_nb; ++i) {
 
-    if ((unsigned long) (transfers[i]->user_data) == (unsigned long) device) {
+    if ((intptr_t) (transfers[i]->user_data) == (intptr_t) device) {
 
       libusb_cancel_transfer(transfers[i]);
     }
