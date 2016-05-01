@@ -25,8 +25,8 @@
 
 static s_hidinput_ids ids[] = {
         // check wired controllers first
-        { .vendor = STEAM_CONTROLLER_VID, .product = WIRED_STEAM_CONTROLLER_PID, .name = "Steam Controller" },
-        { .vendor = STEAM_CONTROLLER_VID, .product = WIRELESS_STEAM_CONTROLLER_PID, .name = "Steam Controller" },
+        { .vendor = STEAM_CONTROLLER_VID, .product = WIRED_STEAM_CONTROLLER_PID, .name = "Valve Software Steam Controller" },
+        { .vendor = STEAM_CONTROLLER_VID, .product = WIRELESS_STEAM_CONTROLLER_PID, .name = "Valve Software Steam Controller" },
         { .vendor = 0, .product = 0 },
 };
 
@@ -112,11 +112,6 @@ static int process(int joystick, const void * report, unsigned int size, const v
 
     if (current->status != htons(0x013c)) {
         return -1;
-    }
-
-    if (previous->status == 0x0000) {
-        // skip first report so as to allow detecting pad buttons
-        return 0;
     }
 
     GE_Event button = { .jbutton = { .which = joystick } };
