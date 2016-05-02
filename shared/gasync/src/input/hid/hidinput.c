@@ -140,11 +140,6 @@ static void probe_device(unsigned int driver, int hid, const char * name) {
         return;
     }
 
-    if (ghid_poll(hid) < 0) {
-        close_device(device);
-        return;
-    }
-
     hid_devices[device].joystick = ginput_register_joystick(name, NULL);
     if (hid_devices[device].joystick < 0) {
         close_device(device);
@@ -163,7 +158,7 @@ int hidinput_init(int(*callback)(GE_Event*)) {
 
     unsigned int dev_index;
     for (dev_index = 0; dev_index < sizeof(hid_devices) / sizeof(*hid_devices); ++dev_index) {
-        hid_devices[dev_index].hid = -1;
+        init_device(dev_index);
     }
 
     unsigned int driver;
@@ -185,6 +180,15 @@ int hidinput_init(int(*callback)(GE_Event*)) {
             ghid_free_enumeration(hid_devs);
         }
     }
+
+    // When using libusb a synchronous control transfer is performed in the ghid_open* functions.
+    // Calling ghid_poll in the probe_device function could result in processing early reports.
+    for (dev_index = 0; dev_index < sizeof(hid_devices) / sizeof(*hid_devices); ++dev_index) {
+        if (hid_devices[dev_index].hid >= 0 && ghid_poll(hid_devices[dev_index].hid) < 0) {
+            close_device(dev_index);
+        }
+    }
+
     return 0;
 }
 
