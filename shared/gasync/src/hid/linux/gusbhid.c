@@ -94,19 +94,13 @@ static void remove_transfer(struct libusb_transfer * transfer) {
 }
 
 int handle_events(int unused) {
-#ifndef WIN32
-  return libusb_handle_events(ctx);
-#else
-  if(ctx != NULL)
-  {
-    struct timeval tv = {};
-    return libusb_handle_events_timeout(ctx, &tv);
-  }
-  else
+
+  if(ctx == NULL)
   {
     return 0;
   }
-#endif
+
+  return libusb_handle_events_timeout_completed(ctx, &((struct timeval){ 0, 0 }), NULL);
 }
 
 static int close_callback(int unused) {
@@ -153,11 +147,11 @@ void usbhidasync_clean(void) {
 
 static inline int usbhidasync_check_device(int device, const char * file, unsigned int line, const char * func) {
   if (device < 0 || device >= USBHIDASYNC_MAX_DEVICES) {
-    PRINT_ERROR_OTHER("invalid device")
+    fprintf(stderr, "%s:%d %s: invalid device\n", file, line, func);
     return -1;
   }
   if (usbdevices[device].devh == NULL) {
-    PRINT_ERROR_OTHER("no such device")
+    fprintf(stderr, "%s:%d %s: no such device\n", file, line, func);
     return -1;
   }
   return 0;
