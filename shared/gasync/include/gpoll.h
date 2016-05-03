@@ -6,8 +6,6 @@
 #ifndef GPOLL_H_
 #define GPOLL_H_
 
-#include <poll.h>
-
 typedef int (* GPOLL_READ_CALLBACK)(int user);
 typedef int (* GPOLL_WRITE_CALLBACK)(int user);
 typedef int (* GPOLL_CLOSE_CALLBACK)(int user);

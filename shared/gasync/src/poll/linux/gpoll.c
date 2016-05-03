@@ -7,6 +7,7 @@
 #include <gerror.h>
 
 #include <stdio.h>
+#include <poll.h>
 #include <errno.h>
 #include <string.h>
 

@@ -12,6 +12,9 @@
 
 #include <libusb-1.0/libusb.h>
 
+#define POLLIN      0x001
+#define POLLOUT     0x004
+
 #define USBHIDASYNC_MAX_DEVICES 256
 
 #define USBHIDASYNC_OUT_TIMEOUT 20 // ms
