@@ -907,7 +907,9 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
     evcatch->run("", "button");
     StatusBar1->SetStatusText(wxEmptyString);
 
-    if(evcatch->GetDeviceType() == "joystick")
+    pair<Device, Event> ev = selectEvent();
+
+    if(ev.first.GetType() == "joystick")
     {
       wxMessageBox(_("Joystick controls are only supported through gimx-config."), _("Info"), wxICON_INFORMATION);
       ((wxButton*) event.GetEventObject())->Enable(true);
@@ -916,7 +918,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 
     string device_name = "";
     string device_id = "0";
-    if(evcatch->GetDeviceType() == "keyboard")
+    if(ev.first.GetType() == "keyboard")
     {
       if(!defaultKeyboardName.empty())
       {
@@ -924,7 +926,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
         device_id = defaultKeyboardId;
       }
     }
-    else if(evcatch->GetDeviceType() == "mouse")
+    else if(ev.first.GetType() == "mouse")
     {
       if(!defaultMouseName.empty())
       {
@@ -933,14 +935,14 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
       }
     }
 
-    ((wxButton*) event.GetEventObject())->SetLabel(wxString(evcatch->GetEventId().c_str(), wxConvUTF8));
+    ((wxButton*) event.GetEventObject())->SetLabel(wxString(ev.second.GetId().c_str(), wxConvUTF8));
 
     bindex = getButtonIndex((wxButton*) event.GetEventObject());
 
     if (bindex != bi_undef)
     {
-      buttons[bindex].SetDevice(Device(evcatch->GetDeviceType(), device_id, device_name));
-      buttons[bindex].SetEvent(Event("button", evcatch->GetEventId()));
+      buttons[bindex].SetDevice(Device(ev.first.GetType(), device_id, device_name));
+      buttons[bindex].SetEvent(Event("button", ev.second.GetId()));
       buttons[bindex].SetAxis(ControlMapper::GetAxisProps(button_labels[bindex]));
       string tt(buttons[bindex].GetEvent()->GetId());
       if (!buttons[bindex].GetLabel().empty())
@@ -972,8 +974,8 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 
       if (aindex != ai_undef)
       {
-        axes[aindex].SetDevice(Device(evcatch->GetDeviceType(), device_id, device_name));
-        axes[aindex].SetEvent(Event("button", evcatch->GetEventId()));
+        axes[aindex].SetDevice(Device(ev.first.GetType(), device_id, device_name));
+        axes[aindex].SetEvent(Event("button", ev.second.GetId()));
         axes[aindex].SetAxis(ControlMapper::GetAxisProps(axis_labels[aindex]));
         string tt(axes[aindex].GetEvent()->GetId());
         if (!axes[aindex].GetLabel().empty())
@@ -2146,4 +2148,35 @@ void fpsconfigFrame::OnMenuItemWindowEventsSelected(wxCommandEvent& event)
     {
       evcatch->SetWindowEvents(false);
     }
+}
+
+pair<Device, Event> fpsconfigFrame::selectEvent()
+{
+    if (evcatch->GetEvents()->size() == 1)
+    {
+        return (*evcatch->GetEvents())[0];
+    }
+
+    wxArrayString choices;
+
+    for(vector<pair<Device, Event> >::iterator it = evcatch->GetEvents()->begin(); it != evcatch->GetEvents()->end(); ++it)
+    {
+        ostringstream ios;
+        ios << it->second.GetType() << " " << it->second.GetId();
+        choices.Add(wxString(ios.str().c_str(), wxConvUTF8));
+    }
+
+    wxSingleChoiceDialog dialog(this, _("Select the event."), _("Events"), choices);
+
+    if (dialog.ShowModal() == wxID_OK)
+    {
+        int selection = dialog.GetSelection();
+
+        if (selection >= 0 && (size_t)selection < evcatch->GetEvents()->size())
+        {
+            return (*evcatch->GetEvents())[selection];
+        }
+    }
+
+    return make_pair(Device(), Event());
 }

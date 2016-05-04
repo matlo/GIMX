@@ -79,6 +79,8 @@ class fpsconfigFrame: public wxFrame
 
         string reverseTranslate(string str);
 
+        pair<Device, Event> selectEvent();
+
         //(*Identifiers(fpsconfigFrame)
         static const long ID_SPINCTRL8;
         static const long ID_SPINCTRL7;

@@ -11,6 +11,7 @@
 #include <gtimer.h>
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
 
 #ifdef WIN32
 #define REGISTER_FUNCTION gpoll_register_handle
@@ -22,10 +23,9 @@
 
 event_catcher* event_catcher::_singleton = NULL;
 
-event_catcher::event_catcher()
+event_catcher::event_catcher() : done(0), stopTimer(-1), wevents(false)
 {
     //ctor
-    wevents = false;
 }
 
 event_catcher::~event_catcher()
@@ -122,6 +122,11 @@ bool event_catcher::check_device(string device_type, string device_name, string 
 
 void event_catcher::clean()
 {
+    if (stopTimer >= 0)
+    {
+        gtimer_close(stopTimer);
+        stopTimer = -1;
+    }
     ginput_quit();
 }
 
@@ -169,8 +174,6 @@ static s_joystick_axis_first axis_first[EVENT_BUFFER_SIZE];
 
 int process_event(GE_Event* event)
 {
-  const char* event_id;
-
   event_catcher* evcatch = event_catcher::getInstance();
 
   if(evcatch->GetDone())
@@ -187,15 +190,12 @@ int process_event(GE_Event* event)
       }
       if(evcatch->GetEventType() == "button")
       {
-          evcatch->SetDeviceType("keyboard");
           stringstream ss1;
           ss1 << ginput_keyboard_virtual_id(event->key.which);
-          evcatch->SetDeviceId(ss1.str());
-          evcatch->SetDeviceName(ginput_keyboard_name(event->key.which));
-          evcatch->SetEventType("button");
-          event_id = ginput_key_name(event->key.keysym);
-          evcatch->SetEventId(event_id);
-          evcatch->SetDone();
+          Device dev("keyboard", ss1.str(), ginput_keyboard_name(event->key.which));
+          Event ev("button", ginput_key_name(event->key.keysym));
+          evcatch->AddEvent(dev, ev);
+          evcatch->StartTimer();
       }
       break;
   case GE_MOUSEBUTTONDOWN:
@@ -205,15 +205,12 @@ int process_event(GE_Event* event)
       }
       if(evcatch->GetEventType() == "button")
       {
-          evcatch->SetDeviceType("mouse");
           stringstream ss1;
           ss1 << ginput_mouse_virtual_id(event->button.which);
-          evcatch->SetDeviceId(ss1.str());
-          evcatch->SetDeviceName(ginput_mouse_name(event->button.which));
-          evcatch->SetEventType("button");
-          event_id = ginput_mouse_button_name(event->button.button);
-          evcatch->SetEventId(event_id);
-          evcatch->SetDone();
+          Device dev("mouse", ss1.str(), ginput_mouse_name(event->button.which));
+          Event ev("button", ginput_mouse_button_name(event->button.button));
+          evcatch->AddEvent(dev, ev);
+          evcatch->StartTimer();
       }
       break;
   case GE_JOYBUTTONDOWN:
@@ -223,17 +220,15 @@ int process_event(GE_Event* event)
       }
       if(evcatch->GetEventType() == "button")
       {
-          evcatch->SetDeviceType("joystick");
           stringstream ss1;
           ss1 << ginput_joystick_virtual_id(event->jbutton.which);
-          evcatch->SetDeviceId(ss1.str());
-          evcatch->SetDeviceName(ginput_joystick_name(event->jbutton.which));
-          evcatch->SetEventType("button");
+          Device dev("joystick", ss1.str(), ginput_joystick_name(event->jbutton.which));
           int ib = event->jbutton.button;
           stringstream ss2;
           ss2 << ib;
-          evcatch->SetEventId(ss2.str());
-          evcatch->SetDone();
+          Event ev("button", ss2.str());
+          evcatch->AddEvent(dev, ev);
+          evcatch->StartTimer();
       }
       break;
   case GE_MOUSEMOTION:
@@ -245,63 +240,63 @@ int process_event(GE_Event* event)
       {
           if(abs(event->motion.xrel) > 5 || abs(event->motion.yrel) > 5)
           {
-              evcatch->SetDeviceType("mouse");
               stringstream ss1;
               ss1 << ginput_mouse_virtual_id(event->motion.which);
-              evcatch->SetDeviceId(ss1.str());
-              evcatch->SetDeviceName(ginput_mouse_name(event->motion.which));
-              evcatch->SetEventType("axis");
-              evcatch->SetDone();
+              Device dev("mouse", ss1.str(), ginput_mouse_name(event->motion.which));
+              const char * axis;
               if(abs(event->motion.xrel) > abs(event->motion.yrel))
               {
-                  evcatch->SetEventId("x");
+                  axis = "x";
               }
               else
               {
-                  evcatch->SetEventId("y");
+                  axis = "y";
               }
+              Event ev("axis", axis);
+              evcatch->AddEvent(dev, ev);
+              evcatch->StartTimer();
           }
       }
       else if(evcatch->GetEventType() == "axis up")
       {
           if(event->motion.xrel > 5 || event->motion.yrel > 5)
           {
-              evcatch->SetDeviceType("mouse");
               stringstream ss1;
               ss1 << ginput_mouse_virtual_id(event->motion.which);
-              evcatch->SetDeviceId(ss1.str());
-              evcatch->SetDeviceName(ginput_mouse_name(event->motion.which));
-              evcatch->SetEventType("axis");
-              evcatch->SetDone();
-              if(event->motion.xrel > event->motion.yrel)
+              Device dev("mouse", ss1.str(), ginput_mouse_name(event->motion.which));
+              const char * axis;
+              if(abs(event->motion.xrel) > abs(event->motion.yrel))
               {
-                  evcatch->SetEventId("x");
+                  axis = "x";
               }
               else
               {
-                  evcatch->SetEventId("y");
+                  axis = "y";
               }
+              Event ev("axis", axis);
+              evcatch->AddEvent(dev, ev);
+              evcatch->StartTimer();
           }
       }
       else if(evcatch->GetEventType() == "axis down")
       {
           if(event->motion.xrel < -5 || event->motion.yrel < -5)
           {
-              evcatch->SetDeviceType("mouse");
               stringstream ss1;
               ss1 << ginput_mouse_virtual_id(event->motion.which);
-              evcatch->SetDeviceId(ss1.str());
-              evcatch->SetDeviceName(ginput_mouse_name(event->motion.which));
-              evcatch->SetEventType("axis");
-              evcatch->SetDone();
-              if(event->motion.xrel < event->motion.yrel)
+              Device dev("mouse", ss1.str(), ginput_mouse_name(event->motion.which));
+              const char * axis;
+              if(abs(event->motion.xrel) > abs(event->motion.yrel))
               {
-                  evcatch->SetEventId("x");
+                  axis = "x";
               }
               else
               {
-                  evcatch->SetEventId("y");
+                  axis = "y";
               }
+              Event ev("axis", axis);
+              evcatch->AddEvent(dev, ev);
+              evcatch->StartTimer();
           }
       }
       break;
@@ -314,51 +309,45 @@ int process_event(GE_Event* event)
       {
           if(process_joystick_axis(axis_first, &axis_first_nb, event) > 1000)
           {
-              evcatch->SetDeviceType("joystick");
               stringstream ss1;
               ss1 << ginput_joystick_virtual_id(event->jaxis.which);
-              evcatch->SetDeviceId(ss1.str());
-              evcatch->SetDeviceName(ginput_joystick_name(event->jaxis.which));
-              evcatch->SetEventType("axis");
-              int ia = event->jaxis.axis;
+              Device dev("joystick", ss1.str(), ginput_joystick_name(event->jaxis.which));
+              int ib = event->jaxis.axis;
               stringstream ss2;
-              ss2 << ia;
-              evcatch->SetEventId(ss2.str());
-              evcatch->SetDone();
+              ss2 << ib;
+              Event ev("axis", ss2.str());
+              evcatch->AddEvent(dev, ev);
+              evcatch->StartTimer();
           }
       }
       else if(evcatch->GetEventType() == "axis up")
       {
           if(event->jaxis.value > 10000)
           {
-              evcatch->SetDeviceType("joystick");
               stringstream ss1;
               ss1 << ginput_joystick_virtual_id(event->jaxis.which);
-              evcatch->SetDeviceId(ss1.str());
-              evcatch->SetDeviceName(ginput_joystick_name(event->jaxis.which));
-              evcatch->SetEventType("axis");
-              int ia = event->jaxis.axis;
+              Device dev("joystick", ss1.str(), ginput_joystick_name(event->jaxis.which));
+              int ib = event->jaxis.axis;
               stringstream ss2;
-              ss2 << ia;
-              evcatch->SetEventId(ss2.str());
-              evcatch->SetDone();
+              ss2 << ib;
+              Event ev("axis", ss2.str());
+              evcatch->AddEvent(dev, ev);
+              evcatch->StartTimer();
           }
       }
       else if(evcatch->GetEventType() == "axis down")
       {
           if(event->jaxis.value < -10000)
           {
-              evcatch->SetDeviceType("joystick");
               stringstream ss1;
               ss1 << ginput_joystick_virtual_id(event->jaxis.which);
-              evcatch->SetDeviceId(ss1.str());
-              evcatch->SetDeviceName(ginput_joystick_name(event->jaxis.which));
-              evcatch->SetEventType("axis");
-              int ia = event->jaxis.axis;
+              Device dev("joystick", ss1.str(), ginput_joystick_name(event->jaxis.which));
+              int ib = event->jaxis.axis;
               stringstream ss2;
-              ss2 << ia;
-              evcatch->SetEventId(ss2.str());
-              evcatch->SetDone();
+              ss2 << ib;
+              Event ev("axis", ss2.str());
+              evcatch->AddEvent(dev, ev);
+              evcatch->StartTimer();
           }
       }
       break;
@@ -378,16 +367,27 @@ static int timer_close(int timer)
   return 1;
 }
 
+void event_catcher::StartTimer()
+{
+    if (stopTimer < 0)
+    {
+        stopTimer = gtimer_start(0, 500000, timer_close, timer_close, REGISTER_FUNCTION);
+        if (stopTimer < 0)
+        {
+          done = 1;
+        }
+    }
+}
+
 void event_catcher::run(string device_type, string event_type)
 {
     axis_first_nb = 0;
     memset(axis_first, 0x00, sizeof(axis_first));
 
     m_DeviceType = device_type;
-    m_DeviceId = "";
-    m_DeviceName = "";
     m_EventType = event_type;
-    m_EventId = "";
+
+    vector<pair<Device, Event> >().swap(m_Events);
 
     init();
 
@@ -412,4 +412,13 @@ void event_catcher::run(string device_type, string event_type)
     }
 
     clean();
+}
+
+void event_catcher::AddEvent(Device device, Event event)
+{
+    vector<pair<Device, Event> >::iterator it = find(m_Events.begin(), m_Events.end(), make_pair(device, event));
+    if (it == m_Events.end())
+    {
+        m_Events.push_back(make_pair(device, event));
+    }
 }

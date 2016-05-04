@@ -1864,11 +1864,13 @@ void configFrame::auto_detect(wxStaticText* device_type, string* dname, wxStatic
     evcatch->run("", reverseTranslate(string(event_type.mb_str(wxConvUTF8))));
     StatusBar1->SetStatusText(wxEmptyString);
 
-    device_type->SetLabel(_CN(evcatch->GetDeviceType()));
+    pair<Device, Event> ev = selectEvent();
 
-    if(MenuItemMultipleMiceAndKeyboards->IsChecked() || evcatch->GetDeviceType() == "joystick")
+    device_type->SetLabel(_CN(ev.first.GetType()));
+
+    if(MenuItemMultipleMiceAndKeyboards->IsChecked() || ev.first.GetType() == "joystick")
     {
-      *dname = evcatch->GetDeviceName();
+      *dname = ev.first.GetName();
       string name = *dname;
       if(name.size() > 20)
       {
@@ -1876,7 +1878,7 @@ void configFrame::auto_detect(wxStaticText* device_type, string* dname, wxStatic
         name.append("...");
       }
       device_name->SetLabel(wxString(name.c_str(), wxConvUTF8));
-      device_id->SetLabel( wxString(evcatch->GetDeviceId().c_str(), wxConvUTF8));
+      device_id->SetLabel( wxString(ev.first.GetId().c_str(), wxConvUTF8));
     }
     else
     {
@@ -1885,7 +1887,7 @@ void configFrame::auto_detect(wxStaticText* device_type, string* dname, wxStatic
       device_id->SetLabel(wxT("0"));
     }
 
-    event_id->SetLabel(wxString(evcatch->GetEventId().c_str(), wxConvUTF8));
+    event_id->SetLabel(wxString(ev.second.GetId().c_str(), wxConvUTF8));
 }
 
 /*
@@ -1940,9 +1942,11 @@ void configFrame::OnButtonTabAutoDetectClick(wxCommandEvent& event)
 {
     ButtonTabAutoDetect->Enable(false);
 
-    auto_detect(ButtonTabDeviceType, &buttonTabDeviceName, ButtonTabDeviceName, ButtonTabDeviceId, ButtonTabEventType->GetStringSelection(), ButtonTabEventId);
+	wxString eventType = ButtonTabEventType->GetStringSelection();
 
-    if(evcatch->GetEventType() == "button")
+    auto_detect(ButtonTabDeviceType, &buttonTabDeviceName, ButtonTabDeviceName, ButtonTabDeviceId, eventType, ButtonTabEventId);
+
+    if(eventType == _("button"))
     {
         ButtonTabThreshold->Disable();
         ButtonTabThreshold->SetValue(wxEmptyString);
@@ -1950,11 +1954,11 @@ void configFrame::OnButtonTabAutoDetectClick(wxCommandEvent& event)
     else
     {
         ButtonTabThreshold->Enable();
-        if(ButtonTabEventType->GetStringSelection() == _("axis down"))
+        if(eventType == _("axis down"))
         {
           ButtonTabThreshold->SetValue(wxT("-10"));
         }
-        else if(ButtonTabEventType->GetStringSelection() == _("axis up"))
+        else if(eventType == _("axis up"))
         {
           ButtonTabThreshold->SetValue(wxT("10"));
         }
@@ -1978,13 +1982,15 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
 
     AxisTabAutoDetect->Enable(false);
 
-    auto_detect(AxisTabDeviceType, &axisTabDeviceName, AxisTabDeviceName, AxisTabDeviceId, AxisTabEventType->GetStringSelection(), AxisTabEventId);
+    wxString eventType = AxisTabEventType->GetStringSelection();
+
+    auto_detect(AxisTabDeviceType, &axisTabDeviceName, AxisTabDeviceName, AxisTabDeviceId, eventType, AxisTabEventId);
 
   	if(old_device_type != AxisTabDeviceType->GetLabel()
        || old_device_name != axisTabDeviceName
        || old_device_id != AxisTabDeviceId->GetLabel())
     {
-        if(evcatch->GetEventType() == "button")
+        if(eventType == _("button"))
         {
             AxisTabDeadZone->Disable();
             AxisTabDeadZone->SetValue(wxEmptyString);
@@ -2004,12 +2010,12 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
           AxisTabAcceleration->SetValue(wxT("1.00"));
           AxisTabShape->Enable();
           AxisTabShape->SetSelection(1);
-          if(evcatch->GetDeviceType() == "mouse")
+          if(eventType == _("mouse"))
           {
               AxisTabDeadZone->SetValue(wxT("20"));
               AxisTabSensitivity->SetValue(wxT("1.00"));
           }
-          else if(evcatch->GetDeviceType() == "joystick")
+          else if(eventType == _("joystick"))
           {
               AxisTabDeadZone->SetValue(wxT("0"));
               if(!AxisTabAxisId->GetStringSelection().Contains(wxT("stick")))
@@ -3036,10 +3042,12 @@ void configFrame::replaceDevice(wxString wx_device_type)
           msg = _("Press a keyboard key.");
         }
         StatusBar1->SetStatusText(msg);
-	      evcatch->run(device_type, "button");
+        evcatch->run(device_type, "button");
         StatusBar1->SetStatusText(wxEmptyString);
-        device_name = evcatch->GetDeviceName();
-        device_id = evcatch->GetDeviceId();
+
+        pair<Device, Event> ev = selectEvent();
+        device_name = ev.first.GetName();
+        device_id = ev.first.GetId();
     }
 
     save_current();
@@ -3181,8 +3189,11 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
                 StatusBar1->SetStatusText(_("Press a mouse button."));
                 evcatch->run(device_type, "button");
                 StatusBar1->SetStatusText(wxEmptyString);
-                device_name = evcatch->GetDeviceName();
-                device_id = evcatch->GetDeviceId();
+
+                pair<Device, Event> ev = selectEvent();
+
+                device_name = ev.first.GetName();
+                device_id = ev.first.GetId();
             }
 
             save_current();
@@ -4239,4 +4250,38 @@ void configFrame::OnJoystickCorrectionsAutoDetectClick(wxCommandEvent& event)
   JoystickCorrectionsAutoDetect->Enable(true);
 
   refresh_gui();
+}
+
+pair<Device, Event> configFrame::selectEvent()
+{
+    if (evcatch->GetEvents()->size() == 1)
+    {
+        return (*evcatch->GetEvents())[0];
+    }
+
+    wxArrayString choices;
+
+    for(vector<pair<Device, Event> >::iterator it = evcatch->GetEvents()->begin(); it != evcatch->GetEvents()->end(); ++it)
+    {
+        ostringstream ios;
+        ios << it->second.GetType() << " " << it->second.GetId();
+        if (MenuItemMultipleMiceAndKeyboards->IsChecked()) {
+            ios << " ("<< it->first.GetType() << " " << it->first.GetName() << " " << it->first.GetId() << ")";
+        }
+        choices.Add(wxString(ios.str().c_str(), wxConvUTF8));
+    }
+
+    wxSingleChoiceDialog dialog(this, _("Select an event."), _("Events"), choices);
+
+    if (dialog.ShowModal() == wxID_OK)
+    {
+        int selection = dialog.GetSelection();
+
+        if (selection >= 0 && (size_t)selection < evcatch->GetEvents()->size())
+        {
+            return (*evcatch->GetEvents())[selection];
+        }
+    }
+
+    return make_pair(Device(), Event());
 }

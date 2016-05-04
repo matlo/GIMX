@@ -130,6 +130,7 @@ class configFrame: public wxFrame
         void fillIntensityAxisChoice();
         void fillChoices();
         void LoadControllerType();
+        pair<Device, Event> selectEvent();
 
         //(*Identifiers(configFrame)
         static const long ID_STATICTEXT35;
