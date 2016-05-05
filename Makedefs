@@ -18,7 +18,7 @@ CC = gcc
 CPPFLAGS += `sdl2-config --cflags`
 endif
 
-LDLIBS += -Wl,--whole-archive ../shared/controller/controller.a -Wl,--no-whole-archive ../shared/gasync/gasync.a ../shared/gpp/gpp.a
+LDLIBS += -Wl,--whole-archive ../shared/controller/controller.a ../shared/gasync/gasync.a -Wl,--no-whole-archive ../shared/gpp/gpp.a
 
 ifneq ($(OS),Windows_NT)
 LDLIBS += -lXi -lX11 -lusb-1.0
