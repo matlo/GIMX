@@ -1,5 +1,3 @@
-include ../Makedefs
-
 ifneq ($(OS),Windows_NT)
 prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
@@ -13,9 +11,9 @@ else
 OUT=
 endif
 
-CPPFLAGS :=
+CPPFLAGS := `pkg-config libusb-1.0 --cflags`
 
-LDLIBS := -lusb-1.0
+LDLIBS := `pkg-config libusb-1.0 --libs`
 ifneq ($(OS),Windows_NT)
 LDLIBS += -lbluetooth
 endif
