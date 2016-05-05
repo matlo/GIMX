@@ -44,20 +44,14 @@ static int init(int(*callback)(GE_Event*)) {
  * - the 1st one is a boot keyboard and mouse
  * - each other interface is a wireless controller.
  */
-static int probe(int hid) {
+static int probe(s_hid_dev * dev) {
 
 #ifdef WIN32
     return 0; // on Windows the HID API does not provide access to mice and keyboards
 #else
     static unsigned char count = 0;
 
-    const s_hid_info * hid_info = ghid_get_hid_info(hid);
-
-    if (hid_info == NULL) {
-        return -1;
-    }
-
-    if (hid_info->product_id == WIRED_STEAM_CONTROLLER_PID) {
+    if (dev->product_id == WIRED_STEAM_CONTROLLER_PID) {
         count = 0;
         return 0;
     }

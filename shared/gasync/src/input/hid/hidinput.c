@@ -122,10 +122,14 @@ static int add_device(int device, unsigned int driver) {
     return -1;
 }
 
-static void probe_device(unsigned int driver, int hid, const char * name) {
+static void probe_device(unsigned int driver, unsigned int id, s_hid_dev * dev) {
 
-    if (drivers[driver]->probe(hid) < 0) {
-        ghid_close(hid);
+    if (drivers[driver]->probe(dev) < 0) {
+        return;
+    }
+
+    int hid = ghid_open_path(dev->path);
+    if (hid < 0) {
         return;
     }
 
@@ -140,7 +144,7 @@ static void probe_device(unsigned int driver, int hid, const char * name) {
         return;
     }
 
-    hid_devices[device].joystick = ginput_register_joystick(name, NULL);
+    hid_devices[device].joystick = ginput_register_joystick(drivers[driver]->ids[id].name, NULL);
     if (hid_devices[device].joystick < 0) {
         close_device(device);
         return;
@@ -164,22 +168,25 @@ int hidinput_init(int(*callback)(GE_Event*)) {
     unsigned int driver;
     for (driver = 0; driver < nb_drivers; ++driver) {
         drivers[driver]->init(callback);
-        unsigned int id;
-        for (id = 0; drivers[driver]->ids[id].vendor != 0; ++id) {
-            s_hid_dev * hid_devs = ghid_enumerate(drivers[driver]->ids[id].vendor, drivers[driver]->ids[id].product);
-            s_hid_dev * current;
-            for (current = hid_devs; current != NULL; ++current) {
-                int hid = ghid_open_path(current->path);
-                if (hid >= 0) {
-                    probe_device(driver, hid, drivers[driver]->ids[id].name);
-                }
-                if (current->next == 0) {
-                    break;
+    }
+
+    s_hid_dev * hid_devs = ghid_enumerate(0x0000, 0x0000);
+    s_hid_dev * current;
+    for (current = hid_devs; current != NULL; ++current) {
+        for (driver = 0; driver < nb_drivers; ++driver) {
+            unsigned int id;
+            for (id = 0; drivers[driver]->ids[id].vendor != 0; ++id) {
+                if (drivers[driver]->ids[id].vendor == current->vendor_id
+                        && drivers[driver]->ids[id].product == current->product_id) {
+                    probe_device(driver, id, current);
                 }
             }
-            ghid_free_enumeration(hid_devs);
+        }
+        if (current->next == 0) {
+            break;
         }
     }
+    ghid_free_enumeration(hid_devs);
 
     // When using libusb a synchronous control transfer is performed in the ghid_open* functions.
     // Calling ghid_poll in the probe_device function could result in processing early reports.
