@@ -307,7 +307,7 @@ int process_event(GE_Event* event)
       }
       if(evcatch->GetEventType() == "axis")
       {
-          if(process_joystick_axis(axis_first, &axis_first_nb, event) > 1000)
+          if(process_joystick_axis(axis_first, &axis_first_nb, event) > 16383)
           {
               stringstream ss1;
               ss1 << ginput_joystick_virtual_id(event->jaxis.which);
@@ -322,7 +322,7 @@ int process_event(GE_Event* event)
       }
       else if(evcatch->GetEventType() == "axis up")
       {
-          if(event->jaxis.value > 10000)
+          if(event->jaxis.value > 16383)
           {
               stringstream ss1;
               ss1 << ginput_joystick_virtual_id(event->jaxis.which);
@@ -337,7 +337,7 @@ int process_event(GE_Event* event)
       }
       else if(evcatch->GetEventType() == "axis down")
       {
-          if(event->jaxis.value < -10000)
+          if(event->jaxis.value < -16383)
           {
               stringstream ss1;
               ss1 << ginput_joystick_virtual_id(event->jaxis.which);
@@ -371,7 +371,7 @@ void event_catcher::StartTimer()
 {
     if (stopTimer < 0)
     {
-        stopTimer = gtimer_start(0, 500000, timer_close, timer_close, REGISTER_FUNCTION);
+        stopTimer = gtimer_start(0, 150000, timer_close, timer_close, REGISTER_FUNCTION);
         if (stopTimer < 0)
         {
           done = 1;
