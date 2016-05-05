@@ -4264,9 +4264,14 @@ pair<Device, Event> configFrame::selectEvent()
     for(vector<pair<Device, Event> >::iterator it = evcatch->GetEvents()->begin(); it != evcatch->GetEvents()->end(); ++it)
     {
         ostringstream ios;
-        ios << it->second.GetType() << " " << it->second.GetId();
-        if (MenuItemMultipleMiceAndKeyboards->IsChecked()) {
-            ios << " ("<< it->first.GetType() << " " << it->first.GetName() << " " << it->first.GetId() << ")";
+        ios << it->second.GetType() << " " << it->second.GetId() << " ("<< it->first.GetType() << " ";
+        if (MenuItemMultipleMiceAndKeyboards->IsChecked() || it->first.GetType() == "joystick")
+        {
+            ios << it->first.GetName() << " " << it->first.GetId() << ")";
+        }
+        else
+        {
+            ios << "0)";
         }
         choices.Add(wxString(ios.str().c_str(), wxConvUTF8));
     }
