@@ -7,6 +7,7 @@ OBJECTS += $(patsubst %.c,%.o,$(wildcard src/input/hid/*.c))
 ifneq ($(OS),Windows_NT)
 OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/posix/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/libusb/*.c))
+OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/linux/*.c))
 #OBJECTS:=$(filter-out src/uhid/linux/uhidasync.o,$(OBJECTS))
 else
 OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/windows/*.c))
