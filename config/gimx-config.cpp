@@ -192,6 +192,7 @@ const long configFrame::ID_MENUITEMG27PS3 = wxNewId();
 const long configFrame::ID_MENUITEMG29PS4 = wxNewId();
 const long configFrame::ID_MENUITEMDFPS2 = wxNewId();
 const long configFrame::ID_MENUITEMDFPPS2 = wxNewId();
+const long configFrame::ID_MENUITEMGTFPS2 = wxNewId();
 const long configFrame::ID_MENUITEM8 = wxNewId();
 const long configFrame::ID_MENUITEM9 = wxNewId();
 const long configFrame::ID_MENUITEM10 = wxNewId();
@@ -1190,6 +1191,8 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     MenuType->Append(MenuItemDfPs2);
     MenuItemDfpPs2 = new wxMenuItem(MenuType, ID_MENUITEMDFPPS2, _("Driving Force Pro PS2"), wxEmptyString, wxITEM_RADIO);
     MenuType->Append(MenuItemDfpPs2);
+    MenuItemGtfPs2 = new wxMenuItem(MenuType, ID_MENUITEMDFPPS2, _("GT Force PS2"), wxEmptyString, wxITEM_RADIO);
+    MenuType->Append(MenuItemGtfPs2);
     MenuBar1->Append(MenuType, _("Type"));
     MenuConfiguration = new wxMenu();
     MenuConfiguration1 = new wxMenuItem(MenuConfiguration, ID_MENUITEM8, _("1"), wxEmptyString, wxITEM_RADIO);
@@ -1305,6 +1308,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     Connect(ID_MENUITEMG29PS4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuTypeItemSelected);
     Connect(ID_MENUITEMDFPS2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuTypeItemSelected);
     Connect(ID_MENUITEMDFPPS2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuTypeItemSelected);
+    Connect(ID_MENUITEMGTFPS2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuTypeItemSelected);
     Connect(ID_MENUITEM8,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration);
     Connect(ID_MENUITEM9,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration);
     Connect(ID_MENUITEM10,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemConfiguration);
@@ -2204,6 +2208,9 @@ void configFrame::LoadControllerType()
       break;
     case C_TYPE_DFP_PS2:
       MenuType->Check(ID_MENUITEMDFPPS2, true);
+      break;
+    case C_TYPE_GTF_PS2:
+      MenuType->Check(ID_MENUITEMGTFPS2, true);
       break;
     case C_TYPE_NONE:
       break;
@@ -4086,6 +4093,10 @@ void configFrame::OnMenuTypeItemSelected(wxCommandEvent& event)
   else if(MenuItemDfpPs2->IsChecked())
   {
     newType = C_TYPE_DFP_PS2;
+  }
+  else if(MenuItemGtfPs2->IsChecked())
+  {
+    newType = C_TYPE_GTF_PS2;
   }
 
   Controller* controller = configFile.GetController(currentController);

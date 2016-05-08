@@ -286,6 +286,7 @@ class configFrame: public wxFrame
         static const long ID_MENUITEMG29PS4;
         static const long ID_MENUITEMDFPS2;
         static const long ID_MENUITEMDFPPS2;
+        static const long ID_MENUITEMGTFPS2;
         static const long ID_MENUITEM8;
         static const long ID_MENUITEM9;
         static const long ID_MENUITEM10;
@@ -349,6 +350,7 @@ class configFrame: public wxFrame
         wxMenuItem* MenuItemG29Ps4;
         wxMenuItem* MenuItemDfPs2;
         wxMenuItem* MenuItemDfpPs2;
+        wxMenuItem* MenuItemGtfPs2;
         wxStaticText* IntensityButtonId;
         wxGrid* GridMouseOption;
         wxTextCtrl* MouseOptionsBuffer;
