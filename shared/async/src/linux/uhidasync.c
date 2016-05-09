@@ -334,7 +334,6 @@ static __u8 momo_rdesc_fixed[] = {
         0xC0 /*  End Collection                      */
 };
 
-//TODO MLA: try to separate the pedal axes
 static __u8 ffgp_rdesc_fixed[] = {
         0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
 //      0x09, 0x04,        // Usage (Joystick)
@@ -362,13 +361,13 @@ static __u8 ffgp_rdesc_fixed[] = {
         0x75, 0x08,        //     Report Size (8)
         0x26, 0xFF, 0x00,  //     Logical Maximum (255)
         0x46, 0xFF, 0x00,  //     Physical Maximum (255)
-        0x06, 0x00, 0xFF,  //     Usage Page (Vendor Defined 0xFF00)
+        //0x06, 0x00, 0xFF,  //     Usage Page (Vendor Defined 0xFF00)
         0x09, 0x01,        //     Usage (0x01)
         0x81, 0x02,        //     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
         0x05, 0x01,        //     Usage Page (Generic Desktop Ctrls)
         0x09, 0x31,        //     Usage (Y)
         0x81, 0x02,        //     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
-        0x06, 0x00, 0xFF,  //     Usage Page (Vendor Defined 0xFF00)
+        //0x06, 0x00, 0xFF,  //     Usage Page (Vendor Defined 0xFF00)
         0x09, 0x01,        //     Usage (0x01)
         0x95, 0x03,        //     Report Count (3)
         0x81, 0x02,        //     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
