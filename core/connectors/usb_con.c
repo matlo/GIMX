@@ -429,7 +429,6 @@ static int submit_transfer(struct libusb_transfer * transfer)
     {
       fprintf(stderr, "libusb_submit_transfer: %s.\n", libusb_strerror(ret));
       remove_transfer(transfer);
-      free(transfer->buffer);
       libusb_free_transfer(transfer);
       return -1;
     }
