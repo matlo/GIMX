@@ -1,6 +1,9 @@
 -include ../../../Makedefs
 
-OUT=ginput_test ghid_test guhid_test gserial_test gtimer_test
+OUT=ginput_test ghid_test gserial_test gtimer_test
+ifeq ($(UHID),1)
+OUT += guhid_test
+endif
 OBJS=common.o
 LDLIBS=-Wl,--whole-archive ../gasync.a -Wl,--no-whole-archive -lm
 BINS=ginput_test ghid_test gserial_test gtimer_test

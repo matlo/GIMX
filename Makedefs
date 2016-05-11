@@ -21,9 +21,14 @@ endif
 LDLIBS += -Wl,--whole-archive ../shared/controller/controller.a ../shared/gasync/gasync.a -Wl,--no-whole-archive ../shared/gpp/gpp.a
 
 ifneq ($(OS),Windows_NT)
+UHID=1
+ifeq ($(UHID),1)
+CFLAGS += -DUHID
+endif
 LDLIBS += -lXi -lX11 `pkg-config libusb-1.0 --libs`
 else
 LDLIBS += -lhid -lsetupapi
 endif
+
 
 ARFLAGS=rcs

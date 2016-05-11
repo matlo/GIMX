@@ -522,6 +522,7 @@ static int adapter_hid_read_cb(int adapter, const void * buf, int status) {
     return 1;
   }
 
+#ifdef UHID
   if(status > 0 && adapters[adapter].uhid_id >= 0)
   {
     int ret = guhid_write(adapters[adapter].uhid_id, buf, status);
@@ -530,6 +531,7 @@ static int adapter_hid_read_cb(int adapter, const void * buf, int status) {
       return 1;
     }
   }
+#endif
 
   return 0;
 }
@@ -575,10 +577,13 @@ void adapter_set_uhid_id(int adapter, int uhid_id)
     return;
   }
 
+
   if(adapters[adapter].uhid_id < 0)
   {
     adapters[adapter].uhid_id = uhid_id;
+#ifdef UHID
     adapters[adapter].hid.id = uhid_joystick_get_hid_id(uhid_id);
+#endif
     start_ghid(adapter);
   }
 }

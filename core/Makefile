@@ -40,6 +40,10 @@ OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/*/*.c))
 OBJECTS:=$(filter-out connectors/btds4.o,$(OBJECTS))
 endif
 
+ifneq ($(UHID),1)
+OBJECTS:=$(filter-out connectors/linux/uhid/uhid_joystick.o,$(OBJECTS))
+endif
+
 all: updated $(BINS)
 
 gimx: $(OBJECTS)

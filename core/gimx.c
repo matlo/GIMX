@@ -139,7 +139,9 @@ int process_event(GE_Event* event)
 int main(int argc, char *argv[])
 {
 #ifndef WIN32
+#ifdef UHID
   int ffb = 0;
+#endif
 #endif
   GE_Event kgevent = { .key = { .type = GE_KEYDOWN } };
 
@@ -252,6 +254,7 @@ int main(int argc, char *argv[])
   }
 
 #ifndef WIN32
+#ifdef UHID
   for(controller=0; controller<MAX_CONTROLLERS; ++controller)
   {
     switch(adapter_get(controller)->ctype)
@@ -269,6 +272,7 @@ int main(int argc, char *argv[])
   {
     uhid_joystick_open_all();
   }
+#endif
 #endif
 
   unsigned char src = GE_MKB_SOURCE_PHYSICAL;
@@ -335,12 +339,14 @@ int main(int argc, char *argv[])
   ginput_release_unused();
 
 #ifndef WIN32
+#ifdef UHID
   if(ffb)
   {
     gprintf("closing unused uhid joysticks...");fflush(stdout);
     uhid_joystick_close_unused();
     gprintf(" done\n");
   }
+#endif
 #endif
 
   macros_init();
@@ -394,11 +400,13 @@ int main(int argc, char *argv[])
   cfg_clean();
   ginput_quit();
 #ifndef WIN32
+#ifdef UHID
   if(ffb)
   {
     gprintf("closing uhid joysticks (it may take a few seconds)\n");
     uhid_joystick_close_all();
   }
+#endif
 #endif
   adapter_clean();
 

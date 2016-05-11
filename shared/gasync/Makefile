@@ -8,10 +8,12 @@ ifneq ($(OS),Windows_NT)
 OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/posix/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/libusb/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/linux/*.c))
-#OBJECTS:=$(filter-out src/uhid/linux/uhidasync.o,$(OBJECTS))
 else
 OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/windows/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/sdl/*.c))
+endif
+ifneq ($(UHID),1)
+OBJECTS:=$(filter-out src/uhid/linux/uhidasync.o,$(OBJECTS))
 endif
 CPPFLAGS += -Iinclude -Isrc
 
