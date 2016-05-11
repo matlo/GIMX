@@ -52,7 +52,7 @@ void print_os() {
   }
   printf("%s", version);
   SYSTEM_INFO info;
-  GetSystemInfo(&info);
+  GetNativeSystemInfo(&info);
   switch (info.wProcessorArchitecture) {
   case PROCESSOR_ARCHITECTURE_AMD64:
     printf(" x64");
