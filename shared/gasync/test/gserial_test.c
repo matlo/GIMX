@@ -88,7 +88,7 @@ void results(unsigned int * tdiff, unsigned int cpt) {
 }
 
 static void usage() {
-  fprintf(stderr, "Usage: ./serial_bench [-p port] [-b baudrate] [-n samples] [-s packet size] -v\n");
+  fprintf(stderr, "Usage: ./gserial_test [-p port] [-b baudrate] [-n samples] [-s packet size] -v\n");
   exit(EXIT_FAILURE);
 }
 
