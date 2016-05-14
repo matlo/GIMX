@@ -37,7 +37,7 @@ static struct {
 } hid_devices[HIDINPUT_MAX_DEVICES] = {};
 
 #define MAKE_IDS(USB_DEVICE_ID) \
-    { .vendor = USB_VENDOR_ID_LOGITECH, .product = USB_DEVICE_ID }
+    { .vendor_id = USB_VENDOR_ID_LOGITECH, .product_id = USB_DEVICE_ID }
 
 static s_hidinput_ids ids[] = {
         MAKE_IDS(USB_DEVICE_ID_LOGITECH_WINGMAN_FFG),
@@ -52,7 +52,7 @@ static s_hidinput_ids ids[] = {
         MAKE_IDS(USB_DEVICE_ID_LOGITECH_VIBRATION_WHEEL),
         MAKE_IDS(USB_DEVICE_ID_LOGITECH_G920_WHEEL),
         MAKE_IDS(USB_DEVICE_ID_LOGITECH_G29_WHEEL),
-        { .vendor = 0, .product = 0 },
+        { .vendor_id = 0, .product_id = 0 },
 };
 
 static void clear_device(int device) {

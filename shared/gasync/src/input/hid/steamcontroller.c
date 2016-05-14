@@ -56,12 +56,12 @@ static struct {
 
 static s_hidinput_ids ids[] = {
         // check wired controllers first
-        { .vendor = STEAM_CONTROLLER_VID, .product = WIRED_STEAM_CONTROLLER_PID,    .interface = -1 },
-        { .vendor = STEAM_CONTROLLER_VID, .product = WIRELESS_STEAM_CONTROLLER_PID, .interface =  1 },
-        { .vendor = STEAM_CONTROLLER_VID, .product = WIRELESS_STEAM_CONTROLLER_PID, .interface =  2 },
-        { .vendor = STEAM_CONTROLLER_VID, .product = WIRELESS_STEAM_CONTROLLER_PID, .interface =  3 },
-        { .vendor = STEAM_CONTROLLER_VID, .product = WIRELESS_STEAM_CONTROLLER_PID, .interface =  4 },
-        { .vendor = 0, .product = 0 },
+        { .vendor_id = STEAM_CONTROLLER_VID, .product_id = WIRED_STEAM_CONTROLLER_PID,    .interface_number = -1 },
+        { .vendor_id = STEAM_CONTROLLER_VID, .product_id = WIRELESS_STEAM_CONTROLLER_PID, .interface_number =  1 },
+        { .vendor_id = STEAM_CONTROLLER_VID, .product_id = WIRELESS_STEAM_CONTROLLER_PID, .interface_number =  2 },
+        { .vendor_id = STEAM_CONTROLLER_VID, .product_id = WIRELESS_STEAM_CONTROLLER_PID, .interface_number =  3 },
+        { .vendor_id = STEAM_CONTROLLER_VID, .product_id = WIRELESS_STEAM_CONTROLLER_PID, .interface_number =  4 },
+        { .vendor_id = 0, .product_id = 0 },
 };
 
 static int (*event_callback)(GE_Event*) = NULL;

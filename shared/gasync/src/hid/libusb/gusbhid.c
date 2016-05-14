@@ -665,7 +665,7 @@ s_hid_dev * gusbhid_enumerate(unsigned short vendor, unsigned short product) {
           hid_devs[nb_hid_devs].vendor_id = desc.idVendor;
           hid_devs[nb_hid_devs].product_id = desc.idProduct;
           hid_devs[nb_hid_devs].bcdDevice = desc.bcdDevice;
-          hid_devs[nb_hid_devs].interface = configs[config_i].interface.number;
+          hid_devs[nb_hid_devs].interface_number = configs[config_i].interface.number;
           hid_devs[nb_hid_devs].next = 0;
 
           ++nb_hid_devs;
