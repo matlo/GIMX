@@ -26,8 +26,6 @@
 
 #include <ffb_logitech.h>
 #include <ghid.h>
-#include <guhid.h>
-#include <uhid_joystick.h>
 
 #define BAUDRATE 500000 //bps
 #define SERIAL_TIMEOUT 1000 //millisecond
@@ -75,9 +73,6 @@ void adapter_init_static(void)
     adapters[i].src_fd = -1;
     adapters[i].serialdevice = -1;
     adapters[i].hid.id = -1;
-#ifndef WIN32
-    adapters[i].uhid_id = -1;
-#endif
     adapters[i].bread = 0;
     for(j = 0; j < MAX_REPORTS; ++j)
     {
@@ -495,10 +490,10 @@ static int adapter_process_packet(int adapter, s_packet* packet)
   return ret;
 }
 
-static int adapter_hid_write_cb(int adapter, int transfered)
+static int adapter_hid_write_cb(int adapter, int status)
 {
   adapters[adapter].hid.write_pending = 0;
-  if(transfered != -1) {
+  if(status != -1) {
     ffb_logitech_ack(adapter);
   }
   adapter_send_next_hid_report(adapter);
@@ -512,64 +507,7 @@ static int adapter_hid_close_cb(int adapter)
 }
 
 #ifndef WIN32
-static int adapter_hid_read_cb(int adapter, const void * buf, int status) {
-
-  adapters[adapter].hid.read_pending = 0;
-
-  if (status < 0) {
-    // reading with no timeout
-    set_done();
-    return 1;
-  }
-
-#ifdef UHID
-  if(status > 0 && adapters[adapter].uhid_id >= 0)
-  {
-    int ret = guhid_write(adapters[adapter].uhid_id, buf, status);
-    if (ret < 0) {
-      set_done();
-      return 1;
-    }
-  }
-#endif
-
-  return 0;
-}
-
-int adapter_hid_poll() {
-
-  unsigned int i;
-  for (i = 0; i < sizeof(adapters) / sizeof(*adapters); ++i) {
-    if(adapters[i].hid.id >= 0 && !adapters[i].hid.read_pending) {
-      int ret = ghid_poll(adapters[i].hid.id);
-      if (ret != -1) {
-        adapters[i].hid.read_pending = 1;
-      } else {
-        return -1;
-      }
-    }
-  }
-
-  return 0;
-}
-
-static int start_ghid(int adapter)
-{
-  int ret = ghid_register(adapters[adapter].hid.id, adapter, adapter_hid_read_cb, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION);
-  if(ret < 0)
-  {
-    return -1;
-  }
-  ret = ghid_poll(adapters[adapter].hid.id);
-  if (ret != -1) {
-    adapters[adapter].hid.read_pending = 1;
-  } else {
-    return -1;
-  }
-  return 0;
-}
-
-void adapter_set_uhid_id(int adapter, int uhid_id)
+void adapter_set_hid(int adapter, int hid)
 {
   if(adapter < 0 || adapter >= MAX_CONTROLLERS)
   {
@@ -577,14 +515,10 @@ void adapter_set_uhid_id(int adapter, int uhid_id)
     return;
   }
 
-
-  if(adapters[adapter].uhid_id < 0)
+  if(adapters[adapter].hid.id < 0)
   {
-    adapters[adapter].uhid_id = uhid_id;
-#ifdef UHID
-    adapters[adapter].hid.id = uhid_joystick_get_hid_id(uhid_id);
-#endif
-    start_ghid(adapter);
+    adapters[adapter].hid.id = hid;
+    ginput_joystick_set_hid_callbacks(hid, adapter, adapter_hid_write_cb, adapter_hid_close_cb);
   }
 }
 #else

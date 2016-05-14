@@ -16,7 +16,8 @@ void ffb_logitech_process_report(int device, unsigned char data[FFB_LOGITECH_OUT
 s_ffb_report * ffb_logitech_get_report(int device);
 void ffb_logitech_ack(int device);
 
+#ifdef WIN32
 int ffb_logitech_is_logitech_wheel(unsigned short vendor, unsigned short product);
-void ffb_logitech_set_native_mode();
+#endif
 
 #endif /* FFB_LOGITECH_H_ */

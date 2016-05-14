@@ -23,7 +23,7 @@ int ev_joystick_has_ff_rumble(int joystick);
 int ev_joystick_set_ff_rumble(int joystick, unsigned short weak, unsigned short strong);
 
 #ifndef WIN32
-int ev_joystick_get_uhid_id(int joystick);
+int ev_joystick_get_hid(int joystick);
 #else
 int ev_joystick_get_usb_ids(int joystick, unsigned short * vendor, unsigned short * product);
 #endif

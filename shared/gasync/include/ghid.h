@@ -8,28 +8,17 @@
 
 #include "async.h"
 
+#define GHID_MAX_DEVICES ASYNC_MAX_DEVICES
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define USB_VENDOR_ID_LOGITECH          0x046d
-
-#define USB_DEVICE_ID_LOGITECH_WINGMAN_FFG  0xc293
-#define USB_DEVICE_ID_LOGITECH_WHEEL        0xc294
-#define USB_DEVICE_ID_LOGITECH_MOMO_WHEEL    0xc295
-#define USB_DEVICE_ID_LOGITECH_DFP_WHEEL    0xc298
-#define USB_DEVICE_ID_LOGITECH_G25_WHEEL    0xc299
-#define USB_DEVICE_ID_LOGITECH_DFGT_WHEEL    0xc29a
-#define USB_DEVICE_ID_LOGITECH_G27_WHEEL    0xc29b
-#define USB_DEVICE_ID_LOGITECH_WII_WHEEL    0xc29c
-#define USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2      0xca03
-#define USB_DEVICE_ID_LOGITECH_VIBRATION_WHEEL  0xca04
-#define USB_DEVICE_ID_LOGITECH_G920_WHEEL       0xc262
-#define USB_DEVICE_ID_LOGITECH_G29_WHEEL        0xc24f
-
 typedef struct {
   unsigned short vendor_id;
   unsigned short product_id;
+  unsigned short bcdDevice;
+  int interface;
   char * path;
   int next;
 } s_hid_dev;

@@ -9,45 +9,93 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef WIN32
-#define REGISTER_FUNCTION gpoll_register_handle
-#else
-#define REGISTER_FUNCTION gpoll_register_fd
-#endif
-
 static s_hidinput_driver ** drivers = NULL;
 static unsigned int nb_drivers = 0;
 
-#define MAX_DEVICES 8
-#define MAX_REPORT_SIZE 64
-
 static struct {
-    int hid;
-    int joystick;
     s_hidinput_driver * driver;
-    unsigned char prev[MAX_REPORT_SIZE];
-} hid_devices[MAX_DEVICES] = {};
+    int opened;
+    int read_pending;
+    struct {
+        int user;
+        int (* write)(int user, int transfered);
+        int (* close)(int user);
+    } callbacks;
+} hid_devices[HIDINPUT_MAX_DEVICES];
 
-static void init_device(int device) {
+static inline int hidinput_check_device(int device, const char * file, unsigned int line, const char * func) {
+  if (device < 0 || device >= HIDINPUT_MAX_DEVICES) {
+    fprintf(stderr, "%s:%d %s: invalid device\n", file, line, func);
+    return -1;
+  }
+  if (hid_devices[device].opened == 0) {
+    fprintf(stderr, "%s:%d %s: no such device\n", file, line, func);
+    return -1;
+  }
+  return 0;
+}
+#define HIDINPUT_CHECK_DEVICE(device,retValue) \
+  if(hidinput_check_device(device, __FILE__, __LINE__, __func__) < 0) { \
+    return retValue; \
+  }
+
+static void clear_device(int device) {
 
   memset(hid_devices + device, 0x00, sizeof(*hid_devices));
-  hid_devices[device].hid = -1;
-  hid_devices[device].joystick = -1;
 }
 
-void hidinput_constructor(void) __attribute__((constructor));
-void hidinput_constructor(void) {
+static int close_device(int device) {
 
-  unsigned int i;
-  for (i = 0; i < sizeof(hid_devices) / sizeof(*hid_devices); ++i) {
-      init_device(i);
-  }
+    if (hid_devices[device].opened >= 0) {
+        ghid_close(device);
+        if (hid_devices[device].driver != NULL) {
+            hid_devices[device].driver->close(device);
+        }
+    }
+
+    clear_device(device);
+
+    return 0;
+}
+
+static int read_callback(int device, const void * buf, int status) {
+
+    HIDINPUT_CHECK_DEVICE(device, -1)
+
+    int ret = 0;
+
+    hid_devices[device].read_pending = 0;
+
+    if (status > 0) {
+        if (hid_devices[device].driver->process(device, buf, status) < 0) {
+          ret = -1;
+        }
+    }
+
+    return ret;
+}
+
+static int write_callback(int device, int status) {
+
+    HIDINPUT_CHECK_DEVICE(device, -1)
+
+    return hid_devices[device].callbacks.write(hid_devices[device].callbacks.user, status);
+}
+
+static int close_callback(int device) {
+
+    HIDINPUT_CHECK_DEVICE(device, -1)
+
+    int ret = hid_devices[device].callbacks.close(hid_devices[device].callbacks.user);
+
+    close_device(device);
+
+    return ret;
 }
 
 void hidinput_destructor(void) __attribute__((destructor));
 void hidinput_destructor(void) {
 
-    hidinput_quit();
     free(drivers);
     nb_drivers = 0;
 }
@@ -65,104 +113,11 @@ int hidinput_register(s_hidinput_driver * driver) {
     return 0;
 }
 
-static int close_device(int device) {
-
-    if (hid_devices[device].hid >= 0) {
-        ghid_close(hid_devices[device].hid);
-    }
-
-    if (hid_devices[device].joystick >= 0) {
-        // TODO MLA: remove joystick
-    }
-
-    init_device(device);
-
-    return 0;
-}
-
-static int read_callback(int device, const void * buf, int status) {
-
-    if (status > 0) {
-        int ret = hid_devices[device].driver->process(hid_devices[device].joystick, buf, status, hid_devices[device].prev);
-        if (ret == 0) {
-            memcpy(hid_devices[device].prev, buf, status);
-        }
-    }
-
-    ghid_poll(hid_devices[device].hid);
-
-    //TODO MLA: handle errors (status < 0)
-
-    return 0;
-}
-
-static int write_callback(int device, int status) {
-
-    return 0;
-}
-
-static int close_callback(int device) {
-
-    close_device(device);
-
-    return 0;
-}
-
-static int add_device(int device, unsigned int driver) {
-
-    unsigned int i;
-    for (i = 0; i < sizeof(hid_devices) / sizeof(*hid_devices); ++i) {
-        if (hid_devices[i].hid < 0) {
-            hid_devices[i].hid = device;
-            hid_devices[i].driver = drivers[driver];
-            return i;
-        }
-    }
-    PRINT_ERROR_OTHER("no slot available")
-    return -1;
-}
-
-static void probe_device(unsigned int driver, unsigned int id, s_hid_dev * dev) {
-
-    if (drivers[driver]->probe(dev) < 0) {
-        return;
-    }
-
-    int hid = ghid_open_path(dev->path);
-    if (hid < 0) {
-        return;
-    }
-
-    int device = add_device(hid, driver);
-    if (device < 0) {
-        ghid_close(hid);
-        return;
-    }
-
-    if (ghid_register(hid, device, read_callback, write_callback, close_callback, REGISTER_FUNCTION) < 0) {
-        close_device(device);
-        return;
-    }
-
-    hid_devices[device].joystick = ginput_register_joystick(drivers[driver]->ids[id].name, NULL);
-    if (hid_devices[device].joystick < 0) {
-        close_device(device);
-        return;
-    }
-
-    return;
-}
-
 int hidinput_init(int(*callback)(GE_Event*)) {
 
     if (callback == NULL) {
       PRINT_ERROR_OTHER("callback is NULL")
       return -1;
-    }
-
-    unsigned int dev_index;
-    for (dev_index = 0; dev_index < sizeof(hid_devices) / sizeof(*hid_devices); ++dev_index) {
-        init_device(dev_index);
     }
 
     unsigned int driver;
@@ -177,8 +132,17 @@ int hidinput_init(int(*callback)(GE_Event*)) {
             unsigned int id;
             for (id = 0; drivers[driver]->ids[id].vendor != 0; ++id) {
                 if (drivers[driver]->ids[id].vendor == current->vendor_id
-                        && drivers[driver]->ids[id].product == current->product_id) {
-                    probe_device(driver, id, current);
+                        && drivers[driver]->ids[id].product == current->product_id
+                        && (drivers[driver]->ids[id].interface == -1
+                                || drivers[driver]->ids[id].interface == current->interface)) {
+                    int hid = drivers[driver]->open(current);
+                    if (hid >= 0) {
+                        hid_devices[hid].opened = 1;
+                        hid_devices[hid].driver = drivers[driver];
+                        if (ghid_register(hid, hid, read_callback, write_callback, close_callback, HIDINPUT_REGISTER_FUNCTION) < 0) {
+                            close_device(hid);
+                        }
+                    }
                 }
             }
         }
@@ -188,23 +152,42 @@ int hidinput_init(int(*callback)(GE_Event*)) {
     }
     ghid_free_enumeration(hid_devs);
 
-    // When using libusb a synchronous control transfer is performed in the ghid_open* functions.
-    // Calling ghid_poll in the probe_device function could result in processing early reports.
-    for (dev_index = 0; dev_index < sizeof(hid_devices) / sizeof(*hid_devices); ++dev_index) {
-        if (hid_devices[dev_index].hid >= 0 && ghid_poll(hid_devices[dev_index].hid) < 0) {
-            close_device(dev_index);
+    return 0;
+}
+
+int hidinput_poll() {
+
+    int ret = 0;
+    unsigned int device;
+    for (device = 0; device < sizeof(hid_devices) / sizeof(*hid_devices); ++device) {
+        if (hid_devices[device].opened != 0) {
+            if (hid_devices[device].read_pending == 0) {
+                if (ghid_poll(device) < 0) {
+                    ret = -1;
+                } else {
+                    hid_devices[device].read_pending = 1;
+                }
+            }
         }
     }
-
-    return 0;
+    return ret;
 }
 
 void hidinput_quit() {
 
-    unsigned int i;
-    for (i = 0; i < sizeof(hid_devices) / sizeof(*hid_devices); ++i) {
-        if(hid_devices[i].hid >= 0) {
-            close_device(i);
-        }
+    unsigned int device;
+    for (device = 0; device < sizeof(hid_devices) / sizeof(*hid_devices); ++device) {
+        close_device(device);
     }
+}
+
+int hidinput_set_callbacks(int device, int user, int (* write_cb)(int user, int transfered), int (* close_cb)(int user)) {
+
+    HIDINPUT_CHECK_DEVICE(device, -1)
+
+    hid_devices[device].callbacks.user = user;
+    hid_devices[device].callbacks.write = write_cb;
+    hid_devices[device].callbacks.close = close_cb;
+
+    return 0;
 }

@@ -105,7 +105,7 @@ void mainloop()
      */
     gpoll();
 
-    ginput_sync_process();
+    ginput_periodic_task();
 
     cfg_process_motion();
 
@@ -119,10 +119,6 @@ void mainloop()
     cfg_process_rumble();
     
     usb_poll_interrupts();
-
-#ifndef WIN32
-    adapter_hid_poll();
-#endif
 
     /*
      * These two functions generate events.

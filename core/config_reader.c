@@ -133,7 +133,7 @@ static int GetDeviceId(xmlNode* a_node)
             entry.device.id = i;
             ginput_set_joystick_used(i);
 #ifndef WIN32
-            entry.device.uhid_id = ginput_joystick_get_uhid_id(i);
+            entry.device.hid = ginput_joystick_get_hid(i);
 #else
             entry.device.usb_ids.vendor = 0;
             entry.device.usb_ids.product = 0;
@@ -438,9 +438,9 @@ static int ProcessEventElement(xmlNode * a_node, unsigned char mapper)
             case E_EVENT_TYPE_BUTTON:
               adapter_set_device(entry.controller_id, entry.device.type, entry.device.id);
 #ifndef WIN32
-              if(entry.device.type == E_DEVICE_TYPE_JOYSTICK && entry.device.uhid_id >= 0)
+              if(entry.device.type == E_DEVICE_TYPE_JOYSTICK && entry.device.hid >= 0)
               {
-                adapter_set_uhid_id(entry.controller_id, entry.device.uhid_id);
+                adapter_set_hid(entry.controller_id, entry.device.hid);
               }
 #else
               if(entry.device.type == E_DEVICE_TYPE_JOYSTICK && entry.device.usb_ids.vendor && entry.device.usb_ids.product)

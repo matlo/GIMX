@@ -19,56 +19,7 @@
 #define WIRELESS_STEAM_CONTROLLER_PID   0x1142
 #define WIRED_STEAM_CONTROLLER_PID      0x1042
 
-#define WIRELESS_INTERFACE_NUMBER 4
-
-#define HID_REPORT_SIZE 64
-
-static s_hidinput_ids ids[] = {
-        // check wired controllers first
-        { .vendor = STEAM_CONTROLLER_VID, .product = WIRED_STEAM_CONTROLLER_PID, .name = "Valve Software Steam Controller" },
-        { .vendor = STEAM_CONTROLLER_VID, .product = WIRELESS_STEAM_CONTROLLER_PID, .name = "Valve Software Steam Controller" },
-        { .vendor = 0, .product = 0 },
-};
-
-static int (*event_callback)(GE_Event*) = NULL;
-
-static int init(int(*callback)(GE_Event*)) {
-
-    event_callback = callback;
-
-    return 0;
-}
-
-/*
- * Each USB dongle results in 5 consecutive interfaces:
- * - the 1st one is a boot keyboard and mouse
- * - each other interface is a wireless controller.
- */
-static int probe(s_hid_dev * dev) {
-
-#ifdef WIN32
-    return 0; // on Windows the HID API does not provide access to mice and keyboards
-#else
-    static unsigned char count = 0;
-
-    if (dev->product_id == WIRED_STEAM_CONTROLLER_PID) {
-        count = 0;
-        return 0;
-    }
-
-    ++count;
-
-    if (count == 1) {
-        return -1; // skip 1st interface
-    }
-
-    if (count > WIRELESS_INTERFACE_NUMBER) {
-        count = 0;
-    }
-
-    return 0;
-#endif
-}
+#define STEAM_CONTROLLER_NAME "Valve Software Steam Controller"
 
 #ifdef WIN32
 #define PACKED __attribute__((gcc_struct, packed))
@@ -95,20 +46,68 @@ typedef struct PACKED {
     uint64_t : 64;
 } s_report;
 
-static int process(int joystick, const void * report, unsigned int size, const void * prev) {
+#define HID_REPORT_SIZE sizeof(s_report)
+
+static struct {
+    int opened;
+    int joystick;
+    unsigned char prev[HID_REPORT_SIZE];
+} hid_devices[HIDINPUT_MAX_DEVICES];
+
+static s_hidinput_ids ids[] = {
+        // check wired controllers first
+        { .vendor = STEAM_CONTROLLER_VID, .product = WIRED_STEAM_CONTROLLER_PID,    .interface = -1 },
+        { .vendor = STEAM_CONTROLLER_VID, .product = WIRELESS_STEAM_CONTROLLER_PID, .interface =  1 },
+        { .vendor = STEAM_CONTROLLER_VID, .product = WIRELESS_STEAM_CONTROLLER_PID, .interface =  2 },
+        { .vendor = STEAM_CONTROLLER_VID, .product = WIRELESS_STEAM_CONTROLLER_PID, .interface =  3 },
+        { .vendor = STEAM_CONTROLLER_VID, .product = WIRELESS_STEAM_CONTROLLER_PID, .interface =  4 },
+        { .vendor = 0, .product = 0 },
+};
+
+static int (*event_callback)(GE_Event*) = NULL;
+
+static void clear_device(int device) {
+
+  memset(hid_devices + device, 0x00, sizeof(*hid_devices));
+  hid_devices[device].joystick = -1;
+}
+
+static int close_device(int device) {
+
+    if (hid_devices[device].opened != 0) {
+        ghid_close(device);
+    }
+
+    if (hid_devices[device].joystick >= 0) {
+        // TODO MLA: remove joystick
+    }
+
+    clear_device(device);
+
+    return 0;
+}
+
+static int init(int(*callback)(GE_Event*)) {
+
+    event_callback = callback;
+
+    return 0;
+}
+
+static int process(int device, const void * report, unsigned int size) {
 
     if (size != HID_REPORT_SIZE) {
         return -1;
     }
 
     const s_report * current = report;
-    const s_report * previous = prev;
+    const s_report * previous = (s_report *)hid_devices[device].prev;
 
     if (current->status != htons(0x013c)) {
         return -1;
     }
 
-    GE_Event button = { .jbutton = { .which = joystick } };
+    GE_Event button = { .jbutton = { .which = hid_devices[device].joystick } };
 
     uint8_t inhibit[3] = {};
 
@@ -139,7 +138,7 @@ static int process(int joystick, const void * report, unsigned int size, const v
         }
     }
 
-    GE_Event axis = { .jaxis = { .type = GE_JOYAXISMOTION, .which = joystick } };
+    GE_Event axis = { .jaxis = { .type = GE_JOYAXISMOTION, .which = hid_devices[device].joystick } };
 
     // triggers
 
@@ -216,15 +215,43 @@ static int process(int joystick, const void * report, unsigned int size, const v
     return 0;
 }
 
+static int open(const s_hid_dev * dev) {
+
+    int device = ghid_open_path(dev->path);
+    if (device < 0) {
+        return -1;
+    }
+
+    if (hid_devices[device].opened != 0) {
+        ghid_close(device);
+        return -1;
+    }
+
+    hid_devices[device].opened = 1;
+
+    hid_devices[device].joystick = ginput_register_joystick(STEAM_CONTROLLER_NAME, NULL);
+    if (hid_devices[device].joystick < 0) {
+        close_device(device);
+        return -1;
+    }
+
+    return device;
+}
+
 static s_hidinput_driver driver = {
         .ids = ids,
         .init = init,
-        .probe = probe,
+        .open = open,
         .process = process,
+        .close = close_device,
 };
 
 void steamcontroller_constructor(void) __attribute__((constructor));
 void steamcontroller_constructor(void) {
+    unsigned int device;
+    for (device = 0; device < sizeof(hid_devices) / sizeof(*hid_devices); ++device) {
+        clear_device(device);
+    }
     if (hidinput_register(&driver) < 0) {
         exit(-1);
     }

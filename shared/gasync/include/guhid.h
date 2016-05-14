@@ -8,7 +8,7 @@
 
 #include "ghid.h"
 
-int guhid_create(const s_hid_info * hidDesc);
+int guhid_create(const s_hid_info * hid_info, int hid);
 int guhid_close(int device);
 int guhid_write(int device, const void * buf, unsigned int count);
 int guhid_is_opened(int device);

@@ -14,6 +14,7 @@ OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/sdl/*.c))
 endif
 ifneq ($(UHID),1)
 OBJECTS:=$(filter-out src/uhid/linux/uhidasync.o,$(OBJECTS))
+OBJECTS:=$(filter-out src/input/hid/logitechwheel.o,$(OBJECTS))
 endif
 CPPFLAGS += -Iinclude -Isrc
 

@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
   {
     gpoll();
 
-    ginput_sync_process();
+    ginput_periodic_task();
 
     //do something periodically
   }

@@ -41,7 +41,7 @@ static struct
     int rumble_id;
     int (*rumble_cb)(int index, unsigned short weak, unsigned short strong);
   } force_feedback;
-  int uhid_id;
+  int hid;
 } joysticks[GE_MAX_DEVICES] = {};
 
 static int j_num; // the number of joysticks
@@ -58,7 +58,7 @@ void js_init_static(void)
   {
     joysticks[i].fd = -1;
     joysticks[i].force_feedback.fd = -1;
-    joysticks[i].uhid_id = -1;
+    joysticks[i].hid = -1;
   }
 }
 
@@ -207,7 +207,7 @@ static int open_evdev(const char * js_name)
   return fd_ev;
 }
 
-static void get_uhid_id(int joystick, int fd_ev)
+static void get_hid(int joystick, int fd_ev)
 {
   char uniq[64] = {};
   if (ioctl(fd_ev, EVIOCGUNIQ(sizeof(uniq)), &uniq) == -1)
@@ -215,12 +215,12 @@ static void get_uhid_id(int joystick, int fd_ev)
     return;
   }
   pid_t pid;
-  int uhid_id;
-  if(sscanf(uniq, "GIMX %d %d", &pid, &uhid_id) == 2)
+  int hid;
+  if(sscanf(uniq, "GIMX %d %d", &pid, &hid) == 2)
   {
     if(pid == getpid())
     {
-      joysticks[joystick].uhid_id = uhid_id;
+      joysticks[joystick].hid = hid;
     }
   }
 }
@@ -303,7 +303,7 @@ int js_init(int (*callback)(GE_Event*))
           int fd_ev = open_evdev(namelist_js[i]->d_name);
           if(fd_ev >= 0)
           {
-            get_uhid_id(j_num, fd_ev);
+            get_hid(j_num, fd_ev);
             if(start_ff(j_num, fd_ev) == -1)
             {
               close(fd_ev); //no need to keep it opened
@@ -401,9 +401,9 @@ int js_set_ff_rumble(int joystick, unsigned short weak, unsigned short strong)
   return ret;
 }
 
-int js_get_uhid_id(int joystick)
+int js_get_hid(int joystick)
 {
-  return joysticks[joystick].uhid_id;
+  return joysticks[joystick].hid;
 }
 
 int js_close(int joystick)
@@ -413,7 +413,7 @@ int js_close(int joystick)
     free(joysticks[joystick].name);
     joysticks[joystick].name = NULL;
 
-    joysticks[joystick].uhid_id = -1;
+    joysticks[joystick].hid = -1;
 
     if(joysticks[joystick].fd >= 0)
     {

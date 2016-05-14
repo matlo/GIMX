@@ -556,23 +556,35 @@ int ginput_joystick_set_rumble(int id, unsigned short weak, unsigned short stron
 }
 
 #ifndef WIN32
-int ginput_joystick_get_uhid_id(int id)
+int ginput_joystick_get_hid(int id)
 {
-  return ev_joystick_get_uhid_id(id);
+  return ev_joystick_get_hid(id);
+}
+
+int ginput_joystick_set_hid_callbacks(int hid, int user, int (* hid_write_cb)(int user, int transfered), int (* hid_close_cb)(int user))
+{
+  return hidinput_set_callbacks(hid, user, hid_write_cb, hid_close_cb);
 }
 #else
 int ginput_joystick_get_usb_ids(int id, unsigned short * vendor, unsigned short * product)
 {
   return ev_joystick_get_usb_ids(id, vendor, product);
 }
+
+int ginput_joystick_set_hid_callbacks(unsigned short * vendor, unsigned short * product, int (* hid_write_cb)(int user, int transfered), int (* hid_close_cb)(int user))
+{
+  return hidinput_set_callbacks(hid, hid_write_cb, hid_close_cb);
+}
 #endif
 
 /*
- * \brief Process all events from non-asynchronous sources.
+ * \brief Process all events from non-asynchronous sources. \
+ *        Poll all hidinput devices.
  */
-void ginput_sync_process()
+void ginput_periodic_task()
 {
   ev_sync_process();
+  hidinput_poll();
 }
 
 /*

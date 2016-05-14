@@ -126,6 +126,12 @@ s_hid_dev * ghid_enumerate(unsigned short vendor, unsigned short product) {
 				hid_devs[nb_hid_devs].path = path;
 				hid_devs[nb_hid_devs].vendor_id = devices[device].hidInfo.vendor_id;
 				hid_devs[nb_hid_devs].product_id = devices[device].hidInfo.product_id;
+                hid_devs[nb_hid_devs].bcdDevice = devices[device].hidInfo.VersionNumber;
+                hid_devs[nb_hid_devs].interface = -1;
+                char * interface = strstr(path, "&mi_");
+                if (interface != NULL) {
+                    sscanf(interface + 4, "%02x", &hid_devs[nb_hid_devs].interface);
+                }
 				hid_devs[nb_hid_devs].next = 0;
 
 				++nb_hid_devs;

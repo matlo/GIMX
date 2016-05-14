@@ -17,6 +17,6 @@ int js_register(const char* name, int (*rumble_cb)(int, unsigned short, unsigned
 int js_has_ff_rumble(int joystick);
 int js_set_ff_rumble(int joystick, unsigned short weak, unsigned short strong);
 
-int js_get_uhid_id(int index);
+int js_get_hid(int index);
 
 #endif /* JS_H_ */

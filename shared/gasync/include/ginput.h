@@ -433,10 +433,11 @@ int ginput_queue_push(GE_Event*);
 #ifdef WIN32
 int ginput_joystick_get_usb_ids(int id, unsigned short * vendor, unsigned short * product);
 #else
-int ginput_joystick_get_uhid_id(int id);
+int ginput_joystick_get_hid(int id);
+int ginput_joystick_set_hid_callbacks(int hid, int user, int (* hid_write_cb)(int user, int status), int (* hid_close_cb)(int user));
 #endif
 
-void ginput_sync_process();
+void ginput_periodic_task();
 
 #ifdef __cplusplus
 }

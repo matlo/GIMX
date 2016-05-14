@@ -132,9 +132,9 @@ int ev_joystick_set_ff_rumble(int joystick, unsigned short weak, unsigned short 
   return js_set_ff_rumble(joystick, weak, strong);
 }
 
-int ev_joystick_get_uhid_id(int joystick)
+int ev_joystick_get_hid(int joystick)
 {
-  return js_get_uhid_id(joystick);
+  return js_get_hid(joystick);
 }
 
 void ev_sync_process()

@@ -662,6 +662,7 @@ s_ffb_report * ffb_logitech_get_report(int device) {
     return NULL;
 }
 
+#ifdef WIN32
 static unsigned short lg_wheel_products[] = {
     USB_DEVICE_ID_LOGITECH_WINGMAN_FFG,
     USB_DEVICE_ID_LOGITECH_WHEEL,
@@ -690,115 +691,4 @@ int ffb_logitech_is_logitech_wheel(unsigned short vendor, unsigned short product
     }
     return 0;
 }
-
-typedef struct
-{
-  unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE];
-} s_native_mode;
-
-static struct
-{
-  unsigned short product;
-  s_native_mode command;
-} native_modes[] =
-{
-    { USB_DEVICE_ID_LOGITECH_DFGT_WHEEL, { { 0x00, 0xf8, 0x09, 0x03, 0x01 } } },
-    { USB_DEVICE_ID_LOGITECH_G27_WHEEL,  { { 0x00, 0xf8, 0x09, 0x04, 0x01 } } },
-    { USB_DEVICE_ID_LOGITECH_G25_WHEEL,  { { 0x00, 0xf8, 0x10 } } },
-    { USB_DEVICE_ID_LOGITECH_DFP_WHEEL,  { { 0x00, 0xf8, 0x01 } } },
-};
-
-static s_native_mode * get_native_mode_command(unsigned short product, unsigned short bcdDevice)
-{
-  unsigned short native = 0x0000;
-
-  if(((USB_DEVICE_ID_LOGITECH_WHEEL == product) || (USB_DEVICE_ID_LOGITECH_DFP_WHEEL == product))
-      && (0x1300 == (bcdDevice & 0xff00))) {
-    native = USB_DEVICE_ID_LOGITECH_DFGT_WHEEL;
-  } else if(((USB_DEVICE_ID_LOGITECH_WHEEL == product) || (USB_DEVICE_ID_LOGITECH_DFP_WHEEL == product) || (USB_DEVICE_ID_LOGITECH_G25_WHEEL == product))
-      && (0x1230 == (bcdDevice & 0xfff0))) {
-    native = USB_DEVICE_ID_LOGITECH_G27_WHEEL;
-  } else if(((USB_DEVICE_ID_LOGITECH_WHEEL == product) || (USB_DEVICE_ID_LOGITECH_DFP_WHEEL == product))
-      && (0x1200 == (bcdDevice & 0xff00))) {
-    native = USB_DEVICE_ID_LOGITECH_G25_WHEEL;
-  } else if((USB_DEVICE_ID_LOGITECH_WHEEL == product)
-      && (0x1000 == (bcdDevice & 0xf000))) {
-    native = USB_DEVICE_ID_LOGITECH_DFP_WHEEL;
-  }
-
-  unsigned int i;
-  for (i = 0; i < sizeof(native_modes) / sizeof(*native_modes); ++i) {
-    if (native_modes[i].product == native) {
-      return &native_modes[i].command;
-    }
-  }
-
-  return NULL;
-}
-
-void ffb_logitech_set_native_mode() {
-    static int done = 0;
-    if(done) {
-      return;
-    }
-    done = 1;
-    s_hid_dev * hid_devs = ghid_enumerate(USB_VENDOR_ID_LOGITECH, 0x0000);
-    s_hid_dev * current;
-    for(current = hid_devs; current != NULL; ++current) {
-        if(ffb_logitech_is_logitech_wheel(current->vendor_id, current->product_id)) {
-            int hid = ghid_open_path(current->path);
-            if(hid >= 0) {
-                unsigned char reset = 0;
-                const s_hid_info * hid_info = ghid_get_hid_info(hid);
-                if(hid_info != NULL) {
-                  s_native_mode * command = get_native_mode_command(hid_info->product_id, hid_info->bcdDevice);
-                  if(command) {
-                    reset = 1;
-                    // send the native mode command
-                    int ret = ghid_write_timeout(hid, command->data, sizeof(command->data), 1000);
-                    if(ret == 0) {
-                      fprintf(stderr, "failed to send native mode command for HID device %s (PID=%04x)\n", current->path, current->product_id);
-                    } else {
-                      printf("native mode command sent to HID device %s (PID=%04x)\n", current->path, current->product_id);
-                    }
-                  } else {
-                    printf("native mode is already enabled for HID device %s (PID=%04x)\n", current->path, current->product_id);
-                  }
-                }
-                ghid_close(hid);
-                if(reset) {
-                  // wait up to 5 seconds for the device to reset
-                  int cpt = 0;
-                  do
-                  {
-                    // sleep 1 second between each retry
-                    int i;
-                    for (i = 0; i < 10; ++i)
-                    {
-                      usleep(100000);
-                    }
-                    ++cpt;
-                  } while((hid = ghid_open_path(current->path)) < 0 && cpt < 5);
-                  if(hid >= 0) {
-                    const s_hid_info * hid_info = ghid_get_hid_info(hid);
-                    // verify that the native mode is enabled
-                    s_native_mode * command = get_native_mode_command(hid_info->product_id, hid_info->bcdDevice);
-                    if(command) {
-                      fprintf(stderr, "failed to enable native mode for HID device %s\n", current->path);
-                    } else {
-                      printf("native mode enabled for HID device %s (PID=%04x)\n", current->path, hid_info->product_id);
-                    }
-                    ghid_close(hid);
-                  } else {
-                    fprintf(stderr, "HID device %s not found\n", current->path);
-                  }
-                }
-            }
-        }
-        if(current->next == 0) {
-            break;
-        }
-    }
-
-    ghid_free_enumeration(hid_devs);
-}
+#endif

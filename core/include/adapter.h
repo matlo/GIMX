@@ -61,8 +61,6 @@ typedef struct
     int read_pending;
   } hid;
 #ifndef WIN32
-  int uhid_id;
-#else
   struct
   {
 	unsigned short vendor;
@@ -85,7 +83,7 @@ int adapter_get_controller(e_device_type device_type, int device_id);
 
 #ifndef WIN32
 int adapter_hid_poll();
-void adapter_set_uhid_id(int adapter, int uhid_id);
+void adapter_set_hid(int adapter, int hid);
 #else
 void adapter_set_usb_ids(int adapter, unsigned short vendor, unsigned short product);
 #endif

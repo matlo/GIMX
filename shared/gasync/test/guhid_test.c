@@ -91,15 +91,14 @@ int main(int argc, char* argv[]) {
 
   if (hid >= 0) {
 
-    const s_hid_info * hid_info = ghid_get_hid_info(hid);
-
-    printf("Opened device: VID 0x%04x PID 0x%04x PATH %s\n", hid_info->vendor_id, hid_info->product_id, path);
-
     const s_hid_info * hidInfo = ghid_get_hid_info(hid);
+
+    printf("Opened device: VID 0x%04x PID 0x%04x PATH %s\n", hidInfo->vendor_id, hidInfo->product_id, path);
+
     dump(hidInfo->reportDescriptor, hidInfo->reportDescriptorLength);
 
     //Create a virtual hid device
-    uhid = guhid_create(hidInfo);
+    uhid = guhid_create(hidInfo, hid);
 
     if (uhid >= 0) {
 

@@ -111,7 +111,7 @@ typedef struct
     e_device_type type;
     int id;
 #ifndef WIN32
-    int uhid_id;
+    int hid;
 #else
     struct
     {
