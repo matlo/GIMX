@@ -2,6 +2,7 @@ include ../../Makedefs
 
 LIBNAME=$(shell basename $(shell pwd)).a
 OBJECTS := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
+CPPFLAGS :=
 
 all: $(LIBNAME)
 

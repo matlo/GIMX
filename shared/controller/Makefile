@@ -2,7 +2,7 @@ include ../../Makedefs
 
 LIBNAME=$(shell basename $(shell pwd)).a
 OBJECTS := $(patsubst %.c,%.o,$(wildcard src/*.c))
-CPPFLAGS+=-Iinclude -Isrc
+CPPFLAGS :=-Iinclude -Isrc
 
 all: $(LIBNAME)
 

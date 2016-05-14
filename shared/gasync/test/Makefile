@@ -8,8 +8,10 @@ ifeq ($(OS),Windows_NT)
 LDLIBS += $(shell sdl2-config --libs) -liconv -lws2_32 -lwinmm -lhid -lsetupapi
 LDLIBS:=$(filter-out -mwindows,$(LDLIBS))
 else
-LDLIBS += -lXi -lX11 `pkg-config libusb-1.0 --libs`
+BINS+=guhid_test
+LDLIBS += -lXi -lX11
 endif
+LDLIBS += `pkg-config libusb-1.0 --libs`
 
 ifeq ($(UHID),1)
 OUT += guhid_test

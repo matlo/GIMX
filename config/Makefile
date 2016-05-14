@@ -10,11 +10,11 @@ NAME=$(shell basename $(shell pwd))
 CPPFLAGS += `pkg-config libusb-1.0 --cflags` -I../shared/configeditor/include -I../shared/controller/include
 CPPFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP `curl-config --cflags`
 LDLIBS := ../shared/configeditor/configeditor.a \
-      `pkg-config libusb-1.0 --libs` \
       $(LDLIBS) \
       ../shared/updater/updater.a \
       `wx-config --libs` \
       `curl-config --libs` \
+      `pkg-config libusb-1.0 --libs` \
       -lxml2 \
       -lstdc++ \
       -lm

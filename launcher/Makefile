@@ -17,6 +17,7 @@ LDLIBS := ../shared/configeditor/configeditor.a \
       ../shared/configupdater/configupdater.a \
       `wx-config --libs` \
       `curl-config --libs` \
+      `pkg-config libusb-1.0 --libs` \
       -lxml2 \
       -lstdc++ \
       -lm
