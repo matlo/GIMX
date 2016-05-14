@@ -3,7 +3,7 @@
  License: GPLv3
  */
 
-#ifndef UHIDASYNC_H_
+#ifndef GUHID_H_
 #define GUHID_H_
 
 #include "ghid.h"
@@ -13,4 +13,4 @@ int guhid_close(int device);
 int guhid_write(int device, const void * buf, unsigned int count);
 int guhid_is_opened(int device);
 
-#endif /* UHIDASYNC_H_ */
+#endif /* GUHID_H_ */

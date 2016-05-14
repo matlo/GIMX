@@ -570,11 +570,6 @@ int ginput_joystick_get_usb_ids(int id, unsigned short * vendor, unsigned short 
 {
   return ev_joystick_get_usb_ids(id, vendor, product);
 }
-
-int ginput_joystick_set_hid_callbacks(unsigned short * vendor, unsigned short * product, int (* hid_write_cb)(int user, int transfered), int (* hid_close_cb)(int user))
-{
-  return hidinput_set_callbacks(hid, hid_write_cb, hid_close_cb);
-}
 #endif
 
 /*

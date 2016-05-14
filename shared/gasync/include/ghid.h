@@ -18,7 +18,7 @@ typedef struct {
   unsigned short vendor_id;
   unsigned short product_id;
   unsigned short bcdDevice;
-  int interface;
+  int interface_number;
   char * path;
   int next;
 } s_hid_dev;

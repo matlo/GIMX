@@ -130,11 +130,11 @@ int hidinput_init(int(*callback)(GE_Event*)) {
     for (current = hid_devs; current != NULL; ++current) {
         for (driver = 0; driver < nb_drivers; ++driver) {
             unsigned int id;
-            for (id = 0; drivers[driver]->ids[id].vendor != 0; ++id) {
-                if (drivers[driver]->ids[id].vendor == current->vendor_id
-                        && drivers[driver]->ids[id].product == current->product_id
-                        && (drivers[driver]->ids[id].interface == -1
-                                || drivers[driver]->ids[id].interface == current->interface)) {
+            for (id = 0; drivers[driver]->ids[id].vendor_id != 0; ++id) {
+                if (drivers[driver]->ids[id].vendor_id == current->vendor_id
+                        && drivers[driver]->ids[id].product_id == current->product_id
+                        && (drivers[driver]->ids[id].interface_number == -1
+                                || drivers[driver]->ids[id].interface_number == current->interface_number)) {
                     int hid = drivers[driver]->open(current);
                     if (hid >= 0) {
                         hid_devices[hid].opened = 1;

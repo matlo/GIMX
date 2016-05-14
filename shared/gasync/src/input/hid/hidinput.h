@@ -18,9 +18,9 @@
 #endif
 
 typedef struct {
-    unsigned short vendor;
-    unsigned short product;
-    int interface; // -1 means any interface
+    unsigned short vendor_id;
+    unsigned short product_id;
+    int interface_number; // -1 means any interface
 } s_hidinput_ids;
 
 typedef struct {
