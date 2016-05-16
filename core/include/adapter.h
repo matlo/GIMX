@@ -60,11 +60,11 @@ typedef struct
     int write_pending;
     int read_pending;
   } hid;
-#ifndef WIN32
+#ifdef WIN32
   struct
   {
-	unsigned short vendor;
-	unsigned short product;
+    unsigned short vendor;
+    unsigned short product;
   } usb_ids;
 #endif
 } s_adapter;
