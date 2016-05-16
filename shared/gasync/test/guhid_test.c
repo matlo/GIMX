@@ -131,8 +131,6 @@ int main(int argc, char* argv[]) {
           }
 
         }
-      } else {
-        fprintf(stderr, "GE_initialize failed\n");
       }
 
       ghid_close(hid);

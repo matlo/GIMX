@@ -302,8 +302,6 @@ int main(int argc, char* argv[]) {
 
       ghid_close(hid);
     }
-  } else {
-    fprintf(stderr, "GE_initialize failed\n");
   }
 
   free(path);
