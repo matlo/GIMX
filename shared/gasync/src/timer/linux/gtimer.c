@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <sys/time.h>
+#include <inttypes.h>
 
 #define MAX_TIMERS 32
 
@@ -75,7 +77,9 @@ static int read_callback(int timer) {
     return -1;
   }
   if (nexp > 1) {
-    PRINT_ERROR_OTHER("timer fired several times...")
+      struct timeval tv;
+      gettimeofday(&tv, NULL);
+      fprintf (stderr, "%ld.%06ld timer fired %" PRIu64 " times...\n", tv.tv_sec, tv.tv_usec, nexp);
   }
 
   return timers[timer].fp_read(timers[timer].user);

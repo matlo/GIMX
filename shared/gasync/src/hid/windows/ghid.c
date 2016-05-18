@@ -27,20 +27,26 @@ int open_path(const char * path, int print) {
                 devices[device].hidInfo.bcdDevice = attributes.VersionNumber;
             }
             else {
-                PRINT_ERROR_GETLASTERROR("HidP_GetCaps")
+                if (print) {
+                    PRINT_ERROR_OTHER("HidP_GetCaps")
+                }
                 async_close(device);
                 device = -1;
             }
             HidD_FreePreparsedData(preparsedData);
         }
         else {
-            PRINT_ERROR_GETLASTERROR("HidD_GetPreparsedData")
+            if (print) {
+                PRINT_ERROR_OTHER("HidD_GetPreparsedData")
+            }
             async_close(device);
             device = -1;
         }
     }
     else {
-        PRINT_ERROR_GETLASTERROR("HidD_GetAttributes")
+        if (print) {
+            PRINT_ERROR_OTHER("HidD_GetAttributes")
+        }
         async_close(device);
         device = -1;
     }

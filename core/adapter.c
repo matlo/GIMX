@@ -855,6 +855,19 @@ int adapter_detect()
         }
       }
     }
+#ifndef WIN32
+    else if(adapter->atype == E_ADAPTER_TYPE_BLUETOOTH)
+    {
+      if (adapter->ctype == C_TYPE_DS4)
+      {
+        if(btds4_init(i, adapter->dongle_index, adapter->bdaddr_dst) < 0)
+        {
+          ret = -1;
+        }
+        controller_init_report(C_TYPE_DS4, &adapter->report[0].value);
+      }
+    }
+#endif
   }
   return ret;
 }
@@ -952,17 +965,15 @@ int adapter_start()
             ret = -1;
           }
         }
-  #ifndef WIN32
+#ifndef WIN32
         else if(adapter->ctype == C_TYPE_DS4)
         {
-          if(btds4_init(i, adapter->dongle_index, adapter->bdaddr_dst) < 0)
+          if(btds4_listen(i) < 0)
           {
-            fprintf(stderr, _("Can't initialize btds4.\n"));
             ret = -1;
           }
-          controller_init_report(C_TYPE_DS4, &adapter->report[0].value);
         }
-  #endif
+#endif
         else
         {
           fprintf(stderr, _("Wrong controller type.\n"));

@@ -19,6 +19,7 @@
 #include "../directories.h"
 #include <unistd.h>
 #include <limits.h>
+#include "log.h"
 
 #define DEV_HIDRAW "/dev/hidraw"
 #ifndef WIN32
@@ -54,7 +55,21 @@ static void usage()
   printf("  filename: The name of the config file, in the ~/.gimx/config directory (ex: \"File name.xml\").\n");
   printf("  IP:port: The destination IP+port. Ex: 127.0.0.1:51914.\n");
 
-  printf("General options:\n");
+  printf("Multiple controllers:\n");
+  printf("  A --bdaddr, --port or --dst argument finishes the current controller options.\n");
+  printf("  Further non-global options apply to further controller instances.\n");
+
+  printf("Controller options:\n");
+  printf("  --event \"control(value)\": send controls to the console and exit.\n");
+  printf("    Names and value ranges: \"lstick x\", \"lstick y\", \"rstick x\", \"rstick y\": [-128,127]\n");
+  printf("    \"acc x\", \"acc y\", \"acc z\", \"gyro\": [-512,511]\n");
+  printf("    \"select\", \"start\", \"PS\", \"l3\", \"r3\": {0, 255}\n");
+  printf("    \"up\", \"right\", \"down\", \"left\", \"triangle\", \"circle\", \"cross\", \"square\", \"l1\", \"r1\", \"l2\", \"r2\": [0,255]\n");
+  printf("  --src IP:port: Specifies a source IP+port to listen on. Ex: 127.0.0.1:51914.\n");
+
+  printf("Global options:\n");
+  printf("  These options apply to all controller instances.\n");
+  printf("  --config filename: The name of the config file, in the ~/.gimx/config directory (ex: \"File name.xml\").\n");
   printf("  --curses: Curses terminal display. Mouse calibration is available through this interface.\n");
   printf("  --status: Display controls in the terminal.\n");
   printf("  --nograb: Do not grab the mouse cursor.\n");
@@ -62,14 +77,7 @@ static void usage()
   printf("  --subpos: Improve stick precision.\n");
   printf("  --window-events : Read window events instead of hardware events.\n");
   printf("  --keygen key: Generate a key press at gimx startup.\n");
-  printf("  --event \"control(value)\": send controls to the console and exit.\n");
-  printf("    Names and value ranges: \"lstick x\", \"lstick y\", \"rstick x\", \"rstick y\": [-128,127]\n");
-  printf("    \"acc x\", \"acc y\", \"acc z\", \"gyro\": [-512,511]\n");
-  printf("    \"select\", \"start\", \"PS\", \"l3\", \"r3\": {0, 255}\n");
-  printf("    \"up\", \"right\", \"down\", \"left\", \"triangle\", \"circle\", \"cross\", \"square\", \"l1\", \"r1\", \"l2\", \"r2\": [0,255]\n");
   printf("  --refresh n: The refresh period, in ms. Forcing the refresh period is not recommended.\n");
-  printf("  --src IP:port: Specifies a source IP+port to listen on. Ex: 127.0.0.1:51914.\n");
-  printf("    This argument has to be placed before the --bdaddr and --port arguments.\n");
   printf("  --btstack: use btstack for the bluetooth connection.\n");
   printf("    Btstack is the only available connection method on Windows, and an alternative connection method on Linux.\n");
   printf("  --log filename: write messages into a log file instead of the standard output.\n");
@@ -148,7 +156,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"version", no_argument,       0, 'v'},
     {0, 0, 0, 0}
   };
-
+  
   while (1)
   {
     /* getopt_long stores the option index here. */
@@ -185,13 +193,14 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         {
           adapter_get(controller)->ctype = C_TYPE_SIXAXIS;
         }
+        printf(_("controller #%d: option -b with value `%s'\n"), controller + 1, optarg);
         ++controller;
-        printf(_("option -b with value `%s'\n"), optarg);
+        printf(_("now reading arguments for controller #%d\n"), controller + 1);
         break;
 
       case 'c':
         params->config_file = optarg;
-        printf(_("option -c with value `%s'\n"), optarg);
+        printf(_("global option -c with value `%s'\n"), optarg);
         input = 1;
         break;
 
@@ -213,7 +222,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
             *(end + 1) = '\0';
             if((axis = controller_get_axis_index(label)) != -1)
             {
-              printf(_("option -e with value `%s(%d)'\n"), label, value);
+              printf(_("controller #%d: option -e with value `%s(%d)'\n"), controller + 1, label, value);
               adapter_set_axis(controller, axis, value);
               adapter_get(controller)->event = 1;
               input = 1;
@@ -229,7 +238,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
 
       case 'h':
         adapter_get(controller)->dongle_index = atoi(optarg);
-        printf(_("option -h with value `%d'\n"), adapter_get(controller)->dongle_index);
+        printf(_("controller #%d: option -h with value `%d'\n"), controller + 1, adapter_get(controller)->dongle_index);
         break;
 
       case 'd':
@@ -242,8 +251,9 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         else
         {
           adapter_get(controller)->atype = E_ADAPTER_TYPE_REMOTE_GIMX;
+          printf(_("controller #%d: option -d with value `%s'\n"), controller + 1, optarg);
           ++controller;
-          printf(_("option -d with value `%s'\n"), optarg);
+          printf(_("now reading arguments for controller #%d\n"), controller + 1);
         }
         break;
 
@@ -261,7 +271,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         }
         else
         {
-          printf(_("option -s with value `%s'\n"), optarg);
+          printf(_("controller #%d: option -s with value `%s'\n"), controller + 1, optarg);
           input = 1;
           params->network_input = 1;
         }
@@ -269,7 +279,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
 
       case 'k':
         params->keygen = optarg;
-        printf(_("option -k with value `%s'\n"), optarg);
+        printf(_("controller #%d: option -k with value `%s'\n"), controller + 1, optarg);
         break;
 
       case 'l':
@@ -294,7 +304,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
                 ret = -1;
               }
             }
-            printf(_("option -l with value `%s'\n"), optarg);
+            printf(_("global option -l with value `%s'\n"), optarg);
           }
           else
           {
@@ -329,8 +339,9 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         }
         else
         {
+          printf(_("controller #%d: option -p with value `%s'\n"), controller + 1, optarg);
           ++controller;
-          printf(_("option -p with value `%s'\n"), optarg);
+          printf(_("now reading arguments for controller #%d\n"), controller + 1);
         }
         break;
 
@@ -339,7 +350,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         if(params->refresh_period)
         {
           params->postpone_count = 3 * DEFAULT_REFRESH_PERIOD / params->refresh_period;
-          printf(_("option -r with value `%s'\n"), optarg);
+          printf(_("global option -r with value `%s'\n"), optarg);
         }
         else
         {
@@ -349,51 +360,19 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         break;
 
       case 't':
-        printf(_("option -t with value `%s'\n"), optarg);
-        if (!strcmp(optarg, "joystick"))
-        {
-          adapter_get(controller)->ctype = C_TYPE_JOYSTICK;
-        }
-        else if (!strcmp(optarg, "360pad"))
-        {
-          adapter_get(controller)->ctype = C_TYPE_360_PAD;
-        }
-        else if (!strcmp(optarg, "Sixaxis"))
-        {
-          adapter_get(controller)->ctype = C_TYPE_SIXAXIS;
-        }
-        else if (!strcmp(optarg, "PS2pad"))
-        {
-          adapter_get(controller)->ctype = C_TYPE_PS2_PAD;
-        }
-        else if (!strcmp(optarg, "GPP"))
+        printf(_("controller #%d: option -t with value `%s'\n"), controller + 1, optarg);
+        if (!strcmp(optarg, "GPP"))
         {
           adapter_get(controller)->atype = E_ADAPTER_TYPE_GPP;
         }
-        else if (!strcmp(optarg, "XboxPad"))
-        {
-          adapter_get(controller)->ctype = C_TYPE_XBOX_PAD;
-        }
-        else if (!strcmp(optarg, "DS4"))
-        {
-          adapter_get(controller)->ctype = C_TYPE_DS4;
-        }
-        else if (!strcmp(optarg, "T300RS_PS4"))
-        {
-          adapter_get(controller)->ctype = C_TYPE_T300RS_PS4;
-        }
-        else if (!strcmp(optarg, "G27_PS3"))
-        {
-          adapter_get(controller)->ctype = C_TYPE_G27_PS3;
-        }
-        else if (!strcmp(optarg, "G29_PS4"))
-        {
-          adapter_get(controller)->ctype = C_TYPE_G29_PS4;
-        }
         else
         {
-          fprintf(stderr, "Bad controller type: %s\n", optarg);
-          ret = -1;
+          adapter_get(controller)->ctype = controller_get_type(optarg);
+          if (adapter_get(controller)->ctype == C_TYPE_NONE)
+          {
+            fprintf(stderr, "Bad controller type: %s\n", optarg);
+            ret = -1;
+          }
         }
         break;
 
@@ -436,6 +415,11 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
   {
     fprintf(stderr, "At least a config file, an event, or a source IP:port should be specified as argument.\n");
     ret = -1;
+  }
+
+  if(params->logfile)
+  {
+    log_info();
   }
 
   return ret;

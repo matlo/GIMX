@@ -181,6 +181,7 @@ class launcherFrame: public wxFrame
         wxLocale* locale;
 
         bool started;
+        long startTime;
 
         wxString userDir;
         wxString gimxConfigDir;

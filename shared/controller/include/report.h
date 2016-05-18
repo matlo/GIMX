@@ -16,6 +16,9 @@
 #include <t300rs_ps4.h>
 #include <g27_ps3.h>
 #include <g29_ps4.h>
+#include <df_ps2.h>
+#include <dfp_ps2.h>
+#include <gtf_ps2.h>
 
 #define MAX_REPORTS 2
 
@@ -31,6 +34,9 @@ typedef union
   s_report_t300rsPs4 t300rsPs4;
   s_report_g27Ps3 g27Ps3;
   s_report_g29Ps4 g29Ps4;
+  s_report_dfPs2 dfPs2;
+  s_report_dfpPs2 dfpPs2;
+  s_report_gtfPs2 gtfPs2;
 } s_report;
 
 typedef struct GIMX_PACKED
