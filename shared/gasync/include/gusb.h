@@ -162,8 +162,13 @@ int gusb_open_path(const char * path);
 s_usb_descriptors * gusb_get_usb_descriptors(int device);
 int gusb_close(int device);
 int gusb_read_timeout(int device, unsigned char endpoint, void * buf, unsigned int count, unsigned int timeout);
+#ifdef WIN32
 int gusb_register(int device, int user, USBASYNC_READ_CALLBACK fp_read, USBASYNC_WRITE_CALLBACK fp_write,
-    USBASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_FD fp_register);
+    USBASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_HANDLE fp_register);
+#else
+int gusb_register(int device, int user, USBASYNC_READ_CALLBACK fp_read, USBASYNC_WRITE_CALLBACK fp_write,
+	USBASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_FD fp_register);
+#endif
 int gusb_write(int device, unsigned char endpoint, const void * buf, unsigned int count);
 int gusb_write_timeout(int device, unsigned char endpoint, const void * buf, unsigned int count,
     unsigned int timeout);

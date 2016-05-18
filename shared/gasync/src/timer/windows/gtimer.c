@@ -5,6 +5,7 @@
 
 #include <gtimer.h>
 #include <gerror.h>
+#include "timerres.h"
 
 #include <windows.h>
 #include <unistd.h>
@@ -14,130 +15,111 @@
 #define MAX_TIMERS 32
 
 static struct {
-  HANDLE handle;
-  int user;
-  int (*fp_read)(int);
-  int (*fp_close)(int);
+    int used;
+    int user;
+    LARGE_INTEGER time; // desired time for the next event
+    unsigned int period; // in 100 nanoseconds intervals
+    int (*fp_read)(int);
+    int (*fp_close)(int);
 } timers[MAX_TIMERS] = { };
 
-static unsigned int nb_timers = 0;
-
 #define CHECK_TIMER(TIMER,RETVALUE) \
-  if (TIMER < 0 || TIMER >= MAX_TIMERS || timers[TIMER].handle == INVALID_HANDLE_VALUE) { \
+  if (TIMER < 0 || TIMER >= MAX_TIMERS || timers[TIMER].used == 0) { \
     PRINT_ERROR_OTHER("invalid timer") \
     return RETVALUE; \
   }
 
-void gtimer_init(void) __attribute__((constructor));
-void gtimer_init(void) {
-  unsigned int i;
-  for (i = 0; i < sizeof(timers) / sizeof(*timers); ++i) {
-    timers[i].handle = INVALID_HANDLE_VALUE;
-  }
-}
-
-void gtimer_clean(void) __attribute__((destructor));
-void gtimer_clean(void) {
-  unsigned int i;
-  for (i = 0; i < sizeof(timers) / sizeof(*timers); ++i) {
-    if (timers[i].handle != INVALID_HANDLE_VALUE) {
-      gtimer_close(i);
+void gtimer_destructor(void) __attribute__((destructor));
+void gtimer_destructor(void) {
+    unsigned int i;
+    for (i = 0; i < sizeof(timers) / sizeof(*timers); ++i) {
+        if (timers[i].used) {
+            gtimer_close(i);
+        }
     }
-  }
 }
 
 static int get_slot() {
-  unsigned int i;
-  for (i = 0; i < sizeof(timers) / sizeof(*timers); ++i) {
-    if (timers[i].handle == INVALID_HANDLE_VALUE) {
-      return i;
+    unsigned int i;
+    for (i = 0; i < sizeof(timers) / sizeof(*timers); ++i) {
+        if (timers[i].used == 0) {
+            return i;
+        }
     }
-  }
-  return -1;
+    return -1;
 }
 
-static int close_callback(int timer) {
+static int timer_cb() {
+    
+    LARGE_INTEGER li = timerres_get_time();
 
-  CHECK_TIMER(timer, -1)
-
-  return timers[timer].fp_close(timers[timer].user);
-}
-
-static int read_callback(int timer) {
-
-  CHECK_TIMER(timer, -1)
-
-  return timers[timer].fp_read(timers[timer].user);
+    int ret = 0;
+    
+    unsigned int timer;
+    for (timer = 0; timer < sizeof(timers) / sizeof(*timers); ++timer) {
+        if (timers[timer].used && timers[timer].time.QuadPart <= li.QuadPart) {
+            if (timers[timer].fp_read(timers[timer].user) < 0) {
+                ret = -1;
+            }
+            while (timers[timer].time.QuadPart < li.QuadPart) {
+                timers[timer].time.QuadPart += timers[timer].period;
+            }
+        }
+    }
+    
+    return ret;
 }
 
 int gtimer_start(int user, unsigned int usec, GPOLL_READ_CALLBACK fp_read, GPOLL_CLOSE_CALLBACK fp_close,
-    GPOLL_REGISTER_HANDLE fp_register) {
+        GPOLL_REGISTER_HANDLE fp_register) {
 
-  int slot = get_slot();
-  if (slot < 0) {
-    PRINT_ERROR_OTHER("no slot available")
-    return -1;
-  }
-
-  if (nb_timers == 0) {
-    timeBeginPeriod(1);
-  }
-
-  HANDLE hTimer = CreateWaitableTimer(NULL, FALSE, NULL);
-  if (hTimer != INVALID_HANDLE_VALUE) {
-    LONG period = usec / 1000;
-    if (period * 1000UL != usec) {
-      PRINT_ERROR_OTHER("timer accuracy is only 1ms on Windows")
+    if (usec == 0) {
+        PRINT_ERROR_OTHER("timer period cannot be 0")
+        return -1;
     }
+
+    int slot = get_slot();
+    if (slot < 0) {
+        PRINT_ERROR_OTHER("no slot available")
+        return -1;
+    }
+
+    int timer_resolution = timerres_begin(fp_register, gpoll_remove_handle, timer_cb);
+    if (timer_resolution < 0) {
+        return -1;
+    }
+    
+    unsigned int period = usec * 10 / timer_resolution * timer_resolution;
     if (period == 0) {
-      period = 1;
+        fprintf(stderr, "%s:%d %s: timer period should be at least %dus\n", __FILE__, __LINE__, __func__, timer_resolution / 10);
+        timerres_end();
+        return -1;
     }
-    LARGE_INTEGER li = { .QuadPart = -(period * 10000) };
-    if (!SetWaitableTimer(hTimer, &li, period, NULL, NULL, FALSE)) {
-      PRINT_ERROR_GETLASTERROR("SetWaitableTimer")
-      CloseHandle(hTimer);
-      hTimer = INVALID_HANDLE_VALUE;
+
+    if (period != usec * 10) {
+        fprintf(stderr, "rounding timer period to %u\n", period);
     }
-  } else {
-    PRINT_ERROR_GETLASTERROR("CreateWaitableTimer")
-  }
 
-  int ret = fp_register(hTimer, slot, read_callback, NULL, close_callback);
-  if (ret < 0) {
-    CloseHandle(hTimer);
-    hTimer = INVALID_HANDLE_VALUE;
-  }
+    LARGE_INTEGER li = timerres_get_time();
+    li.QuadPart += period;
 
-  if (hTimer != INVALID_HANDLE_VALUE) {
-    ++nb_timers;
-    timers[slot].handle = hTimer;
+    timers[slot].used = 1;
     timers[slot].user = user;
+    timers[slot].time = li;
+    timers[slot].period = period;
     timers[slot].fp_read = fp_read;
     timers[slot].fp_close = fp_close;
-  } else {
-    slot = -1;
-  }
 
-  if(nb_timers == 0) {
-    timeEndPeriod(0);
-  }
-
-  return slot;
+    return slot;
 }
 
 int gtimer_close(int timer) {
 
-  CHECK_TIMER(timer, -1)
+    CHECK_TIMER(timer, -1)
 
-  gpoll_remove_handle(timers[timer].handle);
-  CloseHandle(timers[timer].handle);
-  memset(timers + timer, 0x00, sizeof(*timers));
-  timers[timer].handle = INVALID_HANDLE_VALUE;
+    memset(timers + timer, 0x00, sizeof(*timers));
 
-  --nb_timers;
-  if(nb_timers == 0) {
-    timeEndPeriod(0);
-  }
+    timerres_end();
 
-  return 1;
+    return 1;
 }

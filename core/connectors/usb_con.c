@@ -15,6 +15,12 @@
 #include <string.h>
 #include <stdlib.h>
 
+#ifdef WIN32
+#define REGISTER_FUNCTION gpoll_register_handle
+#else
+#define REGISTER_FUNCTION gpoll_register_fd
+#endif
+
 #define PRINT_ERROR_OTHER(msg) fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
 
 #define REPORTS_MAX 2
@@ -424,7 +430,7 @@ int usb_init(int usb_number, e_controller_type type) {
     }
   }
 
-  ret = gusb_register(state->usb_device, usb_number, usb_read_callback, usb_write_callback, usb_close_callback, gpoll_register_fd);
+  ret = gusb_register(state->usb_device, usb_number, usb_read_callback, usb_write_callback, usb_close_callback, REGISTER_FUNCTION);
   if (ret < 0) {
     usb_close(usb_number);
     return -1;

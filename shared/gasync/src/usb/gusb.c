@@ -4,7 +4,11 @@
  */
 
 #include <gusb.h>
+#include <gpoll.h>
 #include <gerror.h>
+#ifdef WIN32
+#include <gtimer.h>
+#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -52,6 +56,10 @@ static struct {
 } usbdevices[USBASYNC_MAX_DEVICES] = { };
 
 #define PRINT_ERROR_INVALID_ENDPOINT(msg, endpoint) fprintf(stderr, "%s:%d %s: %s: 0x%02x\n", __FILE__, __LINE__, __func__, msg, endpoint);
+
+#ifdef WIN32
+static int usb_timer = -1;
+#endif
 
 static libusb_context* ctx = NULL;
 
@@ -116,6 +124,9 @@ void usbasync_clean(void) {
     }
   }
   libusb_exit(ctx);
+#ifdef WIN32
+  gtimer_close(usb_timer);
+#endif
 }
 
 static inline int usbasync_check_device(int device, const char * file, unsigned int line, const char * func) {
@@ -1109,20 +1120,52 @@ s_usb_descriptors * gusb_get_usb_descriptors(int device) {
   return &usbdevices[device].descriptors;
 }
 
+#ifndef WIN32
 static int close_callback(int device) {
 
   USBASYNC_CHECK_DEVICE(device, -1)
 
   return usbdevices[device].callback.fp_close(usbdevices[device].callback.user);
 }
+#else
+static int usb_timer_read(int user)
+{
+  return gusb_handle_events(0);
+}
 
+static int usb_timer_close(int user)
+{
+  return 1;
+}
+
+static int usb_timer_start(GPOLL_REGISTER_HANDLE fp_register) {
+
+  if (usb_timer < 0) {
+    /*
+     * Create a 1ms periodic timer to handle events.
+     */
+    usb_timer = gtimer_start(0, 1000, usb_timer_read, usb_timer_close, fp_register);
+    if (usb_timer == -1) {
+      return -1;
+    }
+  }
+  return 0;
+}
+#endif
+
+#ifdef WIN32
 int gusb_register(int device, int user, USBASYNC_READ_CALLBACK fp_read, USBASYNC_WRITE_CALLBACK fp_write,
-    USBASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_FD fp_register) {
+    USBASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_HANDLE fp_register) {
+#else
+int gusb_register(int device, int user, USBASYNC_READ_CALLBACK fp_read, USBASYNC_WRITE_CALLBACK fp_write,
+	USBASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_FD fp_register) {
+#endif
 
   USBASYNC_CHECK_DEVICE(device, -1)
 
   int ret = 0;
 
+#ifndef WIN32
   const struct libusb_pollfd** pfd_usb = libusb_get_pollfds(ctx);
   int poll_i;
   for (poll_i = 0; pfd_usb[poll_i] != NULL && ret != -1; ++poll_i) {
@@ -1130,6 +1173,9 @@ int gusb_register(int device, int user, USBASYNC_READ_CALLBACK fp_read, USBASYNC
     ret = fp_register(pfd_usb[poll_i]->fd, device, gusb_handle_events, gusb_handle_events, close_callback);
   }
   free(pfd_usb);
+#else
+  ret = usb_timer_start(fp_register);
+#endif
 
   if (ret != -1) {
     usbdevices[device].callback.user = user;
