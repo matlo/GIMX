@@ -1191,7 +1191,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     MenuType->Append(MenuItemDfPs2);
     MenuItemDfpPs2 = new wxMenuItem(MenuType, ID_MENUITEMDFPPS2, _("Driving Force Pro PS2"), wxEmptyString, wxITEM_RADIO);
     MenuType->Append(MenuItemDfpPs2);
-    MenuItemGtfPs2 = new wxMenuItem(MenuType, ID_MENUITEMDFPPS2, _("GT Force PS2"), wxEmptyString, wxITEM_RADIO);
+    MenuItemGtfPs2 = new wxMenuItem(MenuType, ID_MENUITEMGTFPS2, _("GT Force PS2"), wxEmptyString, wxITEM_RADIO);
     MenuType->Append(MenuItemGtfPs2);
     MenuBar1->Append(MenuType, _("Type"));
     MenuConfiguration = new wxMenu();
