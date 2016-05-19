@@ -5,7 +5,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
 #include <errno.h>
 #include <sys/time.h>
 
@@ -27,10 +26,6 @@
 static int uhid = -1;
 static int hid = -1;
 
-static void terminate(int sig) {
-  done = 1;
-}
-
 static void dump(const unsigned char * packet, unsigned char length) {
   int i;
   for (i = 0; i < length; ++i) {
@@ -45,13 +40,13 @@ static void dump(const unsigned char * packet, unsigned char length) {
 int hid_read(int user, const void * buf, int status) {
 
   if (status < 0) {
-    done = 1;
+    set_done();
     return 1;
   }
 
   int ret = ghid_poll(hid);
   if (ret < 0) {
-    done = 1;
+    set_done();
     return 1;
   }
 
@@ -70,14 +65,13 @@ int hid_read(int user, const void * buf, int status) {
 
 int hid_close(int user) {
   printf("close user: %d\n", user);
-  done = 1;
+  set_done();
   return 0;
 }
 
 int main(int argc, char* argv[]) {
 
-  (void) signal(SIGINT, terminate);
-  (void) signal(SIGTERM, terminate);
+  setup_handlers();
 
   char * path = hid_select();
 
@@ -110,15 +104,15 @@ int main(int argc, char* argv[]) {
 
           int timer = gtimer_start(42, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
           if (timer < 0) {
-            done = 1;
+            set_done();
           }
 
           int ret = ghid_poll(hid);
           if (ret < 0) {
-            done = 1;
+            set_done();
           }
 
-          while (!done) {
+          while (!is_done()) {
 
             gpoll();
 

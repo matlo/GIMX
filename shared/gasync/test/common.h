@@ -8,7 +8,10 @@
 
 #include <ginput.h>
 
-extern volatile int done;
+int is_done();
+void set_done();
+
+void setup_handlers();
 
 void display_devices();
 int process_event(GE_Event*);

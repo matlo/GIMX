@@ -5,7 +5,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
 #include <errno.h>
 #include <string.h>
 #include <limits.h>
@@ -22,11 +21,6 @@
 #else
 #define REGISTER_FUNCTION gpoll_register_fd
 #endif
-
-static void terminate(int sig)
-{
-  done = 1;
-}
 
 int mkb_select() {
 
@@ -48,6 +42,8 @@ int mkb_select() {
 
 int main(int argc, char* argv[])
 {
+  setup_handlers();
+
   int mkb_source = mkb_select();
 
   if (mkb_source < 0)
@@ -60,18 +56,16 @@ int main(int argc, char* argv[])
     exit(-1);
   }
 
-  (void) signal(SIGINT, terminate);
-
   display_devices();
 
   int timer = gtimer_start(42, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
   if (timer < 0) {
-    done = 1;
+    set_done();
   }
   
   ginput_grab();
 
-  while(!done)
+  while(!is_done())
   {
     gpoll();
 

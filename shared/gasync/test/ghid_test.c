@@ -5,7 +5,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
 #include <errno.h>
 #include <sys/time.h>
 
@@ -72,32 +71,6 @@ static int ff_index = -1;
 
 static int hid = -1;
 
-static void terminate(int sig) {
-  done = 1;
-}
-
-#ifdef WIN32
-BOOL WINAPI ConsoleHandler(DWORD dwType) {
-  switch(dwType) {
-    case CTRL_CLOSE_EVENT:
-    case CTRL_LOGOFF_EVENT:
-    case CTRL_SHUTDOWN_EVENT:
-
-    done = 1; //signal the main thread to terminate
-
-    //Returning would make the process exit!
-    //We just make the handler sleep until the main thread exits,
-    //or until the maximum execution time for this handler is reached.
-    Sleep(10000);
-
-    return TRUE;
-    default:
-    break;
-  }
-  return FALSE;
-}
-#endif
-
 static void dump(const unsigned char * packet, unsigned char length) {
 
   int i;
@@ -113,13 +86,13 @@ static void dump(const unsigned char * packet, unsigned char length) {
 int hid_read(int user, const void * buf, int status) {
 
   if (status < 0) {
-    done = 1;
+    set_done();
     return 1;
   }
 
   int ret = ghid_poll(hid);
   if (ret < 0) {
-    done = 1;
+    set_done();
     return 1;
   }
 
@@ -212,7 +185,7 @@ void ff_task(int device) {
 
 void hid_task(int device) {
 
-  if(done) {
+  if(is_done()) {
     return;
   }
   rumble_task(device);
@@ -231,14 +204,13 @@ int hid_write(int user, int transfered) {
 
 int hid_close(int user) {
   printf("close user: %d\n", user);
-  done = 1;
+  set_done();
   return 0;
 }
 
 int main(int argc, char* argv[]) {
 
-  (void) signal(SIGINT, terminate);
-  (void) signal(SIGTERM, terminate);
+  setup_handlers();
 
   char * path = hid_select();
 
@@ -271,17 +243,17 @@ int main(int argc, char* argv[]) {
 
       int timer = gtimer_start(42, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
       if (timer < 0) {
-        done = 1;
+        set_done();
       }
 
       hid_task(hid);
 
       int ret = ghid_poll(hid);
       if (ret < 0) {
-        done = 1;
+        set_done();
       }
 
-      while (!done || hid_busy) {
+      while (!is_done() || hid_busy) {
 
         gpoll();
 

@@ -5,7 +5,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
 #include <errno.h>
 #include <string.h>
 #include <math.h>
@@ -26,10 +25,6 @@
 #else
 #define REGISTER_FUNCTION gpoll_register_fd
 #endif
-
-static void terminate(int sig) {
-  done = 1;
-}
 
 static char * port = NULL;
 
@@ -126,7 +121,7 @@ static int read_args(int argc, char* argv[]) {
 int serial_read(int user, const void * buf, int status) {
 
   if (status < 0) {
-    done = 1;
+    set_done();
     return 1;
   }
 
@@ -146,7 +141,7 @@ int serial_read(int user, const void * buf, int status) {
   if (memcmp(result, packet, packet_size)) {
 
     fprintf(stderr, "bad packet content\n");
-    done = 1;
+    set_done();
     ret = -1;
 
   } else {
@@ -165,13 +160,13 @@ int serial_read(int user, const void * buf, int status) {
     ++count;
     if (count == samples) {
 
-      done = 1;
+      set_done();
 
     } else {
 
       int status = gserial_write(serial, packet, packet_size);
       if (status < 0) {
-        done = 1;
+        set_done();
       }
 
       gettimeofday(&t0, NULL );
@@ -180,7 +175,7 @@ int serial_read(int user, const void * buf, int status) {
     read = 0;
   }
 
-  if (done) {
+  if (is_done()) {
     ret = -1;
   }
 
@@ -188,13 +183,13 @@ int serial_read(int user, const void * buf, int status) {
 }
 
 int serial_close(int user) {
-  done = 1;
+  set_done();
   return 1;
 }
 
 int main(int argc, char* argv[]) {
 
-  (void) signal(SIGINT, terminate);
+  setup_handlers();
 
   read_args(argc, argv);
 
@@ -229,7 +224,7 @@ int main(int argc, char* argv[]) {
 
   int ret = gserial_write(serial, packet, packet_size);
   if (ret < 0) {
-    done = 1;
+    set_done();
   }
 
   gettimeofday(&t0, NULL );
@@ -237,10 +232,10 @@ int main(int argc, char* argv[]) {
   // start a timer to periodically check the 'done' variable
   int timer = gtimer_start(42, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
   if (timer < 0) {
-    done = 1;
+    set_done();
   }
 
-  while (!done) {
+  while (!is_done()) {
 
     gpoll();
   }
