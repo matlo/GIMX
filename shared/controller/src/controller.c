@@ -11,7 +11,7 @@
 
 s_controller * controllers[C_TYPE_MAX] = {};
 
-inline int clamp(int min, int val, int max)
+int clamp(int min, int val, int max)
 {
   if (val < min)
     return min;
@@ -64,7 +64,7 @@ int controller_get_default_refresh_period(e_controller_type type)
   return DEFAULT_REFRESH_PERIOD;
 }
 
-inline int controller_get_max_unsigned(e_controller_type type, int axis)
+int controller_get_max_unsigned(e_controller_type type, int axis)
 {
   if(type < C_TYPE_MAX && axis < AXIS_MAX)
   {
@@ -73,7 +73,7 @@ inline int controller_get_max_unsigned(e_controller_type type, int axis)
   return DEFAULT_MAX_AXIS_VALUE;
 }
 
-inline int controller_get_max_signed(e_controller_type type, int axis)
+int controller_get_max_signed(e_controller_type type, int axis)
 {
   if(axis < abs_axis_0)
   {
@@ -91,12 +91,12 @@ inline int controller_get_max_signed(e_controller_type type, int axis)
   }
 }
 
-inline int controller_get_mean_unsigned(e_controller_type type, int axis)
+int controller_get_mean_unsigned(e_controller_type type, int axis)
 {
   return controller_get_max_unsigned(type, axis) / 2 + 1;
 }
 
-inline double controller_get_axis_scale(e_controller_type type, int axis)
+double controller_get_axis_scale(e_controller_type type, int axis)
 {
   return (double) controller_get_max_unsigned(type, axis) / DEFAULT_MAX_AXIS_VALUE;
 }

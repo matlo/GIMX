@@ -91,7 +91,7 @@ static void init_report(s_report * report)
   memcpy(report, &default_report, sizeof(default_report));
 }
 
-inline void axis2button(int axis[AXIS_MAX], e_x360_axis_index index,
+static inline void axis2button(int axis[AXIS_MAX], e_x360_axis_index index,
     unsigned short* buttons, unsigned short button_mask)
 {
   if (axis[index])

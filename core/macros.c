@@ -884,7 +884,7 @@ void dump_event(GE_Event* event, int newline, int axisvalue)
   }
 }
 
-inline void dump_macro_id(s_macro * macro)
+static inline void dump_macro_id(s_macro * macro)
 {
   dump_event(&macro->id.event, 0, 0);
   if(macro->id.event.type == GE_MOUSEMOTION || macro->id.event.type == GE_JOYAXISMOTION)
