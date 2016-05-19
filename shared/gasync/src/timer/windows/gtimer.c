@@ -58,8 +58,11 @@ static int timer_cb() {
     unsigned int timer;
     for (timer = 0; timer < sizeof(timers) / sizeof(*timers); ++timer) {
         if (timers[timer].used && timers[timer].time.QuadPart <= li.QuadPart) {
-            if (timers[timer].fp_read(timers[timer].user) < 0) {
+            int status = timers[timer].fp_read(timers[timer].user);
+            if (status < 0) {
                 ret = -1;
+            } else if (ret != -1 && status) {
+                ret = 1;
             }
             while (timers[timer].time.QuadPart < li.QuadPart) {
                 timers[timer].time.QuadPart += timers[timer].period;
