@@ -125,7 +125,9 @@ void usbasync_clean(void) {
   }
   libusb_exit(ctx);
 #ifdef WIN32
-  gtimer_close(usb_timer);
+  if (usb_timer >= 0) {
+    gtimer_close(usb_timer);
+  }
 #endif
 }
 
