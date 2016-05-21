@@ -17,8 +17,8 @@
 static struct {
     int used;
     int user;
-    LARGE_INTEGER time; // desired time for the next event
-    unsigned int period; // in 100 nanoseconds intervals
+    unsigned int period; // in base timer ticks
+    unsigned int nexp; // number of base timer ticks since last event
     int (*fp_read)(int);
     int (*fp_close)(int);
 } timers[MAX_TIMERS] = { };
@@ -49,27 +49,31 @@ static int get_slot() {
     return -1;
 }
 
-static int timer_cb() {
-    
-    LARGE_INTEGER li = timerres_get_time();
+static int timer_cb(unsigned int nexp) {
 
     int ret = 0;
-    
+
     unsigned int timer;
     for (timer = 0; timer < sizeof(timers) / sizeof(*timers); ++timer) {
-        if (timers[timer].used && timers[timer].time.QuadPart <= li.QuadPart) {
-            int status = timers[timer].fp_read(timers[timer].user);
-            if (status < 0) {
-                ret = -1;
-            } else if (ret != -1 && status) {
-                ret = 1;
-            }
-            while (timers[timer].time.QuadPart < li.QuadPart) {
-                timers[timer].time.QuadPart += timers[timer].period;
+        if (timers[timer].used) {
+            timers[timer].nexp += nexp;
+            unsigned int divisor = timers[timer].nexp / timers[timer].period;
+            if (divisor >= 1) {
+                int status = timers[timer].fp_read(timers[timer].user);
+                if (status < 0) {
+                    ret = -1;
+                } else if (ret != -1 && status) {
+                    ret = 1;
+                }
+                if (divisor > 1) {
+                    LARGE_INTEGER li = timerres_get_time();
+                    fprintf (stderr, "%u.%06u timer fired %u times...\n", (unsigned int)(li.QuadPart / 10000000), (unsigned int)(li.QuadPart / 10), divisor);
+                }
+                timers[timer].nexp = 0;
             }
         }
     }
-    
+
     return ret;
 }
 
@@ -92,15 +96,15 @@ int gtimer_start(int user, unsigned int usec, GPOLL_READ_CALLBACK fp_read, GPOLL
         return -1;
     }
     
-    unsigned int period = usec * 10 / timer_resolution * timer_resolution;
+    unsigned int period = usec * 10 / timer_resolution;
     if (period == 0) {
         fprintf(stderr, "%s:%d %s: timer period should be at least %dus\n", __FILE__, __LINE__, __func__, timer_resolution / 10);
         timerres_end();
         return -1;
     }
 
-    if (period != usec * 10) {
-        fprintf(stderr, "rounding timer period to %u\n", period);
+    if (period * timer_resolution != usec * 10) {
+        fprintf(stderr, "rounding timer period to %u\n", period * timer_resolution / 10);
     }
 
     LARGE_INTEGER li = timerres_get_time();
@@ -108,8 +112,8 @@ int gtimer_start(int user, unsigned int usec, GPOLL_READ_CALLBACK fp_read, GPOLL
 
     timers[slot].used = 1;
     timers[slot].user = user;
-    timers[slot].time = li;
     timers[slot].period = period;
+    timers[slot].nexp = 0;
     timers[slot].fp_read = fp_read;
     timers[slot].fp_close = fp_close;
 

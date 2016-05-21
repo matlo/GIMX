@@ -15,8 +15,9 @@ static HANDLE hTimer = INVALID_HANDLE_VALUE;
 static int (*register_handle)(HANDLE handle, int id, int (*fp_read)(int user), int (*fp_write)(int user),
         int (*fp_close)(int user)) = NULL;
 static void (*remove_handle)(HANDLE handle);
-static int (*timer_callback)(void) = NULL;
+static int (*timer_callback)(unsigned int) = NULL;
 static ULONG currentResolution = 0;
+static LARGE_INTEGER last = {};
 
 void timerres_init(void) __attribute__((constructor));
 void timerres_init(void) {
@@ -66,18 +67,26 @@ LARGE_INTEGER timerres_get_time() {
 
 static int read_callback(int unused) {
 
-    LARGE_INTEGER li = { .QuadPart = -(LONGLONG)currentResolution };
+    LARGE_INTEGER now = timerres_get_time();
 
-    if (!SetWaitableTimer(hTimer, &li, 0, NULL, NULL, FALSE)) {
+    LARGE_INTEGER next = { .QuadPart = -(LONGLONG)1 }; // request to be scheduled next timer period
+
+    if (!SetWaitableTimer(hTimer, &next, 0, NULL, NULL, FALSE)) {
         PRINT_ERROR_GETLASTERROR("SetWaitableTimer")
     }
 
-    return timer_callback();
+    unsigned int nexp = (now.QuadPart - last.QuadPart) / currentResolution;
+
+    last = now;
+
+    return timer_callback(nexp);
 }
 
 static int start_timer() {
 
-    LARGE_INTEGER li = { .QuadPart = -(LONGLONG)currentResolution };
+    last = timerres_get_time();
+
+    LARGE_INTEGER li = { .QuadPart = -(LONGLONG)1 }; // request to be scheduled next timer period
 
     if (!SetWaitableTimer(hTimer, &li, 0, NULL, NULL, FALSE)) {
         PRINT_ERROR_GETLASTERROR("SetWaitableTimer")
@@ -130,7 +139,7 @@ int timerres_begin(TIMERRES_REGISTER_HANDLE fp_register, TIMERRES_REMOVE_HANDLE 
         pNtSetTimerResolution(maximumResolution, TRUE, &currentResolution);
         pNtQueryTimerResolution(&minimumResolution, &maximumResolution, &currentResolution);
 
-        printf("min=%lu max=%lu current=%lu\n", minimumResolution, maximumResolution, currentResolution);
+        printf("Timer resolution: min=%lu max=%lu current=%lu\n", minimumResolution, maximumResolution, currentResolution);
 
         if (maximumResolution < currentResolution) {
             PRINT_ERROR_OTHER("failed to set maximumResolution timer resolution")

@@ -39,38 +39,36 @@ static struct {
   unsigned int usec;
   int timer;
 #ifndef WIN32
-  struct timeval t0;
-  struct timeval t1;
+  struct timeval next;
 #else
-  LARGE_INTEGER t0;
-  LARGE_INTEGER t1;
+  LARGE_INTEGER next;
 #endif
   unsigned char tolerance;
   unsigned int sum;
   unsigned int count;
 } timers[] = {
 #ifndef WIN32
-    { 1000, -1, {0, 0}, {0, 0}, 10, 0, 0 },
-    { 2000, -1, {0, 0}, {0, 0}, 10, 0, 0 },
-    { 3000, -1, {0, 0}, {0, 0}, 10, 0, 0 },
-    { 4000, -1, {0, 0}, {0, 0}, 10, 0, 0 },
-    { 5000, -1, {0, 0}, {0, 0}, 10, 0, 0 },
-    { 6000, -1, {0, 0}, {0, 0}, 10, 0, 0 },
-    { 7000, -1, {0, 0}, {0, 0}, 10, 0, 0 },
-    { 8000, -1, {0, 0}, {0, 0}, 10, 0, 0 },
-    { 9000, -1, {0, 0}, {0, 0}, 10, 0, 0 },
-    { 10000, -1, {0, 0}, {0, 0}, 10, 0, 0 },
+    { 1000, -1, {0, 0}, 10, 0, 0 },
+    { 2000, -1, {0, 0}, 10, 0, 0 },
+    { 3000, -1, {0, 0}, 10, 0, 0 },
+    { 4000, -1, {0, 0}, 10, 0, 0 },
+    { 5000, -1, {0, 0}, 10, 0, 0 },
+    { 6000, -1, {0, 0}, 10, 0, 0 },
+    { 7000, -1, {0, 0}, 10, 0, 0 },
+    { 8000, -1, {0, 0}, 10, 0, 0 },
+    { 9000, -1, {0, 0}, 10, 0, 0 },
+    { 10000, -1, {0, 0}, 10, 0, 0 },
 #else
-    { 1000, -1, {}, {}, 10, 0, 0 },
-    { 2000, -1, {}, {}, 10, 0, 0 },
-    { 3000, -1, {}, {}, 10, 0, 0 },
-    { 4000, -1, {}, {}, 10, 0, 0 },
-    { 5000, -1, {}, {}, 10, 0, 0 },
-    { 6000, -1, {}, {}, 10, 0, 0 },
-    { 7000, -1, {}, {}, 10, 0, 0 },
-    { 8000, -1, {}, {}, 10, 0, 0 },
-    { 9000, -1, {}, {}, 10, 0, 0 },
-    { 10000, -1, {}, {}, 10, 0, 0 },
+    { 1000, -1, {}, 10, 0, 0 },
+    { 2000, -1, {}, 10, 0, 0 },
+    { 3000, -1, {}, 10, 0, 0 },
+    { 4000, -1, {}, 10, 0, 0 },
+    { 5000, -1, {}, 10, 0, 0 },
+    { 6000, -1, {}, 10, 0, 0 },
+    { 7000, -1, {}, 10, 0, 0 },
+    { 8000, -1, {}, 10, 0, 0 },
+    { 9000, -1, {}, 10, 0, 0 },
+    { 10000, -1, {}, 10, 0, 0 },
 #endif
 };
 
@@ -79,32 +77,40 @@ static int timer_close_callback(int user) {
   return 1;
 }
 
+static inline void process(int timer, unsigned int diff) {
+
+  unsigned int percent = diff * 100 / timers[timer].usec;
+  if ((int)percent >= timers[timer].tolerance) {
+    fprintf(stderr, "timer is off by more than %u percent: period=%uus, error=%u%%\n", timers[timer].tolerance, timers[timer].usec, percent);
+    fflush(stderr);
+  }
+
+  timers[timer].sum += diff;
+  ++timers[timer].count;
+}
+
 #ifndef WIN32
 static int timer_read_callback(int user) {
 
-  gettimeofday(&timers[user].t1, NULL);
+  struct timeval now;
+
+  gettimeofday(&now, NULL);
 
   struct timeval res;
-  if(timercmp(&timers[user].t1, &timers[user].t0, <)) {
+  if(timercmp(&now, &timers[user].next, <)) {
     fprintf(stderr, "error: timer fired too early\n");
     set_done();
     return -1;
   }
 
-  timersub(&timers[user].t1, &timers[user].t0, &res);
+  timersub(&now, &timers[user].next, &res);
   unsigned int diff = res.tv_sec * 1000000 + res.tv_usec;
-  unsigned int percent = diff * 100 / timers[user].usec;
-  if ((int)percent >= timers[user].tolerance) {
-    printf("timer is off by more than %u percent: period=%uµs, error=%u%%\n", timers[user].tolerance, timers[user].usec, percent);
-    fflush(stdout);
-  }
 
-  timers[user].sum += diff;
-  ++timers[user].count;
+  process(user, diff);
 
   struct timeval add = { .tv_sec = 0, .tv_usec = timers[user].usec };
-  timeradd(&timers[user].t0, &add, &res);
-  timers[user].t0 = res;
+  timeradd(&now, &add, &res);
+  timers[user].next = res;
 
   return 1; // Returning a non-zero value makes gpoll return, allowing to check the 'done' variable.
 }
@@ -115,24 +121,16 @@ static int timer_read_callback(int user) {
  */
 static int timer_read_callback(int user) {
 
-  timers[user].t1 = get_time();
+  LARGE_INTEGER now = get_time();
 
-  LONGLONG diff = (timers[user].t1.QuadPart - timers[user].t0.QuadPart) / 10;
+  LONGLONG diff = (now.QuadPart - timers[user].next.QuadPart) / 10;
 
   // Tolerate early firing:
   // on Windows the timer period is rounded to the highest multiple of the timer resolution not higher than the timer period.
 
-  unsigned int percent = abs(diff) * 100 / timers[user].usec;
-  if ((int)percent >= abs(100 - timers[user].tolerance)) {
-    printf("timer is off by more than %u percent: period=%uus, error=%u%%\n", timers[user].tolerance, timers[user].usec, percent);
-    fflush(stdout);
-  }
+  process(user, abs(diff));
 
-  timers[user].sum += abs(diff);
-  ++timers[user].count;
-
-  timers[user].t1.QuadPart += (timers[user].usec * 10);
-  timers[user].t0 = timers[user].t1;
+  timers[user].next.QuadPart = now.QuadPart + timers[user].usec * 10;
 
   return 1; // Returning a non-zero value makes gpoll return, allowing to check the 'done' variable.
 }
@@ -148,14 +146,13 @@ int main(int argc, char* argv[]) {
   for (i = 0; i < sizeof(timers) / sizeof(*timers); ++i) {
 
 #ifndef WIN32
-    gettimeofday(&timers[i].t0, NULL);
+    gettimeofday(&timers[i].next, NULL);
     struct timeval res;
     struct timeval add = { .tv_sec = 0, .tv_usec = timers[i].usec };
-    timeradd(&timers[i].t0, &add, &res);
-    timers[i].t0 = res;
+    timeradd(&timers[i].next, &add, &res);
+    timers[i].next = res;
 #else
-    timers[i].t0 = get_time();
-    timers[i].t0.QuadPart += (timers[i].usec * 10);
+    timers[i].next.QuadPart = get_time().QuadPart + timers[i].usec * 10;
 #endif
 
     timers[i].timer = gtimer_start(i, timers[i].usec, timer_read_callback, timer_close_callback, REGISTER_FUNCTION);
