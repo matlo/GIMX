@@ -46,7 +46,7 @@ static void clear_device(int device) {
 
 static int close_device(int device) {
 
-    if (hid_devices[device].opened >= 0) {
+    if (hid_devices[device].opened != 0) {
         ghid_close(device);
         if (hid_devices[device].driver != NULL) {
             hid_devices[device].driver->close(device);
