@@ -25,8 +25,15 @@
 #define REGISTER_FUNCTION gpoll_register_fd
 #endif
 
-#ifdef WIN32
-LARGE_INTEGER get_time() {
+#ifndef WIN32
+static inline unsigned long long int get_time() {
+
+  struct timeval now;
+  gettimeofday(&now, NULL);
+  return now.tv_sec * 1000000 + now.tv_usec;
+}
+#else
+static inline LARGE_INTEGER get_time() {
 
   FILETIME ftime;
   GetSystemTimeAsFileTime(&ftime);
@@ -39,7 +46,7 @@ static struct {
   unsigned int usec;
   int timer;
 #ifndef WIN32
-  struct timeval next;
+  unsigned long long int next;
 #else
   LARGE_INTEGER next;
 #endif
@@ -48,16 +55,16 @@ static struct {
   unsigned int count;
 } timers[] = {
 #ifndef WIN32
-    { 1000, -1, {0, 0}, 10, 0, 0 },
-    { 2000, -1, {0, 0}, 10, 0, 0 },
-    { 3000, -1, {0, 0}, 10, 0, 0 },
-    { 4000, -1, {0, 0}, 10, 0, 0 },
-    { 5000, -1, {0, 0}, 10, 0, 0 },
-    { 6000, -1, {0, 0}, 10, 0, 0 },
-    { 7000, -1, {0, 0}, 10, 0, 0 },
-    { 8000, -1, {0, 0}, 10, 0, 0 },
-    { 9000, -1, {0, 0}, 10, 0, 0 },
-    { 10000, -1, {0, 0}, 10, 0, 0 },
+    { 1000, -1, 0, 10, 0, 0 },
+    { 2000, -1, 0, 10, 0, 0 },
+    { 3000, -1, 0, 10, 0, 0 },
+    { 4000, -1, 0, 10, 0, 0 },
+    { 5000, -1, 0, 10, 0, 0 },
+    { 6000, -1, 0, 10, 0, 0 },
+    { 7000, -1, 0, 10, 0, 0 },
+    { 8000, -1, 0, 10, 0, 0 },
+    { 9000, -1, 0, 10, 0, 0 },
+    { 10000, -1, 0, 10, 0, 0 },
 #else
     { 1000, -1, {}, 10, 0, 0 },
     { 2000, -1, {}, 10, 0, 0 },
@@ -92,25 +99,21 @@ static inline void process(int timer, unsigned int diff) {
 #ifndef WIN32
 static int timer_read_callback(int user) {
 
-  struct timeval now;
+  unsigned long long int now = get_time();
 
-  gettimeofday(&now, NULL);
+  long long int diff = now - timers[user].next;
 
-  struct timeval res;
-  if(timercmp(&now, &timers[user].next, <)) {
+  if (diff < 0) {
     fprintf(stderr, "error: timer fired too early\n");
     set_done();
     return -1;
   }
 
-  timersub(&now, &timers[user].next, &res);
-  unsigned int diff = res.tv_sec * 1000000 + res.tv_usec;
-
   process(user, diff);
 
-  struct timeval add = { .tv_sec = 0, .tv_usec = timers[user].usec };
-  timeradd(&now, &add, &res);
-  timers[user].next = res;
+  do {
+    timers[user].next += timers[user].usec;
+  } while (now > timers[user].next);
 
   return 1; // Returning a non-zero value makes gpoll return, allowing to check the 'done' variable.
 }
@@ -126,7 +129,8 @@ static int timer_read_callback(int user) {
   LONGLONG diff = (now.QuadPart - timers[user].next.QuadPart) / 10;
 
   // Tolerate early firing:
-  // on Windows the timer period is rounded to the highest multiple of the timer resolution not higher than the timer period.
+  // - the delay between the timer firing and the process scheduling may vary
+  // - on Windows the timer period is rounded to the highest multiple of the timer resolution not higher than the timer period.
 
   process(user, abs(diff));
 
@@ -146,11 +150,7 @@ int main(int argc, char* argv[]) {
   for (i = 0; i < sizeof(timers) / sizeof(*timers); ++i) {
 
 #ifndef WIN32
-    gettimeofday(&timers[i].next, NULL);
-    struct timeval res;
-    struct timeval add = { .tv_sec = 0, .tv_usec = timers[i].usec };
-    timeradd(&timers[i].next, &add, &res);
-    timers[i].next = res;
+    timers[i].next = get_time() + timers[i].usec;
 #else
     timers[i].next.QuadPart = get_time().QuadPart + timers[i].usec * 10;
 #endif
