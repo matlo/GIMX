@@ -80,7 +80,7 @@ static int add_device(const char * path, HANDLE handle, int print) {
 
 static int queue_write(int device, const char * buf, unsigned int count) {
   if(devices[device].write.queue.nb == ASYNC_MAX_WRITE_QUEUE_SIZE) {
-      fprintf(stderr, "%s:%d %s: no space left in write queue for device (%d)\n", __FILE__, __LINE__, __func__, device);
+      fprintf(stderr, "%s:%d %s: no space left in write queue for device (%s)\n", __FILE__, __LINE__, __func__, devices[device].path);
       return -1;
   }
   if(count < devices[device].write.size) {
@@ -186,6 +186,9 @@ int async_close(int device) {
 
     free(devices[device].read.buf);
     free(devices[device].path);
+
+    gpoll_remove_handle(devices[device].read.overlapped.hEvent);
+    gpoll_remove_handle(devices[device].write.overlapped.hEvent);
 
     CloseHandle(devices[device].read.overlapped.hEvent);
     CloseHandle(devices[device].write.overlapped.hEvent);
@@ -470,9 +473,7 @@ int async_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRIT
         ret = fp_register(devices[device].read.overlapped.hEvent, device, read_callback, NULL, close_callback);
     }
     if (ret != -1) {
-        if(fp_write) {
-            ret = fp_register(devices[device].write.overlapped.hEvent, device, NULL, write_callback, close_callback);
-        }
+        ret = fp_register(devices[device].write.overlapped.hEvent, device, NULL, write_callback, close_callback);
     }
 
     if (ret != -1) {
