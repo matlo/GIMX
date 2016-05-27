@@ -143,14 +143,14 @@ static int process(int device, const void * report, unsigned int size) {
     // triggers
 
     if (current->left_trigger != previous->left_trigger) {
-        axis.jaxis.value = current->left_trigger;
+        axis.jaxis.value = (int16_t)current->left_trigger * 32767 / 255;
         event_callback(&axis);
     }
 
     ++axis.jaxis.axis;
 
     if (current->right_trigger != previous->right_trigger) {
-        axis.jaxis.value = current->right_trigger;
+        axis.jaxis.value = (int16_t)current->right_trigger * 32767 / 255;
         event_callback(&axis);
     }
 
