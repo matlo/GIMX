@@ -65,10 +65,6 @@ static int timer_cb(unsigned int nexp) {
                 } else if (ret != -1 && status) {
                     ret = 1;
                 }
-                if (divisor > 1) {
-                    LARGE_INTEGER li = timerres_get_time();
-                    fprintf (stderr, "%u.%06u timer fired %u times...\n", (unsigned int)(li.QuadPart / 10000000), (unsigned int)(li.QuadPart / 10), divisor);
-                }
                 timers[timer].nexp = 0;
             }
         }
@@ -106,9 +102,6 @@ int gtimer_start(int user, unsigned int usec, GPOLL_READ_CALLBACK fp_read, GPOLL
     if (period * timer_resolution != usec * 10) {
         fprintf(stderr, "rounding timer period to %u\n", period * timer_resolution / 10);
     }
-
-    LARGE_INTEGER li = timerres_get_time();
-    li.QuadPart += period;
 
     timers[slot].used = 1;
     timers[slot].user = user;

@@ -18,6 +18,14 @@ static void (*remove_handle)(HANDLE handle);
 static int (*timer_callback)(unsigned int) = NULL;
 static ULONG currentResolution = 0;
 static LARGE_INTEGER last = {};
+static LARGE_INTEGER next = {};
+
+static inline LARGE_INTEGER timerres_get_time() {
+  FILETIME ftime;
+  GetSystemTimeAsFileTime(&ftime);
+  LARGE_INTEGER li = { .HighPart = ftime.dwHighDateTime, .LowPart = ftime.dwLowDateTime };
+  return li;
+}
 
 void timerres_init(void) __attribute__((constructor));
 void timerres_init(void) {
@@ -57,38 +65,39 @@ static int close_callback(int unused) {
     return -1;
 }
 
-LARGE_INTEGER timerres_get_time() {
+#define unlikely(x)    __builtin_expect(!!(x), 0)
 
-  FILETIME ftime;
-  GetSystemTimeAsFileTime(&ftime);
-  LARGE_INTEGER li = { .HighPart = ftime.dwHighDateTime, .LowPart = ftime.dwLowDateTime };
-  return li;
-}
-
+// Warning: preemption may happen anytime, and timer_callback may take some time.
+// Reset the timer until no period elapsed.
 static int read_callback(int unused) {
 
-    LARGE_INTEGER now = timerres_get_time();
+    int ret = 0;
+    unsigned int nexp = (timerres_get_time().QuadPart - last.QuadPart) / currentResolution;
+    do {
+        int lret = timer_callback(nexp);
+        if (lret < 0) {
+            ret = -1;
+        } else if (ret != -1 && lret) {
+            ret = 1;
+        }
+        last.QuadPart += nexp * currentResolution;
+        next.QuadPart += nexp * currentResolution;
+        if (unlikely(!SetWaitableTimer(hTimer, &next, 0, NULL, NULL, FALSE))) {
+            PRINT_ERROR_GETLASTERROR("SetWaitableTimer")
+            return -1;
+        }
+    } while((nexp = (timerres_get_time().QuadPart - last.QuadPart) / currentResolution) > 0);
 
-    LARGE_INTEGER next = { .QuadPart = -(LONGLONG)1 }; // request to be scheduled next timer period
-
-    if (!SetWaitableTimer(hTimer, &next, 0, NULL, NULL, FALSE)) {
-        PRINT_ERROR_GETLASTERROR("SetWaitableTimer")
-    }
-
-    unsigned int nexp = (now.QuadPart - last.QuadPart) / currentResolution;
-
-    last = now;
-
-    return timer_callback(nexp);
+    return ret;
 }
 
 static int start_timer() {
 
     last = timerres_get_time();
 
-    LARGE_INTEGER li = { .QuadPart = -(LONGLONG)1 }; // request to be scheduled next timer period
+    next.QuadPart = last.QuadPart + currentResolution;
 
-    if (!SetWaitableTimer(hTimer, &li, 0, NULL, NULL, FALSE)) {
+    if (!SetWaitableTimer(hTimer, &next, 0, NULL, NULL, FALSE)) {
         PRINT_ERROR_GETLASTERROR("SetWaitableTimer")
         return -1;
     }
@@ -97,7 +106,7 @@ static int start_timer() {
     if (ret < 0) {
         return -1;
     }
-    
+
     return 0;
 }
 
@@ -152,7 +161,7 @@ int timerres_begin(TIMERRES_REGISTER_HANDLE fp_register, TIMERRES_REMOVE_HANDLE 
             ret = -1;
         }
     }
-    
+
     if (ret == -1) {
         timerres_end();
     }
