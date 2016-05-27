@@ -5,19 +5,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <string.h>
-#include <sys/time.h>
 
-#include <ginput.h>
 #include <gpoll.h>
 #include <gtimer.h>
 #include <gprio.h>
 #include "common.h"
-
-#ifdef WIN32
-#include <windows.h>
-#endif
 
 #ifdef WIN32
 #define REGISTER_FUNCTION gpoll_register_handle
@@ -25,58 +18,26 @@
 #define REGISTER_FUNCTION gpoll_register_fd
 #endif
 
-#ifndef WIN32
-static inline unsigned long long int get_time() {
-
-  struct timeval now;
-  gettimeofday(&now, NULL);
-  return now.tv_sec * 1000000 + now.tv_usec;
-}
-#else
-static inline LARGE_INTEGER get_time() {
-
-  FILETIME ftime;
-  GetSystemTimeAsFileTime(&ftime);
-  LARGE_INTEGER li = { .HighPart = ftime.dwHighDateTime, .LowPart = ftime.dwLowDateTime };
-  return li;
-}
-#endif
+static int slices[] = { 10, 25, 50, 100, 200 };
 
 static struct {
   unsigned int usec;
   int timer;
-#ifndef WIN32
   unsigned long long int next;
-#else
-  LARGE_INTEGER next;
-#endif
-  unsigned char tolerance;
   unsigned int sum;
   unsigned int count;
+  unsigned int slices[sizeof(slices) / sizeof(*slices) + 1];
 } timers[] = {
-#ifndef WIN32
-    { 1000, -1, 0, 10, 0, 0 },
-    { 2000, -1, 0, 10, 0, 0 },
-    { 3000, -1, 0, 10, 0, 0 },
-    { 4000, -1, 0, 10, 0, 0 },
-    { 5000, -1, 0, 10, 0, 0 },
-    { 6000, -1, 0, 10, 0, 0 },
-    { 7000, -1, 0, 10, 0, 0 },
-    { 8000, -1, 0, 10, 0, 0 },
-    { 9000, -1, 0, 10, 0, 0 },
-    { 10000, -1, 0, 10, 0, 0 },
-#else
-    { 1000, -1, {}, 10, 0, 0 },
-    { 2000, -1, {}, 10, 0, 0 },
-    { 3000, -1, {}, 10, 0, 0 },
-    { 4000, -1, {}, 10, 0, 0 },
-    { 5000, -1, {}, 10, 0, 0 },
-    { 6000, -1, {}, 10, 0, 0 },
-    { 7000, -1, {}, 10, 0, 0 },
-    { 8000, -1, {}, 10, 0, 0 },
-    { 9000, -1, {}, 10, 0, 0 },
-    { 10000, -1, {}, 10, 0, 0 },
-#endif
+    { 1000, -1, 0, 0, 0, {} },
+    { 2000, -1, 0, 0, 0, {} },
+    { 3000, -1, 0, 0, 0, {} },
+    { 4000, -1, 0, 0, 0, {} },
+    { 5000, -1, 0, 0, 0, {} },
+    { 6000, -1, 0, 0, 0, {} },
+    { 7000, -1, 0, 0, 0, {} },
+    { 8000, -1, 0, 0, 0, {} },
+    { 9000, -1, 0, 0, 0, {} },
+    { 10000, -1, 0, 0, 0, {} },
 };
 
 static int timer_close_callback(int user) {
@@ -84,61 +45,44 @@ static int timer_close_callback(int user) {
   return 1;
 }
 
-static inline void process(int timer, unsigned int diff) {
+static inline void process(int timer, long long int diff) {
 
-  unsigned int percent = diff * 100 / timers[timer].usec;
-  if ((int)percent >= timers[timer].tolerance) {
-    fprintf(stderr, "timer is off by more than %u percent: period=%uus, error=%u%%\n", timers[timer].tolerance, timers[timer].usec, percent);
-    fflush(stderr);
+  int percent = diff * 100 / timers[timer].usec;
+
+  unsigned int i;
+  for (i = 0; i < sizeof(slices) / sizeof(*slices); ++i) {
+      if (percent <= slices[i]) {
+          break;
+      }
   }
+  timers[timer].slices[i]++;
 
   timers[timer].sum += diff;
   ++timers[timer].count;
 }
 
-#ifndef WIN32
 static int timer_read_callback(int user) {
 
-  unsigned long long int now = get_time();
-
-  long long int diff = now - timers[user].next;
-
-  if (diff < 0) {
-    fprintf(stderr, "error: timer fired too early\n");
-    set_done();
-    return -1;
-  }
-
-  process(user, diff);
-
-  do {
-    timers[user].next += timers[user].usec;
-  } while (now > timers[user].next);
-
-  return 1; // Returning a non-zero value makes gpoll return, allowing to check the 'done' variable.
-}
-#else
-/*
- * Timers on Windows are not so accurate and may drift.
- * => calculate the next timeout from now.
- */
-static int timer_read_callback(int user) {
-
-  LARGE_INTEGER now = get_time();
-
-  LONGLONG diff = (now.QuadPart - timers[user].next.QuadPart) / 10;
+  long long int diff = get_time() - timers[user].next;
 
   // Tolerate early firing:
   // - the delay between the timer firing and the process scheduling may vary
   // - on Windows the timer period is rounded to the highest multiple of the timer resolution not higher than the timer period.
 
+  diff = abs(diff);
+
   process(user, abs(diff));
 
-  timers[user].next.QuadPart = now.QuadPart + timers[user].usec * 10;
+#ifdef WIN32
+  timers[user].next = get_time() + timers[user].usec;
+#else
+  do {
+    timers[user].next += timers[user].usec;
+  } while (timers[user].next <= get_time());
+#endif
 
   return 1; // Returning a non-zero value makes gpoll return, allowing to check the 'done' variable.
 }
-#endif
 
 int main(int argc, char* argv[]) {
 
@@ -149,17 +93,13 @@ int main(int argc, char* argv[]) {
   unsigned int i;
   for (i = 0; i < sizeof(timers) / sizeof(*timers); ++i) {
 
-#ifndef WIN32
-    timers[i].next = get_time() + timers[i].usec;
-#else
-    timers[i].next.QuadPart = get_time().QuadPart + timers[i].usec * 10;
-#endif
-
     timers[i].timer = gtimer_start(i, timers[i].usec, timer_read_callback, timer_close_callback, REGISTER_FUNCTION);
     if (timers[i].timer < 0) {
       set_done();
       break;
     }
+
+    timers[i].next = get_time() + timers[i].usec;
   }
 
   while(!is_done()) {
@@ -172,10 +112,24 @@ int main(int argc, char* argv[]) {
 
   fprintf(stderr, "Exiting\n");
 
-  for (i = 0; i < sizeof(timers) / sizeof(*timers); ++i) {
-    if (timers[i].timer >= 0 && timers[i].usec > 0 && timers[i].count > 0) {
-      printf("timer: %d, period: %uus, count=%u, error average: %u%%\n", timers[i].timer, timers[i].usec, timers[i].count, timers[i].sum / timers[i].count * 100 / timers[i].usec);
+  printf("timer\tperiod\tcount\tdiff");
+
+  unsigned int j;
+  for (j = 0; j < sizeof(slices) / sizeof(*slices); ++j) {
+    if (j == 0) {
+      printf("\t0-%d", slices[j]);
+    } else {
+      printf("\t%d-%d", slices[j - 1], slices[j]);
     }
+  }
+  printf("\t>%d\n", slices[j - 1]);
+
+  for (i = 0; i < sizeof(timers) / sizeof(*timers); ++i) {
+    printf("%d\t%uus\t%u\t%u%%", timers[i].timer, timers[i].usec, timers[i].count, timers[i].sum / timers[i].count * 100 / timers[i].usec);
+    for (j = 0; j < sizeof(timers[i].slices) / sizeof(*timers[i].slices); ++j) {
+      printf("\t%d", timers[i].slices[j]);
+    }
+    printf("\n");
   }
 
   return 0;

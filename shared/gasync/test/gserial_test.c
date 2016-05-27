@@ -41,12 +41,11 @@ static unsigned short packet_size = 0;
 
 static unsigned int verbose = 0;
 
-static struct timeval t0, t1;
+static unsigned long long int t0, t1;
+static unsigned long long int * tRead = NULL;
+static unsigned long long int wread = 0;
 
-static unsigned int * tRead = NULL;
-static unsigned int wread = 0;
-
-void results(unsigned int * tdiff, unsigned int cpt) {
+void results(unsigned long long int * tdiff, unsigned int cpt) {
   unsigned int sum = 0;
   unsigned int average;
   unsigned int temp = 0;
@@ -128,13 +127,14 @@ int serial_read(int user, const void * buf, int status) {
   memcpy(result + read, buf, status);
   read += status;
 
-  gserial_set_read_size(serial, packet_size - read);
-
   if (read < packet_size) {
+    gserial_set_read_size(serial, packet_size - read);
     return 0;
   }
 
-  gettimeofday(&t1, NULL );
+  t1 = get_time();
+
+  gserial_set_read_size(serial, packet_size);
 
   int ret = 0;
 
@@ -151,7 +151,7 @@ int serial_read(int user, const void * buf, int status) {
       packet[i]++;
     }
 
-    tRead[count] = (t1.tv_sec * 1000000 + t1.tv_usec) - (t0.tv_sec * 1000000 + t0.tv_usec);
+    tRead[count] = t1 - t0;
 
     if (tRead[count] > wread) {
       wread = tRead[count];
@@ -164,12 +164,12 @@ int serial_read(int user, const void * buf, int status) {
 
     } else {
 
+      t0 = get_time();
+
       int status = gserial_write(serial, packet, packet_size);
       if (status < 0) {
         set_done();
       }
-
-      gettimeofday(&t0, NULL );
     }
 
     read = 0;
@@ -213,30 +213,29 @@ int main(int argc, char* argv[]) {
     return -1;
   }
 
-  serial = gserial_open(port, baudrate);
-  if (serial < 0) {
-    return -1;
-  }
-
-  gserial_register(serial, 42, serial_read, NULL, serial_close, REGISTER_FUNCTION);
-
-  gserial_set_read_size(serial, packet_size);
-
-  int ret = gserial_write(serial, packet, packet_size);
-  if (ret < 0) {
-    set_done();
-  }
-
-  gettimeofday(&t0, NULL );
-
   // start a timer to periodically check the 'done' variable
   int timer = gtimer_start(42, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
   if (timer < 0) {
     set_done();
   }
 
-  while (!is_done()) {
+  serial = gserial_open(port, baudrate);
+  if (serial < 0) {
+    return -1;
+  }
 
+  gserial_set_read_size(serial, packet_size);
+
+  gserial_register(serial, 42, serial_read, NULL, serial_close, REGISTER_FUNCTION);
+
+  t0 = get_time();
+  
+  int ret = gserial_write(serial, packet, packet_size);
+  if (ret < 0) {
+    set_done();
+  }
+
+  while (!is_done()) {
     gpoll();
   }
 
