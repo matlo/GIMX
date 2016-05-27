@@ -26,7 +26,7 @@ int gprio() {
     PRINT_ERROR_GETLASTERROR("SetThreadPriority")
     return -1;
   }
-  priority = GetThreadPriority(GetCurrentProcess());
+  priority = GetThreadPriority(GetCurrentThread());
   if (priority == 0) {
     PRINT_ERROR_GETLASTERROR("GetPriorityClass")
     return -1;
