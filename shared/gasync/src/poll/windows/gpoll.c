@@ -172,9 +172,9 @@ void gpoll_remove_fd(int fd) {
   }
 }
 
-static int fill_handles(HANDLE handles[]) {
+static unsigned int fill_handles(HANDLE handles[]) {
 
-  int count = 0;
+  unsigned int count = 0;
   unsigned int i;
   for (i = 0; i < MAX_SOURCES; ++i) {
     if (sources[i].fp_read || sources[i].fp_write) {
@@ -193,7 +193,7 @@ void gpoll() {
 
   do {
     HANDLE handles[max_source + 1];
-    int count = fill_handles(handles);
+    DWORD count = fill_handles(handles);
 
     unsigned int dwWakeMask = 0;
 
@@ -205,49 +205,68 @@ void gpoll() {
 
     if (result == WAIT_FAILED) {
       PRINT_ERROR_GETLASTERROR("MsgWaitForMultipleObjects")
-    } else if (result == WAIT_OBJECT_0 + count) {
-      if(rawinput_callback != NULL) {
+      continue;
+    }
+
+    /*
+     * Check the state of every object so as to prevent starvation.
+     */
+
+    if(rawinput_callback != NULL) {
+      if (GetQueueStatus(QS_RAWINPUT)) {
         rawinput_callback();
       }
-    } else {
-      for (i = 0; i <= max_source; ++i) {
-        if (sources[i].handle == handles[result]) {
-          if (sources[i].fd >= 0) {
-            WSANETWORKEVENTS NetworkEvents;
-            /*
-             * Network source
-             */
-            if (WSAEnumNetworkEvents(sources[i].fd, handles[result], &NetworkEvents)) {
-              PRINT_ERROR_GETLASTERROR("WSAEnumNetworkEvents")
-              sources[i].fp_cleanup(sources[i].user);
-            } else {
-              if (NetworkEvents.lNetworkEvents & FD_READ) {
-                if (NetworkEvents.iErrorCode[FD_READ_BIT]) {
-                  PRINT_ERROR_OTHER("iErrorCode[FD_READ_BIT] is set");
-                  sources[i].fp_cleanup(sources[i].user);
-                } else {
-                  if (sources[i].fp_read(sources[i].user)) {
-                    done = 1;
-                  }
-                }
-              }
-            }
+    }
+
+    for (i = 0; i < MAX_SOURCES; ++i) {
+      if (sources[i].fp_read == NULL && sources[i].fp_write == NULL) {
+        continue;
+      }
+      if (result >= count || sources[i].handle != handles[result]) {
+        /*
+         * Check every object except the one that has been signaled.
+         */
+        DWORD lresult = WaitForSingleObject(sources[i].handle, 0);
+        if (lresult == WAIT_FAILED) {
+          PRINT_ERROR_GETLASTERROR("WaitForSingleObject")
+          continue;
+        } else if (lresult != WAIT_OBJECT_0) {
+          continue;
+        }
+      }
+      if (sources[i].fd >= 0) {
+        WSANETWORKEVENTS NetworkEvents;
+        /*
+         * Network source
+         */
+        if (WSAEnumNetworkEvents(sources[i].fd, sources[i].handle, &NetworkEvents)) {
+          PRINT_ERROR_GETLASTERROR("WSAEnumNetworkEvents")
+          sources[i].fp_cleanup(sources[i].user);
+        } else {
+        if (NetworkEvents.lNetworkEvents & FD_READ) {
+          if (NetworkEvents.iErrorCode[FD_READ_BIT]) {
+            PRINT_ERROR_OTHER("iErrorCode[FD_READ_BIT] is set");
+            sources[i].fp_cleanup(sources[i].user);
           } else {
-            /*
-             * Other sources (timers, COM port, HID...)
-             */
-            if (sources[i].fp_read != NULL) {
-              if (sources[i].fp_read(sources[i].user)) {
-                done = 1;
-              }
-            }
-            if (sources[i].fp_write != NULL) {
-              if (sources[i].fp_write(sources[i].user)) {
-                done = 1;
-              }
+            if (sources[i].fp_read(sources[i].user)) {
+              done = 1;
             }
           }
-          break;
+        }
+        }
+      } else {
+        /*
+         * Other sources (timers, COM port, HID...)
+         */
+        if (sources[i].fp_read != NULL) {
+          if (sources[i].fp_read(sources[i].user)) {
+            done = 1;
+          }
+        }
+        if (sources[i].fp_write != NULL) {
+          if (sources[i].fp_write(sources[i].user)) {
+            done = 1;
+          }
         }
       }
     }
