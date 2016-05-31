@@ -27,6 +27,8 @@
 #define PACKED __attribute__((packed))
 #endif
 
+#define INVERT(VALUE) (VALUE == SHRT_MIN ? SHRT_MAX : -VALUE)
+
 typedef struct PACKED {
     uint64_t : 16;
     uint16_t status;
@@ -51,7 +53,7 @@ typedef struct PACKED {
 static struct {
     int opened;
     int joystick;
-    unsigned char prev[HID_REPORT_SIZE];
+    s_report previous;
 } hid_devices[HIDINPUT_MAX_DEVICES];
 
 static s_hidinput_ids ids[] = {
@@ -101,7 +103,7 @@ static int process(int device, const void * report, unsigned int size) {
     }
 
     const s_report * current = report;
-    const s_report * previous = (s_report *)hid_devices[device].prev;
+    const s_report * previous = (s_report *)&hid_devices[device].previous;
 
     if (current->status != htons(0x013c)) {
         return -1;
@@ -156,9 +158,12 @@ static int process(int device, const void * report, unsigned int size) {
 
     ++axis.jaxis.axis;
 
+    uint8_t left_active_current = current->buttons[2] & 0x08;
+    uint8_t left_active_previous = previous->buttons[2] & 0x08;
+
     // left pad (active when pad is touched)
 
-    if ((current->buttons[2] & 0x08)) { // pad touched
+    if (left_active_current || left_active_previous) {
         if (current->left_x != previous->left_x) {
             axis.jaxis.value = current->left_x;
             event_callback(&axis);
@@ -167,9 +172,9 @@ static int process(int device, const void * report, unsigned int size) {
 
     ++axis.jaxis.axis;
 
-    if ((current->buttons[2] & 0x08)) { // pad touched
+    if (left_active_current || left_active_previous) {
         if (current->left_y != previous->left_y) {
-            axis.jaxis.value = current->left_y;
+            axis.jaxis.value = INVERT(current->left_y);
             event_callback(&axis);
         }
     }
@@ -186,7 +191,7 @@ static int process(int device, const void * report, unsigned int size) {
     ++axis.jaxis.axis;
 
     if (current->right_y != previous->right_y) {
-        axis.jaxis.value = current->right_y;
+        axis.jaxis.value = INVERT(current->right_y);
         event_callback(&axis);
     }
 
@@ -194,23 +199,31 @@ static int process(int device, const void * report, unsigned int size) {
 
     // stick (active when pad is not touched)
 
-    if (!(current->buttons[2] & 0x08)) {
+    if (!left_active_current) {
         if (current->left_x != previous->left_x) {
             axis.jaxis.value = current->left_x;
             event_callback(&axis);
         }
+    } else if(!left_active_previous) {
+        axis.jaxis.value = 0;
+        event_callback(&axis);
     }
 
     ++axis.jaxis.axis;
 
-    if (!(current->buttons[2] & 0x08)) {
+    if (!left_active_current) {
         if (current->left_y != previous->left_y) {
-            axis.jaxis.value = current->left_y;
+            axis.jaxis.value = INVERT(current->left_y);
             event_callback(&axis);
         }
+    } else if(!left_active_previous) {
+        axis.jaxis.value = 0;
+        event_callback(&axis);
     }
 
     ++axis.jaxis.axis;
+
+    hid_devices[device].previous = *current;
 
     return 0;
 }
