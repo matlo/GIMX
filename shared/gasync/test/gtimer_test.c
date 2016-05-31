@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <getopt.h>
 
 #include <gpoll.h>
 #include <gtimer.h>
@@ -17,6 +18,8 @@
 #else
 #define REGISTER_FUNCTION gpoll_register_fd
 #endif
+
+static unsigned int samples = 0;
 
 static int slices[] = { 10, 25, 50, 100, 200 };
 
@@ -40,6 +43,30 @@ static struct {
     { 10000, -1, 0, 0, 0, {} },
 };
 
+static void usage() {
+  fprintf(stderr, "Usage: ./gtimer_test [-n samples]\n");
+  exit(EXIT_FAILURE);
+}
+
+/*
+ * Reads command-line arguments.
+ */
+static int read_args(int argc, char* argv[]) {
+
+  int opt;
+  while ((opt = getopt(argc, argv, "n:")) != -1) {
+    switch (opt) {
+    case 'n':
+      samples = atoi(optarg);
+      break;
+    default: /* '?' */
+      usage();
+      break;
+    }
+  }
+  return 0;
+}
+
 static int timer_close_callback(int user) {
   set_done();
   return 1;
@@ -59,6 +86,10 @@ static inline void process(int timer, long long int diff) {
 
   timers[timer].sum += diff;
   ++timers[timer].count;
+
+  if (timer == sizeof(timers) / sizeof(*timers) - 1 && timers[timer].count == samples) {
+    set_done();
+  }
 }
 
 static int timer_read_callback(int user) {
@@ -87,6 +118,8 @@ static int timer_read_callback(int user) {
 int main(int argc, char* argv[]) {
 
   setup_handlers();
+
+  read_args(argc, argv);
 
   gprio();
 
