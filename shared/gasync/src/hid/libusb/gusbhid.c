@@ -594,14 +594,14 @@ static int claim_device(int device, libusb_device * dev, struct libusb_device_de
   return 0;
 }
 
-s_hid_dev * gusbhid_enumerate(unsigned short vendor, unsigned short product) {
+struct ghid_device * gusbhid_enumerate(unsigned short vendor, unsigned short product) {
 
-  s_hid_dev * hid_devs = NULL;
-  unsigned int nb_hid_devs = 0;
+  struct ghid_device * devs = NULL;
+  struct ghid_device * last = NULL;
 
   int ret = -1;
 
-  static libusb_device** devs = NULL;
+  static libusb_device** usb_devs = NULL;
   static ssize_t cnt = 0;
   int dev_i;
 
@@ -610,7 +610,7 @@ s_hid_dev * gusbhid_enumerate(unsigned short vendor, unsigned short product) {
     return NULL;
   }
 
-  cnt = libusb_get_device_list(ctx, &devs);
+  cnt = libusb_get_device_list(ctx, &usb_devs);
   if (cnt < 0) {
     PRINT_ERROR_LIBUSB("libusb_get_device_list", cnt)
     return NULL;
@@ -618,7 +618,7 @@ s_hid_dev * gusbhid_enumerate(unsigned short vendor, unsigned short product) {
 
   for (dev_i = 0; dev_i < cnt; ++dev_i) {
     struct libusb_device_descriptor desc;
-    ret = libusb_get_device_descriptor(devs[dev_i], &desc);
+    ret = libusb_get_device_descriptor(usb_devs[dev_i], &desc);
     if (!ret) {
       if (vendor) {
         if (desc.idVendor != vendor) {
@@ -632,12 +632,12 @@ s_hid_dev * gusbhid_enumerate(unsigned short vendor, unsigned short product) {
       }
 
       unsigned int config_nb;
-      s_config * configs = probe_device(devs[dev_i], &desc, &config_nb);
+      s_config * configs = probe_device(usb_devs[dev_i], &desc, &config_nb);
 
       unsigned int config_i;
       for (config_i = 0; config_i < config_nb; ++config_i) {
 
-          const char * spath = make_path(devs[dev_i], configs[config_i].interface.number, configs[config_i].interface.alternateSetting);
+          const char * spath = make_path(usb_devs[dev_i], configs[config_i].interface.number, configs[config_i].interface.alternateSetting);
           if (spath == NULL) {
             continue;
           }
@@ -648,50 +648,49 @@ s_hid_dev * gusbhid_enumerate(unsigned short vendor, unsigned short product) {
             continue;
           }
 
-          void * ptr = realloc(hid_devs, (nb_hid_devs + 1) * sizeof(*hid_devs));
+          void * ptr = malloc(sizeof(*devs));
           if (ptr == NULL) {
-            PRINT_ERROR_ALLOC_FAILED("realloc")
+            PRINT_ERROR_ALLOC_FAILED("malloc")
             free(path);
             continue;
           }
 
-          hid_devs = ptr;
+          struct ghid_device * dev = ptr;
 
-          if (nb_hid_devs > 0) {
-            hid_devs[nb_hid_devs - 1].next = 1;
+          dev->vendor_id = desc.idVendor;
+          dev->product_id = desc.idProduct;
+          dev->bcdDevice = desc.bcdDevice;
+          dev->interface_number = configs[config_i].interface.number;
+          dev->path = path;
+          dev->next = NULL;
+
+          if (devs == NULL) {
+              devs = dev;
+          } else {
+              last->next = dev;
           }
 
-          hid_devs[nb_hid_devs].path = path;
-          hid_devs[nb_hid_devs].vendor_id = desc.idVendor;
-          hid_devs[nb_hid_devs].product_id = desc.idProduct;
-          hid_devs[nb_hid_devs].bcdDevice = desc.bcdDevice;
-          hid_devs[nb_hid_devs].interface_number = configs[config_i].interface.number;
-          hid_devs[nb_hid_devs].next = 0;
-
-          ++nb_hid_devs;
+          last = dev;
       }
 
       free(configs);
     }
   }
 
-  libusb_free_device_list(devs, 1);
+  libusb_free_device_list(usb_devs, 1);
 
-  return hid_devs;
+  return devs;
 }
 
-void gusbhid_free_enumeration(s_hid_dev * hid_devs) {
+void gusbhid_free_enumeration(struct ghid_device * devs) {
 
-  s_hid_dev * current;
-  for (current = hid_devs; current != NULL; ++current) {
-
-    free(current->path);
-
-    if (current->next == 0) {
-      break;
+    struct ghid_device * current = devs;
+    while (current != NULL) {
+        struct ghid_device * next = current->next;
+        free(current->path);
+        free(current);
+        current = next;
     }
-  }
-  free(hid_devs);
 }
 
 int gusbhid_open_ids(unsigned short vendor, unsigned short product) {

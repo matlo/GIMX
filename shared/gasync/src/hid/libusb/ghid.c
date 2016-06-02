@@ -41,7 +41,7 @@ int ghid_open_ids(unsigned short vendor, unsigned short product) {
  *
  * \return the hid devices
  */
-s_hid_dev * ghid_enumerate(unsigned short vendor, unsigned short product) {
+struct ghid_device * ghid_enumerate(unsigned short vendor, unsigned short product) {
 
     return gusbhid_enumerate(vendor, product);
 }
@@ -51,7 +51,7 @@ s_hid_dev * ghid_enumerate(unsigned short vendor, unsigned short product) {
  *
  * \param hid_devs  the hid devices returned by hidasync_enumerate
  */
-void ghid_free_enumeration(s_hid_dev * hid_devs) {
+void ghid_free_enumeration(struct ghid_device * hid_devs) {
 
     gusbhid_free_enumeration(hid_devs);
 }

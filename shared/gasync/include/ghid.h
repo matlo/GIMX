@@ -14,19 +14,19 @@
 extern "C" {
 #endif
 
-typedef struct {
+struct ghid_device {
   unsigned short vendor_id;
   unsigned short product_id;
   unsigned short bcdDevice;
   int interface_number;
   char * path;
-  int next;
-} s_hid_dev;
+  struct ghid_device * next;
+};
 
 int ghid_open_path(const char * device_path);
 int ghid_open_ids(unsigned short vendor, unsigned short product);
-s_hid_dev * ghid_enumerate(unsigned short vendor, unsigned short product);
-void ghid_free_enumeration(s_hid_dev * devs);
+struct ghid_device * ghid_enumerate(unsigned short vendor, unsigned short product);
+void ghid_free_enumeration(struct ghid_device * devs);
 const s_hid_info * ghid_get_hid_info(int device);
 int ghid_close(int device);
 int ghid_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout);

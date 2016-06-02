@@ -124,9 +124,9 @@ int hidinput_init(int(*callback)(GE_Event*)) {
         drivers[driver]->init(callback);
     }
 
-    s_hid_dev * hid_devs = ghid_enumerate(0x0000, 0x0000);
-    s_hid_dev * current;
-    for (current = hid_devs; current != NULL; ++current) {
+    struct ghid_device * hid_devs = ghid_enumerate(0x0000, 0x0000);
+    struct ghid_device * current;
+    for (current = hid_devs; current != NULL; current = current->next) {
         for (driver = 0; driver < nb_drivers; ++driver) {
             unsigned int id;
             for (id = 0; drivers[driver]->ids[id].vendor_id != 0; ++id) {
@@ -144,9 +144,6 @@ int hidinput_init(int(*callback)(GE_Event*)) {
                     }
                 }
             }
-        }
-        if (current->next == 0) {
-            break;
         }
     }
     ghid_free_enumeration(hid_devs);

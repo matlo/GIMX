@@ -175,10 +175,10 @@ int8_t gppcprog_connect(int id, const char * path)
   {
     // Connect to any GPP/Cronus/Titan
 
-    s_hid_dev *devs, *cur_dev;
+    struct ghid_device *devs, *cur_dev;
 
     devs = ghid_enumerate(0x0000, 0x0000);
-    for(cur_dev = devs; cur_dev != NULL; ++cur_dev)
+    for(cur_dev = devs; cur_dev != NULL; cur_dev = cur_dev->next)
     {
       unsigned int i;
       for(i = 0; i < sizeof(usb_ids) / sizeof(*usb_ids); ++i)
@@ -198,9 +198,6 @@ int8_t gppcprog_connect(int id, const char * path)
       if(gpp_devices[id].device >= 0)
       {
         break;
-      }
-      if(cur_dev->next == 0) {
-          break;
       }
     }
     ghid_free_enumeration(devs);

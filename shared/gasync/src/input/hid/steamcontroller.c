@@ -228,7 +228,7 @@ static int process(int device, const void * report, unsigned int size) {
     return 0;
 }
 
-static int open(const s_hid_dev * dev) {
+static int open(const struct ghid_device * dev) {
 
     int device = ghid_open_path(dev->path);
     if (device < 0) {

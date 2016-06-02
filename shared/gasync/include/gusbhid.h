@@ -9,8 +9,8 @@
 #include "ghid.h"
 
 int gusbhid_open_ids(unsigned short vendor, unsigned short product);
-s_hid_dev * gusbhid_enumerate(unsigned short vendor, unsigned short product);
-void gusbhid_free_enumeration(s_hid_dev * hid_devs);
+struct ghid_device * gusbhid_enumerate(unsigned short vendor, unsigned short product);
+void gusbhid_free_enumeration(struct ghid_device * hid_devs);
 int gusbhid_open_path(const char * path);
 const s_hid_info * gusbhid_get_hid_info(int device);
 int gusbhid_close(int device);

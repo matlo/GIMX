@@ -456,7 +456,7 @@ void launcherFrame::readSerialPorts()
 
 void launcherFrame::readHidPorts()
 {
-  s_hid_dev *devs, *cur_dev;
+  struct ghid_device *devs, *cur_dev;
 
   wxString previous = OutputChoice->GetStringSelection();
 
@@ -467,7 +467,7 @@ void launcherFrame::readHidPorts()
   const GCAPI_USB_IDS * usb_ids = gpppcprog_get_ids(&nb_usb_ids);
 
   devs = ghid_enumerate(0x0000, 0x0000);
-  for(cur_dev = devs; cur_dev != NULL; ++cur_dev)
+  for(cur_dev = devs; cur_dev != NULL; cur_dev = cur_dev->next)
   {
     wxString device;
     for(unsigned int i = 0; i < nb_usb_ids; ++i)
@@ -485,9 +485,6 @@ void launcherFrame::readHidPorts()
       hids.Add(wxString(cur_dev->path, wxConvUTF8));
       device.append(wxT(")"));
       OutputChoice->SetSelection(OutputChoice->Append(device));
-    }
-    if(cur_dev->next == 0) {
-        break;
     }
   }
   ghid_free_enumeration(devs);

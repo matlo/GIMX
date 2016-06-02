@@ -54,10 +54,9 @@ int open_path(const char * path, int print) {
   return device;
 }
 
-s_hid_dev * ghid_enumerate(unsigned short vendor, unsigned short product) {
+struct ghid_device * ghid_enumerate(unsigned short vendor, unsigned short product) {
 
-  s_hid_dev * hid_devs = NULL;
-  unsigned int nb_hid_devs = 0;
+  struct ghid_device * devs = NULL;
 
   GUID guid;
 	HidD_GetHidGuid(&guid);
@@ -110,58 +109,69 @@ s_hid_dev * ghid_enumerate(unsigned short vendor, unsigned short product) {
 
 				if(path == NULL) {
 					PRINT_ERROR_OTHER("strdup failed")
-	        async_close(device);
+	                async_close(device);
 					continue;
 				}
 
-				void * ptr = realloc(hid_devs, (nb_hid_devs + 1) * sizeof(*hid_devs));
+		        void * ptr = malloc(sizeof(*devs));
+		        if (ptr == NULL) {
+		            PRINT_ERROR_ALLOC_FAILED("malloc")
+		            free(path);
+                    async_close(device);
+		            continue;
+		        }
 
-				if(ptr == NULL) {
-					PRINT_ERROR_ALLOC_FAILED("realloc")
-					free(path);
-					async_close(device);
-					continue;
-				}
+		        struct ghid_device * dev = ptr;
 
-				hid_devs = ptr;
-
-				if(nb_hid_devs > 0) {
-					hid_devs[nb_hid_devs - 1].next = 1;
-				}
-
-				hid_devs[nb_hid_devs].path = path;
-				hid_devs[nb_hid_devs].vendor_id = devices[device].hidInfo.vendor_id;
-				hid_devs[nb_hid_devs].product_id = devices[device].hidInfo.product_id;
-                hid_devs[nb_hid_devs].bcdDevice = devices[device].hidInfo.bcdDevice;
-                hid_devs[nb_hid_devs].interface_number = -1;
+		        dev->path = path;
+                dev->vendor_id = devices[device].hidInfo.vendor_id;
+                dev->product_id = devices[device].hidInfo.product_id;
+                dev->bcdDevice = devices[device].hidInfo.bcdDevice;
+                dev->interface_number = -1;
                 char * interface = strstr(path, "&mi_");
                 if (interface != NULL) {
-                    sscanf(interface + 4, "%02x", &hid_devs[nb_hid_devs].interface_number);
+                    sscanf(interface + 4, "%02x", &dev->interface_number);
                 }
-				hid_devs[nb_hid_devs].next = 0;
+                dev->next = NULL;
 
-				++nb_hid_devs;
+		        struct ghid_device * current;
+		        struct ghid_device * previous = NULL;
+		        for (current = devs; current != NULL; current = current->next) {
+		            if (strcmp(dev->path, current->path) < 0) {
+		                if (previous != NULL) {
+		                    previous->next = dev;
+		                }
+		                dev->next = current;
+		                break;
+		            }
+		            previous = current;
+		        }
+
+		        if (current == NULL) {
+		            if (devs == NULL) {
+		                devs = dev;
+		            } else {
+		                previous->next = dev;
+		            }
+		        }
 
 				async_close(device);
 			}
 		}
 	}
 
-  return hid_devs;
+  return devs;
 }
 
-void ghid_free_enumeration(s_hid_dev * hid_devs) {
+void ghid_free_enumeration(struct ghid_device * devs) {
 
-  s_hid_dev * current;
-  for(current = hid_devs; current != NULL; ++current) {
-
-      free(current->path);
-
-      if(current->next == 0) {
-          break;
-      }
-  }
-  free(hid_devs);
+    struct ghid_device * current = devs;
+    while (current != NULL) {
+        struct ghid_device * next = current->next;
+        free(current->path);
+        free(current);
+        current = next;
+    }
 }
 
 /*

@@ -173,26 +173,28 @@ char * hid_select() {
 
   char * path = NULL;
 
-  s_hid_dev * hid_devs = ghid_enumerate(0x0000, 0x0000);
+  struct ghid_device * hid_devs = ghid_enumerate(0x0000, 0x0000);
   if (hid_devs == NULL) {
     fprintf(stderr, "No HID device detected!\n");
     return NULL;
   }
   printf("Available HID devices:\n");
   unsigned int index = 0;
-  s_hid_dev * current;
-  for (current = hid_devs; current != NULL; ++current) {
+  struct ghid_device * current;
+  for (current = hid_devs; current != NULL; current = current->next) {
     printf("%d VID 0x%04x PID 0x%04x PATH %s\n", index++, current->vendor_id, current->product_id, current->path);
-    if (current->next == 0) {
-      break;
-    }
   }
 
   printf("Select the HID device number: ");
   fflush(stdout);
   unsigned int choice = UINT_MAX;
   if (scanf("%d", &choice) == 1 && choice < index) {
-    path = strdup(hid_devs[choice].path);
+    current = hid_devs;
+    while(choice > 0) {
+        current = current->next;
+        --choice;
+    }
+    path = strdup(current->path);
     if(path == NULL) {
       fprintf(stderr, "can't duplicate path.\n");
     }

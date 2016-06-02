@@ -548,7 +548,7 @@ static s_native_mode * get_native_mode_command(unsigned short product, unsigned 
   return NULL;
 }
 
-static int send_native_mode(const s_hid_dev * dev, const s_native_mode * native_mode) {
+static int send_native_mode(const struct ghid_device * dev, const s_native_mode * native_mode) {
 
     int device = ghid_open_path(dev->path);
     if (device < 0) {
@@ -566,7 +566,7 @@ static int send_native_mode(const s_hid_dev * dev, const s_native_mode * native_
     return ret;
 }
 
-static int check_native_mode(const s_hid_dev * dev, unsigned short product_id) {
+static int check_native_mode(const struct ghid_device * dev, unsigned short product_id) {
 
     // wait up to 5 seconds for the device to enable native mode
     int reset = 0;
@@ -578,15 +578,12 @@ static int check_native_mode(const s_hid_dev * dev, unsigned short product_id) {
             usleep(100000);
         }
         ++cpt;
-        s_hid_dev * hid_devs = ghid_enumerate(USB_VENDOR_ID_LOGITECH, product_id);
-        s_hid_dev * current;
-        for (current = hid_devs; current != NULL && reset == 0; ++current) {
+        struct ghid_device * hid_devs = ghid_enumerate(USB_VENDOR_ID_LOGITECH, product_id);
+        struct ghid_device * current;
+        for (current = hid_devs; current != NULL && reset == 0; current = current->next) {
             if (strcmp(current->path, dev->path) == 0) {
                 printf("native mode enabled for HID device %s (PID=%04x)\n", dev->path, product_id);
                 reset = 1;
-            }
-            if (current->next == 0) {
-                break;
             }
         }
         ghid_free_enumeration(hid_devs);
@@ -596,7 +593,7 @@ static int check_native_mode(const s_hid_dev * dev, unsigned short product_id) {
 }
 
 #ifndef WIN32
-static int set_native_mode(const s_hid_dev * dev, const s_native_mode * native_mode) {
+static int set_native_mode(const struct ghid_device * dev, const s_native_mode * native_mode) {
 
     if (native_mode) {
         if (send_native_mode(dev, native_mode) < 0) {
@@ -612,7 +609,7 @@ static int set_native_mode(const s_hid_dev * dev, const s_native_mode * native_m
     return 0;
 }
 #else
-static int set_native_mode(const s_hid_dev * dev, const s_native_mode * native_mode) {
+static int set_native_mode(const struct ghid_device * dev, const s_native_mode * native_mode) {
 
     if (native_mode) {
         printf("Found Logitech wheel not in native mode.\n");
@@ -636,7 +633,7 @@ static int set_native_mode(const s_hid_dev * dev, const s_native_mode * native_m
 }
 #endif
 
-static int open(const s_hid_dev * dev) {
+static int open(const struct ghid_device * dev) {
 
     s_native_mode * native_mode = get_native_mode_command(dev->product_id, dev->bcdDevice);
     if (set_native_mode(dev, native_mode) < 0) {

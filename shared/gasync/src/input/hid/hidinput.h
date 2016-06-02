@@ -29,7 +29,7 @@ typedef struct {
     int (* init)(int(*callback)(GE_Event*));
     // Open a device.
     // Synchronous transfers are allowed in this function.
-    int (* open)(const s_hid_dev * dev);
+    int (* open)(const struct ghid_device * dev);
     // Process a report.
     int (* process)(int device, const void * report, unsigned int size);
     // Close a device.
