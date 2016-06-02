@@ -140,6 +140,8 @@ struct ghid_device * ghid_enumerate(unsigned short vendor, unsigned short produc
 		            if (strcmp(dev->path, current->path) < 0) {
 		                if (previous != NULL) {
 		                    previous->next = dev;
+		                } else {
+		                    devs = dev;
 		                }
 		                dev->next = current;
 		                break;
