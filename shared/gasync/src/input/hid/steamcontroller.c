@@ -17,7 +17,7 @@
 
 #define STEAM_CONTROLLER_VID            0x28de
 #define WIRELESS_STEAM_CONTROLLER_PID   0x1142
-#define WIRED_STEAM_CONTROLLER_PID      0x1042
+#define WIRED_STEAM_CONTROLLER_PID      0x1102
 
 #define STEAM_CONTROLLER_NAME "Valve Software Steam Controller"
 
