@@ -146,14 +146,9 @@ int timerres_begin(TIMERRES_REGISTER_HANDLE fp_register, TIMERRES_REMOVE_HANDLE 
         pNtQueryTimerResolution(&minimumResolution, &maximumResolution, &currentResolution);
 
         pNtSetTimerResolution(maximumResolution, TRUE, &currentResolution);
-        pNtQueryTimerResolution(&minimumResolution, &maximumResolution, &currentResolution);
 
         printf("Timer resolution: min=%lu max=%lu current=%lu\n", minimumResolution, maximumResolution, currentResolution);
 
-        if (maximumResolution < currentResolution) {
-            PRINT_ERROR_OTHER("failed to set maximumResolution timer resolution")
-            ret = -1;
-        }
         timer_callback = timer_cb;
         register_handle = fp_register;
         remove_handle = fp_remove;
