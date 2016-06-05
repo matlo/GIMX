@@ -404,6 +404,8 @@ void event_catcher::run(string device_type, string event_type)
     while (!done)
     {
         gpoll();
+
+        ginput_periodic_task();
     }
 
     if (timer >= 0)
