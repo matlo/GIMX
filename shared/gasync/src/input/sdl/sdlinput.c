@@ -10,6 +10,8 @@
 
 #include <ginput.h>
 
+#define PRINT_ERROR_SDL(msg) fprintf(stderr, "%s:%d %s: %s failed with error: %s\n", __FILE__, __LINE__, __func__, msg, SDL_GetError());
+
 #define SCREEN_WIDTH  1
 #define SCREEN_HEIGHT 1
 
@@ -44,8 +46,8 @@ static struct
   } hat_info; // allows to convert hat axes to buttons
   struct
   {
-	  unsigned short vendor;
-	  unsigned short product;
+      unsigned short vendor;
+      unsigned short product;
   } usb_ids;
 } joysticks[GE_MAX_DEVICES] = {};
 
@@ -79,7 +81,7 @@ static void open_haptic(int id, SDL_Joystick* joystick) {
       }
       else
       {
-        fprintf(stderr, "SDL_HapticNewEffect: %s\n", SDL_GetError());
+        PRINT_ERROR_SDL("SDL_HapticNewEffect")
         SDL_HapticClose(haptic);
       }
     }
@@ -104,7 +106,7 @@ int sdlinput_init(unsigned char mkb_src, int(*callback)(GE_Event*))
   /* Init SDL */
   if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC) < 0)
   {
-   fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
+   PRINT_ERROR_SDL("SDL_Init")
    return -1;
   }
 
@@ -114,7 +116,7 @@ int sdlinput_init(unsigned char mkb_src, int(*callback)(GE_Event*))
   {
     if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0)
     {
-      fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
+      PRINT_ERROR_SDL("SDL_InitSubSystem")
       return -1;
     }
 
@@ -123,7 +125,7 @@ int sdlinput_init(unsigned char mkb_src, int(*callback)(GE_Event*))
         SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_BORDERLESS);
     if (window == NULL)
     {
-      fprintf(stderr, "Unable to create video surface: %s\n", SDL_GetError());
+      PRINT_ERROR_SDL("SDL_CreateWindow")
       return -1;
     }
   }
@@ -156,7 +158,7 @@ int sdlinput_init(unsigned char mkb_src, int(*callback)(GE_Event*))
       }
       else
       {
-        fprintf(stderr, "Could not open gamecontroller %i: %s\n", i, SDL_GetError());
+        PRINT_ERROR_SDL("SDL_GameControllerOpen")
         return -1;
       }
     }
@@ -290,9 +292,9 @@ void sdlinput_joystick_close(int id)
   {
     --joysticks_opened;
 
-    // Closing the joystick subsystem also closes SDL's event queue,
-    // but we don't care as we won't use it anymore.
-    if(joysticks_opened == joysticks_registered)
+    // Closing the joystick subsystem also closes SDL's event queue.
+    // Don't close it if the mouse and keyboard event source is the window system.
+    if(joysticks_opened == joysticks_registered && mkb_source != GE_MKB_SOURCE_WINDOW_SYSTEM)
     {
       SDL_QuitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC);
     }
@@ -600,13 +602,24 @@ static int sdl_peep_events(GE_Event* events, int size)
   }
 
   unsigned int minType = SDL_JOYAXISMOTION;
+  unsigned int maxType = SDL_CONTROLLERDEVICEREMAPPED;
 
   if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
   {
     minType = SDL_KEYDOWN;
   }
 
-  int nb = SDL_PeepEvents(sdl_events, size, SDL_GETEVENT, minType, SDL_CONTROLLERDEVICEREMAPPED);
+  if (joysticks_opened == joysticks_registered)
+  {
+    maxType = SDL_MOUSEWHEEL;
+  }
+
+  int nb = SDL_PeepEvents(sdl_events, size, SDL_GETEVENT, minType, maxType);
+
+  if (nb < 0) {
+    PRINT_ERROR_SDL("SDL_PeepEvents")
+    return -1;
+  }
 
   j = 0;
   for (i = 0; i < nb && j < size; ++i)
@@ -644,14 +657,14 @@ int sdlinput_joystick_set_ff_rumble(int joystick, unsigned short weak, unsigned 
   };
   if(SDL_HapticUpdateEffect(joysticks[joystick].force_feedback.haptic, joysticks[joystick].force_feedback.effect_id, &effect))
   {
-    fprintf(stderr, "SDL_HapticUpdateEffect: %s\n", SDL_GetError());
+    PRINT_ERROR_SDL("SDL_HapticUpdateEffect")
     return -1;
   }
   else
   {
     if(SDL_HapticRunEffect(joysticks[joystick].force_feedback.haptic, joysticks[joystick].force_feedback.effect_id, 1))
     {
-      fprintf(stderr, "SDL_HapticRunEffect: %s\n", SDL_GetError());
+      PRINT_ERROR_SDL("SDL_HapticRunEffect")
       return -1;
     }
   }
@@ -662,7 +675,7 @@ int sdlinput_joystick_get_usb_ids(int joystick, unsigned short * vendor, unsigne
 {
   if(joystick < 0 || joystick >= joysticks_nb)
   {
-	return -1;
+    return -1;
   }
   *vendor = joysticks[joystick].usb_ids.vendor;
   *product = joysticks[joystick].usb_ids.product;
