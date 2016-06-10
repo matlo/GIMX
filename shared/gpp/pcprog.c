@@ -105,6 +105,7 @@ static struct
 {
   int device;
   char * path;
+  unsigned int pending;
   ASYNC_READ_CALLBACK fp_read;
   ASYNC_WRITE_CALLBACK fp_write;
   ASYNC_CLOSE_CALLBACK fp_close;
@@ -165,10 +166,6 @@ int8_t gppcprog_connect(int id, const char * path)
     if(gpp_devices[id].device >= 0)
     {
       gpp_devices[id].path = strdup(path);
-    }
-    else
-    {
-      fprintf(stderr, "failed to open %s\n", path);
     }
   }
   else
@@ -234,6 +231,9 @@ void gppcprog_disconnect(int id)
     //make sure the write is synchronous
     gpp_devices[id].fp_write = NULL;
 
+    //unblock sending
+    gpp_devices[id].pending = 0;
+
     // Leave Capture Mode
     gpppcprog_send(id, GPPKG_LEAVE_CAPTURE, NULL, 0);
 
@@ -277,6 +277,10 @@ static int read_callback(int user, const void * buf, unsigned int count)
 
 static int write_callback(int user, int transfered)
 {
+  if (gpp_devices[user].pending > 0)
+  {
+    --gpp_devices[user].pending;
+  }
   if(gpp_devices[user].fp_write)
   {
     return gpp_devices[user].fp_write(user, transfered);
@@ -305,6 +309,11 @@ int8_t gpppcprog_output(int id, int8_t output[GCAPI_INPUT_TOTAL])
 
 int8_t gpppcprog_send(int id, uint8_t type, uint8_t * data, uint16_t length)
 {
+  if (gpp_devices[id].pending > 0)
+  {
+    fprintf(stderr, "%s:%d %s: device is busy\n", __FILE__, __LINE__, __func__);
+    return 0;
+  }
   s_gppReport report =
   {
     .reportId = 0x00,
@@ -319,7 +328,7 @@ int8_t gpppcprog_send(int id, uint8_t type, uint8_t * data, uint16_t length)
   uint16_t i = 0;
 
   do
-  {										// Data
+  {
     if (length)
     {
       sndLen = (((i + sizeof(report.data)) < length) ? sizeof(report.data) : (uint16_t)(length - i));
@@ -328,15 +337,18 @@ int8_t gpppcprog_send(int id, uint8_t type, uint8_t * data, uint16_t length)
     }
     if(gpp_devices[id].fp_write) {
       if (hidasync_write(gpp_devices[id].device, (unsigned char*)&report, sizeof(report)) == -1)
-        return (0);
+      {
+        return -1;
+      }
+      ++gpp_devices[id].pending;
     }
     else {
-      if (hidasync_write_timeout(gpp_devices[id].device, (unsigned char*)&report, sizeof(report), 1) == -1)
-        return (0);
+      if (hidasync_write_timeout(gpp_devices[id].device, (unsigned char*)&report, sizeof(report), 1000) == -1)
+        return -1;
     }
     report.header.first = 0;
   }
   while (i < length);
-  return (1);
+  return 1;
 }
 

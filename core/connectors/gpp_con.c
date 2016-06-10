@@ -120,7 +120,7 @@ int gpp_send(int id, e_controller_type type, int axis[AXIS_MAX])
     }
   }
 
-  if(!gpppcprog_output(id, output[id]))
+  if(gpppcprog_output(id, output[id]) < 0)
   {
     ret = -1;
   }
