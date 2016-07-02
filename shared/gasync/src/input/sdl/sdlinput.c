@@ -614,6 +614,11 @@ static int sdl_peep_events(GE_Event* events, int size)
     maxType = SDL_MOUSEWHEEL;
   }
 
+  if (minType > maxType)
+  {
+    return 0;
+  }
+
   int nb = SDL_PeepEvents(sdl_events, size, SDL_GETEVENT, minType, maxType);
 
   if (nb < 0) {
