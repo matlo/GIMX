@@ -2223,6 +2223,15 @@ void configFrame::LoadControllerType()
   fillChoices();
 }
 
+static void clearGrid(wxGrid * grid)
+{
+  int rows = grid->GetNumberRows();
+  if (rows > 0)
+  {
+    grid->DeleteRows(0, grid->GetNumberRows());
+  }
+}
+
 /*
  * \brief Load the current profile.
  */
@@ -2262,7 +2271,7 @@ void configFrame::load_current()
     }
     ProfileTriggerDelay->SetValue(configuration->GetTrigger()->GetDelay());
     //Load mouse options
-    GridMouseOption->DeleteRows(0, GridMouseOption->GetNumberRows());
+    clearGrid(GridMouseOption);
     mouseOptionsList = configuration->GetMouseOptionsList();
     for(std::list<MouseOptions>::iterator it = mouseOptionsList->begin(); it!=mouseOptionsList->end(); ++it)
     {
@@ -2275,7 +2284,7 @@ void configFrame::load_current()
     }
     GridMouseOption->AutoSizeColumns();
     //Load axis intensities
-    GridIntensity->DeleteRows(0, GridIntensity->GetNumberRows());
+    clearGrid(GridIntensity);
     intensityList = configuration->GetIntensityList();
     for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); ++it)
     {
@@ -2319,7 +2328,7 @@ void configFrame::load_current()
     }
     GridIntensity->AutoSizeColumns();
     //Load joystick corrections
-    GridJoystickCorrections->DeleteRows(0, GridJoystickCorrections->GetNumberRows());
+    clearGrid(GridJoystickCorrections);
     joystickCorrectionsList = configuration->GetJoystickCorrectionsList();
     for(std::list<JoystickCorrection>::iterator it = joystickCorrectionsList->begin(); it!=joystickCorrectionsList->end(); ++it)
     {
@@ -2334,7 +2343,7 @@ void configFrame::load_current()
     }
     GridJoystickCorrections->AutoSizeColumns();
     //Load buttonMappers
-    GridPanelButton->DeleteRows(0, GridPanelButton->GetNumberRows());
+    clearGrid(GridPanelButton);
     buttonMappers = configuration->GetButtonMapperList();
     for(std::list<ControlMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); ++it)
     {
@@ -2387,7 +2396,7 @@ void configFrame::load_current()
     }
     GridPanelButton->AutoSizeColumns();
     //Load axisMappers
-    GridPanelAxis->DeleteRows(0, GridPanelAxis->GetNumberRows());
+    clearGrid(GridPanelAxis);
     axisMappers = configuration->GetAxisMapperList();
     for(std::list<ControlMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
     {
