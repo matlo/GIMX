@@ -232,8 +232,6 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
 #endif
     locale->AddCatalog(wxT("gimx"));
 
-    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
-
     //(*Initialize(fpsconfigFrame)
     wxMenu* MenuFile;
     wxMenu* MenuAdvanced;
@@ -1093,6 +1091,8 @@ void fpsconfigFrame::OnMenuSaveAs(wxCommandEvent& event)
 
 void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
 {
+	wxLocale eng(wxLANGUAGE_ENGLISH); // make sure to use '.' as decimal separator
+
     std::list<ControlMapper>* ButtonMappers;
     std::list<ControlMapper>* AxisMappers;
     double mx, my;
@@ -1405,6 +1405,8 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
 
 void fpsconfigFrame::LoadConfig()
 {
+  wxLocale eng(wxLANGUAGE_ENGLISH); // make sure to use '.' as decimal separator
+
   std::list<ControlMapper>* ButtonMappers[2];
   std::list<ControlMapper>* AxisMappers[2];
   std::list<MouseOptions>* mouseOptions;
@@ -1807,6 +1809,8 @@ void fpsconfigFrame::OnMenuOpen(wxCommandEvent& event)
 
 void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
 {
+    wxLocale eng(wxLANGUAGE_ENGLISH); // make sure to use '.' as decimal separator
+
     wxString str;
     wxTextCtrl* text;
     double value;

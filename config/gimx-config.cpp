@@ -542,8 +542,6 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
 #endif
     locale->AddCatalog(wxT("gimx"));
 
-    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
-
     //(*Initialize(configFrame)
     wxFlexGridSizer* FlexGridSizer30;
     wxFlexGridSizer* FlexGridSizer46;
@@ -3298,6 +3296,8 @@ void configFrame::OnMenuSetMouseDPI(wxCommandEvent& event)
  */
 void configFrame::OnTextCtrl(wxCommandEvent& event)
 {
+	wxLocale eng(wxLANGUAGE_ENGLISH); // make sure to use '.' as decimal separator
+
     wxString str;
     wxTextCtrl* text;
     double value;
