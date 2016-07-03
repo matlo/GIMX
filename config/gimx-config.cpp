@@ -722,7 +722,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     GridMouseOption->SetDefaultCellFont( GridMouseOption->GetFont() );
     GridMouseOption->SetDefaultCellTextColour( GridMouseOption->GetForegroundColour() );
     FlexGridSizer37->Add(GridMouseOption, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer42 = new wxFlexGridSizer(2, 1, 0, 0);
+    FlexGridSizer42 = new wxFlexGridSizer(3, 1, 0, 0);
     MouseOptionsAdd = new wxButton(PanelMouseOptions, ID_BUTTON12, _("Add"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON12"));
     FlexGridSizer42->Add(MouseOptionsAdd, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     MouseOptionsRemove = new wxButton(PanelMouseOptions, ID_BUTTON13, _("Remove"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON13"));
@@ -811,7 +811,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     GridIntensity->SetDefaultCellFont( GridIntensity->GetFont() );
     GridIntensity->SetDefaultCellTextColour( GridIntensity->GetForegroundColour() );
     FlexGridSizer22->Add(GridIntensity, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer43 = new wxFlexGridSizer(2, 1, 0, 0);
+    FlexGridSizer43 = new wxFlexGridSizer(3, 1, 0, 0);
     IntensityAdd = new wxButton(PanelIntensity, ID_BUTTON21, _("Add"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON21"));
     FlexGridSizer43->Add(IntensityAdd, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     IntensityRemove = new wxButton(PanelIntensity, ID_BUTTON22, _("Remove"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON22"));
@@ -886,7 +886,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     GridJoystickCorrections->SetDefaultCellFont( GridJoystickCorrections->GetFont() );
     GridJoystickCorrections->SetDefaultCellTextColour( GridJoystickCorrections->GetForegroundColour() );
     FlexGridSizer51->Add(GridJoystickCorrections, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer52 = new wxFlexGridSizer(2, 1, 0, 0);
+    FlexGridSizer52 = new wxFlexGridSizer(3, 1, 0, 0);
     JoystickCorrectionAdd = new wxButton(PanelJoystickCorrections, ID_BUTTON16, _("Add"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON16"));
     FlexGridSizer52->Add(JoystickCorrectionAdd, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     JoystickCorrectionRemove = new wxButton(PanelJoystickCorrections, ID_BUTTON17, _("Remove"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON17"));
@@ -981,7 +981,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     GridPanelButton->SetDefaultCellFont( GridPanelButton->GetFont() );
     GridPanelButton->SetDefaultCellTextColour( GridPanelButton->GetForegroundColour() );
     FlexGridSizer8->Add(GridPanelButton, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer6 = new wxFlexGridSizer(2, 1, 0, 0);
+    FlexGridSizer6 = new wxFlexGridSizer(3, 1, 0, 0);
     ButtonTabAdd = new wxButton(PanelButton, ID_BUTTON4, _("Add"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON4"));
     FlexGridSizer6->Add(ButtonTabAdd, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ButtonTabRemove = new wxButton(PanelButton, ID_BUTTON6, _("Remove"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON6"));
@@ -1093,7 +1093,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     GridPanelAxis->SetDefaultCellFont( GridPanelAxis->GetFont() );
     GridPanelAxis->SetDefaultCellTextColour( GridPanelAxis->GetForegroundColour() );
     FlexGridSizer4->Add(GridPanelAxis, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer7 = new wxFlexGridSizer(2, 1, 0, 0);
+    FlexGridSizer7 = new wxFlexGridSizer(3, 1, 0, 0);
     Button3 = new wxButton(PanelAxis, ID_BUTTON3, _("Add"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON3"));
     FlexGridSizer7->Add(Button3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     Button7 = new wxButton(PanelAxis, ID_BUTTON7, _("Remove"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON7"));
