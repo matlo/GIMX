@@ -1818,9 +1818,10 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
     int ivalue;
 
     text = (wxTextCtrl*)event.GetEventObject();
+    long pos = text->GetInsertionPoint();
     str = text->GetValue();
 
-    if(str.IsEmpty() && event.GetEventType() != wxEVT_COMMAND_TEXT_ENTER)
+    if(str.IsEmpty() || str == wxT("-") || str == wxT(".") || str == wxT("-."))
     {
         return;
     }
@@ -1828,6 +1829,11 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
     if(str.Replace(wxT(","), wxT(".")))
     {
         text->SetValue(str);
+    }
+
+    if(str.Freq('.') > 1)
+    {
+        str = "invalid";
     }
 
     if(!str.ToDouble(&value))
@@ -1957,6 +1963,8 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
             values[7] = value;
         }
     }
+
+    text->SetInsertionPoint(pos);
 }
 
 #define STEP 100

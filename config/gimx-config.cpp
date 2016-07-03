@@ -3313,9 +3313,10 @@ void configFrame::OnTextCtrl(wxCommandEvent& event)
     long lvalue;
 
     text = (wxTextCtrl*)event.GetEventObject();
+    long pos = text->GetInsertionPoint();
     str = text->GetValue();
 
-    if(str.IsEmpty())
+    if(str.IsEmpty() || str == wxT("-") || str == wxT(".") || str == wxT("-."))
     {
         return;
     }
@@ -3323,6 +3324,11 @@ void configFrame::OnTextCtrl(wxCommandEvent& event)
     if(str.Replace(wxT(","), wxT(".")))
     {
         text->SetValue(str);
+    }
+
+    if(str.Freq('.') > 1)
+    {
+        str = "invalid";
     }
 
     if(text == AxisTabDeadZone)
@@ -3418,6 +3424,8 @@ void configFrame::OnTextCtrl(wxCommandEvent& event)
             text->SetValue(wxString::Format(wxT("%i"),INT_MAX));
         }
     }
+
+    text->SetInsertionPoint(pos);
 }
 
 /*
