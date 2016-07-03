@@ -1071,7 +1071,7 @@ void fpsconfigFrame::OnMenuSaveAs(wxCommandEvent& event)
 {
     wxFileDialog saveFileDialog(this, _("Save config file"), wxT(""), wxT(""), _("XML files (*.xml)|*.xml"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 
-    saveFileDialog.SetDirectory(default_directory);
+    saveFileDialog.SetDirectory(FileDialog1->GetDirectory());
     saveFileDialog.SetFilename(FileDialog1->GetFilename());
 
     if ( saveFileDialog.ShowModal() == wxID_CANCEL ) return;
@@ -1084,7 +1084,8 @@ void fpsconfigFrame::OnMenuSaveAs(wxCommandEvent& event)
 
     OnMenuSave(event);
 
-    FileDialog1->SetFilename(FileName);
+    FileDialog1->SetDirectory(saveFileDialog.GetDirectory());
+    FileDialog1->SetFilename(saveFileDialog.GetFilename());
 
     MenuItemSave->Enable(true);
 }

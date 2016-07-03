@@ -2456,7 +2456,6 @@ void configFrame::refresh_gui()
 void configFrame::OnMenuOpen(wxCommandEvent& event)
 {
     int ret;
-    FileDialog1->SetDirectory(default_directory);
 
     if ( FileDialog1->ShowModal() != wxID_OK ) return;
 
@@ -2606,7 +2605,7 @@ void configFrame::OnMenuSaveAs(wxCommandEvent& event)
 {
     wxFileDialog saveFileDialog(this, _("Save config file"), wxT(""), wxT(""), _("XML files (*.xml)|*.xml"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 
-    saveFileDialog.SetDirectory(default_directory);
+    saveFileDialog.SetDirectory(FileDialog1->GetDirectory());
     saveFileDialog.SetFilename(FileDialog1->GetFilename());
 
     if ( saveFileDialog.ShowModal() == wxID_CANCEL ) return;
@@ -2619,7 +2618,8 @@ void configFrame::OnMenuSaveAs(wxCommandEvent& event)
 
     OnMenuSave(event);
 
-    FileDialog1->SetFilename(FileName);
+    FileDialog1->SetDirectory(saveFileDialog.GetDirectory());
+    FileDialog1->SetFilename(saveFileDialog.GetFilename());
 
     MenuFile->Enable(idMenuSave, true);
 }
