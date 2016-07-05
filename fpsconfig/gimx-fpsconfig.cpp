@@ -1833,7 +1833,7 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
 
     if(str.Freq('.') > 1)
     {
-        str = "invalid";
+        str = wxT("invalid");
     }
 
     if(!str.ToDouble(&value))
