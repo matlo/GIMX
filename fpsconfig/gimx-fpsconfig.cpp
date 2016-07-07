@@ -183,25 +183,6 @@ BEGIN_EVENT_TABLE(fpsconfigFrame,wxFrame)
     //*)
 END_EVENT_TABLE()
 
-class wxBackgroundBitmap : public wxEvtHandler {
-    typedef wxEvtHandler Inherited;
-public:
-    wxBackgroundBitmap(const wxBitmap &B) : wxEvtHandler(), Bitmap(B) { }
-    virtual bool        ProcessEvent(wxEvent &Event);
-protected:
-    wxBitmap            Bitmap;
-};
-
-bool wxBackgroundBitmap::ProcessEvent(wxEvent &Event)
-{
-    if (Event.GetEventType() == wxEVT_ERASE_BACKGROUND) {
-        wxEraseEvent &EraseEvent = dynamic_cast<wxEraseEvent &>(Event);
-        wxDC *DC = EraseEvent.GetDC();
-        DC->DrawBitmap(Bitmap, 0, 0, false);
-        return true;
-    } else return Inherited::ProcessEvent(Event);
-}
-
 const char* button_labels[BI_MAX] =
 {
     "undef",
@@ -479,7 +460,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
 
     wxMemoryInputStream istream(background_png, sizeof background_png);
     wxImage background_img(istream, wxBITMAP_TYPE_PNG);
-    wxBackgroundBitmap* ToolBarBackground = new wxBackgroundBitmap(wxBitmap(background_img));
+    ToolBarBackground = new wxBackgroundBitmap(wxBitmap(background_img));
     Panel1->PushEventHandler(ToolBarBackground);
 
     TextCtrlSensitivityHipFire->SetValue(wxT("1.00"));
@@ -582,6 +563,7 @@ fpsconfigFrame::~fpsconfigFrame()
 {
     //(*Destroy(fpsconfigFrame)
     //*)
+    Panel1->RemoveEventHandler(ToolBarBackground);
 }
 
 void fpsconfigFrame::OnQuit(wxCommandEvent& event)
