@@ -17,9 +17,7 @@
 
 #define BT_SLOT 625 //microseconds
 
-#ifdef BT_POWER
-#warning "BT_POWER is already defined."
-#else
+#ifndef BT_POWER
 #define BT_POWER 9
 #define BT_POWER_FORCE_ACTIVE_OFF 0
 #define BT_POWER_FORCE_ACTIVE_ON 1

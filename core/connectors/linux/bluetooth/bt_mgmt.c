@@ -13,15 +13,11 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
 #include <unistd.h>
-#ifndef __ARM_ARCH_6__
-#include <bluetooth/mgmt.h>
-#else
-#include <connectors/rpi/bluetooth/mgmt.h>
-#endif
 #include <sys/param.h>
 
 #include <poll.h>
 
+#include <connectors/linux/bluetooth/mgmt.h>
 #include <connectors/bluetooth/bt_device_abs.h>
 #include <gimx.h>
 #include "../../directories.h"
