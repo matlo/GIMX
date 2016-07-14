@@ -18,7 +18,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shlobj.h> //to get the homedir
-#include <unistd.h> //usleep
 #endif
 
 #include "gimx.h"
@@ -34,7 +33,6 @@
 #include <stats.h>
 #include <pcprog.h>
 #include "../directories.h"
-#include <ffb_logitech.h>
 #include <gprio.h>
 #include <gerror.h>
 
