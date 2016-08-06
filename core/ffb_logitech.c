@@ -134,7 +134,7 @@ static const char * get_ext_cmd_name(unsigned char ext) {
         }
     }
     static char unknown[] = "UNKNOWN (255)";
-    snprintf(unknown, sizeof(unknown), "UNKNOWN %hhu", ext);
+    snprintf(unknown, sizeof(unknown), "UNKNOWN %hu", ext);
     return unknown;
 }
 
