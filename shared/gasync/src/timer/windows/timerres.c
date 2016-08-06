@@ -54,7 +54,7 @@ void timerres_init(void) {
     }
 }
 
-void timerres_quit(void) __attribute__((constructor));
+void timerres_quit(void) __attribute__((destructor));
 void timerres_quit(void) {
 
     CloseHandle(hTimer);
