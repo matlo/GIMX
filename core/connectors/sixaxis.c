@@ -263,7 +263,7 @@ static int process_output_01(const uint8_t *buf, int len, struct sixaxis_state *
   int controller = (state-states)/sizeof(*state);
   int joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, controller);
 
-  if(ginput_joystick_has_rumble(joystick))
+  if(joystick >= 0 && (ginput_joystick_get_haptic(joystick) & GE_HAPTIC_RUMBLE))
   {
     GE_Event event =
     {

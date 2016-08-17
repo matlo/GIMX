@@ -1,9 +1,9 @@
 -include ../../../Makedefs
 
-OUT=ginput_test ghid_test gserial_test gtimer_test
+OUT=ginput_test ghid_test gserial_test gtimer_test ginput_haptic_test
 OBJS=common.o
 LDLIBS=-Wl,--whole-archive ../gasync.a -Wl,--no-whole-archive -lm
-BINS=ginput_test ghid_test gserial_test gtimer_test
+BINS=ginput_test ghid_test gserial_test gtimer_test ginput_haptic_test
 ifeq ($(OS),Windows_NT)
 LDLIBS += $(shell sdl2-config --libs) -liconv -lws2_32 -lwinmm -lhid -lsetupapi
 LDLIBS:=$(filter-out -mwindows,$(LDLIBS))
@@ -39,3 +39,5 @@ guhid_test: $(OBJS)
 gserial_test: $(OBJS)
 
 gtimer_test: $(OBJS)
+
+ginput_haptic_test: $(OBJS)

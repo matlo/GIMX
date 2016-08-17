@@ -45,14 +45,15 @@ static s_adapter adapters[MAX_CONTROLLERS] = {};
 
 static struct
 {
+  unsigned char has_rumble;
   unsigned char weak;
   unsigned char strong;
-} motors[C_TYPE_MAX] =
+} rumble_props[C_TYPE_MAX] =
 {
-  [C_TYPE_DS4]     = { .weak = 4, .strong = 5 },
-  [C_TYPE_360_PAD] = { .weak = 4, .strong = 3 },
-  [C_TYPE_SIXAXIS] = { .weak = 3, .strong = 5 },
-  [C_TYPE_XONE_PAD] = { .weak = 7, .strong = 6 },
+  [C_TYPE_DS4]     = { .has_rumble = 1, .weak = 4, .strong = 5 },
+  [C_TYPE_360_PAD] = { .has_rumble = 1, .weak = 4, .strong = 3 },
+  [C_TYPE_SIXAXIS] = { .has_rumble = 1, .weak = 3, .strong = 5 },
+  [C_TYPE_XONE_PAD] = { .has_rumble = 1, .weak = 7, .strong = 6 },
 };
 
 /*
@@ -79,6 +80,7 @@ void adapter_init_static(void)
       adapters[i].report[j].type = BYTE_IN_REPORT;
     }
     adapters[i].status = 0;
+    adapters[i].joystick.id = -1;
   }
   for(j=0; j<E_DEVICE_TYPE_NB; ++j)
   {
@@ -345,6 +347,10 @@ static int adapter_forward_interrupt_out(int adapter, unsigned char* data, unsig
   if(adapters[adapter].ctype == C_TYPE_XONE_PAD && data[0] == 0x06 && data[1] == 0x20)
   {
     adapters[adapter].status = 1;
+    if (adapters[adapter].joystick.id >= 0 && adapters[adapter].joystick.id != usb_get_joystick(adapter))
+    {
+      adapters[adapter].forward_out_reports = 0;
+    }
   }
   return usb_send_interrupt_out(adapter, data, length);
 }
@@ -360,6 +366,22 @@ static void adapter_send_next_hid_report(int adapter)
       {
         adapters->hid.write_pending = 1;
       }
+    }
+  }
+}
+
+static void adapter_send_next_ffb_update(int adapter)
+{
+  s_ffb_report * report = ffb_logitech_get_report(adapter);
+  if(report != NULL)
+  {
+    ffb_logitech_ack(adapter);
+    GE_Event * haptic = ffb_logitech_convert_report(adapter, report);
+    while (haptic != NULL)
+    {
+        haptic->which = adapters[adapter].joystick.id;
+        ginput_joystick_set_haptic(haptic);
+        haptic = ffb_logitech_convert_report(adapter, report);
     }
   }
 }
@@ -383,93 +405,61 @@ static int adapter_process_packet(int adapter, s_packet* packet)
   }
   else if(type == BYTE_OUT_REPORT)
   {
-    int joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, adapter);
-
-    unsigned char send = 0;
-
-    switch(adapters[adapter].ctype)
+    if (adapters[adapter].forward_out_reports)
     {
-      case C_TYPE_DS4:
-        if(ginput_get_js_type(joystick) == GE_JS_DS4)
-        {
-          ret = adapter_forward_interrupt_out(adapter, data, length);
-          if(ret < 0)
-          {
-            fprintf(stderr, "adapter_forward_interrupt_out failed\n");
-          }
-        }
-        else
-        {
-          send = 1;
-        }
-        break;
-      case C_TYPE_360_PAD:
-        if(ginput_get_js_type(joystick) == GE_JS_360PAD)
-        {
-          ret = adapter_forward_interrupt_out(adapter, data, length);
-          if(ret < 0)
-          {
-            fprintf(stderr, "adapter_forward_interrupt_out failed\n");
-          }
-        }
-        else
-        {
-          send = 1;
-        }
-        break;
-      case C_TYPE_SIXAXIS:
-        send = 1;
-        break;
-      case C_TYPE_XONE_PAD:
-        if(ginput_get_js_type(joystick) == GE_JS_XONEPAD || !adapters->status)
-        {
-          ret = adapter_forward_interrupt_out(adapter, data, length);
-          if(ret < 0)
-          {
-            fprintf(stderr, "adapter_forward_interrupt_out failed\n");
-          }
-        }
-        else
-        {
-          send = 1;
-        }
-        break;
-      case C_TYPE_T300RS_PS4:
-        //TODO MLA: decode and process T300RS FFB reports
-        break;
-      case C_TYPE_G27_PS3:
-        if(adapters[adapter].hid.id >= 0)
-        {
-          ffb_logitech_process_report(adapter, data);
-          adapter_send_next_hid_report(adapter);
-        }
-        break;
-      case C_TYPE_G29_PS4:
-        if(adapters[adapter].hid.id >= 0)
-        {
-          if(data[0] == 0x30)
-          {
-            ffb_logitech_process_report(adapter, data + 1);
-            adapter_send_next_hid_report(adapter);
-          }
-        }
-        break;
-      default:
-        break;
+      ret = adapter_forward_interrupt_out(adapter, data, length);
+      if(ret < 0)
+      {
+        fprintf(stderr, "adapter_forward_interrupt_out failed\n");
+      }
     }
-    if(send && ginput_joystick_has_rumble(joystick))
+    else if(rumble_props[adapters[adapter].ctype].has_rumble && adapters[adapter].joystick.has_rumble)
     {
       GE_Event event =
       {
         .jrumble =
         {
           .type = GE_JOYRUMBLE,
-          .which = joystick,
-          .weak = data[motors[adapters[adapter].ctype].weak] << 8,
-          .strong = data[motors[adapters[adapter].ctype].strong] << 8
+          .which = adapters[adapter].joystick.id,
+          .weak = data[rumble_props[adapters[adapter].ctype].weak] << 8,
+          .strong = data[rumble_props[adapters[adapter].ctype].strong] << 8
         }
       };
       ginput_queue_push(&event);
+    }
+    unsigned char * logitech_ffb_report = NULL;
+    switch(adapters[adapter].ctype)
+    {
+      case C_TYPE_T300RS_PS4:
+        //TODO MLA: decode and process T300RS FFB reports
+        break;
+      case C_TYPE_GTF_PS2:
+      case C_TYPE_DF_PS2:
+      case C_TYPE_DFP_PS2:
+      case C_TYPE_G27_PS3:
+        logitech_ffb_report = data;
+        break;
+      case C_TYPE_G29_PS4:
+        if(data[0] == 0x30)
+        {
+          logitech_ffb_report = data + 1;
+        }
+        break;
+      default:
+        break;
+    }
+    if (logitech_ffb_report != NULL)
+    {
+      if (adapters[adapter].hid.id >= 0)
+      {
+        ffb_logitech_process_report(adapter, logitech_ffb_report);
+        adapter_send_next_hid_report(adapter);
+      }
+      else if (adapters[adapter].joystick.id >= 0 && adapters[adapter].joystick.has_ffb)
+      {
+        ffb_logitech_process_report(adapter, logitech_ffb_report);
+        adapter_send_next_ffb_update(adapter);
+      }
     }
   }
   else if(type == BYTE_DEBUG)
@@ -483,7 +473,7 @@ static int adapter_process_packet(int adapter, s_packet* packet)
   {
     struct timeval tv;
     gettimeofday(&tv, NULL);
-        fprintf(stderr, "%ld.%06ld ", tv.tv_sec, tv.tv_usec);
+    fprintf(stderr, "%ld.%06ld ", tv.tv_sec, tv.tv_usec);
     fprintf(stderr, "unhandled packet (type=0x%02x)\n", type);
   }
 
@@ -880,18 +870,21 @@ static int gpp_read_callback(int adapter, const void * buf, int status)
     return -1;
   }
 
+  s_adapter * padapter = adapter_get(adapter);
+  if (padapter == NULL) {
+    return -1;
+  }
+
   GCAPI_REPORT * report = (GCAPI_REPORT *)(buf + 7);
 
-  int joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, adapter);
-
-  if(ginput_joystick_has_rumble(joystick))
+  if(padapter->joystick.id >= 0 && padapter->joystick.has_rumble)
   {
     GE_Event event =
     {
       .jrumble =
       {
         .type = GE_JOYRUMBLE,
-        .which = joystick,
+        .which = padapter->joystick.id,
         .weak = report->rumble[0] << 8,
         .strong = report->rumble[1] << 8
       }
@@ -926,10 +919,39 @@ int adapter_start()
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
     adapter = adapter_get(i);
+
+    // get the default joystick and its haptic properties
+    adapter->joystick.id = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, i);
+    if (adapter->joystick.id >= 0)
+    {
+      int haptic = ginput_joystick_get_haptic(adapter->joystick.id);
+      adapter->joystick.has_rumble = haptic & GE_HAPTIC_RUMBLE;
+      adapter->joystick.has_ffb = haptic & (GE_HAPTIC_CONSTANT | GE_HAPTIC_SPRING | GE_HAPTIC_DAMPER);
+      printf("%d has_ffb: %02x\n", adapter->joystick.id, adapter->joystick.has_ffb);
+    }
+
     if(adapter->atype == E_ADAPTER_TYPE_DIY_USB)
     {
       if(adapter->serialdevice >= 0)
       {
+        if (adapter->joystick.id >= 0)
+        {
+          if (usb_get_joystick(i) == adapter->joystick.id)
+          {
+              adapter->forward_out_reports = 1;
+          }
+        }
+        switch(adapter->ctype)
+        {
+          case C_TYPE_XONE_PAD:
+            if(!adapter->status)
+            {
+                adapter->forward_out_reports = 1; // force forwarding out reports until the authentication is successful.
+            }
+            break;
+          default:
+            break;
+        }
 #ifdef WIN32
         switch(adapters->ctype)
         {

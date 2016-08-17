@@ -301,6 +301,9 @@ typedef enum {
        GE_JOYBUTTONDOWN,   /**< Joystick button pressed */
        GE_JOYBUTTONUP,     /**< Joystick button released */
        GE_JOYRUMBLE,     /**< Joystick rumble */
+       GE_JOYCONSTANTFORCE,     /**< Joystick constant force */
+       GE_JOYSPRINGFORCE,     /**< Joystick spring force */
+       GE_JOYDAMPERFORCE,     /**< Joystick damper force */
        GE_QUIT,     /**< Joystick button released */
 } GE_EventType;
 
@@ -356,6 +359,27 @@ typedef struct GE_JoyRumbleEvent {
   uint16_t strong;  /**< Strong motor */
 } GE_JoyRumbleEvent;
 
+typedef struct GE_JoyConstantForceEvent {
+  uint8_t type;     /**< GE_JOYCONSTANTFORCE */
+  uint8_t which;  /**< The joystick device index */
+  int16_t level;
+} GE_JoyConstantForceEvent;
+
+typedef struct GE_JoyConditionForceEvent {
+  uint8_t type;     /**< GE_JOYSPRINGFORCE or GE_JOYDAMPERFORCE */
+  uint8_t which;  /**< The joystick device index */
+  struct {
+    uint16_t left;
+    uint16_t right;
+  } saturation;
+  struct {
+    int16_t left;
+    int16_t right;
+  } coefficient;
+  int16_t center;
+  uint16_t deadband;
+} GE_JoyConditionForceEvent;
+
 typedef union GE_Event {
   struct
   {
@@ -369,7 +393,18 @@ typedef union GE_Event {
   GE_JoyHatEvent jhat;
   GE_JoyButtonEvent jbutton;
   GE_JoyRumbleEvent jrumble;
+  GE_JoyConstantForceEvent jconstant;
+  GE_JoyConditionForceEvent jcondition;
 } GE_Event;
+
+typedef enum
+{
+  GE_HAPTIC_NONE     = 0x00,
+  GE_HAPTIC_RUMBLE   = 0x01,
+  GE_HAPTIC_CONSTANT = 0x02,
+  GE_HAPTIC_SPRING   = 0x04,
+  GE_HAPTIC_DAMPER   = 0x08,
+} GE_HapticType;
 
 typedef enum
 {
@@ -414,7 +449,7 @@ const char * ginput_joystick_name(int);
 int ginput_joystick_virtual_id(int);
 void ginput_set_joystick_used(int);
 GE_JS_Type ginput_get_js_type(int id);
-int ginput_register_joystick(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short));
+int ginput_register_joystick(const char* name, unsigned int haptic, int (*haptic_cb)(const GE_Event * event));
 
 const char * ginput_mouse_button_name(int);
 int ginput_mouse_button_id(const char*);
@@ -424,8 +459,8 @@ uint16_t ginput_key_id(const char*);
 GE_MK_Mode ginput_get_mk_mode();
 void ginput_set_mk_mode(GE_MK_Mode);
 
-int ginput_joystick_has_rumble(int id);
-int ginput_joystick_set_rumble(int id, unsigned short weak, unsigned short strong);
+int ginput_joystick_get_haptic(int id);
+int ginput_joystick_set_haptic(const GE_Event * event);
 
 int ginput_queue_pop(GE_Event*, int);
 int ginput_queue_push(GE_Event*);

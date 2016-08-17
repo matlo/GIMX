@@ -12,10 +12,10 @@ int js_init(int (*callback)(GE_Event*));
 int js_close(int id);
 void js_quit();
 const char* js_get_name(int index);
-int js_register(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short));
+int js_register(const char* name, unsigned int effects, int (*haptic_cb)(const GE_Event * event));
 
-int js_has_ff_rumble(int joystick);
-int js_set_ff_rumble(int joystick, unsigned short weak, unsigned short strong);
+int js_get_haptic(int joystick);
+int js_set_haptic(const GE_Event * haptic);
 
 int js_get_hid(int index);
 

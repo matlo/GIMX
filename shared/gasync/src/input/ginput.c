@@ -386,12 +386,14 @@ void ginput_set_joystick_used(int id)
  * 
  * \remark This function has to be called before calling ginput_init.
  *
- * \param name  the name of the joystick to register.
+ * \param name      the name of the joystick to register.
+ * \param haptic    the haptic capabilities (bitfield of GE_HapticType values).
+ * \param haptic_cb the haptic callback.
  * 
  * \return the id of the joystick, that can be used to forge a GE_Event,
  *         or -1 if the library was already initialized
  */
-int ginput_register_joystick(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short))
+int ginput_register_joystick(const char* name, unsigned int effects, int (*haptic_cb)(const GE_Event * event))
 {
   if(initialized)
   {
@@ -399,7 +401,7 @@ int ginput_register_joystick(const char* name, int (*rumble_cb)(int, unsigned sh
     return -1;
   }
 
-  return ev_joystick_register(name, rumble_cb);
+  return ev_joystick_register(name, effects, haptic_cb);
 }
 
 /*
@@ -522,37 +524,27 @@ int ginput_queue_push(GE_Event *event)
 }
 
 /*
- * \brief Tell if a joystick has rumble capabilities.
+ * \brief Return the haptic capabilities of a joystick.
  * 
  * \param id  the joystick index (in the [0..GE_MAX_DEVICES[ range)
  * 
- * \return 1 if the joystick has rumble capabilities, false otherwise
+ * \return the haptic capabilities (bitfield of GE_HapticType values) or -1 in case of error.
  */
-int ginput_joystick_has_rumble(int id)
+int ginput_joystick_get_haptic(int id)
 {
-  if (id >= 0 && id < GE_MAX_DEVICES)
-  {
-    return ev_joystick_has_ff_rumble(id);
-  }
-  return 0;
+  return ev_joystick_get_haptic(id);
 }
 
 /*
- * \brief Set the joystick rumble.
+ * \brief Set a joystick haptic effect.
  *
- * \param id    the joystick index (in the [0..GE_MAX_DEVICES[ range)
- * \param weak  the weak motor magnitude
- * \param strong  the weak strong magnitude
+ * \param haptic the haptic event, with haptic.which the joystick index (in the [0..GE_MAX_DEVICES[ range).
  *
  * \return -1 in case of error, 0 otherwise
  */
-int ginput_joystick_set_rumble(int id, unsigned short weak, unsigned short strong)
+int ginput_joystick_set_haptic(const GE_Event * event)
 {
-  if (id >= 0 && id < GE_MAX_DEVICES)
-  {
-    return ev_joystick_set_ff_rumble(id, weak, strong);
-  }
-  return 0;
+  return ev_joystick_set_haptic(event);
 }
 
 #ifndef WIN32
@@ -642,3 +634,4 @@ uint16_t ginput_key_id(const char* name)
 {
   return get_key_from_buffer(name);
 }
+

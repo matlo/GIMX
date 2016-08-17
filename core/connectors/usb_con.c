@@ -443,7 +443,7 @@ int usb_init(int usb_number, e_controller_type type) {
   }
 
   // register joystick
-  state->joystick_id = ginput_register_joystick(controller[state->type].name, NULL);
+  state->joystick_id = ginput_register_joystick(controller[state->type].name, GE_HAPTIC_NONE, NULL);
 
   int i;
   for(i = 0; i < controller[state->type].endpoints.in.reports.nb; ++i) {
@@ -485,4 +485,9 @@ int usb_send_interrupt_out(int usb_number, void * buf, unsigned int count) {
   }
 
   return gusb_write(state->usb_device, controller[state->type].endpoints.out.address, buf, count);
+}
+
+int usb_get_joystick(int usb_number) {
+
+  return usb_states[usb_number].joystick_id;
 }

@@ -13,14 +13,14 @@
 int ev_init(unsigned char mkb_src, int(*callback)(GE_Event*));
 void ev_quit();
 
-int ev_joystick_register(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short));
+int ev_joystick_register(const char* name, unsigned int effects, int (*haptic_cb)(const GE_Event * event));
 void ev_joystick_close(int);
 const char* ev_joystick_name(int);
 const char* ev_mouse_name(int);
 const char* ev_keyboard_name(int);
 
-int ev_joystick_has_ff_rumble(int joystick);
-int ev_joystick_set_ff_rumble(int joystick, unsigned short weak, unsigned short strong);
+int ev_joystick_get_haptic(int joystick);
+int ev_joystick_set_haptic(const GE_Event * event);
 
 #ifndef WIN32
 int ev_joystick_get_hid(int joystick);

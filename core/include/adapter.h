@@ -60,6 +60,13 @@ typedef struct
     int write_pending;
     int read_pending;
   } hid;
+  struct {
+    int id;
+    unsigned char has_rumble;
+    unsigned char has_ffb;
+  } joystick;
+  unsigned char forward_out_reports;
+  unsigned char process_ffb;
 #ifdef WIN32
   struct
   {

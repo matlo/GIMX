@@ -242,7 +242,7 @@ static int open(const struct ghid_device * dev) {
 
     hid_devices[device].opened = 1;
 
-    hid_devices[device].joystick = ginput_register_joystick(STEAM_CONTROLLER_NAME, NULL);
+    hid_devices[device].joystick = ginput_register_joystick(STEAM_CONTROLLER_NAME, GE_HAPTIC_NONE, NULL);
     if (hid_devices[device].joystick < 0) {
         close_device(device);
         return -1;

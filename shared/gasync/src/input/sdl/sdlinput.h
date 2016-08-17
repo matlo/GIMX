@@ -13,14 +13,14 @@
 int sdlinput_init(unsigned char mkb_src, int(*callback)(GE_Event*));
 void sdlinput_quit();
 
-int sdlinput_joystick_register(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short));
+int sdlinput_joystick_register(const char* name, unsigned int effects, int (*haptic_cb)(const GE_Event * event));
 void sdlinput_joystick_close(int);
 const char* sdlinput_joystick_name(int);
 const char* sdlinput_mouse_name(int);
 const char* sdlinput_keyboard_name(int);
 
-int sdlinput_joystick_has_ff_rumble(int joystick);
-int sdlinput_joystick_set_ff_rumble(int joystick, unsigned short weak, unsigned short strong);
+int sdlinput_joystick_get_haptic(int joystick);
+int sdlinput_joystick_set_haptic(const GE_Event * event);
 
 int sdlinput_joystick_get_usb_ids(int joystick, unsigned short * vendor, unsigned short * product);
 

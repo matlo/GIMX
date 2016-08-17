@@ -21,6 +21,7 @@ void setup_handlers();
 
 void display_devices();
 int process_event(GE_Event*);
+int ignore_event(GE_Event*);
 
 int timer_close(int user);
 int timer_read(int user) ;

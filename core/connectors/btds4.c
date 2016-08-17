@@ -550,7 +550,7 @@ static int read_ps4_interrupt(int btds4_number)
         {
           int joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, btds4_number);
 
-          if(ginput_joystick_has_rumble(joystick))
+          if(joystick >= 0 && (ginput_joystick_get_haptic(joystick) & GE_HAPTIC_RUMBLE))
           {
             GE_Event event =
             {
@@ -574,7 +574,7 @@ static int read_ps4_interrupt(int btds4_number)
   return 0;
 }
 
-static int ds4_interrupt_rumble(int joystick, unsigned short weak, unsigned short strong)
+static int ds4_interrupt_rumble(const GE_Event * haptic)
 {
   static struct __attribute__ ((packed))
   {
@@ -602,10 +602,10 @@ static int ds4_interrupt_rumble(int joystick, unsigned short weak, unsigned shor
   unsigned int i;
   for(i = 0; i < sizeof(states)/sizeof(*states); ++i)
   {
-    if(states[i].joystick_id == joystick)
+    if(states[i].joystick_id == haptic->which)
     {
-      report.data[7] = weak >> 8;
-      report.data[8] = strong >> 8;
+      report.data[7] = haptic->jrumble.weak >> 8;
+      report.data[8] = haptic->jrumble.strong >> 8;
 
 #ifndef WIN32
       MHASH td = mhash_init(MHASH_CRC32B);
@@ -867,7 +867,7 @@ int btds4_init(int btds4_number, int dongle_index, const char * bdaddr_dst)
   strncpy(state->ps4_bdaddr, bdaddr_dst, sizeof(state->ps4_bdaddr));
 
   memcpy(&state->bt_report, &init_report_btds4, sizeof(s_btds4_report));
-  state->joystick_id = ginput_register_joystick(DS4_DEVICE_NAME, ds4_interrupt_rumble);
+  state->joystick_id = ginput_register_joystick(DS4_DEVICE_NAME, GE_HAPTIC_RUMBLE, ds4_interrupt_rumble);
 
   return 0;
 }

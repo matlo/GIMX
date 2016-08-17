@@ -9,11 +9,24 @@
 #include <SDL.h>
 
 #include <ginput.h>
+#include <gerror.h>
 
 #define PRINT_ERROR_SDL(msg) fprintf(stderr, "%s:%d %s: %s failed with error: %s\n", __FILE__, __LINE__, __func__, msg, SDL_GetError());
 
 #define SCREEN_WIDTH  1
 #define SCREEN_HEIGHT 1
+
+static struct
+{
+  unsigned int sdltype;
+  GE_HapticType type;
+} effect_types[] =
+{
+  { SDL_HAPTIC_LEFTRIGHT, GE_HAPTIC_RUMBLE },
+  { SDL_HAPTIC_CONSTANT,  GE_HAPTIC_CONSTANT },
+  { SDL_HAPTIC_SPRING,    GE_HAPTIC_SPRING },
+  { SDL_HAPTIC_DAMPER,    GE_HAPTIC_DAMPER }
+};
 
 static unsigned char mkb_source;
 
@@ -36,7 +49,9 @@ static struct
   struct
   {
     SDL_Haptic* haptic;
-    int effect_id;
+    unsigned int effects;
+    int ids[sizeof(effect_types) / sizeof(*effect_types)];
+    int (*haptic_cb)(const GE_Event * event);
   } force_feedback;
   struct
   {
@@ -59,33 +74,79 @@ static struct
 
 static int (*event_callback)(GE_Event*) = NULL;
 
+int get_effect_id(int id, GE_HapticType type)
+{
+  int i = -1;
+  switch(type)
+  {
+  case GE_HAPTIC_RUMBLE:
+	  i = 0;
+	  break;
+  case GE_HAPTIC_CONSTANT:
+	  i = 1;
+	  break;
+  case GE_HAPTIC_SPRING:
+	  i = 2;
+	  break;
+  case GE_HAPTIC_DAMPER:
+	  i = 3;
+	  break;
+  case GE_HAPTIC_NONE:
+	  break;
+  }
+  if (i < 0)
+  {
+	return -1;
+  }
+  return joysticks[id].force_feedback.ids[i];
+}
+
 static void open_haptic(int id, SDL_Joystick* joystick) {
 
+  joysticks[id].force_feedback.effects = GE_HAPTIC_NONE;
+  
   SDL_Haptic* haptic = SDL_HapticOpenFromJoystick(joystick);
   if(haptic)
   {
-    if(SDL_HapticQuery(haptic) & SDL_HAPTIC_LEFTRIGHT)
+    unsigned int features = SDL_HapticQuery(haptic);
+    unsigned int i;
+    for (i = 0; i < sizeof(effect_types) / sizeof(*effect_types); ++i)
     {
-      SDL_HapticEffect effect =
+      if(features & effect_types[i].sdltype)
       {
-        .leftright =
-        {
-          .type = SDL_HAPTIC_LEFTRIGHT
+        SDL_HapticEffect effect = {
+          .type = effect_types[i].sdltype,
+        };
+        switch (effect_types[i].sdltype) {
+        case SDL_HAPTIC_LEFTRIGHT:
+            effect.leftright.length = SDL_HAPTIC_INFINITY;
+            break;
+        case SDL_HAPTIC_CONSTANT:
+            effect.constant.length = SDL_HAPTIC_INFINITY;
+            effect.constant.direction.type = SDL_HAPTIC_CARTESIAN;
+            effect.constant.direction.dir[0] = 0;
+            break;
+        case SDL_HAPTIC_SPRING:
+        case SDL_HAPTIC_DAMPER:
+            effect.condition.length = SDL_HAPTIC_INFINITY;
+            effect.condition.direction.type = SDL_HAPTIC_CARTESIAN;
+            effect.condition.direction.dir[0] = 0;
+            break;
         }
-      };
-      int effect_id = SDL_HapticNewEffect(haptic, &effect);
-      if(effect_id >= 0)
-      {
-        joysticks[id].force_feedback.haptic = haptic;
-        joysticks[id].force_feedback.effect_id = effect_id;
-      }
-      else
-      {
-        PRINT_ERROR_SDL("SDL_HapticNewEffect")
-        SDL_HapticClose(haptic);
+        int effect_id = SDL_HapticNewEffect(haptic, &effect);
+        if(effect_id >= 0)
+        {
+          joysticks[id].force_feedback.haptic = haptic;
+          joysticks[id].force_feedback.effects |= effect_types[i].type;
+          joysticks[id].force_feedback.ids[i] = effect_id;
+        }
+        else
+        {
+          PRINT_ERROR_SDL("SDL_HapticNewEffect")
+        }
       }
     }
-    else
+    if (joysticks[id].force_feedback.effects == GE_HAPTIC_NONE)
     {
       SDL_HapticClose(haptic);
     }
@@ -235,14 +296,15 @@ const char* sdlinput_joystick_name(int id)
   return SDL_JoystickName(joysticks[id].joystick);
 }
 
-int sdlinput_joystick_register(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short))
+int sdlinput_joystick_register(const char* name, unsigned int effects, int (*haptic_cb)(const GE_Event * event))
 {
   int index = -1;
   if(joysticks_nb < GE_MAX_DEVICES)
   {
     index = joysticks_nb;
     joysticks[index].name = strdup(name);
-    //TODO MLA: rumble callback
+    joysticks[index].force_feedback.effects = effects;
+    joysticks[index].force_feedback.haptic_cb = haptic_cb;
     ++joysticks_nb;
     ++joysticks_registered;
   }
@@ -272,6 +334,7 @@ void sdlinput_joystick_close(int id)
     {
       SDL_HapticClose(joysticks[id].force_feedback.haptic);
       joysticks[id].force_feedback.haptic = NULL;
+      joysticks[id].force_feedback.effects = GE_HAPTIC_NONE;
     }
     if(joysticks[id].joystick)
     {
@@ -635,39 +698,97 @@ static int sdl_peep_events(GE_Event* events, int size)
   return hats_to_buttons(events, j);
 }
 
-int sdlinput_joystick_has_ff_rumble(int joystick)
+int sdlinput_joystick_get_haptic(int joystick)
 {
   if(joystick < 0 || joystick >= joysticks_nb)
   {
-    return 0;
+    return -1;
   }
-  return joysticks[joystick].force_feedback.haptic != NULL;
+  return joysticks[joystick].force_feedback.effects;
 }
 
-int sdlinput_joystick_set_ff_rumble(int joystick, unsigned short weak, unsigned short strong)
+int sdlinput_joystick_set_haptic(const GE_Event * event)
 {
-  if(!sdlinput_joystick_has_ff_rumble(joystick))
+  if(event->which >= joysticks_nb)
   {
+    PRINT_ERROR_OTHER("Invalid joystick id.")
     return -1;
   }
-  SDL_HapticEffect effect =
-  {
-    .leftright =
-    {
-      .type = SDL_HAPTIC_LEFTRIGHT,
-      .length = 0,
-      .large_magnitude = strong,
-      .small_magnitude = weak
+  if (joysticks[event->which].controller == NULL && joysticks[event->which].joystick == NULL) {
+    if (joysticks[event->which].force_feedback.haptic_cb != NULL) {
+      return joysticks[event->which].force_feedback.haptic_cb(event);
+    } else {
+      PRINT_ERROR_OTHER("External joystick has no haptic callback.")
+      return -1;
     }
-  };
-  if(SDL_HapticUpdateEffect(joysticks[joystick].force_feedback.haptic, joysticks[joystick].force_feedback.effect_id, &effect))
-  {
-    PRINT_ERROR_SDL("SDL_HapticUpdateEffect")
-    return -1;
   }
-  else
+  int effect_id = -1;
+  SDL_HapticEffect effect = {};
+  unsigned int effects = joysticks[event->which].force_feedback.effects;
+  switch (event->type)
   {
-    if(SDL_HapticRunEffect(joysticks[joystick].force_feedback.haptic, joysticks[joystick].force_feedback.effect_id, 1))
+  case GE_JOYRUMBLE:
+    if (effects & GE_HAPTIC_RUMBLE)
+    {
+      effect_id = get_effect_id(event->which, GE_HAPTIC_RUMBLE);
+      effect.leftright.type = SDL_HAPTIC_LEFTRIGHT;
+      effect.leftright.length = 0;
+      effect.leftright.large_magnitude = event->jrumble.strong;
+      effect.leftright.small_magnitude = event->jrumble.weak;
+    }
+    break;
+  case GE_JOYCONSTANTFORCE:
+    if (effects & GE_HAPTIC_CONSTANT)
+    {
+      effect_id = get_effect_id(event->which, GE_HAPTIC_CONSTANT);
+      effect.constant.type = SDL_HAPTIC_CONSTANT;
+      effect.constant.direction.type = SDL_HAPTIC_CARTESIAN;
+      effect.constant.direction.dir[0] = 0;
+      effect.constant.length = SDL_HAPTIC_INFINITY;
+      effect.constant.level = event->jconstant.level;
+    }
+    break;
+  case GE_JOYSPRINGFORCE:
+    if (effects & GE_HAPTIC_SPRING)
+    {
+      effect_id = get_effect_id(event->which, GE_HAPTIC_SPRING);
+      effect.condition.type = SDL_HAPTIC_SPRING;
+      effect.condition.direction.type = SDL_HAPTIC_CARTESIAN;
+      effect.condition.direction.dir[0] = 0;
+      effect.condition.length = SDL_HAPTIC_INFINITY;
+      effect.condition.right_sat[0] = event->jcondition.saturation.right;
+      effect.condition.left_sat[0] = event->jcondition.saturation.left;
+      effect.condition.right_coeff[0] = event->jcondition.coefficient.right;
+      effect.condition.left_coeff[0] = event->jcondition.coefficient.left;
+      effect.condition.center[0] = event->jcondition.center;
+      effect.condition.deadband[0] = event->jcondition.deadband;
+    }
+    break;
+  case GE_JOYDAMPERFORCE:
+    if (effects & GE_HAPTIC_DAMPER)
+    {
+      effect_id = get_effect_id(event->which, GE_HAPTIC_DAMPER);
+      effect.condition.type = SDL_HAPTIC_DAMPER;
+      effect.condition.direction.type = SDL_HAPTIC_CARTESIAN;
+      effect.condition.direction.dir[0] = 0;
+      effect.condition.length = SDL_HAPTIC_INFINITY;
+      effect.condition.right_sat[0] = event->jcondition.saturation.right;
+      effect.condition.left_sat[0] = event->jcondition.saturation.left;
+      effect.condition.right_coeff[0] = event->jcondition.coefficient.right;
+      effect.condition.left_coeff[0] = event->jcondition.coefficient.left;
+    }
+    break;
+  default:
+    break;
+  }
+  if (effect_id != -1)
+  {
+    if(SDL_HapticUpdateEffect(joysticks[event->which].force_feedback.haptic, effect_id, &effect))
+    {
+      PRINT_ERROR_SDL("SDL_HapticUpdateEffect")
+      return -1;
+    }
+    if(SDL_HapticRunEffect(joysticks[event->which].force_feedback.haptic, effect_id, 1))
     {
       PRINT_ERROR_SDL("SDL_HapticRunEffect")
       return -1;

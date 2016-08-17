@@ -56,9 +56,9 @@ int ev_init(unsigned char mkb_src, int(*callback)(GE_Event*))
   return 0;
 }
 
-int ev_joystick_register(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short))
+int ev_joystick_register(const char* name, unsigned int effects, int (*haptic_cb)(const GE_Event * event))
 {
-  return js_register(name, rumble_cb);
+  return js_register(name, effects, haptic_cb);
 }
 
 void ev_joystick_close(int id)
@@ -122,14 +122,14 @@ const char* ev_keyboard_name(int id)
   return NULL;
 }
 
-int ev_joystick_has_ff_rumble(int joystick)
+int ev_joystick_get_haptic(int joystick)
 {
-  return js_has_ff_rumble(joystick);
+  return js_get_haptic(joystick);
 }
 
-int ev_joystick_set_ff_rumble(int joystick, unsigned short weak, unsigned short strong)
+int ev_joystick_set_haptic(const GE_Event * event)
 {
-  return js_set_ff_rumble(joystick, weak, strong);
+  return js_set_haptic(event);
 }
 
 int ev_joystick_get_hid(int joystick)

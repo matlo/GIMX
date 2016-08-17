@@ -204,7 +204,7 @@ void ffb_lg_init_static(void)
     }
 }
 
-static const int debug = 0;
+static const int debug = 1;
 
 #define dprintf(...) if(debug) printf(__VA_ARGS__)
 
@@ -659,6 +659,67 @@ s_ffb_report * ffb_logitech_get_report(int device) {
         }
     }
 
+    return NULL;
+}
+
+static void get_slot(int device, unsigned char index, GE_Event * haptic) {
+
+    unsigned char type = ffb_lg_device[device].forces[index].parameters[0];
+
+    printf("%02x %02x", index, type);
+
+    switch(type) {
+    case FTYPE_CONSTANT:
+        haptic->type = GE_JOYCONSTANTFORCE;
+        if (ffb_lg_device[device].forces[index].active) {
+            unsigned char level = ffb_lg_device[device].forces[index].parameters[1];
+            haptic->jconstant.level = level << 8;
+        } else {
+            haptic->jconstant.level = 0;
+        }
+        printf("level: %d\n", haptic->jconstant.level);
+        break;
+    case FTYPE_SPRING:
+        haptic->type = GE_JOYSPRINGFORCE;
+        break;
+    case FTYPE_DAMPER:
+        haptic->type = GE_JOYDAMPERFORCE;
+        break;
+    default:
+        return;
+    }
+
+}
+
+GE_Event * ffb_logitech_convert_report(int device, s_ffb_report * report) {
+
+    static GE_Event haptic = {};
+
+    unsigned char slots = report->data[1] & 0xf0;
+    unsigned char cmd = report->data[1] & 0x0f;
+
+    unsigned char index;
+    s_force * forces = ffb_lg_device[device].forces;
+
+    switch(cmd)
+    {
+    case CMD_DOWNLOAD_AND_PLAY:
+        index = slot_index[slots >> 4];
+        get_slot(device, index, &haptic);
+        report->data[1] = 0;
+        return &haptic;
+    case CMD_STOP:
+        for (index = 0; index < FORCES_NB; ++index) {
+            if (slots & forces[index].mask) {
+                get_slot(device, index, &haptic);
+                report->data[1] &= ~forces[index].mask;
+                return &haptic;
+            }
+        }
+        break;
+    default:
+    break;
+    }
     return NULL;
 }
 

@@ -157,6 +157,10 @@ int process_event(GE_Event* event)
   return 0;
 }
 
+int ignore_event(GE_Event* event) {
+  return 0;
+}
+
 int timer_close(int user) {
   done = 1;
   return 1;

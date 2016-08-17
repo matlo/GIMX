@@ -27,6 +27,18 @@ static int debug = 0;
 
 static struct
 {
+  unsigned char jstype;
+  GE_HapticType type;
+} effect_types[] =
+{
+  { FF_RUMBLE,   GE_HAPTIC_RUMBLE },
+  { FF_CONSTANT, GE_HAPTIC_CONSTANT },
+  { FF_SPRING,   GE_HAPTIC_SPRING },
+  { FF_DAMPER,   GE_HAPTIC_DAMPER }
+};
+
+static struct
+{
   int fd; // the opened joystick, or -1 in case the joystick was created using the js_register() function
   char* name; // the name of the joystick
   struct
@@ -38,13 +50,44 @@ static struct
   struct
   {
     int fd;
-    int rumble_id;
-    int (*rumble_cb)(int index, unsigned short weak, unsigned short strong);
+    unsigned int effects;
+    int ids[sizeof(effect_types) / sizeof(*effect_types)];
+    int constant_id;
+    int spring_id;
+    int damper_id;
+    int (*haptic_cb)(const GE_Event * event);
   } force_feedback;
   int hid;
 } joysticks[GE_MAX_DEVICES] = {};
 
 static int j_num; // the number of joysticks
+
+int get_effect_id(int id, GE_HapticType type)
+{
+  int i = -1;
+  switch(type)
+  {
+  case GE_HAPTIC_RUMBLE:
+    i = 0;
+    break;
+  case GE_HAPTIC_CONSTANT:
+    i = 1;
+    break;
+  case GE_HAPTIC_SPRING:
+    i = 2;
+    break;
+  case GE_HAPTIC_DAMPER:
+    i = 3;
+    break;
+  case GE_HAPTIC_NONE:
+    break;
+  }
+  if (i < 0)
+  {
+  return -1;
+  }
+  return joysticks[id].force_feedback.ids[i];
+}
 
 /*
  * This initializes the data before any other function of this file gets called.
@@ -225,7 +268,7 @@ static void get_hid(int joystick, int fd_ev)
   }
 }
 
-static int start_ff(int joystick, int fd_ev)
+static int open_haptic(int joystick, int fd_ev)
 {
   unsigned long features[4];
   if (ioctl(fd_ev, EVIOCGBIT(EV_FF, sizeof(features)), features) == -1)
@@ -233,25 +276,35 @@ static int start_ff(int joystick, int fd_ev)
     perror("ioctl EV_FF");
     return -1;
   }
-  if (test_bit(FF_RUMBLE, features))
+  unsigned int i;
+  for (i = 0; i < sizeof(effect_types) / sizeof(*effect_types); ++i)
   {
-    // Upload a rumble effect.
-    struct ff_effect rumble =
+    if (test_bit(effect_types[i].jstype, features))
     {
-      .type = FF_RUMBLE,
-      .id = -1
-    };
-    if (ioctl(fd_ev, EVIOCSFF, &rumble) == -1)
-    {
-      perror("ioctl EVIOCSFF");
-      return -1;
+      // Upload the effect.
+      struct ff_effect effect =
+      {
+        .type = effect_types[i].jstype,
+        .id = -1
+      };
+      if (ioctl(fd_ev, EVIOCSFF, &effect) != -1)
+      {
+        // Store the id so that the effect can be updated and played later.
+        joysticks[joystick].force_feedback.fd = fd_ev;
+        joysticks[joystick].force_feedback.effects |= effect_types[i].type;
+        joysticks[joystick].force_feedback.ids[i] = effect.id;
+      }
+      else
+      {
+        perror("ioctl EVIOCSFF");
+      }
     }
-    // Store the ids so that the effects can be updated and played later.
-    joysticks[joystick].force_feedback.fd = fd_ev;
-    joysticks[joystick].force_feedback.rumble_id = rumble.id;
-    return 0;
   }
-  return -1;
+  if (joysticks[joystick].force_feedback.effects == GE_HAPTIC_NONE)
+  {
+    return -1;
+  }
+  return 0;
 }
 
 int js_init(int (*callback)(GE_Event*))
@@ -304,7 +357,7 @@ int js_init(int (*callback)(GE_Event*))
           if(fd_ev >= 0)
           {
             get_hid(j_num, fd_ev);
-            if(start_ff(j_num, fd_ev) == -1)
+            if(open_haptic(j_num, fd_ev) == -1)
             {
               close(fd_ev); //no need to keep it opened
             }
@@ -336,62 +389,103 @@ int js_init(int (*callback)(GE_Event*))
   return ret;
 }
 
-int js_has_ff_rumble(int joystick)
+int js_get_haptic(int joystick)
 {
-  if(joystick < j_num)
-  {
-    return (joysticks[joystick].force_feedback.fd != -1) || (joysticks[joystick].force_feedback.rumble_cb);
-  }
-  else
+  if(joystick >= j_num)
   {
     return -1;
   }
+  return joysticks[joystick].force_feedback.effects;
 }
 
-int js_set_ff_rumble(int joystick, unsigned short weak, unsigned short strong)
+int js_set_haptic(const GE_Event * event)
 {
-  if(joystick < 0 || joystick >= j_num)
+  if(event->which >= j_num)
   {
     return -1;
   }
 
   int ret = 0;
 
-  int fd = joysticks[joystick].force_feedback.fd;
+  int fd = joysticks[event->which].force_feedback.fd;
 
   if(fd >= 0)
   {
-    struct ff_effect effect =
+    struct ff_effect effect = { .id = -1, .direction = 0x4000 /* positive means left */ };
+    unsigned int effects = joysticks[event->which].force_feedback.effects;
+    switch (event->type)
     {
-      .type = FF_RUMBLE
-    };
-
-    struct input_event play =
-    {
-      .type = EV_FF,
-      .value = 1 /* play: 1, stop: 0 */
-    };
-
-    // Update the effect.
-    effect.id = joysticks[joystick].force_feedback.rumble_id;
-    effect.u.rumble.strong_magnitude = strong;
-    effect.u.rumble.weak_magnitude   = weak;
-    if (ioctl(fd, EVIOCSFF, &effect) == -1)
-    {
-      perror("ioctl EVIOCSFF");
-      ret = -1;
+    case GE_JOYRUMBLE:
+      if (effects & GE_HAPTIC_RUMBLE)
+      {
+        effect.id = get_effect_id(event->which, GE_HAPTIC_RUMBLE);
+        effect.type = FF_RUMBLE;
+        effect.u.rumble.strong_magnitude = event->jrumble.strong;
+        effect.u.rumble.weak_magnitude   = event->jrumble.weak;
+      }
+      break;
+    case GE_JOYCONSTANTFORCE:
+      if (effects & GE_HAPTIC_CONSTANT)
+      {
+        effect.id = get_effect_id(event->which, GE_HAPTIC_CONSTANT);
+        effect.type = FF_CONSTANT;
+        effect.u.constant.level = event->jconstant.level;
+      }
+      break;
+    case GE_JOYSPRINGFORCE:
+      if (effects & GE_HAPTIC_SPRING)
+      {
+        effect.id = get_effect_id(event->which, GE_HAPTIC_SPRING);
+        effect.type = FF_SPRING;
+        effect.u.condition[0].right_saturation = event->jcondition.saturation.right;
+        effect.u.condition[0].left_saturation = event->jcondition.saturation.left;
+        effect.u.condition[0].right_coeff = event->jcondition.coefficient.right;
+        effect.u.condition[0].left_coeff = event->jcondition.coefficient.left;
+        effect.u.condition[0].center = event->jcondition.center;
+        effect.u.condition[0].deadband = event->jcondition.deadband;
+      }
+      break;
+    case GE_JOYDAMPERFORCE:
+      if (effects & GE_HAPTIC_DAMPER)
+      {
+        effect.id = get_effect_id(event->which, GE_HAPTIC_DAMPER);
+        effect.type = FF_DAMPER;
+        effect.u.condition[0].right_saturation = event->jcondition.saturation.right;
+        effect.u.condition[0].left_saturation = event->jcondition.saturation.left;
+        effect.u.condition[0].right_coeff = event->jcondition.coefficient.right;
+        effect.u.condition[0].left_coeff = event->jcondition.coefficient.left;
+        effect.u.condition[0].center = event->jcondition.center;
+        effect.u.condition[0].deadband = event->jcondition.deadband;
+      }
+      break;
+    default:
+      break;
     }
-    // Play the effect.
-    play.code =  effect.id;
-    if (write(fd, (const void*) &play, sizeof(play)) == -1)
+    if (effect.id != -1)
     {
-      perror("write");
-      ret = -1;
+      // Update the effect.
+      if (ioctl(fd, EVIOCSFF, &effect) == -1)
+      {
+        perror("ioctl EVIOCSFF");
+        ret = -1;
+      }
+      struct input_event play =
+      {
+        .type = EV_FF,
+        .value = 1, /* play: 1, stop: 0 */
+        .code = effect.id
+      };
+      // Play the effect.
+      if (write(fd, (const void*) &play, sizeof(play)) == -1)
+      {
+        perror("write");
+        ret = -1;
+      }
     }
   }
-  else if(joysticks[joystick].force_feedback.rumble_cb)
+  else if(joysticks[event->which].force_feedback.haptic_cb)
   {
-    ret = joysticks[joystick].force_feedback.rumble_cb(joystick, weak, strong);
+    ret = joysticks[event->which].force_feedback.haptic_cb(event);
   }
   else
   {
@@ -413,19 +507,20 @@ int js_close(int joystick)
     free(joysticks[joystick].name);
     joysticks[joystick].name = NULL;
 
-    joysticks[joystick].hid = -1;
-
     if(joysticks[joystick].fd >= 0)
     {
       gpoll_remove_fd(joysticks[joystick].fd);
       close(joysticks[joystick].fd);
-      joysticks[joystick].fd = -1;
     }
     if(joysticks[joystick].force_feedback.fd >= 0)
     {
       close(joysticks[joystick].force_feedback.fd);
-      joysticks[joystick].force_feedback.fd = -1;
     }
+
+    memset(joysticks + joystick, 0x00, sizeof(*joysticks));
+    joysticks[joystick].hid = -1;
+    joysticks[joystick].fd = -1;
+    joysticks[joystick].force_feedback.fd = -1;
   }
 
   return 0;
@@ -454,14 +549,15 @@ const char* js_get_name(int joystick)
   }
 }
 
-int js_register(const char* name, int (*rumble_cb)(int, unsigned short, unsigned short))
+int js_register(const char* name, unsigned int effects, int (*haptic_cb)(const GE_Event * event))
 {
   int index = -1;
   if(j_num < GE_MAX_DEVICES)
   {
     index = j_num;
     joysticks[index].name = strdup(name);
-    joysticks[index].force_feedback.rumble_cb = rumble_cb;
+    joysticks[index].force_feedback.effects = effects;
+    joysticks[index].force_feedback.haptic_cb = haptic_cb;
     ++j_num;
   }
   return index;
