@@ -147,8 +147,7 @@ static inline int usbasync_check_device(int device, const char * file, unsigned 
     return retValue; \
   }
 
-static inline unsigned char get_endpoint(int device, unsigned char endpoint, unsigned char direction, unsigned int count,
-    const char * file, unsigned int line, const char * func) {
+static inline unsigned char get_endpoint(int device, unsigned char endpoint, unsigned char direction, unsigned int count) {
 
   if ((endpoint & LIBUSB_ENDPOINT_DIR_MASK) != direction) {
 
@@ -192,8 +191,6 @@ static inline unsigned char get_endpoint(int device, unsigned char endpoint, uns
   
   return endpointIndex;
 }
-#define GET_ENDPOINT(device,endpoint,direction,count) \
-        get_endpoint(device, endpoint, direction, count, __FILE__, __LINE__, __func__);
 
 static char * make_path(libusb_device * dev) {
   uint8_t path[1 + 7] = { };
@@ -308,7 +305,7 @@ int gusb_poll(int device, unsigned char endpoint) {
 
   USBASYNC_CHECK_DEVICE(device, -1)
 
-  unsigned char endpointIndex = GET_ENDPOINT(device, endpoint, LIBUSB_ENDPOINT_IN, 0)
+  unsigned char endpointIndex = get_endpoint(device, endpoint, LIBUSB_ENDPOINT_IN, 0);
   if(endpointIndex == INVALID_ENDPOINT_INDEX) {
   
     return -1;
@@ -373,24 +370,43 @@ int gusb_handle_events(int unused) {
 #endif
 }
 
-static int transfer_timeout(int device, unsigned char endpointIndex, unsigned char direction, const void * buf, unsigned int count, unsigned int timeout) {
+static int transfer_timeout(int device, unsigned char endpoint, void * buf, unsigned int count, unsigned int timeout) {
 
   int transfered = -1;
   
-  uint8_t endpointAddress = (endpointIndex + 1) | direction;
+  uint8_t endpointIndex = (endpoint & LIBUSB_ENDPOINT_ADDRESS_MASK);
 
   uint8_t type;
-  if (direction == LIBUSB_ENDPOINT_IN) {
-    type = usbdevices[device].endpoints[endpointIndex].in.type;
+  if (endpointIndex == 0) {
+	  type = LIBUSB_TRANSFER_TYPE_CONTROL;
   } else {
-    type = usbdevices[device].endpoints[endpointIndex].out.type;
+    --endpointIndex;
+    if (IS_ENDPOINT_IN(endpoint)) {
+      type = usbdevices[device].endpoints[endpointIndex].in.type;
+    } else {
+      type = usbdevices[device].endpoints[endpointIndex].out.type;
+    }
   }
 
   int ret = -1;
   switch (type) {
+  case LIBUSB_TRANSFER_TYPE_CONTROL:
+    {
+      struct libusb_control_setup * control_setup = (struct libusb_control_setup *)buf;
+      unsigned char * data = buf + sizeof(*control_setup);
+      ret = libusb_control_transfer(usbdevices[device].devh, control_setup->bmRequestType, control_setup->bRequest, control_setup->wValue,
+              control_setup->wIndex, data, control_setup->wLength, timeout);
+	  if (ret < 0) {
+
+	    PRINT_ERROR_LIBUSB("libusb_control_transfer", ret)
+	    return -1;
+	  } else {
+	    transfered = ret;
+	  }
+    }
+	break;
   case LIBUSB_TRANSFER_TYPE_INTERRUPT:
-    ret = libusb_interrupt_transfer(usbdevices[device].devh, endpointAddress,
-      (void *) buf, count, &transfered, timeout);
+    ret = libusb_interrupt_transfer(usbdevices[device].devh, endpoint, buf, count, &transfered, timeout);
     if (ret != LIBUSB_SUCCESS && ret != LIBUSB_ERROR_TIMEOUT) {
 
       PRINT_ERROR_LIBUSB("libusb_interrupt_transfer", ret)
@@ -405,30 +421,33 @@ static int transfer_timeout(int device, unsigned char endpointIndex, unsigned ch
   return transfered;
 }
 
-int gusb_write_timeout(int device, unsigned char endpoint, const void * buf, unsigned int count, unsigned int timeout) {
+int gusb_write_timeout(int device, unsigned char endpoint, void * buf, unsigned int count, unsigned int timeout) {
 
   USBASYNC_CHECK_DEVICE(device, -1)
 
-  unsigned char endpointIndex = GET_ENDPOINT(device, endpoint, LIBUSB_ENDPOINT_OUT, count)
-  if(endpointIndex == INVALID_ENDPOINT_INDEX) {
-  
-    return -1;
+  if (endpoint != 0) {
+
+    unsigned char endpointIndex = get_endpoint(device, endpoint, LIBUSB_ENDPOINT_OUT, count);
+    if(endpointIndex == INVALID_ENDPOINT_INDEX) {
+
+      return -1;
+    }
   }
 
-  return transfer_timeout(device, endpointIndex, LIBUSB_ENDPOINT_OUT, buf, count, timeout);
+  return transfer_timeout(device, endpoint, buf, count, timeout);
 }
 
 int gusb_read_timeout(int device, unsigned char endpoint, void * buf, unsigned int count, unsigned int timeout) {
 
   USBASYNC_CHECK_DEVICE(device, -1)
 
-  unsigned char endpointIndex = GET_ENDPOINT(device, endpoint, LIBUSB_ENDPOINT_IN, count)
+  unsigned char endpointIndex = get_endpoint(device, endpoint, LIBUSB_ENDPOINT_IN, count);
   if(endpointIndex == INVALID_ENDPOINT_INDEX) {
   
     return -1;
   }
 
-  return transfer_timeout(device, endpointIndex, LIBUSB_ENDPOINT_IN, buf, count, timeout);
+  return transfer_timeout(device, endpoint, buf, count, timeout);
 }
 
 static int get_configurations (int device) {
@@ -1160,7 +1179,7 @@ int gusb_register(int device, int user, USBASYNC_READ_CALLBACK fp_read, USBASYNC
     USBASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_HANDLE fp_register) {
 #else
 int gusb_register(int device, int user, USBASYNC_READ_CALLBACK fp_read, USBASYNC_WRITE_CALLBACK fp_write,
-	USBASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_FD fp_register) {
+    USBASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_FD fp_register) {
 #endif
 
   USBASYNC_CHECK_DEVICE(device, -1)
@@ -1268,7 +1287,8 @@ int gusb_write(int device, unsigned char endpoint, const void * buf, unsigned in
 
   if (endpoint != 0) {
 
-    unsigned char endpointIndex = GET_ENDPOINT(device, endpoint, LIBUSB_ENDPOINT_OUT, 0)
+    // TODO MLA: replace 0 with count?
+    unsigned char endpointIndex = get_endpoint(device, endpoint, LIBUSB_ENDPOINT_OUT, 0);
     if(endpointIndex == INVALID_ENDPOINT_INDEX) {
 
       return -1;

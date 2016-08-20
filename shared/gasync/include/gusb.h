@@ -170,7 +170,7 @@ int gusb_register(int device, int user, USBASYNC_READ_CALLBACK fp_read, USBASYNC
 	USBASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_FD fp_register);
 #endif
 int gusb_write(int device, unsigned char endpoint, const void * buf, unsigned int count);
-int gusb_write_timeout(int device, unsigned char endpoint, const void * buf, unsigned int count,
+int gusb_write_timeout(int device, unsigned char endpoint, void * buf, unsigned int count,
     unsigned int timeout);
 int gusb_poll(int device, unsigned char endpoint);
 int gusb_handle_events(int unused);
