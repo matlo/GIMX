@@ -165,7 +165,7 @@ int process_device(int device) {
         if (type == TYPE_TEENSY) {
             return -1;
         }
-        printf("Failed to get the link key (this is probably a Ds4).");
+        printf("Failed to get the link key (this is probably a Ds4).\n");
     } else {
         if (type == TYPE_DS4) {
             return -1;
