@@ -38,9 +38,9 @@ public:
 class BluetoothPairing
 {
 public:
-    wxString controller;
-    wxString console;
-    wxString linkKey;
+    wxString local;
+    wxString remote;
+    wxString linkkey;
 };
 
 class launcherFrame: public wxFrame
@@ -109,6 +109,9 @@ class launcherFrame: public wxFrame
 
         int ps3Setup();
         int ps4Setup();
+        int ps4Repair();
+        int readDonglePairings(vector<BluetoothPairing>& donglePairings);
+        BluetoothPairing selectBrokenPairing(vector<BluetoothPairing>& brokenDonglePairings);
 
         //(*Identifiers(launcherFrame)
         static const long ID_STATICTEXT4;

@@ -40,7 +40,7 @@
 #include <wx/arrstr.h>
 #include <wx/stdpaths.h>
 #include <wx/busyinfo.h>
-#include "wx/numdlg.h"
+#include <wx/numdlg.h>
 
 #include <time.h>
 #include <ghid.h>
@@ -207,9 +207,9 @@ void launcherFrame::readPairings(vector<BluetoothPairing>& bluetoothPairings, wx
             }
 
             BluetoothPairing pairing;
-            pairing.console = results[i][0].MakeUpper();
-            pairing.controller = results[i][1].MakeUpper();
-            pairing.linkKey = results[i][2].MakeUpper();
+            pairing.remote = results[i][0].MakeUpper();
+            pairing.local = results[i][1].MakeUpper();
+            pairing.linkkey = results[i][2].MakeUpper();
             bluetoothPairings.push_back(pairing);
         }
     }
@@ -329,7 +329,7 @@ int launcherFrame::setDongleAddress(vector<DongleInfo>& dongleInfos, int dongleI
       }
     }
 
-    int answer = wxMessageBox(_("Did you saved your dongle address?"), _("Confirm"), wxYES_NO | wxCANCEL);
+    int answer = wxMessageBox(_("Did you saved your dongle address?"), _("Confirm"), wxYES_NO);
 
     if (answer != wxYES)
     {
@@ -1147,7 +1147,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
 
       if(!wxExecute(checkCommand, wxEXEC_SYNC))
       {
-        int answer = wxMessageBox(_("Bluetooth service has to be stopped.\nProceed?"), _("Confirm"), wxYES_NO | wxCANCEL);
+        int answer = wxMessageBox(_("Bluetooth service has to be stopped.\nProceed?"), _("Confirm"), wxYES_NO);
 
         if (answer != wxYES)
         {
@@ -1298,7 +1298,7 @@ void launcherFrame::OnProcessTerminated(wxProcess *process, int status)
       long int endTime = wxGetUTCTime();
       if(endTime - startTime < 5)
       {
-        int answer = wxMessageBox(_("GIMX ran less than 5 seconds. Would you like to generate a log report?"), _("Confirm"), wxYES_NO | wxCANCEL);
+        int answer = wxMessageBox(_("GIMX ran less than 5 seconds. Would you like to generate a log report?"), _("Confirm"), wxYES_NO);
         if (answer == wxYES)
         {
           ProcessOutputChoice->SetSelection(ProcessOutputChoice->FindString(_("log file")));
@@ -1413,6 +1413,8 @@ void launcherFrame::OnMenuRefresh(wxCommandEvent& event)
 
 void launcherFrame::OnOutputSelect(wxCommandEvent& event)
 {
+    OutputNewButton->SetLabel(_("New"));
+
     if(Output->GetStringSelection() == _(GPP_NAME))
     {
       OutputSizer->Show(true);
@@ -1469,6 +1471,11 @@ void launcherFrame::OnOutputSelect(wxCommandEvent& event)
       OutputText->SetLabel(_("Pairing"));
 
       readChoices(PS4_PAIRINGS, OutputChoice, OUTPUT_CHOICE_FILE);
+
+      if (!OutputChoice->IsEmpty())
+      {
+        OutputNewButton->SetLabel(_("New/Repair"));
+      }
 
       refreshGui();
 
@@ -1758,8 +1765,8 @@ int launcherFrame::choosePairing(BluetoothPairing& pairing)
   for(unsigned int i=0; i<bluetoothPairings.size(); ++i)
   {
     wxString address = wxEmptyString;
-    address.Append(_("Controller: ")).Append(bluetoothPairings[i].controller).Append(wxT("\n"));
-    address.Append(_("Console: ")).Append(bluetoothPairings[i].console);
+    address.Append(_("Controller: ")).Append(bluetoothPairings[i].local).Append(wxT("\n"));
+    address.Append(_("Console: ")).Append(bluetoothPairings[i].remote);
     addresses.Add(address);
   }
 
@@ -1861,8 +1868,8 @@ int launcherFrame::ps3Setup()
 
   while(choosePairing(btPairing) < 0)
   {
-    int answer = wxMessageBox( _("Plug a sixaxis/ds3"), _("PS Tool"), wxICON_INFORMATION | wxYES | wxCANCEL);
-    if (answer != wxYES)
+    int answer = wxMessageBox( _("Plug a sixaxis/ds3"), _("PS Tool"), wxICON_INFORMATION | wxOK | wxCANCEL);
+    if (answer != wxOK)
     {
       return -1;
     }
@@ -1872,16 +1879,16 @@ int launcherFrame::ps3Setup()
 
   //choose a bluetooth device
 
-  while(chooseDongle(btPairing.controller, dongleInfo) < 0)
+  while(chooseDongle(btPairing.local, dongleInfo) < 0)
   {
-    int answer = wxMessageBox( _("Plug a bluetooth dongle"), _("PS Tool"), wxICON_INFORMATION | wxYES | wxCANCEL);
-    if (answer != wxYES)
+    int answer = wxMessageBox( _("Plug a bluetooth dongle"), _("PS Tool"), wxICON_INFORMATION | wxOK | wxCANCEL);
+    if (answer != wxOK)
     {
       return -1;
     }
   }
 
-  wxString pairing = btPairing.controller + wxT(" ") + btPairing.console;
+  wxString pairing = btPairing.local + wxT(" ") + btPairing.remote;
   int pos = OutputChoice->FindString(pairing);
   if(pos == wxNOT_FOUND)
   {
@@ -1929,8 +1936,8 @@ int launcherFrame::ps4Setup()
 
   while(chooseDongle(wxEmptyString, dongleInfo) < 0)
   {
-    int answer = wxMessageBox( _("Plug a bluetooth dongle"), _("PS Tool"), wxICON_INFORMATION | wxYES | wxCANCEL);
-    if (answer != wxYES)
+    int answer = wxMessageBox( _("Plug a bluetooth dongle"), _("PS Tool"), wxICON_INFORMATION | wxOK | wxCANCEL);
+    if (answer != wxOK)
     {
       return -1;
     }
@@ -1940,14 +1947,14 @@ int launcherFrame::ps4Setup()
 
   while(choosePairing(btPairing) < 0)
   {
-    int answer = wxMessageBox( _("Plug a ds4"), _("PS Tool"), wxICON_INFORMATION | wxYES | wxCANCEL);
-    if (answer != wxYES)
+    int answer = wxMessageBox( _("Plug a ds4"), _("PS Tool"), wxICON_INFORMATION | wxOK | wxCANCEL);
+    if (answer != wxOK)
     {
       return -1;
     }
   }
 
-  ds4Bdaddr = btPairing.controller;
+  ds4Bdaddr = btPairing.local;
 
   ds4LinkKey = generateLinkKey();
 
@@ -1976,8 +1983,8 @@ int launcherFrame::ps4Setup()
       break;
     }
 
-    int answer = wxMessageBox( _("Plug the teensy"), _("PS Tool"), wxICON_INFORMATION | wxYES | wxCANCEL);
-    if (answer != wxYES)
+    int answer = wxMessageBox( _("Plug the teensy"), _("PS Tool"), wxICON_INFORMATION | wxOK | wxCANCEL);
+    if (answer != wxOK)
     {
       return -1;
     }
@@ -2008,8 +2015,8 @@ int launcherFrame::ps4Setup()
 
   do
   {
-    int answer = wxMessageBox( _("Plug the Teensy to the PS4,\nwait a few seconds,\nand plug it back to the PC"), _("PS Tool"), wxICON_INFORMATION | wxYES | wxCANCEL);
-    if (answer != wxYES)
+    int answer = wxMessageBox( _("Plug the Teensy to the PS4,\nwait a few seconds,\nand plug it back to the PC"), _("PS Tool"), wxICON_INFORMATION | wxOK | wxCANCEL);
+    if (answer != wxOK)
     {
       return -1;
     }
@@ -2017,10 +2024,10 @@ int launcherFrame::ps4Setup()
     pairings.clear();
     readPairings(pairings, wxT("ds4tool -t"));
 
-  } while(pairings.empty() || pairings[0].linkKey == wxT("00000000000000000000000000000000"));
+  } while(pairings.empty() || pairings[0].linkkey == wxT("00000000000000000000000000000000"));
 
-  ps4Bdaddr = pairings[0].console;
-  ps4LinkKey = pairings[0].linkKey;
+  ps4Bdaddr = pairings[0].remote;
+  ps4LinkKey = pairings[0].linkkey;
 
   if(saveLinkKeys(dongleInfo.address, ds4Bdaddr, ds4LinkKey, ps4Bdaddr, ps4LinkKey) < 0)
   {
@@ -2044,6 +2051,160 @@ int launcherFrame::ps4Setup()
   }
 
   return 0;
+}
+
+int launcherFrame::readDonglePairings(vector<BluetoothPairing>& donglePairings)
+{
+    string btDir = string(gimxDir.mb_str(wxConvUTF8));
+    btDir.append(BLUETOOTH_LK_DIR);
+
+    wxDir dir(wxString(btDir.c_str(), wxConvUTF8));
+    if(!dir.IsOpened())
+    {
+      return -1;
+    }
+
+    wxString dongleAddress;
+    for (bool cont = dir.GetFirst(&dongleAddress, wxEmptyString, wxDIR_DIRS); cont;  cont = dir.GetNext(&dongleAddress))
+    {
+      string lkFile = btDir + "/" + string(dongleAddress.mb_str(wxConvUTF8)) + BLUETOOTH_LK_FILE;
+      ifstream infile (lkFile.c_str());
+      if ( infile.is_open() )
+      {
+        while( infile.good() )
+        {
+          string line;
+          getline (infile, line);
+          stringstream ss(line);
+          string remote, linkkey;
+          getline (ss, remote, ' ');
+          getline (ss, linkkey, ' ');
+          if (remote.empty() || linkkey.empty())
+          {
+            continue;
+          }
+          BluetoothPairing pairing;
+          pairing.local = dongleAddress;
+          pairing.remote = wxString(remote.c_str(), wxConvUTF8);
+          pairing.linkkey = wxString(linkkey.c_str(), wxConvUTF8);
+          donglePairings.push_back(pairing);
+        }
+        infile.close();
+      }
+    }
+    return 0;
+}
+
+static void getBrokenPairings(vector<BluetoothPairing>& donglePairings, BluetoothPairing& controllerPairing, vector<BluetoothPairing>& brokenDonglePairings)
+{
+  vector<BluetoothPairing> prevDonglePairings;
+  for (vector<BluetoothPairing>::iterator dongleIt = donglePairings.begin(); dongleIt != donglePairings.end(); ++dongleIt)
+  {
+    if (controllerPairing.local == dongleIt->remote && controllerPairing.remote != dongleIt->local)
+    {
+      brokenDonglePairings.push_back(*dongleIt);
+    }
+  }
+}
+
+BluetoothPairing launcherFrame::selectBrokenPairing(vector<BluetoothPairing>& brokenDonglePairings)
+{
+  BluetoothPairing pairing;
+  wxArrayString prevDongles;
+  for (vector<BluetoothPairing>::iterator it = brokenDonglePairings.begin(); it != brokenDonglePairings.end(); ++it)
+  {
+    prevDongles.Add(it->local + wxT(" ") + it->remote);
+  }
+  wxSingleChoiceDialog dialog(this, _("Select the pairing to restore."), wxEmptyString, prevDongles);
+  if (dialog.ShowModal() == wxID_OK)
+  {
+    wxString local = dialog.GetStringSelection().BeforeFirst(wxChar(' '));
+    wxString remote = dialog.GetStringSelection().AfterFirst(wxChar(' '));
+    for (vector<BluetoothPairing>::iterator it = brokenDonglePairings.begin(); it != brokenDonglePairings.end(); ++it)
+    {
+      if (local == it->local && remote == it->remote)
+      {
+        pairing.local = local;
+        pairing.remote = remote;
+        pairing.linkkey = it->linkkey;
+        break;
+      }
+    }
+  }
+  return pairing;
+}
+
+int launcherFrame::ps4Repair()
+{
+	int repaired = 0;
+
+	//get known pairings
+
+	vector<BluetoothPairing> donglePairings;
+	readDonglePairings(donglePairings);
+
+	if (donglePairings.empty())
+	{
+      wxMessageBox( _("No previous pairing found!"), _("Error"), wxICON_ERROR);
+	}
+
+    do {
+        //get plugged controllers
+
+        vector<BluetoothPairing> controllerPairings;
+        readPairings(controllerPairings, wxT("ds4tool"));
+
+        for (vector<BluetoothPairing>::iterator controllerIt = controllerPairings.begin(); controllerIt != controllerPairings.end(); ++controllerIt)
+        {
+          //check known pairings that are broken for this controller
+
+          vector<BluetoothPairing> brokenDonglePairings;
+          getBrokenPairings(donglePairings, *controllerIt, brokenDonglePairings);
+          if (brokenDonglePairings.empty())
+          {
+            continue;
+          }
+
+          //choose a pairing to restore
+
+          BluetoothPairing brokenPairing = selectBrokenPairing(brokenDonglePairings);
+          if (brokenPairing.local.empty())
+          {
+            continue;
+          }
+
+          //set the master and the link key of the ds4
+
+          wxString command;
+          command.Append(wxT("ds4tool -s "));
+          command.Append(brokenPairing.remote);
+          command.Append(wxT(" -m "));
+          command.Append(brokenPairing.local);
+          command.Append(wxT(" -l "));
+          command.Append(brokenPairing.linkkey);
+          if(wxExecute(command, wxEXEC_SYNC))
+          {
+            wxMessageBox( _("Cannot execute: ") + command, _("Error"), wxICON_ERROR);
+            return -1;
+          }
+          else
+          {
+              wxMessageBox( _("Success."), wxEmptyString, wxICON_INFORMATION);
+          }
+          ++repaired;
+        }
+
+        if (repaired == 0)
+        {
+			int answer = wxMessageBox( _("Plug a ds4 to repair."), wxEmptyString, wxICON_INFORMATION | wxOK | wxCANCEL);
+			if (answer != wxOK)
+			{
+			  return -1;
+			}
+        }
+    } while (repaired == 0);
+
+    return 0;
 }
 
 void launcherFrame::OnMenuSave(wxCommandEvent& event)
@@ -2113,6 +2274,46 @@ void launcherFrame::readIp(wxChoice* choices)
   }
 }
 
+class CustomDialog: public wxDialog {
+public:
+    CustomDialog(wxWindow* parent, const wxString& title, const wxString& button1, const wxString& button2) :
+            wxDialog(parent, wxID_ANY, title, wxDefaultPosition, wxDefaultSize) {
+
+        wxPanel * panel = new wxPanel(this, wxID_ANY);
+
+        wxButton * btn1 = new wxButton(panel, wxID_ANY, button1);
+        wxButton * btn2 = new wxButton(panel, wxID_ANY, button2);
+
+        wxFlexGridSizer * sizer = new wxFlexGridSizer(1, 2, 0, 0);
+
+        sizer->Add(btn1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+        sizer->Add(btn2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+
+        panel->SetSizer(sizer);
+
+        Connect(btn1->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, (wxObjectEventFunction)&CustomDialog::onButton1);
+        Connect(btn2->GetId(), wxEVT_COMMAND_BUTTON_CLICKED, (wxObjectEventFunction)&CustomDialog::onButton2);
+
+        Center(wxCENTRE_ON_SCREEN);
+
+        panel->Fit();
+        Fit();
+        Refresh();
+    }
+    virtual ~CustomDialog() {};
+    void onButton1(wxCommandEvent& pEvent)
+    {
+        EndModal(ID_BUTTON_1);
+    }
+    void onButton2(wxCommandEvent& pEvent)
+    {
+        EndModal(ID_BUTTON_2);
+    }
+
+    static const int ID_BUTTON_1 = 1;
+    static const int ID_BUTTON_2 = 2;
+};
+
 void launcherFrame::OnOutputNewButtonClick(wxCommandEvent& event)
 {
   if(Output->GetStringSelection() == _("Bluetooth / PS3"))
@@ -2121,7 +2322,23 @@ void launcherFrame::OnOutputNewButtonClick(wxCommandEvent& event)
   }
   else if(Output->GetStringSelection() == _("Bluetooth / PS4"))
   {
-    ps4Setup();
+    if (!OutputChoice->IsEmpty())
+    {
+      CustomDialog dialog(this, wxT(""), _("New"), _("Repair"));
+      switch (dialog.ShowModal())
+      {
+      case CustomDialog::ID_BUTTON_1:
+        ps4Setup();
+        break;
+      case CustomDialog::ID_BUTTON_2:
+        ps4Repair();
+        break;
+      }
+    }
+    else
+    {
+      ps4Setup();
+    }
   }
   else if(Output->GetStringSelection() == _("Remote GIMX"))
   {
