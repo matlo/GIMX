@@ -12,7 +12,7 @@ CXXFLAGS += -Wall -Wextra -Wno-unused-parameter -s -O3
 #CFLAGS += -Wall -Wextra -Wno-unused-parameter -O0 -g
 #CXXFLAGS += -Wall -Wextra -Wno-unused-parameter -O0 -g
 
-CPPFLAGS += `xml2-config --cflags` `pkg-config libusb-1.0 --cflags`
+CPPFLAGS += `xml2-config --cflags` `pkg-config libusb-1.0 --cflags` -I../shared/gasync/include
 ifeq ($(OS),Windows_NT)
 CC = gcc
 CPPFLAGS += `sdl2-config --cflags`

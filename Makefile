@@ -1,4 +1,4 @@
-DIRS = utils shared core config launcher fpsconfig
+DIRS = shared utils core config launcher fpsconfig
 
 ifneq ($(OS),Windows_NT)
 DIRS+= po
@@ -14,6 +14,7 @@ $(DIRS): $(BUILDDIRS)
 $(BUILDDIRS):
 	$(MAKE) -C $(@:build-%=%)
 
+build-utils: build-shared
 build-core: build-shared
 build-config: build-shared
 build-launcher: build-shared

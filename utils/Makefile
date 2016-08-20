@@ -1,3 +1,5 @@
+include ../Makedefs
+
 ifneq ($(OS),Windows_NT)
 prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
@@ -8,17 +10,10 @@ ifneq ($(OS),Windows_NT)
 BINS+= bdaddr hcirevision
 OUT=$(BINS)
 else
-OUT=
+OUT=ds4tool.exe sixaddr.exe
 endif
 
-CPPFLAGS := `pkg-config libusb-1.0 --cflags`
-
-LDLIBS := `pkg-config libusb-1.0 --libs`
-ifneq ($(OS),Windows_NT)
-LDLIBS += -lbluetooth
-endif
-
-DEPS=
+DEPS=../shared/gasync/gasync.a
 
 all: updated $(BINS)
 
