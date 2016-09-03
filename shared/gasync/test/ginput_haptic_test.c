@@ -153,6 +153,8 @@ void haptic_task() {
     }
     if (haptic & GE_HAPTIC_SPRING) {
         event.jcondition.type = GE_JOYSPRINGFORCE;
+        event.jcondition.saturation.left = USHRT_MAX;
+        event.jcondition.saturation.right = USHRT_MAX;
         switch (step) {
         case 0:
             event.jcondition.coefficient.right = SHRT_MAX / 2;
@@ -170,6 +172,8 @@ void haptic_task() {
     }
     if (haptic & GE_HAPTIC_DAMPER) {
         event.jcondition.type = GE_JOYDAMPERFORCE;
+        event.jcondition.saturation.left = USHRT_MAX;
+        event.jcondition.saturation.right = USHRT_MAX;
         switch (step) {
         case 0:
             event.jcondition.coefficient.right = SHRT_MAX / 2;
