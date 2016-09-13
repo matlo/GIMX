@@ -7,7 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <ffb_logitech.h>
+#include <haptic/ff_lg.h>
 #include <ghid.h>
 #include <adapter.h>
 

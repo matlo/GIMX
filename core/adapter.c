@@ -24,7 +24,7 @@
 #include <controller2.h>
 #include <gpoll.h>
 
-#include <ffb_logitech.h>
+#include <haptic/ff_lg.h>
 #include <ghid.h>
 
 #define BAUDRATE 500000 //bps
