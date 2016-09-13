@@ -5,9 +5,9 @@ prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
 endif
 
-BINS=ds4tool sixaddr
+BINS=
 ifneq ($(OS),Windows_NT)
-BINS+= bdaddr hcirevision
+BINS+=ds4tool sixaddr bdaddr hcirevision
 OUT=$(BINS)
 else
 OUT=ds4tool.exe sixaddr.exe
