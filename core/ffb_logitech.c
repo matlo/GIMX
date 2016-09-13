@@ -11,55 +11,6 @@
 #include <ghid.h>
 #include <adapter.h>
 
-#define FSLOT_1 0x10
-#define FSLOT_2 0x20
-#define FSLOT_3 0x40
-#define FSLOT_4 0x80
-
-#define CMD_DOWNLOAD           0x00
-#define CMD_DOWNLOAD_AND_PLAY  0x01
-#define CMD_PLAY               0x02
-#define CMD_STOP               0x03
-#define CMD_DEFAULT_SPRING_ON  0x04
-#define CMD_DEFAULT_SPRING_OFF 0x05
-#define CMD_RESERVED_1         0x06
-#define CMD_RESERVED_2         0x07
-#define CMD_NORMAL_MODE        0x08
-#define CMD_EXTENDED_COMMAND   0xF8
-#define CMD_SET_LED            0x09
-#define CMD_SET_WATCHDOG       0x0A
-#define CMD_RAW_MODE           0x0B
-#define CMD_REFRESH_FORCE      0x0C
-#define CMD_FIXED_TIME_LOOP    0x0D
-#define CMD_SET_DEFAULT_SPRING 0x0E
-#define CMD_SET_DEAD_BAND      0x0F
-
-#define EXT_CMD_CHANGE_MODE_DFP           0x01
-#define EXT_CMD_WHEEL_RANGE_200_DEGREES   0x02
-#define EXT_CMD_WHEEL_RANGE_900_DEGREES   0x03
-#define EXT_CMD_CHANGE_MODE               0x09
-#define EXT_CMD_REVERT_IDENTITY           0x0a
-#define EXT_CMD_CHANGE_MODE_G25           0x10
-#define EXT_CMD_CHANGE_MODE_G25_NO_DETACH 0x11
-#define EXT_CMD_SET_RPM_LEDS              0x12
-#define EXT_CMD_CHANGE_WHEEL_RANGE        0x81
-
-#define FTYPE_CONSTANT                           0x00
-#define FTYPE_SPRING                             0x01
-#define FTYPE_DAMPER                             0x02
-#define FTYPE_AUTO_CENTER_SPRING                 0x03
-#define FTYPE_SAWTOOTH_UP                        0x04
-#define FTYPE_SAWTOOTH_DOWN                      0x05
-#define FTYPE_TRAPEZOID                          0x06
-#define FTYPE_RECTANGLE                          0x07
-#define FTYPE_VARIABLE                           0x08
-#define FTYPE_RAMP                               0x09
-#define FTYPE_SQUARE_WAVE                        0x0A
-#define FTYPE_HIGH_RESOLUTION_SPRING             0x0B
-#define FTYPE_HIGH_RESOLUTION_DAMPER             0x0C
-#define FTYPE_HIGH_RESOLUTION_AUTO_CENTER_SPRING 0x0D
-#define FTYPE_FRICTION                           0x0E
-
 static unsigned char fslot_nbits [] = {
     [0b0000] = 0,
     [0b0001] = 1,
@@ -80,26 +31,26 @@ static unsigned char fslot_nbits [] = {
 };
 
 static const char * cmd_names[] = {
-    [CMD_DOWNLOAD]           = "DOWNLOAD",
-    [CMD_DOWNLOAD_AND_PLAY]  = "DOWNLOAD_AND_PLAY",
-    [CMD_PLAY]               = "PLAY",
-    [CMD_STOP]               = "STOP",
-    [CMD_DEFAULT_SPRING_ON]  = "DEFAULT_SPRING_ON",
-    [CMD_DEFAULT_SPRING_OFF] = "DEFAULT_SPRING_OFF",
-    [CMD_RESERVED_1]         = "RESERVED_1",
-    [CMD_RESERVED_2]         = "RESERVED_2",
-    [CMD_NORMAL_MODE]        = "NORMAL_MODE",
-    [CMD_SET_LED]            = "SET_LED",
-    [CMD_SET_WATCHDOG]       = "SET_WATCHDOG",
-    [CMD_RAW_MODE]           = "RAW_MODE",
-    [CMD_REFRESH_FORCE]      = "REFRESH_FORCE",
-    [CMD_FIXED_TIME_LOOP]    = "FIXED_TIME_LOOP",
-    [CMD_SET_DEFAULT_SPRING] = "SET_DEFAULT_SPRING",
-    [CMD_SET_DEAD_BAND]      = "SET_DEAD_BAND",
+    [FF_LG_CMD_DOWNLOAD]           = "DOWNLOAD",
+    [FF_LG_CMD_DOWNLOAD_AND_PLAY]  = "DOWNLOAD_AND_PLAY",
+    [FF_LG_CMD_PLAY]               = "PLAY",
+    [FF_LG_CMD_STOP]               = "STOP",
+    [FF_LG_CMD_DEFAULT_SPRING_ON]  = "DEFAULT_SPRING_ON",
+    [FF_LG_CMD_DEFAULT_SPRING_OFF] = "DEFAULT_SPRING_OFF",
+    [FF_LG_CMD_RESERVED_1]         = "RESERVED_1",
+    [FF_LG_CMD_RESERVED_2]         = "RESERVED_2",
+    [FF_LG_CMD_NORMAL_MODE]        = "NORMAL_MODE",
+    [FF_LG_CMD_SET_LED]            = "SET_LED",
+    [FF_LG_CMD_SET_WATCHDOG]       = "SET_WATCHDOG",
+    [FF_LG_CMD_RAW_MODE]           = "RAW_MODE",
+    [FF_LG_CMD_REFRESH_FORCE]      = "REFRESH_FORCE",
+    [FF_LG_CMD_FIXED_TIME_LOOP]    = "FIXED_TIME_LOOP",
+    [FF_LG_CMD_SET_DEFAULT_SPRING] = "SET_DEFAULT_SPRING",
+    [FF_LG_CMD_SET_DEAD_BAND]      = "SET_DEAD_BAND",
 };
 
 static const char * get_cmd_name(unsigned char header) {
-    if (header == CMD_EXTENDED_COMMAND) {
+    if (header == FF_LG_CMD_EXTENDED_COMMAND) {
         return "EXTENDED_COMMAND";
     } else {
         unsigned char cmd = header & 0x0f;
@@ -115,15 +66,15 @@ static struct {
     unsigned char value;
     const char * name;
 } ext_cmd_names[] = {
-    { EXT_CMD_CHANGE_MODE_DFP,           "CHANGE_MODE_DFP" },
-    { EXT_CMD_WHEEL_RANGE_200_DEGREES,   "WHEEL_RANGE_200_DEGREES" },
-    { EXT_CMD_WHEEL_RANGE_900_DEGREES,   "WHEEL_RANGE_900_DEGREES" },
-    { EXT_CMD_CHANGE_MODE,               "CHANGE_MODE" },
-    { EXT_CMD_REVERT_IDENTITY,           "REVERT_IDENTITY" },
-    { EXT_CMD_CHANGE_MODE_G25,           "CHANGE_MODE_G25" },
-    { EXT_CMD_CHANGE_MODE_G25_NO_DETACH, "CHANGE_MODE_G25_NO_DETACH" },
-    { EXT_CMD_SET_RPM_LEDS,              "SET_RPM_LEDS" },
-    { EXT_CMD_CHANGE_WHEEL_RANGE,        "CHANGE_WHEEL_RANGE" },
+    { FF_LG_EXT_CMD_CHANGE_MODE_DFP,           "CHANGE_MODE_DFP" },
+    { FF_LG_EXT_CMD_WHEEL_RANGE_200_DEGREES,   "WHEEL_RANGE_200_DEGREES" },
+    { FF_LG_EXT_CMD_WHEEL_RANGE_900_DEGREES,   "WHEEL_RANGE_900_DEGREES" },
+    { FF_LG_EXT_CMD_CHANGE_MODE,               "CHANGE_MODE" },
+    { FF_LG_EXT_CMD_REVERT_IDENTITY,           "REVERT_IDENTITY" },
+    { FF_LG_EXT_CMD_CHANGE_MODE_G25,           "CHANGE_MODE_G25" },
+    { FF_LG_EXT_CMD_CHANGE_MODE_G25_NO_DETACH, "CHANGE_MODE_G25_NO_DETACH" },
+    { FF_LG_EXT_CMD_SET_RPM_LEDS,              "SET_RPM_LEDS" },
+    { FF_LG_EXT_CMD_CHANGE_WHEEL_RANGE,        "CHANGE_WHEEL_RANGE" },
 };
 
 static const char * get_ext_cmd_name(unsigned char ext) {
@@ -139,21 +90,21 @@ static const char * get_ext_cmd_name(unsigned char ext) {
 }
 
 static const char * ftype_names [] = {
-    [FTYPE_CONSTANT]                           = "CONSTANT",
-    [FTYPE_SPRING]                             = "SPRING",
-    [FTYPE_DAMPER]                             = "DAMPER",
-    [FTYPE_AUTO_CENTER_SPRING]                 = "AUTO_CENTER_SPRING",
-    [FTYPE_SAWTOOTH_UP]                        = "SAWTOOTH_UP",
-    [FTYPE_SAWTOOTH_DOWN]                      = "SAWTOOTH_DOWN",
-    [FTYPE_TRAPEZOID]                          = "TRAPEZOID",
-    [FTYPE_RECTANGLE]                          = "RECTANGLE",
-    [FTYPE_VARIABLE]                           = "VARIABLE",
-    [FTYPE_RAMP]                               = "RAMP",
-    [FTYPE_SQUARE_WAVE]                        = "SQUARE_WAVE",
-    [FTYPE_HIGH_RESOLUTION_SPRING]             = "HIGH_RESOLUTION_SPRING",
-    [FTYPE_HIGH_RESOLUTION_DAMPER]             = "HIGH_RESOLUTION_DAMPER",
-    [FTYPE_HIGH_RESOLUTION_AUTO_CENTER_SPRING] = "HIGH_RESOLUTION_AUTO_CENTER_SPRING",
-    [FTYPE_FRICTION]                           = "FRICTION",
+    [FF_LG_FTYPE_CONSTANT]                           = "CONSTANT",
+    [FF_LG_FTYPE_SPRING]                             = "SPRING",
+    [FF_LG_FTYPE_DAMPER]                             = "DAMPER",
+    [FF_LG_FTYPE_AUTO_CENTER_SPRING]                 = "AUTO_CENTER_SPRING",
+    [FF_LG_FTYPE_SAWTOOTH_UP]                        = "SAWTOOTH_UP",
+    [FF_LG_FTYPE_SAWTOOTH_DOWN]                      = "SAWTOOTH_DOWN",
+    [FF_LG_FTYPE_TRAPEZOID]                          = "TRAPEZOID",
+    [FF_LG_FTYPE_RECTANGLE]                          = "RECTANGLE",
+    [FF_LG_FTYPE_VARIABLE]                           = "VARIABLE",
+    [FF_LG_FTYPE_RAMP]                               = "RAMP",
+    [FF_LG_FTYPE_SQUARE_WAVE]                        = "SQUARE_WAVE",
+    [FF_LG_FTYPE_HIGH_RESOLUTION_SPRING]             = "HIGH_RESOLUTION_SPRING",
+    [FF_LG_FTYPE_HIGH_RESOLUTION_DAMPER]             = "HIGH_RESOLUTION_DAMPER",
+    [FF_LG_FTYPE_HIGH_RESOLUTION_AUTO_CENTER_SPRING] = "HIGH_RESOLUTION_AUTO_CENTER_SPRING",
+    [FF_LG_FTYPE_FRICTION]                           = "FRICTION",
 };
 
 static const char * get_ftype_name(unsigned char ftype) {
@@ -172,12 +123,12 @@ typedef struct {
     unsigned char mask;
     unsigned char active;
     unsigned char updated;
-    unsigned char parameters[FFB_LOGITECH_OUTPUT_REPORT_SIZE - 1];
+    unsigned char parameters[FF_LG_OUTPUT_REPORT_SIZE - 1];
 } s_force;
 
 typedef struct {
     unsigned char updated;
-    unsigned char cmd[FFB_LOGITECH_OUTPUT_REPORT_SIZE];
+    unsigned char cmd[FF_LG_OUTPUT_REPORT_SIZE];
 } s_ext_cmd;
 
 typedef struct {
@@ -219,10 +170,10 @@ static void dump(unsigned char* packet, unsigned char length)
   }
 }
 
-static unsigned char slot_index[] = { [FSLOT_1 >> 4] = 0, [FSLOT_2 >> 4] = 1, [FSLOT_3 >> 4] = 2, [FSLOT_4 >> 4] = 3, };
+static unsigned char slot_index[] = { [FF_LG_FSLOT_1 >> 4] = 0, [FF_LG_FSLOT_2 >> 4] = 1, [FF_LG_FSLOT_3 >> 4] = 2, [FF_LG_FSLOT_4 >> 4] = 3, };
 
 static inline int compare_cmd(s_cmd cmd1, s_cmd cmd2) {
-    return cmd1.cmd == cmd2.cmd && (cmd1.cmd != CMD_EXTENDED_COMMAND || cmd1.ext == cmd2.ext);
+    return cmd1.cmd == cmd2.cmd && (cmd1.cmd != FF_LG_CMD_EXTENDED_COMMAND || cmd1.ext == cmd2.ext);
 }
 
 static inline void fifo_push(int device, s_cmd cmd, int replace) {
@@ -243,7 +194,7 @@ static inline void fifo_push(int device, s_cmd cmd, int replace) {
         dprintf("can't push:");
     }
     dprintf(" %02x", cmd.cmd);
-    if(cmd.cmd == CMD_EXTENDED_COMMAND) {
+    if(cmd.cmd == FF_LG_CMD_EXTENDED_COMMAND) {
         dprintf(" %02x", cmd.ext);
     }
     dprintf("\n");
@@ -254,7 +205,7 @@ static inline s_cmd fifo_peek(int device) {
     s_cmd cmd = fifo[0];
     if (cmd.cmd) {
         dprintf("peek: %02x", cmd.cmd);
-        if(cmd.cmd == CMD_EXTENDED_COMMAND) {
+        if(cmd.cmd == FF_LG_CMD_EXTENDED_COMMAND) {
             dprintf(" %02x", cmd.ext);
         }
         dprintf("\n");
@@ -270,7 +221,7 @@ static inline void fifo_remove(int device, s_cmd cmd) {
             break;
         } else if (compare_cmd(fifo[i], cmd)) {
             dprintf("remove %02x", cmd.cmd);
-            if(cmd.cmd == CMD_EXTENDED_COMMAND) {
+            if(cmd.cmd == FF_LG_CMD_EXTENDED_COMMAND) {
                 dprintf(" %02x", cmd.ext);
             }
             dprintf("\n");
@@ -281,18 +232,18 @@ static inline void fifo_remove(int device, s_cmd cmd) {
     }
 }
 
-static void decode_extended(unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE]) {
+static void decode_extended(unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
 
     dprintf("%s %s", get_cmd_name(data[0]), get_ext_cmd_name(data[1]));
 
     switch(data[1]) {
-    case EXT_CMD_CHANGE_MODE_DFP:
-    case EXT_CMD_WHEEL_RANGE_200_DEGREES:
-    case EXT_CMD_WHEEL_RANGE_900_DEGREES:
-    case EXT_CMD_CHANGE_MODE_G25:
-    case EXT_CMD_CHANGE_MODE_G25_NO_DETACH:
+    case FF_LG_EXT_CMD_CHANGE_MODE_DFP:
+    case FF_LG_EXT_CMD_WHEEL_RANGE_200_DEGREES:
+    case FF_LG_EXT_CMD_WHEEL_RANGE_900_DEGREES:
+    case FF_LG_EXT_CMD_CHANGE_MODE_G25:
+    case FF_LG_EXT_CMD_CHANGE_MODE_G25_NO_DETACH:
       break;
-    case EXT_CMD_CHANGE_MODE:
+    case FF_LG_EXT_CMD_CHANGE_MODE:
     {
       const char * mode = NULL;
       switch(data[2]) {
@@ -321,65 +272,65 @@ static void decode_extended(unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE])
       dprintf(" - %s", data[3] ? "DETACH" : "NO DETACH");
     }
       break;
-    case EXT_CMD_REVERT_IDENTITY:
+    case FF_LG_EXT_CMD_REVERT_IDENTITY:
       dprintf(" - %s", data[2] ? "REVERT" : "DO NOT REVERT");
       break;
-    case EXT_CMD_SET_RPM_LEDS:
+    case FF_LG_EXT_CMD_SET_RPM_LEDS:
       dprintf(" - 0x%02x", data[2]);
       break;
-    case EXT_CMD_CHANGE_WHEEL_RANGE:
+    case FF_LG_EXT_CMD_CHANGE_WHEEL_RANGE:
       dprintf(" - %hu", (data[3] << 8) | data[2]);
       break;
     default:
       dprintf(" - ");
-      dump(data + 2, FFB_LOGITECH_OUTPUT_REPORT_SIZE - 2);
+      dump(data + 2, FF_LG_OUTPUT_REPORT_SIZE - 2);
       break;
     }
     dprintf("\n");
 }
 
-static void decode_command(unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE]) {
+static void decode_command(unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
 
     dprintf("%s ", get_cmd_name(data[0]));
 
     switch(data[0] & 0x0f) {
-    case CMD_PLAY:
-    case CMD_STOP:
+    case FF_LG_CMD_PLAY:
+    case FF_LG_CMD_STOP:
         dprintf(" 0x%02x", data[0]);
         break;
-    case CMD_DOWNLOAD:
-    case CMD_DOWNLOAD_AND_PLAY:
-    case CMD_REFRESH_FORCE:
+    case FF_LG_CMD_DOWNLOAD:
+    case FF_LG_CMD_DOWNLOAD_AND_PLAY:
+    case FF_LG_CMD_REFRESH_FORCE:
         dprintf(" - %s", get_ftype_name(data[1]));
         dprintf(" - ");
-        dump(data + 2, FFB_LOGITECH_OUTPUT_REPORT_SIZE - 2);
+        dump(data + 2, FF_LG_OUTPUT_REPORT_SIZE - 2);
         break;
-    case CMD_DEFAULT_SPRING_ON:
-    case CMD_DEFAULT_SPRING_OFF:
-    case CMD_NORMAL_MODE:
-    case CMD_RAW_MODE:
+    case FF_LG_CMD_DEFAULT_SPRING_ON:
+    case FF_LG_CMD_DEFAULT_SPRING_OFF:
+    case FF_LG_CMD_NORMAL_MODE:
+    case FF_LG_CMD_RAW_MODE:
         break;
-    case CMD_SET_LED:
+    case FF_LG_CMD_SET_LED:
         dprintf(" - 0x%02x", data[1]);
         break;
-    case CMD_SET_WATCHDOG:
+    case FF_LG_CMD_SET_WATCHDOG:
         dprintf(" - 0x%02x", data[1]);
         break;
-    case CMD_FIXED_TIME_LOOP:
+    case FF_LG_CMD_FIXED_TIME_LOOP:
         dprintf(" - %s", data[1] ? "ON" : "OFF");
         break;
-    case CMD_SET_DEFAULT_SPRING:
+    case FF_LG_CMD_SET_DEFAULT_SPRING:
         dprintf(" - ");
-        dump(data + 1, FFB_LOGITECH_OUTPUT_REPORT_SIZE - 1);
+        dump(data + 1, FF_LG_OUTPUT_REPORT_SIZE - 1);
         break;
-    case CMD_SET_DEAD_BAND:
+    case FF_LG_CMD_SET_DEAD_BAND:
         dprintf(" - %s", data[1] ? "ON" : "OFF");
         break;
     }
     dprintf("\n");
 }
 
-void ffb_logitech_process_report(int device, unsigned char data[FFB_LOGITECH_OUTPUT_REPORT_SIZE]) {
+void ffb_logitech_process_report(int device, unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
 
     if (device < 0 || device >= MAX_CONTROLLERS) {
         fprintf(stderr, "%s:%d %s: invalid device (%d)", __FILE__, __LINE__, __func__, device);
@@ -388,7 +339,7 @@ void ffb_logitech_process_report(int device, unsigned char data[FFB_LOGITECH_OUT
 
     if(debug) {
         dprintf("> ");
-        if(data[0] == CMD_EXTENDED_COMMAND) {
+        if(data[0] == FF_LG_CMD_EXTENDED_COMMAND) {
             decode_extended(data);
         }
         else {
@@ -396,7 +347,7 @@ void ffb_logitech_process_report(int device, unsigned char data[FFB_LOGITECH_OUT
         }
     }
 
-    if(data[0] != CMD_EXTENDED_COMMAND) {
+    if(data[0] != FF_LG_CMD_EXTENDED_COMMAND) {
 
         unsigned char slots = data[0] & 0xf0;
         unsigned char cmd = data[0] & 0x0f;
@@ -404,7 +355,7 @@ void ffb_logitech_process_report(int device, unsigned char data[FFB_LOGITECH_OUT
         int i;
         s_force * forces = ffb_lg_device[device].forces;
 
-        if (cmd == CMD_STOP && slots == 0xf0)
+        if (cmd == FF_LG_CMD_STOP && slots == 0xf0)
         {
           // stop all forces, whatever their current states
           // this is useful at startup, where all forces are considered stopped
@@ -420,18 +371,18 @@ void ffb_logitech_process_report(int device, unsigned char data[FFB_LOGITECH_OUT
 
         switch(cmd)
         {
-        case CMD_DOWNLOAD:
-        case CMD_DOWNLOAD_AND_PLAY:
-        case CMD_PLAY:
-        case CMD_STOP:
-        case CMD_REFRESH_FORCE:
+        case FF_LG_CMD_DOWNLOAD:
+        case FF_LG_CMD_DOWNLOAD_AND_PLAY:
+        case FF_LG_CMD_PLAY:
+        case FF_LG_CMD_STOP:
+        case FF_LG_CMD_REFRESH_FORCE:
         {
             for (i = 0; i < FORCES_NB; ++i) {
                 if (slots & forces[i].mask) {
-                    if (cmd == CMD_DOWNLOAD) {
+                    if (cmd == FF_LG_CMD_DOWNLOAD) {
                         memcpy(forces[i].parameters, data + 1, sizeof(forces[i].parameters));
                         continue; // don't send anything yet
-                    } else if (cmd == CMD_DOWNLOAD_AND_PLAY || cmd == CMD_REFRESH_FORCE) {
+                    } else if (cmd == FF_LG_CMD_DOWNLOAD_AND_PLAY || cmd == FF_LG_CMD_REFRESH_FORCE) {
                         if(forces[i].active && !memcmp(forces[i].parameters, data + 1, sizeof(forces[i].parameters))) {
                             dprintf("> no change\n");
                             continue; // no change
@@ -439,14 +390,14 @@ void ffb_logitech_process_report(int device, unsigned char data[FFB_LOGITECH_OUT
                         forces[i].updated = 1;
                         forces[i].active = 1;
                         memcpy(forces[i].parameters, data + 1, sizeof(forces[i].parameters));
-                    } else if (cmd == CMD_PLAY) {
+                    } else if (cmd == FF_LG_CMD_PLAY) {
                         if(forces[i].active) {
                             dprintf("> already playing\n");
                             continue; // already playing
                         }
                         forces[i].updated = 1;
                         forces[i].active = 1;
-                    } else if (cmd == CMD_STOP) {
+                    } else if (cmd == FF_LG_CMD_STOP) {
                         if(!forces[i].active) {
                             dprintf("> already stopped\n");
                             continue; // already stopped
@@ -472,14 +423,14 @@ void ffb_logitech_process_report(int device, unsigned char data[FFB_LOGITECH_OUT
         }
     }
     else {
-        s_cmd cmd = { CMD_EXTENDED_COMMAND, data[1] };
+        s_cmd cmd = { FF_LG_CMD_EXTENDED_COMMAND, data[1] };
 
         switch(data[1]) {
-        case EXT_CMD_CHANGE_MODE_DFP:
-        case EXT_CMD_CHANGE_MODE:
-        case EXT_CMD_REVERT_IDENTITY:
-        case EXT_CMD_CHANGE_MODE_G25:
-        case EXT_CMD_CHANGE_MODE_G25_NO_DETACH:
+        case FF_LG_EXT_CMD_CHANGE_MODE_DFP:
+        case FF_LG_EXT_CMD_CHANGE_MODE:
+        case FF_LG_EXT_CMD_REVERT_IDENTITY:
+        case FF_LG_EXT_CMD_CHANGE_MODE_G25:
+        case FF_LG_EXT_CMD_CHANGE_MODE_G25_NO_DETACH:
           return;
         }
 
@@ -516,7 +467,7 @@ void ffb_logitech_ack(int device) {
 
   unsigned char * data = ffb_lg_device[device].last_report.data + 1;
 
-  if(data[0] != CMD_EXTENDED_COMMAND) {
+  if(data[0] != FF_LG_CMD_EXTENDED_COMMAND) {
 
       unsigned char slots = data[0] & 0xf0;
       unsigned char cmd = data[0] & 0x0f;
@@ -526,11 +477,11 @@ void ffb_logitech_ack(int device) {
 
       switch(cmd)
       {
-      case CMD_DOWNLOAD:
-      case CMD_DOWNLOAD_AND_PLAY:
-      case CMD_PLAY:
-      case CMD_STOP:
-      case CMD_REFRESH_FORCE:
+      case FF_LG_CMD_DOWNLOAD:
+      case FF_LG_CMD_DOWNLOAD_AND_PLAY:
+      case FF_LG_CMD_PLAY:
+      case FF_LG_CMD_STOP:
+      case FF_LG_CMD_REFRESH_FORCE:
       {
           for (i = 0; i < FORCES_NB; ++i) {
               if (slots & forces[i].mask) {
@@ -559,12 +510,12 @@ void ffb_logitech_ack(int device) {
       int i;
       for (i = 0; i < EXT_CMD_NB; ++i) {
           if(ext_cmds[i].cmd[1] == data[1]) {
-              s_cmd cmd = { CMD_EXTENDED_COMMAND, data[1] };
+              s_cmd cmd = { FF_LG_CMD_EXTENDED_COMMAND, data[1] };
               if(!ext_cmds[i].updated) {
                   fifo_remove(device, cmd);
               } else {
                   dprintf("do not remove %02x", cmd.cmd);
-                  if(cmd.cmd == CMD_EXTENDED_COMMAND) {
+                  if(cmd.cmd == FF_LG_CMD_EXTENDED_COMMAND) {
                       dprintf(" %02x", cmd.ext);
                   }
                   dprintf("\n");
@@ -602,7 +553,7 @@ s_ffb_report * ffb_logitech_get_report(int device) {
     // if multiple forces have to be stopped, then stop them
     if (fslot_nbits[mask >> 4] > 1) {
         clear_report(device);
-        data[0] = mask | CMD_STOP;
+        data[0] = mask | FF_LG_CMD_STOP;
         for (i = 0; i < FORCES_NB; ++i) {
             if (mask & forces[i].mask) {
                 forces[i].updated = 0;
@@ -616,7 +567,7 @@ s_ffb_report * ffb_logitech_get_report(int device) {
     if (cmd.cmd) {
         clear_report(device);
         dprintf("< ");
-        if(cmd.cmd != CMD_EXTENDED_COMMAND) {
+        if(cmd.cmd != FF_LG_CMD_EXTENDED_COMMAND) {
             if(cmd.cmd & 0x0f)
             {
                 // not a slot update
@@ -631,10 +582,10 @@ s_ffb_report * ffb_logitech_get_report(int device) {
                 // slot update: cmd.cmd is in { FSLOT_1, FSLOT_2, FSLOT_3, FSLOT_4 }
                 unsigned char index = slot_index[cmd.cmd >> 4];
                 if (forces[index].active) {
-                    data[0] = cmd.cmd | CMD_DOWNLOAD_AND_PLAY;
+                    data[0] = cmd.cmd | FF_LG_CMD_DOWNLOAD_AND_PLAY;
                     memcpy(data + 1, forces[index].parameters, sizeof(forces[index].parameters));
                 } else {
-                    data[0] = cmd.cmd | CMD_STOP;
+                    data[0] = cmd.cmd | FF_LG_CMD_STOP;
                 }
                 forces[index].updated = 0;
                 if(debug) {
@@ -669,7 +620,7 @@ static void get_slot(int device, unsigned char index, GE_Event * haptic) {
     printf("%02x %02x", index, type);
 
     switch(type) {
-    case FTYPE_CONSTANT:
+    case FF_LG_FTYPE_CONSTANT:
         haptic->type = GE_JOYCONSTANTFORCE;
         if (ffb_lg_device[device].forces[index].active) {
             unsigned char level = ffb_lg_device[device].forces[index].parameters[1];
@@ -679,10 +630,10 @@ static void get_slot(int device, unsigned char index, GE_Event * haptic) {
         }
         printf("level: %d\n", haptic->jconstant.level);
         break;
-    case FTYPE_SPRING:
+    case FF_LG_FTYPE_SPRING:
         haptic->type = GE_JOYSPRINGFORCE;
         break;
-    case FTYPE_DAMPER:
+    case FF_LG_FTYPE_DAMPER:
         haptic->type = GE_JOYDAMPERFORCE;
         break;
     default:
@@ -703,12 +654,12 @@ GE_Event * ffb_logitech_convert_report(int device, s_ffb_report * report) {
 
     switch(cmd)
     {
-    case CMD_DOWNLOAD_AND_PLAY:
+    case FF_LG_CMD_DOWNLOAD_AND_PLAY:
         index = slot_index[slots >> 4];
         get_slot(device, index, &haptic);
         report->data[1] = 0;
         return &haptic;
-    case CMD_STOP:
+    case FF_LG_CMD_STOP:
         for (index = 0; index < FORCES_NB; ++index) {
             if (slots & forces[index].mask) {
                 get_slot(device, index, &haptic);
@@ -723,35 +674,18 @@ GE_Event * ffb_logitech_convert_report(int device, s_ffb_report * report) {
     return NULL;
 }
 
-#ifdef WIN32
-#define USB_VENDOR_ID_LOGITECH                  0x046d
-
-#define USB_DEVICE_ID_LOGITECH_WINGMAN_FFG      0xc293
-#define USB_DEVICE_ID_LOGITECH_WHEEL            0xc294
-#define USB_DEVICE_ID_LOGITECH_MOMO_WHEEL       0xc295
-#define USB_DEVICE_ID_LOGITECH_DFP_WHEEL        0xc298
-#define USB_DEVICE_ID_LOGITECH_G25_WHEEL        0xc299
-#define USB_DEVICE_ID_LOGITECH_DFGT_WHEEL       0xc29a
-#define USB_DEVICE_ID_LOGITECH_G27_WHEEL        0xc29b
-#define USB_DEVICE_ID_LOGITECH_WII_WHEEL        0xc29c
-#define USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2      0xca03
-#define USB_DEVICE_ID_LOGITECH_VIBRATION_WHEEL  0xca04
-#define USB_DEVICE_ID_LOGITECH_G920_WHEEL       0xc262
-#define USB_DEVICE_ID_LOGITECH_G29_WHEEL        0xc24f
-
 static unsigned short lg_wheel_products[] = {
-    USB_DEVICE_ID_LOGITECH_WINGMAN_FFG,
-    USB_DEVICE_ID_LOGITECH_WHEEL,
-    USB_DEVICE_ID_LOGITECH_MOMO_WHEEL,
-    USB_DEVICE_ID_LOGITECH_DFP_WHEEL,
-    USB_DEVICE_ID_LOGITECH_G25_WHEEL,
-    USB_DEVICE_ID_LOGITECH_DFGT_WHEEL,
-    USB_DEVICE_ID_LOGITECH_G27_WHEEL,
-    USB_DEVICE_ID_LOGITECH_WII_WHEEL,
-    USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2,
-    USB_DEVICE_ID_LOGITECH_VIBRATION_WHEEL,
-    USB_DEVICE_ID_LOGITECH_G920_WHEEL,
-    USB_DEVICE_ID_LOGITECH_G29_WHEEL,
+        USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE,
+        USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP,
+        USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE,
+        USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL,
+        USB_PRODUCT_ID_LOGITECH_DFP_WHEEL,
+        USB_PRODUCT_ID_LOGITECH_G25_WHEEL,
+        USB_PRODUCT_ID_LOGITECH_DFGT_WHEEL,
+        USB_PRODUCT_ID_LOGITECH_G27_WHEEL,
+        USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2,
+        USB_PRODUCT_ID_LOGITECH_G920_WHEEL,
+        USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
 };
 
 int ffb_logitech_is_logitech_wheel(unsigned short vendor, unsigned short product) {
@@ -767,4 +701,3 @@ int ffb_logitech_is_logitech_wheel(unsigned short vendor, unsigned short product
     }
     return 0;
 }
-#endif
