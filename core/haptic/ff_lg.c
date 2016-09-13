@@ -141,16 +141,16 @@ static struct
     s_force forces[FORCES_NB];
     s_ext_cmd ext_cmds[EXT_CMD_NB];
     s_cmd fifo[FIFO_SIZE];
-    s_ffb_report last_report;
-} ffb_lg_device[MAX_CONTROLLERS] = {};
+    s_ff_lg_report last_report;
+} ff_lg_device[MAX_CONTROLLERS] = {};
 
-void ffb_lg_init_static(void) __attribute__((constructor));
-void ffb_lg_init_static(void)
+void ff_lg_init_static(void) __attribute__((constructor));
+void ff_lg_init_static(void)
 {
     unsigned int i, j;
     for (i = 0; i < MAX_CONTROLLERS; ++i) {
         for(j = 0; j < FORCES_NB; ++j) {
-            ffb_lg_device[i].forces[j].mask = 0x10 << j;
+            ff_lg_device[i].forces[j].mask = 0x10 << j;
         }
     }
 }
@@ -177,7 +177,7 @@ static inline int compare_cmd(s_cmd cmd1, s_cmd cmd2) {
 }
 
 static inline void fifo_push(int device, s_cmd cmd, int replace) {
-    s_cmd * fifo = ffb_lg_device[device].fifo;
+    s_cmd * fifo = ff_lg_device[device].fifo;
     int i;
     for (i = 0; i < FIFO_SIZE; ++i) {
         if (!fifo[i].cmd) {
@@ -201,7 +201,7 @@ static inline void fifo_push(int device, s_cmd cmd, int replace) {
 }
 
 static inline s_cmd fifo_peek(int device) {
-    s_cmd * fifo = ffb_lg_device[device].fifo;
+    s_cmd * fifo = ff_lg_device[device].fifo;
     s_cmd cmd = fifo[0];
     if (cmd.cmd) {
         dprintf("peek: %02x", cmd.cmd);
@@ -214,7 +214,7 @@ static inline s_cmd fifo_peek(int device) {
 }
 
 static inline void fifo_remove(int device, s_cmd cmd) {
-    s_cmd * fifo = ffb_lg_device[device].fifo;
+    s_cmd * fifo = ff_lg_device[device].fifo;
     int i;
     for (i = 0; i < FIFO_SIZE; ++i) {
         if (!fifo[i].cmd) {
@@ -330,7 +330,7 @@ static void decode_command(unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
     dprintf("\n");
 }
 
-void ffb_logitech_process_report(int device, unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
+void ff_lg_process_report(int device, unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
 
     if (device < 0 || device >= MAX_CONTROLLERS) {
         fprintf(stderr, "%s:%d %s: invalid device (%d)", __FILE__, __LINE__, __func__, device);
@@ -353,7 +353,7 @@ void ffb_logitech_process_report(int device, unsigned char data[FF_LG_OUTPUT_REP
         unsigned char cmd = data[0] & 0x0f;
 
         int i;
-        s_force * forces = ffb_lg_device[device].forces;
+        s_force * forces = ff_lg_device[device].forces;
 
         if (cmd == FF_LG_CMD_STOP && slots == 0xf0)
         {
@@ -436,7 +436,7 @@ void ffb_logitech_process_report(int device, unsigned char data[FF_LG_OUTPUT_REP
 
         int i;
         for (i = 0; i < EXT_CMD_NB; ++i) {
-            s_ext_cmd * ext_cmd = ffb_lg_device[device].ext_cmds + i;
+            s_ext_cmd * ext_cmd = ff_lg_device[device].ext_cmds + i;
             if(!ext_cmd->cmd[0]) {
                 memcpy(ext_cmd->cmd, data, sizeof(ext_cmd->cmd));
                 ext_cmd->updated = 1;
@@ -456,7 +456,7 @@ void ffb_logitech_process_report(int device, unsigned char data[FF_LG_OUTPUT_REP
     }
 }
 
-void ffb_logitech_ack(int device) {
+void ff_lg_ack(int device) {
 
   if (device < 0 || device >= MAX_CONTROLLERS) {
       fprintf(stderr, "%s:%d %s: invalid device (%d)", __FILE__, __LINE__, __func__, device);
@@ -465,7 +465,7 @@ void ffb_logitech_ack(int device) {
 
   dprintf("> ack\n");
 
-  unsigned char * data = ffb_lg_device[device].last_report.data + 1;
+  unsigned char * data = ff_lg_device[device].last_report.data + 1;
 
   if(data[0] != FF_LG_CMD_EXTENDED_COMMAND) {
 
@@ -473,7 +473,7 @@ void ffb_logitech_ack(int device) {
       unsigned char cmd = data[0] & 0x0f;
 
       int i;
-      s_force * forces = ffb_lg_device[device].forces;
+      s_force * forces = ff_lg_device[device].forces;
 
       switch(cmd)
       {
@@ -505,7 +505,7 @@ void ffb_logitech_ack(int device) {
 
   } else {
 
-      s_ext_cmd * ext_cmds = ffb_lg_device[device].ext_cmds;
+      s_ext_cmd * ext_cmds = ff_lg_device[device].ext_cmds;
 
       int i;
       for (i = 0; i < EXT_CMD_NB; ++i) {
@@ -528,10 +528,10 @@ void ffb_logitech_ack(int device) {
 
 static inline void clear_report(int device) {
 
-  memset(ffb_lg_device[device].last_report.data, 0x00, sizeof(ffb_lg_device[device].last_report.data));
+  memset(ff_lg_device[device].last_report.data, 0x00, sizeof(ff_lg_device[device].last_report.data));
 }
 
-s_ffb_report * ffb_logitech_get_report(int device) {
+s_ff_lg_report * ff_lg_get_report(int device) {
 
     if (device < 0 || device >= MAX_CONTROLLERS) {
         fprintf(stderr, "%s:%d %s: invalid device (%d)", __FILE__, __LINE__, __func__, device);
@@ -539,8 +539,8 @@ s_ffb_report * ffb_logitech_get_report(int device) {
     }
 
     int i;
-    s_force * forces = ffb_lg_device[device].forces;
-    unsigned char * data = ffb_lg_device[device].last_report.data + 1;
+    s_force * forces = ff_lg_device[device].forces;
+    unsigned char * data = ff_lg_device[device].last_report.data + 1;
 
     unsigned char mask = 0;
     // look for forces to stop
@@ -560,7 +560,7 @@ s_ffb_report * ffb_logitech_get_report(int device) {
             }
         }
         dprintf("< %s %02x\n", get_cmd_name(data[0]), data[0]);
-        return &ffb_lg_device[device].last_report;
+        return &ff_lg_device[device].last_report;
     }
 
     s_cmd cmd = fifo_peek(device);
@@ -575,7 +575,7 @@ s_ffb_report * ffb_logitech_get_report(int device) {
                 if(debug) {
                     decode_command(data);
                 }
-                return &ffb_lg_device[device].last_report;
+                return &ff_lg_device[device].last_report;
             }
             else
             {
@@ -591,20 +591,20 @@ s_ffb_report * ffb_logitech_get_report(int device) {
                 if(debug) {
                     decode_command(data);
                 }
-                return &ffb_lg_device[device].last_report;
+                return &ff_lg_device[device].last_report;
             }
         }
         else {
             int i;
             for (i = 0; i < EXT_CMD_NB; ++i) {
-                s_ext_cmd * ext_cmd = ffb_lg_device[device].ext_cmds + i;
+                s_ext_cmd * ext_cmd = ff_lg_device[device].ext_cmds + i;
                 if(ext_cmd->cmd[1] == cmd.ext) {
                     memcpy(data, ext_cmd->cmd, sizeof(ext_cmd->cmd));
                     if(debug) {
                         decode_extended(data);
                     }
                     ext_cmd->updated = 0;
-                    return &ffb_lg_device[device].last_report;
+                    return &ff_lg_device[device].last_report;
                 }
             }
         }
@@ -615,15 +615,15 @@ s_ffb_report * ffb_logitech_get_report(int device) {
 
 static void get_slot(int device, unsigned char index, GE_Event * haptic) {
 
-    unsigned char type = ffb_lg_device[device].forces[index].parameters[0];
+    unsigned char type = ff_lg_device[device].forces[index].parameters[0];
 
     printf("%02x %02x", index, type);
 
     switch(type) {
     case FF_LG_FTYPE_CONSTANT:
         haptic->type = GE_JOYCONSTANTFORCE;
-        if (ffb_lg_device[device].forces[index].active) {
-            unsigned char level = ffb_lg_device[device].forces[index].parameters[1];
+        if (ff_lg_device[device].forces[index].active) {
+            unsigned char level = ff_lg_device[device].forces[index].parameters[1];
             haptic->jconstant.level = level << 8;
         } else {
             haptic->jconstant.level = 0;
@@ -642,7 +642,7 @@ static void get_slot(int device, unsigned char index, GE_Event * haptic) {
 
 }
 
-GE_Event * ffb_logitech_convert_report(int device, s_ffb_report * report) {
+GE_Event * ff_lg_convert_report(int device, s_ff_lg_report * report) {
 
     static GE_Event haptic = {};
 
@@ -650,7 +650,7 @@ GE_Event * ffb_logitech_convert_report(int device, s_ffb_report * report) {
     unsigned char cmd = report->data[1] & 0x0f;
 
     unsigned char index;
-    s_force * forces = ffb_lg_device[device].forces;
+    s_force * forces = ff_lg_device[device].forces;
 
     switch(cmd)
     {
@@ -674,7 +674,7 @@ GE_Event * ffb_logitech_convert_report(int device, s_ffb_report * report) {
     return NULL;
 }
 
-static unsigned short lg_wheel_products[] = {
+static unsigned short ff_lg_wheel_products[] = {
         USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE,
         USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP,
         USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE,
@@ -688,14 +688,14 @@ static unsigned short lg_wheel_products[] = {
         USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
 };
 
-int ffb_logitech_is_logitech_wheel(unsigned short vendor, unsigned short product) {
+int ff_lg_is_logitech_wheel(unsigned short vendor, unsigned short product) {
 
     if(vendor != USB_VENDOR_ID_LOGITECH) {
         return 0;
     }
     unsigned int i;
-    for(i = 0; i < sizeof(lg_wheel_products) / sizeof(*lg_wheel_products); ++i) {
-        if(lg_wheel_products[i] == product) {
+    for(i = 0; i < sizeof(ff_lg_wheel_products) / sizeof(*ff_lg_wheel_products); ++i) {
+        if(ff_lg_wheel_products[i] == product) {
             return 1;
         }
     }

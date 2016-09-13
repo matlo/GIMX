@@ -3,8 +3,8 @@
  License: GPLv3
  */
 
-#ifndef FFB_LOGITECH_H_
-#define FFB_LOGITECH_H_
+#ifndef FF_LG_H_
+#define FF_LG_H_
 
 #include <ginput.h>
 
@@ -154,15 +154,13 @@ typedef union {
 
 typedef struct {
   unsigned char data[FF_LG_OUTPUT_REPORT_SIZE + 1];
-} s_ffb_report;
+} s_ff_lg_report;
 
-void ffb_logitech_process_report(int device, unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]);
-s_ffb_report * ffb_logitech_get_report(int device);
-void ffb_logitech_ack(int device);
-GE_Event * ffb_logitech_convert_report(int device, s_ffb_report * report);
+void ff_lg_process_report(int device, unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]);
+s_ff_lg_report * ff_lg_get_report(int device);
+void ff_lg_ack(int device);
+GE_Event * ff_lg_convert_report(int device, s_ff_lg_report * report);
 
-#ifdef WIN32
-int ffb_logitech_is_logitech_wheel(unsigned short vendor, unsigned short product);
-#endif
+int ff_lg_is_logitech_wheel(unsigned short vendor, unsigned short product);
 
-#endif /* FFB_LOGITECH_H_ */
+#endif /* FF_LG_H_ */
