@@ -359,7 +359,7 @@ static void adapter_send_next_hid_report(int adapter)
 {
   if(!adapters[adapter].hid.write_pending)
   {
-    s_ffb_report * report = ffb_logitech_get_report(adapter);
+    s_ff_lg_report * report = ff_lg_get_report(adapter);
     if(report != NULL)
     {
       if(ghid_write(adapters[adapter].hid.id, report->data, sizeof(report->data)) == 0)
@@ -372,18 +372,7 @@ static void adapter_send_next_hid_report(int adapter)
 
 static void adapter_send_next_ffb_update(int adapter)
 {
-  s_ffb_report * report = ffb_logitech_get_report(adapter);
-  if(report != NULL)
-  {
-    ffb_logitech_ack(adapter);
-    GE_Event * haptic = ffb_logitech_convert_report(adapter, report);
-    while (haptic != NULL)
-    {
-        haptic->which = adapters[adapter].joystick.id;
-        ginput_joystick_set_haptic(haptic);
-        haptic = ffb_logitech_convert_report(adapter, report);
-    }
-  }
+
 }
 
 static int adapter_process_packet(int adapter, s_packet* packet)
@@ -452,12 +441,12 @@ static int adapter_process_packet(int adapter, s_packet* packet)
     {
       if (adapters[adapter].hid.id >= 0)
       {
-        ffb_logitech_process_report(adapter, logitech_ffb_report);
+        ff_lg_process_report(adapter, logitech_ffb_report);
         adapter_send_next_hid_report(adapter);
       }
       else if (adapters[adapter].joystick.id >= 0 && adapters[adapter].joystick.has_ffb)
       {
-        ffb_logitech_process_report(adapter, logitech_ffb_report);
+        ff_lg_process_report(adapter, logitech_ffb_report);
         adapter_send_next_ffb_update(adapter);
       }
     }
@@ -484,7 +473,7 @@ static int adapter_hid_write_cb(int adapter, int status)
 {
   adapters[adapter].hid.write_pending = 0;
   if(status != -1) {
-    ffb_logitech_ack(adapter);
+    ff_lg_ack(adapter);
   }
   adapter_send_next_hid_report(adapter);
   return 0;
@@ -529,7 +518,7 @@ void adapter_set_usb_ids(int adapter, unsigned short vendor, unsigned short prod
 
 static int start_hid(int adapter)
 {
-  if(ffb_logitech_is_logitech_wheel(adapters[adapter].usb_ids.vendor, adapters[adapter].usb_ids.product))
+  if(ff_lg_is_logitech_wheel(adapters[adapter].usb_ids.vendor, adapters[adapter].usb_ids.product))
   {
     adapters[adapter].hid.id = ghid_open_ids(adapters[adapter].usb_ids.vendor, adapters[adapter].usb_ids.product);
     if(adapters[adapter].hid.id >= 0)
