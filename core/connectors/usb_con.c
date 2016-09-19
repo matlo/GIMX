@@ -28,8 +28,10 @@
 static struct
 {
   const char* name;
-  unsigned short vendor;
-  unsigned short product;
+  struct {
+      unsigned short vendor;
+      unsigned short product;
+  } ids[2];
   int configuration;
   int interface;
   struct
@@ -59,8 +61,11 @@ static struct
   [C_TYPE_DS4] =
   {
     .name = DS4_DEVICE_NAME,
-    .vendor = DS4_VENDOR,
-    .product = DS4_PRODUCT,
+    .ids =
+    {
+        { .vendor = DS4_VENDOR, .product = DS4_PRODUCT },
+        { .vendor = DS4_VENDOR, .product = DS4_PRODUCT_2 },
+    },
     .configuration = 1,
     .interface = 0,
     .endpoints =
@@ -91,8 +96,11 @@ static struct
   [C_TYPE_T300RS_PS4] =
   {
     .name = DS4_DEVICE_NAME,
-    .vendor = DS4_VENDOR,
-    .product = DS4_PRODUCT,
+    .ids =
+    {
+        { .vendor = DS4_VENDOR, .product = DS4_PRODUCT },
+        { .vendor = DS4_VENDOR, .product = DS4_PRODUCT_2 },
+    },
     .configuration = 1,
     .interface = 0,
     .endpoints =
@@ -123,8 +131,11 @@ static struct
   [C_TYPE_G29_PS4] =
   {
     .name = DS4_DEVICE_NAME,
-    .vendor = DS4_VENDOR,
-    .product = DS4_PRODUCT,
+    .ids =
+    {
+        { .vendor = DS4_VENDOR, .product = DS4_PRODUCT },
+        { .vendor = DS4_VENDOR, .product = DS4_PRODUCT_2 },
+    },
     .configuration = 1,
     .interface = 0,
     .endpoints =
@@ -155,8 +166,10 @@ static struct
   [C_TYPE_360_PAD] =
   {
     .name = X360_NAME,
-    .vendor = X360_VENDOR,
-    .product = X360_PRODUCT,
+    .ids =
+    {
+        { .vendor = X360_VENDOR, .product = X360_PRODUCT }
+    },
     .configuration = 1,
     .interface = 0,
     .endpoints =
@@ -187,8 +200,10 @@ static struct
   [C_TYPE_XONE_PAD] =
   {
     .name = XONE_NAME,
-    .vendor = XONE_VENDOR,
-    .product = XONE_PRODUCT,
+    .ids =
+    {
+        { .vendor = XONE_VENDOR, .product = XONE_PRODUCT }
+    },
     .configuration = 1,
     .interface = 0,
     .endpoints =
@@ -393,7 +408,7 @@ int usb_init(int usb_number, e_controller_type type) {
 
   struct usb_state * state = usb_states + usb_number;
 
-  if(!controller[type].vendor || !controller[type].product) {
+  if(!controller[type].ids[0].vendor || !controller[type].ids[0].product) {
     gprintf(_("no pass-through device is needed\n"));
     return 0;
   }
@@ -403,7 +418,15 @@ int usb_init(int usb_number, e_controller_type type) {
   state->type = type;
   state->ack = 1;
 
-  state->usb_device = gusb_open_ids(controller[type].vendor, controller[type].product);
+  unsigned int i;
+  for (i = 0; i < sizeof(controller->ids) / sizeof(*controller->ids); ++i)
+  {
+    state->usb_device = gusb_open_ids(controller[type].ids[i].vendor, controller[type].ids[i].product);
+    if (state->usb_device >= 0) {
+      gprintf(_("found pass-through device 0x%04x:0x%04x\n"), controller[type].ids[i].vendor, controller[type].ids[i].product);
+      break;
+    }
+  }
 
   if (state->usb_device < 0) {
     return -1;
@@ -445,7 +468,6 @@ int usb_init(int usb_number, e_controller_type type) {
   // register joystick
   state->joystick_id = ginput_register_joystick(controller[state->type].name, GE_HAPTIC_NONE, NULL);
 
-  int i;
   for(i = 0; i < controller[state->type].endpoints.in.reports.nb; ++i) {
     usb_states[usb_number].reports[i].report_id = controller[state->type].endpoints.in.reports.elements[i].report_id;
   }

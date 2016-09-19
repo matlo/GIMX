@@ -22,6 +22,7 @@
 
 #define DS4_VENDOR 0x054c
 #define DS4_PRODUCT 0x05c4
+#define DS4_PRODUCT_2 0x09cc
 
 #define DS4_UP_MASK         0x01
 #define DS4_RIGHT_MASK      0x02
