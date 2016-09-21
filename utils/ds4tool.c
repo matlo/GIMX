@@ -1,5 +1,6 @@
 /*
- * Compile with: gcc -o ds4tool ds4tool.c -lusb-1.0
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #include <string.h>
@@ -10,7 +11,8 @@
 #include <gusb.h>
 
 #define VENDOR 0x054c
-#define PRODUCT 0x05c4
+
+static unsigned short products[] = { 0x05c4, 0x09cc };
 
 #define TYPE_DS4 0
 #define TYPE_TEENSY 1
@@ -280,10 +282,21 @@ int main(int argc, char *argv[]) {
 
     read_args(argc, argv);
 
-    s_usb_dev * usb_devs = gusb_enumerate(VENDOR, PRODUCT);
+    struct gusb_device * devs = gusb_enumerate(VENDOR, 0x0000);
 
-    s_usb_dev * current;
-    for (current = usb_devs; current != NULL; ++current) {
+    struct gusb_device * current;
+    for (current = devs; current != NULL; current = current->next) {
+
+        unsigned int i;
+        for (i = 0; i < sizeof(products) / sizeof(*products); ++i) {
+            if (current->product_id == products[i]) {
+                break;
+            }
+        }
+
+        if (i == sizeof(products) / sizeof(*products)) {
+            continue;
+        }
 
         int device = gusb_open_path(current->path);
 
@@ -297,15 +310,10 @@ int main(int argc, char *argv[]) {
                 break;
             }
         }
-
-        if (current->next == 0) {
-            break;
-        }
     }
 
-    gusb_free_enumeration(usb_devs);
+    gusb_free_enumeration(devs);
 
     return ret;
-
 }
 

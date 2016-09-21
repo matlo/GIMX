@@ -75,16 +75,16 @@ typedef struct {
     struct p_other * others; //nbOthers elements
 } s_usb_descriptors;
 
-typedef struct {
+struct gusb_device {
     unsigned short vendor_id;
     unsigned short product_id;
     char * path;
-    int next;
-} s_usb_dev;
+    struct gusb_device * next;
+};
 
 int gusb_open_ids(unsigned short vendor, unsigned short product);
-s_usb_dev * gusb_enumerate(unsigned short vendor, unsigned short product);
-void gusb_free_enumeration(s_usb_dev * usb_devs);
+struct gusb_device * gusb_enumerate(unsigned short vendor, unsigned short product);
+void gusb_free_enumeration(struct gusb_device * usb_devs);
 int gusb_open_path(const char * path);
 s_usb_descriptors * gusb_get_usb_descriptors(int device);
 int gusb_close(int device);

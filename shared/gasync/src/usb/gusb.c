@@ -943,14 +943,14 @@ static int claim_device(int device, libusb_device * dev, struct libusb_device_de
   return 0;
 }
 
-s_usb_dev * gusb_enumerate(unsigned short vendor, unsigned short product) {
+struct gusb_device * gusb_enumerate(unsigned short vendor, unsigned short product) {
 
-  s_usb_dev * usb_devs = NULL;
-  unsigned int nb_usb_devs = 0;
+  struct gusb_device * devs = NULL;
+  struct gusb_device * last = NULL;
 
   int ret = -1;
 
-  static libusb_device** devs = NULL;
+  static libusb_device** usb_devs = NULL;
   static ssize_t cnt = 0;
   int dev_i;
 
@@ -959,7 +959,7 @@ s_usb_dev * gusb_enumerate(unsigned short vendor, unsigned short product) {
     return NULL;
   }
 
-  cnt = libusb_get_device_list(ctx, &devs);
+  cnt = libusb_get_device_list(ctx, &usb_devs);
   if (cnt < 0) {
     PRINT_ERROR_LIBUSB("libusb_get_device_list", cnt)
     return NULL;
@@ -967,7 +967,7 @@ s_usb_dev * gusb_enumerate(unsigned short vendor, unsigned short product) {
 
   for (dev_i = 0; dev_i < cnt; ++dev_i) {
     struct libusb_device_descriptor desc;
-    ret = libusb_get_device_descriptor(devs[dev_i], &desc);
+    ret = libusb_get_device_descriptor(usb_devs[dev_i], &desc);
     if (!ret) {
       if (vendor) {
         if (desc.idVendor != vendor) {
@@ -980,7 +980,7 @@ s_usb_dev * gusb_enumerate(unsigned short vendor, unsigned short product) {
         }
       }
 
-      const char * spath = make_path(devs[dev_i]);
+      const char * spath = make_path(usb_devs[dev_i]);
       if (spath == NULL) {
         continue;
       }
@@ -991,45 +991,44 @@ s_usb_dev * gusb_enumerate(unsigned short vendor, unsigned short product) {
         continue;
       }
 
-      void * ptr = realloc(usb_devs, (nb_usb_devs + 1) * sizeof(*usb_devs));
+      void * ptr = malloc(sizeof(*devs));
       if (ptr == NULL) {
         PRINT_ERROR_ALLOC_FAILED("realloc")
         free(path);
         continue;
       }
 
-      usb_devs = ptr;
+      struct gusb_device * dev = ptr;
 
-      if (nb_usb_devs > 0) {
-        usb_devs[nb_usb_devs - 1].next = 1;
+      dev->path = path;
+      dev->vendor_id = desc.idVendor;
+      dev->product_id = desc.idProduct;
+      dev->next = NULL;
+
+      if (devs == NULL) {
+          devs = dev;
+      } else {
+          last->next = dev;
       }
 
-      usb_devs[nb_usb_devs].path = path;
-      usb_devs[nb_usb_devs].vendor_id = desc.idVendor;
-      usb_devs[nb_usb_devs].product_id = desc.idProduct;
-      usb_devs[nb_usb_devs].next = 0;
-
-      ++nb_usb_devs;
+      last = dev;
     }
   }
 
-  libusb_free_device_list(devs, 1);
+  libusb_free_device_list(usb_devs, 1);
 
-  return usb_devs;
+  return devs;
 }
 
-void gusb_free_enumeration(s_usb_dev * usb_devs) {
+void gusb_free_enumeration(struct gusb_device * devs) {
 
-  s_usb_dev * current;
-  for (current = usb_devs; current != NULL; ++current) {
-
+  struct gusb_device * current = devs;
+  while (current != NULL) {
+    struct gusb_device * next = current->next;
     free(current->path);
-
-    if (current->next == 0) {
-      break;
-    }
+    free(current);
+    current = next;
   }
-  free(usb_devs);
 }
 
 int gusb_open_ids(unsigned short vendor, unsigned short product) {
