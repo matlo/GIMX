@@ -372,3 +372,12 @@ int controller_is_auth_required(e_controller_type type)
 {
   return controllers[type]->auth_required;
 }
+
+void controller_get_ids(e_controller_type type, unsigned short * vid, unsigned short * pid)
+{
+  if(type < C_TYPE_MAX)
+  {
+    *vid = controllers[type]->vid;
+    *pid = controllers[type]->pid;
+  }
+}

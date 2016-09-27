@@ -313,6 +313,8 @@ static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_
 static s_controller controller =
 {
   .name = "G27 PS3",
+  .vid = 0x046d,
+  .pid = 0xc29b,
   .refresh_period = { .min_value = 1000, .default_value = 10000 },
   .auth_required = 0,
   .axes = axes,

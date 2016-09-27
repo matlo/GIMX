@@ -10,6 +10,10 @@
 #include <haptic/ff_lg.h>
 #include <ghid.h>
 #include <adapter.h>
+#include <gimx.h>
+#include <limits.h>
+
+#define CLAMP(MIN,VALUE,MAX) (((VALUE) < MIN) ? (MIN) : (((VALUE) > MAX) ? (MAX) : (VALUE)))
 
 static unsigned char fslot_nbits [] = {
     [0b0000] = 0,
@@ -115,8 +119,6 @@ static const char * get_ftype_name(unsigned char ftype) {
     }
 }
 
-#define FORCES_NB 4
-#define EXT_CMD_NB 16
 #define FIFO_SIZE 16
 
 typedef struct {
@@ -138,30 +140,50 @@ typedef struct {
 
 static struct
 {
-    s_force forces[FORCES_NB];
-    s_ext_cmd ext_cmds[EXT_CMD_NB];
+    unsigned short pid_from;
+    unsigned short pid_to;
+    s_force forces[FF_LG_FSLOTS_NB];
+    s_ext_cmd ext_cmds[FF_LG_EXT_CMD_NB];
     s_cmd fifo[FIFO_SIZE];
     s_ff_lg_report last_report;
 } ff_lg_device[MAX_CONTROLLERS] = {};
+
+static inline int check_device(int device, const char * file, unsigned int line, const char * func) {
+  if(device < 0 || device >= MAX_CONTROLLERS) {
+      fprintf(stderr, "%s:%d %s: invalid device (%d)\n", file, line, func, device);
+      return -1;
+  }
+  return 0;
+}
+#define CHECK_DEVICE(device,retValue) \
+  if(check_device(device, __FILE__, __LINE__, __func__) < 0) { \
+    return retValue; \
+  }
 
 void ff_lg_init_static(void) __attribute__((constructor));
 void ff_lg_init_static(void)
 {
     unsigned int i, j;
     for (i = 0; i < MAX_CONTROLLERS; ++i) {
-        for(j = 0; j < FORCES_NB; ++j) {
+        for(j = 0; j < FF_LG_FSLOTS_NB; ++j) {
             ff_lg_device[i].forces[j].mask = 0x10 << j;
         }
     }
 }
 
-static const int debug = 1;
+int ff_lg_init(int device, unsigned short pid_from, unsigned short pid_to) {
 
-#define dprintf(...) if(debug) printf(__VA_ARGS__)
+    CHECK_DEVICE(device, -1)
+
+    ff_lg_device[device].pid_to = pid_to;
+    ff_lg_device[device].pid_from = pid_from;
+
+    return 0;
+}
 
 #define PRINT_ERROR_OTHER(msg) fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
 
-static void dump(unsigned char* packet, unsigned char length)
+static void dump(const unsigned char* packet, unsigned char length)
 {
   int i;
   for(i = 0; i < length; ++i)
@@ -225,14 +247,14 @@ static inline void fifo_remove(int device, s_cmd cmd) {
                 dprintf(" %02x", cmd.ext);
             }
             dprintf("\n");
-            memmove(fifo + i, fifo + i + 1, (FORCES_NB - i - 1) * sizeof(*fifo));
-            memset(fifo + FORCES_NB - i - 1, 0x00, sizeof(*fifo));
+            memmove(fifo + i, fifo + i + 1, (FF_LG_FSLOTS_NB - i - 1) * sizeof(*fifo));
+            memset(fifo + FF_LG_FSLOTS_NB - i - 1, 0x00, sizeof(*fifo));
             break;
         }
     }
 }
 
-static void decode_extended(unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
+void ff_lg_decode_extended(const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
 
     dprintf("%s %s", get_cmd_name(data[0]), get_ext_cmd_name(data[1]));
 
@@ -289,7 +311,7 @@ static void decode_extended(unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
     dprintf("\n");
 }
 
-static void decode_command(unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
+void ff_lg_decode_command(const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
 
     dprintf("%s ", get_cmd_name(data[0]));
 
@@ -330,20 +352,20 @@ static void decode_command(unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
     dprintf("\n");
 }
 
-void ff_lg_process_report(int device, unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
+void ff_lg_process_report(int device, const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
 
     if (device < 0 || device >= MAX_CONTROLLERS) {
         fprintf(stderr, "%s:%d %s: invalid device (%d)", __FILE__, __LINE__, __func__, device);
         return;
     }
 
-    if(debug) {
+    if(gimx_params.debug) {
         dprintf("> ");
         if(data[0] == FF_LG_CMD_EXTENDED_COMMAND) {
-            decode_extended(data);
+            ff_lg_decode_extended(data);
         }
         else {
-            decode_command(data);
+            ff_lg_decode_command(data);
         }
     }
 
@@ -359,7 +381,7 @@ void ff_lg_process_report(int device, unsigned char data[FF_LG_OUTPUT_REPORT_SIZ
         {
           // stop all forces, whatever their current states
           // this is useful at startup, where all forces are considered stopped
-          for (i = 0; i < FORCES_NB; ++i) {
+          for (i = 0; i < FF_LG_FSLOTS_NB; ++i) {
               forces[i].updated = 1;
               forces[i].active = 0;
               memset(forces[i].parameters, 0x00, sizeof(forces[i].parameters));
@@ -377,7 +399,7 @@ void ff_lg_process_report(int device, unsigned char data[FF_LG_OUTPUT_REPORT_SIZ
         case FF_LG_CMD_STOP:
         case FF_LG_CMD_REFRESH_FORCE:
         {
-            for (i = 0; i < FORCES_NB; ++i) {
+            for (i = 0; i < FF_LG_FSLOTS_NB; ++i) {
                 if (slots & forces[i].mask) {
                     if (cmd == FF_LG_CMD_DOWNLOAD) {
                         memcpy(forces[i].parameters, data + 1, sizeof(forces[i].parameters));
@@ -435,7 +457,7 @@ void ff_lg_process_report(int device, unsigned char data[FF_LG_OUTPUT_REPORT_SIZ
         }
 
         int i;
-        for (i = 0; i < EXT_CMD_NB; ++i) {
+        for (i = 0; i < FF_LG_EXT_CMD_NB; ++i) {
             s_ext_cmd * ext_cmd = ff_lg_device[device].ext_cmds + i;
             if(!ext_cmd->cmd[0]) {
                 memcpy(ext_cmd->cmd, data, sizeof(ext_cmd->cmd));
@@ -483,7 +505,7 @@ void ff_lg_ack(int device) {
       case FF_LG_CMD_STOP:
       case FF_LG_CMD_REFRESH_FORCE:
       {
-          for (i = 0; i < FORCES_NB; ++i) {
+          for (i = 0; i < FF_LG_FSLOTS_NB; ++i) {
               if (slots & forces[i].mask) {
                   s_cmd cmd = { forces[i].mask, 0x00 };
                   if(!forces[i].updated) {
@@ -508,7 +530,7 @@ void ff_lg_ack(int device) {
       s_ext_cmd * ext_cmds = ff_lg_device[device].ext_cmds;
 
       int i;
-      for (i = 0; i < EXT_CMD_NB; ++i) {
+      for (i = 0; i < FF_LG_EXT_CMD_NB; ++i) {
           if(ext_cmds[i].cmd[1] == data[1]) {
               s_cmd cmd = { FF_LG_CMD_EXTENDED_COMMAND, data[1] };
               if(!ext_cmds[i].updated) {
@@ -544,7 +566,7 @@ s_ff_lg_report * ff_lg_get_report(int device) {
 
     unsigned char mask = 0;
     // look for forces to stop
-    for (i = 0; i < FORCES_NB; ++i) {
+    for (i = 0; i < FF_LG_FSLOTS_NB; ++i) {
         if (forces[i].updated && !forces[i].active) {
             mask |= forces[i].mask;
         }
@@ -554,7 +576,7 @@ s_ff_lg_report * ff_lg_get_report(int device) {
     if (fslot_nbits[mask >> 4] > 1) {
         clear_report(device);
         data[0] = mask | FF_LG_CMD_STOP;
-        for (i = 0; i < FORCES_NB; ++i) {
+        for (i = 0; i < FF_LG_FSLOTS_NB; ++i) {
             if (mask & forces[i].mask) {
                 forces[i].updated = 0;
             }
@@ -572,8 +594,8 @@ s_ff_lg_report * ff_lg_get_report(int device) {
             {
                 // not a slot update
                 data[0] = cmd.cmd;
-                if(debug) {
-                    decode_command(data);
+                if(gimx_params.debug) {
+                    ff_lg_decode_command(data);
                 }
                 return &ff_lg_device[device].last_report;
             }
@@ -588,20 +610,20 @@ s_ff_lg_report * ff_lg_get_report(int device) {
                     data[0] = cmd.cmd | FF_LG_CMD_STOP;
                 }
                 forces[index].updated = 0;
-                if(debug) {
-                    decode_command(data);
+                if(gimx_params.debug) {
+                    ff_lg_decode_command(data);
                 }
                 return &ff_lg_device[device].last_report;
             }
         }
         else {
             int i;
-            for (i = 0; i < EXT_CMD_NB; ++i) {
+            for (i = 0; i < FF_LG_EXT_CMD_NB; ++i) {
                 s_ext_cmd * ext_cmd = ff_lg_device[device].ext_cmds + i;
                 if(ext_cmd->cmd[1] == cmd.ext) {
                     memcpy(data, ext_cmd->cmd, sizeof(ext_cmd->cmd));
-                    if(debug) {
-                        decode_extended(data);
+                    if(gimx_params.debug) {
+                        ff_lg_decode_extended(data);
                     }
                     ext_cmd->updated = 0;
                     return &ff_lg_device[device].last_report;
@@ -610,67 +632,6 @@ s_ff_lg_report * ff_lg_get_report(int device) {
         }
     }
 
-    return NULL;
-}
-
-static void get_slot(int device, unsigned char index, GE_Event * haptic) {
-
-    unsigned char type = ff_lg_device[device].forces[index].parameters[0];
-
-    printf("%02x %02x", index, type);
-
-    switch(type) {
-    case FF_LG_FTYPE_CONSTANT:
-        haptic->type = GE_JOYCONSTANTFORCE;
-        if (ff_lg_device[device].forces[index].active) {
-            unsigned char level = ff_lg_device[device].forces[index].parameters[1];
-            haptic->jconstant.level = level << 8;
-        } else {
-            haptic->jconstant.level = 0;
-        }
-        printf("level: %d\n", haptic->jconstant.level);
-        break;
-    case FF_LG_FTYPE_SPRING:
-        haptic->type = GE_JOYSPRINGFORCE;
-        break;
-    case FF_LG_FTYPE_DAMPER:
-        haptic->type = GE_JOYDAMPERFORCE;
-        break;
-    default:
-        return;
-    }
-
-}
-
-GE_Event * ff_lg_convert_report(int device, s_ff_lg_report * report) {
-
-    static GE_Event haptic = {};
-
-    unsigned char slots = report->data[1] & 0xf0;
-    unsigned char cmd = report->data[1] & 0x0f;
-
-    unsigned char index;
-    s_force * forces = ff_lg_device[device].forces;
-
-    switch(cmd)
-    {
-    case FF_LG_CMD_DOWNLOAD_AND_PLAY:
-        index = slot_index[slots >> 4];
-        get_slot(device, index, &haptic);
-        report->data[1] = 0;
-        return &haptic;
-    case FF_LG_CMD_STOP:
-        for (index = 0; index < FORCES_NB; ++index) {
-            if (slots & forces[index].mask) {
-                get_slot(device, index, &haptic);
-                report->data[1] &= ~forces[index].mask;
-                return &haptic;
-            }
-        }
-        break;
-    default:
-    break;
-    }
     return NULL;
 }
 
@@ -700,4 +661,139 @@ int ff_lg_is_logitech_wheel(unsigned short vendor, unsigned short product) {
         }
     }
     return 0;
+}
+
+typedef struct {
+    unsigned char num;
+    unsigned char den;
+} s_coef;
+
+/*
+ * \brief Get the spring or damper force coefficient, normalized to [0..1].
+ *
+ * \param pid  the pid of the device (needed for some old devices)
+ * \param hr   indicates if this is a high res spring or damper
+ * \param k    the constant selector
+ *
+ * \return the force coefficient
+ */
+s_coef get_force_coefficient(unsigned short pid, unsigned char hr, unsigned char k) {
+
+    s_coef coef;
+
+    if (hr == 1) {
+        coef.num = k;
+        coef.den = 0x0F;
+    } else {
+        static const s_coef coefs1[] = { { 1, 16 }, { 1, 8 }, { 3, 16 }, { 1, 4 }, { 3, 8 }, { 2, 4 }, { 3, 4 }, { 4, 4 } };
+        static const s_coef coefs2[] = { { 1, 16 }, { 1, 8 }, { 3, 16 }, { 1, 4 }, { 3, 8 }, { 3, 4 }, { 2, 4 }, { 4, 4 } };
+        switch(pid) {
+        case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE:
+        case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP:
+        case USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE:
+            coef = coefs2[k];
+            break;
+        default:
+            coef = coefs1[k];
+            break;
+        }
+    }
+    return coef;
+}
+
+static const s_ff_lg_force * convert_force(const s_ff_lg_force * force) {
+
+    static const unsigned char hr2lr[16] = {
+            [0]  = 0, // 0 => stop effect
+            [1]  = 0, // 0.26
+            [2]  = 1, // 0.53
+            [3]  = 2, // 0.8
+            [4]  = 3, // 1.06
+            [5]  = 3, // 1.33
+            [6]  = 4, // 1.6
+            [7]  = 4, // 1.86
+            [8]  = 6, // 2.13
+            [9]  = 6, // 2.4
+            [10] = 6, // 2.66
+            [11] = 6, // 2.93
+            [12] = 5, // 3.2
+            [13] = 5, // 3.46
+            [14] = 5, // 3.73
+            [15] = 7, // 4
+    };
+    switch (force->type) {
+    case FF_LG_FTYPE_HIGH_RESOLUTION_SPRING:
+        if (force->hr_spring.k1 != 0 || force->hr_spring.k2 != 0) {
+            static s_ff_lg_force lowres_spring = { .spring = { .type = FF_LG_FTYPE_SPRING, } };
+            lowres_spring.spring.d1 = force->hr_spring.d1;
+            lowres_spring.spring.d2 = force->hr_spring.d2;
+            lowres_spring.spring.k1 = hr2lr[force->hr_spring.k1];
+            lowres_spring.spring.k2 = hr2lr[force->hr_spring.k2];
+            lowres_spring.spring.s1 = force->hr_spring.s1;
+            lowres_spring.spring.s2 = force->hr_spring.s2;
+            lowres_spring.spring.clip = force->hr_spring.clip;
+            force = &lowres_spring;
+        } else {
+            force = NULL;
+        }
+        break;
+    case FF_LG_FTYPE_HIGH_RESOLUTION_DAMPER:
+        if (force->hr_damper.k1 != 0 || force->hr_damper.k2 != 0) {
+            static s_ff_lg_force lowres_damper = { .damper = { .type = FF_LG_FTYPE_DAMPER, } };
+            lowres_damper.damper.k1 = hr2lr[force->hr_damper.k1];
+            lowres_damper.damper.k2 = hr2lr[force->hr_damper.k2];
+            lowres_damper.damper.s1 = force->hr_damper.s1;
+            lowres_damper.damper.s2 = force->hr_damper.s2;
+            force = &lowres_damper;
+        } else {
+            force = NULL;
+        }
+        break;
+    }
+    return force;
+}
+
+int16_t ff_lg_get_condition_coef(unsigned short pid, unsigned char hr, unsigned char k, unsigned char s) {
+
+    s_coef coef = get_force_coefficient(pid, hr, k);
+    int value = (s ? SHRT_MAX : SHRT_MIN) * coef.num / coef.den;
+    return CLAMP(SHRT_MIN, value, SHRT_MAX);
+}
+
+uint16_t ff_lg_get_spring_deadband(unsigned short pid, unsigned char d, unsigned char dL) {
+
+    uint16_t deadband;
+    switch(pid) {
+    case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE:
+    case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP:
+    case USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE:
+    case USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL:
+    case USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2:
+        // older than Driving Force Pro
+        deadband = d * USHRT_MAX / 0x0F;
+        break;
+    default:
+        deadband = ((d << 3) | dL) * USHRT_MAX / 0x7FF;
+        break;
+    }
+    return deadband;
+}
+
+uint16_t ff_lg_get_damper_clip(unsigned short pid, unsigned char c) {
+
+    uint16_t clip;
+    switch(pid) {
+    case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE:
+    case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP:
+    case USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE:
+    case USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL:
+    case USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2:
+        // older than Driving Force Pro
+        clip = USHRT_MAX;
+        break;
+    default:
+        clip = c * USHRT_MAX / UCHAR_MAX;
+        break;
+    }
+    return clip;
 }

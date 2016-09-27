@@ -172,6 +172,8 @@ static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_
 static s_controller controller =
 {
     .name = "PS2pad",
+    .vid = 0x0000,
+    .pid = 0x0000,
     .refresh_period = { .min_value = 16000, .default_value = 16000 },
     .auth_required = 0,
     .axes = axes,

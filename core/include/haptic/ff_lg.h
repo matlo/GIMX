@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2015 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -34,10 +34,16 @@
 
 #define FF_LG_OUTPUT_REPORT_SIZE 7
 
+#define FF_LG_FSLOTS_NB 4
+
+#define FF_LG_FSLOT_MASK 0xf0
+
 #define FF_LG_FSLOT_1 0x10
 #define FF_LG_FSLOT_2 0x20
 #define FF_LG_FSLOT_3 0x40
 #define FF_LG_FSLOT_4 0x80
+
+#define FF_LG_CMD_MASK 0x0f
 
 #define FF_LG_CMD_DOWNLOAD           0x00
 #define FF_LG_CMD_DOWNLOAD_AND_PLAY  0x01
@@ -56,6 +62,8 @@
 #define FF_LG_CMD_FIXED_TIME_LOOP    0x0D
 #define FF_LG_CMD_SET_DEFAULT_SPRING 0x0E
 #define FF_LG_CMD_SET_DEAD_BAND      0x0F
+
+#define FF_LG_EXT_CMD_NB 16
 
 #define FF_LG_EXT_CMD_CHANGE_MODE_DFP           0x01
 #define FF_LG_EXT_CMD_WHEEL_RANGE_200_DEGREES   0x02
@@ -88,6 +96,20 @@ typedef struct PACKED {
     unsigned char levels[4]; // index n for slot n
     unsigned char : 8;
 } s_ff_lg_constant;
+
+typedef struct PACKED {
+    unsigned char type; // FTYPE_VARIABLE
+    unsigned char l1; // initial level for force 0
+    unsigned char l2; // initial level for force 2
+    unsigned char t1 : 4; // force 0 step duration (in main loops)
+    unsigned char s1 : 4; // force 0 step size
+    unsigned char t2 : 4; // force 2 step duration (in main loops)
+    unsigned char s2 : 4; // force 2 step size
+    unsigned char : 3;
+    unsigned char d1 : 1; // force 0 direction (0 = increasing, 1 = decreasing)
+    unsigned char : 3;
+    unsigned char d2 : 1; // force 2 direction (0 = increasing, 1 = decreasing)
+} s_ff_lg_variable;
 
 typedef struct PACKED {
     unsigned char type; // FTYPE_SPRING
@@ -140,12 +162,13 @@ typedef struct PACKED {
     unsigned char k2 : 4; //High (right or pull) side damper coefficient
     unsigned char : 7;
     unsigned char s2 : 1; //High side inversion (1 = inverted)
-    unsigned char clip;
+    unsigned char clip; // (since Driving Force Pro)
 } s_ff_lg_hr_damper;
 
 typedef union {
     unsigned char type;
     s_ff_lg_constant constant;
+    s_ff_lg_variable variable;
     s_ff_lg_spring spring;
     s_ff_lg_damper damper;
     s_ff_lg_hr_spring hr_spring;
@@ -156,10 +179,16 @@ typedef struct {
   unsigned char data[FF_LG_OUTPUT_REPORT_SIZE + 1];
 } s_ff_lg_report;
 
-void ff_lg_process_report(int device, unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]);
+int ff_lg_init(int device, unsigned short pid_from, unsigned short pid_to);
+void ff_lg_decode_extended(const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]);
+void ff_lg_decode_command(const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]);
+void ff_lg_process_report(int device, const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]);
 s_ff_lg_report * ff_lg_get_report(int device);
 void ff_lg_ack(int device);
-GE_Event * ff_lg_convert_report(int device, s_ff_lg_report * report);
+
+int16_t ff_lg_get_condition_coef(unsigned short pid, unsigned char hr, unsigned char k, unsigned char s);
+uint16_t ff_lg_get_spring_deadband(unsigned short pid, unsigned char d, unsigned char dL);
+uint16_t ff_lg_get_damper_clip(unsigned short pid, unsigned char c);
 
 int ff_lg_is_logitech_wheel(unsigned short vendor, unsigned short product);
 

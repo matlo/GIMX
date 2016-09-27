@@ -25,6 +25,7 @@
 #include <gpoll.h>
 
 #include <haptic/ff_lg.h>
+#include <haptic/ff_conv.h>
 #include <ghid.h>
 
 #define BAUDRATE 500000 //bps
@@ -73,7 +74,7 @@ void adapter_init_static(void)
     adapters[i].dst_fd = -1;
     adapters[i].src_fd = -1;
     adapters[i].serialdevice = -1;
-    adapters[i].hid.id = -1;
+    adapters[i].joystick.hid.id = -1;
     adapters[i].bread = 0;
     for(j = 0; j < MAX_REPORTS; ++j)
     {
@@ -357,22 +358,28 @@ static int adapter_forward_interrupt_out(int adapter, unsigned char* data, unsig
 
 static void adapter_send_next_hid_report(int adapter)
 {
-  if(!adapters[adapter].hid.write_pending)
+  if(!adapters[adapter].joystick.hid.write_pending)
   {
     s_ff_lg_report * report = ff_lg_get_report(adapter);
     if(report != NULL)
     {
-      if(ghid_write(adapters[adapter].hid.id, report->data, sizeof(report->data)) == 0)
+      if(ghid_write(adapters[adapter].joystick.hid.id, report->data, sizeof(report->data)) == 0)
       {
-        adapters->hid.write_pending = 1;
+        adapters->joystick.hid.write_pending = 1;
       }
     }
   }
 }
 
-static void adapter_send_next_ffb_update(int adapter)
-{
+static void adapter_send_next_ffb_update(int adapter, unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
 
+    GE_Event events[FF_LG_FSLOTS_NB] = {};
+    int events_nb = ff_conv(adapter, data, events);
+    int i;
+    for (i = 0; i < events_nb; ++i) {
+        events[i].which = adapters[adapter].joystick.id;
+        ginput_joystick_set_haptic(events + i);
+    }
 }
 
 static int adapter_process_packet(int adapter, s_packet* packet)
@@ -439,15 +446,14 @@ static int adapter_process_packet(int adapter, s_packet* packet)
     }
     if (logitech_ffb_report != NULL)
     {
-      if (adapters[adapter].hid.id >= 0)
+      if (adapters[adapter].joystick.hid.id >= 0)
       {
         ff_lg_process_report(adapter, logitech_ffb_report);
         adapter_send_next_hid_report(adapter);
       }
       else if (adapters[adapter].joystick.id >= 0 && adapters[adapter].joystick.has_ffb)
       {
-        ff_lg_process_report(adapter, logitech_ffb_report);
-        adapter_send_next_ffb_update(adapter);
+        adapter_send_next_ffb_update(adapter, logitech_ffb_report);
       }
     }
   }
@@ -471,7 +477,7 @@ static int adapter_process_packet(int adapter, s_packet* packet)
 
 static int adapter_hid_write_cb(int adapter, int status)
 {
-  adapters[adapter].hid.write_pending = 0;
+  adapters[adapter].joystick.hid.write_pending = 0;
   if(status != -1) {
     ff_lg_ack(adapter);
   }
@@ -481,7 +487,7 @@ static int adapter_hid_write_cb(int adapter, int status)
 
 static int adapter_hid_close_cb(int adapter)
 {
-  adapters[adapter].hid.id = -1;
+  adapters[adapter].joystick.hid.id = -1;
   return 1;
 }
 
@@ -494,10 +500,16 @@ void adapter_set_hid(int adapter, int hid)
     return;
   }
 
-  if(adapters[adapter].hid.id < 0)
+  if(adapters[adapter].joystick.hid.id < 0)
   {
-    adapters[adapter].hid.id = hid;
-    ginput_joystick_set_hid_callbacks(hid, adapter, adapter_hid_write_cb, adapter_hid_close_cb);
+      const s_hid_info * info = ghid_get_hid_info(hid);
+      if (info != NULL && ff_lg_is_logitech_wheel(info->vendor_id, info->product_id))
+      {
+        adapters[adapter].joystick.hid.id = hid;
+        adapters[adapter].joystick.usb_ids.vendor = info->vendor_id;
+        adapters[adapter].joystick.usb_ids.product = info->product_id;
+        ginput_joystick_set_hid_callbacks(hid, adapter, adapter_hid_write_cb, adapter_hid_close_cb);
+      }
   }
 }
 #else
@@ -511,24 +523,22 @@ void adapter_set_usb_ids(int adapter, unsigned short vendor, unsigned short prod
 
   if(adapter_device[E_DEVICE_TYPE_JOYSTICK - 1][adapter] >= 0)
   {
-    adapters[adapter].usb_ids.vendor = vendor;
-    adapters[adapter].usb_ids.product = product;
+    adapters[adapter].joystick.usb_ids.vendor = vendor;
+    adapters[adapter].joystick.usb_ids.product = product;
   }
 }
 
 static int start_hid(int adapter)
 {
-  if(ff_lg_is_logitech_wheel(adapters[adapter].usb_ids.vendor, adapters[adapter].usb_ids.product))
+  adapters[adapter].joystick.hid.id = ghid_open_ids(adapters[adapter].joystick.usb_ids.vendor, adapters[adapter].joystick.usb_ids.product);
+  if(adapters[adapter].joystick.hid.id >= 0)
   {
-    adapters[adapter].hid.id = ghid_open_ids(adapters[adapter].usb_ids.vendor, adapters[adapter].usb_ids.product);
-    if(adapters[adapter].hid.id >= 0)
+    if(ghid_register(adapters[adapter].joystick.hid.id, adapter, NULL, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
     {
-      if(ghid_register(adapters[adapter].hid.id, adapter, NULL, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
-      {
-        return -1;
-      }
+      return -1;
     }
   }
+
   return 0;
 }
 #endif
@@ -941,17 +951,27 @@ int adapter_start()
           default:
             break;
         }
-#ifdef WIN32
-        switch(adapters->ctype)
+
+        unsigned short vid = 0;
+        unsigned short pid = 0;
+        controller_get_ids(adapter->ctype, &vid, &pid);
+        if (ff_lg_is_logitech_wheel(vid, pid))
         {
-        case C_TYPE_G29_PS4:
-        case C_TYPE_G27_PS3:
-          start_hid(i);
-          break;
-        default:
-          break;
-        }
+          // emulated controller is a Logitech wheel with FFB support
+          if (ff_lg_is_logitech_wheel(adapter->joystick.usb_ids.vendor, adapter[i].joystick.usb_ids.product))
+          {
+            // default joystick is a Logitech wheel with FFB support
+            ff_lg_init(i, pid, adapter->joystick.usb_ids.product);
+#ifdef WIN32
+            start_hid(i);
 #endif
+          }
+          else if (adapter->joystick.has_ffb)
+          {
+            // default joystick is a non-Logitech wheel with FFB support
+            ff_conv_init(i, pid);
+          }
+        }
         if(adapter_send_short_command(i, BYTE_START) < 0)
         {
           fprintf(stderr, _("Can't start the adapter.\n"));

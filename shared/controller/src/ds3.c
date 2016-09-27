@@ -257,6 +257,8 @@ static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_
 static s_controller controller =
 {
   .name = "Sixaxis",
+  .vid = 0x054c,
+  .pid = 0x0268,
   .refresh_period = { .min_value = 1000, .default_value = 10000 },
   .auth_required = 0,
   .axes = axes,

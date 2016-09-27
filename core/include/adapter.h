@@ -17,11 +17,6 @@
 #include <connectors/windows/sockets.h>
 #endif
 
-#define MAX_CONTROLLERS 7
-#define MAX_CONFIGURATIONS 8
-#define MAX_DEVICES 256
-#define MAX_CONTROLS 256
-
 typedef enum
 {
   E_ADAPTER_TYPE_NONE,
@@ -57,23 +52,21 @@ typedef struct
   int status;
   struct {
     int id;
-    int write_pending;
-    int read_pending;
-  } hid;
-  struct {
-    int id;
+    struct
+    {
+      unsigned short vendor;
+      unsigned short product;
+    } usb_ids;
     unsigned char has_rumble;
     unsigned char has_ffb;
+    struct {
+      int id;
+      int write_pending;
+      int read_pending;
+    } hid;
   } joystick;
   unsigned char forward_out_reports;
   unsigned char process_ffb;
-#ifdef WIN32
-  struct
-  {
-    unsigned short vendor;
-    unsigned short product;
-  } usb_ids;
-#endif
 } s_adapter;
 
 int adapter_detect();

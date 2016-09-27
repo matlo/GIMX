@@ -7,7 +7,7 @@
 #include "../../shared/gpp/pcprog.h"
 #include "config.h"
 #include <controller2.h>
-#include "adapter.h"
+#include "gimx.h"
 
 int gpp_connect(int id, const char* device)
 {

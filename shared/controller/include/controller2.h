@@ -43,6 +43,8 @@ typedef struct
 typedef struct
 {
   const char * name;
+  unsigned short vid;
+  unsigned short pid;
   struct
   {
     int min_value;
@@ -91,6 +93,8 @@ const char * controller_get_axis_name(e_controller_type type, e_controller_axis_
 int controller_get_axis_index(const char * name);
 
 int controller_is_auth_required(e_controller_type type);
+
+void controller_get_ids(e_controller_type type, unsigned short * vid, unsigned short * pid);
 
 #ifdef __cplusplus
 }
