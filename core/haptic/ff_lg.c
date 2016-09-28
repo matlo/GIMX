@@ -701,7 +701,7 @@ s_coef get_force_coefficient(unsigned short pid, unsigned char hr, unsigned char
     return coef;
 }
 
-static const s_ff_lg_force * convert_force(const s_ff_lg_force * force) {
+static void convert_force(s_ff_lg_force * force) {
 
     static const unsigned char hr2lr[16] = {
             [0]  = 0, // 0 => stop effect
@@ -721,42 +721,34 @@ static const s_ff_lg_force * convert_force(const s_ff_lg_force * force) {
             [14] = 5, // 3.73
             [15] = 7, // 4
     };
+    s_ff_lg_force tmp = {};
     switch (force->type) {
     case FF_LG_FTYPE_HIGH_RESOLUTION_SPRING:
-        if (force->hr_spring.k1 != 0 || force->hr_spring.k2 != 0) {
-            static s_ff_lg_force lowres_spring = { .spring = { .type = FF_LG_FTYPE_SPRING, } };
-            lowres_spring.spring.d1 = force->hr_spring.d1;
-            lowres_spring.spring.d2 = force->hr_spring.d2;
-            lowres_spring.spring.k1 = hr2lr[force->hr_spring.k1];
-            lowres_spring.spring.k2 = hr2lr[force->hr_spring.k2];
-            lowres_spring.spring.s1 = force->hr_spring.s1;
-            lowres_spring.spring.s2 = force->hr_spring.s2;
-            lowres_spring.spring.clip = force->hr_spring.clip;
-            force = &lowres_spring;
-        } else {
-            force = NULL;
-        }
+        tmp.type = FF_LG_FTYPE_SPRING;
+        tmp.parameters[0] = FF_LG_HIGHRES_SPRING_D1(force);
+        tmp.parameters[1] = FF_LG_HIGHRES_SPRING_D2(force);
+        tmp.parameters[2] = hr2lr[FF_LG_HIGHRES_SPRING_K1(force)];
+        tmp.parameters[2] = hr2lr[FF_LG_HIGHRES_SPRING_K2(force)] << 4;
+        tmp.parameters[3] = FF_LG_HIGHRES_SPRING_S1(force);
+        tmp.parameters[3] = FF_LG_HIGHRES_SPRING_S2(force) << 4;
+        tmp.parameters[4] = FF_LG_HIGHRES_SPRING_CLIP(force);
+        memcpy(force, &tmp, sizeof(*force));
         break;
     case FF_LG_FTYPE_HIGH_RESOLUTION_DAMPER:
-        if (force->hr_damper.k1 != 0 || force->hr_damper.k2 != 0) {
-            static s_ff_lg_force lowres_damper = { .damper = { .type = FF_LG_FTYPE_DAMPER, } };
-            lowres_damper.damper.k1 = hr2lr[force->hr_damper.k1];
-            lowres_damper.damper.k2 = hr2lr[force->hr_damper.k2];
-            lowres_damper.damper.s1 = force->hr_damper.s1;
-            lowres_damper.damper.s2 = force->hr_damper.s2;
-            force = &lowres_damper;
-        } else {
-            force = NULL;
-        }
+        tmp.type = FF_LG_FTYPE_DAMPER;
+        tmp.parameters[0] = hr2lr[FF_LG_HIGHRES_DAMPER_K1(force)];
+        tmp.parameters[1] = hr2lr[FF_LG_HIGHRES_DAMPER_K2(force)];
+        tmp.parameters[2] = FF_LG_HIGHRES_DAMPER_S1(force);
+        tmp.parameters[3] = FF_LG_HIGHRES_DAMPER_S2(force);
+        memcpy(force, &tmp, sizeof(*force));
         break;
     }
-    return force;
 }
 
 int16_t ff_lg_get_condition_coef(unsigned short pid, unsigned char hr, unsigned char k, unsigned char s) {
 
     s_coef coef = get_force_coefficient(pid, hr, k);
-    int value = (s ? SHRT_MAX : SHRT_MIN) * coef.num / coef.den;
+    int value = (s ? SHRT_MIN : SHRT_MAX) * coef.num / coef.den;
     return CLAMP(SHRT_MIN, value, SHRT_MAX);
 }
 
@@ -770,7 +762,7 @@ uint16_t ff_lg_get_spring_deadband(unsigned short pid, unsigned char d, unsigned
     case USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL:
     case USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2:
         // older than Driving Force Pro
-        deadband = d * USHRT_MAX / 0x0F;
+        deadband = d * USHRT_MAX / UCHAR_MAX;
         break;
     default:
         deadband = ((d << 3) | dL) * USHRT_MAX / 0x7FF;

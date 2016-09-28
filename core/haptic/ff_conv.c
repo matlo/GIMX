@@ -75,7 +75,7 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
     case FF_LG_FTYPE_CONSTANT:
         event->type = GE_JOYCONSTANTFORCE;
         if (ff_lg_device[device].slots[index].active) {
-            event->jconstant.level = u8_to_s16(force->constant.levels[index]);
+            event->jconstant.level = u8_to_s16(FF_LG_CONSTANT_LEVEL(force, index));
         }
         return 1;
     case FF_LG_FTYPE_VARIABLE:
@@ -83,20 +83,20 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
         if (ff_lg_device[device].slots[index].active) {
             static int warned = 0;
             if (index == 0) {
-                if (warned == 0 && force->variable.t1 && force->variable.s1) {
+                if (warned == 0 && FF_LG_VARIABLE_T1(force) && FF_LG_VARIABLE_S1(force)) {
                     gprintf("warning: variable force cannot be converted to constant force (l1=%hu, t1=%hu, s1=%hu, d1=%hu\n",
-                        force->variable.l1, force->variable.t1, force->variable.s1, force->variable.d1);
+                        FF_LG_VARIABLE_L1(force), FF_LG_VARIABLE_T1(force), FF_LG_VARIABLE_S1(force), FF_LG_VARIABLE_D1(force));
                     warned = 1;
                 } else {
-                    event->jconstant.level = u8_to_s16(force->variable.l1);
+                    event->jconstant.level = u8_to_s16(FF_LG_VARIABLE_L1(force));
                 }
             } else if (index == 2) {
-                if (warned == 0 && force->variable.t2 && force->variable.s2) {
+                if (warned == 0 && FF_LG_VARIABLE_T2(force) && FF_LG_VARIABLE_S2(force)) {
                     gprintf("warning: variable force cannot be converted to constant force (l2=%hu, t2=%hu, s2=%hu, d2=%hu\n",
-                        force->variable.l2, force->variable.t2, force->variable.s2, force->variable.d2);
+                        FF_LG_VARIABLE_L2(force), FF_LG_VARIABLE_T2(force), FF_LG_VARIABLE_S2(force), FF_LG_VARIABLE_D2(force));
                     warned = 1;
                 } else {
-                    event->jconstant.level = u8_to_s16(force->variable.l2);
+                    event->jconstant.level = u8_to_s16(FF_LG_VARIABLE_L2(force));
                 }
             }
         }
@@ -104,36 +104,36 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
     case FF_LG_FTYPE_SPRING:
         event->type = GE_JOYSPRINGFORCE;
         if (ff_lg_device[device].slots[index].active) {
-            event->jcondition.saturation.left = u8_to_u16(force->spring.clip);
-            event->jcondition.saturation.right = u8_to_u16(force->spring.clip);
+            event->jcondition.saturation.left = u8_to_u16(FF_LG_SPRING_CLIP(force));
+            event->jcondition.saturation.right = u8_to_u16(FF_LG_SPRING_CLIP(force));
             event->jcondition.coefficient.left =
-                ff_lg_get_condition_coef(ff_lg_device[device].pid, 0, force->spring.k1, force->spring.s1);
+                ff_lg_get_condition_coef(ff_lg_device[device].pid, 0, FF_LG_SPRING_K1(force), FF_LG_SPRING_S1(force));
             event->jcondition.coefficient.right =
-                ff_lg_get_condition_coef(ff_lg_device[device].pid, 0, force->spring.k2, force->spring.s2);
-            event->jcondition.center = u8_to_s16((force->spring.d1 + force->spring.d2) / 2);
-            event->jcondition.deadband = u8_to_u16(force->spring.d2 - force->spring.d1);
+                ff_lg_get_condition_coef(ff_lg_device[device].pid, 0, FF_LG_SPRING_K2(force), FF_LG_SPRING_S2(force));
+            event->jcondition.center = u8_to_s16((FF_LG_SPRING_D1(force) + FF_LG_SPRING_D2(force)) / 2);
+            event->jcondition.deadband = u8_to_u16(FF_LG_SPRING_D2(force) - FF_LG_SPRING_D1(force));
         }
         return 1;
     case FF_LG_FTYPE_DAMPER:
         event->type = GE_JOYDAMPERFORCE;
         if (ff_lg_device[device].slots[index].active) {
             event->jcondition.coefficient.left =
-                ff_lg_get_condition_coef(ff_lg_device[device].pid, 0, force->damper.k1, force->damper.s1);
+                ff_lg_get_condition_coef(ff_lg_device[device].pid, 0, FF_LG_DAMPER_K1(force), FF_LG_DAMPER_S1(force));
             event->jcondition.coefficient.right =
-                ff_lg_get_condition_coef(ff_lg_device[device].pid, 0, force->damper.k2, force->damper.s2);
+                ff_lg_get_condition_coef(ff_lg_device[device].pid, 0, FF_LG_DAMPER_K2(force), FF_LG_DAMPER_S2(force));
         }
         return 1;
     case FF_LG_FTYPE_HIGH_RESOLUTION_SPRING:
         event->type = GE_JOYSPRINGFORCE;
         if (ff_lg_device[device].slots[index].active) {
-            event->jcondition.saturation.left = u8_to_u16(force->hr_spring.clip);
-            event->jcondition.saturation.right = u8_to_u16(force->hr_spring.clip);
+            event->jcondition.saturation.left = u8_to_u16(FF_LG_HIGHRES_SPRING_CLIP(force));
+            event->jcondition.saturation.right = u8_to_u16(FF_LG_HIGHRES_SPRING_CLIP(force));
             event->jcondition.coefficient.left = 
-                ff_lg_get_condition_coef(ff_lg_device[device].pid, 1, force->hr_spring.k1, force->hr_spring.s1);
+                ff_lg_get_condition_coef(ff_lg_device[device].pid, 1, FF_LG_HIGHRES_SPRING_K1(force), FF_LG_HIGHRES_SPRING_S1(force));
             event->jcondition.coefficient.right =
-                ff_lg_get_condition_coef(ff_lg_device[device].pid, 1, force->hr_spring.k2, force->hr_spring.s2);
-            uint16_t d2 = ff_lg_get_spring_deadband(ff_lg_device[device].pid, force->hr_spring.d2, force->hr_spring.d2L);
-            uint16_t d1 = ff_lg_get_spring_deadband(ff_lg_device[device].pid, force->hr_spring.d1, force->hr_spring.d1L);
+                ff_lg_get_condition_coef(ff_lg_device[device].pid, 1, FF_LG_HIGHRES_SPRING_K2(force), FF_LG_HIGHRES_SPRING_S2(force));
+            uint16_t d2 = ff_lg_get_spring_deadband(ff_lg_device[device].pid, FF_LG_HIGHRES_SPRING_D2(force), FF_LG_HIGHRES_SPRING_D2L(force));
+            uint16_t d1 = ff_lg_get_spring_deadband(ff_lg_device[device].pid, FF_LG_HIGHRES_SPRING_D1(force), FF_LG_HIGHRES_SPRING_D1L(force));
             event->jcondition.center = u16_to_s16((d1 + d2) / 2);
             event->jcondition.deadband = d2 - d1;
         }
@@ -141,12 +141,12 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
     case FF_LG_FTYPE_HIGH_RESOLUTION_DAMPER:
         event->type = GE_JOYDAMPERFORCE;
         if (ff_lg_device[device].slots[index].active) {
-            event->jcondition.saturation.left = ff_lg_get_damper_clip(ff_lg_device[device].pid, force->hr_damper.clip);
-            event->jcondition.saturation.right = ff_lg_get_damper_clip(ff_lg_device[device].pid, force->hr_damper.clip);
+            event->jcondition.saturation.left = ff_lg_get_damper_clip(ff_lg_device[device].pid, FF_LG_HIGHRES_DAMPER_CLIP(force));
+            event->jcondition.saturation.right = ff_lg_get_damper_clip(ff_lg_device[device].pid, FF_LG_HIGHRES_DAMPER_CLIP(force));
             event->jcondition.coefficient.left =
-                ff_lg_get_condition_coef(ff_lg_device[device].pid, 1, force->hr_damper.k1, force->hr_damper.s1);
+                ff_lg_get_condition_coef(ff_lg_device[device].pid, 1, FF_LG_HIGHRES_DAMPER_K1(force), FF_LG_HIGHRES_DAMPER_S1(force));
             event->jcondition.coefficient.right =
-                ff_lg_get_condition_coef(ff_lg_device[device].pid, 1, force->hr_damper.k2, force->hr_damper.s2);
+                ff_lg_get_condition_coef(ff_lg_device[device].pid, 1, FF_LG_HIGHRES_DAMPER_K2(force), FF_LG_HIGHRES_DAMPER_S2(force));
         }
         return 1;
     default:

@@ -91,88 +91,49 @@
 #define FF_LG_FTYPE_HIGH_RESOLUTION_AUTO_CENTER_SPRING 0x0D
 #define FF_LG_FTYPE_FRICTION                           0x0E
 
-typedef struct PACKED {
-    unsigned char type; // FTYPE_CONSTANT
-    unsigned char levels[4]; // index n for slot n
-    unsigned char : 8;
-} s_ff_lg_constant;
+#define FF_LG_CONSTANT_LEVEL(FORCE, SLOT_INDEX) (FORCE->parameters)[SLOT_INDEX] // force level (index n for slot n)
+
+#define FF_LG_VARIABLE_L1(FORCE) (FORCE->parameters)[0]                 // initial level for force 0
+#define FF_LG_VARIABLE_L2(FORCE) (FORCE->parameters)[1]                 // initial level for force 2
+#define FF_LG_VARIABLE_T1(FORCE) (((FORCE->parameters)[2] & 0xf0) >> 4) // force 0 step duration (in main loops)
+#define FF_LG_VARIABLE_S1(FORCE) ((FORCE->parameters)[2] & 0x0f)        // force 0 step size
+#define FF_LG_VARIABLE_T2(FORCE) (((FORCE->parameters)[3] & 0xf0) >> 4) // force 2 step duration (in main loops)
+#define FF_LG_VARIABLE_S2(FORCE) ((FORCE->parameters)[3] & 0x0f)        // force 2 step size
+#define FF_LG_VARIABLE_D1(FORCE) (((FORCE->parameters)[4] & 0x10) >> 4) // force 0 direction (0 = increasing, 1 = decreasing)
+#define FF_LG_VARIABLE_D2(FORCE) ((FORCE->parameters)[4] & 0x01)        // force 2 direction (0 = increasing, 1 = decreasing)
+
+#define FF_LG_SPRING_D1(FORCE)   (FORCE->parameters)[0]                 // lower limit of central dead band
+#define FF_LG_SPRING_D2(FORCE)   (FORCE->parameters)[1]                 // upper limit of central dead band
+#define FF_LG_SPRING_K1(FORCE)   (((FORCE->parameters)[2] & 0x70) >> 4) // low (left or push) side spring constant selector
+#define FF_LG_SPRING_K2(FORCE)   ((FORCE->parameters)[2] & 0x07)        // high (right or pull) side spring constant selector
+#define FF_LG_SPRING_S1(FORCE)   (((FORCE->parameters)[3] & 0x10) >> 4) // low side slope inversion (1 = inverted)
+#define FF_LG_SPRING_S2(FORCE)   ((FORCE->parameters)[3] & 0x01)        // high side slope inversion (1 = inverted)
+#define FF_LG_SPRING_CLIP(FORCE) (FORCE->parameters)[4]                 // clip level (maximum force), on either side
+
+#define FF_LG_DAMPER_K1(FORCE)   ((FORCE->parameters)[0] & 0x07) // low (left or push) side damper coefficient
+#define FF_LG_DAMPER_S1(FORCE)   ((FORCE->parameters)[1] & 0x01) // low side inversion (1 = inverted)
+#define FF_LG_DAMPER_K2(FORCE)   ((FORCE->parameters)[2] & 0x07) // high (right or pull) side damper coefficient
+#define FF_LG_DAMPER_S2(FORCE)   ((FORCE->parameters)[3] & 0x01) // high side inversion (1 = inverted)
+
+#define FF_LG_HIGHRES_SPRING_D1(FORCE)   (FORCE->parameters)[0]                 // lower limit of central dead band
+#define FF_LG_HIGHRES_SPRING_D2(FORCE)   (FORCE->parameters)[1]                 // upper limit of central dead band
+#define FF_LG_HIGHRES_SPRING_K1(FORCE)   (((FORCE->parameters)[2] & 0xf0) >> 4) // low (left or push) side spring constant selector
+#define FF_LG_HIGHRES_SPRING_K2(FORCE)   ((FORCE->parameters)[2] & 0x0f)        // high (right or pull) side spring constant selector
+#define FF_LG_HIGHRES_SPRING_D1L(FORCE)  (((FORCE->parameters)[3] & 0xe0) >> 5) // low order bits (since Driving Force Pro)
+#define FF_LG_HIGHRES_SPRING_S1(FORCE)   (((FORCE->parameters)[3] & 0x10) >> 4) // low side slope inversion (1 = inverted)
+#define FF_LG_HIGHRES_SPRING_D2L(FORCE)  (((FORCE->parameters)[3] & 0x0e) >> 1) // low order bits (since Driving Force Pro)
+#define FF_LG_HIGHRES_SPRING_S2(FORCE)   ((FORCE->parameters)[3] & 0x01)        // high side slope inversion (1 = inverted)
+#define FF_LG_HIGHRES_SPRING_CLIP(FORCE) (FORCE->parameters)[4]                 // clip level (maximum force), on either side
+
+#define FF_LG_HIGHRES_DAMPER_K1(FORCE)   ((FORCE->parameters)[0] & 0x0f) // low (left or push) side damper constant selector
+#define FF_LG_HIGHRES_DAMPER_S1(FORCE)   ((FORCE->parameters)[1] & 0x01) // low side inversion (1 = inverted)
+#define FF_LG_HIGHRES_DAMPER_K2(FORCE)   ((FORCE->parameters)[2] & 0x0f) // high (right or pull) side damper constant selector
+#define FF_LG_HIGHRES_DAMPER_S2(FORCE)   ((FORCE->parameters)[3] & 0x01) // high side inversion (1 = inverted)
+#define FF_LG_HIGHRES_DAMPER_CLIP(FORCE) (FORCE->parameters)[4]          // clip level (maximum force), on either side (since Driving Force Pro)
 
 typedef struct PACKED {
-    unsigned char type; // FTYPE_VARIABLE
-    unsigned char l1; // initial level for force 0
-    unsigned char l2; // initial level for force 2
-    unsigned char t1 : 4; // force 0 step duration (in main loops)
-    unsigned char s1 : 4; // force 0 step size
-    unsigned char t2 : 4; // force 2 step duration (in main loops)
-    unsigned char s2 : 4; // force 2 step size
-    unsigned char : 3;
-    unsigned char d1 : 1; // force 0 direction (0 = increasing, 1 = decreasing)
-    unsigned char : 3;
-    unsigned char d2 : 1; // force 2 direction (0 = increasing, 1 = decreasing)
-} s_ff_lg_variable;
-
-typedef struct PACKED {
-    unsigned char type; // FTYPE_SPRING
-    unsigned char d1; // lower limit of central dead band
-    unsigned char d2; // upper limit of central dead band
-    unsigned char : 1;
-    unsigned char k1 : 3; //Low (left or push) side spring constant selector
-    unsigned char : 1;
-    unsigned char k2 : 3; //High (right or pull) side spring constant selector
-    unsigned char : 3;
-    unsigned char s1 : 1; //Low side slope inversion (1 = inverted)
-    unsigned char : 3;
-    unsigned char s2 : 1; //High side slope inversion (1 = inverted)
-    unsigned char clip; //Clip level (maximum force), on either side
-} s_ff_lg_spring;
-
-typedef struct PACKED {
-    unsigned char type; // FTYPE_DAMPER
-    unsigned char : 5;
-    unsigned char k1 : 3; //Low (left or push) side damper coefficient
-    unsigned char : 7;
-    unsigned char s1 : 1; //Low side inversion (1 = inverted)
-    unsigned char : 5;
-    unsigned char k2 : 3; //High (right or pull) side damper coefficient
-    unsigned char : 7;
-    unsigned char s2 : 1; //High side inversion (1 = inverted)
-    unsigned char : 8;
-} s_ff_lg_damper;
-
-typedef struct PACKED {
-    unsigned char type; // FTYPE_HIGH_RESOLUTION_SPRING
-    unsigned char d1; // lower limit of central dead band
-    unsigned char d2; // upper limit of central dead band
-    unsigned char k1 : 4; //Low (left or push) side spring constant selector
-    unsigned char k2 : 4; //High (right or pull) side spring constant selector
-    unsigned char d1L : 3; // low order bits (since Driving Force Pro)
-    unsigned char s1 : 1; //Low side slope inversion (1 = inverted)
-    unsigned char d2L : 3; // low order bits (since Driving Force Pro)
-    unsigned char s2 : 1; //High side slope inversion (1 = inverted)
-    unsigned char clip; //Clip level (maximum force), on either side
-} s_ff_lg_hr_spring;
-
-typedef struct PACKED {
-    unsigned char type; // FTYPE_HIGH_RESOLUTION_DAMPER
-    unsigned char : 4;
-    unsigned char k1 : 4; //Low (left or push) side damper coefficient
-    unsigned char : 7;
-    unsigned char s1 : 1; //Low side inversion (1 = inverted)
-    unsigned char : 4;
-    unsigned char k2 : 4; //High (right or pull) side damper coefficient
-    unsigned char : 7;
-    unsigned char s2 : 1; //High side inversion (1 = inverted)
-    unsigned char clip; // (since Driving Force Pro)
-} s_ff_lg_hr_damper;
-
-typedef union {
     unsigned char type;
-    s_ff_lg_constant constant;
-    s_ff_lg_variable variable;
-    s_ff_lg_spring spring;
-    s_ff_lg_damper damper;
-    s_ff_lg_hr_spring hr_spring;
-    s_ff_lg_hr_damper hr_damper;
+    unsigned char parameters[FF_LG_OUTPUT_REPORT_SIZE - 2];
 } s_ff_lg_force;
 
 typedef struct {
