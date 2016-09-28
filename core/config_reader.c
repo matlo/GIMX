@@ -745,7 +745,7 @@ static int ProcessUpDownElement(xmlNode * a_node, int* device_type, int* device_
   return ret;
 }
 
-static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity, int axis)
+static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity)
 {
   xmlNode* cur_node = NULL;
   int ret = 0;
@@ -841,7 +841,7 @@ static int ProcessIntensityListElement(xmlNode * a_node)
         }
         if(axis1 >= 0)
         {
-          ret = ProcessIntensityElement(cur_node, &intensity, axis1);
+          ret = ProcessIntensityElement(cur_node, &intensity);
           cfg_set_axis_intensity(&entry, axis1, &intensity);
           if(axis2 >= 0)
           {

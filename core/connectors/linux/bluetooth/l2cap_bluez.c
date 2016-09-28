@@ -611,7 +611,7 @@ static int l2cap_bluez_connect_accept(int listen_channel)
   return 0;
 }
 
-static int l2cap_bluez_listen(int user, unsigned short psm, int options,
+static int l2cap_bluez_listen(int user __attribute__((unused)), unsigned short psm, int options,
     L2CAP_ABS_LISTEN_ACCEPT_CALLBACK read_callback, L2CAP_ABS_CLOSE_CALLBACK close_callback)
 {
   struct sockaddr_l2 loc_addr = { 0 };
@@ -676,7 +676,7 @@ static int l2cap_bluez_listen(int user, unsigned short psm, int options,
   return channel;
 }
 
-static void l2cap_bluez_add_source(int channel, int user, L2CAP_ABS_READ_CALLBACK read_callback, L2CAP_ABS_PACKET_CALLBACK packet_callback, L2CAP_ABS_CLOSE_CALLBACK close_callback)
+static void l2cap_bluez_add_source(int channel, int user, L2CAP_ABS_READ_CALLBACK read_callback, L2CAP_ABS_PACKET_CALLBACK packet_callback __attribute__((unused)), L2CAP_ABS_CLOSE_CALLBACK close_callback)
 {
   channels.channels[channel].user = user;
   gpoll_register_fd(channels.channels[channel].fd, channels.channels[channel].user, read_callback, NULL, close_callback);

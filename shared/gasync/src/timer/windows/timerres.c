@@ -60,7 +60,7 @@ void timerres_quit(void) {
     CloseHandle(hTimer);
 }
 
-static int close_callback(int unused) {
+static int close_callback(int unused __attribute__((unused))) {
 
     return -1;
 }
@@ -69,7 +69,7 @@ static int close_callback(int unused) {
 
 // Warning: preemption may happen anytime, and timer_callback may take some time.
 // Reset the timer until no period elapsed.
-static int read_callback(int unused) {
+static int read_callback(int unused __attribute__((unused))) {
 
     int ret = 0;
     unsigned int nexp = (timerres_get_time().QuadPart - last.QuadPart) / currentResolution;

@@ -280,7 +280,7 @@ static void cal_display()
 /*
  * Use keys to calibrate the mouse.
  */
-void cal_key(int device_id, int sym, int down)
+void cal_key(int sym, int down)
 {
   s_mouse_control* mc = cfg_get_mouse_control(current_mouse);
   e_current_cal prev = current_cal;
@@ -501,7 +501,7 @@ void cal_key(int device_id, int sym, int down)
 /*
  * Use the mouse wheel to calibrate the mouse.
  */
-void cal_button(int which, int button)
+void cal_button(int button)
 {
   double ratio;
   s_mouse_control* mc = cfg_get_mouse_control(current_mouse);

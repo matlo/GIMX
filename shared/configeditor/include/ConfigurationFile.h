@@ -18,7 +18,6 @@ class ConfigurationFile
     public:
         ConfigurationFile();
         virtual ~ConfigurationFile();
-        ConfigurationFile(const ConfigurationFile& other);
         ConfigurationFile& operator=(const ConfigurationFile& other);
         int ReadConfigFile(string filePath);
         bool MultipleMK() { return m_multipleMK; }

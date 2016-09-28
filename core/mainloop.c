@@ -28,12 +28,12 @@ void set_done()
   done = 1;
 }
 
-static int timer_read(int user)
+static int timer_read(int user __attribute__((unused)))
 {
   return 1;
 }
 
-static int timer_close(int user)
+static int timer_close(int user __attribute__((unused)))
 {
   set_done();
   return 1;

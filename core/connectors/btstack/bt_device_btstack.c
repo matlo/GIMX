@@ -33,7 +33,7 @@ int bt_device_btstack_device_init()
  *
  * \return 0 if successful, -1 otherwise
  */
-int bt_device_btstack_get_device_bdaddr(int ignored, bdaddr_t* bdaddr)
+int bt_device_btstack_get_device_bdaddr(int ignored __attribute__((unused)), bdaddr_t* bdaddr)
 {
   int ret;
 
@@ -71,7 +71,7 @@ int bt_device_btstack_get_device_bdaddr(int ignored, bdaddr_t* bdaddr)
  *
  * \return 0 if successful, -1 otherwise
  */
-int bt_device_btstack_write_device_class(int ignored, uint32_t devclass)
+int bt_device_btstack_write_device_class(int ignored __attribute__((unused)), uint32_t devclass)
 {
   int ret = btstack_common_send_cmd(&btstack_hci_write_class_of_device, devclass);
 

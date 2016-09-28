@@ -207,7 +207,7 @@ static int assemble_feature_f2(uint8_t *buf, int maxlen, struct sixaxis_state *s
 }
 
 /* Unknown */
-static int assemble_feature_f7(uint8_t *buf, int maxlen, struct sixaxis_state *state)
+static int assemble_feature_f7(uint8_t *buf, int maxlen, struct sixaxis_state *state __attribute__((unused)))
 {
   const uint8_t data[] =
   { 0x00, 0x02, 0xe4, 0x02, 0xa9, 0x01, 0x05, 0xff, 0x14, 0x23, 0x00 };
@@ -220,7 +220,7 @@ static int assemble_feature_f7(uint8_t *buf, int maxlen, struct sixaxis_state *s
 }
 
 /* Unknown */
-static int assemble_feature_f8(uint8_t *buf, int maxlen, struct sixaxis_state *state)
+static int assemble_feature_f8(uint8_t *buf, int maxlen, struct sixaxis_state *state __attribute__((unused)))
 {
   const uint8_t data[] =
   { 0x01, 0x00, 0x00, 0x00 };
@@ -292,7 +292,7 @@ static int process_feature_ef(const uint8_t *buf, int len, struct sixaxis_state 
 }
 
 /* Enable reporting */
-static int process_feature_f4(const uint8_t *buf, int len, struct sixaxis_state *state)
+static int process_feature_f4(const uint8_t *buf, int len __attribute__((unused)), struct sixaxis_state *state)
 {
   /* Enable event reporting */
   if (buf[1] == 0x08)

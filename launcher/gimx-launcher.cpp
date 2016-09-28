@@ -753,7 +753,7 @@ void launcherFrame::readStartUpdates()
   }
 }
 
-launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id)
+launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unused)))
 {
     locale = new wxLocale(wxLANGUAGE_DEFAULT);
 #ifdef WIN32
@@ -1014,12 +1014,12 @@ launcherFrame::~launcherFrame()
     //*)
 }
 
-void launcherFrame::OnQuit(wxCommandEvent& event)
+void launcherFrame::OnQuit(wxCommandEvent& event __attribute__((unused)))
 {
   Close();
 }
 
-void launcherFrame::OnAbout(wxCommandEvent& event)
+void launcherFrame::OnAbout(wxCommandEvent& event __attribute__((unused)))
 {
   wxAboutDialogInfo info;
   info.SetName(wxTheApp->GetAppName());
@@ -1047,12 +1047,12 @@ protected:
     wxString m_cmd;
 };
 
-void MyProcess::OnTerminate(int pid, int status)
+void MyProcess::OnTerminate(int pid __attribute__((unused)), int status)
 {
     m_parent->OnProcessTerminated(this, status);
 }
 
-void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
+void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unused)))
 {
     wxString command;
     string filename;
@@ -1267,7 +1267,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event)
     }
 }
 
-void launcherFrame::OnProcessTerminated(wxProcess *process, int status)
+void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused)), int status)
 {
     ButtonStart->Enable(true);
     StatusBar1->SetStatusText(wxEmptyString);
@@ -1311,7 +1311,7 @@ void launcherFrame::OnProcessTerminated(wxProcess *process, int status)
     SetFocus();
 }
 
-void launcherFrame::OnButtonCheckClick1(wxCommandEvent& event)
+void launcherFrame::OnButtonCheckClick1(wxCommandEvent& event __attribute__((unused)))
 {
     if(InputChoice->GetStringSelection().IsEmpty())
     {
@@ -1339,7 +1339,7 @@ void launcherFrame::OnButtonCheckClick1(wxCommandEvent& event)
     }
 }
 
-void launcherFrame::OnMenuEditConfig(wxCommandEvent& event)
+void launcherFrame::OnMenuEditConfig(wxCommandEvent& event __attribute__((unused)))
 {
   if(InputChoice->GetStringSelection().IsEmpty())
   {
@@ -1358,7 +1358,7 @@ void launcherFrame::OnMenuEditConfig(wxCommandEvent& event)
   }
 }
 
-void launcherFrame::OnMenuEditFpsConfig(wxCommandEvent& event)
+void launcherFrame::OnMenuEditFpsConfig(wxCommandEvent& event __attribute__((unused)))
 {
   if(InputChoice->GetStringSelection().IsEmpty())
   {
@@ -1406,12 +1406,12 @@ void launcherFrame::refreshGui()
   Refresh();
 }
 
-void launcherFrame::OnMenuRefresh(wxCommandEvent& event)
+void launcherFrame::OnMenuRefresh(wxCommandEvent& event __attribute__((unused)))
 {
     refresh();
 }
 
-void launcherFrame::OnOutputSelect(wxCommandEvent& event)
+void launcherFrame::OnOutputSelect(wxCommandEvent& event __attribute__((unused)))
 {
     OutputNewButton->SetLabel(_("New"));
 
@@ -1507,7 +1507,7 @@ void launcherFrame::OnOutputSelect(wxCommandEvent& event)
     refreshGui();
 }
 
-void launcherFrame::OnMenuUpdate(wxCommandEvent& event)
+void launcherFrame::OnMenuUpdate(wxCommandEvent& event __attribute__((unused)))
 {
   int ret;
 
@@ -1543,7 +1543,7 @@ void launcherFrame::OnMenuUpdate(wxCommandEvent& event)
   }
 }
 
-void launcherFrame::OnMenuStartupUpdates(wxCommandEvent& event)
+void launcherFrame::OnMenuStartupUpdates(wxCommandEvent& event __attribute__((unused)))
 {
   string filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append(START_UPDATES);
@@ -1562,7 +1562,7 @@ void launcherFrame::OnMenuStartupUpdates(wxCommandEvent& event)
   }
 }
 
-void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event)
+void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event __attribute__((unused)))
 {
   string dir = string(gimxConfigDir.mb_str(wxConvUTF8));
 
@@ -1690,7 +1690,7 @@ void launcherFrame::autoBindControls(wxArrayString configs)
   }
 }
 
-void launcherFrame::OnMenuAutoBindControls(wxCommandEvent& event)
+void launcherFrame::OnMenuAutoBindControls(wxCommandEvent& event __attribute__((unused)))
 {
   if(InputChoice->GetStringSelection().IsEmpty())
   {
@@ -1704,7 +1704,7 @@ void launcherFrame::OnMenuAutoBindControls(wxCommandEvent& event)
   autoBindControls(configs);
 }
 
-void launcherFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event)
+void launcherFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event __attribute__((unused)))
 {
 #ifdef WIN32
   gimxConfigDir.Replace(wxT("/"), wxT("\\"));
@@ -1714,7 +1714,7 @@ void launcherFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event)
 #endif
 }
 
-void launcherFrame::OnInputSelect(wxCommandEvent& event)
+void launcherFrame::OnInputSelect(wxCommandEvent& event __attribute__((unused)))
 {
   if(Input->GetStringSelection() == _("Network"))
   {
@@ -2207,7 +2207,7 @@ int launcherFrame::ps4Repair()
     return 0;
 }
 
-void launcherFrame::OnMenuSave(wxCommandEvent& event)
+void launcherFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
 {
     saveParam(OUTPUT_FILE, Output->GetStringSelection());
     saveParam(OUTPUT_CHOICE_FILE, OutputChoice->GetStringSelection());
@@ -2301,11 +2301,11 @@ public:
         Refresh();
     }
     virtual ~CustomDialog() {};
-    void onButton1(wxCommandEvent& pEvent)
+    void onButton1(wxCommandEvent& pEvent __attribute__((unused)))
     {
         EndModal(ID_BUTTON_1);
     }
-    void onButton2(wxCommandEvent& pEvent)
+    void onButton2(wxCommandEvent& pEvent __attribute__((unused)))
     {
         EndModal(ID_BUTTON_2);
     }
@@ -2314,7 +2314,7 @@ public:
     static const int ID_BUTTON_2 = 2;
 };
 
-void launcherFrame::OnOutputNewButtonClick(wxCommandEvent& event)
+void launcherFrame::OnOutputNewButtonClick(wxCommandEvent& event __attribute__((unused)))
 {
   if(Output->GetStringSelection() == _("Bluetooth / PS3"))
   {
@@ -2348,7 +2348,7 @@ void launcherFrame::OnOutputNewButtonClick(wxCommandEvent& event)
   refreshGui();
 }
 
-void launcherFrame::OnInputNewButtonClick(wxCommandEvent& event)
+void launcherFrame::OnInputNewButtonClick(wxCommandEvent& event __attribute__((unused)))
 {
   readIp(InputChoice);
 

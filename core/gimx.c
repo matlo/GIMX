@@ -81,12 +81,12 @@ BOOL WINAPI ConsoleHandler(DWORD dwType)
 }
 #endif
 
-void terminate(int sig)
+void terminate(int sig __attribute__((unused)))
 {
   set_done();
 }
 
-int ignore_event(GE_Event* event)
+int ignore_event(GE_Event* event __attribute__((unused)))
 {
   return 0;
 }
@@ -116,13 +116,13 @@ int process_event(GE_Event* event)
   switch (event->type)
   {
     case GE_MOUSEBUTTONDOWN:
-      cal_button(event->button.which, event->button.button);
+      cal_button(event->button.button);
       break;
     case GE_KEYDOWN:
-      cal_key(event->key.which, event->key.keysym, 1);
+      cal_key(event->key.keysym, 1);
       break;
     case GE_KEYUP:
-      cal_key(event->key.which, event->key.keysym, 0);
+      cal_key(event->key.keysym, 0);
       break;
   }
 

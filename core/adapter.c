@@ -208,7 +208,7 @@ static int network_read_callback(int adapter)
   return 1;
 }
 
-int adapter_close_callback(int adapter)
+int adapter_close_callback(int adapter __attribute__((unused)))
 {
   set_done();
 
@@ -585,12 +585,12 @@ static int adapter_serial_read_cb(int adapter, const void * buf, int status) {
   return ret;
 }
 
-static int adapter_serial_write_cb(int adapter, int transfered)
+static int adapter_serial_write_cb(int adapter __attribute__((unused)), int transfered)
 {
   return (transfered > 0) ? 0 : -1;
 }
 
-static int adapter_serial_close_cb(int adapter)
+static int adapter_serial_close_cb(int adapter __attribute__((unused)))
 {
   set_done();
   return 0;
@@ -894,7 +894,7 @@ static int gpp_read_callback(int adapter, const void * buf, int status)
   return 0;
 }
 
-static int gpp_write_callback(int adapter, int status)
+static int gpp_write_callback(int adapter __attribute__((unused)), int status)
 {
   if (status < 0) {
     set_done();
@@ -903,7 +903,7 @@ static int gpp_write_callback(int adapter, int status)
   return 0;
 }
 
-static int gpp_close_callback(int adapter)
+static int gpp_close_callback(int adapter __attribute__((unused)))
 {
   set_done();
   return 0;

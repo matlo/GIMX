@@ -96,7 +96,7 @@ static void remove_transfer(struct libusb_transfer * transfer) {
   }
 }
 
-int handle_events(int unused) {
+int handle_events(int unused __attribute__((unused))) {
 
   if(ctx == NULL)
   {
@@ -106,17 +106,17 @@ int handle_events(int unused) {
   return libusb_handle_events_timeout_completed(ctx, &((struct timeval){ 0, 0 }), NULL);
 }
 
-static int close_callback(int unused) {
+static int close_callback(int unused __attribute__((unused))) {
 
   return 1;
 }
 
-static void pollfd_added_cb (int fd, short events, void *user_data) {
+static void pollfd_added_cb (int fd, short events, void *user_data __attribute__((unused))) {
 
   gpoll_register_fd(fd, 0, (events & POLLIN) ? handle_events : NULL,  (events & POLLOUT) ? handle_events : NULL, close_callback);
 }
 
-static void pollfd_removed_cb (int fd, void *user_data) {
+static void pollfd_removed_cb (int fd, void *user_data __attribute__((unused))) {
 
   gpoll_remove_fd(fd);
 }
@@ -820,7 +820,7 @@ const s_hid_info * gusbhid_get_hid_info(int device) {
 }
 
 int gusbhid_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write,
-    ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register) {
+    ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register __attribute__((unused))) {
 
   USBHIDASYNC_CHECK_DEVICE(device, -1)
 

@@ -162,7 +162,7 @@ int csr_read_varid_uint16(int dd, uint16_t seqnum, uint16_t varid, uint16_t *val
   return 0;
 }
 
-static void print_rev_csr(int dd, uint16_t rev)
+static void print_rev_csr(int dd, uint16_t rev __attribute__((unused)))
 {
   uint16_t chipver, chiprev;
 
@@ -173,7 +173,7 @@ static void print_rev_csr(int dd, uint16_t rev)
   }
 }
 
-static void cmd_revision(int ctl, int hdev, char *opt)
+static void cmd_revision(int ctl __attribute__((unused)), int hdev, char *opt __attribute__((unused)))
 {
   struct hci_version ver;
   int dd;

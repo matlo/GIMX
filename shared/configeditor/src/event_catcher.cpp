@@ -356,12 +356,12 @@ int process_event(GE_Event* event)
   return 0;
 }
 
-static int timer_read(int user)
+static int timer_read(int user __attribute__((unused)))
 {
   return 1;
 }
 
-static int timer_close(int timer)
+static int timer_close(int timer __attribute__((unused)))
 {
   event_catcher::getInstance()->SetDone();
   return 1;

@@ -380,7 +380,9 @@ static int usb_write_callback(int user, unsigned char endpoint, int status) {
   return 0;
 }
 
-static int usb_close_callback(int user) {
+static int usb_close_callback(int user __attribute__((unused))) {
+
+  // TODO MLA: anything to do here?
 
   return 1;
 }

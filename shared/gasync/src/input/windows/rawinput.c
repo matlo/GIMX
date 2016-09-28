@@ -193,7 +193,7 @@ static void rawinput_handler(const RAWINPUT * raw, UINT align) {
 }
 
 
-static void wminput_handler(WPARAM wParam, LPARAM lParam)
+static void wminput_handler(WPARAM wParam __attribute__((unused)), LPARAM lParam)
 {
   UINT dwSize = 0;
   LPBYTE lpb;

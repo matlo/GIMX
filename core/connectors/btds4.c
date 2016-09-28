@@ -509,7 +509,7 @@ static int close_ps4_control(int btds4_number)
   return 1;
 }
 
-static int process(int sixaxis_number, int psm, const unsigned char *buf, int len)
+static int process(int sixaxis_number __attribute__((unused)), int psm __attribute__((unused)), const unsigned char *buf __attribute__((unused)), int len __attribute__((unused)))
 {
   //TODO MLA: this function could probably be removed
   return 0;

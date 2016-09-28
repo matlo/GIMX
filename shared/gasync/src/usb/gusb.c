@@ -349,7 +349,7 @@ int gusb_poll(int device, unsigned char endpoint) {
   return submit_transfer(transfer);
 }
 
-int gusb_handle_events(int unused) {
+int gusb_handle_events(__attribute__((unused)) int unused __attribute__((unused))) {
 #ifndef WIN32
   return libusb_handle_events(ctx);
 #else
@@ -876,7 +876,7 @@ static int handle_interfaces(int device, int claim) {
   return 0;
 }
 
-static int claim_device(int device, libusb_device * dev, struct libusb_device_descriptor * desc) {
+static int claim_device(int device, libusb_device * dev) {
 
   int ret = libusb_open(dev, &usbdevices[device].devh);
   if (ret != LIBUSB_SUCCESS) {
@@ -1066,7 +1066,7 @@ int gusb_open_ids(unsigned short vendor, unsigned short product) {
           continue;
         }
 
-        if (claim_device(device, devs[dev_i], &desc) != -1) {
+        if (claim_device(device, devs[dev_i]) != -1) {
           libusb_free_device_list(devs, 1);
           return device;
         } else {
@@ -1119,7 +1119,7 @@ int gusb_open_path(const char * path) {
         continue;
       }
 
-      if (claim_device(device, devs[dev_i], &desc) != -1) {
+      if (claim_device(device, devs[dev_i]) != -1) {
         libusb_free_device_list(devs, 1);
         return device;
       } else {
@@ -1148,12 +1148,12 @@ static int close_callback(int device) {
   return usbdevices[device].callback.fp_close(usbdevices[device].callback.user);
 }
 #else
-static int usb_timer_read(int user)
+static int usb_timer_read(int user __attribute__((unused)))
 {
   return gusb_handle_events(0);
 }
 
-static int usb_timer_close(int user)
+static int usb_timer_close(int user __attribute__((unused)))
 {
   return 1;
 }

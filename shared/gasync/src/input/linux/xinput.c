@@ -144,7 +144,7 @@ static void xinput_process_event(XIRawEvent* revent)
   }
 }
 
-static int xinput_process_events(int index)
+static int xinput_process_events(int index __attribute__((unused)))
 {
   XEvent ev;
   XGenericEventCookie *cookie = &ev.xcookie;
@@ -171,7 +171,7 @@ static int xinput_process_events(int index)
   return 0;
 }
 
-static int xinput_close(int id)
+static int xinput_close(int id __attribute__((unused)))
 {
   xinput_quit();
 
@@ -324,7 +324,7 @@ void xinput_quit()
  * Grab the pointer into the window.
  * This function retries until success or 500ms have elapsed.
  */
-void xinput_grab(int mode)
+void xinput_grab(int mode __attribute__((unused)))
 {
   int i = 0;
   while(XGrabPointer(dpy, win, True, 0, GrabModeAsync, GrabModeAsync, win, None, CurrentTime) != GrabSuccess && i < 50)

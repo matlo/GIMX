@@ -97,7 +97,7 @@ public:
 
 	wxString GetValue() { return comboBox->GetValue(); }
 
-  void OnComboBoxEnter( wxCommandEvent &event ) { EndModal(wxID_OK); }
+  void OnComboBoxEnter(wxCommandEvent &event __attribute__((unused))) { EndModal(wxID_OK); }
 
 protected:
 
@@ -203,7 +203,7 @@ const char* axis_labels[AI_MAX] =
     "rel_axis_0-"
 };
 
-fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
+fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __attribute__((unused)))
 {
     unsigned int i;
 
@@ -566,12 +566,12 @@ fpsconfigFrame::~fpsconfigFrame()
     Panel1->RemoveEventHandler(ToolBarBackground);
 }
 
-void fpsconfigFrame::OnQuit(wxCommandEvent& event)
+void fpsconfigFrame::OnQuit(wxCommandEvent& event __attribute__((unused)))
 {
     Close();
 }
 
-void fpsconfigFrame::OnAbout(wxCommandEvent& event)
+void fpsconfigFrame::OnAbout(wxCommandEvent& event __attribute__((unused)))
 {
   wxAboutDialogInfo info;
   info.SetName(wxTheApp->GetAppName());
@@ -987,7 +987,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
   ((wxButton*) event.GetEventObject())->Enable(true);
 }
 
-void fpsconfigFrame::OnMenuNew(wxCommandEvent& event)
+void fpsconfigFrame::OnMenuNew(wxCommandEvent& event __attribute__((unused)))
 {
     FileDialog1->SetFilename(wxEmptyString);
 
@@ -1072,7 +1072,7 @@ void fpsconfigFrame::OnMenuSaveAs(wxCommandEvent& event)
     MenuItemSave->Enable(true);
 }
 
-void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
+void fpsconfigFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
 {
 	wxLocale eng(wxLANGUAGE_ENGLISH); // make sure to use '.' as decimal separator
 
@@ -1776,7 +1776,7 @@ void fpsconfigFrame::LoadConfig()
   MenuItemSave->Enable(true);
 }
 
-void fpsconfigFrame::OnMenuOpen(wxCommandEvent& event)
+void fpsconfigFrame::OnMenuOpen(wxCommandEvent& event __attribute__((unused)))
 {
     FileDialog1->SetDirectory(default_directory);
 
@@ -1951,7 +1951,7 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
 
 #define STEP 100
 
-void fpsconfigFrame::OnMouseDPIChange(wxSpinEvent& event)
+void fpsconfigFrame::OnMouseDPIChange(wxSpinEvent& event __attribute__((unused)))
 {
     int v = SpinCtrlDPI->GetValue();
     int vceil = ceil((double)v/STEP)*STEP;
@@ -1970,7 +1970,7 @@ void fpsconfigFrame::OnMouseDPIChange(wxSpinEvent& event)
     SpinCtrlDPI->SetValue(new_dpi);
 }
 
-void fpsconfigFrame::OnMenuUpdate(wxCommandEvent& event)
+void fpsconfigFrame::OnMenuUpdate(wxCommandEvent& event __attribute__((unused)))
 {
   int ret;
 
@@ -2006,7 +2006,7 @@ void fpsconfigFrame::OnMenuUpdate(wxCommandEvent& event)
   }
 }
 
-void fpsconfigFrame::OnButtonConvertSensitivityClick(wxCommandEvent& event)
+void fpsconfigFrame::OnButtonConvertSensitivityClick(wxCommandEvent& event __attribute__((unused)))
 {
   unsigned int dest_value = 0;
   wxString wsm;
@@ -2048,7 +2048,7 @@ void fpsconfigFrame::OnButtonConvertSensitivityClick(wxCommandEvent& event)
   }
 }
 
-void fpsconfigFrame::OnMenuAutoBindControls(wxCommandEvent& event)
+void fpsconfigFrame::OnMenuAutoBindControls(wxCommandEvent& event __attribute__((unused)))
 {
   if(configFile.GetFilePath().empty())
   {
@@ -2123,7 +2123,7 @@ void fpsconfigFrame::readLabels()
   }
 }
 
-void fpsconfigFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event)
+void fpsconfigFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event __attribute__((unused)))
 {
 #ifdef WIN32
   default_directory.Replace(wxT("/"), wxT("\\"));
@@ -2133,7 +2133,7 @@ void fpsconfigFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event)
 #endif
 }
 
-void fpsconfigFrame::OnMenuItemWindowEventsSelected(wxCommandEvent& event)
+void fpsconfigFrame::OnMenuItemWindowEventsSelected(wxCommandEvent& event __attribute__((unused)))
 {
     if(MenuItemWindowEvents->IsChecked())
     {

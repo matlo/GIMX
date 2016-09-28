@@ -102,7 +102,7 @@ static int l2cap_btstack_process_packet(uint16_t cid, unsigned char * packet, in
   return result;
 }
 
-static int packet_handler(int unused)
+static int packet_handler(int unused __attribute__((unused)))
 {
   static recv_data_t recv_data = { {}, 0, 0 };
 
@@ -165,7 +165,7 @@ static int packet_handler(int unused)
   return ret;
 }
 
-int l2cap_btstack_connect(const char * bdaddr_src, const char * bdaddr_dest, unsigned short psm, int options,
+int l2cap_btstack_connect(const char * bdaddr_src __attribute__((unused)), const char * bdaddr_dest, unsigned short psm, int options __attribute__((unused)),
     int user, L2CAP_ABS_CONNECT_CALLBACK connect_callback, L2CAP_ABS_CLOSE_CALLBACK close_callback)
 {
   bdaddr_t dst;
@@ -193,7 +193,7 @@ int l2cap_btstack_connect(const char * bdaddr_src, const char * bdaddr_dest, uns
   return channel;
 }
 
-static int l2cap_btstack_send(int channel, const unsigned char* buf, int len, int ignored)
+static int l2cap_btstack_send(int channel, const unsigned char* buf, int len, int ignored __attribute__((unused)))
 {
   if(!channels.entries[channel].cid)
   {
@@ -204,15 +204,15 @@ static int l2cap_btstack_send(int channel, const unsigned char* buf, int len, in
   return btstack_common_send_packet(L2CAP_DATA_PACKET, channels.entries[channel].cid, buf, len);
 }
 
-static int l2cap_btstack_listen(int user, unsigned short psm, int options,
-    L2CAP_ABS_LISTEN_ACCEPT_CALLBACK read_callback, L2CAP_ABS_CLOSE_CALLBACK close_callback)
+static int l2cap_btstack_listen(int user __attribute__((unused)), unsigned short psm __attribute__((unused)), int options __attribute__((unused)),
+    L2CAP_ABS_LISTEN_ACCEPT_CALLBACK read_callback __attribute__((unused)), L2CAP_ABS_CLOSE_CALLBACK close_callback __attribute__((unused)))
 {
   //TODO MLA: implement btstack listen
   fprintf(stderr, "btstack_listen is not implemented yet\n");
   return -1;
 }
 
-static int l2cap_btstack_close(int channel)
+static int l2cap_btstack_close(int channel __attribute__((unused)))
 {
   //TODO MLA: implement btstack close
   fprintf(stderr, "btstack_close is not implemented yet\n");
@@ -220,13 +220,13 @@ static int l2cap_btstack_close(int channel)
 }
 
 static void l2cap_btstack_add_source(int channel, int user,
-    L2CAP_ABS_READ_CALLBACK read_callback, L2CAP_ABS_PACKET_CALLBACK packet_callback, L2CAP_ABS_CLOSE_CALLBACK close_callback)
+    L2CAP_ABS_READ_CALLBACK read_callback __attribute__((unused)), L2CAP_ABS_PACKET_CALLBACK packet_callback, L2CAP_ABS_CLOSE_CALLBACK close_callback __attribute__((unused)))
 {
   channels.entries[channel].user = user;
   channels.entries[channel].packet_callback = packet_callback;
 }
 
-static int l2cap_btstack_recv (int channel, unsigned char* buf, int len)
+static int l2cap_btstack_recv (int channel __attribute__((unused)), unsigned char* buf __attribute__((unused)), int len __attribute__((unused)))
 {
   fprintf(stderr, "btstack uses packet callbacks!\n");
   return -1;

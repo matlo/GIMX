@@ -229,7 +229,7 @@ int async_set_read_size(int device, unsigned int size) {
     return 0;
 }
 
-int async_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_FD fp_register) {
+int async_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write __attribute__((unused)), ASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_FD fp_register) {
 
     ASYNC_CHECK_DEVICE(device, -1)
 

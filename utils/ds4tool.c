@@ -218,7 +218,7 @@ int linkkey2hex(const char * str, unsigned char hex[16]) {
 
     // there's no hh conversion in Windows!
     unsigned int tmp[16] = { };
-    if (sscanf(linkkey, "%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x", tmp, tmp + 1, tmp + 2, tmp + 3, tmp + 4, tmp + 5, tmp + 6, tmp + 7, tmp + 8,
+    if (sscanf(str, "%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x", tmp, tmp + 1, tmp + 2, tmp + 3, tmp + 4, tmp + 5, tmp + 6, tmp + 7, tmp + 8,
             tmp + 9, tmp + 10, tmp + 11, tmp + 12, tmp + 13, tmp + 14, tmp + 15) != 16) {
         return -1;
     }
