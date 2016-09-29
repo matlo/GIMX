@@ -57,7 +57,7 @@ static const char * get_cmd_name(unsigned char header) {
     if (header == FF_LG_CMD_EXTENDED_COMMAND) {
         return "EXTENDED_COMMAND";
     } else {
-        unsigned char cmd = header & 0x0f;
+        unsigned char cmd = header & FF_LG_CMD_MASK;
         if (cmd < sizeof(cmd_names) / sizeof(*cmd_names)) {
             return cmd_names[cmd];
         } else {
@@ -142,6 +142,8 @@ static struct
 {
     unsigned short pid_from;
     unsigned short pid_to;
+    int convert_lr_coef; // convert 'old' to 'new' or 'new' to 'old' low-res spring/damper coefficients
+    int convert_hr2lr; // convert high-res to low-res spring/damper effects
     s_force forces[FF_LG_FSLOTS_NB];
     s_ext_cmd ext_cmds[FF_LG_EXT_CMD_NB];
     s_cmd fifo[FIFO_SIZE];
@@ -171,12 +173,45 @@ void ff_lg_init_static(void)
     }
 }
 
+/*
+ * Low-res spring/damper coefficients 5 and 6 are swapped for these wheels.
+ */
+static inline int is_old_lr_coef_wheel(unsigned short pid) {
+
+    switch(pid) {
+    case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE:
+    case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP:
+    case USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+/*
+ * High-res spring/damper forces are supported since Driving Force,
+ * since Driving Force Pro introduced variations of these forces.
+ */
+static inline int is_hr_wheel(unsigned short pid) {
+
+    switch(pid) {
+    case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE:
+    case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP:
+        return 0;
+    default:
+        return 1;
+    }
+}
+
 int ff_lg_init(int device, unsigned short pid_from, unsigned short pid_to) {
 
     CHECK_DEVICE(device, -1)
 
     ff_lg_device[device].pid_to = pid_to;
     ff_lg_device[device].pid_from = pid_from;
+
+    ff_lg_device[device].convert_lr_coef = is_old_lr_coef_wheel(pid_from) ^ is_old_lr_coef_wheel(pid_to);
+    ff_lg_device[device].convert_hr2lr = is_hr_wheel(pid_from) && !is_hr_wheel(pid_to);
 
     return 0;
 }
@@ -315,7 +350,7 @@ void ff_lg_decode_command(const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
 
     dprintf("%s ", get_cmd_name(data[0]));
 
-    switch(data[0] & 0x0f) {
+    switch(data[0] & FF_LG_CMD_MASK) {
     case FF_LG_CMD_PLAY:
     case FF_LG_CMD_STOP:
         dprintf(" 0x%02x", data[0]);
@@ -371,8 +406,8 @@ void ff_lg_process_report(int device, const unsigned char data[FF_LG_OUTPUT_REPO
 
     if(data[0] != FF_LG_CMD_EXTENDED_COMMAND) {
 
-        unsigned char slots = data[0] & 0xf0;
-        unsigned char cmd = data[0] & 0x0f;
+        unsigned char slots = data[0] & FF_LG_FSLOT_MASK;
+        unsigned char cmd = data[0] & FF_LG_CMD_MASK;
 
         int i;
         s_force * forces = ff_lg_device[device].forces;
@@ -491,8 +526,8 @@ void ff_lg_ack(int device) {
 
   if(data[0] != FF_LG_CMD_EXTENDED_COMMAND) {
 
-      unsigned char slots = data[0] & 0xf0;
-      unsigned char cmd = data[0] & 0x0f;
+      unsigned char slots = data[0] & FF_LG_FSLOT_MASK;
+      unsigned char cmd = data[0] & FF_LG_CMD_MASK;
 
       int i;
       s_force * forces = ff_lg_device[device].forces;
@@ -553,11 +588,113 @@ static inline void clear_report(int device) {
   memset(ff_lg_device[device].last_report.data, 0x00, sizeof(ff_lg_device[device].last_report.data));
 }
 
-s_ff_lg_report * ff_lg_get_report(int device) {
+/*
+ * Convert low-res spring/damper coefficients.
+ */
+static inline unsigned char convert_coef_lr2lr(unsigned char k) {
+
+    static const unsigned char map[] = { 0, 1, 2, 3, 4, 6, 5, 7 };
+    return map[k];
+}
+
+/*
+ * Convert high-res spring/damper effects to low-res spring/damper effects (with 'old' coefficients).
+ */
+static inline unsigned char convert_coef_hr2lr(unsigned char k) {
+
+    static const unsigned char hr2lr[16] = {
+            [0]  = 0, // 0 => stop effect
+            [1]  = 0, // 0.26
+            [2]  = 1, // 0.53
+            [3]  = 2, // 0.8
+            [4]  = 3, // 1.06
+            [5]  = 3, // 1.33
+            [6]  = 4, // 1.6
+            [7]  = 4, // 1.86
+            [8]  = 6, // 2.13
+            [9]  = 6, // 2.4
+            [10] = 6, // 2.66
+            [11] = 6, // 2.93
+            [12] = 5, // 3.2
+            [13] = 5, // 3.46
+            [14] = 5, // 3.73
+            [15] = 7, // 4
+    };
+    return hr2lr[k];
+}
+
+static int convert_force(int device, s_ff_lg_report * to) {
+
+    *to = ff_lg_device[device].last_report;
+
+    if ((ff_lg_device[device].last_report.data[1] & FF_LG_CMD_MASK) == FF_LG_CMD_STOP) {
+        return 1;
+    }
+
+    const s_ff_lg_force * force = (s_ff_lg_force *)(ff_lg_device[device].last_report.data + 2);
+    s_ff_lg_force * out_force = (s_ff_lg_force *)(to->data + 2);
+
+    switch (force->type) {
+    case FF_LG_FTYPE_HIGH_RESOLUTION_SPRING:
+        if (ff_lg_device[device].convert_hr2lr) {
+            if (FF_LG_HIGHRES_SPRING_K1(force) != 0 || FF_LG_HIGHRES_SPRING_K2(force) != 0) {
+                out_force->type = FF_LG_FTYPE_SPRING;
+                out_force->parameters[0] = FF_LG_HIGHRES_SPRING_D1(force);
+                out_force->parameters[1] = FF_LG_HIGHRES_SPRING_D2(force);
+                out_force->parameters[2] = (convert_coef_hr2lr(FF_LG_HIGHRES_SPRING_K2(force)) << 4) | convert_coef_hr2lr(FF_LG_HIGHRES_SPRING_K1(force));
+                out_force->parameters[3] = (FF_LG_HIGHRES_SPRING_S2(force) << 4) | FF_LG_HIGHRES_SPRING_S1(force);
+                out_force->parameters[4] = FF_LG_HIGHRES_SPRING_CLIP(force);
+            } else {
+                to->data[1] = (to->data[1] & FF_LG_FSLOT_MASK) | FF_LG_CMD_STOP;
+                memset(to->data + 2, 0x00, sizeof(to->data) - 2);
+            }
+        }
+        break;
+    case FF_LG_FTYPE_HIGH_RESOLUTION_DAMPER:
+        if (ff_lg_device[device].convert_hr2lr) {
+            if (FF_LG_HIGHRES_DAMPER_K1(force) != 0 || FF_LG_HIGHRES_DAMPER_K2(force) != 0) {
+                out_force->type = FF_LG_FTYPE_DAMPER;
+                out_force->parameters[0] = convert_coef_hr2lr(FF_LG_HIGHRES_DAMPER_K1(force));
+                out_force->parameters[1] = convert_coef_hr2lr(FF_LG_HIGHRES_DAMPER_K2(force));
+                out_force->parameters[2] = FF_LG_HIGHRES_DAMPER_S1(force);
+                out_force->parameters[3] = FF_LG_HIGHRES_DAMPER_S2(force);
+                out_force->parameters[4] = 0;
+            } else {
+                to->data[1] = (to->data[1] & FF_LG_FSLOT_MASK) | FF_LG_CMD_STOP;
+                memset(to->data + 2, 0x00, sizeof(to->data) - 2);
+            }
+        }
+        break;
+    case FF_LG_FTYPE_SPRING:
+        if (ff_lg_device[device].convert_lr_coef) {
+            out_force->type = FF_LG_FTYPE_SPRING;
+            out_force->parameters[0] = FF_LG_SPRING_D1(force);
+            out_force->parameters[1] = FF_LG_SPRING_D2(force);
+            out_force->parameters[2] = (convert_coef_lr2lr(FF_LG_SPRING_K2(force)) << 4) | convert_coef_lr2lr(FF_LG_SPRING_K1(force));
+            out_force->parameters[3] = (FF_LG_SPRING_S2(force) << 4) | FF_LG_SPRING_S1(force);
+            out_force->parameters[4] = FF_LG_SPRING_CLIP(force);
+        }
+        break;
+    case FF_LG_FTYPE_DAMPER:
+        if (ff_lg_device[device].convert_lr_coef) {
+            out_force->type = FF_LG_FTYPE_DAMPER;
+            out_force->parameters[0] = convert_coef_lr2lr(FF_LG_DAMPER_K1(force));
+            out_force->parameters[1] = convert_coef_lr2lr(FF_LG_DAMPER_K2(force));
+            out_force->parameters[2] = FF_LG_DAMPER_S1(force);
+            out_force->parameters[3] = FF_LG_DAMPER_S2(force);
+            out_force->parameters[4] = 0;
+        }
+        break;
+    }
+
+    return 1;
+}
+
+int ff_lg_get_report(int device, s_ff_lg_report * report) {
 
     if (device < 0 || device >= MAX_CONTROLLERS) {
         fprintf(stderr, "%s:%d %s: invalid device (%d)", __FILE__, __LINE__, __func__, device);
-        return NULL;
+        return 0;
     }
 
     int i;
@@ -582,7 +719,8 @@ s_ff_lg_report * ff_lg_get_report(int device) {
             }
         }
         dprintf("< %s %02x\n", get_cmd_name(data[0]), data[0]);
-        return &ff_lg_device[device].last_report;
+        *report = ff_lg_device[device].last_report;
+        return 1;
     }
 
     s_cmd cmd = fifo_peek(device);
@@ -590,14 +728,15 @@ s_ff_lg_report * ff_lg_get_report(int device) {
         clear_report(device);
         dprintf("< ");
         if(cmd.cmd != FF_LG_CMD_EXTENDED_COMMAND) {
-            if(cmd.cmd & 0x0f)
+            if(cmd.cmd & FF_LG_CMD_MASK)
             {
                 // not a slot update
                 data[0] = cmd.cmd;
                 if(gimx_params.debug) {
                     ff_lg_decode_command(data);
                 }
-                return &ff_lg_device[device].last_report;
+                *report = ff_lg_device[device].last_report;
+                return 1;
             }
             else
             {
@@ -613,7 +752,7 @@ s_ff_lg_report * ff_lg_get_report(int device) {
                 if(gimx_params.debug) {
                     ff_lg_decode_command(data);
                 }
-                return &ff_lg_device[device].last_report;
+                return convert_force(device, report);
             }
         }
         else {
@@ -626,13 +765,14 @@ s_ff_lg_report * ff_lg_get_report(int device) {
                         ff_lg_decode_extended(data);
                     }
                     ext_cmd->updated = 0;
-                    return &ff_lg_device[device].last_report;
+                    *report = ff_lg_device[device].last_report;
+                    return 1;
                 }
             }
         }
     }
 
-    return NULL;
+    return 0;
 }
 
 static unsigned short ff_lg_wheel_products[] = {
@@ -685,64 +825,15 @@ s_coef get_force_coefficient(unsigned short pid, unsigned char hr, unsigned char
         coef.num = k;
         coef.den = 0x0F;
     } else {
-        static const s_coef coefs1[] = { { 1, 16 }, { 1, 8 }, { 3, 16 }, { 1, 4 }, { 3, 8 }, { 2, 4 }, { 3, 4 }, { 4, 4 } };
-        static const s_coef coefs2[] = { { 1, 16 }, { 1, 8 }, { 3, 16 }, { 1, 4 }, { 3, 8 }, { 3, 4 }, { 2, 4 }, { 4, 4 } };
-        switch(pid) {
-        case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE:
-        case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP:
-        case USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE:
-            coef = coefs2[k];
-            break;
-        default:
-            coef = coefs1[k];
-            break;
+        if (is_old_lr_coef_wheel(pid)) {
+            static const s_coef old_coefs[] = { { 1, 16 }, { 1, 8 }, { 3, 16 }, { 1, 4 }, { 3, 8 }, { 3, 4 }, { 2, 4 }, { 4, 4 } };
+            coef = old_coefs[k];
+        } else {
+            static const s_coef coefs[] = { { 1, 16 }, { 1, 8 }, { 3, 16 }, { 1, 4 }, { 3, 8 }, { 2, 4 }, { 3, 4 }, { 4, 4 } };
+            coef = coefs[k];
         }
     }
     return coef;
-}
-
-static void convert_force(s_ff_lg_force * force) {
-
-    static const unsigned char hr2lr[16] = {
-            [0]  = 0, // 0 => stop effect
-            [1]  = 0, // 0.26
-            [2]  = 1, // 0.53
-            [3]  = 2, // 0.8
-            [4]  = 3, // 1.06
-            [5]  = 3, // 1.33
-            [6]  = 4, // 1.6
-            [7]  = 4, // 1.86
-            [8]  = 6, // 2.13
-            [9]  = 6, // 2.4
-            [10] = 6, // 2.66
-            [11] = 6, // 2.93
-            [12] = 5, // 3.2
-            [13] = 5, // 3.46
-            [14] = 5, // 3.73
-            [15] = 7, // 4
-    };
-    s_ff_lg_force tmp = {};
-    switch (force->type) {
-    case FF_LG_FTYPE_HIGH_RESOLUTION_SPRING:
-        tmp.type = FF_LG_FTYPE_SPRING;
-        tmp.parameters[0] = FF_LG_HIGHRES_SPRING_D1(force);
-        tmp.parameters[1] = FF_LG_HIGHRES_SPRING_D2(force);
-        tmp.parameters[2] = hr2lr[FF_LG_HIGHRES_SPRING_K1(force)];
-        tmp.parameters[2] = hr2lr[FF_LG_HIGHRES_SPRING_K2(force)] << 4;
-        tmp.parameters[3] = FF_LG_HIGHRES_SPRING_S1(force);
-        tmp.parameters[3] = FF_LG_HIGHRES_SPRING_S2(force) << 4;
-        tmp.parameters[4] = FF_LG_HIGHRES_SPRING_CLIP(force);
-        memcpy(force, &tmp, sizeof(*force));
-        break;
-    case FF_LG_FTYPE_HIGH_RESOLUTION_DAMPER:
-        tmp.type = FF_LG_FTYPE_DAMPER;
-        tmp.parameters[0] = hr2lr[FF_LG_HIGHRES_DAMPER_K1(force)];
-        tmp.parameters[1] = hr2lr[FF_LG_HIGHRES_DAMPER_K2(force)];
-        tmp.parameters[2] = FF_LG_HIGHRES_DAMPER_S1(force);
-        tmp.parameters[3] = FF_LG_HIGHRES_DAMPER_S2(force);
-        memcpy(force, &tmp, sizeof(*force));
-        break;
-    }
 }
 
 int16_t ff_lg_get_condition_coef(unsigned short pid, unsigned char hr, unsigned char k, unsigned char s) {

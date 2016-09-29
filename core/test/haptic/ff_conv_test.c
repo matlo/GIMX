@@ -88,12 +88,12 @@ static const struct {
                         .parameters = {
                                 0x7f,      //d1
                                 0x7f,      //d2
-                                  0xf0     //k1
-                                | 0x00,    //k2
-                                  0xe0     //d1L
-                                | 0x00     //s1
-                                | 0x0e     // d2L
-                                | 0x00,    //s2
+                                  0x00     //k2
+                                | 0x0f,    //k1
+                                  0xe0     //d2L
+                                | 0x00     //s2
+                                | 0x0e     // d1L
+                                | 0x00,    //s1
                                 UCHAR_MAX  //clip
                         }
                 },
@@ -125,12 +125,12 @@ static const struct {
                         .parameters = {
                                 0x7f,      //d1
                                 0x7f,      //d2
-                                  0x00     //k1
-                                | 0x0f,    //k2
-                                  0xe0     //d1L
-                                | 0x00     //s1
-                                | 0x0e     // d2L
-                                | 0x00,    //s2
+                                  0xf0     //k2
+                                | 0x00,    //k1
+                                  0xe0     //d2L
+                                | 0x00     //s2
+                                | 0x0e     // d1L
+                                | 0x00,    //s1
                                 UCHAR_MAX  //clip
                         }
                 },
@@ -353,7 +353,7 @@ static const struct {
         },
 };
 
-int main(int argc, char * argv[]) {
+int main(int argc __attribute__((unused)), char * argv[] __attribute__((unused))) {
 
     unsigned int i;
     for (i = 0; i < sizeof(test_cases) / sizeof(*test_cases); ++i) {

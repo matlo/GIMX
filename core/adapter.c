@@ -360,10 +360,11 @@ static void adapter_send_next_hid_report(int adapter)
 {
   if(!adapters[adapter].joystick.hid.write_pending)
   {
-    s_ff_lg_report * report = ff_lg_get_report(adapter);
-    if(report != NULL)
+    s_ff_lg_report report;
+    int ret = ff_lg_get_report(adapter, &report);
+    if(ret == 1)
     {
-      if(ghid_write(adapters[adapter].joystick.hid.id, report->data, sizeof(report->data)) == 0)
+      if(ghid_write(adapters[adapter].joystick.hid.id, report.data, sizeof(report.data)) == 0)
       {
         adapters->joystick.hid.write_pending = 1;
       }
