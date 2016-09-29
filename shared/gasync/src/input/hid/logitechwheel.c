@@ -39,8 +39,8 @@ static struct {
 #endif
 } hid_devices[HIDINPUT_MAX_DEVICES] = {};
 
-#define MAKE_IDS(USB_DEVICE_ID) \
-    { .vendor_id = USB_VENDOR_ID_LOGITECH, .product_id = USB_DEVICE_ID }
+#define MAKE_IDS(USB_PRODUCT_ID) \
+    { .vendor_id = USB_VENDOR_ID_LOGITECH, .product_id = USB_PRODUCT_ID }
 
 static s_hidinput_ids ids[] = {
         MAKE_IDS(USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE),
@@ -78,7 +78,7 @@ static int close_device(int device) {
     return 0;
 }
 
-static int init(int(*callback)(GE_Event*)) {
+static int init(int(*callback)(GE_Event*) __attribute__((unused))) {
 
     return 0;
 }
@@ -478,8 +478,8 @@ static __u8 wii_rdesc_fixed[] = {
         0xC0,              // End Collection
 };
 
-#define MAKE_RDESC(USB_DEVICE_ID, RDESC) \
-        { USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID, RDESC,  sizeof(RDESC) }
+#define MAKE_RDESC(USB_PRODUCT_ID, RDESC) \
+        { USB_VENDOR_ID_LOGITECH, USB_PRODUCT_ID, RDESC,  sizeof(RDESC) }
 
 static struct {
     unsigned short vendor;
@@ -487,13 +487,13 @@ static struct {
     unsigned char * rdesc;
     unsigned short length;
 } rdesc_fixed[] = {
-        MAKE_RDESC(USB_DEVICE_ID_LOGITECH_WINGMAN_FFG,     ffgp_rdesc_fixed),
-        MAKE_RDESC(USB_DEVICE_ID_LOGITECH_WHEEL,           df_rdesc_fixed),
-        MAKE_RDESC(USB_DEVICE_ID_LOGITECH_MOMO_WHEEL,      momo_rdesc_fixed),
-        MAKE_RDESC(USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2,     momo2_rdesc_fixed),
-        MAKE_RDESC(USB_DEVICE_ID_LOGITECH_VIBRATION_WHEEL, fv_rdesc_fixed),
-        MAKE_RDESC(USB_DEVICE_ID_LOGITECH_DFP_WHEEL,       dfp_rdesc_fixed),
-        MAKE_RDESC(USB_DEVICE_ID_LOGITECH_WII_WHEEL,       wii_rdesc_fixed),
+        MAKE_RDESC(USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP, ffgp_rdesc_fixed),
+        MAKE_RDESC(USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE,    df_rdesc_fixed),
+        MAKE_RDESC(USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL,       momo_rdesc_fixed),
+        MAKE_RDESC(USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2,      momo2_rdesc_fixed),
+        MAKE_RDESC(USB_PRODUCT_ID_LOGITECH_VIBRATION_WHEEL,  fv_rdesc_fixed),
+        MAKE_RDESC(USB_PRODUCT_ID_LOGITECH_DFP_WHEEL,        dfp_rdesc_fixed),
+        MAKE_RDESC(USB_PRODUCT_ID_LOGITECH_WII_WHEEL,        wii_rdesc_fixed),
 };
 
 static void fix_rdesc(s_hid_info * hid_info) {
@@ -516,28 +516,28 @@ typedef struct
 
 static s_native_mode native_modes[] =
 {
-    { USB_DEVICE_ID_LOGITECH_DFGT_WHEEL, { 0x00, 0xf8, 0x09, 0x03, 0x01 } },
-    { USB_DEVICE_ID_LOGITECH_G27_WHEEL,  { 0x00, 0xf8, 0x09, 0x04, 0x01 } },
-    { USB_DEVICE_ID_LOGITECH_G25_WHEEL,  { 0x00, 0xf8, 0x10 } },
-    { USB_DEVICE_ID_LOGITECH_DFP_WHEEL,  { 0x00, 0xf8, 0x01 } },
+    { USB_PRODUCT_ID_LOGITECH_DFGT_WHEEL, { 0x00, 0xf8, 0x09, 0x03, 0x01 } },
+    { USB_PRODUCT_ID_LOGITECH_G27_WHEEL,  { 0x00, 0xf8, 0x09, 0x04, 0x01 } },
+    { USB_PRODUCT_ID_LOGITECH_G25_WHEEL,  { 0x00, 0xf8, 0x10 } },
+    { USB_PRODUCT_ID_LOGITECH_DFP_WHEEL,  { 0x00, 0xf8, 0x01 } },
 };
 
 static s_native_mode * get_native_mode_command(unsigned short product, unsigned short bcdDevice)
 {
   unsigned short native = 0x0000;
 
-  if(((USB_DEVICE_ID_LOGITECH_WHEEL == product) || (USB_DEVICE_ID_LOGITECH_DFP_WHEEL == product))
+  if(((USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE == product) || (USB_PRODUCT_ID_LOGITECH_DFP_WHEEL == product))
       && (0x1300 == (bcdDevice & 0xff00))) {
-    native = USB_DEVICE_ID_LOGITECH_DFGT_WHEEL;
-  } else if(((USB_DEVICE_ID_LOGITECH_WHEEL == product) || (USB_DEVICE_ID_LOGITECH_DFP_WHEEL == product) || (USB_DEVICE_ID_LOGITECH_G25_WHEEL == product))
+    native = USB_PRODUCT_ID_LOGITECH_DFGT_WHEEL;
+  } else if(((USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE == product) || (USB_PRODUCT_ID_LOGITECH_DFP_WHEEL == product) || (USB_PRODUCT_ID_LOGITECH_G25_WHEEL == product))
       && (0x1230 == (bcdDevice & 0xfff0))) {
-    native = USB_DEVICE_ID_LOGITECH_G27_WHEEL;
-  } else if(((USB_DEVICE_ID_LOGITECH_WHEEL == product) || (USB_DEVICE_ID_LOGITECH_DFP_WHEEL == product))
+    native = USB_PRODUCT_ID_LOGITECH_G27_WHEEL;
+  } else if(((USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE == product) || (USB_PRODUCT_ID_LOGITECH_DFP_WHEEL == product))
       && (0x1200 == (bcdDevice & 0xff00))) {
-    native = USB_DEVICE_ID_LOGITECH_G25_WHEEL;
-  } else if((USB_DEVICE_ID_LOGITECH_WHEEL == product)
+    native = USB_PRODUCT_ID_LOGITECH_G25_WHEEL;
+  } else if((USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE == product)
       && (0x1000 == (bcdDevice & 0xf000))) {
-    native = USB_DEVICE_ID_LOGITECH_DFP_WHEEL;
+    native = USB_PRODUCT_ID_LOGITECH_DFP_WHEEL;
   }
 
   unsigned int i;
