@@ -37,7 +37,7 @@ static void dump(const unsigned char * packet, unsigned char length) {
   printf("\n");
 }
 
-int hid_read(int user, const void * buf, int status) {
+int hid_read(int user __attribute__((unused)), const void * buf, int status) {
 
   if (status < 0) {
     set_done();
@@ -63,13 +63,12 @@ int hid_read(int user, const void * buf, int status) {
   return 0;
 }
 
-int hid_close(int user) {
-  printf("close user: %d\n", user);
+int hid_close(int user __attribute__((unused))) {
   set_done();
   return 0;
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused))) {
 
   setup_handlers();
 

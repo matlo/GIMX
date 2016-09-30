@@ -117,7 +117,7 @@ static int read_args(int argc, char* argv[]) {
   return 0;
 }
 
-int serial_read(int user, const void * buf, int status) {
+int serial_read(int user __attribute__((unused)), const void * buf, int status) {
 
   if (status < 0) {
     set_done();
@@ -182,7 +182,7 @@ int serial_read(int user, const void * buf, int status) {
   return ret;
 }
 
-int serial_close(int user) {
+int serial_close(int user __attribute__((unused))) {
   set_done();
   return 1;
 }

@@ -23,7 +23,7 @@ void set_done() {
     done = 1;
 }
 
-static void terminate(int sig) {
+static void terminate(int sig __attribute__((unused))) {
 
     done = 1;
 }
@@ -157,16 +157,16 @@ int process_event(GE_Event* event)
   return 0;
 }
 
-int ignore_event(GE_Event* event) {
+int ignore_event(GE_Event* event __attribute__((unused))) {
   return 0;
 }
 
-int timer_close(int user) {
+int timer_close(int user __attribute__((unused))) {
   done = 1;
   return 1;
 }
 
-int timer_read(int user) {
+int timer_read(int user __attribute__((unused))) {
   /*
    * Returning a non-zero value makes gpoll return, allowing to check the 'done' variable.
    */

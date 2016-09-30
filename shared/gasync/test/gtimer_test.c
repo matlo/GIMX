@@ -67,7 +67,7 @@ static int read_args(int argc, char* argv[]) {
   return 0;
 }
 
-static int timer_close_callback(int user) {
+static int timer_close_callback(int user __attribute__((unused))) {
   set_done();
   return 1;
 }
