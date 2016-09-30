@@ -61,12 +61,12 @@ int get_bdaddrs(int device) {
     res = gusb_write_timeout(device, 0, &transfer_slave, sizeof(transfer_slave.req), 5000);
 
     if (res > 0) {
-        out.slave[0] = transfer_slave.data[0];
-        out.slave[1] = transfer_slave.data[1];
-        out.slave[2] = transfer_slave.data[2];
-        out.slave[3] = transfer_slave.data[3];
-        out.slave[4] = transfer_slave.data[4];
-        out.slave[5] = transfer_slave.data[5];
+        out.slave[0] = transfer_slave.data[4];
+        out.slave[1] = transfer_slave.data[5];
+        out.slave[2] = transfer_slave.data[6];
+        out.slave[3] = transfer_slave.data[7];
+        out.slave[4] = transfer_slave.data[8];
+        out.slave[5] = transfer_slave.data[9];
     }
 
     return res;
