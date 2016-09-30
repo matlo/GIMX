@@ -927,7 +927,6 @@ int adapter_start()
       int haptic = ginput_joystick_get_haptic(adapter->joystick.id);
       adapter->joystick.has_rumble = haptic & GE_HAPTIC_RUMBLE;
       adapter->joystick.has_ffb = haptic & (GE_HAPTIC_CONSTANT | GE_HAPTIC_SPRING | GE_HAPTIC_DAMPER);
-      printf("%d has_ffb: %02x\n", adapter->joystick.id, adapter->joystick.has_ffb);
     }
 
     if(adapter->atype == E_ADAPTER_TYPE_DIY_USB)
