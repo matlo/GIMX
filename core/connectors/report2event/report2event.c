@@ -50,8 +50,10 @@ void report2event(e_controller_type type, int adapter_id, s_report* current,
 {
   if (controllers[type].r2e)
   {
-    controllers[type].r2e(adapter_id, current, previous, joystick_id,
-        event_callback);
+    if (event_callback)
+    {
+      controllers[type].r2e(adapter_id, current, previous, joystick_id, event_callback);
+    }
   }
   else
   {
