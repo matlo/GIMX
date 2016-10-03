@@ -7,8 +7,8 @@
 #ifndef WIN32
 #include <arpa/inet.h>
 #else
-#include <windows.h>
 #include <winsock2.h>
+#include <windows.h>
 #endif
 #include <stdlib.h>
 #include <common/gerror.h>
