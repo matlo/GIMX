@@ -4,7 +4,7 @@
  */
 
 #include <gpoll.h>
-#include <gerror.h>
+#include <common/gerror.h>
 
 #include <stdio.h>
 #include <poll.h>

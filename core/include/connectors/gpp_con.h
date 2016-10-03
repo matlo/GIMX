@@ -16,6 +16,6 @@ int gpp_send(int id, e_controller_type type, int axis[AXIS_MAX]);
 
 void gpp_disconnect(int id);
 
-int8_t gpp_start_async(int id, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register);
+int8_t gpp_start_async(int id, GHID_READ_CALLBACK fp_read, GHID_WRITE_CALLBACK fp_write, GHID_CLOSE_CALLBACK fp_close, GHID_REGISTER_SOURCE fp_register);
 
 #endif /* GPP_CON_H_ */

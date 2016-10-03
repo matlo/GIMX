@@ -14,7 +14,7 @@
 #include <X11/extensions/XInput2.h>
 #include <ginput.h>
 #include <gpoll.h>
-#include <gerror.h>
+#include <common/gerror.h>
 
 static Display* dpy = NULL;
 static Window win;

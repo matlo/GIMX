@@ -8,23 +8,33 @@
 #include <Hidsdi.h>
 #include <Setupapi.h>
 #include <ghid.h>
-#include <gerror.h>
+#include <common/gerror.h>
+#include <common/async.h>
 
 int open_path(const char * path, int print) {
 
   int device = async_open_path(path, print);
   if(device >= 0) {
+    HANDLE * handle = async_get_handle(device);
     HIDD_ATTRIBUTES attributes = { .Size = sizeof(HIDD_ATTRIBUTES) };
-    if(HidD_GetAttributes(devices[device].handle, &attributes) == TRUE) {
+    if(HidD_GetAttributes(handle, &attributes) == TRUE) {
         PHIDP_PREPARSED_DATA preparsedData;
         HIDP_CAPS hidCapabilities;
-        if(HidD_GetPreparsedData(devices[device].handle, &preparsedData) == TRUE) {
+        if(HidD_GetPreparsedData(handle, &preparsedData) == TRUE) {
             if(HidP_GetCaps(preparsedData, &hidCapabilities) == HIDP_STATUS_SUCCESS ) {
-                devices[device].write.size = hidCapabilities.OutputReportByteLength;
-                async_set_read_size(device, hidCapabilities.InputReportByteLength);
-                devices[device].hidInfo.vendor_id = attributes.VendorID;
-                devices[device].hidInfo.product_id = attributes.ProductID;
-                devices[device].hidInfo.bcdDevice = attributes.VersionNumber;
+                s_hid_info * hid_info = (s_hid_info *) calloc(1, sizeof(*hid_info));
+                if (hid_info != NULL) {
+                    hid_info->vendor_id = attributes.VendorID;
+                    hid_info->product_id = attributes.ProductID;
+                    hid_info->bcdDevice = attributes.VersionNumber;
+                    async_set_private(device, hid_info);
+                    async_set_write_size(device, hidCapabilities.OutputReportByteLength);
+                    async_set_read_size(device, hidCapabilities.InputReportByteLength);
+                } else {
+                    PRINT_ERROR_ALLOC_FAILED("malloc")
+                    async_close(device);
+                    device = -1;
+                }
             }
             else {
                 if (print) {
@@ -92,20 +102,25 @@ struct ghid_device * ghid_enumerate(unsigned short vendor, unsigned short produc
 			free(details);
 
 			if(device >= 0) {
+			    s_hid_info * hid_info = (s_hid_info *) async_get_private(device);
+			    if (hid_info == NULL) {
+			        async_close(device);
+			        continue;
+			    }
 				if(vendor) {
-					if (devices[device].hidInfo.vendor_id != vendor) {
+					if (hid_info->vendor_id != vendor) {
 						async_close(device);
 						continue;
 					}
 					if(product) {
-						if(devices[device].hidInfo.product_id != product) {
+						if(hid_info->product_id != product) {
 							async_close(device);
 							continue;
 						}
 					}
 				}
 
-				char * path = strdup(devices[device].path);
+				char * path = strdup(async_get_path(device));
 
 				if(path == NULL) {
 					PRINT_ERROR_OTHER("strdup failed")
@@ -124,9 +139,9 @@ struct ghid_device * ghid_enumerate(unsigned short vendor, unsigned short produc
 		        struct ghid_device * dev = ptr;
 
 		        dev->path = path;
-                dev->vendor_id = devices[device].hidInfo.vendor_id;
-                dev->product_id = devices[device].hidInfo.product_id;
-                dev->bcdDevice = devices[device].hidInfo.bcdDevice;
+                dev->vendor_id = hid_info->vendor_id;
+                dev->product_id = hid_info->product_id;
+                dev->bcdDevice = hid_info->bcdDevice;
                 dev->interface_number = -1;
                 char * interface = strstr(path, "&mi_");
                 if (interface != NULL) {
@@ -238,7 +253,8 @@ int ghid_open_ids(unsigned short vendor, unsigned short product)
       free(details);
       details = NULL;
       if(device >= 0) {
-        if(devices[device].hidInfo.vendor_id == vendor && devices[device].hidInfo.product_id == product)
+        s_hid_info * hid_info = (s_hid_info *) async_get_private(device);
+        if(hid_info != NULL && hid_info->vendor_id == vendor && hid_info->product_id == product)
         {
           ret = device;
           break;
@@ -260,9 +276,7 @@ int ghid_open_ids(unsigned short vendor, unsigned short product)
  */
 const s_hid_info * ghid_get_hid_info(int device) {
 
-    ASYNC_CHECK_DEVICE(device, NULL)
-
-    return &devices[device].hidInfo;
+    return (s_hid_info *) async_get_private(device);
 }
 
 /*
@@ -273,6 +287,8 @@ const s_hid_info * ghid_get_hid_info(int device) {
  * \return 0 in case of success, or -1 in case of failure (i.e. bad device identifier).
  */
 int ghid_close(int device) {
+
+    free(async_get_private(device));
 
     return async_close(device);
 }
@@ -288,12 +304,6 @@ int ghid_close(int device) {
  * \return the number of bytes actually read
  */
 int ghid_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
-
-  if(devices[device].read.size == 0) {
-
-    PRINT_ERROR_OTHER("the device has no HID IN endpoint")
-    return -1;
-  }
 
   return async_read_timeout(device, buf, count, timeout);
 }
@@ -311,7 +321,7 @@ int ghid_read_timeout(int device, void * buf, unsigned int count, unsigned int t
  *
  * \return 0 in case of success, or -1 in case of error
  */
-int ghid_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register) {
+int ghid_register(int device, int user, GHID_READ_CALLBACK fp_read, GHID_WRITE_CALLBACK fp_write, GHID_CLOSE_CALLBACK fp_close, GHID_REGISTER_SOURCE fp_register) {
     
   return async_register(device, user, fp_read, fp_write, fp_close, fp_register);
 }
@@ -331,12 +341,6 @@ int ghid_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE
  */
 int ghid_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout) {
 
-  if(devices[device].write.size == 0) {
-
-    PRINT_ERROR_OTHER("the device has no HID OUT endpoint")
-    return -1;
-  }
-
   return async_write_timeout(device, buf, count, timeout);
 }
 
@@ -350,12 +354,6 @@ int ghid_write_timeout(int device, const void * buf, unsigned int count, unsigne
  * \return -1 in case of error, 0 in case of pending write, or the number of bytes written
  */
 int ghid_write(int device, const void * buf, unsigned int count) {
-
-  if(devices[device].write.size == 0) {
-
-    PRINT_ERROR_OTHER("the device has no HID OUT endpoint")
-    return -1;
-  }
 
   return async_write(device, buf, count);
 }

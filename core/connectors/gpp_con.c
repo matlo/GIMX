@@ -4,7 +4,7 @@
  */
 
 #include <string.h>
-#include "../../shared/gpp/pcprog.h"
+#include <pcprog.h>
 #include "config.h"
 #include <controller2.h>
 #include "gimx.h"
@@ -120,15 +120,20 @@ int gpp_send(int id, e_controller_type type, int axis[AXIS_MAX])
     }
   }
 
-  if(gpppcprog_output(id, output[id]) < 0)
+  int res = gpppcprog_output(id, output[id]);
+  if(res < 0)
   {
     ret = -1;
+  }
+  else if (res == 0)
+  {
+    ncprintf("device is busy\n");
   }
 
   return ret;
 }
 
-int8_t gpp_start_async(int id, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register)
+int8_t gpp_start_async(int id, GHID_READ_CALLBACK fp_read, GHID_WRITE_CALLBACK fp_write, GHID_CLOSE_CALLBACK fp_close, GHID_REGISTER_SOURCE fp_register)
 {
   return gpppcprog_start_async(id, fp_read, fp_write, fp_close, fp_register);
 }

@@ -4,7 +4,7 @@
  */
 
 #include <ghid.h>
-#include <gusbhid.h>
+#include "gusbhid.h"
 
 /*
  * \brief Open a hid device.
@@ -97,7 +97,7 @@ int ghid_read_timeout(int device, void * buf, unsigned int count, unsigned int t
  *
  * \return 0 in case of success, or -1 in case of error
  */
-int ghid_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register) {
+int ghid_register(int device, int user, GHID_READ_CALLBACK fp_read, GHID_WRITE_CALLBACK fp_write, GHID_CLOSE_CALLBACK fp_close, GHID_REGISTER_SOURCE fp_register) {
     
     return gusbhid_register(device, user, fp_read, fp_write, fp_close, fp_register);
 }

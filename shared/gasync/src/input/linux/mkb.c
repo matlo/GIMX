@@ -16,7 +16,7 @@
 #include <dirent.h>
 #include <ginput.h>
 #include <gpoll.h>
-#include <gerror.h>
+#include <common/gerror.h>
 #include "../events.h"
 
 #define eprintf(...) if(debug) printf(__VA_ARGS__)

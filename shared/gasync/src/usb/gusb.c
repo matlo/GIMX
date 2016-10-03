@@ -5,7 +5,7 @@
 
 #include <gusb.h>
 #include <gpoll.h>
-#include <gerror.h>
+#include <common/gerror.h>
 #ifdef WIN32
 #include <gtimer.h>
 #endif

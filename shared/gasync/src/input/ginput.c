@@ -19,7 +19,7 @@
 #include <windows.h>
 #endif
 #include "hid/hidinput.h"
-#include <gerror.h>
+#include <common/gerror.h>
 
 #define BT_SIXAXIS_NAME "PLAYSTATION(R)3 Controller"
 #define XONE_PAD_NAME "Microsoft X-Box One pad"

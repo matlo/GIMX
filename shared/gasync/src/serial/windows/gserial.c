@@ -4,47 +4,67 @@
  */
 
 #include <gserial.h>
-#include <gerror.h>
+#include <common/gerror.h>
+#include <common/async.h>
 
 #include <stdio.h>
 #include <unistd.h>
 
+typedef struct {
+    unsigned char restoreParams;
+    DCB prevParams;
+    unsigned char restoreTimeouts;
+    COMMTIMEOUTS prevTimeouts;
+} s_serial_params;
+
 static int set_serial_params(int device, unsigned int baudrate) {
-  
-  /*
-   * disable timeouts
-   */
-  COMMTIMEOUTS * prevTimeouts = &devices[device].serial.prevTimeouts;
-  if (GetCommTimeouts(devices[device].handle, prevTimeouts) == 0) {
-      PRINT_ERROR_GETLASTERROR("GetCommTimeouts")
-      return -1;
-  }
-  devices[device].serial.restoreTimeouts = 1;
-  COMMTIMEOUTS newTimeouts = { 0 };
-  if (SetCommTimeouts(devices[device].handle, &newTimeouts) == 0) {
-      PRINT_ERROR_GETLASTERROR("SetCommTimeouts")
-      return -1;
-  }
-  /*
-   * set baudrate
-   */
-  DCB * prevSerialParams = &devices[device].serial.prevParams;
-  prevSerialParams->DCBlength = sizeof(*prevSerialParams);
-  if (GetCommState(devices[device].handle, prevSerialParams) == 0) {
-    PRINT_ERROR_GETLASTERROR("GetCommState")
-    return -1;
-  }
-  devices[device].serial.restoreParams = 1;
-  DCB newSerialParams = *prevSerialParams;
-  newSerialParams.BaudRate = baudrate;
-  newSerialParams.ByteSize = 8;
-  newSerialParams.StopBits = ONESTOPBIT;
-  newSerialParams.Parity = NOPARITY;
-  if (SetCommState(devices[device].handle, &newSerialParams) == 0) {
-    PRINT_ERROR_GETLASTERROR("SetCommState")
-    return -1;
-  }
-  return 0;
+
+    s_serial_params * params = (s_serial_params *) calloc(1, sizeof(*params));
+
+    if (params == NULL) {
+        PRINT_ERROR_ALLOC_FAILED("malloc")
+        return -1;
+    }
+
+    HANDLE * handle = async_get_handle(device);
+
+    /*
+     * disable timeouts
+     */
+    if (GetCommTimeouts(handle, &params->prevTimeouts) == 0) {
+        PRINT_ERROR_GETLASTERROR("GetCommTimeouts")
+        free(params);
+        return -1;
+    }
+    params->restoreTimeouts = 1;
+    COMMTIMEOUTS newTimeouts = { 0 };
+    if (SetCommTimeouts(handle, &newTimeouts) == 0) {
+        PRINT_ERROR_GETLASTERROR("SetCommTimeouts")
+        free(params);
+        return -1;
+    }
+    /*
+     * set baudrate
+     */
+    params->prevParams.DCBlength = sizeof(params->prevParams);
+    if (GetCommState(handle, &params->prevParams) == 0) {
+        PRINT_ERROR_GETLASTERROR("GetCommState")
+        free(params);
+        return -1;
+    }
+    params->restoreParams = 1;
+    DCB newSerialParams = params->prevParams;
+    newSerialParams.BaudRate = baudrate;
+    newSerialParams.ByteSize = 8;
+    newSerialParams.StopBits = ONESTOPBIT;
+    newSerialParams.Parity = NOPARITY;
+    if (SetCommState(handle, &newSerialParams) == 0) {
+        PRINT_ERROR_GETLASTERROR("SetCommState")
+        free(params);
+        return -1;
+    }
+    async_set_private(device, params);
+    return 0;
 }
 
 /*
@@ -58,20 +78,20 @@ static int set_serial_params(int device, unsigned int baudrate) {
  */
 int gserial_open(const char * port, unsigned int baudrate) {
 
-  char scom[sizeof("\\\\.\\") + strlen(port)];
-  snprintf(scom, sizeof(scom), "\\\\.\\%s", port);
-  
-  int device = async_open_path(scom, 1);
-  if(device < 0) {
-    return -1;
-  }
-  
-  if(set_serial_params(device, baudrate) < 0) {
-    async_close(device);
-    return -1;
-  }
-  
-  return 0;
+    char scom[sizeof("\\\\.\\") + strlen(port)];
+    snprintf(scom, sizeof(scom), "\\\\.\\%s", port);
+
+    int device = async_open_path(scom, 1);
+    if (device < 0) {
+        return -1;
+    }
+
+    if (set_serial_params(device, baudrate) < 0) {
+        async_close(device);
+        return -1;
+    }
+
+    return 0;
 }
 
 /*
@@ -86,7 +106,7 @@ int gserial_open(const char * port, unsigned int baudrate) {
  */
 int gserial_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
 
-  return async_read_timeout(device, buf, count, timeout);
+    return async_read_timeout(device, buf, count, timeout);
 }
 
 /*
@@ -99,7 +119,7 @@ int gserial_read_timeout(int device, void * buf, unsigned int count, unsigned in
  */
 int gserial_set_read_size(int device, unsigned int size) {
 
-  return async_set_read_size(device, size);
+    return async_set_read_size(device, size);
 }
 
 /*
@@ -116,7 +136,8 @@ int gserial_set_read_size(int device, unsigned int size) {
  *
  * \return 0 in case of success, or -1 in case of error
  */
-int gserial_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register) {
+int gserial_register(int device, int user, GSERIAL_READ_CALLBACK fp_read, GSERIAL_WRITE_CALLBACK fp_write,
+        GSERIAL_CLOSE_CALLBACK fp_close, GSERIAL_REGISTER_SOURCE fp_register) {
 
     return async_register(device, user, fp_read, fp_write, fp_close, fp_register);
 }
@@ -162,14 +183,21 @@ int gserial_write(int device, const void * buf, unsigned int count) {
  */
 int gserial_close(int device) {
 
-    usleep(10000);//sleep 10ms to leave enough time for the last packet to be sent
+    usleep(10000); //sleep 10ms to leave enough time for the last packet to be sent
 
-    if (devices[device].serial.restoreParams && SetCommState(devices[device].handle, &devices[device].serial.prevParams) == 0) {
-        PRINT_ERROR_GETLASTERROR("SetCommState")
+    HANDLE * handle = async_get_handle(device);
+    s_serial_params * params = (s_serial_params *) async_get_private(device);
+
+    if (handle != NULL && params != NULL) {
+        if (params->restoreParams && SetCommState(handle, &params->prevParams) == 0) {
+            PRINT_ERROR_GETLASTERROR("SetCommState")
+        }
+        if (params->restoreTimeouts && SetCommTimeouts(handle, &params->prevTimeouts) == 0) {
+            PRINT_ERROR_GETLASTERROR("SetCommTimeouts")
+        }
     }
-    if(devices[device].serial.restoreTimeouts && SetCommTimeouts(devices[device].handle, &devices[device].serial.prevTimeouts) == 0) {
-        PRINT_ERROR_GETLASTERROR("SetCommTimeouts")
-    }
+    
+    free(params);
 
     return async_close(device);
 }

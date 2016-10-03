@@ -9,9 +9,9 @@
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
-#include "../../input/windows/rawinput.h"
+#include <input/windows/rawinput.h>
 
-#include <gerror.h>
+#include <common/gerror.h>
 
 #define MAX_SOURCES (MAXIMUM_WAIT_OBJECTS-1)
 

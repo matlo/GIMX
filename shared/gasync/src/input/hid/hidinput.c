@@ -5,7 +5,7 @@
 
 #include "hidinput.h"
 #include <gpoll.h>
-#include <gerror.h>
+#include <common/gerror.h>
 #include <stdlib.h>
 #include <string.h>
 

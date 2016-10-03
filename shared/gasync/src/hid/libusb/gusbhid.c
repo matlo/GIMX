@@ -3,8 +3,8 @@
  License: GPLv3
  */
 
-#include <gusbhid.h>
-#include <gerror.h>
+#include "gusbhid.h"
+#include <common/gerror.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -44,9 +44,9 @@ static struct {
   s_config config;
   struct {
     int user;
-    ASYNC_READ_CALLBACK fp_read;
-    ASYNC_WRITE_CALLBACK fp_write;
-    ASYNC_CLOSE_CALLBACK fp_close;
+    GHID_READ_CALLBACK fp_read;
+    GHID_WRITE_CALLBACK fp_write;
+    GHID_CLOSE_CALLBACK fp_close;
   } callback;
   int pending_transfers;
 } usbdevices[USBHIDASYNC_MAX_DEVICES] = { };
@@ -819,8 +819,8 @@ const s_hid_info * gusbhid_get_hid_info(int device) {
   return &usbdevices[device].config.hidInfo;
 }
 
-int gusbhid_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write,
-    ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register __attribute__((unused))) {
+int gusbhid_register(int device, int user, GHID_READ_CALLBACK fp_read, GHID_WRITE_CALLBACK fp_write,
+    GHID_CLOSE_CALLBACK fp_close, GHID_REGISTER_SOURCE fp_register __attribute__((unused))) {
 
   USBHIDASYNC_CHECK_DEVICE(device, -1)
 

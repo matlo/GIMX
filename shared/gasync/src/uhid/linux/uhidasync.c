@@ -4,12 +4,12 @@
  */
 
 #include <guhid.h>
-#include <gerror.h>
+#include <common/gerror.h>
 
 #ifndef __ARM_ARCH_6__
 #include <linux/uhid.h>
 #else
-#include <rpi/uhid.h>
+#include "rpi/uhid.h"
 #endif
 #include <fcntl.h>
 #include <stdio.h>

@@ -5,7 +5,7 @@
 
 #include "timerres.h"
 #include <windows.h>
-#include <gerror.h>
+#include <common/gerror.h>
 
 static void (__stdcall *pNtQueryTimerResolution)(PULONG, PULONG, PULONG) = NULL;
 static void (__stdcall *pNtSetTimerResolution)(ULONG, BOOL, PULONG) = NULL;

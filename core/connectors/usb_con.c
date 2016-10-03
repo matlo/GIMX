@@ -33,7 +33,6 @@ static struct
       unsigned short product;
   } ids[2];
   int configuration;
-  int interface;
   struct
   {
     struct
@@ -67,7 +66,6 @@ static struct
         { .vendor = DS4_VENDOR, .product = DS4_PRODUCT_2 },
     },
     .configuration = 1,
-    .interface = 0,
     .endpoints =
     {
       .in =
@@ -102,7 +100,6 @@ static struct
         { .vendor = DS4_VENDOR, .product = DS4_PRODUCT_2 },
     },
     .configuration = 1,
-    .interface = 0,
     .endpoints =
     {
       .in =
@@ -137,7 +134,6 @@ static struct
         { .vendor = DS4_VENDOR, .product = DS4_PRODUCT_2 },
     },
     .configuration = 1,
-    .interface = 0,
     .endpoints =
     {
       .in =
@@ -171,7 +167,6 @@ static struct
         { .vendor = X360_VENDOR, .product = X360_PRODUCT }
     },
     .configuration = 1,
-    .interface = 0,
     .endpoints =
     {
       .in =
@@ -205,7 +200,6 @@ static struct
         { .vendor = XONE_VENDOR, .product = XONE_PRODUCT }
     },
     .configuration = 1,
-    .interface = 0,
     .endpoints =
     {
       .in =

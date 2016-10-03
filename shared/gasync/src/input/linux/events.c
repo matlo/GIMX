@@ -17,7 +17,7 @@
 #include <string.h>
 
 #include <ginput.h>
-#include <gerror.h>
+#include <common/gerror.h>
 #include "js.h"
 #include "mkb.h"
 #include "xinput.h"

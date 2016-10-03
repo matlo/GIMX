@@ -4,7 +4,8 @@
  */
 
 #include <gserial.h>
-#include <gerror.h>
+#include <common/gerror.h>
+#include <common/async.h>
 
 #include <stdio.h>
 #include <linux/spi/spidev.h>
@@ -17,9 +18,14 @@
 
 static int tty_set_params(int device, speed_t baudrate)
 {
+  int fd = async_get_fd(device);
+  if (fd < 0) {
+      return -1;
+  }
+
   struct termios options;
 
-  if(tcgetattr(devices[device].fd, &options) < 0)
+  if(tcgetattr(fd, &options) < 0)
   {
     PRINT_ERROR_ERRNO("tcgetattr")
     return -1;
@@ -27,42 +33,47 @@ static int tty_set_params(int device, speed_t baudrate)
   cfsetispeed(&options, baudrate);
   cfsetospeed(&options, baudrate);
   cfmakeraw(&options);
-  if(tcsetattr(devices[device].fd, TCSANOW, &options) < 0)
+  if(tcsetattr(fd, TCSANOW, &options) < 0)
   {
     PRINT_ERROR_ERRNO("tcsetattr")
     return -1;
   }
-  tcflush(devices[device].fd, TCIFLUSH);
+  tcflush(fd, TCIFLUSH);
 
   return 0;
 }
 
 static int spi_set_params(int device, unsigned int baudrate)
 {
+    int fd = async_get_fd(device);
+    if (fd < 0) {
+        return -1;
+    }
+
   unsigned char bits = 8;
   unsigned char mode = 0;
 
-  if(ioctl(devices[device].fd, SPI_IOC_WR_MAX_SPEED_HZ, &baudrate) < 0)
+  if(ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &baudrate) < 0)
   {
     PRINT_ERROR_ERRNO("ioctl SPI_IOC_WR_MAX_SPEED_HZ")
     return -1;
   }
-  else if(ioctl(devices[device].fd, SPI_IOC_WR_BITS_PER_WORD, &bits) < 0)
+  else if(ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits) < 0)
   {
     PRINT_ERROR_ERRNO("ioctl SPI_IOC_WR_BITS_PER_WORD")
     return -1;
   }
-  else if(ioctl(devices[device].fd, SPI_IOC_RD_BITS_PER_WORD, &bits) < 0)
+  else if(ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &bits) < 0)
   {
     PRINT_ERROR_ERRNO("ioctl SPI_IOC_RD_BITS_PER_WORD")
     return -1;
   }
-  else if (ioctl (devices[device].fd, SPI_IOC_WR_MODE, &mode) < 0)
+  else if (ioctl (fd, SPI_IOC_WR_MODE, &mode) < 0)
   {
     PRINT_ERROR_ERRNO("ioctl SPI_IOC_WR_MODE")
     return -1;
   }
-  else if (ioctl (devices[device].fd, SPI_IOC_RD_MODE, &mode) < 0)
+  else if (ioctl (fd, SPI_IOC_RD_MODE, &mode) < 0)
   {
     PRINT_ERROR_ERRNO("ioctl SPI_IOC_RD_MODE")
     return -1;
@@ -225,8 +236,8 @@ int gserial_set_read_size(int device, unsigned int size) {
  *
  * \return 0 in case of success, or -1 in case of error
  */
-int gserial_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write,
-    ASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_FD fp_register) {
+int gserial_register(int device, int user, GSERIAL_READ_CALLBACK fp_read, GSERIAL_WRITE_CALLBACK fp_write,
+    GSERIAL_CLOSE_CALLBACK fp_close, GSERIAL_REGISTER_SOURCE fp_register) {
 
     return async_register(device, user, fp_read, fp_write, fp_close, fp_register);
 }

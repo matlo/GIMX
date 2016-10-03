@@ -42,7 +42,7 @@
 #include <windows.h>
 #include <setupapi.h>
 
-#include <gerror.h>
+#include <common/gerror.h>
 
 #define MAX_DEVICES 256
 #define MAX_KEYS 256

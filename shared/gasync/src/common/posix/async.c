@@ -3,8 +3,8 @@
  License: GPLv3
  */
 
-#include <async.h>
-#include <gerror.h>
+#include <common/async.h>
+#include <common/gerror.h>
 
 #include <stdio.h>
 #include <errno.h>
@@ -15,7 +15,34 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-s_device devices[ASYNC_MAX_DEVICES] = { };
+static struct {
+    int fd;
+    char * path;
+    struct
+    {
+      char * buf;
+      unsigned int count;
+      unsigned int bread;
+      unsigned int size;
+    } read;
+    struct {
+        int user;
+        ASYNC_READ_CALLBACK fp_read;
+        ASYNC_WRITE_CALLBACK fp_write;
+        ASYNC_CLOSE_CALLBACK fp_close;
+    } callback;
+    void * priv;
+} devices[ASYNC_MAX_DEVICES] = { };
+
+#define ASYNC_CHECK_DEVICE(device,retValue) \
+    if(device < 0 || device >= ASYNC_MAX_DEVICES) { \
+        fprintf(stderr, "%s:%d %s: invalid device (%d)\n", __FILE__, __LINE__, __func__, device); \
+        return retValue; \
+    } \
+    if(devices[device].fd == -1) { \
+        fprintf(stderr, "%s:%d %s: no such device (%d)\n", __FILE__, __LINE__, __func__, device); \
+        return retValue; \
+    }
 
 void async_init(void) __attribute__((constructor));
 void async_init(void)
@@ -256,3 +283,9 @@ int async_write(int device, const void * buf, unsigned int count) {
     return ret;
 }
 
+int async_get_fd(int device) {
+
+    ASYNC_CHECK_DEVICE(device, -1)
+
+    return devices[device].fd;
+}

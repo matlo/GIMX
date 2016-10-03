@@ -4,7 +4,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <limits.h>
-#include <gerror.h>
 
 #ifdef WIN32
 #define LINE_MAX 1024
@@ -107,9 +106,9 @@ static struct
   int device;
   char * path;
   unsigned int pending;
-  ASYNC_READ_CALLBACK fp_read;
-  ASYNC_WRITE_CALLBACK fp_write;
-  ASYNC_CLOSE_CALLBACK fp_close;
+  GHID_READ_CALLBACK fp_read;
+  GHID_WRITE_CALLBACK fp_write;
+  GHID_CLOSE_CALLBACK fp_close;
 } gpp_devices[MAX_GPP_DEVICES] = {};
 
 void gpppcprog_init(void) __attribute__((constructor));
@@ -302,7 +301,7 @@ static int close_callback(int user)
   return gpp_devices[user].fp_close(user);
 }
 
-int8_t gpppcprog_start_async(int id, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register)
+int8_t gpppcprog_start_async(int id, GHID_READ_CALLBACK fp_read, GHID_WRITE_CALLBACK fp_write, GHID_CLOSE_CALLBACK fp_close, GHID_REGISTER_SOURCE fp_register)
 {
   gpp_devices[id].fp_read = fp_read;
   gpp_devices[id].fp_write = fp_write;
@@ -330,7 +329,6 @@ int8_t gpppcprog_send(int id, uint8_t type, uint8_t * data, uint16_t length)
 {
   if (gpp_devices[id].pending > 0)
   {
-    PRINT_ERROR_OTHER("device is busy")
     return 0;
   }
   s_gppReport report =

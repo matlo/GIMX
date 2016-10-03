@@ -9,7 +9,7 @@
 #include <SDL.h>
 
 #include <ginput.h>
-#include <gerror.h>
+#include <common/gerror.h>
 
 #define PRINT_ERROR_SDL(msg) fprintf(stderr, "%s:%d %s: %s failed with error: %s\n", __FILE__, __LINE__, __func__, msg, SDL_GetError());
 

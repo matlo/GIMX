@@ -3,15 +3,62 @@
  License: GPLv3
  */
 
-#include <async.h>
-#include <gerror.h>
+#include <common/async.h>
+#include <common/gerror.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-s_device devices[ASYNC_MAX_DEVICES] = { };
+#define ASYNC_MAX_WRITE_QUEUE_SIZE 2
+
+typedef struct
+{
+  struct
+  {
+    char * buf;
+    unsigned int count;
+  } data[ASYNC_MAX_WRITE_QUEUE_SIZE];
+  unsigned int nb;
+} s_queue;
+
+static struct {
+    HANDLE handle;
+    char * path;
+    struct
+    {
+      OVERLAPPED overlapped;
+      char * buf;
+      unsigned int count;
+      unsigned int bread;
+      unsigned int size;
+    } read;
+    struct
+    {
+      OVERLAPPED overlapped;
+      s_queue queue;
+      unsigned int size;
+    } write;
+    struct {
+        int user;
+        ASYNC_READ_CALLBACK fp_read;
+        ASYNC_WRITE_CALLBACK fp_write;
+        ASYNC_CLOSE_CALLBACK fp_close;
+    } callback;
+    void * priv;
+    e_async_device_type device_type;
+} devices[ASYNC_MAX_DEVICES] = { };
+
+#define ASYNC_CHECK_DEVICE(device,retValue) \
+    if(device < 0 || device >= ASYNC_MAX_DEVICES) { \
+        fprintf(stderr, "%s:%d %s: invalid device (%d)\n", __FILE__, __LINE__, __func__, device); \
+        return retValue; \
+    } \
+    if(devices[device].handle == INVALID_HANDLE_VALUE) { \
+        fprintf(stderr, "%s:%d %s: no such device (%d)\n", __FILE__, __LINE__, __func__, device); \
+        return retValue; \
+    }
 
 static void reset_handles(int device) {
     devices[device].handle = INVALID_HANDLE_VALUE;
@@ -205,6 +252,11 @@ int async_read_timeout(int device, void * buf, unsigned int count, unsigned int 
 
   ASYNC_CHECK_DEVICE(device, -1)
 
+  if(devices[device].device_type == E_ASYNC_DEVICE_TYPE_HID && devices[device].read.size == 0) {
+    PRINT_ERROR_OTHER("the HID device has no IN endpoint")
+    return -1;
+  }
+
   DWORD dwBytesRead = 0;
 
   memset(buf, 0x00, count);
@@ -249,7 +301,7 @@ int async_read_timeout(int device, void * buf, unsigned int count, unsigned int 
   }
 
   // skip the eventual leading null byte for hid devices
-  if (devices[device].hidInfo.vendor_id != 0x0000 && dwBytesRead > 0) {
+  if (devices[device].device_type == E_ASYNC_DEVICE_TYPE_HID && dwBytesRead > 0) {
     if (((unsigned char*)buf)[0] == 0x00) {
       --dwBytesRead;
       memmove(buf, buf + 1, dwBytesRead);
@@ -262,6 +314,11 @@ int async_read_timeout(int device, void * buf, unsigned int count, unsigned int 
 int async_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout) {
 
   ASYNC_CHECK_DEVICE(device, -1)
+    
+  if(devices[device].device_type == E_ASYNC_DEVICE_TYPE_HID && devices[device].write.size == 0) {
+    PRINT_ERROR_OTHER("the HID device has no OUT endpoint")
+    return -1;
+  }
 
   DWORD dwBytesWritten = 0;
 
@@ -353,7 +410,7 @@ static int read_packet(int device) {
   if(devices[device].read.bread) {
     if(devices[device].callback.fp_read != NULL) {
       // skip the eventual leading null byte for hid devices
-      if (devices[device].hidInfo.vendor_id != 0x0000 && ((unsigned char*)devices[device].read.buf)[0] == 0x00) {
+      if (devices[device].device_type == E_ASYNC_DEVICE_TYPE_HID && ((unsigned char*)devices[device].read.buf)[0] == 0x00) {
         --devices[device].read.bread;
         memmove(devices[device].read.buf, devices[device].read.buf + 1, devices[device].read.bread);
       }
@@ -489,6 +546,11 @@ int async_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRIT
 int async_write(int device, const void * buf, unsigned int count) {
 
     ASYNC_CHECK_DEVICE(device, -1)
+    
+    if(devices[device].device_type == E_ASYNC_DEVICE_TYPE_HID && devices[device].write.size == 0) {
+        PRINT_ERROR_OTHER("the HID device has no OUT endpoint")
+        return -1;
+    }
 
     int res = queue_write(device, buf, count);
     if(res < 0) {
@@ -505,4 +567,48 @@ int async_write(int device, const void * buf, unsigned int count) {
     }
 
     return ret;
+}
+
+void async_set_private(int device, void * priv) {
+
+    ASYNC_CHECK_DEVICE(device,)
+
+    devices[device].priv = priv;
+}
+
+void * async_get_private(int device) {
+
+    ASYNC_CHECK_DEVICE(device, NULL)
+
+    return devices[device].priv;
+}
+
+HANDLE * async_get_handle(int device) {
+
+    ASYNC_CHECK_DEVICE(device, INVALID_HANDLE_VALUE)
+
+    return devices[device].handle;
+}
+
+int async_set_write_size(int device, unsigned int size) {
+
+    ASYNC_CHECK_DEVICE(device, -1)
+
+    devices[device].write.size = size;
+
+    return 0;
+}
+
+void async_set_device_type(int device, e_async_device_type device_type) {
+
+    ASYNC_CHECK_DEVICE(device,)
+
+    devices[device].device_type = device_type;
+}
+
+const char * async_get_path(int device) {
+
+    ASYNC_CHECK_DEVICE(device, NULL)
+
+    return devices[device].path;
 }
