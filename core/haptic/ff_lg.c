@@ -817,7 +817,7 @@ typedef struct {
  *
  * \return the force coefficient
  */
-s_coef get_force_coefficient(unsigned short pid, unsigned char hr, unsigned char k) {
+static s_coef get_force_coefficient(unsigned short pid, unsigned char hr, unsigned char k) {
 
     s_coef coef;
 

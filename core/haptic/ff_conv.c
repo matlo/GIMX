@@ -33,6 +33,7 @@ static struct
 {
     unsigned short pid;
     s_slot slots[FF_LG_FSLOTS_NB];
+    unsigned short range;
 } ff_lg_device[MAX_CONTROLLERS] = {};
 
 static inline int check_device(int device, const char * file, unsigned int line, const char * func) {
@@ -220,6 +221,23 @@ int ff_conv(int device, const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE], GE_E
             }
         }
         break;
+        }
+    } else {
+		unsigned short range = 0;
+        switch(data[1]) {
+            case FF_LG_EXT_CMD_WHEEL_RANGE_200_DEGREES:
+                range = 200;
+                break;
+            case FF_LG_EXT_CMD_WHEEL_RANGE_900_DEGREES:
+                range = 900;
+                break;
+            case FF_LG_EXT_CMD_CHANGE_WHEEL_RANGE:
+                range = (data[3] << 8) | data[2];
+              break;
+        }
+        if (range > 0 && range != ff_lg_device[device].range) {
+            ncprintf("adjust your wheel range to %u degrees\n", range);
+            ff_lg_device[device].range = range;
         }
     }
 
