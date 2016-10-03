@@ -775,6 +775,7 @@ int ff_lg_get_report(int device, s_ff_lg_report * report) {
     return 0;
 }
 
+// this table lists the devices that support the "classic format" protocol
 static unsigned short ff_lg_wheel_products[] = {
         USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE,
         USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP,
@@ -785,7 +786,6 @@ static unsigned short ff_lg_wheel_products[] = {
         USB_PRODUCT_ID_LOGITECH_DFGT_WHEEL,
         USB_PRODUCT_ID_LOGITECH_G27_WHEEL,
         USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2,
-        USB_PRODUCT_ID_LOGITECH_G920_WHEEL,
         USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
 };
 
