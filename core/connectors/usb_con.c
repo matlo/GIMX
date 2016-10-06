@@ -404,15 +404,16 @@ int usb_init(int usb_number, e_controller_type type) {
 
   struct usb_state * state = usb_states + usb_number;
 
+  memset(state, 0x00, sizeof(*state));
+  state->usb_device = -1;
+  state->joystick_id = -1;
+  state->type = type;
+  state->ack = 1;
+
   if(!controller[type].ids[0].vendor || !controller[type].ids[0].product) {
     gprintf(_("no pass-through device is needed\n"));
     return 0;
   }
-
-  memset(state, 0x00, sizeof(*state));
-  state->joystick_id = -1;
-  state->type = type;
-  state->ack = 1;
 
   unsigned int i;
   for (i = 0; i < sizeof(controller->ids) / sizeof(*controller->ids); ++i)
