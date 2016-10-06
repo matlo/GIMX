@@ -445,7 +445,7 @@ static int ProcessEventElement(xmlNode * a_node, unsigned char mapper)
 #else
               if(entry.device.type == E_DEVICE_TYPE_JOYSTICK && entry.device.usb_ids.vendor && entry.device.usb_ids.product)
               {
-                adapter_set_usb_ids(entry.controller_id, entry.device.usb_ids.vendor, entry.device.usb_ids.product);
+                adapter_set_usb_ids(entry.controller_id, entry.device.id, entry.device.usb_ids.vendor, entry.device.usb_ids.product);
               }
 #endif
               break;

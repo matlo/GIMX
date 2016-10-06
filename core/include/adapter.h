@@ -85,7 +85,7 @@ int adapter_get_controller(e_device_type device_type, int device_id);
 int adapter_hid_poll();
 void adapter_set_hid(int adapter, int hid);
 #else
-void adapter_set_usb_ids(int adapter, unsigned short vendor, unsigned short product);
+void adapter_set_usb_ids(int adapter, int joystick_id, unsigned short vendor, unsigned short product);
 #endif
 
 void adapter_set_axis(unsigned char adapter, int axis, int value);

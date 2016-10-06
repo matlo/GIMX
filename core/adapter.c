@@ -514,7 +514,7 @@ void adapter_set_hid(int adapter, int hid)
   }
 }
 #else
-void adapter_set_usb_ids(int adapter, unsigned short vendor, unsigned short product)
+void adapter_set_usb_ids(int adapter, int joystick_id, unsigned short vendor, unsigned short product)
 {
   if(adapter < 0 || adapter >= MAX_CONTROLLERS)
   {
@@ -522,7 +522,7 @@ void adapter_set_usb_ids(int adapter, unsigned short vendor, unsigned short prod
     return;
   }
 
-  if(adapter_device[E_DEVICE_TYPE_JOYSTICK - 1][adapter] >= 0)
+  if(adapter_device[E_DEVICE_TYPE_JOYSTICK - 1][adapter] == joystick_id)
   {
     adapters[adapter].joystick.usb_ids.vendor = vendor;
     adapters[adapter].joystick.usb_ids.product = product;
