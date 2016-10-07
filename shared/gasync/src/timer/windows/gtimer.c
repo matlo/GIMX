@@ -73,11 +73,25 @@ static int timer_cb(unsigned int nexp) {
     return ret;
 }
 
-int gtimer_start(int user, unsigned int usec, GPOLL_READ_CALLBACK fp_read, GPOLL_CLOSE_CALLBACK fp_close,
-        GPOLL_REGISTER_HANDLE fp_register) {
+int gtimer_start(int user, unsigned int usec, const GTIMER_CALLBACKS * callbacks) {
 
     if (usec == 0) {
         PRINT_ERROR_OTHER("timer period cannot be 0")
+        return -1;
+    }
+
+    if (callbacks->fp_read == 0) {
+        PRINT_ERROR_OTHER("fp_register is null")
+        return -1;
+    }
+
+    if (callbacks->fp_register == 0) {
+        PRINT_ERROR_OTHER("fp_register is null")
+        return -1;
+    }
+
+    if (callbacks->fp_remove == 0) {
+        PRINT_ERROR_OTHER("fp_register is null")
         return -1;
     }
 
@@ -87,7 +101,11 @@ int gtimer_start(int user, unsigned int usec, GPOLL_READ_CALLBACK fp_read, GPOLL
         return -1;
     }
 
-    int timer_resolution = timerres_begin(fp_register, gpoll_remove_handle, timer_cb);
+    GPOLL_INTERFACE gpoll_interface = {
+      .fp_register = callbacks->fp_register,
+      .fp_remove = callbacks->fp_remove,
+    };
+    int timer_resolution = timerres_begin(&gpoll_interface, timer_cb);
     if (timer_resolution < 0) {
         return -1;
     }
@@ -107,8 +125,8 @@ int gtimer_start(int user, unsigned int usec, GPOLL_READ_CALLBACK fp_read, GPOLL
     timers[slot].user = user;
     timers[slot].period = period;
     timers[slot].nexp = 0;
-    timers[slot].fp_read = fp_read;
-    timers[slot].fp_close = fp_close;
+    timers[slot].fp_read = callbacks->fp_read;
+    timers[slot].fp_close = callbacks->fp_close;
 
     return slot;
 }

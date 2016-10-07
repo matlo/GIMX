@@ -46,6 +46,8 @@ install: all
   done
 	mkdir -p setup/ssl/certs
 	cp -u -f /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem setup/ssl/certs/ca-bundle.crt
+	cp -u -f shared/*/*.dll setup
+	cp -u -f shared/gasync/src/*/*.dll setup
 
 .PHONY: subdirs $(DIRS)
 .PHONY: subdirs $(BUILDDIRS)

@@ -30,6 +30,7 @@ static struct {
         ASYNC_READ_CALLBACK fp_read;
         ASYNC_WRITE_CALLBACK fp_write;
         ASYNC_CLOSE_CALLBACK fp_close;
+        ASYNC_REMOVE_SOURCE fp_remove;
     } callback;
     void * priv;
 } devices[ASYNC_MAX_DEVICES] = { };
@@ -112,6 +113,8 @@ int async_open_path(const char * path, int print) {
 int async_close(int device) {
 
     ASYNC_CHECK_DEVICE(device, -1)
+
+    devices[device].callback.fp_remove(devices[device].fd);
 
     close(devices[device].fd);
 
@@ -256,16 +259,30 @@ int async_set_read_size(int device, unsigned int size) {
     return 0;
 }
 
-int async_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write __attribute__((unused)), ASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_FD fp_register) {
+int async_register(int device, int user, const ASYNC_CALLBACKS * callbacks) {
 
     ASYNC_CHECK_DEVICE(device, -1)
 
-    devices[device].callback.user = user;
-    devices[device].callback.fp_read = fp_read;
-    //fp_write is ignored
-    devices[device].callback.fp_close = fp_close;
+    if (callbacks->fp_remove == NULL) {
+        PRINT_ERROR_OTHER("fp_remove is NULL")
+    }
 
-    return fp_register(devices[device].fd, device, read_callback, NULL, close_callback);
+    if (callbacks->fp_register == NULL) {
+        PRINT_ERROR_OTHER("fp_register is NULL")
+    }
+
+    devices[device].callback.user = user;
+    devices[device].callback.fp_read = callbacks->fp_read;
+    //fp_write is ignored
+    devices[device].callback.fp_close = callbacks->fp_close;
+    devices[device].callback.fp_remove = callbacks->fp_remove;
+
+    GPOLL_CALLBACKS gpoll_callbacks = {
+            .fp_read = read_callback,
+            .fp_write = NULL,
+            .fp_close = close_callback,
+    };
+    return callbacks->fp_register(devices[device].fd, device, &gpoll_callbacks);
 }
 
 int async_write(int device, const void * buf, unsigned int count) {

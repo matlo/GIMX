@@ -279,6 +279,6 @@ int8_t gppcprog_connected(int id);
 void gppcprog_disconnect(int id);
 int8_t gpppcprog_input(int id, GCAPI_REPORT * report, int timeout);
 int8_t gpppcprog_output(int id, int8_t output[GCAPI_OUTPUT_TOTAL]);
-int8_t gpppcprog_start_async(int id, GHID_READ_CALLBACK fp_read, GHID_WRITE_CALLBACK fp_write, GHID_CLOSE_CALLBACK fp_close, GHID_REGISTER_SOURCE fp_register);
+int8_t gpppcprog_start_async(int id, const GHID_CALLBACKS * callbacks);
 
 #endif

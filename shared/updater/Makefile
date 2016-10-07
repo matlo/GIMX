@@ -1,13 +1,7 @@
-include ../../Makedefs
+OBJECTS += $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 
-LIBNAME=$(shell basename $(shell pwd)).a
-OBJECTS := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
-CPPFLAGS :=
+CXXFLAGS += -fPIC
 
-all: $(LIBNAME)
+LDFLAGS += -lstdc++ `curl-config --libs`
 
-$(LIBNAME): $(OBJECTS)
-	$(AR) $(ARFLAGS) $@ $?
-
-clean:
-	$(RM) $(LIBNAME) $(OBJECTS)
+include ../Makedefs

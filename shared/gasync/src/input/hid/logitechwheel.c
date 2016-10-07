@@ -635,7 +635,7 @@ static int set_native_mode(const struct ghid_device * dev, const s_native_mode *
 }
 #endif
 
-static int open(const struct ghid_device * dev) {
+static int open_device(const struct ghid_device * dev) {
 
     s_native_mode * native_mode = get_native_mode_command(dev->product_id, dev->bcdDevice);
     if (set_native_mode(dev, native_mode) < 0) {
@@ -683,7 +683,7 @@ static int open(const struct ghid_device * dev) {
 static s_hidinput_driver driver = {
         .ids = ids,
         .init = init,
-        .open = open,
+        .open = open_device,
         .process = process,
         .close = close_device,
 };

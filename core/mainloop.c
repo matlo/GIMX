@@ -15,12 +15,6 @@
 #include <connectors/usb_con.h>
 #include <report2event/report2event.h>
 
-#ifdef WIN32
-#define REGISTER_FUNCTION gpoll_register_handle
-#else
-#define REGISTER_FUNCTION gpoll_register_fd
-#endif
-
 static volatile int done = 0;
 
 void set_done()
@@ -49,7 +43,13 @@ void mainloop()
 
   if(!adapter_get(0)->bdaddr_dst || adapter_get(0)->ctype == C_TYPE_DS4)
   {
-    timer = gtimer_start(0, (unsigned int)gimx_params.refresh_period, timer_read, timer_close, REGISTER_FUNCTION);
+    GTIMER_CALLBACKS callbacks = {
+            .fp_read = timer_read,
+            .fp_close = timer_close,
+            .fp_register = REGISTER_FUNCTION,
+            .fp_remove = REMOVE_FUNCTION,
+    };
+    timer = gtimer_start(0, (unsigned int)gimx_params.refresh_period, &callbacks);
     if (timer < 0)
     {
       done = 1;

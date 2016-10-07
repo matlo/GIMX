@@ -23,14 +23,13 @@ static struct {
 
 static int max_source = 0;
 
-int gpoll_register_fd(int fd, int user, GPOLL_READ_CALLBACK fp_read, GPOLL_WRITE_CALLBACK fp_write,
-    GPOLL_CLOSE_CALLBACK fp_close) {
+int gpoll_register_fd(int fd, int user, const GPOLL_CALLBACKS * callbacks) {
 
-  if (!fp_close) {
+  if (!callbacks->fp_close) {
     PRINT_ERROR_OTHER("fp_close is mandatory")
     return -1;
   }
-  if (!fp_read && !fp_write) {
+  if (!callbacks->fp_read && !callbacks->fp_write) {
     PRINT_ERROR_OTHER("fp_read and fp_write are NULL")
     return -1;
   }
@@ -39,26 +38,28 @@ int gpoll_register_fd(int fd, int user, GPOLL_READ_CALLBACK fp_read, GPOLL_WRITE
     return -1;
   }
   sources[fd].user = user;
-  if (fp_read) {
+  if (callbacks->fp_read) {
     sources[fd].event |= POLLIN;
-    sources[fd].fp_read = fp_read;
+    sources[fd].fp_read = callbacks->fp_read;
   }
-  if (fp_write) {
+  if (callbacks->fp_write) {
     sources[fd].event |= POLLOUT;
-    sources[fd].fp_write = fp_write;
+    sources[fd].fp_write = callbacks->fp_write;
   }
-  sources[fd].fp_close = fp_close;
+  sources[fd].fp_close = callbacks->fp_close;
   if (fd > max_source) {
     max_source = fd;
   }
   return 0;
 }
 
-void gpoll_remove_fd(int fd) {
+int gpoll_remove_fd(int fd) {
 
   if (fd >= 0 && fd < MAX_SOURCES) {
     memset(sources + fd, 0x00, sizeof(*sources));
+    return 0;
   }
+  return -1;
 }
 
 static unsigned int fill_fds(nfds_t nfds, struct pollfd fds[nfds]) {

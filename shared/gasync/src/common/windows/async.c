@@ -45,6 +45,7 @@ static struct {
         ASYNC_READ_CALLBACK fp_read;
         ASYNC_WRITE_CALLBACK fp_write;
         ASYNC_CLOSE_CALLBACK fp_close;
+        ASYNC_REMOVE_SOURCE fp_remove;
     } callback;
     void * priv;
     e_async_device_type device_type;
@@ -234,8 +235,8 @@ int async_close(int device) {
     free(devices[device].read.buf);
     free(devices[device].path);
 
-    gpoll_remove_handle(devices[device].read.overlapped.hEvent);
-    gpoll_remove_handle(devices[device].write.overlapped.hEvent);
+    devices[device].callback.fp_remove(devices[device].read.overlapped.hEvent);
+    devices[device].callback.fp_remove(devices[device].write.overlapped.hEvent);
 
     CloseHandle(devices[device].read.overlapped.hEvent);
     CloseHandle(devices[device].write.overlapped.hEvent);
@@ -518,7 +519,7 @@ int async_set_read_size(int device, unsigned int size) {
     return 0;
 }
 
-int async_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register) {
+int async_register(int device, int user, const ASYNC_CALLBACKS * callbacks) {
 
     ASYNC_CHECK_DEVICE(device, -1)
     
@@ -526,18 +527,29 @@ int async_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRIT
 
     int ret = 0;
 
-    if (fp_read) {
-        ret = fp_register(devices[device].read.overlapped.hEvent, device, read_callback, NULL, close_callback);
+    if (callbacks->fp_read) {
+        GPOLL_CALLBACKS gpoll_callbacks = {
+          .fp_read = read_callback,
+          .fp_write = NULL,
+          .fp_close = close_callback,
+        };
+        ret = callbacks->fp_register(devices[device].read.overlapped.hEvent, device, &gpoll_callbacks);
     }
     if (ret != -1) {
-        ret = fp_register(devices[device].write.overlapped.hEvent, device, NULL, write_callback, close_callback);
+        GPOLL_CALLBACKS gpoll_callbacks = {
+          .fp_read = NULL,
+          .fp_write = write_callback,
+          .fp_close = close_callback,
+        };
+        ret = callbacks->fp_register(devices[device].write.overlapped.hEvent, device, &gpoll_callbacks);
     }
 
     if (ret != -1) {
       devices[device].callback.user = user;
-      devices[device].callback.fp_read = fp_read;
-      devices[device].callback.fp_write = fp_write;
-      devices[device].callback.fp_close = fp_close;
+      devices[device].callback.fp_read = callbacks->fp_read;
+      devices[device].callback.fp_write = callbacks->fp_write;
+      devices[device].callback.fp_close = callbacks->fp_close;
+      devices[device].callback.fp_remove = callbacks->fp_remove;
     }
 
     return ret;

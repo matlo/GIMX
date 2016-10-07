@@ -32,6 +32,9 @@
 
 #define DEFAULT_STRING_BUFFER_SIZE 255
 
+static GUSB_REGISTER_SOURCE fp_register = NULL;
+static GUSB_REMOVE_SOURCE fp_remove = NULL;
+
 static struct {
   char * path;
   libusb_device_handle * devh;
@@ -48,9 +51,9 @@ static struct {
   } endpoints[LIBUSB_ENDPOINT_ADDRESS_MASK];
   struct {
     int user;
-    USBASYNC_READ_CALLBACK fp_read;
-    USBASYNC_WRITE_CALLBACK fp_write;
-    USBASYNC_CLOSE_CALLBACK fp_close;
+    GUSB_READ_CALLBACK fp_read;
+    GUSB_WRITE_CALLBACK fp_write;
+    GUSB_CLOSE_CALLBACK fp_close;
   } callback;
   int pending_transfers;
 } usbdevices[USBASYNC_MAX_DEVICES] = { };
@@ -1158,13 +1161,19 @@ static int usb_timer_close(int user __attribute__((unused)))
   return 1;
 }
 
-static int usb_timer_start(GPOLL_REGISTER_HANDLE fp_register) {
+static int usb_timer_start() {
 
   if (usb_timer < 0) {
     /*
      * Create a 1ms periodic timer to handle events.
      */
-    usb_timer = gtimer_start(0, 1000, usb_timer_read, usb_timer_close, fp_register);
+    GTIMER_CALLBACKS callbacks = {
+            .fp_read = usb_timer_read,
+            .fp_close = usb_timer_close,
+            .fp_register = fp_register,
+            .fp_remove = fp_remove
+    };
+    usb_timer = gtimer_start(0, 1000, &callbacks);
     if (usb_timer == -1) {
       return -1;
     }
@@ -1173,15 +1182,22 @@ static int usb_timer_start(GPOLL_REGISTER_HANDLE fp_register) {
 }
 #endif
 
-#ifdef WIN32
-int gusb_register(int device, int user, USBASYNC_READ_CALLBACK fp_read, USBASYNC_WRITE_CALLBACK fp_write,
-    USBASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_HANDLE fp_register) {
-#else
-int gusb_register(int device, int user, USBASYNC_READ_CALLBACK fp_read, USBASYNC_WRITE_CALLBACK fp_write,
-    USBASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_FD fp_register) {
-#endif
+int gusb_register(int device, int user, const GUSB_CALLBACKS * callbacks) {
 
   USBASYNC_CHECK_DEVICE(device, -1)
+
+  if (callbacks->fp_register == NULL) {
+      PRINT_ERROR_OTHER("fp_register is null");
+      return -1;
+  }
+
+  if (callbacks->fp_remove == NULL) {
+      PRINT_ERROR_OTHER("fp_remove is null");
+      return -1;
+  }
+
+  fp_register = callbacks->fp_register;
+  fp_remove = callbacks->fp_remove;
 
   int ret = 0;
 
@@ -1190,18 +1206,23 @@ int gusb_register(int device, int user, USBASYNC_READ_CALLBACK fp_read, USBASYNC
   int poll_i;
   for (poll_i = 0; pfd_usb[poll_i] != NULL && ret != -1; ++poll_i) {
 
-    ret = fp_register(pfd_usb[poll_i]->fd, device, gusb_handle_events, gusb_handle_events, close_callback);
+    GPOLL_CALLBACKS gpoll_callbacks = {
+            .fp_read = gusb_handle_events,
+            .fp_write = gusb_handle_events,
+            .fp_close = close_callback,
+    };
+    ret = fp_register(pfd_usb[poll_i]->fd, device, &gpoll_callbacks);
   }
   free(pfd_usb);
 #else
-  ret = usb_timer_start(fp_register);
+  ret = usb_timer_start();
 #endif
 
   if (ret != -1) {
     usbdevices[device].callback.user = user;
-    usbdevices[device].callback.fp_read = fp_read;
-    usbdevices[device].callback.fp_write = fp_write;
-    usbdevices[device].callback.fp_close = fp_close;
+    usbdevices[device].callback.fp_read = callbacks->fp_read;
+    usbdevices[device].callback.fp_write = callbacks->fp_write;
+    usbdevices[device].callback.fp_close = callbacks->fp_close;
   }
 
   return ret;

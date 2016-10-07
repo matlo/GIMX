@@ -36,9 +36,10 @@
 
 #include <sstream>
 
-#include <libintl.h>
 #include <wx/stdpaths.h>
 #include <wx/busyinfo.h>
+
+#define _CN(STRING) locale->GetString(wxString(STRING.c_str(), wxConvUTF8))
 
 using namespace std;
 
@@ -1587,7 +1588,7 @@ void fpsconfigFrame::LoadConfig()
           if(it->CompareAxisProps(ControlMapper::GetAxisProps("rel_axis_2")))
           {
               SpinCtrlDeadZoneHipFire->SetValue(wxAtoi(wxString(it->GetEvent()->GetDeadZone().c_str(), wxConvUTF8)));
-              ChoiceDeadZoneShapeHipFire->SetStringSelection(wxString(gettext(it->GetEvent()->GetShape().c_str()), wxConvUTF8));
+              ChoiceDeadZoneShapeHipFire->SetStringSelection(_CN(it->GetEvent()->GetShape()));
 
               mouseOptions = configFile.GetController(0)->GetConfiguration(0)->GetMouseOptionsList();
               for(std::list<MouseOptions>::iterator it2 = mouseOptions->begin(); it2!=mouseOptions->end(); ++it2)
@@ -1706,7 +1707,7 @@ void fpsconfigFrame::LoadConfig()
           if(it->CompareAxisProps(ControlMapper::GetAxisProps("rel_axis_2")))
           {
               SpinCtrlDeadZoneADS->SetValue(wxAtoi(wxString(it->GetEvent()->GetDeadZone().c_str(), wxConvUTF8)));
-              ChoiceDeadZoneShapeADS->SetStringSelection(wxString(gettext(it->GetEvent()->GetShape().c_str()), wxConvUTF8));
+              ChoiceDeadZoneShapeADS->SetStringSelection(_CN(it->GetEvent()->GetShape()));
 
               mouseOptions = configFile.GetController(0)->GetConfiguration(1)->GetMouseOptionsList();
               for(std::list<MouseOptions>::iterator it2 = mouseOptions->begin(); it2!=mouseOptions->end(); ++it2)

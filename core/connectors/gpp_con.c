@@ -133,9 +133,9 @@ int gpp_send(int id, e_controller_type type, int axis[AXIS_MAX])
   return ret;
 }
 
-int8_t gpp_start_async(int id, GHID_READ_CALLBACK fp_read, GHID_WRITE_CALLBACK fp_write, GHID_CLOSE_CALLBACK fp_close, GHID_REGISTER_SOURCE fp_register)
+int8_t gpp_start_async(int id, const GHID_CALLBACKS * callbacks)
 {
-  return gpppcprog_start_async(id, fp_read, fp_write, fp_close, fp_register);
+  return gpppcprog_start_async(id, callbacks);
 }
 
 void gpp_disconnect(int id)

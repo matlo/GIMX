@@ -16,7 +16,7 @@ const s_hid_info * gusbhid_get_hid_info(int device);
 int gusbhid_close(int device);
 int gusbhid_poll(int device);
 int gusbhid_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout);
-int gusbhid_register(int device, int user, GHID_READ_CALLBACK fp_read, GHID_WRITE_CALLBACK fp_write, GHID_CLOSE_CALLBACK fp_close, GHID_REGISTER_SOURCE fp_register);
+int gusbhid_register(int device, int user, const GHID_CALLBACKS * callbacks);
 int gusbhid_write(int device, const void * buf, unsigned int count);
 int gusbhid_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout);
 

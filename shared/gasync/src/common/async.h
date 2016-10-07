@@ -26,16 +26,26 @@ typedef int (* ASYNC_WRITE_CALLBACK)(int user, int status);
 typedef int (* ASYNC_CLOSE_CALLBACK)(int user);
 #ifndef WIN32
 typedef GPOLL_REGISTER_FD ASYNC_REGISTER_SOURCE;
+typedef GPOLL_REMOVE_FD ASYNC_REMOVE_SOURCE;
 #else
 typedef GPOLL_REGISTER_HANDLE ASYNC_REGISTER_SOURCE;
+typedef GPOLL_REMOVE_HANDLE ASYNC_REMOVE_SOURCE;
 #endif
+
+typedef struct {
+    ASYNC_READ_CALLBACK fp_read;       // called on data reception
+    ASYNC_WRITE_CALLBACK fp_write;     // called on write completion
+    ASYNC_CLOSE_CALLBACK fp_close;     // called on failure
+    ASYNC_REGISTER_SOURCE fp_register; // to register device to event sources
+    ASYNC_REMOVE_SOURCE fp_remove;     // to remove device from event sources
+} ASYNC_CALLBACKS;
 
 int async_open_path(const char * path, int print);
 int async_close(int device);
 int async_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout);
 int async_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout);
 int async_set_read_size(int device, unsigned int size);
-int async_register(int device, int user, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register);
+int async_register(int device, int user, const ASYNC_CALLBACKS * callbacks);
 int async_write(int device, const void * buf, unsigned int count);
 int async_set_overlapped(int device);
 

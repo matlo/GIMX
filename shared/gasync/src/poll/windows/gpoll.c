@@ -62,19 +62,18 @@ static int get_slot_fd(int fd) {
  * Register a socket as an event source.
  * Note that the socket becomes non-blocking.
  */
-int gpoll_register_fd(int fd, int user, GPOLL_READ_CALLBACK fp_read, GPOLL_WRITE_CALLBACK fp_write,
-    GPOLL_CLOSE_CALLBACK fp_close) {
+int gpoll_register_fd(int fd, int user, const GPOLL_CALLBACKS * callbacks) {
 
   if (fd < 0) {
     PRINT_ERROR_OTHER("fd is invalid")
     return -1;
   }
-  if (!fp_close) {
+  if (!callbacks->fp_close) {
     PRINT_ERROR_OTHER("fp_close is mandatory")
     return -1;
   }
-  if (!fp_read && !fp_write) {
-    PRINT_ERROR_OTHER("fp_read and fp_write are NULL")
+  if (!callbacks->fp_read) {
+    PRINT_ERROR_OTHER("fp_read is NULL")
     return -1;
   }
 
@@ -96,8 +95,8 @@ int gpoll_register_fd(int fd, int user, GPOLL_READ_CALLBACK fp_read, GPOLL_WRITE
   sources[slot].fd = fd;
   sources[slot].user = user;
   sources[slot].handle = evt;
-  sources[slot].fp_read = fp_read;
-  sources[slot].fp_cleanup = fp_close;
+  sources[slot].fp_read = callbacks->fp_read;
+  sources[slot].fp_cleanup = callbacks->fp_close;
 
   if (slot > max_source) {
     max_source = slot;
@@ -106,18 +105,17 @@ int gpoll_register_fd(int fd, int user, GPOLL_READ_CALLBACK fp_read, GPOLL_WRITE
   return 0;
 }
 
-int gpoll_register_handle(HANDLE handle, int user, GPOLL_READ_CALLBACK fp_read, GPOLL_WRITE_CALLBACK fp_write,
-    GPOLL_CLOSE_CALLBACK fp_close) {
+int gpoll_register_handle(HANDLE handle, int user, const GPOLL_CALLBACKS * callbacks) {
 
   if (handle == INVALID_HANDLE_VALUE) {
     PRINT_ERROR_OTHER("handle is invalid")
     return -1;
   }
-  if (!fp_close) {
+  if (!callbacks->fp_close) {
     PRINT_ERROR_OTHER("fp_close is mandatory")
     return -1;
   }
-  if (!fp_read && !fp_write) {
+  if (!callbacks->fp_read && !callbacks->fp_write) {
     PRINT_ERROR_OTHER("fp_read and fp_write are NULL")
     return -1;
   }
@@ -134,9 +132,9 @@ int gpoll_register_handle(HANDLE handle, int user, GPOLL_READ_CALLBACK fp_read, 
   sources[slot].fd = -1;
   sources[slot].user = user;
   sources[slot].handle = handle;
-  sources[slot].fp_read = fp_read;
-  sources[slot].fp_write = fp_write;
-  sources[slot].fp_cleanup = fp_close;
+  sources[slot].fp_read = callbacks->fp_read;
+  sources[slot].fp_write = callbacks->fp_write;
+  sources[slot].fp_cleanup = callbacks->fp_close;
 
   if (slot > max_source) {
     max_source = slot;
@@ -145,7 +143,7 @@ int gpoll_register_handle(HANDLE handle, int user, GPOLL_READ_CALLBACK fp_read, 
   return 0;
 }
 
-void gpoll_remove_handle(HANDLE handle) {
+int gpoll_remove_handle(HANDLE handle) {
 
   unsigned int i;
   for (i = 0; i < MAX_SOURCES; ++i) {
@@ -153,12 +151,13 @@ void gpoll_remove_handle(HANDLE handle) {
       memset(sources + i, 0x00, sizeof(*sources));
       sources[i].handle = INVALID_HANDLE_VALUE;
       sources[i].fd = -1;
-      break;
+      return 0;
     }
   }
+  return -1;
 }
 
-void gpoll_remove_fd(int fd) {
+int gpoll_remove_fd(int fd) {
 
   unsigned int i;
   for (i = 0; i < MAX_SOURCES; ++i) {
@@ -167,9 +166,10 @@ void gpoll_remove_fd(int fd) {
       memset(sources + i, 0x00, sizeof(*sources));
       sources[i].handle = INVALID_HANDLE_VALUE;
       sources[i].fd = -1;
-      break;
+      return 0;
     }
   }
+  return -1;
 }
 
 static unsigned int fill_handles(HANDLE handles[]) {

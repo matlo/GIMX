@@ -1,10 +1,32 @@
--include ../../../Makedefs
+CPPFLAGS = -I../include
+
+LDFLAGS = -L../src/hid \
+           -L../src/input \
+           -L../src/poll \
+           -L../src/prio \
+           -L../src/serial \
+           -L../src/timer \
+           -L../src/usb
+
+LDLIBS = -lgimxhid \
+          -lgimxinput \
+          -lgimxpoll \
+          -lgimxprio \
+          -lgimxserial \
+          -lgimxtimer \
+          -lgimxusb
+
+ifeq ($(UHID),1)
+LDFLAGS += -L../src/uhid
+LDLIBS += -lgimxuhid
+endif
 
 OUT=ginput_test ghid_test gserial_test gtimer_test ginput_haptic_test
 OBJS=common.o
-LDLIBS=-Wl,--whole-archive ../gasync.a -Wl,--no-whole-archive -lm
+LDLIBS += -lm
 BINS=ginput_test ghid_test gserial_test gtimer_test ginput_haptic_test
 ifeq ($(OS),Windows_NT)
+CPPFLAGS += `sdl2-config --cflags`
 LDLIBS += $(shell sdl2-config --libs) -liconv -lws2_32 -lwinmm -lhid -lsetupapi
 LDLIBS:=$(filter-out -mwindows,$(LDLIBS))
 else
@@ -17,18 +39,10 @@ OUT += guhid_test
 BINS += guhid_test
 endif
 
-CPPFLAGS +=-I../include
-DEPS=../gasync.a
-
-all: updated $(BINS)
+all: $(BINS)
 
 clean:
 	$(RM) $(BINS) *~ *.o
-	
-#this rule triggers an update when $(DEPS) is updated
-updated: $(DEPS)
-	touch updated
-	$(RM) $(OUT)
 
 ginput_test: $(OBJS)
 

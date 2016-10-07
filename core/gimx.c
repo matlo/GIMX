@@ -268,7 +268,11 @@ int main(int argc, char *argv[])
   // - there's no need to read macros
   // - there's no need to read inputs
   // - there's no need to grab the mouse
-  if (ginput_init(src, fp) < 0)
+  GPOLL_INTERFACE gpoll_interace = {
+          .fp_register = REGISTER_FUNCTION,
+          .fp_remove = REMOVE_FUNCTION,
+  };
+  if (ginput_init(&gpoll_interace, src, fp) < 0)
   {
     goto QUIT;
   }

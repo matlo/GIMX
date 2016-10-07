@@ -20,12 +20,6 @@
 
 #define PERIOD 10000//microseconds
 
-#ifdef WIN32
-#define REGISTER_FUNCTION gpoll_register_handle
-#else
-#define REGISTER_FUNCTION gpoll_register_fd
-#endif
-
 static char * port = NULL;
 
 static int serial = -1;
@@ -214,7 +208,13 @@ int main(int argc, char* argv[]) {
   }
 
   // start a timer to periodically check the 'done' variable
-  int timer = gtimer_start(42, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
+  GTIMER_CALLBACKS timer_callbacks = {
+          .fp_read = timer_read,
+          .fp_close = timer_close,
+          .fp_register = REGISTER_FUNCTION,
+          .fp_remove = REMOVE_FUNCTION,
+  };
+  int timer = gtimer_start(42, PERIOD, &timer_callbacks);
   if (timer < 0) {
     set_done();
   }
@@ -226,7 +226,14 @@ int main(int argc, char* argv[]) {
 
   gserial_set_read_size(serial, packet_size);
 
-  gserial_register(serial, 42, serial_read, NULL, serial_close, REGISTER_FUNCTION);
+  GSERIAL_CALLBACKS serial_callbacks = {
+          .fp_read = serial_read,
+          .fp_write = NULL,
+          .fp_close = serial_close,
+          .fp_register = REGISTER_FUNCTION,
+          .fp_remove = REMOVE_FUNCTION,
+  };
+  gserial_register(serial, 42, &serial_callbacks);
 
   t0 = get_time();
   

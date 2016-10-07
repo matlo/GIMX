@@ -36,12 +36,6 @@
  */
 #define ADAPTER_RESET_TIME 30000 //microseconds
 
-#ifdef WIN32
-#define REGISTER_FUNCTION gpoll_register_handle
-#else
-#define REGISTER_FUNCTION gpoll_register_fd
-#endif
-
 static s_adapter adapters[MAX_CONTROLLERS] = {};
 
 static struct
@@ -534,7 +528,14 @@ static int start_hid(int adapter)
   adapters[adapter].joystick.hid.id = ghid_open_ids(adapters[adapter].joystick.usb_ids.vendor, adapters[adapter].joystick.usb_ids.product);
   if(adapters[adapter].joystick.hid.id >= 0)
   {
-    if(ghid_register(adapters[adapter].joystick.hid.id, adapter, NULL, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
+    GHID_CALLBACKS ghid_callbacks = {
+            .fp_read = NULL,
+            .fp_write = adapter_hid_write_cb,
+            .fp_close = adapter_hid_close_cb,
+            .fp_register = REGISTER_FUNCTION,
+            .fp_remove = REMOVE_FUNCTION,
+    };
+    if(ghid_register(adapters[adapter].joystick.hid.id, adapter, &ghid_callbacks) < 0)
     {
       return -1;
     }
@@ -603,7 +604,14 @@ static int adapter_start_serialasync(int adapter)
   {
     return -1;
   }
-  if(gserial_register(adapters[adapter].serialdevice, adapter, adapter_serial_read_cb, adapter_serial_write_cb, adapter_serial_close_cb, REGISTER_FUNCTION) < 0)
+  GSERIAL_CALLBACKS serial_callbacks = {
+          .fp_read = adapter_serial_read_cb,
+          .fp_write = adapter_serial_write_cb,
+          .fp_close = adapter_serial_close_cb,
+          .fp_register = REGISTER_FUNCTION,
+          .fp_remove = REMOVE_FUNCTION
+  };
+  if(gserial_register(adapters[adapter].serialdevice, adapter, &serial_callbacks) < 0)
   {
     return -1;
   }
@@ -1013,7 +1021,14 @@ int adapter_start()
     }
     else if(adapter->atype == E_ADAPTER_TYPE_GPP)
     {
-      ret = gpp_start_async(i, gpp_read_callback, gpp_write_callback, gpp_close_callback, REGISTER_FUNCTION);
+      GHID_CALLBACKS callbacks = {
+              .fp_read = gpp_read_callback,
+              .fp_write = gpp_write_callback,
+              .fp_close = gpp_close_callback,
+              .fp_register = REGISTER_FUNCTION,
+              .fp_remove = REMOVE_FUNCTION,
+      };
+      ret = gpp_start_async(i, &callbacks);
     }
 
     if(adapter->src_ip)
@@ -1027,7 +1042,12 @@ int adapter_start()
       }
       else
       {
-        gpoll_register_fd(adapter->src_fd, i, network_read_callback, NULL, adapter_close_callback);
+        GPOLL_CALLBACKS callbacks = {
+                .fp_read = network_read_callback,
+                .fp_write = NULL,
+                .fp_close = adapter_close_callback,
+        };
+        gpoll_register_fd(adapter->src_fd, i, &callbacks);
       }
     }
   }

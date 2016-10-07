@@ -13,17 +13,14 @@ else
 OUT=ds4tool.exe sixaddr.exe
 endif
 
-DEPS=../shared/gasync/gasync.a
+CFLAGS = -I../shared/gasync/include
+LDLIBS = -lgimxusb
+LDFLAGS = -L../shared/gasync/src/usb
 
-all: updated $(BINS)
+all: $(BINS)
 
 clean:
 	$(RM) $(OUT) *.o */*.o
-
-#this rule triggers an update when $(DEPS) is updated
-updated: $(DEPS)
-	touch updated
-	$(RM) $(OUT)
 
 sixaddr: sixaddr.o
 

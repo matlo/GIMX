@@ -23,6 +23,8 @@ static int xi_opcode;
 #define DEVTYPE_KEYBOARD 0x01
 #define DEVTYPE_MOUSE    0x02
 
+static GPOLL_REMOVE_FD fp_remove = NULL;
+
 static struct
 {
   unsigned char type;
@@ -203,7 +205,7 @@ static Window create_win(Display *dpy)
   return win;
 }
 
-int xinput_init(int (*callback)(GE_Event*))
+int xinput_init(const GPOLL_INTERFACE * gpoll_interface, int (*callback)(GE_Event*))
 {
   int ret = 0;
   int event, error;
@@ -219,7 +221,20 @@ int xinput_init(int (*callback)(GE_Event*))
     return -1;
   }
 
+  if (gpoll_interface->fp_register == NULL)
+  {
+    PRINT_ERROR_OTHER("fp_register is NULL")
+    return -1;
+  }
+
+  if (gpoll_interface->fp_remove == NULL)
+  {
+    PRINT_ERROR_OTHER("fp_remove is NULL")
+    return -1;
+  }
+
   event_callback = callback;
+  fp_remove = gpoll_interface->fp_remove;
 
   unsigned int i;
   for(i=0; i<sizeof(device_index)/sizeof(*device_index); ++i)
@@ -281,7 +296,12 @@ int xinput_init(int (*callback)(GE_Event*))
 
   XIFreeDeviceInfo(xdevices);
 
-  gpoll_register_fd(ConnectionNumber(dpy), i, &xinput_process_events, NULL, &xinput_close);
+  GPOLL_CALLBACKS callbacks = {
+      .fp_read = xinput_process_events,
+      .fp_write = NULL,
+      .fp_close = xinput_close,
+  };
+  gpoll_interface->fp_register(ConnectionNumber(dpy), i, &callbacks);
 
   XEvent xevent;
 
@@ -302,7 +322,7 @@ void xinput_quit()
 {
   if(dpy)
   {
-    gpoll_remove_fd(ConnectionNumber(dpy));
+    fp_remove(ConnectionNumber(dpy));
 
     XDestroyWindow(dpy, win);
 

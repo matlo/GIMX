@@ -1,27 +1,34 @@
-include ../../Makedefs
+DIRS = src/common src/hid src/input src/poll src/prio src/serial src/timer src/usb
 
-LIBNAME=$(shell basename $(shell pwd)).a
-OBJECTS := $(patsubst %.c,%.o,$(wildcard src/*.c))
-OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/*.c))
-OBJECTS += $(patsubst %.c,%.o,$(wildcard src/input/hid/*.c))
 ifneq ($(OS),Windows_NT)
-OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/posix/*.c))
-OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/libusb/*.c))
-OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/linux/*.c))
-else
-OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/windows/*.c))
-OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*/sdl/*.c))
+DIRS += src/uhid
 endif
-ifneq ($(UHID),1)
-OBJECTS:=$(filter-out src/uhid/linux/uhidasync.o,$(OBJECTS))
-OBJECTS:=$(filter-out src/input/hid/logitechwheel.o,$(OBJECTS))
-endif
-CPPFLAGS += -Iinclude -Isrc
 
-all: $(LIBNAME)
+BUILDDIRS = $(DIRS:%=build-%)
+INSTALLDIRS = $(DIRS:%=install-%)
+CLEANDIRS = $(DIRS:%=clean-%)
+UNINSTALLDIRS = $(DIRS:%=uninstall-%)
 
-$(LIBNAME): $(OBJECTS)
-	$(AR) $(ARFLAGS) $@ $?
+all: $(BUILDDIRS)
+$(DIRS): $(BUILDDIRS)
+$(BUILDDIRS):
+	$(MAKE) -C $(@:build-%=%)
 
-clean:
-	$(RM) $(LIBNAME) $(OBJECTS)
+build-src/poll: build-src/common
+build-src/input: build-src/hid build-src/poll
+build-src/hid: build-src/common
+build-src/serial: build-src/common
+build-src/usb: build-src/timer
+
+clean: $(CLEANDIRS)
+$(CLEANDIRS): 
+	$(MAKE) -C $(@:clean-%=%) clean
+
+install: $(INSTALLDIRS) all
+$(INSTALLDIRS):
+	$(MAKE) -C $(@:install-%=%) install
+
+.PHONY: subdirs $(DIRS)
+.PHONY: subdirs $(BUILDDIRS)
+.PHONY: subdirs $(CLEANDIRS)
+.PHONY: all clean

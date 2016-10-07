@@ -25,6 +25,8 @@ static int debug = 0;
 
 #define AXMAP_SIZE (ABS_MAX + 1)
 
+static GPOLL_REMOVE_SOURCE fp_remove = NULL;
+
 static struct
 {
   unsigned char jstype;
@@ -307,7 +309,7 @@ static int open_haptic(int joystick, int fd_ev)
   return 0;
 }
 
-int js_init(int (*callback)(GE_Event*))
+int js_init(const GPOLL_INTERFACE * gpoll_interface, int (*callback)(GE_Event*))
 {
   int ret = 0;
   int i;
@@ -318,6 +320,18 @@ int js_init(int (*callback)(GE_Event*))
   struct dirent **namelist_js;
   int n_js;
 
+  if (gpoll_interface->fp_register == NULL)
+  {
+    PRINT_ERROR_OTHER("fp_register is NULL")
+    return -1;
+  }
+
+  if (gpoll_interface->fp_remove == NULL)
+  {
+    PRINT_ERROR_OTHER("fp_remove is NULL")
+    return -1;
+  }
+
   if (callback == NULL)
   {
     PRINT_ERROR_OTHER("callback is NULL")
@@ -325,6 +339,7 @@ int js_init(int (*callback)(GE_Event*))
   }
 
   event_callback = callback;
+  fp_remove = gpoll_interface->fp_remove;
 
   // scan /dev/input for jsX devices
   n_js = scandir(DEV_INPUT, &namelist_js, is_js_device, alphasort);
@@ -351,7 +366,12 @@ int js_init(int (*callback)(GE_Event*))
           joysticks[j_num].name = strdup(name);
           joysticks[j_num].fd = fd_js;
           joysticks[j_num].hat_info.button_nb = buttons;
-          gpoll_register_fd(joysticks[j_num].fd, j_num, &js_process_events, NULL, &js_close);
+          GPOLL_CALLBACKS callbacks = {
+                  .fp_read = js_process_events,
+                  .fp_write = NULL,
+                  .fp_close = js_close
+          };
+          gpoll_interface->fp_register(joysticks[j_num].fd, j_num, &callbacks);
 
           int fd_ev = open_evdev(namelist_js[i]->d_name);
           if(fd_ev >= 0)
@@ -509,7 +529,7 @@ int js_close(int joystick)
 
     if(joysticks[joystick].fd >= 0)
     {
-      gpoll_remove_fd(joysticks[joystick].fd);
+      fp_remove(joysticks[joystick].fd);
       close(joysticks[joystick].fd);
     }
     if(joysticks[joystick].force_feedback.fd >= 0)

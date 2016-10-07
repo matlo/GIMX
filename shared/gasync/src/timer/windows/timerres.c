@@ -12,9 +12,8 @@ static void (__stdcall *pNtSetTimerResolution)(ULONG, BOOL, PULONG) = NULL;
 
 static int nb_users = 0;
 static HANDLE hTimer = INVALID_HANDLE_VALUE;
-static int (*register_handle)(HANDLE handle, int id, int (*fp_read)(int user), int (*fp_write)(int user),
-        int (*fp_close)(int user)) = NULL;
-static void (*remove_handle)(HANDLE handle);
+static GPOLL_REGISTER_SOURCE fp_register = NULL;
+static GPOLL_REMOVE_SOURCE fp_remove = NULL;
 static int (*timer_callback)(unsigned int) = NULL;
 static ULONG currentResolution = 0;
 static LARGE_INTEGER last = {};
@@ -102,7 +101,12 @@ static int start_timer() {
         return -1;
     }
 
-    int ret = register_handle(hTimer, 0, read_callback, NULL, close_callback);
+    GPOLL_CALLBACKS callbacks = {
+      .fp_read = read_callback,
+      .fp_write = NULL,
+      .fp_close = close_callback,
+    };
+    int ret = fp_register(hTimer, 0, &callbacks);
     if (ret < 0) {
         return -1;
     }
@@ -116,7 +120,7 @@ void timerres_end() {
         --nb_users;
         if (nb_users == 0) {
             pNtSetTimerResolution(0, FALSE, &currentResolution);
-            remove_handle(hTimer);
+            fp_remove(hTimer);
         }
     }
 }
@@ -130,10 +134,10 @@ void timerres_end() {
         return -1; \
     }
 
-int timerres_begin(TIMERRES_REGISTER_HANDLE fp_register, TIMERRES_REMOVE_HANDLE fp_remove, TIMERRES_CALLBACK timer_cb) {
+int timerres_begin(const GPOLL_INTERFACE * gpoll_interface, TIMERRES_CALLBACK timer_cb) {
 
-    CHECK_FUNCTION (fp_register)
-    CHECK_FUNCTION (fp_remove)
+    CHECK_FUNCTION (gpoll_interface->fp_register)
+    CHECK_FUNCTION (gpoll_interface->fp_remove)
     CHECK_FUNCTION (timer_cb)
 
     int ret = 0;
@@ -150,8 +154,8 @@ int timerres_begin(TIMERRES_REGISTER_HANDLE fp_register, TIMERRES_REMOVE_HANDLE 
         printf("Timer resolution: min=%lu max=%lu current=%lu\n", minimumResolution, maximumResolution, currentResolution);
 
         timer_callback = timer_cb;
-        register_handle = fp_register;
-        remove_handle = fp_remove;
+        fp_register = gpoll_interface->fp_register;
+        fp_remove = gpoll_interface->fp_remove;
         if (start_timer() < 0) {
             ret = -1;
         }

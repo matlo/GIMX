@@ -16,6 +16,8 @@
 
 #define MAX_TIMERS 32
 
+static GPOLL_REMOVE_SOURCE fp_remove_fd = NULL;
+
 static struct {
   int fd;
   int user;
@@ -85,13 +87,26 @@ static int read_callback(int timer) {
   return timers[timer].fp_read(timers[timer].user);
 }
 
-int gtimer_start(int user, unsigned int usec, GPOLL_READ_CALLBACK fp_read, GPOLL_CLOSE_CALLBACK fp_close,
-    GPOLL_REGISTER_FD fp_register) {
+int gtimer_start(int user, unsigned int usec, const GTIMER_CALLBACKS * callbacks) {
 
   __time_t sec = usec / 1000000;
   __time_t nsec = (usec - sec * 1000000) * 1000;
   struct timespec period = { .tv_sec = sec, .tv_nsec = nsec };
   struct itimerspec new_value = { .it_interval = period, .it_value = period, };
+
+  if (callbacks->fp_register == NULL)
+  {
+    PRINT_ERROR_OTHER("fp_register is NULL")
+    return -1;
+  }
+
+  if (callbacks->fp_remove == NULL)
+  {
+    PRINT_ERROR_OTHER("fp_remove is NULL")
+    return -1;
+  }
+
+  fp_remove_fd = callbacks->fp_remove;
 
   int slot = get_slot();
   if (slot < 0) {
@@ -112,7 +127,12 @@ int gtimer_start(int user, unsigned int usec, GPOLL_READ_CALLBACK fp_read, GPOLL
     return -1;
   }
 
-  ret = fp_register(tfd, slot, read_callback, NULL, close_callback);
+  GPOLL_CALLBACKS gpoll_callbacks = {
+          .fp_read = read_callback,
+          .fp_write = NULL,
+          .fp_close = close_callback,
+  };
+  ret = callbacks->fp_register(tfd, slot, &gpoll_callbacks);
   if (ret < 0) {
     close(tfd);
     return -1;
@@ -120,8 +140,8 @@ int gtimer_start(int user, unsigned int usec, GPOLL_READ_CALLBACK fp_read, GPOLL
 
   timers[slot].fd = tfd;
   timers[slot].user = user;
-  timers[slot].fp_read = fp_read;
-  timers[slot].fp_close = fp_close;
+  timers[slot].fp_read = callbacks->fp_read;
+  timers[slot].fp_close = callbacks->fp_close;
 
   return slot;
 }
@@ -130,7 +150,7 @@ int gtimer_close(int timer) {
 
   CHECK_TIMER(timer, -1)
 
-  gpoll_remove_fd(timers[timer].fd);
+  fp_remove_fd(timers[timer].fd);
   close(timers[timer].fd);
   memset(timers + timer, 0x00, sizeof(*timers));
   timers[timer].fd = -1;

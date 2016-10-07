@@ -229,17 +229,21 @@ int gserial_set_read_size(int device, unsigned int size) {
  *
  * \param device      the serial device
  * \param user        the user to pass to the external callback
- * \param fp_read     the external callback to call on data reception
- * \param fp_write    unused
- * \param fp_close    the external callback to call on failure
- * \param fp_register the function to register the device as an event source
+ * \param callbacks   the device callbacks
  *
  * \return 0 in case of success, or -1 in case of error
  */
-int gserial_register(int device, int user, GSERIAL_READ_CALLBACK fp_read, GSERIAL_WRITE_CALLBACK fp_write,
-    GSERIAL_CLOSE_CALLBACK fp_close, GSERIAL_REGISTER_SOURCE fp_register) {
+int gserial_register(int device, int user, const GSERIAL_CALLBACKS * callbacks) {
 
-    return async_register(device, user, fp_read, fp_write, fp_close, fp_register);
+    ASYNC_CALLBACKS async_callbacks = {
+            .fp_read = callbacks->fp_read,
+            .fp_write = callbacks->fp_write,
+            .fp_close = callbacks->fp_close,
+            .fp_register = callbacks->fp_register,
+            .fp_remove = callbacks->fp_remove,
+    };
+
+    return async_register(device, user, &async_callbacks);
 }
 
 /*

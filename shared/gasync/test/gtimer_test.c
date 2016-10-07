@@ -13,12 +13,6 @@
 #include <gprio.h>
 #include "common.h"
 
-#ifdef WIN32
-#define REGISTER_FUNCTION gpoll_register_handle
-#else
-#define REGISTER_FUNCTION gpoll_register_fd
-#endif
-
 static unsigned int samples = 0;
 
 static int slices[] = { 10, 25, 50, 100, 200 };
@@ -126,7 +120,13 @@ int main(int argc, char* argv[]) {
   unsigned int i;
   for (i = 0; i < sizeof(timers) / sizeof(*timers); ++i) {
 
-    timers[i].timer = gtimer_start(i, timers[i].usec, timer_read_callback, timer_close_callback, REGISTER_FUNCTION);
+    GTIMER_CALLBACKS timer_callbacks = {
+            .fp_read = timer_read_callback,
+            .fp_close = timer_close_callback,
+            .fp_register = REGISTER_FUNCTION,
+            .fp_remove = REMOVE_FUNCTION,
+    };
+    timers[i].timer = gtimer_start(i, timers[i].usec, &timer_callbacks);
     if (timers[i].timer < 0) {
       set_done();
       break;

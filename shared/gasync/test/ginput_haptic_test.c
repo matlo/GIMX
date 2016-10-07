@@ -18,12 +18,6 @@
 #define HAPTIC_DURATION 1000//periods
 #define HAPTIC_DELAY 100//periods
 
-#ifdef WIN32
-#define REGISTER_FUNCTION gpoll_register_handle
-#else
-#define REGISTER_FUNCTION gpoll_register_fd
-#endif
-
 static int nb_joystick = 0;
 static int joystick = -1;
 static int haptic = -1;
@@ -199,7 +193,11 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
 
     setup_handlers();
 
-    if (ginput_init(GE_MKB_SOURCE_NONE, ignore_event) < 0) {
+    GPOLL_INTERFACE poll_interface = {
+            .fp_register = REGISTER_FUNCTION,
+            .fp_remove = REMOVE_FUNCTION
+    };
+    if (ginput_init(&poll_interface, GE_MKB_SOURCE_NONE, ignore_event) < 0) {
         exit(-1);
     }
 
@@ -209,7 +207,13 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
         exit(-1);
     }
 
-    int timer = gtimer_start(42, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
+    GTIMER_CALLBACKS timer_callbacks = {
+            .fp_read = timer_read,
+            .fp_close = timer_close,
+            .fp_register = REGISTER_FUNCTION,
+            .fp_remove = REMOVE_FUNCTION,
+    };
+    int timer = gtimer_start(42, PERIOD, &timer_callbacks);
     if (timer < 0) {
         set_done();
     }

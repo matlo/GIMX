@@ -15,8 +15,10 @@
 
 #ifdef WIN32
 #define REGISTER_FUNCTION gpoll_register_handle
+#define REMOVE_FUNCTION gpoll_remove_handle
 #else
 #define REGISTER_FUNCTION gpoll_register_fd
+#define REMOVE_FUNCTION gpoll_remove_fd
 #endif
 
 #define PERIOD 10000//microseconds
@@ -44,7 +46,11 @@ int event_catcher::init()
       src = GE_MKB_SOURCE_WINDOW_SYSTEM;
     }
     
-    if(ginput_init(src, process_event) < 0)
+    GPOLL_INTERFACE gpoll_interace = {
+            .fp_register = REGISTER_FUNCTION,
+            .fp_remove = REMOVE_FUNCTION,
+    };
+    if(ginput_init(&gpoll_interace, src, process_event) < 0)
     {
       return -1;
     }
@@ -371,7 +377,13 @@ void event_catcher::StartTimer()
 {
     if (stopTimer < 0)
     {
-        stopTimer = gtimer_start(0, 150000, timer_close, timer_close, REGISTER_FUNCTION);
+        GTIMER_CALLBACKS callbacks = {
+                .fp_read = timer_close,
+                .fp_close = timer_close,
+                .fp_register = REGISTER_FUNCTION,
+                .fp_remove = REMOVE_FUNCTION,
+        };
+        stopTimer = gtimer_start(0, 150000, &callbacks);
         if (stopTimer < 0)
         {
           done = 1;
@@ -395,7 +407,13 @@ void event_catcher::run(string device_type, string event_type)
 
     done = 0;
 
-    int timer = gtimer_start(0, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
+    GTIMER_CALLBACKS callbacks = {
+            .fp_read = timer_read,
+            .fp_close = timer_close,
+            .fp_register = REGISTER_FUNCTION,
+            .fp_remove = REMOVE_FUNCTION,
+    };
+    int timer = gtimer_start(0, PERIOD, &callbacks);
     if (timer < 0)
     {
       done = 1;

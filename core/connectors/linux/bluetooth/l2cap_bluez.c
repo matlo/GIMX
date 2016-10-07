@@ -483,7 +483,12 @@ static int l2cap_bluez_connect(const char * bdaddr_src, const char * bdaddr_dest
     channels.channels[channel].connect_callback = connect_callback;
     channels.channels[channel].close_callback = close_callback;
 
-    gpoll_register_fd(fd, channel, NULL, l2cap_bluez_connect_channel, l2cap_bluez_connect_channel);
+    GPOLL_CALLBACKS callbacks = {
+            .fp_read = NULL,
+            .fp_write = l2cap_bluez_connect_channel,
+            .fp_close = l2cap_bluez_connect_channel,
+    };
+    gpoll_register_fd(fd, channel, &callbacks);
 
     ++channels.nb;
 
@@ -667,7 +672,12 @@ static int l2cap_bluez_listen(int user __attribute__((unused)), unsigned short p
   listen_channels.channels[channel].accept_callback = read_callback;
   listen_channels.channels[channel].close_callback = close_callback;
 
-  gpoll_register_fd(listen_channels.channels[channel].fd, channel, l2cap_bluez_connect_accept, NULL, l2cap_bluez_connect_accept);
+  GPOLL_CALLBACKS callbacks = {
+          .fp_read = l2cap_bluez_connect_accept,
+          .fp_write = NULL,
+          .fp_close = l2cap_bluez_connect_accept,
+  };
+  gpoll_register_fd(listen_channels.channels[channel].fd, channel, &callbacks);
 
   ++listen_channels.nb;
 
@@ -679,7 +689,12 @@ static int l2cap_bluez_listen(int user __attribute__((unused)), unsigned short p
 static void l2cap_bluez_add_source(int channel, int user, L2CAP_ABS_READ_CALLBACK read_callback, L2CAP_ABS_PACKET_CALLBACK packet_callback __attribute__((unused)), L2CAP_ABS_CLOSE_CALLBACK close_callback)
 {
   channels.channels[channel].user = user;
-  gpoll_register_fd(channels.channels[channel].fd, channels.channels[channel].user, read_callback, NULL, close_callback);
+  GPOLL_CALLBACKS callbacks = {
+          .fp_read = read_callback,
+          .fp_write = NULL,
+          .fp_close = close_callback
+  };
+  gpoll_register_fd(channels.channels[channel].fd, channels.channels[channel].user, &callbacks);
 }
 
 static int l2cap_bluez_disconnect(int channel)

@@ -228,7 +228,7 @@ static int process(int device, const void * report, unsigned int size) {
     return 0;
 }
 
-static int open(const struct ghid_device * dev) {
+static int open_device(const struct ghid_device * dev) {
 
     int device = ghid_open_path(dev->path);
     if (device < 0) {
@@ -254,7 +254,7 @@ static int open(const struct ghid_device * dev) {
 static s_hidinput_driver driver = {
         .ids = ids,
         .init = init,
-        .open = open,
+        .open = open_device,
         .process = process,
         .close = close_device,
 };

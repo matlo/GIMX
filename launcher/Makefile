@@ -7,29 +7,18 @@ endif
 
 NAME=$(shell basename $(shell pwd))
 
-CPPFLAGS += -I../shared/configeditor/include \
-      -I../shared/controller/include \
-      -I../shared/gasync/include
-CPPFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP `curl-config --cflags`
-LDLIBS := ../shared/configeditor/configeditor.a \
-      $(LDLIBS) \
-      ../shared/updater/updater.a \
-      ../shared/configupdater/configupdater.a \
-      `wx-config --libs` \
-      `curl-config --libs` \
-      `pkg-config libusb-1.0 --libs` \
-      -lxml2 \
-      -lstdc++ \
-      -lm
-ifeq ($(OS),Windows_NT)
-LDLIBS += -lSDL2 -lintl -liconv
-endif
+CPPFLAGS += `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP -Wno-unused-local-typedefs
+LDLIBS += `wx-config --libs` -lstdc++
 
-DEPS = ../shared/configeditor/configeditor.a \
-      ../shared/gasync/gasync.a \
-      ../shared/updater/updater.a \
-      ../shared/configupdater/configupdater.a \
-      ../shared/gpp/gpp.a 
+CPPFLAGS += $(GIMXCONFIGEDITOR_CPPFLAGS) $(GIMXUPDATER_CPPFLAGS) $(GIMXCONFIGUPDATER_CPPFLAGS) $(GIMXHID_CPPFLAGS) $(GIMXGPP_CPPFLAGS) $(GIMXSERIAL_CPPFLAGS)
+
+LDLIBS += $(GIMXCONFIGEDITOR_LDLIBS) $(GIMXUPDATER_LDLIBS) $(GIMXCONFIGUPDATER_LDLIBS) $(GIMXHID_LDLIBS) $(GIMXGPP_LDLIBS) $(GIMXSERIAL_LDLIBS)
+
+LDFLAGS += $(GIMXCONFIGEDITOR_LDFLAGS) $(GIMXUPDATER_LDFLAGS) $(GIMXCONFIGUPDATER_LDFLAGS) $(GIMXHID_LDFLAGS) $(GIMXGPP_LDFLAGS) $(GIMXSERIAL_LDFLAGS)
+
+ifeq ($(OS),Windows_NT)
+LDLIBS += -lws2_32
+endif
 
 OBJECTS := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 
@@ -41,14 +30,9 @@ else
 OBJECTS += $(NAME).rc.o
 endif
 
-all: updated $(OUT)
+all: $(OUT)
 
 $(OUT): $(OBJECTS)
-
-#this rule triggers an update when $(DEPS) is updated
-updated: $(DEPS)
-	touch updated
-	$(RM) $(OUT)
 
 ifeq ($(OS),Windows_NT)
 $(NAME).rc.o: $(NAME).rc

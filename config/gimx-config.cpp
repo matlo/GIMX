@@ -29,7 +29,6 @@
 #include "../shared/updater/updater.h"
 #include "../directories.h"
 
-#include <libintl.h>
 #include <wx/stdpaths.h>
 #include <wx/busyinfo.h>
 

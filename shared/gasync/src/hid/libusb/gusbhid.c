@@ -19,6 +19,9 @@
 
 #define USBHIDASYNC_OUT_TIMEOUT 20 // ms
 
+static GHID_REGISTER_SOURCE fp_register = gpoll_register_fd; // TODO MLA
+static GHID_REMOVE_SOURCE fp_remove = gpoll_remove_fd; // TODO MLA
+
 typedef struct {
   int configuration;
   struct {
@@ -113,12 +116,17 @@ static int close_callback(int unused __attribute__((unused))) {
 
 static void pollfd_added_cb (int fd, short events, void *user_data __attribute__((unused))) {
 
-  gpoll_register_fd(fd, 0, (events & POLLIN) ? handle_events : NULL,  (events & POLLOUT) ? handle_events : NULL, close_callback);
+  GPOLL_CALLBACKS callbacks = {
+          .fp_read = (events & POLLIN) ? handle_events : NULL,
+          .fp_write = (events & POLLOUT) ? handle_events : NULL,
+          .fp_close = close_callback
+  };
+  fp_register(fd, 0, &callbacks);
 }
 
 static void pollfd_removed_cb (int fd, void *user_data __attribute__((unused))) {
 
-  gpoll_remove_fd(fd);
+  fp_remove(fd);
 }
 
 void usbhidasync_init(void) __attribute__((constructor));
@@ -819,8 +827,7 @@ const s_hid_info * gusbhid_get_hid_info(int device) {
   return &usbdevices[device].config.hidInfo;
 }
 
-int gusbhid_register(int device, int user, GHID_READ_CALLBACK fp_read, GHID_WRITE_CALLBACK fp_write,
-    GHID_CLOSE_CALLBACK fp_close, GHID_REGISTER_SOURCE fp_register __attribute__((unused))) {
+int gusbhid_register(int device, int user, const GHID_CALLBACKS * callbacks) {
 
   USBHIDASYNC_CHECK_DEVICE(device, -1)
 
@@ -833,9 +840,12 @@ int gusbhid_register(int device, int user, GHID_READ_CALLBACK fp_read, GHID_WRIT
   // Checking the presence of a HID OUT endpoint is done in the gusbhid_write* functions.
 
   usbdevices[device].callback.user = user;
-  usbdevices[device].callback.fp_read = fp_read;
-  usbdevices[device].callback.fp_write = fp_write;
-  usbdevices[device].callback.fp_close = fp_close;
+  usbdevices[device].callback.fp_read = callbacks->fp_read;
+  usbdevices[device].callback.fp_write = callbacks->fp_write;
+  usbdevices[device].callback.fp_close = callbacks->fp_close;
+
+  fp_register = callbacks->fp_register;
+  fp_remove = callbacks->fp_remove;
 
   return 0;
 }

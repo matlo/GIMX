@@ -1,0 +1,13 @@
+OBJECTS += $(patsubst %.c,%.o,$(wildcard *.c))
+
+CPPFLAGS += -I../../include -I../
+CFLAGS += -fPIC
+
+LDFLAGS += -lusb-1.0
+
+ifeq ($(OS),Windows_NT)
+LDFLAGS += -L../timer
+LDLIBS += -lgimxtimer
+endif
+
+include ../../../Makedefs

@@ -18,12 +18,6 @@
 #define RUMBLE_PERIOD 1000000 //microseconds
 #define FF_PERIOD 80000 //microseconds
 
-#ifdef WIN32
-#define REGISTER_FUNCTION gpoll_register_handle
-#else
-#define REGISTER_FUNCTION gpoll_register_fd
-#endif
-
 typedef struct {
   unsigned short length;
   unsigned char data[65];
@@ -238,9 +232,22 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
       }
     }
 
-    if (ghid_register(hid, 42, hid_read, hid_write, hid_close, REGISTER_FUNCTION) != -1) {
+    GHID_CALLBACKS ghid_callbacks = {
+            .fp_read = hid_read,
+            .fp_write = hid_write,
+            .fp_close = hid_close,
+            .fp_register = REGISTER_FUNCTION,
+            .fp_remove = REMOVE_FUNCTION,
+    };
+    if (ghid_register(hid, 42, &ghid_callbacks) != -1) {
 
-      int timer = gtimer_start(42, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
+      GTIMER_CALLBACKS timer_callbacks = {
+              .fp_read = timer_read,
+              .fp_close = timer_close,
+              .fp_register = REGISTER_FUNCTION,
+              .fp_remove = REMOVE_FUNCTION,
+      };
+      int timer = gtimer_start(42, PERIOD, &timer_callbacks);
       if (timer < 0) {
         set_done();
       }

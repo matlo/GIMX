@@ -29,6 +29,8 @@ static int debug = 0;
 #define DEVTYPE_MOUSE    0x02
 #define DEVTYPE_NB       2
 
+static GPOLL_REMOVE_SOURCE fp_remove = NULL;
+
 static struct
 {
   unsigned char type;
@@ -256,12 +258,24 @@ static int is_event_file(const struct dirent *dir) {
   return 0;
 }
 
-int mkb_init(int (*callback)(GE_Event*))
+int mkb_init(const GPOLL_INTERFACE * gpoll_interface, int (*callback)(GE_Event*))
 {
   int ret = 0;
   int i, j;
   int fd;
   char device[sizeof("/dev/input/event255")];
+
+  if (gpoll_interface->fp_register == NULL)
+  {
+    PRINT_ERROR_OTHER("fp_register is NULL")
+    return -1;
+  }
+
+  if (gpoll_interface->fp_remove == NULL)
+  {
+    PRINT_ERROR_OTHER("fp_remove is NULL")
+    return -1;
+  }
 
   memset(devices, 0x00, sizeof(devices));
   max_device_id = -1;
@@ -275,6 +289,7 @@ int mkb_init(int (*callback)(GE_Event*))
   }
 
   event_callback = callback;
+  fp_remove = gpoll_interface->fp_remove;
 
   for(i=0; i<GE_MAX_DEVICES; ++i)
   {
@@ -307,7 +322,12 @@ int mkb_init(int (*callback)(GE_Event*))
             ioctl(devices[i].fd, EVIOCGRAB, (void *)1);
           }
           max_device_id = i;
-          gpoll_register_fd(devices[i].fd, i, &mkb_process_events, NULL, &mkb_close_device);
+          GPOLL_CALLBACKS callbacks = {
+                  .fp_read = mkb_process_events,
+                  .fp_write = NULL,
+                  .fp_close = mkb_close_device
+          };
+          gpoll_interface->fp_register(devices[i].fd, i, &callbacks);
         }
         else
         {
@@ -367,7 +387,7 @@ int mkb_close_device(int id)
   devices[id].name = NULL;
   if(devices[id].fd >= 0)
   {
-    gpoll_remove_fd(devices[id].fd);
+    fp_remove(devices[id].fd);
     close(devices[id].fd);
     devices[id].fd = -1;
   }

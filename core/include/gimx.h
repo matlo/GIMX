@@ -54,4 +54,12 @@ extern s_gimx_params gimx_params;
 int process_event(GE_Event*);
 int ignore_event(GE_Event*);
 
+#ifdef WIN32
+#define REGISTER_FUNCTION gpoll_register_handle
+#define REMOVE_FUNCTION gpoll_remove_handle
+#else
+#define REGISTER_FUNCTION gpoll_register_fd
+#define REMOVE_FUNCTION gpoll_remove_fd
+#endif
+
 #endif /* GIMX_H_ */

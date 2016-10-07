@@ -12,16 +12,46 @@ else
 OUT=gimx.exe
 endif
 
-LDLIBS += `pkg-config libusb-1.0 --libs`
+CPPFLAGS += $(GIMXHID_CPPFLAGS) \
+            $(GIMXGPP_CPPFLAGS) \
+            $(GIMXCONTROLLER_CPPFLAGS) \
+            $(GIMXINPUT_CPPFLAGS) \
+            $(GIMXPOLL_CPPFLAGS) \
+            $(GIMXPRIO_CPPFLAGS) \
+            $(GIMXSERIAL_CPPFLAGS) \
+            $(GIMXTIMER_CPPFLAGS) \
+            $(GIMXUSB_CPPFLAGS)
+
+LDLIBS += $(GIMXHID_LDLIBS) \
+          $(GIMXGPP_LDLIBS) \
+          $(GIMXCONTROLLER_LDLIBS) \
+          $(GIMXINPUT_LDLIBS) \
+          $(GIMXPOLL_LDLIBS) \
+          $(GIMXPRIO_LDLIBS) \
+          $(GIMXSERIAL_LDLIBS) \
+          $(GIMXTIMER_LDLIBS) \
+          $(GIMXUSB_LDLIBS)
+
+LDFLAGS += $(GIMXHID_LDFLAGS) \
+           $(GIMXGPP_LDFLAGS) \
+           $(GIMXCONTROLLER_LDFLAGS) \
+           $(GIMXINPUT_LDFLAGS) \
+           $(GIMXPOLL_LDFLAGS) \
+           $(GIMXPRIO_LDFLAGS) \
+           $(GIMXSERIAL_LDFLAGS) \
+           $(GIMXTIMER_LDFLAGS) \
+           $(GIMXUSB_LDFLAGS)
+
+CPPFLAGS += `xml2-config --cflags`
+LDLIBS += `xml2-config --libs`
+
 ifneq ($(OS),Windows_NT)
-LDLIBS += -lxml2 -lm -lncursesw -lbluetooth -lmhash
+LDLIBS += -lm -lncursesw -lbluetooth -lmhash
 else
-LDLIBS += $(shell sdl2-config --libs) `xml2-config --libs` -lws2_32 -liconv -lhid -lsetupapi -lpdcursesw -lintl -lwinmm
+LDLIBS += $(shell sdl2-config --libs) -lws2_32 -lpdcursesw -lintl
 LDLIBS:=$(filter-out -mwindows,$(LDLIBS))
 endif
-CPPFLAGS += -Iinclude -I../shared/controller/include -I../shared/gasync/include -I../shared/gpp
-CPPFLAGS += -Iconnectors/btstack/include -Iconnectors/btstack/src
-DEPS=../shared/gasync/gasync.a ../shared/controller/controller.a ../shared/gpp/gpp.a
+CPPFLAGS += -Iinclude -Iconnectors/btstack/include -Iconnectors/btstack/src
 
 OBJECTS := $(patsubst %.c,%.o,$(wildcard *.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/btstack/*.c))
@@ -41,17 +71,12 @@ OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/*/*.c))
 OBJECTS:=$(filter-out connectors/btds4.o,$(OBJECTS))
 endif
 
-all: updated $(BINS)
+all: $(BINS)
 
 gimx: $(OBJECTS)
 
 clean:
 	$(RM) $(OBJECTS) $(BINS)
-
-#this rule triggers an update when $(DEPS) is updated
-updated: $(DEPS)
-	touch updated
-	$(RM) $(OUT)
 
 ifneq ($(OS),Windows_NT)
 install: all

@@ -17,12 +17,6 @@
 
 #define PERIOD 10000//microseconds
 
-#ifdef WIN32
-#define REGISTER_FUNCTION gpoll_register_handle
-#else
-#define REGISTER_FUNCTION gpoll_register_fd
-#endif
-
 static int uhid = -1;
 static int hid = -1;
 
@@ -95,13 +89,29 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
 
     if (uhid >= 0) {
 
-      if (ginput_init(GE_MKB_SOURCE_PHYSICAL, process_event) == 0) {
+      GPOLL_INTERFACE gpoll_callbacks = {
+              .fp_register = REGISTER_FUNCTION,
+              .fp_remove = REMOVE_FUNCTION,
+      };
+      if (ginput_init(&gpoll_callbacks, GE_MKB_SOURCE_PHYSICAL, process_event) == 0) {
 
         display_devices();
 
-        if (ghid_register(hid, 42, hid_read, NULL, hid_close, REGISTER_FUNCTION) != -1) {
-
-          int timer = gtimer_start(42, PERIOD, timer_read, timer_close, REGISTER_FUNCTION);
+        GHID_CALLBACKS ghid_callbacks = {
+                .fp_read = hid_read,
+                .fp_write = NULL,
+                .fp_close = hid_close,
+                .fp_register = REGISTER_FUNCTION,
+                .fp_remove = REMOVE_FUNCTION,
+        };
+        if (ghid_register(hid, 42, &ghid_callbacks) != -1) {
+          GTIMER_CALLBACKS timer_callbacks = {
+                  .fp_read = timer_read,
+                  .fp_close = timer_close,
+                  .fp_register = REGISTER_FUNCTION,
+                  .fp_remove = REMOVE_FUNCTION,
+          };
+          int timer = gtimer_start(42, PERIOD, &timer_callbacks);
           if (timer < 0) {
             set_done();
           }

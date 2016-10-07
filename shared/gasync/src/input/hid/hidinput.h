@@ -8,14 +8,9 @@
 
 #include <ginput.h>
 #include <ghid.h>
+#include <gpoll.h>
 
 #define HIDINPUT_MAX_DEVICES GHID_MAX_DEVICES
-
-#ifdef WIN32
-#define HIDINPUT_REGISTER_FUNCTION gpoll_register_handle
-#else
-#define HIDINPUT_REGISTER_FUNCTION gpoll_register_fd
-#endif
 
 typedef struct {
     unsigned short vendor_id;
@@ -38,7 +33,7 @@ typedef struct {
 
 int hidinput_register(s_hidinput_driver * driver);
 
-int hidinput_init(int(*callback)(GE_Event*));
+int hidinput_init(const GPOLL_INTERFACE * gpoll_interface, int(*callback)(GE_Event*));
 int hidinput_poll();
 void hidinput_quit();
 

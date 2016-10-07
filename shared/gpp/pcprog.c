@@ -301,13 +301,21 @@ static int close_callback(int user)
   return gpp_devices[user].fp_close(user);
 }
 
-int8_t gpppcprog_start_async(int id, GHID_READ_CALLBACK fp_read, GHID_WRITE_CALLBACK fp_write, GHID_CLOSE_CALLBACK fp_close, GHID_REGISTER_SOURCE fp_register)
+int8_t gpppcprog_start_async(int id, const GHID_CALLBACKS * callbacks)
 {
-  gpp_devices[id].fp_read = fp_read;
-  gpp_devices[id].fp_write = fp_write;
-  gpp_devices[id].fp_close = fp_close;
+  gpp_devices[id].fp_read = callbacks->fp_read;
+  gpp_devices[id].fp_write = callbacks->fp_write;
+  gpp_devices[id].fp_close = callbacks->fp_close;
 
-  int ret = ghid_register(gpp_devices[id].device, id, read_callback, write_callback, close_callback, fp_register);
+  GHID_CALLBACKS ghid_callbacks = {
+          .fp_read = read_callback,
+          .fp_write = write_callback,
+          .fp_close = close_callback,
+          .fp_register = callbacks->fp_register,
+          .fp_remove = callbacks->fp_remove,
+  };
+
+  int ret = ghid_register(gpp_devices[id].device, id, &ghid_callbacks);
   if (ret < 0) {
     return -1;
   }

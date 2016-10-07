@@ -178,7 +178,12 @@ int l2cap_btstack_connect(const char * bdaddr_src __attribute__((unused)), const
   }
 
   //TODO MLA: this is required only once, maybe this should be moved?
-  gpoll_register_fd(btstack_common_getfd(), 0, &packet_handler, NULL, &packet_handler);
+  GPOLL_CALLBACKS callbacks = {
+          .fp_read = packet_handler,
+          .fp_write = NULL,
+          .fp_close = packet_handler
+  };
+  gpoll_register_fd(btstack_common_getfd(), 0, &callbacks);
 
   int channel = channels.nb;
 

@@ -11,13 +11,20 @@ $(BUILDDIRS):
 	$(MAKE) -C $(@:build-%=%)
 
 build-configeditor: build-controller
+build-configeditor: build-gasync
+build-gpp: build-gasync
 
 clean: $(CLEANDIRS)
 $(CLEANDIRS): 
 	$(MAKE) -C $(@:clean-%=%) clean
 
 install: $(INSTALLDIRS) all
-$(INSTALLDIRS): ;
+$(INSTALLDIRS):
+	$(MAKE) -C $(@:install-%=%) install
+
+uninstall: $(UNINSTALLDIRS) all
+$(UNINSTALLDIRS):
+	$(MAKE) -C $(@:uninstall-%=%) uninstall
 
 .PHONY: subdirs $(DIRS)
 .PHONY: subdirs $(BUILDDIRS)

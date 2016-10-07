@@ -90,16 +90,13 @@ int ghid_read_timeout(int device, void * buf, unsigned int count, unsigned int t
  *
  * \param device      the hid device
  * \param user        the user to pass to the external callback
- * \param fp_read     the external callback to call on data reception
- * \param fp_write    unused
- * \param fp_close    the external callback to call on failure
- * \param fp_register the function to register the device as an event source
+ * \param callbacks   the device callbacks
  *
  * \return 0 in case of success, or -1 in case of error
  */
-int ghid_register(int device, int user, GHID_READ_CALLBACK fp_read, GHID_WRITE_CALLBACK fp_write, GHID_CLOSE_CALLBACK fp_close, GHID_REGISTER_SOURCE fp_register) {
+int ghid_register(int device, int user, const GHID_CALLBACKS * callbacks) {
     
-    return gusbhid_register(device, user, fp_read, fp_write, fp_close, fp_register);
+    return gusbhid_register(device, user, callbacks);
 }
 
 /*

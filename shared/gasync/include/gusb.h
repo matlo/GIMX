@@ -38,9 +38,24 @@ typedef enum {
   E_TRANSFER_ERROR = -3,
 } e_transfer_status;
 
-typedef int (* USBASYNC_READ_CALLBACK)(int user, unsigned char endpoint, const void * buf, int status);
-typedef int (* USBASYNC_WRITE_CALLBACK)(int user, unsigned char endpoint, int status);
-typedef int (* USBASYNC_CLOSE_CALLBACK)(int user);
+typedef int (* GUSB_READ_CALLBACK)(int user, unsigned char endpoint, const void * buf, int status);
+typedef int (* GUSB_WRITE_CALLBACK)(int user, unsigned char endpoint, int status);
+typedef int (* GUSB_CLOSE_CALLBACK)(int user);
+#ifndef WIN32
+typedef GPOLL_REGISTER_FD GUSB_REGISTER_SOURCE;
+typedef GPOLL_REMOVE_FD GUSB_REMOVE_SOURCE;
+#else
+typedef GPOLL_REGISTER_HANDLE GUSB_REGISTER_SOURCE;
+typedef GPOLL_REMOVE_HANDLE GUSB_REMOVE_SOURCE;
+#endif
+
+typedef struct {
+    GUSB_READ_CALLBACK fp_read;       // called on data reception
+    GUSB_WRITE_CALLBACK fp_write;     // called on write completion
+    GUSB_CLOSE_CALLBACK fp_close;     // called on failure
+    GUSB_REGISTER_SOURCE fp_register; // to register the device to event sources
+    GUSB_REMOVE_SOURCE fp_remove;     // to remove the device from event sources
+} GUSB_CALLBACKS;
 
 struct p_altInterface {
   struct usb_interface_descriptor * descriptor;
@@ -89,13 +104,7 @@ int gusb_open_path(const char * path);
 s_usb_descriptors * gusb_get_usb_descriptors(int device);
 int gusb_close(int device);
 int gusb_read_timeout(int device, unsigned char endpoint, void * buf, unsigned int count, unsigned int timeout);
-#ifdef WIN32
-int gusb_register(int device, int user, USBASYNC_READ_CALLBACK fp_read, USBASYNC_WRITE_CALLBACK fp_write,
-    USBASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_HANDLE fp_register);
-#else
-int gusb_register(int device, int user, USBASYNC_READ_CALLBACK fp_read, USBASYNC_WRITE_CALLBACK fp_write,
-	USBASYNC_CLOSE_CALLBACK fp_close, GPOLL_REGISTER_FD fp_register);
-#endif
+int gusb_register(int device, int user, const GUSB_CALLBACKS * callbacks);
 int gusb_write(int device, unsigned char endpoint, const void * buf, unsigned int count);
 int gusb_write_timeout(int device, unsigned char endpoint, void * buf, unsigned int count,
     unsigned int timeout);
