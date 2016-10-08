@@ -34,6 +34,7 @@
 #include <pcprog.h>
 #include "../directories.h"
 #include <gprio.h>
+#include <gusb.h>
 
 #define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
 
@@ -189,6 +190,11 @@ int main(int argc, char *argv[])
   if(gimx_params.btstack)
   {
     bt_abs_value = E_BT_ABS_BTSTACK;
+  }
+
+  if (gusb_init(&((GPOLL_INTERFACE){ REGISTER_FUNCTION, REMOVE_FUNCTION })) < 0)
+  {
+    goto QUIT;
   }
 
   if(adapter_detect() < 0)
@@ -362,6 +368,8 @@ int main(int argc, char *argv[])
   ginput_quit();
 
   adapter_clean();
+
+  gusb_exit();
 
   xmlCleanupParser();
 

@@ -10,6 +10,14 @@
 
 #include <gusb.h>
 
+#ifdef WIN32
+#define REGISTER_FUNCTION gpoll_register_handle
+#define REMOVE_FUNCTION gpoll_remove_handle
+#else
+#define REGISTER_FUNCTION gpoll_register_fd
+#define REMOVE_FUNCTION gpoll_remove_fd
+#endif
+
 #define VENDOR 0x054c
 
 static unsigned short products[] = { 0x0268 };
@@ -92,6 +100,10 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     int ret = 0;
     int status;
 
+    if (gusb_init(&((GPOLL_INTERFACE){ REGISTER_FUNCTION, REMOVE_FUNCTION })) < 0) {
+        return -1;
+    }
+
     struct gusb_device * devs = gusb_enumerate(VENDOR, 0x0000);
 
     struct gusb_device * current;
@@ -123,6 +135,8 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     }
 
     gusb_free_enumeration(devs);
+
+    gusb_exit();
 
     return ret;
 }

@@ -66,6 +66,12 @@ static int usb_timer = -1;
 
 static libusb_context* ctx = NULL;
 
+#define CHECK_INITIALIZED(RETVALUE) \
+    if (ctx == NULL) { \
+        PRINT_ERROR_OTHER("gusb_init should be called first") \
+        return RETVALUE; \
+    }
+
 static struct libusb_transfer ** transfers = NULL;
 static unsigned int transfers_nb = 0;
 
@@ -109,29 +115,47 @@ static void remove_transfer(struct libusb_transfer * transfer) {
   }
 }
 
-void usbasync_init(void) __attribute__((constructor));
-void usbasync_init(void) {
-  int ret = libusb_init(&ctx);
-  if (ret != LIBUSB_SUCCESS) {
-    PRINT_ERROR_LIBUSB("libusb_init", ret)
-    exit(-1);
-  }
+int gusb_init(const GPOLL_INTERFACE * gpoll_interface) {
+
+    if (ctx == NULL) {
+
+        if (gpoll_interface->fp_register == NULL) {
+            PRINT_ERROR_OTHER("fp_register is NULL")
+            return -1;
+        }
+
+        if (gpoll_interface->fp_remove == NULL) {
+            PRINT_ERROR_OTHER("fp_remove is NULL")
+            return -1;
+        }
+
+        int ret = libusb_init(&ctx);
+        if (ret != LIBUSB_SUCCESS) {
+            PRINT_ERROR_LIBUSB("libusb_init", ret)
+            return -1;
+        }
+
+        fp_register = gpoll_interface->fp_register;
+        fp_remove = gpoll_interface->fp_remove;
+    }
+    return 0;
 }
 
-void usbasync_clean(void) __attribute__((destructor));
-void usbasync_clean(void) {
-  int i;
-  for (i = 0; i < USBASYNC_MAX_DEVICES; ++i) {
-    if (usbdevices[i].devh != NULL) {
-      gusb_close(i);
+int gusb_exit() {
+
+    int i;
+    for (i = 0; i < USBASYNC_MAX_DEVICES; ++i) {
+        if (usbdevices[i].devh != NULL) {
+            gusb_close(i);
+        }
     }
-  }
-  libusb_exit(ctx);
+    libusb_exit(ctx);
 #ifdef WIN32
-  if (usb_timer >= 0) {
-    gtimer_close(usb_timer);
-  }
+    if (usb_timer >= 0) {
+        gtimer_close(usb_timer);
+    }
 #endif
+    return 0;
 }
 
 static inline int usbasync_check_device(int device, const char * file, unsigned int line, const char * func) {
@@ -352,7 +376,7 @@ int gusb_poll(int device, unsigned char endpoint) {
   return submit_transfer(transfer);
 }
 
-int gusb_handle_events(__attribute__((unused)) int unused __attribute__((unused))) {
+int gusb_handle_events(int unused __attribute__((unused))) {
 #ifndef WIN32
   return libusb_handle_events(ctx);
 #else
@@ -948,6 +972,8 @@ static int claim_device(int device, libusb_device * dev) {
 
 struct gusb_device * gusb_enumerate(unsigned short vendor, unsigned short product) {
 
+  CHECK_INITIALIZED(NULL)
+
   struct gusb_device * devs = NULL;
   struct gusb_device * last = NULL;
 
@@ -956,11 +982,6 @@ struct gusb_device * gusb_enumerate(unsigned short vendor, unsigned short produc
   static libusb_device** usb_devs = NULL;
   static ssize_t cnt = 0;
   int dev_i;
-
-  if (!ctx) {
-    PRINT_ERROR_OTHER("no libusb context")
-    return NULL;
-  }
 
   cnt = libusb_get_device_list(ctx, &usb_devs);
   if (cnt < 0) {
@@ -1036,6 +1057,8 @@ void gusb_free_enumeration(struct gusb_device * devs) {
 
 int gusb_open_ids(unsigned short vendor, unsigned short product) {
 
+  CHECK_INITIALIZED(-1)
+
   int ret = -1;
 
   static libusb_device** devs = NULL;
@@ -1085,6 +1108,8 @@ int gusb_open_ids(unsigned short vendor, unsigned short product) {
 }
 
 int gusb_open_path(const char * path) {
+
+  CHECK_INITIALIZED(-1)
 
   int ret = -1;
 
@@ -1185,19 +1210,6 @@ static int usb_timer_start() {
 int gusb_register(int device, int user, const GUSB_CALLBACKS * callbacks) {
 
   USBASYNC_CHECK_DEVICE(device, -1)
-
-  if (callbacks->fp_register == NULL) {
-      PRINT_ERROR_OTHER("fp_register is null");
-      return -1;
-  }
-
-  if (callbacks->fp_remove == NULL) {
-      PRINT_ERROR_OTHER("fp_remove is null");
-      return -1;
-  }
-
-  fp_register = callbacks->fp_register;
-  fp_remove = callbacks->fp_remove;
 
   int ret = 0;
 

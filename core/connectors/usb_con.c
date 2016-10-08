@@ -448,8 +448,6 @@ int usb_init(int usb_number, e_controller_type type) {
           .fp_read = usb_read_callback,
           .fp_write = usb_write_callback,
           .fp_close = usb_close_callback,
-          .fp_register = REGISTER_FUNCTION,
-          .fp_remove = REMOVE_FUNCTION,
   };
   ret = gusb_register(state->usb_device, usb_number, &callbacks);
   if (ret < 0) {

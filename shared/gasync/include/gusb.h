@@ -53,8 +53,6 @@ typedef struct {
     GUSB_READ_CALLBACK fp_read;       // called on data reception
     GUSB_WRITE_CALLBACK fp_write;     // called on write completion
     GUSB_CLOSE_CALLBACK fp_close;     // called on failure
-    GUSB_REGISTER_SOURCE fp_register; // to register the device to event sources
-    GUSB_REMOVE_SOURCE fp_remove;     // to remove the device from event sources
 } GUSB_CALLBACKS;
 
 struct p_altInterface {
@@ -97,6 +95,8 @@ struct gusb_device {
     struct gusb_device * next;
 };
 
+int gusb_init(const GPOLL_INTERFACE * gpoll_interface);
+int gusb_exit();
 int gusb_open_ids(unsigned short vendor, unsigned short product);
 struct gusb_device * gusb_enumerate(unsigned short vendor, unsigned short product);
 void gusb_free_enumeration(struct gusb_device * usb_devs);
