@@ -16,11 +16,11 @@
 
 #include <libusb-1.0/libusb.h>
 
-#define USBASYNC_MAX_DEVICES 256
+#define MAX_DEVICES 256
 
-#define USBASYNC_OUT_TIMEOUT 20 // milliseconds
+#define OUT_TIMEOUT 20 // milliseconds
 
-#define USBASYNC_DEFAULT_TIMEOUT 1000 // milliseconds
+#define DEFAULT_TIMEOUT 1000 // milliseconds
 
 #define IS_ENDPOINT_IN(endpoint) ((endpoint & LIBUSB_ENDPOINT_DIR_MASK) == LIBUSB_ENDPOINT_IN)
 #define IS_ENDPOINT_OUT(endpoint) ((endpoint & LIBUSB_ENDPOINT_DIR_MASK) == LIBUSB_ENDPOINT_OUT)
@@ -56,7 +56,7 @@ static struct {
     GUSB_CLOSE_CALLBACK fp_close;
   } callback;
   int pending_transfers;
-} usbdevices[USBASYNC_MAX_DEVICES] = { };
+} usbdevices[MAX_DEVICES] = { };
 
 #define PRINT_ERROR_INVALID_ENDPOINT(msg, endpoint) fprintf(stderr, "%s:%d %s: %s: 0x%02x\n", __FILE__, __LINE__, __func__, msg, endpoint);
 
@@ -144,7 +144,7 @@ int gusb_init(const GPOLL_INTERFACE * gpoll_interface) {
 int gusb_exit() {
 
     int i;
-    for (i = 0; i < USBASYNC_MAX_DEVICES; ++i) {
+    for (i = 0; i < MAX_DEVICES; ++i) {
         if (usbdevices[i].devh != NULL) {
             gusb_close(i);
         }
@@ -158,8 +158,8 @@ int gusb_exit() {
     return 0;
 }
 
-static inline int usbasync_check_device(int device, const char * file, unsigned int line, const char * func) {
-  if (device < 0 || device >= USBASYNC_MAX_DEVICES) {
+static inline int check_device(int device, const char * file, unsigned int line, const char * func) {
+  if (device < 0 || device >= MAX_DEVICES) {
     fprintf(stderr, "%s:%d %s: invalid device\n", file, line, func);
     return -1;
   }
@@ -169,8 +169,8 @@ static inline int usbasync_check_device(int device, const char * file, unsigned 
   }
   return 0;
 }
-#define USBASYNC_CHECK_DEVICE(device,retValue) \
-  if(usbasync_check_device(device, __FILE__, __LINE__, __func__) < 0) { \
+#define CHECK_DEVICE(device,retValue) \
+  if(check_device(device, __FILE__, __LINE__, __func__) < 0) { \
     return retValue; \
   }
 
@@ -239,7 +239,7 @@ static char * make_path(libusb_device * dev) {
 
 static int add_device(const char * path, int print) {
   int i;
-  for (i = 0; i < USBASYNC_MAX_DEVICES; ++i) {
+  for (i = 0; i < MAX_DEVICES; ++i) {
     if (usbdevices[i].path && !strcmp(usbdevices[i].path, path)) {
       if (print) {
         PRINT_ERROR_OTHER("device already opened")
@@ -247,7 +247,7 @@ static int add_device(const char * path, int print) {
       return -1;
     }
   }
-  for (i = 0; i < USBASYNC_MAX_DEVICES; ++i) {
+  for (i = 0; i < MAX_DEVICES; ++i) {
     if (usbdevices[i].devh == NULL) {
       usbdevices[i].path = strdup(path);
       if (usbdevices[i].path != NULL) {
@@ -284,7 +284,7 @@ static void usb_callback(struct libusb_transfer* transfer) {
   int device = (intptr_t) transfer->user_data;
 
   //make sure the device still exists, in case something went wrong
-  if(usbasync_check_device(device, __FILE__, __LINE__, __func__) < 0) {
+  if(check_device(device, __FILE__, __LINE__, __func__) < 0) {
     remove_transfer(transfer);
     return;
   }
@@ -330,7 +330,7 @@ static void usb_callback(struct libusb_transfer* transfer) {
 
 int gusb_poll(int device, unsigned char endpoint) {
 
-  USBASYNC_CHECK_DEVICE(device, -1)
+  CHECK_DEVICE(device, -1)
 
   unsigned char endpointIndex = get_endpoint(device, endpoint, LIBUSB_ENDPOINT_IN, 0);
   if(endpointIndex == INVALID_ENDPOINT_INDEX) {
@@ -450,7 +450,7 @@ static int transfer_timeout(int device, unsigned char endpoint, void * buf, unsi
 
 int gusb_write_timeout(int device, unsigned char endpoint, void * buf, unsigned int count, unsigned int timeout) {
 
-  USBASYNC_CHECK_DEVICE(device, -1)
+  CHECK_DEVICE(device, -1)
 
   if (endpoint != 0) {
 
@@ -466,7 +466,7 @@ int gusb_write_timeout(int device, unsigned char endpoint, void * buf, unsigned 
 
 int gusb_read_timeout(int device, unsigned char endpoint, void * buf, unsigned int count, unsigned int timeout) {
 
-  USBASYNC_CHECK_DEVICE(device, -1)
+  CHECK_DEVICE(device, -1)
 
   unsigned char endpointIndex = get_endpoint(device, endpoint, LIBUSB_ENDPOINT_IN, count);
   if(endpointIndex == INVALID_ENDPOINT_INDEX) {
@@ -494,7 +494,7 @@ static int get_configurations (int device) {
     
     int ret = libusb_control_transfer(usbdevices[device].devh, LIBUSB_ENDPOINT_IN,
         LIBUSB_REQUEST_GET_DESCRIPTOR, (LIBUSB_DT_CONFIG << 8) | index, 0, (unsigned char *)&descriptor,
-        sizeof(descriptor), USBASYNC_DEFAULT_TIMEOUT);
+        sizeof(descriptor), DEFAULT_TIMEOUT);
     
     if (ret < 0) {
       PRINT_ERROR_LIBUSB("libusb_control_transfer", ret)
@@ -511,7 +511,7 @@ static int get_configurations (int device) {
     
     ret = libusb_control_transfer(usbdevices[device].devh, LIBUSB_ENDPOINT_IN,
         LIBUSB_REQUEST_GET_DESCRIPTOR, (LIBUSB_DT_CONFIG << 8) | index, 0, configurations->raw,
-        descriptor.wTotalLength, USBASYNC_DEFAULT_TIMEOUT);
+        descriptor.wTotalLength, DEFAULT_TIMEOUT);
     
     if (ret < 0) {
       PRINT_ERROR_LIBUSB("libusb_control_transfer", ret)
@@ -555,7 +555,7 @@ static int get_string_descriptor (int device, unsigned char index) {
   }
 
   int ret = libusb_control_transfer(usbdevices[device].devh, LIBUSB_ENDPOINT_IN,
-      LIBUSB_REQUEST_GET_DESCRIPTOR, (LIBUSB_DT_STRING << 8) | index, descriptors->langId0.wData[0], data, DEFAULT_STRING_BUFFER_SIZE, USBASYNC_DEFAULT_TIMEOUT);
+      LIBUSB_REQUEST_GET_DESCRIPTOR, (LIBUSB_DT_STRING << 8) | index, descriptors->langId0.wData[0], data, DEFAULT_STRING_BUFFER_SIZE, DEFAULT_TIMEOUT);
 
   if (ret < 0) {
     PRINT_ERROR_LIBUSB("libusb_control_transfer", ret)
@@ -576,7 +576,7 @@ static int get_string_descriptor (int device, unsigned char index) {
     data = ptr;
 
     ret = libusb_control_transfer(usbdevices[device].devh, LIBUSB_ENDPOINT_IN,
-        LIBUSB_REQUEST_GET_DESCRIPTOR, (LIBUSB_DT_STRING << 8) | index, descriptors->langId0.wData[0], data, descriptor->bLength, USBASYNC_DEFAULT_TIMEOUT);
+        LIBUSB_REQUEST_GET_DESCRIPTOR, (LIBUSB_DT_STRING << 8) | index, descriptors->langId0.wData[0], data, descriptor->bLength, DEFAULT_TIMEOUT);
     if (ret < 0) {
       PRINT_ERROR_LIBUSB("libusb_control_transfer", ret)
       free(data);
@@ -663,7 +663,7 @@ static int probe_hid (int device, unsigned char configurationIndex, struct usb_i
         return -1;
       }
       int ret = libusb_control_transfer(usbdevices[device].devh, LIBUSB_ENDPOINT_IN | LIBUSB_RECIPIENT_INTERFACE,
-          LIBUSB_REQUEST_GET_DESCRIPTOR, (hid->rdesc[rdescIndex].bReportDescriptorType << 8) | 0, pAltInterface->descriptor->bInterfaceNumber, data, hid->rdesc[rdescIndex].wReportDescriptorLength, USBASYNC_DEFAULT_TIMEOUT);
+          LIBUSB_REQUEST_GET_DESCRIPTOR, (hid->rdesc[rdescIndex].bReportDescriptorType << 8) | 0, pAltInterface->descriptor->bInterfaceNumber, data, hid->rdesc[rdescIndex].wReportDescriptorLength, DEFAULT_TIMEOUT);
       if (ret < 0) {
         PRINT_ERROR_LIBUSB("libusb_control_transfer", ret)
         free(data);
@@ -790,7 +790,7 @@ static int get_device (int device) {
   
   int ret = libusb_control_transfer(usbdevices[device].devh, LIBUSB_ENDPOINT_IN,
       LIBUSB_REQUEST_GET_DESCRIPTOR, (LIBUSB_DT_DEVICE << 8) | 0, 0, (unsigned char *)descriptor,
-      sizeof(*descriptor), USBASYNC_DEFAULT_TIMEOUT);
+      sizeof(*descriptor), DEFAULT_TIMEOUT);
   
   if (ret < 0) {
     PRINT_ERROR_LIBUSB("libusb_control_transfer", ret)
@@ -827,7 +827,7 @@ static void get_lang_id_0 (int device) {
 
   int ret = libusb_control_transfer(usbdevices[device].devh, LIBUSB_ENDPOINT_IN,
       LIBUSB_REQUEST_GET_DESCRIPTOR, (LIBUSB_DT_STRING << 8) | 0, 0, (unsigned char *)descriptor,
-      sizeof(*descriptor), USBASYNC_DEFAULT_TIMEOUT);
+      sizeof(*descriptor), DEFAULT_TIMEOUT);
   
   if (ret < 0) {
     PRINT_ERROR_LIBUSB("libusb_control_transfer", ret)
@@ -1163,7 +1163,7 @@ int gusb_open_path(const char * path) {
 
 s_usb_descriptors * gusb_get_usb_descriptors(int device) {
 
-  USBASYNC_CHECK_DEVICE(device, NULL)
+  CHECK_DEVICE(device, NULL)
 
   return &usbdevices[device].descriptors;
 }
@@ -1171,7 +1171,7 @@ s_usb_descriptors * gusb_get_usb_descriptors(int device) {
 #ifndef WIN32
 static int close_callback(int device) {
 
-  USBASYNC_CHECK_DEVICE(device, -1)
+  CHECK_DEVICE(device, -1)
 
   return usbdevices[device].callback.fp_close(usbdevices[device].callback.user);
 }
@@ -1209,7 +1209,7 @@ static int usb_timer_start() {
 
 int gusb_register(int device, int user, const GUSB_CALLBACKS * callbacks) {
 
-  USBASYNC_CHECK_DEVICE(device, -1)
+  CHECK_DEVICE(device, -1)
 
   int ret = 0;
 
@@ -1264,7 +1264,7 @@ static void cancel_transfers(int device) {
 
 int gusb_close(int device) {
 
-  if (device < 0 || device >= USBASYNC_MAX_DEVICES) {
+  if (device < 0 || device >= MAX_DEVICES) {
     PRINT_ERROR_OTHER("invalid device");
     return -1;
   }
@@ -1315,7 +1315,7 @@ int gusb_close(int device) {
 
 int gusb_write(int device, unsigned char endpoint, const void * buf, unsigned int count) {
 
-  USBASYNC_CHECK_DEVICE(device, -1)
+  CHECK_DEVICE(device, -1)
 
   if (endpoint != 0) {
 
@@ -1364,7 +1364,7 @@ int gusb_write(int device, unsigned char endpoint, const void * buf, unsigned in
   } else {
 
     libusb_fill_interrupt_transfer(transfer, usbdevices[device].devh, endpoint,
-        buffer, count, (libusb_transfer_cb_fn) usb_callback, (void *) (intptr_t) device, USBASYNC_OUT_TIMEOUT);
+        buffer, count, (libusb_transfer_cb_fn) usb_callback, (void *) (intptr_t) device, OUT_TIMEOUT);
   }
 
   return submit_transfer(transfer);
