@@ -13,9 +13,11 @@ else
 OUT=ds4tool.exe sixaddr.exe
 endif
 
-CFLAGS = -I../shared/gasync/include
-LDLIBS = -lgimxusb
-LDFLAGS = -L../shared/gasync/src/usb
+CPPFLAGS += $(GIMXPOLL_CPPFLAGS) $(GIMXUSB_CPPFLAGS)
+
+LDLIBS += $(GIMXPOLL_LDLIBS) $(GIMXUSB_LDLIBS)
+
+LDFLAGS += $(GIMXPOLL_LDFLAGS) $(GIMXUSB_LDFLAGS)
 
 all: $(BINS)
 

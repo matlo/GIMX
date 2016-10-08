@@ -12,13 +12,6 @@ CXXFLAGS += -Wall -Wextra -s -O3
 #CFLAGS += -Wall -Wextra -O0 -g
 #CXXFLAGS += -Wall -Wextra -O0 -g
 
-ifneq ($(OS),Windows_NT)
-UHID=1
-ifeq ($(UHID),1)
-CFLAGS += -DUHID
-endif
-endif
-
 GIMXCONFIGEDITOR_CPPFLAGS = -I../shared/configeditor/include $(GIMXCONTROLLER_CPPFLAGS)
 GIMXCONFIGUPDATER_CPPFLAGS = -I../shared/configupdater
 GIMXCONTROLLER_CPPFLAGS = -I../shared/controller/include
@@ -33,11 +26,16 @@ GIMXUSB_CPPFLAGS = -I../shared/gasync/include
 GIMXGPP_CPPFLAGS = -I../shared/gpp
 GIMXUPDATER_CPPFLAGS = -I../shared/updater
 
-GIMXCONFIGEDITOR_LDFLAGS = -L../shared/configeditor
+GIMXCONFIGEDITOR_LDFLAGS = -L../shared/configeditor \
+                           $(GIMXINPUT_LDFLAGS) \
+                           $(GIMXTIMER_LDFLAGS) \
+                           $(GIMXPOLL_LDFLAGS) \
+                           $(GIMXCONTROLLER_LDFLAGS)
 GIMXCONFIGUPDATER_LDFLAGS = -L../shared/configupdater
 GIMXCONTROLLER_LDFLAGS = -L../shared/controller
 GIMXHID_LDFLAGS = -L../shared/gasync/src/hid
-GIMXINPUT_LDFLAGS = -L../shared/gasync/src/input
+GIMXINPUT_LDFLAGS = -L../shared/gasync/src/input \
+                    $(GIMXHID_LDFLAGS)
 GIMXPOLL_LDFLAGS = -L../shared/gasync/src/poll
 GIMXPRIO_LDFLAGS = -L../shared/gasync/src/prio
 GIMXSERIAL_LDFLAGS = -L../shared/gasync/src/serial
@@ -47,11 +45,15 @@ GIMXUSB_LDFLAGS = -L../shared/gasync/src/usb
 GIMXGPP_LDFLAGS = -L../shared/gpp
 GIMXUPDATER_LDFLAGS = -L../shared/updater
 
-GIMXCONFIGEDITOR_LDLIBS = -lgimxconfigeditor
+GIMXCONFIGEDITOR_LDLIBS = -lgimxconfigeditor \
+                           $(GIMXINPUT_LDLIBS) \
+                           $(GIMXTIMER_LDLIBS) \
+                           $(GIMXPOLL_LDLIBS) \
+                           $(GIMXCONTROLLER_LDLIBS)
 GIMXCONFIGUPDATER_LDLIBS = -lgimxconfigupdater
 GIMXCONTROLLER_LDLIBS = -lgimxcontroller
 GIMXHID_LDLIBS = -lgimxhid
-GIMXINPUT_LDLIBS = -lgimxinput
+GIMXINPUT_LDLIBS = -lgimxinput $(GIMXHID_LDLIBS)
 GIMXPOLL_LDLIBS = -lgimxpoll
 GIMXPRIO_LDLIBS = -lgimxprio
 GIMXSERIAL_LDLIBS = -lgimxserial
@@ -63,6 +65,17 @@ GIMXUPDATER_LDLIBS = -lgimxupdater
 
 ifeq ($(OS),Windows_NT)
 GIMXINPUT_CPPFLAGS += `sdl2-config --cflags`
+GIMXUSB_CPPFLAGS += $(GIMXTIMER_CPPFLAGS)
+GIMXUSB_LDFLAGS += $(GIMXTIMER_LDFLAGS)
+GIMXUSB_LDLIBS += $(GIMXTIMER_LDLIBS)
+else
+UHID=1
+ifeq ($(UHID),1)
+CFLAGS += -DUHID
+GIMXINPUT_CPPFLAGS += $(GIMXUHID_CPPFLAGS)
+GIMXINPUT_LDFLAGS += $(GIMXUHID_LDFLAGS)
+GIMXINPUT_LDLIBS += $(GIMXUHID_LDLIBS)
+endif
 endif
 
 ARFLAGS=rcs
