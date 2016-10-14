@@ -53,6 +53,8 @@ typedef struct {
     GUSB_READ_CALLBACK fp_read;       // called on data reception
     GUSB_WRITE_CALLBACK fp_write;     // called on write completion
     GUSB_CLOSE_CALLBACK fp_close;     // called on failure
+    GUSB_REGISTER_SOURCE fp_register; // to register the device to event sources
+    GUSB_REMOVE_SOURCE fp_remove;     // to remove the device from event sources
 } GUSB_CALLBACKS;
 
 struct p_altInterface {
@@ -95,13 +97,13 @@ struct gusb_device {
     struct gusb_device * next;
 };
 
-int gusb_init(const GPOLL_INTERFACE * gpoll_interface);
+int gusb_init();
 int gusb_exit();
 int gusb_open_ids(unsigned short vendor, unsigned short product);
 struct gusb_device * gusb_enumerate(unsigned short vendor, unsigned short product);
 void gusb_free_enumeration(struct gusb_device * usb_devs);
 int gusb_open_path(const char * path);
-s_usb_descriptors * gusb_get_usb_descriptors(int device);
+const s_usb_descriptors * gusb_get_usb_descriptors(int device);
 int gusb_close(int device);
 int gusb_read_timeout(int device, unsigned char endpoint, void * buf, unsigned int count, unsigned int timeout);
 int gusb_register(int device, int user, const GUSB_CALLBACKS * callbacks);
@@ -109,6 +111,5 @@ int gusb_write(int device, unsigned char endpoint, const void * buf, unsigned in
 int gusb_write_timeout(int device, unsigned char endpoint, void * buf, unsigned int count,
     unsigned int timeout);
 int gusb_poll(int device, unsigned char endpoint);
-int gusb_handle_events(int unused);
 
 #endif /* GUSB_H_ */

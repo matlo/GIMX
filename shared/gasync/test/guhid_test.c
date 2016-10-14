@@ -66,12 +66,15 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
 
   setup_handlers();
 
+  if (ghid_init() < 0) {
+    return -1;
+  }
+
   char * path = hid_select();
 
   if (path == NULL) {
     fprintf(stderr, "No HID device selected!\n");
-    ginput_quit();
-    exit(-1);
+    return -1;
   }
 
   hid = ghid_open_path(path);
@@ -89,11 +92,11 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
 
     if (uhid >= 0) {
 
-      GPOLL_INTERFACE gpoll_callbacks = {
-              .fp_register = REGISTER_FUNCTION,
-              .fp_remove = REMOVE_FUNCTION,
+      GPOLL_INTERFACE poll_interface = {
+            .fp_register = REGISTER_FUNCTION,
+            .fp_remove = REMOVE_FUNCTION,
       };
-      if (ginput_init(&gpoll_callbacks, GE_MKB_SOURCE_PHYSICAL, process_event) == 0) {
+      if (ginput_init(&poll_interface, GE_MKB_SOURCE_PHYSICAL, process_event) == 0) {
 
         display_devices();
 
@@ -134,6 +137,8 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
           }
 
         }
+
+        ginput_quit();
       }
 
       ghid_close(hid);
@@ -142,9 +147,9 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
     guhid_close(uhid);
   }
 
-  free(path);
+  ghid_exit();
 
-  ginput_quit();
+  free(path);
 
   printf("Exiting\n");
 

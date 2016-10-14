@@ -24,7 +24,7 @@
 
 static unsigned char mkb_source;
 
-int ev_init(const GPOLL_INTERFACE * gpoll_interface, unsigned char mkb_src, int(*callback)(GE_Event*))
+int ev_init(const GPOLL_INTERFACE * poll_interface, unsigned char mkb_src, int(*callback)(GE_Event*))
 {
   mkb_source = mkb_src;
 
@@ -35,20 +35,20 @@ int ev_init(const GPOLL_INTERFACE * gpoll_interface, unsigned char mkb_src, int(
 
   if(mkb_source == GE_MKB_SOURCE_PHYSICAL)
   {
-    if(mkb_init(gpoll_interface, callback) < 0)
+    if(mkb_init(poll_interface, callback) < 0)
     {
       return -1;
     }
   }
   else if(mkb_source == GE_MKB_SOURCE_WINDOW_SYSTEM)
   {
-    if(xinput_init(gpoll_interface, callback) < 0)
+    if(xinput_init(poll_interface, callback) < 0)
     {
       return -1;
     }
   }
 
-  if(js_init(gpoll_interface, callback) < 0)
+  if(js_init(poll_interface, callback) < 0)
   {
     return -1;
   }

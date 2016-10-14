@@ -11,7 +11,7 @@
 
 typedef int (*TIMERRES_CALLBACK)(unsigned int);
 
-int timerres_begin(const GPOLL_INTERFACE * gpoll_interface, TIMERRES_CALLBACK timer_cb);
+int timerres_begin(const GPOLL_INTERFACE * poll_interface, TIMERRES_CALLBACK timer_cb);
 void timerres_end();
 
 #endif /* TIMERRES_H_ */

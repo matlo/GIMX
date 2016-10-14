@@ -15,6 +15,16 @@
 #include <string.h>
 #include <unistd.h>
 
+int gserial_init() {
+
+    return async_init();
+}
+
+int gserial_exit() {
+
+    return async_exit();
+}
+
 
 static int tty_set_params(int device, speed_t baudrate)
 {

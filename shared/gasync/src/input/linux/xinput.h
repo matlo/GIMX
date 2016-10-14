@@ -9,7 +9,7 @@
 #include <ginput.h>
 #include <gpoll.h>
 
-int xinput_init(const GPOLL_INTERFACE * gpoll_interface, int (*callback)(GE_Event*));
+int xinput_init(const GPOLL_INTERFACE * poll_interface, int (*callback)(GE_Event*));
 
 void xinput_quit();
 

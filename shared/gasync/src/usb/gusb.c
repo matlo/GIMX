@@ -16,9 +16,13 @@
 
 #include <libusb-1.0/libusb.h>
 
+#define POLLIN      0x001
+#define POLLOUT     0x004
+
 #define MAX_DEVICES 256
 
 #define OUT_TIMEOUT 20 // milliseconds
+#define CONTROL_TIMEOUT 50 // milliseconds
 
 #define DEFAULT_TIMEOUT 1000 // milliseconds
 
@@ -32,11 +36,9 @@
 
 #define DEFAULT_STRING_BUFFER_SIZE 255
 
-static GUSB_REGISTER_SOURCE fp_register = NULL;
-static GUSB_REMOVE_SOURCE fp_remove = NULL;
-
 static struct {
   char * path;
+  libusb_context * ctx;
   libusb_device_handle * devh;
   s_usb_descriptors descriptors;
   struct {
@@ -49,12 +51,8 @@ static struct {
       unsigned short size;
     } out;
   } endpoints[LIBUSB_ENDPOINT_ADDRESS_MASK];
-  struct {
-    int user;
-    GUSB_READ_CALLBACK fp_read;
-    GUSB_WRITE_CALLBACK fp_write;
-    GUSB_CLOSE_CALLBACK fp_close;
-  } callback;
+  GUSB_CALLBACKS callbacks;
+  int user;
   int pending_transfers;
 } usbdevices[MAX_DEVICES] = { };
 
@@ -64,10 +62,10 @@ static struct {
 static int usb_timer = -1;
 #endif
 
-static libusb_context* ctx = NULL;
+static unsigned int clients = 0;
 
 #define CHECK_INITIALIZED(RETVALUE) \
-    if (ctx == NULL) { \
+    if (clients == 0) { \
         PRINT_ERROR_OTHER("gusb_init should be called first") \
         return RETVALUE; \
     }
@@ -115,46 +113,34 @@ static void remove_transfer(struct libusb_transfer * transfer) {
   }
 }
 
-int gusb_init(const GPOLL_INTERFACE * gpoll_interface) {
+int gusb_init() {
 
-    if (ctx == NULL) {
-
-        if (gpoll_interface->fp_register == NULL) {
-            PRINT_ERROR_OTHER("fp_register is NULL")
-            return -1;
-        }
-
-        if (gpoll_interface->fp_remove == NULL) {
-            PRINT_ERROR_OTHER("fp_remove is NULL")
-            return -1;
-        }
-
-        int ret = libusb_init(&ctx);
-        if (ret != LIBUSB_SUCCESS) {
-            PRINT_ERROR_LIBUSB("libusb_init", ret)
-            return -1;
-        }
-
-        fp_register = gpoll_interface->fp_register;
-        fp_remove = gpoll_interface->fp_remove;
+    if (clients == UINT_MAX) {
+        PRINT_ERROR_OTHER("too many clients")
+        return -1;
     }
+    ++clients;
     return 0;
 }
 
 int gusb_exit() {
 
-    int i;
-    for (i = 0; i < MAX_DEVICES; ++i) {
-        if (usbdevices[i].devh != NULL) {
-            gusb_close(i);
+    if (clients > 0) {
+        --clients;
+        if (clients == 0) {
+            int i;
+            for (i = 0; i < MAX_DEVICES; ++i) {
+                if (usbdevices[i].devh != NULL) {
+                    gusb_close(i);
+                }
+            }
+#ifdef WIN32
+            if (usb_timer >= 0) {
+                gtimer_close(usb_timer);
+            }
+#endif
         }
     }
-    libusb_exit(ctx);
-#ifdef WIN32
-    if (usb_timer >= 0) {
-        gtimer_close(usb_timer);
-    }
-#endif
     return 0;
 }
 
@@ -276,7 +262,7 @@ static int submit_transfer(struct libusb_transfer * transfer) {
       return -1;
     }
   }
-  return ret;
+  return 0;
 }
 
 static void usb_callback(struct libusb_transfer* transfer) {
@@ -312,15 +298,15 @@ static void usb_callback(struct libusb_transfer* transfer) {
       struct libusb_control_setup * setup = libusb_control_transfer_get_setup(transfer);
       if(setup->bmRequestType & LIBUSB_ENDPOINT_IN) {
         unsigned char * data = libusb_control_transfer_get_data(transfer);
-        usbdevices[device].callback.fp_read(usbdevices[device].callback.user, transfer->endpoint, data, status);
+        usbdevices[device].callbacks.fp_read(usbdevices[device].user, transfer->endpoint, data, status);
       } else {
-        usbdevices[device].callback.fp_write(usbdevices[device].callback.user, transfer->endpoint, status);
+        usbdevices[device].callbacks.fp_write(usbdevices[device].user, transfer->endpoint, status);
       }
     } else {
       if (IS_ENDPOINT_OUT(transfer->endpoint)) {
-        usbdevices[device].callback.fp_write(usbdevices[device].callback.user, transfer->endpoint, status);
+        usbdevices[device].callbacks.fp_write(usbdevices[device].user, transfer->endpoint, status);
       } else {
-        usbdevices[device].callback.fp_read(usbdevices[device].callback.user, transfer->endpoint, transfer->buffer, status);
+        usbdevices[device].callbacks.fp_read(usbdevices[device].user, transfer->endpoint, transfer->buffer, status);
       }
     }
   }
@@ -338,7 +324,7 @@ int gusb_poll(int device, unsigned char endpoint) {
     return -1;
   }
 
-  if (usbdevices[device].callback.fp_read == NULL) {
+  if (usbdevices[device].callbacks.fp_read == NULL) {
 
     PRINT_ERROR_OTHER("missing read callback")
     return -1;
@@ -376,25 +362,11 @@ int gusb_poll(int device, unsigned char endpoint) {
   return submit_transfer(transfer);
 }
 
-int gusb_handle_events(int unused __attribute__((unused))) {
-#ifndef WIN32
-  return libusb_handle_events(ctx);
-#else
-  if(ctx != NULL)
-  {
-    struct timeval tv = { 0 };
-    int ret = libusb_handle_events_timeout(ctx, &tv);
-    if (ret != LIBUSB_SUCCESS) {
-      PRINT_ERROR_LIBUSB("libusb_handle_events_timeout", ret)
-      return -1;
-    }
-    return 0;
-  }
-  else
-  {
-    return -1;
-  }
-#endif
+static int handle_events(int device) {
+
+  CHECK_DEVICE(device, -1)
+
+  return libusb_handle_events_timeout_completed(usbdevices[device].ctx, &((struct timeval){ 0, 0 }), NULL);
 }
 
 static int transfer_timeout(int device, unsigned char endpoint, void * buf, unsigned int count, unsigned int timeout) {
@@ -983,9 +955,18 @@ struct gusb_device * gusb_enumerate(unsigned short vendor, unsigned short produc
   static ssize_t cnt = 0;
   int dev_i;
 
+  libusb_context * ctx = NULL;
+
+  ret = libusb_init(&ctx);
+  if (ret != LIBUSB_SUCCESS) {
+      PRINT_ERROR_LIBUSB("libusb_init", ret)
+      return NULL;
+  }
+
   cnt = libusb_get_device_list(ctx, &usb_devs);
   if (cnt < 0) {
     PRINT_ERROR_LIBUSB("libusb_get_device_list", cnt)
+    libusb_exit(ctx);
     return NULL;
   }
 
@@ -1041,6 +1022,8 @@ struct gusb_device * gusb_enumerate(unsigned short vendor, unsigned short produc
 
   libusb_free_device_list(usb_devs, 1);
 
+  libusb_exit(ctx);
+
   return devs;
 }
 
@@ -1065,14 +1048,18 @@ int gusb_open_ids(unsigned short vendor, unsigned short product) {
   static ssize_t cnt = 0;
   int dev_i;
 
-  if (!ctx) {
-    PRINT_ERROR_OTHER("no libusb context")
-    return -1;
+  libusb_context * ctx = NULL;
+
+  ret = libusb_init(&ctx);
+  if (ret != LIBUSB_SUCCESS) {
+      PRINT_ERROR_LIBUSB("libusb_init", ret)
+      return -1;
   }
 
   cnt = libusb_get_device_list(ctx, &devs);
   if (cnt < 0) {
     PRINT_ERROR_LIBUSB("libusb_get_device_list", cnt)
+    libusb_exit(ctx);
     return -1;
   }
 
@@ -1094,6 +1081,7 @@ int gusb_open_ids(unsigned short vendor, unsigned short product) {
 
         if (claim_device(device, devs[dev_i]) != -1) {
           libusb_free_device_list(devs, 1);
+          usbdevices[device].ctx = ctx;
           return device;
         } else {
           gusb_close(device);
@@ -1103,6 +1091,8 @@ int gusb_open_ids(unsigned short vendor, unsigned short product) {
   }
 
   libusb_free_device_list(devs, 1);
+
+  libusb_exit(ctx);
 
   return -1;
 }
@@ -1122,14 +1112,18 @@ int gusb_open_path(const char * path) {
     return -1;
   }
 
-  if (!ctx) {
-    PRINT_ERROR_OTHER("no libusb context")
-    return -1;
+  libusb_context * ctx = NULL;
+
+  ret = libusb_init(&ctx);
+  if (ret != LIBUSB_SUCCESS) {
+      PRINT_ERROR_LIBUSB("libusb_init", ret)
+      return -1;
   }
 
   cnt = libusb_get_device_list(ctx, &devs);
   if (cnt < 0) {
     PRINT_ERROR_LIBUSB("libusb_get_device_list", cnt)
+    libusb_exit(ctx);
     return -1;
   }
 
@@ -1149,6 +1143,7 @@ int gusb_open_path(const char * path) {
 
       if (claim_device(device, devs[dev_i]) != -1) {
         libusb_free_device_list(devs, 1);
+        usbdevices[device].ctx = ctx;
         return device;
       } else {
         gusb_close(device);
@@ -1158,27 +1153,28 @@ int gusb_open_path(const char * path) {
 
   libusb_free_device_list(devs, 1);
 
+  libusb_exit(ctx);
+
   return -1;
 }
 
-s_usb_descriptors * gusb_get_usb_descriptors(int device) {
+const s_usb_descriptors * gusb_get_usb_descriptors(int device) {
 
   CHECK_DEVICE(device, NULL)
 
   return &usbdevices[device].descriptors;
 }
 
-#ifndef WIN32
-static int close_callback(int device) {
-
-  CHECK_DEVICE(device, -1)
-
-  return usbdevices[device].callback.fp_close(usbdevices[device].callback.user);
-}
-#else
+#ifdef WIN32
 static int usb_timer_read(int user __attribute__((unused)))
 {
-  return gusb_handle_events(0);
+  unsigned int i;
+  for (i = 0; i < sizeof(usbdevices) / sizeof(*usbdevices); ++i) {
+      if (usbdevices[i].ctx != NULL) {
+          handle_events(i);
+      }
+  }
+  return 0;
 }
 
 static int usb_timer_close(int user __attribute__((unused)))
@@ -1195,8 +1191,8 @@ static int usb_timer_start() {
     GTIMER_CALLBACKS callbacks = {
             .fp_read = usb_timer_read,
             .fp_close = usb_timer_close,
-            .fp_register = fp_register,
-            .fp_remove = fp_remove
+            .fp_register = gpoll_register_handle,
+            .fp_remove = gpoll_remove_handle
     };
     usb_timer = gtimer_start(0, 1000, &callbacks);
     if (usb_timer == -1) {
@@ -1207,41 +1203,110 @@ static int usb_timer_start() {
 }
 #endif
 
+#ifndef WIN32
+static int close_callback(int device) {
+
+  CHECK_DEVICE(device, -1)
+
+  return usbdevices[device].callbacks.fp_close(usbdevices[device].user);
+}
+
+static inline int pollfd_register(int device, int fd, short events) {
+
+    GPOLL_CALLBACKS callbacks = {
+            .fp_read = (events & POLLIN) ? handle_events : NULL,
+            .fp_write = (events & POLLOUT) ? handle_events : NULL,
+            .fp_close = close_callback
+    };
+
+    return usbdevices[device].callbacks.fp_register(fd, device, &callbacks);
+}
+
+static void pollfd_added_cb (int fd, short events, void * user_data) {
+
+  int device = (intptr_t) user_data;
+
+  CHECK_DEVICE(device, )
+
+  pollfd_register(device, fd, events);
+}
+
+static inline void pollfd_remove (int device, int fd) {
+
+  usbdevices[device].callbacks.fp_remove(fd);
+}
+
+static void pollfd_removed_cb (int fd, void * user_data) {
+
+  int device = (intptr_t) user_data;
+
+  CHECK_DEVICE(device, )
+
+  pollfd_remove(device, fd);
+}
+
+static int set_notifiers(int device, libusb_context * ctx) {
+
+    int ret = 0;
+    libusb_set_pollfd_notifiers(ctx, pollfd_added_cb, pollfd_removed_cb, (void *)(intptr_t) device);
+    const struct libusb_pollfd ** pollfds = libusb_get_pollfds(ctx);
+    int i;
+    for (i = 0; pollfds[i] != NULL && ret != -1; ++i) {
+      ret = pollfd_register(device, pollfds[i]->fd, pollfds[i]->events);
+    }
+    free(pollfds);
+
+    if (ret == -1) {
+        // roll-back
+        for (i = i - 1; i >= 0; --i) {
+            pollfd_remove(device, pollfds[i]->fd);
+        }
+        libusb_set_pollfd_notifiers(ctx, NULL, NULL, NULL);
+        return -1;
+    }
+
+    return 0;
+}
+#endif
+
 int gusb_register(int device, int user, const GUSB_CALLBACKS * callbacks) {
 
   CHECK_DEVICE(device, -1)
 
+  if (callbacks->fp_register == NULL) {
+
+    PRINT_ERROR_OTHER("fp_register is NULL")
+    return -1;
+  }
+
+  if (callbacks->fp_remove == NULL) {
+
+    PRINT_ERROR_OTHER("fp_remove is NULL")
+    return -1;
+  }
+
   int ret = 0;
 
-#ifndef WIN32
-  const struct libusb_pollfd** pfd_usb = libusb_get_pollfds(ctx);
-  int poll_i;
-  for (poll_i = 0; pfd_usb[poll_i] != NULL && ret != -1; ++poll_i) {
+  usbdevices[device].callbacks = *callbacks;
 
-    GPOLL_CALLBACKS gpoll_callbacks = {
-            .fp_read = gusb_handle_events,
-            .fp_write = gusb_handle_events,
-            .fp_close = close_callback,
-    };
-    ret = fp_register(pfd_usb[poll_i]->fd, device, &gpoll_callbacks);
-  }
-  free(pfd_usb);
-#else
+#ifdef WIN32
   ret = usb_timer_start();
+#else
+  ret = set_notifiers(device, usbdevices[device].ctx);
 #endif
 
-  if (ret != -1) {
-    usbdevices[device].callback.user = user;
-    usbdevices[device].callback.fp_read = callbacks->fp_read;
-    usbdevices[device].callback.fp_write = callbacks->fp_write;
-    usbdevices[device].callback.fp_close = callbacks->fp_close;
+  if (ret < 0) {
+      memset(&usbdevices[device].callbacks, 0x00, sizeof(usbdevices[device].callbacks));
+      return -1;
   }
+
+  usbdevices[device].user = user;
 
   return ret;
 }
 
 /*
- * Cancel all pending tranfers for a given device.
+ * Cancel all pending transfers for a given device.
  */
 static void cancel_transfers(int device) {
   unsigned int i;
@@ -1255,7 +1320,7 @@ static void cancel_transfers(int device) {
 
   while (usbdevices[device].pending_transfers) {
 
-    if (libusb_handle_events(ctx) != LIBUSB_SUCCESS) {
+    if (libusb_handle_events(usbdevices[device].ctx) != LIBUSB_SUCCESS) {
 
       break;
     }
@@ -1280,6 +1345,10 @@ int gusb_close(int device) {
 #endif
 #endif
     libusb_close(usbdevices[device].devh);
+  }
+
+  if (usbdevices[device].ctx != NULL) {
+      libusb_exit(usbdevices[device].ctx);
   }
 
   free(usbdevices[device].path);
@@ -1334,7 +1403,7 @@ int gusb_write(int device, unsigned char endpoint, const void * buf, unsigned in
     }
   }
 
-  if (usbdevices[device].callback.fp_write == NULL) {
+  if (usbdevices[device].callbacks.fp_write == NULL) {
 
     PRINT_ERROR_OTHER("missing write callback")
     return -1;
@@ -1360,7 +1429,7 @@ int gusb_write(int device, unsigned char endpoint, const void * buf, unsigned in
   if (endpoint == 0) {
 
     libusb_fill_control_transfer(transfer, usbdevices[device].devh,
-        buffer, (libusb_transfer_cb_fn) usb_callback, (void *) (intptr_t) device, 50);
+        buffer, (libusb_transfer_cb_fn) usb_callback, (void *) (intptr_t) device, CONTROL_TIMEOUT);
   } else {
 
     libusb_fill_interrupt_transfer(transfer, usbdevices[device].devh, endpoint,

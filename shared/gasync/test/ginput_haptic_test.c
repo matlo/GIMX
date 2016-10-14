@@ -198,7 +198,7 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
             .fp_remove = REMOVE_FUNCTION
     };
     if (ginput_init(&poll_interface, GE_MKB_SOURCE_NONE, ignore_event) < 0) {
-        exit(-1);
+        return -1;
     }
 
     display_haptic();

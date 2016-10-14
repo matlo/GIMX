@@ -14,7 +14,7 @@
 
 static unsigned char mkb_source;
 
-int ev_init(const GPOLL_INTERFACE * gpoll_interface __attribute__((unused)), unsigned char mkb_src, int(*callback)(GE_Event*))
+int ev_init(const GPOLL_INTERFACE * poll_interface __attribute__((unused)), unsigned char mkb_src, int(*callback)(GE_Event*))
 {
   if (callback == NULL) {
     fprintf(stderr, "callback cannot be NULL\n");

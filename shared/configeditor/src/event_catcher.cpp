@@ -46,11 +46,11 @@ int event_catcher::init()
       src = GE_MKB_SOURCE_WINDOW_SYSTEM;
     }
     
-    GPOLL_INTERFACE gpoll_interace = {
+    GPOLL_INTERFACE poll_interace = {
             .fp_register = REGISTER_FUNCTION,
             .fp_remove = REMOVE_FUNCTION,
     };
-    if(ginput_init(&gpoll_interace, src, process_event) < 0)
+    if(ginput_init(&poll_interace, src, process_event) < 0)
     {
       return -1;
     }

@@ -205,7 +205,7 @@ static Window create_win(Display *dpy)
   return win;
 }
 
-int xinput_init(const GPOLL_INTERFACE * gpoll_interface, int (*callback)(GE_Event*))
+int xinput_init(const GPOLL_INTERFACE * poll_interface, int (*callback)(GE_Event*))
 {
   int ret = 0;
   int event, error;
@@ -221,20 +221,20 @@ int xinput_init(const GPOLL_INTERFACE * gpoll_interface, int (*callback)(GE_Even
     return -1;
   }
 
-  if (gpoll_interface->fp_register == NULL)
+  if (poll_interface->fp_register == NULL)
   {
     PRINT_ERROR_OTHER("fp_register is NULL")
     return -1;
   }
 
-  if (gpoll_interface->fp_remove == NULL)
+  if (poll_interface->fp_remove == NULL)
   {
     PRINT_ERROR_OTHER("fp_remove is NULL")
     return -1;
   }
 
   event_callback = callback;
-  fp_remove = gpoll_interface->fp_remove;
+  fp_remove = poll_interface->fp_remove;
 
   unsigned int i;
   for(i=0; i<sizeof(device_index)/sizeof(*device_index); ++i)
@@ -301,7 +301,7 @@ int xinput_init(const GPOLL_INTERFACE * gpoll_interface, int (*callback)(GE_Even
       .fp_write = NULL,
       .fp_close = xinput_close,
   };
-  gpoll_interface->fp_register(ConnectionNumber(dpy), i, &callbacks);
+  poll_interface->fp_register(ConnectionNumber(dpy), i, &callbacks);
 
   XEvent xevent;
 

@@ -8,6 +8,8 @@
 
 #include "ghid.h"
 
+int gusbhid_init();
+int gusbhid_exit();
 int gusbhid_open_ids(unsigned short vendor, unsigned short product);
 struct ghid_device * gusbhid_enumerate(unsigned short vendor, unsigned short product);
 void gusbhid_free_enumeration(struct ghid_device * hid_devs);

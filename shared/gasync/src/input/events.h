@@ -11,7 +11,7 @@
 
 #define MAX_EVENTS 256
 
-int ev_init(const GPOLL_INTERFACE * gpoll_interface, unsigned char mkb_src, int(*callback)(GE_Event*));
+int ev_init(const GPOLL_INTERFACE * poll_interface, unsigned char mkb_src, int(*callback)(GE_Event*));
 void ev_quit();
 
 int ev_joystick_register(const char* name, unsigned int effects, int (*haptic_cb)(const GE_Event * event));

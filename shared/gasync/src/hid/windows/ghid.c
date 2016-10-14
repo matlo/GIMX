@@ -11,6 +11,16 @@
 #include <common/gerror.h>
 #include <common/async.h>
 
+int ghid_init() {
+
+    return async_init();
+}
+
+int ghid_exit() {
+
+    return async_exit();
+}
+
 int open_path(const char * path, int print) {
 
   int device = async_open_path(path, print);

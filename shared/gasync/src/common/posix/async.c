@@ -15,6 +15,16 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+static unsigned int clients = 0;
+
+#define CHECK_INITIALIZED(PRINT,RETVALUE) \
+    if (clients == 0) { \
+        if (PRINT != 0) { \
+            PRINT_ERROR_OTHER("async_init should be called first") \
+        } \
+        return RETVALUE; \
+    }
+
 static struct {
     int fd;
     char * path;
@@ -45,8 +55,8 @@ static struct {
         return retValue; \
     }
 
-void async_init(void) __attribute__((constructor));
-void async_init(void)
+void async_init_static(void) __attribute__((constructor));
+void async_init_static(void)
 {
     int i;
     for (i = 0; i < ASYNC_MAX_DEVICES; ++i) {
@@ -54,15 +64,30 @@ void async_init(void)
     }
 }
 
-void async_clean(void) __attribute__((destructor));
-void async_clean(void)
-{
-    int i;
-    for (i = 0; i < ASYNC_MAX_DEVICES; ++i) {
-        if(devices[i].fd >= 0) {
-            async_close(i);
+int async_init() {
+
+    if (clients == UINT_MAX) {
+        PRINT_ERROR_OTHER("too many clients")
+        return -1;
+    }
+    ++clients;
+    return 0;
+}
+
+int async_exit(void) {
+
+    if (clients > 0) {
+        --clients;
+        if (clients == 0) {
+            int i;
+            for (i = 0; i < ASYNC_MAX_DEVICES; ++i) {
+                if(devices[i].fd >= 0) {
+                    async_close(i);
+                }
+            }
         }
     }
+    return 0;
 }
 
 static int add_device(const char * path, int fd, int print) {
@@ -92,6 +117,9 @@ static int add_device(const char * path, int fd, int print) {
 }
 
 int async_open_path(const char * path, int print) {
+
+    CHECK_INITIALIZED(print, -1)
+
     int ret = -1;
     if(path != NULL) {
         int fd = open(path, O_RDWR | O_NOCTTY | O_NONBLOCK);
@@ -114,7 +142,9 @@ int async_close(int device) {
 
     ASYNC_CHECK_DEVICE(device, -1)
 
-    devices[device].callback.fp_remove(devices[device].fd);
+    if (devices[device].callback.fp_remove != NULL) {
+        devices[device].callback.fp_remove(devices[device].fd);
+    }
 
     close(devices[device].fd);
 

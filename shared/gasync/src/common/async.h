@@ -40,6 +40,8 @@ typedef struct {
     ASYNC_REMOVE_SOURCE fp_remove;     // to remove device from event sources
 } ASYNC_CALLBACKS;
 
+int async_init();
+int async_exit();
 int async_open_path(const char * path, int print);
 int async_close(int device);
 int async_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout);

@@ -9,7 +9,7 @@
 #include <ginput.h>
 #include <gpoll.h>
 
-int mkb_init(const GPOLL_INTERFACE * gpoll_interface, int (*callback)(GE_Event*));
+int mkb_init(const GPOLL_INTERFACE * poll_interface, int (*callback)(GE_Event*));
 int mkb_close_device(int id);
 void mkb_quit();
 void mkb_grab(int mode);

@@ -79,6 +79,10 @@ static void dump(const unsigned char * packet, unsigned char length) {
 
 int hid_read(int user __attribute__((unused)), const void * buf, int status) {
 
+  if (is_done()) {
+    return -1;
+  }
+
   if (status < 0) {
     set_done();
     return 1;
@@ -205,6 +209,10 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
 
   setup_handlers();
 
+  if (ghid_init() < 0) {
+    return -1;
+  }
+
   char * path = hid_select();
 
   if(path == NULL) {
@@ -281,6 +289,8 @@ int main(int argc __attribute__((unused)), char* argv[] __attribute__((unused)))
       ghid_close(hid);
     }
   }
+
+  ghid_exit();
 
   free(path);
 

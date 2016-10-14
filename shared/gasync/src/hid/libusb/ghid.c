@@ -6,6 +6,16 @@
 #include <ghid.h>
 #include "gusbhid.h"
 
+int ghid_init() {
+
+    return gusbhid_init();
+}
+
+int ghid_exit() {
+
+    return gusbhid_exit();
+}
+
 /*
  * \brief Open a hid device.
  *

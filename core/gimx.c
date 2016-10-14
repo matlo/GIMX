@@ -192,7 +192,12 @@ int main(int argc, char *argv[])
     bt_abs_value = E_BT_ABS_BTSTACK;
   }
 
-  if (gusb_init(&((GPOLL_INTERFACE){ REGISTER_FUNCTION, REMOVE_FUNCTION })) < 0)
+  if (gusb_init() < 0)
+  {
+    goto QUIT;
+  }
+
+  if (gserial_init() < 0)
   {
     goto QUIT;
   }
@@ -270,15 +275,20 @@ int main(int argc, char *argv[])
     fp = process_event;
   }
 
+  if (ghid_init() < 0)
+  {
+    goto QUIT;
+  }
+
   //TODO MLA: if there is no config file:
   // - there's no need to read macros
   // - there's no need to read inputs
   // - there's no need to grab the mouse
-  GPOLL_INTERFACE gpoll_interace = {
+  GPOLL_INTERFACE poll_interace = {
           .fp_register = REGISTER_FUNCTION,
           .fp_remove = REMOVE_FUNCTION,
   };
-  if (ginput_init(&gpoll_interace, src, fp) < 0)
+  if (ginput_init(&poll_interace, src, fp) < 0)
   {
     goto QUIT;
   }
@@ -367,7 +377,11 @@ int main(int argc, char *argv[])
   cfg_clean();
   ginput_quit();
 
+  ghid_exit();
+
   adapter_clean();
+
+  gserial_exit();
 
   gusb_exit();
 

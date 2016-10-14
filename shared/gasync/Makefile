@@ -1,6 +1,6 @@
 DIRS = src/common src/hid src/input src/poll src/prio src/serial src/timer src/usb
 
-ifneq ($(OS),Windows_NT)
+ifeq ($(UHID),1)
 DIRS += src/uhid
 endif
 

@@ -13,6 +13,16 @@
 
 #define ASYNC_MAX_WRITE_QUEUE_SIZE 2
 
+static unsigned int clients = 0;
+
+#define CHECK_INITIALIZED(PRINT,RETVALUE) \
+    if (clients == 0) { \
+        if (PRINT != 0) { \
+            PRINT_ERROR_OTHER("async_init should be called first") \
+        } \
+        return RETVALUE; \
+    }
+
 typedef struct
 {
   struct
@@ -69,7 +79,7 @@ static void reset_handles(int device) {
 
 static BOOL (__stdcall *pCancelIoEx)(HANDLE, LPOVERLAPPED) = NULL;
 
-static inline void setup_cancel_io(void)
+static inline int setup_cancel_io(void)
 {
   HMODULE hKernel32 = GetModuleHandleA("KERNEL32");
   if (hKernel32 != NULL) {
@@ -77,27 +87,51 @@ static inline void setup_cancel_io(void)
   }
   if(pCancelIoEx == NULL) {
     PRINT_ERROR_GETLASTERROR("GetProcAddress")
-    exit(-1);
+    return -1;
   }
+  return 0;
 }
 
-void init(void) __attribute__((constructor));
-void init(void) {
+void async_init_static(void) __attribute__((constructor));
+void async_init_static(void) {
     int i;
     for (i = 0; i < ASYNC_MAX_DEVICES; ++i) {
         reset_handles(i);
     }
-    setup_cancel_io();
 }
 
-void clean(void) __attribute__((destructor));
-void clean(void) {
-    int i;
-    for (i = 0; i < ASYNC_MAX_DEVICES; ++i) {
-        if(devices[i].handle != INVALID_HANDLE_VALUE) {
-            async_close(i);
+int async_init() {
+
+    if (clients == UINT_MAX) {
+        PRINT_ERROR_OTHER("too many clients")
+        return -1;
+    }
+    
+    if (clients == 0 && pCancelIoEx == NULL) {
+        if (setup_cancel_io() < 0) {
+            return -1;
         }
     }
+
+    ++clients;
+
+    return 0;
+}
+
+int async_exit() {
+
+    if (clients > 0) {
+        --clients;
+        if (clients == 0) {
+            int i;
+            for (i = 0; i < ASYNC_MAX_DEVICES; ++i) {
+                if(devices[i].handle != INVALID_HANDLE_VALUE) {
+                    async_close(i);
+                }
+            }
+        }
+    }
+    return 0;
 }
 
 static int add_device(const char * path, HANDLE handle, int print) {
@@ -173,6 +207,9 @@ static int set_overlapped(int device) {
 }
 
 int async_open_path(const char * path, int print) {
+
+    CHECK_INITIALIZED(print, -1)
+
     DWORD accessdirection = GENERIC_READ | GENERIC_WRITE;
     DWORD sharemode = FILE_SHARE_READ | FILE_SHARE_WRITE;
     int ret = -1;
@@ -235,8 +272,10 @@ int async_close(int device) {
     free(devices[device].read.buf);
     free(devices[device].path);
 
-    devices[device].callback.fp_remove(devices[device].read.overlapped.hEvent);
-    devices[device].callback.fp_remove(devices[device].write.overlapped.hEvent);
+    if (devices[device].callback.fp_remove != NULL) {
+        devices[device].callback.fp_remove(devices[device].read.overlapped.hEvent);
+        devices[device].callback.fp_remove(devices[device].write.overlapped.hEvent);
+    }
 
     CloseHandle(devices[device].read.overlapped.hEvent);
     CloseHandle(devices[device].write.overlapped.hEvent);

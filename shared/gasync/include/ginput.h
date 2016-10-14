@@ -434,7 +434,7 @@ typedef enum
 extern "C" {
 #endif
 
-int ginput_init(const GPOLL_INTERFACE * gpoll_interface, unsigned char mkb_src, int(*fp)(GE_Event*));
+int ginput_init(const GPOLL_INTERFACE * poll_interface, unsigned char mkb_src, int(*fp)(GE_Event*));
 void ginput_grab_toggle();
 void ginput_grab();
 void ginput_release_unused();

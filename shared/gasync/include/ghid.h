@@ -57,6 +57,8 @@ typedef struct {
 #endif
 } s_hid_info;
 
+int ghid_init();
+int ghid_exit();
 int ghid_open_path(const char * device_path);
 int ghid_open_ids(unsigned short vendor, unsigned short product);
 struct ghid_device * ghid_enumerate(unsigned short vendor, unsigned short product);

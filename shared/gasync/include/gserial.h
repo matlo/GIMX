@@ -32,6 +32,8 @@ typedef struct {
 extern "C" {
 #endif
 
+int gserial_init();
+int gserial_exit();
 int gserial_open(const char * portname, unsigned int baudrate);
 int gserial_close(int device);
 int gserial_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout);

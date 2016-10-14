@@ -10,6 +10,16 @@
 #include <stdio.h>
 #include <unistd.h>
 
+int gserial_init() {
+
+    return async_init();
+}
+
+int gserial_exit() {
+
+    return async_exit();
+}
+
 typedef struct {
     unsigned char restoreParams;
     DCB prevParams;

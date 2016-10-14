@@ -16,13 +16,12 @@
 
 #define MAX_TIMERS 32
 
-static GPOLL_REMOVE_SOURCE fp_remove_fd = NULL;
-
 static struct {
   int fd;
   int user;
-  int (*fp_read)(int);
-  int (*fp_close)(int);
+  GPOLL_READ_CALLBACK fp_read;
+  GPOLL_CLOSE_CALLBACK fp_close;
+  GTIMER_REMOVE_SOURCE fp_remove;
 } timers[MAX_TIMERS] = { };
 
 #define CHECK_TIMER(TIMER,RETVALUE) \
@@ -106,8 +105,6 @@ int gtimer_start(int user, unsigned int usec, const GTIMER_CALLBACKS * callbacks
     return -1;
   }
 
-  fp_remove_fd = callbacks->fp_remove;
-
   int slot = get_slot();
   if (slot < 0) {
     PRINT_ERROR_OTHER("no slot available")
@@ -142,6 +139,7 @@ int gtimer_start(int user, unsigned int usec, const GTIMER_CALLBACKS * callbacks
   timers[slot].user = user;
   timers[slot].fp_read = callbacks->fp_read;
   timers[slot].fp_close = callbacks->fp_close;
+  timers[slot].fp_remove = callbacks->fp_remove;
 
   return slot;
 }
@@ -150,7 +148,7 @@ int gtimer_close(int timer) {
 
   CHECK_TIMER(timer, -1)
 
-  fp_remove_fd(timers[timer].fd);
+  timers[timer].fp_remove(timers[timer].fd);
   close(timers[timer].fd);
   memset(timers + timer, 0x00, sizeof(*timers));
   timers[timer].fd = -1;

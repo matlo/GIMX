@@ -112,20 +112,24 @@ int hidinput_register(s_hidinput_driver * driver) {
     return 0;
 }
 
-int hidinput_init(const GPOLL_INTERFACE * gpoll_interface, int(*callback)(GE_Event*)) {
+int hidinput_init(const GPOLL_INTERFACE * poll_interface, int(*callback)(GE_Event*)) {
 
     if (callback == NULL) {
       PRINT_ERROR_OTHER("callback is NULL")
       return -1;
     }
 
-    if (gpoll_interface->fp_register == NULL) {
+    if (poll_interface->fp_register == NULL) {
         PRINT_ERROR_OTHER("fp_register_fd is NULL")
         return -1;
     }
 
-    if (gpoll_interface->fp_remove == NULL) {
+    if (poll_interface->fp_remove == NULL) {
         PRINT_ERROR_OTHER("fp_remove is NULL")
+        return -1;
+    }
+
+    if (ghid_init() < 0) {
         return -1;
     }
 
@@ -152,8 +156,8 @@ int hidinput_init(const GPOLL_INTERFACE * gpoll_interface, int(*callback)(GE_Eve
                                 .fp_read = read_callback,
                                 .fp_write = write_callback,
                                 .fp_close = close_callback,
-                                .fp_register = gpoll_interface->fp_register,
-                                .fp_remove = gpoll_interface->fp_remove,
+                                .fp_register = poll_interface->fp_register,
+                                .fp_remove = poll_interface->fp_remove,
                         };
                         if (ghid_register(hid, hid, &callbacks) < 0) {
                             close_device(hid);
@@ -192,6 +196,8 @@ void hidinput_quit() {
     for (device = 0; device < sizeof(hid_devices) / sizeof(*hid_devices); ++device) {
         close_device(device);
     }
+
+    ghid_exit();
 }
 
 int hidinput_set_callbacks(int device, int user, int (* write_cb)(int user, int transfered), int (* close_cb)(int user)) {

@@ -258,20 +258,20 @@ static int is_event_file(const struct dirent *dir) {
   return 0;
 }
 
-int mkb_init(const GPOLL_INTERFACE * gpoll_interface, int (*callback)(GE_Event*))
+int mkb_init(const GPOLL_INTERFACE * poll_interface, int (*callback)(GE_Event*))
 {
   int ret = 0;
   int i, j;
   int fd;
   char device[sizeof("/dev/input/event255")];
 
-  if (gpoll_interface->fp_register == NULL)
+  if (poll_interface->fp_register == NULL)
   {
     PRINT_ERROR_OTHER("fp_register is NULL")
     return -1;
   }
 
-  if (gpoll_interface->fp_remove == NULL)
+  if (poll_interface->fp_remove == NULL)
   {
     PRINT_ERROR_OTHER("fp_remove is NULL")
     return -1;
@@ -289,7 +289,7 @@ int mkb_init(const GPOLL_INTERFACE * gpoll_interface, int (*callback)(GE_Event*)
   }
 
   event_callback = callback;
-  fp_remove = gpoll_interface->fp_remove;
+  fp_remove = poll_interface->fp_remove;
 
   for(i=0; i<GE_MAX_DEVICES; ++i)
   {
@@ -327,7 +327,7 @@ int mkb_init(const GPOLL_INTERFACE * gpoll_interface, int (*callback)(GE_Event*)
                   .fp_write = NULL,
                   .fp_close = mkb_close_device
           };
-          gpoll_interface->fp_register(devices[i].fd, i, &callbacks);
+          poll_interface->fp_register(devices[i].fd, i, &callbacks);
         }
         else
         {

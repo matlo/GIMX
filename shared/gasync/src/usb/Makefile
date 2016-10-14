@@ -6,8 +6,8 @@ CFLAGS += -fPIC
 LDFLAGS += -lusb-1.0
 
 ifeq ($(OS),Windows_NT)
-LDFLAGS += -L../timer
-LDLIBS += -lgimxtimer
+LDFLAGS += -L../timer -L../poll
+LDLIBS += -lgimxtimer -lgimxpoll
 endif
 
 include ../../../Makedefs

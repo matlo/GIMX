@@ -134,11 +134,16 @@ void timerres_end() {
         return -1; \
     }
 
-int timerres_begin(const GPOLL_INTERFACE * gpoll_interface, TIMERRES_CALLBACK timer_cb) {
+int timerres_begin(const GPOLL_INTERFACE * poll_interface, TIMERRES_CALLBACK timer_cb) {
 
-    CHECK_FUNCTION (gpoll_interface->fp_register)
-    CHECK_FUNCTION (gpoll_interface->fp_remove)
+    CHECK_FUNCTION (poll_interface->fp_register)
+    CHECK_FUNCTION (poll_interface->fp_remove)
     CHECK_FUNCTION (timer_cb)
+
+    if (fp_register != NULL && poll_interface->fp_register != fp_register) {
+        PRINT_ERROR_OTHER("timers do not support multiple poll interfaces on Windows")
+        return -1;
+    }
 
     int ret = 0;
 
@@ -154,8 +159,8 @@ int timerres_begin(const GPOLL_INTERFACE * gpoll_interface, TIMERRES_CALLBACK ti
         printf("Timer resolution: min=%lu max=%lu current=%lu\n", minimumResolution, maximumResolution, currentResolution);
 
         timer_callback = timer_cb;
-        fp_register = gpoll_interface->fp_register;
-        fp_remove = gpoll_interface->fp_remove;
+        fp_register = poll_interface->fp_register;
+        fp_remove = poll_interface->fp_remove;
         if (start_timer() < 0) {
             ret = -1;
         }

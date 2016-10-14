@@ -83,17 +83,20 @@ static int init(int(*callback)(GE_Event*) __attribute__((unused))) {
     return 0;
 }
 
-
+#ifdef UHID
 static int process(int device, const void * report, unsigned int size) {
 
-#ifdef UHID
     int ret = guhid_write(hid_devices[device].uhid, report, size);
 
     return ret < 0 ? -1 : 0;
-#else
-    return 0;
-#endif
 }
+#else
+static int process(int device __attribute__((unused)), const void * report __attribute__((unused)),
+    unsigned int size __attribute__((unused))) {
+
+    return 0;
+}
+#endif
 
 #ifdef UHID
 /* Fixed report descriptors for Logitech Driving Force (and Pro)
@@ -550,6 +553,7 @@ static s_native_mode * get_native_mode_command(unsigned short product, unsigned 
   return NULL;
 }
 
+#ifndef WIN32
 static int send_native_mode(const struct ghid_device * dev, const s_native_mode * native_mode) {
 
     int device = ghid_open_path(dev->path);
@@ -594,7 +598,6 @@ static int check_native_mode(const struct ghid_device * dev, unsigned short prod
     return (reset == 1) ? 0 : -1;
 }
 
-#ifndef WIN32
 static int set_native_mode(const struct ghid_device * dev, const s_native_mode * native_mode) {
 
     if (native_mode) {
@@ -611,7 +614,7 @@ static int set_native_mode(const struct ghid_device * dev, const s_native_mode *
     return 0;
 }
 #else
-static int set_native_mode(const struct ghid_device * dev, const s_native_mode * native_mode) {
+static int set_native_mode(const struct ghid_device * dev __attribute__((unused)), const s_native_mode * native_mode) {
 
     if (native_mode) {
         printf("Found Logitech wheel not in native mode.\n");

@@ -15,12 +15,9 @@
 #define POLLIN      0x001
 #define POLLOUT     0x004
 
-#define USBHIDASYNC_MAX_DEVICES 256
+#define MAX_DEVICES 256
 
-#define USBHIDASYNC_OUT_TIMEOUT 20 // ms
-
-static GHID_REGISTER_SOURCE fp_register = gpoll_register_fd; // TODO MLA
-static GHID_REMOVE_SOURCE fp_remove = gpoll_remove_fd; // TODO MLA
+#define OUT_TIMEOUT 20 // ms
 
 typedef struct {
   int configuration;
@@ -42,19 +39,22 @@ typedef struct {
 } s_config;
 
 static struct {
+  libusb_context * ctx;
   char * path;
   libusb_device_handle * devh;
   s_config config;
-  struct {
-    int user;
-    GHID_READ_CALLBACK fp_read;
-    GHID_WRITE_CALLBACK fp_write;
-    GHID_CLOSE_CALLBACK fp_close;
-  } callback;
+  GHID_CALLBACKS callbacks;
+  int user;
   int pending_transfers;
-} usbdevices[USBHIDASYNC_MAX_DEVICES] = { };
+} usbdevices[MAX_DEVICES] = { };
 
-static libusb_context* ctx = NULL;
+static unsigned int clients = 0;
+
+#define CHECK_INITIALIZED(RETVALUE) \
+    if (clients == 0) { \
+        PRINT_ERROR_OTHER("gusbhid_init should be called first") \
+        return RETVALUE; \
+    }
 
 static struct libusb_transfer ** transfers = NULL;
 static unsigned int transfers_nb = 0;
@@ -99,65 +99,30 @@ static void remove_transfer(struct libusb_transfer * transfer) {
   }
 }
 
-int handle_events(int unused __attribute__((unused))) {
+int gusbhid_init() {
 
-  if(ctx == NULL)
-  {
-    return 0;
-  }
-
-  return libusb_handle_events_timeout_completed(ctx, &((struct timeval){ 0, 0 }), NULL);
-}
-
-static int close_callback(int unused __attribute__((unused))) {
-
-  return 1;
-}
-
-static void pollfd_added_cb (int fd, short events, void *user_data __attribute__((unused))) {
-
-  GPOLL_CALLBACKS callbacks = {
-          .fp_read = (events & POLLIN) ? handle_events : NULL,
-          .fp_write = (events & POLLOUT) ? handle_events : NULL,
-          .fp_close = close_callback
-  };
-  fp_register(fd, 0, &callbacks);
-}
-
-static void pollfd_removed_cb (int fd, void *user_data __attribute__((unused))) {
-
-  fp_remove(fd);
-}
-
-void usbhidasync_init(void) __attribute__((constructor));
-void usbhidasync_init(void) {
-  int ret = libusb_init(&ctx);
-  if (ret != LIBUSB_SUCCESS) {
-    PRINT_ERROR_LIBUSB("libusb_init", ret)
-    exit(-1);
-  }
-  libusb_set_pollfd_notifiers(ctx, pollfd_added_cb, pollfd_removed_cb, 0);
-  const struct libusb_pollfd** pfd_usb = libusb_get_pollfds(ctx);
-  int poll_i;
-  for (poll_i = 0; pfd_usb[poll_i] != NULL && ret != -1; ++poll_i) {
-    pollfd_added_cb(pfd_usb[poll_i]->fd, pfd_usb[poll_i]->events, 0);
-  }
-  free(pfd_usb);
-}
-
-void usbhidasync_clean(void) __attribute__((destructor));
-void usbhidasync_clean(void) {
-  int i;
-  for (i = 0; i < USBHIDASYNC_MAX_DEVICES; ++i) {
-    if (usbdevices[i].devh != NULL) {
-      gusbhid_close(i);
+    if (clients == UINT_MAX) {
+        PRINT_ERROR_OTHER("too many clients")
+        return -1;
     }
-  }
-  libusb_exit(ctx);
+    ++clients;
+    return 0;
 }
 
-static inline int usbhidasync_check_device(int device, const char * file, unsigned int line, const char * func) {
-  if (device < 0 || device >= USBHIDASYNC_MAX_DEVICES) {
+int gusbhid_exit() {
+
+    int i;
+    for (i = 0; i < MAX_DEVICES; ++i) {
+        if (usbdevices[i].devh != NULL) {
+            gusbhid_close(i);
+        }
+    }
+    --clients;
+    return 0;
+}
+
+static inline int check_device(int device, const char * file, unsigned int line, const char * func) {
+  if (device < 0 || device >= MAX_DEVICES) {
     fprintf(stderr, "%s:%d %s: invalid device\n", file, line, func);
     return -1;
   }
@@ -167,8 +132,8 @@ static inline int usbhidasync_check_device(int device, const char * file, unsign
   }
   return 0;
 }
-#define USBHIDASYNC_CHECK_DEVICE(device,retValue) \
-  if(usbhidasync_check_device(device, __FILE__, __LINE__, __func__) < 0) { \
+#define CHECK_DEVICE(device,retValue) \
+  if(check_device(device, __FILE__, __LINE__, __func__) < 0) { \
     return retValue; \
   }
 
@@ -192,7 +157,7 @@ static char * make_path(libusb_device * dev, int interface_number, int interface
 
 static int add_device(const char * path, s_config * config, int print) {
   int i;
-  for (i = 0; i < USBHIDASYNC_MAX_DEVICES; ++i) {
+  for (i = 0; i < MAX_DEVICES; ++i) {
     if (usbdevices[i].path && !strcmp(usbdevices[i].path, path)) {
       if (print) {
         PRINT_ERROR_OTHER("device already opened")
@@ -200,7 +165,7 @@ static int add_device(const char * path, s_config * config, int print) {
       return -1;
     }
   }
-  for (i = 0; i < USBHIDASYNC_MAX_DEVICES; ++i) {
+  for (i = 0; i < MAX_DEVICES; ++i) {
     if (usbdevices[i].devh == NULL) {
       usbdevices[i].path = strdup(path);
       if (usbdevices[i].path != NULL) {
@@ -237,7 +202,7 @@ static void usb_callback(struct libusb_transfer* transfer);
 
 int gusbhid_poll(int device) {
 
-  USBHIDASYNC_CHECK_DEVICE(device, -1)
+  CHECK_DEVICE(device, -1)
 
   unsigned int address = usbdevices[device].config.endpoints.in.address;
   unsigned int size = usbdevices[device].config.endpoints.in.size;
@@ -268,14 +233,14 @@ static void usb_callback(struct libusb_transfer* transfer) {
   int device = (intptr_t) transfer->user_data;
 
   //make sure the device still exists, in case something went wrong
-  if(usbhidasync_check_device(device, __FILE__, __LINE__, __func__) == 0) {
+  if(check_device(device, __FILE__, __LINE__, __func__) == 0) {
     if (transfer->type == LIBUSB_TRANSFER_TYPE_INTERRUPT) {
       if (transfer->status == LIBUSB_TRANSFER_COMPLETED) {
         if (transfer->endpoint == usbdevices[device].config.endpoints.in.address) {
-          usbdevices[device].callback.fp_read(usbdevices[device].callback.user, transfer->buffer,
+          usbdevices[device].callbacks.fp_read(usbdevices[device].user, transfer->buffer,
               transfer->actual_length);
         } else if (transfer->endpoint == usbdevices[device].config.endpoints.out.address) {
-          usbdevices[device].callback.fp_write(usbdevices[device].callback.user, transfer->actual_length);
+          usbdevices[device].callbacks.fp_write(usbdevices[device].user, transfer->actual_length);
         }
       } else {
         if (transfer->endpoint == usbdevices[device].config.endpoints.out.address
@@ -284,9 +249,9 @@ static void usb_callback(struct libusb_transfer* transfer) {
         }
         if (transfer->status != LIBUSB_TRANSFER_CANCELLED) {
             if (transfer->endpoint == usbdevices[device].config.endpoints.in.address) {
-              usbdevices[device].callback.fp_read(usbdevices[device].callback.user, NULL, -1);
+              usbdevices[device].callbacks.fp_read(usbdevices[device].user, NULL, -1);
             } else if (transfer->endpoint == usbdevices[device].config.endpoints.out.address) {
-              usbdevices[device].callback.fp_write(usbdevices[device].callback.user, -1);
+              usbdevices[device].callbacks.fp_write(usbdevices[device].user, -1);
             }
         }
       }
@@ -298,7 +263,7 @@ static void usb_callback(struct libusb_transfer* transfer) {
 
 int gusbhid_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout) {
 
-  USBHIDASYNC_CHECK_DEVICE(device, -1)
+  CHECK_DEVICE(device, -1)
 
   if (usbdevices[device].config.endpoints.out.address == 0x00) {
 
@@ -334,7 +299,7 @@ int gusbhid_write_timeout(int device, const void * buf, unsigned int count, unsi
 
 int gusbhid_read_timeout(int device, void * buf, unsigned int count, unsigned int timeout) {
 
-  USBHIDASYNC_CHECK_DEVICE(device, -1)
+  CHECK_DEVICE(device, -1)
 
   if (usbdevices[device].config.endpoints.in.address == 0x00) {
 
@@ -604,6 +569,8 @@ static int claim_device(int device, libusb_device * dev, struct libusb_device_de
 
 struct ghid_device * gusbhid_enumerate(unsigned short vendor, unsigned short product) {
 
+  CHECK_INITIALIZED(NULL)
+
   struct ghid_device * devs = NULL;
   struct ghid_device * last = NULL;
 
@@ -613,14 +580,18 @@ struct ghid_device * gusbhid_enumerate(unsigned short vendor, unsigned short pro
   static ssize_t cnt = 0;
   int dev_i;
 
-  if (!ctx) {
-    PRINT_ERROR_OTHER("no libusb context")
-    return NULL;
+  libusb_context * ctx = NULL;
+
+  ret = libusb_init(&ctx);
+  if (ret != LIBUSB_SUCCESS) {
+      PRINT_ERROR_LIBUSB("libusb_init", ret)
+      return NULL;
   }
 
   cnt = libusb_get_device_list(ctx, &usb_devs);
   if (cnt < 0) {
     PRINT_ERROR_LIBUSB("libusb_get_device_list", cnt)
+    libusb_exit(ctx);
     return NULL;
   }
 
@@ -687,6 +658,8 @@ struct ghid_device * gusbhid_enumerate(unsigned short vendor, unsigned short pro
 
   libusb_free_device_list(usb_devs, 1);
 
+  libusb_exit(ctx);
+
   return devs;
 }
 
@@ -703,20 +676,26 @@ void gusbhid_free_enumeration(struct ghid_device * devs) {
 
 int gusbhid_open_ids(unsigned short vendor, unsigned short product) {
 
+  CHECK_INITIALIZED(-1)
+
   int ret = -1;
 
   static libusb_device** devs = NULL;
   static ssize_t cnt = 0;
   int dev_i;
 
-  if (!ctx) {
-    PRINT_ERROR_OTHER("no libusb context")
-    return -1;
+  libusb_context * ctx = NULL;
+
+  ret = libusb_init(&ctx);
+  if (ret != LIBUSB_SUCCESS) {
+      PRINT_ERROR_LIBUSB("libusb_init", ret)
+      return -1;
   }
 
   cnt = libusb_get_device_list(ctx, &devs);
   if (cnt < 0) {
     PRINT_ERROR_LIBUSB("libusb_get_device_list", cnt)
+    libusb_exit(ctx);
     return -1;
   }
 
@@ -745,6 +724,7 @@ int gusbhid_open_ids(unsigned short vendor, unsigned short product) {
             if (claim_device(device, devs[dev_i], &desc) != -1) {
               libusb_free_device_list(devs, 1);
               free(configs);
+              usbdevices[device].ctx = ctx;
               return device;
             } else {
               gusbhid_close(device);
@@ -758,10 +738,14 @@ int gusbhid_open_ids(unsigned short vendor, unsigned short product) {
 
   libusb_free_device_list(devs, 1);
 
+  libusb_exit(ctx);
+
   return -1;
 }
 
 int gusbhid_open_path(const char * path) {
+
+  CHECK_INITIALIZED(-1)
 
   int ret = -1;
 
@@ -774,9 +758,12 @@ int gusbhid_open_path(const char * path) {
     return -1;
   }
 
-  if (!ctx) {
-    PRINT_ERROR_OTHER("no libusb context")
-    return -1;
+  libusb_context * ctx = NULL;
+
+  ret = libusb_init(&ctx);
+  if (ret != LIBUSB_SUCCESS) {
+      PRINT_ERROR_LIBUSB("libusb_init", ret)
+      return -1;
   }
 
   cnt = libusb_get_device_list(ctx, &devs);
@@ -806,6 +793,7 @@ int gusbhid_open_path(const char * path) {
           if (claim_device(device, devs[dev_i], &desc) != -1) {
             libusb_free_device_list(devs, 1);
             free(configs);
+            usbdevices[device].ctx = ctx;
             return device;
           } else {
             gusbhid_close(device);
@@ -817,41 +805,127 @@ int gusbhid_open_path(const char * path) {
 
   libusb_free_device_list(devs, 1);
 
+  libusb_exit(ctx);
+
   return -1;
 }
 
 const s_hid_info * gusbhid_get_hid_info(int device) {
 
-  USBHIDASYNC_CHECK_DEVICE(device, NULL)
+  CHECK_DEVICE(device, NULL)
 
   return &usbdevices[device].config.hidInfo;
 }
 
+static int handle_events(int device) {
+
+  CHECK_DEVICE(device, -1)
+
+  return libusb_handle_events_timeout_completed(usbdevices[device].ctx, &((struct timeval){ 0, 0 }), NULL);
+}
+
+static int close_callback(int device) {
+
+  CHECK_DEVICE(device, -1)
+
+  return usbdevices[device].callbacks.fp_close(usbdevices[device].user);
+}
+
+static inline int pollfd_register(int device, int fd, short events) {
+
+    GPOLL_CALLBACKS callbacks = {
+            .fp_read = (events & POLLIN) ? handle_events : NULL,
+            .fp_write = (events & POLLOUT) ? handle_events : NULL,
+            .fp_close = close_callback
+    };
+
+    return usbdevices[device].callbacks.fp_register(fd, device, &callbacks);
+}
+
+static void pollfd_added_cb (int fd, short events, void * user_data) {
+
+  int device = (intptr_t) user_data;
+
+  CHECK_DEVICE(device, )
+
+  pollfd_register(device, fd, events);
+}
+
+static inline void pollfd_remove (int device, int fd) {
+
+  usbdevices[device].callbacks.fp_remove(fd);
+}
+
+static void pollfd_removed_cb (int fd, void * user_data) {
+
+  int device = (intptr_t) user_data;
+
+  CHECK_DEVICE(device, )
+
+  pollfd_remove(device, fd);
+}
+
+static int set_notifiers(int device, libusb_context * ctx) {
+
+    int ret = 0;
+    libusb_set_pollfd_notifiers(ctx, pollfd_added_cb, pollfd_removed_cb, (void *)(intptr_t) device);
+    const struct libusb_pollfd ** pollfds = libusb_get_pollfds(ctx);
+    int i;
+    for (i = 0; pollfds[i] != NULL && ret != -1; ++i) {
+      ret = pollfd_register(device, pollfds[i]->fd, pollfds[i]->events);
+    }
+    free(pollfds);
+
+    if (ret == -1) {
+        // roll-back
+        for (i = i - 1; i >= 0; --i) {
+            pollfd_remove(device, pollfds[i]->fd);
+        }
+        libusb_set_pollfd_notifiers(ctx, NULL, NULL, NULL);
+        return -1;
+    }
+
+    return 0;
+}
+
 int gusbhid_register(int device, int user, const GHID_CALLBACKS * callbacks) {
 
-  USBHIDASYNC_CHECK_DEVICE(device, -1)
+  CHECK_DEVICE(device, -1)
 
-  if (usbdevices[device].callback.fp_read != NULL && usbdevices[device].config.endpoints.in.address == 0x00) {
+  if (callbacks->fp_read != NULL && usbdevices[device].config.endpoints.in.address == 0x00) {
 
     PRINT_ERROR_OTHER("the device has no HID IN endpoint")
     return -1;
   }
 
+  if (callbacks->fp_register == NULL) {
+
+    PRINT_ERROR_OTHER("fp_register is NULL")
+    return -1;
+  }
+
+  if (callbacks->fp_remove == NULL) {
+
+    PRINT_ERROR_OTHER("fp_remove is NULL")
+    return -1;
+  }
+
   // Checking the presence of a HID OUT endpoint is done in the gusbhid_write* functions.
 
-  usbdevices[device].callback.user = user;
-  usbdevices[device].callback.fp_read = callbacks->fp_read;
-  usbdevices[device].callback.fp_write = callbacks->fp_write;
-  usbdevices[device].callback.fp_close = callbacks->fp_close;
+  usbdevices[device].callbacks = *callbacks;
 
-  fp_register = callbacks->fp_register;
-  fp_remove = callbacks->fp_remove;
+  if (set_notifiers(device, usbdevices[device].ctx) < 0) {
+      memset(&usbdevices[device].callbacks, 0x00, sizeof(usbdevices[device].callbacks));
+      return -1;
+  }
+
+  usbdevices[device].user = user;
 
   return 0;
 }
 
 /*
- * Cancel all pending tranfers for a given device.
+ * Cancel all pending transfers for a given device.
  */
 static void cancel_transfers(int device) {
   unsigned int i;
@@ -865,7 +939,7 @@ static void cancel_transfers(int device) {
 
   while (usbdevices[device].pending_transfers) {
 
-    if (libusb_handle_events(ctx) != LIBUSB_SUCCESS) {
+    if (libusb_handle_events(usbdevices[device].ctx) != LIBUSB_SUCCESS) {
 
       break;
     }
@@ -874,7 +948,7 @@ static void cancel_transfers(int device) {
 
 int gusbhid_close(int device) {
 
-  if (device < 0 || device >= USBHIDASYNC_MAX_DEVICES) {
+  if (device < 0 || device >= MAX_DEVICES) {
     PRINT_ERROR_OTHER("invalid device");
     return -1;
   }
@@ -892,6 +966,10 @@ int gusbhid_close(int device) {
     libusb_close(usbdevices[device].devh);
   }
 
+  if (usbdevices[device].ctx != NULL) {
+      libusb_exit(usbdevices[device].ctx);
+  }
+
   free(usbdevices[device].path);
   free(usbdevices[device].config.hidInfo.reportDescriptor);
   free(usbdevices[device].config.hidInfo.manufacturerString);
@@ -904,7 +982,7 @@ int gusbhid_close(int device) {
 
 int gusbhid_write(int device, const void * buf, unsigned int count) {
 
-  USBHIDASYNC_CHECK_DEVICE(device, -1)
+  CHECK_DEVICE(device, -1)
 
   if (usbdevices[device].config.endpoints.out.address == 0x00) {
 
@@ -912,7 +990,7 @@ int gusbhid_write(int device, const void * buf, unsigned int count) {
     return -1;
   }
 
-  if (usbdevices[device].callback.fp_write == NULL) {
+  if (usbdevices[device].callbacks.fp_write == NULL) {
 
     PRINT_ERROR_OTHER("missing write callback")
     return -1;
@@ -947,7 +1025,7 @@ int gusbhid_write(int device, const void * buf, unsigned int count) {
   }
 
   libusb_fill_interrupt_transfer(transfer, usbdevices[device].devh, usbdevices[device].config.endpoints.out.address,
-      buffer, count, (libusb_transfer_cb_fn) usb_callback, (void *) (unsigned long) device, USBHIDASYNC_OUT_TIMEOUT);
+      buffer, count, (libusb_transfer_cb_fn) usb_callback, (void *) (unsigned long) device, OUT_TIMEOUT);
 
   return submit_transfer(transfer);
 }

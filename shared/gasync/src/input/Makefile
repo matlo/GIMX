@@ -20,9 +20,11 @@ LDFLAGS += -L../poll
 LDLIBS += -lgimxpoll
 LDLIBS += `sdl2-config --libs`
 else
+ifeq ($(UHID),1)
 CFLAGS += -DUHID
 LDFLAGS += -L../uhid
 LDLIBS += -lgimxuhid
+endif
 LDLIBS += -lXi -lX11
 endif
 

@@ -33,7 +33,7 @@ typedef struct {
 
 int hidinput_register(s_hidinput_driver * driver);
 
-int hidinput_init(const GPOLL_INTERFACE * gpoll_interface, int(*callback)(GE_Event*));
+int hidinput_init(const GPOLL_INTERFACE * poll_interface, int(*callback)(GE_Event*));
 int hidinput_poll();
 void hidinput_quit();
 

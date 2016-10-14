@@ -101,11 +101,11 @@ int gtimer_start(int user, unsigned int usec, const GTIMER_CALLBACKS * callbacks
         return -1;
     }
 
-    GPOLL_INTERFACE gpoll_interface = {
+    GPOLL_INTERFACE poll_interface = {
       .fp_register = callbacks->fp_register,
       .fp_remove = callbacks->fp_remove,
     };
-    int timer_resolution = timerres_begin(&gpoll_interface, timer_cb);
+    int timer_resolution = timerres_begin(&poll_interface, timer_cb);
     if (timer_resolution < 0) {
         return -1;
     }

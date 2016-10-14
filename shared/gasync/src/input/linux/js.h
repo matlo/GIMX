@@ -9,7 +9,7 @@
 #include <ginput.h>
 #include <gpoll.h>
 
-int js_init(const GPOLL_INTERFACE * gpoll_interface, int (*callback)(GE_Event*));
+int js_init(const GPOLL_INTERFACE * poll_interface, int (*callback)(GE_Event*));
 int js_close(int id);
 void js_quit();
 const char* js_get_name(int index);

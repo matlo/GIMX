@@ -97,18 +97,18 @@ static const char* _8BIT_to_UTF8(const char* _8bit)
  * \return 1 if successful
  *         0 in case of error
  */
-int ginput_init(const GPOLL_INTERFACE * gpoll_interface, unsigned char mkb_src, int(*callback)(GE_Event*))
+int ginput_init(const GPOLL_INTERFACE * poll_interface, unsigned char mkb_src, int(*callback)(GE_Event*))
 {
   int i = 0;
   int j;
   const char* name;
 
-  if (hidinput_init(gpoll_interface, callback) < 0)
+  if (hidinput_init(poll_interface, callback) < 0)
   {
       return -1;
   }
 
-  if (ev_init(gpoll_interface, mkb_src, callback) < 0)
+  if (ev_init(poll_interface, mkb_src, callback) < 0)
   {
     return -1;
   }

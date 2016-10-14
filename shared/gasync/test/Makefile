@@ -1,3 +1,6 @@
+CFLAGS += -s -O3
+CXXFLAGS += -s -O3
+
 CPPFLAGS = -I../include
 
 LDFLAGS = -L../src/hid \
@@ -21,10 +24,10 @@ LDFLAGS += -L../src/uhid
 LDLIBS += -lgimxuhid
 endif
 
-OUT=ginput_test ghid_test gserial_test gtimer_test ginput_haptic_test
+OUT=ginput_test ghid_test gserial_test gtimer_test ginput_haptic_test gusb_test
 OBJS=common.o
 LDLIBS += -lm
-BINS=ginput_test ghid_test gserial_test gtimer_test ginput_haptic_test
+BINS=ginput_test ghid_test gserial_test gtimer_test ginput_haptic_test gusb_test
 ifeq ($(OS),Windows_NT)
 CPPFLAGS += `sdl2-config --cflags`
 LDLIBS += $(shell sdl2-config --libs) -liconv -lws2_32 -lwinmm -lhid -lsetupapi
@@ -53,5 +56,7 @@ guhid_test: $(OBJS)
 gserial_test: $(OBJS)
 
 gtimer_test: $(OBJS)
+
+gusb_test: $(OBJS)
 
 ginput_haptic_test: $(OBJS)
