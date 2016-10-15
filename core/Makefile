@@ -87,8 +87,8 @@ install: all
 
 uninstall:
 	-for i in $(BINS); do $(RM) $(bindir)/$$i; done
-	-$(RM) $(bindir)
-	-$(RM) $(prefix)
+	-rmdir $(bindir)
+	-rmdir $(prefix)
 
 really-clean: clean uninstall
 endif

@@ -28,13 +28,14 @@ clean:
 
 ifneq ($(OS),Windows_NT)
 install: all
+	mkdir -p $(prefix)
 	mkdir -p $(libdir)
 	cp $(LIBNAME)$(SHLIB_SUFFIX) $(libdir)
 
 uninstall:
 	-$(RM) $(libdir)/$(LIBNAME)$(SHLIB_SUFFIX)
-	-$(RM) $(libdir)
-	-$(RM) $(prefix)
+	-rmdir $(libdir)
+	-rmdir $(prefix)
 
 really-clean: clean uninstall
 endif

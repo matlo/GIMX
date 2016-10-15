@@ -51,11 +51,13 @@ install: all
 	cp gimx-$(NAME).png $(prefix)/share/pixmaps
 
 uninstall:
-	-for i in $(BINS); do $(RM) $(bindir)/$$i; done
-	-$(RM) $(bindir)
-	-$(RM) $(prefix)
-	-$(RM) $(prefix)/share/applications/gimx-$(NAME).desktop
 	-$(RM) $(prefix)/share/pixmaps/gimx-$(NAME).png
+	-$(RM) $(prefix)/share/applications/gimx-$(NAME).desktop
+	-for i in $(BINS); do $(RM) $(bindir)/$$i; done
+	-rmdir $(prefix)/share/pixmaps
+	-rmdir $(prefix)/share/applications
+	-rmdir $(bindir)
+	-rmdir $(prefix)
 
 really-clean: clean uninstall
 endif
