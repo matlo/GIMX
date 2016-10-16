@@ -13,15 +13,11 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
 #include <unistd.h>
-#ifndef __ARM_ARCH_6__
-#include <bluetooth/mgmt.h>
-#else
-#include <connectors/rpi/bluetooth/mgmt.h>
-#endif
 #include <sys/param.h>
 
 #include <poll.h>
 
+#include <connectors/linux/bluetooth/mgmt.h>
 #include <connectors/bluetooth/bt_device_abs.h>
 #include <gimx.h>
 #include "../../directories.h"
@@ -126,7 +122,7 @@ static int mgmt_set_local_name(int sk, uint16_t index)
   return 0;
 }
 
-static int mgmt_cmd_complete(int sk, uint16_t index, void *buf, size_t len)
+static int mgmt_cmd_complete(void *buf, size_t len)
 {
   struct mgmt_ev_cmd_complete *ev = buf;
   uint16_t opcode;
@@ -193,7 +189,7 @@ static int mgmt_cmd_complete(int sk, uint16_t index, void *buf, size_t len)
   return ret;
 }
 
-static int mgmt_read_evt(int sk, int eindex)
+static int mgmt_read_evt(int sk)
 {
   int ret;
   unsigned char buf[MGMT_BUF_SIZE];
@@ -245,7 +241,7 @@ static int mgmt_read_evt(int sk, int eindex)
 
   switch (opcode) {
   case MGMT_EV_CMD_COMPLETE:
-    return mgmt_cmd_complete(sk, index, buf + MGMT_HDR_SIZE, len);
+    return mgmt_cmd_complete(buf + MGMT_HDR_SIZE, len);
   default:
     fprintf(stderr, "Unknown Management opcode %u (index %u)\n", opcode, index);
     break;
@@ -377,7 +373,7 @@ int bt_mgmt_adapter_init(uint16_t index)
     return -1;
   }
 
-  if(mgmt_read_evt(sk, index) < 0)
+  if(mgmt_read_evt(sk) < 0)
   {
     close(sk);
     return -1;
@@ -392,7 +388,7 @@ int bt_mgmt_adapter_init(uint16_t index)
     return -1;
   }
 
-  if(mgmt_read_evt(sk, index) < 0)
+  if(mgmt_read_evt(sk) < 0)
   {
     close(sk);
     return -1;
@@ -407,7 +403,7 @@ int bt_mgmt_adapter_init(uint16_t index)
     return -1;
   }
 
-  if(mgmt_read_evt(sk, index) < 0)
+  if(mgmt_read_evt(sk) < 0)
   {
     close(sk);
     return -1;
@@ -432,7 +428,7 @@ int bt_mgmt_adapter_init(uint16_t index)
     return -1;
   }
 
-  if(mgmt_read_evt(sk, index) < 0)
+  if(mgmt_read_evt(sk) < 0)
   {
     close(sk);
     return -1;

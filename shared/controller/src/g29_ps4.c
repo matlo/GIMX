@@ -275,14 +275,17 @@ static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_
 static s_controller controller =
 {
   .name = "G29 PS4",
+  .vid = 0x046d,
+  .pid = 0xc24f,
   .refresh_period = { .min_value = 1000, .default_value = 5000 },
+  .auth_required = 1,
   .axes = axes,
   .axis_name_dirs = { .nb = sizeof(axis_name_dirs)/sizeof(*axis_name_dirs), .values = axis_name_dirs },
   .fp_build_report = build_report,
   .fp_init_report = init_report,
 };
 
-void g29Ps4_init(void) __attribute__((constructor (101)));
+void g29Ps4_init(void) __attribute__((constructor));
 void g29Ps4_init(void)
 {
   controller_register(C_TYPE_G29_PS4, &controller);

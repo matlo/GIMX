@@ -11,7 +11,7 @@
 
 s_controller * controllers[C_TYPE_MAX] = {};
 
-inline int clamp(int min, int val, int max)
+int clamp(int min, int val, int max)
 {
   if (val < min)
     return min;
@@ -45,24 +45,6 @@ void controller_register(e_controller_type type, s_controller * controller)
   controllers[type] = controller;
 }
 
-void controller_init(void) __attribute__((constructor (102)));
-void controller_init(void)
-{
-  int type;
-  for(type=0; type<C_TYPE_MAX; ++type)
-  {
-    if(controllers[type] == NULL)
-    {
-      fprintf(stderr, "Controller %d is missing parameters!\n", type);
-      exit(-1);
-    }
-    if(!controllers[type]->axis_name_dirs.values)
-    {
-      fprintf(stderr, "Controller %d is missing axis names!\n", type);
-      exit(-1);
-    }
-  }
-}
 
 int controller_get_min_refresh_period(e_controller_type type)
 {
@@ -82,7 +64,7 @@ int controller_get_default_refresh_period(e_controller_type type)
   return DEFAULT_REFRESH_PERIOD;
 }
 
-inline int controller_get_max_unsigned(e_controller_type type, int axis)
+int controller_get_max_unsigned(e_controller_type type, int axis)
 {
   if(type < C_TYPE_MAX && axis < AXIS_MAX)
   {
@@ -91,7 +73,7 @@ inline int controller_get_max_unsigned(e_controller_type type, int axis)
   return DEFAULT_MAX_AXIS_VALUE;
 }
 
-inline int controller_get_max_signed(e_controller_type type, int axis)
+int controller_get_max_signed(e_controller_type type, int axis)
 {
   if(axis < abs_axis_0)
   {
@@ -109,12 +91,12 @@ inline int controller_get_max_signed(e_controller_type type, int axis)
   }
 }
 
-inline int controller_get_mean_unsigned(e_controller_type type, int axis)
+int controller_get_mean_unsigned(e_controller_type type, int axis)
 {
   return controller_get_max_unsigned(type, axis) / 2 + 1;
 }
 
-inline double controller_get_axis_scale(e_controller_type type, int axis)
+double controller_get_axis_scale(e_controller_type type, int axis)
 {
   return (double) controller_get_max_unsigned(type, axis) / DEFAULT_MAX_AXIS_VALUE;
 }
@@ -384,4 +366,18 @@ int controller_get_axis_index(const char* name)
   }
 
   return axis;
+}
+
+int controller_is_auth_required(e_controller_type type)
+{
+  return controllers[type]->auth_required;
+}
+
+void controller_get_ids(e_controller_type type, unsigned short * vid, unsigned short * pid)
+{
+  if(type < C_TYPE_MAX)
+  {
+    *vid = controllers[type]->vid;
+    *pid = controllers[type]->pid;
+  }
 }

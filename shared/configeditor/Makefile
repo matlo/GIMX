@@ -1,13 +1,17 @@
-include ../../Makedefs
+OBJECTS += $(patsubst %.cpp,%.o,$(wildcard src/*.cpp))
 
-LIBNAME=$(shell basename $(shell pwd)).a
-OBJECTS := $(patsubst %.cpp,%.o,$(wildcard src/*.cpp))
-CPPFLAGS+=-I/usr/include/ -I../event/include -Iinclude -I/usr/include/libxml2 -I../controller/include
+CXXFLAGS += -fPIC `xml2-config --cflags` -Iinclude -I../controller/include -I../gasync/include
 
-all: $(LIBNAME)
+LDFLAGS += -lstdc++ -L../gasync/src/hid -L../gasync/src/input -L../gasync/src/timer -L../gasync/src/poll -L../controller
+LDLIBS += `xml2-config --libs` -lgimxhid -lgimxinput -lgimxtimer -lgimxpoll -lgimxcontroller
 
-$(LIBNAME): $(OBJECTS)
-	$(AR) $(ARFLAGS) $@ $?
+ifeq ($(OS),Windows_NT)
+CXXFLAGS += `sdl2-config --cflags`
+else
+ifeq ($(UHID),1)
+LDFLAGS += -L../gasync/src/uhid
+LDLIBS += -lgimxuhid
+endif
+endif
 
-clean:
-	$(RM) $(LIBNAME) $(OBJECTS)
+include ../Makedefs

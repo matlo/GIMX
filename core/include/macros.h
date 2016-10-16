@@ -6,7 +6,7 @@
 #ifndef MACROS_H
 #define MACROS_H
 
-#include <GE.h>
+#include <ginput.h>
 
 void macro_lookup(GE_Event*);
 unsigned int macro_process();

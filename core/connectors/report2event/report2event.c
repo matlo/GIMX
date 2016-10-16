@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2014 Mathieu Laurendeau
+ Copyright (c) 2014 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -50,8 +50,10 @@ void report2event(e_controller_type type, int adapter_id, s_report* current,
 {
   if (controllers[type].r2e)
   {
-    controllers[type].r2e(adapter_id, current, previous, joystick_id,
-        event_callback);
+    if (event_callback)
+    {
+      controllers[type].r2e(adapter_id, current, previous, joystick_id, event_callback);
+    }
   }
   else
   {

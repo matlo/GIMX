@@ -7,6 +7,9 @@
 #define EVENT_CATCHER_H
 
 #include <string>
+#include <vector>
+#include "Device.h"
+#include "Event.h"
 
 using namespace std;
 
@@ -14,22 +17,17 @@ class event_catcher
 {
     public:
         string GetDeviceType() { return m_DeviceType; }
-        string GetDeviceName() { return m_DeviceName; }
-        string GetDeviceId() { return m_DeviceId; }
         string GetEventType() { return m_EventType; }
-        string GetEventId() { return m_EventId; }
-        void SetDeviceType(string device_type) { m_DeviceType = device_type; }
-        void SetDeviceName(string device_name) { m_DeviceName = device_name; }
-        void SetDeviceId(string device_id) { m_DeviceId = device_id; }
-        void SetEventType(string event_type) { m_EventType = event_type; }
-        void SetEventId(string event_id) { m_EventId = event_id; }
         void SetDone() { done = 1; }
         int GetDone() { return done; }
         void SetWindowEvents(bool value) { wevents = value; }
+        void StartTimer();
         int init();
         void run(string device_type, string event_type);
         void clean();
         bool check_device(string device_type, string device_name, string device_id);
+        void AddEvent(Device device, Event event);
+        vector<pair<Device, Event> > * GetEvents() { return &m_Events; }
         static event_catcher* getInstance ()
         {
           if (NULL == _singleton)
@@ -42,12 +40,11 @@ class event_catcher
     private:
         event_catcher();
         virtual ~event_catcher();
+        vector<pair<Device, Event> > m_Events;
         string m_DeviceType;
-        string m_DeviceName;
-        string m_DeviceId;
         string m_EventType;
-        string m_EventId;
         unsigned int done;
+        int stopTimer;
         bool wevents;
 
         static event_catcher* _singleton;

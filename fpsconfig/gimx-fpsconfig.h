@@ -43,6 +43,23 @@ typedef enum axis_index {
 
 class fpsconfigFrame: public wxFrame
 {
+    class wxBackgroundBitmap : public wxEvtHandler {
+        typedef wxEvtHandler Inherited;
+    public:
+        wxBackgroundBitmap(const wxBitmap &B) : wxEvtHandler(), Bitmap(B) { }
+        bool ProcessEvent(wxEvent &Event)
+        {
+            if (Event.GetEventType() == wxEVT_ERASE_BACKGROUND) {
+                wxEraseEvent &EraseEvent = dynamic_cast<wxEraseEvent &>(Event);
+                wxDC *DC = EraseEvent.GetDC();
+                DC->DrawBitmap(Bitmap, 0, 0, false);
+                return true;
+            } else return Inherited::ProcessEvent(Event);
+        }
+    protected:
+        wxBitmap            Bitmap;
+    };
+
     public:
 
         fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id = -1);
@@ -78,6 +95,8 @@ class fpsconfigFrame: public wxFrame
         void readLabels();
 
         string reverseTranslate(string str);
+
+        pair<Device, Event> selectEvent();
 
         //(*Identifiers(fpsconfigFrame)
         static const long ID_SPINCTRL8;
@@ -217,6 +236,8 @@ class fpsconfigFrame: public wxFrame
         wxMenuItem* MenuItemOpenConfigDirectory;
         wxStaticText* StaticTextXy;
         //*)
+
+        wxBackgroundBitmap* ToolBarBackground;
 
         wxLocale* locale;
 

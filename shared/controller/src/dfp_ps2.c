@@ -215,6 +215,8 @@ static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_
 static s_controller controller =
 {
   .name = "DFP PS2",
+  .vid = 0x046d,
+  .pid = 0xc298,
   .refresh_period = { .min_value = 10000, .default_value = 10000 },
   .axes = axes,
   .axis_name_dirs = { .nb = sizeof(axis_name_dirs)/sizeof(*axis_name_dirs), .values = axis_name_dirs },

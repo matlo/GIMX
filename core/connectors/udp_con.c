@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2013 Mathieu Laurendeau
+ Copyright (c) 2013 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -10,7 +10,7 @@
 #endif
 #include <stdio.h>
 #include <unistd.h>
-#include <GE.h>
+#include <ginput.h>
 #include <errno.h>
 
 #ifndef WIN32

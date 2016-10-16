@@ -15,7 +15,6 @@
 #include <connectors/bluetooth/btstack_common.h>
 #include <connectors/bluetooth/bt_device_abs.h>
 #include <hci.h>
-#include <GE.h>
 
 #define ACL_MTU 1024
 #define L2CAP_MTU 1024
@@ -34,7 +33,7 @@ int bt_device_btstack_device_init()
  *
  * \return 0 if successful, -1 otherwise
  */
-int bt_device_btstack_get_device_bdaddr(int ignored, bdaddr_t* bdaddr)
+int bt_device_btstack_get_device_bdaddr(int ignored __attribute__((unused)), bdaddr_t* bdaddr)
 {
   int ret;
 
@@ -72,7 +71,7 @@ int bt_device_btstack_get_device_bdaddr(int ignored, bdaddr_t* bdaddr)
  *
  * \return 0 if successful, -1 otherwise
  */
-int bt_device_btstack_write_device_class(int ignored, uint32_t devclass)
+int bt_device_btstack_write_device_class(int ignored __attribute__((unused)), uint32_t devclass)
 {
   int ret = btstack_common_send_cmd(&btstack_hci_write_class_of_device, devclass);
 
@@ -102,7 +101,7 @@ static s_bt_device_abs bt_device_btstack =
     .write_device_class = bt_device_btstack_write_device_class,
 };
 
-void bt_device_btstack_init(void) __attribute__((constructor (101)));
+void bt_device_btstack_init(void) __attribute__((constructor));
 void bt_device_btstack_init(void)
 {
   bt_device_abs_register(E_BT_ABS_BTSTACK, &bt_device_btstack);

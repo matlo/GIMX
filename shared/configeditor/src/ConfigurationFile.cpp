@@ -24,11 +24,6 @@ ConfigurationFile::~ConfigurationFile()
     //dtor
 }
 
-ConfigurationFile::ConfigurationFile(const ConfigurationFile& other)
-{
-    //copy ctor
-}
-
 ConfigurationFile& ConfigurationFile::operator=(const ConfigurationFile& rhs)
 {
     if (this == &rhs) return *this; // handle self assignment

@@ -36,9 +36,10 @@
 
 #include <sstream>
 
-#include <libintl.h>
 #include <wx/stdpaths.h>
 #include <wx/busyinfo.h>
+
+#define _CN(STRING) locale->GetString(wxString(STRING.c_str(), wxConvUTF8))
 
 using namespace std;
 
@@ -97,7 +98,7 @@ public:
 
 	wxString GetValue() { return comboBox->GetValue(); }
 
-  void OnComboBoxEnter( wxCommandEvent &event ) { EndModal(wxID_OK); }
+  void OnComboBoxEnter(wxCommandEvent &event __attribute__((unused))) { EndModal(wxID_OK); }
 
 protected:
 
@@ -183,25 +184,6 @@ BEGIN_EVENT_TABLE(fpsconfigFrame,wxFrame)
     //*)
 END_EVENT_TABLE()
 
-class wxBackgroundBitmap : public wxEvtHandler {
-    typedef wxEvtHandler Inherited;
-public:
-    wxBackgroundBitmap(const wxBitmap &B) : wxEvtHandler(), Bitmap(B) { }
-    virtual bool        ProcessEvent(wxEvent &Event);
-protected:
-    wxBitmap            Bitmap;
-};
-
-bool wxBackgroundBitmap::ProcessEvent(wxEvent &Event)
-{
-    if (Event.GetEventType() == wxEVT_ERASE_BACKGROUND) {
-        wxEraseEvent &EraseEvent = dynamic_cast<wxEraseEvent &>(Event);
-        wxDC *DC = EraseEvent.GetDC();
-        DC->DrawBitmap(Bitmap, 0, 0, false);
-        return true;
-    } else return Inherited::ProcessEvent(Event);
-}
-
 const char* button_labels[BI_MAX] =
 {
     "undef",
@@ -222,7 +204,7 @@ const char* axis_labels[AI_MAX] =
     "rel_axis_0-"
 };
 
-fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
+fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __attribute__((unused)))
 {
     unsigned int i;
 
@@ -231,8 +213,6 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
     locale->AddCatalogLookupPathPrefix(wxT("share/locale"));
 #endif
     locale->AddCatalog(wxT("gimx"));
-
-    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 
     //(*Initialize(fpsconfigFrame)
     wxMenu* MenuFile;
@@ -481,7 +461,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id)
 
     wxMemoryInputStream istream(background_png, sizeof background_png);
     wxImage background_img(istream, wxBITMAP_TYPE_PNG);
-    wxBackgroundBitmap* ToolBarBackground = new wxBackgroundBitmap(wxBitmap(background_img));
+    ToolBarBackground = new wxBackgroundBitmap(wxBitmap(background_img));
     Panel1->PushEventHandler(ToolBarBackground);
 
     TextCtrlSensitivityHipFire->SetValue(wxT("1.00"));
@@ -584,14 +564,15 @@ fpsconfigFrame::~fpsconfigFrame()
 {
     //(*Destroy(fpsconfigFrame)
     //*)
+    Panel1->RemoveEventHandler(ToolBarBackground);
 }
 
-void fpsconfigFrame::OnQuit(wxCommandEvent& event)
+void fpsconfigFrame::OnQuit(wxCommandEvent& event __attribute__((unused)))
 {
     Close();
 }
 
-void fpsconfigFrame::OnAbout(wxCommandEvent& event)
+void fpsconfigFrame::OnAbout(wxCommandEvent& event __attribute__((unused)))
 {
   wxAboutDialogInfo info;
   info.SetName(wxTheApp->GetAppName());
@@ -907,7 +888,9 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
     evcatch->run("", "button");
     StatusBar1->SetStatusText(wxEmptyString);
 
-    if(evcatch->GetDeviceType() == "joystick")
+    pair<Device, Event> ev = selectEvent();
+
+    if(ev.first.GetType() == "joystick")
     {
       wxMessageBox(_("Joystick controls are only supported through gimx-config."), _("Info"), wxICON_INFORMATION);
       ((wxButton*) event.GetEventObject())->Enable(true);
@@ -916,7 +899,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 
     string device_name = "";
     string device_id = "0";
-    if(evcatch->GetDeviceType() == "keyboard")
+    if(ev.first.GetType() == "keyboard")
     {
       if(!defaultKeyboardName.empty())
       {
@@ -924,7 +907,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
         device_id = defaultKeyboardId;
       }
     }
-    else if(evcatch->GetDeviceType() == "mouse")
+    else if(ev.first.GetType() == "mouse")
     {
       if(!defaultMouseName.empty())
       {
@@ -933,14 +916,14 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
       }
     }
 
-    ((wxButton*) event.GetEventObject())->SetLabel(wxString(evcatch->GetEventId().c_str(), wxConvUTF8));
+    ((wxButton*) event.GetEventObject())->SetLabel(wxString(ev.second.GetId().c_str(), wxConvUTF8));
 
     bindex = getButtonIndex((wxButton*) event.GetEventObject());
 
     if (bindex != bi_undef)
     {
-      buttons[bindex].SetDevice(Device(evcatch->GetDeviceType(), device_id, device_name));
-      buttons[bindex].SetEvent(Event("button", evcatch->GetEventId()));
+      buttons[bindex].SetDevice(Device(ev.first.GetType(), device_id, device_name));
+      buttons[bindex].SetEvent(Event("button", ev.second.GetId()));
       buttons[bindex].SetAxis(ControlMapper::GetAxisProps(button_labels[bindex]));
       string tt(buttons[bindex].GetEvent()->GetId());
       if (!buttons[bindex].GetLabel().empty())
@@ -972,8 +955,8 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
 
       if (aindex != ai_undef)
       {
-        axes[aindex].SetDevice(Device(evcatch->GetDeviceType(), device_id, device_name));
-        axes[aindex].SetEvent(Event("button", evcatch->GetEventId()));
+        axes[aindex].SetDevice(Device(ev.first.GetType(), device_id, device_name));
+        axes[aindex].SetEvent(Event("button", ev.second.GetId()));
         axes[aindex].SetAxis(ControlMapper::GetAxisProps(axis_labels[aindex]));
         string tt(axes[aindex].GetEvent()->GetId());
         if (!axes[aindex].GetLabel().empty())
@@ -1005,7 +988,7 @@ void fpsconfigFrame::OnButtonClick(wxCommandEvent& event)
   ((wxButton*) event.GetEventObject())->Enable(true);
 }
 
-void fpsconfigFrame::OnMenuNew(wxCommandEvent& event)
+void fpsconfigFrame::OnMenuNew(wxCommandEvent& event __attribute__((unused)))
 {
     FileDialog1->SetFilename(wxEmptyString);
 
@@ -1071,7 +1054,7 @@ void fpsconfigFrame::OnMenuSaveAs(wxCommandEvent& event)
 {
     wxFileDialog saveFileDialog(this, _("Save config file"), wxT(""), wxT(""), _("XML files (*.xml)|*.xml"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 
-    saveFileDialog.SetDirectory(default_directory);
+    saveFileDialog.SetDirectory(FileDialog1->GetDirectory());
     saveFileDialog.SetFilename(FileDialog1->GetFilename());
 
     if ( saveFileDialog.ShowModal() == wxID_CANCEL ) return;
@@ -1084,13 +1067,16 @@ void fpsconfigFrame::OnMenuSaveAs(wxCommandEvent& event)
 
     OnMenuSave(event);
 
-    FileDialog1->SetFilename(FileName);
+    FileDialog1->SetDirectory(saveFileDialog.GetDirectory());
+    FileDialog1->SetFilename(saveFileDialog.GetFilename());
 
     MenuItemSave->Enable(true);
 }
 
-void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
+void fpsconfigFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
 {
+	wxLocale eng(wxLANGUAGE_ENGLISH); // make sure to use '.' as decimal separator
+
     std::list<ControlMapper>* ButtonMappers;
     std::list<ControlMapper>* AxisMappers;
     double mx, my;
@@ -1403,6 +1389,8 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event)
 
 void fpsconfigFrame::LoadConfig()
 {
+  wxLocale eng(wxLANGUAGE_ENGLISH); // make sure to use '.' as decimal separator
+
   std::list<ControlMapper>* ButtonMappers[2];
   std::list<ControlMapper>* AxisMappers[2];
   std::list<MouseOptions>* mouseOptions;
@@ -1600,7 +1588,7 @@ void fpsconfigFrame::LoadConfig()
           if(it->CompareAxisProps(ControlMapper::GetAxisProps("rel_axis_2")))
           {
               SpinCtrlDeadZoneHipFire->SetValue(wxAtoi(wxString(it->GetEvent()->GetDeadZone().c_str(), wxConvUTF8)));
-              ChoiceDeadZoneShapeHipFire->SetStringSelection(wxString(gettext(it->GetEvent()->GetShape().c_str()), wxConvUTF8));
+              ChoiceDeadZoneShapeHipFire->SetStringSelection(_CN(it->GetEvent()->GetShape()));
 
               mouseOptions = configFile.GetController(0)->GetConfiguration(0)->GetMouseOptionsList();
               for(std::list<MouseOptions>::iterator it2 = mouseOptions->begin(); it2!=mouseOptions->end(); ++it2)
@@ -1719,7 +1707,7 @@ void fpsconfigFrame::LoadConfig()
           if(it->CompareAxisProps(ControlMapper::GetAxisProps("rel_axis_2")))
           {
               SpinCtrlDeadZoneADS->SetValue(wxAtoi(wxString(it->GetEvent()->GetDeadZone().c_str(), wxConvUTF8)));
-              ChoiceDeadZoneShapeADS->SetStringSelection(wxString(gettext(it->GetEvent()->GetShape().c_str()), wxConvUTF8));
+              ChoiceDeadZoneShapeADS->SetStringSelection(_CN(it->GetEvent()->GetShape()));
 
               mouseOptions = configFile.GetController(0)->GetConfiguration(1)->GetMouseOptionsList();
               for(std::list<MouseOptions>::iterator it2 = mouseOptions->begin(); it2!=mouseOptions->end(); ++it2)
@@ -1789,7 +1777,7 @@ void fpsconfigFrame::LoadConfig()
   MenuItemSave->Enable(true);
 }
 
-void fpsconfigFrame::OnMenuOpen(wxCommandEvent& event)
+void fpsconfigFrame::OnMenuOpen(wxCommandEvent& event __attribute__((unused)))
 {
     FileDialog1->SetDirectory(default_directory);
 
@@ -1805,15 +1793,18 @@ void fpsconfigFrame::OnMenuOpen(wxCommandEvent& event)
 
 void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
 {
+    wxLocale eng(wxLANGUAGE_ENGLISH); // make sure to use '.' as decimal separator
+
     wxString str;
     wxTextCtrl* text;
     double value;
     int ivalue;
 
     text = (wxTextCtrl*)event.GetEventObject();
+    long pos = text->GetInsertionPoint();
     str = text->GetValue();
 
-    if(str.IsEmpty() && event.GetEventType() != wxEVT_COMMAND_TEXT_ENTER)
+    if(str.IsEmpty() || str == wxT("-") || str == wxT(".") || str == wxT("-."))
     {
         return;
     }
@@ -1821,6 +1812,11 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
     if(str.Replace(wxT(","), wxT(".")))
     {
         text->SetValue(str);
+    }
+
+    if(str.Freq('.') > 1)
+    {
+        str = wxT("invalid");
     }
 
     if(!str.ToDouble(&value))
@@ -1950,11 +1946,13 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
             values[7] = value;
         }
     }
+
+    text->SetInsertionPoint(pos);
 }
 
 #define STEP 100
 
-void fpsconfigFrame::OnMouseDPIChange(wxSpinEvent& event)
+void fpsconfigFrame::OnMouseDPIChange(wxSpinEvent& event __attribute__((unused)))
 {
     int v = SpinCtrlDPI->GetValue();
     int vceil = ceil((double)v/STEP)*STEP;
@@ -1973,7 +1971,7 @@ void fpsconfigFrame::OnMouseDPIChange(wxSpinEvent& event)
     SpinCtrlDPI->SetValue(new_dpi);
 }
 
-void fpsconfigFrame::OnMenuUpdate(wxCommandEvent& event)
+void fpsconfigFrame::OnMenuUpdate(wxCommandEvent& event __attribute__((unused)))
 {
   int ret;
 
@@ -2009,7 +2007,7 @@ void fpsconfigFrame::OnMenuUpdate(wxCommandEvent& event)
   }
 }
 
-void fpsconfigFrame::OnButtonConvertSensitivityClick(wxCommandEvent& event)
+void fpsconfigFrame::OnButtonConvertSensitivityClick(wxCommandEvent& event __attribute__((unused)))
 {
   unsigned int dest_value = 0;
   wxString wsm;
@@ -2051,7 +2049,7 @@ void fpsconfigFrame::OnButtonConvertSensitivityClick(wxCommandEvent& event)
   }
 }
 
-void fpsconfigFrame::OnMenuAutoBindControls(wxCommandEvent& event)
+void fpsconfigFrame::OnMenuAutoBindControls(wxCommandEvent& event __attribute__((unused)))
 {
   if(configFile.GetFilePath().empty())
   {
@@ -2126,7 +2124,7 @@ void fpsconfigFrame::readLabels()
   }
 }
 
-void fpsconfigFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event)
+void fpsconfigFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event __attribute__((unused)))
 {
 #ifdef WIN32
   default_directory.Replace(wxT("/"), wxT("\\"));
@@ -2136,7 +2134,7 @@ void fpsconfigFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event)
 #endif
 }
 
-void fpsconfigFrame::OnMenuItemWindowEventsSelected(wxCommandEvent& event)
+void fpsconfigFrame::OnMenuItemWindowEventsSelected(wxCommandEvent& event __attribute__((unused)))
 {
     if(MenuItemWindowEvents->IsChecked())
     {
@@ -2146,4 +2144,35 @@ void fpsconfigFrame::OnMenuItemWindowEventsSelected(wxCommandEvent& event)
     {
       evcatch->SetWindowEvents(false);
     }
+}
+
+pair<Device, Event> fpsconfigFrame::selectEvent()
+{
+    if (evcatch->GetEvents()->size() == 1)
+    {
+        return (*evcatch->GetEvents())[0];
+    }
+
+    wxArrayString choices;
+
+    for(vector<pair<Device, Event> >::iterator it = evcatch->GetEvents()->begin(); it != evcatch->GetEvents()->end(); ++it)
+    {
+        ostringstream ios;
+        ios << it->second.GetType() << " " << it->second.GetId();
+        choices.Add(wxString(ios.str().c_str(), wxConvUTF8));
+    }
+
+    wxSingleChoiceDialog dialog(this, _("Select the event."), _("Events"), choices);
+
+    if (dialog.ShowModal() == wxID_OK)
+    {
+        int selection = dialog.GetSelection();
+
+        if (selection >= 0 && (size_t)selection < evcatch->GetEvents()->size())
+        {
+            return (*evcatch->GetEvents())[selection];
+        }
+    }
+
+    return make_pair(Device(), Event());
 }

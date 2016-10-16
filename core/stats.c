@@ -10,7 +10,7 @@
 #else
 #include <sys/time.h>
 #endif
-#include <adapter.h>
+#include <gimx.h>
 
 #define STATS_PERIOD 500000 //ms
 

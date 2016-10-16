@@ -1,13 +1,9 @@
 *.o
 *.a
 *.exe
+*.so
+*.dll
 launcher/gimx-launcher
 config/gimx-config
 fpsconfig/gimx-fpsconfig
 core/gimx
-core/bdaddr
-core/hcirevision
-core/usbspoof
-core/sixaddr
-core/ds4tool
-shared/event/test/linux_test

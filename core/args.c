@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2012 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -18,6 +18,7 @@
 #include <connectors/protocol.h>
 #include "../directories.h"
 #include <unistd.h>
+#include <limits.h>
 #include "log.h"
 
 #define DEV_HIDRAW "/dev/hidraw"
@@ -139,6 +140,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"curses",         no_argument, &params->curses,         1},
     {"window-events",  no_argument, &params->window_events,  1},
     {"btstack",        no_argument, &params->btstack,        1},
+    {"debug",          no_argument, &params->debug,          1},
     /* These options don't set a flag. We distinguish them by their indices. */
     {"bdaddr",  required_argument, 0, 'b'},
     {"config",  required_argument, 0, 'c'},

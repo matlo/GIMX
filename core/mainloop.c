@@ -1,9 +1,12 @@
 /*
- Copyright (c) 2010 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
-#include <GE.h>
+#include <ginput.h>
+#include <gpoll.h>
+#include <gtimer.h>
+#include <gusb.h>
 #include "gimx.h"
 #include "calibration.h"
 #include "macros.h"
@@ -19,28 +22,38 @@ void set_done()
   done = 1;
 }
 
+static int timer_read(int user __attribute__((unused)))
+{
+  return 1;
+}
+
+static int timer_close(int user __attribute__((unused)))
+{
+  set_done();
+  return 1;
+}
+
 void mainloop()
 {
   GE_Event events[EVENT_BUFFER_SIZE];
   int num_evt;
   GE_Event* event;
   unsigned int running_macros;
+  int timer = -1;
 
   if(!adapter_get(0)->bdaddr_dst || adapter_get(0)->ctype == C_TYPE_DS4)
   {
-    GE_TimerStart(gimx_params.refresh_period);
-  }
-
-  /*
-   * Non-generated events are ignored if the --keygen argument is used.
-   */
-  if(gimx_params.keygen)
-  {
-    GE_SetCallback(ignore_event);
-  }
-  else
-  {
-    GE_SetCallback(process_event);
+    GTIMER_CALLBACKS callbacks = {
+            .fp_read = timer_read,
+            .fp_close = timer_close,
+            .fp_register = REGISTER_FUNCTION,
+            .fp_remove = REMOVE_FUNCTION,
+    };
+    timer = gtimer_start(0, (unsigned int)gimx_params.refresh_period, &callbacks);
+    if (timer < 0)
+    {
+      done = 1;
+    }
   }
 
   report2event_set_callback(process_event);
@@ -48,9 +61,11 @@ void mainloop()
   while(!done)
   {
     /*
-     * GE_PumpEvents should always be executed as it drives the period.
+     * gpoll should always be executed as it drives the period.
      */
-    GE_PumpEvents();
+    gpoll();
+
+    ginput_periodic_task();
 
     cfg_process_motion();
 
@@ -65,10 +80,6 @@ void mainloop()
     
     usb_poll_interrupts();
 
-#ifdef WIN32
-    usb_handle_events(0);
-#endif
-
     /*
      * These two functions generate events.
      */
@@ -81,7 +92,7 @@ void mainloop()
      * by macros and calibration tests, and the --keygen argument.
      */
 
-    num_evt = GE_PeepEvents(events, sizeof(events) / sizeof(events[0]));
+    num_evt = ginput_queue_pop(events, sizeof(events) / sizeof(events[0]));
 
     if (num_evt == EVENT_BUFFER_SIZE)
     {
@@ -102,6 +113,9 @@ void mainloop()
       done = 1;
     }
   }
-    
-  GE_TimerClose();
+
+  if (timer >= 0)
+  {
+    gtimer_close(timer);
+  }
 }

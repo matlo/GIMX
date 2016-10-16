@@ -6,23 +6,82 @@
 
 LD = $(CXX)
 
-CFLAGS += -Wall -Wextra -Wno-unused-parameter -s -O3
-CXXFLAGS += -Wall -Wextra -Wno-unused-parameter -s -O3
+CFLAGS += -Wall -Wextra -s -O3
+CXXFLAGS += -Wall -Wextra -s -O3
 #Comment the above two lines and uncomment the below two lines to compile with debug symbols.
-#CFLAGS += -Wall -Wextra -Wno-unused-parameter -O0 -g
-#CXXFLAGS += -Wall -Wextra -Wno-unused-parameter -O0 -g
+#CFLAGS += -Wall -Wextra -O0 -g
+#CXXFLAGS += -Wall -Wextra -O0 -g
+
+GIMXCONFIGEDITOR_CPPFLAGS = -I../shared/configeditor/include $(GIMXCONTROLLER_CPPFLAGS)
+GIMXCONFIGUPDATER_CPPFLAGS = -I../shared/configupdater
+GIMXCONTROLLER_CPPFLAGS = -I../shared/controller/include
+GIMXHID_CPPFLAGS = -I../shared/gasync/include
+GIMXINPUT_CPPFLAGS = -I../shared/gasync/include
+GIMXPOLL_CPPFLAGS = -I../shared/gasync/include
+GIMXPRIO_CPPFLAGS = -I../shared/gasync/include
+GIMXSERIAL_CPPFLAGS = -I../shared/gasync/include
+GIMXTIMER_CPPFLAGS = -I../shared/gasync/include
+GIMXUHID_CPPFLAGS = -I../shared/gasync/include
+GIMXUSB_CPPFLAGS = -I../shared/gasync/include
+GIMXGPP_CPPFLAGS = -I../shared/gpp
+GIMXUPDATER_CPPFLAGS = -I../shared/updater
+
+GIMXCONFIGEDITOR_LDFLAGS = -L../shared/configeditor \
+                           $(GIMXINPUT_LDFLAGS) \
+                           $(GIMXTIMER_LDFLAGS) \
+                           $(GIMXPOLL_LDFLAGS) \
+                           $(GIMXCONTROLLER_LDFLAGS)
+GIMXCONFIGUPDATER_LDFLAGS = -L../shared/configupdater
+GIMXCONTROLLER_LDFLAGS = -L../shared/controller
+GIMXHID_LDFLAGS = -L../shared/gasync/src/hid
+GIMXINPUT_LDFLAGS = -L../shared/gasync/src/input \
+                    $(GIMXHID_LDFLAGS)
+GIMXPOLL_LDFLAGS = -L../shared/gasync/src/poll
+GIMXPRIO_LDFLAGS = -L../shared/gasync/src/prio
+GIMXSERIAL_LDFLAGS = -L../shared/gasync/src/serial
+GIMXTIMER_LDFLAGS = -L../shared/gasync/src/timer
+GIMXUHID_LDFLAGS = -L../shared/gasync/src/uhid
+GIMXUSB_LDFLAGS = -L../shared/gasync/src/usb
+GIMXGPP_LDFLAGS = -L../shared/gpp
+GIMXUPDATER_LDFLAGS = -L../shared/updater
+
+GIMXCONFIGEDITOR_LDLIBS = -lgimxconfigeditor \
+                           $(GIMXINPUT_LDLIBS) \
+                           $(GIMXTIMER_LDLIBS) \
+                           $(GIMXPOLL_LDLIBS) \
+                           $(GIMXCONTROLLER_LDLIBS)
+GIMXCONFIGUPDATER_LDLIBS = -lgimxconfigupdater
+GIMXCONTROLLER_LDLIBS = -lgimxcontroller
+GIMXHID_LDLIBS = -lgimxhid
+GIMXINPUT_LDLIBS = -lgimxinput $(GIMXHID_LDLIBS)
+GIMXPOLL_LDLIBS = -lgimxpoll
+GIMXPRIO_LDLIBS = -lgimxprio
+GIMXSERIAL_LDLIBS = -lgimxserial
+GIMXTIMER_LDLIBS = -lgimxtimer
+GIMXUHID_LDLIBS = -lgimxuhid
+GIMXUSB_LDLIBS = -lgimxusb
+GIMXGPP_LDLIBS = -lgimxgpp
+GIMXUPDATER_LDLIBS = -lgimxupdater
 
 ifeq ($(OS),Windows_NT)
-CC = gcc
-CPPFLAGS += `xml2-config --cflags` `sdl2-config --cflags`
-endif
-
-LDLIBS += ../shared/event/GE.a -Wl,--whole-archive ../shared/controller/controller.a ../shared/async/async.a -Wl,--no-whole-archive ../shared/gpp/gpp.a
-
-ifneq ($(OS),Windows_NT)
-LDLIBS += -lXi -lX11 -lusb-1.0
+GIMXINPUT_CPPFLAGS += `sdl2-config --cflags`
+GIMXUSB_CPPFLAGS += $(GIMXTIMER_CPPFLAGS)
+GIMXUSB_LDFLAGS += $(GIMXTIMER_LDFLAGS)
+GIMXUSB_LDLIBS += $(GIMXTIMER_LDLIBS)
 else
-LDLIBS += -lhid -lsetupapi
+UHID=1
+ifeq ($(UHID),1)
+CFLAGS += -DUHID
+GIMXINPUT_CPPFLAGS += $(GIMXUHID_CPPFLAGS)
+GIMXINPUT_LDFLAGS += $(GIMXUHID_LDFLAGS)
+GIMXINPUT_LDLIBS += $(GIMXUHID_LDLIBS)
+endif
 endif
 
 ARFLAGS=rcs
+
+ifneq ($(OS),Windows_NT)
+SHLIB_SUFFIX=.so
+else
+SHLIB_SUFFIX=.dll
+endif

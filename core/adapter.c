@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2014 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -22,38 +22,33 @@
 #include "connectors/btds4.h"
 #endif
 #include <controller2.h>
+#include <gpoll.h>
 
-#include <ffb_logitech.h>
-#include <hidasync.h>
-#include <uhidasync.h>
-#include <uhid_joystick.h>
+#include <haptic/ff_lg.h>
+#include <haptic/ff_conv.h>
+#include <ghid.h>
 
 #define BAUDRATE 500000 //bps
-#define SERIAL_TIMEOUT 1 //second
+#define SERIAL_TIMEOUT 1000 //millisecond
 /*
  * The adapter restarts about 15ms after receiving the reset command.
  * This time is doubled so as to include the reset command transfer duration.
  */
 #define ADAPTER_RESET_TIME 30000 //microseconds
 
-#ifdef WIN32
-#define REGISTER_FUNCTION GE_AddSourceHandle
-#else
-#define REGISTER_FUNCTION GE_AddSource
-#endif
-
-static s_adapter adapter[MAX_CONTROLLERS] = {};
+static s_adapter adapters[MAX_CONTROLLERS] = {};
 
 static struct
 {
+  unsigned char has_rumble;
   unsigned char weak;
   unsigned char strong;
-} motors[C_TYPE_MAX] =
+} rumble_props[C_TYPE_MAX] =
 {
-  [C_TYPE_DS4]     = { .weak = 4, .strong = 5 },
-  [C_TYPE_360_PAD] = { .weak = 4, .strong = 3 },
-  [C_TYPE_SIXAXIS] = { .weak = 3, .strong = 5 },
-  [C_TYPE_XONE_PAD] = { .weak = 7, .strong = 6 },
+  [C_TYPE_DS4]     = { .has_rumble = 1, .weak = 4, .strong = 5 },
+  [C_TYPE_360_PAD] = { .has_rumble = 1, .weak = 4, .strong = 3 },
+  [C_TYPE_SIXAXIS] = { .has_rumble = 1, .weak = 3, .strong = 5 },
+  [C_TYPE_XONE_PAD] = { .has_rumble = 1, .weak = 7, .strong = 6 },
 };
 
 /*
@@ -62,27 +57,25 @@ static struct
 static int adapter_device[E_DEVICE_TYPE_NB][MAX_CONTROLLERS];
 static int device_adapter[E_DEVICE_TYPE_NB][MAX_DEVICES];
 
-void adapter_init_static(void) __attribute__((constructor (101)));
+void adapter_init_static(void) __attribute__((constructor));
 void adapter_init_static(void)
 {
   unsigned int i, j;
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
-    adapter[i].atype = E_ADAPTER_TYPE_NONE;
-    adapter[i].ctype = C_TYPE_NONE;
-    adapter[i].dst_fd = -1;
-    adapter[i].src_fd = -1;
-    adapter[i].serialdevice = -1;
-    adapter[i].hid_id = -1;
-#ifndef WIN32
-    adapter[i].uhid_id = -1;
-#endif
-    adapter[i].bread = 0;
+    adapters[i].atype = E_ADAPTER_TYPE_NONE;
+    adapters[i].ctype = C_TYPE_NONE;
+    adapters[i].dst_fd = -1;
+    adapters[i].src_fd = -1;
+    adapters[i].serialdevice = -1;
+    adapters[i].joystick.hid.id = -1;
+    adapters[i].bread = 0;
     for(j = 0; j < MAX_REPORTS; ++j)
     {
-      adapter[i].report[j].type = BYTE_IN_REPORT;
+      adapters[i].report[j].type = BYTE_IN_REPORT;
     }
-    adapter[i].status = 0;
+    adapters[i].status = 0;
+    adapters[i].joystick.id = -1;
   }
   for(j=0; j<E_DEVICE_TYPE_NB; ++j)
   {
@@ -101,55 +94,54 @@ void adapter_init_static(void)
  * Set the port of the controller.
  * If it's already used for another controller, do nothing.
  */
-int adapter_set_port(unsigned char index, char* portname)
+int adapter_set_port(unsigned char adapter, char* portname)
 {
   unsigned char i;
-  if(index >= MAX_CONTROLLERS)
+  if(adapter >= MAX_CONTROLLERS)
   {
     return -1;
   }
-  for(i=0; i<index; ++i)
+  for(i = 0; i < adapter; ++i)
   {
-    if(adapter[i].portname && !strcmp(adapter[i].portname, portname))
+    if(adapters[i].portname && !strcmp(adapters[i].portname, portname))
     {
       return -1;
     }
   }
-  adapter[index].portname = portname;
+  adapters[adapter].portname = portname;
   return 0;
 }
 
-inline s_adapter* adapter_get(unsigned char index)
+inline s_adapter * adapter_get(unsigned char adapter)
 {
-  if(index < MAX_CONTROLLERS)
+  if(adapter < MAX_CONTROLLERS)
   {
-    return adapter+index;
+    return adapters + adapter;
   }
   return NULL;
 }
 
-void adapter_set_axis(unsigned char c, int axis, int value)
+void adapter_set_axis(unsigned char adapter, int axis, int value)
 {
   if(axis >= 0 && axis < AXIS_MAX)
   {
-    adapter[c].axis[axis] = value;
+    adapters[adapter].axis[axis] = value;
   }
 }
 
-static void adapter_dump_state(int id)
+static void adapter_dump_state(int adapter)
 {
   int i;
   struct timeval tv;
   gettimeofday(&tv, NULL);
 
-  s_adapter* adapter = adapter_get(id);
-  int* axis = adapter->axis;
+  int* axis = adapters[adapter].axis;
 
-  printf("%d %ld.%06ld", id, tv.tv_sec, tv.tv_usec);
+  printf("%d %ld.%06ld", adapter, tv.tv_sec, tv.tv_usec);
 
   for (i = 0; i < AXIS_MAX; i++) {
       if (axis[i])
-          printf(", %s (%d)", controller_get_axis_name(adapter->ctype, i), axis[i]);
+          printf(", %s (%d)", controller_get_axis_name(adapters[adapter].ctype, i), axis[i]);
   }
 
   printf("\n");
@@ -162,14 +154,14 @@ static void adapter_dump_state(int id)
  * - a report to be sent.
  * Note that the socket operations should not block.
  */
-static int adapter_network_read(int id)
+static int network_read_callback(int adapter)
 {
   static unsigned char buf[256+2];
   int nread = 0;
   struct sockaddr_in sa;
   socklen_t salen = sizeof(sa);
   // retrieve the packet and the address of the client
-  if((nread = udp_recvfrom(adapter[id].src_fd, buf, sizeof(buf), (struct sockaddr*) &sa, &salen)) <= 0)
+  if((nread = udp_recvfrom(adapters[adapter].src_fd, buf, sizeof(buf), (struct sockaddr*) &sa, &salen)) <= 0)
   {
     return 0;
   }
@@ -183,8 +175,8 @@ static int adapter_network_read(int id)
   case BYTE_TYPE:
     {
       // send the answer
-      unsigned char answer[3] = {BYTE_TYPE, BYTE_LEN_1_BYTE, adapter[id].ctype};
-      if (udp_sendto(adapter[id].src_fd, answer, sizeof(answer), (struct sockaddr*) &sa, salen) < 0)
+      unsigned char answer[3] = {BYTE_TYPE, BYTE_LEN_1_BYTE, adapters[adapter].ctype};
+      if (udp_sendto(adapters[adapter].src_fd, answer, sizeof(answer), (struct sockaddr*) &sa, salen) < 0)
       {
         fprintf(stderr, "adapter_network_read: can't send controller type\n");
         return 0;
@@ -192,53 +184,51 @@ static int adapter_network_read(int id)
     }
     break;
   case BYTE_IN_REPORT:
-    if(buf[1] != sizeof(adapter->axis))
+    if(buf[1] != sizeof(adapters->axis))
     {
       fprintf(stderr, "adapter_network_read: wrong packet size\n");
       return 0;
     }
     // store the report (no answer)
-    memcpy(adapter[id].axis, buf+2, sizeof(adapter->axis));
-    adapter[id].send_command = 1;
+    memcpy(adapters[adapter].axis, buf+2, sizeof(adapters->axis));
+    adapters[adapter].send_command = 1;
     break;
   }
   // require a report to be sent immediately, except for a Sixaxis controller working over bluetooth
-  if(adapter[id].ctype == C_TYPE_SIXAXIS && adapter[id].atype == E_ADAPTER_TYPE_BLUETOOTH)
+  if(adapters[adapter].ctype == C_TYPE_SIXAXIS && adapters[adapter].atype == E_ADAPTER_TYPE_BLUETOOTH)
   {
     return 0;
   }
   return 1;
 }
 
-int adapter_network_close(int id)
+int adapter_close_callback(int adapter __attribute__((unused)))
 {
   set_done();
-  
-  //the cleaning is done by connector_close
-  
+
   return 0;
 }
 
 /*
  * Set the default device for a controller.
  */
-void adapter_set_device(int controller, e_device_type device_type, int device_id)
+void adapter_set_device(int adapter, e_device_type device_type, int device_id)
 {
   int type_index = device_type-1;
 
-  if(controller < 0 || controller >= MAX_CONTROLLERS
+  if(adapter < 0 || adapter >= MAX_CONTROLLERS
   || type_index < 0 || type_index >= E_DEVICE_TYPE_NB
   || device_id < 0 || type_index > MAX_DEVICES)
   {
     fprintf(stderr, "set_controller_device error\n");
     return;
   }
-  if(adapter_device[type_index][controller] < 0)
+  if(adapter_device[type_index][adapter] < 0)
   {
-    adapter_device[type_index][controller] = device_id;
-    device_adapter[type_index][device_id] = controller;
+    adapter_device[type_index][adapter] = device_id;
+    device_adapter[type_index][device_id] = adapter;
   }
-  else if(adapter_device[type_index][controller] != device_id)
+  else if(adapter_device[type_index][adapter] != device_id)
   {
     static unsigned char warned[E_DEVICE_TYPE_NB][MAX_DEVICES] = {};
     if(warned[type_index][device_id] == 0)
@@ -247,15 +237,15 @@ void adapter_set_device(int controller, e_device_type device_type, int device_id
       gprintf(_("macros are not available for: "));
       if(device_type == E_DEVICE_TYPE_KEYBOARD)
       {
-        gprintf(_("keyboard %s (%d)\n"), GE_KeyboardName(device_id), GE_KeyboardVirtualId(device_id));
+        gprintf(_("keyboard %s (%d)\n"), ginput_keyboard_name(device_id), ginput_keyboard_virtual_id(device_id));
       }
       else if(device_type == E_DEVICE_TYPE_MOUSE)
       {
-        gprintf(_("mouse %s (%d)\n"), GE_MouseName(device_id), GE_MouseVirtualId(device_id));
+        gprintf(_("mouse %s (%d)\n"), ginput_mouse_name(device_id), ginput_mouse_virtual_id(device_id));
       }
       else if(device_type == E_DEVICE_TYPE_JOYSTICK)
       {
-        gprintf(_("joystick %s (%d)\n"), GE_JoystickName(device_id), GE_JoystickVirtualId(device_id));
+        gprintf(_("joystick %s (%d)\n"), ginput_joystick_name(device_id), ginput_joystick_virtual_id(device_id));
       }
     }
   }
@@ -264,9 +254,9 @@ void adapter_set_device(int controller, e_device_type device_type, int device_id
 /*
  * Get the default device for a controller.
  */
-int adapter_get_device(e_device_type device_type, int controller)
+int adapter_get_device(e_device_type device_type, int adapter)
 {
-  return adapter_device[device_type-1][controller];
+  return adapter_device[device_type-1][adapter];
 }
 
 /*
@@ -279,10 +269,10 @@ int adapter_get_controller(e_device_type device_type, int device_id)
 
 static int debug = 0;
 
-static void dump(unsigned char* packet, unsigned char length)
+static void dump(unsigned char * packet, unsigned char length)
 {
   int i;
-  for(i=0; i<length; ++i)
+  for (i = 0; i < length; ++i)
   {
     if(i && !(i%8))
     {
@@ -300,9 +290,9 @@ static void dump(unsigned char* packet, unsigned char length)
     dump(data, length); \
   }
 
-static int adapter_forward(int id, unsigned char type, unsigned char* data, unsigned char length)
+static int adapter_forward(int adapter, unsigned char type, unsigned char* data, unsigned char length)
 {
-  if(adapter[id].serialdevice >= 0)
+  if(adapters[adapter].serialdevice >= 0)
   {
     DEBUG_PACKET(data, length)
     s_packet packet =
@@ -314,7 +304,7 @@ static int adapter_forward(int id, unsigned char type, unsigned char* data, unsi
       }
     };
     memcpy(packet.value, data, length);
-    if(serialasync_write(adapter[id].serialdevice, &packet, sizeof(packet.header)+packet.header.length) < 0)
+    if(gserial_write(adapters[adapter].serialdevice, &packet, sizeof(packet.header)+packet.header.length) < 0)
     {
       return -1;
     }
@@ -325,53 +315,69 @@ static int adapter_forward(int id, unsigned char type, unsigned char* data, unsi
   }
   else
   {
-    fprintf(stderr, "no serial port opened for adapter %d\n", id);
+    fprintf(stderr, "no serial port opened for adapter %d\n", adapter);
     return -1;
   }
 }
 
-int adapter_forward_control_in(int id, unsigned char* data, unsigned char length)
+int adapter_forward_control_in(int adapter, unsigned char* data, unsigned char length)
 {
-  return adapter_forward(id, BYTE_CONTROL_DATA, data, length);
+  return adapter_forward(adapter, BYTE_CONTROL_DATA, data, length);
 }
 
-int adapter_forward_interrupt_in(int id, unsigned char* data, unsigned char length)
+int adapter_forward_interrupt_in(int adapter, unsigned char* data, unsigned char length)
 {
-  return adapter_forward(id, BYTE_IN_REPORT, data, length);
+  return adapter_forward(adapter, BYTE_IN_REPORT, data, length);
 }
 
-static int adapter_forward_control_out(int id, unsigned char* data, unsigned char length)
+static int adapter_forward_control_out(int adapter, unsigned char* data, unsigned char length)
 {
   DEBUG_PACKET(data, length)
-  return usb_send_control(id, data, length);
+  return usb_send_control(adapter, data, length);
 }
 
-static int adapter_forward_interrupt_out(int id, unsigned char* data, unsigned char length)
+static int adapter_forward_interrupt_out(int adapter, unsigned char* data, unsigned char length)
 {
   DEBUG_PACKET(data, length)
-  if(adapter[id].ctype == C_TYPE_XONE_PAD && data[0] == 0x06 && data[1] == 0x20)
+  if(adapters[adapter].ctype == C_TYPE_XONE_PAD && data[0] == 0x06 && data[1] == 0x20)
   {
-    adapter[id].status = 1;
-  }
-  return usb_send_interrupt_out(id, data, length);
-}
-
-static void adapter_send_next_hid_report(int id)
-{
-  if(!adapter[id].hid_busy)
-  {
-    s_ffb_report * report = ffb_logitech_get_report(id);
-    if(report != NULL)
+    adapters[adapter].status = 1;
+    if (adapters[adapter].joystick.id >= 0 && adapters[adapter].joystick.id != usb_get_joystick(adapter))
     {
-      if(hidasync_write(adapter[id].hid_id, report->data, sizeof(report->data)) == 0)
+      adapters[adapter].forward_out_reports = 0;
+    }
+  }
+  return usb_send_interrupt_out(adapter, data, length);
+}
+
+static void adapter_send_next_hid_report(int adapter)
+{
+  if(!adapters[adapter].joystick.hid.write_pending)
+  {
+    s_ff_lg_report report;
+    int ret = ff_lg_get_report(adapter, &report);
+    if(ret == 1)
+    {
+      if(ghid_write(adapters[adapter].joystick.hid.id, report.data, sizeof(report.data)) == 0)
       {
-        adapter->hid_busy = 1;
+        adapters->joystick.hid.write_pending = 1;
       }
     }
   }
 }
 
-static int adapter_process_packet(int id, s_packet* packet)
+static void adapter_send_next_ffb_update(int adapter, unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
+
+    GE_Event events[FF_LG_FSLOTS_NB] = {};
+    int events_nb = ff_conv(adapter, data, events);
+    int i;
+    for (i = 0; i < events_nb; ++i) {
+        events[i].which = adapters[adapter].joystick.id;
+        ginput_joystick_set_haptic(events + i);
+    }
+}
+
+static int adapter_process_packet(int adapter, s_packet* packet)
 {
   unsigned char type = packet->header.type;
   unsigned char length = packet->header.length;
@@ -381,7 +387,7 @@ static int adapter_process_packet(int id, s_packet* packet)
 
   if(type == BYTE_CONTROL_DATA)
   {
-    ret = adapter_forward_control_out(id, data, length);
+    ret = adapter_forward_control_out(adapter, data, length);
 
     if(ret < 0)
     {
@@ -390,93 +396,60 @@ static int adapter_process_packet(int id, s_packet* packet)
   }
   else if(type == BYTE_OUT_REPORT)
   {
-    int joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, id);
-
-    unsigned char send = 0;
-
-    switch(adapter[id].ctype)
+    if (adapters[adapter].forward_out_reports)
     {
-      case C_TYPE_DS4:
-        if(GE_GetJSType(joystick) == GE_JS_DS4)
-        {
-          ret = adapter_forward_interrupt_out(id, data, length);
-          if(ret < 0)
-          {
-            fprintf(stderr, "adapter_forward_interrupt_out failed\n");
-          }
-        }
-        else
-        {
-          send = 1;
-        }
-        break;
-      case C_TYPE_360_PAD:
-        if(GE_GetJSType(joystick) == GE_JS_360PAD)
-        {
-          ret = adapter_forward_interrupt_out(id, data, length);
-          if(ret < 0)
-          {
-            fprintf(stderr, "adapter_forward_interrupt_out failed\n");
-          }
-        }
-        else
-        {
-          send = 1;
-        }
-        break;
-      case C_TYPE_SIXAXIS:
-        send = 1;
-        break;
-      case C_TYPE_XONE_PAD:
-        if(GE_GetJSType(joystick) == GE_JS_XONEPAD || !adapter->status)
-        {
-          ret = adapter_forward_interrupt_out(id, data, length);
-          if(ret < 0)
-          {
-            fprintf(stderr, "adapter_forward_interrupt_out failed\n");
-          }
-        }
-        else
-        {
-          send = 1;
-        }
-        break;
-      case C_TYPE_T300RS_PS4:
-        //TODO MLA: decode and process T300RS FFB reports
-        break;
-      case C_TYPE_G27_PS3:
-        if(adapter[id].hid_id >= 0)
-        {
-          ffb_logitech_process_report(id, data);
-          adapter_send_next_hid_report(id);
-        }
-        break;
-      case C_TYPE_G29_PS4:
-        if(adapter[id].hid_id >= 0)
-        {
-          if(data[0] == 0x30)
-          {
-            ffb_logitech_process_report(id, data + 1);
-            adapter_send_next_hid_report(id);
-          }
-        }
-        break;
-      default:
-        break;
+      ret = adapter_forward_interrupt_out(adapter, data, length);
+      if(ret < 0)
+      {
+        fprintf(stderr, "adapter_forward_interrupt_out failed\n");
+      }
     }
-    if(send && GE_JoystickHasRumble(joystick))
+    else if(rumble_props[adapters[adapter].ctype].has_rumble && adapters[adapter].joystick.has_rumble)
     {
       GE_Event event =
       {
         .jrumble =
         {
           .type = GE_JOYRUMBLE,
-          .which = joystick,
-          .weak = data[motors[adapter[id].ctype].weak] << 8,
-          .strong = data[motors[adapter[id].ctype].strong] << 8
+          .which = adapters[adapter].joystick.id,
+          .weak = data[rumble_props[adapters[adapter].ctype].weak] << 8,
+          .strong = data[rumble_props[adapters[adapter].ctype].strong] << 8
         }
       };
-      GE_PushEvent(&event);
+      ginput_queue_push(&event);
+    }
+    unsigned char * logitech_ffb_report = NULL;
+    switch(adapters[adapter].ctype)
+    {
+      case C_TYPE_T300RS_PS4:
+        //TODO MLA: decode and process T300RS FFB reports
+        break;
+      case C_TYPE_GTF_PS2:
+      case C_TYPE_DF_PS2:
+      case C_TYPE_DFP_PS2:
+      case C_TYPE_G27_PS3:
+        logitech_ffb_report = data;
+        break;
+      case C_TYPE_G29_PS4:
+        if(data[0] == 0x30)
+        {
+          logitech_ffb_report = data + 1;
+        }
+        break;
+      default:
+        break;
+    }
+    if (logitech_ffb_report != NULL)
+    {
+      if (adapters[adapter].joystick.hid.id >= 0)
+      {
+        ff_lg_process_report(adapter, logitech_ffb_report);
+        adapter_send_next_hid_report(adapter);
+      }
+      else if (adapters[adapter].joystick.id >= 0 && adapters[adapter].joystick.has_ffb)
+      {
+        adapter_send_next_ffb_update(adapter, logitech_ffb_report);
+      }
     }
   }
   else if(type == BYTE_DEBUG)
@@ -490,151 +463,155 @@ static int adapter_process_packet(int id, s_packet* packet)
   {
     struct timeval tv;
     gettimeofday(&tv, NULL);
-        fprintf(stderr, "%ld.%06ld ", tv.tv_sec, tv.tv_usec);
+    fprintf(stderr, "%ld.%06ld ", tv.tv_sec, tv.tv_usec);
     fprintf(stderr, "unhandled packet (type=0x%02x)\n", type);
   }
 
   return ret;
 }
 
-static int adapter_hid_write_cb(int id, int transfered)
+static int adapter_hid_write_cb(int adapter, int status)
 {
-  adapter[id].hid_busy = 0;
-  if(transfered != -1) {
-    ffb_logitech_ack(id);
+  adapters[adapter].joystick.hid.write_pending = 0;
+  if(status != -1) {
+    ff_lg_ack(adapter);
   }
-  adapter_send_next_hid_report(id);
+  adapter_send_next_hid_report(adapter);
   return 0;
 }
 
-static int adapter_hid_close_cb(int id)
+static int adapter_hid_close_cb(int adapter)
 {
-  adapter[id].hid_id = -1;
+  adapters[adapter].joystick.hid.id = -1;
   return 1;
 }
 
 #ifndef WIN32
-static int adapter_hid_read_cb(int id, const void * buf, unsigned int count)
+void adapter_set_hid(int adapter, int hid)
 {
-  if(adapter[id].uhid_id >= 0)
-  {
-    uhidasync_write(adapter[id].uhid_id, buf, count);
-  }
-  return 0;
-}
-
-static int start_hidasync(int id)
-{
-  if(hidasync_register(adapter[id].hid_id, id, adapter_hid_read_cb, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
-  {
-    return -1;
-  }
-  return 0;
-}
-
-void adapter_set_uhid_id(int controller, int uhid_id)
-{
-  if(controller < 0 || controller >= MAX_CONTROLLERS)
+  if(adapter < 0 || adapter >= MAX_CONTROLLERS)
   {
     fprintf(stderr, "%s: invalid controller\n", __func__);
     return;
   }
 
-  if(adapter[controller].uhid_id < 0)
+  if(adapters[adapter].joystick.hid.id < 0)
   {
-    adapter[controller].uhid_id = uhid_id;
-    adapter[controller].hid_id = uhid_joystick_get_hid_id(uhid_id);
-    start_hidasync(controller);
+      const s_hid_info * info = ghid_get_hid_info(hid);
+      if (info != NULL && ff_lg_is_logitech_wheel(info->vendor_id, info->product_id))
+      {
+        adapters[adapter].joystick.hid.id = hid;
+        adapters[adapter].joystick.usb_ids.vendor = info->vendor_id;
+        adapters[adapter].joystick.usb_ids.product = info->product_id;
+        ginput_joystick_set_hid_callbacks(hid, adapter, adapter_hid_write_cb, adapter_hid_close_cb);
+      }
   }
 }
 #else
-void adapter_set_usb_ids(int controller, unsigned short vendor, unsigned short product)
+void adapter_set_usb_ids(int adapter, int joystick_id, unsigned short vendor, unsigned short product)
 {
-  if(controller < 0 || controller >= MAX_CONTROLLERS)
+  if(adapter < 0 || adapter >= MAX_CONTROLLERS)
   {
-    fprintf(stderr, "%s: invalid controller\n", __func__);
+    fprintf(stderr, "%s: invalid adapter\n", __func__);
     return;
   }
 
-  if(adapter_device[E_DEVICE_TYPE_JOYSTICK - 1][controller] >= 0)
+  if(adapter_device[E_DEVICE_TYPE_JOYSTICK - 1][adapter] == joystick_id)
   {
-    adapter[controller].usb_ids.vendor = vendor;
-    adapter[controller].usb_ids.product = product;
+    adapters[adapter].joystick.usb_ids.vendor = vendor;
+    adapters[adapter].joystick.usb_ids.product = product;
   }
 }
 
-static int start_hid(int id)
+static int start_hid(int adapter)
 {
-  if(ffb_logitech_is_logitech_wheel(adapter[id].usb_ids.vendor, adapter[id].usb_ids.product))
+  adapters[adapter].joystick.hid.id = ghid_open_ids(adapters[adapter].joystick.usb_ids.vendor, adapters[adapter].joystick.usb_ids.product);
+  if(adapters[adapter].joystick.hid.id >= 0)
   {
-    adapter[id].hid_id = hidasync_open_ids(adapter[id].usb_ids.vendor, adapter[id].usb_ids.product);
-    if(adapter[id].hid_id >= 0)
+    GHID_CALLBACKS ghid_callbacks = {
+            .fp_read = NULL,
+            .fp_write = adapter_hid_write_cb,
+            .fp_close = adapter_hid_close_cb,
+            .fp_register = REGISTER_FUNCTION,
+            .fp_remove = REMOVE_FUNCTION,
+    };
+    if(ghid_register(adapters[adapter].joystick.hid.id, adapter, &ghid_callbacks) < 0)
     {
-      if(hidasync_register(adapter[id].hid_id, id, NULL, adapter_hid_write_cb, adapter_hid_close_cb, REGISTER_FUNCTION) < 0)
-      {
-        return -1;
-      }
+      return -1;
     }
   }
+
   return 0;
 }
 #endif
 
-static int adapter_serial_read_cb(int id, const void * buf, unsigned int count)
-{
+static int adapter_serial_read_cb(int adapter, const void * buf, int status) {
+
+  if (status < 0) {
+    // reading with no timeout
+    set_done();
+    return -1;
+  }
+
   int ret = 0;
   
-  if(adapter[id].bread + count < sizeof(s_packet)) {
-    memcpy((unsigned char *)&adapter[id].packet + adapter[id].bread, buf, count);
-    adapter[id].bread += count;
+  if(adapters[adapter].bread + status < sizeof(s_packet)) {
+    memcpy((unsigned char *)&adapters[adapter].packet + adapters[adapter].bread, buf, status);
+    adapters[adapter].bread += status;
     unsigned int remaining;
-    if(adapter[id].bread < sizeof(s_header))
+    if(adapters[adapter].bread < sizeof(s_header))
     {
-      remaining = sizeof(s_header) - adapter[id].bread;
+      remaining = sizeof(s_header) - adapters[adapter].bread;
     }
     else
     {
-      remaining = adapter[id].packet.header.length - (adapter[id].bread - sizeof(s_header));
+      remaining = adapters[adapter].packet.header.length - (adapters[adapter].bread - sizeof(s_header));
     }
     if(remaining == 0)
     {
-      ret = adapter_process_packet(id, &adapter[id].packet);
-      adapter[id].bread = 0;
-      serialasync_set_read_size(adapter[id].serialdevice, sizeof(s_header));
+      ret = adapter_process_packet(adapter, &adapters[adapter].packet);
+      adapters[adapter].bread = 0;
+      gserial_set_read_size(adapters[adapter].serialdevice, sizeof(s_header));
     }
     else
     {
-      serialasync_set_read_size(adapter[id].serialdevice, remaining);
+      gserial_set_read_size(adapters[adapter].serialdevice, remaining);
     }
   }
   else
   {
     // this is a critical error (no possible recovering)
-    fprintf(stderr, "%s:%d %s: invalid data size (count=%u, available=%zu)\n", __FILE__, __LINE__, __func__, count, sizeof(s_packet) - adapter[id].bread);
+    fprintf(stderr, "%s:%d %s: invalid data size (count=%u, available=%zu)\n", __FILE__, __LINE__, __func__, status, sizeof(s_packet) - adapters[adapter].bread);
     return -1;
   }
   return ret;
 }
 
-static int adapter_serial_write_cb(int id, int transfered)
+static int adapter_serial_write_cb(int adapter __attribute__((unused)), int transfered)
 {
-  //TODO MLA: anything to do in the serial write callback?
+  return (transfered > 0) ? 0 : -1;
+}
+
+static int adapter_serial_close_cb(int adapter __attribute__((unused)))
+{
+  set_done();
   return 0;
 }
 
-static int adapter_serial_close_cb(int id)
+static int adapter_start_serialasync(int adapter)
 {
-  //TODO MLA: anything to do in the serial close callback?
-  return 0;
-}
-
-static int adapter_start_serialasync(int id)
-{
-  if(serialasync_set_read_size(adapter[id].serialdevice, sizeof(s_header)) < 0)
+  if(gserial_set_read_size(adapters[adapter].serialdevice, sizeof(s_header)) < 0)
   {
     return -1;
   }
-  if(serialasync_register(adapter[id].serialdevice, id, adapter_serial_read_cb, adapter_serial_write_cb, adapter_serial_close_cb, REGISTER_FUNCTION) < 0)
+  GSERIAL_CALLBACKS serial_callbacks = {
+          .fp_read = adapter_serial_read_cb,
+          .fp_write = adapter_serial_write_cb,
+          .fp_close = adapter_serial_close_cb,
+          .fp_register = REGISTER_FUNCTION,
+          .fp_remove = REMOVE_FUNCTION
+  };
+  if(gserial_register(adapters[adapter].serialdevice, adapter, &serial_callbacks) < 0)
   {
     return -1;
   }
@@ -644,7 +621,7 @@ static int adapter_start_serialasync(int id)
 /*
  * This function should only be used in the initialization stages, i.e. before the mainloop.
  */
-static int adapter_send_short_command(int device, unsigned char type)
+static int adapter_send_short_command(int adapter, unsigned char type)
 {
   s_packet packet =
   {
@@ -655,7 +632,7 @@ static int adapter_send_short_command(int device, unsigned char type)
     }
   };
 
-  int ret = serialasync_write_timeout(device, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
+  int ret = gserial_write_timeout(adapters[adapter].serialdevice, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
   if(ret < 0 || (unsigned int)ret < sizeof(packet.header))
   {
     fprintf(stderr, "serial_send\n");
@@ -668,14 +645,14 @@ static int adapter_send_short_command(int device, unsigned char type)
    */
   while(1)
   {
-    ret = serialasync_read_timeout(device, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
+    ret = gserial_read_timeout(adapters[adapter].serialdevice, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
     if(ret < 0 || (unsigned int)ret < sizeof(packet.header))
     {
       fprintf(stderr, "can't read packet header\n");
       return -1;
     }
 
-    ret = serialasync_read_timeout(device, &packet.value, packet.header.length, SERIAL_TIMEOUT);
+    ret = gserial_read_timeout(adapters[adapter].serialdevice, &packet.value, packet.header.length, SERIAL_TIMEOUT);
     if(ret < 0 || (unsigned int)ret < packet.header.length)
     {
       fprintf(stderr, "can't read packet data\n");
@@ -706,7 +683,7 @@ static int adapter_send_reset(int device)
     .length = BYTE_LEN_0_BYTE
   };
 
-  if(serialasync_write_timeout(device, &header, sizeof(header), SERIAL_TIMEOUT) != sizeof(header))
+  if(gserial_write_timeout(device, &header, sizeof(header), SERIAL_TIMEOUT) != sizeof(header))
   {
     return -1;
   }
@@ -728,12 +705,12 @@ int adapter_detect()
       int rtype = gpp_connect(i, adapter->portname);
       if (rtype < 0)
       {
-        fprintf(stderr, _("No controller detected.\n"));
+        fprintf(stderr, _("No GPP detected.\n"));
         ret = -1;
       }
       else if(rtype < C_TYPE_MAX)
       {
-        printf(_("Detected controller: %s.\n"), controller_get_name(rtype));
+        printf(_("GPP detected, controller type is: %s.\n"), controller_get_name(rtype));
         adapter->ctype = rtype;
       }
       else
@@ -746,7 +723,7 @@ int adapter_detect()
     {
       if(adapter->portname)
       {
-        adapter->serialdevice = serialasync_open(adapter->portname, BAUDRATE);
+        adapter->serialdevice = gserial_open(adapter->portname, BAUDRATE);
         if(adapter->serialdevice < 0)
         {
           fprintf(stderr, _("Check the wiring (maybe you swapped Rx and Tx?).\n"));
@@ -758,7 +735,7 @@ int adapter_detect()
 
           if(rtype >= 0)
           {
-            printf(_("Detected USB adapter: %s.\n"), controller_get_name(rtype));
+            printf(_("USB adapter detected, controller type is: %s.\n"), controller_get_name(rtype));
 
             if(adapter->ctype == C_TYPE_NONE)
             {
@@ -855,7 +832,6 @@ int adapter_detect()
         }
         if(adapter->ctype == C_TYPE_NONE)
         {
-          fprintf(stderr, _("No controller detected.\n"));
           ret = -1;
         }
       }
@@ -873,7 +849,7 @@ int adapter_detect()
         }
         else
         {
-          printf(_("Detected controller: %s.\n"), controller_get_name(adapter->ctype));
+          printf(_("Remote GIMX detected, controller type is: %s.\n"), controller_get_name(adapter->ctype));
         }
       }
     }
@@ -894,39 +870,51 @@ int adapter_detect()
   return ret;
 }
 
-static int adapter_gpp_read(int id, const void * buf, unsigned int count)
+static int gpp_read_callback(int adapter, const void * buf, int status)
 {
+  if (status < 0) {
+    // reading with no timeout
+    set_done();
+    return -1;
+  }
+
+  s_adapter * padapter = adapter_get(adapter);
+  if (padapter == NULL) {
+    return -1;
+  }
+
   GCAPI_REPORT * report = (GCAPI_REPORT *)(buf + 7);
 
-  int joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, id);
-
-  if(GE_JoystickHasRumble(joystick))
+  if(padapter->joystick.id >= 0 && padapter->joystick.has_rumble)
   {
     GE_Event event =
     {
       .jrumble =
       {
         .type = GE_JOYRUMBLE,
-        .which = joystick,
+        .which = padapter->joystick.id,
         .weak = report->rumble[0] << 8,
         .strong = report->rumble[1] << 8
       }
     };
-    GE_PushEvent(&event);
+    ginput_queue_push(&event);
   }
 
   return 0;
 }
 
-static int adapter_gpp_write(int id, int transfered)
+static int gpp_write_callback(int adapter __attribute__((unused)), int status)
 {
-  //TODO MLA: anything to do in the serial write callback?
+  if (status < 0) {
+    set_done();
+    return -1;
+  }
   return 0;
 }
 
-static int adapter_gpp_close(int id)
+static int gpp_close_callback(int adapter __attribute__((unused)))
 {
-  //TODO MLA: anything to do in the serial close callback?
+  set_done();
   return 0;
 }
 
@@ -939,21 +927,59 @@ int adapter_start()
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
     adapter = adapter_get(i);
+
+    // get the default joystick and its haptic properties
+    adapter->joystick.id = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, i);
+    if (adapter->joystick.id >= 0)
+    {
+      int haptic = ginput_joystick_get_haptic(adapter->joystick.id);
+      adapter->joystick.has_rumble = haptic & GE_HAPTIC_RUMBLE;
+      adapter->joystick.has_ffb = haptic & (GE_HAPTIC_CONSTANT | GE_HAPTIC_SPRING | GE_HAPTIC_DAMPER);
+    }
+
     if(adapter->atype == E_ADAPTER_TYPE_DIY_USB)
     {
       if(adapter->serialdevice >= 0)
       {
-#ifdef WIN32
+        if (adapter->joystick.id >= 0)
+        {
+          if (usb_get_joystick(i) == adapter->joystick.id)
+          {
+              adapter->forward_out_reports = 1;
+          }
+        }
         switch(adapter->ctype)
         {
-        case C_TYPE_G29_PS4:
-        case C_TYPE_G27_PS3:
-          start_hid(i);
-          break;
-        default:
-          break;
+          case C_TYPE_XONE_PAD:
+            if(!adapter->status)
+            {
+                adapter->forward_out_reports = 1; // force forwarding out reports until the authentication is successful.
+            }
+            break;
+          default:
+            break;
         }
+
+        unsigned short vid = 0;
+        unsigned short pid = 0;
+        controller_get_ids(adapter->ctype, &vid, &pid);
+        if (ff_lg_is_logitech_wheel(vid, pid))
+        {
+          // emulated controller is a Logitech wheel with FFB support
+          if (ff_lg_is_logitech_wheel(adapter->joystick.usb_ids.vendor, adapter[i].joystick.usb_ids.product))
+          {
+            // default joystick is a Logitech wheel with FFB support
+            ff_lg_init(i, pid, adapter->joystick.usb_ids.product);
+#ifdef WIN32
+            start_hid(i);
 #endif
+          }
+          else if (adapter->joystick.has_ffb)
+          {
+            // default joystick is a non-Logitech wheel with FFB support
+            ff_conv_init(i, pid);
+          }
+        }
         if(adapter_send_short_command(i, BYTE_START) < 0)
         {
           fprintf(stderr, _("Can't start the adapter.\n"));
@@ -995,7 +1021,14 @@ int adapter_start()
     }
     else if(adapter->atype == E_ADAPTER_TYPE_GPP)
     {
-      ret = gpp_start_async(i, adapter_gpp_read, adapter_gpp_write, adapter_gpp_close, REGISTER_FUNCTION);
+      GHID_CALLBACKS callbacks = {
+              .fp_read = gpp_read_callback,
+              .fp_write = gpp_write_callback,
+              .fp_close = gpp_close_callback,
+              .fp_register = REGISTER_FUNCTION,
+              .fp_remove = REMOVE_FUNCTION,
+      };
+      ret = gpp_start_async(i, &callbacks);
     }
 
     if(adapter->src_ip)
@@ -1009,7 +1042,12 @@ int adapter_start()
       }
       else
       {
-        GE_AddSource(adapter->src_fd, i, adapter_network_read, NULL, adapter_network_close);
+        GPOLL_CALLBACKS callbacks = {
+                .fp_read = network_read_callback,
+                .fp_write = NULL,
+                .fp_close = adapter_close_callback,
+        };
+        gpoll_register_fd(adapter->src_fd, i, &callbacks);
       }
     }
   }
@@ -1053,32 +1091,32 @@ int adapter_send()
           switch(adapter->ctype)
           {
           case C_TYPE_SIXAXIS:
-            ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
+            ret = gserial_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
             break;
           case C_TYPE_DS4:
             report->value.ds4.report_id = DS4_USB_HID_IN_REPORT_ID;
             report->length = DS4_USB_INTERRUPT_PACKET_SIZE;
-            ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
+            ret = gserial_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
             break;
           case C_TYPE_T300RS_PS4:
           case C_TYPE_G29_PS4:
             report->length = DS4_USB_INTERRUPT_PACKET_SIZE;
-            ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
+            ret = gserial_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
             break;
           case C_TYPE_XONE_PAD:
             if(adapter->status)
             {
-              ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
+              ret = gserial_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
             }
             break;
           default:
             if(adapter->ctype != C_TYPE_PS2_PAD)
             {
-              ret = serialasync_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
+              ret = gserial_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
             }
             else
             {
-              ret = serialasync_write(adapter->serialdevice, &report->value.ds2, report->length);
+              ret = gserial_write(adapter->serialdevice, &report->value.ds2, report->length);
             }
             break;
           }
@@ -1159,7 +1197,7 @@ void adapter_clean()
     {
       if(adapter->dst_fd >= 0)
       {
-        GE_RemoveSource(adapter->src_fd);
+        gpoll_remove_fd(adapter->src_fd);
         udp_close(adapter->dst_fd);
       }
     }
@@ -1199,7 +1237,7 @@ void adapter_clean()
           default:
             break;
         }
-        serialasync_close(adapter->serialdevice);
+        gserial_close(adapter->serialdevice);
       }
     }
     else if(adapter->atype == E_ADAPTER_TYPE_GPP)
@@ -1207,4 +1245,26 @@ void adapter_clean()
       gpp_disconnect(i);
     }
   }
+}
+
+int adapter_is_usb_auth_required(int adapter)
+{
+  if (adapters[adapter].atype != E_ADAPTER_TYPE_DIY_USB)
+  {
+    return 0;
+  }
+  if (controller_is_auth_required(adapters[adapter].ctype))
+  {
+    if (adapters[adapter].ctype != C_TYPE_360_PAD
+        && adapters[adapter].ctype != C_TYPE_XONE_PAD)
+    {
+      return 1;
+    }
+    else if(adapters[adapter].status == 0)
+    {
+      return 1;
+    }
+  }
+  return 0;
+
 }

@@ -1,4 +1,4 @@
-DIRS = utils shared core config launcher fpsconfig
+DIRS = shared utils core config launcher fpsconfig
 
 ifneq ($(OS),Windows_NT)
 DIRS+= po
@@ -14,6 +14,7 @@ $(DIRS): $(BUILDDIRS)
 $(BUILDDIRS):
 	$(MAKE) -C $(@:build-%=%)
 
+build-utils: build-shared
 build-core: build-shared
 build-config: build-shared
 build-launcher: build-shared
@@ -35,7 +36,7 @@ install: all
 	cp -u -f config/gimx-config setup/gimx-config.exe
 	cp -u -f launcher/gimx-launcher setup/gimx-launcher.exe
 	cp -u -f fpsconfig/gimx-fpsconfig setup/gimx-fpsconfig.exe
-	cp -u -f shared/event/src/windows/gamecontrollerdb.txt setup
+	cp -u -f shared/gasync/src/input/windows/gamecontrollerdb.txt setup
 	mkdir -p setup/share/locale
 	for translation in po/*.po; \
   do \
@@ -45,6 +46,8 @@ install: all
   done
 	mkdir -p setup/ssl/certs
 	cp -u -f /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem setup/ssl/certs/ca-bundle.crt
+	cp -u -f shared/*/*.dll setup
+	cp -u -f shared/gasync/src/*/*.dll setup
 
 .PHONY: subdirs $(DIRS)
 .PHONY: subdirs $(BUILDDIRS)

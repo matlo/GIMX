@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2014 Mathieu Laurendeau
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -9,18 +9,13 @@
 #include <connectors/protocol.h>
 #include <controller2.h>
 #include <config.h>
-#include <serialasync.h>
+#include <gserial.h>
 
 #ifndef WIN32
 #include <netinet/in.h>
 #else
 #include <connectors/windows/sockets.h>
 #endif
-
-#define MAX_CONTROLLERS 7
-#define MAX_CONFIGURATIONS 8
-#define MAX_DEVICES 256
-#define MAX_CONTROLS 256
 
 typedef enum
 {
@@ -55,17 +50,23 @@ typedef struct
   int ts_axis[AXIS_MAX][2]; //issue 15
   s_report_packet report[2]; //the xbox one guide button needs a dedicated report
   int status;
-  int hid_id;
-  int hid_busy;
-#ifndef WIN32
-  int uhid_id;
-#else
-  struct
-  {
-	unsigned short vendor;
-	unsigned short product;
-  } usb_ids;
-#endif
+  struct {
+    int id;
+    struct
+    {
+      unsigned short vendor;
+      unsigned short product;
+    } usb_ids;
+    unsigned char has_rumble;
+    unsigned char has_ffb;
+    struct {
+      int id;
+      int write_pending;
+      int read_pending;
+    } hid;
+  } joystick;
+  unsigned char forward_out_reports;
+  unsigned char process_ffb;
 } s_adapter;
 
 int adapter_detect();
@@ -76,19 +77,22 @@ void adapter_clean();
 s_adapter* adapter_get(unsigned char index);
 int adapter_set_port(unsigned char index, char* portname);
 
-void adapter_set_device(int controller, e_device_type device_type, int device_id);
-int adapter_get_device(e_device_type device_type, int controller);
+void adapter_set_device(int adapter, e_device_type device_type, int device_id);
+int adapter_get_device(e_device_type device_type, int adapter);
 int adapter_get_controller(e_device_type device_type, int device_id);
 
 #ifndef WIN32
-void adapter_set_uhid_id(int controller, int uhid_id);
+int adapter_hid_poll();
+void adapter_set_hid(int adapter, int hid);
 #else
-void adapter_set_usb_ids(int controller, unsigned short vendor, unsigned short product);
+void adapter_set_usb_ids(int adapter, int joystick_id, unsigned short vendor, unsigned short product);
 #endif
 
-void adapter_set_axis(unsigned char c, int axis, int value);
+void adapter_set_axis(unsigned char adapter, int axis, int value);
 
-int adapter_forward_control_in(int id, unsigned char* data, unsigned char length);
-int adapter_forward_interrupt_in(int id, unsigned char* data, unsigned char length);
+int adapter_forward_control_in(int adapter, unsigned char* data, unsigned char length);
+int adapter_forward_interrupt_in(int adapter, unsigned char* data, unsigned char length);
+
+int adapter_is_usb_auth_required(int adapter);
 
 #endif /* ADAPTER_H_ */

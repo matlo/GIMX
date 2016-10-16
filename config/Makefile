@@ -7,21 +7,14 @@ endif
 
 NAME=$(shell basename $(shell pwd))
 
-CPPFLAGS += -I../shared/configeditor/include -I../shared/controller/include
-CPPFLAGS += -Wno-unused-local-typedefs `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP `curl-config --cflags`
-LDLIBS := ../shared/configeditor/configeditor.a \
-      $(LDLIBS) \
-      ../shared/updater/updater.a \
-      `wx-config --libs` \
-      `curl-config --libs` \
-      -lxml2 \
-      -lstdc++ \
-      -lm
-ifeq ($(OS),Windows_NT)
-LDLIBS += -lSDL2 -lintl -liconv
-endif
+CPPFLAGS += `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP -Wno-unused-local-typedefs
+LDLIBS += `wx-config --libs` -lstdc++ -lm
 
-DEPS = ../shared/configeditor/configeditor.a ../shared/controller/controller.a ../shared/event/GE.a ../shared/updater/updater.a
+CPPFLAGS += $(GIMXCONFIGEDITOR_CPPFLAGS) $(GIMXUPDATER_CPPFLAGS)
+
+LDLIBS += $(GIMXCONFIGEDITOR_LDLIBS) $(GIMXUPDATER_LDLIBS)
+
+LDFLAGS += $(GIMXCONFIGEDITOR_LDFLAGS) $(GIMXUPDATER_LDFLAGS)
 
 OBJECTS := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 
@@ -33,14 +26,9 @@ else
 OBJECTS += $(NAME).rc.o
 endif
 
-all: updated $(OUT)
+all: $(OUT)
 
 $(OUT): $(OBJECTS)
-
-#this rule triggers an update when $(DEPS) is updated
-updated: $(DEPS)
-	touch updated
-	$(RM) $(OUT)
 
 ifeq ($(OS),Windows_NT)
 $(NAME).rc.o: $(NAME).rc
@@ -63,11 +51,13 @@ install: all
 	cp gimx-$(NAME).png $(prefix)/share/pixmaps
 
 uninstall:
-	-for i in $(BINS); do $(RM) $(bindir)/$$i; done
-	-$(RM) $(bindir)
-	-$(RM) $(prefix)
-	-$(RM) $(prefix)/share/applications/gimx-$(NAME).desktop
 	-$(RM) $(prefix)/share/pixmaps/gimx-$(NAME).png
+	-$(RM) $(prefix)/share/applications/gimx-$(NAME).desktop
+	-for i in $(BINS); do $(RM) $(bindir)/$$i; done
+	-rmdir $(prefix)/share/pixmaps
+	-rmdir $(prefix)/share/applications
+	-rmdir $(bindir)
+	-rmdir $(prefix)
 
 really-clean: clean uninstall
 endif

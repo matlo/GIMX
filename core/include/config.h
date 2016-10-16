@@ -6,7 +6,7 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-#include <GE.h>
+#include <ginput.h>
 #include <controller2.h>
 
 #define MAX_BUFFERSIZE 256
@@ -111,7 +111,7 @@ typedef struct
     e_device_type type;
     int id;
 #ifndef WIN32
-    int uhid_id;
+    int hid;
 #else
     struct
     {

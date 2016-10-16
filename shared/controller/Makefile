@@ -1,13 +1,5 @@
-include ../../Makedefs
+OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*.c))
 
-LIBNAME=$(shell basename $(shell pwd)).a
-OBJECTS := $(patsubst %.c,%.o,$(wildcard src/*.c))
-CPPFLAGS+=-Iinclude -Isrc
+CFLAGS += -fPIC -Iinclude
 
-all: $(LIBNAME)
-
-$(LIBNAME): $(OBJECTS)
-	$(AR) $(ARFLAGS) $@ $?
-
-clean:
-	$(RM) $(LIBNAME) $(OBJECTS)
+include ../Makedefs

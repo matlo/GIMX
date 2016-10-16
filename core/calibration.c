@@ -4,7 +4,6 @@
  */
 
 #include "calibration.h"
-#include <GE.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,6 +13,7 @@
 #include "config_writter.h"
 #include "gimx.h"
 #include <adapter.h>
+#include <ginput.h>
 #include "display.h"
 #include "mainloop.h"
 
@@ -199,7 +199,7 @@ static void cal_display()
 
   if (current_cal != NONE)
   {
-    gprintf(_("calibrating mouse %s (%d)\n"), GE_MouseName(current_mouse), GE_MouseVirtualId(current_mouse));
+    gprintf(_("calibrating mouse %s (%d)\n"), ginput_mouse_name(current_mouse), ginput_mouse_virtual_id(current_mouse));
     gprintf(_("calibrating conf %d\n"), current_conf + 1);
     gprintf(_("sensibility:"));
     if (mcal->mx)
@@ -280,7 +280,7 @@ static void cal_display()
 /*
  * Use keys to calibrate the mouse.
  */
-void cal_key(int device_id, int sym, int down)
+void cal_key(int sym, int down)
 {
   s_mouse_control* mc = cfg_get_mouse_control(current_mouse);
   e_current_cal prev = current_cal;
@@ -328,7 +328,7 @@ void cal_key(int device_id, int sym, int down)
         {
           if (current_cal == NONE)
           {
-            if(GE_GetMKMode() == GE_MK_MODE_MULTIPLE_INPUTS)
+            if(ginput_get_mk_mode() == GE_MK_MODE_MULTIPLE_INPUTS)
             {
               current_cal = MC;
               gprintf(_("mouse selection\n"));
@@ -351,7 +351,7 @@ void cal_key(int device_id, int sym, int down)
         }
         else if(current_cal != NONE)
         {
-          if(GE_GetMKMode() == GE_MK_MODE_MULTIPLE_INPUTS)
+          if(ginput_get_mk_mode() == GE_MK_MODE_MULTIPLE_INPUTS)
           {
             current_cal = MC;
             gprintf(_("mouse selection\n"));
@@ -494,14 +494,14 @@ void cal_key(int device_id, int sym, int down)
 
   if (lalt && ralt)
   {
-    GE_grab_toggle();
+    ginput_grab_toggle();
   }
 }
 
 /*
  * Use the mouse wheel to calibrate the mouse.
  */
-void cal_button(int which, int button)
+void cal_button(int button)
 {
   double ratio;
   s_mouse_control* mc = cfg_get_mouse_control(current_mouse);
@@ -521,7 +521,7 @@ void cal_button(int which, int button)
       {
         case MC:
           current_mouse += 1;
-          if (!GE_MouseName(current_mouse))
+          if (!ginput_mouse_name(current_mouse))
           {
             current_mouse -= 1;
           }

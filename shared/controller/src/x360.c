@@ -91,7 +91,7 @@ static void init_report(s_report * report)
   memcpy(report, &default_report, sizeof(default_report));
 }
 
-inline void axis2button(int axis[AXIS_MAX], e_x360_axis_index index,
+static inline void axis2button(int axis[AXIS_MAX], e_x360_axis_index index,
     unsigned short* buttons, unsigned short button_mask)
 {
   if (axis[index])
@@ -146,14 +146,17 @@ static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_
 static s_controller controller =
 {
   .name = "360pad",
+  .vid = X360_VENDOR,
+  .pid = X360_PRODUCT,
   .refresh_period = { .min_value = 1000, .default_value = 8000 },
+  .auth_required = 1,
   .axes = axes,
   .axis_name_dirs = { .nb = sizeof(axis_name_dirs)/sizeof(*axis_name_dirs), .values = axis_name_dirs },
   .fp_build_report = build_report,
   .fp_init_report = init_report,
 };
 
-void x360_init(void) __attribute__((constructor (101)));
+void x360_init(void) __attribute__((constructor));
 void x360_init(void)
 {
   controller_register(C_TYPE_360_PAD, &controller);

@@ -5,32 +5,24 @@ prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
 endif
 
-BINS=ds4tool sixaddr
+BINS=
 ifneq ($(OS),Windows_NT)
-BINS+= bdaddr hcirevision
+BINS+=ds4tool sixaddr bdaddr hcirevision
 OUT=$(BINS)
 else
-OUT=
+OUT=ds4tool.exe sixaddr.exe
 endif
 
-CPPFLAGS :=
+CPPFLAGS += $(GIMXPOLL_CPPFLAGS) $(GIMXUSB_CPPFLAGS)
 
-LDLIBS := -lusb-1.0
-ifneq ($(OS),Windows_NT)
-LDLIBS += -lbluetooth
-endif
+LDLIBS += $(GIMXPOLL_LDLIBS) $(GIMXUSB_LDLIBS)
 
-DEPS=
+LDFLAGS += $(GIMXPOLL_LDFLAGS) $(GIMXUSB_LDFLAGS)
 
-all: updated $(BINS)
+all: $(BINS)
 
 clean:
 	$(RM) $(OUT) *.o */*.o
-
-#this rule triggers an update when $(DEPS) is updated
-updated: $(DEPS)
-	touch updated
-	$(RM) $(OUT)
 
 sixaddr: sixaddr.o
 
@@ -53,8 +45,8 @@ install: all
 
 uninstall:
 	-for i in $(BINS); do $(RM) $(bindir)/$$i; done
-	-$(RM) $(bindir)
-	-$(RM) $(prefix)
+	-rmdir $(bindir)
+	-rmdir $(prefix)
 
 really-clean: clean uninstall
 endif

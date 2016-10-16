@@ -1,5 +1,6 @@
 /*
- * Compile with: gcc -o ds4tool ds4tool.c -lusb-1.0
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
+ License: GPLv3
  */
 
 #include <string.h>
@@ -7,369 +8,326 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifndef WIN32
-#include <libusb-1.0/libusb.h>
+#include <gusb.h>
+
+#ifdef WIN32
+#define REGISTER_FUNCTION gpoll_register_handle
+#define REMOVE_FUNCTION gpoll_remove_handle
 #else
-#include <libusb-1.0/libusb.h>
+#define REGISTER_FUNCTION gpoll_register_fd
+#define REMOVE_FUNCTION gpoll_remove_fd
 #endif
 
 #define VENDOR 0x054c
-#define PRODUCT 0x05c4
+
+static unsigned short products[] = { 0x05c4, 0x09cc };
 
 #define TYPE_DS4 0
 #define TYPE_TEENSY 1
 
-#if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)
-const char * LIBUSB_CALL libusb_strerror(enum libusb_error errcode)
-{
-  return libusb_error_name(errcode);
-}
-#endif
-
 static unsigned char type = TYPE_DS4;
 
 static char* master = NULL;
-static char* link_key = NULL;
+static char* linkkey = NULL;
 static char* slave = NULL;
 
-static unsigned char msg_bdaddrs[0x0010];
-static unsigned char msg_link_key[0x0010];
+static struct {
+    unsigned char slave[6];
+    unsigned char master[6];
+    unsigned char linkkey[16];
+} in;
 
-static void usage()
-{
-  fprintf(stderr, "Usage: ds4tool [-t] [-l lk] [-m master] [-s slave]\n");
-  fprintf(stderr, "  -t: Teensy mode\n");
-  fprintf(stderr, "  -l lk: the link key to set\n");
-  fprintf(stderr, "  -m master: the master bdaddr to set\n");
-  fprintf(stderr, "  -s slave: the slave bdaddr to set (only with -t)\n");
+static struct {
+    unsigned char slave[6];
+    unsigned char master[6];
+    unsigned char linkkey[16];
+} out;
+
+static void usage() {
+    fprintf(stderr, "Usage: ds4tool [-t] [-l lk] [-m master] [-s slave]\n");
+    fprintf(stderr, "  -t: Teensy mode\n");
+    fprintf(stderr, "  -l lk: the link key to set\n");
+    fprintf(stderr, "  -m master: the master bdaddr to set\n");
+    fprintf(stderr, "  -s slave: when -t is used, the slave bdaddr to set\n");
+    fprintf(stderr, "            when -t is not used, the slave bdaddr to select\n");
 }
 
-int get_bdaddrs(libusb_device_handle* devh)
-{
-  int res = libusb_control_transfer(devh, LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE,
-      LIBUSB_REQUEST_CLEAR_FEATURE, 0x0312, 0x0000, msg_bdaddrs, sizeof(msg_bdaddrs), 5000);
+int get_bdaddrs(int device) {
 
-  if (res < 0)
-  {
-    fprintf(stderr, "Control transfer failed: %s.\n", libusb_strerror(res));
-  }
+    struct {
+        struct usb_ctrlrequest req;
+        unsigned char data[16];
+    } transfer = {
+            .req = {
+                    .bRequestType = USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+                    .bRequest = USB_REQ_CLEAR_FEATURE,
+                    .wValue = 0x0312,
+                    .wIndex = 0x0000,
+                    .wLength = sizeof(transfer.data)
+            }
+    };
 
-  return res;
+    int res = gusb_write_timeout(device, 0, &transfer, sizeof(transfer.req), 5000);
+
+    if (res > 0) {
+
+        out.slave[0] = transfer.data[6];
+        out.slave[1] = transfer.data[5];
+        out.slave[2] = transfer.data[4];
+        out.slave[3] = transfer.data[3];
+        out.slave[4] = transfer.data[2];
+        out.slave[5] = transfer.data[1];
+
+        out.master[0] = transfer.data[15];
+        out.master[1] = transfer.data[14];
+        out.master[2] = transfer.data[13];
+        out.master[3] = transfer.data[12];
+        out.master[4] = transfer.data[11];
+        out.master[5] = transfer.data[10];
+    }
+
+    return res;
 }
 
-void set_master(libusb_device_handle* devh, unsigned char master[6], unsigned char lk[16])
-{
-  unsigned char msg[] =
-  {
-      0x13,
-      master[5], master[4], master[3], master[2], master[1], master[0],
-      lk[0], lk[1], lk[2], lk[3], lk[4], lk[5], lk[6], lk[7],
-      lk[8], lk[9], lk[10], lk[11], lk[12], lk[13], lk[14], lk[15]
-  };
+void set_master(int device) {
 
-  int res = libusb_control_transfer(devh, LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE,
-      LIBUSB_REQUEST_SET_CONFIGURATION, 0x0313, 0x0000, msg, sizeof(msg), 5000);
+    struct {
+        struct usb_ctrlrequest req;
+        unsigned char data[23];
+    } transfer = {
+            .req = {
+                    .bRequestType = USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+                    .bRequest = USB_REQ_SET_CONFIGURATION,
+                    .wValue = 0x0313,
+                    .wIndex = 0x0000,
+                    .wLength = sizeof(transfer.data)
+            },
+            .data = {
+                    0x13,
+                    in.master[5], in.master[4], in.master[3], in.master[2], in.master[1], in.master[0],
+                    in.linkkey[0], in.linkkey[1], in.linkkey[2], in.linkkey[3], in.linkkey[4], in.linkkey[5], in.linkkey[6], in.linkkey[7],
+                    in.linkkey[8], in.linkkey[9], in.linkkey[10], in.linkkey[11], in.linkkey[12], in.linkkey[13], in.linkkey[14], in.linkkey[15]
+            }
+    };
 
-  if (res < 0)
-  {
-    fprintf(stderr, "Control transfer failed: %s.\n", libusb_strerror(res));
-  }
+    gusb_write_timeout(device, 0, &transfer, sizeof(transfer.req), 5000);
 }
 
-void set_slave(libusb_device_handle* devh, unsigned char slave[6])
-{
-  unsigned char msg[] =
-  {
-      slave[5], slave[4], slave[3], slave[2], slave[1], slave[0],
-  };
+void set_slave(int device) {
 
-  int res = libusb_control_transfer(devh, LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE,
-      LIBUSB_REQUEST_SET_CONFIGURATION, 0x0312, 0x0000, msg, sizeof(msg), 5000);
+    struct {
+        struct usb_ctrlrequest req;
+        unsigned char data[sizeof(in.slave)];
+    } transfer = {
+            .req = {
+                    .bRequestType = USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+                    .bRequest = USB_REQ_SET_CONFIGURATION,
+                    .wValue = 0x0312,
+                    .wIndex = 0x0000,
+                    .wLength = sizeof(in.slave)
+            },
+            .data = {
+                    in.slave[5], in.slave[4], in.slave[3], in.slave[2], in.slave[1], in.slave[0]
+            }
+    };
 
-  if (res < 0)
-  {
-    fprintf(stderr, "Control transfer failed: %s.\n", libusb_strerror(res));
-  }
+    gusb_write_timeout(device, 0, &transfer, sizeof(transfer.req), 5000);
 }
 
-int get_link_key(libusb_device_handle* devh)
-{
-  return libusb_control_transfer(devh, LIBUSB_ENDPOINT_IN | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_RECIPIENT_INTERFACE,
-      LIBUSB_REQUEST_CLEAR_FEATURE, 0x0313, 0x0000, msg_link_key, sizeof(msg_link_key), 5000);
+int get_link_key(int device) {
+
+    struct {
+        struct usb_ctrlrequest req;
+        unsigned char data[sizeof(out.linkkey)];
+    } transfer = {
+            .req = {
+                    .bRequestType = USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+                    .bRequest = USB_REQ_CLEAR_FEATURE,
+                    .wValue = 0x0313,
+                    .wIndex = 0x0000,
+                    .wLength = sizeof(transfer.data)
+            }
+    };
+
+    int res = gusb_write_timeout(device, 0, &transfer, sizeof(transfer), 5000);
+
+    if (res > 0) {
+        memcpy(out.linkkey, transfer.data, sizeof(transfer.data));
+    }
+
+    return res;
 }
 
-int process_device(libusb_device_handle* devh)
-{
-  int i;
-  unsigned char bdaddr[6];
-  unsigned char lk[16] = {};
-#ifdef WIN32
-  unsigned int i_bdaddr[6];
-  unsigned int i_lk[16] = {};
-#endif
+int process_device(int device) {
+    int i;
 
-  if(get_bdaddrs(devh) < 0)
-  {
-    return -1;
-  }
-
-  if(get_link_key(devh) < 0)
-  {
-    if(type == TYPE_TEENSY)
-    {
-      return -1;
-    }
-  }
-  else
-  {
-    if(type == TYPE_DS4)
-    {
-      return -1;
-    }
-  }
-
-  printf("Current Bluetooth master: ");
-  printf("%02X:%02X:%02X:%02X:%02X:%02X\n", msg_bdaddrs[15], msg_bdaddrs[14], msg_bdaddrs[13], msg_bdaddrs[12], msg_bdaddrs[11], msg_bdaddrs[10]);
-
-  printf("Current Bluetooth Device Address: ");
-  printf("%02X:%02X:%02X:%02X:%02X:%02X\n", msg_bdaddrs[6], msg_bdaddrs[5], msg_bdaddrs[4], msg_bdaddrs[3], msg_bdaddrs[2], msg_bdaddrs[1]);
-
-  if(type == TYPE_TEENSY)
-  {
-    printf("Current link key: ");
-    for(i=0; i<16; ++i)
-    {
-      printf("%02X", msg_link_key[i]);
-    }
-    printf("\n");
-  }
-
-  if (master)
-  {
-#ifdef WIN32
-    if (sscanf(master, "%2x:%2x:%2x:%2x:%2x:%2x", i_bdaddr, i_bdaddr+1, i_bdaddr+2, i_bdaddr+3, i_bdaddr+4, i_bdaddr+5) != 6)
-#else
-    if (sscanf(master, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx", bdaddr, bdaddr+1, bdaddr+2, bdaddr+3, bdaddr+4, bdaddr+5) != 6)
-#endif
-    {
-      usage();
-    }
-#ifdef WIN32
-    for(i=0; i<6; ++i)
-    {
-      bdaddr[i] = i_bdaddr[i];
-    }
-#endif
-    if(link_key)
-    {
-#ifdef WIN32
-      if (sscanf(link_key, "%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x",
-                  i_lk, i_lk+1, i_lk+2, i_lk+3, i_lk+4, i_lk+5, i_lk+6, i_lk+7, i_lk+8, i_lk+9, i_lk+10, i_lk+11, i_lk+12, i_lk+13, i_lk+14, i_lk+15) != 16)
-#else
-      if (sscanf(link_key, "%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx",
-                lk, lk+1, lk+2, lk+3, lk+4, lk+5, lk+6, lk+7, lk+8, lk+9, lk+10, lk+11, lk+12, lk+13, lk+14, lk+15) != 16)
-#endif
-      {
-        usage();
+    if (get_bdaddrs(device) < 0) {
         return -1;
-      }
-#ifdef WIN32
-      for(i=0; i<16; ++i)
-      {
-        lk[i] = i_lk[i];
-      }
-#endif
     }
-    printf("Setting master bdaddr to %s\n", master);
-    printf("Setting link key to %s\n", link_key);
-    set_master(devh, bdaddr, lk);
-  }
-  if (slave)
-  {
-#ifdef WIN32
-    if (sscanf(slave, "%2x:%2x:%2x:%2x:%2x:%2x", i_bdaddr, i_bdaddr+1, i_bdaddr+2, i_bdaddr+3, i_bdaddr+4, i_bdaddr+5) != 6)
-#else
-    if (sscanf(slave, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx", bdaddr, bdaddr+1, bdaddr+2, bdaddr+3, bdaddr+4, bdaddr+5) != 6)
-#endif
-    {
-      usage();
-      return -1;
+
+    if (slave && type == TYPE_DS4) {
+        if (memcmp(in.slave, out.slave, sizeof(in.slave))) {
+            return -1;
+        }
     }
-#ifdef WIN32
-    for(i=0; i<6; ++i)
-    {
-      bdaddr[i] = i_bdaddr[i];
+
+    if (get_link_key(device) < 0) {
+        if (type == TYPE_TEENSY) {
+            return -1;
+        }
+        printf("Failed to get the link key (this is probably a Ds4).\n");
+    } else {
+        if (type == TYPE_DS4) {
+            return -1;
+        }
     }
-#endif
-    printf("Setting slave bdaddr to %s\n", slave);
-    set_slave(devh, bdaddr);
-  }
-  return 0;
+
+    printf("Current Bluetooth master: ");
+    printf("%02X:%02X:%02X:%02X:%02X:%02X\n", out.master[0], out.master[1], out.master[2], out.master[3], out.master[4], out.master[5]);
+
+    printf("Current Bluetooth Device Address: ");
+    printf("%02X:%02X:%02X:%02X:%02X:%02X\n", out.slave[0], out.slave[1], out.slave[2], out.slave[3], out.slave[4], out.slave[5]);
+
+    if (type == TYPE_TEENSY) {
+        printf("Current link key: ");
+        for (i = 0; i < 16; ++i) {
+            printf("%02X", out.linkkey[i]);
+        }
+        printf("\n");
+    }
+
+    if (master) {
+        printf("Setting master bdaddr to %s\n", master);
+        printf("Setting link key to %s\n", linkkey);
+        set_master(device);
+    }
+    if (slave && type == TYPE_TEENSY) {
+        printf("Setting slave bdaddr to %s\n", slave);
+        set_slave(device);
+    }
+    return 0;
+}
+
+int bdaddr2hex(const char * str, unsigned char hex[6]) {
+
+    // there's no hh conversion in Windows!
+    unsigned int tmp[6];
+    if (sscanf(str, "%2x:%2x:%2x:%2x:%2x:%2x", tmp, tmp + 1, tmp + 2, tmp + 3, tmp + 4, tmp + 5) != 6) {
+        return -1;
+    }
+    int i;
+    for (i = 0; i < 6; ++i) {
+        hex[i] = tmp[i];
+    }
+    return 0;
+}
+
+int linkkey2hex(const char * str, unsigned char hex[16]) {
+
+    // there's no hh conversion in Windows!
+    unsigned int tmp[16] = { };
+    if (sscanf(str, "%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x", tmp, tmp + 1, tmp + 2, tmp + 3, tmp + 4, tmp + 5, tmp + 6, tmp + 7, tmp + 8,
+            tmp + 9, tmp + 10, tmp + 11, tmp + 12, tmp + 13, tmp + 14, tmp + 15) != 16) {
+        return -1;
+    }
+    int i;
+    for (i = 0; i < 16; ++i) {
+        hex[i] = tmp[i];
+    }
+    return 0;
 }
 
 /*
  * Reads command-line arguments.
  */
-static void read_args(int argc, char* argv[])
-{
-  int opt;
+static void read_args(int argc, char* argv[]) {
+    int opt;
 
-  while ((opt = getopt(argc, argv, "l:m:s:t::")) != -1)
-  {
-    switch (opt)
-    {
-      case 'm':
-        master = optarg;
-        break;
-      case 's':
-        slave = optarg;
-        break;
-      case 'l':
-        link_key = optarg;
-        break;
-      case 't':
-        type = TYPE_TEENSY;
-        break;
-      default: /* '?' */
-        usage();
-        exit(EXIT_FAILURE);
-        break;
+    while ((opt = getopt(argc, argv, "l:m:s:t::")) != -1) {
+        switch (opt) {
+        case 'm':
+            master = optarg;
+            break;
+        case 's':
+            slave = optarg;
+            break;
+        case 'l':
+            linkkey = optarg;
+            break;
+        case 't':
+            type = TYPE_TEENSY;
+            break;
+        default: /* '?' */
+            usage();
+            exit(EXIT_FAILURE);
+            break;
+        }
     }
-  }
-
-  if(type == TYPE_DS4 && slave)
-  {
-    usage();
-    exit(EXIT_FAILURE);
-  }
+    if (slave) {
+        if (bdaddr2hex(slave, in.slave) < 0) {
+            usage();
+            exit(EXIT_FAILURE);
+        }
+    }
+    if (master) {
+        if (bdaddr2hex(master, in.master) < 0) {
+            usage();
+            exit(EXIT_FAILURE);
+        }
+    }
+    if (linkkey) {
+        if (linkkey2hex(linkkey, in.linkkey) < 0) {
+            usage();
+            exit(EXIT_FAILURE);
+        }
+    }
 }
 
-int main(int argc, char *argv[])
-{
-  libusb_device** devs;
-  libusb_device_handle* devh = NULL;
-  libusb_context* ctx = NULL;
-  int ret = -1;
-  int status;
-  int i;
+int main(int argc, char *argv[]) {
 
-  read_args(argc, argv);
+    int ret = 0;
+    int status;
 
-  if(libusb_init(&ctx))
-  {
-    fprintf(stderr, "Can't initialize libusb.\n");
-    return -1;
-  }
+    read_args(argc, argv);
 
-  //libusb_set_debug(ctx, 128);
-
-  ssize_t cnt = libusb_get_device_list(ctx, &devs);
-
-  if(cnt < 0)
-  {
-    fprintf(stderr, "Can't get USB device list.\n");
-  }
-
-  for(i = 0; i < cnt; ++i)
-  {
-    struct libusb_device_descriptor desc;
-    ret = libusb_get_device_descriptor(devs[i], &desc);
-    if(ret < 0)
-    {
-      continue;
+    if (gusb_init(&((GPOLL_INTERFACE){ REGISTER_FUNCTION, REMOVE_FUNCTION })) < 0) {
+        return -1;
     }
 
-    if(desc.idVendor != VENDOR || desc.idProduct != PRODUCT)
-    {
-      continue;
+    struct gusb_device * devs = gusb_enumerate(VENDOR, 0x0000);
+
+    struct gusb_device * current;
+    for (current = devs; current != NULL; current = current->next) {
+
+        unsigned int i;
+        for (i = 0; i < sizeof(products) / sizeof(*products); ++i) {
+            if (current->product_id == products[i]) {
+                break;
+            }
+        }
+
+        if (i == sizeof(products) / sizeof(*products)) {
+            continue;
+        }
+
+        int device = gusb_open_path(current->path);
+
+        if (device >= 0) {
+
+            status = process_device(device);
+
+            gusb_close(device);
+
+            if (status == 0 && (slave || master)) {
+                break;
+            }
+        }
     }
 
-    ret = libusb_open(devs[i], &devh);
-    if(ret < 0)
-    {
-      continue;
-    }
+    gusb_free_enumeration(devs);
 
-#if defined(LIBUSB_API_VERSION) || defined(LIBUSBX_API_VERSION)
-    libusb_set_auto_detach_kernel_driver(devh, 1);
-#else
-#ifndef WIN32
-    ret = libusb_kernel_driver_active(devh, 0);
-    if(ret > 0)
-    {
-      ret = libusb_detach_kernel_driver(devh, 0);
-      if(ret < 0)
-      {
-        fprintf(stderr, "Can't detach kernel driver: %s.\n", libusb_strerror(ret));
-        continue;
-      }
-    }
-#endif
-#endif
+    gusb_exit();
 
-    int config;
-
-    ret = libusb_get_configuration(devh, &config);
-    if(ret != LIBUSB_SUCCESS)
-    {
-      fprintf(stderr, "Can't get configuration: %s.\n", libusb_strerror(ret));
-      continue;
-    }
-
-    if(config != 1)
-    {
-      ret = libusb_set_configuration(devh, 1);
-      if(ret != LIBUSB_SUCCESS)
-      {
-        fprintf(stderr, "Can't set configuration: %s.\n", libusb_strerror(ret));
-        continue;
-      }
-    }
-
-    ret = libusb_claim_interface(devh, 0);
-    if(ret < 0)
-    {
-      fprintf(stderr, "Can't claim interface: %s.\n", libusb_strerror(ret));
-      continue;
-    }
-
-    status = process_device(devh);
-
-    ret = libusb_release_interface(devh, 0);
-    if(ret < 0)
-    {
-      fprintf(stderr, "Can't release interface: %s.\n", libusb_strerror(ret));
-    }
-
-#if !defined(LIBUSB_API_VERSION) && !defined(LIBUSBX_API_VERSION)
-#ifndef WIN32
-    ret = libusb_attach_kernel_driver(devh, 0);
-    if(ret < 0)
-    {
-      fprintf(stderr, "Can't attach kernel driver: %s.\n", libusb_strerror(ret));
-    }
-#endif
-#endif
-
-    libusb_close(devh);
-    devh = NULL;
-
-    if(status == 0 && (slave || master))
-    {
-      break;
-    }
-  }
-  
-  if(devh != NULL)
-  {
-    libusb_close(devh);
-  }
-
-  libusb_free_device_list(devs, 1);
-
-  libusb_exit(ctx);
-
-  return ret;
-
+    return ret;
 }
 

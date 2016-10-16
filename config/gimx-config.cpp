@@ -29,7 +29,6 @@
 #include "../shared/updater/updater.h"
 #include "../directories.h"
 
-#include <libintl.h>
 #include <wx/stdpaths.h>
 #include <wx/busyinfo.h>
 
@@ -534,15 +533,13 @@ void configFrame::readLabels()
  * \param parent  the parent window
  * \param id      the parent window id
  */
-configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
+configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribute__((unused)))
 {
     locale = new wxLocale(wxLANGUAGE_DEFAULT);
 #ifdef WIN32
     locale->AddCatalogLookupPathPrefix(wxT("share/locale"));
 #endif
     locale->AddCatalog(wxT("gimx"));
-
-    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 
     //(*Initialize(configFrame)
     wxFlexGridSizer* FlexGridSizer30;
@@ -722,7 +719,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     GridMouseOption->SetDefaultCellFont( GridMouseOption->GetFont() );
     GridMouseOption->SetDefaultCellTextColour( GridMouseOption->GetForegroundColour() );
     FlexGridSizer37->Add(GridMouseOption, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer42 = new wxFlexGridSizer(2, 1, 0, 0);
+    FlexGridSizer42 = new wxFlexGridSizer(3, 1, 0, 0);
     MouseOptionsAdd = new wxButton(PanelMouseOptions, ID_BUTTON12, _("Add"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON12"));
     FlexGridSizer42->Add(MouseOptionsAdd, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     MouseOptionsRemove = new wxButton(PanelMouseOptions, ID_BUTTON13, _("Remove"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON13"));
@@ -811,7 +808,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     GridIntensity->SetDefaultCellFont( GridIntensity->GetFont() );
     GridIntensity->SetDefaultCellTextColour( GridIntensity->GetForegroundColour() );
     FlexGridSizer22->Add(GridIntensity, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer43 = new wxFlexGridSizer(2, 1, 0, 0);
+    FlexGridSizer43 = new wxFlexGridSizer(3, 1, 0, 0);
     IntensityAdd = new wxButton(PanelIntensity, ID_BUTTON21, _("Add"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON21"));
     FlexGridSizer43->Add(IntensityAdd, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     IntensityRemove = new wxButton(PanelIntensity, ID_BUTTON22, _("Remove"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON22"));
@@ -886,7 +883,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     GridJoystickCorrections->SetDefaultCellFont( GridJoystickCorrections->GetFont() );
     GridJoystickCorrections->SetDefaultCellTextColour( GridJoystickCorrections->GetForegroundColour() );
     FlexGridSizer51->Add(GridJoystickCorrections, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer52 = new wxFlexGridSizer(2, 1, 0, 0);
+    FlexGridSizer52 = new wxFlexGridSizer(3, 1, 0, 0);
     JoystickCorrectionAdd = new wxButton(PanelJoystickCorrections, ID_BUTTON16, _("Add"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON16"));
     FlexGridSizer52->Add(JoystickCorrectionAdd, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     JoystickCorrectionRemove = new wxButton(PanelJoystickCorrections, ID_BUTTON17, _("Remove"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON17"));
@@ -981,7 +978,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     GridPanelButton->SetDefaultCellFont( GridPanelButton->GetFont() );
     GridPanelButton->SetDefaultCellTextColour( GridPanelButton->GetForegroundColour() );
     FlexGridSizer8->Add(GridPanelButton, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer6 = new wxFlexGridSizer(2, 1, 0, 0);
+    FlexGridSizer6 = new wxFlexGridSizer(3, 1, 0, 0);
     ButtonTabAdd = new wxButton(PanelButton, ID_BUTTON4, _("Add"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON4"));
     FlexGridSizer6->Add(ButtonTabAdd, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ButtonTabRemove = new wxButton(PanelButton, ID_BUTTON6, _("Remove"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON6"));
@@ -1093,7 +1090,7 @@ configFrame::configFrame(wxString file,wxWindow* parent,wxWindowID id)
     GridPanelAxis->SetDefaultCellFont( GridPanelAxis->GetFont() );
     GridPanelAxis->SetDefaultCellTextColour( GridPanelAxis->GetForegroundColour() );
     FlexGridSizer4->Add(GridPanelAxis, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer7 = new wxFlexGridSizer(2, 1, 0, 0);
+    FlexGridSizer7 = new wxFlexGridSizer(3, 1, 0, 0);
     Button3 = new wxButton(PanelAxis, ID_BUTTON3, _("Add"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON3"));
     FlexGridSizer7->Add(Button3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     Button7 = new wxButton(PanelAxis, ID_BUTTON7, _("Remove"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON7"));
@@ -1459,7 +1456,7 @@ configFrame::~configFrame()
     //*)
 }
 
-void configFrame::OnQuit(wxCommandEvent& event)
+void configFrame::OnQuit(wxCommandEvent& event __attribute__((unused)))
 {
     Close();
 }
@@ -1467,7 +1464,7 @@ void configFrame::OnQuit(wxCommandEvent& event)
 /*
  * \brief Display the about menu.
  */
-void configFrame::OnAbout(wxCommandEvent& event)
+void configFrame::OnAbout(wxCommandEvent& event __attribute__((unused)))
 {
   wxAboutDialogInfo info;
   info.SetName(wxTheApp->GetAppName());
@@ -1482,7 +1479,7 @@ void configFrame::OnAbout(wxCommandEvent& event)
 /*
  * \brief Method called on File>New menu click.
  */
-void configFrame::OnMenuItemNew(wxCommandEvent& event)
+void configFrame::OnMenuItemNew(wxCommandEvent& event __attribute__((unused)))
 {
     FileDialog1->SetFilename(wxEmptyString);
     configFile = ConfigurationFile();
@@ -1500,7 +1497,7 @@ void configFrame::OnMenuItemNew(wxCommandEvent& event)
 /*
  * \brief Method called on Panel_Button>Add button click.
  */
-void configFrame::OnButtonAddPanelButton(wxCommandEvent& event)
+void configFrame::OnButtonAddPanelButton(wxCommandEvent& event __attribute__((unused)))
 {
     if(ButtonTabEventId->GetLabel().IsEmpty())
     {
@@ -1540,7 +1537,7 @@ void configFrame::OnButtonAddPanelButton(wxCommandEvent& event)
 /*
  * \brief Method called on Panel_Axis>Add button click.
  */
-void configFrame::OnButtonAddPanelAxis(wxCommandEvent& event)
+void configFrame::OnButtonAddPanelAxis(wxCommandEvent& event __attribute__((unused)))
 {
     if(AxisTabEventId->GetLabel().IsEmpty())
     {
@@ -1777,7 +1774,7 @@ void configFrame::DeleteSelectedRows(wxGrid* grid)
 /*
  * \brief Method called on Panel_Button>Remove click.
  */
-void configFrame::OnButtonRemovePanelButton(wxCommandEvent& event)
+void configFrame::OnButtonRemovePanelButton(wxCommandEvent& event __attribute__((unused)))
 {
     configFrame::DeleteSelectedRows(GridPanelButton);
     refresh_gui();
@@ -1786,7 +1783,7 @@ void configFrame::OnButtonRemovePanelButton(wxCommandEvent& event)
 /*
  * \brief Method called on Panel_Axis>Remove click.
  */
-void configFrame::OnButtonRemovePanelAxis(wxCommandEvent& event)
+void configFrame::OnButtonRemovePanelAxis(wxCommandEvent& event __attribute__((unused)))
 {
     configFrame::DeleteSelectedRows(GridPanelAxis);
     refresh_gui();
@@ -1795,7 +1792,7 @@ void configFrame::OnButtonRemovePanelAxis(wxCommandEvent& event)
 /*
  * \brief Method called on Panel_Axis>Event_type selection.
  */
-void configFrame::OnEventTypeSelectPanelAxis(wxCommandEvent& event)
+void configFrame::OnEventTypeSelectPanelAxis(wxCommandEvent& event __attribute__((unused)))
 {
     AxisTabDeviceType->SetLabel(wxEmptyString);
     AxisTabDeviceName->SetLabel(wxEmptyString);
@@ -1824,7 +1821,7 @@ void configFrame::OnEventTypeSelectPanelAxis(wxCommandEvent& event)
 /*
  * \brief Method called on Panel_Button>Event_type selection.
  */
-void configFrame::OnButtonTabEventTypeSelect(wxCommandEvent& event)
+void configFrame::OnButtonTabEventTypeSelect(wxCommandEvent& event __attribute__((unused)))
 {
     ButtonTabDeviceType->SetLabel(wxEmptyString);
     ButtonTabDeviceName->SetLabel(wxEmptyString);
@@ -1876,11 +1873,13 @@ void configFrame::auto_detect(wxStaticText* device_type, string* dname, wxStatic
     evcatch->run("", reverseTranslate(string(event_type.mb_str(wxConvUTF8))));
     StatusBar1->SetStatusText(wxEmptyString);
 
-    device_type->SetLabel(_CN(evcatch->GetDeviceType()));
+    pair<Device, Event> ev = selectEvent();
 
-    if(MenuItemMultipleMiceAndKeyboards->IsChecked() || evcatch->GetDeviceType() == "joystick")
+    device_type->SetLabel(_CN(ev.first.GetType()));
+
+    if(MenuItemMultipleMiceAndKeyboards->IsChecked() || ev.first.GetType() == "joystick")
     {
-      *dname = evcatch->GetDeviceName();
+      *dname = ev.first.GetName();
       string name = *dname;
       if(name.size() > 20)
       {
@@ -1888,7 +1887,7 @@ void configFrame::auto_detect(wxStaticText* device_type, string* dname, wxStatic
         name.append("...");
       }
       device_name->SetLabel(wxString(name.c_str(), wxConvUTF8));
-      device_id->SetLabel( wxString(evcatch->GetDeviceId().c_str(), wxConvUTF8));
+      device_id->SetLabel( wxString(ev.first.GetId().c_str(), wxConvUTF8));
     }
     else
     {
@@ -1897,14 +1896,14 @@ void configFrame::auto_detect(wxStaticText* device_type, string* dname, wxStatic
       device_id->SetLabel(wxT("0"));
     }
 
-    event_id->SetLabel(wxString(evcatch->GetEventId().c_str(), wxConvUTF8));
+    event_id->SetLabel(wxString(ev.second.GetId().c_str(), wxConvUTF8));
 }
 
 /*
  * \brief Method called on Overall_Panel>Auto_detect_Trigger click. \
  *        It also updates profiles that had the same trigger.
  */
-void configFrame::OnButtonAutoDetectClick(wxCommandEvent& event)
+void configFrame::OnButtonAutoDetectClick(wxCommandEvent& event __attribute__((unused)))
 {
     ButtonAutoDetect->Enable(false);
 
@@ -1948,13 +1947,15 @@ void configFrame::OnButtonAutoDetectClick(wxCommandEvent& event)
 /*
  * \brief Method called on Button_Panel>Auto_detect click.
  */
-void configFrame::OnButtonTabAutoDetectClick(wxCommandEvent& event)
+void configFrame::OnButtonTabAutoDetectClick(wxCommandEvent& event __attribute__((unused)))
 {
     ButtonTabAutoDetect->Enable(false);
 
-    auto_detect(ButtonTabDeviceType, &buttonTabDeviceName, ButtonTabDeviceName, ButtonTabDeviceId, ButtonTabEventType->GetStringSelection(), ButtonTabEventId);
+	wxString eventType = ButtonTabEventType->GetStringSelection();
 
-    if(evcatch->GetEventType() == "button")
+    auto_detect(ButtonTabDeviceType, &buttonTabDeviceName, ButtonTabDeviceName, ButtonTabDeviceId, eventType, ButtonTabEventId);
+
+    if(eventType == _("button"))
     {
         ButtonTabThreshold->Disable();
         ButtonTabThreshold->SetValue(wxEmptyString);
@@ -1962,11 +1963,11 @@ void configFrame::OnButtonTabAutoDetectClick(wxCommandEvent& event)
     else
     {
         ButtonTabThreshold->Enable();
-        if(ButtonTabEventType->GetStringSelection() == _("axis down"))
+        if(eventType == _("axis down"))
         {
           ButtonTabThreshold->SetValue(wxT("-10"));
         }
-        else if(ButtonTabEventType->GetStringSelection() == _("axis up"))
+        else if(eventType == _("axis up"))
         {
           ButtonTabThreshold->SetValue(wxT("10"));
         }
@@ -1982,7 +1983,7 @@ void configFrame::OnButtonTabAutoDetectClick(wxCommandEvent& event)
 /*
  * \brief Method called on Axis_Panel>Auto_detect click.
  */
-void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
+void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event __attribute__((unused)))
 {
     wxString old_device_type = AxisTabDeviceType->GetLabel();
     string old_device_name = axisTabDeviceName;
@@ -1990,13 +1991,15 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
 
     AxisTabAutoDetect->Enable(false);
 
-    auto_detect(AxisTabDeviceType, &axisTabDeviceName, AxisTabDeviceName, AxisTabDeviceId, AxisTabEventType->GetStringSelection(), AxisTabEventId);
+    wxString eventType = AxisTabEventType->GetStringSelection();
+
+    auto_detect(AxisTabDeviceType, &axisTabDeviceName, AxisTabDeviceName, AxisTabDeviceId, eventType, AxisTabEventId);
 
   	if(old_device_type != AxisTabDeviceType->GetLabel()
        || old_device_name != axisTabDeviceName
        || old_device_id != AxisTabDeviceId->GetLabel())
     {
-        if(evcatch->GetEventType() == "button")
+        if(eventType == _("button"))
         {
             AxisTabDeadZone->Disable();
             AxisTabDeadZone->SetValue(wxEmptyString);
@@ -2016,12 +2019,12 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event)
           AxisTabAcceleration->SetValue(wxT("1.00"));
           AxisTabShape->Enable();
           AxisTabShape->SetSelection(1);
-          if(evcatch->GetDeviceType() == "mouse")
+          if(eventType == _("mouse"))
           {
               AxisTabDeadZone->SetValue(wxT("20"));
               AxisTabSensitivity->SetValue(wxT("1.00"));
           }
-          else if(evcatch->GetDeviceType() == "joystick")
+          else if(eventType == _("joystick"))
           {
               AxisTabDeadZone->SetValue(wxT("0"));
               if(!AxisTabAxisId->GetStringSelection().Contains(wxT("stick")))
@@ -2219,6 +2222,15 @@ void configFrame::LoadControllerType()
   fillChoices();
 }
 
+static void clearGrid(wxGrid * grid)
+{
+  int rows = grid->GetNumberRows();
+  if (rows > 0)
+  {
+    grid->DeleteRows(0, grid->GetNumberRows());
+  }
+}
+
 /*
  * \brief Load the current profile.
  */
@@ -2258,7 +2270,7 @@ void configFrame::load_current()
     }
     ProfileTriggerDelay->SetValue(configuration->GetTrigger()->GetDelay());
     //Load mouse options
-    GridMouseOption->DeleteRows(0, GridMouseOption->GetNumberRows());
+    clearGrid(GridMouseOption);
     mouseOptionsList = configuration->GetMouseOptionsList();
     for(std::list<MouseOptions>::iterator it = mouseOptionsList->begin(); it!=mouseOptionsList->end(); ++it)
     {
@@ -2271,7 +2283,7 @@ void configFrame::load_current()
     }
     GridMouseOption->AutoSizeColumns();
     //Load axis intensities
-    GridIntensity->DeleteRows(0, GridIntensity->GetNumberRows());
+    clearGrid(GridIntensity);
     intensityList = configuration->GetIntensityList();
     for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); ++it)
     {
@@ -2315,7 +2327,7 @@ void configFrame::load_current()
     }
     GridIntensity->AutoSizeColumns();
     //Load joystick corrections
-    GridJoystickCorrections->DeleteRows(0, GridJoystickCorrections->GetNumberRows());
+    clearGrid(GridJoystickCorrections);
     joystickCorrectionsList = configuration->GetJoystickCorrectionsList();
     for(std::list<JoystickCorrection>::iterator it = joystickCorrectionsList->begin(); it!=joystickCorrectionsList->end(); ++it)
     {
@@ -2330,7 +2342,7 @@ void configFrame::load_current()
     }
     GridJoystickCorrections->AutoSizeColumns();
     //Load buttonMappers
-    GridPanelButton->DeleteRows(0, GridPanelButton->GetNumberRows());
+    clearGrid(GridPanelButton);
     buttonMappers = configuration->GetButtonMapperList();
     for(std::list<ControlMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); ++it)
     {
@@ -2383,7 +2395,7 @@ void configFrame::load_current()
     }
     GridPanelButton->AutoSizeColumns();
     //Load axisMappers
-    GridPanelAxis->DeleteRows(0, GridPanelAxis->GetNumberRows());
+    clearGrid(GridPanelAxis);
     axisMappers = configuration->GetAxisMapperList();
     for(std::list<ControlMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
     {
@@ -2449,10 +2461,9 @@ void configFrame::refresh_gui()
 /*
  * \brief Method called on File>Open click.
  */
-void configFrame::OnMenuOpen(wxCommandEvent& event)
+void configFrame::OnMenuOpen(wxCommandEvent& event __attribute__((unused)))
 {
     int ret;
-    FileDialog1->SetDirectory(default_directory);
 
     if ( FileDialog1->ShowModal() != wxID_OK ) return;
 
@@ -2497,7 +2508,7 @@ void configFrame::OnMenuOpen(wxCommandEvent& event)
  * \brief Method called on controller selection. \
  *        It loads the first profile and refreshes the GUI.
  */
-void configFrame::OnMenuItemController(wxCommandEvent& event)
+void configFrame::OnMenuItemController(wxCommandEvent& event __attribute__((unused)))
 {
     save_current();
     if(MenuController1->IsChecked())
@@ -2539,7 +2550,7 @@ void configFrame::OnMenuItemController(wxCommandEvent& event)
  * \brief Method called on profile selection. \
  *        It save the previous profile, loads the new profile and refreshes the GUI.
  */
-void configFrame::OnMenuItemConfiguration(wxCommandEvent& event)
+void configFrame::OnMenuItemConfiguration(wxCommandEvent& event __attribute__((unused)))
 {
   save_current();
   if(MenuConfiguration1->IsChecked())
@@ -2583,7 +2594,7 @@ void configFrame::OnMenuItemConfiguration(wxCommandEvent& event)
  * \bried Method called on File>Save click. \
  *        It saves the current profile and writes the config file on the disk.
  */
-void configFrame::OnMenuSave(wxCommandEvent& event)
+void configFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
 {
     wxString end;
     save_current();
@@ -2602,7 +2613,7 @@ void configFrame::OnMenuSaveAs(wxCommandEvent& event)
 {
     wxFileDialog saveFileDialog(this, _("Save config file"), wxT(""), wxT(""), _("XML files (*.xml)|*.xml"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 
-    saveFileDialog.SetDirectory(default_directory);
+    saveFileDialog.SetDirectory(FileDialog1->GetDirectory());
     saveFileDialog.SetFilename(FileDialog1->GetFilename());
 
     if ( saveFileDialog.ShowModal() == wxID_CANCEL ) return;
@@ -2615,7 +2626,8 @@ void configFrame::OnMenuSaveAs(wxCommandEvent& event)
 
     OnMenuSave(event);
 
-    FileDialog1->SetFilename(FileName);
+    FileDialog1->SetDirectory(saveFileDialog.GetDirectory());
+    FileDialog1->SetFilename(saveFileDialog.GetFilename());
 
     MenuFile->Enable(idMenuSave, true);
 }
@@ -2625,7 +2637,7 @@ void configFrame::OnMenuSaveAs(wxCommandEvent& event)
  *        It loads the selected line into the edition fields (Modify). \
  *        It saves the edited binding, and eventually updates other profiles (Apply).
  */
-void configFrame::OnButtonModifyButton(wxCommandEvent& event)
+void configFrame::OnButtonModifyButton(wxCommandEvent& event __attribute__((unused)))
 {
     wxArrayInt array = GetGridSelectedRows(GridPanelButton);
     int count = array.GetCount();
@@ -2786,7 +2798,7 @@ void configFrame::updateButtonConfigurations()
  *        It loads the selected line into the edition fields (Modify). \
  *        It saves the edited binding, and eventually updates other profiles (Apply).
  */
-void configFrame::OnButtonModifyAxis(wxCommandEvent& event)
+void configFrame::OnButtonModifyAxis(wxCommandEvent& event __attribute__((unused)))
 {
     wxArrayInt array = GetGridSelectedRows(GridPanelAxis);
     int count = array.GetCount();
@@ -2958,7 +2970,7 @@ void configFrame::updateAxisConfigurations()
  * \brief Method called on Panel_Axis>Shape selection. \
  *        It selects shape "Circle" in case event type is axis and selection is empty.
  */
-void configFrame::OnAxisTabShapeSelect(wxCommandEvent& event)
+void configFrame::OnAxisTabShapeSelect(wxCommandEvent& event __attribute__((unused)))
 {
     if(AxisTabEventType->GetStringSelection() == _("axis"))
     {
@@ -2973,7 +2985,7 @@ void configFrame::OnAxisTabShapeSelect(wxCommandEvent& event)
  * \brief Method called on Edit>Copy_Profile click. \
  *        It copies the current profile into a temporary profile.
  */
-void configFrame::OnMenuItemCopyConfiguration(wxCommandEvent& event)
+void configFrame::OnMenuItemCopyConfiguration(wxCommandEvent& event __attribute__((unused)))
 {
   save_current();
   tempConfiguration = *configFile.GetController(currentController)->GetConfiguration(currentConfiguration);
@@ -2983,7 +2995,7 @@ void configFrame::OnMenuItemCopyConfiguration(wxCommandEvent& event)
  * \brief Method called on Edit>Paste_Profile click. \
  *        It copies the temporary profile into the current profile.
  */
-void configFrame::OnMenuItemPasteConfiguration(wxCommandEvent& event)
+void configFrame::OnMenuItemPasteConfiguration(wxCommandEvent& event __attribute__((unused)))
 {
   configFile.GetController(currentController)->SetConfiguration(tempConfiguration, currentConfiguration);
   load_current();
@@ -2995,7 +3007,7 @@ void configFrame::OnMenuItemPasteConfiguration(wxCommandEvent& event)
  * \brief Method called on Edit>Copy_Controller click. \
  *        It copies the current controller into a temporary controller.
  */
-void configFrame::OnMenuItemCopyController(wxCommandEvent& event)
+void configFrame::OnMenuItemCopyController(wxCommandEvent& event __attribute__((unused)))
 {
   save_current();
   tempController = *configFile.GetController(currentController);
@@ -3005,7 +3017,7 @@ void configFrame::OnMenuItemCopyController(wxCommandEvent& event)
  * \brief Method called on Edit>Paste_Controller click. \
  *        It copies the temporary controller into the current controller.
  */
-void configFrame::OnMenuItemPasteController(wxCommandEvent& event)
+void configFrame::OnMenuItemPasteController(wxCommandEvent& event __attribute__((unused)))
 {
   configFile.SetController(tempController, currentController);
   load_current();
@@ -3016,7 +3028,7 @@ void configFrame::OnMenuItemPasteController(wxCommandEvent& event)
 /*
  * \brief Method called on Overall_Panel>Delete_trigger click.
  */
-void configFrame::OnButtonDeleteTrigger(wxCommandEvent& event)
+void configFrame::OnButtonDeleteTrigger(wxCommandEvent& event __attribute__((unused)))
 {
     ProfileTriggerDeviceType->SetLabel(wxEmptyString);
     ProfileTriggerDeviceName->SetLabel(wxEmptyString);
@@ -3057,10 +3069,12 @@ void configFrame::replaceDevice(wxString wx_device_type)
           msg = _("Press a keyboard key.");
         }
         StatusBar1->SetStatusText(msg);
-	      evcatch->run(device_type, "button");
+        evcatch->run(device_type, "button");
         StatusBar1->SetStatusText(wxEmptyString);
-        device_name = evcatch->GetDeviceName();
-        device_id = evcatch->GetDeviceId();
+
+        pair<Device, Event> ev = selectEvent();
+        device_name = ev.first.GetName();
+        device_id = ev.first.GetId();
     }
 
     save_current();
@@ -3129,7 +3143,7 @@ void configFrame::replaceDevice(wxString wx_device_type)
  *        It asks the user for a mouse click so as to get the new mouse name. \
  *        Only available if MenuItemMultipleMiceAndKeyboards is checked.
  */
-void configFrame::OnMenuReplaceMouse(wxCommandEvent& event)
+void configFrame::OnMenuReplaceMouse(wxCommandEvent& event __attribute__((unused)))
 {
     int answer = wxMessageBox(_("This will replace the mouse in the current controller.\nContinue?"), _("Confirm"), wxYES_NO);
     if (answer == wxNO)
@@ -3145,7 +3159,7 @@ void configFrame::OnMenuReplaceMouse(wxCommandEvent& event)
  *        It asks the user for a key press so as to get the new keyboard name. \
  *        Only available if MenuItemMultipleMiceAndKeyboards is checked.
  */
-void configFrame::OnMenuReplaceKeyboard(wxCommandEvent& event)
+void configFrame::OnMenuReplaceKeyboard(wxCommandEvent& event __attribute__((unused)))
 {
     int answer = wxMessageBox(_("This will replace the keyboard in the current controller.\nContinue?"), _("Confirm"), wxYES_NO);
     if (answer == wxNO)
@@ -3160,7 +3174,7 @@ void configFrame::OnMenuReplaceKeyboard(wxCommandEvent& event)
  *        It converts the sensitivity in the current controller. \
  *        It asks the user for a source and a destination DPI.
  */
-void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
+void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event __attribute__((unused)))
 {
     int k;
     string device_name = "";
@@ -3202,8 +3216,11 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
                 StatusBar1->SetStatusText(_("Press a mouse button."));
                 evcatch->run(device_type, "button");
                 StatusBar1->SetStatusText(wxEmptyString);
-                device_name = evcatch->GetDeviceName();
-                device_id = evcatch->GetDeviceId();
+
+                pair<Device, Event> ev = selectEvent();
+
+                device_name = ev.first.GetName();
+                device_id = ev.first.GetId();
             }
 
             save_current();
@@ -3244,7 +3261,7 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event)
 /*
  * \brief Method called on Overall_Panel>Auto_detect_Intensity click.
  */
-void configFrame::OnIntensityAutoDetectClick(wxCommandEvent& event)
+void configFrame::OnIntensityAutoDetectClick(wxCommandEvent& event __attribute__((unused)))
 {
   IntensityAutoDetect->Enable(false);
 
@@ -3258,7 +3275,7 @@ void configFrame::OnIntensityAutoDetectClick(wxCommandEvent& event)
 /*
  * \brief Method called on Overall_Panel>IntensityDeadZone selection.
  */
-void configFrame::OnIntensityDeadZoneChange(wxSpinEvent& event)
+void configFrame::OnIntensityDeadZoneChange(wxSpinEvent& event __attribute__((unused)))
 {
     int max = 127-IntensityDeadZone->GetValue();
     if(max)
@@ -3273,7 +3290,7 @@ void configFrame::OnIntensityDeadZoneChange(wxSpinEvent& event)
  * \brief Method called on Edit>Set_Mouse_DPI. \
  *        It sets the mouse DPI for the current controller.
  */
-void configFrame::OnMenuSetMouseDPI(wxCommandEvent& event)
+void configFrame::OnMenuSetMouseDPI(wxCommandEvent& event __attribute__((unused)))
 {
     wxNumberEntryDialog dialog1(this, wxT(""), _("Enter a number:"), _("Mouse DPI value"), configFile.GetController(currentController)->GetMouseDPI(), 0, MAX_DPI);
     if (dialog1.ShowModal() == wxID_OK)
@@ -3287,15 +3304,18 @@ void configFrame::OnMenuSetMouseDPI(wxCommandEvent& event)
  */
 void configFrame::OnTextCtrl(wxCommandEvent& event)
 {
+	wxLocale eng(wxLANGUAGE_ENGLISH); // make sure to use '.' as decimal separator
+
     wxString str;
     wxTextCtrl* text;
     double value;
     long lvalue;
 
     text = (wxTextCtrl*)event.GetEventObject();
+    long pos = text->GetInsertionPoint();
     str = text->GetValue();
 
-    if(str.IsEmpty())
+    if(str.IsEmpty() || str == wxT("-") || str == wxT(".") || str == wxT("-."))
     {
         return;
     }
@@ -3303,6 +3323,11 @@ void configFrame::OnTextCtrl(wxCommandEvent& event)
     if(str.Replace(wxT(","), wxT(".")))
     {
         text->SetValue(str);
+    }
+
+    if(str.Freq('.') > 1)
+    {
+        str = wxT("invalid");
     }
 
     if(text == AxisTabDeadZone)
@@ -3398,6 +3423,8 @@ void configFrame::OnTextCtrl(wxCommandEvent& event)
             text->SetValue(wxString::Format(wxT("%i"),INT_MAX));
         }
     }
+
+    text->SetInsertionPoint(pos);
 }
 
 /*
@@ -3479,7 +3506,7 @@ wxString configFrame::isAlreadyUsed(wxString device_type, wxString device_name, 
  *        the user is asked to auto detect a mouse and a keyboard for the current controller. \
  *        If it is unchecked, all mouse and keyboard names are erased in the current controller.
  */
-void configFrame::OnMenuMultipleMK(wxCommandEvent& event)
+void configFrame::OnMenuMultipleMK(wxCommandEvent& event __attribute__((unused)))
 {
     MouseOptionsName->SetLabel(wxEmptyString);
     MouseOptionsId->SetLabel(wxEmptyString);
@@ -3522,7 +3549,7 @@ void configFrame::OnMenuMultipleMK(wxCommandEvent& event)
  *        It checks if a software update is available. \
  *        If an update is available, it asks if it has to be downloaded and installed.
  */
-void configFrame::OnMenuUpdate(wxCommandEvent& event)
+void configFrame::OnMenuUpdate(wxCommandEvent& event __attribute__((unused)))
 {
   int ret;
 
@@ -3562,7 +3589,7 @@ void configFrame::OnMenuUpdate(wxCommandEvent& event)
  * \brief Method called on Advanced>Auto_bind_controls. \
  *        It asks the user for a reference config, and auto binds the controls according to the control labels.
  */
-void configFrame::OnMenuAutoBindControls(wxCommandEvent& event)
+void configFrame::OnMenuAutoBindControls(wxCommandEvent& event __attribute__((unused)))
 {
   if(configFile.GetFilePath().empty())
   {
@@ -3592,7 +3619,7 @@ void configFrame::OnMenuAutoBindControls(wxCommandEvent& event)
  * \brief Method called on Overall_Panel>Add_Intensity click. \
  *        It inserts an entry into GridIntensity.
  */
-void configFrame::OnIntensityAddClick(wxCommandEvent& event)
+void configFrame::OnIntensityAddClick(wxCommandEvent& event __attribute__((unused)))
 {
   if(IntensityButtonId->GetLabel().IsEmpty())
   {
@@ -3639,7 +3666,7 @@ void configFrame::OnIntensityAddClick(wxCommandEvent& event)
  * \brief Method called on Overall_Panel>Remove_Intensity click. \
  *        It removes an entry from GridIntensity.
  */
-void configFrame::OnIntensityRemoveClick(wxCommandEvent& event)
+void configFrame::OnIntensityRemoveClick(wxCommandEvent& event __attribute__((unused)))
 {
   configFrame::DeleteSelectedRows(GridIntensity);
   refresh_gui();
@@ -3805,7 +3832,7 @@ void configFrame::OnIntensityModifyClick(wxCommandEvent& event)
  * \brief Method called on Overall_Panel>Axis selection. \
  *        It selects the intensity shape according to the selection.
  */
-void configFrame::OnIntensityAxisSelect(wxCommandEvent& event)
+void configFrame::OnIntensityAxisSelect(wxCommandEvent& event __attribute__((unused)))
 {
   if(IntensityAxis->GetStringSelection() == wxT("lstick") || IntensityAxis->GetStringSelection() == wxT("rstick"))
   {
@@ -3825,7 +3852,7 @@ void configFrame::OnIntensityAxisSelect(wxCommandEvent& event)
 /*
  * \brief Method called on Overall_Panel>Mouse_options_Panel>Auto_detect.
  */
-void configFrame::OnMouseOptionsAutoDetectClick(wxCommandEvent& event)
+void configFrame::OnMouseOptionsAutoDetectClick(wxCommandEvent& event __attribute__((unused)))
 {
   MouseOptionsAutoDetect->Enable(false);
 
@@ -3873,7 +3900,7 @@ bool configFrame::isMouseOptionsDefined(wxString device_name, wxString device_id
 /*
  * \brief Method called on Overall_Panel>Mouse_options_Panel>Add.
  */
-void configFrame::OnMouseOptionsAddClick(wxCommandEvent& event)
+void configFrame::OnMouseOptionsAddClick(wxCommandEvent& event __attribute__((unused)))
 {
   if(MouseOptionsId->GetLabel().IsEmpty())
   {
@@ -3904,7 +3931,7 @@ void configFrame::OnMouseOptionsAddClick(wxCommandEvent& event)
  *        If "Link controls" is enabled, \
  *        it also updates profiles that had the same options defined for the same mouse.
  */
-void configFrame::OnMouseOptionsRemoveClick(wxCommandEvent& event)
+void configFrame::OnMouseOptionsRemoveClick(wxCommandEvent& event __attribute__((unused)))
 {
   configFrame::DeleteSelectedRows(GridMouseOption);
   refresh_gui();
@@ -3949,7 +3976,7 @@ void configFrame::updateMouseOptionsConfigurations(MouseOptions* oldM, MouseOpti
  *        If the button is "Apply" and "Link controls" is enabled, \
  *        it also updates profiles that had the same options defined for the same mouse.
  */
-void configFrame::OnMouseOptionsModifyClick(wxCommandEvent& event)
+void configFrame::OnMouseOptionsModifyClick(wxCommandEvent& event __attribute__((unused)))
 {
   wxArrayInt array = GetGridSelectedRows(GridMouseOption);
   int count = array.GetCount();
@@ -4032,7 +4059,7 @@ void configFrame::OnMouseOptionsModifyClick(wxCommandEvent& event)
   refresh_gui();
 }
 
-void configFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event)
+void configFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event __attribute__((unused)))
 {
 #ifdef WIN32
   default_directory.Replace(wxT("/"), wxT("\\"));
@@ -4042,7 +4069,7 @@ void configFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event)
 #endif
 }
 
-void configFrame::OnMenuTypeItemSelected(wxCommandEvent& event)
+void configFrame::OnMenuTypeItemSelected(wxCommandEvent& event __attribute__((unused)))
 {
   e_controller_type newType = C_TYPE_SIXAXIS;
 
@@ -4109,7 +4136,7 @@ void configFrame::OnMenuTypeItemSelected(wxCommandEvent& event)
   }
 }
 
-void configFrame::OnMenuItemWindowEventsSelected(wxCommandEvent& event)
+void configFrame::OnMenuItemWindowEventsSelected(wxCommandEvent& event __attribute__((unused)))
 {
   if(MenuItemWindowEvents->IsChecked())
   {
@@ -4152,7 +4179,7 @@ bool configFrame::isJoystickCorrectionDefined(wxString device_name, wxString dev
   return false;
 }
 
-void configFrame::OnJoystickCorrectionsAddClick(wxCommandEvent& event)
+void configFrame::OnJoystickCorrectionsAddClick(wxCommandEvent& event __attribute__((unused)))
 {
   if(JoystickCorrectionsAxis->GetLabel().IsEmpty())
   {
@@ -4180,13 +4207,13 @@ void configFrame::OnJoystickCorrectionsAddClick(wxCommandEvent& event)
   refresh_gui();
 }
 
-void configFrame::OnJoystickCorrectionsRemoveClick(wxCommandEvent& event)
+void configFrame::OnJoystickCorrectionsRemoveClick(wxCommandEvent& event __attribute__((unused)))
 {
   configFrame::DeleteSelectedRows(GridJoystickCorrections);
   refresh_gui();
 }
 
-void configFrame::OnJoystickCorrectionsModifyClick(wxCommandEvent& event)
+void configFrame::OnJoystickCorrectionsModifyClick(wxCommandEvent& event __attribute__((unused)))
 {
   wxArrayInt array = GetGridSelectedRows(GridJoystickCorrections);
   int count = array.GetCount();
@@ -4254,7 +4281,7 @@ void configFrame::OnJoystickCorrectionsModifyClick(wxCommandEvent& event)
   refresh_gui();
 }
 
-void configFrame::OnJoystickCorrectionsAutoDetectClick(wxCommandEvent& event)
+void configFrame::OnJoystickCorrectionsAutoDetectClick(wxCommandEvent& event __attribute__((unused)))
 {
   JoystickCorrectionsAutoDetect->Enable(false);
 
@@ -4268,4 +4295,43 @@ void configFrame::OnJoystickCorrectionsAutoDetectClick(wxCommandEvent& event)
   JoystickCorrectionsAutoDetect->Enable(true);
 
   refresh_gui();
+}
+
+pair<Device, Event> configFrame::selectEvent()
+{
+    if (evcatch->GetEvents()->size() == 1)
+    {
+        return (*evcatch->GetEvents())[0];
+    }
+
+    wxArrayString choices;
+
+    for(vector<pair<Device, Event> >::iterator it = evcatch->GetEvents()->begin(); it != evcatch->GetEvents()->end(); ++it)
+    {
+        ostringstream ios;
+        ios << it->second.GetType() << " " << it->second.GetId() << " ("<< it->first.GetType() << " ";
+        if (MenuItemMultipleMiceAndKeyboards->IsChecked() || it->first.GetType() == "joystick")
+        {
+            ios << it->first.GetName() << " " << it->first.GetId() << ")";
+        }
+        else
+        {
+            ios << "0)";
+        }
+        choices.Add(wxString(ios.str().c_str(), wxConvUTF8));
+    }
+
+    wxSingleChoiceDialog dialog(this, _("Select an event."), _("Events"), choices);
+
+    if (dialog.ShowModal() == wxID_OK)
+    {
+        int selection = dialog.GetSelection();
+
+        if (selection >= 0 && (size_t)selection < evcatch->GetEvents()->size())
+        {
+            return (*evcatch->GetEvents())[selection];
+        }
+    }
+
+    return make_pair(Device(), Event());
 }

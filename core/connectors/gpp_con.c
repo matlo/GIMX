@@ -4,10 +4,10 @@
  */
 
 #include <string.h>
-#include "../../shared/gpp/pcprog.h"
+#include <pcprog.h>
 #include "config.h"
 #include <controller2.h>
-#include "adapter.h"
+#include "gimx.h"
 
 int gpp_connect(int id, const char* device)
 {
@@ -46,7 +46,7 @@ int gpp_connect(int id, const char* device)
   return ret;
 }
 
-inline int scale_axis(e_controller_type type, int index, int axis[AXIS_MAX])
+static inline int scale_axis(e_controller_type type, int index, int axis[AXIS_MAX])
 {
   return axis[index] * 100 / controller_get_max_signed(type, index);
 }
@@ -120,17 +120,22 @@ int gpp_send(int id, e_controller_type type, int axis[AXIS_MAX])
     }
   }
 
-  if(gpppcprog_output(id, output[id]) < 0)
+  int res = gpppcprog_output(id, output[id]);
+  if(res < 0)
   {
     ret = -1;
+  }
+  else if (res == 0)
+  {
+    ncprintf("device is busy\n");
   }
 
   return ret;
 }
 
-int8_t gpp_start_async(int id, ASYNC_READ_CALLBACK fp_read, ASYNC_WRITE_CALLBACK fp_write, ASYNC_CLOSE_CALLBACK fp_close, ASYNC_REGISTER_SOURCE fp_register)
+int8_t gpp_start_async(int id, const GHID_CALLBACKS * callbacks)
 {
-  return gpppcprog_start_async(id, fp_read, fp_write, fp_close, fp_register);
+  return gpppcprog_start_async(id, callbacks);
 }
 
 void gpp_disconnect(int id)

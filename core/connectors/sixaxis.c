@@ -12,7 +12,7 @@
 #include <arpa/inet.h> /* for htons */
 #endif
 #include <errno.h>
-#include <GE.h>
+#include <ginput.h>
 #include <connectors/sixaxis.h>
 #include <connectors/bluetooth/bt_device_abs.h>
 #include <connectors/bluetooth/l2cap_abs.h>
@@ -207,7 +207,7 @@ static int assemble_feature_f2(uint8_t *buf, int maxlen, struct sixaxis_state *s
 }
 
 /* Unknown */
-static int assemble_feature_f7(uint8_t *buf, int maxlen, struct sixaxis_state *state)
+static int assemble_feature_f7(uint8_t *buf, int maxlen, struct sixaxis_state *state __attribute__((unused)))
 {
   const uint8_t data[] =
   { 0x00, 0x02, 0xe4, 0x02, 0xa9, 0x01, 0x05, 0xff, 0x14, 0x23, 0x00 };
@@ -220,7 +220,7 @@ static int assemble_feature_f7(uint8_t *buf, int maxlen, struct sixaxis_state *s
 }
 
 /* Unknown */
-static int assemble_feature_f8(uint8_t *buf, int maxlen, struct sixaxis_state *state)
+static int assemble_feature_f8(uint8_t *buf, int maxlen, struct sixaxis_state *state __attribute__((unused)))
 {
   const uint8_t data[] =
   { 0x01, 0x00, 0x00, 0x00 };
@@ -263,7 +263,7 @@ static int process_output_01(const uint8_t *buf, int len, struct sixaxis_state *
   int controller = (state-states)/sizeof(*state);
   int joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, controller);
 
-  if(GE_JoystickHasRumble(joystick))
+  if(joystick >= 0 && (ginput_joystick_get_haptic(joystick) & GE_HAPTIC_RUMBLE))
   {
     GE_Event event =
     {
@@ -275,7 +275,7 @@ static int process_output_01(const uint8_t *buf, int len, struct sixaxis_state *
         .strong = buf[4] << 8
       }
     };
-    GE_PushEvent(&event);
+    ginput_queue_push(&event);
   }
 
   return 0;
@@ -292,7 +292,7 @@ static int process_feature_ef(const uint8_t *buf, int len, struct sixaxis_state 
 }
 
 /* Enable reporting */
-static int process_feature_f4(const uint8_t *buf, int len, struct sixaxis_state *state)
+static int process_feature_f4(const uint8_t *buf, int len __attribute__((unused)), struct sixaxis_state *state)
 {
   /* Enable event reporting */
   if (buf[1] == 0x08)

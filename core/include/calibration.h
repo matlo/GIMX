@@ -29,8 +29,8 @@ extern int current_mouse;
 extern int current_conf;
 extern e_current_cal current_cal;
 
-void cal_button(int, int);
-void cal_key(int, int, int);
+void cal_button(int);
+void cal_key(int, int);
 s_mouse_cal* cal_get_mouse(int mouse, int conf);
 void cal_set_mouse(s_config_entry* entry);
 int cal_skip_event(GE_Event*);

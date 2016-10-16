@@ -89,7 +89,7 @@ static s_bt_device_abs bt_device_bluez =
     .write_device_class = bt_device_bluez_write_device_class,
 };
 
-void bt_device_bluez_init(void) __attribute__((constructor (101)));
+void bt_device_bluez_init(void) __attribute__((constructor));
 void bt_device_bluez_init(void)
 {
   bt_device_abs_register(E_BT_ABS_BLUEZ, &bt_device_bluez);

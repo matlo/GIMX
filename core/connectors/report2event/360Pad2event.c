@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2014 Mathieu Laurendeau
+ Copyright (c) 2014 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -46,7 +46,7 @@ static inline void button2event(int (*callback)(GE_Event*), GE_Event* event, uns
   }
 }
 
-void _360Pad2event(int adapter_id, s_report* current, s_report* previous,
+void _360Pad2event(int adapter_id __attribute__((unused)), s_report* current, s_report* previous,
     int joystick_id, int (*callback)(GE_Event*))
 {
   GE_Event event = { .jbutton = { .which = joystick_id } };

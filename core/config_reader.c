@@ -7,7 +7,7 @@
 #include "config_reader.h"
 #include <xml_defs.h>
 #include "config.h"
-#include <GE.h>
+#include <ginput.h>
 #include "calibration.h"
 #include <limits.h>
 #include <dirent.h>
@@ -124,59 +124,59 @@ static int GetDeviceId(xmlNode* a_node)
   {
     if(entry.device.type == E_DEVICE_TYPE_JOYSTICK)
     {
-      for (i = 0; i < MAX_DEVICES && GE_JoystickName(i); ++i)
+      for (i = 0; i < MAX_DEVICES && ginput_joystick_name(i); ++i)
       {
-        if (!strcmp(r_device_name, GE_JoystickName(i)))
+        if (!strcmp(r_device_name, ginput_joystick_name(i)))
         {
-          if (entry.device.id == GE_JoystickVirtualId(i))
+          if (entry.device.id == ginput_joystick_virtual_id(i))
           {
             entry.device.id = i;
-            GE_SetJoystickUsed(i);
+            ginput_set_joystick_used(i);
 #ifndef WIN32
-            entry.device.uhid_id = GE_JoystickGetUHidId(i);
+            entry.device.hid = ginput_joystick_get_hid(i);
 #else
             entry.device.usb_ids.vendor = 0;
             entry.device.usb_ids.product = 0;
-            GE_JoystickGetUsbIds(i, &entry.device.usb_ids.vendor, &entry.device.usb_ids.product);
+            ginput_joystick_get_usb_ids(i, &entry.device.usb_ids.vendor, &entry.device.usb_ids.product);
 #endif
             break;
           }
         }
       }
-      if(i == MAX_DEVICES || !GE_JoystickName(i))
+      if(i == MAX_DEVICES || !ginput_joystick_name(i))
       {
         warnDeviceNotFound();
         ret = 1;
       }
     }
-    else if(GE_GetMKMode() == GE_MK_MODE_SINGLE_INPUT)
+    else if(ginput_get_mk_mode() == GE_MK_MODE_SINGLE_INPUT)
     {
       entry.device.id = 0;
     }
     else if(!strlen(r_device_name))
     {
-      if(GE_GetMKMode() == GE_MK_MODE_MULTIPLE_INPUTS)
+      if(ginput_get_mk_mode() == GE_MK_MODE_MULTIPLE_INPUTS)
       {
         gprintf(_("A device name is empty. Multiple mice and keyboards are not managed.\n"));
       }
-      GE_SetMKMode(GE_MK_MODE_SINGLE_INPUT);
+      ginput_set_mk_mode(GE_MK_MODE_SINGLE_INPUT);
     }
     else
     {
       if(entry.device.type == E_DEVICE_TYPE_MOUSE)
       {
-        for (i = 0; i < MAX_DEVICES && GE_MouseName(i); ++i)
+        for (i = 0; i < MAX_DEVICES && ginput_mouse_name(i); ++i)
         {
-          if (!strcmp(r_device_name, GE_MouseName(i)))
+          if (!strcmp(r_device_name, ginput_mouse_name(i)))
           {
-            if (entry.device.id == GE_MouseVirtualId(i))
+            if (entry.device.id == ginput_mouse_virtual_id(i))
             {
               entry.device.id = i;
               break;
             }
           }
         }
-        if(i == MAX_DEVICES || !GE_MouseName(i))
+        if(i == MAX_DEVICES || !ginput_mouse_name(i))
         {
           warnDeviceNotFound();
           ret = 1;
@@ -184,18 +184,18 @@ static int GetDeviceId(xmlNode* a_node)
       }
       else if(entry.device.type == E_DEVICE_TYPE_KEYBOARD)
       {
-        for (i = 0; i < MAX_DEVICES && GE_KeyboardName(i); ++i)
+        for (i = 0; i < MAX_DEVICES && ginput_keyboard_name(i); ++i)
         {
-          if (!strcmp(r_device_name, GE_KeyboardName(i)))
+          if (!strcmp(r_device_name, ginput_keyboard_name(i)))
           {
-            if (entry.device.id == GE_KeyboardVirtualId(i))
+            if (entry.device.id == ginput_keyboard_virtual_id(i))
             {
               entry.device.id = i;
               break;
             }
           }
         }
-        if(i == MAX_DEVICES || !GE_KeyboardName(i))
+        if(i == MAX_DEVICES || !ginput_keyboard_name(i))
         {
           warnDeviceNotFound();
           ret = 1;
@@ -266,13 +266,13 @@ static int GetEventId(xmlNode * a_node, char* attr_label)
     switch(entry.device.type)
     {
       case E_DEVICE_TYPE_KEYBOARD:
-        entry.event.id = GE_KeyId(event_id);
+        entry.event.id = ginput_key_id(event_id);
         break;
       case E_DEVICE_TYPE_JOYSTICK:
         entry.event.id = atoi(event_id);
         break;
       case E_DEVICE_TYPE_MOUSE:
-        entry.event.id = GE_MouseButtonId(event_id);
+        entry.event.id = ginput_mouse_button_id(event_id);
         break;
       default:
         ret = -1;
@@ -438,14 +438,14 @@ static int ProcessEventElement(xmlNode * a_node, unsigned char mapper)
             case E_EVENT_TYPE_BUTTON:
               adapter_set_device(entry.controller_id, entry.device.type, entry.device.id);
 #ifndef WIN32
-              if(entry.device.type == E_DEVICE_TYPE_JOYSTICK && entry.device.uhid_id >= 0)
+              if(entry.device.type == E_DEVICE_TYPE_JOYSTICK && entry.device.hid >= 0)
               {
-                adapter_set_uhid_id(entry.controller_id, entry.device.uhid_id);
+                adapter_set_hid(entry.controller_id, entry.device.hid);
               }
 #else
               if(entry.device.type == E_DEVICE_TYPE_JOYSTICK && entry.device.usb_ids.vendor && entry.device.usb_ids.product)
               {
-                adapter_set_usb_ids(entry.controller_id, entry.device.usb_ids.vendor, entry.device.usb_ids.product);
+                adapter_set_usb_ids(entry.controller_id, entry.device.id, entry.device.usb_ids.vendor, entry.device.usb_ids.product);
               }
 #endif
               break;
@@ -745,7 +745,7 @@ static int ProcessUpDownElement(xmlNode * a_node, int* device_type, int* device_
   return ret;
 }
 
-static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity, int axis)
+static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity)
 {
   xmlNode* cur_node = NULL;
   int ret = 0;
@@ -841,7 +841,7 @@ static int ProcessIntensityListElement(xmlNode * a_node)
         }
         if(axis1 >= 0)
         {
-          ret = ProcessIntensityElement(cur_node, &intensity, axis1);
+          ret = ProcessIntensityElement(cur_node, &intensity);
           cfg_set_axis_intensity(&entry, axis1, &intensity);
           if(axis2 >= 0)
           {

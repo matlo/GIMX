@@ -1,12 +1,10 @@
 /*
- Copyright (c) 2010 Mathieu Laurendeau <mat.lau@laposte.net>
- Copyright (c) 2009 Jim Paris <jim@jtan.com>
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
 #include <stdio.h> //fprintf
 #include <locale.h> //internationalization
-#include <prio.h> //to set the thread priority
 #include <signal.h> //to catch SIGINT
 #include <errno.h> //to print errors
 #include <string.h> //to print errors
@@ -20,7 +18,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shlobj.h> //to get the homedir
-#include <unistd.h> //usleep
 #endif
 
 #include "gimx.h"
@@ -36,8 +33,8 @@
 #include <stats.h>
 #include <pcprog.h>
 #include "../directories.h"
-#include <uhid_joystick.h>
-#include <ffb_logitech.h>
+#include <gprio.h>
+#include <gusb.h>
 
 #define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
 
@@ -51,6 +48,7 @@ s_gimx_params gimx_params =
   .frequency_scale = 1,
   .status = 0,
   .curses = 0,
+  .debug = 0,
   .config_file = NULL,
   .postpone_count = DEFAULT_POSTPONE_COUNT,
   .subpositions = 0,
@@ -83,12 +81,12 @@ BOOL WINAPI ConsoleHandler(DWORD dwType)
 }
 #endif
 
-void terminate(int sig)
+void terminate(int sig __attribute__((unused)))
 {
   set_done();
 }
 
-int ignore_event(GE_Event* event)
+int ignore_event(GE_Event* event __attribute__((unused)))
 {
   return 0;
 }
@@ -118,13 +116,13 @@ int process_event(GE_Event* event)
   switch (event->type)
   {
     case GE_MOUSEBUTTONDOWN:
-      cal_button(event->button.which, event->button.button);
+      cal_button(event->button.button);
       break;
     case GE_KEYDOWN:
-      cal_key(event->key.which, event->key.keysym, 1);
+      cal_key(event->key.keysym, 1);
       break;
     case GE_KEYUP:
-      cal_key(event->key.which, event->key.keysym, 0);
+      cal_key(event->key.keysym, 0);
       break;
   }
 
@@ -138,9 +136,6 @@ int process_event(GE_Event* event)
 
 int main(int argc, char *argv[])
 {
-#ifndef WIN32
-  int ffb = 0;
-#endif
   GE_Event kgevent = { .key = { .type = GE_KEYDOWN } };
 
   (void) signal(SIGINT, terminate);
@@ -148,9 +143,9 @@ int main(int argc, char *argv[])
 #ifndef WIN32
   (void) signal(SIGHUP, terminate);
 #else
-  if (!SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, TRUE))
+  if (SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, TRUE) == 0)
   {
-    fprintf(stderr, "Unable to install handler!\n");
+    eprintf("SetConsoleCtrlHandler failed\n");
     exit(-1);
   }
 #endif
@@ -173,22 +168,22 @@ int main(int argc, char *argv[])
   static char path[MAX_PATH];
   if(SHGetFolderPath( NULL, CSIDL_APPDATA , NULL, 0, path ))
   {
-    fprintf(stderr, "Can't get the user directory.\n");
+    eprintf("SHGetFolderPath failed\n");
     goto QUIT;
   }
   gimx_params.homedir = path;
 #endif
 
-  if( set_prio() < 0 )
+  if (gprio() < 0)
   {
-    printf("Warning: failed to set process priority\n");
+    eprintf("failed to set process priority");
   }
 
   gpppcprog_read_user_ids(gimx_params.homedir, GIMX_DIR);
 
   if(args_read(argc, argv, &gimx_params) < 0)
   {
-    fprintf(stderr, _("Wrong argument.\n"));
+    eprintf(_("wrong argument"));
     goto QUIT;
   }
 
@@ -197,11 +192,19 @@ int main(int argc, char *argv[])
     bt_abs_value = E_BT_ABS_BTSTACK;
   }
 
-  ffb_logitech_set_native_mode();
+  if (gusb_init() < 0)
+  {
+    goto QUIT;
+  }
+
+  if (gserial_init() < 0)
+  {
+    goto QUIT;
+  }
 
   if(adapter_detect() < 0)
   {
-    fprintf(stderr, _("adapter_detect failed\n"));
+    eprintf(_("no adapter detected"));
     goto QUIT;
   }
 
@@ -244,32 +247,12 @@ int main(int argc, char *argv[])
   {
     if(adapter_start() < 0)
     {
-      fprintf(stderr, _("adapter_start failed\n"));
+      eprintf(_("failed to start the adapter"));
       goto QUIT;
     }
     adapter_send();
     goto QUIT;
   }
-
-#ifndef WIN32
-  for(controller=0; controller<MAX_CONTROLLERS; ++controller)
-  {
-    switch(adapter_get(controller)->ctype)
-    {
-    case C_TYPE_G29_PS4:
-    case C_TYPE_G27_PS3:
-      ffb = 1;
-      break;
-    default:
-      break;
-    }
-  }
-
-  if(ffb)
-  {
-    uhid_joystick_open_all();
-  }
-#endif
 
   unsigned char src = GE_MKB_SOURCE_PHYSICAL;
 
@@ -278,19 +261,41 @@ int main(int argc, char *argv[])
     src = GE_MKB_SOURCE_WINDOW_SYSTEM;
   }
 
+  int(*fp)(GE_Event*) = NULL;
+
+  /*
+   * Non-generated events are ignored if the --keygen argument is used.
+   */
+  if(gimx_params.keygen)
+  {
+    fp = ignore_event;
+  }
+  else
+  {
+    fp = process_event;
+  }
+
+  if (ghid_init() < 0)
+  {
+    goto QUIT;
+  }
+
   //TODO MLA: if there is no config file:
   // - there's no need to read macros
   // - there's no need to read inputs
   // - there's no need to grab the mouse
-  if (!GE_initialize(src))
+  GPOLL_INTERFACE poll_interace = {
+          .fp_register = REGISTER_FUNCTION,
+          .fp_remove = REMOVE_FUNCTION,
+  };
+  if (ginput_init(&poll_interace, src, fp) < 0)
   {
-    fprintf(stderr, _("GE_initialize failed\n"));
     goto QUIT;
   }
 
   if(gimx_params.grab)
   {
-    GE_grab();
+    ginput_grab();
   }
 
   if(gimx_params.config_file)
@@ -301,14 +306,13 @@ int main(int argc, char *argv[])
 
     if(read_config_file(gimx_params.config_file) < 0)
     {
-      fprintf(stderr, _("read_config_file failed\n"));
       goto QUIT;
     }
 
-    if(GE_GetMKMode() == GE_MK_MODE_SINGLE_INPUT)
+    if(ginput_get_mk_mode() == GE_MK_MODE_SINGLE_INPUT)
     {
       cfg_clean();
-      GE_FreeMKames();
+      ginput_free_mk_names();
 
       cal_init();
 
@@ -320,22 +324,13 @@ int main(int argc, char *argv[])
     cfg_read_calibration();
   }
 
-  GE_release_unused();
-
-#ifndef WIN32
-  if(ffb)
-  {
-    gprintf("closing unused uhid joysticks...");fflush(stdout);
-    uhid_joystick_close_unused();
-    gprintf(" done\n");
-  }
-#endif
+  ginput_release_unused();
 
   macros_init();
 
   if(gimx_params.keygen)
   {
-    kgevent.key.keysym = GE_KeyId(gimx_params.keygen);
+    kgevent.key.keysym = ginput_key_id(gimx_params.keygen);
     if(kgevent.key.keysym)
     {
       macro_lookup(&kgevent);
@@ -366,7 +361,7 @@ int main(int argc, char *argv[])
 
   if(adapter_start() < 0)
   {
-    fprintf(stderr, _("adapter_start failed\n"));
+    eprintf(_("failed to start the adapter"));
     goto QUIT;
   }
 
@@ -380,15 +375,15 @@ int main(int argc, char *argv[])
 
   macros_clean();
   cfg_clean();
-  GE_quit();
-#ifndef WIN32
-  if(ffb)
-  {
-    gprintf("closing uhid joysticks (it may take a few seconds)\n");
-    uhid_joystick_close_all();
-  }
-#endif
+  ginput_quit();
+
+  ghid_exit();
+
   adapter_clean();
+
+  gserial_exit();
+
+  gusb_exit();
 
   xmlCleanupParser();
 

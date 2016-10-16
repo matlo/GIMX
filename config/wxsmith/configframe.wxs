@@ -371,7 +371,7 @@
 															<object class="sizeritem">
 																<object class="wxFlexGridSizer" variable="FlexGridSizer42" member="no">
 																	<cols>1</cols>
-																	<rows>2</rows>
+																	<rows>3</rows>
 																	<object class="sizeritem">
 																		<object class="wxButton" name="ID_BUTTON12" variable="MouseOptionsAdd" member="yes">
 																			<label>Add</label>
@@ -674,7 +674,7 @@
 																	<object class="sizeritem">
 																		<object class="wxFlexGridSizer" variable="FlexGridSizer43" member="no">
 																			<cols>1</cols>
-																			<rows>2</rows>
+																			<rows>3</rows>
 																			<object class="sizeritem">
 																				<object class="wxButton" name="ID_BUTTON21" variable="IntensityAdd" member="yes">
 																					<label>Add</label>
@@ -932,7 +932,7 @@
 															<object class="sizeritem">
 																<object class="wxFlexGridSizer" variable="FlexGridSizer52" member="no">
 																	<cols>1</cols>
-																	<rows>2</rows>
+																	<rows>3</rows>
 																	<object class="sizeritem">
 																		<object class="wxButton" name="ID_BUTTON16" variable="JoystickCorrectionAdd" member="yes">
 																			<label>Add</label>
@@ -1232,7 +1232,7 @@
 										<object class="sizeritem">
 											<object class="wxFlexGridSizer" variable="FlexGridSizer6" member="no">
 												<cols>1</cols>
-												<rows>2</rows>
+												<rows>3</rows>
 												<object class="sizeritem">
 													<object class="wxButton" name="ID_BUTTON4" variable="ButtonTabAdd" member="yes">
 														<label>Add</label>
@@ -1595,7 +1595,7 @@
 										<object class="sizeritem">
 											<object class="wxFlexGridSizer" variable="FlexGridSizer7" member="no">
 												<cols>1</cols>
-												<rows>2</rows>
+												<rows>3</rows>
 												<object class="sizeritem">
 													<object class="wxButton" name="ID_BUTTON3" variable="Button3" member="yes">
 														<label>Add</label>
