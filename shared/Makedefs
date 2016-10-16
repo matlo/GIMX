@@ -14,8 +14,6 @@ LIBNAME=libgimx$(shell basename $(shell pwd))
 
 ifneq ($(OS),Windows_NT)
 LIB=$(LIBNAME).so
-LIBSONAME=$(LIBNAME).0.0
-SONAMEFLAGS=-Wl,-soname,$(LIBSONAME)
 else
 LIB=$(LIBNAME).dll
 endif
@@ -23,7 +21,7 @@ endif
 all: $(LIB)
 
 $(LIB): $(OBJECTS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) -shared $(SONAMEFLAGS) $(OBJECTS) -o $@ $(LDFLAGS) $(LDLIBS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) -shared $(OBJECTS) -o $@ $(LDFLAGS) $(LDLIBS)
 
 clean:
 	$(RM) $(LIB) $(OBJECTS)
@@ -33,10 +31,8 @@ install: all
 	mkdir -p $(prefix)
 	mkdir -p $(libdir)
 	cp $(LIB) $(libdir)
-	ln -f -s $(libdir)/$(LIB) $(libdir)/$(LIBSONAME)
 
 uninstall:
-	-$(RM) $(libdir)/$(LIBSONAME)
 	-$(RM) $(libdir)/$(LIB)
 	-rmdir $(libdir)
 	-rmdir $(prefix)
