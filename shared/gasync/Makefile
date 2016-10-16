@@ -1,5 +1,9 @@
 DIRS = src/common src/hid src/input src/poll src/prio src/serial src/timer src/usb
 
+ifneq ($(OS),Windows_NT)
+UHID=1
+endif
+
 ifeq ($(UHID),1)
 DIRS += src/uhid
 endif
@@ -12,7 +16,7 @@ UNINSTALLDIRS = $(DIRS:%=uninstall-%)
 all: $(BUILDDIRS)
 $(DIRS): $(BUILDDIRS)
 $(BUILDDIRS):
-	$(MAKE) -C $(@:build-%=%)
+	$(MAKE) -C $(@:build-%=%) UHID=$(UHID)
 
 build-src/poll: build-src/common
 build-src/input: build-src/hid build-src/poll
