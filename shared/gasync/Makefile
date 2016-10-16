@@ -5,7 +5,7 @@ UHID=1
 endif
 
 ifeq ($(UHID),1)
-DIRS += src/uhid
+DIRS := src/uhid $(DIRS)
 endif
 
 BUILDDIRS = $(DIRS:%=build-%)
