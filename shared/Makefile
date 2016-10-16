@@ -1,4 +1,4 @@
-DIRS = controller updater configupdater configeditor gasync gpp
+DIRS = controller updater configupdater gasync gpp configeditor
 
 BUILDDIRS = $(DIRS:%=build-%)
 INSTALLDIRS = $(DIRS:%=install-%)
@@ -22,7 +22,7 @@ install: $(INSTALLDIRS) all
 $(INSTALLDIRS):
 	$(MAKE) -C $(@:install-%=%) install
 
-uninstall: $(UNINSTALLDIRS) all
+uninstall: $(UNINSTALLDIRS)
 $(UNINSTALLDIRS):
 	$(MAKE) -C $(@:uninstall-%=%) uninstall
 

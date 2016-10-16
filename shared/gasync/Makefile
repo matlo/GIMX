@@ -32,7 +32,7 @@ install: $(INSTALLDIRS) all
 $(INSTALLDIRS):
 	$(MAKE) -C $(@:install-%=%) install
 
-uninstall: $(UNINSTALLDIRS) all
+uninstall: $(UNINSTALLDIRS)
 $(UNINSTALLDIRS):
 	$(MAKE) -C $(@:uninstall-%=%) uninstall
 

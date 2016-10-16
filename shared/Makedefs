@@ -13,27 +13,31 @@ CXXFLAGS += -Wall -Wextra -s -O3
 LIBNAME=libgimx$(shell basename $(shell pwd))
 
 ifneq ($(OS),Windows_NT)
-SHLIB_SUFFIX=.so
+LIB=$(LIBNAME).so
+LIBSONAME=$(LIBNAME).0.0
+SONAMEFLAGS=-Wl,-soname,$(LIBSONAME)
 else
-SHLIB_SUFFIX=.dll
+LIB=$(LIBNAME).dll
 endif
 
-all: $(LIBNAME)$(SHLIB_SUFFIX)
+all: $(LIB)
 
-$(LIBNAME)$(SHLIB_SUFFIX): $(OBJECTS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) -shared $(OBJECTS) -o $@ $(LDFLAGS) $(LDLIBS)
+$(LIB): $(OBJECTS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) -shared $(SONAMEFLAGS) $(OBJECTS) -o $@ $(LDFLAGS) $(LDLIBS)
 
 clean:
-	$(RM) $(LIBNAME)$(SHLIB_SUFFIX) $(OBJECTS)
+	$(RM) $(LIB) $(OBJECTS)
 
 ifneq ($(OS),Windows_NT)
 install: all
 	mkdir -p $(prefix)
 	mkdir -p $(libdir)
-	cp $(LIBNAME)$(SHLIB_SUFFIX) $(libdir)
+	cp $(LIB) $(libdir)
+	ln -f -s $(libdir)/$(LIB) $(libdir)/$(LIBSONAME)
 
 uninstall:
-	-$(RM) $(libdir)/$(LIBNAME)$(SHLIB_SUFFIX)
+	-$(RM) $(libdir)/$(LIBSONAME)
+	-$(RM) $(libdir)/$(LIB)
 	-rmdir $(libdir)
 	-rmdir $(prefix)
 
