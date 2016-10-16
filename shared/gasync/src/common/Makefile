@@ -15,3 +15,5 @@ clean:
 	$(RM) $(OBJECTS)
 
 install:
+
+uninstall:
