@@ -88,16 +88,17 @@ static int macros_nb = 0;
 void macros_clean() {
   free(running_macro);
   running_macro = NULL;
-	int i;
-	for(i = 0; i < macros_nb; ++i)
-	{
+  int i;
+  for(i = 0; i < macros_nb; ++i)
+  {
     free(macros[i].events);
     macros[i].events = NULL;
-	}
+  }
   free(macros);
   macros = NULL;
   free(axis_values);
   axis_values = NULL;
+  axis_values_nb = 0;
 }
 
 /*
