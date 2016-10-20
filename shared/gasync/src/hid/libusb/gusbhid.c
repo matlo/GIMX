@@ -46,6 +46,7 @@ static struct {
   GHID_CALLBACKS callbacks;
   int user;
   int pending_transfers;
+  int closing; // do not process completed transfers when closing
 } usbdevices[MAX_DEVICES] = { };
 
 static unsigned int clients = 0;
@@ -233,27 +234,33 @@ static void usb_callback(struct libusb_transfer* transfer) {
   int device = (intptr_t) transfer->user_data;
 
   //make sure the device still exists, in case something went wrong
-  if(check_device(device, __FILE__, __LINE__, __func__) == 0) {
-    if (transfer->type == LIBUSB_TRANSFER_TYPE_INTERRUPT) {
-      if (transfer->status == LIBUSB_TRANSFER_COMPLETED) {
-        if (transfer->endpoint == usbdevices[device].config.endpoints.in.address) {
-          usbdevices[device].callbacks.fp_read(usbdevices[device].user, transfer->buffer,
-              transfer->actual_length);
-        } else if (transfer->endpoint == usbdevices[device].config.endpoints.out.address) {
-          usbdevices[device].callbacks.fp_write(usbdevices[device].user, transfer->actual_length);
-        }
-      } else {
-        if (transfer->endpoint == usbdevices[device].config.endpoints.out.address
-            || (transfer->status != LIBUSB_TRANSFER_TIMED_OUT && transfer->status != LIBUSB_TRANSFER_CANCELLED)) {
-          PRINT_TRANSFER_ERROR(transfer)
-        }
-        if (transfer->status != LIBUSB_TRANSFER_CANCELLED) {
-            if (transfer->endpoint == usbdevices[device].config.endpoints.in.address) {
-              usbdevices[device].callbacks.fp_read(usbdevices[device].user, NULL, -1);
-            } else if (transfer->endpoint == usbdevices[device].config.endpoints.out.address) {
-              usbdevices[device].callbacks.fp_write(usbdevices[device].user, -1);
-            }
-        }
+  if(check_device(device, __FILE__, __LINE__, __func__) < 0) {
+    remove_transfer(transfer);
+    return;
+  }
+
+  if(usbdevices[device].closing == 1 || transfer->status == LIBUSB_TRANSFER_CANCELLED) {
+    remove_transfer(transfer);
+    return;
+  }
+
+  if (transfer->type == LIBUSB_TRANSFER_TYPE_INTERRUPT) {
+    if (transfer->status == LIBUSB_TRANSFER_COMPLETED) {
+      if (transfer->endpoint == usbdevices[device].config.endpoints.in.address) {
+        usbdevices[device].callbacks.fp_read(usbdevices[device].user, transfer->buffer,
+            transfer->actual_length);
+      } else if (transfer->endpoint == usbdevices[device].config.endpoints.out.address) {
+        usbdevices[device].callbacks.fp_write(usbdevices[device].user, transfer->actual_length);
+      }
+    } else {
+      if (transfer->endpoint == usbdevices[device].config.endpoints.out.address
+          || transfer->status != LIBUSB_TRANSFER_TIMED_OUT) {
+        PRINT_TRANSFER_ERROR(transfer)
+      }
+      if (transfer->endpoint == usbdevices[device].config.endpoints.in.address) {
+        usbdevices[device].callbacks.fp_read(usbdevices[device].user, NULL, -1);
+      } else if (transfer->endpoint == usbdevices[device].config.endpoints.out.address) {
+        usbdevices[device].callbacks.fp_write(usbdevices[device].user, -1);
       }
     }
   }
@@ -952,6 +959,8 @@ int gusbhid_close(int device) {
     PRINT_ERROR_OTHER("invalid device");
     return -1;
   }
+
+  usbdevices[device].closing = 1;
 
   if (usbdevices[device].devh) {
 
