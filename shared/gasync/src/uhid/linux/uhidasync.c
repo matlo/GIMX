@@ -16,6 +16,9 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/inotify.h>
+#include <linux/input.h>
+#include <limits.h>
 
 #define UHID_MAX_DEVICES 256
 
@@ -151,6 +154,81 @@ static void fix_rdesc_usage(unsigned char * rdesc, unsigned short size) {
   }
 }
 
+/*
+ * Setup an inotify watch (creation only) on /dev/input.
+ */
+static int setup_watch() {
+
+    int ifd = inotify_init();
+    if (ifd < 0) {
+        PRINT_ERROR_ERRNO("inotify_init")
+        return -1;
+    }
+
+    if (inotify_add_watch(ifd, "/dev/input", IN_CREATE) < 0) {
+        PRINT_ERROR_ERRNO("inotify_add_watch")
+        close(ifd);
+        return -1;
+    }
+
+    return ifd;
+}
+
+/*
+ * Wait up to 5 seconds for a specific event device to appear.
+ */
+static int wait_watch(int ifd, const char * uniq) {
+
+    int ret = 0;
+
+    fd_set readfds;
+    struct timeval tv = { .tv_sec = 5, .tv_usec = 0 };
+    unsigned char buf[sizeof(struct inotify_event) + PATH_MAX + 1] = { };
+
+    while (ret == 0) {
+        FD_ZERO(&readfds);
+        FD_SET(ifd, &readfds);
+        int status = select(ifd + 1, &readfds, NULL, NULL, &tv);
+        if (status > 0) {
+            if (FD_ISSET(ifd, &readfds)) {
+                int res = read(ifd, buf, sizeof(buf));
+                if (res < 0) {
+                  PRINT_ERROR_ERRNO("read")
+                  ret = -1;
+                } else if ((size_t)res > sizeof(struct inotify_event)) {
+                    struct inotify_event * event = (struct inotify_event *) buf;
+                    if (event->len > 0) {
+                        char path[sizeof("/dev/input/") + event->len];
+                        strcpy(path, "/dev/input/");
+                        strncat(path, event->name, event->len);
+                        int dev_fd = open(path, O_RDONLY);
+                        if (dev_fd >= 0) {
+                            char buf[64] = { };
+                            if (ioctl(dev_fd, EVIOCGUNIQ(sizeof(buf)), &buf) != -1) {
+                                if (!strncmp(buf, uniq, event->len)) {
+                                    ret = 1;
+                                }
+                            }
+                            close(dev_fd);
+                        }
+                    }
+                }
+            }
+        } else if (errno == EINTR) {
+            continue;
+        } else {
+            if (errno != 0) {
+                PRINT_ERROR_ERRNO("select")
+            } else {
+                PRINT_ERROR_OTHER("select timed out")
+            }
+            ret = -1;
+        }
+    }
+
+    return ret;
+}
+
 int guhid_create(const s_hid_info * hid_info, int hid) {
 
     if (hid_info == NULL) {
@@ -208,10 +286,25 @@ int guhid_create(const s_hid_info * hid_info, int hid) {
 
     snprintf((char *) ev.u.create.uniq, sizeof(ev.u.create.uniq), "GIMX %d %d", getpid(), hid);
 
-    if (uhid_write(fd, &ev) < 0) {
+    int ifd = setup_watch();
+    if (ifd < 0) {
         guhid_close(device);
         return -1;
     }
+
+    if (uhid_write(fd, &ev) < 0) {
+        close(ifd);
+        guhid_close(device);
+        return -1;
+    }
+
+    if (wait_watch(ifd, (char *) ev.u.create.uniq) < 0) {
+        close(ifd);
+        guhid_close(device);
+        return -1;
+    }
+
+    close(ifd);
 
     return device;
 }
