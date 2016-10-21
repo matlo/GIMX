@@ -214,15 +214,16 @@ static int wait_watch(int ifd, const char * uniq) {
                     }
                 }
             }
-        } else if (errno == EINTR) {
-            continue;
-        } else {
-            if (errno != 0) {
-                PRINT_ERROR_ERRNO("select")
-            } else {
-                PRINT_ERROR_OTHER("select timed out")
-            }
+        } else if (status == 0) {
+            PRINT_ERROR_OTHER("select timed out")
             ret = -1;
+        } else {
+            if (errno == EINTR) {
+                continue;
+            } else {
+                PRINT_ERROR_ERRNO("select")
+                ret = -1;
+            }
         }
     }
 
