@@ -183,7 +183,9 @@ static int wait_watch(int ifd, const char * uniq) {
 
     fd_set readfds;
     struct timeval tv = { .tv_sec = 5, .tv_usec = 0 };
-    unsigned char buf[sizeof(struct inotify_event) + PATH_MAX + 1] = { };
+    struct inotify_event * event;
+    // enough to read at least one event, but we may get more than one
+    unsigned char buf[sizeof(*event) + PATH_MAX + 1] = { };
 
     while (ret == 0) {
         FD_ZERO(&readfds);
@@ -195,21 +197,24 @@ static int wait_watch(int ifd, const char * uniq) {
                 if (res < 0) {
                   PRINT_ERROR_ERRNO("read")
                   ret = -1;
-                } else if ((size_t)res > sizeof(struct inotify_event)) {
-                    struct inotify_event * event = (struct inotify_event *) buf;
-                    if (event->len > 0) {
-                        char path[sizeof("/dev/input/") + event->len];
-                        strcpy(path, "/dev/input/");
-                        strncat(path, event->name, event->len);
-                        int dev_fd = open(path, O_RDONLY);
-                        if (dev_fd >= 0) {
-                            char buf[64] = { };
-                            if (ioctl(dev_fd, EVIOCGUNIQ(sizeof(buf)), &buf) != -1) {
-                                if (!strncmp(buf, uniq, event->len)) {
-                                    ret = 1;
+                } else {
+                    int i;
+                    for (i = 0; i < res; i += (sizeof(*event) + event->len)) {
+                        event = (struct inotify_event *) (buf + i);
+                        if (event->len > 0) {
+                            char path[sizeof("/dev/input/") + event->len];
+                            strcpy(path, "/dev/input/");
+                            strncat(path, event->name, event->len);
+                            int dev_fd = open(path, O_RDONLY);
+                            if (dev_fd >= 0) {
+                                char buf[64] = { };
+                                if (ioctl(dev_fd, EVIOCGUNIQ(sizeof(buf)), &buf) != -1) {
+                                    if (!strncmp(buf, uniq, event->len)) {
+                                        ret = 1;
+                                    }
                                 }
+                                close(dev_fd);
                             }
-                            close(dev_fd);
                         }
                     }
                 }
