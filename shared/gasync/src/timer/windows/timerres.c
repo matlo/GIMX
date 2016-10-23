@@ -140,10 +140,8 @@ int timerres_begin(const GPOLL_INTERFACE * poll_interface, TIMERRES_CALLBACK tim
     CHECK_FUNCTION (poll_interface->fp_remove)
     CHECK_FUNCTION (timer_cb)
 
-    if (fp_register != NULL && poll_interface->fp_register != fp_register) {
-        PRINT_ERROR_OTHER("timers do not support multiple poll interfaces on Windows")
-        return -1;
-    }
+    // TODO MLA: warn if register / remove functions change
+    // on Windows function pointers to gpoll_register/remove inside and outside the dll do not match.
 
     int ret = 0;
 
