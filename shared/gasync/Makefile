@@ -22,7 +22,9 @@ build-src/poll: build-src/common
 build-src/input: build-src/hid build-src/poll
 build-src/hid: build-src/common
 build-src/serial: build-src/common
-build-src/usb: build-src/timer
+ifeq ($(OS),Windows_NT)
+build-src/usb: build-src/timer build-src/poll
+endif
 
 clean: $(CLEANDIRS)
 $(CLEANDIRS): 
