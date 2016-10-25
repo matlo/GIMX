@@ -209,7 +209,7 @@ static int wait_watch(int ifd, const char * uniq) {
                             if (dev_fd >= 0) {
                                 char buf[64] = { };
                                 if (ioctl(dev_fd, EVIOCGUNIQ(sizeof(buf)), &buf) != -1) {
-                                    if (!strncmp(buf, uniq, event->len)) {
+                                    if (!strncmp(buf, uniq, sizeof(buf))) {
                                         ret = 1;
                                     }
                                 }
