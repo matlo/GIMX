@@ -152,6 +152,14 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
         return 1;
     default:
         //TODO MLA: other force types
+        {
+            static int warned[0x0F] = {};
+            if (force->type < sizeof(warned) / sizeof(warned) && warned[force->type] == 0) {
+                ncprintf("unsupported force type: %s\n", ff_lg_get_ftype_name(force->type));
+                fflush(stdout);
+                warned[force->type] = 1;
+            }
+        }
         return 0;
     }
 }

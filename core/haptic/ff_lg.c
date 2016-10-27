@@ -111,7 +111,7 @@ static const char * ftype_names [] = {
     [FF_LG_FTYPE_FRICTION]                           = "FRICTION",
 };
 
-static const char * get_ftype_name(unsigned char ftype) {
+const char * ff_lg_get_ftype_name(unsigned char ftype) {
     if (ftype < sizeof(ftype_names) / sizeof(*ftype_names)) {
         return ftype_names[ftype];
     } else {
@@ -358,7 +358,7 @@ void ff_lg_decode_command(const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
     case FF_LG_CMD_DOWNLOAD:
     case FF_LG_CMD_DOWNLOAD_AND_PLAY:
     case FF_LG_CMD_REFRESH_FORCE:
-        dprintf(" - %s", get_ftype_name(data[1]));
+        dprintf(" - %s", ff_lg_get_ftype_name(data[1]));
         dprintf(" - ");
         dump(data + 2, FF_LG_OUTPUT_REPORT_SIZE - 2);
         break;

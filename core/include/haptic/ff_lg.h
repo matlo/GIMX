@@ -153,4 +153,6 @@ uint16_t ff_lg_get_damper_clip(unsigned short pid, unsigned char c);
 
 int ff_lg_is_logitech_wheel(unsigned short vendor, unsigned short product);
 
+const char * ff_lg_get_ftype_name(unsigned char ftype);
+
 #endif /* FF_LG_H_ */
