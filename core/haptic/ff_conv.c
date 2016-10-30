@@ -220,7 +220,7 @@ int ff_conv(int device, const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE], GE_E
                             continue; // already stopped
                         }
                         slots[i].active = 0;
-                        memset(&slots[i].ff_lg_force, 0x00, sizeof(slots[i].ff_lg_force));
+                        memset(&slots[i].ff_lg_force.parameters, 0x00, sizeof(slots[i].ff_lg_force.parameters));
                     } else {
                         continue;
                     }
