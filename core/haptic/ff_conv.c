@@ -68,7 +68,36 @@ int ff_conv_init(int device, unsigned short pid) {
     return 0;
 }
 
+static void dump_event(const GE_Event * event) {
+
+    switch (event->type) {
+    case GE_JOYCONSTANTFORCE:
+        dprintf("< CONSTANT, level: %d\n", event->jconstant.level);
+        fflush(stdout);
+        break;
+    case GE_JOYSPRINGFORCE:
+        dprintf("< SPRING, saturation: %u %u, coefficient: %u %u, center: %d, deadband: %u\n",
+                event->jcondition.saturation.left, event->jcondition.saturation.right,
+                event->jcondition.coefficient.left, event->jcondition.coefficient.right,
+                event->jcondition.center, event->jcondition.deadband);
+        fflush(stdout);
+        break;
+    case GE_JOYDAMPERFORCE:
+        dprintf("< DAMPER, saturation: %u %u, coefficient: %u %u\n",
+                event->jcondition.saturation.left, event->jcondition.saturation.right,
+                event->jcondition.coefficient.left, event->jcondition.coefficient.right);
+        fflush(stdout);
+        break;
+    default:
+        dprintf("< UNKNOWN\n");
+        fflush(stdout);
+        break;
+    }
+}
+
 static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
+
+    int ret = 0;
 
     s_ff_lg_force * force = &ff_lg_device[device].slots[index].ff_lg_force;
 
@@ -78,7 +107,8 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
         if (ff_lg_device[device].slots[index].active) {
             event->jconstant.level = u8_to_s16(FF_LG_CONSTANT_LEVEL(force, index));
         }
-        return 1;
+        ret = 1;
+        break;
     case FF_LG_FTYPE_VARIABLE:
         event->type = GE_JOYCONSTANTFORCE;
         if (ff_lg_device[device].slots[index].active) {
@@ -101,7 +131,8 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
                 }
             }
         }
-        return 1;
+        ret = 1;
+        break;
     case FF_LG_FTYPE_SPRING:
         event->type = GE_JOYSPRINGFORCE;
         if (ff_lg_device[device].slots[index].active) {
@@ -114,7 +145,8 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
             event->jcondition.center = u8_to_s16((FF_LG_SPRING_D1(force) + FF_LG_SPRING_D2(force)) / 2);
             event->jcondition.deadband = u8_to_u16(FF_LG_SPRING_D2(force) - FF_LG_SPRING_D1(force));
         }
-        return 1;
+        ret = 1;
+        break;
     case FF_LG_FTYPE_DAMPER:
         event->type = GE_JOYDAMPERFORCE;
         if (ff_lg_device[device].slots[index].active) {
@@ -123,7 +155,8 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
             event->jcondition.coefficient.right =
                 ff_lg_get_condition_coef(ff_lg_device[device].pid, 0, FF_LG_DAMPER_K2(force), FF_LG_DAMPER_S2(force));
         }
-        return 1;
+        ret = 1;
+        break;
     case FF_LG_FTYPE_HIGH_RESOLUTION_SPRING:
         event->type = GE_JOYSPRINGFORCE;
         if (ff_lg_device[device].slots[index].active) {
@@ -138,7 +171,8 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
             event->jcondition.center = u16_to_s16((d1 + d2) / 2);
             event->jcondition.deadband = d2 - d1;
         }
-        return 1;
+        ret = 1;
+        break;
     case FF_LG_FTYPE_HIGH_RESOLUTION_DAMPER:
         event->type = GE_JOYDAMPERFORCE;
         if (ff_lg_device[device].slots[index].active) {
@@ -149,7 +183,8 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
             event->jcondition.coefficient.right =
                 ff_lg_get_condition_coef(ff_lg_device[device].pid, 1, FF_LG_HIGHRES_DAMPER_K2(force), FF_LG_HIGHRES_DAMPER_S2(force));
         }
-        return 1;
+        ret = 1;
+        break;
     default:
         //TODO MLA: other force types
         {
@@ -160,8 +195,14 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
                 warned[force->type] = 1;
             }
         }
-        return 0;
+        break;
     }
+
+    if(gimx_params.debug && ret != 0) {
+        dump_event(event);
+    }
+
+    return ret;
 }
 
 int ff_conv(int device, const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE], GE_Event events[FF_LG_FSLOTS_NB]) {
