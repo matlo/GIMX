@@ -866,16 +866,11 @@ uint16_t ff_lg_get_damper_clip(unsigned short pid, unsigned char c) {
 
     uint16_t clip;
     switch(pid) {
-    case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE:
-    case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP:
-    case USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE:
-    case USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL:
-    case USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2:
-        // older than Driving Force Pro
-        clip = USHRT_MAX;
+    case USB_PRODUCT_ID_LOGITECH_DFP_WHEEL:
+        clip = c * USHRT_MAX / UCHAR_MAX;
         break;
     default:
-        clip = c * USHRT_MAX / UCHAR_MAX;
+        clip = USHRT_MAX;
         break;
     }
     return clip;
