@@ -56,6 +56,7 @@ s_gimx_params gimx_params =
   .btstack = 0,
   .logfilename = NULL,
   .logfile = NULL,
+  .skip_leds = 0,
 };
 
 #ifdef WIN32

@@ -82,6 +82,7 @@ static void usage()
   printf("    Btstack is the only available connection method on Windows, and an alternative connection method on Linux.\n");
   printf("  --log filename: write messages into a log file instead of the standard output.\n");
   printf("    filename: The name of the log file, in the ~/.gimx/log directory (make sure this folder exists).\n");
+  printf("  --skip_leds: Filter out set led commands from FFB command stream (performance tweak for G27/G29 wheels on small targets).\n");
 }
 
 /*
@@ -141,6 +142,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"window-events",  no_argument, &params->window_events,  1},
     {"btstack",        no_argument, &params->btstack,        1},
     {"debug",          no_argument, &params->debug,          1},
+    {"skip_leds",      no_argument, &params->skip_leds,      1},
     /* These options don't set a flag. We distinguish them by their indices. */
     {"bdaddr",  required_argument, 0, 'b'},
     {"config",  required_argument, 0, 'c'},
@@ -411,6 +413,8 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     printf(_("window_events flag is set\n"));
   if(params->btstack)
     printf(_("btstack flag is set\n"));
+  if(params->skip_leds)
+    printf(_("skip_leds flag is set\n"));
 
   if(!input)
   {

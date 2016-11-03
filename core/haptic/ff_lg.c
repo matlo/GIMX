@@ -144,6 +144,7 @@ static struct
     unsigned short pid_to;
     int convert_lr_coef; // convert 'old' to 'new' or 'new' to 'old' low-res spring/damper coefficients
     int convert_hr2lr; // convert high-res to low-res spring/damper effects
+    int skip_leds; // skip FF_LG_CMD_SET_LED commands
     s_force forces[FF_LG_FSLOTS_NB];
     s_ext_cmd ext_cmds[FF_LG_EXT_CMD_NB];
     s_cmd fifo[FIFO_SIZE];
@@ -203,6 +204,20 @@ static inline int is_hr_wheel(unsigned short pid) {
     }
 }
 
+/*
+ * Tell if FF_LG_CMD_SET_LED commands should be skipped.
+ */
+static inline int skip_leds(unsigned short pid) {
+
+    switch(pid) {
+    case USB_PRODUCT_ID_LOGITECH_G27_WHEEL:
+    case USB_PRODUCT_ID_LOGITECH_G29_WHEEL:
+        return 0;
+    default:
+        return 1;
+    }
+}
+
 int ff_lg_init(int device, unsigned short pid_from, unsigned short pid_to) {
 
     CHECK_DEVICE(device, -1)
@@ -212,6 +227,7 @@ int ff_lg_init(int device, unsigned short pid_from, unsigned short pid_to) {
 
     ff_lg_device[device].convert_lr_coef = is_old_lr_coef_wheel(pid_from) ^ is_old_lr_coef_wheel(pid_to);
     ff_lg_device[device].convert_hr2lr = is_hr_wheel(pid_from) && !is_hr_wheel(pid_to);
+    ff_lg_device[device].skip_leds = skip_leds(pid_to) || gimx_params.skip_leds;
 
     return 0;
 }
@@ -489,6 +505,11 @@ void ff_lg_process_report(int device, const unsigned char data[FF_LG_OUTPUT_REPO
         case FF_LG_EXT_CMD_CHANGE_MODE_G25:
         case FF_LG_EXT_CMD_CHANGE_MODE_G25_NO_DETACH:
           return;
+        case FF_LG_EXT_CMD_SET_RPM_LEDS:
+          if (ff_lg_device[device].skip_leds) {
+              return;
+          }
+          break;
         }
 
         int i;
