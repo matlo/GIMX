@@ -498,7 +498,7 @@ void launcherFrame::readHidPorts()
     }
     if(!device.IsEmpty())
     {
-      device.append(wxString::Format(wxT("%i"),hids.GetCount()));
+      device.append(wxString::Format(wxT("%zu"),hids.GetCount()));
       hids.Add(wxString(cur_dev->path, wxConvUTF8));
       device.append(wxT(")"));
       OutputChoice->SetSelection(OutputChoice->Append(device));
