@@ -111,6 +111,18 @@ static struct
   GHID_CLOSE_CALLBACK fp_close;
 } gpp_devices[MAX_GPP_DEVICES] = {};
 
+static inline int check_device(int device, const char * file, unsigned int line, const char * func) {
+  if (device < 0 || device >= MAX_GPP_DEVICES) {
+    fprintf(stderr, "%s:%d %s: invalid device\n", file, line, func);
+    return -1;
+  }
+  return 0;
+}
+#define CHECK_DEVICE(device,retValue) \
+  if(check_device(device, __FILE__, __LINE__, __func__) < 0) { \
+    return retValue; \
+  }
+
 void gpppcprog_init(void) __attribute__((constructor));
 void gpppcprog_init(void)
 {
@@ -131,7 +143,51 @@ void gpppcprog_clean(void)
     }
 }
 
-int8_t gpppcprog_send(int id, uint8_t type, uint8_t * data, uint16_t length);
+static int8_t gpppcprog_send(int id, uint8_t type, uint8_t * data, uint16_t length)
+{
+  CHECK_DEVICE(id, -1)
+
+  if (gpp_devices[id].pending > 0)
+  {
+    return 0;
+  }
+  s_gppReport report =
+  {
+    .reportId = 0x00,
+    .header =
+    {
+      .type = type,
+      .length = length,
+      .first = 1
+    }
+  };
+  uint16_t sndLen;
+  uint16_t i = 0;
+
+  do
+  {
+    if (length)
+    {
+      sndLen = (((i + sizeof(report.data)) < length) ? sizeof(report.data) : (uint16_t)(length - i));
+      memcpy(report.data, data + i, sndLen);
+      i += sndLen;
+    }
+    if(gpp_devices[id].fp_write) {
+      if (ghid_write(gpp_devices[id].device, (unsigned char*)&report, sizeof(report)) == -1)
+      {
+        return -1;
+      }
+      ++gpp_devices[id].pending;
+    }
+    else {
+      if (ghid_write_timeout(gpp_devices[id].device, (unsigned char*)&report, sizeof(report), 1000) == -1)
+        return -1;
+    }
+    report.header.first = 0;
+  }
+  while (i < length);
+  return 1;
+}
 
 static uint8_t is_device_opened(const char* device)
 {
@@ -148,9 +204,9 @@ static uint8_t is_device_opened(const char* device)
 
 int8_t gppcprog_connect(int id, const char * path)
 {
-  int r = 0;
+  CHECK_DEVICE(id, -1)
 
-  gppcprog_disconnect(id);
+  int r = 0;
 
   if(path)
   {
@@ -161,15 +217,28 @@ int8_t gppcprog_connect(int id, const char * path)
       return -1;
     }
 
+    if (ghid_init() < 0)
+    {
+      return -1;
+    }
+
     gpp_devices[id].device = ghid_open_path(path);
 
     if(gpp_devices[id].device >= 0)
     {
       gpp_devices[id].path = strdup(path);
     }
+    else
+    {
+      ghid_exit();
+    }
   }
   else
   {
+    if (ghid_init() < 0)
+    {
+      return -1;
+    }
     // Connect to any GPP/Cronus/Titan
 
     struct ghid_device *devs, *cur_dev;
@@ -202,6 +271,7 @@ int8_t gppcprog_connect(int id, const char * path)
 
   if (gpp_devices[id].device < 0)
   {
+    ghid_exit();
     return -1;
   }
 
@@ -216,13 +286,10 @@ int8_t gppcprog_connect(int id, const char * path)
   return 1;
 }
 
-int8_t gppcprog_connected(int id)
-{
-  return gpp_devices[id].device < 0;
-}
-
 void gppcprog_disconnect(int id)
 {
+  CHECK_DEVICE(id,)
+
   if (gpp_devices[id].device >= 0)
   {
     //make sure the write is synchronous
@@ -239,12 +306,16 @@ void gppcprog_disconnect(int id)
     gpp_devices[id].device = -1;
     free(gpp_devices[id].path);
     gpp_devices[id].path = NULL;
+
+    ghid_exit();
   }
   return;
 }
 
 int8_t gpppcprog_input(int id, GCAPI_REPORT *report, int timeout)
 {
+  CHECK_DEVICE(id, -1)
+
   int bytesReceived;
   uint8_t rcvBuf[65] = {};
 
@@ -303,6 +374,8 @@ static int close_callback(int user)
 
 int8_t gpppcprog_start_async(int id, const GHID_CALLBACKS * callbacks)
 {
+  CHECK_DEVICE(id, -1)
+
   gpp_devices[id].fp_read = callbacks->fp_read;
   gpp_devices[id].fp_write = callbacks->fp_write;
   gpp_devices[id].fp_close = callbacks->fp_close;
@@ -330,50 +403,7 @@ int8_t gpppcprog_start_async(int id, const GHID_CALLBACKS * callbacks)
 
 int8_t gpppcprog_output(int id, int8_t output[GCAPI_INPUT_TOTAL])
 {
+  CHECK_DEVICE(id, -1)
+
   return gpppcprog_send(id, GPPKG_OUTPUT_REPORT, (uint8_t *)output, GCAPI_INPUT_TOTAL);
 }
-
-int8_t gpppcprog_send(int id, uint8_t type, uint8_t * data, uint16_t length)
-{
-  if (gpp_devices[id].pending > 0)
-  {
-    return 0;
-  }
-  s_gppReport report =
-  {
-    .reportId = 0x00,
-    .header =
-    {
-      .type = type,
-      .length = length,
-      .first = 1
-    }
-  };
-  uint16_t sndLen;
-  uint16_t i = 0;
-
-  do
-  {
-    if (length)
-    {
-      sndLen = (((i + sizeof(report.data)) < length) ? sizeof(report.data) : (uint16_t)(length - i));
-      memcpy(report.data, data + i, sndLen);
-      i += sndLen;
-    }
-    if(gpp_devices[id].fp_write) {
-      if (ghid_write(gpp_devices[id].device, (unsigned char*)&report, sizeof(report)) == -1)
-      {
-        return -1;
-      }
-      ++gpp_devices[id].pending;
-    }
-    else {
-      if (ghid_write_timeout(gpp_devices[id].device, (unsigned char*)&report, sizeof(report), 1000) == -1)
-        return -1;
-    }
-    report.header.first = 0;
-  }
-  while (i < length);
-  return 1;
-}
-

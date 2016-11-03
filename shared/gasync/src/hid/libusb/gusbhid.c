@@ -112,13 +112,17 @@ int gusbhid_init() {
 
 int gusbhid_exit() {
 
-    int i;
-    for (i = 0; i < MAX_DEVICES; ++i) {
-        if (usbdevices[i].devh != NULL) {
-            gusbhid_close(i);
+    if (clients > 0) {
+        --clients;
+        if (clients == 0) {
+            int i;
+            for (i = 0; i < MAX_DEVICES; ++i) {
+                if (usbdevices[i].devh != NULL) {
+                    gusbhid_close(i);
+                }
+            }
         }
     }
-    --clients;
     return 0;
 }
 

@@ -275,7 +275,6 @@ const GCAPI_USB_IDS * gpppcprog_get_ids(unsigned int * nb);
 };
 #endif
 int8_t gppcprog_connect(int id, const char * path);
-int8_t gppcprog_connected(int id);
 void gppcprog_disconnect(int id);
 int8_t gpppcprog_input(int id, GCAPI_REPORT * report, int timeout);
 int8_t gpppcprog_output(int id, int8_t output[GCAPI_OUTPUT_TOTAL]);
