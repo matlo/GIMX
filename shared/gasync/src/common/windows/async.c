@@ -249,9 +249,9 @@ int async_close(int device) {
         }
       }
       else if(GetLastError() != ERROR_NOT_FOUND)
-			{
-				PRINT_ERROR_GETLASTERROR("CancelIoEx")
-			}
+      {
+        PRINT_ERROR_GETLASTERROR("CancelIoEx")
+      }
     }
     if(devices[device].write.overlapped.hEvent != INVALID_HANDLE_VALUE) {
       if(pCancelIoEx(devices[device].handle, &devices[device].write.overlapped)) {
@@ -262,9 +262,9 @@ int async_close(int device) {
         }
       }
       else if(GetLastError() != ERROR_NOT_FOUND)
-			{
-				PRINT_ERROR_GETLASTERROR("CancelIoEx")
-			}
+      {
+        PRINT_ERROR_GETLASTERROR("CancelIoEx")
+      }
     }
 
     while(dequeue_write(device) != -1) ;
@@ -301,7 +301,21 @@ int async_read_timeout(int device, void * buf, unsigned int count, unsigned int 
 
   memset(buf, 0x00, count);
 
-  if(!ReadFile(devices[device].handle, buf, count, NULL, &devices[device].read.overlapped)) {
+  unsigned char * dest = NULL;
+  unsigned int destLength = 0;
+
+  switch (devices[device].device_type) {
+  case E_ASYNC_DEVICE_TYPE_HID:
+      dest = devices[device].read.buf;
+      destLength = devices[device].read.count;
+      break;
+  case E_ASYNC_DEVICE_TYPE_SERIAL:
+      dest = buf;
+      destLength = count;
+      break;
+  }
+
+  if(!ReadFile(devices[device].handle, dest, destLength, NULL, &devices[device].read.overlapped)) {
     if(GetLastError() != ERROR_IO_PENDING) {
       PRINT_ERROR_GETLASTERROR("ReadFile")
       return -1;
@@ -321,12 +335,12 @@ int async_read_timeout(int device, void * buf, unsigned int count, unsigned int 
           return -1;
         }
         if (!GetOverlappedResult(devices[device].handle, &devices[device].read.overlapped, &dwBytesRead, TRUE)) { //block until completion
-        	if(GetLastError() != ERROR_OPERATION_ABORTED) {
-						PRINT_ERROR_GETLASTERROR("GetOverlappedResult")
-						return -1;
-					}
+          if (GetLastError() != ERROR_OPERATION_ABORTED) {
+            PRINT_ERROR_GETLASTERROR("GetOverlappedResult")
+            return -1;
+          }
         }
-        if(dwBytesRead != count) { // the read operation may still have succeed
+        if(dwBytesRead != destLength) { // the read operation may still have succeed
           PRINT_ERROR_OTHER("ReadFile failed: timeout expired.")
         }
         break;
@@ -337,18 +351,24 @@ int async_read_timeout(int device, void * buf, unsigned int count, unsigned int 
   }
   else
   {
-    dwBytesRead = count;
+    dwBytesRead = destLength;
   }
+  
+  int length = dwBytesRead;
 
   // skip the eventual leading null byte for hid devices
   if (devices[device].device_type == E_ASYNC_DEVICE_TYPE_HID && dwBytesRead > 0) {
-    if (((unsigned char*)buf)[0] == 0x00) {
+    if (dest[0] == 0x00) {
       --dwBytesRead;
-      memmove(buf, buf + 1, dwBytesRead);
+      length = dwBytesRead > count ? count : dwBytesRead;
+      memcpy(buf, dest + 1, length);
+    } else {
+      length = dwBytesRead > count ? count : dwBytesRead;
+      memcpy(buf, dest, dwBytesRead);
     }
   }
 
-  return dwBytesRead;
+  return length;
 }
 
 int async_write_timeout(int device, const void * buf, unsigned int count, unsigned int timeout) {
@@ -385,10 +405,10 @@ int async_write_timeout(int device, const void * buf, unsigned int count, unsign
           return -1;
         }
         if (!GetOverlappedResult(devices[device].handle, &devices[device].write.overlapped, &dwBytesWritten, TRUE)) { //block until completion
-        	if(GetLastError() != ERROR_OPERATION_ABORTED) {
-						PRINT_ERROR_GETLASTERROR("GetOverlappedResult")
-						return -1;
-					}
+          if (GetLastError() != ERROR_OPERATION_ABORTED) {
+            PRINT_ERROR_GETLASTERROR("GetOverlappedResult")
+            return -1;
+          }
         }
         if(dwBytesWritten != count) { // the write operation may still have succeed
           PRINT_ERROR_OTHER("WriteFile failed: timeout expired.")

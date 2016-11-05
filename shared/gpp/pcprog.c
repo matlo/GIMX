@@ -279,7 +279,6 @@ int8_t gppcprog_connect(int id, const char * path)
   r = gpppcprog_send(id, GPPKG_ENTER_CAPTURE, NULL, 0);
   if (r <= 0)
   {
-    gppcprog_disconnect(id);
     return r;
   }
 
@@ -324,7 +323,6 @@ int8_t gpppcprog_input(int id, GCAPI_REPORT *report, int timeout)
   bytesReceived = ghid_read_timeout(gpp_devices[id].device, rcvBuf, sizeof(rcvBuf), timeout);
   if (bytesReceived < 0)
   {
-    gppcprog_disconnect(id);
     return (-1);
   }
   else if (bytesReceived && rcvBuf[0] == GPPKG_INPUT_REPORT)

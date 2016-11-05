@@ -40,6 +40,7 @@ int open_path(const char * path, int print) {
                     async_set_private(device, hid_info);
                     async_set_write_size(device, hidCapabilities.OutputReportByteLength);
                     async_set_read_size(device, hidCapabilities.InputReportByteLength);
+                    async_set_device_type(device, E_ASYNC_DEVICE_TYPE_HID);
                 } else {
                     PRINT_ERROR_ALLOC_FAILED("malloc")
                     async_close(device);
@@ -309,7 +310,7 @@ int ghid_close(int device) {
  * \param device  the identifier of the hid device
  * \param buf     the buffer where to store the data
  * \param count   the maximum number of bytes to read
- * \param timeout the maximum time to wait, in seconds
+ * \param timeout the maximum time to wait, in milliseconds
  *
  * \return the number of bytes actually read
  */

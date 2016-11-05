@@ -19,8 +19,9 @@ int gpp_connect(int id, const char* device)
     return -1;
   }
 
-  if(gpppcprog_input(id, &report, 1) != 1)
+  if(gpppcprog_input(id, &report, 1000) != 1)
   {
+      gppcprog_disconnect(id);
       return -1;
   }
   

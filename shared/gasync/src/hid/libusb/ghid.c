@@ -84,7 +84,7 @@ const s_hid_info * ghid_get_hid_info(int device) {
  * \param device  the identifier of the hid device
  * \param buf     the buffer where to store the data
  * \param count   the maximum number of bytes to read
- * \param timeout the maximum time to wait, in seconds
+ * \param timeout the maximum time to wait, in milliseconds
  *
  * \return the number of bytes actually read
  */

@@ -96,6 +96,8 @@ int gserial_open(const char * port, unsigned int baudrate) {
         return -1;
     }
 
+    async_set_device_type(device, E_ASYNC_DEVICE_TYPE_SERIAL);
+
     if (set_serial_params(device, baudrate) < 0) {
         async_close(device);
         return -1;
@@ -110,7 +112,7 @@ int gserial_open(const char * port, unsigned int baudrate) {
  * \param device  the identifier of the serial device
  * \param buf     the buffer where to store the data
  * \param count   the maximum number of bytes to read
- * \param timeout the maximum time to wait, in seconds
+ * \param timeout the maximum time to wait, in milliseconds
  *
  * \return the number of bytes actually read
  */
