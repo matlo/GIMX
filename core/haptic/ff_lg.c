@@ -13,6 +13,8 @@
 #include <gimx.h>
 #include <limits.h>
 
+#define dprintf(...) if(gimx_params.debug.ff_lg) printf(__VA_ARGS__)
+
 #define CLAMP(MIN,VALUE,MAX) (((VALUE) < MIN) ? (MIN) : (((VALUE) > MAX) ? (MAX) : (VALUE)))
 
 static unsigned char fslot_nbits [] = {
@@ -410,7 +412,7 @@ void ff_lg_process_report(int device, const unsigned char data[FF_LG_OUTPUT_REPO
         return;
     }
 
-    if(gimx_params.debug) {
+    if(gimx_params.debug.ff_lg) {
         dprintf("> ");
         if(data[0] == FF_LG_CMD_EXTENDED_COMMAND) {
             ff_lg_decode_extended(data);
@@ -753,7 +755,7 @@ int ff_lg_get_report(int device, s_ff_lg_report * report) {
             {
                 // not a slot update
                 data[0] = cmd.cmd;
-                if(gimx_params.debug) {
+                if(gimx_params.debug.ff_lg) {
                     ff_lg_decode_command(data);
                 }
                 *report = ff_lg_device[device].last_report;
@@ -770,7 +772,7 @@ int ff_lg_get_report(int device, s_ff_lg_report * report) {
                     data[0] = cmd.cmd | FF_LG_CMD_STOP;
                 }
                 forces[index].updated = 0;
-                if(gimx_params.debug) {
+                if(gimx_params.debug.ff_lg) {
                     ff_lg_decode_command(data);
                 }
                 return convert_force(device, report);
@@ -782,7 +784,7 @@ int ff_lg_get_report(int device, s_ff_lg_report * report) {
                 s_ext_cmd * ext_cmd = ff_lg_device[device].ext_cmds + i;
                 if(ext_cmd->cmd[1] == cmd.ext) {
                     memcpy(data, ext_cmd->cmd, sizeof(ext_cmd->cmd));
-                    if(gimx_params.debug) {
+                    if(gimx_params.debug.ff_lg) {
                         ff_lg_decode_extended(data);
                     }
                     ext_cmd->updated = 0;

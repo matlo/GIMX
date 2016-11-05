@@ -161,6 +161,7 @@
 											<item>curses</item>
 											<item>text</item>
 											<item>log file</item>
+                                            <item>debug</item>
 										</content>
 										<selection>0</selection>
 									</object>

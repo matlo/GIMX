@@ -141,7 +141,9 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"curses",         no_argument, &params->curses,         1},
     {"window-events",  no_argument, &params->window_events,  1},
     {"btstack",        no_argument, &params->btstack,        1},
-    {"debug",          no_argument, &params->debug,          1},
+    {"debug.ff_lg",    no_argument, &params->debug.ff_lg,    1},
+    {"debug.ff_conv",  no_argument, &params->debug.ff_conv,  1},
+    {"debug.adapter",  no_argument, &params->debug.adapter,  1},
     {"skip_leds",      no_argument, &params->skip_leds,      1},
     /* These options don't set a flag. We distinguish them by their indices. */
     {"bdaddr",  required_argument, 0, 'b'},
@@ -425,6 +427,11 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
   if(params->logfile)
   {
     log_info();
+  }
+
+  if (params->debug.ff_conv != 0)
+  {
+    params->debug.ff_lg = 1;
   }
 
   return ret;

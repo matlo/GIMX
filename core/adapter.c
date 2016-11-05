@@ -267,8 +267,6 @@ int adapter_get_controller(e_device_type device_type, int device_id)
   return device_adapter[device_type-1][device_id];
 }
 
-static int debug = 0;
-
 static void dump(unsigned char * packet, unsigned char length)
 {
   int i;
@@ -276,17 +274,17 @@ static void dump(unsigned char * packet, unsigned char length)
   {
     if(i && !(i%8))
     {
-      gprintf("\n");
+      ncprintf("\n");
     }
-    gprintf("0x%02x ", packet[i]);
+    ncprintf("0x%02x ", packet[i]);
   }
-  gprintf("\n");
+  ncprintf("\n");
 }
 
 #define DEBUG_PACKET(PACKET, LENGTH) \
-  if(debug) \
+  if(gimx_params.debug.adapter) \
   { \
-    gprintf("%s\n", __func__); \
+    printf("%s\n", __func__); \
     dump(data, length); \
   }
 

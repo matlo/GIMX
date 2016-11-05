@@ -839,6 +839,7 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
     ProcessOutputChoice->Append(_("curses"));
     ProcessOutputChoice->Append(_("text"));
     ProcessOutputChoice->Append(_("log file"));
+    ProcessOutputChoice->Append(_("debug"));
     FlexGridSizer3->Add(ProcessOutputChoice, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer8->Add(FlexGridSizer3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     MouseSizer = new wxFlexGridSizer(1, 2, 0, 0);
@@ -1025,6 +1026,8 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
     }
 
     refreshGui();
+
+    openLog = false;
 }
 
 launcherFrame::~launcherFrame()
@@ -1069,6 +1072,24 @@ protected:
 void MyProcess::OnTerminate(int pid __attribute__((unused)), int status)
 {
     m_parent->OnProcessTerminated(this, status);
+}
+
+void launcherFrame::readDebugStrings(wxArrayString & values)
+{
+    wxArrayString choices;
+    choices.Add(wxT("adapter"));
+    choices.Add(wxT("ff_conv"));
+    choices.Add(wxT("ff_lg"));
+    wxMultiChoiceDialog dialog(this, _("Select the files to debug:"), _(""), choices);
+
+    if (dialog.ShowModal() == wxID_OK)
+    {
+        wxArrayInt selections = dialog.GetSelections();
+        for (size_t n = 0; n < selections.GetCount(); n++)
+        {
+          values.Add(choices[selections[n]]);
+        }
+    }
 }
 
 void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unused)))
@@ -1200,6 +1221,36 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
     {
       command.Append(wxT(" --status --log "));
       command.Append(wxT(LOG_FILE));
+      openLog = true;
+    }
+    else if(ProcessOutputChoice->GetStringSelection() == _("debug"))
+    {
+      wxArrayString destination;
+      destination.Add(_("text"));
+      destination.Add(_("log file"));
+      wxSingleChoiceDialog dialog(this, _("Select the destination:"), _(""), destination);
+      if (dialog.ShowModal() == wxID_OK)
+      {
+        wxString selection = dialog.GetStringSelection();
+        if(selection == _("text"))
+        {
+          command.Append(wxT(" --status"));
+        }
+        else if(selection == _("log file"))
+        {
+          command.Append(wxT(" --status --log "));
+          command.Append(wxT(LOG_FILE));
+          openLog = true;
+        }
+      }
+
+      wxArrayString values;
+      readDebugStrings(values);
+      for (size_t n = 0; n < values.GetCount(); n++)
+      {
+        command.Append(wxT(" --debug."));
+        command.Append(values[n]);
+      }
     }
 
     if(Input->GetStringSelection() == _("Network"))
@@ -1303,7 +1354,7 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
       OnMenuSave(event);
     }
 
-    if(ProcessOutputChoice->GetStringSelection() == _("log file"))
+    if(openLog)
     {
 #ifdef WIN32
       gimxLogDir.Replace(wxT("/"), wxT("\\"));
@@ -1311,6 +1362,7 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
 #else
       wxExecute(wxT("xdg-open ") + gimxLogDir + wxT(LOG_FILE), wxEXEC_ASYNC, NULL);
 #endif
+      openLog = false;
     }
     else
     {

@@ -8,6 +8,8 @@
 #include <gimx.h>
 #include <string.h>
 
+#define dprintf(...) if(gimx_params.debug.ff_conv) printf(__VA_ARGS__)
+
 #define CLAMP(MIN,VALUE,MAX) (((VALUE) < MIN) ? (MIN) : (((VALUE) > MAX) ? (MAX) : (VALUE)))
 
 static inline short u8_to_s16(unsigned char c) {
@@ -198,7 +200,7 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
         break;
     }
 
-    if(gimx_params.debug && ret != 0) {
+    if(gimx_params.debug.ff_conv && ret != 0) {
         dump_event(event);
     }
 
@@ -209,7 +211,7 @@ int ff_conv(int device, const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE], GE_E
 
     CHECK_DEVICE(device, -1)
 
-    if(gimx_params.debug) {
+    if(gimx_params.debug.ff_conv) {
         dprintf("> ");
         if(data[0] == FF_LG_CMD_EXTENDED_COMMAND) {
             ff_lg_decode_extended(data);

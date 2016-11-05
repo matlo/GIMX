@@ -113,6 +113,8 @@ class launcherFrame: public wxFrame
         int readDonglePairings(vector<BluetoothPairing>& donglePairings);
         BluetoothPairing selectBrokenPairing(vector<BluetoothPairing>& brokenDonglePairings);
 
+        void readDebugStrings(wxArrayString & values);
+
         //(*Identifiers(launcherFrame)
         static const long ID_STATICTEXT4;
         static const long ID_CHOICE1;
@@ -193,6 +195,8 @@ class launcherFrame: public wxFrame
         wxString gimxDir;
 
         wxArrayString hids;
+
+        bool openLog;
 
         DECLARE_EVENT_TABLE()
 };

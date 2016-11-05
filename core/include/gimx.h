@@ -33,7 +33,11 @@ typedef struct
   double frequency_scale;
   int status;
   int curses;
-  int debug;
+  struct {
+      int ff_lg;
+      int ff_conv;
+      int adapter;
+  } debug;
   char* config_file;
   int postpone_count;
   int subpositions;
@@ -48,7 +52,6 @@ typedef struct
 extern s_gimx_params gimx_params;
 
 #define gprintf(...) if(gimx_params.status) printf(__VA_ARGS__)
-#define dprintf(...) if(gimx_params.debug) printf(__VA_ARGS__)
 #define ncprintf(...) if(!gimx_params.curses) printf(__VA_ARGS__)
 #define eprintf(msg) fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg)
 
