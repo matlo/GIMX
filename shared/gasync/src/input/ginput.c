@@ -23,6 +23,7 @@
 
 #define BT_SIXAXIS_NAME "PLAYSTATION(R)3 Controller"
 #define XONE_PAD_NAME "Microsoft X-Box One pad"
+#define DUALSHOCK4_V2_NAME "Sony Interactive Entertainment Wireless Controller"
 
 static struct
 {
@@ -123,6 +124,11 @@ int ginput_init(const GPOLL_INTERFACE * poll_interface, unsigned char mkb_src, i
       // Rename QtSixA devices.
       name = "Sony PLAYSTATION(R)3 Controller";
       joysticks[i].type = GE_JS_SIXAXIS;
+    }
+    if (!strncmp(name, DUALSHOCK4_V2_NAME, sizeof(DUALSHOCK4_V2_NAME)))
+    {
+      // Rename Dualshock 4 v2.
+      name = "Sony Computer Entertainment Wireless Controller";
     }
 #ifdef WIN32
     if (!strncmp(name, XONE_PAD_NAME, sizeof(XONE_PAD_NAME) - 1))
