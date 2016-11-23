@@ -147,6 +147,7 @@ static struct
     int convert_lr_coef; // convert 'old' to 'new' or 'new' to 'old' low-res spring/damper coefficients
     int convert_hr2lr; // convert high-res to low-res spring/damper effects
     int skip_leds; // skip FF_LG_CMD_SET_LED commands
+    int skip_wheel_range; // skip wheel range commands
     s_force forces[FF_LG_FSLOTS_NB];
     s_ext_cmd ext_cmds[FF_LG_EXT_CMD_NB];
     s_cmd fifo[FIFO_SIZE];
@@ -220,6 +221,23 @@ static inline int skip_leds(unsigned short pid) {
     }
 }
 
+/*
+ * Tell if wheel range commands should be skipped.
+ */
+static inline int skip_wheel_range(unsigned short pid) {
+
+    switch(pid) {
+    case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE:
+    case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP:
+    case USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE:
+    case USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL:
+    case USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
 int ff_lg_init(int device, unsigned short pid_from, unsigned short pid_to) {
 
     CHECK_DEVICE(device, -1)
@@ -230,6 +248,7 @@ int ff_lg_init(int device, unsigned short pid_from, unsigned short pid_to) {
     ff_lg_device[device].convert_lr_coef = is_old_lr_coef_wheel(pid_from) ^ is_old_lr_coef_wheel(pid_to);
     ff_lg_device[device].convert_hr2lr = is_hr_wheel(pid_from) && !is_hr_wheel(pid_to);
     ff_lg_device[device].skip_leds = skip_leds(pid_to) || gimx_params.skip_leds;
+    ff_lg_device[device].skip_wheel_range = skip_wheel_range(pid_to);
 
     return 0;
 }
@@ -506,12 +525,33 @@ void ff_lg_process_report(int device, const unsigned char data[FF_LG_OUTPUT_REPO
         case FF_LG_EXT_CMD_REVERT_IDENTITY:
         case FF_LG_EXT_CMD_CHANGE_MODE_G25:
         case FF_LG_EXT_CMD_CHANGE_MODE_G25_NO_DETACH:
+          {
+              static int warn = 1;
+              if (warn == 1) {
+                  ncprintf("skipping unsupported change wheel mode commands\n");
+                  warn = 0;
+              }
+          }
           return;
         case FF_LG_EXT_CMD_SET_RPM_LEDS:
           if (ff_lg_device[device].skip_leds) {
               return;
           }
           break;
+        case FF_LG_EXT_CMD_WHEEL_RANGE_200_DEGREES:
+        case FF_LG_EXT_CMD_WHEEL_RANGE_900_DEGREES:
+        case FF_LG_EXT_CMD_CHANGE_WHEEL_RANGE:
+          if (ff_lg_device[device].skip_wheel_range) {
+              static int warn = 1;
+              if (warn == 1) {
+                  ncprintf("skipping unsupported change wheel range commands\n");
+                  warn = 0;
+              }
+              return;
+          }
+          break;
+        default:
+          return;
         }
 
         int i;
