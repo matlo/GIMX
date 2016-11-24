@@ -962,10 +962,6 @@ static double mouse2axis(int device, s_adapter* controller, int which, double x,
   if(val != 0)
   {
     z = multiplier * (val/fabs(val)) * pow(fabs(val), exp);
-    /*
-     * Subtract the first position to the dead zone (useful for high multipliers).
-     */
-    dz = dz - multiplier;// * pow(1, exp);
   }
   
   if(mode == E_MOUSE_MODE_AIMING)
