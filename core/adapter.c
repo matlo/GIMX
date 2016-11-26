@@ -825,6 +825,11 @@ int adapter_detect()
             if(ret != -1)
             {
               controller_init_report(adapter->ctype, &adapter->report[0].value);
+
+              if (adapter->ctype == C_TYPE_G27_PS3)
+              {
+                printf(_("Start the game with a dualshock 3, and then reassign controllers.\n"));
+              }
             }
           }
         }
