@@ -142,12 +142,12 @@ typedef struct {
 
 static struct
 {
-    unsigned short pid_from;
-    unsigned short pid_to;
+    unsigned short pid_from; // force feedback commands come from this wheel
+    unsigned short pid_to; // force feedback commands go to this wheel
     int convert_lr_coef; // convert 'old' to 'new' or 'new' to 'old' low-res spring/damper coefficients
     int convert_hr2lr; // convert high-res to low-res spring/damper effects
     int skip_leds; // skip FF_LG_CMD_SET_LED commands
-    int skip_wheel_range; // skip wheel range commands
+    unsigned short wheel_range_to; // skip wheel range commands if not null
     s_force forces[FF_LG_FSLOTS_NB];
     s_ext_cmd ext_cmds[FF_LG_EXT_CMD_NB];
     s_cmd fifo[FIFO_SIZE];
@@ -221,21 +221,29 @@ static inline int skip_leds(unsigned short pid) {
     }
 }
 
-/*
- * Tell if wheel range commands should be skipped.
- */
-static inline int skip_wheel_range(unsigned short pid) {
+static struct {
+    unsigned short product;
+    unsigned short range;
+} wheel_ranges[] = {
+        { USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE,    200 },
+        { USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP, 200 },
+        { USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE,    200 },
+        { USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL,       270 },
+        { USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2,      240 },
+};
 
-    switch(pid) {
-    case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE:
-    case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP:
-    case USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE:
-    case USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL:
-    case USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2:
-        return 1;
-    default:
-        return 0;
+/*
+ * Get the wheel range. 0 means that the range can be changed.
+ */
+static inline int get_wheel_range(unsigned short pid) {
+
+    unsigned int i;
+    for (i = 0; i < sizeof(wheel_ranges) / sizeof(*wheel_ranges); ++i) {
+        if (wheel_ranges[i].product == pid) {
+            return wheel_ranges[i].range;
+        }
     }
+    return 0;
 }
 
 int ff_lg_init(int device, unsigned short pid_from, unsigned short pid_to) {
@@ -248,7 +256,21 @@ int ff_lg_init(int device, unsigned short pid_from, unsigned short pid_to) {
     ff_lg_device[device].convert_lr_coef = is_old_lr_coef_wheel(pid_from) ^ is_old_lr_coef_wheel(pid_to);
     ff_lg_device[device].convert_hr2lr = is_hr_wheel(pid_from) && !is_hr_wheel(pid_to);
     ff_lg_device[device].skip_leds = skip_leds(pid_to) || gimx_params.skip_leds;
-    ff_lg_device[device].skip_wheel_range = skip_wheel_range(pid_to);
+    ff_lg_device[device].wheel_range_to = get_wheel_range(pid_to);
+
+    unsigned short wheel_range_from = get_wheel_range(pid_from);
+    if (wheel_range_from != 0 && ff_lg_device[device].wheel_range_to == 0) {
+        // source wheel range is fixed and target wheel range can be adjusted
+        // => adjust target wheel range to source wheel range
+        const unsigned char change_wheel_range[FF_LG_OUTPUT_REPORT_SIZE] = {
+                FF_LG_CMD_EXTENDED_COMMAND,
+                FF_LG_EXT_CMD_CHANGE_WHEEL_RANGE,
+                wheel_range_from & 0xFF,
+                wheel_range_from >> 8
+        };
+        ff_lg_process_report(device, change_wheel_range);
+        ncprintf("adjust target wheel range to source wheel range: %hu\n", wheel_range_from);
+    }
 
     return 0;
 }
@@ -541,7 +563,7 @@ void ff_lg_process_report(int device, const unsigned char data[FF_LG_OUTPUT_REPO
         case FF_LG_EXT_CMD_WHEEL_RANGE_200_DEGREES:
         case FF_LG_EXT_CMD_WHEEL_RANGE_900_DEGREES:
         case FF_LG_EXT_CMD_CHANGE_WHEEL_RANGE:
-          if (ff_lg_device[device].skip_wheel_range) {
+          if (ff_lg_device[device].wheel_range_to != 0) {
               static int warn = 1;
               if (warn == 1) {
                   ncprintf("skipping unsupported change wheel range commands\n");
