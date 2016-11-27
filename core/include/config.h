@@ -76,8 +76,8 @@ typedef struct
   double* ey;
   int rd;
   int vel;
-  unsigned int* dzx;
-  unsigned int* dzy;
+  int* dzx;
+  int* dzy;
   e_shape* dzs;
   s_mouse_options options;
   unsigned int dpi;
@@ -91,7 +91,7 @@ typedef struct
   double multiplier;
   double exponent;
   e_shape shape;
-  unsigned int dead_zone;
+  int dead_zone;
 
   s_axis_props axis_props;
 }s_mapper;

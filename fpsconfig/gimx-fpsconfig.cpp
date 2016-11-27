@@ -251,10 +251,10 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __at
     SpinCtrlBufferSizeADS = new wxSpinCtrl(Panel1, ID_SPINCTRL14, _T("1"), wxPoint(506,352), wxSize(44,-1), 0, 1, 30, 1, _T("ID_SPINCTRL14"));
     SpinCtrlBufferSizeADS->SetValue(_T("1"));
     SpinCtrlBufferSizeADS->SetToolTip(_("Buffer size (ADS)"));
-    SpinCtrlDeadZoneHipFire = new wxSpinCtrl(Panel1, ID_SPINCTRL1, _T("20"), wxPoint(184,320), wxSize(44,-1), 0, 0, 64, 20, _T("ID_SPINCTRL1"));
+    SpinCtrlDeadZoneHipFire = new wxSpinCtrl(Panel1, ID_SPINCTRL1, _T("20"), wxPoint(184,320), wxSize(44,-1), 0, -64, 64, 20, _T("ID_SPINCTRL1"));
     SpinCtrlDeadZoneHipFire->SetValue(_T("20"));
     SpinCtrlDeadZoneHipFire->SetToolTip(_("Dead zone (Hip Fire)"));
-    SpinCtrlDeadZoneADS = new wxSpinCtrl(Panel1, ID_SPINCTRL2, _T("20"), wxPoint(184,352), wxSize(44,-1), 0, 0, 64, 20, _T("ID_SPINCTRL2"));
+    SpinCtrlDeadZoneADS = new wxSpinCtrl(Panel1, ID_SPINCTRL2, _T("20"), wxPoint(184,352), wxSize(44,-1), 0, -64, 64, 20, _T("ID_SPINCTRL2"));
     SpinCtrlDeadZoneADS->SetValue(_T("20"));
     SpinCtrlDeadZoneADS->SetToolTip(_("Dead zone (ADS)"));
     TextCtrlSensitivityADS = new wxTextCtrl(Panel1, ID_TEXTCTRL24, wxEmptyString, wxPoint(312,352), wxSize(50,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL24"));

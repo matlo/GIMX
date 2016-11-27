@@ -46,8 +46,8 @@
 		</Linker>
 		<Unit filename="fpsconfigApp.cpp" />
 		<Unit filename="fpsconfigApp.h" />
-		<Unit filename="fpsconfigMain.cpp" />
-		<Unit filename="fpsconfigMain.h" />
+		<Unit filename="gimx-fpsconfig.cpp" />
+		<Unit filename="gimx-fpsconfig.h" />
 		<Unit filename="include/ControlMapper.h" />
 		<Unit filename="include/Configuration.h" />
 		<Unit filename="include/ConfigurationFile.h" />
@@ -77,7 +77,7 @@
 			<wxsmith version="1">
 				<gui name="wxWidgets" src="fpsconfigApp.cpp" main="fpsconfigFrame" init_handlers="necessary" language="CPP" />
 				<resources>
-					<wxFrame wxs="wxsmith/fpsconfigframe.wxs" src="fpsconfigMain.cpp" hdr="fpsconfigMain.h" name="fpsconfigFrame" language="CPP" />
+					<wxFrame wxs="wxsmith/fpsconfigframe.wxs" src="gimx-fpsconfig.cpp" hdr="gimx-fpsconfig.h" name="fpsconfigFrame" language="CPP" />
 				</resources>
 			</wxsmith>
 			<debugger />

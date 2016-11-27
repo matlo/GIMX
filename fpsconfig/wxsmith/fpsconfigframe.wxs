@@ -98,6 +98,7 @@
 			</object>
 			<object class="wxSpinCtrl" name="ID_SPINCTRL1" variable="SpinCtrlDeadZoneHipFire" member="yes">
 				<value>20</value>
+				<min>-64</min>
 				<max>64</max>
 				<pos>184,320</pos>
 				<size>44,-1</size>
@@ -105,6 +106,7 @@
 			</object>
 			<object class="wxSpinCtrl" name="ID_SPINCTRL2" variable="SpinCtrlDeadZoneADS" member="yes">
 				<value>20</value>
+				<min>-64</min>
 				<max>64</max>
 				<pos>184,352</pos>
 				<size>44,-1</size>

@@ -498,6 +498,9 @@ void cal_key(int sym, int down)
   }
 }
 
+#define DEADZONE_MAX(AXIS) \
+    (controller_get_mean_unsigned(ctype, AXIS) / controller_get_axis_scale(ctype, AXIS) / 2)
+
 /*
  * Use the mouse wheel to calibrate the mouse.
  */
@@ -550,26 +553,18 @@ void cal_button(int button)
           }
           break;
         case DZX:
-          if (mcal->dzx)
+          if (mcal->dzx && *mcal->dzx < DEADZONE_MAX(rel_axis_rstick_x))
           {
             *mcal->dzx += 1;
-            if (*mcal->dzx > controller_get_mean_unsigned(ctype, rel_axis_rstick_x) / controller_get_axis_scale(ctype, rel_axis_rstick_x))
-            {
-              *mcal->dzx = controller_get_mean_unsigned(ctype, rel_axis_rstick_x) / controller_get_axis_scale(ctype, rel_axis_rstick_x);
-            }
             mc->merge_x[mc->index] = 1;
             mc->merge_y[mc->index] = 0;
             mc->change = 1;
           }
           break;
         case DZY:
-          if (mcal->dzy)
+          if (mcal->dzy && *mcal->dzy < DEADZONE_MAX(rel_axis_rstick_y))
           {
             *mcal->dzy += 1;
-            if (*mcal->dzy > controller_get_mean_unsigned(ctype, rel_axis_rstick_x) / controller_get_axis_scale(ctype, rel_axis_rstick_x))
-            {
-              *mcal->dzy = controller_get_mean_unsigned(ctype, rel_axis_rstick_x) / controller_get_axis_scale(ctype, rel_axis_rstick_x);
-            }
             mc->merge_x[mc->index] = 0;
             mc->merge_y[mc->index] = 1;
             mc->change = 1;
@@ -659,7 +654,7 @@ void cal_button(int button)
           }
           break;
         case DZX:
-          if (mcal->dzx && *mcal->dzx > 0)
+          if (mcal->dzx && *mcal->dzx > - DEADZONE_MAX(rel_axis_rstick_x))
           {
             *mcal->dzx -= 1;
             mc->merge_x[mc->index] = -1;
@@ -668,7 +663,7 @@ void cal_button(int button)
           }
           break;
         case DZY:
-          if (mcal->dzy && *mcal->dzy > 0)
+          if (mcal->dzy && *mcal->dzy > - DEADZONE_MAX(rel_axis_rstick_y))
           {
             *mcal->dzy -= 1;
             mc->merge_x[mc->index] = 0;

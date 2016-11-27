@@ -1043,7 +1043,7 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     FlexGridSizer30->Add(StaticTextShapePanelAxis, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     AxisTabDeadZone = new wxTextCtrl(PanelAxis, ID_TEXTCTRL8, wxEmptyString, wxDefaultPosition, wxSize(27,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL8"));
     AxisTabDeadZone->Disable();
-    AxisTabDeadZone->SetToolTip(_("Dead zone [0..64]"));
+    AxisTabDeadZone->SetToolTip(_("Dead zone [-64..64]"));
     FlexGridSizer30->Add(AxisTabDeadZone, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     AxisTabSensitivity = new wxTextCtrl(PanelAxis, ID_TEXTCTRL9, wxEmptyString, wxDefaultPosition, wxSize(59,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL9"));
     AxisTabSensitivity->Disable();
@@ -3336,9 +3336,9 @@ void configFrame::OnTextCtrl(wxCommandEvent& event)
         {
             text->SetValue(wxT("20"));
         }
-        else if(lvalue < 0)
+        else if(lvalue < -64)
         {
-            text->SetValue(wxT("0"));
+            text->SetValue(wxT("-64"));
         }
         else if(lvalue > 64)
         {

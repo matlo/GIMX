@@ -1476,7 +1476,7 @@
 													<object class="wxTextCtrl" name="ID_TEXTCTRL8" variable="AxisTabDeadZone" member="yes">
 														<size>27,-1</size>
 														<enabled>0</enabled>
-														<tooltip>Dead zone [0..64]</tooltip>
+														<tooltip>Dead zone [-64..64]</tooltip>
 														<handler function="OnTextCtrl" entry="EVT_TEXT" />
 													</object>
 													<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>

@@ -374,7 +374,7 @@ static int ProcessEventElement(xmlNode * a_node, unsigned char mapper)
 
     if(mapper)
     {
-      ret = GetUnsignedIntProp(a_node, X_ATTR_DEADZONE, &entry.params.mapper.dead_zone);
+      ret = GetIntProp(a_node, X_ATTR_DEADZONE, &entry.params.mapper.dead_zone);
       if(ret == -1)
       {
         entry.params.mapper.dead_zone = 0;
