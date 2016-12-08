@@ -142,12 +142,17 @@ typedef struct {
 
 static struct
 {
-    unsigned short pid_from; // force feedback commands come from this wheel
-    unsigned short pid_to; // force feedback commands go to this wheel
+    struct {
+        unsigned short pid;
+        unsigned short range; // the current wheel range (0 means unknown)
+    } src; // force feedback commands come from this wheel
+    struct {
+        unsigned short pid;
+        unsigned short range; // 0 means the wheel supports adjusting the range
+    } dst; // force feedback commands go to this wheel
     int convert_lr_coef; // convert 'old' to 'new' or 'new' to 'old' low-res spring/damper coefficients
     int convert_hr2lr; // convert high-res to low-res spring/damper effects
     int skip_leds; // skip FF_LG_CMD_SET_LED commands
-    unsigned short wheel_range_to; // skip wheel range commands if not null
     s_force forces[FF_LG_FSLOTS_NB];
     s_ext_cmd ext_cmds[FF_LG_EXT_CMD_NB];
     s_cmd fifo[FIFO_SIZE];
@@ -235,7 +240,7 @@ static struct {
 /*
  * Get the wheel range. 0 means that the range can be changed.
  */
-static inline int get_wheel_range(unsigned short pid) {
+unsigned short ff_lg_get_wheel_range(unsigned short pid) {
 
     unsigned int i;
     for (i = 0; i < sizeof(wheel_ranges) / sizeof(*wheel_ranges); ++i) {
@@ -246,30 +251,86 @@ static inline int get_wheel_range(unsigned short pid) {
     return 0;
 }
 
-int ff_lg_init(int device, unsigned short pid_from, unsigned short pid_to) {
+static void process_extended(int device, const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE], int force);
+
+static void set_wheel_range(int device, unsigned short range) {
+
+    if (ff_lg_device[device].dst.range != 0) {
+        static int warn = 1;
+        if (warn == 1) {
+            ncprintf("skipping unsupported change wheel range commands\n");
+            warn = 0;
+        }
+        return;
+    }
+
+    if (range == ff_lg_device[device].src.range) {
+        return;
+    }
+
+    ff_lg_device[device].src.range = range;
+
+    if (ff_lg_device[device].dst.pid == USB_PRODUCT_ID_LOGITECH_DFP_WHEEL) {
+        unsigned char report1[FF_LG_OUTPUT_REPORT_SIZE] = {
+                FF_LG_CMD_EXTENDED_COMMAND,
+        };
+        unsigned short full_range;
+        if (range > 200) {
+            report1[1] = FF_LG_EXT_CMD_WHEEL_RANGE_900_DEGREES;
+            full_range = 900;
+        } else {
+            report1[1] = FF_LG_EXT_CMD_WHEEL_RANGE_200_DEGREES;
+            full_range = 200;
+        }
+        process_extended(device, report1, 1);
+        if (range != full_range) {
+            static int warn = 1;
+            if (warn == 1) {
+                ncprintf("Driving Force Pro currently only supports 200 and 900 degree ranges\n");
+                warn = 0;
+            }
+            // division by 2 is performed when computing high and low order bits
+            /*unsigned short d1 = (full_range - range + 1) * 0x7FF / full_range;
+            unsigned short d2 = 0xFFF - d1;
+            unsigned char report2[FF_LG_OUTPUT_REPORT_SIZE] = {
+                    FF_LG_FSLOT_4 | FF_LG_CMD_DOWNLOAD_AND_PLAY,
+                    FF_LG_FTYPE_HIGH_RESOLUTION_SPRING,
+                    d1 >> 4,
+                    d2 >> 4,
+                    0xff,
+                    (d2 & 0x0e) << 4 | (d1 & 0x0e),
+                    0xff
+            };
+            process_extended(device, report2, 1);*/
+        }
+    } else {
+        unsigned char change_wheel_range[FF_LG_OUTPUT_REPORT_SIZE] = {
+                FF_LG_CMD_EXTENDED_COMMAND,
+                FF_LG_EXT_CMD_CHANGE_WHEEL_RANGE,
+                range & 0xFF,
+                range >> 8
+        };
+        process_extended(device, change_wheel_range, 0);
+    }
+}
+
+int ff_lg_init(int device, unsigned short src_pid, unsigned short dst_pid) {
 
     CHECK_DEVICE(device, -1)
 
-    ff_lg_device[device].pid_to = pid_to;
-    ff_lg_device[device].pid_from = pid_from;
+    ff_lg_device[device].dst.pid = dst_pid;
+    ff_lg_device[device].src.pid = src_pid;
 
-    ff_lg_device[device].convert_lr_coef = is_old_lr_coef_wheel(pid_from) ^ is_old_lr_coef_wheel(pid_to);
-    ff_lg_device[device].convert_hr2lr = is_hr_wheel(pid_from) && !is_hr_wheel(pid_to);
-    ff_lg_device[device].skip_leds = skip_leds(pid_to) || gimx_params.skip_leds;
-    ff_lg_device[device].wheel_range_to = get_wheel_range(pid_to);
+    ff_lg_device[device].convert_lr_coef = is_old_lr_coef_wheel(src_pid) ^ is_old_lr_coef_wheel(dst_pid);
+    ff_lg_device[device].convert_hr2lr = is_hr_wheel(src_pid) && !is_hr_wheel(dst_pid);
+    ff_lg_device[device].skip_leds = skip_leds(dst_pid) || gimx_params.skip_leds;
+    ff_lg_device[device].dst.range = ff_lg_get_wheel_range(dst_pid);
 
-    unsigned short wheel_range_from = get_wheel_range(pid_from);
-    if (wheel_range_from != 0 && ff_lg_device[device].wheel_range_to == 0) {
-        // source wheel range is fixed and target wheel range can be adjusted
-        // => adjust target wheel range to source wheel range
-        const unsigned char change_wheel_range[FF_LG_OUTPUT_REPORT_SIZE] = {
-                FF_LG_CMD_EXTENDED_COMMAND,
-                FF_LG_EXT_CMD_CHANGE_WHEEL_RANGE,
-                wheel_range_from & 0xFF,
-                wheel_range_from >> 8
-        };
-        ff_lg_process_report(device, change_wheel_range);
-        ncprintf("adjust target wheel range to source wheel range: %hu\n", wheel_range_from);
+    unsigned short src_range = ff_lg_get_wheel_range(ff_lg_device[device].src.pid);
+    if (src_range != 0 && ff_lg_device[device].dst.range == 0) {
+        // source wheel range is fixed and dest wheel supports adjusting the range
+        set_wheel_range(device, src_range);
+        ncprintf("wheel range adjusted to %hu degrees\n", src_range);
     }
 
     return 0;
@@ -446,6 +507,31 @@ void ff_lg_decode_command(const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
     dprintf("\n");
 }
 
+static void process_extended(int device, const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE], int force) {
+
+    s_cmd cmd = { FF_LG_CMD_EXTENDED_COMMAND, data[1] };
+
+    int i;
+    for (i = 0; i < FF_LG_EXT_CMD_NB; ++i) {
+        s_ext_cmd * ext_cmd = ff_lg_device[device].ext_cmds + i;
+        if(!ext_cmd->cmd[0]) {
+            memcpy(ext_cmd->cmd, data, sizeof(ext_cmd->cmd));
+            ext_cmd->updated = 1;
+            fifo_push(device, cmd, 1);
+            break;
+        } else if(ext_cmd->cmd[1] == data[1]) {
+            if(force != 0 || memcmp(ext_cmd->cmd, data, sizeof(ext_cmd->cmd))) {
+                memcpy(ext_cmd->cmd, data, sizeof(ext_cmd->cmd));
+                ext_cmd->updated = 1;
+                fifo_push(device, cmd, 1);
+            } else {
+                dprintf("> no change\n");
+            }
+            break;
+        }
+    }
+}
+
 void ff_lg_process_report(int device, const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
 
     if (device < 0 || device >= MAX_CONTROLLERS) {
@@ -539,7 +625,24 @@ void ff_lg_process_report(int device, const unsigned char data[FF_LG_OUTPUT_REPO
         }
     }
     else {
-        s_cmd cmd = { FF_LG_CMD_EXTENDED_COMMAND, data[1] };
+
+        unsigned short range = 0;
+        switch(data[1]) {
+        case FF_LG_EXT_CMD_WHEEL_RANGE_200_DEGREES:
+            range = 200;
+            break;
+        case FF_LG_EXT_CMD_WHEEL_RANGE_900_DEGREES:
+            range = 900;
+            break;
+        case FF_LG_EXT_CMD_CHANGE_WHEEL_RANGE:
+            range = (data[3] << 8) | data[2];
+            break;
+        }
+
+        if (range != 0) {
+            set_wheel_range(device, range);
+            return;
+        }
 
         switch(data[1]) {
         case FF_LG_EXT_CMD_CHANGE_MODE_DFP:
@@ -560,41 +663,11 @@ void ff_lg_process_report(int device, const unsigned char data[FF_LG_OUTPUT_REPO
               return;
           }
           break;
-        case FF_LG_EXT_CMD_WHEEL_RANGE_200_DEGREES:
-        case FF_LG_EXT_CMD_WHEEL_RANGE_900_DEGREES:
-        case FF_LG_EXT_CMD_CHANGE_WHEEL_RANGE:
-          if (ff_lg_device[device].wheel_range_to != 0) {
-              static int warn = 1;
-              if (warn == 1) {
-                  ncprintf("skipping unsupported change wheel range commands\n");
-                  warn = 0;
-              }
-              return;
-          }
-          break;
         default:
           return;
         }
 
-        int i;
-        for (i = 0; i < FF_LG_EXT_CMD_NB; ++i) {
-            s_ext_cmd * ext_cmd = ff_lg_device[device].ext_cmds + i;
-            if(!ext_cmd->cmd[0]) {
-                memcpy(ext_cmd->cmd, data, sizeof(ext_cmd->cmd));
-                ext_cmd->updated = 1;
-                fifo_push(device, cmd, 1);
-                break;
-            } else if(ext_cmd->cmd[1] == data[1]) {
-                if(memcmp(ext_cmd->cmd, data, sizeof(ext_cmd->cmd))) {
-                    memcpy(ext_cmd->cmd, data, sizeof(ext_cmd->cmd));
-                    ext_cmd->updated = 1;
-                    fifo_push(device, cmd, 1);
-                } else {
-                    dprintf("> no change\n");
-                }
-                break;
-            }
-        }
+        process_extended(device, data, 0);
     }
 }
 

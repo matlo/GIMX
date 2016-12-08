@@ -67,6 +67,11 @@ int ff_conv_init(int device, unsigned short pid) {
 
     ff_lg_device[device].pid = pid;
 
+    unsigned short range = ff_lg_get_wheel_range(pid);
+    if (range != 0) {
+        ncprintf("adjust your wheel range to %u degrees\n", range);
+    }
+
     return 0;
 }
 

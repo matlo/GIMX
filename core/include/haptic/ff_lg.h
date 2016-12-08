@@ -155,4 +155,6 @@ int ff_lg_is_logitech_wheel(unsigned short vendor, unsigned short product);
 
 const char * ff_lg_get_ftype_name(unsigned char ftype);
 
+unsigned short ff_lg_get_wheel_range(unsigned short pid);
+
 #endif /* FF_LG_H_ */
