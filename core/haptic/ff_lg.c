@@ -283,6 +283,7 @@ static void set_wheel_range(int device, unsigned short range) {
             full_range = 200;
         }
         process_extended(device, report1, 1);
+        ncprintf("wheel range adjusted to %hu degrees\n", full_range);
         if (range != full_range) {
             static int warn = 1;
             if (warn == 1) {
@@ -311,6 +312,7 @@ static void set_wheel_range(int device, unsigned short range) {
                 range >> 8
         };
         process_extended(device, change_wheel_range, 0);
+        ncprintf("wheel range adjusted to %hu degrees\n", range);
     }
 }
 
@@ -330,7 +332,6 @@ int ff_lg_init(int device, unsigned short src_pid, unsigned short dst_pid) {
     if (src_range != 0 && ff_lg_device[device].dst.range == 0) {
         // source wheel range is fixed and dest wheel supports adjusting the range
         set_wheel_range(device, src_range);
-        ncprintf("wheel range adjusted to %hu degrees\n", src_range);
     }
 
     return 0;
