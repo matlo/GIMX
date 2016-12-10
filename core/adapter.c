@@ -973,11 +973,11 @@ int adapter_start()
           {
             // default joystick is a Logitech wheel with FFB support
             ff_lg_init(i, pid, adapter->joystick.usb_ids.product);
-            // wheel range may have to be changed
-            adapter_send_next_hid_report(i);
 #ifdef WIN32
             start_hid(i);
 #endif
+            // wheel range may have to be changed
+            adapter_send_next_hid_report(i);
           }
           else if (adapter->joystick.has_ffb)
           {
