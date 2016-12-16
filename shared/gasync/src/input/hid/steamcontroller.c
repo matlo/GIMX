@@ -46,14 +46,14 @@ typedef struct PACKED {
     uint64_t : 64;
     uint64_t : 64;
     uint64_t : 64;
-} s_report;
+} s_sc_report;
 
-#define HID_REPORT_SIZE sizeof(s_report)
+#define HID_REPORT_SIZE sizeof(s_sc_report)
 
 static struct {
     int opened;
     int joystick;
-    s_report previous;
+    s_sc_report previous;
 } hid_devices[HIDINPUT_MAX_DEVICES];
 
 static s_hidinput_ids ids[] = {
@@ -102,8 +102,8 @@ static int process(int device, const void * report, unsigned int size) {
         return -1;
     }
 
-    const s_report * current = report;
-    const s_report * previous = (s_report *)&hid_devices[device].previous;
+    const s_sc_report * current = report;
+    const s_sc_report * previous = (s_sc_report *)&hid_devices[device].previous;
 
     if (current->status != htons(0x013c)) {
         return -1;
