@@ -21,13 +21,13 @@
 typedef struct {
   unsigned short length;
   unsigned char data[65];
-} s_packet;
+} s_hid_packet;
 
 static struct {
   unsigned short vid;
   unsigned short pid;
-  s_packet start;
-  s_packet stop;
+  s_hid_packet start;
+  s_hid_packet stop;
 } rumble_cmds[] = {
     {
         .vid = 0x046d,
@@ -48,9 +48,9 @@ static int rumble_index = -1;
 static struct {
   unsigned short vid;
   unsigned short pid;
-  s_packet stop;
-  s_packet left;
-  s_packet right;
+  s_hid_packet stop;
+  s_hid_packet left;
+  s_hid_packet right;
 } ff_cmds[] = {
     {
         .vid = 0x046d,

@@ -22,7 +22,7 @@
 typedef struct {
   unsigned short length;
   unsigned char data[64];
-} s_packet;
+} s_usb_packet;
 
 static struct {
   unsigned short vid;
@@ -31,8 +31,8 @@ static struct {
       unsigned char in;
       unsigned char out;
   } endpoints;
-  s_packet start;
-  s_packet stop;
+  s_usb_packet start;
+  s_usb_packet stop;
 } rumble_cmds[] = {
     {
         .vid = 0x046d,
@@ -59,9 +59,9 @@ static struct {
       unsigned char in;
       unsigned char out;
   } endpoints;
-  s_packet stop;
-  s_packet left;
-  s_packet right;
+  s_usb_packet stop;
+  s_usb_packet left;
+  s_usb_packet right;
 } ff_cmds[] = {
     {
         .vid = 0x046d,
