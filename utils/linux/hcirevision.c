@@ -84,6 +84,7 @@ char *csr_chipvertostr(uint16_t ver, uint16_t rev)
     default:
       return "BlueCore01b";
     }
+    break;
   case 0x02:
     switch (rev) {
     case 0x89:
@@ -95,6 +96,7 @@ char *csr_chipvertostr(uint16_t ver, uint16_t rev)
     default:
       return "BlueCore02";
     }
+    break;
   case 0x03:
     switch (rev) {
     case 0x43:
@@ -110,6 +112,7 @@ char *csr_chipvertostr(uint16_t ver, uint16_t rev)
     default:
       return "BlueCore3 or BlueCore4";
     }
+    break;
   case 0x07:
     switch (rev) {
     case 0x00:
@@ -117,6 +120,7 @@ char *csr_chipvertostr(uint16_t ver, uint16_t rev)
     default:
       return "CSR8510 or later";
     }
+    break;
   default:
     return "Unknown";
   }
