@@ -96,7 +96,7 @@ void mainloop()
 
     if (num_evt == EVENT_BUFFER_SIZE)
     {
-      printf("buffer too small!!!\n");
+      gwarn("buffer too small!!!\n");
     }
     
     for (event = events; event < events + num_evt; ++event)

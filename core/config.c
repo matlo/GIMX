@@ -87,18 +87,19 @@ static struct
   s_js_corr * corr;
 } js_corr[MAX_DEVICES] = {};
 
-void cfg_add_js_corr(uint8_t device, s_js_corr * corr)
+int cfg_add_js_corr(uint8_t device, s_js_corr * corr)
 {
   void * ptr = realloc(js_corr[device].corr, (js_corr[device].nb + 1) * sizeof(*(js_corr->corr)));
   if(ptr == NULL)
   {
-    fprintf(stderr, "%s:%d %s: realloc failed\n", __FILE__, __LINE__, __func__);
-    return;
+    gerror("%s:%d %s: realloc failed\n", __FILE__, __LINE__, __func__);
+    return -1;
   }
   js_corr[device].corr = ptr;
   js_corr[device].corr[js_corr[device].nb].axis = corr->axis;
   memcpy(js_corr[device].corr[js_corr[device].nb].coef, corr->coef, sizeof(corr->coef));
   ++(js_corr[device].nb);
+  return 0;
 }
 
 static s_js_corr * get_js_corr(uint8_t device, uint8_t axis)
@@ -258,7 +259,7 @@ static s_mapper* allocate_mapper(s_config_entry* entry)
   }
   else
   {
-    fprintf(stderr, "can't allocate mapper\n");
+    gerror("failed to allocate mapper\n");
   }
 
   return ret;
@@ -599,7 +600,7 @@ void cfg_intensity_lookup(GE_Event* e)
       if(update_intensity(device_type, device_id, button_id, c_id, a_id))
       {
         update_stick(c_id, a_id);
-        gprintf(_("controller %d configuration %d axis %s intensity: %.0f\n"), c_id, cfg_controllers[c_id].current->index, controller_get_axis_name(adapter_get(c_id)->ctype, a_id), axis_intensity[c_id][cfg_controllers[c_id].current->index][a_id].value);
+        gstatus(_("controller %d profile %d axis %s intensity: %.0f\n"), c_id, cfg_controllers[c_id].current->index, controller_get_axis_name(adapter_get(c_id)->ctype, a_id), axis_intensity[c_id][cfg_controllers[c_id].current->index][a_id].value);
       }
     }
   }
@@ -810,7 +811,7 @@ void cfg_config_activation()
           {
             gettimeofday(&tv, NULL);
 
-            gprintf(_("%d %ld.%06ld controller %d is switched from configuration %d to %d\n"), i, tv.tv_sec, tv.tv_usec, i, current->index, next->index);
+            gstatus(_("%d %ld.%06ld controller %d is switched from profile %d to %d\n"), i, tv.tv_sec, tv.tv_usec, i, current->index, next->index);
           }
 
           if(current->state.previous != next)

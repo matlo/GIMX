@@ -258,7 +258,7 @@ static void set_wheel_range(int device, unsigned short range) {
     if (ff_lg_device[device].dst.range != 0) {
         static int warn = 1;
         if (warn == 1) {
-            ncprintf("skipping unsupported change wheel range commands\n");
+            gwarn("skipping unsupported change wheel range commands\n");
             warn = 0;
         }
         return;
@@ -283,11 +283,11 @@ static void set_wheel_range(int device, unsigned short range) {
             full_range = 200;
         }
         process_extended(device, report1, 1);
-        ncprintf("wheel range adjusted to %hu degrees\n", full_range);
+        ginfo("wheel range adjusted to %hu degrees\n", full_range);
         if (range != full_range) {
             static int warn = 1;
             if (warn == 1) {
-                ncprintf("Driving Force Pro currently only supports 200 and 900 degree ranges\n");
+                gwarn("Driving Force Pro currently only supports 200 and 900 degree ranges\n");
                 warn = 0;
             }
             // division by 2 is performed when computing high and low order bits
@@ -312,7 +312,7 @@ static void set_wheel_range(int device, unsigned short range) {
                 range >> 8
         };
         process_extended(device, change_wheel_range, 0);
-        ncprintf("wheel range adjusted to %hu degrees\n", range);
+        ginfo("wheel range adjusted to %hu degrees\n", range);
     }
 }
 
@@ -654,7 +654,7 @@ void ff_lg_process_report(int device, const unsigned char data[FF_LG_OUTPUT_REPO
           {
               static int warn = 1;
               if (warn == 1) {
-                  ncprintf("skipping unsupported change wheel mode commands\n");
+                  gwarn("skipping unsupported change wheel mode commands\n");
                   warn = 0;
               }
           }

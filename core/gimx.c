@@ -3,7 +3,6 @@
  License: GPLv3
  */
 
-#include <stdio.h> //fprintf
 #include <locale.h> //internationalization
 #include <signal.h> //to catch SIGINT
 #include <errno.h> //to print errors
@@ -48,6 +47,7 @@ s_gimx_params gimx_params =
   .frequency_scale = 1,
   .status = 0,
   .curses = 0,
+  .curses_status = 0,
   .debug = { 0 },
   .config_file = NULL,
   .postpone_count = DEFAULT_POSTPONE_COUNT,
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
 #else
   if (SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, TRUE) == 0)
   {
-    eprintf("SetConsoleCtrlHandler failed\n");
+    gerror("SetConsoleCtrlHandler failed\n");
     exit(-1);
   }
 #endif
@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
   static char path[MAX_PATH];
   if(SHGetFolderPath( NULL, CSIDL_APPDATA , NULL, 0, path ))
   {
-    eprintf("SHGetFolderPath failed\n");
+    gerror("SHGetFolderPath failed\n");
     goto QUIT;
   }
   gimx_params.homedir = path;
@@ -177,14 +177,13 @@ int main(int argc, char *argv[])
 
   if (gprio() < 0)
   {
-    eprintf("failed to set process priority");
+    gwarn("failed to set process priority\n")
   }
 
   gpppcprog_read_user_ids(gimx_params.homedir, GIMX_DIR);
 
   if(args_read(argc, argv, &gimx_params) < 0)
   {
-    eprintf(_("wrong argument"));
     goto QUIT;
   }
 
@@ -205,7 +204,6 @@ int main(int argc, char *argv[])
 
   if(adapter_detect() < 0)
   {
-    eprintf(_("no adapter detected"));
     goto QUIT;
   }
 
@@ -216,11 +214,11 @@ int main(int argc, char *argv[])
      */
     gimx_params.refresh_period = controller_get_default_refresh_period(adapter_get(0)->ctype);
     gimx_params.postpone_count = 3 * DEFAULT_REFRESH_PERIOD / gimx_params.refresh_period;
-    printf(_("using default refresh period: %.02fms\n"), (double)gimx_params.refresh_period/1000);
+    ginfo(_("using default refresh period: %.02fms\n"), (double)gimx_params.refresh_period/1000);
   }
   else if(gimx_params.refresh_period < controller_get_min_refresh_period(adapter_get(0)->ctype))
   {
-    fprintf(stderr, "Refresh period should be at least %.02fms\n", (double)controller_get_min_refresh_period(adapter_get(0)->ctype)/1000);
+    gerror("Refresh period should be at least %.02fms\n", (double)controller_get_min_refresh_period(adapter_get(0)->ctype)/1000);
     goto QUIT;
   }
 
@@ -240,7 +238,7 @@ int main(int argc, char *argv[])
       event = 1;
       if(adapter->dst_fd < 0)
       {
-        printf("The --event argument may require running two gimx instances.\n");
+        ginfo("The --event argument may require running two gimx instances.\n");
       }
     }
   }
@@ -248,7 +246,6 @@ int main(int argc, char *argv[])
   {
     if(adapter_start() < 0)
     {
-      eprintf(_("failed to start the adapter"));
       goto QUIT;
     }
     adapter_send();
@@ -338,7 +335,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-      fprintf(stderr, _("Unknown key name for argument --keygen: '%s'\n"), gimx_params.keygen);
+      gerror(_("Unknown key name for argument --keygen: '%s'\n"), gimx_params.keygen);
       goto QUIT;
     }
   }
@@ -347,6 +344,7 @@ int main(int argc, char *argv[])
 
   if(gimx_params.curses)
   {
+    gimx_params.curses_status = 1;
     display_init();
     stats_init(0);
   }
@@ -362,7 +360,6 @@ int main(int argc, char *argv[])
 
   if(adapter_start() < 0)
   {
-    eprintf(_("failed to start the adapter"));
     goto QUIT;
   }
 
@@ -370,7 +367,7 @@ int main(int argc, char *argv[])
 
   mainloop();
 
-  gprintf(_("Exiting\n"));
+  ginfo(_("Exiting\n"));
 
   QUIT:
 

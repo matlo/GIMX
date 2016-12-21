@@ -69,7 +69,7 @@ int ff_conv_init(int device, unsigned short pid) {
 
     unsigned short range = ff_lg_get_wheel_range(pid);
     if (range != 0) {
-        ncprintf("adjust your wheel range to %u degrees\n", range);
+        ginfo("adjust your wheel range to %u degrees\n", range);
     }
 
     return 0;
@@ -122,7 +122,7 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
             static int warned = 0;
             if (index == 0) {
                 if (warned == 0 && FF_LG_VARIABLE_T1(force) && FF_LG_VARIABLE_S1(force)) {
-                    gprintf("warning: variable force cannot be converted to constant force (l1=%hu, t1=%hu, s1=%hu, d1=%hu\n",
+                    gwarn("variable force cannot be converted to constant force (l1=%hu, t1=%hu, s1=%hu, d1=%hu\n",
                         FF_LG_VARIABLE_L1(force), FF_LG_VARIABLE_T1(force), FF_LG_VARIABLE_S1(force), FF_LG_VARIABLE_D1(force));
                     warned = 1;
                 } else {
@@ -130,7 +130,7 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
                 }
             } else if (index == 2) {
                 if (warned == 0 && FF_LG_VARIABLE_T2(force) && FF_LG_VARIABLE_S2(force)) {
-                    gprintf("warning: variable force cannot be converted to constant force (l2=%hu, t2=%hu, s2=%hu, d2=%hu\n",
+                    gwarn("variable force cannot be converted to constant force (l2=%hu, t2=%hu, s2=%hu, d2=%hu\n",
                         FF_LG_VARIABLE_L2(force), FF_LG_VARIABLE_T2(force), FF_LG_VARIABLE_S2(force), FF_LG_VARIABLE_D2(force));
                     warned = 1;
                 } else {
@@ -197,7 +197,7 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
         {
             static int warned[0x0F] = {};
             if (force->type < sizeof(warned) / sizeof(*warned) && warned[force->type] == 0) {
-                ncprintf("unsupported force type: %s\n", ff_lg_get_ftype_name(force->type));
+                gwarn("unsupported force type: %s\n", ff_lg_get_ftype_name(force->type));
                 fflush(stdout);
                 warned[force->type] = 1;
             }
@@ -292,7 +292,7 @@ int ff_conv(int device, const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE], GE_E
               break;
         }
         if (range > 0 && range != ff_lg_device[device].range) {
-            ncprintf("adjust your wheel range to %u degrees\n", range);
+            ginfo("adjust your wheel range to %u degrees\n", range);
             ff_lg_device[device].range = range;
         }
     }

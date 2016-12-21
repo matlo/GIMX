@@ -189,6 +189,6 @@ int cfg_add_binding(s_config_entry* entry);
 s_mapper_table* cfg_get_mouse_axes(int, int, int);
 void cfg_clean();
 void cfg_read_calibration();
-void cfg_add_js_corr(uint8_t device, s_js_corr * corr);
+int cfg_add_js_corr(uint8_t device, s_js_corr * corr);
 
 #endif /* CONFIG_H_ */

@@ -128,7 +128,7 @@ int gpp_send(int id, e_controller_type type, int axis[AXIS_MAX])
   }
   else if (res == 0)
   {
-    ncprintf("device is busy\n");
+    gwarn("device is busy\n");
   }
 
   return ret;

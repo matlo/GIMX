@@ -200,7 +200,7 @@ static int ProcessAxisElement(xmlNode * a_node)
       }
       else
       {
-        printf("bad element name: %s", cur_node->name);
+        gwarn("bad element name: %s", cur_node->name);
         ret = -1;
       }
     }
@@ -208,7 +208,7 @@ static int ProcessAxisElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    printf("missing device element");
+    gwarn("missing device element");
     ret = -1;
   }
 
@@ -228,7 +228,7 @@ static int ProcessAxisElement(xmlNode * a_node)
       }
       else
       {
-        printf("bad element name: %s", cur_node->name);
+        gwarn("bad element name: %s", cur_node->name);
         ret = -1;
       }
     }
@@ -236,7 +236,7 @@ static int ProcessAxisElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    printf("missing event element");
+    gwarn("missing event element");
     ret = -1;
   }
 
@@ -258,7 +258,7 @@ static int ProcessAxisMapElement(xmlNode * a_node)
       }
       else
       {
-        printf("bad element name: %s", cur_node->name);
+        gwarn("bad element name: %s", cur_node->name);
         ret = -1;
       }
     }
@@ -279,7 +279,7 @@ static int ProcessConfigurationElement(xmlNode * a_node)
 
     if (r_config_id >= MAX_CONFIGURATIONS)
     {
-      printf("bad configuration id: %d\n", r_config_id);
+      gwarn("bad configuration id: %d\n", r_config_id);
       ret = -1;
     }
   }
@@ -300,7 +300,7 @@ static int ProcessConfigurationElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    printf("missing axis_map element");
+    gwarn("missing axis_map element");
     ret = -1;
   }
 
@@ -320,7 +320,7 @@ static int ProcessControllerElement(xmlNode * a_node)
 
     if (r_controller_id >= MAX_CONTROLLERS)
     {
-      printf("bad controller id: %d\n", r_controller_id);
+      gwarn("bad controller id: %d\n", r_controller_id);
       ret = -1;
     }
   }
@@ -336,7 +336,7 @@ static int ProcessControllerElement(xmlNode * a_node)
       else
       {
         ret = -1;
-        printf("bad element name: %s\n", cur_node->name);
+        gwarn("bad element name: %s\n", cur_node->name);
       }
     }
   }
@@ -363,7 +363,7 @@ static int ProcessRootElement(xmlNode * a_node)
           else
           {
             ret = -1;
-            printf("bad element name: %s\n", cur_node->name);
+            gwarn("bad element name: %s\n", cur_node->name);
           }
         }
       }
@@ -371,7 +371,7 @@ static int ProcessRootElement(xmlNode * a_node)
     else
     {
       ret = -1;
-      printf("bad element name: %s\n", a_node->name);
+      gwarn("bad element name: %s\n", a_node->name);
     }
   }
   return ret;
@@ -415,7 +415,7 @@ int cfgw_modify_file(char* file)
     else
     {
       ret = -1;
-      printf("error: no root element\n");
+      gwarn("error: no root element\n");
     }
 
     if(ret != -1)
@@ -426,7 +426,7 @@ int cfgw_modify_file(char* file)
   else
   {
     ret = -1;
-    printf("error: could not parse file %s\n", file_path);
+    gwarn("error: could not parse file %s\n", file_path);
   }
 
   /*free the document */

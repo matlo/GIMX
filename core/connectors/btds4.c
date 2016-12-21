@@ -271,7 +271,7 @@ static int close_ps4_sdp(int btds4_number)
   close_ps4_control(btds4_number);
   close_ps4_interrupt(btds4_number);
 
-  gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
+  ginfo("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
       state->dongle_bdaddr.str, state->ps4_bdaddr, PSM_HID_CONTROL);
 
   if ((state->ps4_channels.control.id = l2cap_abs_get()->connect(state->dongle_bdaddr.str, state->ps4_bdaddr,
@@ -283,7 +283,7 @@ static int close_ps4_sdp(int btds4_number)
 
   state->ps4_channels.control.pending = 1;
 
-  gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
+  ginfo("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
       state->dongle_bdaddr.str, state->ps4_bdaddr, PSM_HID_INTERRUPT);
 
   if ((state->ps4_channels.interrupt.id = l2cap_abs_get()->connect(state->dongle_bdaddr.str, state->ps4_bdaddr,
@@ -307,7 +307,7 @@ static int read_ds4_control(int btds4_number)
 
   /*if(buf[1] == 0x04)
   {
-    printf("alter report id 0x04\n");
+    ginfo("alter report id 0x04\n");
     buf[4] = ~buf[4];
   }*/
 
@@ -478,8 +478,8 @@ static int read_ps4_control(int btds4_number)
     {
       struct timeval t;
       gettimeofday(&t, NULL);
-      printf("%ld.%06ld ", t.tv_sec, t.tv_usec);
-      printf("report id 0x%02x\n", buf[1]);
+      ginfo("%ld.%06ld ", t.tv_sec, t.tv_usec);
+      ginfo("report id 0x%02x\n", buf[1]);
     }*/
 
     int ret = l2cap_abs_get()->send(states[btds4_number].ds4_channels.control.id, buf, len, 0);
@@ -709,7 +709,7 @@ static int listen_accept_sdp(int channel, bdaddr_t * src)
         states[i].ds4_channels.sdp.id = channel;
         l2cap_abs_get()->add_source(channel, i, read_ds4_sdp, process, close_ds4_sdp);
 
-        gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", states[i].dongle_index,
+        ginfo("connecting with hci%d = %s to %s psm 0x%04x\n", states[i].dongle_index,
             states[i].dongle_bdaddr.str, states[i].ps4_bdaddr, PSM_HID_CONTROL);
 
         if ((states[i].ps4_channels.control.id = l2cap_abs_get()->connect(states[i].dongle_bdaddr.str, states[i].ps4_bdaddr,
@@ -721,7 +721,7 @@ static int listen_accept_sdp(int channel, bdaddr_t * src)
 
         states[i].ps4_channels.control.pending = 1;
 
-        gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", states[i].dongle_index,
+        ginfo("connecting with hci%d = %s to %s psm 0x%04x\n", states[i].dongle_index,
             states[i].dongle_bdaddr.str, states[i].ps4_bdaddr, PSM_HID_INTERRUPT);
 
         if ((states[i].ps4_channels.interrupt.id = l2cap_abs_get()->connect(states[i].dongle_bdaddr.str, states[i].ps4_bdaddr,
@@ -816,19 +816,19 @@ static int listen_close(int channel)
 {
   if(channel == listening_channels.sdp)
   {
-    printf("close sdp source\n");
+    ginfo("close sdp source\n");
     l2cap_abs_get()->close(listening_channels.sdp);
     listening_channels.sdp = -1;
   }
   else if(channel == listening_channels.hid_control)
   {
-    printf("close hid control source\n");
+    ginfo("close hid control source\n");
     l2cap_abs_get()->close(listening_channels.hid_control);
     listening_channels.hid_control = -1;
   }
   else if(channel == listening_channels.hid_interrupt)
   {
-    printf("close hid interrupt source\n");
+    ginfo("close hid interrupt source\n");
     l2cap_abs_get()->close(listening_channels.hid_interrupt);
     listening_channels.hid_interrupt = -1;
   }

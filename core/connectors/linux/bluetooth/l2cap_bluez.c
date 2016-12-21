@@ -557,7 +557,7 @@ static int l2cap_bluez_connect_accept(int listen_channel)
   }
 
   ba2str(&rem_addr.l2_bdaddr, buf);
-  gprintf("accepted connection from %s (psm: 0x%04x)\n", buf, btohs(rem_addr.l2_psm));
+  ginfo("accepted connection from %s (psm: 0x%04x)\n", buf, btohs(rem_addr.l2_psm));
 
   bacpy(&src, &rem_addr.l2_bdaddr);
   psm = btohs(rem_addr.l2_psm);
@@ -681,7 +681,7 @@ static int l2cap_bluez_listen(int user __attribute__((unused)), unsigned short p
 
   ++listen_channels.nb;
 
-  gprintf("listening on psm: 0x%04x\n", psm);
+  ginfo("listening on psm: 0x%04x\n", psm);
 
   return channel;
 }

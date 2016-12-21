@@ -88,13 +88,13 @@ static void warnDeviceNotFound()
   switch(entry.device.type)
   {
   case E_DEVICE_TYPE_JOYSTICK:
-    gprintf(_("joystick not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), entry.device.id);
+    gwarn(_("joystick not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), entry.device.id);
     break;
   case E_DEVICE_TYPE_MOUSE:
-    gprintf(_("mouse not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), entry.device.id);
+    gwarn(_("mouse not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), entry.device.id);
     break;
   case E_DEVICE_TYPE_KEYBOARD:
-    gprintf(_("keyboard not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), entry.device.id);
+    gwarn(_("keyboard not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), entry.device.id);
     break;
   case E_DEVICE_TYPE_UNKNOWN:
     return;
@@ -157,7 +157,7 @@ static int GetDeviceId(xmlNode* a_node)
     {
       if(ginput_get_mk_mode() == GE_MK_MODE_MULTIPLE_INPUTS)
       {
-        gprintf(_("A device name is empty. Multiple mice and keyboards are not managed.\n"));
+        gwarn(_("A device name is empty. Multiple mice and keyboards are not managed.\n"));
       }
       ginput_set_mk_mode(GE_MK_MODE_SINGLE_INPUT);
     }
@@ -521,7 +521,7 @@ static int ProcessAxisElement(xmlNode * a_node)
       }
       else
       {
-        printf("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s", cur_node->name);
         ret = -1;
       }
     }
@@ -529,7 +529,7 @@ static int ProcessAxisElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    printf("missing device element");
+    gerror("missing device element");
     ret = -1;
   }
 
@@ -544,7 +544,7 @@ static int ProcessAxisElement(xmlNode * a_node)
       }
       else
       {
-        printf("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s", cur_node->name);
         ret = -1;
       }
     }
@@ -552,7 +552,7 @@ static int ProcessAxisElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    printf("missing event element");
+    gerror("missing event element");
     ret = -1;
   }
 
@@ -585,7 +585,7 @@ static int ProcessButtonElement(xmlNode * a_node)
       }
       else
       {
-        printf("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s", cur_node->name);
         ret = -1;
       }
     }
@@ -593,7 +593,7 @@ static int ProcessButtonElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    printf("missing device element");
+    gerror("missing device element");
     ret = -1;
   }
 
@@ -608,7 +608,7 @@ static int ProcessButtonElement(xmlNode * a_node)
       }
       else
       {
-        printf("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s", cur_node->name);
         ret = -1;
       }
     }
@@ -616,7 +616,7 @@ static int ProcessButtonElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    printf("missing event element");
+    gerror("missing event element");
     ret = -1;
   }
 
@@ -638,7 +638,7 @@ static int ProcessAxisMapElement(xmlNode * a_node)
       }
       else
       {
-        printf("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s", cur_node->name);
         ret = -1;
       }
     }
@@ -661,7 +661,7 @@ static int ProcessButtonMapElement(xmlNode * a_node)
       }
       else
       {
-        printf("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s", cur_node->name);
         ret = -1;
       }
     }
@@ -765,7 +765,7 @@ static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity)
       }
       else
       {
-        printf("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s", cur_node->name);
         ret = -1;
       }
     }
@@ -940,25 +940,25 @@ static int ProcessCorrectionElement(xmlNode * a_node)
 
   if(GetIntProp(a_node, X_ATTR_LOW_VALUE, &entry.params.joystick_correction.coef[0]) == -1)
   {
-    printf("missing %s attribute\n", X_ATTR_LOW_VALUE);
+    gerror("missing %s attribute\n", X_ATTR_LOW_VALUE);
     return -1;
   }
 
   if(GetIntProp(a_node, X_ATTR_HIGH_VALUE, &entry.params.joystick_correction.coef[1]) == -1)
   {
-    printf("missing %s attribute\n", X_ATTR_HIGH_VALUE);
+    gerror("missing %s attribute\n", X_ATTR_HIGH_VALUE);
     return -1;
   }
 
   if(GetIntProp(a_node, X_ATTR_LOW_COEF, &entry.params.joystick_correction.coef[2]) == -1)
   {
-    printf("missing %s attribute\n", X_ATTR_LOW_COEF);
+    gerror("missing %s attribute\n", X_ATTR_LOW_COEF);
     return -1;
   }
 
   if(GetIntProp(a_node, X_ATTR_HIGH_COEF, &entry.params.joystick_correction.coef[3]) == -1)
   {
-    printf("missing %s attribute\n", X_ATTR_HIGH_COEF);
+    gerror("missing %s attribute\n", X_ATTR_HIGH_COEF);
     return -1;
   }
 
@@ -974,7 +974,7 @@ static int ProcessCorrectionElement(xmlNode * a_node)
       }
       else
       {
-        printf("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s", cur_node->name);
         ret = -1;
       }
     }
@@ -982,7 +982,7 @@ static int ProcessCorrectionElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    printf("missing device element");
+    gerror("missing device element");
     ret = -1;
   }
 
@@ -997,7 +997,7 @@ static int ProcessCorrectionElement(xmlNode * a_node)
       }
       else
       {
-        printf("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s", cur_node->name);
         ret = -1;
       }
     }
@@ -1005,14 +1005,14 @@ static int ProcessCorrectionElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    printf("missing event element");
+    gerror("missing event element");
     ret = -1;
   }
 
   if(ret != -1)
   {
     entry.params.joystick_correction.axis = entry.event.id;
-    cfg_add_js_corr(entry.device.id, &entry.params.joystick_correction);
+    ret = cfg_add_js_corr(entry.device.id, &entry.params.joystick_correction);
   }
 
   return ret;
@@ -1033,7 +1033,7 @@ static int ProcessJoystickCorrectionsListElement(xmlNode * a_node)
       }
       else
       {
-        printf("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s", cur_node->name);
         ret = -1;
       }
     }
@@ -1054,7 +1054,7 @@ static int ProcessConfigurationElement(xmlNode * a_node)
 
     if (entry.config_id >= MAX_CONFIGURATIONS)
     {
-      printf("bad configuration id: %d\n", entry.config_id);
+      gerror("bad configuration id: %d\n", entry.config_id);
       ret = -1;
     }
   }
@@ -1072,7 +1072,7 @@ static int ProcessConfigurationElement(xmlNode * a_node)
       }
       else
       {
-        printf("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s", cur_node->name);
         ret = -1;
       }
     }
@@ -1080,7 +1080,7 @@ static int ProcessConfigurationElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    printf("missing trigger element");
+    gerror("missing trigger element");
     ret = -1;
   }
   
@@ -1129,7 +1129,7 @@ static int ProcessConfigurationElement(xmlNode * a_node)
       }
       else
       {
-        printf("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s", cur_node->name);
         ret = -1;
       }
     }
@@ -1137,7 +1137,7 @@ static int ProcessConfigurationElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    printf("missing button_map element");
+    gerror("missing button_map element");
     ret = -1;
   }
 
@@ -1152,7 +1152,7 @@ static int ProcessConfigurationElement(xmlNode * a_node)
       }
       else
       {
-        printf("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s", cur_node->name);
         ret = -1;
       }
     }
@@ -1160,7 +1160,7 @@ static int ProcessConfigurationElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    printf("missing axis_map element");
+    gerror("missing axis_map element");
     ret = -1;
   }
 
@@ -1175,7 +1175,7 @@ static int ProcessConfigurationElement(xmlNode * a_node)
       }
       else
       {
-        printf("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s", cur_node->name);
         ret = -1;
       }
     }
@@ -1197,7 +1197,7 @@ static int ProcessControllerElement(xmlNode * a_node)
 
     if (entry.controller_id >= MAX_CONTROLLERS)
     {
-      printf("bad controller id: %d\n", entry.controller_id);
+      gerror("bad controller id: %d\n", entry.controller_id);
       ret = -1;
     }
   }
@@ -1223,7 +1223,7 @@ static int ProcessControllerElement(xmlNode * a_node)
       else
       {
         ret = -1;
-        printf("bad element name: %s\n", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
       }
     }
   }
@@ -1250,7 +1250,7 @@ static int ProcessRootElement(xmlNode * a_node)
           else
           {
             ret = -1;
-            printf("bad element name: %s\n", cur_node->name);
+            gerror("bad element name: %s\n", cur_node->name);
           }
         }
       }
@@ -1258,7 +1258,7 @@ static int ProcessRootElement(xmlNode * a_node)
     else
     {
       ret = -1;
-      printf("bad element name: %s\n", a_node->name);
+      gerror("bad element name: %s\n", a_node->name);
     }
   }
   return ret;
@@ -1299,13 +1299,13 @@ static int read_file(char* file_path)
     else
     {
       ret = -1;
-      fprintf(stderr, "xml error: no root element\n");
+      gerror("xml error: no root element\n");
     }
   }
   else
   {
     ret = -1;
-    fprintf(stderr, "could not parse file %s: %s\n", file_path, strerror(errno));
+    gerror("could not parse file %s: %s\n", file_path, strerror(errno));
   }
 
   /*free the document */
@@ -1325,7 +1325,7 @@ int read_config_file(const char* file)
 
   if(read_file(file_path) == -1)
   {
-    fprintf(stderr, "read_file failed\n");
+    gerror("read_file failed\n");
     return -1;
   }
 

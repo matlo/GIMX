@@ -199,81 +199,81 @@ static void cal_display()
 
   if (current_cal != NONE)
   {
-    gprintf(_("calibrating mouse %s (%d)\n"), ginput_mouse_name(current_mouse), ginput_mouse_virtual_id(current_mouse));
-    gprintf(_("calibrating conf %d\n"), current_conf + 1);
-    gprintf(_("sensibility:"));
+    ginfo(_("calibrating mouse %s (%d)\n"), ginput_mouse_name(current_mouse), ginput_mouse_virtual_id(current_mouse));
+    ginfo(_("calibrating conf %d\n"), current_conf + 1);
+    ginfo(_("sensibility:"));
     if (mcal->mx)
     {
-      gprintf(" %.2f\n", *mcal->mx);
+      ginfo(" %.2f\n", *mcal->mx);
     }
     else
     {
-      gprintf(_(" NA\n"));
+      ginfo(_(" NA\n"));
     }
-    gprintf(_("x/y ratio:"));
+    ginfo(_("x/y ratio:"));
     if (mcal->mx && mcal->my)
     {
-      gprintf(" %.2f\n", *mcal->my / *mcal->mx);
+      ginfo(" %.2f\n", *mcal->my / *mcal->mx);
     }
     else
     {
-      gprintf(_(" NA\n"));
+      ginfo(_(" NA\n"));
     }
-    gprintf(_("dead zone x:"));
+    ginfo(_("dead zone x:"));
     if (mcal->dzx)
     {
-      gprintf(" %d\n", *mcal->dzx);
+      ginfo(" %d\n", *mcal->dzx);
     }
     else
     {
-      gprintf(_(" NA\n"));
+      ginfo(_(" NA\n"));
     }
-    gprintf(_("dead zone y:"));
+    ginfo(_("dead zone y:"));
     if (mcal->dzy)
     {
-      gprintf(" %d\n", *mcal->dzy);
+      ginfo(" %d\n", *mcal->dzy);
     }
     else
     {
-      gprintf(_(" NA\n"));
+      ginfo(_(" NA\n"));
     }
-    gprintf(_("shape:"));
+    ginfo(_("shape:"));
     if (mcal->dzs)
     {
       if (*mcal->dzs == E_SHAPE_CIRCLE)
       {
-        gprintf(_(" Circle\n"));
+        ginfo(_(" Circle\n"));
       }
       else
       {
-        gprintf(_(" Rectangle\n"));
+        ginfo(_(" Rectangle\n"));
       }
     }
     else
     {
-      gprintf(_(" NA\n"));
+      ginfo(_(" NA\n"));
     }
-    gprintf(_("acceleration x:"));
+    ginfo(_("acceleration x:"));
     if (mcal->ex)
     {
-      gprintf(" %.2f\n", *mcal->ex);
+      ginfo(" %.2f\n", *mcal->ex);
     }
     else
     {
-      gprintf(_(" NA\n"));
+      ginfo(_(" NA\n"));
     }
-    gprintf(_("acceleration y:"));
+    ginfo(_("acceleration y:"));
     if (mcal->ey)
     {
-      gprintf(" %.2f\n", *mcal->ey);
+      ginfo(" %.2f\n", *mcal->ey);
     }
     else
     {
-      gprintf(_(" NA\n"));
+      ginfo(_(" NA\n"));
     }
-    gprintf(_("radius: %d\n"), mcal->rd);
-    gprintf(_("velocity: %d\n"), mcal->vel);
-    gprintf(_("time: %d\n"), test_time);
+    ginfo(_("radius: %d\n"), mcal->rd);
+    ginfo(_("velocity: %d\n"), mcal->vel);
+    ginfo(_("time: %d\n"), test_time);
   }
 }
 
@@ -331,12 +331,12 @@ void cal_key(int sym, int down)
             if(ginput_get_mk_mode() == GE_MK_MODE_MULTIPLE_INPUTS)
             {
               current_cal = MC;
-              gprintf(_("mouse selection\n"));
+              ginfo(_("mouse selection\n"));
             }
             else
             {
               current_cal = CC;
-              gprintf(_("config selection\n"));
+              ginfo(_("config selection\n"));
             }
           }
           else
@@ -344,9 +344,9 @@ void cal_key(int sym, int down)
             current_cal = NONE;
             if (cfgw_modify_file(gimx_params.config_file))
             {
-              gprintf(_("error writting the config file %s\n"), gimx_params.config_file);
+              gwarn(_("error writting the config file %s\n"), gimx_params.config_file);
             }
-            gprintf(_("calibration done\n"));
+            ginfo(_("calibration done\n"));
           }
         }
         else if(current_cal != NONE)
@@ -354,7 +354,7 @@ void cal_key(int sym, int down)
           if(ginput_get_mk_mode() == GE_MK_MODE_MULTIPLE_INPUTS)
           {
             current_cal = MC;
-            gprintf(_("mouse selection\n"));
+            ginfo(_("mouse selection\n"));
           }
         }
       }
@@ -363,27 +363,27 @@ void cal_key(int sym, int down)
       if (down && current_cal != NONE)
       {
         current_cal = CC;
-        gprintf(_("config selection\n"));
+        ginfo(_("config selection\n"));
       }
       break;
     case GE_KEY_F9:
       if (down && current_cal != NONE)
       {
-        gprintf(_("calibrating sensitivity\n"));
+        ginfo(_("calibrating sensitivity\n"));
         current_cal = MX;
       }
       break;
     case GE_KEY_F12:
       if (down && current_cal != NONE)
       {
-        gprintf(_("calibrating x/y ratio\n"));
+        ginfo(_("calibrating x/y ratio\n"));
         current_cal = MY;
       }
       break;
     case GE_KEY_F3:
       if (down && current_cal != NONE)
       {
-        gprintf(_("calibrating dead zone x\n"));
+        ginfo(_("calibrating dead zone x\n"));
         current_cal = DZX;
         mc->merge_x[mc->index] = 1;
         mc->merge_y[mc->index] = 0;
@@ -393,7 +393,7 @@ void cal_key(int sym, int down)
     case GE_KEY_F4:
       if (down && current_cal != NONE)
       {
-        gprintf(_("calibrating dead zone y\n"));
+        ginfo(_("calibrating dead zone y\n"));
         current_cal = DZY;
         mc->merge_x[mc->index] = 0;
         mc->merge_y[mc->index] = 1;
@@ -403,7 +403,7 @@ void cal_key(int sym, int down)
     case GE_KEY_F5:
       if (down && current_cal != NONE)
       {
-        gprintf(_("calibrating dead zone shape\n"));
+        ginfo(_("calibrating dead zone shape\n"));
         current_cal = DZS;
         mc->merge_x[mc->index] = 1;
         mc->merge_y[mc->index] = 1;
@@ -413,14 +413,14 @@ void cal_key(int sym, int down)
     case GE_KEY_F7:
       if (down && current_cal != NONE)
       {
-        gprintf(_("calibrating acceleration x\n"));
+        ginfo(_("calibrating acceleration x\n"));
         current_cal = EX;
       }
       break;
     case GE_KEY_F8:
       if (down && current_cal != NONE)
       {
-        gprintf(_("calibrating acceleration y\n"));
+        ginfo(_("calibrating acceleration y\n"));
         current_cal = EY;
       }
       break;
@@ -431,7 +431,7 @@ void cal_key(int sym, int down)
         {
           circle_step = 0;
         }
-        gprintf(_("adjusting circle test radius\n"));
+        ginfo(_("adjusting circle test radius\n"));
         current_cal = RD;
       }
       break;
@@ -442,7 +442,7 @@ void cal_key(int sym, int down)
         {
           circle_step = 0;
         }
-        gprintf(_("adjusting circle test velocity\n"));
+        ginfo(_("adjusting circle test velocity\n"));
         current_cal = VEL;
       }
       break;
@@ -456,7 +456,7 @@ void cal_key(int sym, int down)
           direction = 1;
           step = 1;
         }
-        gprintf(_("translation test started\n"));
+        ginfo(_("translation test started\n"));
         current_cal = TEST;
       }
       break;

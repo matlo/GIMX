@@ -84,7 +84,6 @@ struct sixaxis_process_t {
 };
 
 static struct sixaxis_state states[MAX_CONTROLLERS] = {};
-static int debug = 0;
 
 static unsigned char buf[1024];
 
@@ -346,7 +345,7 @@ static int send_report(int sixaxis_number, uint16_t psm, uint8_t type, uint8_t r
 
   if (!sixaxis_assemble[i].func || len < 0)
   {
-    printf("%s %s report 0x%02x, sending empty response\n",
+    gwarn("%s %s report 0x%02x, sending empty response\n",
         (len < 0) ? "Error assembling" : "Unknown", hid_report_name[type],
         report);
     len = 0;
@@ -358,14 +357,14 @@ static int send_report(int sixaxis_number, uint16_t psm, uint8_t type, uint8_t r
   len += 2;
 
   /* Dump contents */
-  if (debug >= 2)
+  if (gimx_params.debug.sixaxis)
   {
     gettimeofday(&tv, NULL);
-    printf("%ld.%06ld Sixaxis %-7s %02x:", tv.tv_sec, tv.tv_usec,
+    ginfo("%ld.%06ld Sixaxis %-7s %02x:", tv.tv_sec, tv.tv_usec,
         hid_report_name[type], report);
     for (i = 2; i < len; i++)
-      printf(" %02x", buf[i]);
-    printf("\n");
+      ginfo(" %02x", buf[i]);
+    ginfo("\n");
   }
 
   /* Send response.  Some messages (periodic input report) can be
@@ -381,14 +380,14 @@ static int process_report(uint8_t type, uint8_t report, const uint8_t *buf, int 
   struct timeval tv;
 
   /* Dump contents */
-  if (debug >= 2)
+  if (gimx_params.debug.sixaxis)
   {
     gettimeofday(&tv, NULL);
-    printf("%ld.%06ld     PS3 %-7s %02x:", tv.tv_sec, tv.tv_usec,
+    ginfo("%ld.%06ld     PS3 %-7s %02x:", tv.tv_sec, tv.tv_usec,
         hid_report_name[type], report);
     for (i = 0; i < len; i++)
-      printf(" %02x", buf[i]);
-    printf("\n");
+      ginfo(" %02x", buf[i]);
+    ginfo("\n");
   }
 
   /* Process report */
@@ -403,7 +402,7 @@ static int process_report(uint8_t type, uint8_t report, const uint8_t *buf, int 
 
   if (!sixaxis_process[i].func || ret < 0)
   {
-    printf("%s %s report 0x%02x\n", (ret < 0) ? "Error processing" : "Unknown",
+    gwarn("%s %s report 0x%02x\n", (ret < 0) ? "Error processing" : "Unknown",
         hid_report_name[type], report);
   }
 
@@ -432,7 +431,7 @@ static int process(int sixaxis_number, int psm, const unsigned char *buf, int le
     case HID_HANDSHAKE:
       if (buf[0] & 0x0f)
       {
-        printf("handshake error: 0x%x\n", buf[0] & 0x0f);
+        gerror("handshake error: 0x%x\n", buf[0] & 0x0f);
         return -1;
       }
       break;
@@ -442,35 +441,35 @@ static int process(int sixaxis_number, int psm, const unsigned char *buf, int le
       {
         if (len < 4)
         {
-          printf("GET_REPORT short\n");
+          gerror("GET_REPORT short\n");
           return -1;
         }
         maxsize = (buf[3] << 8) | buf[2];
         if (maxsize < 64)
         {
-          printf("GET_REPORT short buf (%d)\n", maxsize);
+          gerror("GET_REPORT short buf (%d)\n", maxsize);
           return -1;
         }
       }
       type = buf[0] & 0x03;
       if (type == HID_TYPE_RESERVED)
       {
-        printf("GET_REPORT bad type\n");
+        gerror("GET_REPORT bad type\n");
         return -1;
       }
       report = buf[1];
-      /* printf("<- GET_REPORT %s 0x%02x\n", hid_report_name[type], report); */
-      if (debug >= 2)
+      /* gerror("<- GET_REPORT %s 0x%02x\n", hid_report_name[type], report); */
+      if (gimx_params.debug.sixaxis)
       {
         gettimeofday(&tv1, NULL);
       }
       ret = send_report(sixaxis_number, psm, type, report, 1);
-      if (debug >= 2)
+      if (gimx_params.debug.sixaxis)
       {
         gettimeofday(&tv2, NULL);
         time = (tv2.tv_sec * 1000 + tv2.tv_usec)
             - (tv1.tv_sec * 1000 + tv1.tv_usec);
-        printf("blocking send took: %ld µs\n", time);
+        ginfo("blocking send took: %ld µs\n", time);
       }
       break;
 
@@ -480,13 +479,13 @@ static int process(int sixaxis_number, int psm, const unsigned char *buf, int le
       name = (transaction == HID_DATA) ? "DATA" : "SET_REPORT";
       if (len < 2)
       {
-        printf("%s: short\n", name);
+        gerror("%s: short\n", name);
         return -1;
       }
       type = buf[0] & 0x03;
       if (type == HID_TYPE_RESERVED)
       {
-        printf("%s bad type\n", name);
+        gerror("%s bad type\n", name);
         return -1;
       }
       report = buf[1];
@@ -497,7 +496,7 @@ static int process(int sixaxis_number, int psm, const unsigned char *buf, int le
         unsigned char foo = (HID_HANDSHAKE << 4) | 0x0;
         if (l2cap_abs_get()->send(state->channels.control.id, &foo, 1, 1) < 1)
         {
-          fprintf(stderr, "l2cap_send error\n");
+          gwarn("l2cap_send error\n");
         }
 
         /*if(report == 0xf4)
@@ -506,14 +505,14 @@ static int process(int sixaxis_number, int psm, const unsigned char *buf, int le
          str2ba(state->bdaddr_dst, &dest_addr);
          if(l2cap_set_flush_timeout(&dest_addr, FLUSH_TIMEOUT) < 0)
          {
-         fprintf(stderr, "can't set flush timeout for %s\n", state->bdaddr_dst);
+         gerror("can't set flush timeout for %s\n", state->bdaddr_dst);
          }
          }*/
       }
       break;
 
     default:
-      fprintf(stderr, "unknown transaction %d\n", transaction);
+      gerror("unknown transaction %d\n", transaction);
       return -1;
   }
 
@@ -537,11 +536,11 @@ static int read_control(int sixaxis_number)
   {
     if (process(sixaxis_number, PSM_HID_CONTROL, buf, len) == -1)
     {
-      fprintf(stderr, "error processing ctrl\n");
+      gwarn("error processing ctrl\n");
     }
     else if (state->sys.shutdown)
     {
-      fprintf(stderr, "sixaxis shutdown\n");
+      gerror("sixaxis shutdown\n");
       ret = 1;
       adapter_get(sixaxis_number)->send_command = 1;
     }
@@ -579,7 +578,7 @@ static int read_interrupt(int sixaxis_number)
   {
     if (process(sixaxis_number, PSM_HID_INTERRUPT, buf, len) == -1)
     {
-      fprintf(stderr, "error processing data\n");
+      gwarn("error processing data\n");
     }
     else
     {
@@ -642,7 +641,7 @@ static int connect_interrupt(int sixaxis_number)
 
   state->channels.interrupt.pending = 0;
 
-  gprintf("connected with hci%d = %s to %s\n", state->dongle_index, state->bdaddr_src.str, state->bdaddr_dst);
+  ginfo("connected with hci%d = %s to %s\n", state->dongle_index, state->bdaddr_src.str, state->bdaddr_dst);
 
   l2cap_abs_get()->add_source(state->channels.interrupt.id, sixaxis_number, read_interrupt, process, close_interrupt);
 
@@ -655,13 +654,13 @@ static int connect_control(int sixaxis_number)
 
   state->channels.control.pending = 0;
 
-  gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
+  ginfo("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
     state->bdaddr_src.str, state->bdaddr_dst, PSM_HID_INTERRUPT);
 
   if ((state->channels.interrupt.id = l2cap_abs_get()->connect(state->bdaddr_src.str, state->bdaddr_dst,
       PSM_HID_INTERRUPT, L2CAP_ABS_LM_MASTER, sixaxis_number, connect_interrupt, close_interrupt)) < 0)
   {
-    fprintf(stderr, "can't connect to interrupt psm\n");
+    gerror("can't connect to interrupt psm\n");
     l2cap_abs_get()->close(state->channels.control.id);
     return -1;
   }
@@ -679,7 +678,7 @@ int sixaxis_connect(int sixaxis_number, int dongle_index, const char * bdaddr_ds
 
   if(gimx_params.btstack && sixaxis_number)
   {
-    fprintf(stderr, "multiple instances are not supported when using btstack\n");
+    gerror("multiple instances are not supported when using btstack\n");
     return -1;
   }
 
@@ -690,13 +689,13 @@ int sixaxis_connect(int sixaxis_number, int dongle_index, const char * bdaddr_ds
 
   if(bt_device_abs_get()->init() < 0)
   {
-    fprintf(stderr, "failed to initialize the bluetooth interface\n");
+    gerror("failed to initialize the bluetooth interface\n");
     return -1;
   }
 
   if (bt_device_abs_get()->get_bdaddr(state->dongle_index, &state->bdaddr_src.ba) < 0)
   {
-    fprintf(stderr, "failed to get device address\n");
+    gerror("failed to get device address\n");
     return -1;
   }
   ba2str(&state->bdaddr_src.ba, state->bdaddr_src.str);
@@ -704,17 +703,17 @@ int sixaxis_connect(int sixaxis_number, int dongle_index, const char * bdaddr_ds
 
   if (bt_device_abs_get()->write_device_class(state->dongle_index, DS3_DEVICE_CLASS) < 0)
   {
-    fprintf(stderr, "failed to get device address\n");
+    gerror("failed to get device address\n");
     return -1;
   }
 
-  gprintf("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
+  ginfo("connecting with hci%d = %s to %s psm 0x%04x\n", state->dongle_index,
     state->bdaddr_src.str, state->bdaddr_dst, PSM_HID_CONTROL);
 
   if ((state->channels.control.id = l2cap_abs_get()->connect(state->bdaddr_src.str, state->bdaddr_dst,
       PSM_HID_CONTROL, L2CAP_ABS_LM_MASTER, sixaxis_number, connect_control, close_control)) < 0)
   {
-    fprintf(stderr, "can't connect to control psm\n");
+    gerror("can't connect to control psm\n");
     return -1;
   }
 

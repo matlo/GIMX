@@ -137,14 +137,14 @@ static void adapter_dump_state(int adapter)
 
   int* axis = adapters[adapter].axis;
 
-  printf("%d %ld.%06ld", adapter, tv.tv_sec, tv.tv_usec);
+  gstatus("%d %ld.%06ld", adapter, tv.tv_sec, tv.tv_usec);
 
   for (i = 0; i < AXIS_MAX; i++) {
       if (axis[i])
-          printf(", %s (%d)", controller_get_axis_name(adapters[adapter].ctype, i), axis[i]);
+          gstatus(", %s (%d)", controller_get_axis_name(adapters[adapter].ctype, i), axis[i]);
   }
 
-  printf("\n");
+  gstatus("\n");
 }
 
 /*
@@ -167,7 +167,7 @@ static int network_read_callback(int adapter)
   }
   if(nread < 2)
   {
-    fprintf(stderr, "invalid packet size: %d\n", nread);
+    gwarn("invalid packet size: %d\n", nread);
     return 0;
   }
   switch(buf[0])
@@ -178,7 +178,7 @@ static int network_read_callback(int adapter)
       unsigned char answer[3] = {BYTE_TYPE, BYTE_LEN_1_BYTE, adapters[adapter].ctype};
       if (udp_sendto(adapters[adapter].src_fd, answer, sizeof(answer), (struct sockaddr*) &sa, salen) < 0)
       {
-        fprintf(stderr, "adapter_network_read: can't send controller type\n");
+        gwarn("adapter_network_read: can't send controller type\n");
         return 0;
       }
     }
@@ -186,7 +186,7 @@ static int network_read_callback(int adapter)
   case BYTE_IN_REPORT:
     if(buf[1] != sizeof(adapters->axis))
     {
-      fprintf(stderr, "adapter_network_read: wrong packet size\n");
+      gwarn("adapter_network_read: wrong packet size\n");
       return 0;
     }
     // store the report (no answer)
@@ -214,13 +214,21 @@ int adapter_close_callback(int adapter __attribute__((unused)))
  */
 void adapter_set_device(int adapter, e_device_type device_type, int device_id)
 {
-  int type_index = device_type-1;
+  int type_index = device_type - 1;
 
-  if(adapter < 0 || adapter >= MAX_CONTROLLERS
-  || type_index < 0 || type_index >= E_DEVICE_TYPE_NB
-  || device_id < 0 || type_index > MAX_DEVICES)
+  if(adapter < 0 || adapter >= MAX_CONTROLLERS)
   {
-    fprintf(stderr, "set_controller_device error\n");
+    gwarn("invalid adapter: %d\n", adapter);
+    return;
+  }
+  if(type_index < 0 || type_index >= E_DEVICE_TYPE_NB)
+  {
+    gwarn("invalid device type: %d", device_type);
+    return;
+  }
+  if(device_id < 0 || device_id > MAX_DEVICES)
+  {
+    gwarn("invalid device id: %d\n", device_id);
     return;
   }
   if(adapter_device[type_index][adapter] < 0)
@@ -234,19 +242,28 @@ void adapter_set_device(int adapter, e_device_type device_type, int device_id)
     if(warned[type_index][device_id] == 0)
     {
       warned[type_index][device_id] = 1;
-      gprintf(_("macros are not available for: "));
+      const char * name = NULL;
+      const char * type = NULL;
+      int id = -1;
       if(device_type == E_DEVICE_TYPE_KEYBOARD)
       {
-        gprintf(_("keyboard %s (%d)\n"), ginput_keyboard_name(device_id), ginput_keyboard_virtual_id(device_id));
+        type = "keyboard";
+        name = ginput_keyboard_name(device_id);
+        id = ginput_keyboard_virtual_id(device_id);
       }
       else if(device_type == E_DEVICE_TYPE_MOUSE)
       {
-        gprintf(_("mouse %s (%d)\n"), ginput_mouse_name(device_id), ginput_mouse_virtual_id(device_id));
+        type = "mouse";
+        name = ginput_mouse_name(device_id);
+        id = ginput_mouse_virtual_id(device_id);
       }
       else if(device_type == E_DEVICE_TYPE_JOYSTICK)
       {
-        gprintf(_("joystick %s (%d)\n"), ginput_joystick_name(device_id), ginput_joystick_virtual_id(device_id));
+        type = "joystick";
+        name = ginput_joystick_name(device_id);
+        id = ginput_joystick_virtual_id(device_id);
       }
+      gwarn(_("macros are not available for: %s %s (%d)\n"), type, name, id);
     }
   }
 }
@@ -274,17 +291,17 @@ static void dump(unsigned char * packet, unsigned char length)
   {
     if(i && !(i%8))
     {
-      ncprintf("\n");
+      ginfo("\n");
     }
-    ncprintf("0x%02x ", packet[i]);
+    ginfo("0x%02x ", packet[i]);
   }
-  ncprintf("\n");
+  ginfo("\n");
 }
 
 #define DEBUG_PACKET(PACKET, LENGTH) \
   if(gimx_params.debug.adapter) \
   { \
-    printf("%s\n", __func__); \
+    ginfo("%s\n", __func__); \
     dump(data, length); \
   }
 
@@ -313,7 +330,7 @@ static int adapter_forward(int adapter, unsigned char type, unsigned char* data,
   }
   else
   {
-    fprintf(stderr, "no serial port opened for adapter %d\n", adapter);
+    gerror("no serial port opened for adapter %d\n", adapter);
     return -1;
   }
 }
@@ -389,7 +406,7 @@ static int adapter_process_packet(int adapter, s_packet* packet)
 
     if(ret < 0)
     {
-      fprintf(stderr, "adapter_forward_data_out failed\n");
+      gerror("failed to forward control packet to game controller\n");
     }
   }
   else if(type == BYTE_OUT_REPORT)
@@ -399,7 +416,7 @@ static int adapter_process_packet(int adapter, s_packet* packet)
       ret = adapter_forward_interrupt_out(adapter, data, length);
       if(ret < 0)
       {
-        fprintf(stderr, "adapter_forward_interrupt_out failed\n");
+        gerror("failed to forward interrupt out packet to game controller\n");
       }
     }
     else if(rumble_props[adapters[adapter].ctype].has_rumble && adapters[adapter].joystick.has_rumble)
@@ -454,15 +471,14 @@ static int adapter_process_packet(int adapter, s_packet* packet)
   {
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    gprintf("%ld.%06ld debug packet received (size = %d bytes)\n", tv.tv_sec, tv.tv_usec, length);
+    ginfo("%ld.%06ld debug packet received (size = %d bytes)\n", tv.tv_sec, tv.tv_usec, length);
     dump(packet->value, length);
   }
   else
   {
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    fprintf(stderr, "%ld.%06ld ", tv.tv_sec, tv.tv_usec);
-    fprintf(stderr, "unhandled packet (type=0x%02x)\n", type);
+    gwarn("%ld.%06ld unhandled packet (type=0x%02x)\n", tv.tv_sec, tv.tv_usec, type);
   }
 
   return ret;
@@ -489,7 +505,7 @@ void adapter_set_hid(int adapter, int hid)
 {
   if(adapter < 0 || adapter >= MAX_CONTROLLERS)
   {
-    fprintf(stderr, "%s: invalid controller\n", __func__);
+    gwarn("%s: invalid adapter: %d\n", __func__, adapter);
     return;
   }
 
@@ -510,7 +526,7 @@ void adapter_set_usb_ids(int adapter, int joystick_id, unsigned short vendor, un
 {
   if(adapter < 0 || adapter >= MAX_CONTROLLERS)
   {
-    fprintf(stderr, "%s: invalid adapter\n", __func__);
+    gwarn("%s: invalid adapter: %d\n", __func__, adapter);
     return;
   }
 
@@ -579,8 +595,12 @@ static int adapter_serial_read_cb(int adapter, const void * buf, int status) {
   else
   {
     // this is a critical error (no possible recovering)
-    fprintf(stderr, "%s:%d %s: invalid data size (count=%u, available=%zu)\n", __FILE__, __LINE__, __func__, status, sizeof(s_packet) - adapters[adapter].bread);
-    return -1;
+    gerror("%s:%d %s: invalid data size (count=%u, available=%zu)\n", __FILE__, __LINE__, __func__, status, sizeof(s_packet) - adapters[adapter].bread);
+    ret = -1;
+  }
+  if (ret < 0)
+  {
+    set_done();
   }
   return ret;
 }
@@ -633,7 +653,7 @@ static int adapter_send_short_command(int adapter, unsigned char type)
   int ret = gserial_write_timeout(adapters[adapter].serialdevice, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
   if(ret < 0 || (unsigned int)ret < sizeof(packet.header))
   {
-    fprintf(stderr, "serial_send\n");
+    gerror("failed to send data to the GIMX adapter\n");
     return -1;
   }
 
@@ -646,14 +666,14 @@ static int adapter_send_short_command(int adapter, unsigned char type)
     ret = gserial_read_timeout(adapters[adapter].serialdevice, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
     if(ret < 0 || (unsigned int)ret < sizeof(packet.header))
     {
-      fprintf(stderr, "can't read packet header\n");
+      gerror("failed to read packet header from the GIMX adapter\n");
       return -1;
     }
 
     ret = gserial_read_timeout(adapters[adapter].serialdevice, &packet.value, packet.header.length, SERIAL_TIMEOUT);
     if(ret < 0 || (unsigned int)ret < packet.header.length)
     {
-      fprintf(stderr, "can't read packet data\n");
+      gerror("failed to read packet data from the GIMX adapter\n");
       return -1;
     }
 
@@ -662,7 +682,7 @@ static int adapter_send_short_command(int adapter, unsigned char type)
     {
       if(packet.header.length != BYTE_LEN_1_BYTE)
       {
-        fprintf(stderr, "bad response\n");
+        gerror("bad response from the GIMX adapter (invalid length)\n");
         return -1;
       }
 
@@ -703,17 +723,17 @@ int adapter_detect()
       int rtype = gpp_connect(i, adapter->portname);
       if (rtype < 0)
       {
-        fprintf(stderr, _("No GPP detected.\n"));
+        gerror(_("no GPP detected.\n"));
         ret = -1;
       }
       else if(rtype < C_TYPE_MAX)
       {
-        printf(_("GPP detected, controller type is: %s.\n"), controller_get_name(rtype));
+        ginfo(_("GPP detected, controller type is: %s.\n"), controller_get_name(rtype));
         adapter->ctype = rtype;
       }
       else
       {
-        fprintf(stderr, _("Unknown GPP controller type.\n"));
+        gerror(_("unknown GPP controller type.\n"));
         ret = -1;
       }
     }
@@ -724,16 +744,21 @@ int adapter_detect()
         adapter->serialdevice = gserial_open(adapter->portname, BAUDRATE);
         if(adapter->serialdevice < 0)
         {
-          fprintf(stderr, _("Check the wiring (maybe you swapped Rx and Tx?).\n"));
+          gerror(_("failed to open the GIMX adapter\n"));
           ret = -1;
         }
         else
         {
           int rtype = adapter_send_short_command(i, BYTE_TYPE);
 
-          if(rtype >= 0)
+          if (rtype < 0)
           {
-            printf(_("USB adapter detected, controller type is: %s.\n"), controller_get_name(rtype));
+            gerror(_("failed to detect the GIMX adapter (maybe you swapped rx and tx?)\n"));
+            ret = -1;
+          }
+          else
+          {
+            ginfo(_("GIMX adapter detected, controller type is: %s.\n"), controller_get_name(rtype));
 
             if(adapter->ctype == C_TYPE_NONE)
             {
@@ -741,7 +766,7 @@ int adapter_detect()
             }
             else if(adapter->ctype != (e_controller_type) rtype)
             {
-              fprintf(stderr, _("Wrong controller type.\n"));
+              gerror(_("wrong controller type.\n"));
               ret = -1;
             }
 
@@ -749,7 +774,7 @@ int adapter_detect()
 
             if(status < 0)
             {
-              fprintf(stderr, _("Can't get adapter status.\n"));
+              gerror(_("failed to get the GIMX adapter status.\n"));
               ret = -1;
             }
 
@@ -765,12 +790,12 @@ int adapter_detect()
                   {
                     if(adapter_send_reset(i) < 0)
                     {
-                      fprintf(stderr, _("Can't reset the adapter.\n"));
+                      gerror(_("failed to reset the GIMX adapter.\n"));
                       ret = -1;
                     }
                     else
                     {
-                      printf(_("Reset sent to the adapter.\n"));
+                      ginfo(_("Reset sent to the GIMX adapter.\n"));
                       //Leave time for the adapter to reinitialize.
                       usleep(ADAPTER_RESET_TIME);
                     }
@@ -786,12 +811,12 @@ int adapter_detect()
                   {
                     if(adapter_send_reset(i) < 0)
                     {
-                      fprintf(stderr, _("Can't reset the adapter.\n"));
+                      gerror(_("failed to reset the GIMX adapter.\n"));
                       ret = -1;
                     }
                     else
                     {
-                      printf(_("Reset sent to the adapter.\n"));
+                      ginfo(_("Reset sent to the GIMX adapter.\n"));
                       //Leave time for the adapter to reinitialize.
                       usleep(ADAPTER_RESET_TIME);
                     }
@@ -800,7 +825,7 @@ int adapter_detect()
                 case C_TYPE_SIXAXIS:
                   //TODO MLA: fix the EMUPS3 firmware and remove this!
                   gimx_params.force_updates = 0;
-                  printf(_("Disable force updates to work-around #335.\n"));
+                  ginfo(_("Disable force updates to work-around #335.\n"));
                   break;
                 default:
                   break;
@@ -816,7 +841,7 @@ int adapter_detect()
                     && adapter->ctype != C_TYPE_XONE_PAD)
                     || status != BYTE_STATUS_SPOOFED)
                 {
-                  fprintf(stderr, _("No controller was found on USB buses.\n"));
+                  gerror(_("No game controller was found on USB ports.\n"));
                   ret = -1;
                 }
               }
@@ -828,7 +853,7 @@ int adapter_detect()
 
               if (adapter->ctype == C_TYPE_G27_PS3)
               {
-                printf(_("Start the game with a dualshock 3, and then reassign controllers.\n"));
+                ginfo(_("Start the game with a dualshock 3, and then reassign game controllers.\n"));
               }
             }
           }
@@ -847,12 +872,12 @@ int adapter_detect()
         if(adapter->dst_fd < 0)
         {
           struct in_addr addr = { .s_addr = adapter->dst_ip };
-          fprintf(stderr, _("Can't connect to: %s:%d.\n"), inet_ntoa(addr), adapter->dst_port);
+          gerror(_("failed to connect to network destination: %s:%d.\n"), inet_ntoa(addr), adapter->dst_port);
           ret = -1;
         }
         else
         {
-          printf(_("Remote GIMX detected, controller type is: %s.\n"), controller_get_name(adapter->ctype));
+          ginfo(_("Remote GIMX detected, controller type is: %s.\n"), controller_get_name(adapter->ctype));
         }
       }
     }
@@ -987,12 +1012,12 @@ int adapter_start()
         }
         if(adapter_send_short_command(i, BYTE_START) < 0)
         {
-          fprintf(stderr, _("Can't start the adapter.\n"));
+          gerror(_("failed to start the GIMX adapter.\n"));
           ret = -1;
         }
         else if(adapter_start_serialasync(i) < 0)
         {
-          fprintf(stderr, _("Can't start the serial asynchronous processing.\n"));
+          gerror(_("failed to start the GIMX adapter asynchronous processing.\n"));
           ret = -1;
         }
       }
@@ -1005,7 +1030,7 @@ int adapter_start()
         {
           if(sixaxis_connect(i, adapter->dongle_index, adapter->bdaddr_dst) < 0)
           {
-            fprintf(stderr, _("Can't initialize sixaxis.\n"));
+            gerror(_("failed to initialize the sixaxis emulation.\n"));
             ret = -1;
           }
         }
@@ -1014,13 +1039,14 @@ int adapter_start()
         {
           if(btds4_listen(i) < 0)
           {
+            gerror(_("failed to initialize the dualshock 4 emulation.\n"));
             ret = -1;
           }
         }
 #endif
         else
         {
-          fprintf(stderr, _("Wrong controller type.\n"));
+          gerror(_("unsupported bluetooth controller type.\n"));
         }
       }
     }
@@ -1034,6 +1060,10 @@ int adapter_start()
               .fp_remove = REMOVE_FUNCTION,
       };
       ret = gpp_start_async(i, &callbacks);
+      if (ret < 0)
+      {
+        gerror(_("failed to start the GPP asynchronous processing.\n"));
+      }
     }
 
     if(adapter->src_ip)
@@ -1042,7 +1072,7 @@ int adapter_start()
       if(adapter->src_fd < 0)
       {
         struct in_addr addr = { .s_addr = adapter->src_ip };
-        fprintf(stderr, _("Can't listen on: %s:%d.\n"), inet_ntoa(addr), adapter->src_port);
+        gerror(_("failed to listen on network source: %s:%d.\n"), inet_ntoa(addr), adapter->src_port);
         ret = -1;
       }
       else

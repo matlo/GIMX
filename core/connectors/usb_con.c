@@ -15,7 +15,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define PRINT_ERROR_OTHER(msg) fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
+#define PRINT_ERROR_OTHER(msg) gerror("%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
 
 #define REPORTS_MAX 2
 
@@ -267,7 +267,7 @@ static void process_report(int usb_number, struct usb_state * state, unsigned ch
           }
         }
       } else {
-        fprintf(stderr, "incorrect report length on interrupt endpoint: received %d bytes, expected %d bytes\n", count,
+        gwarn("incorrect report length on interrupt endpoint: received %d bytes, expected %d bytes\n", count,
             report_length);
       }
       break;
@@ -277,7 +277,7 @@ static void process_report(int usb_number, struct usb_state * state, unsigned ch
   if (i == controller[state->type].endpoints.in.reports.nb) {
     if (state->type == C_TYPE_XONE_PAD && !adapter_get(usb_number)->status) {
       if (adapter_forward_interrupt_in(usb_number, buf, count) < 0) {
-        fprintf(stderr, "can't forward interrupt data to the adapter\n");
+        gwarn("can't forward interrupt data to the adapter\n");
       }
     }
   }
@@ -405,7 +405,7 @@ int usb_init(int usb_number, e_controller_type type) {
   state->ack = 1;
 
   if(!controller[type].ids[0].vendor || !controller[type].ids[0].product) {
-    gprintf(_("no pass-through device is needed\n"));
+    ginfo(_("no pass-through device is needed\n"));
     return 0;
   }
 
@@ -414,7 +414,7 @@ int usb_init(int usb_number, e_controller_type type) {
   {
     state->usb_device = gusb_open_ids(controller[type].ids[i].vendor, controller[type].ids[i].product);
     if (state->usb_device >= 0) {
-      gprintf(_("found pass-through device 0x%04x:0x%04x\n"), controller[type].ids[i].vendor, controller[type].ids[i].product);
+      ginfo(_("found pass-through device 0x%04x:0x%04x\n"), controller[type].ids[i].vendor, controller[type].ids[i].product);
       break;
     }
   }

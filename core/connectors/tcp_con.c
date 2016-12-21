@@ -40,7 +40,7 @@ int tcp_connect(unsigned int ip, unsigned short port)
 
     if (connect(fd, (struct sockaddr *)&sa, sizeof(sa)) != -1)
     {
-      gprintf(_("connected to %s:%d\n"), inet_ntoa(sa.sin_addr), port);
+      ginfo(_("connected to %s:%d\n"), inet_ntoa(sa.sin_addr), port);
 
 #ifdef WIN32
       // Set the socket I/O mode; iMode = 0 for blocking; iMode != 0 for non-blocking

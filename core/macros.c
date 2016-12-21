@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <errno.h>
 #include <math.h>
 #include "gimx.h"
 #include "config.h"
@@ -24,7 +25,7 @@
 
 #define MACRO_CONFIGS_FILE "configs.txt"
 
-static unsigned char debug = 0;
+#define MAX_LINE_TOKENS 4
 
 /* This is the default delay with KEY/JBUTTON/MBUTTON commands. */
 #define DEFAULT_DELAY 50
@@ -104,7 +105,7 @@ void macros_clean() {
 /*
  * Allocates an element and initializes it to 0.
  */
-int allocate_event(s_macro * pt) {
+static int allocate_event(s_macro * pt) {
   void * ptr = realloc(pt->events, sizeof(GE_Event) * (pt->nb_events + 1));
   if(ptr)
   {
@@ -115,10 +116,16 @@ int allocate_event(s_macro * pt) {
   }
   else
   {
-    fprintf(stderr, "%s:%d realloc failed\n", __FILE__, __LINE__);
+    gerror("%s:%d realloc failed\n", __FILE__, __LINE__);
     return -1;
   }
 }
+
+#define ALLOCATE_EVENT_OR_FAIL \
+    if(allocate_event(pcurrent) == -1) \
+    { \
+      return -1; \
+    }
 
 static GE_Event * get_last_event(GE_Event * event)
 {
@@ -170,7 +177,7 @@ static void save_axis(GE_Event * event)
     }
     else
     {
-      fprintf(stderr, "%s:%d realloc failed\n", __FILE__, __LINE__);
+      gwarn("%s:%d realloc failed\n", __FILE__, __LINE__);
     }
   }
 }
@@ -284,548 +291,556 @@ static int compare_events(GE_Event * event, s_event_id * id)
 static s_macro * pcurrent = NULL;
 
 /*
- * Try to parse the line as a macro definition.
- * If the line matches a macro definition:
- *  - a new macro is allocated
- *  - a pointer to this macro is returned
- * Else:
- *  - NULL is returned
+ * \brief Parse a macro definition, allocate a macro and update pcurrent.
+ *
+ * \brief tokens  the line tokens
+ * \brief ntoks   the number of tokens
+ *
+ * \return 0 if in case of success, -1 in case of error (invalid line, no current macro, allocation error)
  */
-static s_macro * get_macro(const char* line)
+static int get_macro(char tokens[MAX_LINE_TOKENS][LINE_MAX], int ntoks)
 {
   int etype = -1;
   int rbutton = 0;
   int raxis = 0;
   s_axis_range range;
-  char argument[4][LINE_MAX];
-  s_macro * pt;
-  int ret = sscanf(line, "%s %s %s %s", argument[0], argument[1], argument[2], argument[3]);
-  
-  if(ret < 2) {
-    /* invalid line */
-    return NULL;
+
+  if(ntoks < 2) {
+    return -1;
   }
   
-  if (!strncmp(argument[0], "MACRO", strlen("MACRO")))
+  pcurrent = NULL;
+
+  if(ntoks > 2)
   {
-    if(ret > 2)
+    if(!strncmp(tokens[1], "KEYDOWN", strlen("KEYDOWN")))
     {
-      if(!strncmp(argument[1], "KEYDOWN", strlen("KEYDOWN")))
-      {
-        if((rbutton = ginput_key_id(argument[2])))
-        {
-          etype = GE_KEYDOWN;
-        }
-      }
-      else if(!strncmp(argument[1], "KEYUP", strlen("KEYUP")))
-      {
-        if((rbutton = ginput_key_id(argument[2])))
-        {
-          etype = GE_KEYUP;
-        }
-      }
-      else if(!strncmp(argument[1], "MBUTTONDOWN", strlen ("MBUTTONDOWN")))
-      {
-        if((rbutton = ginput_mouse_button_id(argument[2])) >= 0)
-        {
-          etype = GE_MOUSEBUTTONDOWN;
-        }
-      }
-      else if(!strncmp(argument[1], "MBUTTONUP", strlen("MBUTTONUP")))
-      {
-        if((rbutton = ginput_mouse_button_id(argument[2])) >= 0)
-        {
-          etype = GE_MOUSEBUTTONUP;
-        }
-      }
-      else if(!strncmp(argument[1], "JBUTTONDOWN", strlen("JBUTTONDOWN")))
-      {
-        if((rbutton = atoi(argument[2])) >= 0)
-        {
-          etype = GE_JOYBUTTONDOWN;
-        }
-      }
-      else if(!strncmp(argument[1], "JBUTTONUP", strlen("JBUTTONUP")))
-      {
-        if((rbutton = atoi(argument[2])) >= 0)
-        {
-          etype = GE_JOYBUTTONUP;
-        }
-      }
-      else if(!strncmp(argument[1], "MAXIS", strlen("MAXIS")))
-      {
-        if(ret > 3)
-        {
-          if((raxis = atoi(argument[2])) >= 0)
-          {
-            if(sscanf(argument[3], "[%hd,%hd]", &range.min, &range.max) == 2 && range.min <= range.max)
-            {
-              etype = GE_MOUSEMOTION;
-            }
-          }
-        }
-      }
-      else if(!strncmp(argument[1], "JAXIS", strlen("JAXIS")))
-      {
-        if(ret > 3)
-        {
-          if((raxis = atoi(argument[2])) >= 0)
-          {
-            if(sscanf(argument[3], "[%hd,%hd]", &range.min, &range.max) == 2 && range.min <= range.max)
-            {
-              etype = GE_JOYAXISMOTION;
-            }
-          }
-        }
-      }
-    }
-    else
-    {
-      /*
-       * For compatibility with previous macro files.
-       */
-      if((rbutton = ginput_key_id(argument[1])))
+      if((rbutton = ginput_key_id(tokens[2])))
       {
         etype = GE_KEYDOWN;
       }
     }
-    
-    if(etype < 0)
+    else if(!strncmp(tokens[1], "KEYUP", strlen("KEYUP")))
     {
-      return NULL;
-    }
-    
-    void * ptr = realloc(macros, (macros_nb + 1) * sizeof(s_macro));
-    if(ptr)
-    {
-      macros = ptr;
-      pt = macros + macros_nb;
-      memset(pt, 0x00, sizeof(*pt));
-      pt->active = ACTIVE_ON;
-      pt->id.event.type = etype;
-      switch(etype)
+      if((rbutton = ginput_key_id(tokens[2])))
       {
-        case GE_KEYDOWN:
-        case GE_KEYUP:
-          pt->id.event.key.keysym = rbutton;
-        break;
-        case GE_MOUSEBUTTONDOWN:
-        case GE_MOUSEBUTTONUP:
-          pt->id.event.button.button = rbutton;
-        break;
-        case GE_JOYBUTTONDOWN:
-        case GE_JOYBUTTONUP:
-          pt->id.event.jbutton.button = rbutton;
-        break;
-        case GE_JOYAXISMOTION:
-          pt->id.event.jaxis.axis = raxis;
-          pt->id.range = range;
-        break;
-        case GE_MOUSEMOTION:
-          if(raxis == AXIS_X)
-          {
-            pt->id.event.motion.xrel = 1;
-          }
-          else if(raxis == AXIS_Y)
-          {
-            pt->id.event.motion.yrel = 1;
-          }
-          pt->id.range = range;
-        break;
+        etype = GE_KEYUP;
       }
-      ++macros_nb;
-      return pt;
     }
-    else
+    else if(!strncmp(tokens[1], "MBUTTONDOWN", strlen ("MBUTTONDOWN")))
     {
-      fprintf(stderr, "%s:%d realloc failed\n", __FILE__, __LINE__);
+      if((rbutton = ginput_mouse_button_id(tokens[2])) >= 0)
+      {
+        etype = GE_MOUSEBUTTONDOWN;
+      }
+    }
+    else if(!strncmp(tokens[1], "MBUTTONUP", strlen("MBUTTONUP")))
+    {
+      if((rbutton = ginput_mouse_button_id(tokens[2])) >= 0)
+      {
+        etype = GE_MOUSEBUTTONUP;
+      }
+    }
+    else if(!strncmp(tokens[1], "JBUTTONDOWN", strlen("JBUTTONDOWN")))
+    {
+      if((rbutton = atoi(tokens[2])) >= 0)
+      {
+        etype = GE_JOYBUTTONDOWN;
+      }
+    }
+    else if(!strncmp(tokens[1], "JBUTTONUP", strlen("JBUTTONUP")))
+    {
+      if((rbutton = atoi(tokens[2])) >= 0)
+      {
+        etype = GE_JOYBUTTONUP;
+      }
+    }
+    else if(!strncmp(tokens[1], "MAXIS", strlen("MAXIS")))
+    {
+      if(ntoks > 3)
+      {
+        if((raxis = atoi(tokens[2])) >= 0)
+        {
+          if(sscanf(tokens[3], "[%hd,%hd]", &range.min, &range.max) == 2 && range.min <= range.max)
+          {
+            etype = GE_MOUSEMOTION;
+          }
+        }
+      }
+    }
+    else if(!strncmp(tokens[1], "JAXIS", strlen("JAXIS")))
+    {
+      if(ntoks > 3)
+      {
+        if((raxis = atoi(tokens[2])) >= 0)
+        {
+          if(sscanf(tokens[3], "[%hd,%hd]", &range.min, &range.max) == 2 && range.min <= range.max)
+          {
+            etype = GE_JOYAXISMOTION;
+          }
+        }
+      }
     }
   }
-  return NULL;
+  else
+  {
+    /*
+     * For compatibility with previous macro files.
+     */
+    if((rbutton = ginput_key_id(tokens[1])))
+    {
+      etype = GE_KEYDOWN;
+    }
+  }
+
+  if(etype < 0)
+  {
+    return -1;
+  }
+
+  int ret = 0;
+
+  void * ptr = realloc(macros, (macros_nb + 1) * sizeof(s_macro));
+  if(ptr)
+  {
+    macros = ptr;
+    pcurrent = macros + macros_nb;
+    memset(pcurrent, 0x00, sizeof(*pcurrent));
+    pcurrent->active = ACTIVE_ON;
+    pcurrent->id.event.type = etype;
+    switch(etype)
+    {
+      case GE_KEYDOWN:
+      case GE_KEYUP:
+        pcurrent->id.event.key.keysym = rbutton;
+      break;
+      case GE_MOUSEBUTTONDOWN:
+      case GE_MOUSEBUTTONUP:
+        pcurrent->id.event.button.button = rbutton;
+      break;
+      case GE_JOYBUTTONDOWN:
+      case GE_JOYBUTTONUP:
+        pcurrent->id.event.jbutton.button = rbutton;
+      break;
+      case GE_JOYAXISMOTION:
+        pcurrent->id.event.jaxis.axis = raxis;
+        pcurrent->id.range = range;
+      break;
+      case GE_MOUSEMOTION:
+        if(raxis == AXIS_X)
+        {
+          pcurrent->id.event.motion.xrel = 1;
+        }
+        else if(raxis == AXIS_Y)
+        {
+          pcurrent->id.event.motion.yrel = 1;
+        }
+        pcurrent->id.range = range;
+      break;
+    }
+    ++macros_nb;
+  }
+  else
+  {
+    gwarn("%s:%d realloc failed\n", __FILE__, __LINE__);
+    ret = -1;
+  }
+
+  return ret;
 }
 
 /*
- * Try to parse the line as an event definition.
- * If the line matches an event definition:
- *  - events are added to the current macro table (pcurrent)
- * Else:
- *  - nothing is done
+ * \brief Parse an event definition and add it to pcurrent.
+ *
+ * \brief tokens  the line tokens
+ * \brief ntoks   the number of tokens
+ *
+ * \return 0 if in case of success, -1 in case of error (invalid line, no current macro, allocation error)
  */
-static void get_event(const char* line)
+static int get_event(char tokens[MAX_LINE_TOKENS][LINE_MAX], int ntoks)
 {
-  char argument[3][LINE_MAX];
   int rbutton;
   int raxis;
   int rvalue;
   int delay_nb;
   int i;
   
-  if(!pcurrent)
-  {
-    return;
+  if(!pcurrent || ntoks < 2) {
+    return -1;
   }
   
-  int ret = sscanf(line, "%s %s %s", argument[0], argument[1], argument[2]);
+  int ret = 0;
   
-  if(ret < 2) {
-    /* invalid line */
-    return;
-  }
-  
-  if (!strncmp(argument[0], "KEYDOWN", strlen("KEYDOWN")))
+  if (!strncmp(tokens[0], "KEYDOWN", strlen("KEYDOWN")))
   {
-    rbutton = ginput_key_id(argument[1]);
+    rbutton = ginput_key_id(tokens[1]);
 
-    if(allocate_event(pcurrent) != -1)
-    {
-      pcurrent->events[pcurrent->nb_events - 1].type = GE_KEYDOWN;
-      pcurrent->events[pcurrent->nb_events - 1].key.keysym = rbutton;
-    }
+    ALLOCATE_EVENT_OR_FAIL
+    
+    pcurrent->events[pcurrent->nb_events - 1].type = GE_KEYDOWN;
+    pcurrent->events[pcurrent->nb_events - 1].key.keysym = rbutton;
   }
-  else if (!strncmp(argument[0], "KEYUP", strlen("KEYUP")))
+  else if (!strncmp(tokens[0], "KEYUP", strlen("KEYUP")))
   {
-    rbutton = ginput_key_id(argument[1]);
+    rbutton = ginput_key_id(tokens[1]);
 
-    if(allocate_event(pcurrent) != -1)
-    {
-      pcurrent->events[pcurrent->nb_events - 1].type = GE_KEYUP;
-      pcurrent->events[pcurrent->nb_events - 1].key.keysym = rbutton;
-    }
+    ALLOCATE_EVENT_OR_FAIL
+
+    pcurrent->events[pcurrent->nb_events - 1].type = GE_KEYUP;
+    pcurrent->events[pcurrent->nb_events - 1].key.keysym = rbutton;
   }
-  else if (!strncmp(argument[0], "KEY", strlen("KEY")))
+  else if (!strncmp(tokens[0], "KEY", strlen("KEY")))
   {
-    rbutton = ginput_key_id(argument[1]);
+    rbutton = ginput_key_id(tokens[1]);
 
-    if(allocate_event(pcurrent) != -1)
-    {
-      pcurrent->events[pcurrent->nb_events - 1].type = GE_KEYDOWN;
-      pcurrent->events[pcurrent->nb_events - 1].key.keysym = rbutton;
-    }
+    ALLOCATE_EVENT_OR_FAIL
+    
+    pcurrent->events[pcurrent->nb_events - 1].type = GE_KEYDOWN;
+    pcurrent->events[pcurrent->nb_events - 1].key.keysym = rbutton;
 
     delay_nb = ceil((double)DEFAULT_DELAY / (gimx_params.refresh_period/1000));
     for(i=0; i<delay_nb; ++i)
     {
-      allocate_event(pcurrent);
+      ALLOCATE_EVENT_OR_FAIL
     }
 
-    if(allocate_event(pcurrent) != -1)
-    {
-      pcurrent->events[pcurrent->nb_events - 1].type = GE_KEYUP;
-      pcurrent->events[pcurrent->nb_events - 1].key.keysym = rbutton;
-    }
+    ALLOCATE_EVENT_OR_FAIL
+    
+    pcurrent->events[pcurrent->nb_events - 1].type = GE_KEYUP;
+    pcurrent->events[pcurrent->nb_events - 1].key.keysym = rbutton;
   }
-  else if (!strncmp(argument[0], "MBUTTONDOWN", strlen("MBUTTONDOWN")))
+  else if (!strncmp(tokens[0], "MBUTTONDOWN", strlen("MBUTTONDOWN")))
   {
-    rbutton = ginput_mouse_button_id(argument[1]);
+    rbutton = ginput_mouse_button_id(tokens[1]);
 
-    if(allocate_event(pcurrent) != -1)
-    {
-      pcurrent->events[pcurrent->nb_events - 1].type = GE_MOUSEBUTTONDOWN;
-      pcurrent->events[pcurrent->nb_events - 1].button.button = rbutton;
-    }
+    ALLOCATE_EVENT_OR_FAIL
+    
+    pcurrent->events[pcurrent->nb_events - 1].type = GE_MOUSEBUTTONDOWN;
+    pcurrent->events[pcurrent->nb_events - 1].button.button = rbutton;
   }
-  else if (!strncmp(argument[0], "MBUTTONUP", strlen("MBUTTONUP")))
+  else if (!strncmp(tokens[0], "MBUTTONUP", strlen("MBUTTONUP")))
   {
-    rbutton = ginput_mouse_button_id(argument[1]);
+    rbutton = ginput_mouse_button_id(tokens[1]);
 
-    if(allocate_event(pcurrent) != -1)
-    {
-      pcurrent->events[pcurrent->nb_events - 1].type = GE_MOUSEBUTTONUP;
-      pcurrent->events[pcurrent->nb_events - 1].button.button = rbutton;
-    }
+    ALLOCATE_EVENT_OR_FAIL
+
+    pcurrent->events[pcurrent->nb_events - 1].type = GE_MOUSEBUTTONUP;
+    pcurrent->events[pcurrent->nb_events - 1].button.button = rbutton;
   }
-  else if (!strncmp(argument[0], "MBUTTON", strlen("MBUTTON")))
+  else if (!strncmp(tokens[0], "MBUTTON", strlen("MBUTTON")))
   {
-    rbutton = ginput_mouse_button_id(argument[1]);
+    rbutton = ginput_mouse_button_id(tokens[1]);
 
-    if(allocate_event(pcurrent) != -1)
-    {
-      pcurrent->events[pcurrent->nb_events - 1].type = GE_MOUSEBUTTONDOWN;
-      pcurrent->events[pcurrent->nb_events - 1].button.button = rbutton;
-    }
+    ALLOCATE_EVENT_OR_FAIL
+
+    pcurrent->events[pcurrent->nb_events - 1].type = GE_MOUSEBUTTONDOWN;
+    pcurrent->events[pcurrent->nb_events - 1].button.button = rbutton;
 
     delay_nb = ceil((double)DEFAULT_DELAY / (gimx_params.refresh_period/1000));
     for(i=0; i<delay_nb; ++i)
     {
-      allocate_event(pcurrent);
+      ALLOCATE_EVENT_OR_FAIL
     }
 
-    if(allocate_event(pcurrent) != -1)
-    {
-      pcurrent->events[pcurrent->nb_events - 1].type = GE_MOUSEBUTTONUP;
-      pcurrent->events[pcurrent->nb_events - 1].button.button = rbutton;
-    }
+    ALLOCATE_EVENT_OR_FAIL
+
+    pcurrent->events[pcurrent->nb_events - 1].type = GE_MOUSEBUTTONUP;
+    pcurrent->events[pcurrent->nb_events - 1].button.button = rbutton;
   }
-  else if (!strncmp(argument[0], "JBUTTONDOWN", strlen("JBUTTONDOWN")))
+  else if (!strncmp(tokens[0], "JBUTTONDOWN", strlen("JBUTTONDOWN")))
   {
-    rbutton = atoi(argument[1]);
+    rbutton = atoi(tokens[1]);
 
-    if(allocate_event(pcurrent) != -1)
-    {
-      pcurrent->events[pcurrent->nb_events - 1].type = GE_JOYBUTTONDOWN;
-      pcurrent->events[pcurrent->nb_events - 1].jbutton.button = rbutton;
-    }
+    ALLOCATE_EVENT_OR_FAIL
+
+    pcurrent->events[pcurrent->nb_events - 1].type = GE_JOYBUTTONDOWN;
+    pcurrent->events[pcurrent->nb_events - 1].jbutton.button = rbutton;
   }
-  else if (!strncmp(argument[0], "JBUTTONUP", strlen("JBUTTONUP")))
+  else if (!strncmp(tokens[0], "JBUTTONUP", strlen("JBUTTONUP")))
   {
-    rbutton = atoi(argument[1]);
+    rbutton = atoi(tokens[1]);
 
-    if(allocate_event(pcurrent) != -1)
-    {
-      pcurrent->events[pcurrent->nb_events - 1].type = GE_JOYBUTTONUP;
-      pcurrent->events[pcurrent->nb_events - 1].jbutton.button = rbutton;
-    }
+    ALLOCATE_EVENT_OR_FAIL
+
+    pcurrent->events[pcurrent->nb_events - 1].type = GE_JOYBUTTONUP;
+    pcurrent->events[pcurrent->nb_events - 1].jbutton.button = rbutton;
   }
-  else if (!strncmp(argument[0], "JBUTTON", strlen("JBUTTON"))) {
-    rbutton = atoi(argument[1]);
+  else if (!strncmp(tokens[0], "JBUTTON", strlen("JBUTTON"))) {
+    rbutton = atoi(tokens[1]);
 
-    if(allocate_event(pcurrent) != -1)
-    {
-      pcurrent->events[pcurrent->nb_events - 1].type = GE_JOYBUTTONDOWN;
-      pcurrent->events[pcurrent->nb_events - 1].jbutton.button = rbutton;
-    }
+    ALLOCATE_EVENT_OR_FAIL
+
+    pcurrent->events[pcurrent->nb_events - 1].type = GE_JOYBUTTONDOWN;
+    pcurrent->events[pcurrent->nb_events - 1].jbutton.button = rbutton;
 
     delay_nb = ceil((double)DEFAULT_DELAY / (gimx_params.refresh_period/1000));
     for(i=0; i<delay_nb; ++i)
     {
-      allocate_event(pcurrent);
+      ALLOCATE_EVENT_OR_FAIL
     }
 
-    if(allocate_event(pcurrent) != -1)
-    {
-      pcurrent->events[pcurrent->nb_events - 1].type = GE_JOYBUTTONUP;
-      pcurrent->events[pcurrent->nb_events - 1].jbutton.button = rbutton;
-    }
+    ALLOCATE_EVENT_OR_FAIL
+
+    pcurrent->events[pcurrent->nb_events - 1].type = GE_JOYBUTTONUP;
+    pcurrent->events[pcurrent->nb_events - 1].jbutton.button = rbutton;
   }
-  else if (!strncmp(argument[0], "DELAY", strlen("DELAY")))
+  else if (!strncmp(tokens[0], "DELAY", strlen("DELAY")))
   {
-    delay_nb = ceil((double)atoi(argument[1]) / (gimx_params.refresh_period/1000));
+    delay_nb = ceil((double)atoi(tokens[1]) / (gimx_params.refresh_period/1000));
     for(i=0; i<delay_nb; ++i)
     {
-      allocate_event(pcurrent);
+      ALLOCATE_EVENT_OR_FAIL
     }
   }
-  else if (!strncmp(argument[0], "JAXIS", strlen("JAXIS")))
+  else if (!strncmp(tokens[0], "JAXIS", strlen("JAXIS")))
   {
-    if(ret < 3)
+    if(ntoks < 3)
     {
-      /* invalid line */
-      return;
+      return -1;
     }
 
-    raxis = atoi(argument[1]);
-    rvalue = atoi(argument[2]);
+    raxis = atoi(tokens[1]);
+    rvalue = atoi(tokens[2]);
 
-    if(allocate_event(pcurrent) != -1)
-    {
-      pcurrent->events[pcurrent->nb_events - 1].type = GE_JOYAXISMOTION;
-      pcurrent->events[pcurrent->nb_events - 1].jaxis.axis = raxis;
-      pcurrent->events[pcurrent->nb_events - 1].jaxis.value = rvalue;
-    }
+    ALLOCATE_EVENT_OR_FAIL
+
+    pcurrent->events[pcurrent->nb_events - 1].type = GE_JOYAXISMOTION;
+    pcurrent->events[pcurrent->nb_events - 1].jaxis.axis = raxis;
+    pcurrent->events[pcurrent->nb_events - 1].jaxis.value = rvalue;
   }
-  else if (!strncmp(argument[0], "MAXIS", strlen("MAXIS")))
+  else if (!strncmp(tokens[0], "MAXIS", strlen("MAXIS")))
   {
-    if(ret < 3)
+    if(ntoks < 3)
     {
-      /* invalid line */
-      return;
+      return -1;
     }
 
-    raxis = atoi(argument[1]);
-    rvalue = atoi(argument[2]);
+    raxis = atoi(tokens[1]);
+    rvalue = atoi(tokens[2]);
 
-    if(allocate_event(pcurrent) != -1)
+    ALLOCATE_EVENT_OR_FAIL
+
+    pcurrent->events[pcurrent->nb_events - 1].type = GE_MOUSEMOTION;
+    if(raxis == AXIS_X)
     {
-      pcurrent->events[pcurrent->nb_events - 1].type = GE_MOUSEMOTION;
-      if(raxis == AXIS_X)
-      {
-        pcurrent->events[pcurrent->nb_events - 1].motion.xrel = rvalue;
-      }
-      else if(raxis == AXIS_Y)
-      {
-        pcurrent->events[pcurrent->nb_events - 1].motion.yrel = rvalue;
-      }
+      pcurrent->events[pcurrent->nb_events - 1].motion.xrel = rvalue;
+    }
+    else if(raxis == AXIS_Y)
+    {
+      pcurrent->events[pcurrent->nb_events - 1].motion.yrel = rvalue;
     }
   }
+  else
+  {
+    ret = -1;
+  }
+
+  return ret;
 }
 
-void get_trigger(const char* line)
+/*
+ * \brief Parse a trigger definition and add it to pcurrent.
+ *
+ * \brief tokens  the line tokens
+ * \brief ntoks   the number of tokens
+ *
+ * \return 0 if in case of success, -1 in case of error (invalid line or no current macro)
+ */
+int get_trigger(char tokens[MAX_LINE_TOKENS][LINE_MAX], int ntoks)
 {
   int etype = -1;
   int rbutton;
-  char argument[3][LINE_MAX];
   
-  if(!pcurrent)
+  if(!pcurrent || ntoks < 2)
   {
-    return;
+    return -1;
   }
   
-  int ret = sscanf(line, "%s %s %s", argument[0], argument[1], argument[2]);
-  
-  if(ret < 2) {
-    /* invalid line */
-    return;
-  }
-  
-  if (!strncmp(argument[0], "TRIGGER", strlen("TRIGGER")))
+  if(ntoks > 2)
   {
-    if(ret > 2)
+    if(!strncmp(tokens[1], "KEYDOWN", strlen("KEYDOWN")))
     {
-      if(!strncmp(argument[1], "KEYDOWN", strlen("KEYDOWN")))
-      {
-        if((rbutton = ginput_key_id(argument[2])))
-        {
-          etype = GE_KEYDOWN;
-        }
-      }
-      else if(!strncmp(argument[1], "KEYUP", strlen("KEYUP")))
-      {
-        if((rbutton = ginput_key_id(argument[2])))
-        {
-          etype = GE_KEYUP;
-        }
-      }
-      else if(!strncmp(argument[1], "MBUTTONDOWN", strlen ("MBUTTONDOWN")))
-      {
-        if((rbutton = ginput_mouse_button_id(argument[2])) >= 0)
-        {
-          etype = GE_MOUSEBUTTONDOWN;
-        }
-      }
-      else if(!strncmp(argument[1], "MBUTTONUP", strlen("MBUTTONUP")))
-      {
-        if((rbutton = ginput_mouse_button_id(argument[2])) >= 0)
-        {
-          etype = GE_MOUSEBUTTONUP;
-        }
-      }
-      else if(!strncmp(argument[1], "JBUTTONDOWN", strlen("JBUTTONDOWN")))
-      {
-        if((rbutton = atoi(argument[2])) >= 0)
-        {
-          etype = GE_JOYBUTTONDOWN;
-        }
-      }
-      else if(!strncmp(argument[1], "JBUTTONUP", strlen("JBUTTONUP")))
-      {
-        if((rbutton = atoi(argument[2])) >= 0)
-        {
-          etype = GE_JOYBUTTONUP;
-        }
-      }
-    }
-    else
-    {
-      /*
-       * For compatibility with previous macro files.
-       */
-      if((rbutton = ginput_key_id(argument[1])))
+      if((rbutton = ginput_key_id(tokens[2])))
       {
         etype = GE_KEYDOWN;
       }
     }
-    
-    if(etype < 0)
+    else if(!strncmp(tokens[1], "KEYUP", strlen("KEYUP")))
     {
-      return;
+      if((rbutton = ginput_key_id(tokens[2])))
+      {
+        etype = GE_KEYUP;
+      }
     }
-    
-    pcurrent->trigger.event.type = etype;
-    switch(etype)
+    else if(!strncmp(tokens[1], "MBUTTONDOWN", strlen ("MBUTTONDOWN")))
     {
-      case GE_KEYDOWN:
-      case GE_KEYUP:
-        pcurrent->trigger.event.key.keysym = rbutton;
-      break;
-      case GE_MOUSEBUTTONDOWN:
-      case GE_MOUSEBUTTONUP:
-        pcurrent->trigger.event.button.button = rbutton;
-      break;
-      case GE_JOYBUTTONDOWN:
-      case GE_JOYBUTTONUP:
-        pcurrent->trigger.event.jbutton.button = rbutton;
-      break;
+      if((rbutton = ginput_mouse_button_id(tokens[2])) >= 0)
+      {
+        etype = GE_MOUSEBUTTONDOWN;
+      }
     }
-
-    //macros with a trigger are default off
-    pcurrent->active = ACTIVE_OFF;
+    else if(!strncmp(tokens[1], "MBUTTONUP", strlen("MBUTTONUP")))
+    {
+      if((rbutton = ginput_mouse_button_id(tokens[2])) >= 0)
+      {
+        etype = GE_MOUSEBUTTONUP;
+      }
+    }
+    else if(!strncmp(tokens[1], "JBUTTONDOWN", strlen("JBUTTONDOWN")))
+    {
+      if((rbutton = atoi(tokens[2])) >= 0)
+      {
+        etype = GE_JOYBUTTONDOWN;
+      }
+    }
+    else if(!strncmp(tokens[1], "JBUTTONUP", strlen("JBUTTONUP")))
+    {
+      if((rbutton = atoi(tokens[2])) >= 0)
+      {
+        etype = GE_JOYBUTTONUP;
+      }
+    }
   }
-}
-
-void get_toggle(const char* line)
-{
-  char argument[2][LINE_MAX];
-
-  if(!pcurrent)
+  else
   {
-    return;
-  }
-
-  int ret = sscanf(line, "%s %s", argument[0], argument[1]);
-
-  if(ret < 2) {
-    /* invalid line */
-    return;
-  }
-
-  if (!strncmp(argument[0], "TOGGLE", strlen("TOGGLE")))
-  {
-    if(!strncmp(argument[1], "YES", strlen("YES")))
+    /*
+     * For compatibility with previous macro files.
+     */
+    if((rbutton = ginput_key_id(tokens[1])))
     {
-      pcurrent->toggle = TOGGLE_YES;
+      etype = GE_KEYDOWN;
     }
   }
-}
 
-void get_init(const char* line)
-{
-  char argument[2][LINE_MAX];
-
-  if(!pcurrent)
+  if(etype < 0)
   {
-    return;
+    return -1;
   }
 
-  int ret = sscanf(line, "%s %s", argument[0], argument[1]);
-
-  if(ret < 2) {
-    /* invalid line */
-    return;
-  }
-
-  if (!strncmp(argument[0], "INIT", strlen("INIT")))
+  pcurrent->trigger.event.type = etype;
+  switch(etype)
   {
-    if(!strncmp(argument[1], "ON", strlen("ON")))
-    {
-      pcurrent->active = ACTIVE_ON;
-    }
-    else if(!strncmp(argument[1], "OFF", strlen("OFF")))
-    {
-      pcurrent->active = ACTIVE_OFF;
-    }
+    case GE_KEYDOWN:
+    case GE_KEYUP:
+      pcurrent->trigger.event.key.keysym = rbutton;
+    break;
+    case GE_MOUSEBUTTONDOWN:
+    case GE_MOUSEBUTTONUP:
+      pcurrent->trigger.event.button.button = rbutton;
+    break;
+    case GE_JOYBUTTONDOWN:
+    case GE_JOYBUTTONUP:
+      pcurrent->trigger.event.jbutton.button = rbutton;
+    break;
   }
+
+  //macros with a trigger are default off
+  pcurrent->active = ACTIVE_OFF;
+
+  return 0;
 }
 
 /*
- * Processes a line of a script file (macro definition or command).
+ * \brief Parse a toggle definition and add it to pcurrent.
+ *
+ * \brief tokens  the line tokens
+ * \brief ntoks   the number of tokens
+ *
+ * \return 0 if in case of success, -1 in case of error (invalid line or no current macro)
  */
-void process_line(const char* line)
+int get_toggle(char tokens[MAX_LINE_TOKENS][LINE_MAX], int ntoks)
 {
-    s_macro * pt = get_macro(line);
+  if(!pcurrent || ntoks < 2)
+  {
+    return -1;
+  }
 
-    if(pt)
+  if(!strncmp(tokens[1], "YES", strlen("YES")))
+  {
+    pcurrent->toggle = TOGGLE_YES;
+  }
+
+  return 0;
+}
+
+/*
+ * \brief Parse an init definition and add it to pcurrent.
+ *
+ * \brief tokens  the line tokens
+ * \brief ntoks   the number of tokens
+ *
+ * \return 0 if in case of success, -1 in case of error (invalid line or no current macro)
+ */
+int get_init(char tokens[MAX_LINE_TOKENS][LINE_MAX], int ntoks)
+{
+  if(!pcurrent || ntoks < 2)
+  {
+    return -1;
+  }
+
+  if(!strncmp(tokens[1], "ON", strlen("ON")))
+  {
+    pcurrent->active = ACTIVE_ON;
+  }
+  else if(!strncmp(tokens[1], "OFF", strlen("OFF")))
+  {
+    pcurrent->active = ACTIVE_OFF;
+  }
+
+  return 0;
+}
+
+static const struct
+{
+    const char * key;
+    size_t key_len;
+    int (*fp) (char tokens[MAX_LINE_TOKENS][LINE_MAX], int ntoks);
+} line_process[] =
+{
+        { "MACRO",   sizeof("MACRO") - 1,   get_macro   },
+        { "TRIGGER", sizeof("TRIGGER") - 1, get_trigger },
+        { "TOGGLE",  sizeof("TOGGLE") - 1,  get_toggle  },
+        { "INIT",    sizeof("INIT") - 1,    get_init    },
+};
+
+/*
+ * Processes a line of a macro file.
+ */
+int process_line(const char* line)
+{
+    int ret;
+
+    char tokens[MAX_LINE_TOKENS][LINE_MAX];
+
+    int ntoks = sscanf(line, "%s %s %s %s", tokens[0], tokens[1], tokens[2], tokens[3]);
+
+    if (ntoks < 0)
     {
-      pcurrent = pt;
-    }
-    else if(pcurrent)
-    {
-      get_trigger(line);
-      get_toggle(line);
-      get_init(line);
-      get_event(line);
+      gwarn("failed to scan line: %s", line);
+      return -1;
     }
 
-    return;
+    unsigned int i;
+    for (i = 0; i < sizeof(line_process) / sizeof(*line_process); ++i)
+    {
+        if (!strncmp(line, line_process[i].key, line_process[i].key_len))
+        {
+            int ret = line_process[i].fp(tokens, ntoks);
+            if (ret < 0)
+            {
+              gwarn("invalid line: %s", line);
+            }
+            return ret;
+        }
+    }
+
+    ret = get_event(tokens, ntoks);
+    if (ret < 0)
+    {
+      gwarn("invalid line: %s", line);
+    }
+
+    return ret;
 }
 
 void dump_event(GE_Event* event, int newline, int axisvalue)
@@ -833,46 +848,46 @@ void dump_event(GE_Event* event, int newline, int axisvalue)
   switch(event->type)
   {
     case GE_KEYDOWN:
-      gprintf("KEYDOWN %s", ginput_key_name(event->key.keysym));
+      ginfo("KEYDOWN %s", ginput_key_name(event->key.keysym));
       break;
     case GE_KEYUP:
-      gprintf("KEYUP %s", ginput_key_name(event->key.keysym));
+      ginfo("KEYUP %s", ginput_key_name(event->key.keysym));
       break;
     case GE_MOUSEBUTTONDOWN:
-      gprintf("MBUTTONDOWN %s", ginput_mouse_button_name(event->button.button));
+      ginfo("MBUTTONDOWN %s", ginput_mouse_button_name(event->button.button));
       break;
     case GE_MOUSEBUTTONUP:
-      gprintf("MBUTTONUP %s", ginput_mouse_button_name(event->button.button));
+      ginfo("MBUTTONUP %s", ginput_mouse_button_name(event->button.button));
       break;
     case GE_MOUSEMOTION:
       if(event->motion.xrel)
       {
-        gprintf("MAXIS 0");
+        ginfo("MAXIS 0");
         if(axisvalue)
         {
-          gprintf(" %d", event->motion.xrel);
+          ginfo(" %d", event->motion.xrel);
         }
       }
       else if(event->motion.yrel)
       {
-        gprintf("MAXIS 1");
+        ginfo("MAXIS 1");
         if(axisvalue)
         {
-          gprintf(" %d", event->motion.yrel);
+          ginfo(" %d", event->motion.yrel);
         }
       }
       break;
     case GE_JOYBUTTONDOWN:
-      gprintf("JBUTTONDOWN %d", event->jbutton.button);
+      ginfo("JBUTTONDOWN %d", event->jbutton.button);
       break;
     case GE_JOYBUTTONUP:
-      gprintf("JBUTTONUP %d", event->jbutton.button);
+      ginfo("JBUTTONUP %d", event->jbutton.button);
       break;
     case GE_JOYAXISMOTION:
-      gprintf("JAXIS %d", event->jaxis.axis);
+      ginfo("JAXIS %d", event->jaxis.axis);
       if(axisvalue)
       {
-        gprintf(" %d", event->motion.yrel);
+        ginfo(" %d", event->motion.yrel);
       }
       break;
     default:
@@ -881,7 +896,7 @@ void dump_event(GE_Event* event, int newline, int axisvalue)
   }
   if(newline)
   {
-    gprintf("\n");
+    ginfo("\n");
   }
 }
 
@@ -890,9 +905,9 @@ static inline void dump_macro_id(s_macro * macro)
   dump_event(&macro->id.event, 0, 0);
   if(macro->id.event.type == GE_MOUSEMOTION || macro->id.event.type == GE_JOYAXISMOTION)
   {
-    gprintf(" [%hd,%hd]", macro->id.range.min, macro->id.range.max);
+    ginfo(" [%hd,%hd]", macro->id.range.min, macro->id.range.max);
   }
-  gprintf("\n");
+  ginfo("\n");
 }
 
 /*
@@ -904,28 +919,28 @@ void dump_scripts() {
   int delay_nb;
 
   for (macro = macros; macro < macros + macros_nb; ++macro) {
-    gprintf("MACRO ");
+    ginfo("MACRO ");
     dump_macro_id(macro);
     if(macro->trigger.event.type)
     {
-      gprintf("TRIGGER ");
+      ginfo("TRIGGER ");
       dump_event(&macro->trigger.event, 1, 0);
     }
     if(macro->active == ACTIVE_ON)
     {
-      gprintf("INIT ON\n");
+      ginfo("INIT ON\n");
     }
     else
     {
-      gprintf("INIT OFF\n");
+      ginfo("INIT OFF\n");
     }
     if(macro->toggle == TOGGLE_YES)
     {
-      gprintf("TOGGLE YES\n");
+      ginfo("TOGGLE YES\n");
     }
     else
     {
-      gprintf("TOGGLE NO\n");
+      ginfo("TOGGLE NO\n");
     }
     delay_nb = 0;
     for (event = macro->events; event && event < macro->events + macro->nb_events; ++event) {
@@ -933,15 +948,15 @@ void dump_scripts() {
         delay_nb++;
       }
       else if(delay_nb) {
-        gprintf("DELAY %d\n", delay_nb*(gimx_params.refresh_period/1000));
+        ginfo("DELAY %d\n", delay_nb*(gimx_params.refresh_period/1000));
         delay_nb = 0;
       }
       dump_event(event, 1, 1);
     }
     if(delay_nb) {
-      gprintf("DELAY %d\n", delay_nb*(gimx_params.refresh_period/1000));
+      ginfo("DELAY %d\n", delay_nb*(gimx_params.refresh_period/1000));
     }
-    gprintf("\n");
+    ginfo("\n");
   }
 }
 
@@ -978,7 +993,7 @@ static void read_configs_txt(const char* dir_path)
           ret = sscanf(line, "%s%s%s", config, macro, extra);
 
           if(ret != 2) {
-            fprintf(stderr, "configs.txt: invalid line: %s", line);
+            gwarn("configs.txt: invalid line: %s", line);
             continue;
           }
         }
@@ -996,12 +1011,12 @@ static void read_configs_txt(const char* dir_path)
             }
             else
             {
-              fprintf(stderr, "%s:%d strdup failed\n", __FILE__, __LINE__);
+              gwarn("%s:%d strdup failed\n", __FILE__, __LINE__);
             }
           }
           else
           {
-            fprintf(stderr, "%s:%d realloc failed\n", __FILE__, __LINE__);
+            gwarn("%s:%d realloc failed\n", __FILE__, __LINE__);
           }
         }
       }
@@ -1032,7 +1047,15 @@ static void read_macros() {
     dirp = opendir(dir_path);
     if (dirp == NULL)
     {
-      gprintf("Warning: can't open macro directory %s\n", dir_path);
+      if (errno == ENOENT)
+      {
+        gwarn("can't open macro directory %s\n", dir_path);
+      }
+      else
+      {
+        gerror("failed to open %s:", dir_path);
+        perror("opendir");
+      }
       return;
     }
 
@@ -1056,12 +1079,12 @@ static void read_macros() {
           }
           else
           {
-            fprintf(stderr, "%s:%d strdup failed\n", __FILE__, __LINE__);
+            gwarn("%s:%d strdup failed\n", __FILE__, __LINE__);
           }
         }
         else
         {
-          fprintf(stderr, "%s:%d realloc failed\n", __FILE__, __LINE__);
+          gwarn("%s:%d realloc failed\n", __FILE__, __LINE__);
         }
       }
 #else
@@ -1081,12 +1104,12 @@ static void read_macros() {
             }
             else
             {
-              fprintf(stderr, "%s:%d strdup failed\n", __FILE__, __LINE__);
+              gwarn("%s:%d strdup failed\n", __FILE__, __LINE__);
             }
           }
           else
           {
-            fprintf(stderr, "%s:%d realloc failed\n", __FILE__, __LINE__);
+            gwarn("%s:%d realloc failed\n", __FILE__, __LINE__);
           }
         }
       }
@@ -1118,12 +1141,21 @@ static void read_macros() {
       snprintf(file_path, sizeof(file_path), "%s%s", dir_path, filenames[i]);
       fp = fopen(file_path, "r");
       if (!fp) {
-        fprintf(stderr, "Can not find '%s'\n", file_path);
+        gwarn("failed to open %s\n", file_path);
       } else {
+        int has_errors = 0;
         while (fgets(line, LINE_MAX, fp)) {
-          if (line[0] != '#') {
-            process_line(line);
+          if (line[0] != '#' && line[0] != '\n' && line[0] != '\r')
+          {
+            if (process_line(line) < 0)
+            {
+              has_errors = 1;
+            }
           }
+        }
+        if (has_errors == 1)
+        {
+          gwarn("failed to process file %s\n", file_path);
         }
         fclose(fp);
         pcurrent = NULL;
@@ -1143,20 +1175,16 @@ static void read_macros() {
     free(macro_configs);
 }
 
-static void macros_read()
-{
-  read_macros();
-  if(debug)
-  {
-    dump_scripts();
-  }
-}
-
 /*
  * Initializes macro_table and reads macros from macro files.
  */
-void macros_init() {
-  macros_read();
+void macros_init()
+{
+    read_macros();
+    if(gimx_params.debug.macros)
+    {
+      dump_scripts();
+    }
 }
 
 static void macro_unalloc(int index)
@@ -1170,7 +1198,7 @@ static void macro_unalloc(int index)
   }
   else
   {
-    fprintf(stderr, "%s:%d realloc failed\n", __FILE__, __LINE__);
+    gwarn("%s:%d realloc failed\n", __FILE__, __LINE__);
   }
 }
 
@@ -1211,7 +1239,7 @@ static void macro_add(GE_Event* event, int macro)
   }
   else
   {
-    fprintf(stderr, "%s:%d realloc failed\n", __FILE__, __LINE__);
+    gwarn("%s:%d realloc failed\n", __FILE__, __LINE__);
   }
 }
 
@@ -1234,7 +1262,7 @@ void macro_lookup(GE_Event* event)
         {
           if(macros[i].active == ACTIVE_OFF)
           {
-            gprintf("enable macro: ");
+            gstatus("enable macro: ");
             dump_event(&macros[i].id.event, 1, 0);
             macros[i].active = ACTIVE_ON;
             /*
@@ -1250,7 +1278,7 @@ void macro_lookup(GE_Event* event)
                  && macros[j].toggle == TOGGLE_NO
                  && macros[j].active == ACTIVE_ON)
               {
-                gprintf("disable macro: ");
+                gstatus("disable macro: ");
                 dump_event(&macros[j].id.event, 1, 0);
                 macros[j].active = ACTIVE_OFF;
               }
@@ -1261,13 +1289,13 @@ void macro_lookup(GE_Event* event)
         {
           if(macros[i].active == ACTIVE_OFF)
           {
-            gprintf("enable macro: ");
+            gstatus("enable macro: ");
             dump_event(&macros[i].id.event, 1, 0);
             macros[i].active = ACTIVE_ON;
           }
           else
           {
-            gprintf("disable macro: ");
+            gstatus("disable macro: ");
             dump_event(&macros[i].id.event, 1, 0);
             macros[i].active = ACTIVE_OFF;
           }
@@ -1283,13 +1311,13 @@ void macro_lookup(GE_Event* event)
          */
         if(!macro_delete(event))
         {
-          gprintf("start macro: ");
+          gstatus("start macro: ");
           dump_macro_id(macros+i);
           macro_add(event, i);
         }
         else
         {
-          gprintf("stop macro: ");
+          gstatus("stop macro: ");
           dump_macro_id(macros+i);
         }
       }
