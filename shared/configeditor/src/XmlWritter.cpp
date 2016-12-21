@@ -20,6 +20,8 @@ XmlWritter::XmlWritter()
 {
     //ctor
     m_ConfigurationFile = NULL;
+    m_CurrentController = 0;
+    m_CurrentConfiguration = 0;
 }
 
 XmlWritter::XmlWritter(ConfigurationFile* configFile)

@@ -16,6 +16,7 @@
 ConfigurationFile::ConfigurationFile()
 {
     //ctor
+    m_multipleMK = false;
     m_checkDevices = true;
 }
 
