@@ -23,6 +23,7 @@
 #include "macros.h"
 #include "config_reader.h"
 #include "calibration.h"
+#include "control.h"
 #include "display.h"
 #include "mainloop.h"
 #include "connectors/bluetooth/bt_abs.h"
@@ -121,9 +122,11 @@ int process_event(GE_Event* event)
       break;
     case GE_KEYDOWN:
       cal_key(event->key.keysym, 1);
+      control_key(event->key.keysym, 1);
       break;
     case GE_KEYUP:
       cal_key(event->key.keysym, 0);
+      control_key(event->key.keysym, 0);
       break;
   }
 

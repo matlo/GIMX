@@ -28,10 +28,6 @@ e_current_cal current_cal = NONE;
 
 static int lctrl = 0;
 static int rctrl = 0;
-static int lshift = 0;
-static int rshift = 0;
-static int lalt = 0;
-static int ralt = 0;
 
 static const double pi = 3.14159265;
 
@@ -293,20 +289,6 @@ void cal_key(int sym, int down)
     case GE_KEY_RIGHTCTRL:
       rctrl = down ? 1 : 0;
       break;
-
-    case GE_KEY_LEFTSHIFT:
-      lshift = down ? 1 : 0;
-      break;
-    case GE_KEY_RIGHTSHIFT:
-      rshift = down ? 1 : 0;
-      break;
-
-    case GE_KEY_LEFTALT:
-      lalt = down ? 1 : 0;
-      break;
-    case GE_KEY_RIGHTALT:
-      ralt = down ? 1 : 0;
-      break;
   }
 
   switch (sym)
@@ -315,10 +297,6 @@ void cal_key(int sym, int down)
       if(current_cal != NONE)
       {
         current_cal = NONE;
-      }
-      if(lshift)
-      {
-        set_done();
       }
       break;
     case GE_KEY_F1:
@@ -472,29 +450,6 @@ void cal_key(int sym, int down)
     {
       cal_display();
     }
-  }
-
-  /*
-   * Following code is not calibration code... it should be moved somewhere else!
-   */
-  if (lshift && rshift)
-  {
-    if (gimx_params.status)
-    {
-      gimx_params.status = 0;
-    }
-    else
-    {
-      if(!gimx_params.curses)
-      {
-        gimx_params.status = 1;
-      }
-    }
-  }
-
-  if (lalt && ralt)
-  {
-    ginput_grab_toggle();
   }
 }
 
