@@ -2988,7 +2988,7 @@ void configFrame::OnAxisTabShapeSelect(wxCommandEvent& event __attribute__((unus
 void configFrame::OnMenuItemCopyConfiguration(wxCommandEvent& event __attribute__((unused)))
 {
   save_current();
-  tempConfiguration = *configFile.GetController(currentController)->GetProfile(currentProfile);
+  tempProfile = *configFile.GetController(currentController)->GetProfile(currentProfile);
 }
 
 /*
@@ -2997,7 +2997,7 @@ void configFrame::OnMenuItemCopyConfiguration(wxCommandEvent& event __attribute_
  */
 void configFrame::OnMenuItemPasteConfiguration(wxCommandEvent& event __attribute__((unused)))
 {
-  configFile.GetController(currentController)->SetProfile(tempConfiguration, currentProfile);
+  configFile.GetController(currentController)->SetProfile(tempProfile, currentProfile);
   load_current();
   refresh_gui();
   reset_buttons();

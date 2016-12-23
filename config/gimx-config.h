@@ -489,7 +489,7 @@ class configFrame: public wxFrame
         unsigned int currentController;
         unsigned int currentProfile;
 
-        Profile tempConfiguration;
+        Profile tempProfile;
         Controller tempController;
 
         unsigned int grid1mod;
