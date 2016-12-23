@@ -3,26 +3,26 @@
  License: GPLv3
  */
 
-#include "Configuration.h"
+#include <Profile.h>
 
-Configuration::Configuration()
+Profile::Profile()
 {
     //ctor
 }
 
-Configuration::~Configuration()
+Profile::~Profile()
 {
     //dtor
 }
 
-Configuration::Configuration(const Configuration& other):m_Trigger(other.m_Trigger), m_IntensityList(other.m_IntensityList),
+Profile::Profile(const Profile& other):m_Trigger(other.m_Trigger), m_IntensityList(other.m_IntensityList),
     m_MouseOptionsList(other.m_MouseOptionsList), m_ButtonMappers(other.m_ButtonMappers), m_AxisMappers(other.m_AxisMappers),
     m_JoystickCorrectionsList(other.m_JoystickCorrectionsList)
 {
     //copy ctor
 }
 
-Configuration& Configuration::operator=(const Configuration& rhs)
+Profile& Profile::operator=(const Profile& rhs)
 {
     if (this == &rhs) return *this; // handle self assignment
     m_Trigger = rhs.m_Trigger;
@@ -34,7 +34,7 @@ Configuration& Configuration::operator=(const Configuration& rhs)
     return *this;
 }
 
-bool Configuration::IsEmpty()
+bool Profile::IsEmpty()
 {
   if(m_Trigger.GetDevice()->GetType().size())
   {

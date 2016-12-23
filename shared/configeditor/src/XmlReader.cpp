@@ -700,7 +700,7 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
     ss >> config_index;
     config_index--;
 
-    if(config_index >= MAX_CONFIGURATIONS)
+    if(config_index >= MAX_PROFILES)
     {
         string message("bad configuration id: " + id);
         throw invalid_argument(message);
@@ -847,7 +847,7 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
         }
     }
 
-    m_TempController.SetConfiguration(m_TempConfiguration, config_index);
+    m_TempController.SetProfile(m_TempConfiguration, config_index);
 }
 
 void XmlReader::ProcessControllerElement(xmlNode * a_node)

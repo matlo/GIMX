@@ -4,12 +4,13 @@
  */
 
 #ifndef CONTROLLER_H
+
 #define CONTROLLER_H
 
-#include <Configuration.h>
+#include "Profile.h"
 #include <defs.h>
 
-#define MAX_CONFIGURATIONS 8
+#define MAX_PROFILES 8
 
 class Controller
 {
@@ -18,8 +19,8 @@ class Controller
         virtual ~Controller();
         Controller(const Controller& other);
         Controller& operator=(const Controller& other);
-        Configuration* GetConfiguration(unsigned int i) { return m_Configurations+i; }
-        void SetConfiguration(Configuration val, unsigned int i) { m_Configurations[i] = val; }
+        Profile* GetProfile(unsigned int i) { return m_Profile+i; }
+        void SetProfile(Profile val, unsigned int i) { m_Profile[i] = val; }
         e_controller_type GetControllerType() { return m_ControllerType; };
         void SetControllerType(e_controller_type type) { m_ControllerType = type; }
         unsigned int GetMouseDPI() { return m_MouseDPI; }
@@ -29,7 +30,7 @@ class Controller
     private:
         e_controller_type m_ControllerType;
         unsigned int m_MouseDPI;
-        Configuration m_Configurations[MAX_CONFIGURATIONS];
+        Profile m_Profile[MAX_PROFILES];
 };
 
 #endif // CONTROLLER_H

@@ -102,7 +102,7 @@ class XmlReader
         MouseOptions m_TempMouseOptions;
         JoystickCorrection m_TempJoystickCorrection;
         Intensity m_TempIntensity;
-        Configuration m_TempConfiguration;
+        Profile m_TempConfiguration;
         Controller m_TempController;
         ConfigurationFile m_TempConfigurationFile;
         ConfigurationFile* m_ConfigurationFile;

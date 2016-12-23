@@ -1103,7 +1103,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
      * Save Hip Fire config.
      */
     //Save ButtonMappers
-    ButtonMappers = configFile.GetController(0)->GetConfiguration(0)->GetButtonMapperList();
+    ButtonMappers = configFile.GetController(0)->GetProfile(0)->GetButtonMapperList();
     for(int i=bi_select; i<BI_MAX; i++)
     {
         if(!buttons[i].GetDevice()->GetType().empty())
@@ -1124,7 +1124,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
         }
     }
     //Save AxisMappers
-    AxisMappers = configFile.GetController(0)->GetConfiguration(0)->GetAxisMapperList();
+    AxisMappers = configFile.GetController(0)->GetProfile(0)->GetAxisMapperList();
     for(int i=ai_ls_up; i<AI_MAX; i++)
     {
         if(!axes[i].GetDevice()->GetType().empty())
@@ -1154,7 +1154,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
             it->GetEvent()->SetExponent(string(TextCtrlAccelerationHipFire->GetValue().mb_str(wxConvUTF8)));
             it->GetEvent()->SetShape(reverseTranslate(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))));
 
-            std::list<MouseOptions>* mouseOptions = configFile.GetController(0)->GetConfiguration(0)->GetMouseOptionsList();
+            std::list<MouseOptions>* mouseOptions = configFile.GetController(0)->GetProfile(0)->GetMouseOptionsList();
             std::list<MouseOptions>::iterator it2;
             for(it2 = mouseOptions->begin(); it2!=mouseOptions->end(); ++it2)
             {
@@ -1182,7 +1182,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
             string(TextCtrlAccelerationHipFire->GetValue().mb_str(wxConvUTF8)),
             reverseTranslate(string(ChoiceDeadZoneShapeHipFire->GetStringSelection().mb_str(wxConvUTF8))), "Aiming - x axis"));
 
-        std::list<MouseOptions>* mouseOptions = configFile.GetController(0)->GetConfiguration(0)->GetMouseOptionsList();
+        std::list<MouseOptions>* mouseOptions = configFile.GetController(0)->GetProfile(0)->GetMouseOptionsList();
         std::list<MouseOptions>::iterator it2;
         for(it2 = mouseOptions->begin(); it2!=mouseOptions->end(); ++it2)
         {
@@ -1233,19 +1233,19 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
      * Save ADS config.
      */
     //Save Trigger
-    if(configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->GetType() != "mouse"
-        || configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetEvent()->GetId() != "BUTTON_RIGHT"
-        || configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetSwitchBack() != "yes")
+    if(configFile.GetController(0)->GetProfile(1)->GetTrigger()->GetDevice()->GetType() != "mouse"
+        || configFile.GetController(0)->GetProfile(1)->GetTrigger()->GetEvent()->GetId() != "BUTTON_RIGHT"
+        || configFile.GetController(0)->GetProfile(1)->GetTrigger()->GetSwitchBack() != "yes")
     {
-        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetType("mouse");
-        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetName(defaultMouseName);
-        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetDevice()->SetId(defaultMouseId);
-        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->GetEvent()->SetId("BUTTON_RIGHT");
-        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->SetSwitchBack("yes");
-        configFile.GetController(0)->GetConfiguration(1)->GetTrigger()->SetDelay(0);
+        configFile.GetController(0)->GetProfile(1)->GetTrigger()->GetDevice()->SetType("mouse");
+        configFile.GetController(0)->GetProfile(1)->GetTrigger()->GetDevice()->SetName(defaultMouseName);
+        configFile.GetController(0)->GetProfile(1)->GetTrigger()->GetDevice()->SetId(defaultMouseId);
+        configFile.GetController(0)->GetProfile(1)->GetTrigger()->GetEvent()->SetId("BUTTON_RIGHT");
+        configFile.GetController(0)->GetProfile(1)->GetTrigger()->SetSwitchBack("yes");
+        configFile.GetController(0)->GetProfile(1)->GetTrigger()->SetDelay(0);
     }
     //Save ButtonMappers
-    ButtonMappers = configFile.GetController(0)->GetConfiguration(1)->GetButtonMapperList();
+    ButtonMappers = configFile.GetController(0)->GetProfile(1)->GetButtonMapperList();
     for(int i=bi_select; i<BI_MAX; i++)
     {
         if(!buttons[i].GetDevice()->GetType().empty())
@@ -1266,7 +1266,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
         }
     }
     //Save AxisMappers
-    AxisMappers = configFile.GetController(0)->GetConfiguration(1)->GetAxisMapperList();
+    AxisMappers = configFile.GetController(0)->GetProfile(1)->GetAxisMapperList();
     for(int i=ai_ls_up; i<AI_MAX; i++)
     {
         if(!axes[i].GetDevice()->GetType().empty())
@@ -1296,7 +1296,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
             it->GetEvent()->SetExponent(string(TextCtrlAccelerationADS->GetValue().mb_str(wxConvUTF8)));
             it->GetEvent()->SetShape(reverseTranslate(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))));
 
-            std::list<MouseOptions>* mouseOptions = configFile.GetController(0)->GetConfiguration(1)->GetMouseOptionsList();
+            std::list<MouseOptions>* mouseOptions = configFile.GetController(0)->GetProfile(1)->GetMouseOptionsList();
             std::list<MouseOptions>::iterator it2;
             for(it2 = mouseOptions->begin(); it2!=mouseOptions->end(); ++it2)
             {
@@ -1323,7 +1323,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
           sDzADS, string(TextCtrlSensitivityADS->GetValue().mb_str(wxConvUTF8)), string(TextCtrlAccelerationADS->GetValue().mb_str(wxConvUTF8)),
           reverseTranslate(string(ChoiceDeadZoneShapeADS->GetStringSelection().mb_str(wxConvUTF8))), "Aiming - x axis"));
 
-      std::list<MouseOptions>* mouseOptions = configFile.GetController(0)->GetConfiguration(1)->GetMouseOptionsList();
+      std::list<MouseOptions>* mouseOptions = configFile.GetController(0)->GetProfile(1)->GetMouseOptionsList();
       std::list<MouseOptions>::iterator it2;
       for(it2 = mouseOptions->begin(); it2!=mouseOptions->end(); ++it2)
       {
@@ -1436,8 +1436,8 @@ void fpsconfigFrame::LoadConfig()
           button->UnsetToolTip();
       }
   }
-  ButtonMappers[0] = configFile.GetController(0)->GetConfiguration(0)->GetButtonMapperList();
-  ButtonMappers[1] = configFile.GetController(0)->GetConfiguration(1)->GetButtonMapperList();
+  ButtonMappers[0] = configFile.GetController(0)->GetProfile(0)->GetButtonMapperList();
+  ButtonMappers[1] = configFile.GetController(0)->GetProfile(1)->GetButtonMapperList();
   if(ButtonMappers[0]->size() != ButtonMappers[1]->size())
   {
     warn = true;
@@ -1545,8 +1545,8 @@ void fpsconfigFrame::LoadConfig()
   wsmy.erase();
   mx = 0;
   my = 0;
-  AxisMappers[0] = configFile.GetController(0)->GetConfiguration(0)->GetAxisMapperList();
-  AxisMappers[1] = configFile.GetController(0)->GetConfiguration(1)->GetAxisMapperList();
+  AxisMappers[0] = configFile.GetController(0)->GetProfile(0)->GetAxisMapperList();
+  AxisMappers[1] = configFile.GetController(0)->GetProfile(1)->GetAxisMapperList();
   if(AxisMappers[0]->size() != AxisMappers[1]->size())
   {
     warn = true;
@@ -1590,7 +1590,7 @@ void fpsconfigFrame::LoadConfig()
               SpinCtrlDeadZoneHipFire->SetValue(wxAtoi(wxString(it->GetEvent()->GetDeadZone().c_str(), wxConvUTF8)));
               ChoiceDeadZoneShapeHipFire->SetStringSelection(_CN(it->GetEvent()->GetShape()));
 
-              mouseOptions = configFile.GetController(0)->GetConfiguration(0)->GetMouseOptionsList();
+              mouseOptions = configFile.GetController(0)->GetProfile(0)->GetMouseOptionsList();
               for(std::list<MouseOptions>::iterator it2 = mouseOptions->begin(); it2!=mouseOptions->end(); ++it2)
               {
                 if(it2->GetMouse()->GetName() == it->GetDevice()->GetName()
@@ -1709,7 +1709,7 @@ void fpsconfigFrame::LoadConfig()
               SpinCtrlDeadZoneADS->SetValue(wxAtoi(wxString(it->GetEvent()->GetDeadZone().c_str(), wxConvUTF8)));
               ChoiceDeadZoneShapeADS->SetStringSelection(_CN(it->GetEvent()->GetShape()));
 
-              mouseOptions = configFile.GetController(0)->GetConfiguration(1)->GetMouseOptionsList();
+              mouseOptions = configFile.GetController(0)->GetProfile(1)->GetMouseOptionsList();
               for(std::list<MouseOptions>::iterator it2 = mouseOptions->begin(); it2!=mouseOptions->end(); ++it2)
               {
                 if(it2->GetMouse()->GetName() == it->GetDevice()->GetName()

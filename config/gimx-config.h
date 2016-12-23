@@ -487,9 +487,9 @@ class configFrame: public wxFrame
         EventCatcher* evcatch;
         ConfigurationFile configFile;
         unsigned int currentController;
-        unsigned int currentConfiguration;
+        unsigned int currentProfile;
 
-        Configuration tempConfiguration;
+        Profile tempConfiguration;
         Controller tempController;
 
         unsigned int grid1mod;

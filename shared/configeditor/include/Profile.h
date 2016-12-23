@@ -4,7 +4,7 @@
  */
 
 #ifndef CONFIGURATION_H
-#define CONFIGURATION_H
+#define PROFILE_H
 
 #include <Device.h>
 #include <Event.h>
@@ -15,13 +15,13 @@
 #include <JoystickCorrection.h>
 #include <list>
 
-class Configuration
+class Profile
 {
     public:
-        Configuration();
-        virtual ~Configuration();
-        Configuration(const Configuration& other);
-        Configuration& operator=(const Configuration& other);
+        Profile();
+        virtual ~Profile();
+        Profile(const Profile& other);
+        Profile& operator=(const Profile& other);
         Trigger* GetTrigger() { return &m_Trigger; }
         void SetTrigger(Trigger val) { m_Trigger = val; }
         std::list<Intensity>* GetIntensityList() { return &m_IntensityList; }
@@ -45,4 +45,4 @@ class Configuration
         std::list<JoystickCorrection> m_JoystickCorrectionsList;
 };
 
-#endif // CONFIGURATION_H
+#endif // PROFILE_H

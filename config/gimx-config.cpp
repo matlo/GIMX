@@ -1327,7 +1327,7 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     GridMouseOption->SetSelectionMode(wxGrid::wxGridSelectRows);
 
     currentController = 0;
-    currentConfiguration = 0;
+    currentProfile = 0;
 
     LoadControllerType();
 
@@ -1485,7 +1485,7 @@ void configFrame::OnMenuItemNew(wxCommandEvent& event __attribute__((unused)))
     configFile = ConfigurationFile();
 
     currentController = 0;
-    currentConfiguration = 0;
+    currentProfile = 0;
     MenuController->Check(ID_MENUITEM1, true);
     MenuConfiguration->Check(ID_MENUITEM8, true);
     load_current();
@@ -1598,14 +1598,14 @@ void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
     string old_event_id = string(GridPanelButton->GetCellValue(row, 4).mb_str(wxConvUTF8));
     string old_button_id = string(GridPanelButton->GetCellValue(row, 6).mb_str(wxConvUTF8));
 
-    for(unsigned int k=0; k<MAX_CONFIGURATIONS; ++k)
+    for(unsigned int k=0; k<MAX_PROFILES; ++k)
     {
-      if(k == currentConfiguration)
+      if(k == currentProfile)
       {
         continue;
       }
 
-      Configuration* config = controller->GetConfiguration(k);
+      Profile* config = controller->GetProfile(k);
 
       std::list<ControlMapper>* buttonMappers = config->GetButtonMapperList();
       for(std::list<ControlMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); )
@@ -1635,14 +1635,14 @@ void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
     string old_event_id = string(GridPanelAxis->GetCellValue(row, 4).mb_str(wxConvUTF8));
     string old_axis_id = string(GridPanelAxis->GetCellValue(row, 5).mb_str(wxConvUTF8));
 
-    for(unsigned int k=0; k<MAX_CONFIGURATIONS; ++k)
+    for(unsigned int k=0; k<MAX_PROFILES; ++k)
     {
-      if(k == currentConfiguration)
+      if(k == currentProfile)
       {
         continue;
       }
 
-      Configuration* config = controller->GetConfiguration(k);
+      Profile* config = controller->GetProfile(k);
 
       std::list<ControlMapper>* axisMappers = config->GetAxisMapperList();
       for(std::list<ControlMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); )
@@ -1673,14 +1673,14 @@ void configFrame::DeleteLinkedRows(wxGrid* grid, int row)
 
     Controller* controller = configFile.GetController(currentController);
 
-    for(unsigned int k=0; k<MAX_CONFIGURATIONS; ++k)
+    for(unsigned int k=0; k<MAX_PROFILES; ++k)
     {
-      if(k == currentConfiguration)
+      if(k == currentProfile)
       {
         continue;
       }
 
-      Configuration* config = controller->GetConfiguration(k);
+      Profile* config = controller->GetProfile(k);
 
       std::list<Intensity>* intensities = config->GetIntensityList();
       for(std::list<Intensity>::iterator it = intensities->begin(); it!=intensities->end(); )
@@ -1922,9 +1922,9 @@ void configFrame::OnButtonAutoDetectClick(wxCommandEvent& event __attribute__((u
 
       Controller* controller = configFile.GetController(currentController);
 
-      for(k=0; k<MAX_CONFIGURATIONS; ++k)
+      for(k=0; k<MAX_PROFILES; ++k)
       {
-        Configuration* config = controller->GetConfiguration(k);
+        Profile* config = controller->GetProfile(k);
 
         dev = config->GetTrigger()->GetDevice();
         ev = config->GetTrigger()->GetEvent();
@@ -2077,7 +2077,7 @@ void configFrame::save_current()
     std::list<JoystickCorrection>* joystickCorrectionsList;
 
     Controller* controller = configFile.GetController(currentController);
-    Configuration* configuration = controller->GetConfiguration(currentConfiguration);
+    Profile* configuration = controller->GetProfile(currentProfile);
 
     //Save Trigger
     configuration->GetTrigger()->GetDevice()->SetType(reverseTranslate(string(ProfileTriggerDeviceType->GetLabel().mb_str(wxConvUTF8))));
@@ -2243,7 +2243,7 @@ void configFrame::load_current()
     std::list<JoystickCorrection>* joystickCorrectionsList;
 
     Controller* controller = configFile.GetController(currentController);
-    Configuration* configuration = controller->GetConfiguration(currentConfiguration);
+    Profile* configuration = controller->GetProfile(currentProfile);
 
     //Set controller type
     LoadControllerType();
@@ -2494,7 +2494,7 @@ void configFrame::OnMenuOpen(wxCommandEvent& event __attribute__((unused)))
     }
 
     currentController = 0;
-    currentConfiguration = 0;
+    currentProfile = 0;
     MenuController->Check(ID_MENUITEM1, true);
     MenuConfiguration->Check(ID_MENUITEM8, true);
     load_current();
@@ -2539,7 +2539,7 @@ void configFrame::OnMenuItemController(wxCommandEvent& event __attribute__((unus
     {
       currentController = 6;
     }
-    currentConfiguration = 0;
+    currentProfile = 0;
     MenuConfiguration->Check(ID_MENUITEM8, true);
     load_current();
     reset_buttons();
@@ -2555,35 +2555,35 @@ void configFrame::OnMenuItemConfiguration(wxCommandEvent& event __attribute__((u
   save_current();
   if(MenuConfiguration1->IsChecked())
   {
-    currentConfiguration = 0;
+    currentProfile = 0;
   }
   else if(MenuConfiguration2->IsChecked())
   {
-    currentConfiguration = 1;
+    currentProfile = 1;
   }
   else if(MenuConfiguration3->IsChecked())
   {
-    currentConfiguration = 2;
+    currentProfile = 2;
   }
   else if(MenuConfiguration4->IsChecked())
   {
-    currentConfiguration = 3;
+    currentProfile = 3;
   }
   else if(MenuConfiguration5->IsChecked())
   {
-    currentConfiguration = 4;
+    currentProfile = 4;
   }
   else if(MenuConfiguration6->IsChecked())
   {
-    currentConfiguration = 5;
+    currentProfile = 5;
   }
   else if(MenuConfiguration7->IsChecked())
   {
-    currentConfiguration = 6;
+    currentProfile = 6;
   }
   else if(MenuConfiguration8->IsChecked())
   {
-    currentConfiguration = 7;
+    currentProfile = 7;
   }
   load_current();
   reset_buttons();
@@ -2766,9 +2766,9 @@ void configFrame::updateButtonConfigurations()
 
     Controller* controller = configFile.GetController(currentController);
 
-    for(k=0; k<MAX_CONFIGURATIONS; ++k)
+    for(k=0; k<MAX_PROFILES; ++k)
     {
-      Configuration* config = controller->GetConfiguration(k);
+      Profile* config = controller->GetProfile(k);
 
       buttonMappers = config->GetButtonMapperList();
       for(std::list<ControlMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); ++it)
@@ -2940,9 +2940,9 @@ void configFrame::updateAxisConfigurations()
 
     Controller* controller = configFile.GetController(currentController);
 
-    for(k=0; k<MAX_CONFIGURATIONS; ++k)
+    for(k=0; k<MAX_PROFILES; ++k)
     {
-      Configuration* config = controller->GetConfiguration(k);
+      Profile* config = controller->GetProfile(k);
 
       axisMappers = config->GetAxisMapperList();
       for(std::list<ControlMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
@@ -2988,7 +2988,7 @@ void configFrame::OnAxisTabShapeSelect(wxCommandEvent& event __attribute__((unus
 void configFrame::OnMenuItemCopyConfiguration(wxCommandEvent& event __attribute__((unused)))
 {
   save_current();
-  tempConfiguration = *configFile.GetController(currentController)->GetConfiguration(currentConfiguration);
+  tempConfiguration = *configFile.GetController(currentController)->GetProfile(currentProfile);
 }
 
 /*
@@ -2997,7 +2997,7 @@ void configFrame::OnMenuItemCopyConfiguration(wxCommandEvent& event __attribute_
  */
 void configFrame::OnMenuItemPasteConfiguration(wxCommandEvent& event __attribute__((unused)))
 {
-  configFile.GetController(currentController)->SetConfiguration(tempConfiguration, currentConfiguration);
+  configFile.GetController(currentController)->SetProfile(tempConfiguration, currentProfile);
   load_current();
   refresh_gui();
   reset_buttons();
@@ -3081,9 +3081,9 @@ void configFrame::replaceDevice(wxString wx_device_type)
 
     Controller* controller = configFile.GetController(currentController);
 
-    for(k=0; k<MAX_CONFIGURATIONS; ++k)
+    for(k=0; k<MAX_PROFILES; ++k)
     {
-      Configuration* config = controller->GetConfiguration(k);
+      Profile* config = controller->GetProfile(k);
 
       Trigger* trigger = config->GetTrigger();
 
@@ -3227,9 +3227,9 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event __attribute__((unu
 
             Controller* controller = configFile.GetController(currentController);
 
-            for(k=0; k<MAX_CONFIGURATIONS; ++k)
+            for(k=0; k<MAX_PROFILES; ++k)
             {
-              Configuration* config = controller->GetConfiguration(k);
+              Profile* config = controller->GetProfile(k);
 
               axisMappers = config->GetAxisMapperList();
               for(std::list<ControlMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
@@ -3687,9 +3687,9 @@ void configFrame::updateIntensityConfigurations(Intensity* oldI, Intensity* newI
 
     Controller* controller = configFile.GetController(currentController);
 
-    for(k=0; k<MAX_CONFIGURATIONS; ++k)
+    for(k=0; k<MAX_PROFILES; ++k)
     {
-      Configuration* config = controller->GetConfiguration(k);
+      Profile* config = controller->GetProfile(k);
 
       intensities = config->GetIntensityList();
       for(std::list<Intensity>::iterator it = intensities->begin(); it!=intensities->end(); ++it)
@@ -3952,9 +3952,9 @@ void configFrame::updateMouseOptionsConfigurations(MouseOptions* oldM, MouseOpti
 
     Controller* controller = configFile.GetController(currentController);
 
-    for(k=0; k<MAX_CONFIGURATIONS; ++k)
+    for(k=0; k<MAX_PROFILES; ++k)
     {
-      Configuration* config = controller->GetConfiguration(k);
+      Profile* config = controller->GetProfile(k);
 
       mouseOptions = config->GetMouseOptionsList();
       for(std::list<MouseOptions>::iterator it = mouseOptions->begin(); it!=mouseOptions->end(); ++it)

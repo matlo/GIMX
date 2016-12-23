@@ -166,10 +166,10 @@ int ConfigurationFile::AutoBind(string refFilePath)
     {
       Controller* refController = refConfigFile.GetController(i);
       Controller* modController = GetController(i);
-      for(int j=0; j<MAX_CONFIGURATIONS; ++j)
+      for(int j=0; j<MAX_PROFILES; ++j)
       {
-        Configuration* refConfig = refController->GetConfiguration(j);
-        Configuration* modConfig = modController->GetConfiguration(j);
+        Profile* refConfig = refController->GetProfile(j);
+        Profile* modConfig = modController->GetProfile(j);
 
         modConfig->SetTrigger(*refConfig->GetTrigger());
         modConfig->SetIntensityList(*refConfig->GetIntensityList());
@@ -202,9 +202,9 @@ int ConfigurationFile::ConvertSensitivity(string refFilePath)
 
       if(refdpi && dpi && refdpi != dpi)
       {
-        for(int k=0; k<MAX_CONFIGURATIONS; ++k)
+        for(int k=0; k<MAX_PROFILES; ++k)
         {
-          Configuration* modConfig = modController->GetConfiguration(k);
+          Profile* modConfig = modController->GetProfile(k);
 
           list<ControlMapper>* modAxisMappers = modConfig->GetAxisMapperList();
 
@@ -237,9 +237,9 @@ void ConfigurationFile::GetLabels(list<string>& button_labels, list<string>& axi
   {
     Controller* controller = GetController(i);
 
-    for(int k=0; k<MAX_CONFIGURATIONS; ++k)
+    for(int k=0; k<MAX_PROFILES; ++k)
     {
-      Configuration* config = controller->GetConfiguration(k);
+      Profile* config = controller->GetProfile(k);
 
       list<ControlMapper>* buttonMappers = config->GetButtonMapperList();
 
