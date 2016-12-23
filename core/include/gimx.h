@@ -14,7 +14,7 @@
 #define _(STRING)    gettext(STRING)
 
 #define MAX_CONTROLLERS 7
-#define MAX_CONFIGURATIONS 8
+#define MAX_PROFILES 8
 #define MAX_DEVICES 256
 #define MAX_CONTROLS 256
 

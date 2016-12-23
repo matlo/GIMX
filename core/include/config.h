@@ -105,7 +105,7 @@ typedef struct
 typedef struct
 {
   unsigned int controller_id;
-  unsigned int config_id;
+  unsigned int profile_id;
   struct
   {
     e_device_type type;
@@ -172,7 +172,7 @@ typedef struct
 
 void cfg_trigger_init();
 void cfg_trigger_lookup(GE_Event*);
-void cfg_config_activation();
+void cfg_profile_activation();
 void cfg_intensity_lookup(GE_Event*);
 void cfg_process_event(GE_Event*);
 s_mouse_control* cfg_get_mouse_control(int);

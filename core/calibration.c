@@ -36,7 +36,7 @@ static int test_time = 1000;
 /*
  * Used to calibrate mouse controls.
  */
-s_mouse_cal mouse_cal[MAX_DEVICES][MAX_CONFIGURATIONS] = {};
+s_mouse_cal mouse_cal[MAX_DEVICES][MAX_PROFILES] = {};
 
 int mouse_controller[MAX_DEVICES];
 
@@ -62,7 +62,7 @@ inline s_mouse_cal* cal_get_mouse(int mouse, int conf)
 
 inline void cal_set_mouse(s_config_entry* entry)
 {
-  mouse_cal[entry->device.id][entry->config_id].options = entry->params.mouse_options;
+  mouse_cal[entry->device.id][entry->profile_id].options = entry->params.mouse_options;
 }
 
 static double distance = 0.1; //0.1 inches
@@ -486,9 +486,9 @@ void cal_button(int button)
           break;
         case CC:
           current_conf += 1;
-          if (current_conf > MAX_CONFIGURATIONS - 1)
+          if (current_conf > MAX_PROFILES - 1)
           {
-            current_conf = MAX_CONFIGURATIONS - 1;
+            current_conf = MAX_PROFILES - 1;
           }
           break;
         case MX:

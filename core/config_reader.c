@@ -454,7 +454,7 @@ static int ProcessEventElement(xmlNode * a_node, unsigned char mapper)
             case E_EVENT_TYPE_AXIS_UP:
               if(entry.device.type == E_DEVICE_TYPE_MOUSE)
               {
-                s_mouse_cal* mcal = cal_get_mouse(entry.device.id, entry.config_id);
+                s_mouse_cal* mcal = cal_get_mouse(entry.device.id, entry.profile_id);
                 if(!mcal->options.buffer_size)
                 {
                   entry.params.mouse_options.mode = E_MOUSE_MODE_AIMING;
@@ -1046,15 +1046,15 @@ static int ProcessConfigurationElement(xmlNode * a_node)
   int ret = 0;
   xmlNode* cur_node = NULL;
 
-  ret = GetUnsignedIntProp(a_node, X_ATTR_ID, &entry.config_id);
+  ret = GetUnsignedIntProp(a_node, X_ATTR_ID, &entry.profile_id);
 
   if(ret != -1)
   {
-    entry.config_id--;
+    entry.profile_id--;
 
-    if (entry.config_id >= MAX_CONFIGURATIONS)
+    if (entry.profile_id >= MAX_PROFILES)
     {
-      gerror("bad configuration id: %d\n", entry.config_id);
+      gerror("bad profile id: %d\n", entry.profile_id);
       ret = -1;
     }
   }

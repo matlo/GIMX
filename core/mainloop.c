@@ -69,7 +69,7 @@ void mainloop()
 
     cfg_process_motion();
 
-    cfg_config_activation();
+    cfg_profile_activation();
 
     if(adapter_send() < 0)
     {

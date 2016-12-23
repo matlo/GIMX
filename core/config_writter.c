@@ -21,7 +21,7 @@
  * These variables are used to read the configuration.
  */
 static unsigned int r_controller_id;
-static unsigned int r_config_id;
+static unsigned int r_profile_id;
 static e_device_type r_device_type;
 static int r_device_id;
 static char r_device_name[128];
@@ -35,7 +35,7 @@ static int ProcessEventElement(xmlNode * a_node)
   char dead_zone[32];
   char exponent[32];
   char* shape;
-  s_mouse_cal* mcal = cal_get_mouse(r_device_id, r_config_id);
+  s_mouse_cal* mcal = cal_get_mouse(r_device_id, r_profile_id);
 
   type = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_TYPE);
 
@@ -271,15 +271,15 @@ static int ProcessConfigurationElement(xmlNode * a_node)
   int ret = 0;
   xmlNode* cur_node = NULL;
 
-  ret = GetUnsignedIntProp(a_node, X_ATTR_ID, &r_config_id);
+  ret = GetUnsignedIntProp(a_node, X_ATTR_ID, &r_profile_id);
 
   if(ret != -1)
   {
-    r_config_id--;
+    r_profile_id--;
 
-    if (r_config_id >= MAX_CONFIGURATIONS)
+    if (r_profile_id >= MAX_PROFILES)
     {
-      gwarn("bad configuration id: %d\n", r_config_id);
+      gwarn("bad profile id: %d\n", r_profile_id);
       ret = -1;
     }
   }

@@ -2077,17 +2077,17 @@ void configFrame::save_current()
     std::list<JoystickCorrection>* joystickCorrectionsList;
 
     Controller* controller = configFile.GetController(currentController);
-    Profile* configuration = controller->GetProfile(currentProfile);
+    Profile* profile = controller->GetProfile(currentProfile);
 
     //Save Trigger
-    configuration->GetTrigger()->GetDevice()->SetType(reverseTranslate(string(ProfileTriggerDeviceType->GetLabel().mb_str(wxConvUTF8))));
-    configuration->GetTrigger()->GetDevice()->SetName(triggerTabDeviceName);
-    configuration->GetTrigger()->GetDevice()->SetId(string(ProfileTriggerDeviceId->GetLabel().mb_str(wxConvUTF8)));
-    configuration->GetTrigger()->GetEvent()->SetId(string(ProfileTriggerButtonId->GetLabel().mb_str(wxConvUTF8)));
-    configuration->GetTrigger()->SetSwitchBack(string(CheckBoxSwitchBack->GetValue()?"yes":"no"));
-    configuration->GetTrigger()->SetDelay(ProfileTriggerDelay->GetValue());
+    profile->GetTrigger()->GetDevice()->SetType(reverseTranslate(string(ProfileTriggerDeviceType->GetLabel().mb_str(wxConvUTF8))));
+    profile->GetTrigger()->GetDevice()->SetName(triggerTabDeviceName);
+    profile->GetTrigger()->GetDevice()->SetId(string(ProfileTriggerDeviceId->GetLabel().mb_str(wxConvUTF8)));
+    profile->GetTrigger()->GetEvent()->SetId(string(ProfileTriggerButtonId->GetLabel().mb_str(wxConvUTF8)));
+    profile->GetTrigger()->SetSwitchBack(string(CheckBoxSwitchBack->GetValue()?"yes":"no"));
+    profile->GetTrigger()->SetDelay(ProfileTriggerDelay->GetValue());
     //Save MouseOptions
-    mouseOptionsList = configuration->GetMouseOptionsList();
+    mouseOptionsList = profile->GetMouseOptionsList();
     mouseOptionsList->erase(mouseOptionsList->begin(), mouseOptionsList->end());
     for(int i=0; i<GridMouseOption->GetNumberRows(); i++)
     {
@@ -2100,7 +2100,7 @@ void configFrame::save_current()
               string(GridMouseOption->GetCellValue(i, 4).mb_str(wxConvUTF8))));
     }
     //Save axis Intensity
-    intensityList = configuration->GetIntensityList();
+    intensityList = profile->GetIntensityList();
     intensityList->erase(intensityList->begin(), intensityList->end());
     for(int i=0; i<GridIntensity->GetNumberRows(); i++)
     {
@@ -2117,7 +2117,7 @@ void configFrame::save_current()
               wxAtoi(GridIntensity->GetCellValue(i, 8))));
     }
     //Save Joystick Corrections
-    joystickCorrectionsList = configuration->GetJoystickCorrectionsList();
+    joystickCorrectionsList = profile->GetJoystickCorrectionsList();
     joystickCorrectionsList->erase(joystickCorrectionsList->begin(), joystickCorrectionsList->end());
     for(int i=0; i<GridJoystickCorrections->GetNumberRows(); i++)
     {
@@ -2132,7 +2132,7 @@ void configFrame::save_current()
               string(GridJoystickCorrections->GetCellValue(i, 6).mb_str(wxConvUTF8))));
     }
     //Save ControlMappers
-    buttonMappers = configuration->GetButtonMapperList();
+    buttonMappers = profile->GetButtonMapperList();
     buttonMappers->erase(buttonMappers->begin(), buttonMappers->end());
     for(int i=0; i<GridPanelButton->GetNumberRows(); i++)
     {
@@ -2148,7 +2148,7 @@ void configFrame::save_current()
               string(GridPanelButton->GetCellValue(i, 7).mb_str(wxConvUTF8))));
     }
     //Save axisMappers
-    axisMappers = configuration->GetAxisMapperList();
+    axisMappers = profile->GetAxisMapperList();
     axisMappers->erase(axisMappers->begin(), axisMappers->end());
     for(int i=0; i<GridPanelAxis->GetNumberRows(); i++)
     {
@@ -2243,14 +2243,14 @@ void configFrame::load_current()
     std::list<JoystickCorrection>* joystickCorrectionsList;
 
     Controller* controller = configFile.GetController(currentController);
-    Profile* configuration = controller->GetProfile(currentProfile);
+    Profile* profile = controller->GetProfile(currentProfile);
 
     //Set controller type
     LoadControllerType();
 
     //Load Trigger
-    ProfileTriggerDeviceType->SetLabel(_CN(configuration->GetTrigger()->GetDevice()->GetType()));
-    triggerTabDeviceName = configuration->GetTrigger()->GetDevice()->GetName();
+    ProfileTriggerDeviceType->SetLabel(_CN(profile->GetTrigger()->GetDevice()->GetType()));
+    triggerTabDeviceName = profile->GetTrigger()->GetDevice()->GetName();
     string name = triggerTabDeviceName;
     if(name.size() > 20)
     {
@@ -2258,9 +2258,9 @@ void configFrame::load_current()
       name.append("...");
     }
     ProfileTriggerDeviceName->SetLabel(wxString(name.c_str(),wxConvUTF8));
-    ProfileTriggerDeviceId->SetLabel(wxString(configuration->GetTrigger()->GetDevice()->GetId().c_str(),wxConvUTF8));
-    ProfileTriggerButtonId->SetLabel(wxString(configuration->GetTrigger()->GetEvent()->GetId().c_str(),wxConvUTF8));
-    if(configuration->GetTrigger()->GetSwitchBack() == "yes")
+    ProfileTriggerDeviceId->SetLabel(wxString(profile->GetTrigger()->GetDevice()->GetId().c_str(),wxConvUTF8));
+    ProfileTriggerButtonId->SetLabel(wxString(profile->GetTrigger()->GetEvent()->GetId().c_str(),wxConvUTF8));
+    if(profile->GetTrigger()->GetSwitchBack() == "yes")
     {
         CheckBoxSwitchBack->SetValue(true);
     }
@@ -2268,10 +2268,10 @@ void configFrame::load_current()
     {
         CheckBoxSwitchBack->SetValue(false);
     }
-    ProfileTriggerDelay->SetValue(configuration->GetTrigger()->GetDelay());
+    ProfileTriggerDelay->SetValue(profile->GetTrigger()->GetDelay());
     //Load mouse options
     clearGrid(GridMouseOption);
-    mouseOptionsList = configuration->GetMouseOptionsList();
+    mouseOptionsList = profile->GetMouseOptionsList();
     for(std::list<MouseOptions>::iterator it = mouseOptionsList->begin(); it!=mouseOptionsList->end(); ++it)
     {
       GridMouseOption->InsertRows();
@@ -2284,7 +2284,7 @@ void configFrame::load_current()
     GridMouseOption->AutoSizeColumns();
     //Load axis intensities
     clearGrid(GridIntensity);
-    intensityList = configuration->GetIntensityList();
+    intensityList = profile->GetIntensityList();
     for(std::list<Intensity>::iterator it = intensityList->begin(); it!=intensityList->end(); ++it)
     {
       string name = it->GetSpecificAxisName(controller->GetControllerType());
@@ -2328,7 +2328,7 @@ void configFrame::load_current()
     GridIntensity->AutoSizeColumns();
     //Load joystick corrections
     clearGrid(GridJoystickCorrections);
-    joystickCorrectionsList = configuration->GetJoystickCorrectionsList();
+    joystickCorrectionsList = profile->GetJoystickCorrectionsList();
     for(std::list<JoystickCorrection>::iterator it = joystickCorrectionsList->begin(); it!=joystickCorrectionsList->end(); ++it)
     {
       GridJoystickCorrections->InsertRows();
@@ -2343,7 +2343,7 @@ void configFrame::load_current()
     GridJoystickCorrections->AutoSizeColumns();
     //Load buttonMappers
     clearGrid(GridPanelButton);
-    buttonMappers = configuration->GetButtonMapperList();
+    buttonMappers = profile->GetButtonMapperList();
     for(std::list<ControlMapper>::iterator it = buttonMappers->begin(); it!=buttonMappers->end(); ++it)
     {
       string name = it->GetSpecificAxisName(controller->GetControllerType());
@@ -2396,7 +2396,7 @@ void configFrame::load_current()
     GridPanelButton->AutoSizeColumns();
     //Load axisMappers
     clearGrid(GridPanelAxis);
-    axisMappers = configuration->GetAxisMapperList();
+    axisMappers = profile->GetAxisMapperList();
     for(std::list<ControlMapper>::iterator it = axisMappers->begin(); it!=axisMappers->end(); ++it)
     {
       string name = it->GetSpecificAxisName(controller->GetControllerType());
