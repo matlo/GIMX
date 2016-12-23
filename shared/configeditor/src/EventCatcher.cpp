@@ -3,7 +3,7 @@
  License: GPLv3
  */
 
-#include "event_catcher.h"
+#include <EventCatcher.h>
 #include <unistd.h>
 #include <sstream>
 #include <ginput.h>
@@ -23,21 +23,21 @@
 
 #define PERIOD 10000//microseconds
 
-event_catcher* event_catcher::_singleton = NULL;
+EventCatcher* EventCatcher::_singleton = NULL;
 
-event_catcher::event_catcher() : done(0), stopTimer(-1), wevents(false)
+EventCatcher::EventCatcher() : done(0), stopTimer(-1), wevents(false)
 {
     //ctor
 }
 
-event_catcher::~event_catcher()
+EventCatcher::~EventCatcher()
 {
     //dtor
 }
 
 int process_event(GE_Event* event);
 
-int event_catcher::init()
+int EventCatcher::init()
 {
     unsigned char src = GE_MKB_SOURCE_PHYSICAL;
     
@@ -58,7 +58,7 @@ int event_catcher::init()
     return 0;
 }
 
-bool event_catcher::check_device(string device_type, string device_name, string device_id)
+bool EventCatcher::check_device(string device_type, string device_name, string device_id)
 {
     int i = 0;
     int nb = 0;
@@ -126,7 +126,7 @@ bool event_catcher::check_device(string device_type, string device_name, string 
     return false;
 }
 
-void event_catcher::clean()
+void EventCatcher::clean()
 {
     if (stopTimer >= 0)
     {
@@ -180,7 +180,7 @@ static s_joystick_axis_first axis_first[EVENT_BUFFER_SIZE];
 
 int process_event(GE_Event* event)
 {
-  event_catcher* evcatch = event_catcher::getInstance();
+  EventCatcher* evcatch = EventCatcher::getInstance();
 
   if(evcatch->GetDone())
   {
@@ -369,11 +369,11 @@ static int timer_read(int user __attribute__((unused)))
 
 static int timer_close(int timer __attribute__((unused)))
 {
-  event_catcher::getInstance()->SetDone();
+  EventCatcher::getInstance()->SetDone();
   return 1;
 }
 
-void event_catcher::StartTimer()
+void EventCatcher::StartTimer()
 {
     if (stopTimer < 0)
     {
@@ -391,7 +391,7 @@ void event_catcher::StartTimer()
     }
 }
 
-void event_catcher::run(string device_type, string event_type)
+void EventCatcher::run(string device_type, string event_type)
 {
     axis_first_nb = 0;
     memset(axis_first, 0x00, sizeof(axis_first));
@@ -434,7 +434,7 @@ void event_catcher::run(string device_type, string event_type)
     clean();
 }
 
-void event_catcher::AddEvent(Device device, Event event)
+void EventCatcher::AddEvent(Device device, Event event)
 {
     vector<pair<Device, Event> >::iterator it = find(m_Events.begin(), m_Events.end(), make_pair(device, event));
     if (it == m_Events.end())

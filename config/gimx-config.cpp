@@ -1393,7 +1393,7 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     GridIntensity->AutoSizeColumns();
     GridMouseOption->AutoSizeColumns();
 
-    evcatch = event_catcher::getInstance();
+    evcatch = EventCatcher::getInstance();
 
 	  /* Open the file given as argument */
     if(!file.IsEmpty())

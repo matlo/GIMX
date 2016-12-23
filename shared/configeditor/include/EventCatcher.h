@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -13,7 +13,7 @@
 
 using namespace std;
 
-class event_catcher
+class EventCatcher
 {
     public:
         string GetDeviceType() { return m_DeviceType; }
@@ -28,18 +28,18 @@ class event_catcher
         bool check_device(string device_type, string device_name, string device_id);
         void AddEvent(Device device, Event event);
         vector<pair<Device, Event> > * GetEvents() { return &m_Events; }
-        static event_catcher* getInstance ()
+        static EventCatcher* getInstance ()
         {
           if (NULL == _singleton)
           {
-            _singleton =  new event_catcher;
+            _singleton =  new EventCatcher;
           }
 
           return _singleton;
         }
     private:
-        event_catcher();
-        virtual ~event_catcher();
+        EventCatcher();
+        virtual ~EventCatcher();
         vector<pair<Device, Event> > m_Events;
         string m_DeviceType;
         string m_EventType;
@@ -47,7 +47,7 @@ class event_catcher
         int stopTimer;
         bool wevents;
 
-        static event_catcher* _singleton;
+        static EventCatcher* _singleton;
 };
 
 #endif // EVENT_CATCHER_H

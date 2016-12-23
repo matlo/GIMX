@@ -4,11 +4,12 @@
  */
 
 #ifndef CONFIGURATIONFILE_H
+
 #define CONFIGURATIONFILE_H
 
 #include <Controller.h>
 #include <list>
-#include <event_catcher.h>
+#include "EventCatcher.h"
 
 #define MAX_CONTROLLERS 7
 #define MAX_DPI 20000

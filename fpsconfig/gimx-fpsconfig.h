@@ -19,7 +19,7 @@
 #include <wx/choice.h>
 //*)
 
-#include <event_catcher.h>
+#include <EventCatcher.h>
 #include <ConfigurationFile.h>
 
 #include <wx/textdlg.h>
@@ -241,7 +241,7 @@ class fpsconfigFrame: public wxFrame
 
         wxLocale* locale;
 
-        event_catcher* evcatch;
+        EventCatcher* evcatch;
         ConfigurationFile configFile;
 
         ControlMapper buttons[BI_MAX];

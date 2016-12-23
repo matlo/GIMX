@@ -25,7 +25,7 @@
 #include <wx/choice.h>
 //*)
 
-#include <event_catcher.h>
+#include <EventCatcher.h>
 #include <ConfigurationFile.h>
 
 class configFrame: public wxFrame
@@ -484,7 +484,7 @@ class configFrame: public wxFrame
 
         wxLocale* locale;
 
-        event_catcher* evcatch;
+        EventCatcher* evcatch;
         ConfigurationFile configFile;
         unsigned int currentController;
         unsigned int currentConfiguration;

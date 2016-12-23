@@ -18,7 +18,7 @@ XmlReader::XmlReader()
 {
     //ctor
     m_ConfigurationFile = NULL;
-    m_evtcatch = event_catcher::getInstance();
+    m_evtcatch = EventCatcher::getInstance();
     m_name_empty = false;
     m_name_nempty = false;
     m_checkDevices = true;
@@ -28,7 +28,7 @@ XmlReader::XmlReader(ConfigurationFile* configFile)
 {
     //ctor
     m_ConfigurationFile = configFile;
-    m_evtcatch = event_catcher::getInstance();
+    m_evtcatch = EventCatcher::getInstance();
     m_name_empty = false;
     m_name_nempty = false;
     m_checkDevices = false;

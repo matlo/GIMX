@@ -533,7 +533,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __at
       values[i] = 1;
     }
 
-    evcatch = event_catcher::getInstance();
+    evcatch = EventCatcher::getInstance();
 
   	/* Open the file given as argument. */
     if(!file.IsEmpty())

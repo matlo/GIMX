@@ -106,7 +106,7 @@ class XmlReader
         Controller m_TempController;
         ConfigurationFile m_TempConfigurationFile;
         ConfigurationFile* m_ConfigurationFile;
-        event_catcher* m_evtcatch;
+        EventCatcher* m_evtcatch;
         string m_info;
         string m_error;
         bool m_name_empty;
