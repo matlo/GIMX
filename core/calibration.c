@@ -314,7 +314,7 @@ void cal_key(int sym, int down)
             else
             {
               current_cal = CC;
-              ginfo(_("config selection\n"));
+              ginfo(_("profile selection\n"));
             }
           }
           else
@@ -341,7 +341,7 @@ void cal_key(int sym, int down)
       if (down && current_cal != NONE)
       {
         current_cal = CC;
-        ginfo(_("config selection\n"));
+        ginfo(_("profile selection\n"));
       }
       break;
     case GE_KEY_F9:

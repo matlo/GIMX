@@ -687,7 +687,7 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
 {
     xmlNode* cur_node = NULL;
     bool found;
-    unsigned int config_index;
+    unsigned int profile_index;
     stringstream ss;
     string id;
     char* prop;
@@ -697,12 +697,12 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
     xmlFree(prop);
 
     ss << id;
-    ss >> config_index;
-    config_index--;
+    ss >> profile_index;
+    profile_index--;
 
-    if(config_index >= MAX_PROFILES)
+    if(profile_index >= MAX_PROFILES)
     {
-        string message("bad configuration id: " + id);
+        string message("bad profile id: " + id);
         throw invalid_argument(message);
     }
 
@@ -847,7 +847,7 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
         }
     }
 
-    m_TempController.SetProfile(m_TempConfiguration, config_index);
+    m_TempController.SetProfile(m_TempConfiguration, profile_index);
 }
 
 void XmlReader::ProcessControllerElement(xmlNode * a_node)
