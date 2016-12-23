@@ -1191,24 +1191,24 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     MenuItemGtfPs2 = new wxMenuItem(MenuType, ID_MENUITEMGTFPS2, _("GT Force PS2"), wxEmptyString, wxITEM_RADIO);
     MenuType->Append(MenuItemGtfPs2);
     MenuBar1->Append(MenuType, _("Type"));
-    MenuConfiguration = new wxMenu();
-    MenuConfiguration1 = new wxMenuItem(MenuConfiguration, ID_MENUITEM8, _("1"), wxEmptyString, wxITEM_RADIO);
-    MenuConfiguration->Append(MenuConfiguration1);
-    MenuConfiguration2 = new wxMenuItem(MenuConfiguration, ID_MENUITEM9, _("2"), wxEmptyString, wxITEM_RADIO);
-    MenuConfiguration->Append(MenuConfiguration2);
-    MenuConfiguration3 = new wxMenuItem(MenuConfiguration, ID_MENUITEM10, _("3"), wxEmptyString, wxITEM_RADIO);
-    MenuConfiguration->Append(MenuConfiguration3);
-    MenuConfiguration4 = new wxMenuItem(MenuConfiguration, ID_MENUITEM11, _("4"), wxEmptyString, wxITEM_RADIO);
-    MenuConfiguration->Append(MenuConfiguration4);
-    MenuConfiguration5 = new wxMenuItem(MenuConfiguration, ID_MENUITEM13, _("5"), wxEmptyString, wxITEM_RADIO);
-    MenuConfiguration->Append(MenuConfiguration5);
-    MenuConfiguration6 = new wxMenuItem(MenuConfiguration, ID_MENUITEM14, _("6"), wxEmptyString, wxITEM_RADIO);
-    MenuConfiguration->Append(MenuConfiguration6);
-    MenuConfiguration7 = new wxMenuItem(MenuConfiguration, ID_MENUITEM15, _("7"), wxEmptyString, wxITEM_RADIO);
-    MenuConfiguration->Append(MenuConfiguration7);
-    MenuConfiguration8 = new wxMenuItem(MenuConfiguration, ID_MENUITEM16, _("8"), wxEmptyString, wxITEM_RADIO);
-    MenuConfiguration->Append(MenuConfiguration8);
-    MenuBar1->Append(MenuConfiguration, _("Profile"));
+    MenuProfile = new wxMenu();
+    MenuProfile1 = new wxMenuItem(MenuProfile, ID_MENUITEM8, _("1"), wxEmptyString, wxITEM_RADIO);
+    MenuProfile->Append(MenuProfile1);
+    MenuProfile2 = new wxMenuItem(MenuProfile, ID_MENUITEM9, _("2"), wxEmptyString, wxITEM_RADIO);
+    MenuProfile->Append(MenuProfile2);
+    MenuProfile3 = new wxMenuItem(MenuProfile, ID_MENUITEM10, _("3"), wxEmptyString, wxITEM_RADIO);
+    MenuProfile->Append(MenuProfile3);
+    MenuProfile4 = new wxMenuItem(MenuProfile, ID_MENUITEM11, _("4"), wxEmptyString, wxITEM_RADIO);
+    MenuProfile->Append(MenuProfile4);
+    MenuProfile5 = new wxMenuItem(MenuProfile, ID_MENUITEM13, _("5"), wxEmptyString, wxITEM_RADIO);
+    MenuProfile->Append(MenuProfile5);
+    MenuProfile6 = new wxMenuItem(MenuProfile, ID_MENUITEM14, _("6"), wxEmptyString, wxITEM_RADIO);
+    MenuProfile->Append(MenuProfile6);
+    MenuProfile7 = new wxMenuItem(MenuProfile, ID_MENUITEM15, _("7"), wxEmptyString, wxITEM_RADIO);
+    MenuProfile->Append(MenuProfile7);
+    MenuProfile8 = new wxMenuItem(MenuProfile, ID_MENUITEM16, _("8"), wxEmptyString, wxITEM_RADIO);
+    MenuProfile->Append(MenuProfile8);
+    MenuBar1->Append(MenuProfile, _("Profile"));
     MenuAdvanced = new wxMenu();
     MenuItemMultipleMiceAndKeyboards = new wxMenuItem(MenuAdvanced, ID_MENUITEM24, _("Multiple Mice and Keyboards"), wxEmptyString, wxITEM_CHECK);
     MenuAdvanced->Append(MenuItemMultipleMiceAndKeyboards);
@@ -1487,7 +1487,7 @@ void configFrame::OnMenuItemNew(wxCommandEvent& event __attribute__((unused)))
     currentController = 0;
     currentProfile = 0;
     MenuController->Check(ID_MENUITEM1, true);
-    MenuConfiguration->Check(ID_MENUITEM8, true);
+    MenuProfile->Check(ID_MENUITEM8, true);
     load_current();
     MenuFile->Enable(idMenuSave, false);
     reset_buttons();
@@ -2496,7 +2496,7 @@ void configFrame::OnMenuOpen(wxCommandEvent& event __attribute__((unused)))
     currentController = 0;
     currentProfile = 0;
     MenuController->Check(ID_MENUITEM1, true);
-    MenuConfiguration->Check(ID_MENUITEM8, true);
+    MenuProfile->Check(ID_MENUITEM8, true);
     load_current();
     refresh_gui();
     reset_buttons();
@@ -2540,7 +2540,7 @@ void configFrame::OnMenuItemController(wxCommandEvent& event __attribute__((unus
       currentController = 6;
     }
     currentProfile = 0;
-    MenuConfiguration->Check(ID_MENUITEM8, true);
+    MenuProfile->Check(ID_MENUITEM8, true);
     load_current();
     reset_buttons();
     refresh_gui();
@@ -2553,35 +2553,35 @@ void configFrame::OnMenuItemController(wxCommandEvent& event __attribute__((unus
 void configFrame::OnMenuItemConfiguration(wxCommandEvent& event __attribute__((unused)))
 {
   save_current();
-  if(MenuConfiguration1->IsChecked())
+  if(MenuProfile1->IsChecked())
   {
     currentProfile = 0;
   }
-  else if(MenuConfiguration2->IsChecked())
+  else if(MenuProfile2->IsChecked())
   {
     currentProfile = 1;
   }
-  else if(MenuConfiguration3->IsChecked())
+  else if(MenuProfile3->IsChecked())
   {
     currentProfile = 2;
   }
-  else if(MenuConfiguration4->IsChecked())
+  else if(MenuProfile4->IsChecked())
   {
     currentProfile = 3;
   }
-  else if(MenuConfiguration5->IsChecked())
+  else if(MenuProfile5->IsChecked())
   {
     currentProfile = 4;
   }
-  else if(MenuConfiguration6->IsChecked())
+  else if(MenuProfile6->IsChecked())
   {
     currentProfile = 5;
   }
-  else if(MenuConfiguration7->IsChecked())
+  else if(MenuProfile7->IsChecked())
   {
     currentProfile = 6;
   }
-  else if(MenuConfiguration8->IsChecked())
+  else if(MenuProfile8->IsChecked())
   {
     currentProfile = 7;
   }
@@ -4335,3 +4335,4 @@ pair<Device, Event> configFrame::selectEvent()
 
     return make_pair(Device(), Event());
 }
+

@@ -21,7 +21,7 @@ XmlWritter::XmlWritter()
     //ctor
     m_ConfigurationFile = NULL;
     m_CurrentController = 0;
-    m_CurrentConfiguration = 0;
+    m_CurrentProfile = 0;
 }
 
 XmlWritter::XmlWritter(ConfigurationFile* configFile)
@@ -29,7 +29,7 @@ XmlWritter::XmlWritter(ConfigurationFile* configFile)
     //ctor
     m_ConfigurationFile = configFile;
     m_CurrentController = 0;
-    m_CurrentConfiguration = 0;
+    m_CurrentProfile = 0;
 }
 
 XmlWritter::~XmlWritter()
@@ -75,7 +75,7 @@ void XmlWritter::CreateAxisMapNode(xmlNodePtr parent_node)
     xmlNodePtr am_node;
 
     xmlNodePtr node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_AXIS_MAP, NULL);
-    list<ControlMapper>* am_list = m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentConfiguration)->GetAxisMapperList();
+    list<ControlMapper>* am_list = m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentProfile)->GetAxisMapperList();
 
     for(list<ControlMapper>::iterator it = am_list->begin(); it!=am_list->end(); ++it)
     {
@@ -95,7 +95,7 @@ void XmlWritter::CreateButtonMapNode(xmlNodePtr parent_node)
     xmlNodePtr bm_node;
 
     xmlNodePtr node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_BUTTON_MAP, NULL);
-    list<ControlMapper>* bm_list = m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentConfiguration)->GetButtonMapperList();
+    list<ControlMapper>* bm_list = m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentProfile)->GetButtonMapperList();
 
     for(list<ControlMapper>::iterator it = bm_list->begin(); it!=bm_list->end(); ++it)
     {
@@ -114,7 +114,7 @@ void XmlWritter::CreateTriggerNode(xmlNodePtr parent_node)
 {
     char delay[6];
 
-    Trigger* trigger = m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentConfiguration)->GetTrigger();
+    Trigger* trigger = m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentProfile)->GetTrigger();
 
     xmlNodePtr node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_TRIGGER, NULL);
 
@@ -136,7 +136,7 @@ void XmlWritter::CreateMouseOptionsNodes(xmlNodePtr parent_node)
 {
     xmlNodePtr pnode = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_MOUSEOPTIONS_LIST, NULL);
 
-    list<MouseOptions>* i_list = m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentConfiguration)->GetMouseOptionsList();
+    list<MouseOptions>* i_list = m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentProfile)->GetMouseOptionsList();
 
     for(list<MouseOptions>::iterator it = i_list->begin(); it!=i_list->end(); ++it)
     {
@@ -156,7 +156,7 @@ void XmlWritter::CreateJoystickCorrectionsNodes(xmlNodePtr parent_node)
 {
     xmlNodePtr corrections = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_JOYSTICK_CORRECTIONS_LIST, NULL);
 
-    list<JoystickCorrection>* i_list = m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentConfiguration)->GetJoystickCorrectionsList();
+    list<JoystickCorrection>* i_list = m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentProfile)->GetJoystickCorrectionsList();
 
     for(list<JoystickCorrection>::iterator it = i_list->begin(); it!=i_list->end(); ++it)
     {
@@ -180,7 +180,7 @@ void XmlWritter::CreateIntensityNodes(xmlNodePtr parent_node)
 
     xmlNodePtr pnode = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_INTENSITY_LIST, NULL);
 
-    list<Intensity>* i_list = m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentConfiguration)->GetIntensityList();
+    list<Intensity>* i_list = m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentProfile)->GetIntensityList();
 
     for(list<Intensity>::iterator it = i_list->begin(); it!=i_list->end(); ++it)
     {
@@ -236,9 +236,9 @@ void XmlWritter::CreateConfigurationNodes(xmlNodePtr parent_node)
         
     for(i=0; i<MAX_PROFILES; ++i)
     {
-        m_CurrentConfiguration = i;
+        m_CurrentProfile = i;
         
-        if(m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentConfiguration)->IsEmpty())
+        if(m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentProfile)->IsEmpty())
         {
           continue;
         }

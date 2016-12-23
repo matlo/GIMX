@@ -27,7 +27,7 @@ class XmlWritter
         void CreateConfigurationNodes(xmlNodePtr parent_node);
         void CreateControllerNodes(xmlNodePtr parent_node);
         void CreateJoystickCorrectionsNodes(xmlNodePtr parent_node);
-        unsigned int m_CurrentConfiguration;
+        unsigned int m_CurrentProfile;
         unsigned int m_CurrentController;
         ConfigurationFile* m_ConfigurationFile;
 };

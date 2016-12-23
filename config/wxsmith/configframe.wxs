@@ -1828,44 +1828,44 @@
 					<radio>1</radio>
 				</object>
 			</object>
-			<object class="wxMenu" variable="MenuConfiguration" member="yes">
+			<object class="wxMenu" variable="MenuProfile" member="yes">
 				<label>Profile</label>
-				<object class="wxMenuItem" name="ID_MENUITEM8" variable="MenuConfiguration1" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM8" variable="MenuProfile1" member="yes">
 					<label>1</label>
 					<handler function="OnMenuItemConfiguration" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM9" variable="MenuConfiguration2" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM9" variable="MenuProfile2" member="yes">
 					<label>2</label>
 					<handler function="OnMenuItemConfiguration" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM10" variable="MenuConfiguration3" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM10" variable="MenuProfile3" member="yes">
 					<label>3</label>
 					<handler function="OnMenuItemConfiguration" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM11" variable="MenuConfiguration4" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM11" variable="MenuProfile4" member="yes">
 					<label>4</label>
 					<handler function="OnMenuItemConfiguration" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM13" variable="MenuConfiguration5" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM13" variable="MenuProfile5" member="yes">
 					<label>5</label>
 					<handler function="OnMenuItemConfiguration" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM14" variable="MenuConfiguration6" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM14" variable="MenuProfile6" member="yes">
 					<label>6</label>
 					<handler function="OnMenuItemConfiguration" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM15" variable="MenuConfiguration7" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM15" variable="MenuProfile7" member="yes">
 					<label>7</label>
 					<handler function="OnMenuItemConfiguration" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
-				<object class="wxMenuItem" name="ID_MENUITEM16" variable="MenuConfiguration8" member="yes">
+				<object class="wxMenuItem" name="ID_MENUITEM16" variable="MenuProfile8" member="yes">
 					<label>8</label>
 					<handler function="OnMenuItemConfiguration" entry="EVT_MENU" />
 					<radio>1</radio>
