@@ -21,7 +21,7 @@
 #include <winsock2.h> /* for htons */
 #endif
 #include <connectors/bluetooth/l2cap_abs.h>
-#include <ginput.h>
+#include <gimxinput/include/ginput.h>
 #include <report2event/report2event.h>
 
 #define DS4_DEVICE_CLASS 0x2508

@@ -1,4 +1,4 @@
-DIRS = gimxcontroller gimxupdater gimxconfigupdater gasync gimxgpp gimxconfigeditor
+DIRS = gimxcontroller gimxupdater gimxconfigupdater gimxcommon gimxhid gimxinput gimxpoll gimxprio gimxserial gimxtimer gimxusb gimxgpp gimxconfigeditor
 
 BUILDDIRS = $(DIRS:%=build-%)
 INSTALLDIRS = $(DIRS:%=install-%)
@@ -11,8 +11,11 @@ $(BUILDDIRS):
 	$(MAKE) -C $(@:build-%=%)
 
 build-gimxconfigeditor: build-gimxcontroller
-build-gimxconfigeditor: build-gasync
-build-gimxgpp: build-gasync
+build-gimxconfigeditor: build-gimxhid build-gimxinput build-gimxtimer build-gimxpoll
+build-gimxgpp: build-gimxhid
+ifeq ($(UHID),1)
+build-gimxconfigeditor: build-gimxuhid
+endif
 
 clean: $(CLEANDIRS)
 $(CLEANDIRS): 

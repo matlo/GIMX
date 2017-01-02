@@ -15,7 +15,7 @@
 #include "gimx.h"
 #include "config.h"
 #include <adapter.h>
-#include <ginput.h>
+#include <gimxinput/include/ginput.h>
 #include "../directories.h"
 
 #ifdef WIN32

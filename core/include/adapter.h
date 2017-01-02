@@ -8,8 +8,8 @@
 
 #include <connectors/protocol.h>
 #include <config.h>
-#include <gserial.h>
-#include "../../shared/gimxcontroller/include/controller.h"
+#include <gimxserial/include/gserial.h>
+#include <gimxcontroller/include/controller.h>
 
 #ifndef WIN32
 #include <netinet/in.h>

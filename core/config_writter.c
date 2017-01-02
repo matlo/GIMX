@@ -7,7 +7,7 @@
 #include "config.h"
 #include "config_reader.h"
 #include <xml_defs.h>
-#include <ginput.h>
+#include <gimxinput/include/ginput.h>
 #include "calibration.h"
 #include <libxml/xmlreader.h>
 #include <libxml/xmlwriter.h>

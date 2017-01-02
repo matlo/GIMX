@@ -5,7 +5,7 @@
 
 #include <connectors/bluetooth/l2cap_abs.h>
 #include <gimx.h>
-#include <gpoll.h>
+#include <gimxpoll/include/gpoll.h>
 
 #include <bluetooth/l2cap.h>
 #include <bluetooth/hci.h>

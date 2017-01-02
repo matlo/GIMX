@@ -33,8 +33,8 @@
 #include <stats.h>
 #include <gimxgpp/pcprog.h>
 #include "../directories.h"
-#include <gprio.h>
-#include <gusb.h>
+#include <gimxprio/include/gprio.h>
+#include <gimxusb/include/gusb.h>
 
 #define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
 

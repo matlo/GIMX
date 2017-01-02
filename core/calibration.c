@@ -13,7 +13,7 @@
 #include "config_writter.h"
 #include "gimx.h"
 #include <adapter.h>
-#include <ginput.h>
+#include <gimxinput/include/ginput.h>
 #include "display.h"
 #include "mainloop.h"
 

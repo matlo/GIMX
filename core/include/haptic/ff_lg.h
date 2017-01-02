@@ -6,7 +6,7 @@
 #ifndef FF_LG_H_
 #define FF_LG_H_
 
-#include <ginput.h>
+#include <gimxinput/include/ginput.h>
 
 #ifdef WIN32
 #define PACKED __attribute__((gcc_struct, packed))

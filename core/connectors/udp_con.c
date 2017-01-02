@@ -10,7 +10,7 @@
 #endif
 #include <stdio.h>
 #include <unistd.h>
-#include <ginput.h>
+#include <gimxinput/include/ginput.h>
 #include <errno.h>
 
 #ifndef WIN32

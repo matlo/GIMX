@@ -3,10 +3,10 @@
  License: GPLv3
  */
 
-#include <ginput.h>
-#include <gpoll.h>
-#include <gtimer.h>
-#include <gusb.h>
+#include <gimxinput/include/ginput.h>
+#include <gimxpoll/include/gpoll.h>
+#include <gimxtimer/include/gtimer.h>
+#include <gimxusb/include/gusb.h>
 #include "gimx.h"
 #include "calibration.h"
 #include "macros.h"

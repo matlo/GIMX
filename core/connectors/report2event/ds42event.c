@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#include "../../../shared/gimxcontroller/include/controller.h"
+#include <gimxcontroller/include/controller.h>
 
 #define STICK_THRESHOLD 8
 

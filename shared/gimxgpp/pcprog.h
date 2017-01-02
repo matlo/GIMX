@@ -2,7 +2,7 @@
 
 #define PCPROG_H
 
-#include <ghid.h>
+#include <gimxhid/include/ghid.h>
 
 #ifdef WIN32
 #define GIMX_PACKED __attribute__((gcc_struct, packed))

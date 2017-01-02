@@ -9,7 +9,7 @@
 #include <mainloop.h>
 #include <report2event/report2event.h>
 #include <gimx.h>
-#include <gusb.h>
+#include <gimxusb/include/gusb.h>
 
 #include <stdio.h>
 #include <string.h>

@@ -14,5 +14,4 @@ LDLIBS += -lgimxuhid
 endif
 endif
 
-LIBNAME=lib$(shell basename $(shell pwd))
 include ../Makedefs

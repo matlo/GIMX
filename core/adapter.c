@@ -21,12 +21,12 @@
 #ifndef WIN32
 #include "connectors/btds4.h"
 #endif
-#include "../shared/gimxcontroller/include/controller.h"
-#include <gpoll.h>
+#include <gimxcontroller/include/controller.h>
+#include <gimxpoll/include/gpoll.h>
 
 #include <haptic/ff_lg.h>
 #include <haptic/ff_conv.h>
-#include <ghid.h>
+#include <gimxhid/include/ghid.h>
 
 #define BAUDRATE 500000 //bps
 #define SERIAL_TIMEOUT 1000 //millisecond

@@ -18,7 +18,7 @@
 #include <connectors/windows/bt_bdaddr.h>
 #endif
 #include <hci.h>
-#include <gpoll.h>
+#include <gimxpoll/include/gpoll.h>
 
 #define ACL_MTU 1024
 #define L2CAP_MTU 1024

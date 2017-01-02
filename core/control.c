@@ -5,7 +5,7 @@
 
 #include "control.h"
 #include "gimx.h"
-#include <ginput.h>
+#include <gimxinput/include/ginput.h>
 #include "mainloop.h"
 
 static int lshift = 0;

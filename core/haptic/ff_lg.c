@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 #include <haptic/ff_lg.h>
-#include <ghid.h>
+#include <gimxhid/include/ghid.h>
 #include <adapter.h>
 #include <gimx.h>
 #include <limits.h>
@@ -679,7 +679,7 @@ void ff_lg_ack(int device) {
       return;
   }
 
-  dprintf("> ack\n");
+      dprintf("> ack\n");
 
   unsigned char * data = ff_lg_device[device].last_report.data + 1;
 

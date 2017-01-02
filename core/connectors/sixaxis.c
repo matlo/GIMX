@@ -12,7 +12,7 @@
 #include <arpa/inet.h> /* for htons */
 #endif
 #include <errno.h>
-#include <ginput.h>
+#include <gimxinput/include/ginput.h>
 #include <connectors/sixaxis.h>
 #include <connectors/bluetooth/bt_device_abs.h>
 #include <connectors/bluetooth/l2cap_abs.h>

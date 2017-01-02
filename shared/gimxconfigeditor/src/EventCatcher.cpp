@@ -6,9 +6,9 @@
 #include <EventCatcher.h>
 #include <unistd.h>
 #include <sstream>
-#include <ginput.h>
-#include <gpoll.h>
-#include <gtimer.h>
+#include <gimxinput/include/ginput.h>
+#include <gimxpoll/include/gpoll.h>
+#include <gimxtimer/include/gtimer.h>
 #include <stdlib.h>
 #include <string.h>
 #include <algorithm>

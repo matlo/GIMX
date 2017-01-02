@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#include "../../../shared/gimxcontroller/include/controller.h"
+#include <gimxcontroller/include/controller.h>
 
 static inline void axis2event(int (*callback)(GE_Event*), GE_Event* event, short axis,
     short paxis, char invert, uint8_t axis_id)

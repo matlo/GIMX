@@ -43,8 +43,8 @@
 #include <wx/numdlg.h>
 
 #include <time.h>
-#include <ghid.h>
-#include <gserial.h>
+#include <gimxhid/include/ghid.h>
+#include <gimxserial/include/gserial.h>
 
 #ifdef WIN32
 #define REGISTER_FUNCTION gpoll_register_handle

@@ -5,7 +5,7 @@
 
 #include <string.h>
 #include <gimxgpp/pcprog.h>
-#include "../../shared/gimxcontroller/include/controller.h"
+#include <gimxcontroller/include/controller.h>
 #include "config.h"
 #include "gimx.h"
 

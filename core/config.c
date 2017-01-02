@@ -11,7 +11,7 @@
 #include <math.h>
 #include <unistd.h>
 #include <sys/time.h>
-#include <ginput.h>
+#include <gimxinput/include/ginput.h>
 #include "calibration.h"
 #include "gimx.h"
 #include "macros.h"

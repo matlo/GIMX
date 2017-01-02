@@ -12,7 +12,7 @@ CXXFLAGS += -Wall -Wextra -s -O3
 
 CPPFLAGS += -I../
 
-#LIBNAME=libgimx$(shell basename $(shell pwd))
+LIBNAME=lib$(shell basename $(shell pwd))
 
 ifneq ($(OS),Windows_NT)
 LIB=$(LIBNAME).so

@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <gusb.h>
+#include <gimxusb/include/gusb.h>
 
 #ifdef WIN32
 #define REGISTER_FUNCTION gpoll_register_handle
