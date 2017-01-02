@@ -4,12 +4,13 @@
  */
 
 #ifndef CONTROLMAPPER_H
+
 #define CONTROLMAPPER_H
 
 #include "Device.h"
 #include "Event.h"
 
-#include <gimxcontroller/include/controller2.h>
+#include "../../gimxcontroller/include/controller.h"
 
 class ControlMapper
 {

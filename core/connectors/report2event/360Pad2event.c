@@ -4,11 +4,11 @@
  */
 
 #include <report2event/360Pad2event.h>
-#include <gimxcontroller/include/controller2.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include "../../../shared/gimxcontroller/include/controller.h"
 
 static inline void axis2event(int (*callback)(GE_Event*), GE_Event* event, short axis,
     short paxis, char invert, uint8_t axis_id)

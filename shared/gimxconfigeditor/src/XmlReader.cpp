@@ -3,12 +3,12 @@
  License: GPLv3
  */
 
+#include <gimxcontroller/include/controller.h>
 #include "XmlReader.h"
 #include <stdexcept>
 #include <sstream>
 
 #include <gimxcontroller/include/defs.h>
-#include <gimxcontroller/include/controller2.h>
 
 using namespace std;
 

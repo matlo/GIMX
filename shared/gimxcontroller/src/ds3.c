@@ -5,8 +5,8 @@
 
 #include <ds3.h>
 #include <report.h>
-#include <controller2.h>
 #include <string.h>
+#include "../include/controller.h"
 
 static s_axis axes[AXIS_MAX] = {
     [sa_lstick_x] = { .name = "lstick x", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },

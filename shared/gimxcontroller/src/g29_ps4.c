@@ -5,8 +5,8 @@
 
 #include <g29_ps4.h>
 #include <report.h>
-#include <controller2.h>
 #include <string.h>
+#include "../include/controller.h"
 
 #define G29_SQUARE_MASK     0x10
 #define G29_CROSS_MASK      0x20

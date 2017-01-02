@@ -4,12 +4,13 @@
  */
 
 #ifndef INTENSITY_H
+
 #define INTENSITY_H
 
 #include "Device.h"
 #include "Event.h"
 
-#include <gimxcontroller/include/controller2.h>
+#include "../../gimxcontroller/include/controller.h"
 
 class Intensity
 {

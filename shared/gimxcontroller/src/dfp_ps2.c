@@ -5,8 +5,8 @@
 
 #include <dfp_ps2.h>
 #include <report.h>
-#include <controller2.h>
 #include <string.h>
+#include "../include/controller.h"
 
 #define DFP_CROSS_MASK           0x4000
 #define DFP_SQUARE_MASK          0x8000

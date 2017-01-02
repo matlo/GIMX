@@ -6,7 +6,7 @@
 #ifndef DISPLAY_H_
 #define DISPLAY_H_
 
-#include <gimxcontroller/include/controller2.h>
+#include "../../shared/gimxcontroller/include/controller.h"
 
 void display_init();
 void display_end();

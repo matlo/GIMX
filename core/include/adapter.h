@@ -7,9 +7,9 @@
 #define ADAPTER_H_
 
 #include <connectors/protocol.h>
-#include <gimxcontroller/include/controller2.h>
 #include <config.h>
 #include <gserial.h>
+#include "../../shared/gimxcontroller/include/controller.h"
 
 #ifndef WIN32
 #include <netinet/in.h>

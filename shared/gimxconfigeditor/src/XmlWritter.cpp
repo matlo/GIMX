@@ -12,7 +12,7 @@
 #include <unistd.h>
 #endif
 
-#include <gimxcontroller/include/controller2.h>
+#include <gimxcontroller/include/controller.h>
 
 using namespace std;
 

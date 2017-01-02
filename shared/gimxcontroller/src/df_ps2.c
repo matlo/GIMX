@@ -5,8 +5,8 @@
 
 #include <df_ps2.h>
 #include <report.h>
-#include <controller2.h>
 #include <string.h>
+#include "../include/controller.h"
 
 #define DF_CROSS_MASK      0x0400
 #define DF_SQUARE_MASK     0x0800

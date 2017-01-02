@@ -5,9 +5,9 @@
 
 #include <x360.h>
 #include <report.h>
-#include <controller2.h>
 #include <limits.h>
 #include <string.h>
+#include "../include/controller.h"
 
 static s_axis axes[AXIS_MAX] =
 {

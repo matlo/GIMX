@@ -5,8 +5,8 @@
 
 #include <ds2.h>
 #include <report.h>
-#include <controller2.h>
 #include <string.h>
+#include "../include/controller.h"
 
 static s_axis axes[AXIS_MAX] =
 {
