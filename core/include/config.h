@@ -7,7 +7,7 @@
 #define CONFIG_H_
 
 #include <ginput.h>
-#include <controller2.h>
+#include <gimxcontroller/include/controller2.h>
 
 #define MAX_BUFFERSIZE 256
 

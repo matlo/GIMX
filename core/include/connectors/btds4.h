@@ -8,7 +8,7 @@
  
 #include <stdint.h>
 #include <stdbool.h>
-#include <ds4.h>
+#include <gimxcontroller/include/ds4.h>
 
 int btds4_init(int btds4_number, int dongle_index, const char * bdaddr_dst);
 int btds4_listen(int btds4_number);

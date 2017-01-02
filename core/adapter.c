@@ -21,7 +21,7 @@
 #ifndef WIN32
 #include "connectors/btds4.h"
 #endif
-#include <controller2.h>
+#include <gimxcontroller/include/controller2.h>
 #include <gpoll.h>
 
 #include <haptic/ff_lg.h>

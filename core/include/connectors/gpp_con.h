@@ -6,9 +6,9 @@
 #ifndef GPP_CON_H_
 #define GPP_CON_H_
 
-#include <defs.h>
+#include <gimxcontroller/include/defs.h>
 #include <ghid.h>
-#include <pcprog.h>
+#include <gimxgpp/pcprog.h>
 
 int gpp_connect(int id, const char* device);
 

@@ -8,7 +8,7 @@
  
 #include <stdint.h>
 #include <stdbool.h>
-#include <ds3.h>
+#include <gimxcontroller/include/ds3.h>
 
 int sixaxis_connect(int sixaxis_number, int dongle_index, const char * bdaddr_dst);
 void sixaxis_close(int sixaxis_number);

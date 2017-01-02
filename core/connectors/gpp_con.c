@@ -4,9 +4,9 @@
  */
 
 #include <string.h>
-#include <pcprog.h>
+#include <gimxgpp/pcprog.h>
 #include "config.h"
-#include <controller2.h>
+#include <gimxcontroller/include/controller2.h>
 #include "gimx.h"
 
 int gpp_connect(int id, const char* device)

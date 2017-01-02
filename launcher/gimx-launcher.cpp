@@ -32,10 +32,10 @@
 #include "launcher.h"
 
 #include "../directories.h"
-#include "../shared/updater/updater.h"
-#include "../shared/configupdater/configupdater.h"
-#include "../shared/gpp/pcprog.h"
-#include <ConfigurationFile.h>
+#include <gimxupdater/updater.h>
+#include <gimxconfigupdater/configupdater.h>
+#include <gimxgpp/pcprog.h>
+#include <gimxconfigeditor/include/ConfigurationFile.h>
 
 #include <wx/arrstr.h>
 #include <wx/stdpaths.h>

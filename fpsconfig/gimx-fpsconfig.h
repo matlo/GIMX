@@ -19,8 +19,8 @@
 #include <wx/choice.h>
 //*)
 
-#include <EventCatcher.h>
-#include <ConfigurationFile.h>
+#include <gimxconfigeditor/include/EventCatcher.h>
+#include <gimxconfigeditor/include/ConfigurationFile.h>
 
 #include <wx/textdlg.h>
 

@@ -1,4 +1,4 @@
-DIRS = controller updater configupdater gasync gpp configeditor
+DIRS = gimxcontroller gimxupdater gimxconfigupdater gasync gimxgpp gimxconfigeditor
 
 BUILDDIRS = $(DIRS:%=build-%)
 INSTALLDIRS = $(DIRS:%=install-%)
@@ -10,9 +10,9 @@ $(DIRS): $(BUILDDIRS)
 $(BUILDDIRS):
 	$(MAKE) -C $(@:build-%=%)
 
-build-configeditor: build-controller
-build-configeditor: build-gasync
-build-gpp: build-gasync
+build-gimxconfigeditor: build-gimxcontroller
+build-gimxconfigeditor: build-gasync
+build-gimxgpp: build-gasync
 
 clean: $(CLEANDIRS)
 $(CLEANDIRS): 

@@ -28,4 +28,5 @@ endif
 LDLIBS += -lXi -lX11
 endif
 
+LIBNAME=libgimx$(shell basename $(shell pwd))
 include ../../../Makedefs

@@ -10,7 +10,9 @@ CXXFLAGS += -Wall -Wextra -s -O3
 #CFLAGS += -Wall -Wextra -O0 -g
 #CXXFLAGS += -Wall -Wextra -O0 -g
 
-LIBNAME=libgimx$(shell basename $(shell pwd))
+CPPFLAGS += -I../
+
+#LIBNAME=libgimx$(shell basename $(shell pwd))
 
 ifneq ($(OS),Windows_NT)
 LIB=$(LIBNAME).so

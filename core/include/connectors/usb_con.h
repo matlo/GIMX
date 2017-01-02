@@ -6,7 +6,7 @@
 #ifndef USB_CON_H_
 #define USB_CON_H_
 
-#include <defs.h>
+#include <gimxcontroller/include/defs.h>
 
 int usb_init(int usb_number, e_controller_type type);
 int usb_close(int usb_number);

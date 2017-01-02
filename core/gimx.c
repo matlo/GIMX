@@ -31,7 +31,7 @@
 #include "args.h"
 #include <adapter.h>
 #include <stats.h>
-#include <pcprog.h>
+#include <gimxgpp/pcprog.h>
 #include "../directories.h"
 #include <gprio.h>
 #include <gusb.h>

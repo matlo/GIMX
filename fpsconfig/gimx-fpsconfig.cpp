@@ -6,7 +6,7 @@
 #include "wx_pch.h"
 #include "gimx-fpsconfig.h"
 #include <wx/msgdlg.h>
-#include <ConfigurationFile.h>
+#include <gimxconfigeditor/include/ConfigurationFile.h>
 
 #ifndef WIN32
 #include <pwd.h>
@@ -28,7 +28,7 @@
 #include <wx/filename.h>
 #include <wx/dir.h>
 
-#include "../shared/updater/updater.h"
+#include <gimxupdater/updater.h>
 #include "../directories.h"
 
 #include <wx/tooltip.h>

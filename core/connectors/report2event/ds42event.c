@@ -5,7 +5,7 @@
 
 #include <report2event/ds42event.h>
 #include <adapter.h>
-#include <controller2.h>
+#include <gimxcontroller/include/controller2.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>

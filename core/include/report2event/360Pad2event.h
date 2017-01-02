@@ -6,7 +6,7 @@
 #ifndef _360PAD2EVENT_H_
 #define _360PAD2EVENT_H_
 
-#include <controller2.h>
+#include <gimxcontroller/include/controller2.h>
 #include <ginput.h>
 
 void _360Pad2event(int adapter_id, s_report* current, s_report* previous,

@@ -7,7 +7,7 @@
 #define ADAPTER_H_
 
 #include <connectors/protocol.h>
-#include <controller2.h>
+#include <gimxcontroller/include/controller2.h>
 #include <config.h>
 #include <gserial.h>
 

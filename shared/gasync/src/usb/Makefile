@@ -10,4 +10,5 @@ LDFLAGS += -L../timer -L../poll
 LDLIBS += -lgimxtimer -lgimxpoll
 endif
 
+LIBNAME=libgimx$(shell basename $(shell pwd))
 include ../../../Makedefs

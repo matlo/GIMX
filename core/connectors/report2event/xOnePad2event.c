@@ -4,7 +4,7 @@
  */
 
 #include <report2event/xOnePad2event.h>
-#include <controller2.h>
+#include <gimxcontroller/include/controller2.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>

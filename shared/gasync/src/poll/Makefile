@@ -13,4 +13,5 @@ CFLAGS += `sdl2-config --cflags`
 LDLIBS += -lws2_32
 endif
 
+LIBNAME=libgimx$(shell basename $(shell pwd))
 include ../../../Makedefs

@@ -15,4 +15,5 @@ else
 LDLIBS += -lhid -lsetupapi
 endif
 
+LIBNAME=libgimx$(shell basename $(shell pwd))
 include ../../../Makedefs
