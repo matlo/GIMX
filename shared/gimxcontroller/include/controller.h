@@ -27,9 +27,16 @@ typedef struct {
 } s_axis_name_dir;
 
 #define AXIS_PROP_NONE     0x00
+// A button (axis with 1 bit resolution).
 #define AXIS_PROP_TOGGLE   0x01
+// The axis has positive values only.
+// May be combined with AXIS_PROP_CENTERED, to designate the positive side of a centered axis.
 #define AXIS_PROP_POSITIVE 0x02
+// The axis has negative values only.
+// May be combined with AXIS_PROP_CENTERED, to designate the negative side of a centered axis.
 #define AXIS_PROP_NEGATIVE 0x04
+// The axis has a center.
+// The axis has both negative and positive values if AXIS_PROP_NEGATIVE and AXIS_PROP_POSITIVE are not set.
 #define AXIS_PROP_CENTERED 0x08
 
 #define AXIS_NAME_MAX_SIZE 16
