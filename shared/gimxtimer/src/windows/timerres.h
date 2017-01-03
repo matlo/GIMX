@@ -7,7 +7,7 @@
 #define TIMERRES_H_
 
 #include <windows.h>
-#include <gpoll.h>
+#include <gimxpoll/include/gpoll.h>
 
 typedef int (*TIMERRES_CALLBACK)(unsigned int);
 

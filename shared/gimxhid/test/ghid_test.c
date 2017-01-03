@@ -8,11 +8,14 @@
 #include <errno.h>
 #include <sys/time.h>
 
-#include <ghid.h>
-#include <ginput.h>
-#include <gpoll.h>
-#include <gtimer.h>
-#include "common.h"
+#include <gimxhid/include/ghid.h>
+#include <gimxpoll/include/gpoll.h>
+#include <gimxtimer/include/gtimer.h>
+
+#include <gimxcommon/test/common.h>
+#include <gimxcommon/test/handlers.c>
+#include <gimxcommon/test/hid.c>
+#include <gimxcommon/test/timer.c>
 
 #define PERIOD 5000 //microseconds
 #define RUMBLE_PERIOD 1000000 //microseconds

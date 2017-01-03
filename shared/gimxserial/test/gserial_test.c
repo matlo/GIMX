@@ -11,12 +11,15 @@
 #include <getopt.h>
 #include <sys/time.h>
 
-#include <gserial.h>
-#include <ginput.h>
-#include <gpoll.h>
-#include <gtimer.h>
-#include <gprio.h>
-#include "common.h"
+#include <gimxserial/include/gserial.h>
+#include <gimxinput/include/ginput.h>
+#include <gimxpoll/include/gpoll.h>
+#include <gimxtimer/include/gtimer.h>
+#include <gimxprio/include/gprio.h>
+
+#include <gimxcommon/test/common.h>
+#include <gimxcommon/test/handlers.c>
+#include <gimxcommon/test/timer.c>
 
 #define PERIOD 10000//microseconds
 

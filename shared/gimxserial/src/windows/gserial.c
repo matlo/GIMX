@@ -4,8 +4,8 @@
  */
 
 #include <gserial.h>
-#include <common/gerror.h>
-#include <common/async.h>
+#include <gimxcommon/include/gerror.h>
+#include <gimxcommon/include/async.h>
 
 #include <stdio.h>
 #include <unistd.h>

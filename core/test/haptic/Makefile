@@ -2,7 +2,7 @@
 OUT = ff_conv_test
 OBJS = ff_conv_test.o
 BINS = ff_conv_test
-CFLAGS = -I../../include -I../../../shared/gasync/include -Wall -Wextra -g -O0
+CFLAGS = -I../../include -Wall -Wextra -g -O0
 CXXFLAGS = -Wall -Wextra -g -O0
 
 ifeq ($(OS),Windows_NT)

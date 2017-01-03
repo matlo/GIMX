@@ -6,7 +6,7 @@
 #ifndef RAWINPUT_H_
 #define RAWINPUT_H_
 
-#include <ginput.h>
+#include "../../include/ginput.h"
 
 #define RAWINPUT_CLASS_NAME "RawInputCatcher"
 #define RAWINPUT_WINDOW_NAME "RawInputMsgWindow"

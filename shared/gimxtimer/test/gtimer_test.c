@@ -8,10 +8,13 @@
 #include <string.h>
 #include <getopt.h>
 
-#include <gpoll.h>
-#include <gtimer.h>
-#include <gprio.h>
-#include "common.h"
+#include <gimxpoll/include/gpoll.h>
+#include <gimxtimer/include/gtimer.h>
+#include <gimxprio/include/gprio.h>
+
+#include <gimxcommon/test/common.h>
+#include <gimxcommon/test/handlers.c>
+#include <gimxcommon/test/timer.c>
 
 static unsigned int samples = 0;
 

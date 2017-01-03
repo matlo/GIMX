@@ -8,12 +8,17 @@
 #include <errno.h>
 #include <sys/time.h>
 
-#include <ghid.h>
-#include <guhid.h>
-#include <ginput.h>
-#include <gpoll.h>
-#include <gtimer.h>
-#include "common.h"
+#include <gimxhid/include/ghid.h>
+#include <gimxuhid/include/guhid.h>
+#include <gimxinput/include/ginput.h>
+#include <gimxpoll/include/gpoll.h>
+#include <gimxtimer/include/gtimer.h>
+
+#include <gimxcommon/test/common.h>
+#include <gimxcommon/test/handlers.c>
+#include <gimxcommon/test/hid.c>
+#include <gimxcommon/test/input.c>
+#include <gimxcommon/test/timer.c>
 
 #define PERIOD 10000//microseconds
 

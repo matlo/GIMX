@@ -8,7 +8,7 @@
 #include <windows.h>
 
 #include <ginput.h>
-#include <gpoll.h>
+#include <gimxpoll/include/gpoll.h>
 #include "rawinput.h"
 #include "../sdl/sdlinput.h"
 

@@ -10,8 +10,6 @@ NAME=$(shell basename $(shell pwd))
 CPPFLAGS += `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP -Wno-unused-local-typedefs
 LDLIBS += `wx-config --libs` -lstdc++ -lm
 
-CPPFLAGS += $(GIMXCONFIGEDITOR_CPPFLAGS) $(GIMXUPDATER_CPPFLAGS)
-
 LDLIBS += $(GIMXCONFIGEDITOR_LDLIBS) $(GIMXUPDATER_LDLIBS)
 
 LDFLAGS += $(GIMXCONFIGEDITOR_LDFLAGS) $(GIMXUPDATER_LDFLAGS)

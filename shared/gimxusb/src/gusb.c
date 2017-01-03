@@ -4,10 +4,10 @@
  */
 
 #include <gusb.h>
-#include <gpoll.h>
-#include <common/gerror.h>
+#include <gimxpoll/include/gpoll.h>
+#include <gimxcommon/include/gerror.h>
 #ifdef WIN32
-#include <gtimer.h>
+#include <gimxtimer/include/gtimer.h>
 #endif
 
 #include <stdio.h>

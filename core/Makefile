@@ -12,15 +12,7 @@ else
 OUT=gimx.exe
 endif
 
-CPPFLAGS += $(GIMXHID_CPPFLAGS) \
-            $(GIMXGPP_CPPFLAGS) \
-            $(GIMXCONTROLLER_CPPFLAGS) \
-            $(GIMXINPUT_CPPFLAGS) \
-            $(GIMXPOLL_CPPFLAGS) \
-            $(GIMXPRIO_CPPFLAGS) \
-            $(GIMXSERIAL_CPPFLAGS) \
-            $(GIMXTIMER_CPPFLAGS) \
-            $(GIMXUSB_CPPFLAGS)
+CPPFLAGS += $(GIMXINPUT_CPPFLAGS)
 
 LDLIBS += $(GIMXHID_LDLIBS) \
           $(GIMXGPP_LDLIBS) \

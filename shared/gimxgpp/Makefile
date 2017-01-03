@@ -1,8 +1,8 @@
 OBJECTS += $(patsubst %.c,%.o,$(wildcard *.c))
 
-CFLAGS += -fPIC -Iinclude -I../gasync/include
+CFLAGS += -fPIC -Iinclude
 
-LDFLAGS += -L../gasync/src/hid
+LDFLAGS += -L../gimxhid
 LDLIBS += -lgimxhid
 
 include ../Makedefs

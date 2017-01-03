@@ -3,10 +3,6 @@
  License: GPLv3
  */
 
-#ifndef COMMON_H_
-#define COMMON_H_
-
-#include <ginput.h>
 #ifdef WIN32
 #include <windows.h>
 #else
@@ -14,27 +10,17 @@
 #include <stddef.h>
 #endif
 
-#ifdef WIN32
-#define REGISTER_FUNCTION gpoll_register_handle
-#define REMOVE_FUNCTION gpoll_remove_handle
-#else
-#define REGISTER_FUNCTION gpoll_register_fd
-#define REMOVE_FUNCTION gpoll_remove_fd
-#endif
+static int timer_close(int user __attribute__((unused))) {
+  done = 1;
+  return 1;
+}
 
-int is_done();
-void set_done();
-
-void setup_handlers();
-
-void display_devices();
-int process_event(GE_Event*);
-int ignore_event(GE_Event*);
-
-int timer_close(int user);
-int timer_read(int user) ;
-
-char * hid_select();
+static int timer_read(int user __attribute__((unused))) {
+  /*
+   * Returning a non-zero value makes gpoll return, allowing to check the 'done' variable.
+   */
+  return 1;
+}
 
 #ifndef WIN32
 static inline unsigned long long int get_time() {
@@ -52,5 +38,3 @@ static inline unsigned long long int get_time() {
   return li.QuadPart / 10;
 }
 #endif
-
-#endif /* COMMON_H_ */

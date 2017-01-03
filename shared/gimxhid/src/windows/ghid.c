@@ -7,9 +7,9 @@
 #include <windows.h>
 #include <Hidsdi.h>
 #include <Setupapi.h>
-#include <ghid.h>
-#include <common/gerror.h>
-#include <common/async.h>
+#include <gimxhid/include/ghid.h>
+#include <gimxcommon/include/gerror.h>
+#include <gimxcommon/include/async.h>
 
 int ghid_init() {
 

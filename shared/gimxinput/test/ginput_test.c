@@ -9,10 +9,14 @@
 #include <string.h>
 #include <limits.h>
 
-#include <ginput.h>
-#include <gpoll.h>
-#include <gtimer.h>
-#include "common.h"
+#include <gimxinput/include/ginput.h>
+#include <gimxpoll/include/gpoll.h>
+#include <gimxtimer/include/gtimer.h>
+
+#include <gimxcommon/test/common.h>
+#include <gimxcommon/test/handlers.c>
+#include <gimxcommon/test/input.c>
+#include <gimxcommon/test/timer.c>
 
 #define PERIOD 10000//microseconds
 

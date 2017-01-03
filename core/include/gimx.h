@@ -9,6 +9,11 @@
 #include <gimxinput/include/ginput.h>
 #include <stdio.h>
 
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 #include <libintl.h>
 #include <locale.h>
 #define _(STRING)    gettext(STRING)
@@ -73,6 +78,37 @@ enum {
     WHITE
 };
 
+#if defined(_WIN32)
+static inline void setColorStdout(int c) {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(hConsole, &csbi);
+    SetConsoleTextAttribute(hConsole, (csbi.wAttributes & 0xFFF0) | (WORD)c); // Foreground colors take up the least significant byte
+}
+static inline void setColorStderr(int c) {
+    HANDLE hConsole = GetStdHandle(STD_ERROR_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(hConsole, &csbi);
+    SetConsoleTextAttribute(hConsole, (csbi.wAttributes & 0xFFF0) | (WORD)c); // Foreground colors take up the least significant byte
+}
+int saveDefaultColor(void) {
+    static char initialized = 0;
+    static WORD attributes;
+    if (!initialized) {
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+        attributes = csbi.wAttributes;
+        initialized = 1;
+    }
+    return (int)attributes;
+}
+static inline void resetColorStdout(void) {
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)saveDefaultColor());
+}
+static inline void resetColorStderr(void) {
+    SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), (WORD)saveDefaultColor());
+}
+#else
 static const char * ANSI_ATTRIBUTE_RESET    = "\033[0m";
 static const char * ANSI_BLACK              = "\033[22;30m";
 static const char * ANSI_RED                = "\033[22;31m";
@@ -112,27 +148,6 @@ static inline const char * getANSIColor(const int c) {
         default: return "";
     }
 }
-
-#if defined(_WIN32)
-static inline void setColorStdout(int c) {
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    GetConsoleScreenBufferInfo(hConsole, &csbi);
-    SetConsoleTextAttribute(hConsole, (csbi.wAttributes & 0xFFF0) | (WORD)c); // Foreground colors take up the least significant byte
-}
-static inline void setColorStderr(int c) {
-    HANDLE hConsole = GetStdHandle(STD_ERROR_HANDLE);
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    GetConsoleScreenBufferInfo(hConsole, &csbi);
-    SetConsoleTextAttribute(hConsole, (csbi.wAttributes & 0xFFF0) | (WORD)c); // Foreground colors take up the least significant byte
-}
-static inline void resetColorStdout(void) {
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)saveDefaultColor());
-}
-static inline void resetColorStdout(void) {
-    SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), (WORD)saveDefaultColor());
-}
-#else
 static inline void setColorStdout(int c) {
     printf("%s", getANSIColor(c));
 }

@@ -4,7 +4,7 @@
  */
 
 #include <gtimer.h>
-#include <common/gerror.h>
+#include <gimxcommon/include/gerror.h>
 #include "timerres.h"
 
 #include <windows.h>

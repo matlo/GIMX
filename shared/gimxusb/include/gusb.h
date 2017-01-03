@@ -17,7 +17,7 @@
 #ifndef WIN32
 #include <linux/usb/ch9.h>
 #else
-#include <windows/usb/ch9.h>
+#include "windows/usb/ch9.h"
 #endif
 
 struct usb_hid_descriptor {

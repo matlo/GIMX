@@ -6,7 +6,7 @@
 #ifndef GUHID_H_
 #define GUHID_H_
 
-#include "ghid.h"
+#include <gimxhid/include/ghid.h>
 
 int guhid_create(const s_hid_info * hid_info, int hid);
 int guhid_close(int device);

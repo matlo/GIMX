@@ -10,10 +10,13 @@
 #include <limits.h>
 #include <string.h>
 
-#include <gusb.h>
-#include <gpoll.h>
-#include <gtimer.h>
-#include "common.h"
+#include <gimxusb/include/gusb.h>
+#include <gimxpoll/include/gpoll.h>
+#include <gimxtimer/include/gtimer.h>
+
+#include <gimxcommon/test/common.h>
+#include <gimxcommon/test/handlers.c>
+#include <gimxcommon/test/timer.c>
 
 #define PERIOD 5000 //microseconds
 #define RUMBLE_PERIOD 1000000 //microseconds

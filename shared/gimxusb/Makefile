@@ -1,4 +1,4 @@
-OBJECTS += $(patsubst %.c,%.o,$(wildcard *.c))
+OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*.c))
 
 CPPFLAGS += -Iinclude -I../
 CFLAGS += -fPIC
@@ -6,7 +6,7 @@ CFLAGS += -fPIC
 LDFLAGS += -lusb-1.0
 
 ifeq ($(OS),Windows_NT)
-LDFLAGS += -L../timer -L../poll
+LDFLAGS += -L../gimxtimer -L../gimxpoll
 LDLIBS += -lgimxtimer -lgimxpoll
 endif
 
