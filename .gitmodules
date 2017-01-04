@@ -1,3 +1,6 @@
 [submodule "shared/gimx-adapter-protocol"]
 	path = shared/gimx-adapter-protocol
 	url = https://github.com/matlo/gimx-adapter-protocol.git
+[submodule "shared/gimxpoll"]
+	path = shared/gimxpoll
+	url = https://github.com/matlo/gimxpoll.git
