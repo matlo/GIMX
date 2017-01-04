@@ -16,3 +16,6 @@
 [submodule "shared/gimxinput"]
 	path = shared/gimxinput
 	url = https://github.com/matlo/gimxinput.git
+[submodule "shared/gimxserial"]
+	path = shared/gimxserial
+	url = https://github.com/matlo/gimxserial.git
