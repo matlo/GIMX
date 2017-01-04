@@ -200,4 +200,9 @@ typedef struct GIMX_PACKED
   unsigned char _unknown5[2];
 } s_report_ds4;
 
+typedef struct
+{
+  // TODO MLA
+} s_gc_state_ds4;
+
 #endif /* DS4_H_ */

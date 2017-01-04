@@ -137,4 +137,9 @@ typedef struct GIMX_PACKED
   unsigned char unused[6];
 } s_report_x360;
 
+typedef struct
+{
+  // TODO MLA
+} s_gc_state_x360;
+
 #endif /* X360_H_ */

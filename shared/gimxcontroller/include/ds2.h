@@ -43,4 +43,9 @@ typedef struct GIMX_PACKED
   char Y;
 } s_report_ds2;
 
+typedef struct
+{
+  // TODO MLA
+} s_gc_state_ds2;
+
 #endif /* DS2_H_ */

@@ -46,4 +46,9 @@ typedef struct GIMX_PACKED
   unsigned char unknown2;
 } s_report_dfpPs2;
 
+typedef struct
+{
+  // TODO MLA
+} s_gc_state_dfpPs2;
+
 #endif /* DFP_PS2_H_ */

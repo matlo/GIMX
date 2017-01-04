@@ -43,4 +43,9 @@ typedef struct GIMX_PACKED
   unsigned short Bt;
 } s_report_joystick;
 
+typedef struct
+{
+  // TODO MLA
+} s_gc_state_joystick;
+
 #endif /* JOYSTICK_H_ */

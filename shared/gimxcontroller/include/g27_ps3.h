@@ -63,4 +63,9 @@ typedef struct GIMX_PACKED
   } shifter;
 } s_report_g27Ps3;
 
+typedef struct
+{
+  // TODO MLA
+} s_gc_state_g27Ps3;
+
 #endif /* G27_PS3_H_ */

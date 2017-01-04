@@ -35,4 +35,9 @@ typedef struct GIMX_PACKED
   uint8_t : 8;
 } s_report_gtfPs2;
 
+typedef struct
+{
+  // TODO MLA
+} s_gc_state_gtfPs2;
+
 #endif /* GTF_PS2_H_ */

@@ -62,4 +62,9 @@ typedef struct GIMX_PACKED
   unsigned char unused1[10];
 } s_report_g29Ps4;
 
+typedef struct
+{
+  // TODO MLA
+} s_gc_state_g29Ps4;
+
 #endif /* G29_PS4_H_ */

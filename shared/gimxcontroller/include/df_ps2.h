@@ -44,4 +44,9 @@ typedef struct GIMX_PACKED
   unsigned char brakePedal;
 } s_report_dfPs2;
 
+typedef struct
+{
+  // TODO MLA
+} s_gc_state_dfPs2;
+
 #endif /* DF_PS2_H_ */

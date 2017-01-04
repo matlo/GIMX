@@ -69,4 +69,9 @@ typedef struct GIMX_PACKED
   unsigned char gyro[2];
 } s_report_ds3;
 
+typedef struct
+{
+  // TODO MLA
+} s_gc_state_ds3;
+
 #endif /* DS3_H_ */

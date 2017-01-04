@@ -99,4 +99,9 @@ typedef struct GIMX_PACKED
   };
 } s_report_xone;
 
+typedef struct
+{
+  // TODO MLA
+} s_gc_state_xone;
+
 #endif /* XONE_H_ */

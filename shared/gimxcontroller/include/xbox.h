@@ -62,4 +62,9 @@ typedef struct GIMX_PACKED
   short taxis;
 } s_report_xbox;
 
+typedef struct
+{
+  // TODO MLA
+} s_gc_state_xbox;
+
 #endif /* XBOX_H_ */
