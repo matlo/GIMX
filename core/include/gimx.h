@@ -91,23 +91,24 @@ static inline void setColorStderr(int c) {
     GetConsoleScreenBufferInfo(hConsole, &csbi);
     SetConsoleTextAttribute(hConsole, (csbi.wAttributes & 0xFFF0) | (WORD)c); // Foreground colors take up the least significant byte
 }
-int saveDefaultColor(void) {
+static inline int saveDefaultColor(DWORD device) {
     static char initialized = 0;
     static WORD attributes;
     if (!initialized) {
         CONSOLE_SCREEN_BUFFER_INFO csbi;
-        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+        GetConsoleScreenBufferInfo(GetStdHandle(device), &csbi);
         attributes = csbi.wAttributes;
         initialized = 1;
     }
     return (int)attributes;
 }
 static inline void resetColorStdout(void) {
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)saveDefaultColor());
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)saveDefaultColor(STD_OUTPUT_HANDLE));
 }
 static inline void resetColorStderr(void) {
-    SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), (WORD)saveDefaultColor());
+    SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), (WORD)saveDefaultColor(STD_ERROR_HANDLE));
 }
+
 #else
 static const char * ANSI_ATTRIBUTE_RESET    = "\033[0m";
 static const char * ANSI_BLACK              = "\033[22;30m";
