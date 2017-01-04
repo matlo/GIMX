@@ -13,3 +13,6 @@
 [submodule "shared/gimxhid"]
 	path = shared/gimxhid
 	url = https://github.com/matlo/gimxhid.git
+[submodule "shared/gimxinput"]
+	path = shared/gimxinput
+	url = https://github.com/matlo/gimxinput.git
