@@ -19,3 +19,6 @@
 [submodule "shared/gimxserial"]
 	path = shared/gimxserial
 	url = https://github.com/matlo/gimxserial.git
+[submodule "shared/gimxtimer"]
+	path = shared/gimxtimer
+	url = https://github.com/matlo/gimxtimer.git
