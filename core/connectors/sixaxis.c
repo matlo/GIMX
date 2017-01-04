@@ -18,7 +18,7 @@
 #include <connectors/bluetooth/l2cap_abs.h>
 #include <config.h>
 #include "gimx.h"
-#include <adapter.h>
+#include <controller.h>
 
 #define DS3_DEVICE_CLASS 0x508
 

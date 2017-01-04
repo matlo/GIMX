@@ -14,7 +14,7 @@
 #include <math.h>
 #include "gimx.h"
 #include "config.h"
-#include <adapter.h>
+#include <controller.h>
 #include <gimxinput/include/ginput.h>
 #include "../directories.h"
 

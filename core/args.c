@@ -10,7 +10,7 @@
 #include "gimx.h"
 #include "../info.h"
 #include <getopt.h>
-#include <adapter.h>
+#include <controller.h>
 #ifndef WIN32
 #include <netinet/in.h>
 #include <arpa/inet.h>

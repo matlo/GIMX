@@ -3,7 +3,8 @@
  License: GPLv3
  */
 
-#include <adapter.h>
+#include <controller.h>
+
 #include <gimx.h>
 #include <string.h>
 #include <sys/time.h>

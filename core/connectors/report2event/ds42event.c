@@ -4,7 +4,7 @@
  */
 
 #include <report2event/ds42event.h>
-#include <adapter.h>
+#include <controller.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>

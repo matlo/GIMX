@@ -5,7 +5,7 @@
 
 #include <connectors/usb_con.h>
 #include <connectors/protocol.h>
-#include <adapter.h>
+#include <controller.h>
 #include <mainloop.h>
 #include <report2event/report2event.h>
 #include <gimx.h>

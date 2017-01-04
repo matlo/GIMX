@@ -3,8 +3,8 @@
  License: GPLv3
  */
 
-#ifndef ADAPTER_H_
-#define ADAPTER_H_
+#ifndef CONTROLLER_H_
+#define CONTROLLER_H_
 
 #include <connectors/protocol.h>
 #include <config.h>
@@ -99,4 +99,4 @@ int adapter_forward_interrupt_in(int adapter, unsigned char* data, unsigned char
 
 int adapter_is_usb_auth_required(int adapter);
 
-#endif /* ADAPTER_H_ */
+#endif /* CONTROLLER_H_ */

@@ -15,7 +15,7 @@
 
 #include "../directories.h"
 #include "gimx.h"
-#include <adapter.h>
+#include <controller.h>
 
 /*
  * These variables are used to read the configuration.

@@ -29,7 +29,7 @@
 #include "connectors/bluetooth/bt_abs.h"
 #include "connectors/usb_con.h"
 #include "args.h"
-#include <adapter.h>
+#include <controller.h>
 #include <stats.h>
 #include <gimxgpp/pcprog.h>
 #include "../directories.h"

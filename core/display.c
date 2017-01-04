@@ -16,7 +16,7 @@
 #include "calibration.h"
 #include <gimxinput/include/ginput.h>
 #include "gimx.h"
-#include <adapter.h>
+#include <controller.h>
 #include <stats.h>
 
 #define CROSS_CHAR '*'

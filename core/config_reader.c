@@ -14,7 +14,7 @@
 #include <libxml/xmlreader.h>
 #include <iconv.h>
 #include "gimx.h"
-#include <adapter.h>
+#include <controller.h>
 #include "../directories.h"
 #include "macros.h"
 #include <errno.h>

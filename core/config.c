@@ -15,7 +15,7 @@
 #include "calibration.h"
 #include "gimx.h"
 #include "macros.h"
-#include <adapter.h>
+#include <controller.h>
 
 #define DEFAULT_RADIUS 512
 #define DEFAULT_VELOCITY 1

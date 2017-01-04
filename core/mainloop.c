@@ -11,7 +11,7 @@
 #include "calibration.h"
 #include "macros.h"
 #include <stdio.h>
-#include <adapter.h>
+#include <controller.h>
 #include <connectors/usb_con.h>
 #include <report2event/report2event.h>
 
