@@ -42,13 +42,6 @@ typedef enum
   C_TYPE_MAX = C_TYPE_NONE,
 } e_controller_type;
 
-typedef struct
-{
-  int min_refresh_period;
-  int default_refresh_period;
-  int* max_unsigned_axis_value;
-} s_controller_params;
-
 typedef enum
 {
   rel_axis_0 = 0,
