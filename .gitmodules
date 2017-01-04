@@ -4,3 +4,6 @@
 [submodule "shared/gimxpoll"]
 	path = shared/gimxpoll
 	url = https://github.com/matlo/gimxpoll.git
+[submodule "shared/gimxprio"]
+	path = shared/gimxprio
+	url = https://github.com/matlo/gimxprio.git
