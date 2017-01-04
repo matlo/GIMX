@@ -22,3 +22,6 @@
 [submodule "shared/gimxtimer"]
 	path = shared/gimxtimer
 	url = https://github.com/matlo/gimxtimer.git
+[submodule "shared/gimxuhid"]
+	path = shared/gimxuhid
+	url = https://github.com/matlo/gimxuhid.git
