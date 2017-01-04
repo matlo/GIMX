@@ -7,3 +7,6 @@
 [submodule "shared/gimxprio"]
 	path = shared/gimxprio
 	url = https://github.com/matlo/gimxprio.git
+[submodule "shared/gimxusb"]
+	path = shared/gimxusb
+	url = https://github.com/matlo/gimxusb.git
