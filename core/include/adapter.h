@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2017 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -17,56 +17,60 @@
 #include <connectors/windows/sockets.h>
 #endif
 
-typedef enum
-{
-  E_ADAPTER_TYPE_NONE,
-  E_ADAPTER_TYPE_BLUETOOTH,
-  E_ADAPTER_TYPE_DIY_USB,
-  E_ADAPTER_TYPE_REMOTE_GIMX,
-  E_ADAPTER_TYPE_GPP,
+typedef enum {
+    E_ADAPTER_TYPE_NONE,
+    E_ADAPTER_TYPE_BLUETOOTH,
+    E_ADAPTER_TYPE_DIY_USB,
+    E_ADAPTER_TYPE_REMOTE_GIMX,
+    E_ADAPTER_TYPE_GPP,
 } e_adapter_type;
 
-typedef struct
-{
-  char* bdaddr_dst;
-  int dongle_index;
-  //TODO MLA: refactoring (struct, union...)
-  char* portname;
-  int serialdevice;
-  s_packet packet;
-  unsigned int bread;
-  in_addr_t dst_ip;
-  unsigned short dst_port;
-  int dst_fd;
-  in_addr_t src_ip;
-  unsigned short src_port;
-  int src_fd;
-  e_adapter_type atype;
-  e_controller_type ctype;
-  int event;
-  int axis[AXIS_MAX];
-  int change;
-  int send_command;
-  int ts_axis[AXIS_MAX][2]; //issue 15
-  s_report_packet report[2]; //the xbox one guide button needs a dedicated report
-  int status;
-  struct {
-    int id;
-    struct
-    {
-      unsigned short vendor;
-      unsigned short product;
-    } usb_ids;
-    unsigned char has_rumble;
-    unsigned char has_ffb;
+typedef struct {
+    e_adapter_type atype;
+    union {
+        struct {
+            int index;
+            char* bdaddr_dst;
+        } bt;
+        struct {
+            char* portname;
+            int device;
+            s_packet packet;
+            unsigned int bread;
+        } serial;
+        struct {
+            in_addr_t ip;
+            unsigned short port;
+            int fd;
+        } remote;
+    };
+    in_addr_t src_ip;
+    unsigned short src_port;
+    int src_fd;
+    e_controller_type ctype;
+    int event;
+    int axis[AXIS_MAX];
+    int change;
+    int send_command;
+    int ts_axis[AXIS_MAX][2]; //issue 15
+    s_report_packet report[2]; //the xbox one guide button needs a dedicated report
+    int status;
     struct {
-      int id;
-      int write_pending;
-      int read_pending;
-    } hid;
-  } joystick;
-  unsigned char forward_out_reports;
-  unsigned char process_ffb;
+        int id;
+        struct {
+            unsigned short vendor;
+            unsigned short product;
+        } usb_ids;
+        unsigned char has_rumble;
+        unsigned char has_ffb;
+        struct {
+            int id;
+            int write_pending;
+            int read_pending;
+        } hid;
+    } joystick;
+    unsigned char forward_out_reports;
+    unsigned char process_ffb;
 } s_adapter;
 
 int adapter_detect();

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2017 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -195,7 +195,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
 
       case 'b':
         adapter_get(controller)->atype = E_ADAPTER_TYPE_BLUETOOTH;
-        adapter_get(controller)->bdaddr_dst = optarg;
+        adapter_get(controller)->bt.bdaddr_dst = optarg;
         if(adapter_get(controller)->ctype == C_TYPE_NONE)
         {
           adapter_get(controller)->ctype = C_TYPE_SIXAXIS;
@@ -244,13 +244,13 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         break;
 
       case 'h':
-        adapter_get(controller)->dongle_index = atoi(optarg);
-        printf(_("controller #%d: option -h with value `%d'\n"), controller + 1, adapter_get(controller)->dongle_index);
+        adapter_get(controller)->bt.index = atoi(optarg);
+        printf(_("controller #%d: option -h with value `%d'\n"), controller + 1, adapter_get(controller)->bt.index);
         break;
 
       case 'd':
-        if(read_ip(optarg, &adapter_get(controller)->dst_ip,
-            &adapter_get(controller)->dst_port) < 0)
+        if(read_ip(optarg, &adapter_get(controller)->remote.ip,
+            &adapter_get(controller)->remote.port) < 0)
         {
           gerror(_("Bad format for argument -d: '%s'\n"), optarg);
           ret = -1;

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2017 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -65,11 +65,11 @@ void adapter_init_static(void)
   {
     adapters[i].atype = E_ADAPTER_TYPE_NONE;
     adapters[i].ctype = C_TYPE_NONE;
-    adapters[i].dst_fd = -1;
+    adapters[i].remote.fd = -1;
     adapters[i].src_fd = -1;
-    adapters[i].serialdevice = -1;
+    adapters[i].serial.device = -1;
     adapters[i].joystick.hid.id = -1;
-    adapters[i].bread = 0;
+    adapters[i].serial.bread = 0;
     for(j = 0; j < MAX_REPORTS; ++j)
     {
       adapters[i].report[j].type = BYTE_IN_REPORT;
@@ -103,12 +103,12 @@ int adapter_set_port(unsigned char adapter, char* portname)
   }
   for(i = 0; i < adapter; ++i)
   {
-    if(adapters[i].portname && !strcmp(adapters[i].portname, portname))
+    if(adapters[i].serial.portname && !strcmp(adapters[i].serial.portname, portname))
     {
       return -1;
     }
   }
-  adapters[adapter].portname = portname;
+  adapters[adapter].serial.portname = portname;
   return 0;
 }
 
@@ -307,7 +307,7 @@ static void dump(unsigned char * packet, unsigned char length)
 
 static int adapter_forward(int adapter, unsigned char type, unsigned char* data, unsigned char length)
 {
-  if(adapters[adapter].serialdevice >= 0)
+  if(adapters[adapter].serial.device >= 0)
   {
     DEBUG_PACKET(data, length)
     s_packet packet =
@@ -319,7 +319,7 @@ static int adapter_forward(int adapter, unsigned char type, unsigned char* data,
       }
     };
     memcpy(packet.value, data, length);
-    if(gserial_write(adapters[adapter].serialdevice, &packet, sizeof(packet.header)+packet.header.length) < 0)
+    if(gserial_write(adapters[adapter].serial.device, &packet, sizeof(packet.header)+packet.header.length) < 0)
     {
       return -1;
     }
@@ -569,33 +569,33 @@ static int adapter_serial_read_cb(int adapter, const void * buf, int status) {
 
   int ret = 0;
   
-  if(adapters[adapter].bread + status < sizeof(s_packet)) {
-    memcpy((unsigned char *)&adapters[adapter].packet + adapters[adapter].bread, buf, status);
-    adapters[adapter].bread += status;
+  if(adapters[adapter].serial.bread + status < sizeof(s_packet)) {
+    memcpy((unsigned char *)&adapters[adapter].serial.packet + adapters[adapter].serial.bread, buf, status);
+    adapters[adapter].serial.bread += status;
     unsigned int remaining;
-    if(adapters[adapter].bread < sizeof(s_header))
+    if(adapters[adapter].serial.bread < sizeof(s_header))
     {
-      remaining = sizeof(s_header) - adapters[adapter].bread;
+      remaining = sizeof(s_header) - adapters[adapter].serial.bread;
     }
     else
     {
-      remaining = adapters[adapter].packet.header.length - (adapters[adapter].bread - sizeof(s_header));
+      remaining = adapters[adapter].serial.packet.header.length - (adapters[adapter].serial.bread - sizeof(s_header));
     }
     if(remaining == 0)
     {
-      ret = adapter_process_packet(adapter, &adapters[adapter].packet);
-      adapters[adapter].bread = 0;
-      gserial_set_read_size(adapters[adapter].serialdevice, sizeof(s_header));
+      ret = adapter_process_packet(adapter, &adapters[adapter].serial.packet);
+      adapters[adapter].serial.bread = 0;
+      gserial_set_read_size(adapters[adapter].serial.device, sizeof(s_header));
     }
     else
     {
-      gserial_set_read_size(adapters[adapter].serialdevice, remaining);
+      gserial_set_read_size(adapters[adapter].serial.device, remaining);
     }
   }
   else
   {
     // this is a critical error (no possible recovering)
-    gerror("%s:%d %s: invalid data size (count=%u, available=%zu)\n", __FILE__, __LINE__, __func__, status, sizeof(s_packet) - adapters[adapter].bread);
+    gerror("%s:%d %s: invalid data size (count=%u, available=%zu)\n", __FILE__, __LINE__, __func__, status, sizeof(s_packet) - adapters[adapter].serial.bread);
     ret = -1;
   }
   if (ret < 0)
@@ -618,7 +618,7 @@ static int adapter_serial_close_cb(int adapter __attribute__((unused)))
 
 static int adapter_start_serialasync(int adapter)
 {
-  if(gserial_set_read_size(adapters[adapter].serialdevice, sizeof(s_header)) < 0)
+  if(gserial_set_read_size(adapters[adapter].serial.device, sizeof(s_header)) < 0)
   {
     return -1;
   }
@@ -629,7 +629,7 @@ static int adapter_start_serialasync(int adapter)
           .fp_register = REGISTER_FUNCTION,
           .fp_remove = REMOVE_FUNCTION
   };
-  if(gserial_register(adapters[adapter].serialdevice, adapter, &serial_callbacks) < 0)
+  if(gserial_register(adapters[adapter].serial.device, adapter, &serial_callbacks) < 0)
   {
     return -1;
   }
@@ -650,7 +650,7 @@ static int adapter_send_short_command(int adapter, unsigned char type)
     }
   };
 
-  int ret = gserial_write_timeout(adapters[adapter].serialdevice, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
+  int ret = gserial_write_timeout(adapters[adapter].serial.device, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
   if(ret < 0 || (unsigned int)ret < sizeof(packet.header))
   {
     gerror("failed to send data to the GIMX adapter\n");
@@ -663,14 +663,14 @@ static int adapter_send_short_command(int adapter, unsigned char type)
    */
   while(1)
   {
-    ret = gserial_read_timeout(adapters[adapter].serialdevice, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
+    ret = gserial_read_timeout(adapters[adapter].serial.device, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
     if(ret < 0 || (unsigned int)ret < sizeof(packet.header))
     {
       gerror("failed to read packet header from the GIMX adapter\n");
       return -1;
     }
 
-    ret = gserial_read_timeout(adapters[adapter].serialdevice, &packet.value, packet.header.length, SERIAL_TIMEOUT);
+    ret = gserial_read_timeout(adapters[adapter].serial.device, &packet.value, packet.header.length, SERIAL_TIMEOUT);
     if(ret < 0 || (unsigned int)ret < packet.header.length)
     {
       gerror("failed to read packet data from the GIMX adapter\n");
@@ -720,7 +720,7 @@ int adapter_detect()
     adapter = adapter_get(i);
     if(adapter->atype == E_ADAPTER_TYPE_GPP)
     {
-      int rtype = gpp_connect(i, adapter->portname);
+      int rtype = gpp_connect(i, adapter->serial.portname);
       if (rtype < 0)
       {
         gerror(_("no GPP detected.\n"));
@@ -739,10 +739,10 @@ int adapter_detect()
     }
     else if(adapter->atype == E_ADAPTER_TYPE_DIY_USB)
     {
-      if(adapter->portname)
+      if(adapter->serial.portname)
       {
-        adapter->serialdevice = gserial_open(adapter->portname, BAUDRATE);
-        if(adapter->serialdevice < 0)
+        adapter->serial.device = gserial_open(adapter->serial.portname, BAUDRATE);
+        if(adapter->serial.device < 0)
         {
           gerror(_("failed to open the GIMX adapter\n"));
           ret = -1;
@@ -866,13 +866,13 @@ int adapter_detect()
     }
     else if(adapter->atype == E_ADAPTER_TYPE_REMOTE_GIMX)
     {
-      if(adapter->dst_ip)
+      if(adapter->remote.ip)
       {
-        adapter->dst_fd = udp_connect(adapter->dst_ip, adapter->dst_port, (int *)&adapter->ctype);
-        if(adapter->dst_fd < 0)
+        adapter->remote.fd = udp_connect(adapter->remote.ip, adapter->remote.fd, (int *)&adapter->ctype);
+        if(adapter->remote.fd < 0)
         {
-          struct in_addr addr = { .s_addr = adapter->dst_ip };
-          gerror(_("failed to connect to network destination: %s:%d.\n"), inet_ntoa(addr), adapter->dst_port);
+          struct in_addr addr = { .s_addr = adapter->remote.ip };
+          gerror(_("failed to connect to network destination: %s:%d.\n"), inet_ntoa(addr), adapter->remote.fd);
           ret = -1;
         }
         else
@@ -886,7 +886,7 @@ int adapter_detect()
     {
       if (adapter->ctype == C_TYPE_DS4)
       {
-        if(btds4_init(i, adapter->dongle_index, adapter->bdaddr_dst) < 0)
+        if(btds4_init(i, adapter->bt.index, adapter->bt.bdaddr_dst) < 0)
         {
           ret = -1;
         }
@@ -967,7 +967,7 @@ int adapter_start()
 
     if(adapter->atype == E_ADAPTER_TYPE_DIY_USB)
     {
-      if(adapter->serialdevice >= 0)
+      if(adapter->serial.device >= 0)
       {
         if (adapter->joystick.id >= 0)
         {
@@ -1024,11 +1024,11 @@ int adapter_start()
     }
     else if(adapter->atype == E_ADAPTER_TYPE_BLUETOOTH)
     {
-      if(adapter->bdaddr_dst)
+      if(adapter->bt.bdaddr_dst)
       {
         if(adapter->ctype == C_TYPE_SIXAXIS)
         {
-          if(sixaxis_connect(i, adapter->dongle_index, adapter->bdaddr_dst) < 0)
+          if(sixaxis_connect(i, adapter->bt.index, adapter->bt.bdaddr_dst) < 0)
           {
             gerror(_("failed to initialize the sixaxis emulation.\n"));
             ret = -1;
@@ -1108,16 +1108,16 @@ int adapter_send()
     {
       if(adapter->atype == E_ADAPTER_TYPE_REMOTE_GIMX)
       {
-        if(adapter->dst_fd >= 0)
+        if(adapter->remote.fd >= 0)
         {
           static unsigned char report[sizeof(adapter->axis)+2] = { BYTE_IN_REPORT, sizeof(adapter->axis) };
           memcpy(report+2, adapter->axis, sizeof(adapter->axis));
-          ret = udp_send(adapter->dst_fd, report, sizeof(report));
+          ret = udp_send(adapter->remote.fd, report, sizeof(report));
         }
       }
       else if(adapter->atype == E_ADAPTER_TYPE_DIY_USB)
       {
-        if(adapter->serialdevice >= 0)
+        if(adapter->serial.device >= 0)
         {
           unsigned int index = controller_build_report(adapter->ctype, adapter->axis, adapter->report);
 
@@ -1126,32 +1126,32 @@ int adapter_send()
           switch(adapter->ctype)
           {
           case C_TYPE_SIXAXIS:
-            ret = gserial_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
+            ret = gserial_write(adapter->serial.device, report, HEADER_SIZE+report->length);
             break;
           case C_TYPE_DS4:
             report->value.ds4.report_id = DS4_USB_HID_IN_REPORT_ID;
             report->length = DS4_USB_INTERRUPT_PACKET_SIZE;
-            ret = gserial_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
+            ret = gserial_write(adapter->serial.device, report, HEADER_SIZE+report->length);
             break;
           case C_TYPE_T300RS_PS4:
           case C_TYPE_G29_PS4:
             report->length = DS4_USB_INTERRUPT_PACKET_SIZE;
-            ret = gserial_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
+            ret = gserial_write(adapter->serial.device, report, HEADER_SIZE+report->length);
             break;
           case C_TYPE_XONE_PAD:
             if(adapter->status)
             {
-              ret = gserial_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
+              ret = gserial_write(adapter->serial.device, report, HEADER_SIZE+report->length);
             }
             break;
           default:
             if(adapter->ctype != C_TYPE_PS2_PAD)
             {
-              ret = gserial_write(adapter->serialdevice, report, HEADER_SIZE+report->length);
+              ret = gserial_write(adapter->serial.device, report, HEADER_SIZE+report->length);
             }
             else
             {
-              ret = gserial_write(adapter->serialdevice, &report->value.ds2, report->length);
+              ret = gserial_write(adapter->serial.device, &report->value.ds2, report->length);
             }
             break;
           }
@@ -1159,7 +1159,7 @@ int adapter_send()
       }
       else if(adapter->atype == E_ADAPTER_TYPE_BLUETOOTH)
       {
-        if(adapter->bdaddr_dst)
+        if(adapter->bt.bdaddr_dst)
         {
           unsigned int index = controller_build_report(adapter->ctype, adapter->axis, adapter->report);
 
@@ -1230,15 +1230,15 @@ void adapter_clean()
     adapter = adapter_get(i);
     if(adapter->atype == E_ADAPTER_TYPE_REMOTE_GIMX)
     {
-      if(adapter->dst_fd >= 0)
+      if(adapter->remote.fd >= 0)
       {
         gpoll_remove_fd(adapter->src_fd);
-        udp_close(adapter->dst_fd);
+        udp_close(adapter->remote.fd);
       }
     }
     else if(adapter->atype == E_ADAPTER_TYPE_BLUETOOTH)
     {
-      if(adapter->bdaddr_dst)
+      if(adapter->bt.bdaddr_dst)
       {
         if(adapter->ctype == C_TYPE_SIXAXIS)
         {
@@ -1254,7 +1254,7 @@ void adapter_clean()
     }
     else if(adapter->atype == E_ADAPTER_TYPE_DIY_USB)
     {
-      if(adapter->serialdevice >= 0)
+      if(adapter->serial.device >= 0)
       {
         switch(adapter->ctype)
         {
@@ -1272,7 +1272,7 @@ void adapter_clean()
           default:
             break;
         }
-        gserial_close(adapter->serialdevice);
+        gserial_close(adapter->serial.device);
       }
     }
     else if(adapter->atype == E_ADAPTER_TYPE_GPP)

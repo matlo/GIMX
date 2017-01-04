@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2017 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -241,7 +241,7 @@ void ds42event(int adapter_id, s_report* current, s_report* previous,
     }
 
     // forward motion sensing in bluetooth mode only
-    if(adapter->bdaddr_dst)
+    if(adapter->bt.bdaddr_dst)
     {
       /*
        * Motion sensing

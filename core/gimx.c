@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2017 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
     {
       adapter->send_command = 1;
       event = 1;
-      if(adapter->dst_fd < 0)
+      if(adapter->remote.fd < 0)
       {
         ginfo("The --event argument may require running two gimx instances.\n");
       }

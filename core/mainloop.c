@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2017 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -41,7 +41,7 @@ void mainloop()
   unsigned int running_macros;
   int timer = -1;
 
-  if(!adapter_get(0)->bdaddr_dst || adapter_get(0)->ctype == C_TYPE_DS4)
+  if(!adapter_get(0)->bt.bdaddr_dst || adapter_get(0)->ctype == C_TYPE_DS4)
   {
     GTIMER_CALLBACKS callbacks = {
             .fp_read = timer_read,
