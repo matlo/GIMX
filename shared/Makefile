@@ -1,4 +1,4 @@
-DIRS = gimxcontroller gimxupdater gimxconfigupdater gimxcommon gimxhid gimxinput gimxpoll gimxprio gimxserial gimxtimer gimxusb gimxgpp gimxconfigeditor
+DIRS = gimxcontroller gimxupdater gimxconfigupdater gimxhid gimxinput gimxpoll gimxprio gimxserial gimxtimer gimxusb gimxgpp gimxconfigeditor
 
 BUILDDIRS = $(DIRS:%=build-%)
 INSTALLDIRS = $(DIRS:%=install-%)
@@ -16,10 +16,7 @@ build-gimxgpp: build-gimxhid
 ifeq ($(UHID),1)
 build-gimxconfigeditor: build-gimxuhid
 endif
-build-gimxpoll: build-gimxcommon
 build-gimxinput: build-gimxhid build-gimxpoll
-build-gimxhid: build-gimxcommon
-build-gimxserial: build-gimxcommon
 ifeq ($(OS),Windows_NT)
 build-gimxusb: build-gimxtimer build-gimxpoll
 endif
