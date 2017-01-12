@@ -35,6 +35,9 @@ static unsigned short packet_size = 0;
 
 static unsigned int verbose = 0;
 
+static unsigned int duration = 0;
+static unsigned int allocated = 1024; // default allocation when duration is used
+
 static unsigned long long int t0, t1;
 static unsigned long long int * tRead = NULL;
 static unsigned long long int wread = 0;
@@ -76,7 +79,7 @@ void results(unsigned long long int * tdiff, unsigned int cpt) {
 }
 
 static void usage() {
-  fprintf(stderr, "Usage: ./gserial_test [-p port] [-b baudrate] [-n samples] [-s packet size] -v\n");
+  fprintf(stderr, "Usage: ./gserial_test [-p port] [-b baudrate] [-d duration] [-n samples] [-s packet size] -v\n");
   exit(EXIT_FAILURE);
 }
 
@@ -86,10 +89,13 @@ static void usage() {
 static int read_args(int argc, char* argv[]) {
 
   int opt;
-  while ((opt = getopt(argc, argv, "b:n:p:s:v")) != -1) {
+  while ((opt = getopt(argc, argv, "b:d:n:p:s:v")) != -1) {
     switch (opt) {
     case 'b':
       baudrate = atoi(optarg);
+      break;
+    case 'd':
+      duration = atoi(optarg) * 1000000UL / PERIOD;
       break;
     case 'n':
       samples = atoi(optarg);
@@ -145,28 +151,43 @@ int serial_read(int user __attribute__((unused)), const void * buf, int status) 
       packet[i]++;
     }
 
-    tRead[count] = t1 - t0;
-
-    if (tRead[count] > wread) {
-      wread = tRead[count];
+    if (samples == 0 && count == allocated) {
+        void * ptr = realloc (tRead, 2 * allocated * sizeof(*tRead));
+        if (ptr == NULL) {
+            fprintf(stderr, "realloc failed\n");
+            set_done();
+            ret = -1;
+        } else {
+            allocated *= 2;
+            tRead = ptr;
+        }
     }
 
-    ++count;
-    if (count == samples) {
+    if (samples != 0 || count < allocated) {
 
-      set_done();
+        tRead[count] = t1 - t0;
 
-    } else {
+        if (tRead[count] > wread) {
+          wread = tRead[count];
+        }
 
-      t0 = get_time();
+        ++count;
+        if (count == samples) {
 
-      int status = gserial_write(serial, packet, packet_size);
-      if (status < 0) {
-        set_done();
-      }
+          set_done();
+
+        } else {
+
+          t0 = get_time();
+
+          int status = gserial_write(serial, packet, packet_size);
+          if (status < 0) {
+            set_done();
+          }
+        }
+
+        read = 0;
     }
-
-    read = 0;
   }
 
   if (is_done()) {
@@ -187,7 +208,7 @@ int main(int argc, char* argv[]) {
 
   read_args(argc, argv);
 
-  if(port == NULL || baudrate == 0 || samples == 0 || packet_size == 0)
+  if(port == NULL || baudrate == 0 || (samples == 0 && duration == 0) || packet_size == 0)
   {
     usage();
     return -1;
@@ -196,7 +217,7 @@ int main(int argc, char* argv[]) {
   packet = calloc(packet_size, sizeof(*packet));
   result = calloc(packet_size, sizeof(*result));
 
-  tRead = calloc(samples, sizeof(*tRead));
+  tRead = calloc(samples ? samples : allocated, sizeof(*tRead));
 
   if(packet == NULL || result == NULL || tRead == NULL) {
     fprintf(stderr, "can't allocate memory to store samples\n");
@@ -238,14 +259,20 @@ int main(int argc, char* argv[]) {
   gserial_register(serial, 42, &serial_callbacks);
 
   t0 = get_time();
-  
+
   int ret = gserial_write(serial, packet, packet_size);
   if (ret < 0) {
     set_done();
   }
 
+  unsigned int period_count = 0;
+
   while (!is_done()) {
     gpoll();
+    ++period_count;
+    if (duration > 0 && period_count >= duration) {
+      set_done();
+    }
   }
 
   if (timer >= 0) {
