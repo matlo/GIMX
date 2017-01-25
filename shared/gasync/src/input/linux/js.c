@@ -486,7 +486,10 @@ int js_set_haptic(const GE_Event * event)
       // Update the effect.
       if (ioctl(fd, EVIOCSFF, &effect) == -1)
       {
-        perror("ioctl EVIOCSFF");
+        if (errno != EAGAIN)
+        {
+          perror("ioctl EVIOCSFF");
+        }
         ret = -1;
       }
       struct input_event play =

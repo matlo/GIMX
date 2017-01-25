@@ -5,9 +5,11 @@
 
 #include <limits.h>
 #include <haptic/ff_lg.h>
+#include <haptic/ff_common.h>
 #include <gimx.h>
 #include <string.h>
 
+#undef dprintf
 #define dprintf(...) if(gimx_params.debug.ff_conv) printf(__VA_ARGS__)
 
 #define CLAMP(MIN,VALUE,MAX) (((VALUE) < MIN) ? (MIN) : (((VALUE) > MAX) ? (MAX) : (VALUE)))
@@ -35,7 +37,9 @@ static struct
 {
     unsigned short pid;
     s_slot slots[FF_LG_FSLOTS_NB];
+    s_cmd fifo[FIFO_SIZE];
     unsigned short range;
+    GE_Event last_event;
 } ff_lg_device[MAX_CONTROLLERS] = {};
 
 static inline int check_device(int device, const char * file, unsigned int line, const char * func) {
@@ -212,9 +216,9 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
     return ret;
 }
 
-int ff_conv(int device, const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE], GE_Event events[FF_LG_FSLOTS_NB]) {
+void ff_conv_process_report(int device, const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
 
-    CHECK_DEVICE(device, -1)
+    CHECK_DEVICE(device,)
 
     if(gimx_params.debug.ff_conv) {
         dprintf("> ");
@@ -229,7 +233,6 @@ int ff_conv(int device, const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE], GE_E
     uint8_t fslots = data[0] & FF_LG_FSLOT_MASK;
     uint8_t cmd = data[0] & FF_LG_CMD_MASK;
 
-    int event_nb = 0;
     unsigned int i;
 
     s_slot * slots = ff_lg_device[device].slots;
@@ -272,7 +275,8 @@ int ff_conv(int device, const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE], GE_E
                     } else {
                         continue;
                     }
-                    event_nb += ff_conv_lg_force(device, i, events + event_nb);
+                    s_cmd cmd = { slots[i].mask, 0x00 };
+                    fifo_push(ff_lg_device[device].fifo, cmd, 1);
                 }
             }
         }
@@ -296,6 +300,55 @@ int ff_conv(int device, const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE], GE_E
             ff_lg_device[device].range = range;
         }
     }
+}
 
-    return event_nb;
- }
+static unsigned char slot_index[] = { [FF_LG_FSLOT_1 >> 4] = 0, [FF_LG_FSLOT_2 >> 4] = 1, [FF_LG_FSLOT_3 >> 4] = 2, [FF_LG_FSLOT_4 >> 4] = 3, };
+
+int ff_conv_get_event(int device, GE_Event * event) {
+
+    if (device < 0 || device >= MAX_CONTROLLERS) {
+        fprintf(stderr, "%s:%d %s: invalid device (%d)", __FILE__, __LINE__, __func__, device);
+        return -1;
+    }
+
+    s_cmd cmd = fifo_peek(ff_lg_device[device].fifo);
+    if (cmd.cmd) {
+        dprintf("< ");
+        unsigned char index = slot_index[cmd.cmd >> 4];
+        int ret = ff_conv_lg_force(device, index, &ff_lg_device[device].last_event);
+        if (ret == 1) {
+            *event = ff_lg_device[device].last_event;
+            return 0;
+        }
+    }
+
+#ifndef WIN32
+    if (ff_lg_device[device].last_event.type != GE_NOEVENT) {
+        // keep sending something to ensure bandwidth reservation
+        int i;
+        for (i = 0; i < FF_LG_FSLOTS_NB; ++i) {
+            // check if at least one force is running
+            if (ff_lg_device[device].slots[i].active) {
+                dprintf("keep sending last event\n");
+                *event = ff_lg_device[device].last_event;
+                return 0;
+            }
+        }
+    }
+#endif
+
+    return -1;
+}
+
+void ff_conv_ack(int device) {
+
+  if (device < 0 || device >= MAX_CONTROLLERS) {
+      fprintf(stderr, "%s:%d %s: invalid device (%d)", __FILE__, __LINE__, __func__, device);
+      return;
+  }
+
+  dprintf("> ack\n");
+
+  s_cmd cmd = fifo_peek(ff_lg_device[device].fifo);
+  fifo_remove(ff_lg_device[device].fifo, cmd);
+}

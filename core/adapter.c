@@ -364,15 +364,23 @@ static void adapter_send_next_hid_report(int adapter)
   }
 }
 
-static void adapter_send_next_ffb_update(int adapter, unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
-
-    GE_Event events[FF_LG_FSLOTS_NB] = {};
-    int events_nb = ff_conv(adapter, data, events);
-    int i;
-    for (i = 0; i < events_nb; ++i) {
-        events[i].which = adapters[adapter].joystick.id;
-        ginput_joystick_set_haptic(events + i);
+static void adapter_send_next_ffb_update(int adapter)
+{
+  GE_Event event = {};
+  int ret;
+  do
+  {
+    ret = ff_conv_get_event(adapter, &event);
+    if (ret != -1)
+    {
+      event.which = adapters[adapter].joystick.id;
+      ret = ginput_joystick_set_haptic(&event);
+      if (ret != -1)
+      {
+        ff_conv_ack(adapter);
+      }
     }
+  } while (ret != -1);
 }
 
 static int adapter_process_packet(int adapter, s_packet* packet)
@@ -446,7 +454,8 @@ static int adapter_process_packet(int adapter, s_packet* packet)
       }
       else if (adapters[adapter].joystick.id >= 0 && adapters[adapter].joystick.has_ffb)
       {
-        adapter_send_next_ffb_update(adapter, logitech_ffb_report);
+        ff_conv_process_report(adapter, logitech_ffb_report);
+        adapter_send_next_ffb_update(adapter);
       }
     }
   }
@@ -1186,6 +1195,11 @@ int adapter_send()
         adapter->axis[ds4a_finger2_x] = 0;
         adapter->axis[ds4a_finger2_y] = 0;
       }
+    }
+
+    if (adapter->joystick.id >= 0 && adapter->joystick.has_ffb)
+    {
+      adapter_send_next_ffb_update(i);
     }
   }
   return ret;

@@ -8,11 +8,13 @@
 #include <unistd.h>
 
 #include <haptic/ff_lg.h>
+#include <haptic/ff_common.h>
 #include <ghid.h>
 #include <adapter.h>
 #include <gimx.h>
 #include <limits.h>
 
+#undef dprintf
 #define dprintf(...) if(gimx_params.debug.ff_lg) printf(__VA_ARGS__)
 
 #define CLAMP(MIN,VALUE,MAX) (((VALUE) < MIN) ? (MIN) : (((VALUE) > MAX) ? (MAX) : (VALUE)))
@@ -134,11 +136,6 @@ typedef struct {
     unsigned char updated;
     unsigned char cmd[FF_LG_OUTPUT_REPORT_SIZE];
 } s_ext_cmd;
-
-typedef struct {
-    unsigned char cmd;
-    unsigned char ext;
-} s_cmd;
 
 static struct
 {
@@ -337,8 +334,6 @@ int ff_lg_init(int device, unsigned short src_pid, unsigned short dst_pid) {
     return 0;
 }
 
-#define PRINT_ERROR_OTHER(msg) fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
-
 static void dump(const unsigned char* packet, unsigned char length)
 {
   int i;
@@ -349,66 +344,6 @@ static void dump(const unsigned char* packet, unsigned char length)
 }
 
 static unsigned char slot_index[] = { [FF_LG_FSLOT_1 >> 4] = 0, [FF_LG_FSLOT_2 >> 4] = 1, [FF_LG_FSLOT_3 >> 4] = 2, [FF_LG_FSLOT_4 >> 4] = 3, };
-
-static inline int compare_cmd(s_cmd cmd1, s_cmd cmd2) {
-    return cmd1.cmd == cmd2.cmd && (cmd1.cmd != FF_LG_CMD_EXTENDED_COMMAND || cmd1.ext == cmd2.ext);
-}
-
-static inline void fifo_push(int device, s_cmd cmd, int replace) {
-    s_cmd * fifo = ff_lg_device[device].fifo;
-    int i;
-    for (i = 0; i < FIFO_SIZE; ++i) {
-        if (!fifo[i].cmd) {
-            fifo[i] = cmd; //add
-            dprintf("push:");
-            break;
-        } else if (replace && compare_cmd(fifo[i], cmd)) {
-            dprintf("already queued:");
-            break;
-        }
-    }
-    if(i == FIFO_SIZE) {
-        PRINT_ERROR_OTHER("no more space in fifo")
-        dprintf("can't push:");
-    }
-    dprintf(" %02x", cmd.cmd);
-    if(cmd.cmd == FF_LG_CMD_EXTENDED_COMMAND) {
-        dprintf(" %02x", cmd.ext);
-    }
-    dprintf("\n");
-}
-
-static inline s_cmd fifo_peek(int device) {
-    s_cmd * fifo = ff_lg_device[device].fifo;
-    s_cmd cmd = fifo[0];
-    if (cmd.cmd) {
-        dprintf("peek: %02x", cmd.cmd);
-        if(cmd.cmd == FF_LG_CMD_EXTENDED_COMMAND) {
-            dprintf(" %02x", cmd.ext);
-        }
-        dprintf("\n");
-    }
-    return cmd;
-}
-
-static inline void fifo_remove(int device, s_cmd cmd) {
-    s_cmd * fifo = ff_lg_device[device].fifo;
-    int i;
-    for (i = 0; i < FIFO_SIZE; ++i) {
-        if (!fifo[i].cmd) {
-            break;
-        } else if (compare_cmd(fifo[i], cmd)) {
-            dprintf("remove %02x", cmd.cmd);
-            if(cmd.cmd == FF_LG_CMD_EXTENDED_COMMAND) {
-                dprintf(" %02x", cmd.ext);
-            }
-            dprintf("\n");
-            memmove(fifo + i, fifo + i + 1, (FF_LG_FSLOTS_NB - i - 1) * sizeof(*fifo));
-            memset(fifo + FF_LG_FSLOTS_NB - i - 1, 0x00, sizeof(*fifo));
-            break;
-        }
-    }
-}
 
 void ff_lg_decode_extended(const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
 
@@ -518,13 +453,13 @@ static void process_extended(int device, const unsigned char data[FF_LG_OUTPUT_R
         if(!ext_cmd->cmd[0]) {
             memcpy(ext_cmd->cmd, data, sizeof(ext_cmd->cmd));
             ext_cmd->updated = 1;
-            fifo_push(device, cmd, 1);
+            fifo_push(ff_lg_device[device].fifo, cmd, 1);
             break;
         } else if(ext_cmd->cmd[1] == data[1]) {
             if(force != 0 || memcmp(ext_cmd->cmd, data, sizeof(ext_cmd->cmd))) {
                 memcpy(ext_cmd->cmd, data, sizeof(ext_cmd->cmd));
                 ext_cmd->updated = 1;
-                fifo_push(device, cmd, 1);
+                fifo_push(ff_lg_device[device].fifo, cmd, 1);
             } else {
                 dprintf("> no change\n");
             }
@@ -567,7 +502,7 @@ void ff_lg_process_report(int device, const unsigned char data[FF_LG_OUTPUT_REPO
               forces[i].active = 0;
               memset(forces[i].parameters, 0x00, sizeof(forces[i].parameters));
               s_cmd cmd = { forces[i].mask, 0x00 };
-              fifo_push(device, cmd, 1);
+              fifo_push(ff_lg_device[device].fifo, cmd, 1);
           }
           return;
         }
@@ -612,7 +547,7 @@ void ff_lg_process_report(int device, const unsigned char data[FF_LG_OUTPUT_REPO
                         continue;
                     }
                     s_cmd cmd = { forces[i].mask, 0x00 };
-                    fifo_push(device, cmd, 1);
+                    fifo_push(ff_lg_device[device].fifo, cmd, 1);
                 }
             }
         }
@@ -620,7 +555,7 @@ void ff_lg_process_report(int device, const unsigned char data[FF_LG_OUTPUT_REPO
         default:
         {
             s_cmd cmd = { data[0], 0x00 };
-            fifo_push(device, cmd, 0);
+            fifo_push(ff_lg_device[device].fifo, cmd, 0);
         }
         break;
         }
@@ -703,7 +638,7 @@ void ff_lg_ack(int device) {
               if (slots & forces[i].mask) {
                   s_cmd cmd = { forces[i].mask, 0x00 };
                   if(!forces[i].updated) {
-                      fifo_remove(device, cmd);
+                      fifo_remove(ff_lg_device[device].fifo, cmd);
                   } else {
                       dprintf("do not remove %02x\n", cmd.cmd);
                   }
@@ -714,7 +649,7 @@ void ff_lg_ack(int device) {
       default:
       {
           s_cmd cmd = { data[0], 0x00 };
-          fifo_remove(device, cmd);
+          fifo_remove(ff_lg_device[device].fifo, cmd);
       }
       break;
       }
@@ -728,7 +663,7 @@ void ff_lg_ack(int device) {
           if(ext_cmds[i].cmd[1] == data[1]) {
               s_cmd cmd = { FF_LG_CMD_EXTENDED_COMMAND, data[1] };
               if(!ext_cmds[i].updated) {
-                  fifo_remove(device, cmd);
+                  fifo_remove(ff_lg_device[device].fifo, cmd);
               } else {
                   dprintf("do not remove %02x", cmd.cmd);
                   if(cmd.cmd == FF_LG_CMD_EXTENDED_COMMAND) {
@@ -882,7 +817,7 @@ int ff_lg_get_report(int device, s_ff_lg_report * report) {
         return 1;
     }
 
-    s_cmd cmd = fifo_peek(device);
+    s_cmd cmd = fifo_peek(ff_lg_device[device].fifo);
     if (cmd.cmd) {
         clear_report(device);
         dprintf("< ");

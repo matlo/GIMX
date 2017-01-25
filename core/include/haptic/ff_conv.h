@@ -9,6 +9,8 @@
 #include <haptic/ff_lg.h>
 
 int ff_conv_init(int device, unsigned short pid);
-int ff_conv(int device, const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE], GE_Event events[FF_LG_FSLOTS_NB]);
+void ff_conv_process_report(int device, const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]);
+int ff_conv_get_event(int device, GE_Event * event);
+void ff_conv_ack(int device);
 
 #endif /* FF_CONV_H_ */

@@ -36,6 +36,7 @@ typedef struct
   struct {
       int ff_lg;
       int ff_conv;
+      int ff_common;
       int adapter;
   } debug;
   char* config_file;

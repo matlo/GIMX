@@ -432,6 +432,11 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
   if (params->debug.ff_conv != 0)
   {
     params->debug.ff_lg = 1;
+    params->debug.ff_common = 1;
+  }
+  if (params->debug.ff_lg != 0)
+  {
+    params->debug.ff_common = 1;
   }
 
   return ret;
