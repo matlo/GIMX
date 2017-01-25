@@ -714,6 +714,11 @@ void cfg_trigger_lookup(GE_Event* e)
       next = cfg_controllers[i].next;
     }
 
+    s_profile * root = next;
+    while (root->state.previous != NULL && root->state.previous != next) {
+        root = root->state.previous;
+    }
+
     for(j=0; j<MAX_CONFIGURATIONS; ++j)
     {
       s_profile * profile = cfg_controllers[i].profiles + j;
@@ -733,7 +738,7 @@ void cfg_trigger_lookup(GE_Event* e)
         {
           selected = profile;
         }
-        if(selected->index < next->index && j > next->index)
+        if((selected->index < next->index && j > next->index) || (selected->index < root->index && j > root->index))
         {
           selected = profile;
         }
@@ -745,6 +750,12 @@ void cfg_trigger_lookup(GE_Event* e)
           /* cancel the switch */
           cfg_controllers[i].next = NULL;
           cfg_controllers[i].delay = 0;
+        }
+        else if (cfg_controllers[i].current == profile)
+        {
+          /* switch back */
+          selected = profile->state.previous;
+          break;
         }
         else
         {
@@ -761,13 +772,7 @@ void cfg_trigger_lookup(GE_Event* e)
             profile->state.next = NULL;
             profile->state.previous = NULL;
           }
-          else
-          {
-            /* switch back */
-            selected = profile->state.previous;
-          }
         }
-        break;
       }
     }
     if(selected != NULL)
@@ -813,7 +818,7 @@ void cfg_config_activation()
             gprintf(_("%d %ld.%06ld controller %d is switched from configuration %d to %d\n"), i, tv.tv_sec, tv.tv_usec, i, current->index, next->index);
           }
 
-          if(current->state.previous != next)
+          if(current->state.previous != next && next->trigger.switch_back)
           {
             current->state.next = next;
             next->state.previous = current;
