@@ -165,7 +165,7 @@ static int setup_watch() {
         return -1;
     }
 
-    if (inotify_add_watch(ifd, "/dev/input", IN_CREATE) < 0) {
+    if (inotify_add_watch(ifd, "/dev/input", IN_CREATE | IN_ATTRIB) < 0) {
         PRINT_ERROR_ERRNO("inotify_add_watch")
         close(ifd);
         return -1;
