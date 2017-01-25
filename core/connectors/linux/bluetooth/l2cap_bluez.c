@@ -647,7 +647,7 @@ static int l2cap_bluez_listen(int user __attribute__((unused)), unsigned short p
   {
     if(errno == EADDRINUSE)
     {
-      fprintf(stderr, "bind: Address already device use\n");
+      fprintf(stderr, "bind: Address already in use\n");
       fprintf(stderr, "please stop the bluetooth service\n");
     }
     else
