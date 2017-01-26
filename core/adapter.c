@@ -35,6 +35,10 @@
  * This time is doubled so as to include the reset command transfer duration.
  */
 #define ADAPTER_RESET_TIME 30000 //microseconds
+/*
+ * The number of times the adapter is queried for its type, before it is assumed as unreachable.
+ */
+#define ADAPTER_INIT_RETRIES 10
 
 static s_adapter adapters[MAX_CONTROLLERS] = {};
 
@@ -738,7 +742,12 @@ int adapter_detect()
         }
         else
         {
-          int rtype = adapter_send_short_command(i, BYTE_TYPE);
+          int rtype = -1;
+          int j;
+          for (j = 0; j < ADAPTER_INIT_RETRIES && rtype == -1; ++j)
+          {
+            rtype = adapter_send_short_command(i, BYTE_TYPE);
+          }
 
           if(rtype >= 0)
           {

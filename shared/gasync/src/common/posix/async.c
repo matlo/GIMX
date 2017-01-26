@@ -187,14 +187,17 @@ int async_read_timeout(int device, void * buf, unsigned int count, unsigned int 
         }
       }
     }
-    else if(errno == EINTR)
+    else if (status < 0)
     {
-      continue;
+      if(errno == EINTR)
+      {
+        continue;
+      }
+      PRINT_ERROR_ERRNO("select")
     }
     else
     {
-      PRINT_ERROR_ERRNO("select")
-      break;
+      break; // timeout
     }
   }
 
