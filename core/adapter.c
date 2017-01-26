@@ -29,8 +29,7 @@
 #include <ghid.h>
 
 #define BAUDRATE 500000 //bps
-#define SERIAL_SYNC_TIMEOUT 1000 //millisecond
-#define SERIAL_CNX_TIMEOUT 10000 //millisecond
+#define SERIAL_TIMEOUT 1000 //millisecond
 /*
  * The adapter restarts about 15ms after receiving the reset command.
  * This time is doubled so as to include the reset command transfer duration.
@@ -629,7 +628,7 @@ static int adapter_start_serialasync(int adapter)
 /*
  * This function should only be used in the initialization stages, i.e. before the mainloop.
  */
-static int adapter_send_short_command(int adapter, unsigned char type, unsigned int read_timeout)
+static int adapter_send_short_command(int adapter, unsigned char type)
 {
   s_packet packet =
   {
@@ -640,7 +639,7 @@ static int adapter_send_short_command(int adapter, unsigned char type, unsigned 
     }
   };
 
-  int ret = gserial_write_timeout(adapters[adapter].serialdevice, &packet.header, sizeof(packet.header), SERIAL_SYNC_TIMEOUT);
+  int ret = gserial_write_timeout(adapters[adapter].serialdevice, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
   if(ret < 0 || (unsigned int)ret < sizeof(packet.header))
   {
     fprintf(stderr, "serial_send\n");
@@ -653,14 +652,14 @@ static int adapter_send_short_command(int adapter, unsigned char type, unsigned 
    */
   while(1)
   {
-    ret = gserial_read_timeout(adapters[adapter].serialdevice, &packet.header, sizeof(packet.header), read_timeout);
+    ret = gserial_read_timeout(adapters[adapter].serialdevice, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
     if(ret < 0 || (unsigned int)ret < sizeof(packet.header))
     {
       fprintf(stderr, "can't read packet header\n");
       return -1;
     }
 
-    ret = gserial_read_timeout(adapters[adapter].serialdevice, &packet.value, packet.header.length, read_timeout);
+    ret = gserial_read_timeout(adapters[adapter].serialdevice, &packet.value, packet.header.length, SERIAL_TIMEOUT);
     if(ret < 0 || (unsigned int)ret < packet.header.length)
     {
       fprintf(stderr, "can't read packet data\n");
@@ -691,7 +690,7 @@ static int adapter_send_reset(int device)
     .length = BYTE_LEN_0_BYTE
   };
 
-  if(gserial_write_timeout(device, &header, sizeof(header), SERIAL_SYNC_TIMEOUT) != sizeof(header))
+  if(gserial_write_timeout(device, &header, sizeof(header), SERIAL_TIMEOUT) != sizeof(header))
   {
     return -1;
   }
@@ -739,7 +738,7 @@ int adapter_detect()
         }
         else
         {
-          int rtype = adapter_send_short_command(i, BYTE_TYPE, SERIAL_CNX_TIMEOUT);
+          int rtype = adapter_send_short_command(i, BYTE_TYPE);
 
           if(rtype >= 0)
           {
@@ -755,7 +754,7 @@ int adapter_detect()
               ret = -1;
             }
 
-            int status = adapter_send_short_command(i, BYTE_STATUS, SERIAL_SYNC_TIMEOUT);
+            int status = adapter_send_short_command(i, BYTE_STATUS);
 
             if(status < 0)
             {
@@ -995,7 +994,7 @@ int adapter_start()
             ff_conv_init(i, pid);
           }
         }
-        if(adapter_send_short_command(i, BYTE_START, SERIAL_SYNC_TIMEOUT) < 0)
+        if(adapter_send_short_command(i, BYTE_START) < 0)
         {
           fprintf(stderr, _("Can't start the adapter.\n"));
           ret = -1;
