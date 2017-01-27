@@ -313,7 +313,6 @@ int ff_conv_get_event(int device, GE_Event * event) {
 
     s_cmd cmd = fifo_peek(ff_lg_device[device].fifo);
     if (cmd.cmd) {
-        dprintf("< ");
         unsigned char index = slot_index[cmd.cmd >> 4];
         int ret = ff_conv_lg_force(device, index, &ff_lg_device[device].last_event);
         if (ret == 1) {
