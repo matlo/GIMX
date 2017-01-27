@@ -866,6 +866,20 @@ int ff_lg_get_report(int device, s_ff_lg_report * report) {
         }
     }
 
+#ifndef WIN32
+      if (ff_lg_device[device].last_report[1] != 0) {
+          // keep sending something to ensure bandwidth reservation
+          for (i = 0; i < FF_LG_FSLOTS_NB; ++i) {
+              // check if at least one force is running
+              if (forces[i].active) {
+                  dprintf("keep sending last command\n");
+                  *report = ff_lg_device[device].last_report;
+                  return 1;
+              }
+          }
+      }
+#endif
+
     return 0;
 }
 
