@@ -323,7 +323,7 @@ int ff_conv_get_event(int device, GE_Event * event) {
     }
 
 #ifndef WIN32
-    if (ff_lg_device[device].last_event.type != GE_NOEVENT) {
+    if (ff_lg_device[device].last_event.type != GE_NOEVENT && event->type != ff_lg_device[device].last_event.type) {
         // keep sending something to ensure bandwidth reservation
         int i;
         for (i = 0; i < FF_LG_FSLOTS_NB; ++i) {
