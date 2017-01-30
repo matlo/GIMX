@@ -479,9 +479,9 @@ void launcherFrame::readSerialPorts()
    * On RPi 1 & 2, UART is ttyAMA0.
    * On RPi 3, UART is ttyS0.
    */
-  if (OutputChoice->FindString("ttyS0") != wxNOT_FOUND)
+  if (OutputChoice->FindString(wxT("ttyS0")) != wxNOT_FOUND)
   {
-    OutputChoice->Delete(OutputChoice->FindString("ttyAMA0"));
+    OutputChoice->Delete(OutputChoice->FindString(wxT("ttyAMA0")));
   }
 #endif
 
