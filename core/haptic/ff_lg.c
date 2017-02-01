@@ -185,7 +185,6 @@ void ff_lg_init_static(void)
 static inline int is_old_lr_coef_wheel(unsigned short pid) {
 
     switch(pid) {
-    case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE:
     case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP:
     case USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE:
         return 1;
@@ -201,7 +200,6 @@ static inline int is_old_lr_coef_wheel(unsigned short pid) {
 static inline int is_hr_wheel(unsigned short pid) {
 
     switch(pid) {
-    case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE:
     case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP:
         return 0;
     default:
@@ -227,7 +225,6 @@ static struct {
     unsigned short product;
     unsigned short range;
 } wheel_ranges[] = {
-        { USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE,    200 },
         { USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP, 200 },
         { USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE,    200 },
         { USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL,       270 },
@@ -885,7 +882,6 @@ int ff_lg_get_report(int device, s_ff_lg_report * report) {
 
 // this table lists the devices that support the "classic format" protocol
 static unsigned short ff_lg_wheel_products[] = {
-        USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE,
         USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP,
         USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE,
         USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL,
@@ -955,7 +951,6 @@ uint16_t ff_lg_get_spring_deadband(unsigned short pid, unsigned char d, unsigned
 
     uint16_t deadband;
     switch(pid) {
-    case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE:
     case USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP:
     case USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE:
     case USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL:
