@@ -25,3 +25,6 @@
 [submodule "shared/gimxuhid"]
 	path = shared/gimxuhid
 	url = https://github.com/matlo/gimxuhid.git
+[submodule "shared/gimxcommon"]
+	path = shared/gimxcommon
+	url = https://github.com/matlo/gimxcommon.git
