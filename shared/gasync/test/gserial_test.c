@@ -42,6 +42,10 @@ static unsigned long long int t0, t1;
 static unsigned long long int * tRead = NULL;
 static unsigned long long int wread = 0;
 
+static char * port2 = NULL;
+static int serial2 = -1;
+static unsigned int read2 = 0;
+
 void results(unsigned long long int * tdiff, unsigned int cpt) {
   unsigned int sum = 0;
   unsigned int average;
@@ -101,7 +105,11 @@ static int read_args(int argc, char* argv[]) {
       samples = atoi(optarg);
       break;
     case 'p':
-      port = optarg;
+      if (port == NULL) {
+        port = optarg;
+      } else if (port2 == NULL) {
+        port2 = optarg;
+      }
       break;
     case 's':
       packet_size = atoi(optarg);
@@ -202,6 +210,37 @@ int serial_close(int user __attribute__((unused))) {
   return 1;
 }
 
+int serial_read2(int user __attribute__((unused)), const void * buf, int status) {
+
+  if (status < 0) {
+    set_done();
+    return 1;
+  }
+
+  read2 += status;
+
+  if (read2 < packet_size) {
+    gserial_set_read_size(serial2, packet_size - read2);
+  } else {
+    gserial_set_read_size(serial2, packet_size);
+  }
+
+  if (gserial_write(serial2, buf, status) < 0) {
+    set_done();
+  }
+
+  if (is_done()) {
+    return -1;
+  }
+
+  return 0;
+}
+
+int serial_close2(int user __attribute__((unused))) {
+  set_done();
+  return 1;
+}
+
 int main(int argc, char* argv[]) {
 
   setup_handlers();
@@ -267,6 +306,25 @@ int main(int argc, char* argv[]) {
 
   unsigned int period_count = 0;
 
+  if (port2 != NULL) {
+
+    serial2 = gserial_open(port2, baudrate);
+    if (serial2 < 0) {
+      set_done();
+    } else {
+      gserial_set_read_size(serial2, packet_size);
+
+      GSERIAL_CALLBACKS serial_callbacks2 = {
+            .fp_read = serial_read2,
+            .fp_write = NULL,
+            .fp_close = serial_close2,
+            .fp_register = REGISTER_FUNCTION,
+            .fp_remove = REMOVE_FUNCTION,
+      };
+      gserial_register(serial2, 42, &serial_callbacks2);
+    }
+  }
+
   while (!is_done()) {
     gpoll();
     ++period_count;
@@ -280,6 +338,10 @@ int main(int argc, char* argv[]) {
   }
 
   gserial_close(serial);
+
+  if (serial2 >= 0) {
+      gserial_close(serial2);
+  }
 
   gserial_exit();
 
