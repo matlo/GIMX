@@ -960,7 +960,7 @@ int XmlReader::ReadConfigFile(string filePath)
     {
       if(m_evtcatch->init() < 0)
       {
-        m_error = "can't read inputs!";
+        m_error = "No accessible input(s) found.";
         return -1;
       }
     }
