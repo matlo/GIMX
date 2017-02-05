@@ -336,8 +336,7 @@ int mkb_init(const GPOLL_INTERFACE * poll_interface, int (*callback)(GE_Event*))
       }
       else
       {
-        PRINT_ERROR_ERRNO("open")
-        ret = -1;
+        PRINT_ERROR_ERRNO("opening input device");
       }
 
       free(namelist[i]);
@@ -347,6 +346,11 @@ int mkb_init(const GPOLL_INTERFACE * poll_interface, int (*callback)(GE_Event*))
   else
   {
     PRINT_ERROR_ERRNO("scandir")
+    ret = -1;
+  }
+
+  if(max_device_id == -1) {
+    PRINT_ERROR_OTHER("no accessible device(s) found");
     ret = -1;
   }
 
