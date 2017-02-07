@@ -83,6 +83,8 @@ static void usage()
   printf("  --log filename: write messages into a log file instead of the standard output.\n");
   printf("    filename: The name of the log file, in the ~/.gimx/log directory (make sure this folder exists).\n");
   printf("  --skip_leds: Filter out set led commands from FFB command stream (performance tweak for G27/G29 wheels on small targets).\n");
+  printf("  --record filename: write events into a file.\n");
+  printf("  --play filename: read events from a file.\n");
 }
 
 /*
@@ -158,6 +160,8 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"refresh", required_argument, 0, 'r'},
     {"src",     required_argument, 0, 's'},
     {"type",    required_argument, 0, 't'},
+    {"record",  required_argument, 0, 'o'},
+    {"play",    required_argument, 0, 'y'},
     {"version", no_argument,       0, 'v'},
     {0, 0, 0, 0}
   };
@@ -167,7 +171,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     /* getopt_long stores the option index here. */
     int option_index = 0;
 
-    c = getopt_long (argc, argv, "b:c:d:e:h:k:l:p:r:s:t:vm", long_options, &option_index);
+    c = getopt_long (argc, argv, "b:c:d:e:h:k:l:p:r:s:t:o:y:vm", long_options, &option_index);
 
     /* Detect the end of the options. */
     if (c == -1)
@@ -379,6 +383,18 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
             ret = -1;
           }
         }
+        break;
+
+      case 'o':
+        params->events_file = optarg;
+        params->record = 1;
+        printf(_("global option -o with value `%s'\n"), optarg);
+        break;
+
+      case 'y':
+        params->events_file = optarg;
+        params->play = 1;
+        printf(_("global option -y with value `%s'\n"), optarg);
         break;
 
       case 'v':

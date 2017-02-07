@@ -47,9 +47,13 @@ typedef struct
   char * logfilename;
   FILE * logfile;
   int skip_leds;
+  int record;
+  int play;
+  char* events_file;
 } s_gimx_params;
 
 extern s_gimx_params gimx_params;
+extern uint64_t gimx_timer_start;
 
 #define gprintf(...) if(gimx_params.status) printf(__VA_ARGS__)
 #define ncprintf(...) if(!gimx_params.curses) printf(__VA_ARGS__)
@@ -65,5 +69,8 @@ int ignore_event(GE_Event*);
 #define REGISTER_FUNCTION gpoll_register_fd
 #define REMOVE_FUNCTION gpoll_remove_fd
 #endif
+
+void gimx_start_timer();
+uint64_t timeval_to_usec(struct timeval tv);
 
 #endif /* GIMX_H_ */

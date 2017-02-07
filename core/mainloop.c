@@ -7,6 +7,7 @@
 #include <gpoll.h>
 #include <gtimer.h>
 #include <gusb.h>
+#include <unistd.h>
 #include "gimx.h"
 #include "calibration.h"
 #include "macros.h"
@@ -40,6 +41,8 @@ void mainloop()
   GE_Event* event;
   unsigned int running_macros;
   int timer = -1;
+  int wait = 1;
+  int wait_sec = 10;
 
   if(!adapter_get(0)->bdaddr_dst || adapter_get(0)->ctype == C_TYPE_DS4)
   {
@@ -64,6 +67,22 @@ void mainloop()
      * gpoll should always be executed as it drives the period.
      */
     gpoll();
+
+    if(wait)
+    {
+      gpoll();
+      gprintf("waiting %ds for connection\n", wait_sec);
+      sleep(wait_sec);
+      wait = 0;
+      if(gimx_params.record)
+      {
+        gimx_start_timer();
+        gprintf("------------- record!\n"); 
+      }
+      else {
+        gprintf("------------- start!\n"); 
+      }
+    }
 
     ginput_periodic_task();
 

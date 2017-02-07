@@ -1195,6 +1195,8 @@ void adapter_clean()
 {
   int i;
   s_adapter* adapter;
+  bool saved_events = false;
+
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
     adapter = adapter_get(i);
@@ -1213,6 +1215,11 @@ void adapter_clean()
         if(adapter->ctype == C_TYPE_SIXAXIS)
         {
           sixaxis_close(i);
+          if(gimx_params.record && !saved_events)
+          {
+            sixaxis_save_events();
+            saved_events = true;
+          }
         }
 #ifndef WIN32
         else if(adapter->ctype == C_TYPE_DS4)
