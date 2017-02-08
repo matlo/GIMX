@@ -338,7 +338,7 @@ int mkb_init(const GPOLL_INTERFACE * poll_interface, int (*callback)(GE_Event*))
       else
       {
         if(errno != EACCES) {
-          PRINT_ERROR_ERRNO("open")
+          PRINT_ERROR_ERRNO("open");
           ret = -1;
         }
         else {
