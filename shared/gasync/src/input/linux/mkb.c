@@ -104,6 +104,7 @@ static int mkb_read_type(int index, int fd)
 
   if(!has_rel_axes && !has_keys && !has_scroll)
   {
+    PRINT_ERROR_OTHER("no rel_axes, no keys, no scroll);
     return -1;
   }
 
@@ -336,8 +337,13 @@ int mkb_init(const GPOLL_INTERFACE * poll_interface, int (*callback)(GE_Event*))
       }
       else
       {
-        PRINT_ERROR_ERRNO("open")
-        ret = -1;
+        if(errno != EACCES) {
+          PRINT_ERROR_ERRNO("open")
+          ret = -1;
+        }
+        else {
+          PRINT_ERROR_OTHER("ignoring device open() returning EACCES");
+        }
       }
 
       free(namelist[i]);
