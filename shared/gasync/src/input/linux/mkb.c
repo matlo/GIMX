@@ -307,7 +307,7 @@ int mkb_init(const GPOLL_INTERFACE * poll_interface, int (*callback)(GE_Event*))
   n = scandir(DEV_INPUT, &namelist, is_event_file, alphasort);
   if (n >= 0)
   {
-    for(i=0; i<n && !ret; ++i)
+    for(i=0; i<n; ++i)
     {
       snprintf(device, sizeof(device), "%s/%s", DEV_INPUT, namelist[i]->d_name);
 
@@ -336,8 +336,7 @@ int mkb_init(const GPOLL_INTERFACE * poll_interface, int (*callback)(GE_Event*))
       }
       else
       {
-        PRINT_ERROR_ERRNO("open")
-        ret = -1;
+        fprintf(stderr, "%s:%d %s: opening %s failed with error: %m\n", __FILE__, __LINE__, __func__, device);
       }
 
       free(namelist[i]);

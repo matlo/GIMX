@@ -345,7 +345,7 @@ int js_init(const GPOLL_INTERFACE * poll_interface, int (*callback)(GE_Event*))
   n_js = scandir(DEV_INPUT, &namelist_js, is_js_device, alphasort);
   if (n_js >= 0)
   {
-    for(i=0; i<n_js && !ret; ++i)
+    for(i=0; i<n_js; ++i)
     {
       snprintf(js_file, sizeof(js_file), "%s/%s", DEV_INPUT, namelist_js[i]->d_name);
 
@@ -390,10 +390,9 @@ int js_init(const GPOLL_INTERFACE * poll_interface, int (*callback)(GE_Event*))
           close(fd_js);
         }
       }
-      else if(errno == EACCES)
+      else
       {
-        fprintf(stderr, "can't open %s: %s\n", js_file, strerror(errno));
-        ret = -1;
+        fprintf(stderr, "%s:%d %s: opening %s failed with error: %m\n", __FILE__, __LINE__, __func__, js_file);
       }
 
       free(namelist_js[i]);
