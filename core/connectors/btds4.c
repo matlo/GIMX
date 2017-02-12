@@ -901,7 +901,7 @@ int btds4_listen(int btds4_number)
   }
   if(listening_channels.sdp < 0)
   {
-    if((listening_channels.sdp = l2cap_abs_get()->listen(btds4_number, PSM_SDP, L2CAP_ABS_LM_MASTER, listen_accept_sdp, listen_close)) < 0)
+    if((listening_channels.sdp = l2cap_abs_get()->listen(btds4_number, state->dongle_bdaddr.str, PSM_SDP, L2CAP_ABS_LM_MASTER, listen_accept_sdp, listen_close)) < 0)
     {
       return -1;
     }
@@ -909,7 +909,7 @@ int btds4_listen(int btds4_number)
 
   if(listening_channels.hid_control < 0)
   {
-    if((listening_channels.hid_control = l2cap_abs_get()->listen(btds4_number, PSM_HID_CONTROL, L2CAP_ABS_LM_MASTER, listen_accept_control, listen_close)) < 0)
+    if((listening_channels.hid_control = l2cap_abs_get()->listen(btds4_number, state->dongle_bdaddr.str, PSM_HID_CONTROL, L2CAP_ABS_LM_MASTER, listen_accept_control, listen_close)) < 0)
     {
       return -1;
     }
@@ -917,7 +917,7 @@ int btds4_listen(int btds4_number)
 
   if(listening_channels.hid_interrupt < 0)
   {
-    if((listening_channels.hid_interrupt = l2cap_abs_get()->listen(btds4_number, PSM_HID_INTERRUPT, L2CAP_ABS_LM_MASTER, listen_accept_interrupt, listen_close)) < 0)
+    if((listening_channels.hid_interrupt = l2cap_abs_get()->listen(btds4_number, state->dongle_bdaddr.str, PSM_HID_INTERRUPT, L2CAP_ABS_LM_MASTER, listen_accept_interrupt, listen_close)) < 0)
     {
       return -1;
     }

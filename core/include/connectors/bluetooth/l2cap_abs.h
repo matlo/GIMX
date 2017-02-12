@@ -33,7 +33,7 @@ typedef int (* L2CAP_ABS_LISTEN_ACCEPT_CALLBACK) (int channel, bdaddr_t * src);
 
 typedef int (* L2CAP_ABS_CONNECT) (const char *bdaddr_src, const char *bdaddr_dest, unsigned short psm, int options,
     int user, L2CAP_ABS_CONNECT_CALLBACK callback, L2CAP_ABS_CLOSE_CALLBACK close_callback);
-typedef int (* L2CAP_ABS_LISTEN) (int user, unsigned short psm, int options,
+typedef int (* L2CAP_ABS_LISTEN) (int user, const char *bdaddr_adapter, unsigned short psm, int options,
     L2CAP_ABS_LISTEN_ACCEPT_CALLBACK read_callback, L2CAP_ABS_CLOSE_CALLBACK close_callback);
 typedef int (* L2CAP_ABS_SEND) (int channel, const unsigned char* buf, int len, int blocking);
 typedef int (* L2CAP_ABS_RECV) (int channel, unsigned char* buf, int len);

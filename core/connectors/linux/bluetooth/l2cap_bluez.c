@@ -616,7 +616,7 @@ static int l2cap_bluez_connect_accept(int listen_channel)
   return 0;
 }
 
-static int l2cap_bluez_listen(int user __attribute__((unused)), unsigned short psm, int options,
+static int l2cap_bluez_listen(int user __attribute__((unused)), const char * bdaddr_adapter, unsigned short psm, int options,
     L2CAP_ABS_LISTEN_ACCEPT_CALLBACK read_callback, L2CAP_ABS_CLOSE_CALLBACK close_callback)
 {
   struct sockaddr_l2 loc_addr = { 0 };
@@ -637,10 +637,8 @@ static int l2cap_bluez_listen(int user __attribute__((unused)), unsigned short p
 
   l2cap_bluez_setsockopt(fd, options);
 
-  // bind socket to port psm of the first available
-  // bluetooth adapter
   loc_addr.l2_family = AF_BLUETOOTH;
-  loc_addr.l2_bdaddr = *BDADDR_ANY;
+  str2ba(bdaddr_adapter, &loc_addr.l2_bdaddr);
   loc_addr.l2_psm = htobs(psm);
 
   if(bind(fd, (struct sockaddr *) &loc_addr, sizeof(loc_addr)) < 0)
