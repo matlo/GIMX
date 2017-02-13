@@ -521,10 +521,10 @@ static int connect_ps4_control(int btds4_number)
 
   state->ps4_channels.control.pending = 0;
 
-  if(states->ds4_channels.control.id >= 0)
+  if(state->ds4_channels.control.id >= 0)
   {
-    l2cap_abs_get()->add_source(states->ps4_channels.control.id, btds4_number, read_ps4_control, process, close_ps4_control);
-    l2cap_abs_get()->add_source(states->ds4_channels.control.id, btds4_number, read_ds4_control, process, close_ds4_control);
+    l2cap_abs_get()->add_source(state->ps4_channels.control.id, btds4_number, read_ps4_control, process, close_ps4_control);
+    l2cap_abs_get()->add_source(state->ds4_channels.control.id, btds4_number, read_ds4_control, process, close_ds4_control);
   }
 
   return 0;
