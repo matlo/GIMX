@@ -1016,7 +1016,7 @@ int adapter_start()
         const char * button = controller_get_activation_button(adapter->ctype);
         if (button != NULL)
         {
-          printf(_("Press the %s button to activate the controller\n"), button);
+          printf(_("Press the %s button to activate the controller.\n"), button);
         }
       }
     }
