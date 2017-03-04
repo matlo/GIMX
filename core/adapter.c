@@ -1013,6 +1013,11 @@ int adapter_start()
           fprintf(stderr, _("Can't start the serial asynchronous processing.\n"));
           ret = -1;
         }
+        const char * button = controller_get_activation_button(adapter->ctype);
+        if (button != NULL)
+        {
+          printf(_("Press the %s button to activate the controller\n"), button);
+        }
       }
     }
     else if(adapter->atype == E_ADAPTER_TYPE_BLUETOOTH)
