@@ -952,6 +952,8 @@ int adapter_start()
   {
     adapter = adapter_get(i);
 
+    adapter->joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, i);
+
     if (adapter->haptic.joystick >= 0)
     {
       int haptic = ginput_joystick_get_haptic(adapter->haptic.joystick);
