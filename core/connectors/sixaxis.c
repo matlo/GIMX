@@ -622,7 +622,7 @@ int sixaxis_send_interrupt(int sixaxis_number, s_report_ds3* buf)
 
   process_report(HID_TYPE_INPUT, 0x01, (unsigned char*) buf, sizeof(s_report_ds3), state);
 
-  return send_report(0, PSM_HID_INTERRUPT, HID_TYPE_INPUT, 0x01, 0);
+  return send_report(sixaxis_number, PSM_HID_INTERRUPT, HID_TYPE_INPUT, 0x01, 0);
 }
 
 void sixaxis_close(int sixaxis_number)

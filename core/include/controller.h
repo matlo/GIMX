@@ -55,9 +55,11 @@ typedef struct {
     int ts_axis[AXIS_MAX][2]; //issue 15
     s_report_packet report[2]; //the xbox one guide button needs a dedicated report
     int status;
+    int joystick;
     struct {
-        int id;
-        struct {
+        int joystick;
+        struct
+        {
             unsigned short vendor;
             unsigned short product;
         } usb_ids;
@@ -68,7 +70,7 @@ typedef struct {
             int write_pending;
             int read_pending;
         } hid;
-    } joystick;
+    } haptic;
     unsigned char forward_out_reports;
     unsigned char process_ffb;
 } s_adapter;
@@ -98,5 +100,7 @@ int adapter_forward_control_in(int adapter, unsigned char* data, unsigned char l
 int adapter_forward_interrupt_in(int adapter, unsigned char* data, unsigned char length);
 
 int adapter_is_usb_auth_required(int adapter);
+
+void adapter_set_haptic_joystick(int adapter, int joystick);
 
 #endif /* CONTROLLER_H_ */

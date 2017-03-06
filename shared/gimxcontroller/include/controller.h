@@ -66,6 +66,7 @@ typedef struct
   } axis_name_dirs;
   unsigned int (*fp_build_report)(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS]);
   void (*fp_init_report)(s_report * report);
+  const char * activation_button;
 } s_controller;
 
 int clamp(int min, int val, int max);
@@ -102,6 +103,8 @@ int controller_get_axis_index(const char * name);
 int controller_is_auth_required(e_controller_type type);
 
 void controller_get_ids(e_controller_type type, unsigned short * vid, unsigned short * pid);
+
+const char * controller_get_activation_button(e_controller_type type);
 
 #ifdef __cplusplus
 }

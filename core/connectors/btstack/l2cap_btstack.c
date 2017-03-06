@@ -209,7 +209,7 @@ static int l2cap_btstack_send(int channel, const unsigned char* buf, int len, in
   return btstack_common_send_packet(L2CAP_DATA_PACKET, channels.entries[channel].cid, buf, len);
 }
 
-static int l2cap_btstack_listen(int user __attribute__((unused)), unsigned short psm __attribute__((unused)), int options __attribute__((unused)),
+static int l2cap_btstack_listen(int user __attribute__((unused)), const char *bdaddr_adapter __attribute__((unused)), unsigned short psm __attribute__((unused)), int options __attribute__((unused)),
     L2CAP_ABS_LISTEN_ACCEPT_CALLBACK read_callback __attribute__((unused)), L2CAP_ABS_CLOSE_CALLBACK close_callback __attribute__((unused)))
 {
   //TODO MLA: implement btstack listen

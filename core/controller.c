@@ -36,6 +36,10 @@
  * This time is doubled so as to include the reset command transfer duration.
  */
 #define ADAPTER_RESET_TIME 30000 //microseconds
+/*
+ * The number of times the adapter is queried for its type, before it is assumed as unreachable.
+ */
+#define ADAPTER_INIT_RETRIES 10
 
 static s_adapter adapters[MAX_CONTROLLERS] = {};
 
@@ -69,14 +73,15 @@ void adapter_init_static(void)
     adapters[i].remote.fd = -1;
     adapters[i].src_fd = -1;
     adapters[i].serial.device = -1;
-    adapters[i].joystick.hid.id = -1;
+    adapters[i].haptic.joystick = -1;
+    adapters[i].haptic.hid.id = -1;
     adapters[i].serial.bread = 0;
     for(j = 0; j < MAX_REPORTS; ++j)
     {
       adapters[i].report[j].type = BYTE_IN_REPORT;
     }
     adapters[i].status = 0;
-    adapters[i].joystick.id = -1;
+    adapters[i].joystick = -1;
   }
   for(j=0; j<E_DEVICE_TYPE_NB; ++j)
   {
@@ -358,7 +363,7 @@ static int adapter_forward_interrupt_out(int adapter, unsigned char* data, unsig
   if(adapters[adapter].ctype == C_TYPE_XONE_PAD && data[0] == 0x06 && data[1] == 0x20)
   {
     adapters[adapter].status = 1;
-    if (adapters[adapter].joystick.id >= 0 && adapters[adapter].joystick.id != usb_get_joystick(adapter))
+    if (adapters[adapter].joystick >= 0 && adapters[adapter].joystick != usb_get_joystick(adapter))
     {
       adapters[adapter].forward_out_reports = 0;
     }
@@ -368,29 +373,37 @@ static int adapter_forward_interrupt_out(int adapter, unsigned char* data, unsig
 
 static void adapter_send_next_hid_report(int adapter)
 {
-  if(!adapters[adapter].joystick.hid.write_pending)
+  if(!adapters[adapter].haptic.hid.write_pending)
   {
     s_ff_lg_report report;
     int ret = ff_lg_get_report(adapter, &report);
     if(ret == 1)
     {
-      if(ghid_write(adapters[adapter].joystick.hid.id, report.data, sizeof(report.data)) == 0)
+      if(ghid_write(adapters[adapter].haptic.hid.id, report.data, sizeof(report.data)) == 0)
       {
-        adapters->joystick.hid.write_pending = 1;
+        adapters->haptic.hid.write_pending = 1;
       }
     }
   }
 }
 
-static void adapter_send_next_ffb_update(int adapter, unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
-
-    GE_Event events[FF_LG_FSLOTS_NB] = {};
-    int events_nb = ff_conv(adapter, data, events);
-    int i;
-    for (i = 0; i < events_nb; ++i) {
-        events[i].which = adapters[adapter].joystick.id;
-        ginput_joystick_set_haptic(events + i);
+static void adapter_send_next_ffb_update(int adapter)
+{
+  GE_Event event = {};
+  int ret;
+  do
+  {
+    ret = ff_conv_get_event(adapter, &event);
+    if (ret != -1)
+    {
+      event.which = adapters[adapter].haptic.joystick;
+      ret = ginput_joystick_set_haptic(&event);
+      if (ret != -1)
+      {
+        ff_conv_ack(adapter);
+      }
     }
+  } while (ret != -1);
 }
 
 static int adapter_process_packet(int adapter, s_packet* packet)
@@ -420,14 +433,14 @@ static int adapter_process_packet(int adapter, s_packet* packet)
         gerror("failed to forward interrupt out packet to game controller\n");
       }
     }
-    else if(rumble_props[adapters[adapter].ctype].has_rumble && adapters[adapter].joystick.has_rumble)
+    else if(rumble_props[adapters[adapter].ctype].has_rumble && adapters[adapter].haptic.has_rumble)
     {
       GE_Event event =
       {
         .jrumble =
         {
           .type = GE_JOYRUMBLE,
-          .which = adapters[adapter].joystick.id,
+          .which = adapters[adapter].haptic.joystick,
           .weak = data[rumble_props[adapters[adapter].ctype].weak] << 8,
           .strong = data[rumble_props[adapters[adapter].ctype].strong] << 8
         }
@@ -457,14 +470,15 @@ static int adapter_process_packet(int adapter, s_packet* packet)
     }
     if (logitech_ffb_report != NULL)
     {
-      if (adapters[adapter].joystick.hid.id >= 0)
+      if (adapters[adapter].haptic.hid.id >= 0)
       {
         ff_lg_process_report(adapter, logitech_ffb_report);
         adapter_send_next_hid_report(adapter);
       }
-      else if (adapters[adapter].joystick.id >= 0 && adapters[adapter].joystick.has_ffb)
+      else if (adapters[adapter].haptic.joystick >= 0 && adapters[adapter].haptic.has_ffb)
       {
-        adapter_send_next_ffb_update(adapter, logitech_ffb_report);
+        ff_conv_process_report(adapter, logitech_ffb_report);
+        adapter_send_next_ffb_update(adapter);
       }
     }
   }
@@ -487,7 +501,7 @@ static int adapter_process_packet(int adapter, s_packet* packet)
 
 static int adapter_hid_write_cb(int adapter, int status)
 {
-  adapters[adapter].joystick.hid.write_pending = 0;
+  adapters[adapter].haptic.hid.write_pending = 0;
   if(status != -1) {
     ff_lg_ack(adapter);
   }
@@ -497,7 +511,7 @@ static int adapter_hid_write_cb(int adapter, int status)
 
 static int adapter_hid_close_cb(int adapter)
 {
-  adapters[adapter].joystick.hid.id = -1;
+  adapters[adapter].haptic.hid.id = -1;
   return 1;
 }
 
@@ -510,15 +524,16 @@ void adapter_set_hid(int adapter, int hid)
     return;
   }
 
-  if(adapters[adapter].joystick.hid.id < 0)
+  if(adapters[adapter].haptic.hid.id < 0)
   {
       const s_hid_info * info = ghid_get_hid_info(hid);
       if (info != NULL && ff_lg_is_logitech_wheel(info->vendor_id, info->product_id))
       {
-        adapters[adapter].joystick.hid.id = hid;
-        adapters[adapter].joystick.usb_ids.vendor = info->vendor_id;
-        adapters[adapter].joystick.usb_ids.product = info->product_id;
+        adapters[adapter].haptic.hid.id = hid;
+        adapters[adapter].haptic.usb_ids.vendor = info->vendor_id;
+        adapters[adapter].haptic.usb_ids.product = info->product_id;
         ginput_joystick_set_hid_callbacks(hid, adapter, adapter_hid_write_cb, adapter_hid_close_cb);
+        ginfo("FFB device: VID=0x%04x, PID=0x%04x.\n", info->vendor_id, info->product_id);
       }
   }
 }
@@ -531,17 +546,18 @@ void adapter_set_usb_ids(int adapter, int joystick_id, unsigned short vendor, un
     return;
   }
 
-  if(adapter_device[E_DEVICE_TYPE_JOYSTICK - 1][adapter] == joystick_id)
+  if(adapters[adapter].haptic.joystick == joystick_id)
   {
-    adapters[adapter].joystick.usb_ids.vendor = vendor;
-    adapters[adapter].joystick.usb_ids.product = product;
+    adapters[adapter].haptic.usb_ids.vendor = vendor;
+    adapters[adapter].haptic.usb_ids.product = product;
+    ginfo("FFB device: VID=0x%04x, PID=0x%04x.\n", info->vendor_id, info->product_id);
   }
 }
 
 static int start_hid(int adapter)
 {
-  adapters[adapter].joystick.hid.id = ghid_open_ids(adapters[adapter].joystick.usb_ids.vendor, adapters[adapter].joystick.usb_ids.product);
-  if(adapters[adapter].joystick.hid.id >= 0)
+  adapters[adapter].haptic.hid.id = ghid_open_ids(adapters[adapter].haptic.usb_ids.vendor, adapters[adapter].haptic.usb_ids.product);
+  if(adapters[adapter].haptic.hid.id >= 0)
   {
     GHID_CALLBACKS ghid_callbacks = {
             .fp_read = NULL,
@@ -550,7 +566,7 @@ static int start_hid(int adapter)
             .fp_register = REGISTER_FUNCTION,
             .fp_remove = REMOVE_FUNCTION,
     };
-    if(ghid_register(adapters[adapter].joystick.hid.id, adapter, &ghid_callbacks) < 0)
+    if(ghid_register(adapters[adapter].haptic.hid.id, adapter, &ghid_callbacks) < 0)
     {
       return -1;
     }
@@ -750,14 +766,14 @@ int adapter_detect()
         }
         else
         {
-          int rtype = adapter_send_short_command(i, BYTE_TYPE);
-
-          if (rtype < 0)
+          int rtype = -1;
+          int j;
+          for (j = 0; j < ADAPTER_INIT_RETRIES && rtype == -1; ++j)
           {
-            gerror(_("failed to detect the GIMX adapter (maybe you swapped rx and tx?)\n"));
-            ret = -1;
+            rtype = adapter_send_short_command(i, BYTE_TYPE);
           }
-          else
+
+          if(rtype >= 0)
           {
             ginfo(_("GIMX adapter detected, controller type is: %s.\n"), controller_get_name(rtype));
 
@@ -914,14 +930,14 @@ static int gpp_read_callback(int adapter, const void * buf, int status)
 
   GCAPI_REPORT * report = (GCAPI_REPORT *)(buf + 7);
 
-  if(padapter->joystick.id >= 0 && padapter->joystick.has_rumble)
+  if(padapter->haptic.joystick >= 0 && padapter->haptic.has_rumble)
   {
     GE_Event event =
     {
       .jrumble =
       {
         .type = GE_JOYRUMBLE,
-        .which = padapter->joystick.id,
+        .which = padapter->haptic.joystick,
         .weak = report->rumble[0] << 8,
         .strong = report->rumble[1] << 8
       }
@@ -957,22 +973,22 @@ int adapter_start()
   {
     adapter = adapter_get(i);
 
-    // get the default joystick and its haptic properties
-    adapter->joystick.id = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, i);
-    if (adapter->joystick.id >= 0)
+    adapter->joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, i);
+
+    if (adapter->haptic.joystick >= 0)
     {
-      int haptic = ginput_joystick_get_haptic(adapter->joystick.id);
-      adapter->joystick.has_rumble = haptic & GE_HAPTIC_RUMBLE;
-      adapter->joystick.has_ffb = haptic & (GE_HAPTIC_CONSTANT | GE_HAPTIC_SPRING | GE_HAPTIC_DAMPER);
+      int haptic = ginput_joystick_get_haptic(adapter->haptic.joystick);
+      adapter->haptic.has_rumble = haptic & GE_HAPTIC_RUMBLE;
+      adapter->haptic.has_ffb = haptic & (GE_HAPTIC_CONSTANT | GE_HAPTIC_SPRING | GE_HAPTIC_DAMPER);
     }
 
     if(adapter->atype == E_ADAPTER_TYPE_DIY_USB)
     {
       if(adapter->serial.device >= 0)
       {
-        if (adapter->joystick.id >= 0)
+        if (adapter->joystick >= 0)
         {
-          if (usb_get_joystick(i) == adapter->joystick.id)
+          if (usb_get_joystick(i) == adapter->joystick)
           {
               adapter->forward_out_reports = 1;
           }
@@ -995,17 +1011,17 @@ int adapter_start()
         if (ff_lg_is_logitech_wheel(vid, pid))
         {
           // emulated controller is a Logitech wheel with FFB support
-          if (ff_lg_is_logitech_wheel(adapter->joystick.usb_ids.vendor, adapter[i].joystick.usb_ids.product))
+          if (ff_lg_is_logitech_wheel(adapter->haptic.usb_ids.vendor, adapter[i].haptic.usb_ids.product))
           {
             // default joystick is a Logitech wheel with FFB support
-            ff_lg_init(i, pid, adapter->joystick.usb_ids.product);
+            ff_lg_init(i, pid, adapter->haptic.usb_ids.product);
 #ifdef WIN32
             start_hid(i);
 #endif
             // wheel range may have to be changed
             adapter_send_next_hid_report(i);
           }
-          else if (adapter->joystick.has_ffb)
+          else if (adapter->haptic.has_ffb)
           {
             // default joystick is a non-Logitech wheel with FFB support
             ff_conv_init(i, pid);
@@ -1020,6 +1036,11 @@ int adapter_start()
         {
           gerror(_("failed to start the GIMX adapter asynchronous processing.\n"));
           ret = -1;
+        }
+        const char * button = controller_get_activation_button(adapter->ctype);
+        if (button != NULL)
+        {
+          printf(_("Press the %s button to activate the controller.\n"), button);
         }
       }
     }
@@ -1218,6 +1239,11 @@ int adapter_send()
         adapter->axis[ds4a_finger2_y] = 0;
       }
     }
+
+    if (adapter->haptic.joystick >= 0 && adapter->haptic.has_ffb)
+    {
+      adapter_send_next_ffb_update(i);
+    }
   }
   return ret;
 }
@@ -1303,4 +1329,11 @@ int adapter_is_usb_auth_required(int adapter)
   }
   return 0;
 
+}
+void adapter_set_haptic_joystick(int adapter, int joystick)
+{
+  if (adapters[adapter].haptic.joystick < 0)
+  {
+    adapters[adapter].haptic.joystick = joystick;
+  }
 }

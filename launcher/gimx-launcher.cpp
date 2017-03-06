@@ -440,20 +440,50 @@ void launcherFrame::readSerialPorts()
   wxString file;
   wxString filespec = wxT("*");
 
+  wxString names[] =
+  {
+    wxT("ttyUSB"),
+    wxT("ttyACM"),
+    wxT("ttyAMA"),
+#ifdef __ARM_ARCH_6__
+    wxT("ttyS")
+#endif
+  };
+
   for (bool cont = dir.GetFirst(&file, filespec, wxDIR_FILES); cont;  cont = dir.GetNext(&file))
   {
-    if(file.StartsWith(wxT("ttyUSB")) || file.StartsWith(wxT("ttyACM")) || file.StartsWith(wxT("ttyAMA")))
+    unsigned int i;
+    for (i = 0; i < sizeof(names) / sizeof(*names); ++i)
     {
-      if(!line.empty() && wxString(line.c_str(), wxConvUTF8) == file)
+      if (file.StartsWith(names[i]))
       {
-        OutputChoice->SetSelection(OutputChoice->Append(file));
-      }
-      else
-      {
-        OutputChoice->Append(file);
+        break;
       }
     }
+    if(i == sizeof(names) / sizeof(*names))
+    {
+      continue;
+    }
+    if(!line.empty() && wxString(line.c_str(), wxConvUTF8) == file)
+    {
+      OutputChoice->SetSelection(OutputChoice->Append(file));
+    }
+    else
+    {
+      OutputChoice->Append(file);
+    }
   }
+
+#ifdef __ARM_ARCH_6__
+  /*
+   * On RPi 1 & 2, UART is ttyAMA0.
+   * On RPi 3, UART is ttyS0.
+   */
+  if (OutputChoice->FindString(wxT("ttyS0")) != wxNOT_FOUND)
+  {
+    OutputChoice->Delete(OutputChoice->FindString(wxT("ttyAMA0")));
+  }
+#endif
 
   if(previous != wxEmptyString)
   {

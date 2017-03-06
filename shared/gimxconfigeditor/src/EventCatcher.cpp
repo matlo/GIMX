@@ -52,6 +52,15 @@ int EventCatcher::init()
     };
     if(ginput_init(&poll_interace, src, process_event) < 0)
     {
+      ginput_quit();
+      return -1;
+    }
+
+    if (ginput_joystick_name(0) == NULL
+            && ginput_mouse_name(0) == NULL
+            && ginput_keyboard_name(0) == NULL)
+    {
+      ginput_quit();
       return -1;
     }
 

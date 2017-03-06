@@ -437,17 +437,6 @@ static int ProcessEventElement(xmlNode * a_node, unsigned char mapper)
           {
             case E_EVENT_TYPE_BUTTON:
               adapter_set_device(entry.controller_id, entry.device.type, entry.device.id);
-#ifndef WIN32
-              if(entry.device.type == E_DEVICE_TYPE_JOYSTICK && entry.device.hid >= 0)
-              {
-                adapter_set_hid(entry.controller_id, entry.device.hid);
-              }
-#else
-              if(entry.device.type == E_DEVICE_TYPE_JOYSTICK && entry.device.usb_ids.vendor && entry.device.usb_ids.product)
-              {
-                adapter_set_usb_ids(entry.controller_id, entry.device.id, entry.device.usb_ids.vendor, entry.device.usb_ids.product);
-              }
-#endif
               break;
             case E_EVENT_TYPE_AXIS:
             case E_EVENT_TYPE_AXIS_DOWN:
@@ -465,6 +454,23 @@ static int ProcessEventElement(xmlNode * a_node, unsigned char mapper)
                   }
                   cal_set_mouse(&entry);
                 }
+              }
+              else if(entry.device.type == E_DEVICE_TYPE_JOYSTICK
+                      && entry.params.mapper.axis_props.axis == rel_axis_0
+                      && entry.params.mapper.axis_props.props == AXIS_PROP_CENTERED)
+              {
+                adapter_set_haptic_joystick(entry.controller_id, entry.device.id);
+#ifndef WIN32
+                if(entry.device.hid >= 0)
+                {
+                  adapter_set_hid(entry.controller_id, entry.device.hid);
+                }
+#else
+                if(entry.device.usb_ids.vendor && entry.device.usb_ids.product)
+                {
+                  adapter_set_usb_ids(entry.controller_id, entry.device.id, entry.device.usb_ids.vendor, entry.device.usb_ids.product);
+                }
+#endif
               }
               break;
             default:
