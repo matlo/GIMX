@@ -9,7 +9,7 @@
 
 #include <haptic/ff_lg.h>
 #include <gimxhid/include/ghid.h>
-#include <adapter.h>
+#include <controller.h>
 #include <gimx.h>
 #include <limits.h>
 
