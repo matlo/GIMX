@@ -533,7 +533,7 @@ void adapter_set_usb_ids(int adapter, int joystick_id, unsigned short vendor, un
   {
     adapters[adapter].haptic.usb_ids.vendor = vendor;
     adapters[adapter].haptic.usb_ids.product = product;
-    ncprintf("FFB device: VID=0x%04x, PID=0x%04x.\n", info->vendor_id, info->product_id);
+    ncprintf("FFB device: VID=0x%04x, PID=0x%04x.\n", vendor, product);
   }
 }
 
