@@ -193,6 +193,8 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
                 ff_lg_get_condition_coef(ff_lg_device[device].pid, 1, FF_LG_HIGHRES_DAMPER_K1(force), FF_LG_HIGHRES_DAMPER_S1(force));
             event->jcondition.coefficient.right =
                 ff_lg_get_condition_coef(ff_lg_device[device].pid, 1, FF_LG_HIGHRES_DAMPER_K2(force), FF_LG_HIGHRES_DAMPER_S2(force));
+            event->jcondition.center = 0;
+            event->jcondition.deadband = 0;
         }
         ret = 1;
         break;
