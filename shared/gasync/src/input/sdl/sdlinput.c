@@ -123,13 +123,13 @@ static void open_haptic(int id, SDL_Joystick* joystick) {
             break;
         case SDL_HAPTIC_CONSTANT:
             effect.constant.length = SDL_HAPTIC_INFINITY;
-            effect.constant.direction.type = SDL_HAPTIC_X_FORCE;
+            effect.constant.direction.type = SDL_HAPTIC_FIRST_AXIS;
             effect.constant.direction.dir[0] = 0;
             break;
         case SDL_HAPTIC_SPRING:
         case SDL_HAPTIC_DAMPER:
             effect.condition.length = SDL_HAPTIC_INFINITY;
-            effect.condition.direction.type = SDL_HAPTIC_X_FORCE;
+            effect.condition.direction.type = SDL_HAPTIC_FIRST_AXIS;
             effect.condition.direction.dir[0] = 0;
             break;
         }
@@ -742,7 +742,7 @@ int sdlinput_joystick_set_haptic(const GE_Event * event)
     {
       effect_id = get_effect_id(event->which, GE_HAPTIC_CONSTANT);
       effect.constant.type = SDL_HAPTIC_CONSTANT;
-      effect.constant.direction.type = SDL_HAPTIC_X_FORCE;
+      effect.constant.direction.type = SDL_HAPTIC_FIRST_AXIS;
       effect.constant.direction.dir[0] = 0;
       effect.constant.length = SDL_HAPTIC_INFINITY;
       effect.constant.level = event->jconstant.level;
@@ -753,7 +753,7 @@ int sdlinput_joystick_set_haptic(const GE_Event * event)
     {
       effect_id = get_effect_id(event->which, GE_HAPTIC_SPRING);
       effect.condition.type = SDL_HAPTIC_SPRING;
-      effect.condition.direction.type = SDL_HAPTIC_X_FORCE;
+      effect.condition.direction.type = SDL_HAPTIC_FIRST_AXIS;
       effect.condition.direction.dir[0] = 0;
       effect.condition.length = SDL_HAPTIC_INFINITY;
       effect.condition.right_sat[0] = event->jcondition.saturation.right;
@@ -769,7 +769,7 @@ int sdlinput_joystick_set_haptic(const GE_Event * event)
     {
       effect_id = get_effect_id(event->which, GE_HAPTIC_DAMPER);
       effect.condition.type = SDL_HAPTIC_DAMPER;
-      effect.condition.direction.type = SDL_HAPTIC_X_FORCE;
+      effect.condition.direction.type = SDL_HAPTIC_FIRST_AXIS;
       effect.condition.direction.dir[0] = 0;
       effect.condition.length = SDL_HAPTIC_INFINITY;
       effect.condition.right_sat[0] = event->jcondition.saturation.right;
