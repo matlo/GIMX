@@ -103,7 +103,7 @@ int gserial_open(const char * port, unsigned int baudrate) {
         return -1;
     }
 
-    return 0;
+    return device;
 }
 
 /*
