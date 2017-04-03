@@ -162,7 +162,7 @@ static void adapter_dump_state(int adapter)
  */
 static int network_read_callback(int adapter)
 {
-  static unsigned char buf[256+2];
+  static unsigned char buf[sizeof(s_network_packet_in_report) + AXIS_MAX * sizeof(* ((s_network_packet_in_report *) NULL)->axes)];
   int nread = 0;
   struct sockaddr_in sa;
   socklen_t salen = sizeof(sa);
@@ -171,33 +171,52 @@ static int network_read_callback(int adapter)
   {
     return 0;
   }
-  if(nread < 2)
+  if(nread < 1)
   {
     gwarn("invalid packet size: %d\n", nread);
     return 0;
   }
   switch(buf[0])
   {
-  case BYTE_TYPE:
+  case E_NETWORK_PACKET_CONTROLLER:
     {
       // send the answer
-      unsigned char answer[3] = {BYTE_TYPE, BYTE_LEN_1_BYTE, adapters[adapter].ctype};
-      if (udp_sendto(adapters[adapter].src_fd, answer, sizeof(answer), (struct sockaddr*) &sa, salen) < 0)
+      s_network_packet_controller ctype =
       {
-        gwarn("adapter_network_read: can't send controller type\n");
+        .packet_type = E_NETWORK_PACKET_CONTROLLER,
+        .controller_type = adapters[adapter].ctype
+      };
+      if (udp_sendto(adapters[adapter].src_fd, (void *)&ctype, sizeof(ctype), (struct sockaddr*) &sa, salen) < 0)
+      {
+        gwarn("%s: can't send controller type\n", __func__);
         return 0;
       }
     }
     break;
-  case BYTE_IN_REPORT:
-    if(buf[1] != sizeof(adapters->axis))
+  case E_NETWORK_PACKET_IN_REPORT:
     {
-      gwarn("adapter_network_read: wrong packet size\n");
-      return 0;
+      s_network_packet_in_report * report = (s_network_packet_in_report *) buf;
+      if((unsigned int) nread != sizeof(* report) + report->nbAxes * sizeof(* report->axes))
+      {
+        gwarn("%s: wrong packet size: %u %zu\n", __func__, nread, sizeof(* report) + report->nbAxes * sizeof(* report->axes));
+        return 0;
+      }
+      // store the report (no answer)
+      unsigned char i;
+      for (i = 0; i < report->nbAxes; ++i)
+      {
+        unsigned char offset = ((report->axes[i].index & 0x80) ? abs_axis_0 : 0) + (report->axes[i].index & 0x7f);
+        if (offset < AXIS_MAX)
+        {
+          adapters[adapter].axis[offset] = report->axes[i].value;
+        }
+        else
+        {
+          gwarn("%s: bad axis index: %s %hu\n", __func__, (report->axes[i].index & 0x80) ? "abs" : "rel", report->axes[i].index & 0x7f);
+        }
+      }
+      adapters[adapter].send_command = 1;
     }
-    // store the report (no answer)
-    memcpy(adapters[adapter].axis, buf+2, sizeof(adapters->axis));
-    adapters[adapter].send_command = 1;
     break;
   }
   // require a report to be sent immediately, except for a Sixaxis controller working over bluetooth
@@ -885,11 +904,11 @@ int adapter_detect()
     {
       if(adapter->remote.ip)
       {
-        adapter->remote.fd = udp_connect(adapter->remote.ip, adapter->remote.fd, (int *)&adapter->ctype);
+        adapter->remote.fd = udp_connect(adapter->remote.ip, adapter->remote.port, (int *)&adapter->ctype);
         if(adapter->remote.fd < 0)
         {
           struct in_addr addr = { .s_addr = adapter->remote.ip };
-          gerror(_("failed to connect to network destination: %s:%d.\n"), inet_ntoa(addr), adapter->remote.fd);
+          gerror(_("failed to connect to network destination: %s:%d.\n"), inet_ntoa(addr), adapter->remote.port);
           ret = -1;
         }
         else
@@ -1132,9 +1151,18 @@ int adapter_send()
       {
         if(adapter->remote.fd >= 0)
         {
-          static unsigned char report[sizeof(adapter->axis)+2] = { BYTE_IN_REPORT, sizeof(adapter->axis) };
-          memcpy(report+2, adapter->axis, sizeof(adapter->axis));
-          ret = udp_send(adapter->remote.fd, report, sizeof(report));
+
+          s_network_packet_in_report * report = &adapter->remote.report;
+          report->packet_type = E_NETWORK_PACKET_IN_REPORT;
+          report->nbAxes = 0;
+          unsigned char i;
+          for (i = 0; i < AXIS_MAX; ++i)
+          {
+            report->axes[report->nbAxes].index = (i >= abs_axis_0) ? (0x80 | (i - abs_axis_0)) : i;
+            report->axes[report->nbAxes].value = adapter->axis[i];
+            ++report->nbAxes;
+          }
+          ret = udp_send(adapter->remote.fd, adapter->remote.buf, sizeof(* report) + report->nbAxes * sizeof(* report->axes));
         }
       }
       else if(adapter->atype == E_ADAPTER_TYPE_DIY_USB)

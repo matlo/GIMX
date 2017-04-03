@@ -7,6 +7,7 @@
 #define CONTROLLER_H_
 
 #include <connectors/protocol.h>
+#include <gimx-network-protocol/protocol.h>
 #include <config.h>
 #include <gimxserial/include/gserial.h>
 #include <gimxcontroller/include/controller.h>
@@ -16,6 +17,8 @@
 #else
 #include <connectors/windows/sockets.h>
 #endif
+
+#include <stdio.h>
 
 typedef enum {
     E_ADAPTER_TYPE_NONE,
@@ -42,6 +45,10 @@ typedef struct {
             in_addr_t ip;
             unsigned short port;
             int fd;
+            union {
+                unsigned char buf[sizeof(s_network_packet_in_report) + AXIS_MAX * sizeof(* ((s_network_packet_in_report * )NULL)->axes)];
+                s_network_packet_in_report report;
+            };
         } remote;
     };
     in_addr_t src_ip;

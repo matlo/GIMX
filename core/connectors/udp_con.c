@@ -4,7 +4,7 @@
  */
 
 #include <connectors/udp_con.h>
-#include <connectors/protocol.h>
+#include <gimx-network-protocol/protocol.h>
 #ifndef WIN32
 #include <arpa/inet.h>
 #endif
@@ -87,7 +87,7 @@ int udp_connect(unsigned int ip, unsigned short port, int* type)
     {
       //request the controller type from the remote gimx
 
-      unsigned char request[] = {BYTE_TYPE, BYTE_LEN_0_BYTE};
+      unsigned char request[] = { E_NETWORK_PACKET_CONTROLLER };
 
       if(udp_send(fd, request, sizeof(request)) > 0)
       {
@@ -104,18 +104,18 @@ int udp_connect(unsigned int ip, unsigned short port, int* type)
         }
         else
         {
-          unsigned char answer[3];
+          s_network_packet_controller controller;
           socklen_t salen = sizeof(sa);
-          int ret = udp_recvfrom(fd, answer, sizeof(answer), (struct sockaddr *) &sa, &salen);
-          if(ret == sizeof(answer))
+          int ret = udp_recvfrom(fd, (void *) &controller, sizeof(controller), (struct sockaddr *) &sa, &salen);
+          if(ret == sizeof(controller))
           {
-            if(answer[0] == BYTE_TYPE && answer[1] == BYTE_LEN_1_BYTE)
+            if(controller.packet_type == E_NETWORK_PACKET_CONTROLLER)
             {
-              *type = answer[2];
+              *type = controller.controller_type;
             }
             else
             {
-              fprintf(stderr, "invalid reply from remote gimx (type=%d, length=%d)\n", answer[0], answer[1]);
+              fprintf(stderr, "invalid reply from remote gimx type=%hu\n", controller.packet_type);
               error = 1;
             }
           }
