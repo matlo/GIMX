@@ -278,27 +278,34 @@ int compare_events(const GE_Event * left, const GE_Event * right) {
     switch (left->type) {
     case GE_JOYCONSTANTFORCE:
         if (left->jconstant.level != right->jconstant.level) {
+            fprintf(stderr, "level: %d vs %d\n", left->jconstant.level, right->jconstant.level);
             return 1;
         }
         break;
     case GE_JOYSPRINGFORCE:
     case GE_JOYDAMPERFORCE:
         if (left->jcondition.saturation.left != right->jcondition.saturation.left) {
+            fprintf(stderr, "saturation.left: %u vs %u\n", left->jcondition.saturation.left, right->jcondition.saturation.left);
             return 1;
         }
         if (left->jcondition.saturation.right != right->jcondition.saturation.right) {
+            fprintf(stderr, "saturation.right: %u vs %u\n", left->jcondition.saturation.right, right->jcondition.saturation.right);
             return 1;
         }
         if (left->jcondition.coefficient.left != right->jcondition.coefficient.left) {
+            fprintf(stderr, "coefficient.left: %u vs %u\n", left->jcondition.coefficient.left, right->jcondition.coefficient.left);
             return 1;
         }
         if (left->jcondition.coefficient.right != right->jcondition.coefficient.right) {
+            fprintf(stderr, "coefficient.right: %u vs %u\n", left->jcondition.coefficient.right, right->jcondition.coefficient.right);
             return 1;
         }
         if (left->jcondition.center != right->jcondition.center) {
+            fprintf(stderr, "center: %u vs %u\n", left->jcondition.center, right->jcondition.center);
             return 1;
         }
         if (left->jcondition.deadband != right->jcondition.deadband) {
+            fprintf(stderr, "deadband: %u vs %u\n", left->jcondition.deadband, right->jcondition.deadband);
             return 1;
         }
         break;
@@ -326,9 +333,24 @@ int main(int argc __attribute__((unused)), char * argv[] __attribute__((unused))
             continue;
         }
 
-        printf("success\n");
+        ff_conv_ack(0);
+
+        unsigned char stop[FF_LG_OUTPUT_REPORT_SIZE] = { (test_cases[i].data[0] & FF_LG_FSLOT_MASK) | FF_LG_CMD_STOP };
+
+        ff_conv_process_report(0, stop);
+
+        ff_conv_get_event(0, &event);
+
+        GE_Event stopEvent = { .type = event.type, .which = event.which };
+
+        if (compare_events(&stopEvent, &event)) {
+            printf("failed: ff_conv returned an incorrect stop event\n");
+            continue;
+        }
 
         ff_conv_ack(0);
+
+        printf("success\n");
     }
 
     return 0;
