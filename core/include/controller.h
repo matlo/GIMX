@@ -49,6 +49,7 @@ typedef struct {
                 unsigned char buf[sizeof(s_network_packet_in_report) + AXIS_MAX * sizeof(* ((s_network_packet_in_report * )NULL)->axes)];
                 s_network_packet_in_report report;
             };
+            int last_axes[AXIS_MAX];
         } remote;
     };
     in_addr_t src_ip;

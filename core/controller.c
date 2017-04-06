@@ -208,7 +208,7 @@ static int network_read_callback(int adapter)
         unsigned char offset = ((report->axes[i].index & 0x80) ? abs_axis_0 : 0) + (report->axes[i].index & 0x7f);
         if (offset < AXIS_MAX)
         {
-          adapters[adapter].axis[offset] = report->axes[i].value;
+          adapters[adapter].axis[offset] = ntohl(report->axes[i].value);
         }
         else
         {
@@ -1158,11 +1158,18 @@ int adapter_send()
           unsigned char i;
           for (i = 0; i < AXIS_MAX; ++i)
           {
-            report->axes[report->nbAxes].index = (i >= abs_axis_0) ? (0x80 | (i - abs_axis_0)) : i;
-            report->axes[report->nbAxes].value = adapter->axis[i];
-            ++report->nbAxes;
+            // send all axes if --event argument is used
+            // otherwise only send changes
+            if (adapter->event || adapter->remote.last_axes[i] != adapter->axis[i])
+            {
+              report->axes[report->nbAxes].index = (i >= abs_axis_0) ? (0x80 | (i - abs_axis_0)) : i;
+              report->axes[report->nbAxes].value = htonl(adapter->axis[i]);
+              ++report->nbAxes;
+            }
           }
           ret = udp_send(adapter->remote.fd, adapter->remote.buf, sizeof(* report) + report->nbAxes * sizeof(* report->axes));
+          // backup so that we can send changes only
+          memcpy(adapter->remote.last_axes, adapter->axis, AXIS_MAX * sizeof(* adapter->axis));
         }
       }
       else if(adapter->atype == E_ADAPTER_TYPE_DIY_USB)
