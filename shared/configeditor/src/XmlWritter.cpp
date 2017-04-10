@@ -269,7 +269,7 @@ void XmlWritter::CreateControllerNodes(xmlNodePtr parent_node)
 {
     xmlNodePtr node;
     char id[2];
-    char dpi[5];
+    char dpi[16];
     int i;
 
     for(i=0; i<MAX_CONTROLLERS; ++i)
