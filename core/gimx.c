@@ -26,6 +26,7 @@
 #include "calibration.h"
 #include "display.h"
 #include "mainloop.h"
+#include "play.h"
 #include "connectors/bluetooth/bt_abs.h"
 #include "connectors/usb_con.h"
 #include "args.h"
@@ -37,6 +38,8 @@
 #include <gusb.h>
 
 #define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
+
+uint64_t gimx_timer_start = 0;
 
 s_gimx_params gimx_params =
 {
@@ -57,6 +60,9 @@ s_gimx_params gimx_params =
   .logfilename = NULL,
   .logfile = NULL,
   .skip_leds = 0,
+  .play = 0,
+  .record = 0,
+  .events_file = NULL
 };
 
 #ifdef WIN32
@@ -133,6 +139,48 @@ int process_event(GE_Event* event)
   }
 
   return 0;
+}
+
+void gimx_start_timer()
+{
+  /* option 1: without file
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  gimx_timer_start = timeval_to_usec(tv);
+  //*/
+
+  //* option 2: with external file
+  char gimx_timer_start_file[] = "gimx_start_time";
+  FILE *file;
+
+  if((file = fopen(gimx_timer_start_file, "r")) == NULL)
+  {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+
+    gimx_timer_start = timeval_to_usec(tv);
+
+    if((file = fopen(gimx_timer_start_file, "w")))
+    {
+      gprintf("Saving gimx_timer_start to %s\n", gimx_timer_start_file);
+      fprintf(file, "%ld", gimx_timer_start);
+    }
+  }
+  else
+  {
+    gprintf("Reading gimx_timer_start from %s\n", gimx_timer_start_file);
+    if((fscanf(file, "%ld", &gimx_timer_start) <= 0))
+      fprintf(stderr, "Error reading gimx_timer_start from file\n");
+  }
+  fclose(file);
+  //*/
+
+  gprintf("Started time at %ld\n", gimx_timer_start);
+}
+
+uint64_t timeval_to_usec(struct timeval tv)
+{
+  return ((uint64_t)tv.tv_sec * 1000000) + (uint64_t)tv.tv_usec;
 }
 
 int main(int argc, char *argv[])
@@ -368,7 +416,10 @@ int main(int argc, char *argv[])
 
   usb_poll_interrupts();
 
-  mainloop();
+  if(gimx_params.play)
+    play();
+  else
+    mainloop();
 
   gprintf(_("Exiting\n"));
 
@@ -387,6 +438,8 @@ int main(int argc, char *argv[])
   gusb_exit();
 
   xmlCleanupParser();
+
+  unlink("gimx_start_time");
 
   if(gimx_params.logfile)
   {

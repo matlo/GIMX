@@ -6,7 +6,9 @@
 #ifndef DS3_H_
 #define DS3_H_
 
+#include <sys/time.h>
 #include <defs.h>
+#include <stdint.h>
 
 typedef enum
 {
@@ -68,5 +70,12 @@ typedef struct GIMX_PACKED
   unsigned char acc_z[2];
   unsigned char gyro[2];
 } s_report_ds3;
+
+typedef struct GIMX_EVENT_DS3
+{
+  uint64_t usec;
+  int sixaxis_number;
+  s_report_ds3 state;
+} s_event_ds3;
 
 #endif /* DS3_H_ */

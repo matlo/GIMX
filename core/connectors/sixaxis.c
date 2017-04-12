@@ -88,6 +88,10 @@ static int debug = 0;
 
 static unsigned char buf[1024];
 
+static FILE* events_file = NULL;
+static s_event_ds3 ds3_events[1500];
+static int ds3_events_index = 0;
+
 static const char *hid_report_name[] =
 { "reserved", "input", "output", "feature" };
 
@@ -623,7 +627,102 @@ int sixaxis_send_interrupt(int sixaxis_number, s_report_ds3* buf)
 
   process_report(HID_TYPE_INPUT, 0x01, (unsigned char*) buf, sizeof(s_report_ds3), state);
 
+  if(gimx_params.record && sixaxis_record_event(sixaxis_number, buf) == -1)
+  {
+    return -1;
+  }
+
   return send_report(sixaxis_number, PSM_HID_INTERRUPT, HID_TYPE_INPUT, 0x01, 0);
+}
+
+int sixaxis_save_events()
+{
+  int i;
+
+  for(i = 0; i < ds3_events_index; i++)
+  {
+    if(fwrite(&ds3_events[i], sizeof(s_event_ds3), 1, get_events_file()) != 1)
+    {
+      fprintf(stderr, "error writing to %s\n", gimx_params.events_file);
+      return -1;
+    }
+  }
+
+  close_events_file();
+
+  gprintf("%d events saved!\n", i);
+
+  return 1;
+}
+
+int sixaxis_record_event(int sixaxis_number, s_report_ds3* state)
+{
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+
+  ds3_events[ds3_events_index].usec = timeval_to_usec(tv) - gimx_timer_start;
+  ds3_events[ds3_events_index].sixaxis_number = sixaxis_number;
+  memcpy(&ds3_events[ds3_events_index].state, state, sizeof(s_report_ds3));
+
+  ds3_events_index++;
+
+  return 1;
+}
+
+int get_event_usleep(uint64_t usec)
+{
+  static struct timeval tv;
+  gettimeofday(&tv, NULL);
+
+  return gimx_timer_start + usec - timeval_to_usec(tv);
+}
+
+int sixaxis_play_events()
+{
+  int i = 0;
+  int ret = 1;
+  int us = 0;
+
+  while(fread(&ds3_events[i], sizeof(s_event_ds3), 1, get_events_file()) == 1)
+  {
+    i++;
+  }
+  close_events_file();
+  gprintf("%d events read from file!\n", i);
+
+  int j;
+  for(j = 0; j < i; j++)
+  {
+    us = get_event_usleep(ds3_events[j].usec);
+    if(us > 0)
+      usleep(us);
+
+    if((ret = sixaxis_send_interrupt(ds3_events[j].sixaxis_number, &ds3_events[j].state)) <= 0)
+      break;
+  }
+
+  return ret;
+}
+
+FILE* get_events_file()
+{
+  if(events_file == NULL)
+  {
+    gprintf("openning events file %s\n", gimx_params.events_file);
+    if((events_file = fopen(gimx_params.events_file, (gimx_params.record ? "wb" : "rb"))) == NULL)
+    {
+      fprintf(stderr, "error openning file %s\n", gimx_params.events_file);
+      return NULL;
+    }
+  }
+
+  return events_file;
+}
+
+void close_events_file()
+{
+  fclose(events_file);
+  events_file = NULL;
 }
 
 void sixaxis_close(int sixaxis_number)
