@@ -112,6 +112,8 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
 
     s_ff_lg_force * force = &ff_lg_device[device].slots[index].ff_lg_force;
 
+    memset(event, 0x00, sizeof(*event));
+
     switch (force->type) {
     case FF_LG_FTYPE_CONSTANT:
         event->type = GE_JOYCONSTANTFORCE;
@@ -193,6 +195,8 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
                 ff_lg_get_condition_coef(ff_lg_device[device].pid, 1, FF_LG_HIGHRES_DAMPER_K1(force), FF_LG_HIGHRES_DAMPER_S1(force));
             event->jcondition.coefficient.right =
                 ff_lg_get_condition_coef(ff_lg_device[device].pid, 1, FF_LG_HIGHRES_DAMPER_K2(force), FF_LG_HIGHRES_DAMPER_S2(force));
+            event->jcondition.center = 0;
+            event->jcondition.deadband = 0;
         }
         ret = 1;
         break;
@@ -283,7 +287,7 @@ void ff_conv_process_report(int device, const unsigned char data[FF_LG_OUTPUT_RE
         break;
         }
     } else {
-		unsigned short range = 0;
+        unsigned short range = 0;
         switch(data[1]) {
             case FF_LG_EXT_CMD_WHEEL_RANGE_200_DEGREES:
                 range = 200;
@@ -314,9 +318,9 @@ int ff_conv_get_event(int device, GE_Event * event) {
     s_cmd cmd = fifo_peek(ff_lg_device[device].fifo);
     if (cmd.cmd) {
         unsigned char index = slot_index[cmd.cmd >> 4];
-        int ret = ff_conv_lg_force(device, index, &ff_lg_device[device].last_event);
+        int ret = ff_conv_lg_force(device, index, event);
         if (ret == 1) {
-            *event = ff_lg_device[device].last_event;
+            ff_lg_device[device].last_event = *event;
             return 0;
         }
     }

@@ -10,7 +10,7 @@
 #include <string.h>
 #include <haptic/ff_conv.h>
 
-s_gimx_params gimx_params = { 0 };
+s_gimx_params gimx_params = { 0 }; // { .debug = { .ff_lg = 1, .ff_conv = 1 } };
 
 #define CONSTANT(NAME, PRODUCT_ID, LEVEL_IN, LEVEL_OUT) \
     { \
@@ -176,7 +176,7 @@ static const struct {
             s_ff_lg_force report;
         };
     };
-    int nb_events;
+    unsigned int nb_events;
     GE_Event events[FF_LG_FSLOTS_NB];
 } test_cases[] = {
 
@@ -263,11 +263,56 @@ static const struct {
                 65535, 65535, 0, 32767),
         HR_DAMPER("G29 high resolution damper force (zeroes)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
                 0x00, 0x00, 0x00, 0x00, 0,
-                0, 0, 0, 0),
+                65535, 65535, 0, 0),
         HR_DAMPER("G29 high resolution damper force (ones)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
                 0x0f, 0x01, 0x0f, 0x01, 0xff,
                 65535, 65535, -32768, -32768),
 };
+
+int compare_events(const GE_Event * left, const GE_Event * right) {
+
+    if (left->type != right->type) {
+        return 1;
+    }
+
+    switch (left->type) {
+    case GE_JOYCONSTANTFORCE:
+        if (left->jconstant.level != right->jconstant.level) {
+            fprintf(stderr, "level: %d vs %d\n", left->jconstant.level, right->jconstant.level);
+            return 1;
+        }
+        break;
+    case GE_JOYSPRINGFORCE:
+    case GE_JOYDAMPERFORCE:
+        if (left->jcondition.saturation.left != right->jcondition.saturation.left) {
+            fprintf(stderr, "saturation.left: %u vs %u\n", left->jcondition.saturation.left, right->jcondition.saturation.left);
+            return 1;
+        }
+        if (left->jcondition.saturation.right != right->jcondition.saturation.right) {
+            fprintf(stderr, "saturation.right: %u vs %u\n", left->jcondition.saturation.right, right->jcondition.saturation.right);
+            return 1;
+        }
+        if (left->jcondition.coefficient.left != right->jcondition.coefficient.left) {
+            fprintf(stderr, "coefficient.left: %u vs %u\n", left->jcondition.coefficient.left, right->jcondition.coefficient.left);
+            return 1;
+        }
+        if (left->jcondition.coefficient.right != right->jcondition.coefficient.right) {
+            fprintf(stderr, "coefficient.right: %u vs %u\n", left->jcondition.coefficient.right, right->jcondition.coefficient.right);
+            return 1;
+        }
+        if (left->jcondition.center != right->jcondition.center) {
+            fprintf(stderr, "center: %u vs %u\n", left->jcondition.center, right->jcondition.center);
+            return 1;
+        }
+        if (left->jcondition.deadband != right->jcondition.deadband) {
+            fprintf(stderr, "deadband: %u vs %u\n", left->jcondition.deadband, right->jcondition.deadband);
+            return 1;
+        }
+        break;
+    }
+
+    return 0;
+}
 
 int main(int argc __attribute__((unused)), char * argv[] __attribute__((unused))) {
 
@@ -276,21 +321,34 @@ int main(int argc __attribute__((unused)), char * argv[] __attribute__((unused))
 
         ff_conv_init(0, test_cases[i].product);
 
-        GE_Event events[FF_LG_FSLOTS_NB] = {};
+        ff_conv_process_report(0, test_cases[i].data);
 
-        int nb_events = ff_conv(0, test_cases[i].data, events);
+        GE_Event event = {};
+        ff_conv_get_event(0, &event);
 
         printf("test case: %s: ", test_cases[i].name);
 
-        if (nb_events != test_cases[i].nb_events) {
-            printf("failed: ff_conv returned an incorrect number of events\n");
-            continue;
-        }
-
-        if (memcmp(test_cases[i].events, events, sizeof(test_cases[i].events))) {
+        if (compare_events(test_cases[i].events, &event)) {
             printf("failed: ff_conv returned an incorrect event\n");
             continue;
         }
+
+        ff_conv_ack(0);
+
+        unsigned char stop[FF_LG_OUTPUT_REPORT_SIZE] = { (test_cases[i].data[0] & FF_LG_FSLOT_MASK) | FF_LG_CMD_STOP };
+
+        ff_conv_process_report(0, stop);
+
+        ff_conv_get_event(0, &event);
+
+        GE_Event stopEvent = { .type = event.type, .which = event.which };
+
+        if (compare_events(&stopEvent, &event)) {
+            printf("failed: ff_conv returned an incorrect stop event\n");
+            continue;
+        }
+
+        ff_conv_ack(0);
 
         printf("success\n");
     }
