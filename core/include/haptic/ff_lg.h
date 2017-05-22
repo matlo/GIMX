@@ -129,7 +129,7 @@
 #define FF_LG_HIGHRES_DAMPER_S1(FORCE)   ((FORCE->parameters)[1] & 0x01) // low side inversion (1 = inverted)
 #define FF_LG_HIGHRES_DAMPER_K2(FORCE)   ((FORCE->parameters)[2] & 0x0f) // high (right or pull) side damper constant selector
 #define FF_LG_HIGHRES_DAMPER_S2(FORCE)   ((FORCE->parameters)[3] & 0x01) // high side inversion (1 = inverted)
-#define FF_LG_HIGHRES_DAMPER_CLIP(FORCE) (FORCE->parameters)[4]          // clip level (maximum force), on either side (since Driving Force Pro)
+#define FF_LG_HIGHRES_DAMPER_CLIP(FORCE) (FORCE->parameters)[4]          // clip level (maximum force), on either side (only for Driving Force Pro)
 
 typedef struct PACKED {
     unsigned char type;

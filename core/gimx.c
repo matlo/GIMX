@@ -304,6 +304,7 @@ int main(int argc, char *argv[])
     cal_init();
 
     cfg_intensity_init();
+    cfg_init_ffb_tweaks();
 
     if(read_config_file(gimx_params.config_file) < 0)
     {
@@ -318,6 +319,7 @@ int main(int argc, char *argv[])
       cal_init();
 
       cfg_intensity_init();
+      cfg_init_ffb_tweaks();
 
       read_config_file(gimx_params.config_file);
     }

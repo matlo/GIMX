@@ -107,6 +107,16 @@ const long configFrame::ID_BUTTON16 = wxNewId();
 const long configFrame::ID_BUTTON17 = wxNewId();
 const long configFrame::ID_BUTTON18 = wxNewId();
 const long configFrame::ID_PANEL7 = wxNewId();
+const long configFrame::ID_STATICTEXT13 = wxNewId();
+const long configFrame::ID_STATICTEXT20 = wxNewId();
+const long configFrame::ID_STATICTEXT25 = wxNewId();
+const long configFrame::ID_STATICTEXT49 = wxNewId();
+const long configFrame::ID_BUTTON20 = wxNewId();
+const long configFrame::ID_STATICLINE13 = wxNewId();
+const long configFrame::ID_CHECKBOX2 = wxNewId();
+const long configFrame::ID_STATICLINE15 = wxNewId();
+const long configFrame::ID_BUTTON24 = wxNewId();
+const long configFrame::ID_PANEL8 = wxNewId();
 const long configFrame::ID_NOTEBOOK2 = wxNewId();
 const long configFrame::ID_PANEL1 = wxNewId();
 const long configFrame::ID_STATICTEXT38 = wxNewId();
@@ -557,6 +567,7 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     wxFlexGridSizer* FlexGridSizer51;
     wxFlexGridSizer* FlexGridSizer15;
     wxStaticBoxSizer* StaticBoxSizer7;
+    wxFlexGridSizer* FlexGridSizer56;
     wxFlexGridSizer* FlexGridSizer50;
     wxStaticBoxSizer* StaticBoxSizer5;
     wxFlexGridSizer* FlexGridSizer17;
@@ -575,6 +586,7 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     wxFlexGridSizer* FlexGridSizer26;
     wxFlexGridSizer* FlexGridSizer14;
     wxStaticBoxSizer* StaticBoxSizer3;
+    wxFlexGridSizer* FlexGridSizer55;
     wxFlexGridSizer* FlexGridSizer6;
     wxFlexGridSizer* FlexGridSizer33;
     wxFlexGridSizer* FlexGridSizer38;
@@ -586,6 +598,7 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     wxStaticBoxSizer* StaticBoxSizer8;
     wxFlexGridSizer* FlexGridSizer31;
     wxFlexGridSizer* FlexGridSizer43;
+    wxFlexGridSizer* FlexGridSizer39;
     wxStaticBoxSizer* StaticBoxSizer4;
     wxStaticBoxSizer* StaticBoxSizer9;
     wxStaticBoxSizer* StaticBoxSizer6;
@@ -593,12 +606,14 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     wxFlexGridSizer* FlexGridSizer34;
     wxFlexGridSizer* FlexGridSizer23;
     wxFlexGridSizer* FlexGridSizer10;
+    wxStaticBoxSizer* StaticBoxSizer11;
     wxFlexGridSizer* FlexGridSizer13;
     wxMenuBar* MenuBar1;
     wxMenuItem* MenuItemAbout;
     wxFlexGridSizer* FlexGridSizer53;
     wxFlexGridSizer* FlexGridSizer18;
     wxFlexGridSizer* FlexGridSizer49;
+    wxFlexGridSizer* FlexGridSizer54;
     wxFlexGridSizer* FlexGridSizer36;
     wxFlexGridSizer* FlexGridSizer12;
     wxMenuItem* MenuItemOpen;
@@ -895,10 +910,45 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     PanelJoystickCorrections->SetSizer(FlexGridSizer10);
     FlexGridSizer10->Fit(PanelJoystickCorrections);
     FlexGridSizer10->SetSizeHints(PanelJoystickCorrections);
+    PanelForceFeedback = new wxPanel(Notebook2, ID_PANEL8, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL8"));
+    FlexGridSizer39 = new wxFlexGridSizer(2, 1, 0, 0);
+    FlexGridSizer54 = new wxFlexGridSizer(1, 6, 0, 0);
+    StaticBoxSizer11 = new wxStaticBoxSizer(wxHORIZONTAL, PanelForceFeedback, _("Joystick"));
+    FlexGridSizer55 = new wxFlexGridSizer(1, 4, 0, 0);
+    FFBTweaksType = new wxStaticText(PanelForceFeedback, ID_STATICTEXT13, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT13"));
+    FFBTweaksType->Hide();
+    FlexGridSizer55->Add(FFBTweaksType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FFBTweaksName = new wxStaticText(PanelForceFeedback, ID_STATICTEXT20, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT20"));
+    FlexGridSizer55->Add(FFBTweaksName, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FFBTweaksId = new wxStaticText(PanelForceFeedback, ID_STATICTEXT25, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT25"));
+    FlexGridSizer55->Add(FFBTweaksId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FFBTweaksAxis = new wxStaticText(PanelForceFeedback, ID_STATICTEXT49, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT49"));
+    FFBTweaksAxis->Hide();
+    FlexGridSizer55->Add(FFBTweaksAxis, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticBoxSizer11->Add(FlexGridSizer55, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer54->Add(StaticBoxSizer11, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ForceFeedbackAutoDetect = new wxButton(PanelForceFeedback, ID_BUTTON20, _("Auto detect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON20"));
+    FlexGridSizer54->Add(ForceFeedbackAutoDetect, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticLine13 = new wxStaticLine(PanelForceFeedback, ID_STATICLINE13, wxDefaultPosition, wxSize(-1,50), wxLI_VERTICAL, _T("ID_STATICLINE13"));
+    FlexGridSizer54->Add(StaticLine13, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer56 = new wxFlexGridSizer(1, 1, 0, 0);
+    FFBTweaksInvert = new wxCheckBox(PanelForceFeedback, ID_CHECKBOX2, _("Invert direction"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX2"));
+    FFBTweaksInvert->SetValue(false);
+    FlexGridSizer56->Add(FFBTweaksInvert, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer54->Add(FlexGridSizer56, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticLine15 = new wxStaticLine(PanelForceFeedback, ID_STATICLINE15, wxDefaultPosition, wxSize(-1,50), wxLI_VERTICAL, _T("ID_STATICLINE15"));
+    FlexGridSizer54->Add(StaticLine15, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonFFBTweaksDelete = new wxButton(PanelForceFeedback, ID_BUTTON24, _("Delete"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON24"));
+    FlexGridSizer54->Add(ButtonFFBTweaksDelete, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer39->Add(FlexGridSizer54, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    PanelForceFeedback->SetSizer(FlexGridSizer39);
+    FlexGridSizer39->Fit(PanelForceFeedback);
+    FlexGridSizer39->SetSizeHints(PanelForceFeedback);
     Notebook2->AddPage(PanelTrigger, _("Profile trigger"), false);
     Notebook2->AddPage(PanelMouseOptions, _("Mouse options"), false);
     Notebook2->AddPage(PanelIntensity, _("Axis intensity"), false);
     Notebook2->AddPage(PanelJoystickCorrections, _("Joystick corrections"), false);
+    Notebook2->AddPage(PanelForceFeedback, _("Force Feedback Tweaks"), false);
     GridSizer3->Add(Notebook2, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     PanelOverall->SetSizer(GridSizer3);
     GridSizer3->Fit(PanelOverall);
@@ -1258,6 +1308,8 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     Connect(ID_BUTTON16,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnJoystickCorrectionsAddClick);
     Connect(ID_BUTTON17,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnJoystickCorrectionsRemoveClick);
     Connect(ID_BUTTON18,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnJoystickCorrectionsModifyClick);
+    Connect(ID_BUTTON20,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonForceFeedbackAutoDetect);
+    Connect(ID_BUTTON24,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonFFBTweaksDelete);
     Connect(ID_CHOICE4,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&configFrame::OnButtonTabEventTypeSelect);
     Connect(ID_BUTTON8,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonTabAutoDetectClick);
     Connect(ID_BUTTON4,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonAddPanelButton);
@@ -2131,6 +2183,11 @@ void configFrame::save_current()
               string(GridJoystickCorrections->GetCellValue(i, 5).mb_str(wxConvUTF8)),
               string(GridJoystickCorrections->GetCellValue(i, 6).mb_str(wxConvUTF8))));
     }
+    //Save FFB tweaks
+    configuration->GetForceFeedback()->GetJoystick()->SetType(reverseTranslate(string(FFBTweaksType->GetLabel().mb_str(wxConvUTF8))));
+    configuration->GetForceFeedback()->GetJoystick()->SetName(ffbTweaksTabDeviceName);
+    configuration->GetForceFeedback()->GetJoystick()->SetId(string(FFBTweaksId->GetLabel().mb_str(wxConvUTF8)));
+    configuration->GetForceFeedback()->setInversion(FFBTweaksInvert->GetValue() ? "yes" : "no");
     //Save ControlMappers
     buttonMappers = configuration->GetButtonMapperList();
     buttonMappers->erase(buttonMappers->begin(), buttonMappers->end());
@@ -2341,6 +2398,19 @@ void configFrame::load_current()
       GridJoystickCorrections->SetCellValue(0, 6, wxString(it->GetHighCoef().c_str(),wxConvUTF8));
     }
     GridJoystickCorrections->AutoSizeColumns();
+    //Load Force Feedback Tweaks
+    ForceFeedback * tweaks = configuration->GetForceFeedback();
+    FFBTweaksType->SetLabel(_CN(tweaks->GetJoystick()->GetType()));
+    ffbTweaksTabDeviceName = tweaks->GetJoystick()->GetName();
+    name = ffbTweaksTabDeviceName;
+    if(name.size() > 20)
+    {
+      name = name.substr(0,20);
+      name.append("...");
+    }
+    FFBTweaksName->SetLabel(wxString(name.c_str(),wxConvUTF8));
+    FFBTweaksId->SetLabel(wxString(tweaks->GetJoystick()->GetId().c_str(),wxConvUTF8));
+    FFBTweaksInvert->SetValue(tweaks->getInversion() == "yes");
     //Load buttonMappers
     clearGrid(GridPanelButton);
     buttonMappers = configuration->GetButtonMapperList();
@@ -2444,6 +2514,7 @@ void configFrame::refresh_gui()
     PanelTrigger->Layout();
     PanelMouseOptions->Layout();
     PanelJoystickCorrections->Layout();
+    PanelForceFeedback->Layout();
     PanelIntensity->Layout();
     PanelOverall->Layout();
     PanelButton->Layout();
@@ -4335,3 +4406,38 @@ pair<Device, Event> configFrame::selectEvent()
 
     return make_pair(Device(), Event());
 }
+
+void configFrame::OnButtonForceFeedbackAutoDetect(wxCommandEvent& event __attribute__((unused)))
+{
+    if (evcatch->hasJoystick() == false)
+    {
+      wxMessageBox(_("No joystick found!"), _("Error"), wxICON_ERROR);
+    }
+
+    ForceFeedbackAutoDetect->Enable(false);
+
+    FFBTweaksType->SetLabel(wxT(""));
+
+    while(FFBTweaksType->GetLabel() != _("joystick"))
+    {
+      auto_detect(FFBTweaksType, &ffbTweaksTabDeviceName, FFBTweaksName, FFBTweaksId, _("axis"), FFBTweaksAxis);
+    }
+
+    ForceFeedbackAutoDetect->Enable(true);
+
+    refresh_gui();
+}
+
+
+void configFrame::OnButtonFFBTweaksDelete(wxCommandEvent& event __attribute__((unused)))
+{
+    FFBTweaksType->SetLabel(wxEmptyString);
+    FFBTweaksName->SetLabel(wxEmptyString);
+    ffbTweaksTabDeviceName.clear();
+    FFBTweaksId->SetLabel(wxEmptyString);
+
+    FFBTweaksInvert->SetValue(false);
+
+    refresh_gui();
+}
+

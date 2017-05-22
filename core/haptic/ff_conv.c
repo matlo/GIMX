@@ -16,8 +16,8 @@
 
 static inline short u8_to_s16(unsigned char c) {
     int value = (c + CHAR_MIN) * SHRT_MAX / CHAR_MAX;
-    return CLAMP(SHRT_MIN, value, SHRT_MAX);
-}
+    return CLAMP(-SHRT_MAX, value, SHRT_MAX);
+    }
 
 static inline unsigned short u8_to_u16(unsigned char c) {
     return c * USHRT_MAX / UCHAR_MAX;
@@ -40,6 +40,7 @@ static struct
     s_cmd fifo[FIFO_SIZE];
     unsigned short range;
     GE_Event last_event;
+    int invert;
 } ff_lg_device[MAX_CONTROLLERS] = {};
 
 static inline int check_device(int device, const char * file, unsigned int line, const char * func) {
@@ -71,6 +72,8 @@ int ff_conv_init(int device, unsigned short pid) {
 
     ff_lg_device[device].pid = pid;
 
+    ff_lg_device[device].invert = 0;
+
     unsigned short range = ff_lg_get_wheel_range(pid);
     if (range != 0) {
         ncprintf("adjust your wheel range to %u degrees\n", range);
@@ -94,7 +97,7 @@ static void dump_event(const GE_Event * event) {
         fflush(stdout);
         break;
     case GE_JOYDAMPERFORCE:
-        dprintf("< DAMPER, saturation: %u %u, coefficient: %u %u\n",
+        dprintf("< DAMPER, saturation: %u %u, coefficient: %d %d\n",
                 event->jcondition.saturation.left, event->jcondition.saturation.right,
                 event->jcondition.coefficient.left, event->jcondition.coefficient.right);
         fflush(stdout);
@@ -105,6 +108,11 @@ static void dump_event(const GE_Event * event) {
         break;
     }
 }
+
+#define SWAP(TYPE, V1, V2) \
+        TYPE tmp = V1; \
+        V1 = V2; \
+        V2 = tmp;
 
 static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
 
@@ -119,6 +127,9 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
         event->type = GE_JOYCONSTANTFORCE;
         if (ff_lg_device[device].slots[index].active) {
             event->jconstant.level = u8_to_s16(FF_LG_CONSTANT_LEVEL(force, index));
+            if (ff_lg_device[device].invert) {
+                event->jconstant.level = -event->jconstant.level;
+            }
         }
         ret = 1;
         break;
@@ -127,20 +138,30 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
         if (ff_lg_device[device].slots[index].active) {
             static int warned = 0;
             if (index == 0) {
-                if (warned == 0 && FF_LG_VARIABLE_T1(force) && FF_LG_VARIABLE_S1(force)) {
-                    gprintf("warning: variable force cannot be converted to constant force (l1=%hu, t1=%hu, s1=%hu, d1=%hu\n",
-                        FF_LG_VARIABLE_L1(force), FF_LG_VARIABLE_T1(force), FF_LG_VARIABLE_S1(force), FF_LG_VARIABLE_D1(force));
-                    warned = 1;
+                if (FF_LG_VARIABLE_T1(force) && FF_LG_VARIABLE_S1(force)) {
+                    if (warned == 0) {
+                        gprintf("warning: variable force cannot be converted to constant force (l1=%hu, t1=%hu, s1=%hu, d1=%hu\n",
+                            FF_LG_VARIABLE_L1(force), FF_LG_VARIABLE_T1(force), FF_LG_VARIABLE_S1(force), FF_LG_VARIABLE_D1(force));
+                        warned = 1;
+                    }
                 } else {
                     event->jconstant.level = u8_to_s16(FF_LG_VARIABLE_L1(force));
+                    if (ff_lg_device[device].invert) {
+                        event->jconstant.level = -event->jconstant.level;
+                    }
                 }
             } else if (index == 2) {
-                if (warned == 0 && FF_LG_VARIABLE_T2(force) && FF_LG_VARIABLE_S2(force)) {
-                    gprintf("warning: variable force cannot be converted to constant force (l2=%hu, t2=%hu, s2=%hu, d2=%hu\n",
-                        FF_LG_VARIABLE_L2(force), FF_LG_VARIABLE_T2(force), FF_LG_VARIABLE_S2(force), FF_LG_VARIABLE_D2(force));
-                    warned = 1;
+                if (FF_LG_VARIABLE_T2(force) && FF_LG_VARIABLE_S2(force)) {
+                    if (warned == 0) {
+                        gprintf("warning: variable force cannot be converted to constant force (l2=%hu, t2=%hu, s2=%hu, d2=%hu\n",
+                            FF_LG_VARIABLE_L2(force), FF_LG_VARIABLE_T2(force), FF_LG_VARIABLE_S2(force), FF_LG_VARIABLE_D2(force));
+                        warned = 1;
+                    }
                 } else {
                     event->jconstant.level = u8_to_s16(FF_LG_VARIABLE_L2(force));
+                    if (ff_lg_device[device].invert) {
+                        event->jconstant.level = -event->jconstant.level;
+                    }
                 }
             }
         }
@@ -157,6 +178,10 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
                 ff_lg_get_condition_coef(ff_lg_device[device].pid, 0, FF_LG_SPRING_K2(force), FF_LG_SPRING_S2(force));
             event->jcondition.center = u8_to_s16((FF_LG_SPRING_D1(force) + FF_LG_SPRING_D2(force)) / 2);
             event->jcondition.deadband = u8_to_u16(FF_LG_SPRING_D2(force) - FF_LG_SPRING_D1(force));
+            if (ff_lg_device[device].invert) {
+                SWAP(int16_t, event->jcondition.coefficient.left, event->jcondition.coefficient.right)
+                event->jcondition.center = -event->jcondition.center;
+            }
         }
         ret = 1;
         break;
@@ -167,6 +192,9 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
                 ff_lg_get_condition_coef(ff_lg_device[device].pid, 0, FF_LG_DAMPER_K1(force), FF_LG_DAMPER_S1(force));
             event->jcondition.coefficient.right =
                 ff_lg_get_condition_coef(ff_lg_device[device].pid, 0, FF_LG_DAMPER_K2(force), FF_LG_DAMPER_S2(force));
+            if (ff_lg_device[device].invert) {
+                SWAP(int16_t, event->jcondition.coefficient.left, event->jcondition.coefficient.right)
+            }
         }
         ret = 1;
         break;
@@ -183,6 +211,10 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
             uint16_t d1 = ff_lg_get_spring_deadband(ff_lg_device[device].pid, FF_LG_HIGHRES_SPRING_D1(force), FF_LG_HIGHRES_SPRING_D1L(force));
             event->jcondition.center = u16_to_s16((d1 + d2) / 2);
             event->jcondition.deadband = d2 - d1;
+            if (ff_lg_device[device].invert) {
+                SWAP(int16_t, event->jcondition.coefficient.left, event->jcondition.coefficient.right)
+                event->jcondition.center = -event->jcondition.center;
+            }
         }
         ret = 1;
         break;
@@ -197,6 +229,9 @@ static int ff_conv_lg_force(int device, unsigned int index, GE_Event * event) {
                 ff_lg_get_condition_coef(ff_lg_device[device].pid, 1, FF_LG_HIGHRES_DAMPER_K2(force), FF_LG_HIGHRES_DAMPER_S2(force));
             event->jcondition.center = 0;
             event->jcondition.deadband = 0;
+            if (ff_lg_device[device].invert) {
+                SWAP(int16_t, event->jcondition.coefficient.left, event->jcondition.coefficient.right)
+            }
         }
         ret = 1;
         break;
@@ -287,7 +322,7 @@ void ff_conv_process_report(int device, const unsigned char data[FF_LG_OUTPUT_RE
         break;
         }
     } else {
-        unsigned short range = 0;
+		unsigned short range = 0;
         switch(data[1]) {
             case FF_LG_EXT_CMD_WHEEL_RANGE_200_DEGREES:
                 range = 200;
@@ -354,4 +389,15 @@ void ff_conv_ack(int device) {
 
   s_cmd cmd = fifo_peek(ff_lg_device[device].fifo);
   fifo_remove(ff_lg_device[device].fifo, cmd);
+}
+
+int ff_conv_set_tweaks(int device, int invert) {
+
+    CHECK_DEVICE(device, -1)
+
+    dprintf("FFB invert: %s\n", invert ? "yes" : "no");
+
+    ff_lg_device[device].invert = invert;
+
+    return 0;
 }

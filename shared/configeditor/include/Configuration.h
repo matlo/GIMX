@@ -4,6 +4,7 @@
  */
 
 #ifndef CONFIGURATION_H
+
 #define CONFIGURATION_H
 
 #include <Device.h>
@@ -13,6 +14,7 @@
 #include <ControlMapper.h>
 #include <MouseOptions.h>
 #include <JoystickCorrection.h>
+#include "ForceFeedback.h"
 #include <list>
 
 class Configuration
@@ -30,6 +32,8 @@ class Configuration
         void SetMouseOptionsList(std::list<MouseOptions> val) { m_MouseOptionsList = val; }
         std::list<JoystickCorrection>* GetJoystickCorrectionsList() { return &m_JoystickCorrectionsList; }
         void SetJoystickCorrectionsList(std::list<JoystickCorrection> val) { m_JoystickCorrectionsList = val; }
+        ForceFeedback* GetForceFeedback() { return &m_ForceFeedback; }
+        void SetForceFeedback(ForceFeedback val) { m_ForceFeedback = val; }
         std::list<ControlMapper>* GetButtonMapperList() { return &m_ButtonMappers; }
         std::list<ControlMapper>* GetAxisMapperList() { return &m_AxisMappers; }
         void SetButtonMappers(std::list<ControlMapper> bml) { m_ButtonMappers = bml; }
@@ -43,6 +47,7 @@ class Configuration
         std::list<ControlMapper> m_ButtonMappers;
         std::list<ControlMapper> m_AxisMappers;
         std::list<JoystickCorrection> m_JoystickCorrectionsList;
+        ForceFeedback m_ForceFeedback;
 };
 
 #endif // CONFIGURATION_H

@@ -19,6 +19,8 @@ XmlReader::XmlReader()
     //ctor
     m_ConfigurationFile = NULL;
     m_evtcatch = event_catcher::getInstance();
+    m_name_empty = false;
+    m_name_nempty = false;
     m_checkDevices = true;
 }
 
@@ -27,6 +29,8 @@ XmlReader::XmlReader(ConfigurationFile* configFile)
     //ctor
     m_ConfigurationFile = configFile;
     m_evtcatch = event_catcher::getInstance();
+    m_name_empty = false;
+    m_name_nempty = false;
     m_checkDevices = false;
 }
 
@@ -335,7 +339,6 @@ void XmlReader::ProcessButtonElement(xmlNode * a_node)
 void XmlReader::ProcessAxisMapElement(xmlNode * a_node)
 {
     xmlNode* cur_node = NULL;
-    m_TempConfiguration.GetAxisMapperList()->clear();
 
     for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
     {
@@ -357,7 +360,6 @@ void XmlReader::ProcessAxisMapElement(xmlNode * a_node)
 void XmlReader::ProcessButtonMapElement(xmlNode * a_node)
 {
     xmlNode* cur_node = NULL;
-    m_TempConfiguration.GetButtonMapperList()->clear();
 
     for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
     {
@@ -679,10 +681,55 @@ void XmlReader::ProcessJoystickCorrectionsListElement(xmlNode * a_node)
   }
 }
 
+void XmlReader::ProcessInversionElement(xmlNode * a_node)
+{
+  char * prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_ENABLE);
+  m_TempForceFeedback.setInversion(string(prop ? prop : "no"));
+}
+
+void XmlReader::ProcessForceFeedbackElement(xmlNode * a_node)
+{
+    xmlNode* cur_node = NULL;
+
+    int hasDevice = 0, hasInversion = 0;
+
+    for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
+    {
+        if (cur_node->type == XML_ELEMENT_NODE)
+        {
+            if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_DEVICE))
+            {
+                hasDevice = 1;
+                ProcessDeviceElement(cur_node);
+            }
+            else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_INVERSION))
+            {
+                hasInversion = 1;
+                ProcessInversionElement(cur_node);
+            }
+        }
+    }
+    
+    if (hasDevice == 0)
+    {
+        string message("missing device element");
+        throw invalid_argument(message);
+    }
+
+    if (hasInversion == 0)
+    {
+        string message("missing inversion element");
+        throw invalid_argument(message);
+    }
+
+    m_TempForceFeedback.SetJoystick(m_TempDevice);
+
+    m_TempConfiguration.SetForceFeedback(m_TempForceFeedback);
+}
+
 void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
 {
     xmlNode* cur_node = NULL;
-    bool found;
     unsigned int config_index;
     stringstream ss;
     string id;
@@ -702,143 +749,39 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
         throw invalid_argument(message);
     }
 
-    found = false;
+    m_TempConfiguration = Configuration(); // clear everything
 
-    for (cur_node = a_node->children; cur_node && !found; cur_node = cur_node->next)
+    for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
     {
         if (cur_node->type == XML_ELEMENT_NODE)
         {
             if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_TRIGGER))
             {
                 ProcessTriggerElement(cur_node);
-                found = true;
             }
-            else
-            {
-                break;
-            }
-        }
-    }
-
-    // trigger element is mandatory
-    if(!found)
-    {
-        string message("missing trigger element");
-        throw invalid_argument(message);
-    }
-
-    m_TempConfiguration.GetMouseOptionsList()->clear();
-
-    found = false;
-
-    for ( ; cur_node && !found; cur_node = cur_node->next)
-    {
-        if (cur_node->type == XML_ELEMENT_NODE)
-        {
-            if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_MOUSEOPTIONS_LIST))
+            else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_MOUSEOPTIONS_LIST))
             {
                 ProcessMouseOptionsListElement(cur_node);
-                found = true;
             }
-            else
-            {
-                // mouse_options_list is optional
-                // => keep cur_node for the next element processing
-                break;
-            }
-        }
-    }
-
-    m_TempConfiguration.GetIntensityList()->clear();
-
-    found = false;
-
-    for ( ; cur_node && !found; cur_node = cur_node->next)
-    {
-        if (cur_node->type == XML_ELEMENT_NODE)
-        {
-            if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_INTENSITY_LIST))
+            else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_INTENSITY_LIST))
             {
                 ProcessIntensityListElement(cur_node);
-                found = true;
             }
-            else
-            {
-                // intensity_list is optional
-                // => keep cur_node for the next element processing
-                break;
-            }
-        }
-    }
-
-    found = false;
-
-    for ( ; cur_node && !found; cur_node = cur_node->next)
-    {
-        if (cur_node->type == XML_ELEMENT_NODE)
-        {
-            if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_BUTTON_MAP))
+            else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_BUTTON_MAP))
             {
                 ProcessButtonMapElement(cur_node);
-                found = true;
             }
-            else
-            {
-                break;//not found
-            }
-        }
-    }
-
-    // button_map is mandatory
-    if(!found)
-    {
-        string message(string("missing button_map element"));
-        throw invalid_argument(message);
-    }
-
-    found = false;
-
-    for ( ; cur_node && !found; cur_node = cur_node->next)
-    {
-        if (cur_node->type == XML_ELEMENT_NODE)
-        {
-            if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_AXIS_MAP))
+            else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_AXIS_MAP))
             {
                 ProcessAxisMapElement(cur_node);
-                found = true;
             }
-            else
-            {
-                break;//not found
-            }
-        }
-    }
-
-    // axis_map is mandatory
-    if(!found)
-    {
-        string message(string("missing axis_map element"));
-        throw invalid_argument(message);
-    }
-
-    found = false;
-
-    m_TempConfiguration.GetJoystickCorrectionsList()->clear();
-
-    for ( ; cur_node && !found; cur_node = cur_node->next)
-    {
-        if (cur_node->type == XML_ELEMENT_NODE)
-        {
-            if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_JOYSTICK_CORRECTIONS_LIST))
+            else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_JOYSTICK_CORRECTIONS_LIST))
             {
                 ProcessJoystickCorrectionsListElement(cur_node);
-                found = true;
             }
-            else
+            else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_FORCE_FEEDBACK))
             {
-                // this node is optional
-                // => keep cur_node for the next element processing
-                break;
+                ProcessForceFeedbackElement(cur_node);
             }
         }
     }

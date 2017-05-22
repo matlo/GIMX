@@ -974,6 +974,128 @@
 											</object>
 											<label>Joystick corrections</label>
 										</object>
+										<object class="notebookpage">
+											<object class="wxPanel" name="ID_PANEL8" variable="PanelForceFeedback" member="yes">
+												<object class="wxFlexGridSizer" variable="FlexGridSizer39" member="no">
+													<cols>1</cols>
+													<rows>2</rows>
+													<object class="sizeritem">
+														<object class="wxFlexGridSizer" variable="FlexGridSizer54" member="no">
+															<cols>6</cols>
+															<rows>1</rows>
+															<object class="sizeritem">
+																<object class="wxStaticBoxSizer" variable="StaticBoxSizer11" member="no">
+																	<label>Joystick</label>
+																	<object class="sizeritem">
+																		<object class="wxFlexGridSizer" variable="FlexGridSizer55" member="no">
+																			<cols>4</cols>
+																			<rows>1</rows>
+																			<object class="sizeritem">
+																				<object class="wxStaticText" name="ID_STATICTEXT13" variable="FFBTweaksType" member="yes">
+																					<label></label>
+																					<hidden>1</hidden>
+																				</object>
+																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																				<border>5</border>
+																				<option>1</option>
+																			</object>
+																			<object class="sizeritem">
+																				<object class="wxStaticText" name="ID_STATICTEXT20" variable="FFBTweaksName" member="yes">
+																					<label></label>
+																				</object>
+																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																				<border>5</border>
+																				<option>1</option>
+																			</object>
+																			<object class="sizeritem">
+																				<object class="wxStaticText" name="ID_STATICTEXT25" variable="FFBTweaksId" member="yes">
+																					<label></label>
+																				</object>
+																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																				<border>5</border>
+																				<option>1</option>
+																			</object>
+																			<object class="sizeritem">
+																				<object class="wxStaticText" name="ID_STATICTEXT49" variable="FFBTweaksAxis" member="yes">
+																					<label></label>
+																					<hidden>1</hidden>
+																				</object>
+																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																				<border>5</border>
+																				<option>1</option>
+																			</object>
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																</object>
+																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+															<object class="sizeritem">
+																<object class="wxButton" name="ID_BUTTON20" variable="ForceFeedbackAutoDetect" member="yes">
+																	<label>Auto detect</label>
+																	<handler function="OnButtonForceFeedbackAutoDetect" entry="EVT_BUTTON" />
+																</object>
+																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+															<object class="sizeritem">
+																<object class="wxStaticLine" name="ID_STATICLINE13" variable="StaticLine13" member="yes">
+																	<size>-1,50</size>
+																	<style>wxLI_VERTICAL</style>
+																</object>
+																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+															<object class="sizeritem">
+																<object class="wxFlexGridSizer" variable="FlexGridSizer56" member="no">
+																	<cols>1</cols>
+																	<rows>1</rows>
+																	<object class="sizeritem">
+																		<object class="wxCheckBox" name="ID_CHECKBOX2" variable="FFBTweaksInvert" member="yes">
+																			<label>Invert direction</label>
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																</object>
+																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+															<object class="sizeritem">
+																<object class="wxStaticLine" name="ID_STATICLINE15" variable="StaticLine15" member="yes">
+																	<size>-1,50</size>
+																	<style>wxLI_VERTICAL</style>
+																</object>
+																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+															<object class="sizeritem">
+																<object class="wxButton" name="ID_BUTTON24" variable="ButtonFFBTweaksDelete" member="yes">
+																	<label>Delete</label>
+																	<handler function="OnButtonFFBTweaksDelete" entry="EVT_BUTTON" />
+																</object>
+																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+														</object>
+														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+														<border>5</border>
+														<option>1</option>
+													</object>
+												</object>
+											</object>
+											<label>Force Feedback Tweaks</label>
+										</object>
 									</object>
 									<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 									<border>5</border>

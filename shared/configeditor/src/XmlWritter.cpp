@@ -20,6 +20,8 @@ XmlWritter::XmlWritter()
 {
     //ctor
     m_ConfigurationFile = NULL;
+    m_CurrentController = 0;
+    m_CurrentConfiguration = 0;
 }
 
 XmlWritter::XmlWritter(ConfigurationFile* configFile)
@@ -171,6 +173,25 @@ void XmlWritter::CreateJoystickCorrectionsNodes(xmlNodePtr parent_node)
     }
 }
 
+void XmlWritter::CreateInversionNode(xmlNodePtr parent_node, ForceFeedback* ffb)
+{
+    xmlNodePtr d_node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_INVERSION, NULL);
+    const char * value = ffb->getInversion().empty() ? "no" : ffb->getInversion().c_str();
+    xmlNewProp(d_node, BAD_CAST X_ATTR_ENABLE, BAD_CAST value);
+}
+
+void XmlWritter::CreateForceFeedbackNode(xmlNodePtr parent_node)
+{
+    ForceFeedback * tweaks = m_ConfigurationFile->GetController(m_CurrentController)->GetConfiguration(m_CurrentConfiguration)->GetForceFeedback();
+
+    if (!tweaks->GetJoystick()->GetName().empty())
+    {
+        xmlNodePtr node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_FORCE_FEEDBACK, NULL);
+        CreateDeviceNode(node, tweaks->GetJoystick());
+        CreateInversionNode(node, tweaks);
+    }
+}
+
 void XmlWritter::CreateIntensityNodes(xmlNodePtr parent_node)
 {
     char steps[4];
@@ -262,6 +283,8 @@ void XmlWritter::CreateConfigurationNodes(xmlNodePtr parent_node)
         CreateAxisMapNode(node);
 
         CreateJoystickCorrectionsNodes(node);
+
+        CreateForceFeedbackNode(node);
     }
 }
 

@@ -65,4 +65,8 @@
 #define X_ATTR_HIGH_VALUE "high_value"
 #define X_ATTR_HIGH_COEF "high_coef"
 
+#define X_NODE_FORCE_FEEDBACK "force_feedback"
+#define X_NODE_INVERSION "inversion"
+#define X_ATTR_ENABLE "enable"
+
 #endif /* XML_DEFS_H_ */

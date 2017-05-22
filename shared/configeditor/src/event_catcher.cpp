@@ -451,3 +451,51 @@ void event_catcher::AddEvent(Device device, Event event)
         m_Events.push_back(make_pair(device, event));
     }
 }
+
+bool event_catcher::hasJoystick()
+{
+    bool result = false;
+
+    init();
+
+    if (ginput_joystick_name(0) != NULL)
+    {
+        result = true;
+    }
+
+    clean();
+
+    return result;
+}
+
+bool event_catcher::hasMouse()
+{
+    bool result = false;
+
+    init();
+
+    if (ginput_mouse_name(0) != NULL)
+    {
+        result = true;
+    }
+
+    clean();
+
+    return result;
+}
+
+bool event_catcher::hasKeyboard()
+{
+    bool result = false;
+
+    init();
+
+    if (ginput_keyboard_name(0) != NULL)
+    {
+        result = true;
+    }
+
+    clean();
+
+    return result;
+}

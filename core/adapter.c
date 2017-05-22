@@ -499,44 +499,16 @@ static int adapter_hid_close_cb(int adapter)
 }
 
 #ifndef WIN32
-void adapter_set_hid(int adapter, int hid)
+static int start_hid(int adapter)
 {
-  if(adapter < 0 || adapter >= MAX_CONTROLLERS)
+  if (adapters[adapter].haptic.hid.id >= 0)
   {
-    fprintf(stderr, "%s: invalid controller\n", __func__);
-    return;
+    ginput_joystick_set_hid_callbacks(adapters[adapter].haptic.hid.id, adapter, adapter_hid_write_cb, adapter_hid_close_cb);
   }
 
-  if(adapters[adapter].haptic.hid.id < 0)
-  {
-      const s_hid_info * info = ghid_get_hid_info(hid);
-      if (info != NULL && ff_lg_is_logitech_wheel(info->vendor_id, info->product_id))
-      {
-        adapters[adapter].haptic.hid.id = hid;
-        adapters[adapter].haptic.usb_ids.vendor = info->vendor_id;
-        adapters[adapter].haptic.usb_ids.product = info->product_id;
-        ginput_joystick_set_hid_callbacks(hid, adapter, adapter_hid_write_cb, adapter_hid_close_cb);
-        ncprintf("FFB device: VID=0x%04x, PID=0x%04x.\n", info->vendor_id, info->product_id);
-      }
-  }
+  return 0;
 }
 #else
-void adapter_set_usb_ids(int adapter, int joystick_id, unsigned short vendor, unsigned short product)
-{
-  if(adapter < 0 || adapter >= MAX_CONTROLLERS)
-  {
-    fprintf(stderr, "%s: invalid adapter\n", __func__);
-    return;
-  }
-
-  if(adapters[adapter].haptic.joystick == joystick_id)
-  {
-    adapters[adapter].haptic.usb_ids.vendor = vendor;
-    adapters[adapter].haptic.usb_ids.product = product;
-    ncprintf("FFB device: VID=0x%04x, PID=0x%04x.\n", vendor, product);
-  }
-}
-
 static int start_hid(int adapter)
 {
   adapters[adapter].haptic.hid.id = ghid_open_ids(adapters[adapter].haptic.usb_ids.vendor, adapters[adapter].haptic.usb_ids.product);
@@ -990,21 +962,32 @@ int adapter_start()
         if (ff_lg_is_logitech_wheel(vid, pid))
         {
           // emulated controller is a Logitech wheel with FFB support
-          if (ff_lg_is_logitech_wheel(adapter->haptic.usb_ids.vendor, adapter[i].haptic.usb_ids.product))
+          if (gimx_params.ff_conv == 0 && ff_lg_is_logitech_wheel(adapter->haptic.usb_ids.vendor, adapter[i].haptic.usb_ids.product))
           {
-            // default joystick is a Logitech wheel with FFB support
+            // default joystick is a Logitech wheel with FFB support and ff_conv is not forced
+            
+            adapter->haptic.ff_lg = 1;
+
+            ncprintf("FFB device: %s %d (direct translation).\n", ginput_joystick_name(adapter->haptic.joystick), ginput_joystick_virtual_id(adapter->haptic.joystick));
+
             ff_lg_init(i, pid, adapter->haptic.usb_ids.product);
-#ifdef WIN32
+
             start_hid(i);
-#endif
+
             // wheel range may have to be changed
             adapter_send_next_hid_report(i);
           }
           else if (adapter->haptic.has_ffb)
           {
+            adapter->haptic.ff_conv = 1;
+
+            ncprintf("FFB device: %s %d (OS translation).\n", ginput_joystick_name(adapter->haptic.joystick), ginput_joystick_virtual_id(adapter->haptic.joystick));
+
             // default joystick is a non-Logitech wheel with FFB support
             ff_conv_init(i, pid);
           }
+
+          adapter_set_ffb_tweaks(i);
         }
         if(adapter_send_short_command(i, BYTE_START) < 0)
         {
@@ -1305,10 +1288,57 @@ int adapter_is_usb_auth_required(int adapter)
 
 }
 
-void adapter_set_haptic_joystick(int adapter, int joystick)
+void adapter_set_haptic(s_config_entry * entry, int force)
 {
-  if (adapters[adapter].haptic.joystick < 0)
+  int adapter = entry->controller_id;
+
+  if(adapter < 0 || adapter >= MAX_CONTROLLERS)
   {
-    adapters[adapter].haptic.joystick = joystick;
+    fprintf(stderr, "%s: invalid adapter\n", __func__);
+    return;
+  }
+
+  if (force == 1)
+  {
+    memset(&adapters[adapter].haptic, 0x00, sizeof(adapters[adapter].haptic));
+    adapters[adapter].haptic.joystick = -1;
+    adapters[adapter].haptic.hid.id = -1; // no need to close, it is owned by ginput
+  }
+
+  if (adapters[adapter].haptic.joystick >= 0)
+  {
+    return;
+  }
+
+  adapters[adapter].haptic.joystick = entry->device.id;
+
+#ifndef WIN32
+  int hid = entry->device.hid;
+  if(hid >= 0)
+  {
+    const s_hid_info * info = ghid_get_hid_info(hid);
+    if (info != NULL && ff_lg_is_logitech_wheel(info->vendor_id, info->product_id))
+    {
+      adapters[adapter].haptic.hid.id = hid;
+      adapters[adapter].haptic.usb_ids.vendor = info->vendor_id;
+      adapters[adapter].haptic.usb_ids.product = info->product_id;
+    }
+  }
+#else
+  if(entry->device.usb_ids.vendor && entry->device.usb_ids.product)
+  {
+    adapters[adapter].haptic.usb_ids.vendor = entry->device.usb_ids.vendor;
+    adapters[adapter].haptic.usb_ids.product = entry->device.usb_ids.product;
+  }
+#endif
+}
+
+void adapter_set_ffb_tweaks(int adapter)
+{
+  const s_ffb_tweaks * tweaks = cfg_get_ffb_tweaks(adapter);
+
+  if (adapters[adapter].haptic.ff_conv)
+  {
+      ff_conv_set_tweaks(adapter, tweaks->invert);
   }
 }

@@ -37,6 +37,9 @@ class event_catcher
 
           return _singleton;
         }
+        bool hasJoystick();
+        bool hasMouse();
+        bool hasKeyboard();
     private:
         event_catcher();
         virtual ~event_catcher();

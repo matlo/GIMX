@@ -32,6 +32,9 @@ static s_config_entry entry;
 static void reset_entry()
 {
   memset(&entry.device, 0x00, sizeof(entry.device));
+#ifndef WIN32
+  entry.device.hid = -1;
+#endif
   memset(&entry.event, 0x00, sizeof(entry.event));
   memset(&entry.params, 0x00, sizeof(entry.params));
 }
@@ -459,18 +462,7 @@ static int ProcessEventElement(xmlNode * a_node, unsigned char mapper)
                       && entry.params.mapper.axis_props.axis == rel_axis_0
                       && entry.params.mapper.axis_props.props == AXIS_PROP_CENTERED)
               {
-                adapter_set_haptic_joystick(entry.controller_id, entry.device.id);
-#ifndef WIN32
-                if(entry.device.hid >= 0)
-                {
-                  adapter_set_hid(entry.controller_id, entry.device.hid);
-                }
-#else
-                if(entry.device.usb_ids.vendor && entry.device.usb_ids.product)
-                {
-                  adapter_set_usb_ids(entry.controller_id, entry.device.id, entry.device.usb_ids.vendor, entry.device.usb_ids.product);
-                }
-#endif
+                adapter_set_haptic(&entry, 0);
               }
               break;
             default:
@@ -1047,6 +1039,74 @@ static int ProcessJoystickCorrectionsListElement(xmlNode * a_node)
   return ret;
 }
 
+static int ProcessInversionElement(xmlNode * a_node)
+{
+  char * val = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_ENABLE);
+
+  if(val == NULL)
+  {
+    printf("missing %s attribute\n", X_ATTR_ENABLE);
+    return -1;
+  }
+  if (strcmp(val, X_ATTR_VALUE_YES) == 0)
+  {
+    entry.params.ffb_tweaks.invert = 1;
+  }
+
+  return 0;
+}
+
+static int ProcessForceFeedbackElement(xmlNode * a_node)
+{
+  int ret = 0;
+  int has_device = 0, has_inversion = 0;
+
+  reset_entry();
+
+  xmlNode* cur_node = NULL;
+  for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
+  {
+    if (cur_node->type == XML_ELEMENT_NODE)
+    {
+      if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_DEVICE))
+      {
+        has_device = 1;
+        ret = ProcessDeviceElement(cur_node);
+      }
+      else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_INVERSION))
+      {
+        has_inversion = 1;
+        ret = ProcessInversionElement(cur_node);
+      }
+      else
+      {
+        printf("unexpected element: %s\n", cur_node->name);
+      }
+    }
+  }
+
+  if (has_device == 0)
+  {
+    printf("missing device element\n");
+    ret = -1;
+  }
+
+  if (has_inversion == 0)
+  {
+    printf("missing inversion element\n");
+    ret = -1;
+  }
+
+  if(ret != -1)
+  {
+    cfg_set_ffb_tweaks(&entry);
+    // force FFB selection for 1st profile only
+    adapter_set_haptic(&entry, entry.config_id == 0 ? 1 : 0);
+  }
+
+  return ret;
+}
+
 static int ProcessConfigurationElement(xmlNode * a_node)
 {
   int ret = 0;
@@ -1074,115 +1134,34 @@ static int ProcessConfigurationElement(xmlNode * a_node)
       if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_TRIGGER))
       {
         ret = ProcessTriggerElement(cur_node);
-        break;
       }
-      else
-      {
-        printf("bad element name: %s", cur_node->name);
-        ret = -1;
-      }
-    }
-  }
-
-  if (!cur_node)
-  {
-    printf("missing trigger element");
-    ret = -1;
-  }
-  
-  for (cur_node = cur_node->next; cur_node; cur_node = cur_node->next)
-  {
-    if (cur_node->type == XML_ELEMENT_NODE)
-    {
-      if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_MOUSE_OPTIONS_LIST))
+      else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_MOUSE_OPTIONS_LIST))
       {
         ret = ProcessMouseOptionsListElement(cur_node);
-        break;
       }
-      else
-      {
-        cur_node = cur_node->prev;
-        break;
-      }
-    }
-  }
-
-  for (cur_node = cur_node->next; cur_node && ret != -1; cur_node = cur_node->next)
-  {
-    if (cur_node->type == XML_ELEMENT_NODE)
-    {
-      if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_INTENSITY_LIST))
+      else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_INTENSITY_LIST))
       {
         ret = ProcessIntensityListElement(cur_node);
-        break;
       }
-      else
-      {
-        cur_node = cur_node->prev;
-        break;
-      }
-    }
-  }
-
-  for (cur_node = cur_node->next; cur_node && ret != -1; cur_node = cur_node->next)
-  {
-    if (cur_node->type == XML_ELEMENT_NODE)
-    {
-      if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_BUTTON_MAP))
+      else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_BUTTON_MAP))
       {
         ret = ProcessButtonMapElement(cur_node);
-        break;
       }
-      else
-      {
-        printf("bad element name: %s", cur_node->name);
-        ret = -1;
-      }
-    }
-  }
-
-  if (!cur_node)
-  {
-    printf("missing button_map element");
-    ret = -1;
-  }
-
-  for (cur_node = cur_node->next; cur_node && ret != -1; cur_node = cur_node->next)
-  {
-    if (cur_node->type == XML_ELEMENT_NODE)
-    {
-      if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_AXIS_MAP))
+      else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_AXIS_MAP))
       {
         ret = ProcessAxisMapElement(cur_node);
-        break;
       }
-      else
-      {
-        printf("bad element name: %s", cur_node->name);
-        ret = -1;
-      }
-    }
-  }
-
-  if (!cur_node)
-  {
-    printf("missing axis_map element");
-    ret = -1;
-  }
-
-  for (cur_node = cur_node->next; cur_node && ret != -1; cur_node = cur_node->next)
-  {
-    if (cur_node->type == XML_ELEMENT_NODE)
-    {
-      if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_JOYSTICK_CORRECTIONS_LIST))
+      else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_JOYSTICK_CORRECTIONS_LIST))
       {
         ret = ProcessJoystickCorrectionsListElement(cur_node);
-        break;
+      }
+      else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_FORCE_FEEDBACK))
+      {
+        ret = ProcessForceFeedbackElement(cur_node);
       }
       else
       {
-        printf("bad element name: %s", cur_node->name);
-        ret = -1;
+        printf("unexpected element: %s\n", cur_node->name);
       }
     }
   }

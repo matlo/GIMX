@@ -83,6 +83,7 @@ static void usage()
   printf("  --log filename: write messages into a log file instead of the standard output.\n");
   printf("    filename: The name of the log file, in the ~/.gimx/log directory (make sure this folder exists).\n");
   printf("  --skip_leds: Filter out set led commands from FFB command stream (performance tweak for G27/G29 wheels on small targets).\n");
+  printf("  --ff_conv: Force OS translation for FFB commands on Windows.\n");
 }
 
 /*
@@ -145,6 +146,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"debug.ff_conv",  no_argument, &params->debug.ff_conv,  1},
     {"debug.adapter",  no_argument, &params->debug.adapter,  1},
     {"skip_leds",      no_argument, &params->skip_leds,      1},
+    {"ff_conv",        no_argument, &params->ff_conv,        1},
     /* These options don't set a flag. We distinguish them by their indices. */
     {"bdaddr",  required_argument, 0, 'b'},
     {"config",  required_argument, 0, 'c'},
@@ -417,6 +419,8 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     printf(_("btstack flag is set\n"));
   if(params->skip_leds)
     printf(_("skip_leds flag is set\n"));
+  if(params->ff_conv)
+    printf(_("ff_conv flag is set\n"));
 
   if(!input)
   {
