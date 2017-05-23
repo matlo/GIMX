@@ -322,7 +322,7 @@ void ff_conv_process_report(int device, const unsigned char data[FF_LG_OUTPUT_RE
         break;
         }
     } else {
-		unsigned short range = 0;
+        unsigned short range = 0;
         switch(data[1]) {
             case FF_LG_EXT_CMD_WHEEL_RANGE_200_DEGREES:
                 range = 200;
@@ -395,7 +395,7 @@ int ff_conv_set_tweaks(int device, int invert) {
 
     CHECK_DEVICE(device, -1)
 
-    dprintf("FFB invert: %s\n", invert ? "yes" : "no");
+    ncprintf("FFB invert: %s\n", invert ? "yes" : "no");
 
     ff_lg_device[device].invert = invert;
 
