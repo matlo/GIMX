@@ -3,7 +3,7 @@ include ../Makedefs
 ifneq ($(OS),Windows_NT)
 prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
-fwdir=$(prefix)/share/gimx/firmware
+sharedir=$(prefix)/share
 endif
 
 NAME=$(shell basename $(shell pwd))
@@ -31,12 +31,14 @@ install: all
 	mkdir -p $(prefix)
 	mkdir -p $(bindir)
 	for i in $(BINS); do cp $$i $(bindir)/; done
-	mkdir -p $(fwdir)
-	for i in firmware/*; do cp $$i $(fwdir); done
+	mkdir -p $(sharedir)/gimx/firmware
+	for i in firmware/*; do cp $$i $(sharedir)/gimx/firmware; done
 
 uninstall:
-	-$(RM) $(fwdir)/*
-	-rmdir $(fwdir)
+	-$(RM) $(sharedir)/gimx/firmware/*
+	-rmdir $(sharedir)/gimx/firmware
+	-rmdir $(sharedir)/gimx
+	-rmdir $(sharedir)
 	-for i in $(BINS); do $(RM) $(bindir)/$$i; done
 	-rmdir $(bindir)
 	-rmdir $(prefix)
