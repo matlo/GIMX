@@ -1,4 +1,4 @@
-DIRS = shared utils core config launcher fpsconfig
+DIRS = shared utils core config launcher fpsconfig loader
 
 ifneq ($(OS),Windows_NT)
 DIRS+= po
@@ -37,6 +37,7 @@ install: all
 	cp -u -f config/gimx-config setup/gimx-config.exe
 	cp -u -f launcher/gimx-launcher setup/gimx-launcher.exe
 	cp -u -f fpsconfig/gimx-fpsconfig setup/gimx-fpsconfig.exe
+	cp -u -f loader/gimx-loader setup/gimx-loader.exe
 	cp -u -f shared/gasync/src/input/windows/gamecontrollerdb.txt setup
 	mkdir -p setup/share/locale
 	for translation in po/*.po; \
