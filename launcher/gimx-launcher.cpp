@@ -112,6 +112,7 @@ const long launcherFrame::ID_MENUITEM9 = wxNewId();
 const long launcherFrame::idMenuQuit = wxNewId();
 const long launcherFrame::ID_MENUITEM6 = wxNewId();
 const long launcherFrame::ID_MENUITEM4 = wxNewId();
+const long launcherFrame::ID_MENUITEM10 = wxNewId();
 const long launcherFrame::ID_MENUITEM5 = wxNewId();
 const long launcherFrame::idMenuAbout = wxNewId();
 const long launcherFrame::ID_STATUSBAR1 = wxNewId();
@@ -911,6 +912,8 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
     Menu2->Append(MenuGetConfigs);
     MenuUpdate = new wxMenuItem(Menu2, ID_MENUITEM4, _("Update"), wxEmptyString, wxITEM_NORMAL);
     Menu2->Append(MenuUpdate);
+    MenuItem5 = new wxMenuItem(Menu2, ID_MENUITEM10, _("Update firmware"), wxEmptyString, wxITEM_NORMAL);
+    Menu2->Append(MenuItem5);
     MenuStartupUpdates = new wxMenuItem(Menu2, ID_MENUITEM5, _("Check updates at startup"), wxEmptyString, wxITEM_CHECK);
     Menu2->Append(MenuStartupUpdates);
     MenuItem2 = new wxMenuItem(Menu2, idMenuAbout, _("About\tF1"), _("Show info about this application"), wxITEM_NORMAL);
@@ -940,6 +943,7 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnQuit);
     Connect(ID_MENUITEM6,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnMenuGetConfigs);
     Connect(ID_MENUITEM4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnMenuUpdate);
+    Connect(ID_MENUITEM10,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnMenuUpdateFirmware);
     Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnMenuStartupUpdates);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnAbout);
     //*)
@@ -2454,4 +2458,12 @@ void launcherFrame::OnInputNewButtonClick(wxCommandEvent& event __attribute__((u
   readIp(InputChoice);
 
   refreshGui();
+}
+
+void launcherFrame::OnMenuUpdateFirmware(wxCommandEvent& event __attribute__((unused)))
+{
+    if (!wxExecute(wxT("gimx-loader"), wxEXEC_ASYNC))
+    {
+      wxMessageBox(_("Failed to execute gimx-loader."), _("Error"), wxICON_ERROR);
+    }
 }
