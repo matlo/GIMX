@@ -50,6 +50,11 @@ install: all
 	cp -u -f /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem setup/ssl/certs/ca-bundle.crt
 	cp -u -f shared/*/*.dll setup
 	cp -u -f shared/gasync/src/*/*.dll setup
+	mkdir -p setup/firmware
+	for fw in loader/firmware/*.hex; \
+  do \
+    cp -u -f $$fw setup/firmware; \
+  done
 
 .PHONY: subdirs $(DIRS)
 .PHONY: subdirs $(BUILDDIRS)
