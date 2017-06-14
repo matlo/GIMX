@@ -41,7 +41,7 @@ using namespace std;
 #define MAX_PORT_NB 257 // 0 to 256
 
 #ifdef WIN32
-static void check_port(int i) {
+static int check_port(int i) {
 
     char path[sizeof("\\\\.\\COM256")];
     snprintf(path, sizeof(path), "\\\\.\\COM%d", i);
