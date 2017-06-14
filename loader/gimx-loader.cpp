@@ -41,11 +41,11 @@ using namespace std;
 #define MAX_PORT 256
 
 #ifdef WIN32
-static void check_port(int i) {
+static int check_port(int i) {
 
     char path[sizeof("\\\\.\\COM256")];
     snprintf(path, sizeof(path), "\\\\.\\COM%d", i);
-    HANDLE handle = CreateFile(path, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+    HANDLE handle = CreateFileA(path, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
     if (handle != INVALID_HANDLE_VALUE) {
         CloseHandle(handle);
         return 0;
