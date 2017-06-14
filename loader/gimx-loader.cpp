@@ -38,10 +38,10 @@
 
 using namespace std;
 
-#define MAX_PORT 256
+#define MAX_PORT_NB 257 // 0 to 256
 
 #ifdef WIN32
-static int check_port(int i) {
+static void check_port(int i) {
 
     char path[sizeof("\\\\.\\COM256")];
     snprintf(path, sizeof(path), "\\\\.\\COM%d", i);
@@ -66,10 +66,10 @@ static int check_port(int i) {
 }
 #endif
 
-static void list_ports(int ports[MAX_PORT]) {
+static void list_ports(int ports[MAX_PORT_NB]) {
 
     int i;
-    for (i = 1; i <= MAX_PORT; ++i) {
+    for (i = 0; i < MAX_PORT_NB; ++i) {
         if (check_port(i) != -1) {
             ports[i] = 1;
         }
@@ -210,7 +210,7 @@ void loaderFrame::OnButtonLoadClick(wxCommandEvent& event __attribute__((unused)
         return;
     }
 
-    int ports[MAX_PORT] = {};
+    int ports[MAX_PORT_NB] = {};
 
     list_ports(ports);
 
@@ -222,14 +222,14 @@ void loaderFrame::OnButtonLoadClick(wxCommandEvent& event __attribute__((unused)
         wxBusyInfo wait(_("Unplug/replug the USB cable (Pro Micro side of the adapter)."));
 
         for (count = 0; count < 40; ++count) {
-            for (i = 0; i <= MAX_PORT; ++i) {
+            for (i = 0; i < MAX_PORT_NB; ++i) {
                 if (ports[i] == 0) {
                     if (check_port(i) != -1) {
                         break;
                     }
                 }
             }
-            if (i <= MAX_PORT) {
+            if (i < MAX_PORT_NB) {
                 break;
             }
             usleep(250000);
