@@ -8,6 +8,8 @@
 
 using namespace std;
 
+typedef int (* CONFIGUPDATER_PROGRESS_CALLBACK)(void *clientp, string & file, unsigned int dlnow, unsigned int dltotal);
+
 class configupdater
 {
 public:
@@ -15,8 +17,8 @@ public:
   {
     configs_dir = cd;
   }
-  list<string>* getconfiglist();
-  int getconfigs(list<string>* cl);
+  list<string>* getconfiglist(CONFIGUPDATER_PROGRESS_CALLBACK callback, void * data);
+  int getconfigs(list<string>* cl, CONFIGUPDATER_PROGRESS_CALLBACK callback, void * data);
   static configupdater* getInstance ()
   {
     if (NULL == _singleton)
@@ -26,6 +28,10 @@ public:
 
     return _singleton;
   }
+  int onProgress(unsigned int dlnow, unsigned int dltotal)
+  {
+      return client_callback(client_data, current, dlnow, dltotal);
+  }
 private:
   configupdater();
   virtual ~configupdater();
@@ -33,9 +39,14 @@ private:
   string configs_dir;
   list<string> configlist;
 
+  string current;
+
   static const char * configs_url;
   static const char * configs_download_url;
   static const char * configs_file;
+
+  CONFIGUPDATER_PROGRESS_CALLBACK client_callback;
+  void * client_data;
 
   static configupdater* _singleton;
 };

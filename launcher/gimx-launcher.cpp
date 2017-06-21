@@ -1612,6 +1612,27 @@ void launcherFrame::OnOutputSelect(wxCommandEvent& event __attribute__((unused))
     refreshGui();
 }
 
+static int progress_callback(void *clientp, string & file, unsigned int dlnow, unsigned int dltotal)
+{
+    ((launcherFrame *) clientp)->OnUpdateProgress(file, dlnow, dltotal);
+    return 0;
+}
+
+void launcherFrame::OnUpdateProgress(string & file, unsigned int dlnow, unsigned int dltotal)
+{
+    if (dltotal == 0 || dlnow == dltotal)
+    {
+        return;
+    }
+    ostringstream ios;
+    if (!file.empty())
+    {
+        ios << file << ": ";
+    }
+    ios << (int)(dlnow / 1024) << " / " << (int)(dltotal / 1024) << " KB";
+    progressDialog->Update(dlnow * 100 / dltotal, wxString(ios.str().c_str(), wxConvUTF8));
+}
+
 void launcherFrame::OnMenuUpdate(wxCommandEvent& event __attribute__((unused)))
 {
   int ret;
@@ -1628,8 +1649,11 @@ void launcherFrame::OnMenuUpdate(wxCommandEvent& event __attribute__((unused)))
     {
      return;
     }
-    wxBusyInfo wait(_("Downloading update..."));
-    if (u->Update() < 0)
+    wxProgressDialog dlg(_("Downloading"), wxEmptyString);
+    progressDialog = &dlg;
+    int uret = u->Update(progress_callback, this);
+    progressDialog = NULL;
+    if (uret < 0)
     {
       wxMessageBox(_("Can't retrieve update file!"), _("Error"), wxICON_ERROR);
     }
@@ -1678,8 +1702,10 @@ void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event __attribute__((unused
   list<string> cl_sel;
 
   {
-    wxBusyInfo wait(_("Downloading config list..."));
-    cl = u->getconfiglist();
+    wxProgressDialog dlg(_("Downloading"), wxEmptyString);
+    progressDialog = &dlg;
+    cl = u->getconfiglist(progress_callback, this);
+    progressDialog = NULL;
   }
 
   if(cl && !cl->empty())
@@ -1715,8 +1741,11 @@ void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event __attribute__((unused
       }
 
       {
-        wxBusyInfo wait(_("Downloading configs..."));
-        if(u->getconfigs(&cl_sel) < 0)
+        wxProgressDialog dlg(_("Downloading"), wxEmptyString);
+        progressDialog = &dlg;
+        int uret = u->getconfigs(&cl_sel, progress_callback, this);
+        progressDialog = NULL;
+        if(uret < 0)
         {
           wxMessageBox(_("Can't retrieve configs!"), _("Error"), wxICON_ERROR);
           return;
@@ -1726,14 +1755,6 @@ void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event __attribute__((unused
       if(!cl_sel.empty())
       {
         wxMessageBox(_("Download is complete!"), _("Info"), wxICON_INFORMATION);
-        if(!InputChoice->IsEmpty())
-        {
-          int answer = wxMessageBox(_("Auto-bind and convert?"), _("Confirm"), wxYES_NO);
-          if (answer == wxYES)
-          {
-            autoBindControls(configs);
-          }
-        }
         readConfigs();
         InputChoice->SetSelection(InputChoice->FindString(wxString(cl_sel.front().c_str(), wxConvUTF8)));
       }

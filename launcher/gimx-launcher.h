@@ -21,6 +21,7 @@
 //*)
 
 #include <wx/process.h>
+#include <wx/progdlg.h>
 
 #include <vector>
 
@@ -51,6 +52,8 @@ class launcherFrame: public wxFrame
         virtual ~launcherFrame();
 
         void OnProcessTerminated(wxProcess *process, int status);
+
+        void OnUpdateProgress(string & file, unsigned int dlcurrent, unsigned int dltotal);
 
     private:
 
@@ -200,6 +203,8 @@ class launcherFrame: public wxFrame
         wxArrayString hids;
 
         bool openLog;
+
+        wxProgressDialog * progressDialog;
 
         DECLARE_EVENT_TABLE()
 };
