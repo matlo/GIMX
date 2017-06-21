@@ -214,7 +214,6 @@ const long configFrame::ID_MENUITEM24 = wxNewId();
 const long configFrame::ID_MENUITEM29 = wxNewId();
 const long configFrame::ID_MENUITEM25 = wxNewId();
 const long configFrame::ID_MENUITEM27 = wxNewId();
-const long configFrame::ID_MENUITEM26 = wxNewId();
 const long configFrame::idMenuAbout = wxNewId();
 const long configFrame::ID_STATUSBAR1 = wxNewId();
 //*)
@@ -1271,8 +1270,6 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     MenuAdvanced->Append(MenuAutoBindControls);
     MenuBar1->Append(MenuAdvanced, _("Advanced"));
     MenuHelp = new wxMenu();
-    MenuUpdate = new wxMenuItem(MenuHelp, ID_MENUITEM26, _("Update"), wxEmptyString, wxITEM_NORMAL);
-    MenuHelp->Append(MenuUpdate);
     MenuItemAbout = new wxMenuItem(MenuHelp, idMenuAbout, _("About\tF1"), _("Show info about this application"), wxITEM_NORMAL);
     MenuHelp->Append(MenuItemAbout);
     MenuBar1->Append(MenuHelp, _("Help"));
@@ -1369,7 +1366,6 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     Connect(ID_MENUITEM24,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuMultipleMK);
     Connect(ID_MENUITEM29,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemWindowEventsSelected);
     Connect(ID_MENUITEM27,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuAutoBindControls);
-    Connect(ID_MENUITEM26,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuUpdate);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnAbout);
     //*)
 
@@ -2047,7 +2043,7 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event __attribute__((
 
     auto_detect(AxisTabDeviceType, &axisTabDeviceName, AxisTabDeviceName, AxisTabDeviceId, eventType, AxisTabEventId);
 
-  	if(old_device_type != AxisTabDeviceType->GetLabel()
+    if(old_device_type != AxisTabDeviceType->GetLabel()
        || old_device_name != axisTabDeviceName
        || old_device_id != AxisTabDeviceId->GetLabel())
     {
@@ -2065,7 +2061,7 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event __attribute__((
         }
         else
         {
-      	  AxisTabDeadZone->Enable();
+          AxisTabDeadZone->Enable();
           AxisTabSensitivity->Enable();
           AxisTabAcceleration->Enable();
           AxisTabAcceleration->SetValue(wxT("1.00"));
@@ -3613,47 +3609,6 @@ void configFrame::OnMenuMultipleMK(wxCommandEvent& event __attribute__((unused))
       replaceDevice(wxT("mouse"));
       replaceDevice(wxT("keyboard"));
     }
-}
-
-/*
- * \brief Method called on Help>Update click. \
- *        It checks if a software update is available. \
- *        If an update is available, it asks if it has to be downloaded and installed.
- */
-void configFrame::OnMenuUpdate(wxCommandEvent& event __attribute__((unused)))
-{
-  int ret;
-
-  updater* u = updater::getInstance();
-  u->SetParams(VERSION_URL, VERSION_FILE, INFO_VERSION, DOWNLOAD_URL, DOWNLOAD_FILE);
-
-  ret = u->CheckVersion();
-
-  if (ret > 0)
-  {
-    int answer = wxMessageBox(_("Update available.\nStart installation?"), _("Confirm"), wxYES_NO);
-    if (answer == wxNO)
-    {
-     return;
-    }
-    wxBusyInfo wait(_("Downloading update..."));
-    if (u->Update() < 0)
-    {
-      wxMessageBox(_("Can't retrieve update file!"), _("Error"), wxICON_ERROR);
-    }
-    else
-    {
-      exit(0);
-    }
-  }
-  else if (ret < 0)
-  {
-    wxMessageBox(_("Can't check version!"), _("Error"), wxICON_ERROR);
-  }
-  else
-  {
-    wxMessageBox(_("GIMX is up-to-date!"), _("Info"), wxICON_INFORMATION);
-  }
 }
 
 /*

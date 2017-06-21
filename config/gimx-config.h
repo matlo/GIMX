@@ -86,7 +86,6 @@ class configFrame: public wxFrame
         void OnMenuSetMouseDPI(wxCommandEvent& event);
         void OnMenuMultipleMK(wxCommandEvent& event);
         void OnTextCtrl(wxCommandEvent& event);
-        void OnMenuUpdate(wxCommandEvent& event);
         void OnMenuAutoBindControls(wxCommandEvent& event);
         void OnMenuItemController(wxCommandEvent& event);
         void OnMenuItemConfiguration(wxCommandEvent& event);
@@ -312,7 +311,6 @@ class configFrame: public wxFrame
         static const long ID_MENUITEM29;
         static const long ID_MENUITEM25;
         static const long ID_MENUITEM27;
-        static const long ID_MENUITEM26;
         static const long idMenuAbout;
         static const long ID_STATUSBAR1;
         //*)
@@ -433,7 +431,6 @@ class configFrame: public wxFrame
         wxSpinCtrl* IntensityDeadZone;
         wxMenuItem* MenuItemDfpPs2;
         wxStaticLine* StaticLine4;
-        wxMenuItem* MenuUpdate;
         wxTextCtrl* JoystickCorrectionsHighCoef;
         wxMenuItem* MenuConfiguration8;
         wxMenuItem* MenuConfiguration2;

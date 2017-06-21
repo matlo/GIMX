@@ -78,7 +78,6 @@ class fpsconfigFrame: public wxFrame
         void OnSpinCtrlChange(wxSpinEvent& event);
         void OnTextCtrlText(wxCommandEvent& event);
         void OnMouseDPIChange(wxSpinEvent& event);
-        void OnMenuUpdate(wxCommandEvent& event);
         void OnMenuEditLabels(wxCommandEvent& event);
         void OnButtonConvertSensitivityClick(wxCommandEvent& event);
         void OnMenuAutoBindControls(wxCommandEvent& event);
@@ -163,7 +162,6 @@ class fpsconfigFrame: public wxFrame
         static const long ID_MENUITEM6;
         static const long ID_MENUITEM7;
         static const long ID_MENUITEM9;
-        static const long ID_MENUITEM5;
         static const long idMenuAbout;
         static const long ID_STATUSBAR1;
         //*)
@@ -186,8 +184,8 @@ class fpsconfigFrame: public wxFrame
         wxTextCtrl* TextCtrlXyRatioADS;
         wxButton* right;
         wxChoice* ChoiceDeadZoneShapeHipFire;
-        wxMenuItem* MenuItemWindowEvents;
         wxChoice* ChoiceDeadZoneShapeADS;
+        wxMenuItem* MenuItemWindowEvents;
         wxSpinCtrl* SpinCtrlBufferSizeADS;
         wxStaticText* StaticTextShape;
         wxMenuItem* MenuItemSave;
@@ -197,7 +195,6 @@ class fpsconfigFrame: public wxFrame
         wxStaticText* StaticTextSmoothing;
         wxButton* square;
         wxSpinCtrl* SpinCtrlDeadZoneHipFire;
-        wxMenuItem* MenuUpdate;
         wxButton* r2;
         wxButton* l2;
         wxButton* r3;

@@ -174,7 +174,6 @@ const long fpsconfigFrame::idMenuQuit = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM6 = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM7 = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM9 = wxNewId();
-const long fpsconfigFrame::ID_MENUITEM5 = wxNewId();
 const long fpsconfigFrame::idMenuAbout = wxNewId();
 const long fpsconfigFrame::ID_STATUSBAR1 = wxNewId();
 //*)
@@ -386,8 +385,6 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __at
     MenuAdvanced->Append(MenuItemWindowEvents);
     MenuBar1->Append(MenuAdvanced, _("Advanced"));
     MenuHelp = new wxMenu();
-    MenuUpdate = new wxMenuItem(MenuHelp, ID_MENUITEM5, _("Update"), wxEmptyString, wxITEM_NORMAL);
-    MenuHelp->Append(MenuUpdate);
     MenuItemAbout = new wxMenuItem(MenuHelp, idMenuAbout, _("About\tF1"), _("Show info about this application"), wxITEM_NORMAL);
     MenuHelp->Append(MenuItemAbout);
     MenuBar1->Append(MenuHelp, _("Help"));
@@ -455,7 +452,6 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __at
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnQuit);
     Connect(ID_MENUITEM7,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuAutoBindControls);
     Connect(ID_MENUITEM9,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuItemWindowEventsSelected);
-    Connect(ID_MENUITEM5,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuUpdate);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnAbout);
     //*)
 
@@ -1969,42 +1965,6 @@ void fpsconfigFrame::OnMouseDPIChange(wxSpinEvent& event __attribute__((unused))
 
     current_dpi = new_dpi;
     SpinCtrlDPI->SetValue(new_dpi);
-}
-
-void fpsconfigFrame::OnMenuUpdate(wxCommandEvent& event __attribute__((unused)))
-{
-  int ret;
-
-  updater* u = updater::getInstance();
-  u->SetParams(VERSION_URL, VERSION_FILE, INFO_VERSION, DOWNLOAD_URL, DOWNLOAD_FILE);
-
-  ret = u->CheckVersion();
-
-  if (ret > 0)
-  {
-    int answer = wxMessageBox(_("Update available.\nStart installation?"), _("Confirm"), wxYES_NO);
-    if (answer == wxNO)
-    {
-     return;
-    }
-    wxBusyInfo wait(_("Downloading update..."));
-    if (u->Update() < 0)
-    {
-      wxMessageBox(_("Can't retrieve update file!"), _("Error"), wxICON_ERROR);
-    }
-    else
-    {
-      exit(0);
-    }
-  }
-  else if (ret < 0)
-  {
-    wxMessageBox(_("Can't check version!"), _("Error"), wxICON_ERROR);
-  }
-  else
-  {
-    wxMessageBox(_("GIMX is up-to-date!"), _("Info"), wxICON_INFORMATION);
-  }
 }
 
 void fpsconfigFrame::OnButtonConvertSensitivityClick(wxCommandEvent& event __attribute__((unused)))
