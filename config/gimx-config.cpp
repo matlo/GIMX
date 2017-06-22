@@ -2067,12 +2067,12 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event __attribute__((
           AxisTabAcceleration->SetValue(wxT("1.00"));
           AxisTabShape->Enable();
           AxisTabShape->SetSelection(1);
-          if(eventType == _("mouse"))
+          if(AxisTabDeviceType->GetLabel() == _("mouse"))
           {
               AxisTabDeadZone->SetValue(wxT("20"));
               AxisTabSensitivity->SetValue(wxT("1.00"));
           }
-          else if(eventType == _("joystick"))
+          else if(AxisTabDeviceType->GetLabel() == _("joystick"))
           {
               AxisTabDeadZone->SetValue(wxT("0"));
               if(!AxisTabAxisId->GetStringSelection().Contains(wxT("stick")))
