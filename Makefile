@@ -55,6 +55,11 @@ install: all
   do \
     cp -u -f $$fw setup/firmware; \
   done
+ifeq ($(MSYSTEM),MINGW64)
+	cp -u -f /mingw64/bin/avrdude.exe setup
+else
+	cp -u -f /mingw32/bin/avrdude.exe setup
+endif
 
 .PHONY: subdirs $(DIRS)
 .PHONY: subdirs $(BUILDDIRS)
