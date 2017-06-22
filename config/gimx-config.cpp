@@ -31,6 +31,7 @@
 
 #include <wx/stdpaths.h>
 #include <wx/busyinfo.h>
+#include <wx/hyperlink.h>
 
 #define _CN(STRING) locale->GetString(wxString(STRING.c_str(), wxConvUTF8))
 
@@ -286,6 +287,44 @@ string configFrame::reverseTranslate(string str)
 
   return str;
 }
+
+class MyUrlMessage: public wxDialog
+{
+protected:
+    wxStaticText * m_message;
+    wxHyperlinkCtrl* m_hyperlink;
+    wxSizer * m_vsizer;
+    wxSizer * m_hsizer;
+    wxButton * m_button;
+
+public:
+    MyUrlMessage(wxWindow* parent, wxString message, wxString url) : wxDialog(parent, wxID_ANY, _("Tip"))
+    {
+        //SetSizeHints(wxDefaultSize, wxDefaultSize);
+        m_vsizer = new wxBoxSizer(wxVERTICAL);
+
+        m_message = new wxStaticText(this, wxID_ANY, message);
+        m_vsizer->Add(m_message, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 5);
+
+        m_hyperlink = new wxHyperlinkCtrl(this, wxID_ANY, _("Click here to go to online documentation."), url);
+        m_vsizer->Add(m_hyperlink, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 5);
+
+        m_button = new wxButton(this, wxID_OK, wxT("OK"));
+
+        m_hsizer = new wxBoxSizer(wxHORIZONTAL);
+        m_hsizer->Add(m_button);
+
+        m_vsizer->Add(m_hsizer, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 5);
+
+        SetSizer(m_vsizer);
+        Layout();
+        Fit();
+        Centre();
+        ShowModal();
+    }
+    ~MyUrlMessage() {}
+
+};
 
 /*
  * \brief This function fills the choices for button to axis bindings.
@@ -2071,6 +2110,7 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event __attribute__((
           {
               AxisTabDeadZone->SetValue(wxT("20"));
               AxisTabSensitivity->SetValue(wxT("1.00"));
+              MyUrlMessage(this, _("Use the calibration tool to adjust the parameters."), wxT("https://gimx.fr/wiki/index.php?title=Mouse_Calibration"));
           }
           else if(AxisTabDeviceType->GetLabel() == _("joystick"))
           {
