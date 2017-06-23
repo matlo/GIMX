@@ -57,8 +57,10 @@ install: all
   done
 ifeq ($(MSYSTEM),MINGW64)
 	cp -u -f /mingw64/bin/avrdude.exe setup
+	cp -u -f /mingw64/bin/avrdude.conf setup
 else
 	cp -u -f /mingw32/bin/avrdude.exe setup
+	cp -u -f /mingw32/bin/avrdude.conf setup
 endif
 
 .PHONY: subdirs $(DIRS)
