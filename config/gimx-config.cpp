@@ -33,6 +33,8 @@
 #include <wx/busyinfo.h>
 #include <wx/hyperlink.h>
 
+#include <wx/app.h>
+
 #define _CN(STRING) locale->GetString(wxString(STRING.c_str(), wxConvUTF8))
 
 using namespace std;
@@ -1648,6 +1650,8 @@ void configFrame::OnButtonAddPanelAxis(wxCommandEvent& event __attribute__((unus
       }
     }
 
+    addJoystickCorrection();
+
     GridPanelAxis->InsertRows();
     GridPanelAxis->SetCellValue(0, 0, AxisTabDeviceType->GetLabel());
     GridPanelAxis->SetCellValue(0, 1, wxString(axisTabDeviceName.c_str(), wxConvUTF8));
@@ -2067,6 +2071,95 @@ void configFrame::OnButtonTabAutoDetectClick(wxCommandEvent& event __attribute__
     ButtonTabAutoDetect->Enable(true);
 }
 
+void configFrame::addJoystickCorrection()
+{
+    if (AxisTabAxisId->GetStringSelection() == wxT("gas")
+          || AxisTabAxisId->GetStringSelection() == wxT("brake")
+          || AxisTabAxisId->GetStringSelection() == wxT("clutch"))
+    {
+        int rest = 0;
+        int down = 0;
+
+        {
+            wxWindowDisabler disableAll;
+            wxBusyInfo wait(_("Pedal calibration:\n"
+                    "1. fully press the pedal\n"
+                    "2. fully release the pedal\n"
+                    "3. press any key or button"));
+            wxTheApp->Yield();
+
+            pair<int, int> range = evcatch->getAxisRange(
+                  string(AxisTabDeviceName->GetLabel().mb_str(wxConvUTF8)),
+                  string(AxisTabDeviceId->GetLabel().mb_str(wxConvUTF8)),
+                  string(AxisTabEventId->GetLabel().mb_str(wxConvUTF8)));
+
+            rest = range.first;
+            down = range.second;
+        }
+
+        int lv = 0, lc = 0, hv = 0, hc = 0;
+
+        if (rest > down) {
+            lv = rest;
+            lc = (32767 * 16384) / (down - rest);
+            hv = 0;
+            hc = 0;
+        } else {
+            lv = rest;
+            lc = 0;
+            hv = rest;
+            hc = (32767 * 16384) / (down - rest);
+        }
+
+        string slv, slc, shv, shc;
+        stringstream ss1, ss2, ss3, ss4;
+        ss1 << lv;
+        ss1 >> slv;
+        ss2 << lc;
+        ss2 >> slc;
+        ss3 << hv;
+        ss3 >> shv;
+        ss4 << hc;
+        ss4 >> shc;
+
+        // look for existing correction
+
+        int i;
+        for (i = 0; i < GridJoystickCorrections->GetNumberRows(); ++i)
+        {
+            if(GridJoystickCorrections->GetCellValue(i, 0) == AxisTabDeviceName->GetLabel()
+               && GridJoystickCorrections->GetCellValue(i, 1) == AxisTabDeviceId->GetLabel()
+               && GridJoystickCorrections->GetCellValue(i, 2) == AxisTabEventId->GetLabel())
+            {
+                break;
+            }
+        }
+
+        if (i == GridJoystickCorrections->GetNumberRows())
+        {
+            GridJoystickCorrections->InsertRows();
+            GridJoystickCorrections->SetCellValue(0, 0, AxisTabDeviceName->GetLabel());
+            GridJoystickCorrections->SetCellValue(0, 1, AxisTabDeviceId->GetLabel());
+            GridJoystickCorrections->SetCellValue(0, 2, AxisTabEventId->GetLabel());
+            GridJoystickCorrections->SetCellValue(0, 3, wxString(slv.c_str(),wxConvUTF8));
+            GridJoystickCorrections->SetCellValue(0, 4, wxString(slc.c_str(),wxConvUTF8));
+            GridJoystickCorrections->SetCellValue(0, 5, wxString(shv.c_str(),wxConvUTF8));
+            GridJoystickCorrections->SetCellValue(0, 6, wxString(shc.c_str(),wxConvUTF8));
+        }
+        else
+        {
+            GridJoystickCorrections->SetCellValue(i, 3, wxString(slv.c_str(),wxConvUTF8));
+            GridJoystickCorrections->SetCellValue(i, 4, wxString(slc.c_str(),wxConvUTF8));
+            GridJoystickCorrections->SetCellValue(i, 5, wxString(shv.c_str(),wxConvUTF8));
+            GridJoystickCorrections->SetCellValue(i, 6, wxString(shc.c_str(),wxConvUTF8));
+        }
+
+        GridJoystickCorrections->AutoSizeColumns();
+
+        wxMessageBox(_("Joystick correction has been added in the \"Overall>Joystick corrections\" panel"), _("Info"), wxICON_INFORMATION);
+    }
+}
+
 /*
  * \brief Method called on Axis_Panel>Auto_detect click.
  */
@@ -2082,50 +2175,55 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event __attribute__((
 
     auto_detect(AxisTabDeviceType, &axisTabDeviceName, AxisTabDeviceName, AxisTabDeviceId, eventType, AxisTabEventId);
 
-    if(old_device_type != AxisTabDeviceType->GetLabel()
-       || old_device_name != axisTabDeviceName
-       || old_device_id != AxisTabDeviceId->GetLabel())
+    if(eventType == _("button"))
     {
-        if(eventType == _("button"))
+        AxisTabDeadZone->Disable();
+        AxisTabDeadZone->SetValue(wxEmptyString);
+        AxisTabSensitivity->Disable();
+        AxisTabSensitivity->SetValue(wxEmptyString);
+        AxisTabAcceleration->Disable();
+        AxisTabAcceleration->SetValue(wxEmptyString);
+        AxisTabShape->Disable();
+        AxisTabShape->SetSelection(0);
+        fillButtonAxisChoice();
+    }
+    else
+    {
+        AxisTabDeadZone->Enable();
+        AxisTabSensitivity->Enable();
+        AxisTabAcceleration->Enable();
+        if(AxisTabDeviceType->GetLabel() == _("mouse"))
         {
-            AxisTabDeadZone->Disable();
-            AxisTabDeadZone->SetValue(wxEmptyString);
-            AxisTabSensitivity->Disable();
-            AxisTabSensitivity->SetValue(wxEmptyString);
-            AxisTabAcceleration->Disable();
-            AxisTabAcceleration->SetValue(wxEmptyString);
-            AxisTabShape->Disable();
-            AxisTabShape->SetSelection(0);
-            fillButtonAxisChoice();
-        }
-        else
-        {
-          AxisTabDeadZone->Enable();
-          AxisTabSensitivity->Enable();
-          AxisTabAcceleration->Enable();
-          AxisTabAcceleration->SetValue(wxT("1.00"));
           AxisTabShape->Enable();
           AxisTabShape->SetSelection(1);
-          if(AxisTabDeviceType->GetLabel() == _("mouse"))
+          AxisTabDeadZone->SetValue(wxT("20"));
+          if(AxisTabEventId->GetLabel() == wxT("x"))
           {
-              AxisTabDeadZone->SetValue(wxT("20"));
-              AxisTabSensitivity->SetValue(wxT("1.00"));
-              MyUrlMessage(this, _("Use the calibration tool to adjust the parameters."), wxT("https://gimx.fr/wiki/index.php?title=Mouse_Calibration"));
+              AxisTabSensitivity->SetValue(wxT("8.00"));
           }
-          else if(AxisTabDeviceType->GetLabel() == _("joystick"))
+          else
           {
-              AxisTabDeadZone->SetValue(wxT("0"));
-              if(!AxisTabAxisId->GetStringSelection().Contains(wxT("stick")))
-              {
-                  AxisTabSensitivity->SetValue(wxT("0.008"));
-              }
-              else
-              {
-                  AxisTabSensitivity->SetValue(wxT("0.004"));
-              }
+              AxisTabSensitivity->SetValue(wxT("12.00"));
           }
-          fillAxisAxisChoice();
+          AxisTabAcceleration->SetValue(wxT("0.50"));
+          MyUrlMessage(this, _("Use the calibration tool to adjust the parameters."), wxT("https://gimx.fr/wiki/index.php?title=Mouse_Calibration"));
         }
+        else if(AxisTabDeviceType->GetLabel() == _("joystick"))
+        {
+          AxisTabShape->Disable();
+          AxisTabShape->SetSelection(0);
+          AxisTabDeadZone->SetValue(wxT("0"));
+          AxisTabAcceleration->SetValue(wxT("1.00"));
+          if(!AxisTabAxisId->GetStringSelection().Contains(wxT("stick")))
+          {
+              AxisTabSensitivity->SetValue(wxT("0.008"));
+          }
+          else
+          {
+              AxisTabSensitivity->SetValue(wxT("0.0039"));
+          }
+        }
+        fillAxisAxisChoice();
     }
 
     refresh_gui();
@@ -2954,8 +3052,16 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event __attribute__((unused
             AxisTabDeadZone->Enable();
             AxisTabSensitivity->Enable();
             AxisTabAcceleration->Enable();
-            AxisTabShape->SetSelection(AxisTabShape->FindString(GridPanelAxis->GetCellValue(grid2mod, 9)));
-            AxisTabShape->Enable();
+            if (AxisTabDeviceType->GetLabel() == _("mouse"))
+            {
+                AxisTabShape->SetSelection(AxisTabShape->FindString(GridPanelAxis->GetCellValue(grid2mod, 9)));
+                AxisTabShape->Enable();
+            }
+            else
+            {
+                AxisTabShape->SetSelection(0);
+                AxisTabShape->Disable();
+            }
             fillAxisAxisChoice();
         }
         AxisTabAxisId->SetSelection(AxisTabAxisId->FindString(GridPanelAxis->GetCellValue(grid2mod, 5)));
@@ -3009,6 +3115,8 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event __attribute__((unused
         {
           updateAxisConfigurations();
         }
+
+        addJoystickCorrection();
 
         GridPanelAxis->SetCellValue(grid2mod, 0, AxisTabDeviceType->GetLabel());
         GridPanelAxis->SetCellValue(grid2mod, 1, wxString(axisTabDeviceName.c_str(), wxConvUTF8));
@@ -3079,7 +3187,7 @@ void configFrame::updateAxisConfigurations()
  */
 void configFrame::OnAxisTabShapeSelect(wxCommandEvent& event __attribute__((unused)))
 {
-    if(AxisTabEventType->GetStringSelection() == _("axis"))
+    if(AxisTabDeviceType->GetLabel() == _("mouse") && AxisTabEventType->GetStringSelection() == _("axis"))
     {
         if(AxisTabShape->GetStringSelection().IsEmpty())
         {

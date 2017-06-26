@@ -132,6 +132,7 @@ class configFrame: public wxFrame
         void fillChoices();
         void LoadControllerType();
         pair<Device, Event> selectEvent();
+        void addJoystickCorrection();
 
         //(*Identifiers(configFrame)
         static const long ID_STATICTEXT35;

@@ -25,7 +25,7 @@
 
 event_catcher* event_catcher::_singleton = NULL;
 
-event_catcher::event_catcher() : done(0), stopTimer(-1), wevents(false)
+event_catcher::event_catcher() : done(0), stopTimer(-1), wevents(false), calibrating(false), min_value(0), max_value(0), last_value(0)
 {
     //ctor
 }
@@ -35,7 +35,8 @@ event_catcher::~event_catcher()
     //dtor
 }
 
-int process_event(GE_Event* event);
+int detect_cb(GE_Event* event);
+int calibrate_cb(GE_Event* event);
 
 int event_catcher::init()
 {
@@ -50,7 +51,7 @@ int event_catcher::init()
             .fp_register = REGISTER_FUNCTION,
             .fp_remove = REMOVE_FUNCTION,
     };
-    if(ginput_init(&poll_interace, src, process_event) < 0)
+    if(ginput_init(&poll_interace, src, calibrating ? calibrate_cb : detect_cb) < 0)
     {
       ginput_quit();
       return -1;
@@ -187,7 +188,7 @@ static int process_joystick_axis(s_joystick_axis_first* axis_first, unsigned int
 static unsigned int axis_first_nb;
 static s_joystick_axis_first axis_first[EVENT_BUFFER_SIZE];
 
-int process_event(GE_Event* event)
+int detect_cb(GE_Event* event)
 {
   event_catcher* evcatch = event_catcher::getInstance();
 
@@ -410,6 +411,8 @@ void event_catcher::run(string device_type, string event_type)
 
     vector<pair<Device, Event> >().swap(m_Events);
 
+    calibrating = false;
+
     init();
 
     ginput_grab();
@@ -498,4 +501,126 @@ bool event_catcher::hasKeyboard()
     clean();
 
     return result;
+}
+
+int event_catcher::calibrate(int which, int axis, int value)
+{
+    if(done)
+    {
+      return 0;
+    }
+
+    if (device_name != ginput_joystick_name(which))
+    {
+      return 0;
+    }
+
+    stringstream ssvid;
+    ssvid << ginput_joystick_virtual_id(which);
+
+    if (device_id != ssvid.str())
+    {
+      return 0;
+    }
+
+    stringstream ssaid;
+    ssaid << axis;
+
+    if (event_id != ssaid.str())
+    {
+      return 0;
+    }
+
+    if (value < min_value)
+    {
+        min_value = value;
+    }
+    else if (value > max_value)
+    {
+        max_value = value;
+    }
+
+    last_value = value;
+
+    return 0;
+}
+
+int calibrate_cb(GE_Event* event)
+{
+    switch (event->type)
+    {
+    case GE_JOYBUTTONUP:
+    case GE_JOYBUTTONDOWN:
+    case GE_KEYDOWN:
+    case GE_KEYUP:
+    case GE_MOUSEBUTTONUP:
+    case GE_MOUSEBUTTONDOWN:
+        event_catcher::getInstance()->SetDone();
+        return 0;
+    }
+
+    if (event->type != GE_JOYAXISMOTION)
+    {
+        return 0;
+    }
+
+    return event_catcher::getInstance()->calibrate(event->jaxis.which, event->jaxis.axis, event->jaxis.value);
+}
+
+pair<int, int> event_catcher::getAxisRange(string name, string id, string axis)
+{
+    calibrating = true;
+
+    init();
+
+    ginput_grab();
+
+    done = 0;
+
+    device_name = name;
+    device_id = id;
+    event_id = axis;
+    last_value = 0;
+    min_value = 0;
+    max_value = 0;
+
+    GTIMER_CALLBACKS callbacks = {
+            .fp_read = timer_read,
+            .fp_close = timer_close,
+            .fp_register = REGISTER_FUNCTION,
+            .fp_remove = REMOVE_FUNCTION,
+    };
+    int timer = gtimer_start(0, PERIOD, &callbacks);
+    if (timer < 0)
+    {
+      done = 1;
+    }
+
+    while (!done)
+    {
+        gpoll();
+
+        ginput_periodic_task();
+    }
+
+    if (timer >= 0)
+    {
+      gtimer_close(timer);
+    }
+
+    clean();
+
+    int rest, down;
+    if ((max_value - last_value) < (last_value - min_value))
+    {
+        rest = max_value;
+        down = min_value;
+    }
+    else
+    {
+        rest = min_value;
+        down = max_value;
+    }
+
+    return make_pair(rest, down);
 }
