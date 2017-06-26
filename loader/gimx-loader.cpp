@@ -98,10 +98,10 @@ loaderFrame::loaderFrame(wxWindow* parent,wxWindowID id __attribute__((unused)))
 
     //(*Initialize(loaderFrame)
     wxFlexGridSizer* FlexGridSizer2;
-
+    
     Create(parent, wxID_ANY, _("Gimx-loader"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL1"));
-    FlexGridSizer1 = new wxFlexGridSizer(1, 2, 0, 0);
+    FlexGridSizer1 = new wxFlexGridSizer(1, 1, 0, 0);
     FlexGridSizer2 = new wxFlexGridSizer(1, 2, 0, 0);
     ChoiceFirmware = new wxChoice(Panel1, ID_CHOICE1, wxDefaultPosition, wxDefaultSize, 0, 0, wxCB_SORT, wxDefaultValidator, _T("ID_CHOICE1"));
     FlexGridSizer2->Add(ChoiceFirmware, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -118,7 +118,7 @@ loaderFrame::loaderFrame(wxWindow* parent,wxWindowID id __attribute__((unused)))
     MenuBar1->Append(Menu1, _("Help"));
     SetMenuBar(MenuBar1);
     Center();
-
+    
     Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&loaderFrame::OnButtonLoadClick);
     Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&loaderFrame::OnAbout);
     //*)
@@ -149,6 +149,7 @@ loaderFrame::loaderFrame(wxWindow* parent,wxWindowID id __attribute__((unused)))
 
     ChoiceFirmware->SetSelection(0);
 
+    FlexGridSizer2->Layout();
     FlexGridSizer1->Layout();
     Panel1->Fit();
     Fit();
