@@ -2097,7 +2097,7 @@ void configFrame::addJoystickCorrection()
             down = range.second;
         }
 
-        if (rest == 0 && down == 0)
+        if (rest == down)
         {
             wxMessageBox(_("Failed to calibrate the pedal."), _("Error"), wxICON_ERROR);
             return;
