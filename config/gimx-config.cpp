@@ -2134,7 +2134,7 @@ void configFrame::addJoystickCorrection()
         int i;
         for (i = 0; i < GridJoystickCorrections->GetNumberRows(); ++i)
         {
-            if(GridJoystickCorrections->GetCellValue(i, 0) == AxisTabDeviceName->GetLabel()
+            if(GridJoystickCorrections->GetCellValue(i, 0) == wxString(axisTabDeviceName.c_str(), wxConvUTF8)
                && GridJoystickCorrections->GetCellValue(i, 1) == AxisTabDeviceId->GetLabel()
                && GridJoystickCorrections->GetCellValue(i, 2) == AxisTabEventId->GetLabel())
             {
@@ -2145,7 +2145,7 @@ void configFrame::addJoystickCorrection()
         if (i == GridJoystickCorrections->GetNumberRows())
         {
             GridJoystickCorrections->InsertRows();
-            GridJoystickCorrections->SetCellValue(0, 0, AxisTabDeviceName->GetLabel());
+            GridJoystickCorrections->SetCellValue(0, 0, wxString(axisTabDeviceName.c_str(), wxConvUTF8));
             GridJoystickCorrections->SetCellValue(0, 1, AxisTabDeviceId->GetLabel());
             GridJoystickCorrections->SetCellValue(0, 2, AxisTabEventId->GetLabel());
             GridJoystickCorrections->SetCellValue(0, 3, wxString(slv.c_str(),wxConvUTF8));
