@@ -47,6 +47,7 @@ class event_catcher
     private:
         event_catcher();
         virtual ~event_catcher();
+        int init(bool calibrate);
         vector<pair<Device, Event> > m_Events;
         string m_DeviceType;
         string m_EventType;
@@ -54,7 +55,6 @@ class event_catcher
         int stopTimer;
         bool wevents;
 
-        bool calibrating;
         string device_name;
         string device_id;
         string event_id;

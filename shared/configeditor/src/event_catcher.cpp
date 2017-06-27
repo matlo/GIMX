@@ -25,7 +25,7 @@
 
 event_catcher* event_catcher::_singleton = NULL;
 
-event_catcher::event_catcher() : done(0), stopTimer(-1), wevents(false), calibrating(false), min_value(0), max_value(0), last_value(0)
+event_catcher::event_catcher() : done(0), stopTimer(-1), wevents(false), min_value(0), max_value(0), last_value(0)
 {
     //ctor
 }
@@ -40,6 +40,11 @@ int calibrate_cb(GE_Event* event);
 
 int event_catcher::init()
 {
+    return init(false);
+}
+
+int event_catcher::init(bool calibrate)
+{
     unsigned char src = GE_MKB_SOURCE_PHYSICAL;
     
     if(wevents)
@@ -51,7 +56,7 @@ int event_catcher::init()
             .fp_register = REGISTER_FUNCTION,
             .fp_remove = REMOVE_FUNCTION,
     };
-    if(ginput_init(&poll_interace, src, calibrating ? calibrate_cb : detect_cb) < 0)
+    if(ginput_init(&poll_interace, src, calibrate ? calibrate_cb : detect_cb) < 0)
     {
       ginput_quit();
       return -1;
@@ -411,8 +416,6 @@ void event_catcher::run(string device_type, string event_type)
 
     vector<pair<Device, Event> >().swap(m_Events);
 
-    calibrating = false;
-
     init();
 
     ginput_grab();
@@ -569,9 +572,7 @@ int calibrate_cb(GE_Event* event)
 
 pair<int, int> event_catcher::getAxisRange(string name, string id, string axis)
 {
-    calibrating = true;
-
-    init();
+    init(true);
 
     ginput_grab();
 
