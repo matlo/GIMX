@@ -1355,6 +1355,7 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonModifyButton);
     Connect(ID_CHOICE7,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&configFrame::OnEventTypeSelectPanelAxis);
     Connect(ID_BUTTON9,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnAxisTabAutoDetectClick);
+    Connect(ID_CHOICE8,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&configFrame::OnAxisTabAxisIdSelect);
     Connect(ID_TEXTCTRL8,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
     Connect(ID_TEXTCTRL9,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
     Connect(ID_TEXTCTRL10,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
@@ -2181,56 +2182,8 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event __attribute__((
 
     auto_detect(AxisTabDeviceType, &axisTabDeviceName, AxisTabDeviceName, AxisTabDeviceId, eventType, AxisTabEventId);
 
-    if(eventType == _("button"))
-    {
-        AxisTabDeadZone->Disable();
-        AxisTabDeadZone->SetValue(wxEmptyString);
-        AxisTabSensitivity->Disable();
-        AxisTabSensitivity->SetValue(wxEmptyString);
-        AxisTabAcceleration->Disable();
-        AxisTabAcceleration->SetValue(wxEmptyString);
-        AxisTabShape->Disable();
-        AxisTabShape->SetSelection(0);
-        fillButtonAxisChoice();
-    }
-    else
-    {
-        AxisTabDeadZone->Enable();
-        AxisTabSensitivity->Enable();
-        AxisTabAcceleration->Enable();
-        if(AxisTabDeviceType->GetLabel() == _("mouse"))
-        {
-          AxisTabShape->Enable();
-          AxisTabShape->SetSelection(1);
-          AxisTabDeadZone->SetValue(wxT("20"));
-          if(AxisTabEventId->GetLabel() == wxT("x"))
-          {
-              AxisTabSensitivity->SetValue(wxT("8.00"));
-          }
-          else
-          {
-              AxisTabSensitivity->SetValue(wxT("12.00"));
-          }
-          AxisTabAcceleration->SetValue(wxT("0.50"));
-          MyUrlMessage(this, _("Use the calibration tool to adjust the parameters."), wxT("https://gimx.fr/wiki/index.php?title=Mouse_Calibration"));
-        }
-        else if(AxisTabDeviceType->GetLabel() == _("joystick"))
-        {
-          AxisTabShape->Disable();
-          AxisTabShape->SetSelection(0);
-          AxisTabDeadZone->SetValue(wxT("0"));
-          AxisTabAcceleration->SetValue(wxT("1.00"));
-          if(!AxisTabAxisId->GetStringSelection().Contains(wxT("stick")))
-          {
-              AxisTabSensitivity->SetValue(wxT("0.008"));
-          }
-          else
-          {
-              AxisTabSensitivity->SetValue(wxT("0.0039"));
-          }
-        }
-        fillAxisAxisChoice();
-    }
+    wxCommandEvent nullEvent;
+    OnAxisTabAxisIdSelect(nullEvent);
 
     refresh_gui();
 
@@ -4550,3 +4503,64 @@ void configFrame::OnButtonFFBTweaksDelete(wxCommandEvent& event __attribute__((u
     refresh_gui();
 }
 
+
+void configFrame::OnAxisTabAxisIdSelect(wxCommandEvent& event __attribute__((unused)))
+{
+    if (AxisTabAxisId->GetStringSelection().IsEmpty())
+    {
+        return;
+    }
+
+    if(AxisTabEventType->GetStringSelection() == _("button"))
+    {
+        AxisTabDeadZone->Disable();
+        AxisTabDeadZone->SetValue(wxEmptyString);
+        AxisTabSensitivity->Disable();
+        AxisTabSensitivity->SetValue(wxEmptyString);
+        AxisTabAcceleration->Disable();
+        AxisTabAcceleration->SetValue(wxEmptyString);
+        AxisTabShape->Disable();
+        AxisTabShape->SetSelection(0);
+    }
+    else
+    {
+        if(AxisTabDeviceType->GetLabel() == _("mouse"))
+        {
+          AxisTabDeadZone->Enable();
+          AxisTabDeadZone->SetValue(wxT("20"));
+          AxisTabSensitivity->Enable();
+          if(AxisTabEventId->GetLabel() == wxT("x"))
+          {
+              AxisTabSensitivity->SetValue(wxT("8.00"));
+          }
+          else
+          {
+              AxisTabSensitivity->SetValue(wxT("12.00"));
+          }
+          AxisTabAcceleration->Enable();
+          AxisTabAcceleration->SetValue(wxT("0.50"));
+          AxisTabShape->Enable();
+          AxisTabShape->SetSelection(1);
+          MyUrlMessage(this, _("Use the calibration tool to adjust the parameters."), wxT("https://gimx.fr/wiki/index.php?title=Mouse_Calibration"));
+        }
+        else if(AxisTabDeviceType->GetLabel() == _("joystick"))
+        {
+          AxisTabDeadZone->Enable();
+          AxisTabDeadZone->SetValue(wxT("0"));
+          AxisTabSensitivity->Enable();
+          if(AxisTabAxisId->GetStringSelection().Contains(wxT("stick"))
+             || AxisTabAxisId->GetStringSelection() == wxT("wheel"))
+          {
+              AxisTabSensitivity->SetValue(wxT("0.0039"));
+          }
+          else
+          {
+              AxisTabSensitivity->SetValue(wxT("0.008"));
+          }
+          AxisTabAcceleration->Enable();
+          AxisTabAcceleration->SetValue(wxT("1.00"));
+          AxisTabShape->Disable();
+          AxisTabShape->SetSelection(0);
+        }
+    }
+}

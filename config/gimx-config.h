@@ -50,7 +50,6 @@ class configFrame: public wxFrame
         void OnButtonAddPanelButton(wxCommandEvent& event);
         void OnEventTypeSelectPanelAxis(wxCommandEvent& event);
         void OnAxisTabBufferSizeText(wxCommandEvent& event);
-        void OnAxisTabAxisIdSelect(wxCommandEvent& event);
         void OnButtonAddPanelAxis(wxCommandEvent& event);
         void OnButtonRemovePanelButton(wxCommandEvent& event);
         void OnButtonRemovePanelAxis(wxCommandEvent& event);
@@ -73,7 +72,6 @@ class configFrame: public wxFrame
         void OnButtonModifyButton(wxCommandEvent& event);
         void OnButtonModifyAxis(wxCommandEvent& event);
         void OnAxisTabShapeSelect(wxCommandEvent& event);
-        void OnAxisTabAxisIdSelect1(wxCommandEvent& event);
         void OnMenuItemCopyConfiguration(wxCommandEvent& event);
         void OnMenuItemPasteConfiguration(wxCommandEvent& event);
         void OnMenuItemCopyController(wxCommandEvent& event);
@@ -111,6 +109,7 @@ class configFrame: public wxFrame
         void OnJoystickCorrectionsAutoDetectClick(wxCommandEvent& event);
         void OnButtonForceFeedbackAutoDetect(wxCommandEvent& event);
         void OnButtonFFBTweaksDelete(wxCommandEvent& event);
+        void OnAxisTabAxisIdSelect(wxCommandEvent& event);
         //*)
         void DeleteSelectedRows(wxGrid* grid);
         void DeleteLinkedRows(wxGrid* grid, int row);
