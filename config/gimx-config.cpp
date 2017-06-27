@@ -2089,12 +2089,18 @@ void configFrame::addJoystickCorrection()
             wxTheApp->Yield();
 
             pair<int, int> range = evcatch->getAxisRange(
-                  string(AxisTabDeviceName->GetLabel().mb_str(wxConvUTF8)),
+                  axisTabDeviceName,
                   string(AxisTabDeviceId->GetLabel().mb_str(wxConvUTF8)),
                   string(AxisTabEventId->GetLabel().mb_str(wxConvUTF8)));
 
             rest = range.first;
             down = range.second;
+        }
+
+        if (rest == 0 && down == 0)
+        {
+            wxMessageBox(_("Failed to calibrate the pedal."), _("Error"), wxICON_ERROR);
+            return;
         }
 
         int lv = 0, lc = 0, hv = 0, hc = 0;
