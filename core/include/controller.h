@@ -78,6 +78,8 @@ typedef struct {
             int write_pending;
             int read_pending;
         } hid;
+    int ff_lg;
+    int ff_conv;
     } haptic;
     unsigned char forward_out_reports;
     unsigned char process_ffb;
@@ -97,9 +99,6 @@ int adapter_get_controller(e_device_type device_type, int device_id);
 
 #ifndef WIN32
 int adapter_hid_poll();
-void adapter_set_hid(int adapter, int hid);
-#else
-void adapter_set_usb_ids(int adapter, int joystick_id, unsigned short vendor, unsigned short product);
 #endif
 
 void adapter_set_axis(unsigned char adapter, int axis, int value);
@@ -109,6 +108,7 @@ int adapter_forward_interrupt_in(int adapter, unsigned char* data, unsigned char
 
 int adapter_is_usb_auth_required(int adapter);
 
-void adapter_set_haptic_joystick(int adapter, int joystick);
+void adapter_set_haptic(s_config_entry * entry, int force);
+void adapter_set_ffb_tweaks(int adapter);
 
 #endif /* CONTROLLER_H_ */

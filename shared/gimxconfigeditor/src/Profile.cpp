@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2017 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -17,7 +17,7 @@ Profile::~Profile()
 
 Profile::Profile(const Profile& other):m_Trigger(other.m_Trigger), m_IntensityList(other.m_IntensityList),
     m_MouseOptionsList(other.m_MouseOptionsList), m_ButtonMappers(other.m_ButtonMappers), m_AxisMappers(other.m_AxisMappers),
-    m_JoystickCorrectionsList(other.m_JoystickCorrectionsList)
+    m_JoystickCorrectionsList(other.m_JoystickCorrectionsList), m_ForceFeedback(other.m_ForceFeedback)
 {
     //copy ctor
 }
@@ -31,6 +31,7 @@ Profile& Profile::operator=(const Profile& rhs)
     m_ButtonMappers = rhs.m_ButtonMappers;
     m_AxisMappers = rhs.m_AxisMappers;
     m_JoystickCorrectionsList = rhs.m_JoystickCorrectionsList;
+    m_ForceFeedback = rhs.m_ForceFeedback;
     return *this;
 }
 
@@ -57,6 +58,10 @@ bool Profile::IsEmpty()
     return false;
   }
   if(m_JoystickCorrectionsList.size())
+  {
+    return false;
+  }
+  if(m_ForceFeedback.GetJoystick()->GetType().size())
   {
     return false;
   }

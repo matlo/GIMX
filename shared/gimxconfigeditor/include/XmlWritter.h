@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2017 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -27,6 +27,8 @@ class XmlWritter
         void CreateConfigurationNodes(xmlNodePtr parent_node);
         void CreateControllerNodes(xmlNodePtr parent_node);
         void CreateJoystickCorrectionsNodes(xmlNodePtr parent_node);
+        void CreateForceFeedbackNode(xmlNodePtr parent_node);
+        void CreateInversionNode(xmlNodePtr parent_node, ForceFeedback* ffb);
         unsigned int m_CurrentProfile;
         unsigned int m_CurrentController;
         ConfigurationFile* m_ConfigurationFile;

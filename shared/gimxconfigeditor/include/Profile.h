@@ -1,9 +1,9 @@
 /*
- Copyright (c) 2011 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2017 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
-#ifndef CONFIGURATION_H
+#ifndef PROFILE_H
 #define PROFILE_H
 
 #include "Device.h"
@@ -13,6 +13,7 @@
 #include "ControlMapper.h"
 #include "MouseOptions.h"
 #include "JoystickCorrection.h"
+#include "ForceFeedback.h"
 #include <list>
 
 class Profile
@@ -30,6 +31,8 @@ class Profile
         void SetMouseOptionsList(std::list<MouseOptions> val) { m_MouseOptionsList = val; }
         std::list<JoystickCorrection>* GetJoystickCorrectionsList() { return &m_JoystickCorrectionsList; }
         void SetJoystickCorrectionsList(std::list<JoystickCorrection> val) { m_JoystickCorrectionsList = val; }
+        ForceFeedback* GetForceFeedback() { return &m_ForceFeedback; }
+        void SetForceFeedback(ForceFeedback val) { m_ForceFeedback = val; }
         std::list<ControlMapper>* GetButtonMapperList() { return &m_ButtonMappers; }
         std::list<ControlMapper>* GetAxisMapperList() { return &m_AxisMappers; }
         void SetButtonMappers(std::list<ControlMapper> bml) { m_ButtonMappers = bml; }
@@ -43,6 +46,7 @@ class Profile
         std::list<ControlMapper> m_ButtonMappers;
         std::list<ControlMapper> m_AxisMappers;
         std::list<JoystickCorrection> m_JoystickCorrectionsList;
+        ForceFeedback m_ForceFeedback;
 };
 
 #endif // PROFILE_H

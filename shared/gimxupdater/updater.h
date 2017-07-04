@@ -44,11 +44,13 @@
 
 using namespace std;
 
+typedef int (* UPDATER_PROGRESS_CALLBACK)(void *clientp, string & file, unsigned int dlnow, unsigned int dltotal);
+
 class updater
 {
 public:
   int CheckVersion();
-  int Update();
+  int Update(UPDATER_PROGRESS_CALLBACK callback, void * data);
   void SetParams(string vu, string vf, string v, string du, string df)
   {
     version_url = vu;
@@ -66,6 +68,11 @@ public:
 
     return _singleton;
   }
+  int onProgress(unsigned int dlnow, unsigned int dltotal)
+  {
+      string file;
+      return client_callback(client_data, file, dlnow, dltotal);
+  }
 private:
   updater();
   virtual ~updater();
@@ -74,6 +81,9 @@ private:
   string version;
   string download_url;
   string download_file;
+
+  UPDATER_PROGRESS_CALLBACK client_callback;
+  void * client_data;
 
   static updater* _singleton;
 };

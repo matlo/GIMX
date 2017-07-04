@@ -56,6 +56,7 @@ typedef struct
   char * logfilename;
   FILE * logfile;
   int skip_leds;
+  int ff_conv;
 } s_gimx_params;
 
 extern s_gimx_params gimx_params;

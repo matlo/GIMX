@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2017 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -37,15 +37,30 @@ class EventCatcher
 
           return _singleton;
         }
+        bool hasJoystick();
+        bool hasMouse();
+        bool hasKeyboard();
+        pair<int, int> getAxisRange(string name, string id, string axis);
+
+        int calibrate(int which, int axis, int value);
+
     private:
         EventCatcher();
         virtual ~EventCatcher();
+        int init(bool calibrate);
         vector<pair<Device, Event> > m_Events;
         string m_DeviceType;
         string m_EventType;
         unsigned int done;
         int stopTimer;
         bool wevents;
+
+        string device_name;
+        string device_id;
+        string event_id;
+        int min_value;
+        int max_value;
+        int last_value;
 
         static EventCatcher* _singleton;
 };

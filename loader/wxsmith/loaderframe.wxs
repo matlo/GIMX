@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<wxsmith>
+	<object class="wxFrame" name="loaderFrame">
+		<title>Gimx-loader</title>
+		<centered>1</centered>
+		<id_arg>0</id_arg>
+		<object class="wxPanel" name="ID_PANEL1" variable="Panel1" member="yes">
+			<object class="wxFlexGridSizer" variable="FlexGridSizer1" member="yes">
+				<cols>1</cols>
+				<rows>1</rows>
+				<object class="sizeritem">
+					<object class="wxFlexGridSizer" variable="FlexGridSizer2" member="no">
+						<cols>2</cols>
+						<rows>1</rows>
+						<object class="sizeritem">
+							<object class="wxChoice" name="ID_CHOICE1" variable="ChoiceFirmware" member="yes">
+								<style>wxCB_SORT</style>
+							</object>
+							<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+							<border>5</border>
+							<option>1</option>
+						</object>
+						<object class="sizeritem">
+							<object class="wxButton" name="ID_BUTTON1" variable="ButtonLoad" member="yes">
+								<label>Load</label>
+								<handler function="OnButtonLoadClick" entry="EVT_BUTTON" />
+							</object>
+							<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+							<border>5</border>
+							<option>1</option>
+						</object>
+					</object>
+					<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+					<border>5</border>
+					<option>1</option>
+				</object>
+			</object>
+		</object>
+		<object class="wxMenuBar" variable="MenuBar1" member="yes">
+			<object class="wxMenu" variable="Menu1" member="yes">
+				<label>Help</label>
+				<object class="wxMenuItem" name="ID_MENUITEM1" variable="MenuItem1" member="yes">
+					<label>About</label>
+					<handler function="OnAbout" entry="EVT_MENU" />
+				</object>
+			</object>
+		</object>
+	</object>
+</wxsmith>

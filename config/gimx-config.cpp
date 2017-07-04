@@ -31,6 +31,9 @@
 
 #include <wx/stdpaths.h>
 #include <wx/busyinfo.h>
+#include <wx/hyperlink.h>
+
+#include <wx/app.h>
 
 #define _CN(STRING) locale->GetString(wxString(STRING.c_str(), wxConvUTF8))
 
@@ -107,6 +110,16 @@ const long configFrame::ID_BUTTON16 = wxNewId();
 const long configFrame::ID_BUTTON17 = wxNewId();
 const long configFrame::ID_BUTTON18 = wxNewId();
 const long configFrame::ID_PANEL7 = wxNewId();
+const long configFrame::ID_STATICTEXT13 = wxNewId();
+const long configFrame::ID_STATICTEXT20 = wxNewId();
+const long configFrame::ID_STATICTEXT25 = wxNewId();
+const long configFrame::ID_STATICTEXT49 = wxNewId();
+const long configFrame::ID_BUTTON20 = wxNewId();
+const long configFrame::ID_STATICLINE13 = wxNewId();
+const long configFrame::ID_CHECKBOX2 = wxNewId();
+const long configFrame::ID_STATICLINE15 = wxNewId();
+const long configFrame::ID_BUTTON24 = wxNewId();
+const long configFrame::ID_PANEL8 = wxNewId();
 const long configFrame::ID_NOTEBOOK2 = wxNewId();
 const long configFrame::ID_PANEL1 = wxNewId();
 const long configFrame::ID_STATICTEXT38 = wxNewId();
@@ -204,7 +217,6 @@ const long configFrame::ID_MENUITEM24 = wxNewId();
 const long configFrame::ID_MENUITEM29 = wxNewId();
 const long configFrame::ID_MENUITEM25 = wxNewId();
 const long configFrame::ID_MENUITEM27 = wxNewId();
-const long configFrame::ID_MENUITEM26 = wxNewId();
 const long configFrame::idMenuAbout = wxNewId();
 const long configFrame::ID_STATUSBAR1 = wxNewId();
 //*)
@@ -277,6 +289,44 @@ string configFrame::reverseTranslate(string str)
 
   return str;
 }
+
+class MyUrlMessage: public wxDialog
+{
+protected:
+    wxStaticText * m_message;
+    wxHyperlinkCtrl* m_hyperlink;
+    wxSizer * m_vsizer;
+    wxSizer * m_hsizer;
+    wxButton * m_button;
+
+public:
+    MyUrlMessage(wxWindow* parent, wxString message, wxString url) : wxDialog(parent, wxID_ANY, _("Tip"))
+    {
+        //SetSizeHints(wxDefaultSize, wxDefaultSize);
+        m_vsizer = new wxBoxSizer(wxVERTICAL);
+
+        m_message = new wxStaticText(this, wxID_ANY, message);
+        m_vsizer->Add(m_message, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 5);
+
+        m_hyperlink = new wxHyperlinkCtrl(this, wxID_ANY, _("Click here to go to online documentation."), url);
+        m_vsizer->Add(m_hyperlink, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 5);
+
+        m_button = new wxButton(this, wxID_OK, wxT("OK"));
+
+        m_hsizer = new wxBoxSizer(wxHORIZONTAL);
+        m_hsizer->Add(m_button);
+
+        m_vsizer->Add(m_hsizer, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 5);
+
+        SetSizer(m_vsizer);
+        Layout();
+        Fit();
+        Centre();
+        ShowModal();
+    }
+    ~MyUrlMessage() {}
+
+};
 
 /*
  * \brief This function fills the choices for button to axis bindings.
@@ -557,6 +607,7 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     wxFlexGridSizer* FlexGridSizer51;
     wxFlexGridSizer* FlexGridSizer15;
     wxStaticBoxSizer* StaticBoxSizer7;
+    wxFlexGridSizer* FlexGridSizer56;
     wxFlexGridSizer* FlexGridSizer50;
     wxStaticBoxSizer* StaticBoxSizer5;
     wxFlexGridSizer* FlexGridSizer17;
@@ -575,6 +626,7 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     wxFlexGridSizer* FlexGridSizer26;
     wxFlexGridSizer* FlexGridSizer14;
     wxStaticBoxSizer* StaticBoxSizer3;
+    wxFlexGridSizer* FlexGridSizer55;
     wxFlexGridSizer* FlexGridSizer6;
     wxFlexGridSizer* FlexGridSizer33;
     wxFlexGridSizer* FlexGridSizer38;
@@ -586,6 +638,7 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     wxStaticBoxSizer* StaticBoxSizer8;
     wxFlexGridSizer* FlexGridSizer31;
     wxFlexGridSizer* FlexGridSizer43;
+    wxFlexGridSizer* FlexGridSizer39;
     wxStaticBoxSizer* StaticBoxSizer4;
     wxStaticBoxSizer* StaticBoxSizer9;
     wxStaticBoxSizer* StaticBoxSizer6;
@@ -593,12 +646,14 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     wxFlexGridSizer* FlexGridSizer34;
     wxFlexGridSizer* FlexGridSizer23;
     wxFlexGridSizer* FlexGridSizer10;
+    wxStaticBoxSizer* StaticBoxSizer11;
     wxFlexGridSizer* FlexGridSizer13;
     wxMenuBar* MenuBar1;
     wxMenuItem* MenuItemAbout;
     wxFlexGridSizer* FlexGridSizer53;
     wxFlexGridSizer* FlexGridSizer18;
     wxFlexGridSizer* FlexGridSizer49;
+    wxFlexGridSizer* FlexGridSizer54;
     wxFlexGridSizer* FlexGridSizer36;
     wxFlexGridSizer* FlexGridSizer12;
     wxMenuItem* MenuItemOpen;
@@ -895,10 +950,45 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     PanelJoystickCorrections->SetSizer(FlexGridSizer10);
     FlexGridSizer10->Fit(PanelJoystickCorrections);
     FlexGridSizer10->SetSizeHints(PanelJoystickCorrections);
+    PanelForceFeedback = new wxPanel(Notebook2, ID_PANEL8, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL8"));
+    FlexGridSizer39 = new wxFlexGridSizer(2, 1, 0, 0);
+    FlexGridSizer54 = new wxFlexGridSizer(1, 6, 0, 0);
+    StaticBoxSizer11 = new wxStaticBoxSizer(wxHORIZONTAL, PanelForceFeedback, _("Joystick"));
+    FlexGridSizer55 = new wxFlexGridSizer(1, 4, 0, 0);
+    FFBTweaksType = new wxStaticText(PanelForceFeedback, ID_STATICTEXT13, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT13"));
+    FFBTweaksType->Hide();
+    FlexGridSizer55->Add(FFBTweaksType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FFBTweaksName = new wxStaticText(PanelForceFeedback, ID_STATICTEXT20, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT20"));
+    FlexGridSizer55->Add(FFBTweaksName, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FFBTweaksId = new wxStaticText(PanelForceFeedback, ID_STATICTEXT25, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT25"));
+    FlexGridSizer55->Add(FFBTweaksId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FFBTweaksAxis = new wxStaticText(PanelForceFeedback, ID_STATICTEXT49, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT49"));
+    FFBTweaksAxis->Hide();
+    FlexGridSizer55->Add(FFBTweaksAxis, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticBoxSizer11->Add(FlexGridSizer55, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer54->Add(StaticBoxSizer11, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ForceFeedbackAutoDetect = new wxButton(PanelForceFeedback, ID_BUTTON20, _("Auto detect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON20"));
+    FlexGridSizer54->Add(ForceFeedbackAutoDetect, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticLine13 = new wxStaticLine(PanelForceFeedback, ID_STATICLINE13, wxDefaultPosition, wxSize(-1,50), wxLI_VERTICAL, _T("ID_STATICLINE13"));
+    FlexGridSizer54->Add(StaticLine13, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer56 = new wxFlexGridSizer(1, 1, 0, 0);
+    FFBTweaksInvert = new wxCheckBox(PanelForceFeedback, ID_CHECKBOX2, _("Invert direction"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX2"));
+    FFBTweaksInvert->SetValue(false);
+    FlexGridSizer56->Add(FFBTweaksInvert, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer54->Add(FlexGridSizer56, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticLine15 = new wxStaticLine(PanelForceFeedback, ID_STATICLINE15, wxDefaultPosition, wxSize(-1,50), wxLI_VERTICAL, _T("ID_STATICLINE15"));
+    FlexGridSizer54->Add(StaticLine15, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonFFBTweaksDelete = new wxButton(PanelForceFeedback, ID_BUTTON24, _("Delete"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON24"));
+    FlexGridSizer54->Add(ButtonFFBTweaksDelete, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer39->Add(FlexGridSizer54, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    PanelForceFeedback->SetSizer(FlexGridSizer39);
+    FlexGridSizer39->Fit(PanelForceFeedback);
+    FlexGridSizer39->SetSizeHints(PanelForceFeedback);
     Notebook2->AddPage(PanelTrigger, _("Profile trigger"), false);
     Notebook2->AddPage(PanelMouseOptions, _("Mouse options"), false);
     Notebook2->AddPage(PanelIntensity, _("Axis intensity"), false);
     Notebook2->AddPage(PanelJoystickCorrections, _("Joystick corrections"), false);
+    Notebook2->AddPage(PanelForceFeedback, _("Force Feedback Tweaks"), false);
     GridSizer3->Add(Notebook2, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     PanelOverall->SetSizer(GridSizer3);
     GridSizer3->Fit(PanelOverall);
@@ -1221,8 +1311,6 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     MenuAdvanced->Append(MenuAutoBindControls);
     MenuBar1->Append(MenuAdvanced, _("Advanced"));
     MenuHelp = new wxMenu();
-    MenuUpdate = new wxMenuItem(MenuHelp, ID_MENUITEM26, _("Update"), wxEmptyString, wxITEM_NORMAL);
-    MenuHelp->Append(MenuUpdate);
     MenuItemAbout = new wxMenuItem(MenuHelp, idMenuAbout, _("About\tF1"), _("Show info about this application"), wxITEM_NORMAL);
     MenuHelp->Append(MenuItemAbout);
     MenuBar1->Append(MenuHelp, _("Help"));
@@ -1258,6 +1346,8 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     Connect(ID_BUTTON16,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnJoystickCorrectionsAddClick);
     Connect(ID_BUTTON17,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnJoystickCorrectionsRemoveClick);
     Connect(ID_BUTTON18,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnJoystickCorrectionsModifyClick);
+    Connect(ID_BUTTON20,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonForceFeedbackAutoDetect);
+    Connect(ID_BUTTON24,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonFFBTweaksDelete);
     Connect(ID_CHOICE4,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&configFrame::OnButtonTabEventTypeSelect);
     Connect(ID_BUTTON8,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonTabAutoDetectClick);
     Connect(ID_BUTTON4,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonAddPanelButton);
@@ -1265,6 +1355,7 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonModifyButton);
     Connect(ID_CHOICE7,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&configFrame::OnEventTypeSelectPanelAxis);
     Connect(ID_BUTTON9,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnAxisTabAutoDetectClick);
+    Connect(ID_CHOICE8,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&configFrame::OnAxisTabAxisIdSelect);
     Connect(ID_TEXTCTRL8,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
     Connect(ID_TEXTCTRL9,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
     Connect(ID_TEXTCTRL10,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
@@ -1317,7 +1408,6 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     Connect(ID_MENUITEM24,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuMultipleMK);
     Connect(ID_MENUITEM29,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemWindowEventsSelected);
     Connect(ID_MENUITEM27,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuAutoBindControls);
-    Connect(ID_MENUITEM26,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuUpdate);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnAbout);
     //*)
 
@@ -1560,6 +1650,8 @@ void configFrame::OnButtonAddPanelAxis(wxCommandEvent& event __attribute__((unus
         return;
       }
     }
+
+    addJoystickCorrection();
 
     GridPanelAxis->InsertRows();
     GridPanelAxis->SetCellValue(0, 0, AxisTabDeviceType->GetLabel());
@@ -1979,6 +2071,100 @@ void configFrame::OnButtonTabAutoDetectClick(wxCommandEvent& event __attribute__
 
     ButtonTabAutoDetect->Enable(true);
 }
+void configFrame::addJoystickCorrection()
+{
+    if (AxisTabAxisId->GetStringSelection() == wxT("gas")
+          || AxisTabAxisId->GetStringSelection() == wxT("brake")
+          || AxisTabAxisId->GetStringSelection() == wxT("clutch"))
+    {
+        int rest = 0;
+        int down = 0;
+
+        {
+            wxWindowDisabler disableAll;
+            wxBusyInfo wait(_("Pedal calibration:\n"
+                    "1. fully press the pedal\n"
+                    "2. fully release the pedal\n"
+                    "3. press any key or button"));
+            wxTheApp->Yield();
+
+            pair<int, int> range = evcatch->getAxisRange(
+                  axisTabDeviceName,
+                  string(AxisTabDeviceId->GetLabel().mb_str(wxConvUTF8)),
+                  string(AxisTabEventId->GetLabel().mb_str(wxConvUTF8)));
+
+            rest = range.first;
+            down = range.second;
+        }
+
+        if (rest == down)
+        {
+            wxMessageBox(_("Failed to calibrate the pedal."), _("Error"), wxICON_ERROR);
+            return;
+        }
+
+        int lv = 0, lc = 0, hv = 0, hc = 0;
+
+        if (rest > down) {
+            lv = rest;
+            lc = (32767 * 16384) / (down - rest);
+            hv = 0;
+            hc = 0;
+        } else {
+            lv = rest;
+            lc = 0;
+            hv = rest;
+            hc = (32767 * 16384) / (down - rest);
+        }
+
+        string slv, slc, shv, shc;
+        stringstream ss1, ss2, ss3, ss4;
+        ss1 << lv;
+        ss1 >> slv;
+        ss2 << lc;
+        ss2 >> slc;
+        ss3 << hv;
+        ss3 >> shv;
+        ss4 << hc;
+        ss4 >> shc;
+
+        // look for existing correction
+
+        int i;
+        for (i = 0; i < GridJoystickCorrections->GetNumberRows(); ++i)
+        {
+            if(GridJoystickCorrections->GetCellValue(i, 0) == wxString(axisTabDeviceName.c_str(), wxConvUTF8)
+               && GridJoystickCorrections->GetCellValue(i, 1) == AxisTabDeviceId->GetLabel()
+               && GridJoystickCorrections->GetCellValue(i, 2) == AxisTabEventId->GetLabel())
+            {
+                break;
+            }
+        }
+
+        if (i == GridJoystickCorrections->GetNumberRows())
+        {
+            GridJoystickCorrections->InsertRows();
+            GridJoystickCorrections->SetCellValue(0, 0, wxString(axisTabDeviceName.c_str(), wxConvUTF8));
+            GridJoystickCorrections->SetCellValue(0, 1, AxisTabDeviceId->GetLabel());
+            GridJoystickCorrections->SetCellValue(0, 2, AxisTabEventId->GetLabel());
+            GridJoystickCorrections->SetCellValue(0, 3, wxString(slv.c_str(),wxConvUTF8));
+            GridJoystickCorrections->SetCellValue(0, 4, wxString(slc.c_str(),wxConvUTF8));
+            GridJoystickCorrections->SetCellValue(0, 5, wxString(shv.c_str(),wxConvUTF8));
+            GridJoystickCorrections->SetCellValue(0, 6, wxString(shc.c_str(),wxConvUTF8));
+        }
+        else
+        {
+            GridJoystickCorrections->SetCellValue(i, 3, wxString(slv.c_str(),wxConvUTF8));
+            GridJoystickCorrections->SetCellValue(i, 4, wxString(slc.c_str(),wxConvUTF8));
+            GridJoystickCorrections->SetCellValue(i, 5, wxString(shv.c_str(),wxConvUTF8));
+            GridJoystickCorrections->SetCellValue(i, 6, wxString(shc.c_str(),wxConvUTF8));
+        }
+
+        GridJoystickCorrections->AutoSizeColumns();
+
+        wxMessageBox(_("Joystick correction has been added in the \"Overall>Joystick corrections\" panel"), _("Info"), wxICON_INFORMATION);
+    }
+}
 
 /*
  * \brief Method called on Axis_Panel>Auto_detect click.
@@ -1995,50 +2181,8 @@ void configFrame::OnAxisTabAutoDetectClick(wxCommandEvent& event __attribute__((
 
     auto_detect(AxisTabDeviceType, &axisTabDeviceName, AxisTabDeviceName, AxisTabDeviceId, eventType, AxisTabEventId);
 
-  	if(old_device_type != AxisTabDeviceType->GetLabel()
-       || old_device_name != axisTabDeviceName
-       || old_device_id != AxisTabDeviceId->GetLabel())
-    {
-        if(eventType == _("button"))
-        {
-            AxisTabDeadZone->Disable();
-            AxisTabDeadZone->SetValue(wxEmptyString);
-            AxisTabSensitivity->Disable();
-            AxisTabSensitivity->SetValue(wxEmptyString);
-            AxisTabAcceleration->Disable();
-            AxisTabAcceleration->SetValue(wxEmptyString);
-            AxisTabShape->Disable();
-            AxisTabShape->SetSelection(0);
-            fillButtonAxisChoice();
-        }
-        else
-        {
-      	  AxisTabDeadZone->Enable();
-          AxisTabSensitivity->Enable();
-          AxisTabAcceleration->Enable();
-          AxisTabAcceleration->SetValue(wxT("1.00"));
-          AxisTabShape->Enable();
-          AxisTabShape->SetSelection(1);
-          if(eventType == _("mouse"))
-          {
-              AxisTabDeadZone->SetValue(wxT("20"));
-              AxisTabSensitivity->SetValue(wxT("1.00"));
-          }
-          else if(eventType == _("joystick"))
-          {
-              AxisTabDeadZone->SetValue(wxT("0"));
-              if(!AxisTabAxisId->GetStringSelection().Contains(wxT("stick")))
-              {
-                  AxisTabSensitivity->SetValue(wxT("0.008"));
-              }
-              else
-              {
-                  AxisTabSensitivity->SetValue(wxT("0.004"));
-              }
-          }
-          fillAxisAxisChoice();
-        }
-    }
+    wxCommandEvent nullEvent;
+    OnAxisTabAxisIdSelect(nullEvent);
 
     refresh_gui();
 
@@ -2131,6 +2275,11 @@ void configFrame::save_current()
               string(GridJoystickCorrections->GetCellValue(i, 5).mb_str(wxConvUTF8)),
               string(GridJoystickCorrections->GetCellValue(i, 6).mb_str(wxConvUTF8))));
     }
+    //Save FFB tweaks
+    profile->GetForceFeedback()->GetJoystick()->SetType(reverseTranslate(string(FFBTweaksType->GetLabel().mb_str(wxConvUTF8))));
+    profile->GetForceFeedback()->GetJoystick()->SetName(ffbTweaksTabDeviceName);
+    profile->GetForceFeedback()->GetJoystick()->SetId(string(FFBTweaksId->GetLabel().mb_str(wxConvUTF8)));
+    profile->GetForceFeedback()->setInversion(FFBTweaksInvert->GetValue() ? "yes" : "no");
     //Save ControlMappers
     buttonMappers = profile->GetButtonMapperList();
     buttonMappers->erase(buttonMappers->begin(), buttonMappers->end());
@@ -2341,6 +2490,19 @@ void configFrame::load_current()
       GridJoystickCorrections->SetCellValue(0, 6, wxString(it->GetHighCoef().c_str(),wxConvUTF8));
     }
     GridJoystickCorrections->AutoSizeColumns();
+    //Load Force Feedback Tweaks
+    ForceFeedback * tweaks = profile->GetForceFeedback();
+    FFBTweaksType->SetLabel(_CN(tweaks->GetJoystick()->GetType()));
+    ffbTweaksTabDeviceName = tweaks->GetJoystick()->GetName();
+    name = ffbTweaksTabDeviceName;
+    if(name.size() > 20)
+    {
+      name = name.substr(0,20);
+      name.append("...");
+    }
+    FFBTweaksName->SetLabel(wxString(name.c_str(),wxConvUTF8));
+    FFBTweaksId->SetLabel(wxString(tweaks->GetJoystick()->GetId().c_str(),wxConvUTF8));
+    FFBTweaksInvert->SetValue(tweaks->getInversion() == "yes");
     //Load buttonMappers
     clearGrid(GridPanelButton);
     buttonMappers = profile->GetButtonMapperList();
@@ -2444,6 +2606,7 @@ void configFrame::refresh_gui()
     PanelTrigger->Layout();
     PanelMouseOptions->Layout();
     PanelJoystickCorrections->Layout();
+    PanelForceFeedback->Layout();
     PanelIntensity->Layout();
     PanelOverall->Layout();
     PanelButton->Layout();
@@ -2847,8 +3010,16 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event __attribute__((unused
             AxisTabDeadZone->Enable();
             AxisTabSensitivity->Enable();
             AxisTabAcceleration->Enable();
-            AxisTabShape->SetSelection(AxisTabShape->FindString(GridPanelAxis->GetCellValue(grid2mod, 9)));
-            AxisTabShape->Enable();
+            if (AxisTabDeviceType->GetLabel() == _("mouse"))
+            {
+                AxisTabShape->SetSelection(AxisTabShape->FindString(GridPanelAxis->GetCellValue(grid2mod, 9)));
+                AxisTabShape->Enable();
+            }
+            else
+            {
+                AxisTabShape->SetSelection(0);
+                AxisTabShape->Disable();
+            }
             fillAxisAxisChoice();
         }
         AxisTabAxisId->SetSelection(AxisTabAxisId->FindString(GridPanelAxis->GetCellValue(grid2mod, 5)));
@@ -2902,6 +3073,8 @@ void configFrame::OnButtonModifyAxis(wxCommandEvent& event __attribute__((unused
         {
           updateAxisConfigurations();
         }
+
+        addJoystickCorrection();
 
         GridPanelAxis->SetCellValue(grid2mod, 0, AxisTabDeviceType->GetLabel());
         GridPanelAxis->SetCellValue(grid2mod, 1, wxString(axisTabDeviceName.c_str(), wxConvUTF8));
@@ -2972,7 +3145,7 @@ void configFrame::updateAxisConfigurations()
  */
 void configFrame::OnAxisTabShapeSelect(wxCommandEvent& event __attribute__((unused)))
 {
-    if(AxisTabEventType->GetStringSelection() == _("axis"))
+    if(AxisTabDeviceType->GetLabel() == _("mouse") && AxisTabEventType->GetStringSelection() == _("axis"))
     {
         if(AxisTabShape->GetStringSelection().IsEmpty())
         {
@@ -3542,47 +3715,6 @@ void configFrame::OnMenuMultipleMK(wxCommandEvent& event __attribute__((unused))
       replaceDevice(wxT("mouse"));
       replaceDevice(wxT("keyboard"));
     }
-}
-
-/*
- * \brief Method called on Help>Update click. \
- *        It checks if a software update is available. \
- *        If an update is available, it asks if it has to be downloaded and installed.
- */
-void configFrame::OnMenuUpdate(wxCommandEvent& event __attribute__((unused)))
-{
-  int ret;
-
-  updater* u = updater::getInstance();
-  u->SetParams(VERSION_URL, VERSION_FILE, INFO_VERSION, DOWNLOAD_URL, DOWNLOAD_FILE);
-
-  ret = u->CheckVersion();
-
-  if (ret > 0)
-  {
-    int answer = wxMessageBox(_("Update available.\nStart installation?"), _("Confirm"), wxYES_NO);
-    if (answer == wxNO)
-    {
-     return;
-    }
-    wxBusyInfo wait(_("Downloading update..."));
-    if (u->Update() < 0)
-    {
-      wxMessageBox(_("Can't retrieve update file!"), _("Error"), wxICON_ERROR);
-    }
-    else
-    {
-      exit(0);
-    }
-  }
-  else if (ret < 0)
-  {
-    wxMessageBox(_("Can't check version!"), _("Error"), wxICON_ERROR);
-  }
-  else
-  {
-    wxMessageBox(_("GIMX is up-to-date!"), _("Info"), wxICON_INFORMATION);
-  }
 }
 
 /*
@@ -4336,3 +4468,99 @@ pair<Device, Event> configFrame::selectEvent()
     return make_pair(Device(), Event());
 }
 
+
+void configFrame::OnButtonForceFeedbackAutoDetect(wxCommandEvent& event __attribute__((unused)))
+{
+    if (evcatch->hasJoystick() == false)
+    {
+      wxMessageBox(_("No joystick found!"), _("Error"), wxICON_ERROR);
+    }
+
+    ForceFeedbackAutoDetect->Enable(false);
+
+    FFBTweaksType->SetLabel(wxT(""));
+
+    while(FFBTweaksType->GetLabel() != _("joystick"))
+    {
+      auto_detect(FFBTweaksType, &ffbTweaksTabDeviceName, FFBTweaksName, FFBTweaksId, _("axis"), FFBTweaksAxis);
+    }
+
+    ForceFeedbackAutoDetect->Enable(true);
+
+    refresh_gui();
+}
+
+
+void configFrame::OnButtonFFBTweaksDelete(wxCommandEvent& event __attribute__((unused)))
+{
+    FFBTweaksType->SetLabel(wxEmptyString);
+    FFBTweaksName->SetLabel(wxEmptyString);
+    ffbTweaksTabDeviceName.clear();
+    FFBTweaksId->SetLabel(wxEmptyString);
+
+    FFBTweaksInvert->SetValue(false);
+
+    refresh_gui();
+}
+
+
+void configFrame::OnAxisTabAxisIdSelect(wxCommandEvent& event __attribute__((unused)))
+{
+    if (AxisTabAxisId->GetStringSelection().IsEmpty())
+    {
+        return;
+    }
+
+    if(AxisTabEventType->GetStringSelection() == _("button"))
+    {
+        AxisTabDeadZone->Disable();
+        AxisTabDeadZone->SetValue(wxEmptyString);
+        AxisTabSensitivity->Disable();
+        AxisTabSensitivity->SetValue(wxEmptyString);
+        AxisTabAcceleration->Disable();
+        AxisTabAcceleration->SetValue(wxEmptyString);
+        AxisTabShape->Disable();
+        AxisTabShape->SetSelection(0);
+    }
+    else
+    {
+        if(AxisTabDeviceType->GetLabel() == _("mouse"))
+        {
+          AxisTabDeadZone->Enable();
+          AxisTabDeadZone->SetValue(wxT("20"));
+          AxisTabSensitivity->Enable();
+          if(AxisTabEventId->GetLabel() == wxT("x"))
+          {
+              AxisTabSensitivity->SetValue(wxT("8.00"));
+          }
+          else
+          {
+              AxisTabSensitivity->SetValue(wxT("12.00"));
+          }
+          AxisTabAcceleration->Enable();
+          AxisTabAcceleration->SetValue(wxT("0.50"));
+          AxisTabShape->Enable();
+          AxisTabShape->SetSelection(1);
+          MyUrlMessage(this, _("Use the calibration tool to adjust the parameters."), wxT("https://gimx.fr/wiki/index.php?title=Mouse_Calibration"));
+        }
+        else if(AxisTabDeviceType->GetLabel() == _("joystick"))
+        {
+          AxisTabDeadZone->Enable();
+          AxisTabDeadZone->SetValue(wxT("0"));
+          AxisTabSensitivity->Enable();
+          if(AxisTabAxisId->GetStringSelection().Contains(wxT("stick"))
+             || AxisTabAxisId->GetStringSelection() == wxT("wheel"))
+          {
+              AxisTabSensitivity->SetValue(wxT("0.0039"));
+          }
+          else
+          {
+              AxisTabSensitivity->SetValue(wxT("0.008"));
+          }
+          AxisTabAcceleration->Enable();
+          AxisTabAcceleration->SetValue(wxT("1.00"));
+          AxisTabShape->Disable();
+          AxisTabShape->SetSelection(0);
+        }
+    }
+}

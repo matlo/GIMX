@@ -81,6 +81,33 @@ static s_mouse_control mouse_control[MAX_DEVICES] = {};
 static s_mapper_table joystick_buttons[MAX_DEVICES][MAX_CONTROLLERS][MAX_PROFILES];
 static s_mapper_table joystick_axes[MAX_DEVICES][MAX_CONTROLLERS][MAX_PROFILES];
 
+/*
+ * FFB tweaks, for each controller and each profile.
+ */
+static s_ffb_tweaks ffb_tweaks[MAX_CONTROLLERS][MAX_PROFILES];
+
+void cfg_set_ffb_tweaks(const s_config_entry * entry)
+{
+  ffb_tweaks[entry->controller_id][entry->profile_id].invert = entry->params.ffb_tweaks.invert;
+}
+
+const s_ffb_tweaks * cfg_get_ffb_tweaks(int controller)
+{
+  return ffb_tweaks[controller] + cfg_controllers[controller].current->index;
+}
+
+void cfg_init_ffb_tweaks()
+{
+  unsigned int i, j;
+  for (i = 0; i < MAX_CONTROLLERS; ++i)
+  {
+    for (j = 0; j < MAX_PROFILES; ++j)
+    {
+      ffb_tweaks[i][j].invert = 0;
+    }
+  }
+}
+
 static struct
 {
   unsigned int nb;
@@ -836,6 +863,8 @@ void cfg_profile_activation()
           {
             update_stick(i, j);
           }
+
+          adapter_set_ffb_tweaks(i);
         }
 
         cfg_controllers[i].next = NULL;
@@ -1513,3 +1542,4 @@ void cfg_read_calibration()
     current_mouse = 0;
   }
 }
+

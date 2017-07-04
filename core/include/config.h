@@ -135,6 +135,10 @@ typedef struct
     } trigger;
     s_mouse_options mouse_options;
     s_js_corr joystick_correction;
+    struct
+    {
+      int invert;
+    } ffb_tweaks;
   } params;
 }s_config_entry;
 
@@ -170,6 +174,10 @@ typedef struct
   double dead_zone;
 }s_intensity;
 
+typedef struct {
+  int invert;
+} s_ffb_tweaks;
+
 void cfg_trigger_init();
 void cfg_trigger_lookup(GE_Event*);
 void cfg_profile_activation();
@@ -190,5 +198,8 @@ s_mapper_table* cfg_get_mouse_axes(int, int, int);
 void cfg_clean();
 void cfg_read_calibration();
 int cfg_add_js_corr(uint8_t device, s_js_corr * corr);
+void cfg_set_ffb_tweaks(const s_config_entry * entry);
+const s_ffb_tweaks * cfg_get_ffb_tweaks(int controller);
+void cfg_init_ffb_tweaks();
 
 #endif /* CONFIG_H_ */

@@ -21,6 +21,7 @@
 //*)
 
 #include <wx/process.h>
+#include <wx/progdlg.h>
 
 #include <vector>
 
@@ -52,6 +53,8 @@ class launcherFrame: public wxFrame
 
         void OnProcessTerminated(wxProcess *process, int status);
 
+        void OnUpdateProgress(string & file, unsigned int dlcurrent, unsigned int dltotal);
+
     private:
 
         //(*Handlers(launcherFrame)
@@ -77,6 +80,7 @@ class launcherFrame: public wxFrame
         void OnMenuSave(wxCommandEvent& event);
         void OnOutputNewButtonClick(wxCommandEvent& event);
         void OnInputNewButtonClick(wxCommandEvent& event);
+        void OnMenuUpdateFirmware(wxCommandEvent& event);
         //*)
 
         void refresh();
@@ -142,6 +146,7 @@ class launcherFrame: public wxFrame
         static const long idMenuQuit;
         static const long ID_MENUITEM6;
         static const long ID_MENUITEM4;
+        static const long ID_MENUITEM10;
         static const long ID_MENUITEM5;
         static const long idMenuAbout;
         static const long ID_STATUSBAR1;
@@ -170,6 +175,7 @@ class launcherFrame: public wxFrame
         wxMenuItem* MenuStartupUpdates;
         wxMenuItem* MenuItem3;
         wxChoice* Input;
+        wxMenuItem* MenuItem5;
         wxStaticText* StaticText4;
         wxCheckBox* CheckBoxGrab;
         wxFlexGridSizer* SourceIpSizer;
@@ -197,6 +203,8 @@ class launcherFrame: public wxFrame
         wxArrayString hids;
 
         bool openLog;
+
+        wxProgressDialog * progressDialog;
 
         DECLARE_EVENT_TABLE()
 };

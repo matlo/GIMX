@@ -161,7 +161,7 @@
 											<item>curses</item>
 											<item>text</item>
 											<item>log file</item>
-                                            <item>debug</item>
+											<item>debug</item>
 										</content>
 										<selection>0</selection>
 									</object>
@@ -278,6 +278,10 @@
 				<object class="wxMenuItem" name="ID_MENUITEM4" variable="MenuUpdate" member="yes">
 					<label>Update</label>
 					<handler function="OnMenuUpdate" entry="EVT_MENU" />
+				</object>
+				<object class="wxMenuItem" name="ID_MENUITEM10" variable="MenuItem5" member="yes">
+					<label>Update firmware</label>
+					<handler function="OnMenuUpdateFirmware" entry="EVT_MENU" />
 				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM5" variable="MenuStartupUpdates" member="yes">
 					<label>Check updates at startup</label>

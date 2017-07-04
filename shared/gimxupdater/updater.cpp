@@ -26,7 +26,7 @@ updater* updater::_singleton = NULL;
 #define CURL_INIT_FLAGS CURL_GLOBAL_NOTHING
 #endif
 
-updater::updater()
+updater::updater() : client_callback(NULL), client_data(NULL)
 {
   //ctor
   curl_global_init(CURL_INIT_FLAGS);
@@ -138,7 +138,12 @@ static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
   return written;
 }
 
-int updater::Update()
+static int progress_callback(void * clientp, double dltotal, double dlnow, double ultotal __attribute__((unused)), double ulnow __attribute__((unused)))
+{
+    return ((updater *) clientp)->onProgress(dlnow, dltotal);
+}
+
+int updater::Update(UPDATER_PROGRESS_CALLBACK callback, void * data)
 {
   int ret = -1;
 
@@ -172,6 +177,15 @@ int updater::Update()
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);
     curl_easy_setopt(curl_handle, CURLOPT_FILE, outfile);
     curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+
+    if (callback != NULL && data != NULL)
+    {
+      client_callback = callback;
+      client_data = data;
+      curl_easy_setopt(curl_handle, CURLOPT_PROGRESSFUNCTION, progress_callback);
+      curl_easy_setopt(curl_handle, CURLOPT_PROGRESSDATA, this);
+      curl_easy_setopt(curl_handle, CURLOPT_NOPROGRESS, 0L);
+    }
 
     //curl_easy_setopt(curl_handle, CURLOPT_VERBOSE, 1L);
 

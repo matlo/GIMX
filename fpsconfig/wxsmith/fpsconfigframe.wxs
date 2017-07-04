@@ -465,10 +465,6 @@
 			</object>
 			<object class="wxMenu" variable="MenuHelp" member="no">
 				<label>Help</label>
-				<object class="wxMenuItem" name="ID_MENUITEM5" variable="MenuUpdate" member="yes">
-					<label>Update</label>
-					<handler function="OnMenuUpdate" entry="EVT_MENU" />
-				</object>
 				<object class="wxMenuItem" name="idMenuAbout" variable="MenuItemAbout" member="no">
 					<label>About</label>
 					<accel>F1</accel>

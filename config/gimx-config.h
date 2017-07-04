@@ -50,7 +50,6 @@ class configFrame: public wxFrame
         void OnButtonAddPanelButton(wxCommandEvent& event);
         void OnEventTypeSelectPanelAxis(wxCommandEvent& event);
         void OnAxisTabBufferSizeText(wxCommandEvent& event);
-        void OnAxisTabAxisIdSelect(wxCommandEvent& event);
         void OnButtonAddPanelAxis(wxCommandEvent& event);
         void OnButtonRemovePanelButton(wxCommandEvent& event);
         void OnButtonRemovePanelAxis(wxCommandEvent& event);
@@ -73,7 +72,6 @@ class configFrame: public wxFrame
         void OnButtonModifyButton(wxCommandEvent& event);
         void OnButtonModifyAxis(wxCommandEvent& event);
         void OnAxisTabShapeSelect(wxCommandEvent& event);
-        void OnAxisTabAxisIdSelect1(wxCommandEvent& event);
         void OnMenuItemCopyConfiguration(wxCommandEvent& event);
         void OnMenuItemPasteConfiguration(wxCommandEvent& event);
         void OnMenuItemCopyController(wxCommandEvent& event);
@@ -86,7 +84,6 @@ class configFrame: public wxFrame
         void OnMenuSetMouseDPI(wxCommandEvent& event);
         void OnMenuMultipleMK(wxCommandEvent& event);
         void OnTextCtrl(wxCommandEvent& event);
-        void OnMenuUpdate(wxCommandEvent& event);
         void OnMenuAutoBindControls(wxCommandEvent& event);
         void OnMenuItemController(wxCommandEvent& event);
         void OnMenuItemConfiguration(wxCommandEvent& event);
@@ -110,6 +107,9 @@ class configFrame: public wxFrame
         void OnJoystickCorrectionsRemoveClick(wxCommandEvent& event);
         void OnJoystickCorrectionsModifyClick(wxCommandEvent& event);
         void OnJoystickCorrectionsAutoDetectClick(wxCommandEvent& event);
+        void OnButtonForceFeedbackAutoDetect(wxCommandEvent& event);
+        void OnButtonFFBTweaksDelete(wxCommandEvent& event);
+        void OnAxisTabAxisIdSelect(wxCommandEvent& event);
         //*)
         void DeleteSelectedRows(wxGrid* grid);
         void DeleteLinkedRows(wxGrid* grid, int row);
@@ -131,6 +131,7 @@ class configFrame: public wxFrame
         void fillChoices();
         void LoadControllerType();
         pair<Device, Event> selectEvent();
+        void addJoystickCorrection();
 
         //(*Identifiers(configFrame)
         static const long ID_STATICTEXT35;
@@ -203,6 +204,16 @@ class configFrame: public wxFrame
         static const long ID_BUTTON17;
         static const long ID_BUTTON18;
         static const long ID_PANEL7;
+        static const long ID_STATICTEXT13;
+        static const long ID_STATICTEXT20;
+        static const long ID_STATICTEXT25;
+        static const long ID_STATICTEXT49;
+        static const long ID_BUTTON20;
+        static const long ID_STATICLINE13;
+        static const long ID_CHECKBOX2;
+        static const long ID_STATICLINE15;
+        static const long ID_BUTTON24;
+        static const long ID_PANEL8;
         static const long ID_NOTEBOOK2;
         static const long ID_PANEL1;
         static const long ID_STATICTEXT38;
@@ -300,7 +311,6 @@ class configFrame: public wxFrame
         static const long ID_MENUITEM29;
         static const long ID_MENUITEM25;
         static const long ID_MENUITEM27;
-        static const long ID_MENUITEM26;
         static const long idMenuAbout;
         static const long ID_STATUSBAR1;
         //*)
@@ -319,6 +329,7 @@ class configFrame: public wxFrame
         wxSpinCtrl* IntensitySteps;
         wxPanel* PanelIntensity;
         wxMenuItem* MenuItemCopyProfile;
+        wxStaticText* FFBTweaksName;
         wxMenuItem* MenuProfile7;
         wxStaticText* IntensityDeviceId;
         wxMenuItem* MenuProfile6;
@@ -351,6 +362,7 @@ class configFrame: public wxFrame
         wxStaticLine* StaticLine10;
         wxMenuItem* MenuItemG29Ps4;
         wxStaticText* IntensityButtonId;
+        wxStaticLine* StaticLine13;
         wxGrid* GridMouseOption;
         wxTextCtrl* MouseOptionsBuffer;
         wxStaticText* StaticText3;
@@ -367,6 +379,7 @@ class configFrame: public wxFrame
         wxStaticText* ButtonTabDeviceId;
         wxStaticText* ProfileTriggerDeviceName;
         wxMenuItem* MenuProfile1;
+        wxButton* ButtonFFBTweaksDelete;
         wxChoice* IntensityAxis;
         wxMenuItem* MenuItem360;
         wxButton* JoystickCorrectionAdd;
@@ -374,6 +387,7 @@ class configFrame: public wxFrame
         wxMenuItem* MenuProfile5;
         wxButton* ButtonTabModify;
         wxButton* AxisTabAutoDetect;
+        wxCheckBox* FFBTweaksInvert;
         wxButton* IntensityModify;
         wxChoice* AxisTabEventType;
         wxMenuItem* MenuProfile8;
@@ -385,6 +399,7 @@ class configFrame: public wxFrame
         wxStaticLine* StaticLine7;
         wxGrid* GridJoystickCorrections;
         wxMenu* MenuEdit;
+        wxStaticText* FFBTweaksType;
         wxMenuItem* MenuProfile2;
         wxPanel* PanelJoystickCorrections;
         wxGrid* GridPanelAxis;
@@ -407,6 +422,7 @@ class configFrame: public wxFrame
         wxStaticText* AxisTabEventId;
         wxMenuItem* MenuController3;
         wxStaticText* StaticTextEmptyPanelAxis;
+        wxStaticText* FFBTweaksAxis;
         wxStaticText* StaticTextDZPanelAxis;
         wxMenuItem* MenuItem2;
         wxChoice* ButtonTabButtonId;
@@ -415,8 +431,8 @@ class configFrame: public wxFrame
         wxSpinCtrl* IntensityDeadZone;
         wxMenuItem* MenuItemDfpPs2;
         wxStaticLine* StaticLine4;
-        wxMenuItem* MenuUpdate;
         wxTextCtrl* JoystickCorrectionsHighCoef;
+        wxPanel* PanelForceFeedback;
         wxButton* MouseOptionsRemove;
         wxGrid* GridIntensity;
         wxStaticText* JoystickCorrectionsId;
@@ -431,6 +447,7 @@ class configFrame: public wxFrame
         wxButton* ButtonTabRemove;
         wxMenuItem* MenuItemXbox;
         wxMenuItem* MenuItemDS2;
+        wxButton* ForceFeedbackAutoDetect;
         wxButton* ButtonTabAdd;
         wxStaticText* StaticTextButtonPanelButton;
         wxStaticLine* StaticLine3;
@@ -459,6 +476,7 @@ class configFrame: public wxFrame
         wxMenuItem* MenuItemGtfPs2;
         wxStaticText* StaticText12;
         wxStaticText* ButtonTabDeviceName;
+        wxStaticText* FFBTweaksId;
         wxStaticLine* StaticLine9;
         wxMenuItem* MenuItemWindowEvents;
         wxMenuItem* MenuItemMultipleMiceAndKeyboards;
@@ -469,6 +487,7 @@ class configFrame: public wxFrame
         wxTextCtrl* JoystickCorrectionsLowCoef;
         wxStaticText* StaticTextDelayPanelOverall;
         wxNotebook* Notebook1;
+        wxStaticLine* StaticLine15;
         wxStaticText* StaticTextSensPanelAxis;
         wxMenuItem* MenuController7;
         wxButton* ButtonDelete;
@@ -506,9 +525,9 @@ class configFrame: public wxFrame
         string mouseTabDeviceName;
         string intensityTabDeviceName;
         string joystickTabDeviceName;
+        string ffbTweaksTabDeviceName;
 
         DECLARE_EVENT_TABLE()
 };
 
 #endif // CONFIGMAIN_H
-

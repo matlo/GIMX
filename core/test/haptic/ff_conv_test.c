@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2016 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2017 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -12,7 +12,7 @@
 
 s_gimx_params gimx_params = { 0 }; // { .debug = { .ff_lg = 1, .ff_conv = 1 } };
 
-#define CONSTANT(NAME, PRODUCT_ID, LEVEL_IN, LEVEL_OUT) \
+#define CONSTANT(NAME, PRODUCT_ID, INVERT, C_GAIN, LEVEL_IN, LEVEL_OUT) \
     { \
             .name = NAME, \
             .product = PRODUCT_ID, \
@@ -21,6 +21,8 @@ s_gimx_params gimx_params = { 0 }; // { .debug = { .ff_lg = 1, .ff_conv = 1 } };
                     .type = FF_LG_FTYPE_CONSTANT, \
                     .parameters = { LEVEL_IN }, \
             }, \
+            .invert = INVERT, \
+            .gain = { C_GAIN, 0, 0 }, \
             .nb_events = 1, \
             .events = { \
                     { \
@@ -32,7 +34,7 @@ s_gimx_params gimx_params = { 0 }; // { .debug = { .ff_lg = 1, .ff_conv = 1 } };
             } \
     }
 
-#define VARIABLE(NAME, PRODUCT_ID, LEVEL_IN, LEVEL_OUT) \
+#define VARIABLE(NAME, PRODUCT_ID, INVERT, C_GAIN, LEVEL_IN, LEVEL_OUT) \
     { \
             .name = NAME, \
             .product = PRODUCT_ID, \
@@ -41,6 +43,8 @@ s_gimx_params gimx_params = { 0 }; // { .debug = { .ff_lg = 1, .ff_conv = 1 } };
                     .type = FF_LG_FTYPE_VARIABLE, \
                     .parameters = { LEVEL_IN }, \
             }, \
+            .invert = INVERT, \
+            .gain = { C_GAIN, 0, 0 }, \
             .nb_events = 1, \
             .events = { \
                     { \
@@ -52,7 +56,7 @@ s_gimx_params gimx_params = { 0 }; // { .debug = { .ff_lg = 1, .ff_conv = 1 } };
             } \
     }
 
-#define HR_SPRING(NAME, PRODUCT_ID, D1, D2, K2, K1, D2L, S2, D1L, S1, CLIP, SL, SR, CL, CR, C, D) \
+#define HR_SPRING(NAME, PRODUCT_ID, INVERT, S_GAIN, D1, D2, K2, K1, D2L, S2, D1L, S1, CLIP, SL, SR, CL, CR, C, D) \
     { \
             .name = NAME, \
             .product = PRODUCT_ID, \
@@ -61,6 +65,8 @@ s_gimx_params gimx_params = { 0 }; // { .debug = { .ff_lg = 1, .ff_conv = 1 } };
                     .type = FF_LG_FTYPE_HIGH_RESOLUTION_SPRING, \
                     .parameters = { D1, D2, K2 | K1, D2L | S2 | D1L | S1, CLIP } \
             }, \
+            .invert = INVERT, \
+            .gain = { 0, S_GAIN, 0 }, \
             .nb_events = 1, \
             .events = { \
                     { \
@@ -81,7 +87,7 @@ s_gimx_params gimx_params = { 0 }; // { .debug = { .ff_lg = 1, .ff_conv = 1 } };
             } \
     }
 
-#define HR_DAMPER(NAME, PRODUCT_ID, K1, S1, K2, S2, CLIP, SL, SR, CL, CR) \
+#define HR_DAMPER(NAME, PRODUCT_ID, INVERT, D_GAIN, K1, S1, K2, S2, CLIP, SL, SR, CL, CR) \
     { \
             .name = NAME, \
             .product = PRODUCT_ID, \
@@ -90,6 +96,8 @@ s_gimx_params gimx_params = { 0 }; // { .debug = { .ff_lg = 1, .ff_conv = 1 } };
                     .type = FF_LG_FTYPE_HIGH_RESOLUTION_DAMPER, \
                     .parameters = { K1, S1, K2, S2, CLIP } \
             }, \
+            .invert = INVERT, \
+            .gain = { 0, 0, D_GAIN }, \
             .nb_events = 1, \
             .events = { \
                     { \
@@ -108,7 +116,7 @@ s_gimx_params gimx_params = { 0 }; // { .debug = { .ff_lg = 1, .ff_conv = 1 } };
             } \
     }
 
-#define SPRING(NAME, PRODUCT_ID, D1, D2, K2, K1, S2, S1, CLIP, SL, SR, CL, CR, C, D) \
+#define SPRING(NAME, PRODUCT_ID, INVERT, S_GAIN, D1, D2, K2, K1, S2, S1, CLIP, SL, SR, CL, CR, C, D) \
     { \
             .name = NAME, \
             .product = PRODUCT_ID, \
@@ -117,6 +125,8 @@ s_gimx_params gimx_params = { 0 }; // { .debug = { .ff_lg = 1, .ff_conv = 1 } };
                     .type = FF_LG_FTYPE_SPRING, \
                     .parameters = { D1, D2, K2 | K1, S2 | S1, CLIP } \
             }, \
+            .invert = INVERT, \
+            .gain = { 0, S_GAIN, 0 }, \
             .nb_events = 1, \
             .events = { \
                     { \
@@ -137,7 +147,7 @@ s_gimx_params gimx_params = { 0 }; // { .debug = { .ff_lg = 1, .ff_conv = 1 } };
             } \
     }
 
-#define DAMPER(NAME, PRODUCT_ID, K1, K2, S1, S2, CL, CR) \
+#define DAMPER_TEST(NAME, PRODUCT_ID, INVERT, D_GAIN, K1, K2, S1, S2, CL, CR) \
     { \
             .name = NAME, \
             .product = PRODUCT_ID, \
@@ -146,6 +156,8 @@ s_gimx_params gimx_params = { 0 }; // { .debug = { .ff_lg = 1, .ff_conv = 1 } };
                     .type = FF_LG_FTYPE_DAMPER, \
                     .parameters = { K1, K2, S1, S2 } \
             }, \
+            .invert = INVERT, \
+            .gain = { 0, 0, D_GAIN }, \
             .nb_events = 1, \
             .events = { \
                     { \
@@ -176,142 +188,270 @@ static const struct {
             s_ff_lg_force report;
         };
     };
+    int invert;
+    struct {
+        int constant;
+        int spring;
+        int damper;
+    } gain;
     unsigned int nb_events;
     GE_Event events[FF_LG_FSLOTS_NB];
 } test_cases[] = {
 
-        CONSTANT("G29 constant force (left)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0xff, 32767),
-        CONSTANT("G29 constant force (right)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, -32768),
-        CONSTANT("G29 constant force (null)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 128, 0),
+        CONSTANT("G29 constant force (left, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100, 0xff, 32767),
+        CONSTANT("G29 constant force (right, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100, 0, -32767),
+        CONSTANT("G29 constant force (null, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100, 128, 0),
 
-        DAMPER("G29 damper force (left)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
+//        CONSTANT("G29 constant force (left, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50, 0xff, 16383),
+//        CONSTANT("G29 constant force (right, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50, 0, -16383),
+//        CONSTANT("G29 constant force (null, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50, 128, 0),
+
+        CONSTANT("G29 constant force (left, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100, 0xff, -32767),
+        CONSTANT("G29 constant force (right, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100, 0, 32767),
+        CONSTANT("G29 constant force (null, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100, 128, 0),
+
+        DAMPER_TEST("G29 damper force (left, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100,
                 0x07, 0x00, 0x00, 0x00,
                 32767, 2047),
-        DAMPER("G29 damper force (right)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
+        DAMPER_TEST("G29 damper force (right, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100,
                 0x00, 0x00, 0x07, 0x00,
                 2047, 32767),
-        DAMPER("G29 damper force (zeroes)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
+        DAMPER_TEST("G29 damper force (zeroes, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100,
                 0x00, 0x00, 0x00, 0x00,
                 2047, 2047),
-        DAMPER("G29 damper force (ones)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
+        DAMPER_TEST("G29 damper force (ones, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100,
                 0x07, 0x01, 0x07, 0x01,
-                -32768, -32768),
+                -32767, -32767),
 
-        DAMPER("FFGP damper force (c=5)", USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP,
+//        DAMPER_TEST("G29 damper force (left, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50,
+//                0x07, 0x00, 0x00, 0x00,
+//                16383, 1023),
+//        DAMPER_TEST("G29 damper force (right, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50,
+//                0x00, 0x00, 0x07, 0x00,
+//                1023, 16383),
+//        DAMPER_TEST("G29 damper force (zeroes, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50,
+//                0x00, 0x00, 0x00, 0x00,
+//                1023, 1023),
+//        DAMPER_TEST("G29 damper force (ones, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50,
+//                0x07, 0x01, 0x07, 0x01,
+//                -16383, -16383),
+
+        DAMPER_TEST("G29 damper force (left, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100,
+                0x07, 0x00, 0x00, 0x00,
+                2047, 32767),
+        DAMPER_TEST("G29 damper force (right, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100,
+                0x00, 0x00, 0x07, 0x00,
+                32767, 2047),
+        DAMPER_TEST("G29 damper force (zeroes, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100,
+                0x00, 0x00, 0x00, 0x00,
+                2047, 2047),
+        DAMPER_TEST("G29 damper force (ones, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100,
+                0x07, 0x01, 0x07, 0x01,
+                -32767, -32767),
+
+        DAMPER_TEST("FFGP damper force (c=5)", USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP, 0, 100,
                 0x05, 0x00, 0x05, 0x00,
                 24575, 24575),
-        DAMPER("FFGP damper force (c=6)", USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP,
+        DAMPER_TEST("FFGP damper force (c=6)", USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP, 0, 100,
                 0x06, 0x00, 0x06, 0x00,
                 16383, 16383),
 
-        DAMPER("DFP damper force (c=5)", USB_PRODUCT_ID_LOGITECH_DFP_WHEEL,
+        DAMPER_TEST("DFP damper force (c=5)", USB_PRODUCT_ID_LOGITECH_DFP_WHEEL, 0, 100,
                 0x05, 0x00, 0x05, 0x00,
                 16383, 16383),
-        DAMPER("DFP damper force (c=6)", USB_PRODUCT_ID_LOGITECH_DFP_WHEEL,
+        DAMPER_TEST("DFP damper force (c=6)", USB_PRODUCT_ID_LOGITECH_DFP_WHEEL, 0, 100,
                 0x06, 0x00, 0x06, 0x00,
                 24575, 24575),
 
-        SPRING("G29 spring force (left)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
+        SPRING("G29 spring force (left, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100,
                 128, 128, 0x00, 0x07, 0x00, 0x00, 255,
                 65535, 65535, 32767, 2047, 0, 0),
-        SPRING("G29 spring force (right)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
+        SPRING("G29 spring force (right, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100,
                 128, 128, 0x70, 0x00, 0x00, 0x00, 255,
                 65535, 65535, 2047, 32767, 0, 0),
-        SPRING("G29 spring force (zeroes)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
+        SPRING("G29 spring force (zeroes, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100,
                 0, 0, 0x00, 0x00, 0x00, 0x00, 0,
-                0, 0, 2047, 2047, -32768, 0),
-        SPRING("G29 spring force (ones)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
+                0, 0, 2047, 2047, -32767, 0),
+        SPRING("G29 spring force (ones, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100,
                 0xff, 0xff, 0x70, 0x07, 0x10, 0x01, 0xff,
-                65535, 65535, -32768, -32768, 32767, 0),
+                65535, 65535, -32767, -32767, 32767, 0),
 
-        SPRING("FFGP spring force (c=5)", USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP,
+//        SPRING("G29 spring force (left, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50,
+//                128, 128, 0x00, 0x07, 0x00, 0x00, 255,
+//                32767, 32767, 16383, 1023, 0, 0),
+//        SPRING("G29 spring force (right, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50,
+//                128, 128, 0x70, 0x00, 0x00, 0x00, 255,
+//                32767, 32767, 1023, 16383, 0, 0),
+//        SPRING("G29 spring force (zeroes, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50,
+//                0, 0, 0x00, 0x00, 0x00, 0x00, 0,
+//                0, 0, 1023, 1023, -32767, 0),
+//        SPRING("G29 spring force (ones, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50,
+//                0xff, 0xff, 0x70, 0x07, 0x10, 0x01, 0xff,
+//                32767, 32767, -16383, -16383, 32767, 0),
+
+        SPRING("G29 spring force (left, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100,
+                128, 128, 0x00, 0x07, 0x00, 0x00, 255,
+                65535, 65535, 2047, 32767, 0, 0),
+        SPRING("G29 spring force (right, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100,
+                128, 128, 0x70, 0x00, 0x00, 0x00, 255,
+                65535, 65535, 32767, 2047, 0, 0),
+        SPRING("G29 spring force (zeroes, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100,
+                0, 0, 0x00, 0x00, 0x00, 0x00, 0,
+                0, 0, 2047, 2047, 32767, 0),
+        SPRING("G29 spring force (ones, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100,
+                0xff, 0xff, 0x70, 0x07, 0x10, 0x01, 0xff,
+                65535, 65535, -32767, -32767, -32767, 0),
+
+        SPRING("FFGP spring force (c=5)", USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP, 0, 100,
                 128, 128, 0x50, 0x05, 0x00, 0x00, 0,
                 0, 0, 24575, 24575, 0, 0),
-        SPRING("FFGP spring force (c=6)", USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP,
+        SPRING("FFGP spring force (c=6)", USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP, 0, 100,
                 128, 128, 0x60, 0x06, 0x00, 0x00, 0,
                 0, 0, 16383, 16383, 0, 0),
 
-        SPRING("DFP spring force (c=5)", USB_PRODUCT_ID_LOGITECH_DFP_WHEEL,
+        SPRING("DFP spring force (c=5)", USB_PRODUCT_ID_LOGITECH_DFP_WHEEL, 0, 100,
                 128, 128, 0x50, 0x05, 0x00, 0x00, 0,
                 0, 0, 16383, 16383, 0, 0),
-        SPRING("DFP spring force (c=6)", USB_PRODUCT_ID_LOGITECH_DFP_WHEEL,
+        SPRING("DFP spring force (c=6)", USB_PRODUCT_ID_LOGITECH_DFP_WHEEL, 0, 100,
                 128, 128, 0x60, 0x06, 0x00, 0x00, 0,
                 0, 0, 24575, 24575, 0, 0),
 
-        VARIABLE("G29 variable force (left)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0xff, 32767),
-        VARIABLE("G29 variable force (right)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, -32768),
-        VARIABLE("G29 variable force (null)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 128, 0),
+        VARIABLE("G29 variable force (left, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100, 0xff, 32767),
+        VARIABLE("G29 variable force (right, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100, 0, -32767),
+        VARIABLE("G29 variable force (null, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100, 128, 0),
 
-        HR_SPRING("G29 high resolution spring force (left)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
+//        VARIABLE("G29 variable force (left, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50, 0xff, 16383),
+//        VARIABLE("G29 variable force (right, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50, 0, -16383),
+//        VARIABLE("G29 variable force (null, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50, 128, 0),
+
+        VARIABLE("G29 variable force (left, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100, 0xff, -32767),
+        VARIABLE("G29 variable force (right, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100, 0, 32767),
+        VARIABLE("G29 variable force (null, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100, 128, 0),
+
+        HR_SPRING("G29 high resolution spring force (left, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100,
                 0x7f, 0x7f, 0x00, 0x0f, 0xe0, 0x00, 0x0e, 0x00, 0xff,
-                65535, 65535, 32767, 0, 0x3FF * 65535 / 0x7FF - -32768, 0),
-        HR_SPRING("G29 high resolution spring force (right)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
+                65535, 65535, 32767, 0, 0x3FF * USHRT_MAX / 0x7FF - SHRT_MAX, 0),
+        HR_SPRING("G29 high resolution spring force (right, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100,
                 0x7f, 0x7f, 0xf0, 0x00, 0xe0, 0x00, 0x0e, 0x00, 0xff,
-                65535, 65535, 0, 32767, 0x3FF * 65535 / 0x7FF - -32768, 0),
-        HR_SPRING("G29 high resolution spring force (zeroes)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
+                65535, 65535, 0, 32767, 0x3FF * USHRT_MAX / 0x7FF - SHRT_MAX, 0),
+        HR_SPRING("G29 high resolution spring force (zeroes, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0,
-                0, 0, 0, 0, -32768, 0),
-        HR_SPRING("G29 high resolution spring force (ones)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
+                0, 0, 0, 0, -32767, 0),
+        HR_SPRING("G29 high resolution spring force (ones, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100,
                 0xff, 0xff, 0xf0, 0x0f, 0xe0, 0x10, 0x0e, 0x01, 0xff,
-                65535, 65535, -32768, -32768, 32767, 0),
+                65535, 65535, -32767, -32767, 32767, 0),
 
-        HR_DAMPER("G29 high resolution damper force (left)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
+//        HR_SPRING("G29 high resolution spring force (left, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50,
+//                0x7f, 0x7f, 0x00, 0x0f, 0xe0, 0x00, 0x0e, 0x00, 0xff,
+//                32767, 32767, 16383, 0, 0x3FF * USHRT_MAX / 0x7FF - SHRT_MAX, 0),
+//        HR_SPRING("G29 high resolution spring force (right, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50,
+//                0x7f, 0x7f, 0xf0, 0x00, 0xe0, 0x00, 0x0e, 0x00, 0xff,
+//                32767, 32767, 0, 16383, 0x3FF * USHRT_MAX / 0x7FF - SHRT_MAX, 0),
+//        HR_SPRING("G29 high resolution spring force (zeroes, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50,
+//                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0,
+//                0, 0, 0, 0, -32767, 0),
+//        HR_SPRING("G29 high resolution spring force (ones, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50,
+//                0xff, 0xff, 0xf0, 0x0f, 0xe0, 0x10, 0x0e, 0x01, 0xff,
+//                32767, 32767, -16383, -16383, 32767, 0),
+
+        HR_SPRING("G29 high resolution spring force (left, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100,
+                0x7f, 0x7f, 0x00, 0x0f, 0xe0, 0x00, 0x0e, 0x00, 0xff,
+                65535, 65535, 0, 32767, - (0x3FF * USHRT_MAX / 0x7FF - SHRT_MAX), 0),
+        HR_SPRING("G29 high resolution spring force (right, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100,
+                0x7f, 0x7f, 0xf0, 0x00, 0xe0, 0x00, 0x0e, 0x00, 0xff,
+                65535, 65535, 32767, 0, - (0x3FF * USHRT_MAX / 0x7FF - SHRT_MAX), 0),
+        HR_SPRING("G29 high resolution spring force (zeroes, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0,
+                0, 0, 0, 0, 32767, 0),
+        HR_SPRING("G29 high resolution spring force (ones, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100,
+                0xff, 0xff, 0xf0, 0x0f, 0xe0, 0x10, 0x0e, 0x01, 0xff,
+                65535, 65535, -32767, -32767, -32767, 0),
+
+        HR_DAMPER("G29 high resolution damper force (left, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100,
                 0x0f, 0x00, 0x00, 0x00, 0xff,
                 65535, 65535, 32767, 0),
-        HR_DAMPER("G29 high resolution damper force (right)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
+        HR_DAMPER("G29 high resolution damper force (right, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100,
                 0x00, 0x00, 0x0f, 0x00, 0xff,
                 65535, 65535, 0, 32767),
-        HR_DAMPER("G29 high resolution damper force (zeroes)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
+        HR_DAMPER("G29 high resolution damper force (zeroes, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100,
                 0x00, 0x00, 0x00, 0x00, 0,
                 65535, 65535, 0, 0),
-        HR_DAMPER("G29 high resolution damper force (ones)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL,
+        HR_DAMPER("G29 high resolution damper force (ones, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 100,
                 0x0f, 0x01, 0x0f, 0x01, 0xff,
-                65535, 65535, -32768, -32768),
+                65535, 65535, -32767, -32767),
+
+//        HR_DAMPER("G29 high resolution damper force (left, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50,
+//                0x0f, 0x00, 0x00, 0x00, 0xff,
+//                32767, 32767, 16383, 0),
+//        HR_DAMPER("G29 high resolution damper force (right, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50,
+//                0x00, 0x00, 0x0f, 0x00, 0xff,
+//                32767, 32767, 0, 16383),
+//        HR_DAMPER("G29 high resolution damper force (zeroes, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50,
+//                0x00, 0x00, 0x00, 0x00, 0,
+//                32767, 32767, 0, 0),
+//        HR_DAMPER("G29 high resolution damper force (ones, 50%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 0, 50,
+//                0x0f, 0x01, 0x0f, 0x01, 0xff,
+//                32767, 32767, -16383, -16383),
+
+        HR_DAMPER("G29 high resolution damper force (left, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100,
+                0x0f, 0x00, 0x00, 0x00, 0xff,
+                65535, 65535, 0, 32767),
+        HR_DAMPER("G29 high resolution damper force (right, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100,
+                0x00, 0x00, 0x0f, 0x00, 0xff,
+                65535, 65535, 32767, 0),
+        HR_DAMPER("G29 high resolution damper force (zeroes, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100,
+                0x00, 0x00, 0x00, 0x00, 0,
+                65535, 65535, 0, 0),
+        HR_DAMPER("G29 high resolution damper force (ones, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_WHEEL, 1, 100,
+                0x0f, 0x01, 0x0f, 0x01, 0xff,
+                65535, 65535, -32767, -32767),
 };
 
-int compare_events(const GE_Event * left, const GE_Event * right) {
+int compare_forces(const GE_Event * left, const GE_Event * right) {
 
     if (left->type != right->type) {
         return 1;
     }
 
+    int ret = 0;
+
     switch (left->type) {
     case GE_JOYCONSTANTFORCE:
         if (left->jconstant.level != right->jconstant.level) {
-            fprintf(stderr, "level: %d vs %d\n", left->jconstant.level, right->jconstant.level);
-            return 1;
+            fprintf(stderr, "level: %d (ref) vs %d (res)\n", left->jconstant.level, right->jconstant.level);
+            ret = 1;
         }
         break;
     case GE_JOYSPRINGFORCE:
     case GE_JOYDAMPERFORCE:
         if (left->jcondition.saturation.left != right->jcondition.saturation.left) {
-            fprintf(stderr, "saturation.left: %u vs %u\n", left->jcondition.saturation.left, right->jcondition.saturation.left);
-            return 1;
+            fprintf(stderr, "saturation.left: %u (ref) vs %u (res)\n", left->jcondition.saturation.left, right->jcondition.saturation.left);
+            ret = 1;
         }
         if (left->jcondition.saturation.right != right->jcondition.saturation.right) {
-            fprintf(stderr, "saturation.right: %u vs %u\n", left->jcondition.saturation.right, right->jcondition.saturation.right);
-            return 1;
+            fprintf(stderr, "saturation.right: %u (ref) vs %u (res)\n", left->jcondition.saturation.right, right->jcondition.saturation.right);
+            ret = 1;
         }
         if (left->jcondition.coefficient.left != right->jcondition.coefficient.left) {
-            fprintf(stderr, "coefficient.left: %u vs %u\n", left->jcondition.coefficient.left, right->jcondition.coefficient.left);
-            return 1;
+            fprintf(stderr, "coefficient.left: %d (ref) vs %d (res)\n", left->jcondition.coefficient.left, right->jcondition.coefficient.left);
+            ret = 1;
         }
         if (left->jcondition.coefficient.right != right->jcondition.coefficient.right) {
-            fprintf(stderr, "coefficient.right: %u vs %u\n", left->jcondition.coefficient.right, right->jcondition.coefficient.right);
-            return 1;
+            fprintf(stderr, "coefficient.right: %d (ref) vs %d (res)\n", left->jcondition.coefficient.right, right->jcondition.coefficient.right);
+            ret = 1;
         }
         if (left->jcondition.center != right->jcondition.center) {
-            fprintf(stderr, "center: %u vs %u\n", left->jcondition.center, right->jcondition.center);
-            return 1;
+            fprintf(stderr, "center: %d (ref) vs %d (res)\n", left->jcondition.center, right->jcondition.center);
+            ret = 1;
         }
         if (left->jcondition.deadband != right->jcondition.deadband) {
-            fprintf(stderr, "deadband: %u vs %u\n", left->jcondition.deadband, right->jcondition.deadband);
-            return 1;
+            fprintf(stderr, "deadband: %u (ref) vs %u (res)\n", left->jcondition.deadband, right->jcondition.deadband);
+            ret = 1;
         }
         break;
     }
 
-    return 0;
+    return ret;
 }
 
 int main(int argc __attribute__((unused)), char * argv[] __attribute__((unused))) {
@@ -321,6 +461,8 @@ int main(int argc __attribute__((unused)), char * argv[] __attribute__((unused))
 
         ff_conv_init(0, test_cases[i].product);
 
+        ff_conv_set_tweaks(0, test_cases[i].invert);
+
         ff_conv_process_report(0, test_cases[i].data);
 
         GE_Event event = {};
@@ -328,7 +470,7 @@ int main(int argc __attribute__((unused)), char * argv[] __attribute__((unused))
 
         printf("test case: %s: ", test_cases[i].name);
 
-        if (compare_events(test_cases[i].events, &event)) {
+        if (compare_forces(test_cases[i].events, &event)) {
             printf("failed: ff_conv returned an incorrect event\n");
             continue;
         }
@@ -343,7 +485,7 @@ int main(int argc __attribute__((unused)), char * argv[] __attribute__((unused))
 
         GE_Event stopEvent = { .type = event.type, .which = event.which };
 
-        if (compare_events(&stopEvent, &event)) {
+        if (compare_forces(&stopEvent, &event)) {
             printf("failed: ff_conv returned an incorrect stop event\n");
             continue;
         }

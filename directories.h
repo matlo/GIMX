@@ -25,4 +25,10 @@
 #define BT_DIR "bluetooth/"
 #define LOG_DIR "log/"
 
+#ifndef WIN32
+#define FIRMWARE_DIR "/usr/share/gimx/firmware"
+#else
+#define FIRMWARE_DIR "firmware"
+#endif
+
 #endif /* DIRECTORIES_H_ */
