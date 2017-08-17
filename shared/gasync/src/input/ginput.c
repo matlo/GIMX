@@ -7,7 +7,6 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <iconv.h>
 #include <stdio.h>
 
 #include "conversion.h"
@@ -71,24 +70,6 @@ static GE_MK_Mode mk_mode = GE_MK_MODE_MULTIPLE_INPUTS;
 static int initialized = 0;
 
 /*
- * Convert an ISO-8859-1 string to an UTF-8 string.
- * The returned string is hold in a statically allocated buffer that is modified at each call.
- */
-static const char* _8BIT_to_UTF8(const char* _8bit)
-{
-  iconv_t cd;
-  char* input = (char*)_8bit;
-  size_t in = strlen(input) + 1;
-  static char output[256];
-  char* poutput = output;
-  size_t out = sizeof(output);
-  cd = iconv_open ("UTF-8", "ISO-8859-1");
-  iconv(cd, &input, &in, &poutput, &out);
-  iconv_close(cd);
-  return output;
-}
-
-/*
  * \bried Initializes the library.
  *
  * \param mkb_src  GE_MKB_SOURCE_PHYSICAL: use evdev under Linux and raw inputs under Windows.
@@ -142,7 +123,7 @@ int ginput_init(const GPOLL_INTERFACE * poll_interface, unsigned char mkb_src, i
     }
 #endif
 
-    joysticks[i].name = strdup(_8BIT_to_UTF8(name));
+    joysticks[i].name = strdup(name);
 
     // Go backward and look for a joystick with the same name.
     for (j = i - 1; j >= 0; --j)
@@ -176,7 +157,7 @@ int ginput_init(const GPOLL_INTERFACE * poll_interface, unsigned char mkb_src, i
   i = 0;
   while (i < GE_MAX_DEVICES && (name = ev_mouse_name(i)))
   {
-    mice[i].name = strdup(_8BIT_to_UTF8(name));
+    mice[i].name = strdup(name);
 
     // Go backward and look for a mouse with the same name.
     for (j = i - 1; j >= 0; --j)
@@ -198,7 +179,7 @@ int ginput_init(const GPOLL_INTERFACE * poll_interface, unsigned char mkb_src, i
   i = 0;
   while (i < GE_MAX_DEVICES && (name = ev_keyboard_name(i)))
   {
-    keyboards[i].name = strdup(_8BIT_to_UTF8(name));
+    keyboards[i].name = strdup(name);
 
     // Go backward and look for a keyboard with the same name.
     for (j = i - 1; j >= 0; --j)

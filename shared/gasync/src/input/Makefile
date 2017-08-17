@@ -15,7 +15,7 @@ LDLIBS += -lgimxhid
 
 ifeq ($(OS),Windows_NT)
 CFLAGS += `sdl2-config --cflags`
-LDLIBS += -liconv -lsetupapi -lws2_32
+LDLIBS += -lsetupapi -lws2_32
 LDFLAGS += -L../poll 
 LDLIBS += -lgimxpoll
 LDLIBS += `sdl2-config --libs`

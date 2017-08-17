@@ -30,7 +30,7 @@ LDLIBS += -lm
 BINS=ginput_test ghid_test gserial_test gtimer_test ginput_haptic_test gusb_test
 ifeq ($(OS),Windows_NT)
 CPPFLAGS += `sdl2-config --cflags`
-LDLIBS += $(shell sdl2-config --libs) -liconv -lws2_32 -lwinmm -lhid -lsetupapi
+LDLIBS += $(shell sdl2-config --libs) -lws2_32 -lwinmm -lhid -lsetupapi
 LDLIBS:=$(filter-out -mwindows,$(LDLIBS))
 else
 LDLIBS += -lXi -lX11

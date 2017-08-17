@@ -139,6 +139,14 @@ int main(int argc, char *argv[])
 {
   GE_Event kgevent = { .key = { .type = GE_KEYDOWN } };
 
+#ifdef WIN32
+  if (!SetConsoleOutputCP(CP_UTF8))
+  {
+    eprintf("SetConsoleOutputCP(CP_UTF8) failed\n");
+    exit(-1);
+  }
+#endif
+
   (void) signal(SIGINT, terminate);
   (void) signal(SIGTERM, terminate);
 #ifndef WIN32

@@ -12,7 +12,6 @@
 #include <limits.h>
 #include <dirent.h>
 #include <libxml/xmlreader.h>
-#include <iconv.h>
 #include "gimx.h"
 #include <adapter.h>
 #include "../directories.h"
@@ -39,21 +38,7 @@ static void reset_entry()
   memset(&entry.params, 0x00, sizeof(entry.params));
 }
 
-static char r_device_name[128];
-
-const char* _UTF8_to_8BIT(const char* _utf8)
-{
-  iconv_t cd;
-  char* input = (char*)_utf8;
-  size_t in = strlen(input) + 1;
-  static char output[256];
-  char* poutput = output;
-  size_t out = sizeof(output);
-  cd = iconv_open ("ISO-8859-1//TRANSLIT", "UTF-8");
-  iconv(cd, &input, &in, &poutput, &out);
-  iconv_close(cd);
-  return output;
-}
+static char * r_device_name = NULL;
 
 /*
  * Get the device name and store it into r_device_name.
@@ -68,7 +53,11 @@ int GetDeviceName(xmlNode* a_node)
   prop = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_NAME);
   if(prop)
   {
-    strcpy(r_device_name, prop);
+    r_device_name = strdup(prop);
+    if(r_device_name == NULL)
+    {
+      ret = -1;
+    }
   }
   else
   {
@@ -91,13 +80,13 @@ static void warnDeviceNotFound()
   switch(entry.device.type)
   {
   case E_DEVICE_TYPE_JOYSTICK:
-    gprintf(_("joystick not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), entry.device.id);
+    gprintf(_("joystick not found: %s %d\n"), r_device_name, entry.device.id);
     break;
   case E_DEVICE_TYPE_MOUSE:
-    gprintf(_("mouse not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), entry.device.id);
+    gprintf(_("mouse not found: %s %d\n"), r_device_name, entry.device.id);
     break;
   case E_DEVICE_TYPE_KEYBOARD:
-    gprintf(_("keyboard not found: %s %d\n"), _UTF8_to_8BIT(r_device_name), entry.device.id);
+    gprintf(_("keyboard not found: %s %d\n"), r_device_name, entry.device.id);
     break;
   case E_DEVICE_TYPE_UNKNOWN:
     return;
@@ -206,6 +195,9 @@ static int GetDeviceId(xmlNode* a_node)
       }
     }
   }
+
+  free(r_device_name);
+  r_device_name = NULL;
 
   return ret;
 }
