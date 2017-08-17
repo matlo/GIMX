@@ -196,7 +196,6 @@ static void rawinput_handler(const RAWINPUT * raw, UINT align) {
 static void wminput_handler(WPARAM wParam __attribute__((unused)), LPARAM lParam)
 {
   UINT dwSize = 0;
-  LPBYTE lpb;
 
   GetRawInputData((HRAWINPUT) lParam, RID_INPUT, NULL, &dwSize, sizeof (RAWINPUTHEADER));
 
@@ -204,11 +203,7 @@ static void wminput_handler(WPARAM wParam __attribute__((unused)), LPARAM lParam
     return;
   }
 
-  lpb = (LPBYTE) malloc(dwSize);
-  if (lpb == NULL) {
-      PRINT_ERROR_ALLOC_FAILED("malloc")
-      return;
-  }
+  LPBYTE lpb[dwSize];
 
   if (GetRawInputData((HRAWINPUT) lParam, RID_INPUT, lpb, &dwSize, sizeof (RAWINPUTHEADER)) != dwSize) {
       return;
