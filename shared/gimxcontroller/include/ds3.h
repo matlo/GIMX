@@ -8,6 +8,9 @@
 
 #include "defs.h"
 
+#define DS3_VENDOR  0x054c
+#define DS3_PRODUCT 0x0268
+
 typedef enum
 {
   sa_lstick_x = rel_axis_lstick_x,
