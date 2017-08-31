@@ -101,15 +101,17 @@ const GCAPI_USB_IDS * gpppcprog_get_ids(unsigned int * nb)
   return usb_ids;
 }
 
-static struct
+typedef struct
 {
-  int device;
+  struct ghid_device * device;
   char * path;
   unsigned int pending;
   GHID_READ_CALLBACK fp_read;
   GHID_WRITE_CALLBACK fp_write;
   GHID_CLOSE_CALLBACK fp_close;
-} gpp_devices[MAX_GPP_DEVICES] = {};
+} s_gpp_device;
+
+static s_gpp_device devices[MAX_GPP_DEVICES] = {};
 
 static inline int check_device(int device, const char * file, unsigned int line, const char * func) {
   if (device < 0 || device >= MAX_GPP_DEVICES) {
@@ -123,31 +125,11 @@ static inline int check_device(int device, const char * file, unsigned int line,
     return retValue; \
   }
 
-void gpppcprog_init(void) __attribute__((constructor));
-void gpppcprog_init(void)
-{
-    int i;
-    for (i = 0; i < MAX_GPP_DEVICES; ++i) {
-        gpp_devices[i].device = -1;
-    }
-}
-
-void gpppcprog_clean(void) __attribute__((destructor));
-void gpppcprog_clean(void)
-{
-    int i;
-    for (i = 0; i < MAX_GPP_DEVICES; ++i) {
-        if(gpp_devices[i].device >= 0) {
-            ghid_close(gpp_devices[i].device);
-        }
-    }
-}
-
 static int8_t gpppcprog_send(int id, uint8_t type, uint8_t * data, uint16_t length)
 {
   CHECK_DEVICE(id, -1)
 
-  if (gpp_devices[id].pending > 0)
+  if (devices[id].pending > 0)
   {
     return 0;
   }
@@ -172,15 +154,15 @@ static int8_t gpppcprog_send(int id, uint8_t type, uint8_t * data, uint16_t leng
       memcpy(report.data, data + i, sndLen);
       i += sndLen;
     }
-    if(gpp_devices[id].fp_write) {
-      if (ghid_write(gpp_devices[id].device, (unsigned char*)&report, sizeof(report)) == -1)
+    if(devices[id].fp_write) {
+      if (ghid_write(devices[id].device, (unsigned char*)&report, sizeof(report)) == -1)
       {
         return -1;
       }
-      ++gpp_devices[id].pending;
+      ++devices[id].pending;
     }
     else {
-      if (ghid_write_timeout(gpp_devices[id].device, (unsigned char*)&report, sizeof(report), 1000) == -1)
+      if (ghid_write_timeout(devices[id].device, (unsigned char*)&report, sizeof(report), 1000) == -1)
         return -1;
     }
     report.header.first = 0;
@@ -192,9 +174,9 @@ static int8_t gpppcprog_send(int id, uint8_t type, uint8_t * data, uint16_t leng
 static uint8_t is_device_opened(const char* device)
 {
   unsigned int i;
-  for(i = 0; i < sizeof(gpp_devices) / sizeof(*gpp_devices); ++i)
+  for(i = 0; i < sizeof(devices) / sizeof(*devices); ++i)
   {
-    if(gpp_devices[i].path && !strcmp(gpp_devices[i].path, device))
+    if(devices[i].path && !strcmp(devices[i].path, device))
     {
       return 1;
     }
@@ -222,11 +204,11 @@ int8_t gppcprog_connect(int id, const char * path)
       return -1;
     }
 
-    gpp_devices[id].device = ghid_open_path(path);
+    devices[id].device = ghid_open_path(path);
 
-    if(gpp_devices[id].device >= 0)
+    if(devices[id].device != NULL)
     {
-      gpp_devices[id].path = strdup(path);
+      devices[id].path = strdup(path);
     }
     else
     {
@@ -241,7 +223,7 @@ int8_t gppcprog_connect(int id, const char * path)
     }
     // Connect to any GPP/Cronus/Titan
 
-    struct ghid_device *devs, *cur_dev;
+    struct ghid_device_info *devs, *cur_dev;
 
     devs = ghid_enumerate(0x0000, 0x0000);
     for(cur_dev = devs; cur_dev != NULL; cur_dev = cur_dev->next)
@@ -253,15 +235,15 @@ int8_t gppcprog_connect(int id, const char * path)
         {
           if(!is_device_opened(cur_dev->path))
           {
-            if ((gpp_devices[id].device = ghid_open_path(cur_dev->path)) >= 0)
+            if ((devices[id].device = ghid_open_path(cur_dev->path)) != NULL)
             {
-              gpp_devices[id].path = strdup(cur_dev->path);
+              devices[id].path = strdup(cur_dev->path);
               break;
             }
           }
         }
       }
-      if(gpp_devices[id].device >= 0)
+      if(devices[id].device != NULL)
       {
         break;
       }
@@ -269,7 +251,7 @@ int8_t gppcprog_connect(int id, const char * path)
     ghid_free_enumeration(devs);
   }
 
-  if (gpp_devices[id].device < 0)
+  if (devices[id].device == NULL)
   {
     ghid_exit();
     return -1;
@@ -289,22 +271,22 @@ void gppcprog_disconnect(int id)
 {
   CHECK_DEVICE(id,)
 
-  if (gpp_devices[id].device >= 0)
+  if (devices[id].device != NULL)
   {
     //make sure the write is synchronous
-    gpp_devices[id].fp_write = NULL;
+    devices[id].fp_write = NULL;
 
     //unblock sending
-    gpp_devices[id].pending = 0;
+    devices[id].pending = 0;
 
     // Leave Capture Mode
     gpppcprog_send(id, GPPKG_LEAVE_CAPTURE, NULL, 0);
 
     // Disconnect to GPP
-    ghid_close(gpp_devices[id].device);
-    gpp_devices[id].device = -1;
-    free(gpp_devices[id].path);
-    gpp_devices[id].path = NULL;
+    ghid_close(devices[id].device);
+    devices[id].device = NULL;
+    free(devices[id].path);
+    devices[id].path = NULL;
 
     ghid_exit();
   }
@@ -318,9 +300,9 @@ int8_t gpppcprog_input(int id, GCAPI_REPORT *report, int timeout)
   int bytesReceived;
   uint8_t rcvBuf[65] = {};
 
-  if (gpp_devices[id].device < 0 || report == NULL)
+  if (devices[id].device == NULL || report == NULL)
     return (-1);
-  bytesReceived = ghid_read_timeout(gpp_devices[id].device, rcvBuf, sizeof(rcvBuf), timeout);
+  bytesReceived = ghid_read_timeout(devices[id].device, rcvBuf, sizeof(rcvBuf), timeout);
   if (bytesReceived < 0)
   {
     return (-1);
@@ -333,50 +315,56 @@ int8_t gpppcprog_input(int id, GCAPI_REPORT *report, int timeout)
   return (0);
 }
 
-static int read_callback(int user, const void * buf, int status)
+static int read_callback(void * user, const void * buf, int status)
 {
   if (status < 0) {
     return 1;
   }
 
+  s_gpp_device * device = (s_gpp_device *) user;
+
   //TODO MLA: only 1 poll in each period
-  int ret = ghid_poll(gpp_devices[user].device);
+  int ret = ghid_poll(device->device);
   if (ret < 0) {
     return 1;
   }
 
   if(status > 0 && ((unsigned char *)buf)[0] == GPPKG_INPUT_REPORT) {
-    return gpp_devices[user].fp_read(user, buf, status);
+    return device->fp_read(user, buf, status);
   }
 
   return 0;
 }
 
-static int write_callback(int user, int transfered)
+static int write_callback(void * user, int transfered)
 {
-  if (gpp_devices[user].pending > 0)
+  s_gpp_device * device = (s_gpp_device *) user;
+
+  if (device->pending > 0)
   {
-    --gpp_devices[user].pending;
+    --device->pending;
   }
-  if(gpp_devices[user].fp_write)
+  if(device->fp_write)
   {
-    return gpp_devices[user].fp_write(user, transfered);
+    return device->fp_write(user, transfered);
   }
   return 0;
 }
 
-static int close_callback(int user)
+static int close_callback(void * user)
 {
-  return gpp_devices[user].fp_close(user);
+  s_gpp_device * device = (s_gpp_device *) user;
+
+  return device->fp_close(user);
 }
 
 int8_t gpppcprog_start_async(int id, const GHID_CALLBACKS * callbacks)
 {
   CHECK_DEVICE(id, -1)
 
-  gpp_devices[id].fp_read = callbacks->fp_read;
-  gpp_devices[id].fp_write = callbacks->fp_write;
-  gpp_devices[id].fp_close = callbacks->fp_close;
+  devices[id].fp_read = callbacks->fp_read;
+  devices[id].fp_write = callbacks->fp_write;
+  devices[id].fp_close = callbacks->fp_close;
 
   GHID_CALLBACKS ghid_callbacks = {
           .fp_read = read_callback,
@@ -386,12 +374,12 @@ int8_t gpppcprog_start_async(int id, const GHID_CALLBACKS * callbacks)
           .fp_remove = callbacks->fp_remove,
   };
 
-  int ret = ghid_register(gpp_devices[id].device, id, &ghid_callbacks);
+  int ret = ghid_register(devices[id].device, devices + id, &ghid_callbacks);
   if (ret < 0) {
     return -1;
   }
 
-  ret = ghid_poll(gpp_devices[id].device);
+  ret = ghid_poll(devices[id].device);
   if (ret < 0) {
     return -1;
   }

@@ -10,6 +10,7 @@
 #include <vector>
 #include "Device.h"
 #include "Event.h"
+#include <gimxtimer/include/gtimer.h>
 
 using namespace std;
 
@@ -52,7 +53,7 @@ class EventCatcher
         string m_DeviceType;
         string m_EventType;
         unsigned int done;
-        int stopTimer;
+        struct gtimer * stopTimer;
         bool wevents;
 
         string device_name;

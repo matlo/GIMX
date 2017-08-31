@@ -409,8 +409,10 @@ static int process_report(uint8_t type, uint8_t report, const uint8_t *buf, int 
   return ret;
 }
 
-static int process(int sixaxis_number, int psm, const unsigned char *buf, int len)
+static int process(void * user, int psm, const unsigned char *buf, int len)
 {
+  int sixaxis_number = (intptr_t) user;
+
   uint8_t transaction;
   uint16_t maxsize;
   uint8_t type;
@@ -524,8 +526,10 @@ static int process(int sixaxis_number, int psm, const unsigned char *buf, int le
   return ret;
 }
 
-static int read_control(int sixaxis_number)
+static int read_control(void * user)
 {
+  int sixaxis_number = (intptr_t) user;
+
   int ret = 0;
 
   struct sixaxis_state* state = states + sixaxis_number;
@@ -534,7 +538,7 @@ static int read_control(int sixaxis_number)
 
   if (len > 0)
   {
-    if (process(sixaxis_number, PSM_HID_CONTROL, buf, len) == -1)
+    if (process(user, PSM_HID_CONTROL, buf, len) == -1)
     {
       gwarn("error processing ctrl\n");
     }
@@ -549,8 +553,10 @@ static int read_control(int sixaxis_number)
   return ret;
 }
 
-static int close_control(int sixaxis_number)
+static int close_control(void * user)
 {
+  int sixaxis_number = (intptr_t) user;
+
   struct sixaxis_state* state = states + sixaxis_number;
 
   if(state->channels.control.id >= 0)
@@ -566,8 +572,10 @@ static int close_control(int sixaxis_number)
   return 1;
 }
 
-static int read_interrupt(int sixaxis_number)
+static int read_interrupt(void * user)
 {
+  int sixaxis_number = (intptr_t) user;
+
   int ret = 0;
 
   struct sixaxis_state* state = states + sixaxis_number;
@@ -576,7 +584,7 @@ static int read_interrupt(int sixaxis_number)
 
   if (len > 0)
   {
-    if (process(sixaxis_number, PSM_HID_INTERRUPT, buf, len) == -1)
+    if (process(user, PSM_HID_INTERRUPT, buf, len) == -1)
     {
       gwarn("error processing data\n");
     }
@@ -589,8 +597,10 @@ static int read_interrupt(int sixaxis_number)
   return ret;
 }
 
-static int close_interrupt(int sixaxis_number)
+static int close_interrupt(void * user)
 {
+  int sixaxis_number = (intptr_t) user;
+
   struct sixaxis_state* state = states + sixaxis_number;
 
   if(state->channels.interrupt.id >= 0)
@@ -631,25 +641,29 @@ void sixaxis_close(int sixaxis_number)
 
   l2cap_abs_get()->disconnect(state->channels.control.id);
 
-  close_interrupt(sixaxis_number);
-  close_control(sixaxis_number);
+  close_interrupt((void *)(intptr_t) sixaxis_number);
+  close_control((void *)(intptr_t) sixaxis_number);
 }
 
-static int connect_interrupt(int sixaxis_number)
+static int connect_interrupt(void * user)
 {
+  int sixaxis_number = (intptr_t) user;
+
   struct sixaxis_state* state = states + sixaxis_number;
 
   state->channels.interrupt.pending = 0;
 
   ginfo("connected with hci%d = %s to %s\n", state->dongle_index, state->bdaddr_src.str, state->bdaddr_dst);
 
-  l2cap_abs_get()->add_source(state->channels.interrupt.id, sixaxis_number, read_interrupt, process, close_interrupt);
+  l2cap_abs_get()->add_source(state->channels.interrupt.id, user, read_interrupt, process, close_interrupt);
 
   return 0;
 }
 
-static int connect_control(int sixaxis_number)
+static int connect_control(void * user)
 {
+  int sixaxis_number = (intptr_t) user;
+
   struct sixaxis_state* state = states + sixaxis_number;
 
   state->channels.control.pending = 0;
@@ -658,7 +672,7 @@ static int connect_control(int sixaxis_number)
     state->bdaddr_src.str, state->bdaddr_dst, PSM_HID_INTERRUPT);
 
   if ((state->channels.interrupt.id = l2cap_abs_get()->connect(state->bdaddr_src.str, state->bdaddr_dst,
-      PSM_HID_INTERRUPT, L2CAP_ABS_LM_MASTER, sixaxis_number, connect_interrupt, close_interrupt)) < 0)
+      PSM_HID_INTERRUPT, L2CAP_ABS_LM_MASTER, user, connect_interrupt, close_interrupt)) < 0)
   {
     gerror("can't connect to interrupt psm\n");
     l2cap_abs_get()->close(state->channels.control.id);
@@ -667,7 +681,7 @@ static int connect_control(int sixaxis_number)
 
   state->channels.interrupt.pending = 1;
 
-  l2cap_abs_get()->add_source(state->channels.control.id, sixaxis_number, read_control, process, close_control);
+  l2cap_abs_get()->add_source(state->channels.control.id, user, read_control, process, close_control);
 
   return 0;
 }
@@ -711,7 +725,7 @@ int sixaxis_connect(int sixaxis_number, int dongle_index, const char * bdaddr_ds
     state->bdaddr_src.str, state->bdaddr_dst, PSM_HID_CONTROL);
 
   if ((state->channels.control.id = l2cap_abs_get()->connect(state->bdaddr_src.str, state->bdaddr_dst,
-      PSM_HID_CONTROL, L2CAP_ABS_LM_MASTER, sixaxis_number, connect_control, close_control)) < 0)
+      PSM_HID_CONTROL, L2CAP_ABS_LM_MASTER, (void *)(intptr_t) sixaxis_number, connect_control, close_control)) < 0)
   {
     gerror("can't connect to control psm\n");
     return -1;

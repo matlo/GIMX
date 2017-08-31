@@ -16,6 +16,7 @@
 #include "gimx.h"
 #include "macros.h"
 #include <controller.h>
+#include "include/haptic/haptic_core.h"
 
 #define DEFAULT_RADIUS 512
 #define DEFAULT_VELOCITY 1
@@ -91,7 +92,7 @@ void cfg_set_ffb_tweaks(const s_config_entry * entry)
   ffb_tweaks[entry->controller_id][entry->profile_id].invert = entry->params.ffb_tweaks.invert;
 }
 
-const s_ffb_tweaks * cfg_get_ffb_tweaks(int controller)
+static inline const s_ffb_tweaks * cfg_get_ffb_tweaks(int controller)
 {
   return ffb_tweaks[controller] + cfg_controllers[controller].current->index;
 }
@@ -864,7 +865,9 @@ void cfg_profile_activation()
             update_stick(i, j);
           }
 
-          adapter_set_ffb_tweaks(i);
+          const s_ffb_tweaks * tweaks = cfg_get_ffb_tweaks(i);
+
+          adapter_set_haptic_tweaks(i, tweaks->invert);
         }
 
         cfg_controllers[i].next = NULL;

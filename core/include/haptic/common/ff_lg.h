@@ -6,7 +6,12 @@
 #ifndef FF_LG_H_
 #define FF_LG_H_
 
-#include <gimxinput/include/ginput.h>
+#include <stdint.h>
+#include <string.h>
+#include <limits.h>
+
+#include <haptic/haptic_core.h>
+#include <haptic/haptic_common.h>
 
 #ifdef WIN32
 #define PACKED __attribute__((gcc_struct, packed))
@@ -35,6 +40,7 @@
 #define FF_LG_OUTPUT_REPORT_SIZE 7
 
 #define FF_LG_FSLOTS_NB 4
+#define FF_LG_FSLOTS_OFFSET 4
 
 #define FF_LG_FSLOT_MASK 0xf0
 
@@ -131,30 +137,156 @@
 #define FF_LG_HIGHRES_DAMPER_S2(FORCE)   ((FORCE->parameters)[3] & 0x01) // high side inversion (1 = inverted)
 #define FF_LG_HIGHRES_DAMPER_CLIP(FORCE) (FORCE->parameters)[4]          // clip level (maximum force), on either side (only for Driving Force Pro)
 
+#define FF_LG_CAPS_HIGH_RES_COEF     (1 << 0)
+#define FF_LG_CAPS_OLD_LOW_RES_COEF  (1 << 1)
+#define FF_LG_CAPS_HIGH_RES_DEADBAND (1 << 2)
+#define FF_LG_CAPS_DAMPER_CLIP       (1 << 3)
+#define FF_LG_CAPS_LEDS              (1 << 4)
+#define FF_LG_CAPS_RANGE_200_900     (1 << 5)
+#define FF_LG_CAPS_RANGE             (1 << 6)
+
 typedef struct PACKED {
-    unsigned char type;
+    union {
+        unsigned char force_type;
+        unsigned char cmd_param;
+    };
     unsigned char parameters[FF_LG_OUTPUT_REPORT_SIZE - 2];
-} s_ff_lg_force;
+} s_ff_lg_command;
 
 typedef struct {
   unsigned char data[FF_LG_OUTPUT_REPORT_SIZE + 1];
 } s_ff_lg_report;
 
-int ff_lg_init(int device, unsigned short pid_from, unsigned short pid_to);
+const char * ff_lg_get_cmd_name(unsigned char header);
+const char * ff_lg_get_ext_cmd_name(unsigned char ext);
+const char * ff_lg_get_ftype_name(unsigned char ftype);
+unsigned short ff_lg_get_wheel_range(unsigned short pid);
+
 void ff_lg_decode_extended(const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]);
 void ff_lg_decode_command(const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]);
-void ff_lg_process_report(int device, const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]);
-int ff_lg_get_report(int device, s_ff_lg_report * report);
-void ff_lg_ack(int device);
 
-int16_t ff_lg_get_condition_coef(unsigned short pid, unsigned char hr, unsigned char k, unsigned char s);
-uint16_t ff_lg_get_spring_deadband(unsigned short pid, unsigned char d, unsigned char dL);
-uint16_t ff_lg_get_damper_clip(unsigned short pid, unsigned char c);
+uint8_t ff_lg_get_caps(uint16_t pid);
 
-int ff_lg_is_logitech_wheel(unsigned short vendor, unsigned short product);
+int ff_lg_convert_force(uint8_t caps, uint8_t slot_index, const s_ff_lg_command * force, uint8_t playing, s_haptic_core_data * to);
+int ff_lg_convert_extended(const s_ff_lg_command * cmd, s_haptic_core_data * to);
+void ff_lg_convert_slot(const s_haptic_core_data * from, int slot, s_ff_lg_report * to, uint8_t caps);
 
-const char * ff_lg_get_ftype_name(unsigned char ftype);
+/*
+ * Convert a Logitech wheel position to a signed 16-bit value.
+ *
+ * input values 127 and 128 are center positions and are translated to output value 0
+ */
+static inline int16_t ff_lg_u8_to_s16(uint8_t c) {
+    // 127 and 128 are center positions
+    if (c < 128) {
+        ++c;
+    }
+    int value = (c - 128) * SHRT_MAX / 127;
+    return value;
+}
 
-unsigned short ff_lg_get_wheel_range(unsigned short pid);
+/*
+ * Convert a signed 16-bit wheel position to an unsigned 8-bit wheel position.
+ *
+ * input value is in [-32767, 32767], -32768 is not expected
+ */
+static inline uint8_t ff_lg_s16_to_u8(int16_t s) {
+    if (s < 0) {
+        --s;
+    }
+    int value = s + 32768;
+    return value * UCHAR_MAX / USHRT_MAX;
+}
+
+/*
+ * Convert a signed 16-bit wheel position to an unsigned 11-bit wheel position.
+ *
+ * input value is in [-32767, 32767], -32768 is not expected
+ */
+static inline uint16_t ff_lg_s16_to_u11(int16_t s) {
+    int value = s + 32767;
+    if (s > 0) {
+        ++value;
+    }
+    value = value * 2047 / USHRT_MAX;
+    return value;
+}
+
+static inline uint16_t ff_lg_u8_to_u16(uint8_t c) {
+    return c * 65535 / UCHAR_MAX;
+}
+
+static inline int16_t ff_lg_u16_to_s16(uint16_t s) {
+    // 32767 and 32768 are center positions
+    int value = s - 32768;
+    if (value < 0) {
+        ++value;
+    }
+    return value;
+}
+
+#define FIFO_SIZE 16
+
+typedef struct {
+    uint8_t cmd;
+    uint8_t ext;
+} s_cmd;
+
+static inline int compare_cmd(s_cmd cmd1, s_cmd cmd2) {
+    return cmd1.cmd == cmd2.cmd && (cmd1.cmd != FF_LG_CMD_EXTENDED_COMMAND || cmd1.ext == cmd2.ext);
+}
+
+static inline void ff_lg_fifo_push(s_cmd fifo[FIFO_SIZE], s_cmd cmd, int replace) {
+    int i;
+    for (i = 0; i < FIFO_SIZE; ++i) {
+        if (!fifo[i].cmd) {
+            fifo[i] = cmd; //add
+            dprintf("push:");
+            break;
+        } else if (replace && compare_cmd(fifo[i], cmd)) {
+            dprintf("already queued:");
+            break;
+        }
+    }
+    if(i == FIFO_SIZE) {
+        PRINT_ERROR_OTHER("no more space in fifo")
+        dprintf("can't push:");
+    }
+    dprintf(" %02x", cmd.cmd);
+    if(cmd.cmd == FF_LG_CMD_EXTENDED_COMMAND) {
+        dprintf(" %02x", cmd.ext);
+    }
+    dprintf("\n");
+}
+
+static inline s_cmd ff_lg_fifo_peek(s_cmd fifo[FIFO_SIZE]) {
+    s_cmd cmd = fifo[0];
+    if (cmd.cmd) {
+        dprintf("peek: %02x", cmd.cmd);
+        if(cmd.cmd == FF_LG_CMD_EXTENDED_COMMAND) {
+            dprintf(" %02x", cmd.ext);
+        }
+        dprintf("\n");
+    }
+    return cmd;
+}
+
+static inline void ff_lg_fifo_remove(s_cmd fifo[FIFO_SIZE], s_cmd cmd) {
+    int i;
+    for (i = 0; i < FIFO_SIZE; ++i) {
+        if (!fifo[i].cmd) {
+            break;
+        } else if (compare_cmd(fifo[i], cmd)) {
+            dprintf("remove %02x", cmd.cmd);
+            if(cmd.cmd == FF_LG_CMD_EXTENDED_COMMAND) {
+                dprintf(" %02x", cmd.ext);
+            }
+            dprintf("\n");
+            memmove(fifo + i, fifo + i + 1, (FF_LG_FSLOTS_NB - i - 1) * sizeof(*fifo));
+            memset(fifo + FF_LG_FSLOTS_NB - i - 1, 0x00, sizeof(*fifo));
+            break;
+        }
+    }
+}
 
 #endif /* FF_LG_H_ */

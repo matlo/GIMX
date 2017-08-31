@@ -37,7 +37,7 @@ typedef struct {
         } bt;
         struct {
             char* portname;
-            int device;
+            struct gserial_device * device;
             s_packet packet;
             unsigned int bread;
         } serial;
@@ -64,25 +64,10 @@ typedef struct {
     s_report_packet report[2]; //the xbox one guide button needs a dedicated report
     int status;
     int joystick;
-    struct {
-        int joystick;
-        struct
-        {
-            unsigned short vendor;
-            unsigned short product;
-        } usb_ids;
-        unsigned char has_rumble;
-        unsigned char has_ffb;
-        struct {
-            int id;
-            int write_pending;
-            int read_pending;
-        } hid;
-    int ff_lg;
-    int ff_conv;
-    } haptic;
     unsigned char forward_out_reports;
     unsigned char process_ffb;
+    int haptic_sink_joystick;
+    struct haptic_core * ff_core;
 } s_adapter;
 
 int adapter_detect();
@@ -108,7 +93,7 @@ int adapter_forward_interrupt_in(int adapter, unsigned char* data, unsigned char
 
 int adapter_is_usb_auth_required(int adapter);
 
-void adapter_set_haptic(s_config_entry * entry, int force);
-void adapter_set_ffb_tweaks(int adapter);
+void adapter_set_haptic_sink(int adapter, int joystick, int force);
+void adapter_set_haptic_tweaks(int adapter, int invert);
 
 #endif /* CONTROLLER_H_ */

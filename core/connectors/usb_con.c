@@ -227,7 +227,7 @@ static struct
 
 static struct usb_state {
   e_controller_type type;
-  int usb_device;
+  struct gusb_device * usb_device;
   unsigned char ack;
   int joystick_id;
   struct
@@ -288,7 +288,7 @@ void usb_poll_interrupts() {
   unsigned int i;
   for (i = 0; i < MAX_CONTROLLERS; ++i) {
     struct usb_state * state = usb_states + i;
-    if (state->usb_device >= 0 && state->ack) {
+    if (state->usb_device != NULL && state->ack) {
       int ret = gusb_poll(state->usb_device, controller[state->type].endpoints.in.address);
       if (ret != -1) {
         state->ack = 0;
@@ -297,9 +297,11 @@ void usb_poll_interrupts() {
   }
 }
 
-static int usb_read_callback(int user, unsigned char endpoint, const void * buf, int status) {
+static int usb_read_callback(void * user, unsigned char endpoint, const void * buf, int status) {
 
-  struct usb_state * state = usb_states + user;
+  int adapter = (intptr_t) user;
+
+  struct usb_state * state = usb_states + adapter;
 
   if (endpoint != 0x00) {
     state->ack = 1;
@@ -322,7 +324,7 @@ static int usb_read_callback(int user, unsigned char endpoint, const void * buf,
 
     if (status >= 0) {
 
-      int ret = adapter_forward_control_in(user, (unsigned char *)buf, status);
+      int ret = adapter_forward_control_in(adapter, (unsigned char *)buf, status);
       if (ret < 0) {
         return -1;
       }
@@ -342,16 +344,16 @@ static int usb_read_callback(int user, unsigned char endpoint, const void * buf,
 
     if (status > 0) {
 
-      process_report(user, state, (unsigned char *)buf, status);
+      process_report(adapter, state, (unsigned char *)buf, status);
     }
   }
 
   return 0;
 }
 
-static int usb_write_callback(int user, unsigned char endpoint, int status) {
+static int usb_write_callback(void * user, unsigned char endpoint, int status) {
 
-  struct usb_state * state = usb_states + user;
+  struct usb_state * state = usb_states + (intptr_t) user;
 
   if (status < 0) {
     return -1;
@@ -368,7 +370,7 @@ static int usb_write_callback(int user, unsigned char endpoint, int status) {
   return 0;
 }
 
-static int usb_close_callback(int user __attribute__((unused))) {
+static int usb_close_callback(void * user __attribute__((unused))) {
 
   // TODO MLA: anything to do here?
 
@@ -399,7 +401,6 @@ int usb_init(int usb_number, e_controller_type type) {
   struct usb_state * state = usb_states + usb_number;
 
   memset(state, 0x00, sizeof(*state));
-  state->usb_device = -1;
   state->joystick_id = -1;
   state->type = type;
   state->ack = 1;
@@ -413,13 +414,13 @@ int usb_init(int usb_number, e_controller_type type) {
   for (i = 0; i < sizeof(controller->ids) / sizeof(*controller->ids); ++i)
   {
     state->usb_device = gusb_open_ids(controller[type].ids[i].vendor, controller[type].ids[i].product);
-    if (state->usb_device >= 0) {
+    if (state->usb_device != NULL) {
       ginfo(_("found pass-through device 0x%04x:0x%04x\n"), controller[type].ids[i].vendor, controller[type].ids[i].product);
       break;
     }
   }
 
-  if (state->usb_device < 0) {
+  if (state->usb_device == NULL) {
     return -1;
   }
 
@@ -451,7 +452,7 @@ int usb_init(int usb_number, e_controller_type type) {
           .fp_register = REGISTER_FUNCTION,
           .fp_remove = REMOVE_FUNCTION,
   };
-  ret = gusb_register(state->usb_device, usb_number, &callbacks);
+  ret = gusb_register(state->usb_device, (void *)(intptr_t) usb_number, &callbacks);
   if (ret < 0) {
     usb_close(usb_number);
     return -1;
@@ -477,7 +478,7 @@ int usb_close(int usb_number) {
 
   struct usb_state * state = usb_states + usb_number;
 
-  if (state->usb_device >= 0) {
+  if (state->usb_device != NULL) {
     if (state->type == C_TYPE_XONE_PAD) {
       unsigned char power_off[] = { 0x05, 0x20, 0x00, 0x01, 0x04 };
       usb_send_interrupt_out_sync(usb_number, power_off, sizeof(power_off));

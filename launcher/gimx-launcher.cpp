@@ -499,7 +499,7 @@ void launcherFrame::readSerialPorts()
 
 void launcherFrame::readHidPorts()
 {
-  struct ghid_device *devs, *cur_dev;
+  struct ghid_device_info *devs, *cur_dev;
 
   wxString previous = OutputChoice->GetStringSelection();
 
@@ -1112,8 +1112,7 @@ void launcherFrame::readDebugStrings(wxArrayString & values)
 {
     wxArrayString choices;
     choices.Add(wxT("adapter"));
-    choices.Add(wxT("ff_conv"));
-    choices.Add(wxT("ff_lg"));
+    choices.Add(wxT("haptic"));
     wxMultiChoiceDialog dialog(this, _("Select the files to debug:"), _(""), choices);
 
     if (dialog.ShowModal() == wxID_OK)

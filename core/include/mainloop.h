@@ -9,6 +9,7 @@
 #define MAINLOOP_H_
 
 void set_done();
+int get_done();
 void mainloop();
 
 #endif /* MAINLOOP_H_ */

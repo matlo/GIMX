@@ -32,9 +32,6 @@ static s_config_entry entry;
 static void reset_entry()
 {
   memset(&entry.device, 0x00, sizeof(entry.device));
-#ifndef WIN32
-  entry.device.hid = -1;
-#endif
   memset(&entry.event, 0x00, sizeof(entry.event));
   memset(&entry.params, 0x00, sizeof(entry.params));
 }
@@ -135,13 +132,6 @@ static int GetDeviceId(xmlNode* a_node)
           {
             entry.device.id = i;
             ginput_set_joystick_used(i);
-#ifndef WIN32
-            entry.device.hid = ginput_joystick_get_hid(i);
-#else
-            entry.device.usb_ids.vendor = 0;
-            entry.device.usb_ids.product = 0;
-            ginput_joystick_get_usb_ids(i, &entry.device.usb_ids.vendor, &entry.device.usb_ids.product);
-#endif
             break;
           }
         }
@@ -462,7 +452,7 @@ static int ProcessEventElement(xmlNode * a_node, unsigned char mapper)
                       && entry.params.mapper.axis_props.axis == rel_axis_0
                       && entry.params.mapper.axis_props.props == AXIS_PROP_CENTERED)
               {
-                adapter_set_haptic(&entry, 0);
+                adapter_set_haptic_sink(entry.controller_id, entry.device.id, 0);
               }
               break;
             default:
@@ -1101,7 +1091,7 @@ static int ProcessForceFeedbackElement(xmlNode * a_node)
   {
     cfg_set_ffb_tweaks(&entry);
     // force FFB selection for 1st profile only
-    adapter_set_haptic(&entry, entry.profile_id == 0 ? 1 : 0);
+    adapter_set_haptic_sink(entry.controller_id, entry.device.id, entry.profile_id == 0 ? 1 : 0);
   }
 
   return ret;

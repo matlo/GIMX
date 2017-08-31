@@ -27,7 +27,7 @@ static struct {
     unsigned char master[6];
 } out;
 
-int get_bdaddrs(int device) {
+int get_bdaddrs(struct gusb_device *device) {
 
     struct {
         struct usb_ctrlrequest req;
@@ -80,7 +80,7 @@ int get_bdaddrs(int device) {
     return res;
 }
 
-int process_device(int device) {
+int process_device(struct gusb_device *device) {
 
     if (get_bdaddrs(device) < 0) {
         return -1;
@@ -104,9 +104,9 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
         return -1;
     }
 
-    struct gusb_device * devs = gusb_enumerate(VENDOR, 0x0000);
+    struct gusb_device_info * devs = gusb_enumerate(VENDOR, 0x0000);
 
-    struct gusb_device * current;
+    struct gusb_device_info * current;
     for (current = devs; current != NULL; current = current->next) {
 
         unsigned int i;
@@ -120,9 +120,9 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
             continue;
         }
 
-        int device = gusb_open_path(current->path);
+        struct gusb_device *device = gusb_open_path(current->path);
 
-        if (device >= 0) {
+        if (device != NULL) {
 
             status = process_device(device);
 

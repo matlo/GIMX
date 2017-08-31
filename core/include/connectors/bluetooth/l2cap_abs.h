@@ -25,21 +25,21 @@
 #define L2CAP_ABS_LM_AUTH    0x02
 #define L2CAP_ABS_LM_ENCRYPT 0x04
 
-typedef int (* L2CAP_ABS_GENERIC_CALLBACK) (int user);
+typedef int (* L2CAP_ABS_GENERIC_CALLBACK) (void * user);
 typedef L2CAP_ABS_GENERIC_CALLBACK L2CAP_ABS_CLOSE_CALLBACK;
 typedef L2CAP_ABS_GENERIC_CALLBACK L2CAP_ABS_CONNECT_CALLBACK;
 typedef L2CAP_ABS_GENERIC_CALLBACK L2CAP_ABS_READ_CALLBACK;
 typedef int (* L2CAP_ABS_LISTEN_ACCEPT_CALLBACK) (int channel, bdaddr_t * src);
 
 typedef int (* L2CAP_ABS_CONNECT) (const char *bdaddr_src, const char *bdaddr_dest, unsigned short psm, int options,
-    int user, L2CAP_ABS_CONNECT_CALLBACK callback, L2CAP_ABS_CLOSE_CALLBACK close_callback);
-typedef int (* L2CAP_ABS_LISTEN) (int user, const char *bdaddr_adapter, unsigned short psm, int options,
+    void * user, L2CAP_ABS_CONNECT_CALLBACK callback, L2CAP_ABS_CLOSE_CALLBACK close_callback);
+typedef int (* L2CAP_ABS_LISTEN) (void * user, const char *bdaddr_adapter, unsigned short psm, int options,
     L2CAP_ABS_LISTEN_ACCEPT_CALLBACK read_callback, L2CAP_ABS_CLOSE_CALLBACK close_callback);
 typedef int (* L2CAP_ABS_SEND) (int channel, const unsigned char* buf, int len, int blocking);
 typedef int (* L2CAP_ABS_RECV) (int channel, unsigned char* buf, int len);
 typedef int (* L2CAP_ABS_CLOSE) (int channel);
-typedef int (* L2CAP_ABS_PACKET_CALLBACK) (int user, int psm, const unsigned char *buf, int len);
-typedef void (* L2CAP_ABS_ADD_SOURCE) (int channel, int user,
+typedef int (* L2CAP_ABS_PACKET_CALLBACK) (void * user, int psm, const unsigned char *buf, int len);
+typedef void (* L2CAP_ABS_ADD_SOURCE) (int channel, void * user,
     L2CAP_ABS_READ_CALLBACK read_callback, L2CAP_ABS_PACKET_CALLBACK packet_callback, L2CAP_ABS_CLOSE_CALLBACK close_callback);
 
 typedef int (* L2CAP_ABS_DISCONNECT) (int channel);

@@ -22,12 +22,17 @@ void set_done()
   done = 1;
 }
 
-static int timer_read(int user __attribute__((unused)))
+int get_done()
+{
+  return done;
+}
+
+static int timer_read(void * user __attribute__((unused)))
 {
   return 1;
 }
 
-static int timer_close(int user __attribute__((unused)))
+static int timer_close(void * user __attribute__((unused)))
 {
   set_done();
   return 1;
@@ -39,7 +44,7 @@ void mainloop()
   int num_evt;
   GE_Event* event;
   unsigned int running_macros;
-  int timer = -1;
+  struct gtimer * timer = NULL;
 
   if(!adapter_get(0)->bt.bdaddr_dst || adapter_get(0)->ctype == C_TYPE_DS4)
   {
@@ -49,8 +54,8 @@ void mainloop()
             .fp_register = REGISTER_FUNCTION,
             .fp_remove = REMOVE_FUNCTION,
     };
-    timer = gtimer_start(0, (unsigned int)gimx_params.refresh_period, &callbacks);
-    if (timer < 0)
+    timer = gtimer_start(NULL, (unsigned int)gimx_params.refresh_period, &callbacks);
+    if (timer == NULL)
     {
       done = 1;
     }
@@ -114,7 +119,7 @@ void mainloop()
     }
   }
 
-  if (timer >= 0)
+  if (timer != NULL)
   {
     gtimer_close(timer);
   }

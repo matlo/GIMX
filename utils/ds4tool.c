@@ -52,7 +52,7 @@ static void usage() {
     fprintf(stderr, "            when -t is not used, the slave bdaddr to select\n");
 }
 
-int get_bdaddrs(int device) {
+int get_bdaddrs(struct gusb_device * device) {
 
     struct {
         struct usb_ctrlrequest req;
@@ -89,7 +89,7 @@ int get_bdaddrs(int device) {
     return res;
 }
 
-void set_master(int device) {
+void set_master(struct gusb_device * device) {
 
     struct {
         struct usb_ctrlrequest req;
@@ -113,7 +113,7 @@ void set_master(int device) {
     gusb_write_timeout(device, 0, &transfer, sizeof(transfer.req), 5000);
 }
 
-void set_slave(int device) {
+void set_slave(struct gusb_device * device) {
 
     struct {
         struct usb_ctrlrequest req;
@@ -134,7 +134,7 @@ void set_slave(int device) {
     gusb_write_timeout(device, 0, &transfer, sizeof(transfer.req), 5000);
 }
 
-int get_link_key(int device) {
+int get_link_key(struct gusb_device * device) {
 
     struct {
         struct usb_ctrlrequest req;
@@ -158,7 +158,7 @@ int get_link_key(int device) {
     return res;
 }
 
-int process_device(int device) {
+int process_device(struct gusb_device * device) {
     int i;
 
     if (get_bdaddrs(device) < 0) {
@@ -294,9 +294,9 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    struct gusb_device * devs = gusb_enumerate(VENDOR, 0x0000);
+    struct gusb_device_info * devs = gusb_enumerate(VENDOR, 0x0000);
 
-    struct gusb_device * current;
+    struct gusb_device_info * current;
     for (current = devs; current != NULL; current = current->next) {
 
         unsigned int i;
@@ -310,9 +310,9 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
-        int device = gusb_open_path(current->path);
+        struct gusb_device * device = gusb_open_path(current->path);
 
-        if (device >= 0) {
+        if (device != NULL) {
 
             status = process_device(device);
 

@@ -672,6 +672,7 @@ int adapter_detect()
                   break;
                 case C_TYPE_XONE_PAD:
                 case C_TYPE_360_PAD:
+                case C_TYPE_G920_XONE:
                   if(status == BYTE_STATUS_SPOOFED)
                   {
                     adapter->status = 1;
@@ -707,7 +708,8 @@ int adapter_detect()
               if(usb_res < 0)
               {
                 if((adapter->ctype != C_TYPE_360_PAD
-                    && adapter->ctype != C_TYPE_XONE_PAD)
+                    && adapter->ctype != C_TYPE_XONE_PAD
+                    && adapter->ctype != C_TYPE_G920_XONE)
                     || status != BYTE_STATUS_SPOOFED)
                 {
                   gerror(_("No game controller was found on USB ports.\n"));
@@ -839,6 +841,7 @@ int adapter_start()
         switch(adapter->ctype)
         {
           case C_TYPE_XONE_PAD:
+          case C_TYPE_G920_XONE:
             if(!adapter->status)
             {
                 adapter->forward_out_reports = 1; // force forwarding out reports until the authentication is successful.
@@ -998,6 +1001,7 @@ int adapter_send()
             ret = gserial_write(adapter->serial.device, report, HEADER_SIZE+report->length);
             break;
           case C_TYPE_XONE_PAD:
+          case C_TYPE_G920_XONE:
             if(adapter->status)
             {
               ret = gserial_write(adapter->serial.device, report, HEADER_SIZE+report->length);
@@ -1123,7 +1127,9 @@ void adapter_clean()
         {
           case C_TYPE_360_PAD:
           case C_TYPE_XONE_PAD:
+          case C_TYPE_G920_XONE:
             usb_close(i);
+            adapter_send_reset(i);
             break;
           case C_TYPE_DS4:
           case C_TYPE_T300RS_PS4:
@@ -1157,7 +1163,8 @@ int adapter_is_usb_auth_required(int adapter)
   if (controller_is_auth_required(adapters[adapter].ctype))
   {
     if (adapters[adapter].ctype != C_TYPE_360_PAD
-        && adapters[adapter].ctype != C_TYPE_XONE_PAD)
+        && adapters[adapter].ctype != C_TYPE_XONE_PAD
+        && adapters[adapter].ctype != C_TYPE_G920_XONE)
     {
       return 1;
     }

@@ -142,8 +142,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"curses",         no_argument, &params->curses,         1},
     {"window-events",  no_argument, &params->window_events,  1},
     {"btstack",        no_argument, &params->btstack,        1},
-    {"debug.ff_lg",    no_argument, &params->debug.ff_lg,    1},
-    {"debug.ff_conv",  no_argument, &params->debug.ff_conv,  1},
+    {"debug.haptic",   no_argument, &params->debug.haptic,   1},
     {"debug.adapter",  no_argument, &params->debug.adapter,  1},
     {"debug.macros",   no_argument, &params->debug.macros,   1},
     {"debug.sixaxis",  no_argument, &params->debug.sixaxis,  1},
@@ -433,16 +432,6 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
   if(params->logfile)
   {
     log_info();
-  }
-
-  if (params->debug.ff_conv != 0)
-  {
-    params->debug.ff_lg = 1;
-    params->debug.ff_common = 1;
-  }
-  if (params->debug.ff_lg != 0)
-  {
-    params->debug.ff_common = 1;
   }
 
   return ret;

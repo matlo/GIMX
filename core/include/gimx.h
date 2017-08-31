@@ -40,9 +40,7 @@ typedef struct
   int curses;
   int curses_status; // 1 = started
   struct {
-      int ff_lg;
-      int ff_conv;
-      int ff_common;
+      int haptic;
       int adapter;
       int macros;
       int sixaxis;

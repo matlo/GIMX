@@ -8,7 +8,6 @@
 #include <sstream>
 #include <gimxinput/include/ginput.h>
 #include <gimxpoll/include/gpoll.h>
-#include <gimxtimer/include/gtimer.h>
 #include <stdlib.h>
 #include <string.h>
 #include <algorithm>
@@ -25,7 +24,7 @@
 
 EventCatcher* EventCatcher::_singleton = NULL;
 
-EventCatcher::EventCatcher() : done(0), stopTimer(-1), wevents(false), min_value(0), max_value(0), last_value(0)
+EventCatcher::EventCatcher() : done(0), stopTimer(NULL), wevents(false), min_value(0), max_value(0), last_value(0)
 {
     //ctor
 }
@@ -143,10 +142,10 @@ bool EventCatcher::check_device(string device_type, string device_name, string d
 
 void EventCatcher::clean()
 {
-    if (stopTimer >= 0)
+    if (stopTimer != NULL)
     {
         gtimer_close(stopTimer);
-        stopTimer = -1;
+        stopTimer = NULL;
     }
     ginput_quit();
 }
@@ -377,12 +376,12 @@ int detect_cb(GE_Event* event)
   return 0;
 }
 
-static int timer_read(int user __attribute__((unused)))
+static int timer_read(void * user __attribute__((unused)))
 {
   return 1;
 }
 
-static int timer_close(int timer __attribute__((unused)))
+static int timer_close(void * user __attribute__((unused)))
 {
   EventCatcher::getInstance()->SetDone();
   return 1;
@@ -390,7 +389,7 @@ static int timer_close(int timer __attribute__((unused)))
 
 void EventCatcher::StartTimer()
 {
-    if (stopTimer < 0)
+    if (stopTimer == NULL)
     {
         GTIMER_CALLBACKS callbacks = {
                 .fp_read = timer_close,
@@ -399,7 +398,7 @@ void EventCatcher::StartTimer()
                 .fp_remove = REMOVE_FUNCTION,
         };
         stopTimer = gtimer_start(0, 150000, &callbacks);
-        if (stopTimer < 0)
+        if (stopTimer == NULL)
         {
           done = 1;
         }
@@ -428,8 +427,8 @@ void EventCatcher::run(string device_type, string event_type)
             .fp_register = REGISTER_FUNCTION,
             .fp_remove = REMOVE_FUNCTION,
     };
-    int timer = gtimer_start(0, PERIOD, &callbacks);
-    if (timer < 0)
+    struct gtimer * timer = gtimer_start(0, PERIOD, &callbacks);
+    if (timer == NULL)
     {
       done = 1;
     }
@@ -441,7 +440,7 @@ void EventCatcher::run(string device_type, string event_type)
         ginput_periodic_task();
     }
 
-    if (timer >= 0)
+    if (timer != NULL)
     {
       gtimer_close(timer);
     }
@@ -590,8 +589,8 @@ pair<int, int> EventCatcher::getAxisRange(string name, string id, string axis)
             .fp_register = REGISTER_FUNCTION,
             .fp_remove = REMOVE_FUNCTION,
     };
-    int timer = gtimer_start(0, PERIOD, &callbacks);
-    if (timer < 0)
+    struct gtimer * timer = gtimer_start(0, PERIOD, &callbacks);
+    if (timer == NULL)
     {
       done = 1;
     }
@@ -603,7 +602,7 @@ pair<int, int> EventCatcher::getAxisRange(string name, string id, string axis)
         ginput_periodic_task();
     }
 
-    if (timer >= 0)
+    if (timer != NULL)
     {
       gtimer_close(timer);
     }

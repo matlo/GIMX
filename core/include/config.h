@@ -110,15 +110,6 @@ typedef struct
   {
     e_device_type type;
     int id;
-#ifndef WIN32
-    int hid;
-#else
-    struct
-    {
-      unsigned short vendor;
-      unsigned short product;
-    } usb_ids;
-#endif
   } device;
   struct
   {
@@ -199,7 +190,6 @@ void cfg_clean();
 void cfg_read_calibration();
 int cfg_add_js_corr(uint8_t device, s_js_corr * corr);
 void cfg_set_ffb_tweaks(const s_config_entry * entry);
-const s_ffb_tweaks * cfg_get_ffb_tweaks(int controller);
 void cfg_init_ffb_tweaks();
 
 #endif /* CONFIG_H_ */
