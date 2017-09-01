@@ -42,9 +42,19 @@ struct haptic_core * haptic_core_init(s_haptic_core_ids source_ids, int sink_joy
     }
 
     core->source.ptr = haptic_source_get(source_ids);
+
+    if (core->source.ptr != NULL) {
+        ginfo("Haptic source for device %04x:%04x is %s\n", source_ids.vid, source_ids.pid, core->source.ptr->name);
+    } else {
+        free(core);
+        return NULL;
+    }
+
     core->sink.ptr = haptic_sink_get(core->sink.joystick);
 
-    if (core->source.ptr == NULL || core->sink.ptr == NULL) {
+    if (core->sink.ptr != NULL) {
+        ginfo("Haptic sink for joystick %s is %s\n", ginput_joystick_name(sink_joystick), core->sink.ptr->name);
+    } else {
         free(core);
         return NULL;
     }

@@ -294,6 +294,7 @@ static s_haptic_core_ids haptic_source_lg_ids[] = {
 };
 
 static s_haptic_source source_lg = {
+        .name = "haptic_source_lg",
         .ids = haptic_source_lg_ids,
         .init = haptic_source_lg_init,
         .clean = haptic_source_lg_clean,

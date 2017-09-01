@@ -127,6 +127,7 @@ static s_haptic_core_ids haptic_sink_os_ids[] = {
 };
 
 static s_haptic_sink sink_os = {
+        .name = "haptic_sink_os",
         .ids = haptic_sink_os_ids,
         .init = haptic_sink_os_init,
         .clean = haptic_sink_os_clean,

@@ -92,6 +92,7 @@ static s_haptic_core_ids haptic_source_rumble_ids[] = {
 };
 
 static s_haptic_source source_rumble = {
+        .name = "haptic_source_rumble",
         .ids = haptic_source_rumble_ids,
         .init = haptic_source_rumble_init,
         .clean = haptic_source_rumble_clean,

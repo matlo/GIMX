@@ -360,6 +360,7 @@ static s_haptic_core_ids haptic_sink_lg_ids[] = {
 };
 
 static s_haptic_sink sink_lg = {
+        .name = "haptic_sink_lg",
         .ids = haptic_sink_lg_ids,
         .init = haptic_sink_lg_init,
         .clean = haptic_sink_lg_clean,
