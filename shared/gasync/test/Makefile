@@ -1,5 +1,5 @@
-CFLAGS += -s -O3
-CXXFLAGS += -s -O3
+CFLAGS += -O3
+CXXFLAGS += -O3
 
 CPPFLAGS = -I../include
 

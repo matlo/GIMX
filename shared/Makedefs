@@ -4,8 +4,8 @@ exec_prefix = $(prefix)
 libdir = $(exec_prefix)/lib
 endif
 
-CFLAGS += -Wall -Wextra -s -O3
-CXXFLAGS += -Wall -Wextra -s -O3
+CFLAGS += -Wall -Wextra -O3
+CXXFLAGS += -Wall -Wextra -O3
 #Comment the above two lines and uncomment the below two lines to compile with debug symbols.
 #CFLAGS += -Wall -Wextra -O0 -g
 #CXXFLAGS += -Wall -Wextra -O0 -g
