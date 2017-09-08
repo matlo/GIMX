@@ -502,6 +502,7 @@ class configFrame: public wxFrame
         //*)
 
         wxLocale* locale;
+        wxString decimalPoint;
 
         event_catcher* evcatch;
         ConfigurationFile configFile;

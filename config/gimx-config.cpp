@@ -576,6 +576,13 @@ void configFrame::readLabels()
   }
 }
 
+static bool ToDouble(const wxString & from, double * to, const wxString & decimalPoint)
+{
+    wxString tmp = from;
+    tmp.Replace(wxT("."), decimalPoint);
+    return tmp.ToDouble(to);
+}
+
 /*
  * \brief Constructor.
  *
@@ -590,6 +597,9 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     locale->AddCatalogLookupPathPrefix(wxT("share/locale"));
 #endif
     locale->AddCatalog(wxT("gimx"));
+
+    struct lconv * l = localeconv();
+    decimalPoint = wxString(l->decimal_point, wxConvUTF8);
 
     //(*Initialize(configFrame)
     wxFlexGridSizer* FlexGridSizer30;
@@ -3478,8 +3488,6 @@ void configFrame::OnMenuSetMouseDPI(wxCommandEvent& event __attribute__((unused)
  */
 void configFrame::OnTextCtrl(wxCommandEvent& event)
 {
-	wxLocale eng(wxLANGUAGE_ENGLISH); // make sure to use '.' as decimal separator
-
     wxString str;
     wxTextCtrl* text;
     double value;
@@ -3489,14 +3497,22 @@ void configFrame::OnTextCtrl(wxCommandEvent& event)
     long pos = text->GetInsertionPoint();
     str = text->GetValue();
 
-    if(str.IsEmpty() || str == wxT("-") || str == wxT(".") || str == wxT("-."))
-    {
-        return;
-    }
-
     if(str.Replace(wxT(","), wxT(".")))
     {
         text->SetValue(str);
+    }
+
+    if (decimalPoint != wxT(".")) // avoid infinite recursion
+    {
+        if(str.Replace(decimalPoint, wxT(".")))
+        {
+            text->SetValue(str);
+        }
+    }
+
+    if(str.IsEmpty() || str == wxT("-") || str == wxT(".") || str == wxT("-."))
+    {
+        return;
     }
 
     if(str.Freq('.') > 1)
@@ -3521,14 +3537,14 @@ void configFrame::OnTextCtrl(wxCommandEvent& event)
     }
     else if(text == AxisTabSensitivity)
     {
-        if(!str.ToDouble(&value))
+        if(!ToDouble(str, &value, decimalPoint))
         {
             text->SetValue(wxT("1.00"));
         }
     }
     else if(text == AxisTabAcceleration)
     {
-        if(!str.ToDouble(&value))
+        if(!ToDouble(str, &value, decimalPoint))
         {
             text->SetValue(wxT("1.00"));
         }
@@ -3554,7 +3570,7 @@ void configFrame::OnTextCtrl(wxCommandEvent& event)
     }
     else if(text == MouseOptionsFilter)
     {
-        if(!str.ToDouble(&value))
+        if(!ToDouble(str, &value, decimalPoint))
         {
             text->SetValue(wxT("0.00"));
         }
