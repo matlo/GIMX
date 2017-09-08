@@ -135,6 +135,24 @@ int process_event(GE_Event* event)
   return 0;
 }
 
+void show_devices()
+{
+  const char * name;
+  int i;
+  for (i = 0; i < MAX_DEVICES && (name = ginput_mouse_name(i)) != NULL; ++i)
+  {
+    printf("mouse %d has name '%s' and virtual id %d\n", i, name, ginput_mouse_virtual_id(i));
+  }
+  for (i = 0; i < MAX_DEVICES && (name = ginput_keyboard_name(i)) != NULL; ++i)
+  {
+    printf("keyboard %d has name '%s' and virtual id %d\n", i, name, ginput_keyboard_virtual_id(i));
+  }
+  for (i = 0; i < MAX_DEVICES && (name = ginput_joystick_name(i)) != NULL; ++i)
+  {
+    printf("joystick %d has name '%s' and virtual id %d\n", i, name, ginput_joystick_virtual_id(i));
+  }
+}
+
 int main(int argc, char *argv[])
 {
   GE_Event kgevent = { .key = { .type = GE_KEYDOWN } };
@@ -300,6 +318,11 @@ int main(int argc, char *argv[])
   if (ginput_init(&poll_interace, src, fp) < 0)
   {
     goto QUIT;
+  }
+
+  if (gimx_params.logfile != NULL)
+  {
+    show_devices();
   }
 
   if(gimx_params.grab)
