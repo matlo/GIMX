@@ -57,7 +57,7 @@
 using namespace std;
 
 #ifdef WIN32
-#define MAX_PORT_ID 32
+#define MAX_PORT_ID 257
 #endif
 
 #define BLUETOOTH_DIR "/.sixemugui"
