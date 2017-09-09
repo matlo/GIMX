@@ -2487,4 +2487,3 @@ void launcherFrame::OnMenuUpdateFirmware(wxCommandEvent& event __attribute__((un
       wxMessageBox(_("Failed to execute gimx-loader."), _("Error"), wxICON_ERROR);
     }
 }
-    
