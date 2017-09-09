@@ -301,8 +301,5 @@
 			<widths>-1,20</widths>
 			<styles>wxSB_NORMAL,wxSB_NORMAL</styles>
 		</object>
-		<object class="wxSingleInstanceChecker" variable="SingleInstanceChecker1" member="yes">
-			<appname>gimx-launcher</appname>
-		</object>
 	</object>
 </wxsmith>
