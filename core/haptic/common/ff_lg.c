@@ -334,7 +334,7 @@ void ff_lg_decode_extended(const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
 void ff_lg_decode_command(const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
 
     dprintf("%s ", ff_lg_get_cmd_name(data[0]));
-    char * slots = ff_lg_get_slot_names(data[0]);
+    const char * slots = ff_lg_get_slot_names(data[0]);
     if (*slots != '\0') {
         dprintf("- %s", slots);
     }
