@@ -11,6 +11,7 @@
 #include <string.h>
 
 #include "haptic_core.h"
+#include "haptic_common.h"
 
 struct haptic_sink_state;
 
@@ -46,10 +47,12 @@ static inline void haptic_sink_fifo_push(s_haptic_sink_fifo * fifo, e_slot slot)
     unsigned int i;
     for (i = 0; i < fifo->size; ++i) {
         if (fifo->items[i] == slot) {
+            dprintf("< already queued: %d\n", slot);
             return;
         }
     }
     if (i < slot_nb) {
+        dprintf("< push: %d\n", slot);
         fifo->items[i] = slot;
         ++(fifo->size);
     }
@@ -59,6 +62,7 @@ static inline e_slot haptic_sink_fifo_peek(const s_haptic_sink_fifo * fifo) {
     e_slot slot = slot_nb;
     if (fifo->size > 0) {
         slot = fifo->items[0];
+        dprintf("< peek: %d\n", slot);
     }
     return slot;
 }
@@ -67,6 +71,7 @@ static inline void haptic_sink_fifo_remove(s_haptic_sink_fifo * fifo, e_slot slo
     unsigned int i;
     for (i = 0; i < fifo->size; ++i) {
         if (fifo->items[i] == slot) {
+            dprintf("< remove: %d\n", slot);
             --fifo->size;
             memmove(fifo->items + i, fifo->items + i + 1, (fifo->size - i) * sizeof(*fifo->items));
             break;

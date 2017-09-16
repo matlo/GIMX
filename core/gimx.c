@@ -376,13 +376,13 @@ int main(int argc, char *argv[])
 
   QUIT:
 
+  adapter_clean();
+
   macros_clean();
   cfg_clean();
   ginput_quit();
 
   ghid_exit();
-
-  adapter_clean();
 
   gserial_exit();
 

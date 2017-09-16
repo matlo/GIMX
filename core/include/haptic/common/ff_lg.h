@@ -241,16 +241,16 @@ static inline void ff_lg_fifo_push(s_cmd fifo[FIFO_SIZE], s_cmd cmd, int replace
     for (i = 0; i < FIFO_SIZE; ++i) {
         if (!fifo[i].cmd) {
             fifo[i] = cmd; //add
-            dprintf("push:");
+            dprintf("> push:");
             break;
         } else if (replace && compare_cmd(fifo[i], cmd)) {
-            dprintf("already queued:");
+            dprintf("> already queued:");
             break;
         }
     }
     if(i == FIFO_SIZE) {
         PRINT_ERROR_OTHER("no more space in fifo")
-        dprintf("can't push:");
+        dprintf("> can't push:");
     }
     dprintf(" %02x", cmd.cmd);
     if(cmd.cmd == FF_LG_CMD_EXTENDED_COMMAND) {
@@ -262,7 +262,7 @@ static inline void ff_lg_fifo_push(s_cmd fifo[FIFO_SIZE], s_cmd cmd, int replace
 static inline s_cmd ff_lg_fifo_peek(s_cmd fifo[FIFO_SIZE]) {
     s_cmd cmd = fifo[0];
     if (cmd.cmd) {
-        dprintf("peek: %02x", cmd.cmd);
+        dprintf("> peek: %02x", cmd.cmd);
         if(cmd.cmd == FF_LG_CMD_EXTENDED_COMMAND) {
             dprintf(" %02x", cmd.ext);
         }
@@ -277,7 +277,7 @@ static inline void ff_lg_fifo_remove(s_cmd fifo[FIFO_SIZE], s_cmd cmd) {
         if (!fifo[i].cmd) {
             break;
         } else if (compare_cmd(fifo[i], cmd)) {
-            dprintf("remove %02x", cmd.cmd);
+            dprintf("> remove %02x", cmd.cmd);
             if(cmd.cmd == FF_LG_CMD_EXTENDED_COMMAND) {
                 dprintf(" %02x", cmd.ext);
             }

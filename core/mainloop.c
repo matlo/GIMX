@@ -46,7 +46,7 @@ void mainloop()
   unsigned int running_macros;
   struct gtimer * timer = NULL;
 
-  if(!adapter_get(0)->bt.bdaddr_dst || adapter_get(0)->ctype == C_TYPE_DS4)
+  if(adapter_get(0)->atype != E_ADAPTER_TYPE_BLUETOOTH || adapter_get(0)->ctype == C_TYPE_DS4)
   {
     GTIMER_CALLBACKS callbacks = {
             .fp_read = timer_read,

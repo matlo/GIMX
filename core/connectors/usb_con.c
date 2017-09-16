@@ -467,6 +467,8 @@ int usb_init(int usb_number, e_controller_type type) {
   // register joystick
   state->joystick_id = ginput_register_joystick(controller[state->type].name, GE_HAPTIC_NONE, NULL);
 
+  ginfo("registered joystick %d with name \"%s\"\n", state->joystick_id, controller[state->type].name)
+
   for(i = 0; i < controller[state->type].endpoints.in.reports.nb; ++i) {
     usb_states[usb_number].reports[i].report_id = controller[state->type].endpoints.in.reports.elements[i].report_id;
   }

@@ -23,7 +23,6 @@ struct haptic_core {
         struct haptic_source_state * state;
     } source;
     struct {
-        int joystick;
         const s_haptic_sink * ptr;
         struct haptic_sink_state * state;
     } sink;
@@ -42,25 +41,32 @@ struct haptic_core * haptic_core_init(s_haptic_core_ids source_ids, int sink_joy
     }
 
     core->source.ptr = haptic_source_get(source_ids);
-
     if (core->source.ptr != NULL) {
-        ginfo("Haptic source for device %04x:%04x is %s\n", source_ids.vid, source_ids.pid, core->source.ptr->name);
+        ginfo("Haptic core has source %s for device %04x:%04x\n", core->source.ptr->name, source_ids.vid, source_ids.pid);
     } else {
-        free(core);
-        return NULL;
+        ginfo("No haptic source found for device %04x:%04x\n", source_ids.vid, source_ids.pid);
     }
 
-    core->sink.ptr = haptic_sink_get(core->sink.joystick);
-
+    core->sink.ptr = haptic_sink_get(sink_joystick);
     if (core->sink.ptr != NULL) {
-        ginfo("Haptic sink for joystick %s is %s\n", ginput_joystick_name(sink_joystick), core->sink.ptr->name);
+        ginfo("Haptic core has sink %s for joystick %d (%s)\n", core->sink.ptr->name, sink_joystick, ginput_joystick_name(sink_joystick));
     } else {
+        ginfo("No haptic sink found for joystick %d (%s)\n", sink_joystick, ginput_joystick_name(sink_joystick));
+    }
+
+    if (core->source.ptr == NULL || core->sink.ptr == NULL) {
         free(core);
         return NULL;
     }
 
     core->source.state = core->source.ptr->init(source_ids);
     core->sink.state = core->sink.ptr->init(sink_joystick);
+
+    core->tweaks.invert = 0;
+    core->tweaks.gain.rumble = 100;
+    core->tweaks.gain.constant = 100;
+    core->tweaks.gain.spring = 100;
+    core->tweaks.gain.damper = 100;
 
     GLIST_ADD(ff_cores, core)
 

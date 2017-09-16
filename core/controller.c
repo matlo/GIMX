@@ -406,8 +406,11 @@ static int adapter_process_packet(int adapter, s_packet* packet)
         gerror("failed to forward interrupt out packet to game controller\n");
       }
     }
-    haptic_core_process_report(adapters[adapter].ff_core, length, data);
-    haptic_core_update(adapters[adapter].ff_core);
+    else
+    {
+      haptic_core_process_report(adapters[adapter].ff_core, length, data);
+      haptic_core_update(adapters[adapter].ff_core);
+    }
   }
   else if(type == BYTE_DEBUG)
   {

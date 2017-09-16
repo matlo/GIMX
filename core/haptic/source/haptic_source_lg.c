@@ -132,20 +132,6 @@ static void haptic_source_lg_process(struct haptic_source_state * state, size_t 
         int i;
         s_force * forces = state->forces;
 
-        if (cmd == FF_LG_CMD_STOP && slots == 0xf0)
-        {
-          // stop all forces, whatever their current states
-          // this is useful at startup, where all forces are considered stopped
-          for (i = 0; i < FF_LG_FSLOTS_NB; ++i) {
-              forces[i].updated = 1;
-              forces[i].playing = 0;
-              memset(forces[i].parameters, 0x00, sizeof(forces[i].parameters));
-              s_cmd cmd = { forces[i].mask, 0x00 };
-              ff_lg_fifo_push(state->fifo, cmd, 1);
-          }
-          return;
-        }
-
         switch(cmd)
         {
         case FF_LG_CMD_DOWNLOAD:
@@ -250,6 +236,7 @@ static int haptic_source_lg_get(struct haptic_source_state * state, s_haptic_cor
 
     s_cmd cmd = ff_lg_fifo_peek(state->fifo);
     if (cmd.cmd) {
+        ff_lg_fifo_remove(state->fifo, cmd);
         if(cmd.cmd != FF_LG_CMD_EXTENDED_COMMAND) {
             if(cmd.cmd & FF_LG_CMD_MASK)
             {

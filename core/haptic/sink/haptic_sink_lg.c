@@ -37,7 +37,7 @@ static inline void clear_report(struct haptic_sink_state * state) {
 
 static void haptic_sink_lg_ack(struct haptic_sink_state * state) {
 
-    dprintf("> ack\n");
+    dprintf("< ack\n");
 
     uint8_t * data = state->last_report.data + 1;
 
@@ -52,8 +52,8 @@ static void haptic_sink_lg_ack(struct haptic_sink_state * state) {
         case FF_LG_CMD_DOWNLOAD_AND_PLAY:
         case FF_LG_CMD_STOP:
             for (i = 0; i < FF_LG_FSLOTS_NB; ++i) {
-                e_slot slot = (1 << i);
-                if (slots & (slot << 4)) {
+                e_slot slot = i;
+                if (slots & (1 << (slot + 4))) {
                     if (!state->slots[slot].updated) {
                         haptic_sink_fifo_remove(&state->fifo, slot);
                     } else {
@@ -134,7 +134,7 @@ void haptic_sink_lg_update(struct haptic_sink_state * state) {
 
     for (i = 0; i < state->fifo.size; ++i) {
         e_slot slot = state->fifo.items[i];
-        if (!state->slots[slot].data.playing) {
+        if (state->slots[slot].updated && !state->slots[slot].data.playing) {
             mask |= (1 << slot);
         }
     }
@@ -145,7 +145,7 @@ void haptic_sink_lg_update(struct haptic_sink_state * state) {
         dprintf("< %s %02x\n", ff_lg_get_cmd_name(data[0]), data[0]);
         for (i = 0; i < state->fifo.size; ++i) {
             e_slot slot = state->fifo.items[i];
-            if (!state->slots[slot].data.playing) {
+            if (state->slots[slot].updated && !state->slots[slot].data.playing) {
                 state->slots[slot].updated = 0;
             }
         }
@@ -163,7 +163,9 @@ void haptic_sink_lg_update(struct haptic_sink_state * state) {
         if(gimx_params.debug.haptic) {
             ff_lg_decode_command(data);
         }
+        state->slots[slot].updated = 0;
         send_report(state);
+        return;
     }
 
 #ifndef WIN32
@@ -173,7 +175,7 @@ void haptic_sink_lg_update(struct haptic_sink_state * state) {
             e_slot slot = state->fifo.items[i];
             // check if at least one force is running
             if (state->slots[slot].data.playing) {
-                dprintf("keep sending last command\n");
+                dprintf("< keep sending last command\n");
                 send_report(state);
                 return;
             }
@@ -251,17 +253,12 @@ static struct haptic_sink_state * haptic_sink_lg_init(int joystick) {
 
     state->caps = ff_lg_get_caps(ids.pid);
 
-    GHID_CALLBACKS ghid_callbacks = {
-            .fp_read = NULL,
-            .fp_write = hid_write_cb,
-            .fp_close = hid_close_cb,
-            .fp_register = REGISTER_FUNCTION,
-            .fp_remove = REMOVE_FUNCTION,
-    };
-    if(ghid_register(hid, state, &ghid_callbacks) < 0)
-    {
-      return NULL;
+#ifndef WIN32
+    if (ginput_joystick_set_hid_callbacks(hid, state, hid_write_cb, hid_close_cb) < 0) {
+        free(state);
+        return NULL;
     }
+#endif
 
     return state;
 }
@@ -286,6 +283,10 @@ static void haptic_sink_lg_clean(struct haptic_sink_state * state) {
     if (mask) {
         clear_report(state);
         data[0] = (mask << 4) | FF_LG_CMD_STOP;
+        dprintf("< ");
+        if(gimx_params.debug.haptic) {
+            ff_lg_decode_command(data);
+        }
         ghid_write_timeout(state->hid, state->last_report.data, sizeof(state->last_report.data), 1000);
     }
 
@@ -320,7 +321,7 @@ static void haptic_sink_lg_process(struct haptic_sink_state * state, const s_hap
         } else {
             static int warn = 1;
             if (warn == 1) {
-                gwarn("skipping unsupported set leds commands\n");
+                gwarn("< skipping unsupported set leds commands\n");
                 warn = 0;
             }
         }
@@ -331,7 +332,7 @@ static void haptic_sink_lg_process(struct haptic_sink_state * state, const s_hap
         } else {
             static int warn = 1;
             if (warn == 1) {
-                gwarn("skipping unsupported change wheel range commands\n");
+                gwarn("< skipping unsupported change wheel range commands\n");
                 warn = 0;
             }
         }

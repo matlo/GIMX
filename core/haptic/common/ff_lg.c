@@ -41,6 +41,33 @@ const char * ff_lg_get_cmd_name(unsigned char header) {
     }
 }
 
+char * slot_names[] = {
+        [0b0000] = "",
+        [0b0001] = "slot 1",
+        [0b0010] = "slot 2",
+        [0b0011] = "slots 1,2",
+        [0b0100] = "slot 3",
+        [0b0101] = "slots 1,3",
+        [0b0110] = "slots 2,3",
+        [0b0111] = "slots 1,2,3",
+        [0b1000] = "slot 4",
+        [0b1001] = "slots 1,4",
+        [0b1010] = "slots 2,4",
+        [0b1011] = "slots 1,2,4",
+        [0b1100] = "slots 3,4",
+        [0b1101] = "slots 1,3,4",
+        [0b1110] = "slots 2,3,4",
+        [0b1111] = "slots 1,2,3,4",
+};
+
+const char * ff_lg_get_slot_names(unsigned char header) {
+    if (header == FF_LG_CMD_EXTENDED_COMMAND) {
+        return "";
+    } else {
+        return slot_names[header >> 4];
+    }
+}
+
 static struct {
     unsigned char value;
     const char * name;
@@ -307,11 +334,14 @@ void ff_lg_decode_extended(const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
 void ff_lg_decode_command(const unsigned char data[FF_LG_OUTPUT_REPORT_SIZE]) {
 
     dprintf("%s ", ff_lg_get_cmd_name(data[0]));
+    char * slots = ff_lg_get_slot_names(data[0]);
+    if (*slots != '\0') {
+        dprintf("- %s", slots);
+    }
 
     switch(data[0] & FF_LG_CMD_MASK) {
     case FF_LG_CMD_PLAY:
     case FF_LG_CMD_STOP:
-        dprintf(" 0x%02x", data[0]);
         break;
     case FF_LG_CMD_DOWNLOAD:
     case FF_LG_CMD_DOWNLOAD_AND_PLAY:
