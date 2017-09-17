@@ -158,10 +158,14 @@ void haptic_sink_lg_update(struct haptic_sink_state * state) {
     e_slot slot = haptic_sink_fifo_peek(&state->fifo);
     if (slot != slot_nb) {
         clear_report(state);
-        dprintf("< ");
         ff_lg_convert_slot(&state->slots[slot].data, slot, &state->last_report, state->caps);
         if(gimx_params.debug.haptic) {
-            ff_lg_decode_command(data);
+            dprintf("< ");
+            if (data[0] == FF_LG_CMD_EXTENDED_COMMAND) {
+                ff_lg_decode_extended(data);
+            } else {
+                ff_lg_decode_command(data);
+            }
         }
         state->slots[slot].updated = 0;
         send_report(state);

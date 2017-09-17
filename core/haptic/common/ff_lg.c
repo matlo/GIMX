@@ -521,6 +521,7 @@ int ff_lg_convert_extended(const s_ff_lg_command * ext, s_haptic_core_data * to)
     case FF_LG_CMD_SET_LED:
         to->type = E_DATA_TYPE_LEDS;
         to->leds.value = ext->parameters[0];
+        ret = 1;
         break;
     default:
         break;
