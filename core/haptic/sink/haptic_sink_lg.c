@@ -262,6 +262,18 @@ static struct haptic_sink_state * haptic_sink_lg_init(int joystick) {
         free(state);
         return NULL;
     }
+#else
+    GHID_CALLBACKS ghid_callbacks = {
+            .fp_read = NULL,
+            .fp_write = hid_write_cb,
+            .fp_close = hid_close_cb,
+            .fp_register = REGISTER_FUNCTION,
+            .fp_remove = REMOVE_FUNCTION,
+    };
+    if(ghid_register(hid, state, &ghid_callbacks) < 0)
+    {
+      return NULL;
+    }
 #endif
 
     return state;

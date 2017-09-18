@@ -79,34 +79,47 @@ enum {
 };
 
 #if defined(_WIN32)
+static inline int saveDefaultColorStdout() {
+    static char initialized = 0;
+    static WORD attributes;
+    if (!initialized) {
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+        attributes = csbi.wAttributes;
+        initialized = 1;
+    }
+    return (int)attributes;
+}
+static inline int saveDefaultColorStderr() {
+    static char initialized = 0;
+    static WORD attributes;
+    if (!initialized) {
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        GetConsoleScreenBufferInfo(GetStdHandle(STD_ERROR_HANDLE), &csbi);
+        attributes = csbi.wAttributes;
+        initialized = 1;
+    }
+    return (int)attributes;
+}
 static inline void setColorStdout(int c) {
+    saveDefaultColorStdout();
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     GetConsoleScreenBufferInfo(hConsole, &csbi);
     SetConsoleTextAttribute(hConsole, (csbi.wAttributes & 0xFFF0) | (WORD)c); // Foreground colors take up the least significant byte
 }
 static inline void setColorStderr(int c) {
+    saveDefaultColorStderr();
     HANDLE hConsole = GetStdHandle(STD_ERROR_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     GetConsoleScreenBufferInfo(hConsole, &csbi);
     SetConsoleTextAttribute(hConsole, (csbi.wAttributes & 0xFFF0) | (WORD)c); // Foreground colors take up the least significant byte
 }
-static inline int saveDefaultColor(DWORD device) {
-    static char initialized = 0;
-    static WORD attributes;
-    if (!initialized) {
-        CONSOLE_SCREEN_BUFFER_INFO csbi;
-        GetConsoleScreenBufferInfo(GetStdHandle(device), &csbi);
-        attributes = csbi.wAttributes;
-        initialized = 1;
-    }
-    return (int)attributes;
-}
 static inline void resetColorStdout(void) {
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)saveDefaultColor(STD_OUTPUT_HANDLE));
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)saveDefaultColorStdout());
 }
 static inline void resetColorStderr(void) {
-    SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), (WORD)saveDefaultColor(STD_ERROR_HANDLE));
+    SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), (WORD)saveDefaultColorStderr());
 }
 
 #else

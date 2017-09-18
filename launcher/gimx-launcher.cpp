@@ -389,8 +389,8 @@ void launcherFrame::readSerialPorts()
   for(i=0; i<MAX_PORT_ID; ++i)
   {
     snprintf(portname, sizeof(portname), "COM%d", i);
-    int device = gserial_open(portname, 500000);
-    if(device >= 0) {
+    struct gserial_device * device = gserial_open(portname, 500000);
+    if(device != NULL) {
       OutputChoice->SetSelection(OutputChoice->Append(wxString(portname, wxConvUTF8)));
       gserial_close(device);
     }
