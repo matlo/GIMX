@@ -38,7 +38,7 @@ install: all
 	cp -u -f launcher/gimx-launcher setup/gimx-launcher.exe
 	cp -u -f fpsconfig/gimx-fpsconfig setup/gimx-fpsconfig.exe
 	cp -u -f loader/gimx-loader setup/gimx-loader.exe
-	cp -u -f shared/gimxinput/windows/gamecontrollerdb.txt setup
+	cp -u -f shared/gimxinput/src/windows/gamecontrollerdb.txt setup
 	mkdir -p setup/share/locale
 	for translation in po/*.po; \
   do \
