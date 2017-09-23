@@ -81,6 +81,8 @@ using namespace std;
 
 #define LOG_FILE "log.txt"
 
+#define STATUS_FILE "gimx.status"
+
 #define GPP_NAME "GPP/Cronus/Titan"
 
 #define CONSOLETUNER_VID 0x2508
@@ -1095,7 +1097,7 @@ public:
         m_parent = parent;
     }
 
-    void OnTerminate(int pid, int status);
+    virtual void OnTerminate(int pid, int status);
 
 protected:
     launcherFrame *m_parent;
@@ -1105,6 +1107,8 @@ protected:
 void MyProcess::OnTerminate(int pid __attribute__((unused)), int status)
 {
     m_parent->OnProcessTerminated(this, status);
+
+    delete this;
 }
 
 void launcherFrame::readDebugStrings(wxArrayString & values)
@@ -1370,34 +1374,121 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
     }
 }
 
+typedef enum {
+    E_GIMX_STATUS_SUCCESS = 0,
+
+    E_GIMX_STATUS_GENERIC_ERROR = -1,
+
+    E_GIMX_STATUS_ADAPTER_NOT_DETECTED = -2, // wiring issue, incorrect firmware, target not powered
+    E_GIMX_STATUS_NO_ACTIVATION = -3, // user did not activate the controller
+
+    E_GIMX_STATUS_AUTH_MISSING_X360 = 1, // auth source missing
+    E_GIMX_STATUS_AUTH_MISSING_PS4 = 2, // auth source missing
+    E_GIMX_STATUS_AUTH_MISSING_XONE = 3, // auth source missing
+} e_gimx_status;
+
 void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused)), int status)
 {
     ButtonStart->Enable(true);
     StatusBar1->SetStatusText(wxEmptyString);
 
-    if(status)
-    {
-      wxMessageBox( _("gimx error"), _("Error"), wxICON_ERROR);
-    }
-    else
-    {
-      //Save options when gimx successfully terminates.
+    status = E_GIMX_STATUS_SUCCESS;
 
-      wxCommandEvent event;
-      OnMenuSave(event);
+    /*
+     * Get the execution status from the gimx.status file, in the system temp directory.
+     *
+     * The absence of the gimx.status file means the execution was successful,
+     * or that the program crashed.
+     */
+
+    wxString statusFile = wxStandardPaths::Get().GetTempDir() + wxT("/") + wxT(STATUS_FILE);
+    if (::wxFileExists(statusFile))
+    {
+        ifstream infile(statusFile.mb_str(wxConvUTF8));
+        if (infile.is_open())
+        {
+            if (infile.good())
+            {
+                string line;
+                getline(infile, line);
+                stringstream ss(line);
+                ss >> status;
+            }
+            infile.close();
+        }
+        remove(statusFile.mb_str(wxConvUTF8));
+    }
+
+    switch(status)
+    {
+    case E_GIMX_STATUS_SUCCESS:
+        {
+            wxCommandEvent event;
+            OnMenuSave(event);
+        }
+        break;
+    case E_GIMX_STATUS_GENERIC_ERROR:
+        wxMessageBox( _("GIMX failed with a generic error (please report this)."), _("Error"), wxICON_ERROR);
+        break;
+    case E_GIMX_STATUS_ADAPTER_NOT_DETECTED:
+        if(Output->GetStringSelection() == _(GPP_NAME))
+        {
+          wxMessageBox( _("Failed to detect the GPP/Cronus/Titan device."), _("Error"), wxICON_ERROR);
+        }
+        else if(Output->GetStringSelection() == _("DIY USB"))
+        {
+          wxMessageBox( _("Failed to detect the USB adapter:\n"
+                  " . make sure to select the right port\n"
+                  " . make sure to power on the target console\n"
+                  "If you built the adapter yourself:\n"
+                  " . make sure the wiring is correct (swapping RX and TX is a common mistake)\n"
+                  " . make sure it runs the right firmware"	
+                  ), _("Error"), wxICON_ERROR);
+        }
+        else if(Output->GetStringSelection() == _("Remote GIMX"))
+        {
+            wxMessageBox( _("Failed to detect the remote GIMX instance:\n"
+                    " . make sure to fill the right IP:port\n"
+                    " . make sure the remote instance is running"), _("Error"), wxICON_ERROR);
+        }
+        else
+        {
+            wxMessageBox( _("Failed to detect the adapter (fallback error message)."), _("Error"), wxICON_ERROR);
+        }
+        break;
+    case E_GIMX_STATUS_NO_ACTIVATION:
+        wxMessageBox( _("GIMX exited and the activation button was not pressed."), _("Info"), wxICON_INFORMATION);
+        break;
+    case E_GIMX_STATUS_AUTH_MISSING_X360:
+        wxMessageBox( _("No wired Xbox 360 controller was found on USB ports."), _("Error"), wxICON_ERROR);
+        break;
+    case E_GIMX_STATUS_AUTH_MISSING_PS4:
+        wxMessageBox( _("No Dualshock 4 controller was found on USB ports."), _("Error"), wxICON_ERROR);
+        break;
+    case E_GIMX_STATUS_AUTH_MISSING_XONE:
+        wxMessageBox( _("No Xbox One controller (without 3.5mm jack) was found on USB ports."), _("Error"), wxICON_ERROR);
+        break;
     }
 
     if(openLog)
     {
+      wxString logfile = gimxLogDir + wxT(LOG_FILE);
+      if (::wxFileExists(logfile))
+      {
 #ifdef WIN32
-      gimxLogDir.Replace(wxT("/"), wxT("\\"));
-      wxExecute(wxT("explorer ") + gimxLogDir + wxT(LOG_FILE), wxEXEC_ASYNC, NULL);
+          logfile.Replace(wxT("/"), wxT("\\"));
+          wxExecute(wxT("explorer ") + logfile, wxEXEC_ASYNC, NULL);
 #else
-      wxExecute(wxT("xdg-open ") + gimxLogDir + wxT(LOG_FILE), wxEXEC_ASYNC, NULL);
+          wxExecute(wxT("xdg-open ") + logfile, wxEXEC_ASYNC, NULL);
 #endif
+      }
+      else
+      {
+          wxMessageBox( _("Failed to open log file. GIMX may have crashed (please report this)."), _("Error"), wxICON_ERROR);
+      }
       openLog = false;
     }
-    else
+    else if (status == E_GIMX_STATUS_GENERIC_ERROR)
     {
       long int endTime = wxGetUTCTime();
       if(endTime - startTime < 5)
@@ -1405,6 +1496,8 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
         int answer = wxMessageBox(_("GIMX ran less than 5 seconds. Would you like to generate a log report?"), _("Confirm"), wxYES_NO);
         if (answer == wxYES)
         {
+          wxString logfile = gimxLogDir + wxT(LOG_FILE);
+          remove(logfile.mb_str(wxConvUTF8));
           ProcessOutputChoice->SetSelection(ProcessOutputChoice->FindString(_("log file")));
           wxCommandEvent event;
           OnButtonStartClick(event);

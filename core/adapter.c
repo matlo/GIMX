@@ -677,9 +677,9 @@ static int adapter_send_reset(int device)
   return 0;
 }
 
-int adapter_detect()
+e_gimx_status adapter_detect()
 {
-  int ret = 0;
+  e_gimx_status ret = E_GIMX_STATUS_SUCCESS;
   int i;
   s_adapter* adapter;
 
@@ -692,7 +692,7 @@ int adapter_detect()
       if (rtype < 0)
       {
         fprintf(stderr, _("No GPP detected.\n"));
-        ret = -1;
+        ret = E_GIMX_STATUS_ADAPTER_NOT_DETECTED;
       }
       else if(rtype < C_TYPE_MAX)
       {
@@ -702,7 +702,7 @@ int adapter_detect()
       else
       {
         fprintf(stderr, _("Unknown GPP controller type.\n"));
-        ret = -1;
+        ret = E_GIMX_STATUS_GENERIC_ERROR;
       }
     }
     else if(adapter->atype == E_ADAPTER_TYPE_DIY_USB)
@@ -712,8 +712,7 @@ int adapter_detect()
         adapter->serialdevice = gserial_open(adapter->portname, BAUDRATE);
         if(adapter->serialdevice < 0)
         {
-          fprintf(stderr, _("Check the wiring (maybe you swapped Rx and Tx?).\n"));
-          ret = -1;
+          ret = E_GIMX_STATUS_ADAPTER_NOT_DETECTED;
         }
         else
         {
@@ -735,7 +734,7 @@ int adapter_detect()
             else if(adapter->ctype != (e_controller_type) rtype)
             {
               fprintf(stderr, _("Wrong controller type.\n"));
-              ret = -1;
+              ret = E_GIMX_STATUS_GENERIC_ERROR;
             }
 
             int status = adapter_send_short_command(i, BYTE_STATUS);
@@ -743,7 +742,7 @@ int adapter_detect()
             if(status < 0)
             {
               fprintf(stderr, _("Can't get adapter status.\n"));
-              ret = -1;
+              ret = E_GIMX_STATUS_ADAPTER_NOT_DETECTED;
             }
 
             if(ret != -1)
@@ -759,7 +758,7 @@ int adapter_detect()
                     if(adapter_send_reset(i) < 0)
                     {
                       fprintf(stderr, _("Can't reset the adapter.\n"));
-                      ret = -1;
+                      ret = E_GIMX_STATUS_GENERIC_ERROR;
                     }
                     else
                     {
@@ -780,7 +779,7 @@ int adapter_detect()
                     if(adapter_send_reset(i) < 0)
                     {
                       fprintf(stderr, _("Can't reset the adapter.\n"));
-                      ret = -1;
+                      ret = E_GIMX_STATUS_GENERIC_ERROR;
                     }
                     else
                     {
@@ -800,7 +799,7 @@ int adapter_detect()
               }
             }
 
-            if(ret != -1)
+            if(ret == E_GIMX_STATUS_SUCCESS)
             {
               int usb_res = usb_init(i, adapter->ctype);
               if(usb_res < 0)
@@ -810,12 +809,28 @@ int adapter_detect()
                     || status != BYTE_STATUS_SPOOFED)
                 {
                   fprintf(stderr, _("No controller was found on USB buses.\n"));
-                  ret = -1;
+                  switch(adapter->ctype)
+                  {
+                  case C_TYPE_360_PAD:
+                      ret = E_GIMX_STATUS_AUTH_MISSING_X360;
+                      break;
+                  case C_TYPE_DS4:
+                  case C_TYPE_G29_PS4:
+                  case C_TYPE_T300RS_PS4:
+                      ret = E_GIMX_STATUS_AUTH_MISSING_PS4;
+                      break;
+                  case C_TYPE_XONE_PAD:
+                      ret = E_GIMX_STATUS_AUTH_MISSING_XONE;
+                      break;
+                  default:
+                      ret = E_GIMX_STATUS_GENERIC_ERROR;
+                      break;
+                  }
                 }
               }
             }
 
-            if(ret != -1)
+            if(ret == E_GIMX_STATUS_SUCCESS)
             {
               controller_init_report(adapter->ctype, &adapter->report[0].value);
 
@@ -825,10 +840,14 @@ int adapter_detect()
               }
             }
           }
+          else
+          {
+            ret = E_GIMX_STATUS_ADAPTER_NOT_DETECTED;
+          }
         }
-        if(adapter->ctype == C_TYPE_NONE)
+        if(adapter->ctype == C_TYPE_NONE && ret == E_GIMX_STATUS_SUCCESS)
         {
-          ret = -1;
+          ret = E_GIMX_STATUS_GENERIC_ERROR;
         }
       }
     }
@@ -841,7 +860,7 @@ int adapter_detect()
         {
           struct in_addr addr = { .s_addr = adapter->dst_ip };
           fprintf(stderr, _("Can't connect to: %s:%d.\n"), inet_ntoa(addr), adapter->dst_port);
-          ret = -1;
+          ret = E_GIMX_STATUS_ADAPTER_NOT_DETECTED;
         }
         else
         {
@@ -856,7 +875,7 @@ int adapter_detect()
       {
         if(btds4_init(i, adapter->dongle_index, adapter->bdaddr_dst) < 0)
         {
-          ret = -1;
+          ret = E_GIMX_STATUS_GENERIC_ERROR;
         }
         controller_init_report(C_TYPE_DS4, &adapter->report[0].value);
       }
@@ -999,10 +1018,10 @@ int adapter_start()
           fprintf(stderr, _("Can't start the serial asynchronous processing.\n"));
           ret = -1;
         }
-        const char * button = controller_get_activation_button(adapter->ctype);
-        if (button != NULL)
+        adapter->activation_button.index = controller_get_activation_button(adapter->ctype);
+        if (adapter->activation_button.index != 0)
         {
-          printf(_("Press the %s button to activate the controller.\n"), button);
+          printf(_("Press the %s button to activate the controller.\n"), controller_get_axis_name(adapter->ctype, adapter->activation_button.index));
         }
       }
     }
@@ -1098,6 +1117,14 @@ int adapter_send()
       {
         if(adapter->serialdevice >= 0)
         {
+          if (adapter->activation_button.index != 0)
+          {
+            if (adapter->axis[adapter->activation_button.index] != 0)
+            {
+              adapter->activation_button.pressed = 1;
+            }
+          }
+
           unsigned int index = controller_build_report(adapter->ctype, adapter->axis, adapter->report);
 
           s_report_packet* report = adapter->report+index;
@@ -1205,8 +1232,9 @@ int adapter_send()
   return ret;
 }
 
-void adapter_clean()
+e_gimx_status adapter_clean()
 {
+  e_gimx_status status = E_GIMX_STATUS_SUCCESS;
   int i;
   s_adapter* adapter;
   for(i=0; i<MAX_CONTROLLERS; ++i)
@@ -1240,6 +1268,13 @@ void adapter_clean()
     {
       if(adapter->serialdevice >= 0)
       {
+        if (adapter->activation_button.index != 0)
+        {
+          if (adapter->activation_button.pressed == 0)
+          {
+            status = E_GIMX_STATUS_NO_ACTIVATION;
+          }
+        }
         switch(adapter->ctype)
         {
           case C_TYPE_360_PAD:
@@ -1264,6 +1299,7 @@ void adapter_clean()
       gpp_disconnect(i);
     }
   }
+  return status;
 }
 
 int adapter_is_usb_auth_required(int adapter)

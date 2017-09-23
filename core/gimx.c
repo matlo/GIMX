@@ -14,6 +14,7 @@
 #include <sys/types.h> //to get the homedir
 #include <unistd.h> //to get the homedir
 #include <termios.h> //to disable/enable echo
+#include <unistd.h> // chown
 #else
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -155,6 +156,8 @@ void show_devices()
 
 int main(int argc, char *argv[])
 {
+  e_gimx_status status = E_GIMX_STATUS_SUCCESS;
+
   GE_Event kgevent = { .key = { .type = GE_KEYDOWN } };
 
 #ifdef WIN32
@@ -196,6 +199,7 @@ int main(int argc, char *argv[])
   if(SHGetFolderPath( NULL, CSIDL_APPDATA , NULL, 0, path ))
   {
     eprintf("SHGetFolderPath failed\n");
+    status = E_GIMX_STATUS_GENERIC_ERROR;
     goto QUIT;
   }
   gimx_params.homedir = path;
@@ -211,6 +215,7 @@ int main(int argc, char *argv[])
   if(args_read(argc, argv, &gimx_params) < 0)
   {
     eprintf(_("wrong argument"));
+    status = E_GIMX_STATUS_GENERIC_ERROR;
     goto QUIT;
   }
 
@@ -221,15 +226,18 @@ int main(int argc, char *argv[])
 
   if (gusb_init() < 0)
   {
+    status = E_GIMX_STATUS_GENERIC_ERROR;
     goto QUIT;
   }
 
   if (gserial_init() < 0)
   {
+    status = E_GIMX_STATUS_GENERIC_ERROR;
     goto QUIT;
   }
 
-  if(adapter_detect() < 0)
+  status = adapter_detect();
+  if(status != E_GIMX_STATUS_SUCCESS)
   {
     eprintf(_("no adapter detected"));
     goto QUIT;
@@ -247,6 +255,7 @@ int main(int argc, char *argv[])
   else if(gimx_params.refresh_period < controller_get_min_refresh_period(adapter_get(0)->ctype))
   {
     fprintf(stderr, "Refresh period should be at least %.02fms\n", (double)controller_get_min_refresh_period(adapter_get(0)->ctype)/1000);
+    status = E_GIMX_STATUS_GENERIC_ERROR;
     goto QUIT;
   }
 
@@ -275,6 +284,7 @@ int main(int argc, char *argv[])
     if(adapter_start() < 0)
     {
       eprintf(_("failed to start the adapter"));
+      status = E_GIMX_STATUS_GENERIC_ERROR;
       goto QUIT;
     }
     adapter_send();
@@ -304,6 +314,7 @@ int main(int argc, char *argv[])
 
   if (ghid_init() < 0)
   {
+    status = E_GIMX_STATUS_GENERIC_ERROR;
     goto QUIT;
   }
 
@@ -317,6 +328,7 @@ int main(int argc, char *argv[])
   };
   if (ginput_init(&poll_interace, src, fp) < 0)
   {
+    status = E_GIMX_STATUS_GENERIC_ERROR;
     goto QUIT;
   }
 
@@ -339,6 +351,7 @@ int main(int argc, char *argv[])
 
     if(read_config_file(gimx_params.config_file) < 0)
     {
+      status = E_GIMX_STATUS_GENERIC_ERROR;
       goto QUIT;
     }
 
@@ -372,6 +385,7 @@ int main(int argc, char *argv[])
     else
     {
       fprintf(stderr, _("Unknown key name for argument --keygen: '%s'\n"), gimx_params.keygen);
+      status = E_GIMX_STATUS_GENERIC_ERROR;
       goto QUIT;
     }
   }
@@ -396,6 +410,7 @@ int main(int argc, char *argv[])
   if(adapter_start() < 0)
   {
     eprintf(_("failed to start the adapter"));
+    status = E_GIMX_STATUS_GENERIC_ERROR;
     goto QUIT;
   }
 
@@ -413,7 +428,11 @@ int main(int argc, char *argv[])
 
   ghid_exit();
 
-  adapter_clean();
+  e_gimx_status clean_status = adapter_clean();
+  if (clean_status != E_GIMX_STATUS_SUCCESS)
+  {
+    status = clean_status;
+  }
 
   gserial_exit();
 
@@ -421,9 +440,62 @@ int main(int argc, char *argv[])
 
   xmlCleanupParser();
 
+  if (status != E_GIMX_STATUS_SUCCESS)
+  {
+    /*
+     * Write the status in the gimx.status file, in the system temp directory.
+     *
+     * In most cases gimx runs in a terminal window (such as xterm) that may not
+     * provide the return code to the parent process (in most cases gimx-launcher).
+     *
+     * The absence of the gimx.status file means the execution was successful,
+     * or that the program crashed.
+     */
+
+#ifndef WIN32
+    char * file = "/tmp/gimx.status";
+#else
+    char file[MAX_PATH];
+    int ret = GetTempPath(sizeof(file), file);
+    if (ret > 0 && (unsigned int) ret < MAX_PATH - sizeof("/gimx.status"))
+    {
+      strcat(file, "/gimx.status");
+    }
+    else
+    {
+      file[0] = '\0';
+    }
+#endif
+    if (file != NULL && file[0] != '\0')
+    {
+      FILE * fp = fopen(file, "w");
+      if (fp != NULL)
+      {
+        fprintf(fp, "%d\n", status);
+        fclose(fp);
+#ifndef WIN32
+        int ret = chown(file, getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid);
+        if (ret < 0)
+        {
+          eprintf("failed to set ownership of the gimx status file");
+        }
+#endif
+      }
+    }
+  }
+
   if(gimx_params.logfile)
   {
     fclose(gimx_params.logfile);
+    char file_path[PATH_MAX];
+    snprintf(file_path, sizeof(file_path), "%s%s%s%s", gimx_params.homedir, GIMX_DIR, LOG_DIR, gimx_params.logfilename);
+#ifndef WIN32
+    int ret = chown(file_path, getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid);
+    if (ret < 0)
+    {
+      eprintf("failed to set ownership of the gimx log file");
+    }
+#endif
   }
 
   if(gimx_params.curses)
@@ -440,5 +512,5 @@ int main(int argc, char *argv[])
   }
 #endif
 
-  return 0;
+  return status;
 }
