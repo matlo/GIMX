@@ -1,5 +1,13 @@
 DIRS = gimxcontroller gimxupdater gimxconfigupdater gimxhid gimxinput gimxpoll gimxprio gimxserial gimxtimer gimxusb gimxgpp gimxconfigeditor
 
+ifneq ($(OS),Windows_NT)
+UHID=1
+endif
+
+ifeq ($(UHID),1)
+DIRS := gimxuhid $(DIRS)
+endif
+
 BUILDDIRS = $(DIRS:%=build-%)
 INSTALLDIRS = $(DIRS:%=install-%)
 CLEANDIRS = $(DIRS:%=clean-%)
@@ -8,13 +16,13 @@ UNINSTALLDIRS = $(DIRS:%=uninstall-%)
 all: $(BUILDDIRS)
 $(DIRS): $(BUILDDIRS)
 $(BUILDDIRS):
-	$(MAKE) -C $(@:build-%=%)
+	$(MAKE) -C $(@:build-%=%) UHID=$(UHID)
 
 build-gimxconfigeditor: build-gimxcontroller
 build-gimxconfigeditor: build-gimxhid build-gimxinput build-gimxtimer build-gimxpoll
 build-gimxgpp: build-gimxhid
 ifeq ($(UHID),1)
-build-gimxconfigeditor: build-gimxuhid
+build-input: build-gimxuhid
 endif
 build-gimxinput: build-gimxhid build-gimxpoll
 ifeq ($(OS),Windows_NT)
