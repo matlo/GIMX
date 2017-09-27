@@ -379,6 +379,7 @@ static s_haptic_core_ids haptic_sink_lg_ids[] = {
 static s_haptic_sink sink_lg = {
         .name = "haptic_sink_lg",
         .ids = haptic_sink_lg_ids,
+        .caps = E_HAPTIC_SINK_CAP_CONSTANT | E_HAPTIC_SINK_CAP_SPRING | E_HAPTIC_SINK_CAP_DAMPER,
         .init = haptic_sink_lg_init,
         .clean = haptic_sink_lg_clean,
         .process = haptic_sink_lg_process,

@@ -826,6 +826,8 @@ int adapter_start()
     if (source.vid != 0x0000 && adapter->haptic_sink_joystick != -1)
     {
       adapter->ff_core = haptic_core_init(source, adapter->haptic_sink_joystick);
+      const s_haptic_core_tweaks * tweaks = cfg_get_ffb_tweaks(i);
+      adapter_set_haptic_tweaks(i, tweaks);
     }
 
     if(adapter->atype == E_ADAPTER_TYPE_DIY_USB)
@@ -1151,27 +1153,6 @@ void adapter_clean()
   }
 }
 
-int adapter_is_usb_auth_required(int adapter)
-{
-  if (adapters[adapter].atype != E_ADAPTER_TYPE_DIY_USB)
-  {
-    return 0;
-  }
-  if (controller_is_auth_required(adapters[adapter].ctype))
-  {
-    if (adapters[adapter].ctype != C_TYPE_360_PAD
-        && adapters[adapter].ctype != C_TYPE_XONE_PAD)
-    {
-      return 1;
-    }
-    else if(adapters[adapter].status == 0)
-    {
-      return 1;
-    }
-  }
-  return 0;
-}
-
 void adapter_set_haptic_sink(int adapter, int joystick, int force)
 {
   if (force == 1 || adapters[adapter].haptic_sink_joystick == -1)
@@ -1180,10 +1161,10 @@ void adapter_set_haptic_sink(int adapter, int joystick, int force)
   }
 }
 
-void adapter_set_haptic_tweaks(int adapter, int invert)
+void adapter_set_haptic_tweaks(int adapter, const s_haptic_core_tweaks * tweaks)
 {
   if (adapters[adapter].ff_core != NULL)
   {
-    haptic_core_set_tweaks(adapters[adapter].ff_core, invert);
+    haptic_core_set_tweaks(adapters[adapter].ff_core, tweaks);
   }
 }

@@ -1029,29 +1029,39 @@ static int ProcessJoystickCorrectionsListElement(xmlNode * a_node)
   return ret;
 }
 
-static int ProcessInversionElement(xmlNode * a_node)
+static void ProcessInversionElement(xmlNode * a_node)
 {
   char * val = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_ENABLE);
 
   if(val == NULL)
   {
-    printf("missing %s attribute\n", X_ATTR_ENABLE);
-    return -1;
+    gerror("missing %s attribute\n", X_ATTR_ENABLE);
   }
   if (strcmp(val, X_ATTR_VALUE_YES) == 0)
   {
     entry.params.ffb_tweaks.invert = 1;
   }
+}
 
-  return 0;
+static void ProcessGainElement(xmlNode * a_node)
+{
+  GetIntProp(a_node, X_ATTR_RUMBLE, &entry.params.ffb_tweaks.gain.rumble);
+  GetIntProp(a_node, X_ATTR_CONSTANT, &entry.params.ffb_tweaks.gain.constant);
+  GetIntProp(a_node, X_ATTR_SPRING, &entry.params.ffb_tweaks.gain.spring);
+  GetIntProp(a_node, X_ATTR_DAMPER, &entry.params.ffb_tweaks.gain.damper);
 }
 
 static int ProcessForceFeedbackElement(xmlNode * a_node)
 {
   int ret = 0;
-  int has_device = 0, has_inversion = 0;
+  int has_device = 0;
 
   reset_entry();
+
+  entry.params.ffb_tweaks.gain.rumble = 100;
+  entry.params.ffb_tweaks.gain.constant = 100;
+  entry.params.ffb_tweaks.gain.spring = 100;
+  entry.params.ffb_tweaks.gain.damper = 100;
 
   xmlNode* cur_node = NULL;
   for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
@@ -1065,25 +1075,22 @@ static int ProcessForceFeedbackElement(xmlNode * a_node)
       }
       else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_INVERSION))
       {
-        has_inversion = 1;
-        ret = ProcessInversionElement(cur_node);
+        ProcessInversionElement(cur_node);
+      }
+      else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_GAIN))
+      {
+        ProcessGainElement(cur_node);
       }
       else
       {
-        printf("unexpected element: %s\n", cur_node->name);
+        gerror("unexpected element: %s\n", cur_node->name);
       }
     }
   }
 
   if (has_device == 0)
   {
-    printf("missing device element\n");
-    ret = -1;
-  }
-
-  if (has_inversion == 0)
-  {
-    printf("missing inversion element\n");
+    gerror("missing device element\n");
     ret = -1;
   }
 

@@ -15,9 +15,18 @@
 
 struct haptic_sink_state;
 
+typedef enum {
+    E_HAPTIC_SINK_CAP_NONE = 0x00,
+    E_HAPTIC_SINK_CAP_RUMBLE = (1 << 0),
+    E_HAPTIC_SINK_CAP_CONSTANT = (1 << 1),
+    E_HAPTIC_SINK_CAP_SPRING = (1 << 2),
+    E_HAPTIC_SINK_CAP_DAMPER = (1 << 3),
+} e_haptic_sink_caps;
+
 typedef struct {
     const char * name;
     s_haptic_core_ids * ids;
+    e_haptic_sink_caps caps;
     struct haptic_sink_state * (* init)(int joystick);
     void (* clean)(struct haptic_sink_state * state);
     void (* process)(struct haptic_sink_state * state, const s_haptic_core_data * data);

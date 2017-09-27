@@ -687,11 +687,30 @@ void XmlReader::ProcessInversionElement(xmlNode * a_node)
   m_TempForceFeedback.setInversion(string(prop ? prop : "no"));
 }
 
+void XmlReader::ProcessGainElement(xmlNode * a_node)
+{
+    char* prop;
+
+    prop = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_RUMBLE);
+    m_TempForceFeedback.setRumbleGain(string(prop ? prop : "100"));
+    xmlFree(prop);
+
+    prop = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_CONSTANT);
+    m_TempForceFeedback.setConstantGain(string(prop ? prop : "100"));
+    xmlFree(prop);
+
+    prop = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_SPRING);
+    m_TempForceFeedback.setSpringGain(string(prop ? prop : "100"));
+    xmlFree(prop);
+
+    prop = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_DAMPER);
+    m_TempForceFeedback.setDamperGain(string(prop ? prop : "100"));
+    xmlFree(prop);
+}
+
 void XmlReader::ProcessForceFeedbackElement(xmlNode * a_node)
 {
     xmlNode* cur_node = NULL;
-
-    int hasDevice = 0, hasInversion = 0;
 
     for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
     {
@@ -699,27 +718,41 @@ void XmlReader::ProcessForceFeedbackElement(xmlNode * a_node)
         {
             if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_DEVICE))
             {
-                hasDevice = 1;
                 ProcessDeviceElement(cur_node);
+                break;
             }
-            else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_INVERSION))
+            else
             {
-                hasInversion = 1;
-                ProcessInversionElement(cur_node);
+                string message(string("bad element name: ") + string((char*)cur_node->name));
+                throw invalid_argument(message);
             }
         }
     }
-    
-    if (hasDevice == 0)
+
+    if(!cur_node)
     {
-        string message("missing device element");
+        string message(string("missing device element"));
         throw invalid_argument(message);
     }
 
-    if (hasInversion == 0)
+    for (cur_node = cur_node->next; cur_node; cur_node = cur_node->next)
     {
-        string message("missing inversion element");
-        throw invalid_argument(message);
+        if (cur_node->type == XML_ELEMENT_NODE)
+        {
+            if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_INVERSION))
+            {
+                ProcessInversionElement(cur_node);
+            }
+            else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_GAIN))
+            {
+                ProcessGainElement(cur_node);
+            }
+            else
+            {
+                string message(string("bad element name: ") + string((char*)cur_node->name));
+                throw invalid_argument(message);
+            }
+        }
     }
 
     m_TempForceFeedback.SetJoystick(m_TempDevice);

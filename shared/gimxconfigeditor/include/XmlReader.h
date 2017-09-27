@@ -66,6 +66,11 @@
 #define X_NODE_FORCE_FEEDBACK "force_feedback"
 #define X_NODE_INVERSION "inversion"
 #define X_ATTR_ENABLE "enable"
+#define X_NODE_GAIN "gain"
+#define X_ATTR_RUMBLE "rumble"
+#define X_ATTR_CONSTANT "constant"
+#define X_ATTR_SPRING "spring"
+#define X_ATTR_DAMPER "damper"
 
 #define X_ATTR_VALUE_YES "yes"
 #define X_ATTR_VALUE_NO "no"
@@ -103,6 +108,7 @@ class XmlReader
         void CheckDevice(string type, string name, string id);
         void ProcessEventElement(xmlNode * a_node);
         void ProcessInversionElement(xmlNode * a_node);
+        void ProcessGainElement(xmlNode * a_node);
         Event m_TempEvent;
         Device m_TempDevice;
         ControlMapper m_TempButtonMapper;

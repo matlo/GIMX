@@ -112,9 +112,27 @@ void haptic_core_update(struct haptic_core * core) {
     core->sink.ptr->update(core->sink.state);
 }
 
-void haptic_core_set_tweaks(struct haptic_core * core, int invert) {
+void haptic_core_set_tweaks(struct haptic_core * core, const s_haptic_core_tweaks * tweaks) {
 
-    ginfo("FFB invert: %s\n", invert ? "yes" : "no");
+    if (core->sink.ptr->caps != E_HAPTIC_SINK_CAP_NONE) {
+        ginfo("FFB invert: %s\n", tweaks->invert ? "yes" : "no");
+        ginfo("FFB gain:");
+    }
+    if (core->sink.ptr->caps & E_HAPTIC_SINK_CAP_RUMBLE) {
+        ginfo(" rumble=%d", tweaks->gain.rumble);
+    }
+    if (core->sink.ptr->caps & E_HAPTIC_SINK_CAP_CONSTANT) {
+        ginfo(" constant=%d", tweaks->gain.constant);
+    }
+    if (core->sink.ptr->caps & E_HAPTIC_SINK_CAP_SPRING) {
+        ginfo(" spring=%d", tweaks->gain.spring);
+    }
+    if (core->sink.ptr->caps & E_HAPTIC_SINK_CAP_DAMPER) {
+        ginfo(" damper=%d", tweaks->gain.damper);
+    }
+    if (core->sink.ptr->caps != E_HAPTIC_SINK_CAP_NONE) {
+        ginfo("\n");
+    }
 
-    core->tweaks.invert = invert;
+    core->tweaks = *tweaks;
 }

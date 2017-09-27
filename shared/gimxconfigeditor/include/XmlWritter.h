@@ -29,6 +29,7 @@ class XmlWritter
         void CreateJoystickCorrectionsNodes(xmlNodePtr parent_node);
         void CreateForceFeedbackNode(xmlNodePtr parent_node);
         void CreateInversionNode(xmlNodePtr parent_node, ForceFeedback* ffb);
+        void CreateGainNode(xmlNodePtr parent_node, ForceFeedback* ffb);
         unsigned int m_CurrentProfile;
         unsigned int m_CurrentController;
         ConfigurationFile* m_ConfigurationFile;

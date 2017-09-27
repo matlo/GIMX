@@ -80,6 +80,7 @@ static s_haptic_core_ids haptic_sink_rumble_ids[] = {
 static s_haptic_sink sink_rumble = {
         .name = "haptic_sink_rumble",
         .ids = haptic_sink_rumble_ids,
+        .caps = E_HAPTIC_SINK_CAP_RUMBLE,
         .init = haptic_sink_rumble_init,
         .clean = haptic_sink_rumble_clean,
         .process = haptic_sink_rumble_process,

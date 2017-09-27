@@ -1054,11 +1054,93 @@
 															</object>
 															<object class="sizeritem">
 																<object class="wxFlexGridSizer" variable="FlexGridSizer56" member="no">
-																	<cols>1</cols>
-																	<rows>1</rows>
+																	<cols>5</cols>
+																	<rows>2</rows>
 																	<object class="sizeritem">
-																		<object class="wxCheckBox" name="ID_CHECKBOX2" variable="FFBTweaksInvert" member="yes">
+																		<object class="wxStaticText" name="ID_STATICTEXT31" variable="StaticText4" member="yes">
 																			<label>Invert direction</label>
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																	<object class="sizeritem">
+																		<object class="wxStaticText" name="ID_STATICTEXT50" variable="StaticText5" member="yes">
+																			<label>Rumble</label>
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																	<object class="sizeritem">
+																		<object class="wxStaticText" name="ID_STATICTEXT29" variable="StaticText10" member="yes">
+																			<label>Constant</label>
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																	<object class="sizeritem">
+																		<object class="wxStaticText" name="ID_STATICTEXT33" variable="StaticText16" member="yes">
+																			<label>Spring</label>
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																	<object class="sizeritem">
+																		<object class="wxStaticText" name="ID_STATICTEXT48" variable="StaticText19" member="yes">
+																			<label>Damper</label>
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																	<object class="sizeritem">
+																		<object class="wxCheckBox" name="ID_CHECKBOX2" variable="FFBTweaksInvert" member="yes" />
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																	<object class="sizeritem">
+																		<object class="wxSpinCtrl" name="ID_SPINCTRL4" variable="FFBTweaksRumbleGain" member="yes">
+																			<value>100</value>
+																			<min>-1000</min>
+																			<max>1000</max>
+																			<size>55,-1</size>
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																	<object class="sizeritem">
+																		<object class="wxSpinCtrl" name="ID_SPINCTRL3" variable="FFBTweaksConstantGain" member="yes">
+																			<value>100</value>
+																			<min>-1000</min>
+																			<max>1000</max>
+																			<size>55,-1</size>
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																	<object class="sizeritem">
+																		<object class="wxSpinCtrl" name="ID_SPINCTRL2" variable="FFBTweaksSpringGain" member="yes">
+																			<value>100</value>
+																			<min>-1000</min>
+																			<max>1000</max>
+																			<size>55,-1</size>
+																		</object>
+																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<border>5</border>
+																		<option>1</option>
+																	</object>
+																	<object class="sizeritem">
+																		<object class="wxSpinCtrl" name="ID_SPINCTRL1" variable="FFBTweaksDamperGain" member="yes">
+																			<value>100</value>
+																			<min>-1000</min>
+																			<max>1000</max>
+																			<size>55,-1</size>
 																		</object>
 																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																		<border>5</border>
@@ -2008,7 +2090,6 @@
 				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM25" variable="MenuItemLinkControls" member="yes">
 					<label>Link controls</label>
-					<checked>1</checked>
 					<checkable>1</checkable>
 				</object>
 				<object class="wxMenuItem" name="ID_MENUITEM27" variable="MenuAutoBindControls" member="yes">

@@ -16,7 +16,7 @@
 #include "gimx.h"
 #include "macros.h"
 #include <controller.h>
-#include "include/haptic/haptic_core.h"
+#include "haptic/haptic_core.h"
 
 #define DEFAULT_RADIUS 512
 #define DEFAULT_VELOCITY 1
@@ -85,14 +85,18 @@ static s_mapper_table joystick_axes[MAX_DEVICES][MAX_CONTROLLERS][MAX_PROFILES];
 /*
  * FFB tweaks, for each controller and each profile.
  */
-static s_ffb_tweaks ffb_tweaks[MAX_CONTROLLERS][MAX_PROFILES];
+static s_haptic_core_tweaks ffb_tweaks[MAX_CONTROLLERS][MAX_PROFILES];
 
 void cfg_set_ffb_tweaks(const s_config_entry * entry)
 {
   ffb_tweaks[entry->controller_id][entry->profile_id].invert = entry->params.ffb_tweaks.invert;
+  ffb_tweaks[entry->controller_id][entry->profile_id].gain.rumble = entry->params.ffb_tweaks.gain.rumble;
+  ffb_tweaks[entry->controller_id][entry->profile_id].gain.constant = entry->params.ffb_tweaks.gain.constant;
+  ffb_tweaks[entry->controller_id][entry->profile_id].gain.spring = entry->params.ffb_tweaks.gain.spring;
+  ffb_tweaks[entry->controller_id][entry->profile_id].gain.damper = entry->params.ffb_tweaks.gain.damper;
 }
 
-static inline const s_ffb_tweaks * cfg_get_ffb_tweaks(int controller)
+const s_haptic_core_tweaks * cfg_get_ffb_tweaks(int controller)
 {
   return ffb_tweaks[controller] + cfg_controllers[controller].current->index;
 }
@@ -105,6 +109,10 @@ void cfg_init_ffb_tweaks()
     for (j = 0; j < MAX_PROFILES; ++j)
     {
       ffb_tweaks[i][j].invert = 0;
+      ffb_tweaks[i][j].gain.rumble = 100;
+      ffb_tweaks[i][j].gain.constant = 100;
+      ffb_tweaks[i][j].gain.spring = 100;
+      ffb_tweaks[i][j].gain.damper = 100;
     }
   }
 }
@@ -115,29 +123,29 @@ static struct
   s_js_corr * corr;
 } js_corr[MAX_DEVICES] = {};
 
-int cfg_add_js_corr(uint8_t device, s_js_corr * corr)
+int cfg_add_js_corr(int joystick, s_js_corr * corr)
 {
-  void * ptr = realloc(js_corr[device].corr, (js_corr[device].nb + 1) * sizeof(*(js_corr->corr)));
+  void * ptr = realloc(js_corr[joystick].corr, (js_corr[joystick].nb + 1) * sizeof(*(js_corr->corr)));
   if(ptr == NULL)
   {
     gerror("%s:%d %s: realloc failed\n", __FILE__, __LINE__, __func__);
     return -1;
   }
-  js_corr[device].corr = ptr;
-  js_corr[device].corr[js_corr[device].nb].axis = corr->axis;
-  memcpy(js_corr[device].corr[js_corr[device].nb].coef, corr->coef, sizeof(corr->coef));
-  ++(js_corr[device].nb);
+  js_corr[joystick].corr = ptr;
+  js_corr[joystick].corr[js_corr[joystick].nb].axis = corr->axis;
+  memcpy(js_corr[joystick].corr[js_corr[joystick].nb].coef, corr->coef, sizeof(corr->coef));
+  ++(js_corr[joystick].nb);
   return 0;
 }
 
-static s_js_corr * get_js_corr(uint8_t device, uint8_t axis)
+static s_js_corr * get_js_corr(int joystick, int axis)
 {
   unsigned int i;
-  for (i = 0; i < js_corr[device].nb; ++i)
+  for (i = 0; i < js_corr[joystick].nb; ++i)
   {
-    if(js_corr[device].corr[i].axis == axis)
+    if(js_corr[joystick].corr[i].axis == axis)
     {
-      return js_corr[device].corr + i;
+      return js_corr[joystick].corr + i;
     }
   }
   return NULL;
@@ -865,9 +873,9 @@ void cfg_profile_activation()
             update_stick(i, j);
           }
 
-          const s_ffb_tweaks * tweaks = cfg_get_ffb_tweaks(i);
-
-          adapter_set_haptic_tweaks(i, tweaks->invert);
+          const s_haptic_core_tweaks * tweaks = cfg_get_ffb_tweaks(i);
+          
+          adapter_set_haptic_tweaks(i, tweaks);
         }
 
         cfg_controllers[i].next = NULL;

@@ -11,6 +11,7 @@
 #include <config.h>
 #include <gimxserial/include/gserial.h>
 #include <gimxcontroller/include/controller.h>
+#include "haptic/haptic_core.h"
 
 #ifndef WIN32
 #include <netinet/in.h>
@@ -91,9 +92,7 @@ void adapter_set_axis(unsigned char adapter, int axis, int value);
 int adapter_forward_control_in(int adapter, unsigned char* data, unsigned char length);
 int adapter_forward_interrupt_in(int adapter, unsigned char* data, unsigned char length);
 
-int adapter_is_usb_auth_required(int adapter);
-
 void adapter_set_haptic_sink(int adapter, int joystick, int force);
-void adapter_set_haptic_tweaks(int adapter, int invert);
+void adapter_set_haptic_tweaks(int adapter, const s_haptic_core_tweaks * tweaks);
 
 #endif /* CONTROLLER_H_ */

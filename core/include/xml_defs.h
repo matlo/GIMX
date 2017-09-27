@@ -68,5 +68,10 @@
 #define X_NODE_FORCE_FEEDBACK "force_feedback"
 #define X_NODE_INVERSION "inversion"
 #define X_ATTR_ENABLE "enable"
+#define X_NODE_GAIN "gain"
+#define X_ATTR_RUMBLE "rumble"
+#define X_ATTR_CONSTANT "constant"
+#define X_ATTR_SPRING "spring"
+#define X_ATTR_DAMPER "damper"
 
 #endif /* XML_DEFS_H_ */

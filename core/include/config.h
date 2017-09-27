@@ -8,6 +8,7 @@
 
 #include <gimxinput/include/ginput.h>
 #include <gimxcontroller/include/controller.h>
+#include <haptic/haptic_core.h>
 
 #define MAX_BUFFERSIZE 256
 
@@ -64,7 +65,7 @@ typedef struct
 
 typedef struct
 {
-  unsigned int axis;
+  int axis;
   int coef[4];
 } s_js_corr;
 
@@ -129,6 +130,13 @@ typedef struct
     struct
     {
       int invert;
+      struct
+      {
+        int rumble;
+        int constant;
+        int spring;
+        int damper;
+      } gain;
     } ffb_tweaks;
   } params;
 }s_config_entry;
@@ -165,10 +173,6 @@ typedef struct
   double dead_zone;
 }s_intensity;
 
-typedef struct {
-  int invert;
-} s_ffb_tweaks;
-
 void cfg_trigger_init();
 void cfg_trigger_lookup(GE_Event*);
 void cfg_profile_activation();
@@ -188,8 +192,9 @@ int cfg_add_binding(s_config_entry* entry);
 s_mapper_table* cfg_get_mouse_axes(int, int, int);
 void cfg_clean();
 void cfg_read_calibration();
-int cfg_add_js_corr(uint8_t device, s_js_corr * corr);
+int cfg_add_js_corr(int joystick, s_js_corr * corr);
 void cfg_set_ffb_tweaks(const s_config_entry * entry);
+const s_haptic_core_tweaks * cfg_get_ffb_tweaks(int controller);
 void cfg_init_ffb_tweaks();
 
 #endif /* CONFIG_H_ */

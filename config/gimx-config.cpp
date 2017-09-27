@@ -116,7 +116,16 @@ const long configFrame::ID_STATICTEXT25 = wxNewId();
 const long configFrame::ID_STATICTEXT49 = wxNewId();
 const long configFrame::ID_BUTTON20 = wxNewId();
 const long configFrame::ID_STATICLINE13 = wxNewId();
+const long configFrame::ID_STATICTEXT31 = wxNewId();
+const long configFrame::ID_STATICTEXT50 = wxNewId();
+const long configFrame::ID_STATICTEXT29 = wxNewId();
+const long configFrame::ID_STATICTEXT33 = wxNewId();
+const long configFrame::ID_STATICTEXT48 = wxNewId();
 const long configFrame::ID_CHECKBOX2 = wxNewId();
+const long configFrame::ID_SPINCTRL4 = wxNewId();
+const long configFrame::ID_SPINCTRL3 = wxNewId();
+const long configFrame::ID_SPINCTRL2 = wxNewId();
+const long configFrame::ID_SPINCTRL1 = wxNewId();
 const long configFrame::ID_STATICLINE15 = wxNewId();
 const long configFrame::ID_BUTTON24 = wxNewId();
 const long configFrame::ID_PANEL8 = wxNewId();
@@ -971,10 +980,32 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     FlexGridSizer54->Add(ForceFeedbackAutoDetect, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticLine13 = new wxStaticLine(PanelForceFeedback, ID_STATICLINE13, wxDefaultPosition, wxSize(-1,50), wxLI_VERTICAL, _T("ID_STATICLINE13"));
     FlexGridSizer54->Add(StaticLine13, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FlexGridSizer56 = new wxFlexGridSizer(1, 1, 0, 0);
-    FFBTweaksInvert = new wxCheckBox(PanelForceFeedback, ID_CHECKBOX2, _("Invert direction"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX2"));
+    FlexGridSizer56 = new wxFlexGridSizer(2, 5, 0, 0);
+    StaticText4 = new wxStaticText(PanelForceFeedback, ID_STATICTEXT31, _("Invert direction"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT31"));
+    FlexGridSizer56->Add(StaticText4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticText5 = new wxStaticText(PanelForceFeedback, ID_STATICTEXT50, _("Rumble"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT50"));
+    FlexGridSizer56->Add(StaticText5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticText10 = new wxStaticText(PanelForceFeedback, ID_STATICTEXT29, _("Constant"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT29"));
+    FlexGridSizer56->Add(StaticText10, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticText16 = new wxStaticText(PanelForceFeedback, ID_STATICTEXT33, _("Spring"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT33"));
+    FlexGridSizer56->Add(StaticText16, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticText19 = new wxStaticText(PanelForceFeedback, ID_STATICTEXT48, _("Damper"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT48"));
+    FlexGridSizer56->Add(StaticText19, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FFBTweaksInvert = new wxCheckBox(PanelForceFeedback, ID_CHECKBOX2, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX2"));
     FFBTweaksInvert->SetValue(false);
     FlexGridSizer56->Add(FFBTweaksInvert, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FFBTweaksRumbleGain = new wxSpinCtrl(PanelForceFeedback, ID_SPINCTRL4, _T("100"), wxDefaultPosition, wxSize(55,-1), 0, -1000, 1000, 100, _T("ID_SPINCTRL4"));
+    FFBTweaksRumbleGain->SetValue(_T("100"));
+    FlexGridSizer56->Add(FFBTweaksRumbleGain, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FFBTweaksConstantGain = new wxSpinCtrl(PanelForceFeedback, ID_SPINCTRL3, _T("100"), wxDefaultPosition, wxSize(55,-1), 0, -1000, 1000, 100, _T("ID_SPINCTRL3"));
+    FFBTweaksConstantGain->SetValue(_T("100"));
+    FlexGridSizer56->Add(FFBTweaksConstantGain, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FFBTweaksSpringGain = new wxSpinCtrl(PanelForceFeedback, ID_SPINCTRL2, _T("100"), wxDefaultPosition, wxSize(55,-1), 0, -1000, 1000, 100, _T("ID_SPINCTRL2"));
+    FFBTweaksSpringGain->SetValue(_T("100"));
+    FlexGridSizer56->Add(FFBTweaksSpringGain, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FFBTweaksDamperGain = new wxSpinCtrl(PanelForceFeedback, ID_SPINCTRL1, _T("100"), wxDefaultPosition, wxSize(55,-1), 0, -1000, 1000, 100, _T("ID_SPINCTRL1"));
+    FFBTweaksDamperGain->SetValue(_T("100"));
+    FlexGridSizer56->Add(FFBTweaksDamperGain, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer54->Add(FlexGridSizer56, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticLine15 = new wxStaticLine(PanelForceFeedback, ID_STATICLINE15, wxDefaultPosition, wxSize(-1,50), wxLI_VERTICAL, _T("ID_STATICLINE15"));
     FlexGridSizer54->Add(StaticLine15, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -1306,7 +1337,6 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     MenuAdvanced->Append(MenuItemWindowEvents);
     MenuItemLinkControls = new wxMenuItem(MenuAdvanced, ID_MENUITEM25, _("Link controls"), wxEmptyString, wxITEM_CHECK);
     MenuAdvanced->Append(MenuItemLinkControls);
-    MenuItemLinkControls->Check(true);
     MenuAutoBindControls = new wxMenuItem(MenuAdvanced, ID_MENUITEM27, _("Auto-bind controls"), wxEmptyString, wxITEM_NORMAL);
     MenuAdvanced->Append(MenuAutoBindControls);
     MenuBar1->Append(MenuAdvanced, _("Advanced"));
@@ -2280,6 +2310,18 @@ void configFrame::save_current()
     profile->GetForceFeedback()->GetJoystick()->SetName(ffbTweaksTabDeviceName);
     profile->GetForceFeedback()->GetJoystick()->SetId(string(FFBTweaksId->GetLabel().mb_str(wxConvUTF8)));
     profile->GetForceFeedback()->setInversion(FFBTweaksInvert->GetValue() ? "yes" : "no");
+    wxString rumble;
+    rumble << FFBTweaksRumbleGain->GetValue();
+    profile->GetForceFeedback()->setRumbleGain(string(rumble.mb_str(wxConvUTF8)));
+    wxString constant;
+    constant << FFBTweaksConstantGain->GetValue();
+    profile->GetForceFeedback()->setConstantGain(string(constant.mb_str(wxConvUTF8)));
+    wxString spring;
+    spring << FFBTweaksSpringGain->GetValue();
+    profile->GetForceFeedback()->setSpringGain(string(spring.mb_str(wxConvUTF8)));
+    wxString damper;
+    damper << FFBTweaksDamperGain->GetValue();
+    profile->GetForceFeedback()->setDamperGain(string(damper.mb_str(wxConvUTF8)));
     //Save ControlMappers
     buttonMappers = profile->GetButtonMapperList();
     buttonMappers->erase(buttonMappers->begin(), buttonMappers->end());
@@ -2503,6 +2545,10 @@ void configFrame::load_current()
     FFBTweaksName->SetLabel(wxString(name.c_str(),wxConvUTF8));
     FFBTweaksId->SetLabel(wxString(tweaks->GetJoystick()->GetId().c_str(),wxConvUTF8));
     FFBTweaksInvert->SetValue(tweaks->getInversion() == "yes");
+    FFBTweaksRumbleGain->SetValue(wxString(tweaks->getRumbleGain().c_str(),wxConvUTF8));
+    FFBTweaksConstantGain->SetValue(wxString(tweaks->getConstantGain().c_str(),wxConvUTF8));
+    FFBTweaksSpringGain->SetValue(wxString(tweaks->getSpringGain().c_str(),wxConvUTF8));
+    FFBTweaksDamperGain->SetValue(wxString(tweaks->getDamperGain().c_str(),wxConvUTF8));
     //Load buttonMappers
     clearGrid(GridPanelButton);
     buttonMappers = profile->GetButtonMapperList();
@@ -4499,6 +4545,11 @@ void configFrame::OnButtonFFBTweaksDelete(wxCommandEvent& event __attribute__((u
     FFBTweaksId->SetLabel(wxEmptyString);
 
     FFBTweaksInvert->SetValue(false);
+
+    FFBTweaksRumbleGain->SetValue(_T("100"));
+    FFBTweaksConstantGain->SetValue(_T("100"));
+    FFBTweaksSpringGain->SetValue(_T("100"));
+    FFBTweaksDamperGain->SetValue(_T("100"));
 
     refresh_gui();
 }

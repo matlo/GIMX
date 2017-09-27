@@ -180,6 +180,15 @@ void XmlWritter::CreateInversionNode(xmlNodePtr parent_node, ForceFeedback* ffb)
     xmlNewProp(d_node, BAD_CAST X_ATTR_ENABLE, BAD_CAST value);
 }
 
+void XmlWritter::CreateGainNode(xmlNodePtr parent_node, ForceFeedback* ffb)
+{
+    xmlNodePtr d_node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_GAIN, NULL);
+    xmlNewProp(d_node, BAD_CAST X_ATTR_RUMBLE, BAD_CAST ffb->getRumbleGain().c_str());
+    xmlNewProp(d_node, BAD_CAST X_ATTR_CONSTANT, BAD_CAST ffb->getConstantGain().c_str());
+    xmlNewProp(d_node, BAD_CAST X_ATTR_SPRING, BAD_CAST ffb->getSpringGain().c_str());
+    xmlNewProp(d_node, BAD_CAST X_ATTR_DAMPER, BAD_CAST ffb->getDamperGain().c_str());
+}
+
 void XmlWritter::CreateForceFeedbackNode(xmlNodePtr parent_node)
 {
     ForceFeedback * tweaks = m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentProfile)->GetForceFeedback();
@@ -189,6 +198,7 @@ void XmlWritter::CreateForceFeedbackNode(xmlNodePtr parent_node)
         xmlNodePtr node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_FORCE_FEEDBACK, NULL);
         CreateDeviceNode(node, tweaks->GetJoystick());
         CreateInversionNode(node, tweaks);
+        CreateGainNode(node, tweaks);
     }
 }
 

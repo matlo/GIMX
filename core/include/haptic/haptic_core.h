@@ -84,7 +84,7 @@ struct haptic_core;
 struct haptic_core * haptic_core_init(s_haptic_core_ids source_ids, int source_joystick);
 int haptic_core_clean(struct haptic_core * core);
 
-void haptic_core_set_tweaks(struct haptic_core * core, int invert);
+void haptic_core_set_tweaks(struct haptic_core * core, const s_haptic_core_tweaks * tweaks);
 
 void haptic_core_process_report(struct haptic_core * core, size_t size, const unsigned char * data);
 void haptic_core_update(struct haptic_core * core);
