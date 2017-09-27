@@ -13,11 +13,9 @@
 #include <wx/menu.h>
 #include <wx/panel.h>
 #include <wx/statusbr.h>
-#include <wx/snglinst.h>
 #include <wx/frame.h>
 #include <wx/stattext.h>
 #include <wx/choice.h>
-#include <wx/utils.h>
 //*)
 
 #include <wx/process.h>
@@ -184,7 +182,6 @@ class launcherFrame: public wxFrame
         wxMenuItem* MenuItem4;
         wxButton* ButtonStart;
         wxMenuItem* MenuEditConfig;
-        wxSingleInstanceChecker SingleInstanceChecker1;
         wxStaticText* OutputText;
         wxFlexGridSizer* MouseSizer;
         //*)

@@ -12,6 +12,7 @@
 #include <gimxserial/include/gserial.h>
 #include <gimxcontroller/include/controller.h>
 #include "haptic/haptic_core.h"
+#include <gimx.h>
 
 #ifndef WIN32
 #include <netinet/in.h>
@@ -57,6 +58,10 @@ typedef struct {
     unsigned short src_port;
     int src_fd;
     e_controller_type ctype;
+  struct {
+    e_controller_axis_index index;
+    int pressed;
+  } activation_button;
     int event;
     int axis[AXIS_MAX];
     int change;
@@ -74,7 +79,7 @@ typedef struct {
 int adapter_detect();
 int adapter_start();
 int adapter_send();
-void adapter_clean();
+e_gimx_status adapter_clean();
 
 s_adapter* adapter_get(unsigned char index);
 int adapter_set_port(unsigned char index, char* portname);

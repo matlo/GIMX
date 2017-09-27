@@ -237,6 +237,7 @@ class fpsconfigFrame: public wxFrame
         wxBackgroundBitmap* ToolBarBackground;
 
         wxLocale* locale;
+        wxString decimalPoint;
 
         EventCatcher* evcatch;
         ConfigurationFile configFile;

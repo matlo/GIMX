@@ -203,6 +203,13 @@ const char* axis_labels[AI_MAX] =
     "rel_axis_0-"
 };
 
+static bool ToDouble(const wxString & from, double * to, const wxString & decimalPoint)
+{
+    wxString tmp = from;
+    tmp.Replace(wxT("."), decimalPoint);
+    return tmp.ToDouble(to);
+}
+
 fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __attribute__((unused)))
 {
     unsigned int i;
@@ -212,6 +219,9 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __at
     locale->AddCatalogLookupPathPrefix(wxT("share/locale"));
 #endif
     locale->AddCatalog(wxT("gimx"));
+
+    struct lconv * l = localeconv();
+    decimalPoint = wxString(l->decimal_point, wxConvUTF8);
 
     //(*Initialize(fpsconfigFrame)
     wxMenu* MenuFile;
@@ -1071,8 +1081,6 @@ void fpsconfigFrame::OnMenuSaveAs(wxCommandEvent& event)
 
 void fpsconfigFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
 {
-	wxLocale eng(wxLANGUAGE_ENGLISH); // make sure to use '.' as decimal separator
-
     std::list<ControlMapper>* ButtonMappers;
     std::list<ControlMapper>* AxisMappers;
     double mx, my;
@@ -1198,7 +1206,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
     }
     wsmx = TextCtrlSensitivityHipFire->GetValue();
     wsxyratio = TextCtrlXyRatioHipFire->GetValue();
-    if(wsmx.ToDouble(&mx) && wsxyratio.ToDouble(&xyratio))
+    if(ToDouble(wsmx, &mx, decimalPoint) && ToDouble(wsxyratio, &xyratio, decimalPoint))
     {
         my = mx * values[4];
     }
@@ -1339,7 +1347,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
     }
     wsmx = TextCtrlSensitivityADS->GetValue();
     wsxyratio = TextCtrlXyRatioADS->GetValue();
-    if(wsmx.ToDouble(&mx) && wsxyratio.ToDouble(&xyratio))
+    if(ToDouble(wsmx, &mx, decimalPoint) && ToDouble(wsxyratio, &xyratio, decimalPoint))
     {
         my = mx * values[5];
     }
@@ -1385,8 +1393,6 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
 
 void fpsconfigFrame::LoadConfig()
 {
-  wxLocale eng(wxLANGUAGE_ENGLISH); // make sure to use '.' as decimal separator
-
   std::list<ControlMapper>* ButtonMappers[2];
   std::list<ControlMapper>* AxisMappers[2];
   std::list<MouseOptions>* mouseOptions;
@@ -1596,7 +1602,7 @@ void fpsconfigFrame::LoadConfig()
 
                   wsf = wxString(it2->GetFilter().c_str(), wxConvUTF8);
 
-                  if(wsf.ToDouble(&f))
+                  if(ToDouble(wsf, &f, decimalPoint))
                   {
                     TextCtrlFilterHipFire->SetValue(wsf);
                     SpinCtrlFilterHipFire->SetValue(f*100);
@@ -1607,7 +1613,7 @@ void fpsconfigFrame::LoadConfig()
 
               wsmx = wxString(it->GetEvent()->GetMultiplier().c_str(), wxConvUTF8);
 
-              if(wsmx.ToDouble(&mx))
+              if(ToDouble(wsmx, &mx, decimalPoint))
               {
                   TextCtrlSensitivityHipFire->SetValue(wsmx);
                   SpinCtrlSensitivityHipFire->SetValue(mx*100);
@@ -1623,7 +1629,7 @@ void fpsconfigFrame::LoadConfig()
 
               wsexp = wxString(it->GetEvent()->GetExponent().c_str(), wxConvUTF8);
 
-              if(wsexp.ToDouble(&exp))
+              if(ToDouble(wsexp, &exp, decimalPoint))
               {
                 TextCtrlAccelerationHipFire->SetValue(wxString(it->GetEvent()->GetExponent().c_str(), wxConvUTF8));
                 SpinCtrlAccelerationHipFire->SetValue(exp*100);
@@ -1633,7 +1639,7 @@ void fpsconfigFrame::LoadConfig()
           {
               wsmy = wxString(it->GetEvent()->GetMultiplier().c_str(), wxConvUTF8);
 
-              if(wsmy.ToDouble(&my) && mx && my)
+              if(ToDouble(wsmy, &my, decimalPoint) && mx && my)
               {
                   xyratio = my / mx;
                   wsxyratio = wxString::Format(wxT("%.02f"), xyratio);
@@ -1715,7 +1721,7 @@ void fpsconfigFrame::LoadConfig()
 
                   wsf = wxString(it2->GetFilter().c_str(), wxConvUTF8);
 
-                  if(wsf.ToDouble(&f))
+                  if(ToDouble(wsf, &f, decimalPoint))
                   {
                     TextCtrlFilterADS->SetValue(wsf);
                     SpinCtrlFilterADS->SetValue(f*100);
@@ -1726,7 +1732,7 @@ void fpsconfigFrame::LoadConfig()
 
               wsmx = wxString(it->GetEvent()->GetMultiplier().c_str(), wxConvUTF8);
 
-              if(wsmx.ToDouble(&mx))
+              if(ToDouble(wsmx, &mx, decimalPoint))
               {
                   TextCtrlSensitivityADS->SetValue(wsmx);
                   SpinCtrlSensitivityADS->SetValue(mx*100);
@@ -1742,7 +1748,7 @@ void fpsconfigFrame::LoadConfig()
 
               wsexp = wxString(it->GetEvent()->GetExponent().c_str(), wxConvUTF8);
 
-              if(wsexp.ToDouble(&exp))
+              if(ToDouble(wsexp, &exp, decimalPoint))
               {
                 TextCtrlAccelerationADS->SetValue(wxString(it->GetEvent()->GetExponent().c_str(), wxConvUTF8));
                 SpinCtrlAccelerationADS->SetValue(exp*100);
@@ -1752,7 +1758,7 @@ void fpsconfigFrame::LoadConfig()
           {
               wsmy = wxString(it->GetEvent()->GetMultiplier().c_str(), wxConvUTF8);
 
-              if(wsmy.ToDouble(&my) && mx && my)
+              if(ToDouble(wsmy, &my, decimalPoint) && mx && my)
               {
                   xyratio = my / mx;
                   wsxyratio = wxString::Format(wxT("%.02f"), xyratio);
@@ -1789,8 +1795,6 @@ void fpsconfigFrame::OnMenuOpen(wxCommandEvent& event __attribute__((unused)))
 
 void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
 {
-    wxLocale eng(wxLANGUAGE_ENGLISH); // make sure to use '.' as decimal separator
-
     wxString str;
     wxTextCtrl* text;
     double value;
@@ -1800,14 +1804,22 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
     long pos = text->GetInsertionPoint();
     str = text->GetValue();
 
-    if(str.IsEmpty() || str == wxT("-") || str == wxT(".") || str == wxT("-."))
-    {
-        return;
-    }
-
     if(str.Replace(wxT(","), wxT(".")))
     {
         text->SetValue(str);
+    }
+
+    if (decimalPoint != wxT(".")) // avoid infinite recursion
+    {
+        if(str.Replace(decimalPoint, wxT(".")))
+        {
+            text->SetValue(str);
+        }
+    }
+
+    if(str.IsEmpty() || str == wxT("-") || str == wxT(".") || str == wxT("-."))
+    {
+        return;
     }
 
     if(str.Freq('.') > 1)
@@ -1815,7 +1827,7 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
         str = wxT("invalid");
     }
 
-    if(!str.ToDouble(&value))
+    if(!ToDouble(str, &value, decimalPoint))
     {
         if (text == TextCtrlFilterHipFire || text == TextCtrlFilterADS)
         {

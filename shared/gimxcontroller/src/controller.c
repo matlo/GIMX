@@ -382,11 +382,12 @@ void controller_get_ids(e_controller_type type, unsigned short * vid, unsigned s
     *pid = controllers[type]->pid;
   }
 }
-const char * controller_get_activation_button(e_controller_type type)
+
+e_controller_axis_index controller_get_activation_button(e_controller_type type)
 {
   if(type < C_TYPE_MAX)
   {
     return controllers[type]->activation_button;
   }
-  return NULL;
+  return 0; // no activation button
 }

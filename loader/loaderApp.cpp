@@ -11,17 +11,6 @@
 #include <wx/image.h>
 //*)
 
-#ifndef WIN32
-void gtk_init_hack(void) __attribute__((constructor));
-void gtk_init_hack(void)  // This will always run before main()
-{
-  if(setregid(getegid(), -1) == -1)
-  {
-    fprintf(stderr, "setregid failed\n");
-  }
-}
-#endif
-
 IMPLEMENT_APP(loaderApp);
 
 bool loaderApp::OnInit()
