@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
 #ifdef WIN32
   if (!SetConsoleOutputCP(CP_UTF8))
   {
-    eprintf("SetConsoleOutputCP(CP_UTF8) failed\n");
+    gerror("SetConsoleOutputCP(CP_UTF8) failed\n");
     exit(-1);
   }
 #endif
