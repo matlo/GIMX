@@ -830,6 +830,11 @@ int adapter_start()
   {
     adapter = adapter_get(i);
 
+    if (adapter->ctype != C_TYPE_NONE && gimx_params.refresh_period > 0)
+    {
+      adapter->inactivity.timeout = gimx_params.inactivity_timeout * 60000000L / gimx_params.refresh_period;
+    }
+
     adapter->joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, i);
 
     s_haptic_core_ids source = {};
@@ -962,6 +967,8 @@ int adapter_send()
   int ret = 0;
   int i;
   s_adapter* adapter;
+
+  int inactive = 1;
 
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
@@ -1113,13 +1120,40 @@ int adapter_send()
     if (adapter->ff_core != NULL) {
       haptic_core_update(adapter->ff_core);
     }
+
+    if (adapter->inactivity.timeout > 0)
+    {
+      if (adapter->send_command)
+      {
+        adapter->inactivity.counter = 0;
+      }
+      else
+      {
+        ++(adapter->inactivity.counter);
+        if (adapter->inactivity.counter < adapter->inactivity.timeout)
+        {
+          inactive = 0;
+        }
+      }
+    }
+    else
+    {
+      inactive = 0;
+    }
   }
+
+  if (inactive)
+  {
+    ret = -1;
+  }
+
   return ret;
 }
 
 e_gimx_status adapter_clean()
 {
   e_gimx_status status = E_GIMX_STATUS_SUCCESS;
+  int inactive = 1;
   int i;
   s_adapter* adapter;
   for(i=0; i<MAX_CONTROLLERS; ++i)
@@ -1184,9 +1218,19 @@ e_gimx_status adapter_clean()
       gpp_disconnect(i);
     }
     if (adapter->ff_core != NULL) {
-        haptic_core_clean(adapter->ff_core);
+      haptic_core_clean(adapter->ff_core);
+    }
+    if (adapter->ctype != C_TYPE_NONE) {
+      if (adapter->inactivity.timeout > 0 && adapter->inactivity.counter < adapter->inactivity.timeout) {
+        inactive = 0;
+      }
     }
   }
+
+  if (status == E_GIMX_STATUS_SUCCESS && inactive) {
+    status = E_GIMX_STATUS_INACTIVITY_TIMEOUT;
+  }
+
   return status;
 }
 

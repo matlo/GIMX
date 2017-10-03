@@ -158,6 +158,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"keygen",  required_argument, 0, 'k'},
     {"log",     required_argument, 0, 'l'},
     {"port",    required_argument, 0, 'p'},
+    {"timeout", required_argument, 0, 'q'},
     {"refresh", required_argument, 0, 'r'},
     {"src",     required_argument, 0, 's'},
     {"type",    required_argument, 0, 't'},
@@ -351,6 +352,10 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
           ++controller;
           printf(_("now reading arguments for controller #%d\n"), controller + 1);
         }
+        break;
+
+      case 'q':
+        gimx_params.inactivity_timeout = atoi(optarg);
         break;
 
       case 'r':

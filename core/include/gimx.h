@@ -25,6 +25,7 @@ typedef enum {
 
     E_GIMX_STATUS_ADAPTER_NOT_DETECTED = -2, // wiring issue, incorrect firmware, target not powered
     E_GIMX_STATUS_NO_ACTIVATION = -3, // user did not activate the controller
+    E_GIMX_STATUS_INACTIVITY_TIMEOUT = -4, // no user input during defined time
 
     E_GIMX_STATUS_AUTH_MISSING_X360 = 1, // auth source missing
     E_GIMX_STATUS_AUTH_MISSING_PS4 = 2, // auth source missing
@@ -68,6 +69,7 @@ typedef struct
   FILE * logfile;
   int skip_leds;
   int ff_conv;
+  unsigned int inactivity_timeout; // minutes, 0 means not defined
 } s_gimx_params;
 
 extern s_gimx_params gimx_params;

@@ -74,6 +74,10 @@ typedef struct {
     unsigned char process_ffb;
     int haptic_sink_joystick;
     struct haptic_core * ff_core;
+    struct {
+      unsigned int counter;
+      unsigned int timeout;
+    } inactivity;
 } s_adapter;
 
 int adapter_detect();
