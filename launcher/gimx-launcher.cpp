@@ -813,8 +813,6 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
 #endif
     locale->AddCatalog(wxT("gimx"));
 
-    setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
-
     //(*Initialize(launcherFrame)
     wxMenuItem* MenuItem2;
     wxMenuItem* MenuItem1;
@@ -1813,7 +1811,6 @@ void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event __attribute__((unused
     if (dialog.ShowModal() == wxID_OK)
     {
       wxArrayInt selections = dialog.GetSelections();
-      wxArrayString configs;
 
       for ( size_t n = 0; n < selections.GetCount(); n++ )
       {
@@ -1828,10 +1825,10 @@ void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event __attribute__((unused
           }
         }
         cl_sel.push_back(sel);
-        configs.Add(choices[selections[n]]);
       }
 
-      {
+      if(!cl_sel.empty())
+	  {
         wxProgressDialog dlg(_("Downloading"), wxEmptyString);
         progressDialog = &dlg;
         int uret = u->getconfigs(&cl_sel, progress_callback, this);
@@ -1841,10 +1838,6 @@ void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event __attribute__((unused
           wxMessageBox(_("Can't retrieve configs!"), _("Error"), wxICON_ERROR);
           return;
         }
-      }
-
-      if(!cl_sel.empty())
-      {
         wxMessageBox(_("Download is complete!"), _("Info"), wxICON_INFORMATION);
         readConfigs();
         InputChoice->SetSelection(InputChoice->FindString(wxString(cl_sel.front().c_str(), wxConvUTF8)));
