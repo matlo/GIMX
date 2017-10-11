@@ -97,6 +97,9 @@ class fpsconfigFrame: public wxFrame
 
         pair<Device, Event> selectEvent();
 
+        void updateTextCtrlValue(wxTextCtrl* text, int step, double* value);
+        void updateSpinCtrl(wxSpinCtrl * spin, wxTextCtrl* text, int step, int min, int max, double * value);
+
         //(*Identifiers(fpsconfigFrame)
         static const long ID_SPINCTRL8;
         static const long ID_SPINCTRL7;

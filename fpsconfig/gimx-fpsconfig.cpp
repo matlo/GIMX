@@ -210,6 +210,13 @@ static bool ToDouble(const wxString & from, double * to, const wxString & decima
     return tmp.ToDouble(to);
 }
 
+static wxString FormatDouble(double value, const wxString & decimalPoint)
+{
+    wxString str = wxString::Format(wxT("%.02f"), value);
+    str.Replace(decimalPoint, wxT("."));
+    return str;
+}
+
 fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __attribute__((unused)))
 {
     unsigned int i;
@@ -590,12 +597,28 @@ void fpsconfigFrame::OnAbout(wxCommandEvent& event __attribute__((unused)))
   wxAboutBox(info);
 }
 
-void updateTextCtrlValue(wxTextCtrl* text, wxSpinEvent& event, double* value)
+void fpsconfigFrame::updateTextCtrlValue(wxTextCtrl* text, int step, double* value)
 {
     wxString str;
-    *value = (double)(event.GetInt()) / 100;
-    str = wxString::Format(wxT("%.02f"), *value);
+    *value = (double)(step) / 100;
+    str = FormatDouble(*value, decimalPoint);
     text->SetValue(str);
+}
+
+void fpsconfigFrame::updateSpinCtrl(wxSpinCtrl * spin, wxTextCtrl* text, int step, int min, int max, double * value)
+{
+    if (step < min * 100)
+    {
+        spin->SetValue(min * 100);
+    }
+    else if (step > max * 100)
+    {
+        spin->SetValue(max * 100);
+    }
+    else
+    {
+        updateTextCtrlValue(text, step, value);
+    }
 }
 
 void fpsconfigFrame::OnSpinCtrlChange(wxSpinEvent& event)
@@ -604,35 +627,35 @@ void fpsconfigFrame::OnSpinCtrlChange(wxSpinEvent& event)
 
     if(spin == SpinCtrlSensitivityHipFire)
     {
-        updateTextCtrlValue(TextCtrlSensitivityHipFire, event, values);
+        updateSpinCtrl(spin, TextCtrlSensitivityHipFire, event.GetInt(), -100, 100, values + 0);
     }
     else if(spin == SpinCtrlSensitivityADS)
     {
-        updateTextCtrlValue(TextCtrlSensitivityADS, event, values+1);
+        updateSpinCtrl(spin, TextCtrlSensitivityADS, event.GetInt(), -100, 100, values + 1);
     }
     else if(spin == SpinCtrlAccelerationHipFire)
     {
-        updateTextCtrlValue(TextCtrlAccelerationHipFire, event, values+2);
+        updateSpinCtrl(spin, TextCtrlAccelerationHipFire, event.GetInt(), 0, 2, values + 2);
     }
     else if(spin == SpinCtrlAccelerationADS)
     {
-        updateTextCtrlValue(TextCtrlAccelerationADS, event, values+3);
+        updateSpinCtrl(spin, TextCtrlAccelerationADS, event.GetInt(), 0, 2, values + 3);
     }
     else if(spin == SpinCtrlXyRatioHipFire)
     {
-        updateTextCtrlValue(TextCtrlXyRatioHipFire, event, values+4);
+        updateTextCtrlValue(TextCtrlXyRatioHipFire, event.GetInt(), values+4);
     }
     else if(spin == SpinCtrlXyRatioADS)
     {
-        updateTextCtrlValue(TextCtrlXyRatioADS, event, values+5);
+        updateTextCtrlValue(TextCtrlXyRatioADS, event.GetInt(), values+5);
     }
     else if(spin == SpinCtrlFilterHipFire)
     {
-        updateTextCtrlValue(TextCtrlFilterHipFire, event, values+6);
+        updateSpinCtrl(spin, TextCtrlFilterHipFire, event.GetInt(), 0, 1, values + 6);
     }
     else if(spin == SpinCtrlFilterADS)
     {
-        updateTextCtrlValue(TextCtrlFilterADS, event, values+7);
+        updateSpinCtrl(spin, TextCtrlFilterADS, event.GetInt(), 0, 1, values + 7);
     }
 }
 
@@ -1214,7 +1237,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
     {
         my = mx;
     }
-    wsmy = wxString::Format(wxT("%.02f"), my);
+    wsmy = FormatDouble(my, decimalPoint);
     found = false;
     for(std::list<ControlMapper>::iterator it = AxisMappers->begin(); it!=AxisMappers->end() && !found; ++it)
     {
@@ -1355,7 +1378,7 @@ void fpsconfigFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
     {
         my = mx;
     }
-    wsmy = wxString::Format(wxT("%.02f"), my);
+    wsmy = FormatDouble(my, decimalPoint);
     found = false;
     for(std::list<ControlMapper>::iterator it = AxisMappers->begin(); it!=AxisMappers->end() && !found; ++it)
     {
@@ -1620,7 +1643,7 @@ void fpsconfigFrame::LoadConfig()
                   if(my && mx)
                   {
                       xyratio = my / mx;
-                      wsxyratio = wxString::Format(wxT("%.02f"), xyratio);
+                      wsxyratio = FormatDouble(xyratio, decimalPoint);
 
                       TextCtrlXyRatioHipFire->SetValue(wsxyratio);
                       SpinCtrlXyRatioHipFire->SetValue(xyratio*100);
@@ -1642,7 +1665,7 @@ void fpsconfigFrame::LoadConfig()
               if(ToDouble(wsmy, &my, decimalPoint) && mx && my)
               {
                   xyratio = my / mx;
-                  wsxyratio = wxString::Format(wxT("%.02f"), xyratio);
+                  wsxyratio = FormatDouble(xyratio, decimalPoint);
 
                   TextCtrlXyRatioHipFire->SetValue(wsxyratio);
                   SpinCtrlXyRatioHipFire->SetValue(xyratio*100);
@@ -1739,7 +1762,7 @@ void fpsconfigFrame::LoadConfig()
                   if(my && mx)
                   {
                       xyratio = my / mx;
-                      wsxyratio = wxString::Format(wxT("%.02f"), xyratio);
+                      wsxyratio = FormatDouble(xyratio, decimalPoint);
 
                       TextCtrlXyRatioADS->SetValue(wsxyratio);
                       SpinCtrlXyRatioADS->SetValue(xyratio*100);
@@ -1761,7 +1784,7 @@ void fpsconfigFrame::LoadConfig()
               if(ToDouble(wsmy, &my, decimalPoint) && mx && my)
               {
                   xyratio = my / mx;
-                  wsxyratio = wxString::Format(wxT("%.02f"), xyratio);
+                  wsxyratio = FormatDouble(xyratio, decimalPoint);
 
                   TextCtrlXyRatioADS->SetValue(wsxyratio);
                   SpinCtrlXyRatioADS->SetValue(xyratio*100);
@@ -2005,13 +2028,13 @@ void fpsconfigFrame::OnButtonConvertSensitivityClick(wxCommandEvent& event __att
      */
     values[0] = values[0]*pow((double)current_dpi/dest_value, values[2]);
     SpinCtrlSensitivityHipFire->SetValue(values[0]*100);
-    wsm = wxString::Format(wxT("%.02f"), (double)values[0]);
+    wsm = FormatDouble(values[0], decimalPoint);
 
     TextCtrlSensitivityHipFire->SetValue(wsm);
 
     values[1] = values[1]*pow((double)current_dpi/dest_value, values[3]);
     SpinCtrlSensitivityADS->SetValue(values[1]*100);
-    wsm = wxString::Format(wxT("%.02f"), (double)values[1]);
+    wsm = FormatDouble(values[1], decimalPoint);
 
     TextCtrlSensitivityADS->SetValue(wsm);
 
