@@ -404,14 +404,14 @@ static SP_DEVINFO_DATA * get_devinfo_data(const char * instanceId) {
 /*
  * Convert an UTF-16LE string to an UTF-8 string.
  */
-static char * utf16le_to_utf8(const unsigned char * inbuf, size_t insize)
+static char * utf16le_to_utf8(const unsigned char * inbuf)
 {
   char * outbuf = NULL;
-  int outsize = WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR ) inbuf, insize, NULL, 0, NULL, NULL);
+  int outsize = WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR ) inbuf, -1, NULL, 0, NULL, NULL);
   if (outsize != 0) {
       outbuf = (char*) malloc(outsize);
       if (outbuf != NULL) {
-         int res = WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR ) inbuf, insize, outbuf, outsize, NULL, NULL);
+         int res = WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR ) inbuf, -1, outbuf, outsize, NULL, NULL);
          if (res == 0) {
              PRINT_ERROR_GETLASTERROR("WideCharToMultiByte")
              free(outbuf);
@@ -437,7 +437,7 @@ static char * get_dev_name_by_instance(const char * devinstance) {
       if (result == FALSE) {
         PRINT_ERROR_GETLASTERROR("SetupDiGetDeviceRegistryProperty")
       } else {
-        return utf16le_to_utf8(desc, size);
+        return utf16le_to_utf8(desc);
       }
     } else {
       PRINT_ERROR_GETLASTERROR("SetupDiGetDeviceRegistryProperty")
