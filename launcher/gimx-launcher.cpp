@@ -1129,6 +1129,22 @@ void launcherFrame::readDebugStrings(wxArrayString & values)
     }
 }
 
+#ifdef WIN32
+int is_task_manager_running()
+{
+  return FindWindowA(NULL, "Windows Task Manager") != NULL;
+}
+
+void destroy_task_manager()
+{
+  HWND hWnd = FindWindowA(NULL, "Windows Task Manager");
+  if (hWnd != NULL)
+  {
+    EndTask(hWnd, FALSE, TRUE);
+  }
+}
+#endif
+
 void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unused)))
 {
     wxString command;
@@ -1240,6 +1256,18 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
         }
       }
     }
+
+#ifdef WIN32
+    if (is_task_manager_running())
+    {
+      int answer = wxMessageBox(_("Windows Task Manager has to be stopped.\nProceed?"), _("Confirm"), wxYES_NO);
+      if (answer != wxYES)
+      {
+        return;
+      }
+      destroy_task_manager();
+    }
+#endif
 
 #ifndef WIN32
     command.Append(wxT("xterm -e "));
