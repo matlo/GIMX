@@ -95,7 +95,8 @@ typedef enum
   abs_axis_28,
   abs_axis_29,
   abs_axis_30,
-  abs_axis_max = abs_axis_30,
+  abs_axis_31,
+  abs_axis_max = abs_axis_31,
   AXIS_MAX,
 } e_controller_axis_index;
 

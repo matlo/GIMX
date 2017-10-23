@@ -38,6 +38,11 @@ typedef enum
   g29Ps4a_gearShifter5 = abs_axis_24,
   g29Ps4a_gearShifter6 = abs_axis_25,
   g29Ps4a_gearShifterR = abs_axis_26,
+  g29Ps4a_plus = abs_axis_27,
+  g29Ps4a_minus = abs_axis_28,
+  g29Ps4a_dialUp = abs_axis_29,
+  g29Ps4a_dialDown = abs_axis_30,
+  g29Ps4a_enter = abs_axis_31,
 } e_g29Ps4_axis_index;
 
 /*

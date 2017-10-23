@@ -33,6 +33,12 @@
 #define G29_GEAR_SHIFTER_6_MASK  0x20
 #define G29_GEAR_SHIFTER_R_MASK  0x80
 
+#define G29_PLUS_MASK       0x0200
+#define G29_MINUS_MASK      0x0400
+#define G29_DIAL_UP_MASK    0x0800
+#define G29_DIAL_DOWN_MASK  0x1000
+#define G29_ENTER_MASK      0x2000
+
 static s_axis axes[AXIS_MAX] =
 {
   [g29Ps4a_wheel]       = { .name = "wheel",    .max_unsigned_value = MAX_AXIS_VALUE_16BITS },
@@ -65,6 +71,12 @@ static s_axis axes[AXIS_MAX] =
   [g29Ps4a_gearShifter5] = {.name = "gear shifter 5", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
   [g29Ps4a_gearShifter6] = {.name = "gear shifter 6", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
   [g29Ps4a_gearShifterR] = {.name = "gear shifter R", .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+
+  [g29Ps4a_plus]        = { .name = "plus",     .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_minus]       = { .name = "minus",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_dialUp]      = { .name = "dial up",  .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_dialDown]    = { .name = "dial down",.max_unsigned_value = MAX_AXIS_VALUE_8BITS },
+  [g29Ps4a_enter]       = { .name = "enter",    .max_unsigned_value = MAX_AXIS_VALUE_8BITS },
 };
 
 static s_axis_name_dir axis_name_dirs[] =
@@ -101,6 +113,12 @@ static s_axis_name_dir axis_name_dirs[] =
   {.name = "gear shifter 5",    {.axis = g29Ps4a_gearShifter5,   .props = AXIS_PROP_TOGGLE}},
   {.name = "gear shifter 6",    {.axis = g29Ps4a_gearShifter6,   .props = AXIS_PROP_TOGGLE}},
   {.name = "gear shifter R",    {.axis = g29Ps4a_gearShifterR,   .props = AXIS_PROP_TOGGLE}},
+
+  {.name = "plus",      {.axis = g29Ps4a_plus,     .props = AXIS_PROP_TOGGLE}},
+  {.name = "minus",     {.axis = g29Ps4a_minus,    .props = AXIS_PROP_TOGGLE}},
+  {.name = "dial up",   {.axis = g29Ps4a_dialUp,   .props = AXIS_PROP_TOGGLE}},
+  {.name = "dial down", {.axis = g29Ps4a_dialDown, .props = AXIS_PROP_TOGGLE}},
+  {.name = "enter",     {.axis = g29Ps4a_enter,    .props = AXIS_PROP_TOGGLE}},
 };
 
 static s_report_g29Ps4 default_report =
@@ -267,6 +285,27 @@ static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_
   if (axis[g29Ps4a_gearShifterR])
   {
     g29Ps4->Buttons2 |= G29_GEAR_SHIFTER_R_MASK;
+  }
+
+  if (axis[g29Ps4a_plus])
+  {
+    g29Ps4->Buttons2 |= G29_PLUS_MASK;
+  }
+  if (axis[g29Ps4a_minus])
+  {
+    g29Ps4->Buttons2 |= G29_MINUS_MASK;
+  }
+  if (axis[g29Ps4a_dialUp])
+  {
+    g29Ps4->Buttons2 |= G29_DIAL_UP_MASK;
+  }
+  if (axis[g29Ps4a_dialDown])
+  {
+    g29Ps4->Buttons2 |= G29_DIAL_DOWN_MASK;
+  }
+  if (axis[g29Ps4a_enter])
+  {
+    g29Ps4->Buttons2 |= G29_ENTER_MASK;
   }
 
   return index;
