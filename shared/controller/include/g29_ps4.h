@@ -64,7 +64,8 @@ typedef struct GIMX_PACKED
   unsigned short clutchPedal; //unsigned, released = 0xFFFF
   unsigned char Buttons2;
   unsigned short unknown3; //0xFFFF
-  unsigned char unused1[10];
+  unsigned char Buttons3;
+  unsigned char unused1[9];
 } s_report_g29Ps4;
 
 #endif /* G29_PS4_H_ */

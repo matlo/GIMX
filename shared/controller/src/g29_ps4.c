@@ -33,11 +33,11 @@
 #define G29_GEAR_SHIFTER_6_MASK  0x20
 #define G29_GEAR_SHIFTER_R_MASK  0x80
 
-#define G29_PLUS_MASK       0x0200
-#define G29_MINUS_MASK      0x0400
-#define G29_DIAL_UP_MASK    0x0800
-#define G29_DIAL_DOWN_MASK  0x1000
-#define G29_ENTER_MASK      0x2000
+#define G29_ENTER_MASK      0x01
+#define G29_DIAL_DOWN_MASK  0x02
+#define G29_DIAL_UP_MASK    0x04
+#define G29_MINUS_MASK      0x08
+#define G29_PLUS_MASK       0x10
 
 static s_axis axes[AXIS_MAX] =
 {
@@ -137,6 +137,7 @@ static s_report_g29Ps4 default_report =
   .clutchPedal = MAX_AXIS_VALUE_16BITS,
   .Buttons2 = 0x00,
   .unknown3 = MAX_AXIS_VALUE_16BITS,
+  .Buttons3 = 0x00,
   .unused1 = {},
 };
 
@@ -287,25 +288,27 @@ static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_
     g29Ps4->Buttons2 |= G29_GEAR_SHIFTER_R_MASK;
   }
 
+  g29Ps4->Buttons3 = 0x00;
+
   if (axis[g29Ps4a_plus])
   {
-    g29Ps4->Buttons2 |= G29_PLUS_MASK;
+    g29Ps4->Buttons3 = G29_PLUS_MASK;
   }
   if (axis[g29Ps4a_minus])
   {
-    g29Ps4->Buttons2 |= G29_MINUS_MASK;
+    g29Ps4->Buttons3 = G29_MINUS_MASK;
   }
   if (axis[g29Ps4a_dialUp])
   {
-    g29Ps4->Buttons2 |= G29_DIAL_UP_MASK;
+    g29Ps4->Buttons3 = G29_DIAL_UP_MASK;
   }
   if (axis[g29Ps4a_dialDown])
   {
-    g29Ps4->Buttons2 |= G29_DIAL_DOWN_MASK;
+    g29Ps4->Buttons3 = G29_DIAL_DOWN_MASK;
   }
   if (axis[g29Ps4a_enter])
   {
-    g29Ps4->Buttons2 |= G29_ENTER_MASK;
+    g29Ps4->Buttons3 = G29_ENTER_MASK;
   }
 
   return index;
