@@ -292,23 +292,23 @@ static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_
 
   if (axis[g29Ps4a_plus])
   {
-    g29Ps4->Buttons3 = G29_PLUS_MASK;
+    g29Ps4->Buttons3 |= G29_PLUS_MASK;
   }
   if (axis[g29Ps4a_minus])
   {
-    g29Ps4->Buttons3 = G29_MINUS_MASK;
+    g29Ps4->Buttons3 |= G29_MINUS_MASK;
   }
   if (axis[g29Ps4a_dialUp])
   {
-    g29Ps4->Buttons3 = G29_DIAL_UP_MASK;
+    g29Ps4->Buttons3 |= G29_DIAL_UP_MASK;
   }
   if (axis[g29Ps4a_dialDown])
   {
-    g29Ps4->Buttons3 = G29_DIAL_DOWN_MASK;
+    g29Ps4->Buttons3 |= G29_DIAL_DOWN_MASK;
   }
   if (axis[g29Ps4a_enter])
   {
-    g29Ps4->Buttons3 = G29_ENTER_MASK;
+    g29Ps4->Buttons3 |= G29_ENTER_MASK;
   }
 
   return index;
