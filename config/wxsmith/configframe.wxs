@@ -1926,7 +1926,7 @@
 					<radio>1</radio>
 				</object>
 				<object class="wxMenuItem" name="ID_MENUITEMG27PS3" variable="MenuItemG27Ps3" member="yes">
-					<label>G27 PS3</label>
+					<label>G27 PS3 / PC</label>
 					<handler function="OnMenuTypeItemSelected" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>

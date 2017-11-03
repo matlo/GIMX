@@ -1280,7 +1280,7 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     MenuType->Append(MenuItemJs);
     MenuItemT300rsPs4 = new wxMenuItem(MenuType, ID_MENUITEMT300RSPS4, _("T300RS PS4"), wxEmptyString, wxITEM_RADIO);
     MenuType->Append(MenuItemT300rsPs4);
-    MenuItemG27Ps3 = new wxMenuItem(MenuType, ID_MENUITEMG27PS3, _("G27 PS3"), wxEmptyString, wxITEM_RADIO);
+    MenuItemG27Ps3 = new wxMenuItem(MenuType, ID_MENUITEMG27PS3, _("G27 PS3 / PC"), wxEmptyString, wxITEM_RADIO);
     MenuType->Append(MenuItemG27Ps3);
     MenuItemG29Ps4 = new wxMenuItem(MenuType, ID_MENUITEMG29PS4, _("G29 PS4"), wxEmptyString, wxITEM_RADIO);
     MenuType->Append(MenuItemG29Ps4);
