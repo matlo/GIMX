@@ -2478,11 +2478,11 @@ void configFrame::load_current()
       GridIntensity->SetCellValue(0, 4, wxString(it->GetEvent()->GetId().c_str(),wxConvUTF8));
       GridIntensity->SetCellValue(0, 5, _CN(it->GetDirection()));
       wxString dz;
-      dz << it->GetDeadZone();
+      dz << (int) it->GetDeadZone();
       GridIntensity->SetCellValue(0, 6, dz);
       GridIntensity->SetCellValue(0, 7, _CN(it->GetShape()));
       wxString steps;
-      steps << it->GetSteps();
+      steps << (int) it->GetSteps();
       GridIntensity->SetCellValue(0, 8, steps);
     }
     GridIntensity->AutoSizeColumns();
