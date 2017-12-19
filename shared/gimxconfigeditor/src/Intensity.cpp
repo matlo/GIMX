@@ -8,13 +8,11 @@
 Intensity::Intensity()
 {
     //ctor
-    m_dead_zone = 0;
-    m_steps = 0;
 }
 
 Intensity::Intensity(s_axis_props axis,
     string dtype1, string dname1, string did1, string eid1,
-    string direction, unsigned char dead_zone, string shape, unsigned char steps):
+    string direction, string dead_zone, string shape, string steps):
     m_Axis(axis),
     m_Device(dtype1, did1, dname1), m_Event(eid1),
     m_direction(direction),

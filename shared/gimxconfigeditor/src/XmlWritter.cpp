@@ -204,9 +204,6 @@ void XmlWritter::CreateForceFeedbackNode(xmlNodePtr parent_node)
 
 void XmlWritter::CreateIntensityNodes(xmlNodePtr parent_node)
 {
-    char steps[4];
-    char dead_zone[4];
-
     xmlNodePtr pnode = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_INTENSITY_LIST, NULL);
 
     list<Intensity>* i_list = m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentProfile)->GetIntensityList();
@@ -218,23 +215,15 @@ void XmlWritter::CreateIntensityNodes(xmlNodePtr parent_node)
         continue;
       }
       
-#ifndef WIN32
-      snprintf(steps, sizeof(steps), "%hhu", it->GetSteps());
-      snprintf(dead_zone, sizeof(dead_zone), "%hhu", it->GetDeadZone());
-#else
-      snprintf(steps, sizeof(steps), "%hu", it->GetSteps());
-      snprintf(dead_zone, sizeof(dead_zone), "%hu", it->GetDeadZone());
-#endif
-
       xmlNodePtr node = xmlNewChild(pnode, NULL, BAD_CAST X_NODE_INTENSITY, NULL);
 
       xmlNewProp(node, BAD_CAST X_ATTR_CONTROL, BAD_CAST (const char*) it->GetGenericAxisName().c_str());
 
-      xmlNewProp(node, BAD_CAST X_ATTR_DEADZONE, BAD_CAST (const char*) dead_zone);
+      xmlNewProp(node, BAD_CAST X_ATTR_DEADZONE, BAD_CAST (const char*) it->GetDeadZone().c_str());
 
       xmlNewProp(node, BAD_CAST X_ATTR_SHAPE, BAD_CAST (const char*) it->GetShape().c_str());
 
-      xmlNewProp(node, BAD_CAST X_ATTR_STEPS, BAD_CAST (const char*) steps);
+      xmlNewProp(node, BAD_CAST X_ATTR_STEPS, BAD_CAST (const char*) it->GetSteps().c_str());
 
       xmlNodePtr nodedir = NULL;
       

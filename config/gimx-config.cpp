@@ -1311,7 +1311,7 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     MenuType->Append(MenuItemJs);
     MenuItemT300rsPs4 = new wxMenuItem(MenuType, ID_MENUITEMT300RSPS4, _("T300RS PS4"), wxEmptyString, wxITEM_RADIO);
     MenuType->Append(MenuItemT300rsPs4);
-    MenuItemG27Ps3 = new wxMenuItem(MenuType, ID_MENUITEMG27PS3, _("G27 PS3"), wxEmptyString, wxITEM_RADIO);
+    MenuItemG27Ps3 = new wxMenuItem(MenuType, ID_MENUITEMG27PS3, _("G27 PS3 / PC"), wxEmptyString, wxITEM_RADIO);
     MenuType->Append(MenuItemG27Ps3);
     MenuItemG29Ps4 = new wxMenuItem(MenuType, ID_MENUITEMG29PS4, _("G29 PS4"), wxEmptyString, wxITEM_RADIO);
     MenuType->Append(MenuItemG29Ps4);
@@ -2296,9 +2296,9 @@ void configFrame::save_current()
               string(GridIntensity->GetCellValue(i, 3).mb_str(wxConvUTF8)),
               string(GridIntensity->GetCellValue(i, 4).mb_str(wxConvUTF8)),
               reverseTranslate(string(GridIntensity->GetCellValue(i, 5).mb_str(wxConvUTF8))),
-              wxAtoi(GridIntensity->GetCellValue(i, 6)),
+              string(GridIntensity->GetCellValue(i, 6).mb_str(wxConvUTF8)),
               reverseTranslate(string(GridIntensity->GetCellValue(i, 7).mb_str(wxConvUTF8))),
-              wxAtoi(GridIntensity->GetCellValue(i, 8))));
+              string(GridIntensity->GetCellValue(i, 8).mb_str(wxConvUTF8))));
     }
     //Save Joystick Corrections
     joystickCorrectionsList = profile->GetJoystickCorrectionsList();
@@ -2518,13 +2518,9 @@ void configFrame::load_current()
       GridIntensity->SetCellValue(0, 3, wxString(it->GetDevice()->GetId().c_str(),wxConvUTF8));
       GridIntensity->SetCellValue(0, 4, wxString(it->GetEvent()->GetId().c_str(),wxConvUTF8));
       GridIntensity->SetCellValue(0, 5, _CN(it->GetDirection()));
-      wxString dz;
-      dz << it->GetDeadZone();
-      GridIntensity->SetCellValue(0, 6, dz);
+      GridIntensity->SetCellValue(0, 6, wxString(it->GetDeadZone().c_str(),wxConvUTF8));
       GridIntensity->SetCellValue(0, 7, _CN(it->GetShape()));
-      wxString steps;
-      steps << it->GetSteps();
-      GridIntensity->SetCellValue(0, 8, steps);
+      GridIntensity->SetCellValue(0, 8, wxString(it->GetSteps().c_str(),wxConvUTF8));
     }
     GridIntensity->AutoSizeColumns();
     //Load joystick corrections
@@ -3980,9 +3976,9 @@ void configFrame::OnIntensityModifyClick(wxCommandEvent& event)
           string(GridIntensity->GetCellValue(grid3mod, 3).mb_str(wxConvUTF8)),
           string(GridIntensity->GetCellValue(grid3mod, 4).mb_str(wxConvUTF8)),
           string(GridIntensity->GetCellValue(grid3mod, 5).mb_str(wxConvUTF8)),
-          wxAtoi(GridIntensity->GetCellValue(grid3mod, 6)),
+          string(GridIntensity->GetCellValue(grid3mod, 6).mb_str(wxConvUTF8)),
           reverseTranslate(string(GridIntensity->GetCellValue(grid3mod, 7).mb_str(wxConvUTF8))),
-          wxAtoi(GridIntensity->GetCellValue(grid3mod, 8)));
+          string(GridIntensity->GetCellValue(grid3mod, 8).mb_str(wxConvUTF8)));
 
       GridIntensity->SetCellValue(grid3mod, 0, IntensityAxis->GetStringSelection());
       GridIntensity->SetCellValue(grid3mod, 1, IntensityDeviceType->GetLabel());
@@ -4005,9 +4001,9 @@ void configFrame::OnIntensityModifyClick(wxCommandEvent& event)
           string(GridIntensity->GetCellValue(grid3mod, 3).mb_str(wxConvUTF8)),
           string(GridIntensity->GetCellValue(grid3mod, 4).mb_str(wxConvUTF8)),
           string(GridIntensity->GetCellValue(grid3mod, 5).mb_str(wxConvUTF8)),
-          wxAtoi(GridIntensity->GetCellValue(grid3mod, 6)),
+          string(GridIntensity->GetCellValue(grid3mod, 6).mb_str(wxConvUTF8)),
           reverseTranslate(string(GridIntensity->GetCellValue(grid3mod, 7).mb_str(wxConvUTF8))),
-          wxAtoi(GridIntensity->GetCellValue(grid3mod, 8)));
+          string(GridIntensity->GetCellValue(grid3mod, 8).mb_str(wxConvUTF8)));
 
       if(MenuItemLinkControls->IsChecked())
       {

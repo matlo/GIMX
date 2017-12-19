@@ -487,9 +487,9 @@ void XmlReader::ProcessIntensityElement(xmlNode * a_node)
 {
     xmlNode* cur_node = NULL;
     string control;
-    unsigned char dead_zone;
+    string dead_zone;
     string shape;
-    unsigned char steps;
+    string steps;
     string device_type;
     string device_id;
     string device_name;
@@ -501,7 +501,7 @@ void XmlReader::ProcessIntensityElement(xmlNode * a_node)
     xmlFree(prop);
     m_TempIntensity.SetAxis(Intensity::GetAxisProps(control));
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_DEADZONE);
-    dead_zone = atoi(prop);
+    dead_zone = string(prop?prop:"");
     xmlFree(prop);
     m_TempIntensity.SetDeadZone(dead_zone);
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_SHAPE);
@@ -509,7 +509,7 @@ void XmlReader::ProcessIntensityElement(xmlNode * a_node)
     xmlFree(prop);
     m_TempIntensity.SetShape(shape);
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_STEPS);
-    steps = atoi(prop);
+    steps = string(prop?prop:"");
     xmlFree(prop);
     m_TempIntensity.SetSteps(steps);
 

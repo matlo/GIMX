@@ -1021,16 +1021,13 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
 
     started = false;
 
+    Output->SetSelection( Output->Append(_("GIMX adapter")) );
+    Output->Append(_(GPP_NAME));
+    Output->Append(_("Remote GIMX"));
+
 #ifndef WIN32
-    Output->SetSelection( Output->Append(_("Bluetooth / PS3")) );
+    Output->Append(_("Bluetooth / PS3"));
     Output->Append(_("Bluetooth / PS4"));
-    Output->Append(_("DIY USB"));
-    Output->Append(_(GPP_NAME));
-    Output->Append(_("Remote GIMX"));
-#else
-    Output->SetSelection( Output->Append(_("DIY USB")) );
-    Output->Append(_(GPP_NAME));
-    Output->Append(_("Remote GIMX"));
 #endif
 
     readParam(OUTPUT_FILE, Output);
@@ -1126,6 +1123,22 @@ void launcherFrame::readDebugStrings(wxArrayString & values)
     }
 }
 
+#ifdef WIN32
+int is_task_manager_running()
+{
+  return FindWindowA(NULL, "Windows Task Manager") != NULL;
+}
+
+void destroy_task_manager()
+{
+  HWND hWnd = FindWindowA(NULL, "Windows Task Manager");
+  if (hWnd != NULL)
+  {
+    EndTask(hWnd, FALSE, TRUE);
+  }
+}
+#endif
+
 void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unused)))
 {
     wxString command;
@@ -1149,7 +1162,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
         return;
       }
     }
-    else if(Output->GetStringSelection() == _("DIY USB"))
+    else if(Output->GetStringSelection() == _("GIMX adapter"))
     {
       if(outputSelection.IsEmpty())
       {
@@ -1237,6 +1250,18 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
         }
       }
     }
+
+#ifdef WIN32
+    if (is_task_manager_running())
+    {
+      int answer = wxMessageBox(_("Windows Task Manager has to be stopped.\nProceed?"), _("Confirm"), wxYES_NO);
+      if (answer != wxYES)
+      {
+        return;
+      }
+      destroy_task_manager();
+    }
+#endif
 
 #ifndef WIN32
     command.Append(wxT("xterm -e "));
@@ -1340,7 +1365,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
       command.Append(wxT(" --bdaddr "));
       command.Append(bdaddrDst);
     }
-    else if(Output->GetStringSelection() == _("DIY USB"))
+    else if(Output->GetStringSelection() == _("GIMX adapter"))
     {
       command.Append(wxT(" --port "));
 #ifndef WIN32
@@ -1432,7 +1457,7 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
         {
           wxMessageBox( _("Failed to detect the GPP/Cronus/Titan device."), _("Error"), wxICON_ERROR);
         }
-        else if(Output->GetStringSelection() == _("DIY USB"))
+        else if(Output->GetStringSelection() == _("GIMX adapter"))
         {
           wxMessageBox( _("Failed to detect the USB adapter:\n"
                   " . make sure to select the right port\n"
@@ -1574,7 +1599,7 @@ void launcherFrame::OnMenuEditFpsConfig(wxCommandEvent& event __attribute__((unu
 void launcherFrame::refresh()
 {
     readConfigs();
-    if(Output->GetStringSelection() == _("DIY USB"))
+    if(Output->GetStringSelection() == _("GIMX adapter"))
     {
       readSerialPorts();
       if(OutputChoice->IsEmpty())
@@ -1624,7 +1649,7 @@ void launcherFrame::OnOutputSelect(wxCommandEvent& event __attribute__((unused))
           wxMessageBox( _("No device detected!\n"), _("Error"), wxICON_ERROR);
       }
     }
-    else if(Output->GetStringSelection() == _("DIY USB"))
+    else if(Output->GetStringSelection() == _("GIMX adapter"))
     {
       OutputSizer->Show(true);
       OutputNewButton->Show(false);

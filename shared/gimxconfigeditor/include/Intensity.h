@@ -18,7 +18,7 @@ class Intensity
         Intensity();
         Intensity(s_axis_props axis,
             string dtype1, string dname1, string did1, string eid1,
-            string direction, unsigned char dead_zone, string Shape, unsigned char steps);
+            string direction, string dead_zone, string shape, string steps);
         virtual ~Intensity();
         Intensity(const Intensity& other);
         Intensity& operator=(const Intensity& other);
@@ -28,10 +28,10 @@ class Intensity
         void SetDevice(Device val) { m_Device = val; }
         Event* GetEvent() { return &m_Event; }
         void SetEvent(Event val) { m_Event = val; }
-        unsigned char GetDeadZone() { return m_dead_zone; }
-        void SetDeadZone(unsigned char val) { m_dead_zone = val; }
-        unsigned char GetSteps() { return m_steps; }
-        void SetSteps(unsigned char val) { m_steps = val; }
+        string GetDeadZone() { return m_dead_zone; }
+        void SetDeadZone(string val) { m_dead_zone = val; }
+        string GetSteps() { return m_steps; }
+        void SetSteps(string val) { m_steps = val; }
         string GetShape() { return m_shape; }
         void SetShape(string val) { m_shape = val; }
         s_axis_props GetAxis() { return m_Axis; }
@@ -49,9 +49,9 @@ class Intensity
         Device m_Device;
         Event m_Event;
         string m_direction;
-        unsigned char m_dead_zone;
+        string m_dead_zone;
         string m_shape;
-        unsigned char m_steps;
+        string m_steps;
 };
 
 #endif // INTENSITY_H

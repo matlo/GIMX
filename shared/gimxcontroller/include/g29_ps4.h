@@ -38,6 +38,11 @@ typedef enum
   g29Ps4a_gearShifter5 = abs_axis_24,
   g29Ps4a_gearShifter6 = abs_axis_25,
   g29Ps4a_gearShifterR = abs_axis_26,
+  g29Ps4a_plus = abs_axis_27,
+  g29Ps4a_minus = abs_axis_28,
+  g29Ps4a_dialUp = abs_axis_29,
+  g29Ps4a_dialDown = abs_axis_30,
+  g29Ps4a_enter = abs_axis_31,
 } e_g29Ps4_axis_index;
 
 /*
@@ -59,12 +64,8 @@ typedef struct GIMX_PACKED
   unsigned short clutchPedal; //unsigned, released = 0xFFFF
   unsigned char Buttons2;
   unsigned short unknown3; //0xFFFF
-  unsigned char unused1[10];
+  unsigned char Buttons3;
+  unsigned char unused1[9];
 } s_report_g29Ps4;
-
-typedef struct
-{
-  // TODO MLA
-} s_gc_state_g29Ps4;
 
 #endif /* G29_PS4_H_ */
