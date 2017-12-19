@@ -55,7 +55,7 @@ typedef struct
   int curses_status; // 1 = started
   struct {
       int haptic;
-      int adapter;
+      int controller;
       int macros;
       int sixaxis;
   } debug;

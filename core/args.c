@@ -143,7 +143,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"window-events",  no_argument, &params->window_events,  1},
     {"btstack",        no_argument, &params->btstack,        1},
     {"debug.haptic",   no_argument, &params->debug.haptic,   1},
-    {"debug.adapter",  no_argument, &params->debug.adapter,  1},
+    {"debug.controller", no_argument, &params->debug.controller,  1},
     {"debug.macros",   no_argument, &params->debug.macros,   1},
     {"debug.sixaxis",  no_argument, &params->debug.sixaxis,  1},
     {"skip_leds",      no_argument, &params->skip_leds,      1},

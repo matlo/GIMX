@@ -309,7 +309,7 @@ static void dump(unsigned char * packet, unsigned char length)
 }
 
 #define DEBUG_PACKET(PACKET, LENGTH) \
-  if(gimx_params.debug.adapter) \
+  if(gimx_params.debug.controller) \
   { \
     ginfo("%s\n", __func__); \
     dump(data, length); \
@@ -319,7 +319,7 @@ static int adapter_forward(int adapter, unsigned char type, unsigned char* data,
 {
   if(adapters[adapter].serial.device != NULL)
   {
-    if(gimx_params.debug.adapter)
+    if(gimx_params.debug.controller)
     {
       ginfo("type: %hu\n", type);
     }
