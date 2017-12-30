@@ -981,7 +981,7 @@ int adapter_start()
         if (ff_lg_is_logitech_wheel(vid, pid))
         {
           // emulated controller is a Logitech wheel with FFB support
-          if (gimx_params.ff_conv == 0 && ff_lg_is_logitech_wheel(adapter->haptic.usb_ids.vendor, adapter[i].haptic.usb_ids.product))
+          if (gimx_params.ff_conv == 0 && ff_lg_is_logitech_wheel(adapter->haptic.usb_ids.vendor, adapter->haptic.usb_ids.product))
           {
             // default joystick is a Logitech wheel with FFB support and ff_conv is not forced
             
