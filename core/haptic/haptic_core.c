@@ -75,6 +75,10 @@ struct haptic_core * haptic_core_init(s_haptic_core_ids source_ids, int sink_joy
 
 int haptic_core_clean(struct haptic_core * core) {
 
+    if (core == NULL) {
+        return 0;
+    }
+
     if (core->source.ptr != NULL) {
         core->source.ptr->clean(core->source.state);
     }
@@ -91,15 +95,14 @@ int haptic_core_clean(struct haptic_core * core) {
 
 void haptic_core_process_report(struct haptic_core * core, size_t size, const unsigned char * data) {
 
-    if (core->source.ptr != NULL) {
+    if (core != NULL && core->source.ptr != NULL) {
         core->source.ptr->process(core->source.state, size, data);
     }
 }
 
 void haptic_core_update(struct haptic_core * core) {
 
-    if (core->source.ptr == NULL
-            || core->sink.ptr == NULL) {
+    if (core == NULL || core->source.ptr == NULL || core->sink.ptr == NULL) {
         return;
     }
 
@@ -113,6 +116,10 @@ void haptic_core_update(struct haptic_core * core) {
 }
 
 void haptic_core_set_tweaks(struct haptic_core * core, const s_haptic_core_tweaks * tweaks) {
+
+    if (core == NULL) {
+        return;
+    }
 
     if (core->sink.ptr->caps != E_HAPTIC_SINK_CAP_NONE) {
         ginfo("FFB invert: %s\n", tweaks->invert ? "yes" : "no");
