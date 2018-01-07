@@ -1246,8 +1246,5 @@ void adapter_set_haptic_sink(int adapter, int joystick, int force)
 
 void adapter_set_haptic_tweaks(int adapter, const s_haptic_core_tweaks * tweaks)
 {
-  if (adapters[adapter].ff_core != NULL)
-  {
-    haptic_core_set_tweaks(adapters[adapter].ff_core, tweaks);
-  }
+  haptic_core_set_tweaks(adapters[adapter].ff_core, tweaks);
 }
