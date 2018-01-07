@@ -1403,6 +1403,7 @@ typedef enum {
 
     E_GIMX_STATUS_ADAPTER_NOT_DETECTED = -2, // wiring issue, incorrect firmware, target not powered
     E_GIMX_STATUS_NO_ACTIVATION = -3, // user did not activate the controller
+    E_GIMX_STATUS_INACTIVITY_TIMEOUT = -4, // no user input during defined time
 
     E_GIMX_STATUS_AUTH_MISSING_X360 = 1, // auth source missing
     E_GIMX_STATUS_AUTH_MISSING_PS4 = 2, // auth source missing
@@ -1480,6 +1481,9 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
         break;
     case E_GIMX_STATUS_NO_ACTIVATION:
         wxMessageBox( _("GIMX exited and the activation button was not pressed."), _("Info"), wxICON_INFORMATION);
+        break;
+    case E_GIMX_STATUS_INACTIVITY_TIMEOUT:
+        wxMessageBox( _("Inactivity timeout."), _("Error"), wxICON_ERROR);
         break;
     case E_GIMX_STATUS_AUTH_MISSING_X360:
         wxMessageBox( _("No wired Xbox 360 controller was found on USB ports."), _("Error"), wxICON_ERROR);

@@ -424,7 +424,7 @@ int main(int argc, char *argv[])
   QUIT: ;
 
   e_gimx_status clean_status = adapter_clean();
-  if (clean_status != E_GIMX_STATUS_SUCCESS)
+  if (status == E_GIMX_STATUS_SUCCESS && clean_status != E_GIMX_STATUS_SUCCESS)
   {
     status = clean_status;
   }
