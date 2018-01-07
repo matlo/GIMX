@@ -777,7 +777,11 @@ void launcherFrame::readParam(const char* file, wxChoice* choice)
     if( infile.good() )
     {
       getline (infile,line);
-      choice->SetSelection(choice->FindString(wxString(line.c_str(), wxConvUTF8)));
+      int pos = choice->FindString(wxString(line.c_str(), wxConvUTF8));
+      if (pos != wxNOT_FOUND)
+      {
+        choice->SetSelection(pos);
+      }
     }
     infile.close();
   }
@@ -1465,7 +1469,7 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
                   " . make sure to power on the target console\n"
                   "If you built the adapter yourself:\n"
                   " . make sure the wiring is correct (swapping RX and TX is a common mistake)\n"
-                  " . make sure it runs the right firmware"	
+                  " . make sure it runs the right firmware"
                   ), _("Error"), wxICON_ERROR);
         }
         else if(Output->GetStringSelection() == _("Remote GIMX"))
