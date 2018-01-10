@@ -12,6 +12,7 @@
 #include <math.h>
 #include <sstream>
 #include <iomanip>
+#include <climits>
 
 //(*InternalHeaders(configFrame)
 #include <wx/string.h>
@@ -3394,6 +3395,13 @@ void configFrame::OnMenuReplaceKeyboard(wxCommandEvent& event __attribute__((unu
     replaceDevice(wxT("keyboard"));
 }
 
+int numPlaces (int n)
+{
+    if (n < 0) return numPlaces ((n == INT_MIN) ? INT_MAX: -n);
+    if (n < 10) return 1;
+    return 1 + numPlaces (n / 10);
+}
+
 /*
  * \brief Method called on Edit>Replace_Mouse_DPI click. \
  *        It converts the sensitivity in the current controller. \
@@ -3465,11 +3473,21 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event __attribute__((unu
                   {
                     continue;
                   }
-                  double val = atof(it->GetEvent()->GetMultiplier().c_str());
-                  double exp = atof(it->GetEvent()->GetExponent().c_str());
+                  double val;
+                  if(!ToDouble(it->GetEvent()->GetMultiplier().c_str(), &val, decimalPoint))
+                  {
+                    wxMessageBox( _("Failed to parse sensitivity value!"), _("Error"), wxICON_ERROR);
+                    continue;
+                  }
+                  double exp;
+                  if(!ToDouble(it->GetEvent()->GetExponent().c_str(), &exp, decimalPoint))
+                  {
+                    wxMessageBox( _("Failed to parse acceleration value!"), _("Error"), wxICON_ERROR);
+                    continue;
+                  }
                   val = val * pow((double)old_value / new_value, exp);
                   ostringstream ios;
-                  ios << setprecision(2) << val;
+                  ios << setprecision(2 + numPlaces((int)val)) << val;
                   it->GetEvent()->SetMultiplier(ios.str());
                 }
               }
