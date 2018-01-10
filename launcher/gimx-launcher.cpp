@@ -1568,39 +1568,35 @@ void launcherFrame::OnButtonCheckClick1(wxCommandEvent& event __attribute__((unu
 
 void launcherFrame::OnMenuEditConfig(wxCommandEvent& event __attribute__((unused)))
 {
-  if(InputChoice->GetStringSelection().IsEmpty())
-  {
-    wxMessageBox( _("No config selected!"), _("Error"), wxICON_ERROR);
-    return;
-  }
+  wxString command = wxT("gimx-config");
 
-  wxString command = wxT("gimx-config -f \"");
-  command.Append(InputChoice->GetStringSelection());
-  command.Append(wxT("\""));
+  if(!InputChoice->GetStringSelection().IsEmpty())
+  {
+    command.Append(wxT(" -f \""));
+    command.Append(InputChoice->GetStringSelection());
+    command.Append(wxT("\""));
+  }
 
   if (!wxExecute(command, wxEXEC_ASYNC))
   {
-    wxMessageBox(_("Error editing the config file!"), _("Error"),
-        wxICON_ERROR);
+    wxMessageBox(_("Failed to start gimx-config!"), _("Error"), wxICON_ERROR);
   }
 }
 
 void launcherFrame::OnMenuEditFpsConfig(wxCommandEvent& event __attribute__((unused)))
 {
-  if(InputChoice->GetStringSelection().IsEmpty())
-  {
-    wxMessageBox( _("No config selected!"), _("Error"), wxICON_ERROR);
-    return;
-  }
+  wxString command = wxT("gimx-fpsconfig");
 
-  wxString command = wxT("gimx-fpsconfig -f \"");
-  command.Append(InputChoice->GetStringSelection());
-  command.Append(wxT("\""));
+  if(!InputChoice->GetStringSelection().IsEmpty())
+  {
+    command.Append(wxT(" -f \""));
+    command.Append(InputChoice->GetStringSelection());
+    command.Append(wxT("\""));
+  }
 
   if (!wxExecute(command, wxEXEC_ASYNC))
   {
-    wxMessageBox(_("Error editing the config file!"), _("Error"),
-        wxICON_ERROR);
+    wxMessageBox(_("Failed to start gimx-fpsconfig!"), _("Error"), wxICON_ERROR);
   }
 }
 
