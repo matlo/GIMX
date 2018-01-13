@@ -158,6 +158,29 @@ void show_devices()
   }
 }
 
+void show_config()
+{
+  char file_path[PATH_MAX];
+
+  snprintf(file_path, sizeof(file_path), "%s%s%s%s", gimx_params.homedir, GIMX_DIR, CONFIG_DIR, gimx_params.config_file);
+
+  FILE * fp = fopen(file_path, "r");
+  if (fp == NULL)
+  {
+    gwarn("failed to dump %s\n", file_path);
+  }
+  else
+  {
+    printf("Dump of %s:\n", file_path);
+    char line[LINE_MAX];
+    while (fgets(line, sizeof(line), fp))
+    {
+      printf(line);
+    }
+    fclose(fp);
+  }
+}
+
 int main(int argc, char *argv[])
 {
   e_gimx_status status = E_GIMX_STATUS_SUCCESS;
@@ -336,6 +359,7 @@ int main(int argc, char *argv[])
   if (gimx_params.logfile != NULL)
   {
     show_devices();
+    show_config();
   }
 
   if(gimx_params.grab)
