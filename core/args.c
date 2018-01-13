@@ -84,6 +84,7 @@ static void usage()
   printf("    filename: The name of the log file, in the ~/.gimx/log directory (make sure this folder exists).\n");
   printf("  --skip_leds: Filter out set led commands from FFB command stream (performance tweak for G27/G29 wheels on small targets).\n");
   printf("  --ff_conv: Force OS translation for FFB commands on Windows.\n");
+  printf("  --timeout value: Exit if controllers are inactive during a given number of minutes.\n");
 }
 
 /*
@@ -356,6 +357,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
 
       case 'q':
         gimx_params.inactivity_timeout = atoi(optarg);
+        printf(_("global option -q with value `%s'\n"), optarg);
         break;
 
       case 'r':

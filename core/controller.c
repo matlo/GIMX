@@ -981,18 +981,14 @@ int adapter_send()
 
     if (adapter->inactivity.timeout > 0)
     {
+      ++(adapter->inactivity.counter);
       if (adapter->send_command)
       {
         adapter->inactivity.counter = 0;
-        active = 1;
       }
-      else
+      if (adapter->inactivity.counter < adapter->inactivity.timeout)
       {
-        ++(adapter->inactivity.counter);
-        if (adapter->inactivity.counter < adapter->inactivity.timeout)
-        {
-          active = 1;
-        }
+        active = 1;
       }
     }
     else
@@ -1155,7 +1151,7 @@ int adapter_send()
 e_gimx_status adapter_clean()
 {
   e_gimx_status status = E_GIMX_STATUS_SUCCESS;
-  int inactive = 1;
+  int active = 0;
   int i;
   s_adapter* adapter;
   for(i=0; i<MAX_CONTROLLERS; ++i)
@@ -1223,13 +1219,17 @@ e_gimx_status adapter_clean()
       haptic_core_clean(adapter->ff_core);
     }
     if (adapter->ctype != C_TYPE_NONE) {
-      if (adapter->inactivity.timeout > 0 && adapter->inactivity.counter < adapter->inactivity.timeout) {
-        inactive = 0;
+      if (adapter->inactivity.timeout > 0) {
+        if (adapter->inactivity.counter < adapter->inactivity.timeout) {
+          active = 1;
+        }
+      } else {
+        active = 1;
       }
     }
   }
 
-  if (status == E_GIMX_STATUS_SUCCESS && inactive) {
+  if (status == E_GIMX_STATUS_SUCCESS && active == 0) {
     status = E_GIMX_STATUS_INACTIVITY_TIMEOUT;
   }
 
