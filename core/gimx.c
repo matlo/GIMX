@@ -60,6 +60,8 @@ s_gimx_params gimx_params =
   .logfilename = NULL,
   .logfile = NULL,
   .skip_leds = 0,
+  .ff_conv = 0,
+  .inactivity_timeout = 0,
 };
 
 #ifdef WIN32
@@ -178,6 +180,29 @@ void show_config()
       printf(line);
     }
     fclose(fp);
+  }
+}
+
+void auto_grab()
+{
+  if(gimx_params.grab)
+  {
+    int grab = 0;
+    int i;
+    for (i = 0; i < MAX_CONTROLLERS; ++i)
+    {
+      // check if config has a keyboard binding or a mouse binding
+      // in most cases window focus is required for getting keyboard/mouse events
+      // if config only has joystick bindings, window focus is not required, and grabbing mouse is not needed
+      if(adapter_get_device(E_DEVICE_TYPE_MOUSE, i) != -1 || adapter_get_device(E_DEVICE_TYPE_KEYBOARD, i) != -1)
+      {
+        grab = 1;
+      }
+    }
+    if (grab)
+    {
+      ginput_grab();
+    }
   }
 }
 
@@ -362,11 +387,6 @@ int main(int argc, char *argv[])
     show_config();
   }
 
-  if(gimx_params.grab)
-  {
-    ginput_grab();
-  }
-
   if(gimx_params.config_file)
   {
     cal_init();
@@ -395,6 +415,8 @@ int main(int argc, char *argv[])
 
     cfg_read_calibration();
   }
+
+  auto_grab();
 
   ginput_release_unused();
 
