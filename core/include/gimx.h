@@ -12,6 +12,7 @@
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#define LINE_MAX 1024
 #endif
 
 #include <libintl.h>
