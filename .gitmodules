@@ -31,3 +31,6 @@
 [submodule "shared/gimx-network-protocol"]
 	path = shared/gimx-network-protocol
 	url = https://github.com/matlo/gimx-network-protocol.git
+[submodule "shared/gimxlog"]
+	path = shared/gimxlog
+	url = https://github.com/matlo/gimxlog.git
