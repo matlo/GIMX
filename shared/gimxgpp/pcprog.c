@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <limits.h>
+#include <gimxlog/include/glog.h>
 
 #ifdef WIN32
 #define LINE_MAX 1024
@@ -33,6 +34,8 @@ typedef struct GIMX_PACKED
   s_gppReportHeader header;
   uint8_t data[REPORT_SIZE-sizeof(s_gppReportHeader)];
 } s_gppReport;
+
+GLOG_INST(GLOG_NAME)
 
 /*
  * https://www.consoletuner.com/kbase/compatible_devices_print.htm
@@ -64,7 +67,10 @@ void gpppcprog_read_user_ids(const char * user_directory, const char * app_direc
 
   if(nb_usb_ids == sizeof(usb_ids) / sizeof(*usb_ids))
   {
-    fprintf(stderr, "%s:%d no space for any user defined usb ids!\n", __FILE__, __LINE__);
+    if (GLOG_LEVEL(GLOG_NAME,ERROR))
+    {
+      fprintf(stderr, "%s:%d no space for any user defined usb ids!\n", __FILE__, __LINE__);
+    }
     return;
   }
 
@@ -79,7 +85,10 @@ void gpppcprog_read_user_ids(const char * user_directory, const char * app_direc
       {
         if(nb_usb_ids == sizeof(usb_ids) / sizeof(*usb_ids))
         {
-          fprintf(stderr, "%s:%d no more space for user defined usb ids!\n", __FILE__, __LINE__);
+          if (GLOG_LEVEL(GLOG_NAME,ERROR))
+          {
+            fprintf(stderr, "%s:%d no more space for user defined usb ids!\n", __FILE__, __LINE__);
+          }
           break;
         }
         if(vid && pid)
@@ -115,7 +124,10 @@ static s_gpp_device devices[MAX_GPP_DEVICES] = {};
 
 static inline int check_device(int device, const char * file, unsigned int line, const char * func) {
   if (device < 0 || device >= MAX_GPP_DEVICES) {
-    fprintf(stderr, "%s:%d %s: invalid device\n", file, line, func);
+    if (GLOG_LEVEL(GLOG_NAME,ERROR))
+    {
+      fprintf(stderr, "%s:%d %s: invalid device\n", file, line, func);
+    }
     return -1;
   }
   return 0;
