@@ -10,6 +10,7 @@
 #include <stddef.h>
 
 #include "haptic_core.h"
+#include "haptic_common.h"
 
 struct haptic_source_state;
 

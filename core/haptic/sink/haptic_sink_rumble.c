@@ -5,7 +5,6 @@
 
 #include <stdlib.h>
 #include <gimxinput/include/ginput.h>
-#include <gimxcommon/include/gerror.h>
 #include <haptic/haptic_common.h>
 #include <haptic/haptic_sink.h>
 

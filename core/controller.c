@@ -891,7 +891,7 @@ int adapter_start()
         adapter->activation_button.index = controller_get_activation_button(adapter->ctype);
         if (adapter->activation_button.index != 0)
         {
-          printf(_("Press the %s button to activate the controller.\n"), controller_get_axis_name(adapter->ctype, adapter->activation_button.index));
+          ginfo(_("Press the %s button to activate the controller.\n"), controller_get_axis_name(adapter->ctype, adapter->activation_button.index));
         }
       }
     }

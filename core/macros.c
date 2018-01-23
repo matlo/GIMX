@@ -983,7 +983,7 @@ static void read_configs_txt(const char* dir_path)
     configs_txt_present = 1;
     while (fgets(line, LINE_MAX, fp)) {
       if (gimx_params.logfile != NULL) {
-        printf(line);
+        printf("%s", line);
       }
       if (line[0] != '#') {
         // As file names may contain spaces, use '/' as a separator.
@@ -1154,7 +1154,7 @@ static void read_macros() {
         int has_errors = 0;
         while (fgets(line, LINE_MAX, fp)) {
           if (gimx_params.logfile != NULL) {
-            printf(line);
+            printf("%s", line);
           }
           if (line[0] != '#' && line[0] != '\n' && line[0] != '\r')
           {

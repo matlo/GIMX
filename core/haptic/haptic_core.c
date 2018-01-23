@@ -7,7 +7,6 @@
 #include <gimxhid/include/ghid.h>
 #include <gimxcontroller/include/controller.h>
 #include <gimxcommon/include/glist.h>
-#include <gimxcommon/include/gerror.h>
 #include <string.h>
 #include <stdlib.h>
 #include <haptic/haptic_core.h>

@@ -3,7 +3,6 @@
  License: GPLv3
  */
 
-#include <gimxcommon/include/gerror.h>
 #include <gimxinput/include/ginput.h>
 #include <haptic/haptic_sink.h>
 #ifndef WIN32

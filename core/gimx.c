@@ -37,6 +37,7 @@
 #include "../directories.h"
 #include <gimxprio/include/gprio.h>
 #include <gimxusb/include/gusb.h>
+#include <gimxlog/include/glog.h>
 
 #define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
 
@@ -177,7 +178,7 @@ void show_config()
     char line[LINE_MAX];
     while (fgets(line, sizeof(line), fp))
     {
-      printf(line);
+      printf("%s", line);
     }
     fclose(fp);
   }
@@ -441,6 +442,7 @@ int main(int argc, char *argv[])
 
   if(gimx_params.curses)
   {
+    glog_set_all_levels(E_GLOG_LEVEL_NONE);
     gimx_params.curses_status = 1;
     display_init();
     stats_init(0);

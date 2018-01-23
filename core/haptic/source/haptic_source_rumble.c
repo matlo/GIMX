@@ -6,8 +6,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <gimxcontroller/include/controller.h>
-#include <gimxcommon/include/gerror.h>
 #include <haptic/haptic_source.h>
+#include <limits.h>
 
 static struct {
     struct {

@@ -13,7 +13,6 @@
 #include <controller.h>
 #include <gimx.h>
 #include <limits.h>
-#include <gimxcommon/include/gerror.h>
 #include <haptic/haptic_common.h>
 #include <haptic/haptic_sink.h>
 

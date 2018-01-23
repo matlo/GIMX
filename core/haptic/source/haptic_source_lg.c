@@ -8,7 +8,6 @@
 #include <stdlib.h>
 
 #include <haptic/common/ff_lg.h>
-#include <gimxcommon/include/gerror.h>
 #include <haptic/haptic_common.h>
 #include <haptic/haptic_source.h>
 

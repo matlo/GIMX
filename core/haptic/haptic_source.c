@@ -3,7 +3,6 @@
  License: GPLv3
  */
 
-#include <gimxcommon/include/gerror.h>
 #include <string.h>
 #include <stdlib.h>
 #include <haptic/haptic_source.h>

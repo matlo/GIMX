@@ -15,8 +15,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define PRINT_ERROR_OTHER(msg) gerror("%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
-
 #define REPORTS_MAX 2
 
 static struct
