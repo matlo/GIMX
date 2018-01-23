@@ -1,4 +1,4 @@
-DIRS = gimxcontroller gimxupdater gimxconfigupdater gimxhid gimxinput gimxpoll gimxprio gimxserial gimxtimer gimxusb gimxgpp gimxconfigeditor
+DIRS = gimxcontroller gimxupdater gimxconfigupdater gimxlog gimxhid gimxinput gimxpoll gimxprio gimxserial gimxtimer gimxusb gimxgpp gimxconfigeditor
 
 ifneq ($(OS),Windows_NT)
 UHID=1
@@ -17,6 +17,13 @@ all: $(BUILDDIRS)
 $(DIRS): $(BUILDDIRS)
 $(BUILDDIRS):
 	$(MAKE) -C $(@:build-%=%) UHID=$(UHID)
+
+build-gimxhid: build-gimxlog
+build-gimxpoll: build-gimxlog
+build-gimxprio: build-gimxlog
+build-gimxserial: build-gimxlog
+build-gimxtimer: build-gimxlog
+build-gimxuhid: build-gimxlog
 
 build-gimxconfigeditor: build-gimxcontroller
 build-gimxconfigeditor: build-gimxhid build-gimxinput build-gimxtimer build-gimxpoll
