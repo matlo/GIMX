@@ -213,6 +213,8 @@ int main(int argc, char *argv[])
 
   GE_Event kgevent = { .key = { .type = GE_KEYDOWN } };
 
+  glog_set_all_levels(E_GLOG_LEVEL_INFO);
+
 #ifdef WIN32
   if (!SetConsoleOutputCP(CP_UTF8))
   {
