@@ -194,6 +194,7 @@ class launcherFrame: public wxFrame
         wxString userDir;
         wxString gimxConfigDir;
         wxString gimxLogDir;
+        wxString gimxMacrosDir;
         wxString launcherDir;
         wxString gimxDir;
 

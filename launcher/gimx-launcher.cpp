@@ -993,7 +993,7 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
       }
     }
 
-    //create config/ directory if absent
+    //create gimx/ directory if absent
     if(!wxDir::Exists(gimxDir))
     {
       if(!wxMkdir(gimxDir))
@@ -1002,6 +1002,7 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
         exit(-1);
       }
     }
+    //create config/ directory if absent
     gimxConfigDir = gimxDir + wxT(CONFIG_DIR);
     if(!wxDir::Exists(gimxConfigDir))
     {
@@ -1011,12 +1012,23 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
         exit(-1);
       }
     }
+    //create log/ directory if absent
     gimxLogDir = gimxDir + wxT(LOG_DIR);
     if(!wxDir::Exists(gimxLogDir))
     {
       if(!wxMkdir(gimxLogDir))
       {
         wxMessageBox( _("Can't init directory: ") + gimxLogDir, _("Error"), wxICON_ERROR);
+        exit(-1);
+      }
+    }
+    //create macros/ directory if absent
+    gimxMacrosDir = gimxDir + wxT(MACRO_DIR);
+    if(!wxDir::Exists(gimxMacrosDir))
+    {
+      if(!wxMkdir(gimxMacrosDir))
+      {
+        wxMessageBox( _("Can't init directory: ") + gimxMacrosDir, _("Error"), wxICON_ERROR);
         exit(-1);
       }
     }
