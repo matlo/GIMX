@@ -1101,15 +1101,9 @@ int adapter_send()
         ret = gpp_send(i, adapter->ctype, adapter->axis);
       }
 
-
-      if(gimx_params.curses)
+      if(gimx_params.status)
       {
-        stats_update(i);
-      }
-
-      if (adapter->send_command)
-      {
-        if(gimx_params.status)
+        if (adapter->send_command)
         {
           adapter_dump_state(i);
 #ifdef WIN32
@@ -1117,13 +1111,14 @@ int adapter_send()
           fflush(stdout);
 #endif
         }
-        if(gimx_params.curses)
-        {
-          display_run(adapter_get(0)->ctype, adapter_get(0)->axis);
-        }
-
-        adapter->send_command = 0;
       }
+      else if(gimx_params.curses)
+      {
+        stats_update(i);
+        display_run(adapter_get(0)->ctype, adapter->send_command ? adapter_get(0)->axis : NULL);
+      }
+
+      adapter->send_command = 0;
 
       if(adapter->ctype == C_TYPE_DS4)
       {

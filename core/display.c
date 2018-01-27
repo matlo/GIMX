@@ -334,6 +334,7 @@ void display_init()
   mvaddstr(LINES-1, 1, _("Refresh rate:"));
   mvaddstr(LINES-1, COLS-strlen(SHIFT_ESC), SHIFT_ESC);
 
+  wnoutrefresh(stdscr);
   doupdate();
 }
 
@@ -345,24 +346,26 @@ void display_end()
   }
 }
 
-static int last_button_nb = 0;
-
-void display_run(e_controller_type type, int axis[])
+static void show_stats()
 {
-  int i;
-  int d;
-  char label[BUTTON_LENGTH];
   char rate[COLS];
 
   int freq = stats_get_frequency(0);
 
   if(freq >= 0)
   {
-    sprintf(rate, _("Refresh rate: %4dHz  "), freq);
+    snprintf(rate, sizeof(rate), _("Refresh rate: %4dHz  "), freq);
     mvaddstr(LINES-1, 1, rate);
   }
+}
 
-  d = 0;
+static int last_button_nb = 0;
+
+static void show_axes(e_controller_type type, int axis[])
+{
+  char label[BUTTON_LENGTH];
+  int d = 0;
+  int i;
 
   for(i=rel_axis_rstick_y+1; i<AXIS_MAX; ++i)
   {
@@ -411,6 +414,16 @@ void display_run(e_controller_type type, int axis[])
     mvwaddch(rstick, cross[1][1], cross[1][0], CROSS_CHAR);
   }
   wnoutrefresh(rstick);
+}
+
+void display_run(e_controller_type type, int axis[])
+{
+  show_stats();
+
+  if (axis != NULL)
+  {
+    show_axes(type, axis);
+  }
 
   move(LINES-1, COLS-1);
   wnoutrefresh(stdscr);
