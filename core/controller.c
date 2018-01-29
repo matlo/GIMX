@@ -837,7 +837,7 @@ int adapter_start()
 
     adapter->joystick = adapter_get_device(E_DEVICE_TYPE_JOYSTICK, i);
 
-    s_haptic_core_ids source = {};
+    s_haptic_core_ids source = { 0 };
     if(adapter->atype == E_ADAPTER_TYPE_DIY_USB)
     {
       controller_get_ids(adapter->ctype, &source.vid, &source.pid);
