@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: GIMX 0.50\n"
+"Project-Id-Version: GIMX 7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-10 11:32+0100\n"
-"PO-Revision-Date: 2015-10-10 11:34+0100\n"
+"POT-Creation-Date: 2018-01-29 22:39+0100\n"
+"PO-Revision-Date: 2018-01-29 23:25+0100\n"
 "Last-Translator: Matlo <mat.lau@laposte.net>\n"
 "Language-Team: Matlo <mat.lau@laposte.net>\n"
 "Language: fr\n"
@@ -16,185 +16,456 @@ msgstr ""
 "X-Poedit-KeywordsList: _;gettext;gettext_noop\n"
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Poedit 1.8.7.1\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../core/config_reader.c:84
+#: ../core/args.c:183
+#, c-format
+msgid "ignoring: -%c %s (max controllers reached)\n"
+msgstr "ignoré :  -%c %s (le nombre max de contrôleurs est atteint)\n"
+
+#: ../core/args.c:193
+#, c-format
+msgid "option %s"
+msgstr "option %s"
+
+#: ../core/args.c:195
+#, c-format
+msgid " with arg %s"
+msgstr " avec pour argument %s"
+
+#: ../core/args.c:206
+#, c-format
+msgid "controller #%d: option -b with value `%s'\n"
+msgstr ""
+"controlleur %d : option -b avec valeur `%s'\n"
+"\n"
+
+#: ../core/args.c:208 ../core/args.c:266 ../core/args.c:354
+#, c-format
+msgid "now reading arguments for controller #%d\n"
+msgstr "début des arguments du contrôleur %d\n"
+
+#: ../core/args.c:213
+#, c-format
+msgid "global option -c with value `%s'\n"
+msgstr "option globale -c avec valeur `%s'\n"
+
+#: ../core/args.c:224
+#, c-format
+msgid "Bad event format: %s\n"
+msgstr "Mauvais format d'événement : %s\n"
+
+#: ../core/args.c:235
+#, c-format
+msgid "controller #%d: option -e with value `%s(%d)'\n"
+msgstr "contrôleur %d : option -e avec valeur `%s(%d)'\n"
+
+#: ../core/args.c:242
+#, c-format
+msgid "Bad axis name for event: %s\n"
+msgstr "Mauvais nom d'axe pour l'événement : %s\n"
+
+#: ../core/args.c:251
+#, c-format
+msgid "controller #%d: option -h with value `%d'\n"
+msgstr "contrôleur %d : option -h avec valeur `%d'\n"
+
+#: ../core/args.c:258
+#, c-format
+msgid "Bad format for argument -d: '%s'\n"
+msgstr "Mauvais format pour l'argument -d : '%s'\n"
+
+#: ../core/args.c:264
+#, c-format
+msgid "controller #%d: option -d with value `%s'\n"
+msgstr "contrôleur %d : option -d avec valeur `%s'\n"
+
+#: ../core/args.c:279
+#, c-format
+msgid "Bad format for argument -s: '%s'\n"
+msgstr "Mauvais format pour l'argument -s : '%s'\n"
+
+#: ../core/args.c:284
+#, c-format
+msgid "controller #%d: option -s with value `%s'\n"
+msgstr "contrôleur %d : option -s avec valeur `%s'\n"
+
+#: ../core/args.c:292
+#, c-format
+msgid "controller #%d: option -k with value `%s'\n"
+msgstr "contrôleur %d : option -k avec valeur `%s'\n"
+
+#: ../core/args.c:313
+#, c-format
+msgid "can't open log file (%s)\n"
+msgstr "Fichier de log impossible à ouvrir (%s)\n"
+
+#: ../core/args.c:317
+#, c-format
+msgid "global option -l with value `%s'\n"
+msgstr "option globale -l avec valeur `%s'\n"
+
+#: ../core/args.c:321
+msgid "log file can't be used with curses\n"
+msgstr "il n'est pas possible d'utiliser un fichier de log avec curses\n"
+
+#: ../core/args.c:327
+msgid "only one log file can be specified\n"
+msgstr "un seul fichier de log peut être spécifié\n"
+
+#: ../core/args.c:347
+#, c-format
+msgid "port already used: `%s'\n"
+msgstr "Port déjà utilisé : `%s'\n"
+
+#: ../core/args.c:352
+#, c-format
+msgid "controller #%d: option -p with value `%s'\n"
+msgstr "contrôleur %d : option -p avec valeur `%s'\n"
+
+#: ../core/args.c:360
+#, c-format
+msgid "global option -q with value `%s'\n"
+msgstr "option globale -q avec valeur `%s'\n"
+
+#: ../core/args.c:368
+#, c-format
+msgid "global option -r with value `%s'\n"
+msgstr "option globale -r avec valeur `%s'\n"
+
+#: ../core/args.c:378
+#, c-format
+msgid "controller #%d: option -t with value `%s'\n"
+msgstr "contrôleur %d : option -t avec valeur `%s'\n"
+
+#: ../core/args.c:405
+#, c-format
+msgid "unrecognized option: %c\n"
+msgstr "option non reconnue : %c\n"
+
+#: ../core/args.c:415
+#, c-format
+msgid "grab flag is unset\n"
+msgstr "le flag \"grab\" est positionné\n"
+
+#: ../core/args.c:417
+#, c-format
+msgid "status flag is set\n"
+msgstr "le flag \"status\" est positionné\n"
+
+#: ../core/args.c:419
+#, c-format
+msgid "subpos flag is set\n"
+msgstr "le flag \"subpos\" est positionné\n"
+
+#: ../core/args.c:421
+#, c-format
+msgid "force_updates flag is set\n"
+msgstr "le flag \"force_updates\" est positionné\n"
+
+#: ../core/args.c:423
+#, c-format
+msgid "curses flag is set\n"
+msgstr "le flag \"curses\" est positionné\n"
+
+#: ../core/args.c:425
+#, c-format
+msgid "window_events flag is set\n"
+msgstr "le flag \"window_events\" est positionné\n"
+
+#: ../core/args.c:427
+#, c-format
+msgid "btstack flag is set\n"
+msgstr "le flag \"btstack\" est positionné\n"
+
+#: ../core/args.c:429
+#, c-format
+msgid "skip_leds flag is set\n"
+msgstr "le flag skip_leds est positionné\n"
+
+#: ../core/args.c:431
+#, c-format
+msgid "ff_conv flag is set\n"
+msgstr "le flag ff_conv est positionné\n"
+
+#: ../core/calibration.c:198
+#, c-format
+msgid "calibrating mouse %s (%d)\n"
+msgstr "calibration de la souris %s (%d)\n"
+
+#: ../core/calibration.c:199
+#, c-format
+msgid "calibrating conf %d\n"
+msgstr "calibration de la conf %d\n"
+
+#: ../core/calibration.c:200
+msgid "sensibility:"
+msgstr "sensibilité :"
+
+#: ../core/calibration.c:207 ../core/calibration.c:216
+#: ../core/calibration.c:225 ../core/calibration.c:234
+#: ../core/calibration.c:250 ../core/calibration.c:259
+#: ../core/calibration.c:268
+msgid " NA\n"
+msgstr "ND\n"
+
+#: ../core/calibration.c:209
+msgid "x/y ratio:"
+msgstr "ratio x/y :"
+
+#: ../core/calibration.c:218
+msgid "dead zone x:"
+msgstr "dead zone x :"
+
+#: ../core/calibration.c:227
+msgid "dead zone y:"
+msgstr "dead zone y :"
+
+#: ../core/calibration.c:236
+msgid "shape:"
+msgstr "forme :"
+
+#: ../core/calibration.c:241
+msgid " Circle\n"
+msgstr " Cercle\n"
+
+#: ../core/calibration.c:245
+msgid " Rectangle\n"
+msgstr " Rectangle\n"
+
+#: ../core/calibration.c:252
+msgid "acceleration x:"
+msgstr "accélération x :"
+
+#: ../core/calibration.c:261
+msgid "acceleration y:"
+msgstr "accélération y :"
+
+#: ../core/calibration.c:270
+#, c-format
+msgid "radius: %d\n"
+msgstr "rayon : %d\n"
+
+#: ../core/calibration.c:271
+#, c-format
+msgid "velocity: %d\n"
+msgstr "vitesse : %d\n"
+
+#: ../core/calibration.c:272
+#, c-format
+msgid "time: %d\n"
+msgstr "temps : %d\n"
+
+#: ../core/calibration.c:312 ../core/calibration.c:335
+msgid "mouse selection\n"
+msgstr "sélection de la souris\n"
+
+#: ../core/calibration.c:317 ../core/calibration.c:344
+msgid "profile selection\n"
+msgstr "sélection du profil\n"
+
+#: ../core/calibration.c:325
+#, c-format
+msgid "error writting the config file %s\n"
+msgstr "erreur lors de l'écriture de la config %s\n"
+
+#: ../core/calibration.c:327
+msgid "calibration done\n"
+msgstr "calibration terminée\n"
+
+#: ../core/calibration.c:350
+msgid "calibrating sensitivity\n"
+msgstr "calibration de la sensibilité\n"
+
+#: ../core/calibration.c:357
+msgid "calibrating x/y ratio\n"
+msgstr "calibration du ratio x/y\n"
+
+#: ../core/calibration.c:364
+msgid "calibrating dead zone x\n"
+msgstr "calibration de la dead zone x\n"
+
+#: ../core/calibration.c:374
+msgid "calibrating dead zone y\n"
+msgstr "calibration de la dead zone y\n"
+
+#: ../core/calibration.c:384
+msgid "calibrating dead zone shape\n"
+msgstr "calibration de la forme de la dead zone\n"
+
+#: ../core/calibration.c:394
+msgid "calibrating acceleration x\n"
+msgstr "calibration de l'accélération x\n"
+
+#: ../core/calibration.c:401
+msgid "calibrating acceleration y\n"
+msgstr "calibration de l'accélération y\n"
+
+#: ../core/calibration.c:412
+msgid "adjusting circle test radius\n"
+msgstr "ajustement du rayon du test du cercle\n"
+
+#: ../core/calibration.c:423
+msgid "adjusting circle test velocity\n"
+msgstr "ajustement de la vitesse du test du cercle\n"
+
+#: ../core/calibration.c:437
+msgid "translation test started\n"
+msgstr "test de translation démarré\n"
+
+#: ../core/config.c:639
+#, c-format
+msgid "controller %d profile %d axis %s intensity: %.0f\n"
+msgstr "contrôleur %d profil %d axe %s intensité : %.0f\n"
+
+#: ../core/config.c:855
+#, c-format
+msgid "%d %ld.%06ld controller %d is switched from profile %d to %d\n"
+msgstr "%d %ld.%06ld contrôleur %d est basculé du profil %d à %d\n"
+
+#: ../core/config_reader.c:80
 #, c-format
 msgid "joystick not found: %s %d\n"
 msgstr "joystick non trouvé : %s %d\n"
 
-#: ../core/config_reader.c:87
+#: ../core/config_reader.c:83
 #, c-format
 msgid "mouse not found: %s %d\n"
 msgstr "souris non trouvée : %s %d\n"
 
-#: ../core/config_reader.c:90
+#: ../core/config_reader.c:86
 #, c-format
 msgid "keyboard not found: %s %d\n"
 msgstr "clavier non trouvé : %s %d\n"
 
-#: ../core/config_reader.c:153
+#: ../core/config_reader.c:142
 msgid "A device name is empty. Multiple mice and keyboards are not managed.\n"
 msgstr ""
 "Un nom de device est vide. Les souris et claviers multiples ne sont pas "
 "gérés.\n"
 
-#: ../core/args.c:164
+#: ../core/connectors/tcp_con.c:43
 #, c-format
-msgid "ignoring: -%c %s (max controllers reached)\n"
-msgstr "ignoré :  -%c %s (le nombre max de contrôleurs est atteint)\n"
+msgid "connected to %s:%d\n"
+msgstr "connecté à %s:%d\n"
 
-#: ../core/args.c:174
+#: ../core/connectors/usb_con.c:407
+msgid "no pass-through device is needed\n"
+msgstr "pas besoin de périphérique \"pass-through\"\n"
+
+#: ../core/connectors/usb_con.c:416
 #, c-format
-msgid "option %s"
-msgstr "option %s"
+msgid "found pass-through device 0x%04x:0x%04x\n"
+msgstr "périphérique de pass-through : 0x%04x:0x%04x\n"
 
-#: ../core/args.c:176
+#: ../core/controller.c:276
 #, c-format
-msgid " with arg %s"
-msgstr " avec pour argument %s"
+msgid "macros are not available for: %s %s (%d)\n"
+msgstr "les macros ne sont pas disponibles pour : %s %s (%d)\n"
 
-#: ../core/args.c:188
+#: ../core/controller.c:598
+msgid "no GPP detected.\n"
+msgstr "pas de GPP détecté.\n"
+
+#: ../core/controller.c:603
 #, c-format
-msgid "option -b with value `%s'\n"
-msgstr "option -b avec la valeur `%s'\n"
+msgid "GPP detected, controller type is: %s.\n"
+msgstr "GPP détecté, le type de contrôleur est : %s.\n"
 
-#: ../core/args.c:193
+#: ../core/controller.c:608
+msgid "unknown GPP controller type.\n"
+msgstr "type de contrôleur GPP inconnu.\n"
+
+#: ../core/controller.c:619
+msgid "failed to open the GIMX adapter\n"
+msgstr "échec de l'ouverture de l'adaptateur GIMX\n"
+
+#: ../core/controller.c:633
 #, c-format
-msgid "option -c with value `%s'\n"
-msgstr "option -c avec la valeur `%s'\n"
+msgid "GIMX adapter detected, controller type is: %s.\n"
+msgstr "adaptateur GIMX détecté, le type de contrôleur est : %s.\n"
 
-#: ../core/args.c:204
+#: ../core/controller.c:641
+msgid "wrong controller type.\n"
+msgstr "type de contrôleur incorrect.\n"
+
+#: ../core/controller.c:649
+msgid "failed to get the GIMX adapter status.\n"
+msgstr "échec de la lecture de l'état de l'adaptateur GIMX.\n"
+
+#: ../core/controller.c:665 ../core/controller.c:686
+msgid "failed to reset the GIMX adapter.\n"
+msgstr "échec de la réinitialisation de l'adaptateur GIMX.\n"
+
+#: ../core/controller.c:670 ../core/controller.c:691
+msgid "Reset sent to the GIMX adapter.\n"
+msgstr "Reset envoyé à l'adaptateur GIMX.\n"
+
+#: ../core/controller.c:700
+msgid "Disable force updates to work-around #335.\n"
+msgstr "Désactivation de \"force updates\" en raison de #335.\n"
+
+#: ../core/controller.c:716
+msgid "No game controller was found on USB ports.\n"
+msgstr "Pas de contrôleur de jeu trouvé sur les ports USB.\n"
+
+#: ../core/controller.c:744
+msgid ""
+"Start the game with a dualshock 3, and then reassign game controllers.\n"
+msgstr ""
+"Démarrer le jeu avec une dualshock 3, puis réassigner les contrôleurs de "
+"jeu.\n"
+
+#: ../core/controller.c:767
 #, c-format
-msgid "Bad event format: %s\n"
-msgstr "Mauvais format d'événement : %s\n"
+msgid "failed to connect to network destination: %s:%d.\n"
+msgstr "échec de la connexion à la destination réseau : %s:%d.\n"
 
-#: ../core/args.c:215
+#: ../core/controller.c:772
 #, c-format
-msgid "option -e with value `%s(%d)'\n"
-msgstr "option -e avec la valeur `%s(%d)'\n"
+msgid "Remote GIMX detected, controller type is: %s.\n"
+msgstr "GIMX distant détecté, le type de contrôleur est : %s.\n"
 
-#: ../core/args.c:222
+#: ../core/controller.c:883
+msgid "failed to start the GIMX adapter.\n"
+msgstr "échec du démarrage de l'adaptateur GIMX.\n"
+
+#: ../core/controller.c:888
+msgid "failed to start the GIMX adapter asynchronous processing.\n"
+msgstr "échec du démarrage du traitement asynchrone de l'adaptateur GIMX.\n"
+
+#: ../core/controller.c:894
 #, c-format
-msgid "Bad axis name for event: %s\n"
-msgstr "Mauvais nom d'axe pour l'événement : %s\n"
+msgid "Press the %s button to activate the controller.\n"
+msgstr "Appuyer sur le bouton %s pour activer le contrôleur.\n"
 
-#: ../core/args.c:231
+#: ../core/controller.c:906
+msgid "failed to initialize the sixaxis emulation.\n"
+msgstr "échec de l'initialisation de l'émulation sixaxis.\n"
+
+#: ../core/controller.c:915
+msgid "failed to initialize the dualshock 4 emulation.\n"
+msgstr "échec de l'initialisation de l'émulation dualshock 4.\n"
+
+#: ../core/controller.c:922
+msgid "unsupported bluetooth controller type.\n"
+msgstr "type de contrôleur bluetooth non supporté.\n"
+
+#: ../core/controller.c:938
+msgid "failed to start the GPP asynchronous processing.\n"
+msgstr "échec du démarrage du traitement asynchrone du GPP.\n"
+
+#: ../core/controller.c:948
 #, c-format
-msgid "option -h with value `%d'\n"
-msgstr "option -h avec la valeur `%d'\n"
+msgid "failed to listen on network source: %s:%d.\n"
+msgstr "échec de l'écoute de la source réseau : %s:%d.\n"
 
-#: ../core/args.c:238
-#, c-format
-msgid "Bad format for argument -d: '%s'\n"
-msgstr "Mauvais format pour l'argument -d : '%s'\n"
-
-#: ../core/args.c:245
-#, c-format
-msgid "option -d with value `%s'\n"
-msgstr "option -d avec la valeur `%s'\n"
-
-#: ../core/args.c:258
-#, c-format
-msgid "Bad format for argument -s: '%s'\n"
-msgstr "Mauvais format pour l'argument -s : '%s'\n"
-
-#: ../core/args.c:263
-#, c-format
-msgid "option -s with value `%s'\n"
-msgstr "option -s avec la valeur `%s'\n"
-
-#: ../core/args.c:271
-#, c-format
-msgid "option -k with value `%s'\n"
-msgstr "option -k avec la valeur `%s'\n"
-
-#: ../core/args.c:292
-#, c-format
-msgid "can't open log file (%s)\n"
-msgstr "Fichier de log impossible à ouvrir (%s)\n"
-
-#: ../core/args.c:296
-#, c-format
-msgid "option -l with value `%s'\n"
-msgstr "option -l avec la valeur `%s'\n"
-
-#: ../core/args.c:300
-#, c-format
-msgid "log file can't be used with curses\n"
-msgstr "il n'est pas possible d'utiliser un fichier de log avec curses\n"
-
-#: ../core/args.c:306
-#, c-format
-msgid "only one log file can be specified\n"
-msgstr "un seul fichier de log peut être spécifié\n"
-
-#: ../core/args.c:326
-#, c-format
-msgid "port already used: `%s'\n"
-msgstr "Port déjà utilisé : `%s'\n"
-
-#: ../core/args.c:332
-#, c-format
-msgid "option -p with value `%s'\n"
-msgstr "option -p avec la valeur `%s'\n"
-
-#: ../core/args.c:341
-#, c-format
-msgid "option -r with value `%s'\n"
-msgstr "option -r avec la valeur `%s'\n"
-
-#: ../core/args.c:351
-#, c-format
-msgid "option -t with value `%s'\n"
-msgstr "option -t avec la valeur `%s'\n"
-
-#: ../core/args.c:410
-#, c-format
-msgid "unrecognized option: %c\n"
-msgstr "option non reconnue : %c\n"
-
-#: ../core/args.c:420
-#, c-format
-msgid "grab flag is unset\n"
-msgstr "le flag \"grab\" est positionné\n"
-
-#: ../core/args.c:422
-#, c-format
-msgid "status flag is set\n"
-msgstr "le flag \"status\" est positionné\n"
-
-#: ../core/args.c:424
-#, c-format
-msgid "subpos flag is set\n"
-msgstr "le flag \"subpos\" est positionné\n"
-
-#: ../core/args.c:426
-#, c-format
-msgid "force_updates flag is set\n"
-msgstr "le flag \"force_updates\" est positionné\n"
-
-#: ../core/args.c:428
-#, c-format
-msgid "curses flag is set\n"
-msgstr "le flag \"curses\" est positionné\n"
-
-#: ../core/args.c:430
-#, c-format
-msgid "window_events flag is set\n"
-msgstr "le flag \"window_events\" est positionné\n"
-
-#: ../core/args.c:432
-#, c-format
-msgid "btstack flag is set\n"
-msgstr "le flag \"btstack\" est positionné\n"
-
-#: ../core/display.c:23 ../launcher/gimx-launcher.cpp:1257
+#: ../core/display.c:23 ../launcher/gimx-launcher.cpp:1399
 msgid "Press Shift+Esc to exit."
 msgstr "Appuyez sur MAJ+Echap pour quitter."
 
-#: ../core/display.c:69 ../core/display.c:327
+#: ../core/display.c:69 ../core/display.c:328
 msgid "Mouse calibration (Ctrl+F1 to edit)"
 msgstr "Calibration de la souris (Ctrl+F1 pour éditer)"
 
@@ -261,1352 +532,783 @@ msgstr "vitesse=%d (F11)"
 msgid " ratio="
 msgstr " ratio="
 
-#: ../core/display.c:311
+#: ../core/display.c:312
 msgid "Left stick"
 msgstr "Stick gauche"
 
-#: ../core/display.c:312
+#: ../core/display.c:313
 msgid "Right stick"
 msgstr "Stick droit"
 
-#: ../core/display.c:313
+#: ../core/display.c:314
 msgid "Buttons"
 msgstr "Boutons"
 
-#: ../core/display.c:333
+#: ../core/display.c:334
 msgid "Refresh rate:"
 msgstr "Taux de rafraîchissement :"
 
-#: ../core/display.c:360
+#: ../core/display.c:357
 #, c-format
 msgid "Refresh rate: %4dHz  "
 msgstr "Taux de rafraîchissement : %4dHz"
 
-#: ../core/config.c:563
-#, c-format
-msgid "controller %d configuration %d axis %s intensity: %.0f\n"
-msgstr "contrôleur %d profil %d axe %s intensité: %.0f\n"
-
-#: ../core/config.c:774
-#, c-format
-msgid "%d %ld.%06ld controller %d is switched from configuration %d to %d\n"
-msgstr "%d %ld.%06ld le contrôleur %d est basculé du profil %d au profil %d\n"
-
-#: ../core/calibration.c:202
-#, c-format
-msgid "calibrating mouse %s (%d)\n"
-msgstr "calibration de la souris %s (%d)\n"
-
-#: ../core/calibration.c:203
-#, c-format
-msgid "calibrating conf %d\n"
-msgstr "calibration de la conf %d\n"
-
-#: ../core/calibration.c:204
-msgid "sensibility:"
-msgstr "sensibilité :"
-
-#: ../core/calibration.c:211 ../core/calibration.c:220
-#: ../core/calibration.c:229 ../core/calibration.c:238
-#: ../core/calibration.c:254 ../core/calibration.c:263
-#: ../core/calibration.c:272
-msgid " NA\n"
-msgstr "ND\n"
-
-#: ../core/calibration.c:213
-msgid "x/y ratio:"
-msgstr "ratio x/y :"
-
-#: ../core/calibration.c:222
-msgid "dead zone x:"
-msgstr "dead zone x :"
-
-#: ../core/calibration.c:231
-msgid "dead zone y:"
-msgstr "dead zone y :"
-
-#: ../core/calibration.c:240
-msgid "shape:"
-msgstr "forme :"
-
-#: ../core/calibration.c:245
-msgid " Circle\n"
-msgstr " Cercle\n"
-
-#: ../core/calibration.c:249
-msgid " Rectangle\n"
-msgstr " Rectangle\n"
-
-#: ../core/calibration.c:256
-msgid "acceleration x:"
-msgstr "accélération x :"
-
-#: ../core/calibration.c:265
-msgid "acceleration y:"
-msgstr "accélération y :"
-
-#: ../core/calibration.c:274
-#, c-format
-msgid "radius: %d\n"
-msgstr "rayon : %d\n"
-
-#: ../core/calibration.c:275
-#, c-format
-msgid "velocity: %d\n"
-msgstr "vitesse : %d\n"
-
-#: ../core/calibration.c:276
-#, c-format
-msgid "time: %d\n"
-msgstr "temps : %d\n"
-
-#: ../core/calibration.c:334 ../core/calibration.c:357
-msgid "mouse selection\n"
-msgstr "sélection de la souris\n"
-
-#: ../core/calibration.c:339 ../core/calibration.c:366
-msgid "config selection\n"
-msgstr "sélection de la config\n"
-
-#: ../core/calibration.c:347
-#, c-format
-msgid "error writting the config file %s\n"
-msgstr "erreur lors de l'écriture de la config %s\n"
-
-#: ../core/calibration.c:349
-msgid "calibration done\n"
-msgstr "calibration terminée\n"
-
-#: ../core/calibration.c:372
-msgid "calibrating sensitivity\n"
-msgstr "calibration de la sensibilité\n"
-
-#: ../core/calibration.c:379
-msgid "calibrating x/y ratio\n"
-msgstr "calibration du ratio x/y\n"
-
-#: ../core/calibration.c:386
-msgid "calibrating dead zone x\n"
-msgstr "calibration de la dead zone x\n"
-
-#: ../core/calibration.c:396
-msgid "calibrating dead zone y\n"
-msgstr "calibration de la dead zone y\n"
-
-#: ../core/calibration.c:406
-msgid "calibrating dead zone shape\n"
-msgstr "calibration de la forme de la dead zone\n"
-
-#: ../core/calibration.c:416
-msgid "calibrating acceleration x\n"
-msgstr "calibration de l'accélération x\n"
-
-#: ../core/calibration.c:423
-msgid "calibrating acceleration y\n"
-msgstr "calibration de l'accélération y\n"
-
-#: ../core/calibration.c:434
-msgid "adjusting circle test radius\n"
-msgstr "ajustement du rayon du test du cercle\n"
-
-#: ../core/calibration.c:445
-msgid "adjusting circle test velocity\n"
-msgstr "ajustement de la vitesse du test du cercle\n"
-
-#: ../core/calibration.c:459
-msgid "translation test started\n"
-msgstr "test de translation démarré\n"
-
-#: ../core/gimx.c:190
-#, c-format
-msgid "Wrong argument.\n"
-msgstr "Mauvais argument.\n"
-
-#: ../core/gimx.c:201
-#, c-format
-msgid "adapter_detect failed\n"
-msgstr "adapter_detect a échoué\n"
-
-#: ../core/gimx.c:212
+#: ../core/gimx.c:306
 #, c-format
 msgid "using default refresh period: %.02fms\n"
 msgstr "utilisation de la période de rafraîchissement par défaut : %.02fms\n"
 
-#: ../core/gimx.c:244 ../core/gimx.c:365
-#, c-format
-msgid "adapter_start failed\n"
-msgstr "adapter_start a échoué\n"
-
-#: ../core/gimx.c:283
-#, c-format
-msgid "GE_initialize failed\n"
-msgstr "GE_initialize a échoué\n"
-
-#: ../core/gimx.c:300
-#, c-format
-msgid "read_config_file failed\n"
-msgstr "read_config_file a échoué\n"
-
-#: ../core/gimx.c:341
+#: ../core/gimx.c:437
 #, c-format
 msgid "Unknown key name for argument --keygen: '%s'\n"
 msgstr "Nom de touche inconnue pour l'argument --keygen : '%s'\n"
 
-#: ../core/gimx.c:373
+#: ../core/gimx.c:472
 msgid "Exiting\n"
 msgstr "Sortie\n"
 
-#: ../core/adapter.c:247
-msgid "macros are not available for: "
-msgstr "les macros ne sont pas disponibles pour : "
-
-#: ../core/adapter.c:250
-#, c-format
-msgid "keyboard %s (%d)\n"
-msgstr "clavier %s (%d)\n"
-
-#: ../core/adapter.c:254
-#, c-format
-msgid "mouse %s (%d)\n"
-msgstr "souris %s (%d)\n"
-
-#: ../core/adapter.c:258
-#, c-format
-msgid "joystick %s (%d)\n"
-msgstr "joystick %s (%d)\n"
-
-#: ../core/adapter.c:748 ../core/adapter.c:873
-#, c-format
-msgid "No controller detected.\n"
-msgstr "Pas de contrôleur détecté.\n"
-
-#: ../core/adapter.c:753 ../core/adapter.c:891
-#, c-format
-msgid "Detected controller: %s.\n"
-msgstr "Contrôleur détecté : %s.\n"
-
-#: ../core/adapter.c:758
-#, c-format
-msgid "Unknown GPP controller type.\n"
-msgstr "Type de contrôleur GPP inconnu.\n"
-
-#: ../core/adapter.c:777
-#, c-format
-msgid "Detected USB adapter: %s.\n"
-msgstr "Adaptateur USB détecté : %s.\n"
-
-#: ../core/adapter.c:785 ../core/adapter.c:995
-#, c-format
-msgid "Wrong controller type.\n"
-msgstr "Mauvais type de contrôleur.\n"
-
-#: ../core/adapter.c:793
-#, c-format
-msgid "Can't get adapter status.\n"
-msgstr "Impossible de lire l'état de l'adaptateur.\n"
-
-#: ../core/adapter.c:808 ../core/adapter.c:829
-#, c-format
-msgid "Can't reset the adapter.\n"
-msgstr "Impossible de réinitialiser l'adaptateur.\n"
-
-#: ../core/adapter.c:813 ../core/adapter.c:834
-#, c-format
-msgid "Reset sent to the adapter.\n"
-msgstr "Reset envoyé à l'adaptateur.\n"
-
-#: ../core/adapter.c:843
-#, c-format
-msgid "Disable force updates to work-around #335.\n"
-msgstr "Désactivation de \"force updates\" en raison de #335.\n"
-
-#: ../core/adapter.c:859
-#, c-format
-msgid "No controller was found on USB buses.\n"
-msgstr "Pas de contrôleur détecté sur les bus USB.\n"
-
-#: ../core/adapter.c:886
-#, c-format
-msgid "Can't connect to: %s:%d.\n"
-msgstr "Impossible de se connecter à : %s:%d.\n"
-
-#: ../core/adapter.c:960
-#, c-format
-msgid "Can't start the adapter.\n"
-msgstr "Impossible de démarrer l'adaptateur\n"
-
-#: ../core/adapter.c:965
-#, c-format
-msgid "Can't start the serial asynchronous processing.\n"
-msgstr "Impossible de démarrer la communication série asynchrone.\n"
-
-#: ../core/adapter.c:978
-#, c-format
-msgid "Can't initialize sixaxis.\n"
-msgstr "Impossible d'initialiser sixaxis.\n"
-
-#: ../core/adapter.c:987
-#, c-format
-msgid "Can't initialize btds4.\n"
-msgstr "Impossible d'initialiser btds4.\n"
-
-#: ../core/adapter.c:1010
-#, c-format
-msgid "Can't listen on: %s:%d.\n"
-msgstr "Impossible d'écouter le port : %s:%d.\n"
-
-#: ../core/connectors/usb_con.c:515
-msgid "no pass-through device is needed\n"
-msgstr "pas besoin de périphérique \"pass-through\"\n"
-
-#: ../core/connectors/tcp_con.c:43
-#, c-format
-msgid "connected to %s:%d\n"
-msgstr "connecté à %s:%d\n"
-
-#: ../launcher/gimx-launcher.cpp:327
-msgid "Address already used!"
-msgstr "Adresse déjà utilisée !"
-
-#: ../launcher/gimx-launcher.cpp:327 ../launcher/gimx-launcher.cpp:358
-#: ../launcher/gimx-launcher.cpp:424 ../launcher/gimx-launcher.cpp:612
-#: ../launcher/gimx-launcher.cpp:631 ../launcher/gimx-launcher.cpp:659
-#: ../launcher/gimx-launcher.cpp:682 ../launcher/gimx-launcher.cpp:696
-#: ../launcher/gimx-launcher.cpp:712 ../launcher/gimx-launcher.cpp:911
-#: ../launcher/gimx-launcher.cpp:925 ../launcher/gimx-launcher.cpp:937
-#: ../launcher/gimx-launcher.cpp:947 ../launcher/gimx-launcher.cpp:956
-#: ../launcher/gimx-launcher.cpp:965 ../launcher/gimx-launcher.cpp:1069
-#: ../launcher/gimx-launcher.cpp:1077 ../launcher/gimx-launcher.cpp:1085
-#: ../launcher/gimx-launcher.cpp:1093 ../launcher/gimx-launcher.cpp:1102
-#: ../launcher/gimx-launcher.cpp:1110 ../launcher/gimx-launcher.cpp:1121
-#: ../launcher/gimx-launcher.cpp:1132 ../launcher/gimx-launcher.cpp:1142
-#: ../launcher/gimx-launcher.cpp:1164 ../launcher/gimx-launcher.cpp:1267
-#: ../launcher/gimx-launcher.cpp:1278 ../launcher/gimx-launcher.cpp:1305
-#: ../launcher/gimx-launcher.cpp:1317 ../launcher/gimx-launcher.cpp:1333
-#: ../launcher/gimx-launcher.cpp:1343 ../launcher/gimx-launcher.cpp:1352
-#: ../launcher/gimx-launcher.cpp:1362 ../launcher/gimx-launcher.cpp:1375
-#: ../launcher/gimx-launcher.cpp:1383 ../launcher/gimx-launcher.cpp:1415
-#: ../launcher/gimx-launcher.cpp:1430 ../launcher/gimx-launcher.cpp:1509
-#: ../launcher/gimx-launcher.cpp:1518 ../launcher/gimx-launcher.cpp:1596
-#: ../launcher/gimx-launcher.cpp:1619 ../launcher/gimx-launcher.cpp:1649
-#: ../launcher/gimx-launcher.cpp:1655 ../launcher/gimx-launcher.cpp:1662
-#: ../launcher/gimx-launcher.cpp:1677 ../launcher/gimx-launcher.cpp:1950
-#: ../launcher/gimx-launcher.cpp:1980 ../launcher/gimx-launcher.cpp:1990
-#: ../launcher/gimx-launcher.cpp:2098 ../config/gimx-config.cpp:1234
-#: ../config/gimx-config.cpp:1246 ../config/gimx-config.cpp:1255
-#: ../config/gimx-config.cpp:1289 ../config/gimx-config.cpp:1313
-#: ../config/gimx-config.cpp:1384 ../config/gimx-config.cpp:1389
-#: ../config/gimx-config.cpp:1424 ../config/gimx-config.cpp:1429
-#: ../config/gimx-config.cpp:2298 ../config/gimx-config.cpp:2424
-#: ../config/gimx-config.cpp:2512 ../config/gimx-config.cpp:2517
-#: ../config/gimx-config.cpp:2683 ../config/gimx-config.cpp:2688
-#: ../config/gimx-config.cpp:3353 ../config/gimx-config.cpp:3362
-#: ../config/gimx-config.cpp:3378 ../config/gimx-config.cpp:3391
-#: ../config/gimx-config.cpp:3408 ../config/gimx-config.cpp:3413
-#: ../config/gimx-config.cpp:3542 ../config/gimx-config.cpp:3547
-#: ../config/gimx-config.cpp:3689 ../config/gimx-config.cpp:3795
-#: ../config/gimx-config.cpp:3801 ../fpsconfig/gimx-fpsconfig.cpp:521
-#: ../fpsconfig/gimx-fpsconfig.cpp:533 ../fpsconfig/gimx-fpsconfig.cpp:542
-#: ../fpsconfig/gimx-fpsconfig.cpp:571 ../fpsconfig/gimx-fpsconfig.cpp:1400
-#: ../fpsconfig/gimx-fpsconfig.cpp:1995 ../fpsconfig/gimx-fpsconfig.cpp:2004
-#: ../fpsconfig/gimx-fpsconfig.cpp:2058 ../fpsconfig/gimx-fpsconfig.cpp:2071
-msgid "Error"
-msgstr "Erreur"
-
-#: ../launcher/gimx-launcher.cpp:332
-msgid "Did you saved your dongle address?"
-msgstr "Avez-vous sauvegardé l'adresse du dongle ?"
-
-#: ../launcher/gimx-launcher.cpp:332 ../launcher/gimx-launcher.cpp:1003
-#: ../launcher/gimx-launcher.cpp:1153 ../launcher/gimx-launcher.cpp:1445
-#: ../launcher/gimx-launcher.cpp:1464 ../launcher/gimx-launcher.cpp:1501
-#: ../launcher/gimx-launcher.cpp:1582 ../launcher/gimx-launcher.cpp:1606
-#: ../config/gimx-config.cpp:1219 ../config/gimx-config.cpp:1397
-#: ../config/gimx-config.cpp:1437 ../config/gimx-config.cpp:2525
-#: ../config/gimx-config.cpp:2696 ../config/gimx-config.cpp:2966
-#: ../config/gimx-config.cpp:2982 ../config/gimx-config.cpp:3345
-#: ../config/gimx-config.cpp:3421 ../config/gimx-config.cpp:3555
-#: ../fpsconfig/gimx-fpsconfig.cpp:506 ../fpsconfig/gimx-fpsconfig.cpp:1987
-msgid "Confirm"
-msgstr "Confirmer"
-
-#: ../launcher/gimx-launcher.cpp:336
-msgid "Please save it!"
-msgstr "Veuillez la sauver !"
-
-#: ../launcher/gimx-launcher.cpp:336 ../launcher/gimx-launcher.cpp:1321
-#: ../launcher/gimx-launcher.cpp:1325 ../launcher/gimx-launcher.cpp:1522
-#: ../launcher/gimx-launcher.cpp:1603 ../launcher/gimx-launcher.cpp:1666
-#: ../config/gimx-config.cpp:1293 ../config/gimx-config.cpp:2302
-#: ../config/gimx-config.cpp:2469 ../config/gimx-config.cpp:2474
-#: ../config/gimx-config.cpp:2630 ../config/gimx-config.cpp:2635
-#: ../config/gimx-config.cpp:3366 ../config/gimx-config.cpp:3396
-#: ../config/gimx-config.cpp:3505 ../config/gimx-config.cpp:3510
-#: ../config/gimx-config.cpp:3764 ../config/gimx-config.cpp:3769
-#: ../fpsconfig/gimx-fpsconfig.cpp:912 ../fpsconfig/gimx-fpsconfig.cpp:1786
-#: ../fpsconfig/gimx-fpsconfig.cpp:2008 ../fpsconfig/gimx-fpsconfig.cpp:2076
-msgid "Info"
-msgstr "Info"
-
-#: ../launcher/gimx-launcher.cpp:345 ../launcher/gimx-launcher.cpp:363
-msgid "Success"
-msgstr "Succès"
-
-#: ../launcher/gimx-launcher.cpp:358
-msgid "Read address after set: ko!"
-msgstr "Lecture de l'adresse après écriture : échec !"
-
-#: ../launcher/gimx-launcher.cpp:363
-msgid "Read address after set: seems ok!"
-msgstr "Lecture de l'adresse après écriture : succès !"
-
-#: ../launcher/gimx-launcher.cpp:424
-msgid "Cannot open directory: "
-msgstr "Impossible d'ouvrir le répertoire : "
-
-#: ../launcher/gimx-launcher.cpp:612
-msgid "Cannot open file: "
-msgstr "Fichier impossible à ouvrir :"
-
-#: ../launcher/gimx-launcher.cpp:631 ../launcher/gimx-launcher.cpp:659
-#: ../launcher/gimx-launcher.cpp:712
-msgid "Cannot open file for writing: "
-msgstr "Impossible d'ouvrir le fichier en écriture : "
-
-#: ../launcher/gimx-launcher.cpp:682 ../launcher/gimx-launcher.cpp:696
-#: ../launcher/gimx-launcher.cpp:911 ../launcher/gimx-launcher.cpp:947
-#: ../launcher/gimx-launcher.cpp:956 ../launcher/gimx-launcher.cpp:965
-#: ../config/gimx-config.cpp:1246 ../config/gimx-config.cpp:1255
-#: ../fpsconfig/gimx-fpsconfig.cpp:533 ../fpsconfig/gimx-fpsconfig.cpp:542
-msgid "Can't init directory: "
-msgstr "Impossible d'initialiser le répertoire:"
-
-#: ../launcher/gimx-launcher.cpp:781
-msgid "Gimx-launcher"
-msgstr "Gimx-launcher"
-
-#: ../launcher/gimx-launcher.cpp:786
-msgid "Output"
-msgstr "Sortie"
-
-#: ../launcher/gimx-launcher.cpp:792 ../launcher/gimx-launcher.cpp:1422
-msgid "Port"
-msgstr "Port"
-
-#: ../launcher/gimx-launcher.cpp:796 ../launcher/gimx-launcher.cpp:813
-msgid "New"
-msgstr "Nouveau"
-
-#: ../launcher/gimx-launcher.cpp:800
-msgid "Input"
-msgstr "Entrée"
-
-#: ../launcher/gimx-launcher.cpp:803
-msgid "Physical devices"
-msgstr "Périphériques"
-
-#: ../launcher/gimx-launcher.cpp:804 ../launcher/gimx-launcher.cpp:1197
-#: ../config/gimx-config.cpp:1106 ../fpsconfig/gimx-fpsconfig.cpp:405
-msgid "Window events"
-msgstr "Événements des fenêtres"
-
-#: ../launcher/gimx-launcher.cpp:805 ../launcher/gimx-launcher.cpp:1128
-#: ../launcher/gimx-launcher.cpp:1138 ../launcher/gimx-launcher.cpp:1189
-#: ../launcher/gimx-launcher.cpp:1699 ../launcher/gimx-launcher.cpp:2057
-msgid "Network"
-msgstr "Réseau"
-
-#: ../launcher/gimx-launcher.cpp:809 ../launcher/gimx-launcher.cpp:1475
-#: ../launcher/gimx-launcher.cpp:1701
-msgid "IP:port"
-msgstr "IP:port"
-
-#: ../launcher/gimx-launcher.cpp:819
-msgid "Messages"
-msgstr "Messages"
-
-#: ../launcher/gimx-launcher.cpp:822
-msgid "none"
-msgstr "aucun"
-
-#: ../launcher/gimx-launcher.cpp:823 ../launcher/gimx-launcher.cpp:1175
-msgid "curses"
-msgstr "curses"
-
-#: ../launcher/gimx-launcher.cpp:824 ../launcher/gimx-launcher.cpp:1179
-msgid "text"
-msgstr "texte"
-
-#: ../launcher/gimx-launcher.cpp:825 ../launcher/gimx-launcher.cpp:1183
-#: ../launcher/gimx-launcher.cpp:1288
-msgid "log file"
-msgstr "fichier de log"
-
-#: ../launcher/gimx-launcher.cpp:829
-msgid "Grab mouse"
-msgstr "Capturer la souris"
-
-#: ../launcher/gimx-launcher.cpp:837
-msgid "Check"
-msgstr "Vérifier"
-
-#: ../launcher/gimx-launcher.cpp:839
-msgid "Start"
-msgstr "Démarrer"
-
-#: ../launcher/gimx-launcher.cpp:847
-msgid "Edit config"
-msgstr "Editer la config"
-
-#: ../launcher/gimx-launcher.cpp:849
-msgid "Edit fps config"
-msgstr "Editer la config FPS"
-
-#: ../launcher/gimx-launcher.cpp:851 ../config/gimx-config.cpp:1018
-#: ../fpsconfig/gimx-fpsconfig.cpp:395
-msgid "Open config directory"
-msgstr "Ouvrir le dossier de configs"
-
-#: ../launcher/gimx-launcher.cpp:853 ../launcher/gimx-launcher.cpp:1636
-msgid "Auto-bind and convert"
-msgstr "Auto-affecter et convertir"
-
-#: ../launcher/gimx-launcher.cpp:855
-msgid "Refresh\tF5"
-msgstr "Rafraîchir\tF5"
-
-#: ../launcher/gimx-launcher.cpp:857 ../config/gimx-config.cpp:1013
-msgid "Save\tCtrl-S"
-msgstr "Enregistrer\tCtrl-S"
-
-#: ../launcher/gimx-launcher.cpp:859 ../config/gimx-config.cpp:1021
-#: ../fpsconfig/gimx-fpsconfig.cpp:397
-msgid "Quit\tAlt-F4"
-msgstr "Quitter\tAlt-F4"
-
-#: ../launcher/gimx-launcher.cpp:859 ../config/gimx-config.cpp:1021
-#: ../fpsconfig/gimx-fpsconfig.cpp:397
-msgid "Quit the application"
-msgstr "Quitter l'application"
-
-#: ../launcher/gimx-launcher.cpp:861 ../config/gimx-config.cpp:1023
-#: ../fpsconfig/gimx-fpsconfig.cpp:399
-msgid "&File"
-msgstr "&Fichier"
-
-#: ../launcher/gimx-launcher.cpp:863
-msgid "Get configs"
-msgstr "Obtenir des configs"
-
-#: ../launcher/gimx-launcher.cpp:865 ../config/gimx-config.cpp:1115
-#: ../fpsconfig/gimx-fpsconfig.cpp:409
-msgid "Update"
-msgstr "Mise à jour"
-
-#: ../launcher/gimx-launcher.cpp:867
-msgid "Check updates at startup"
-msgstr "Vérifier les majs au démarrage"
-
-#: ../launcher/gimx-launcher.cpp:869 ../config/gimx-config.cpp:1117
-#: ../fpsconfig/gimx-fpsconfig.cpp:411
-msgid "About\tF1"
-msgstr "À propos\tF1"
-
-#: ../launcher/gimx-launcher.cpp:869 ../config/gimx-config.cpp:1117
-#: ../fpsconfig/gimx-fpsconfig.cpp:411
-msgid "Show info about this application"
-msgstr "Afficher les infos sur cette application"
-
-#: ../launcher/gimx-launcher.cpp:871 ../config/gimx-config.cpp:1119
-#: ../fpsconfig/gimx-fpsconfig.cpp:413
-msgid "Help"
-msgstr "Aide"
-
-#: ../launcher/gimx-launcher.cpp:925
-msgid "Can't migrate config: "
-msgstr "Impossible de migrer la config : "
-
-#: ../launcher/gimx-launcher.cpp:937 ../config/gimx-config.cpp:1234
-#: ../fpsconfig/gimx-fpsconfig.cpp:521
-msgid "Can't migrate directory: "
-msgstr "Impossible de migrer le répertoire : "
-
-#: ../launcher/gimx-launcher.cpp:975 ../launcher/gimx-launcher.cpp:1097
-#: ../launcher/gimx-launcher.cpp:1222 ../launcher/gimx-launcher.cpp:1433
-#: ../launcher/gimx-launcher.cpp:1729 ../launcher/gimx-launcher.cpp:2041
-#: ../launcher/gimx-launcher.cpp:2105
-msgid "Bluetooth / PS3"
-msgstr "Bluetooth / PS3"
-
-#: ../launcher/gimx-launcher.cpp:976 ../launcher/gimx-launcher.cpp:1098
-#: ../launcher/gimx-launcher.cpp:1147 ../launcher/gimx-launcher.cpp:1232
-#: ../launcher/gimx-launcher.cpp:1452 ../launcher/gimx-launcher.cpp:1733
-#: ../launcher/gimx-launcher.cpp:1795 ../launcher/gimx-launcher.cpp:2045
-#: ../launcher/gimx-launcher.cpp:2109
-msgid "Bluetooth / PS4"
-msgstr "Bluetooth / PS4"
-
-#: ../launcher/gimx-launcher.cpp:977 ../launcher/gimx-launcher.cpp:981
-#: ../launcher/gimx-launcher.cpp:1081 ../launcher/gimx-launcher.cpp:1242
-#: ../launcher/gimx-launcher.cpp:1370 ../launcher/gimx-launcher.cpp:1418
-msgid "DIY USB"
-msgstr "DIY USB"
-
-#: ../launcher/gimx-launcher.cpp:979 ../launcher/gimx-launcher.cpp:983
-#: ../launcher/gimx-launcher.cpp:1089 ../launcher/gimx-launcher.cpp:1137
-#: ../launcher/gimx-launcher.cpp:1210 ../launcher/gimx-launcher.cpp:1217
-#: ../launcher/gimx-launcher.cpp:1471 ../launcher/gimx-launcher.cpp:2049
-#: ../launcher/gimx-launcher.cpp:2065 ../launcher/gimx-launcher.cpp:2075
-#: ../launcher/gimx-launcher.cpp:2113
-msgid "Remote GIMX"
-msgstr "GIMX distant"
-
-#: ../launcher/gimx-launcher.cpp:1003
-msgid "No config found! Download configs?"
-msgstr "Pas de config trouvée ! Télécharger des configs ?"
-
-#: ../launcher/gimx-launcher.cpp:1069 ../launcher/gimx-launcher.cpp:1305
-#: ../launcher/gimx-launcher.cpp:1333 ../launcher/gimx-launcher.cpp:1352
-#: ../launcher/gimx-launcher.cpp:1677
-msgid "No config selected!"
-msgstr "Pas de config sélectionnée !"
-
-#: ../launcher/gimx-launcher.cpp:1077
-msgid "No device selected!"
-msgstr "Pas de périphérique sélectionné !"
-
-#: ../launcher/gimx-launcher.cpp:1085
-msgid "No USB to serial device selected!"
-msgstr "Pas de module USB vers série sélectionné !"
-
-#: ../launcher/gimx-launcher.cpp:1093
-msgid "No destination IP:port specified!"
-msgstr "Pas de IP:port destination spécifié !"
-
-#: ../launcher/gimx-launcher.cpp:1102
-msgid "No pairing selected!"
-msgstr "Pas d'appairage sélectionné !"
-
-#: ../launcher/gimx-launcher.cpp:1110
-msgid "Selected pairing is incorrect!"
-msgstr "L’appairage sélectionné est incorrect !"
-
-#: ../launcher/gimx-launcher.cpp:1121
-msgid "Dongle not found!"
-msgstr "Dongle non trouvé !"
-
-#: ../launcher/gimx-launcher.cpp:1132
-msgid "No source IP:port specified!"
-msgstr "Pas de IP:port source spécifié !"
-
-#: ../launcher/gimx-launcher.cpp:1142
-msgid "IP:port is the same for input and output!"
-msgstr "IP:port est le même pour l'entrée et la sortie !"
-
-#: ../launcher/gimx-launcher.cpp:1153
-msgid ""
-"Bluetooth service has to be stopped.\n"
-"Proceed?"
-msgstr ""
-"Le service bluetooth doit être stoppé.\n"
-"Continuer ?"
-
-#: ../launcher/gimx-launcher.cpp:1164
-msgid "Can't stop bluetoothd!"
-msgstr "Impossible d'arrêter bluetoothd !"
-
-#: ../launcher/gimx-launcher.cpp:1267
-msgid "can't start gimx!"
-msgstr "Impossible de démarrer gimx !"
-
-#: ../launcher/gimx-launcher.cpp:1278
-msgid "gimx error"
-msgstr "Erreur de gimx"
-
-#: ../launcher/gimx-launcher.cpp:1325
-msgid "This config seems OK!\n"
-msgstr "Cette config a l'air correcte !\n"
-
-#: ../launcher/gimx-launcher.cpp:1343 ../launcher/gimx-launcher.cpp:1362
-msgid "Error editing the config file!"
-msgstr "Erreur lors de l'édition de la config !"
-
-#: ../launcher/gimx-launcher.cpp:1375 ../launcher/gimx-launcher.cpp:1430
-msgid "No Serial Port Detected!\n"
-msgstr "Pas de port série détecté !\n"
-
-#: ../launcher/gimx-launcher.cpp:1383 ../launcher/gimx-launcher.cpp:1415
-msgid "No device detected!\n"
-msgstr "Pas de périphérique détecté !\n"
-
-#: ../launcher/gimx-launcher.cpp:1407 ../config/gimx-config.cpp:597
-#: ../config/gimx-config.cpp:718 ../config/gimx-config.cpp:772
-#: ../config/gimx-config.cpp:806 ../config/gimx-config.cpp:867
-#: ../config/gimx-config.cpp:893 ../config/gimx-config.cpp:976
-msgid "Device"
-msgstr "Périphérique"
-
-#: ../launcher/gimx-launcher.cpp:1437 ../launcher/gimx-launcher.cpp:1456
-msgid "Pairing"
-msgstr "Appairage"
-
-#: ../launcher/gimx-launcher.cpp:1445 ../launcher/gimx-launcher.cpp:1464
-msgid ""
-"No pairing found.\n"
-"Perform a new pairing?"
-msgstr ""
-"Pas d'appairage trouvé.\n"
-"Effectuer un nouvel appairage ?"
-
-#: ../launcher/gimx-launcher.cpp:1501 ../config/gimx-config.cpp:3345
-#: ../fpsconfig/gimx-fpsconfig.cpp:1987
-msgid ""
-"Update available.\n"
-"Start installation?"
-msgstr ""
-"Mise à jour disponible.\n"
-"Démarrer l'installation ?"
-
-#: ../launcher/gimx-launcher.cpp:1506 ../config/gimx-config.cpp:3350
-#: ../fpsconfig/gimx-fpsconfig.cpp:1992
-msgid "Downloading update..."
-msgstr "Téléchargement en cours..."
-
-#: ../launcher/gimx-launcher.cpp:1509 ../config/gimx-config.cpp:3353
-#: ../fpsconfig/gimx-fpsconfig.cpp:1995
-msgid "Can't retrieve update file!"
-msgstr "Impossible de télécharger la mise à jour !"
-
-#: ../launcher/gimx-launcher.cpp:1518 ../config/gimx-config.cpp:3362
-#: ../fpsconfig/gimx-fpsconfig.cpp:2004
-msgid "Can't check version!"
-msgstr "Impossible de vérifier la version !"
-
-#: ../launcher/gimx-launcher.cpp:1522 ../config/gimx-config.cpp:3366
-#: ../fpsconfig/gimx-fpsconfig.cpp:2008
-msgid "GIMX is up-to-date!"
-msgstr "GIMX est à jour !"
-
-#: ../launcher/gimx-launcher.cpp:1556
-msgid "Downloading config list..."
-msgstr "Téléchargement de la liste des configs..."
-
-#: ../launcher/gimx-launcher.cpp:1569
-msgid "Select the files to download."
-msgstr "Sélectionnez les fichiers à télécharger."
-
-#: ../launcher/gimx-launcher.cpp:1569
-msgid "Config download"
-msgstr "Téléchargement de configs"
-
-#: ../launcher/gimx-launcher.cpp:1582
-msgid "Overwrite local file: "
-msgstr "Ecraser le fichier local : "
-
-#: ../launcher/gimx-launcher.cpp:1582
-msgid "?"
-msgstr " ?"
-
-#: ../launcher/gimx-launcher.cpp:1593
-msgid "Downloading configs..."
-msgstr "Téléchargement des configs..."
-
-#: ../launcher/gimx-launcher.cpp:1596
-msgid "Can't retrieve configs!"
-msgstr "Impossible de télécharger les configs !"
-
-#: ../launcher/gimx-launcher.cpp:1603
-msgid "Download is complete!"
-msgstr "Le téléchargement est terminé !"
-
-#: ../launcher/gimx-launcher.cpp:1606
-msgid "Auto-bind and convert?"
-msgstr "Auto-affecter et convertir ?"
-
-#: ../launcher/gimx-launcher.cpp:1619
-msgid "Can't retrieve config list!"
-msgstr "Impossible de télécharger la liste de configs !"
-
-#: ../launcher/gimx-launcher.cpp:1636 ../config/gimx-config.cpp:3382
-#: ../fpsconfig/gimx-fpsconfig.cpp:2062
-msgid "Select the reference config."
-msgstr "Sélectionner la config de référence."
-
-#: ../launcher/gimx-launcher.cpp:1649
-msgid "Can't read config: "
-msgstr "Impossible de lire la config : "
-
-#: ../launcher/gimx-launcher.cpp:1655
-msgid "Can't auto-bind controls for config: "
-msgstr "Impossible d'auto-affecter les contrôles pour la config : "
-
-#: ../launcher/gimx-launcher.cpp:1662
-msgid "Can't write config: "
-msgstr "Impossible d'écrire la config : "
-
-#: ../launcher/gimx-launcher.cpp:1666
-msgid "Auto bind done for "
-msgstr "Auto-affectation effectuée pour "
-
-#: ../launcher/gimx-launcher.cpp:1716
-msgid "Config"
-msgstr "Config"
-
-#: ../launcher/gimx-launcher.cpp:1748
-msgid "Controller: "
-msgstr "Contrôleur : "
-
-#: ../launcher/gimx-launcher.cpp:1749
-msgid "Console: "
-msgstr "Console : "
-
-#: ../launcher/gimx-launcher.cpp:1753
-msgid "Select the pairing."
-msgstr "Sélectionner l'appairage."
-
-#: ../launcher/gimx-launcher.cpp:1753 ../launcher/gimx-launcher.cpp:1818
-#: ../launcher/gimx-launcher.cpp:1851 ../launcher/gimx-launcher.cpp:1864
-#: ../launcher/gimx-launcher.cpp:1919 ../launcher/gimx-launcher.cpp:1930
-#: ../launcher/gimx-launcher.cpp:1966 ../launcher/gimx-launcher.cpp:1998
-msgid "PS Tool"
-msgstr "PS Tool"
-
-#: ../launcher/gimx-launcher.cpp:1806
-msgid "Device: "
-msgstr "Périphérique : "
-
-#: ../launcher/gimx-launcher.cpp:1807
-msgid "Address: "
-msgstr "Adresse : "
-
-#: ../launcher/gimx-launcher.cpp:1808
-msgid "Manufacturer: "
-msgstr "Fabriquant : "
-
-#: ../launcher/gimx-launcher.cpp:1812
-msgid "Chip: "
-msgstr "Puce : "
-
-#: ../launcher/gimx-launcher.cpp:1818
-msgid "Select the bluetooth adapter."
-msgstr "Sélectionnez le dongle bluetooth."
-
-#: ../launcher/gimx-launcher.cpp:1851
-msgid "Plug a sixaxis/ds3"
-msgstr "Connectez un sixaxis/ds3"
-
-#: ../launcher/gimx-launcher.cpp:1864 ../launcher/gimx-launcher.cpp:1919
-msgid "Plug a bluetooth dongle"
-msgstr "Connectez un dongle bluetooth"
-
-#: ../launcher/gimx-launcher.cpp:1930
-msgid "Plug a ds4"
-msgstr "Connectez une ds4"
-
-#: ../launcher/gimx-launcher.cpp:1950 ../launcher/gimx-launcher.cpp:1980
-#: ../launcher/gimx-launcher.cpp:1990
-msgid "Cannot execute: "
-msgstr "Impossible d'exécuter : "
-
-#: ../launcher/gimx-launcher.cpp:1966
-msgid "Plug the teensy"
-msgstr "Connectez le teensy"
-
-#: ../launcher/gimx-launcher.cpp:1998
-msgid ""
-"Plug the Teensy to the PS4,\n"
-"wait a few seconds,\n"
-"and plug it back to the PC"
-msgstr ""
-"Connectez le teensy à la PS4.\n"
-"Attendez quelques secondes,\n"
-"puis reconnectez le au PC."
-
-#: ../launcher/gimx-launcher.cpp:2065
-msgid "Enter an IP address"
-msgstr "Entrez une adresse IP"
-
-#: ../launcher/gimx-launcher.cpp:2075
-msgid "Enter a port"
-msgstr "Entrez un port :"
-
-#: ../launcher/gimx-launcher.cpp:2098
-msgid "Bad IP format!"
-msgstr "Mauvais format d'adresse IP !"
-
-#: ../config/gimx-config.cpp:210 ../config/gimx-config.cpp:753
+#: ../config/gimx-config.cpp:251 ../config/gimx-config.cpp:856
 msgid "Increase"
 msgstr "Augmenter"
 
-#: ../config/gimx-config.cpp:214 ../config/gimx-config.cpp:754
+#: ../config/gimx-config.cpp:255 ../config/gimx-config.cpp:857
 msgid "Decrease"
 msgstr "Diminuer"
 
-#: ../config/gimx-config.cpp:218 ../config/gimx-config.cpp:955
-#: ../config/gimx-config.cpp:3624 ../fpsconfig/gimx-fpsconfig.cpp:57
-#: ../fpsconfig/gimx-fpsconfig.cpp:366 ../fpsconfig/gimx-fpsconfig.cpp:370
+#: ../config/gimx-config.cpp:259 ../config/gimx-config.cpp:1190
+#: ../config/gimx-config.cpp:4050 ../fpsconfig/gimx-fpsconfig.cpp:58
+#: ../fpsconfig/gimx-fpsconfig.cpp:362 ../fpsconfig/gimx-fpsconfig.cpp:366
 msgid "Circle"
 msgstr "Cercle"
 
-#: ../config/gimx-config.cpp:222 ../config/gimx-config.cpp:956
-#: ../config/gimx-config.cpp:3625 ../fpsconfig/gimx-fpsconfig.cpp:61
-#: ../fpsconfig/gimx-fpsconfig.cpp:367 ../fpsconfig/gimx-fpsconfig.cpp:371
+#: ../config/gimx-config.cpp:263 ../config/gimx-config.cpp:1191
+#: ../config/gimx-config.cpp:4051 ../fpsconfig/gimx-fpsconfig.cpp:62
+#: ../fpsconfig/gimx-fpsconfig.cpp:363 ../fpsconfig/gimx-fpsconfig.cpp:367
 msgid "Rectangle"
 msgstr "Rectangle"
 
-#: ../config/gimx-config.cpp:226 ../config/gimx-config.cpp:3643
+#: ../config/gimx-config.cpp:267 ../config/gimx-config.cpp:3066
+#: ../config/gimx-config.cpp:3201 ../config/gimx-config.cpp:4069
+#: ../config/gimx-config.cpp:4608
 msgid "mouse"
 msgstr "souris"
 
-#: ../config/gimx-config.cpp:230
+#: ../config/gimx-config.cpp:271
 msgid "keyboard"
 msgstr "clavier"
 
-#: ../config/gimx-config.cpp:234 ../config/gimx-config.cpp:906
-#: ../config/gimx-config.cpp:2795
+#: ../config/gimx-config.cpp:275 ../config/gimx-config.cpp:1141
+#: ../config/gimx-config.cpp:3201 ../config/gimx-config.cpp:4500
+#: ../config/gimx-config.cpp:4561
 msgid "axis"
 msgstr "axe"
 
-#: ../config/gimx-config.cpp:238 ../config/gimx-config.cpp:821
-#: ../config/gimx-config.cpp:1723 ../config/gimx-config.cpp:1846
+#: ../config/gimx-config.cpp:279 ../config/gimx-config.cpp:1056
+#: ../config/gimx-config.cpp:1976 ../config/gimx-config.cpp:2103
 msgid "axis up"
 msgstr "axe plus"
 
-#: ../config/gimx-config.cpp:242 ../config/gimx-config.cpp:822
-#: ../config/gimx-config.cpp:1719 ../config/gimx-config.cpp:1842
+#: ../config/gimx-config.cpp:283 ../config/gimx-config.cpp:1057
+#: ../config/gimx-config.cpp:1972 ../config/gimx-config.cpp:2099
 msgid "axis down"
 msgstr "axe moins"
 
-#: ../config/gimx-config.cpp:246 ../config/gimx-config.cpp:349
-#: ../config/gimx-config.cpp:820 ../config/gimx-config.cpp:907
-#: ../config/gimx-config.cpp:1690 ../config/gimx-config.cpp:1711
-#: ../config/gimx-config.cpp:1744 ../config/gimx-config.cpp:1795
-#: ../config/gimx-config.cpp:2492 ../config/gimx-config.cpp:2656
-#: ../config/gimx-config.cpp:3083 ../config/gimx-config.cpp:3263
-#: ../config/gimx-config.cpp:3417 ../config/gimx-config.cpp:3551
-#: ../config/gimx-config.cpp:3645
+#: ../config/gimx-config.cpp:287 ../config/gimx-config.cpp:428
+#: ../config/gimx-config.cpp:1055 ../config/gimx-config.cpp:1142
+#: ../config/gimx-config.cpp:1943 ../config/gimx-config.cpp:1964
+#: ../config/gimx-config.cpp:1997 ../config/gimx-config.cpp:2050
+#: ../config/gimx-config.cpp:2091 ../config/gimx-config.cpp:2888
+#: ../config/gimx-config.cpp:3052 ../config/gimx-config.cpp:3511
+#: ../config/gimx-config.cpp:3730 ../config/gimx-config.cpp:3843
+#: ../config/gimx-config.cpp:3977 ../config/gimx-config.cpp:4071
+#: ../config/gimx-config.cpp:4595
 msgid "button"
 msgstr "bouton"
 
-#: ../config/gimx-config.cpp:250 ../config/gimx-config.cpp:662
+#: ../config/gimx-config.cpp:291 ../config/gimx-config.cpp:765
 msgid "Aiming"
 msgstr "Visée"
 
-#: ../config/gimx-config.cpp:254 ../config/gimx-config.cpp:663
+#: ../config/gimx-config.cpp:295 ../config/gimx-config.cpp:766
 msgid "Driving"
 msgstr "Conduite"
 
-#: ../config/gimx-config.cpp:588
+#: ../config/gimx-config.cpp:313
+msgid "Tip"
+msgstr "Astuce"
+
+#: ../config/gimx-config.cpp:321
+msgid "Click here to go to online documentation."
+msgstr "Cliquer ici pour aller à la documentation en ligne."
+
+#: ../config/gimx-config.cpp:691
 msgid "Gimx-config"
 msgstr "Gimx-config"
 
-#: ../config/gimx-config.cpp:607 ../config/gimx-config.cpp:728
-#: ../config/gimx-config.cpp:775 ../config/gimx-config.cpp:837
-#: ../config/gimx-config.cpp:873 ../config/gimx-config.cpp:1003
+#: ../config/gimx-config.cpp:700 ../config/gimx-config.cpp:821
+#: ../config/gimx-config.cpp:875 ../config/gimx-config.cpp:1041
+#: ../config/gimx-config.cpp:1102 ../config/gimx-config.cpp:1128
+#: ../config/gimx-config.cpp:1211 ../launcher/gimx-launcher.cpp:1657
+msgid "Device"
+msgstr "Périphérique"
+
+#: ../config/gimx-config.cpp:710 ../config/gimx-config.cpp:831
+#: ../config/gimx-config.cpp:878 ../config/gimx-config.cpp:1072
+#: ../config/gimx-config.cpp:1108 ../config/gimx-config.cpp:1238
 msgid "Button"
 msgstr "Bouton"
 
-#: ../config/gimx-config.cpp:613 ../config/gimx-config.cpp:653
-#: ../config/gimx-config.cpp:737 ../config/gimx-config.cpp:831
-#: ../config/gimx-config.cpp:916
+#: ../config/gimx-config.cpp:716 ../config/gimx-config.cpp:756
+#: ../config/gimx-config.cpp:840 ../config/gimx-config.cpp:922
+#: ../config/gimx-config.cpp:990 ../config/gimx-config.cpp:1066
+#: ../config/gimx-config.cpp:1151
 msgid "Auto detect"
 msgstr "Auto détecter"
 
-#: ../config/gimx-config.cpp:617
+#: ../config/gimx-config.cpp:720
 msgid "Switch back"
 msgstr "Retour"
 
-#: ../config/gimx-config.cpp:620
+#: ../config/gimx-config.cpp:723
 msgid "Delay (ms):"
 msgstr "Délai (ms) :"
 
-#: ../config/gimx-config.cpp:627
+#: ../config/gimx-config.cpp:730 ../config/gimx-config.cpp:1023
 msgid "Delete"
 msgstr "Effacer"
 
-#: ../config/gimx-config.cpp:636 ../config/gimx-config.cpp:686
+#: ../config/gimx-config.cpp:739 ../config/gimx-config.cpp:789
 msgid "Mouse"
 msgstr "Souris"
 
-#: ../config/gimx-config.cpp:659 ../config/gimx-config.cpp:688
+#: ../config/gimx-config.cpp:762 ../config/gimx-config.cpp:791
 msgid "Mode"
 msgstr "Mode"
 
-#: ../config/gimx-config.cpp:669 ../fpsconfig/gimx-fpsconfig.cpp:381
+#: ../config/gimx-config.cpp:772 ../fpsconfig/gimx-fpsconfig.cpp:377
 msgid "Smoothing"
 msgstr "Lissage"
 
-#: ../config/gimx-config.cpp:672 ../config/gimx-config.cpp:1048
-#: ../config/gimx-config.cpp:1086
+#: ../config/gimx-config.cpp:775 ../config/gimx-config.cpp:934
+#: ../config/gimx-config.cpp:940 ../config/gimx-config.cpp:1283
+#: ../config/gimx-config.cpp:1327
 msgid "1"
 msgstr "1"
 
-#: ../config/gimx-config.cpp:673
+#: ../config/gimx-config.cpp:776
 msgid "Buffer size [1..30]"
 msgstr "Taille du buffer [1..30]"
 
-#: ../config/gimx-config.cpp:675
+#: ../config/gimx-config.cpp:778
 msgid "0.00"
 msgstr "0.00"
 
-#: ../config/gimx-config.cpp:676
+#: ../config/gimx-config.cpp:779
 msgid "Filter [0.00..1.00]"
 msgstr "Filtre [0.00..1.00]"
 
-#: ../config/gimx-config.cpp:689
+#: ../config/gimx-config.cpp:792
 msgid "Buffer size"
 msgstr "Taille du buffer"
 
-#: ../config/gimx-config.cpp:690
+#: ../config/gimx-config.cpp:793
 msgid "Filter"
 msgstr "Filtre"
 
-#: ../config/gimx-config.cpp:695 ../config/gimx-config.cpp:784
-#: ../config/gimx-config.cpp:879 ../config/gimx-config.cpp:991
+#: ../config/gimx-config.cpp:798 ../config/gimx-config.cpp:887
+#: ../config/gimx-config.cpp:962 ../config/gimx-config.cpp:1114
+#: ../config/gimx-config.cpp:1226
 msgid "Add"
 msgstr "Ajouter"
 
-#: ../config/gimx-config.cpp:697 ../config/gimx-config.cpp:786
-#: ../config/gimx-config.cpp:881 ../config/gimx-config.cpp:993
+#: ../config/gimx-config.cpp:800 ../config/gimx-config.cpp:889
+#: ../config/gimx-config.cpp:964 ../config/gimx-config.cpp:1116
+#: ../config/gimx-config.cpp:1228
 msgid "Remove"
 msgstr "Supprimer"
 
-#: ../config/gimx-config.cpp:699 ../config/gimx-config.cpp:788
-#: ../config/gimx-config.cpp:883 ../config/gimx-config.cpp:995
-#: ../config/gimx-config.cpp:1925 ../config/gimx-config.cpp:1926
-#: ../config/gimx-config.cpp:1931 ../config/gimx-config.cpp:1934
-#: ../config/gimx-config.cpp:2465 ../config/gimx-config.cpp:2566
-#: ../config/gimx-config.cpp:2626 ../config/gimx-config.cpp:2740
-#: ../config/gimx-config.cpp:3501 ../config/gimx-config.cpp:3607
-#: ../config/gimx-config.cpp:3760 ../config/gimx-config.cpp:3832
+#: ../config/gimx-config.cpp:802 ../config/gimx-config.cpp:891
+#: ../config/gimx-config.cpp:966 ../config/gimx-config.cpp:1118
+#: ../config/gimx-config.cpp:1230 ../config/gimx-config.cpp:2236
+#: ../config/gimx-config.cpp:2237 ../config/gimx-config.cpp:2242
+#: ../config/gimx-config.cpp:2245 ../config/gimx-config.cpp:2248
+#: ../config/gimx-config.cpp:2861 ../config/gimx-config.cpp:2962
+#: ../config/gimx-config.cpp:3022 ../config/gimx-config.cpp:3146
+#: ../config/gimx-config.cpp:3927 ../config/gimx-config.cpp:4033
+#: ../config/gimx-config.cpp:4192 ../config/gimx-config.cpp:4264
+#: ../config/gimx-config.cpp:4429 ../config/gimx-config.cpp:4486
 msgid "Modify"
 msgstr "Modifier"
 
-#: ../config/gimx-config.cpp:711 ../config/gimx-config.cpp:771
-#: ../config/gimx-config.cpp:922 ../config/gimx-config.cpp:981
-#: ../config/gimx-config.cpp:1004
+#: ../config/gimx-config.cpp:814 ../config/gimx-config.cpp:874
+#: ../config/gimx-config.cpp:913 ../config/gimx-config.cpp:953
+#: ../config/gimx-config.cpp:1157 ../config/gimx-config.cpp:1216
+#: ../config/gimx-config.cpp:1239
 msgid "Axis"
 msgstr "Axe"
 
-#: ../config/gimx-config.cpp:743 ../config/gimx-config.cpp:776
+#: ../config/gimx-config.cpp:846 ../config/gimx-config.cpp:879
 msgid "Direction"
 msgstr "Direction"
 
-#: ../config/gimx-config.cpp:745 ../config/gimx-config.cpp:930
-#: ../fpsconfig/gimx-fpsconfig.cpp:297
+#: ../config/gimx-config.cpp:848 ../config/gimx-config.cpp:1165
+#: ../fpsconfig/gimx-fpsconfig.cpp:293
 msgid "DZ"
 msgstr "DZ"
 
-#: ../config/gimx-config.cpp:746 ../config/gimx-config.cpp:777
-#: ../config/gimx-config.cpp:931 ../config/gimx-config.cpp:982
-#: ../fpsconfig/gimx-fpsconfig.cpp:298
+#: ../config/gimx-config.cpp:849 ../config/gimx-config.cpp:880
+#: ../config/gimx-config.cpp:1166 ../config/gimx-config.cpp:1217
+#: ../fpsconfig/gimx-fpsconfig.cpp:294
 msgid "Dead zone"
 msgstr "Dead zone"
 
-#: ../config/gimx-config.cpp:748 ../config/gimx-config.cpp:778
-#: ../config/gimx-config.cpp:939 ../config/gimx-config.cpp:985
-#: ../fpsconfig/gimx-fpsconfig.cpp:293
+#: ../config/gimx-config.cpp:851 ../config/gimx-config.cpp:881
+#: ../config/gimx-config.cpp:1174 ../config/gimx-config.cpp:1220
+#: ../fpsconfig/gimx-fpsconfig.cpp:289
 msgid "Shape"
 msgstr "Forme"
 
-#: ../config/gimx-config.cpp:750 ../config/gimx-config.cpp:779
+#: ../config/gimx-config.cpp:853 ../config/gimx-config.cpp:882
 msgid "Steps"
 msgstr "Etapes"
 
-#: ../config/gimx-config.cpp:796
-msgid "Profile trigger"
-msgstr "Activation"
-
-#: ../config/gimx-config.cpp:797
-msgid "Mouse options"
-msgstr "Options de la souris"
-
-#: ../config/gimx-config.cpp:798
-msgid "Axis intensity"
-msgstr "Intensité des axes"
-
-#: ../config/gimx-config.cpp:817 ../config/gimx-config.cpp:870
-#: ../config/gimx-config.cpp:903 ../config/gimx-config.cpp:979
-msgid "Event"
-msgstr "Contrôle"
-
-#: ../config/gimx-config.cpp:845 ../config/gimx-config.cpp:872
-msgid "Threshold"
-msgstr "Seuil"
-
-#: ../config/gimx-config.cpp:854 ../config/gimx-config.cpp:874
-#: ../config/gimx-config.cpp:963 ../config/gimx-config.cpp:986
-msgid "Label"
-msgstr "Label"
-
-#: ../config/gimx-config.cpp:933 ../fpsconfig/gimx-fpsconfig.cpp:299
-msgid "Sens."
-msgstr "Sens."
-
-#: ../config/gimx-config.cpp:934 ../config/gimx-config.cpp:983
-#: ../fpsconfig/gimx-fpsconfig.cpp:300
-msgid "Sensitivity"
-msgstr "Sensibilité"
-
-#: ../config/gimx-config.cpp:936 ../fpsconfig/gimx-fpsconfig.cpp:301
-msgid "Accel."
-msgstr "Accél."
-
-#: ../config/gimx-config.cpp:937 ../config/gimx-config.cpp:984
-#: ../fpsconfig/gimx-fpsconfig.cpp:302
-msgid "Acceleration"
-msgstr "Accélération"
-
-#: ../config/gimx-config.cpp:943
-msgid "Dead zone [0..64]"
-msgstr "Dead zone [0..64]"
-
-#: ../config/gimx-config.cpp:947
-msgid "Sensitivity [-100.00..100.00]"
-msgstr "Sensibilité [-100.00..100.00]"
-
-#: ../config/gimx-config.cpp:951
-msgid "Acceleration [0.00..2.00]"
-msgstr "Accélération [0.00..2.00]"
-
-#: ../config/gimx-config.cpp:1002
-msgid "Overall"
-msgstr "Général"
-
-#: ../config/gimx-config.cpp:1009
-msgid "New\tCtrl-N"
-msgstr "Nouveau\tCtrl-N"
-
-#: ../config/gimx-config.cpp:1009
-msgid "Create a new configuration"
-msgstr "Créer une nouvelle config"
-
-#: ../config/gimx-config.cpp:1011
-msgid "Open\tCtrl-O"
-msgstr "Ouvrir\tCtrl-O"
-
-#: ../config/gimx-config.cpp:1011
-msgid "Open a configuration file"
-msgstr "Ouvrir une config"
-
-#: ../config/gimx-config.cpp:1013
-msgid "Save configuration"
-msgstr "Enregistrer la config"
-
-#: ../config/gimx-config.cpp:1016
-msgid "Save As..."
-msgstr "Enregistrer sous..."
-
-#: ../config/gimx-config.cpp:1016
-msgid "Save configuration to specified file"
-msgstr "Enregistrer la config dans le fichier spécifié"
-
-#: ../config/gimx-config.cpp:1025
-msgid "Copy Profile"
-msgstr "Copier le profil"
-
-#: ../config/gimx-config.cpp:1027
-msgid "Copy Controller"
-msgstr "Copier le contrôleur"
-
-#: ../config/gimx-config.cpp:1030
-msgid "Paste Profile"
-msgstr "Coller le profil"
-
-#: ../config/gimx-config.cpp:1032
-msgid "Paste Controller"
-msgstr "Coller le contrôleur"
-
-#: ../config/gimx-config.cpp:1035
-msgid "Set Mouse DPI"
-msgstr "DPI de la souris"
-
-#: ../config/gimx-config.cpp:1038
-msgid "Replace Mouse"
-msgstr "Remplacer la souris"
-
-#: ../config/gimx-config.cpp:1041
-msgid "Convert mouse sensitivity"
-msgstr "Convertir la sensibilité de la souris"
-
-#: ../config/gimx-config.cpp:1043
-msgid "Replace Keyboard"
-msgstr "Remplacer le clavier"
-
-#: ../config/gimx-config.cpp:1046
-msgid "Edit"
-msgstr "Editer"
-
-#: ../config/gimx-config.cpp:1050 ../config/gimx-config.cpp:1088
-msgid "2"
-msgstr "2"
-
-#: ../config/gimx-config.cpp:1052 ../config/gimx-config.cpp:1090
-msgid "3"
-msgstr "3"
-
-#: ../config/gimx-config.cpp:1054 ../config/gimx-config.cpp:1092
-msgid "4"
-msgstr "4"
-
-#: ../config/gimx-config.cpp:1056 ../config/gimx-config.cpp:1094
-msgid "5"
-msgstr "5"
-
-#: ../config/gimx-config.cpp:1058 ../config/gimx-config.cpp:1096
-msgid "6"
-msgstr "6"
-
-#: ../config/gimx-config.cpp:1060 ../config/gimx-config.cpp:1098
-msgid "7"
-msgstr "7"
-
-#: ../config/gimx-config.cpp:1062
-msgid "Controller"
-msgstr "Contrôleur"
-
-#: ../config/gimx-config.cpp:1064
-msgid "Dualshock 4"
-msgstr "Dualshock 4"
-
-#: ../config/gimx-config.cpp:1066
-msgid "Dualshock 3"
-msgstr "Dualshock 3"
-
-#: ../config/gimx-config.cpp:1068
-msgid "Dualshock 2"
-msgstr "Dualshock 2"
-
-#: ../config/gimx-config.cpp:1070
-msgid "XOne pad"
-msgstr "XOne pad"
-
-#: ../config/gimx-config.cpp:1072
-msgid "360 pad"
-msgstr "360 pad"
-
-#: ../config/gimx-config.cpp:1074
-msgid "Xbox pad"
-msgstr "Xbox pad"
-
-#: ../config/gimx-config.cpp:1076
+#: ../config/gimx-config.cpp:902 ../config/gimx-config.cpp:951
+#: ../config/gimx-config.cpp:976 ../config/gimx-config.cpp:1311
 msgid "Joystick"
 msgstr "Joystick"
 
-#: ../config/gimx-config.cpp:1078
+#: ../config/gimx-config.cpp:928
+msgid "Broken-line correction parameters"
+msgstr "Paramètres de correction en ligne brisée"
+
+#: ../config/gimx-config.cpp:931 ../config/gimx-config.cpp:937
+msgid "0"
+msgstr "0"
+
+#: ../config/gimx-config.cpp:932
+msgid "Low value [-32767..32767]"
+msgstr "Valeur basse [-32767..32767]"
+
+#: ../config/gimx-config.cpp:935 ../config/gimx-config.cpp:955
+msgid "Low coef"
+msgstr "Coef bas"
+
+#: ../config/gimx-config.cpp:938
+msgid "High value [-32767..32767]"
+msgstr "Valeur haute [-32767..32767]"
+
+#: ../config/gimx-config.cpp:941 ../config/gimx-config.cpp:957
+msgid "High coef"
+msgstr "Coef haut"
+
+#: ../config/gimx-config.cpp:954
+msgid "Low value"
+msgstr "Valeur basse"
+
+#: ../config/gimx-config.cpp:956
+msgid "High value"
+msgstr "Valeur haute"
+
+#: ../config/gimx-config.cpp:995
+msgid "Invert direction"
+msgstr "Inverser la direction"
+
+#: ../config/gimx-config.cpp:997
+msgid "Rumble"
+msgstr "Vibration"
+
+#: ../config/gimx-config.cpp:999
+msgid "Constant"
+msgstr "Constant"
+
+#: ../config/gimx-config.cpp:1001
+msgid "Spring"
+msgstr "Ressort"
+
+#: ../config/gimx-config.cpp:1003
+msgid "Damper"
+msgstr "Amortissement"
+
+#: ../config/gimx-config.cpp:1029
+msgid "Profile trigger"
+msgstr "Activation"
+
+#: ../config/gimx-config.cpp:1030
+msgid "Mouse options"
+msgstr "Options de la souris"
+
+#: ../config/gimx-config.cpp:1031
+msgid "Axis intensity"
+msgstr "Intensité des axes"
+
+#: ../config/gimx-config.cpp:1032
+msgid "Joystick corrections"
+msgstr "Correction des joysticks"
+
+#: ../config/gimx-config.cpp:1033
+msgid "Force Feedback Tweaks"
+msgstr "Ajustements du Force Feedback"
+
+#: ../config/gimx-config.cpp:1052 ../config/gimx-config.cpp:1105
+#: ../config/gimx-config.cpp:1138 ../config/gimx-config.cpp:1214
+msgid "Event"
+msgstr "Contrôle"
+
+#: ../config/gimx-config.cpp:1080 ../config/gimx-config.cpp:1107
+msgid "Threshold"
+msgstr "Seuil"
+
+#: ../config/gimx-config.cpp:1089 ../config/gimx-config.cpp:1109
+#: ../config/gimx-config.cpp:1198 ../config/gimx-config.cpp:1221
+msgid "Label"
+msgstr "Label"
+
+#: ../config/gimx-config.cpp:1168 ../fpsconfig/gimx-fpsconfig.cpp:295
+msgid "Sens."
+msgstr "Sens."
+
+#: ../config/gimx-config.cpp:1169 ../config/gimx-config.cpp:1218
+#: ../fpsconfig/gimx-fpsconfig.cpp:296
+msgid "Sensitivity"
+msgstr "Sensibilité"
+
+#: ../config/gimx-config.cpp:1171 ../fpsconfig/gimx-fpsconfig.cpp:297
+msgid "Accel."
+msgstr "Accél."
+
+#: ../config/gimx-config.cpp:1172 ../config/gimx-config.cpp:1219
+#: ../fpsconfig/gimx-fpsconfig.cpp:298
+msgid "Acceleration"
+msgstr "Accélération"
+
+#: ../config/gimx-config.cpp:1178
+msgid "Dead zone [-64..64]"
+msgstr "Zone morte [-64..64]"
+
+#: ../config/gimx-config.cpp:1182
+msgid "Sensitivity [-100.00..100.00]"
+msgstr "Sensibilité [-100.00..100.00]"
+
+#: ../config/gimx-config.cpp:1186
+msgid "Acceleration [0.00..]"
+msgstr "Accélération [0.00..]"
+
+#: ../config/gimx-config.cpp:1237
+msgid "Overall"
+msgstr "Général"
+
+#: ../config/gimx-config.cpp:1244
+msgid "New\tCtrl-N"
+msgstr "Nouveau\tCtrl-N"
+
+#: ../config/gimx-config.cpp:1244
+msgid "Create a new configuration"
+msgstr "Créer une nouvelle config"
+
+#: ../config/gimx-config.cpp:1246
+msgid "Open\tCtrl-O"
+msgstr "Ouvrir\tCtrl-O"
+
+#: ../config/gimx-config.cpp:1246
+msgid "Open a configuration file"
+msgstr "Ouvrir une config"
+
+#: ../config/gimx-config.cpp:1248 ../launcher/gimx-launcher.cpp:909
+msgid "Save\tCtrl-S"
+msgstr "Enregistrer\tCtrl-S"
+
+#: ../config/gimx-config.cpp:1248
+msgid "Save configuration"
+msgstr "Enregistrer la config"
+
+#: ../config/gimx-config.cpp:1251
+msgid "Save As..."
+msgstr "Enregistrer sous..."
+
+#: ../config/gimx-config.cpp:1251
+msgid "Save configuration to specified file"
+msgstr "Enregistrer la config dans le fichier spécifié"
+
+#: ../config/gimx-config.cpp:1253 ../fpsconfig/gimx-fpsconfig.cpp:391
+#: ../launcher/gimx-launcher.cpp:903
+msgid "Open config directory"
+msgstr "Ouvrir le dossier de configs"
+
+#: ../config/gimx-config.cpp:1256 ../fpsconfig/gimx-fpsconfig.cpp:393
+#: ../launcher/gimx-launcher.cpp:911
+msgid "Quit\tAlt-F4"
+msgstr "Quitter\tAlt-F4"
+
+#: ../config/gimx-config.cpp:1256 ../fpsconfig/gimx-fpsconfig.cpp:393
+#: ../launcher/gimx-launcher.cpp:911
+msgid "Quit the application"
+msgstr "Quitter l'application"
+
+#: ../config/gimx-config.cpp:1258 ../fpsconfig/gimx-fpsconfig.cpp:395
+#: ../launcher/gimx-launcher.cpp:913
+msgid "&File"
+msgstr "&Fichier"
+
+#: ../config/gimx-config.cpp:1260
+msgid "Copy Profile"
+msgstr "Copier le profil"
+
+#: ../config/gimx-config.cpp:1262
+msgid "Copy Controller"
+msgstr "Copier le contrôleur"
+
+#: ../config/gimx-config.cpp:1265
+msgid "Paste Profile"
+msgstr "Coller le profil"
+
+#: ../config/gimx-config.cpp:1267
+msgid "Paste Controller"
+msgstr "Coller le contrôleur"
+
+#: ../config/gimx-config.cpp:1270
+msgid "Set Mouse DPI"
+msgstr "DPI de la souris"
+
+#: ../config/gimx-config.cpp:1273
+msgid "Replace Mouse"
+msgstr "Remplacer la souris"
+
+#: ../config/gimx-config.cpp:1276
+msgid "Convert mouse sensitivity"
+msgstr "Convertir la sensibilité de la souris"
+
+#: ../config/gimx-config.cpp:1278
+msgid "Replace Keyboard"
+msgstr "Remplacer le clavier"
+
+#: ../config/gimx-config.cpp:1281
+msgid "Edit"
+msgstr "Editer"
+
+#: ../config/gimx-config.cpp:1285 ../config/gimx-config.cpp:1329
+msgid "2"
+msgstr "2"
+
+#: ../config/gimx-config.cpp:1287 ../config/gimx-config.cpp:1331
+msgid "3"
+msgstr "3"
+
+#: ../config/gimx-config.cpp:1289 ../config/gimx-config.cpp:1333
+msgid "4"
+msgstr "4"
+
+#: ../config/gimx-config.cpp:1291 ../config/gimx-config.cpp:1335
+msgid "5"
+msgstr "5"
+
+#: ../config/gimx-config.cpp:1293 ../config/gimx-config.cpp:1337
+msgid "6"
+msgstr "6"
+
+#: ../config/gimx-config.cpp:1295 ../config/gimx-config.cpp:1339
+msgid "7"
+msgstr "7"
+
+#: ../config/gimx-config.cpp:1297
+msgid "Controller"
+msgstr "Contrôleur"
+
+#: ../config/gimx-config.cpp:1299
+msgid "Dualshock 4"
+msgstr "Dualshock 4"
+
+#: ../config/gimx-config.cpp:1301
+msgid "Dualshock 3"
+msgstr "Dualshock 3"
+
+#: ../config/gimx-config.cpp:1303
+msgid "Dualshock 2"
+msgstr "Dualshock 2"
+
+#: ../config/gimx-config.cpp:1305
+msgid "XOne pad"
+msgstr "XOne pad"
+
+#: ../config/gimx-config.cpp:1307
+msgid "360 pad"
+msgstr "360 pad"
+
+#: ../config/gimx-config.cpp:1309
+msgid "Xbox pad"
+msgstr "Xbox pad"
+
+#: ../config/gimx-config.cpp:1313
 msgid "T300RS PS4"
 msgstr "T300RS PS4"
 
-#: ../config/gimx-config.cpp:1080
-msgid "G27 PS3"
-msgstr "G27 PS3"
+#: ../config/gimx-config.cpp:1315
+msgid "G27 PS3 / PC"
+msgstr "G27 PS3 / PC"
 
-#: ../config/gimx-config.cpp:1082
+#: ../config/gimx-config.cpp:1317
 msgid "G29 PS4"
 msgstr "G29 PS4"
 
-#: ../config/gimx-config.cpp:1084
+#: ../config/gimx-config.cpp:1319
+msgid "Driving Force PS2"
+msgstr "Driving Force PS2"
+
+#: ../config/gimx-config.cpp:1321
+msgid "Driving Force Pro PS2"
+msgstr "Driving Force Pro PS2"
+
+#: ../config/gimx-config.cpp:1323
+msgid "GT Force PS2"
+msgstr "GT Force PS2"
+
+#: ../config/gimx-config.cpp:1325
 msgid "Type"
 msgstr "Type"
 
-#: ../config/gimx-config.cpp:1100
+#: ../config/gimx-config.cpp:1341
 msgid "8"
 msgstr "8"
 
-#: ../config/gimx-config.cpp:1102
+#: ../config/gimx-config.cpp:1343
 msgid "Profile"
 msgstr "Profil"
 
-#: ../config/gimx-config.cpp:1104
+#: ../config/gimx-config.cpp:1345
 msgid "Multiple Mice and Keyboards"
 msgstr "Souris et claviers multiples"
 
-#: ../config/gimx-config.cpp:1108
+#: ../config/gimx-config.cpp:1347 ../fpsconfig/gimx-fpsconfig.cpp:401
+#: ../launcher/gimx-launcher.cpp:855 ../launcher/gimx-launcher.cpp:1339
+msgid "Window events"
+msgstr "Événements des fenêtres"
+
+#: ../config/gimx-config.cpp:1349
 msgid "Link controls"
 msgstr "Lier les contrôles"
 
-#: ../config/gimx-config.cpp:1111 ../fpsconfig/gimx-fpsconfig.cpp:403
+#: ../config/gimx-config.cpp:1351 ../fpsconfig/gimx-fpsconfig.cpp:399
 msgid "Auto-bind controls"
 msgstr "Auto-affecter les contrôles"
 
-#: ../config/gimx-config.cpp:1113 ../fpsconfig/gimx-fpsconfig.cpp:407
+#: ../config/gimx-config.cpp:1353 ../fpsconfig/gimx-fpsconfig.cpp:403
 msgid "Advanced"
 msgstr "Avancé"
 
-#: ../config/gimx-config.cpp:1127 ../fpsconfig/gimx-fpsconfig.cpp:421
+#: ../config/gimx-config.cpp:1355 ../fpsconfig/gimx-fpsconfig.cpp:405
+#: ../launcher/gimx-launcher.cpp:923
+msgid "About\tF1"
+msgstr "À propos\tF1"
+
+#: ../config/gimx-config.cpp:1355 ../fpsconfig/gimx-fpsconfig.cpp:405
+#: ../launcher/gimx-launcher.cpp:923
+msgid "Show info about this application"
+msgstr "Afficher les infos sur cette application"
+
+#: ../config/gimx-config.cpp:1357 ../fpsconfig/gimx-fpsconfig.cpp:407
+#: ../launcher/gimx-launcher.cpp:925 ../loader/gimx-loader.cpp:118
+msgid "Help"
+msgstr "Aide"
+
+#: ../config/gimx-config.cpp:1365 ../fpsconfig/gimx-fpsconfig.cpp:415
 msgid "Select file"
 msgstr "Sélectionner un fichier"
 
-#: ../config/gimx-config.cpp:1127 ../config/gimx-config.cpp:2435
-#: ../fpsconfig/gimx-fpsconfig.cpp:1072 ../fpsconfig/gimx-fpsconfig.cpp:2062
+#: ../config/gimx-config.cpp:1365 ../config/gimx-config.cpp:2830
+#: ../fpsconfig/gimx-fpsconfig.cpp:1084 ../fpsconfig/gimx-fpsconfig.cpp:2055
 msgid "XML files (*.xml)|*.xml"
 msgstr "Fichiers XML (*.xml)|*.xml"
 
-#: ../config/gimx-config.cpp:1219 ../fpsconfig/gimx-fpsconfig.cpp:506
+#: ../config/gimx-config.cpp:1470 ../fpsconfig/gimx-fpsconfig.cpp:499
 msgid "It's not recommended to run as root user. Continue?"
 msgstr ""
 "Il n'est pas recommandé d'exécuter cette application en utilisateur root. "
 "Continuer ?"
 
-#: ../config/gimx-config.cpp:1313 ../fpsconfig/gimx-fpsconfig.cpp:571
+#: ../config/gimx-config.cpp:1470 ../config/gimx-config.cpp:1648
+#: ../config/gimx-config.cpp:1688 ../config/gimx-config.cpp:2921
+#: ../config/gimx-config.cpp:3100 ../config/gimx-config.cpp:3374
+#: ../config/gimx-config.cpp:3390 ../config/gimx-config.cpp:3847
+#: ../config/gimx-config.cpp:3981 ../fpsconfig/gimx-fpsconfig.cpp:499
+#: ../launcher/gimx-launcher.cpp:343 ../launcher/gimx-launcher.cpp:1066
+#: ../launcher/gimx-launcher.cpp:1253 ../launcher/gimx-launcher.cpp:1273
+#: ../launcher/gimx-launcher.cpp:1538 ../launcher/gimx-launcher.cpp:1695
+#: ../launcher/gimx-launcher.cpp:1719 ../launcher/gimx-launcher.cpp:1777
+#: ../launcher/gimx-launcher.cpp:1862
+msgid "Confirm"
+msgstr "Confirmer"
+
+#: ../config/gimx-config.cpp:1485 ../fpsconfig/gimx-fpsconfig.cpp:514
+#: ../launcher/gimx-launcher.cpp:991
+msgid "Can't migrate directory: "
+msgstr "Impossible de migrer le répertoire : "
+
+#: ../config/gimx-config.cpp:1485 ../config/gimx-config.cpp:1497
+#: ../config/gimx-config.cpp:1506 ../config/gimx-config.cpp:1540
+#: ../config/gimx-config.cpp:1564 ../config/gimx-config.cpp:1635
+#: ../config/gimx-config.cpp:1640 ../config/gimx-config.cpp:1675
+#: ../config/gimx-config.cpp:1680 ../config/gimx-config.cpp:2143
+#: ../config/gimx-config.cpp:2693 ../config/gimx-config.cpp:2819
+#: ../config/gimx-config.cpp:2908 ../config/gimx-config.cpp:2913
+#: ../config/gimx-config.cpp:3087 ../config/gimx-config.cpp:3092
+#: ../config/gimx-config.cpp:3479 ../config/gimx-config.cpp:3485
+#: ../config/gimx-config.cpp:3804 ../config/gimx-config.cpp:3817
+#: ../config/gimx-config.cpp:3834 ../config/gimx-config.cpp:3839
+#: ../config/gimx-config.cpp:3968 ../config/gimx-config.cpp:3973
+#: ../config/gimx-config.cpp:4115 ../config/gimx-config.cpp:4121
+#: ../config/gimx-config.cpp:4227 ../config/gimx-config.cpp:4233
+#: ../config/gimx-config.cpp:4394 ../config/gimx-config.cpp:4400
+#: ../config/gimx-config.cpp:4466 ../config/gimx-config.cpp:4472
+#: ../config/gimx-config.cpp:4552 ../fpsconfig/gimx-fpsconfig.cpp:514
+#: ../fpsconfig/gimx-fpsconfig.cpp:526 ../fpsconfig/gimx-fpsconfig.cpp:535
+#: ../fpsconfig/gimx-fpsconfig.cpp:564 ../fpsconfig/gimx-fpsconfig.cpp:1413
+#: ../fpsconfig/gimx-fpsconfig.cpp:2051 ../fpsconfig/gimx-fpsconfig.cpp:2064
+#: ../launcher/gimx-launcher.cpp:338 ../launcher/gimx-launcher.cpp:369
+#: ../launcher/gimx-launcher.cpp:439 ../launcher/gimx-launcher.cpp:661
+#: ../launcher/gimx-launcher.cpp:680 ../launcher/gimx-launcher.cpp:708
+#: ../launcher/gimx-launcher.cpp:731 ../launcher/gimx-launcher.cpp:745
+#: ../launcher/gimx-launcher.cpp:761 ../launcher/gimx-launcher.cpp:965
+#: ../launcher/gimx-launcher.cpp:979 ../launcher/gimx-launcher.cpp:991
+#: ../launcher/gimx-launcher.cpp:1001 ../launcher/gimx-launcher.cpp:1011
+#: ../launcher/gimx-launcher.cpp:1021 ../launcher/gimx-launcher.cpp:1031
+#: ../launcher/gimx-launcher.cpp:1169 ../launcher/gimx-launcher.cpp:1177
+#: ../launcher/gimx-launcher.cpp:1185 ../launcher/gimx-launcher.cpp:1193
+#: ../launcher/gimx-launcher.cpp:1202 ../launcher/gimx-launcher.cpp:1210
+#: ../launcher/gimx-launcher.cpp:1221 ../launcher/gimx-launcher.cpp:1232
+#: ../launcher/gimx-launcher.cpp:1242 ../launcher/gimx-launcher.cpp:1264
+#: ../launcher/gimx-launcher.cpp:1411 ../launcher/gimx-launcher.cpp:1470
+#: ../launcher/gimx-launcher.cpp:1475 ../launcher/gimx-launcher.cpp:1485
+#: ../launcher/gimx-launcher.cpp:1491 ../launcher/gimx-launcher.cpp:1495
+#: ../launcher/gimx-launcher.cpp:1502 ../launcher/gimx-launcher.cpp:1505
+#: ../launcher/gimx-launcher.cpp:1508 ../launcher/gimx-launcher.cpp:1511
+#: ../launcher/gimx-launcher.cpp:1529 ../launcher/gimx-launcher.cpp:1557
+#: ../launcher/gimx-launcher.cpp:1569 ../launcher/gimx-launcher.cpp:1594
+#: ../launcher/gimx-launcher.cpp:1611 ../launcher/gimx-launcher.cpp:1623
+#: ../launcher/gimx-launcher.cpp:1631 ../launcher/gimx-launcher.cpp:1665
+#: ../launcher/gimx-launcher.cpp:1680 ../launcher/gimx-launcher.cpp:1788
+#: ../launcher/gimx-launcher.cpp:1797 ../launcher/gimx-launcher.cpp:1879
+#: ../launcher/gimx-launcher.cpp:1890 ../launcher/gimx-launcher.cpp:1920
+#: ../launcher/gimx-launcher.cpp:1926 ../launcher/gimx-launcher.cpp:1933
+#: ../launcher/gimx-launcher.cpp:1948 ../launcher/gimx-launcher.cpp:2221
+#: ../launcher/gimx-launcher.cpp:2251 ../launcher/gimx-launcher.cpp:2261
+#: ../launcher/gimx-launcher.cpp:2399 ../launcher/gimx-launcher.cpp:2438
+#: ../launcher/gimx-launcher.cpp:2523 ../launcher/gimx-launcher.cpp:2613
+#: ../loader/gimx-loader.cpp:132 ../loader/gimx-loader.cpp:146
+#: ../loader/gimx-loader.cpp:243 ../loader/gimx-loader.cpp:266
+#: ../loader/gimx-loader.cpp:276
+msgid "Error"
+msgstr "Erreur"
+
+#: ../config/gimx-config.cpp:1497 ../config/gimx-config.cpp:1506
+#: ../fpsconfig/gimx-fpsconfig.cpp:526 ../fpsconfig/gimx-fpsconfig.cpp:535
+#: ../launcher/gimx-launcher.cpp:731 ../launcher/gimx-launcher.cpp:745
+#: ../launcher/gimx-launcher.cpp:965 ../launcher/gimx-launcher.cpp:1001
+#: ../launcher/gimx-launcher.cpp:1011 ../launcher/gimx-launcher.cpp:1021
+#: ../launcher/gimx-launcher.cpp:1031
+msgid "Can't init directory: "
+msgstr "Impossible d'initialiser le répertoire:"
+
+#: ../config/gimx-config.cpp:1544 ../config/gimx-config.cpp:2206
+#: ../config/gimx-config.cpp:2697 ../config/gimx-config.cpp:2865
+#: ../config/gimx-config.cpp:2870 ../config/gimx-config.cpp:3026
+#: ../config/gimx-config.cpp:3031 ../config/gimx-config.cpp:3822
+#: ../config/gimx-config.cpp:3931 ../config/gimx-config.cpp:3936
+#: ../config/gimx-config.cpp:4196 ../config/gimx-config.cpp:4201
+#: ../config/gimx-config.cpp:4433 ../config/gimx-config.cpp:4438
+#: ../fpsconfig/gimx-fpsconfig.cpp:924 ../fpsconfig/gimx-fpsconfig.cpp:1799
+#: ../fpsconfig/gimx-fpsconfig.cpp:2069 ../launcher/gimx-launcher.cpp:347
+#: ../launcher/gimx-launcher.cpp:1499 ../launcher/gimx-launcher.cpp:1573
+#: ../launcher/gimx-launcher.cpp:1577 ../launcher/gimx-launcher.cpp:1801
+#: ../launcher/gimx-launcher.cpp:1882 ../launcher/gimx-launcher.cpp:1937
+#: ../loader/gimx-loader.cpp:278
+msgid "Info"
+msgstr "Info"
+
+#: ../config/gimx-config.cpp:1564 ../fpsconfig/gimx-fpsconfig.cpp:564
 msgid "Cannot open config file: "
 msgstr "Fichier impossible à ouvrir : "
 
-#: ../config/gimx-config.cpp:1384 ../config/gimx-config.cpp:1424
-#: ../config/gimx-config.cpp:2512 ../config/gimx-config.cpp:2683
-#: ../config/gimx-config.cpp:3542
+#: ../config/gimx-config.cpp:1635 ../config/gimx-config.cpp:1675
+#: ../config/gimx-config.cpp:2908 ../config/gimx-config.cpp:3087
+#: ../config/gimx-config.cpp:3968
 msgid "Please detect an Event!"
 msgstr "Veuillez détecter un axe/bouton !"
 
-#: ../config/gimx-config.cpp:1389 ../config/gimx-config.cpp:2517
-#: ../config/gimx-config.cpp:3547
+#: ../config/gimx-config.cpp:1640 ../config/gimx-config.cpp:2913
+#: ../config/gimx-config.cpp:3973
 msgid "Please select a Button!"
 msgstr "Veuillez sélectionner un bouton !"
 
-#: ../config/gimx-config.cpp:1429 ../config/gimx-config.cpp:2688
+#: ../config/gimx-config.cpp:1680 ../config/gimx-config.cpp:3092
 msgid "Please select an Axis!"
 msgstr "Veuillez sélectionner un axe !"
 
-#: ../config/gimx-config.cpp:1746 ../fpsconfig/gimx-fpsconfig.cpp:906
+#: ../config/gimx-config.cpp:1999 ../fpsconfig/gimx-fpsconfig.cpp:916
 msgid "Press a button."
 msgstr "Appuyez sur un bouton."
 
-#: ../config/gimx-config.cpp:1750
+#: ../config/gimx-config.cpp:2003
 msgid "Move an axis."
 msgstr "Déplacez un axe."
 
-#: ../config/gimx-config.cpp:2424 ../fpsconfig/gimx-fpsconfig.cpp:1400
+#: ../config/gimx-config.cpp:2126
+msgid ""
+"Pedal calibration:\n"
+"1. fully press the pedal\n"
+"2. fully release the pedal\n"
+"3. press any key or button"
+msgstr ""
+"Calibration de la pédale :\n"
+"1. appuyer sur la pédale à fond\n"
+"2. relâcher complètement la pédale\n"
+"3. appuyer sur n'importe quel bouton"
+
+#: ../config/gimx-config.cpp:2143
+msgid "Failed to calibrate the pedal."
+msgstr "Échec de la calibration de la pédale"
+
+#: ../config/gimx-config.cpp:2206
+msgid ""
+"Joystick correction has been added in the \"Overall>Joystick corrections\" "
+"panel"
+msgstr ""
+"La correction du joystick a été ajoutée dans le panneau "
+"\"Général>Corrections des joysticks\""
+
+#: ../config/gimx-config.cpp:2819 ../fpsconfig/gimx-fpsconfig.cpp:1413
 msgid "Can't save "
 msgstr "Impossible d'enregistrer"
 
-#: ../config/gimx-config.cpp:2435 ../fpsconfig/gimx-fpsconfig.cpp:1072
+#: ../config/gimx-config.cpp:2830 ../fpsconfig/gimx-fpsconfig.cpp:1084
 msgid "Save config file"
 msgstr "Enregistrer le fichier de config"
 
-#: ../config/gimx-config.cpp:2469 ../config/gimx-config.cpp:2630
-#: ../config/gimx-config.cpp:3505 ../config/gimx-config.cpp:3764
+#: ../config/gimx-config.cpp:2865 ../config/gimx-config.cpp:3026
+#: ../config/gimx-config.cpp:3931 ../config/gimx-config.cpp:4196
+#: ../config/gimx-config.cpp:4433
 msgid "Please select a line of the table."
 msgstr "Veuillez sélectionner une ligne du tableau !"
 
-#: ../config/gimx-config.cpp:2474 ../config/gimx-config.cpp:2635
-#: ../config/gimx-config.cpp:3510 ../config/gimx-config.cpp:3769
+#: ../config/gimx-config.cpp:2870 ../config/gimx-config.cpp:3031
+#: ../config/gimx-config.cpp:3936 ../config/gimx-config.cpp:4201
+#: ../config/gimx-config.cpp:4438
 msgid "Please select a SINGLE line of the table."
 msgstr "Veuillez sélectionner une UNIQUE ligne du tableau !"
 
-#: ../config/gimx-config.cpp:2506 ../config/gimx-config.cpp:2677
-#: ../config/gimx-config.cpp:3536 ../config/gimx-config.cpp:3789
+#: ../config/gimx-config.cpp:2902 ../config/gimx-config.cpp:3081
+#: ../config/gimx-config.cpp:3962 ../config/gimx-config.cpp:4221
+#: ../config/gimx-config.cpp:4460
 msgid "Apply"
 msgstr "Appliquer"
 
-#: ../config/gimx-config.cpp:2885 ../config/gimx-config.cpp:3034
+#: ../config/gimx-config.cpp:3291 ../config/gimx-config.cpp:3449
 msgid "Press a mouse button."
 msgstr "Appuyez sur un bouton de la souris."
 
-#: ../config/gimx-config.cpp:2889
+#: ../config/gimx-config.cpp:3295
 msgid "Press a keyboard key."
 msgstr "Appuyez sur une touche du clavier."
 
-#: ../config/gimx-config.cpp:2966
+#: ../config/gimx-config.cpp:3374
 msgid ""
 "This will replace the mouse in the current controller.\n"
 "Continue?"
@@ -1614,7 +1316,7 @@ msgstr ""
 "Ceci va remplacer la souris dans le contrôleur courant.\n"
 "Continuer ?"
 
-#: ../config/gimx-config.cpp:2982
+#: ../config/gimx-config.cpp:3390
 msgid ""
 "This will replace the keyboard in the current controller.\n"
 "Continue?"
@@ -1622,24 +1324,32 @@ msgstr ""
 "Ceci va remplacer le clavier dans le contrôleur courant.\n"
 "Continuer ?"
 
-#: ../config/gimx-config.cpp:3010 ../config/gimx-config.cpp:3021
-#: ../config/gimx-config.cpp:3110 ../fpsconfig/gimx-fpsconfig.cpp:2022
+#: ../config/gimx-config.cpp:3425 ../config/gimx-config.cpp:3436
+#: ../config/gimx-config.cpp:3538 ../fpsconfig/gimx-fpsconfig.cpp:2015
 msgid "Enter a number:"
 msgstr "Entrer un nombre :"
 
-#: ../config/gimx-config.cpp:3010
+#: ../config/gimx-config.cpp:3425
 msgid "Source mouse DPI"
 msgstr "DPI source"
 
-#: ../config/gimx-config.cpp:3021 ../fpsconfig/gimx-fpsconfig.cpp:2022
+#: ../config/gimx-config.cpp:3436 ../fpsconfig/gimx-fpsconfig.cpp:2015
 msgid "Destination mouse DPI"
 msgstr "DPI destination"
 
-#: ../config/gimx-config.cpp:3110
+#: ../config/gimx-config.cpp:3479
+msgid "Failed to parse sensitivity value!"
+msgstr "Échec de l'analyse de la valeur de la sensibilité !"
+
+#: ../config/gimx-config.cpp:3485
+msgid "Failed to parse acceleration value!"
+msgstr "Échec de l'analyse de la valeur de l'accélération !"
+
+#: ../config/gimx-config.cpp:3538
 msgid "Mouse DPI value"
 msgstr "Valeur DPI de la souris"
 
-#: ../config/gimx-config.cpp:3242
+#: ../config/gimx-config.cpp:3709
 msgid ""
 "This control is already used in the current profile (Button tab).\n"
 "Continue?"
@@ -1647,7 +1357,7 @@ msgstr ""
 "Ce contrôle est déjà utilisé dans le profil courant (onglet Bouton).\n"
 "Continuer ?"
 
-#: ../config/gimx-config.cpp:3259
+#: ../config/gimx-config.cpp:3726
 msgid ""
 "This control is already used in the current profile (Axis tab).\n"
 "Continue?"
@@ -1655,7 +1365,7 @@ msgstr ""
 "Ce contrôle est déjà utilisé dans le profil courant (onglet Axis).\n"
 "Continuer ?"
 
-#: ../config/gimx-config.cpp:3277
+#: ../config/gimx-config.cpp:3744
 msgid ""
 "This control is already used in the current profile (Overall tab>Intensity "
 "tab).\n"
@@ -1665,140 +1375,174 @@ msgstr ""
 "Intensité).\n"
 "Continuer ?"
 
-#: ../config/gimx-config.cpp:3378 ../fpsconfig/gimx-fpsconfig.cpp:2058
+#: ../config/gimx-config.cpp:3804 ../fpsconfig/gimx-fpsconfig.cpp:2051
 msgid "No config opened!"
 msgstr "Pas de config ouverte !"
 
-#: ../config/gimx-config.cpp:3391 ../fpsconfig/gimx-fpsconfig.cpp:2071
+#: ../config/gimx-config.cpp:3808 ../fpsconfig/gimx-fpsconfig.cpp:2055
+#: ../launcher/gimx-launcher.cpp:1907
+msgid "Select the reference config."
+msgstr "Sélectionner la config de référence."
+
+#: ../config/gimx-config.cpp:3817 ../fpsconfig/gimx-fpsconfig.cpp:2064
 msgid "Can't auto-bind controls!"
 msgstr "Impossible d'auto-affecter les contrôles!"
 
-#: ../config/gimx-config.cpp:3396
+#: ../config/gimx-config.cpp:3822
 msgid "Done!"
 msgstr "Effectué !"
 
-#: ../config/gimx-config.cpp:3408
+#: ../config/gimx-config.cpp:3834
 msgid "Please detect a button!"
 msgstr "Veuillez détecter un bouton !"
 
-#: ../config/gimx-config.cpp:3413
+#: ../config/gimx-config.cpp:3839
 msgid "Please select an axis!"
 msgstr "Veuillez sélectionner un axe !"
 
-#: ../config/gimx-config.cpp:3689 ../config/gimx-config.cpp:3801
-msgid "Mouse options already defined!"
-msgstr "Options de souris déjà définies !"
-
-#: ../config/gimx-config.cpp:3795
+#: ../config/gimx-config.cpp:4115 ../config/gimx-config.cpp:4227
 msgid "Please detect a mouse!"
 msgstr "Veuillez détecter une souris !"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:83
+#: ../config/gimx-config.cpp:4121 ../config/gimx-config.cpp:4233
+msgid "Mouse options already defined!"
+msgstr "Options de souris déjà définies !"
+
+#: ../config/gimx-config.cpp:4394 ../config/gimx-config.cpp:4466
+msgid "Please detect a joystick axis!"
+msgstr "Veuillez activer un axe de joystick !"
+
+#: ../config/gimx-config.cpp:4400 ../config/gimx-config.cpp:4472
+msgid "Joystick axis options already defined!"
+msgstr "Les options d'axe de joystick sont déjà définies !"
+
+#: ../config/gimx-config.cpp:4498 ../config/gimx-config.cpp:4559
+#: ../config/gimx-config.cpp:4627
+msgid "joystick"
+msgstr "joystick"
+
+#: ../config/gimx-config.cpp:4532
+msgid "Select an event."
+msgstr "Sélectionner un événement."
+
+#: ../config/gimx-config.cpp:4532 ../fpsconfig/gimx-fpsconfig.cpp:2160
+msgid "Events"
+msgstr "Événements"
+
+#: ../config/gimx-config.cpp:4552
+msgid "No joystick found!"
+msgstr "Pas de joystick trouvé !"
+
+#: ../config/gimx-config.cpp:4625
+msgid "Use the calibration tool to adjust the parameters."
+msgstr "Utiliser l'outil de calibration pour ajuster les paramètres."
+
+#: ../fpsconfig/gimx-fpsconfig.cpp:84
 msgid "OK"
 msgstr "OK"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:84
+#: ../fpsconfig/gimx-fpsconfig.cpp:85
 msgid "Cancel"
 msgstr "Annuler"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:245
+#: ../fpsconfig/gimx-fpsconfig.cpp:241
 msgid "Gimx-fpsconfig"
 msgstr "Gimx-fpsconfig"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:270
+#: ../fpsconfig/gimx-fpsconfig.cpp:266
 msgid "Buffer size (Hip Fire)"
 msgstr "Taille du buffer (vue normale)"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:273
+#: ../fpsconfig/gimx-fpsconfig.cpp:269
 msgid "Buffer size (ADS)"
 msgstr "Taille du buffer (visée)"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:276
+#: ../fpsconfig/gimx-fpsconfig.cpp:272
 msgid "Dead zone (Hip Fire)"
 msgstr "Dead zone (vue normale)"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:279
+#: ../fpsconfig/gimx-fpsconfig.cpp:275
 msgid "Dead zone (ADS)"
 msgstr "Dead zone (visée)"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:281
+#: ../fpsconfig/gimx-fpsconfig.cpp:277
 msgid "Sensitivity (ADS)"
 msgstr "Sensibilité (visée)"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:283
+#: ../fpsconfig/gimx-fpsconfig.cpp:279
 msgid "Sensitivity (Hip Fire)"
 msgstr "Sensibilité (vue normale)"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:285
+#: ../fpsconfig/gimx-fpsconfig.cpp:281
 msgid "Acceleration (ADS)"
 msgstr "Accélération (visée)"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:287
+#: ../fpsconfig/gimx-fpsconfig.cpp:283
 msgid "Filter (Hip Fire)"
 msgstr "Filtre (vue normale)"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:289
+#: ../fpsconfig/gimx-fpsconfig.cpp:285
 msgid "Filter (ADS)"
 msgstr "Filtre (visée)"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:291
+#: ../fpsconfig/gimx-fpsconfig.cpp:287
 msgid "Acceleration (Hip Fire)"
 msgstr "Accélération (vue normale)"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:292
+#: ../fpsconfig/gimx-fpsconfig.cpp:288
 msgid "Hip Fire"
 msgstr "Vue normale"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:294
+#: ../fpsconfig/gimx-fpsconfig.cpp:290
 msgid "Dead zone shape"
 msgstr "Forme de la dead zone"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:295
+#: ../fpsconfig/gimx-fpsconfig.cpp:291
 msgid "ADS"
 msgstr "Visée"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:296
+#: ../fpsconfig/gimx-fpsconfig.cpp:292
 msgid "Aiming Down the Sights"
 msgstr "Visée"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:303
+#: ../fpsconfig/gimx-fpsconfig.cpp:299
 msgid "x/y"
 msgstr "x/y"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:304
+#: ../fpsconfig/gimx-fpsconfig.cpp:300
 msgid "x/y ratio"
 msgstr "Ratio x/y"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:368
+#: ../fpsconfig/gimx-fpsconfig.cpp:364
 msgid "Dead zone shape (Hip Fire)"
 msgstr "Forme de la dead zone (vue normale)"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:372
+#: ../fpsconfig/gimx-fpsconfig.cpp:368
 msgid "Dead zone shape (ADS)"
 msgstr "Forme de la dead zone (visée)"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:374
+#: ../fpsconfig/gimx-fpsconfig.cpp:370
 msgid "x/y ratio (Hip Fire)"
 msgstr "Ratio x/y (vue normale)"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:376
+#: ../fpsconfig/gimx-fpsconfig.cpp:372
 msgid "x/y ratio (ADS)"
 msgstr "Ratio x/y (visée)"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:379 ../fpsconfig/gimx-fpsconfig.cpp:1063
-#: ../fpsconfig/gimx-fpsconfig.cpp:1428
+#: ../fpsconfig/gimx-fpsconfig.cpp:375 ../fpsconfig/gimx-fpsconfig.cpp:1075
+#: ../fpsconfig/gimx-fpsconfig.cpp:1441
 msgid "Enter your mouse DPI value."
 msgstr "Entrez la valeur du DPI de la souris."
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:380
+#: ../fpsconfig/gimx-fpsconfig.cpp:376
 msgid "Mouse DPI"
 msgstr "DPI de la souris"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:382
+#: ../fpsconfig/gimx-fpsconfig.cpp:378
 msgid "Mouse smoothing"
 msgstr "Lissage de la souris"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:383
+#: ../fpsconfig/gimx-fpsconfig.cpp:379
 msgid ""
 "Convert\n"
 "sensitivity"
@@ -1806,35 +1550,35 @@ msgstr ""
 "Convertir\n"
 "la sensibilité"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:386
+#: ../fpsconfig/gimx-fpsconfig.cpp:382
 msgid "New\tCtrl+N"
 msgstr "Nouveau\tCtrl+N"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:388
+#: ../fpsconfig/gimx-fpsconfig.cpp:384
 msgid "Open\tCtrl+O"
 msgstr "Ouvrir\tCtrl+O"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:390
+#: ../fpsconfig/gimx-fpsconfig.cpp:386
 msgid "Save\tCtrl+S"
 msgstr "Enregistrer\tCtrl+S"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:393
+#: ../fpsconfig/gimx-fpsconfig.cpp:389
 msgid "Save As"
 msgstr "Enregistrer sous"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:401
+#: ../fpsconfig/gimx-fpsconfig.cpp:397
 msgid "Edit Labels"
 msgstr "Editer les labels"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:874
+#: ../fpsconfig/gimx-fpsconfig.cpp:884
 msgid "Edit Label"
 msgstr "Editer le label"
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:912
+#: ../fpsconfig/gimx-fpsconfig.cpp:924
 msgid "Joystick controls are only supported through gimx-config."
 msgstr "Les joysticks ne sont supportés que par gimx-config."
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:1786
+#: ../fpsconfig/gimx-fpsconfig.cpp:1799
 msgid ""
 "Profiles 1 & 2 do not contain the same bindings.\n"
 "Editing this conf with gimx-fpsconfig can mess the bindings."
@@ -1842,9 +1586,598 @@ msgstr ""
 "Les profils 1 & 2 ne contiennent pas les mêmes affectations.\n"
 "Editer cette conf avec gimx-fpsconfig peut avoir des effets indésirables."
 
-#: ../fpsconfig/gimx-fpsconfig.cpp:2076
+#: ../fpsconfig/gimx-fpsconfig.cpp:2069
 msgid "Auto-bind done!"
 msgstr "Fait !"
+
+#: ../fpsconfig/gimx-fpsconfig.cpp:2160
+msgid "Select the event."
+msgstr "Sélectionner un événement."
+
+#: ../launcher/gimx-launcher.cpp:338
+msgid "Address already used!"
+msgstr "Adresse déjà utilisée !"
+
+#: ../launcher/gimx-launcher.cpp:343
+msgid "Did you saved your dongle address?"
+msgstr "Avez-vous sauvegardé l'adresse du dongle ?"
+
+#: ../launcher/gimx-launcher.cpp:347
+msgid "Please save it!"
+msgstr "Veuillez la sauver !"
+
+#: ../launcher/gimx-launcher.cpp:356 ../launcher/gimx-launcher.cpp:374
+msgid "Success"
+msgstr "Succès"
+
+#: ../launcher/gimx-launcher.cpp:369
+msgid "Read address after set: ko!"
+msgstr "Lecture de l'adresse après écriture : échec !"
+
+#: ../launcher/gimx-launcher.cpp:374
+msgid "Read address after set: seems ok!"
+msgstr "Lecture de l'adresse après écriture : succès !"
+
+#: ../launcher/gimx-launcher.cpp:439 ../loader/gimx-loader.cpp:132
+msgid "Cannot open directory: "
+msgstr "Impossible d'ouvrir le répertoire : "
+
+#: ../launcher/gimx-launcher.cpp:661
+msgid "Cannot open file: "
+msgstr "Fichier impossible à ouvrir :"
+
+#: ../launcher/gimx-launcher.cpp:680 ../launcher/gimx-launcher.cpp:708
+#: ../launcher/gimx-launcher.cpp:761
+msgid "Cannot open file for writing: "
+msgstr "Impossible d'ouvrir le fichier en écriture : "
+
+#: ../launcher/gimx-launcher.cpp:832
+msgid "Gimx-launcher"
+msgstr "Gimx-launcher"
+
+#: ../launcher/gimx-launcher.cpp:837
+msgid "Output"
+msgstr "Sortie"
+
+#: ../launcher/gimx-launcher.cpp:843 ../launcher/gimx-launcher.cpp:1672
+msgid "Port"
+msgstr "Port"
+
+#: ../launcher/gimx-launcher.cpp:847 ../launcher/gimx-launcher.cpp:864
+#: ../launcher/gimx-launcher.cpp:1651 ../launcher/gimx-launcher.cpp:2578
+msgid "New"
+msgstr "Nouveau"
+
+#: ../launcher/gimx-launcher.cpp:851
+msgid "Input"
+msgstr "Entrée"
+
+#: ../launcher/gimx-launcher.cpp:854
+msgid "Physical devices"
+msgstr "Périphériques"
+
+#: ../launcher/gimx-launcher.cpp:856 ../launcher/gimx-launcher.cpp:1228
+#: ../launcher/gimx-launcher.cpp:1238 ../launcher/gimx-launcher.cpp:1331
+#: ../launcher/gimx-launcher.cpp:1970 ../launcher/gimx-launcher.cpp:2482
+msgid "Network"
+msgstr "Réseau"
+
+#: ../launcher/gimx-launcher.cpp:860 ../launcher/gimx-launcher.cpp:1730
+#: ../launcher/gimx-launcher.cpp:1972
+msgid "IP:port"
+msgstr "IP:port"
+
+#: ../launcher/gimx-launcher.cpp:870
+msgid "Messages"
+msgstr "Messages"
+
+#: ../launcher/gimx-launcher.cpp:873
+msgid "none"
+msgstr "aucun"
+
+#: ../launcher/gimx-launcher.cpp:874 ../launcher/gimx-launcher.cpp:1287
+msgid "curses"
+msgstr "curses"
+
+#: ../launcher/gimx-launcher.cpp:875 ../launcher/gimx-launcher.cpp:1291
+#: ../launcher/gimx-launcher.cpp:1304 ../launcher/gimx-launcher.cpp:1310
+msgid "text"
+msgstr "texte"
+
+#: ../launcher/gimx-launcher.cpp:876 ../launcher/gimx-launcher.cpp:1295
+#: ../launcher/gimx-launcher.cpp:1305 ../launcher/gimx-launcher.cpp:1314
+#: ../launcher/gimx-launcher.cpp:1543
+msgid "log file"
+msgstr "fichier de log"
+
+#: ../launcher/gimx-launcher.cpp:877 ../launcher/gimx-launcher.cpp:1301
+msgid "debug"
+msgstr "debug"
+
+#: ../launcher/gimx-launcher.cpp:881
+msgid "Grab mouse"
+msgstr "Capturer la souris"
+
+#: ../launcher/gimx-launcher.cpp:889
+msgid "Check"
+msgstr "Vérifier"
+
+#: ../launcher/gimx-launcher.cpp:891
+msgid "Start"
+msgstr "Démarrer"
+
+#: ../launcher/gimx-launcher.cpp:899
+msgid "Edit config"
+msgstr "Editer la config"
+
+#: ../launcher/gimx-launcher.cpp:901
+msgid "Edit fps config"
+msgstr "Editer la config FPS"
+
+#: ../launcher/gimx-launcher.cpp:905 ../launcher/gimx-launcher.cpp:1907
+msgid "Auto-bind and convert"
+msgstr "Auto-affecter et convertir"
+
+#: ../launcher/gimx-launcher.cpp:907
+msgid "Refresh\tF5"
+msgstr "Rafraîchir\tF5"
+
+#: ../launcher/gimx-launcher.cpp:915
+msgid "Get configs"
+msgstr "Obtenir des configs"
+
+#: ../launcher/gimx-launcher.cpp:917
+msgid "Update"
+msgstr "Mise à jour"
+
+#: ../launcher/gimx-launcher.cpp:919
+msgid "Update firmware"
+msgstr "Mise à jour du firmware"
+
+#: ../launcher/gimx-launcher.cpp:921
+msgid "Check updates at startup"
+msgstr "Vérifier les majs au démarrage"
+
+#: ../launcher/gimx-launcher.cpp:979
+msgid "Can't migrate config: "
+msgstr "Impossible de migrer la config : "
+
+#: ../launcher/gimx-launcher.cpp:1040 ../launcher/gimx-launcher.cpp:1181
+#: ../launcher/gimx-launcher.cpp:1384 ../launcher/gimx-launcher.cpp:1477
+#: ../launcher/gimx-launcher.cpp:1618 ../launcher/gimx-launcher.cpp:1668
+msgid "GIMX adapter"
+msgstr "Adaptateur GIMX"
+
+#: ../launcher/gimx-launcher.cpp:1042 ../launcher/gimx-launcher.cpp:1189
+#: ../launcher/gimx-launcher.cpp:1237 ../launcher/gimx-launcher.cpp:1352
+#: ../launcher/gimx-launcher.cpp:1359 ../launcher/gimx-launcher.cpp:1487
+#: ../launcher/gimx-launcher.cpp:1726 ../launcher/gimx-launcher.cpp:2474
+#: ../launcher/gimx-launcher.cpp:2490 ../launcher/gimx-launcher.cpp:2500
+#: ../launcher/gimx-launcher.cpp:2594
+msgid "Remote GIMX"
+msgstr "GIMX distant"
+
+#: ../launcher/gimx-launcher.cpp:1045 ../launcher/gimx-launcher.cpp:1197
+#: ../launcher/gimx-launcher.cpp:1364 ../launcher/gimx-launcher.cpp:1683
+#: ../launcher/gimx-launcher.cpp:2000 ../launcher/gimx-launcher.cpp:2466
+#: ../launcher/gimx-launcher.cpp:2570
+msgid "Bluetooth / PS3"
+msgstr "Bluetooth / PS3"
+
+#: ../launcher/gimx-launcher.cpp:1046 ../launcher/gimx-launcher.cpp:1198
+#: ../launcher/gimx-launcher.cpp:1247 ../launcher/gimx-launcher.cpp:1374
+#: ../launcher/gimx-launcher.cpp:1702 ../launcher/gimx-launcher.cpp:2004
+#: ../launcher/gimx-launcher.cpp:2066 ../launcher/gimx-launcher.cpp:2470
+#: ../launcher/gimx-launcher.cpp:2574
+msgid "Bluetooth / PS4"
+msgstr "Bluetooth / PS4"
+
+#: ../launcher/gimx-launcher.cpp:1066
+msgid "No config found! Download configs?"
+msgstr "Pas de config trouvée ! Télécharger des configs ?"
+
+#: ../launcher/gimx-launcher.cpp:1130
+msgid "Select the files to debug:"
+msgstr "Sélectionner les fichiers à débugger :"
+
+#: ../launcher/gimx-launcher.cpp:1169 ../launcher/gimx-launcher.cpp:1557
+#: ../launcher/gimx-launcher.cpp:1948
+msgid "No config selected!"
+msgstr "Pas de config sélectionnée !"
+
+#: ../launcher/gimx-launcher.cpp:1177
+msgid "No device selected!"
+msgstr "Pas de périphérique sélectionné !"
+
+#: ../launcher/gimx-launcher.cpp:1185
+msgid "No USB to serial device selected!"
+msgstr "Pas de module USB vers série sélectionné !"
+
+#: ../launcher/gimx-launcher.cpp:1193
+msgid "No destination IP:port specified!"
+msgstr "Pas de IP:port destination spécifié !"
+
+#: ../launcher/gimx-launcher.cpp:1202
+msgid "No pairing selected!"
+msgstr "Pas d'appairage sélectionné !"
+
+#: ../launcher/gimx-launcher.cpp:1210
+msgid "Selected pairing is incorrect!"
+msgstr "L’appairage sélectionné est incorrect !"
+
+#: ../launcher/gimx-launcher.cpp:1221
+msgid "Dongle not found!"
+msgstr "Dongle non trouvé !"
+
+#: ../launcher/gimx-launcher.cpp:1232
+msgid "No source IP:port specified!"
+msgstr "Pas de IP:port source spécifié !"
+
+#: ../launcher/gimx-launcher.cpp:1242
+msgid "IP:port is the same for input and output!"
+msgstr "IP:port est le même pour l'entrée et la sortie !"
+
+#: ../launcher/gimx-launcher.cpp:1253
+msgid ""
+"Bluetooth service has to be stopped.\n"
+"Proceed?"
+msgstr ""
+"Le service bluetooth doit être stoppé.\n"
+"Continuer ?"
+
+#: ../launcher/gimx-launcher.cpp:1264
+msgid "Can't stop bluetoothd!"
+msgstr "Impossible d'arrêter bluetoothd !"
+
+#: ../launcher/gimx-launcher.cpp:1273
+msgid ""
+"Windows Task Manager has to be stopped.\n"
+"Proceed?"
+msgstr ""
+"Le gestionnaire des tâches Windows doit être arrêté.\n"
+"Continuer ?"
+
+#: ../launcher/gimx-launcher.cpp:1306
+msgid "Select the destination:"
+msgstr "Sélectionner la destination :"
+
+#: ../launcher/gimx-launcher.cpp:1411
+msgid "can't start gimx!"
+msgstr "Impossible de démarrer gimx !"
+
+#: ../launcher/gimx-launcher.cpp:1470
+msgid "GIMX failed with a generic error (please report this)."
+msgstr "GIMX a échoué avec une erreur générique (reporter ceci svp)."
+
+#: ../launcher/gimx-launcher.cpp:1475
+msgid "Failed to detect the GPP/Cronus/Titan device."
+msgstr "Échec de la détection du périphérique GPP/Cronus/Titan."
+
+#: ../launcher/gimx-launcher.cpp:1479
+msgid ""
+"Failed to detect the USB adapter:\n"
+" . make sure to select the right port\n"
+" . make sure to power on the target console\n"
+"If you built the adapter yourself:\n"
+" . make sure the wiring is correct (swapping RX and TX is a common "
+"mistake)\n"
+" . make sure it runs the right firmware"
+msgstr ""
+"Échec de la détection de l'adaptateur USB :\n"
+". vérifier le port sélectionné\n"
+". vérifier que la console cible est allumée\n"
+"Si vous avez construit l'adaptateur vous-même :\n"
+". vérifier le raccordement (l'échange de RX et TX est une erreur courante)\n"
+". vérifier que le firmware est correct"
+
+#: ../launcher/gimx-launcher.cpp:1489
+msgid ""
+"Failed to detect the remote GIMX instance:\n"
+" . make sure to fill the right IP:port\n"
+" . make sure the remote instance is running"
+msgstr ""
+"Echec de la détection de l'instance GIMX distante :\n"
+". vérifier que IP:port est correct\n"
+". vérifier que l'instance distance est en fonctionnement"
+
+#: ../launcher/gimx-launcher.cpp:1495
+msgid "Failed to detect the adapter (fallback error message)."
+msgstr "Échec de la détection de l'adaptateur (message d'erreur de repli)"
+
+#: ../launcher/gimx-launcher.cpp:1499
+msgid "GIMX exited and the activation button was not pressed."
+msgstr "GIMX s'est terminé et le bouton d'activation n'a pas été activé."
+
+#: ../launcher/gimx-launcher.cpp:1502
+msgid "Inactivity timeout."
+msgstr "Délai d'inactivité écoulé."
+
+#: ../launcher/gimx-launcher.cpp:1505
+msgid "No wired Xbox 360 controller was found on USB ports."
+msgstr "Pas de contrôleur filaire Xbox 360 trouvé sur les ports USB."
+
+#: ../launcher/gimx-launcher.cpp:1508
+msgid "No Dualshock 4 controller was found on USB ports."
+msgstr "Pas de Dualshock 4 trouvée sur les ports USB."
+
+#: ../launcher/gimx-launcher.cpp:1511
+msgid "No Xbox One controller (without 3.5mm jack) was found on USB ports."
+msgstr ""
+"Pas de contrôleur Xbox One (sans prise jack 3.5mm) trouvé sur les ports USB."
+
+#: ../launcher/gimx-launcher.cpp:1529
+msgid "Failed to open log file. GIMX may have crashed (please report this)."
+msgstr ""
+"Echec de l'ouverture du fichier de log. GIMX peut avoir crashé (svp "
+"rapporter ceci)."
+
+#: ../launcher/gimx-launcher.cpp:1538
+msgid "GIMX ran less than 5 seconds. Would you like to generate a log report?"
+msgstr "GIMX a fonctionné moins de 5s. Générer un fichier de log ?"
+
+#: ../launcher/gimx-launcher.cpp:1577
+msgid "This config seems OK!\n"
+msgstr "Cette config a l'air correcte !\n"
+
+#: ../launcher/gimx-launcher.cpp:1594
+msgid "Failed to start gimx-config!"
+msgstr "Échec du lancement de gimx-config !"
+
+#: ../launcher/gimx-launcher.cpp:1611
+msgid "Failed to start gimx-fpsconfig!"
+msgstr "Échec du lancement de gimx-fpsconfig !"
+
+#: ../launcher/gimx-launcher.cpp:1623 ../launcher/gimx-launcher.cpp:1680
+msgid "No Serial Port Detected!\n"
+msgstr "Pas de port série détecté !\n"
+
+#: ../launcher/gimx-launcher.cpp:1631 ../launcher/gimx-launcher.cpp:1665
+msgid "No device detected!\n"
+msgstr "Pas de périphérique détecté !\n"
+
+#: ../launcher/gimx-launcher.cpp:1687 ../launcher/gimx-launcher.cpp:1706
+msgid "Pairing"
+msgstr "Appairage"
+
+#: ../launcher/gimx-launcher.cpp:1695 ../launcher/gimx-launcher.cpp:1719
+msgid ""
+"No pairing found.\n"
+"Perform a new pairing?"
+msgstr ""
+"Pas d'appairage trouvé.\n"
+"Effectuer un nouvel appairage ?"
+
+#: ../launcher/gimx-launcher.cpp:1712
+msgid "New/Repair"
+msgstr "Nouveau/Réparer"
+
+#: ../launcher/gimx-launcher.cpp:1777
+msgid ""
+"Update available.\n"
+"Start installation?"
+msgstr ""
+"Mise à jour disponible.\n"
+"Démarrer l'installation ?"
+
+#: ../launcher/gimx-launcher.cpp:1782 ../launcher/gimx-launcher.cpp:1835
+#: ../launcher/gimx-launcher.cpp:1873
+msgid "Downloading"
+msgstr "Téléchargement"
+
+#: ../launcher/gimx-launcher.cpp:1788
+msgid "Can't retrieve update file!"
+msgstr "Impossible de télécharger la mise à jour !"
+
+#: ../launcher/gimx-launcher.cpp:1797
+msgid "Can't check version!"
+msgstr "Impossible de vérifier la version !"
+
+#: ../launcher/gimx-launcher.cpp:1801
+msgid "GIMX is up-to-date!"
+msgstr "GIMX est à jour !"
+
+#: ../launcher/gimx-launcher.cpp:1850
+msgid "Select the files to download."
+msgstr "Sélectionnez les fichiers à télécharger."
+
+#: ../launcher/gimx-launcher.cpp:1850
+msgid "Config download"
+msgstr "Téléchargement de configs"
+
+#: ../launcher/gimx-launcher.cpp:1862
+msgid "Overwrite local file: "
+msgstr "Ecraser le fichier local : "
+
+#: ../launcher/gimx-launcher.cpp:1862
+msgid "?"
+msgstr " ?"
+
+#: ../launcher/gimx-launcher.cpp:1879
+msgid "Can't retrieve configs!"
+msgstr "Impossible de télécharger les configs !"
+
+#: ../launcher/gimx-launcher.cpp:1882
+msgid "Download is complete!"
+msgstr "Le téléchargement est terminé !"
+
+#: ../launcher/gimx-launcher.cpp:1890
+msgid "Can't retrieve config list!"
+msgstr "Impossible de télécharger la liste de configs !"
+
+#: ../launcher/gimx-launcher.cpp:1920
+msgid "Can't read config: "
+msgstr "Impossible de lire la config : "
+
+#: ../launcher/gimx-launcher.cpp:1926
+msgid "Can't auto-bind controls for config: "
+msgstr "Impossible d'auto-affecter les contrôles pour la config : "
+
+#: ../launcher/gimx-launcher.cpp:1933
+msgid "Can't write config: "
+msgstr "Impossible d'écrire la config : "
+
+#: ../launcher/gimx-launcher.cpp:1937
+msgid "Auto bind done for "
+msgstr "Auto-affectation effectuée pour "
+
+#: ../launcher/gimx-launcher.cpp:1987
+msgid "Config"
+msgstr "Config"
+
+#: ../launcher/gimx-launcher.cpp:2019
+msgid "Controller: "
+msgstr "Contrôleur : "
+
+#: ../launcher/gimx-launcher.cpp:2020
+msgid "Console: "
+msgstr "Console : "
+
+#: ../launcher/gimx-launcher.cpp:2024
+msgid "Select the pairing."
+msgstr "Sélectionner l'appairage."
+
+#: ../launcher/gimx-launcher.cpp:2024 ../launcher/gimx-launcher.cpp:2089
+#: ../launcher/gimx-launcher.cpp:2122 ../launcher/gimx-launcher.cpp:2135
+#: ../launcher/gimx-launcher.cpp:2190 ../launcher/gimx-launcher.cpp:2201
+#: ../launcher/gimx-launcher.cpp:2237 ../launcher/gimx-launcher.cpp:2269
+msgid "PS Tool"
+msgstr "PS Tool"
+
+#: ../launcher/gimx-launcher.cpp:2077
+msgid "Device: "
+msgstr "Périphérique : "
+
+#: ../launcher/gimx-launcher.cpp:2078
+msgid "Address: "
+msgstr "Adresse : "
+
+#: ../launcher/gimx-launcher.cpp:2079
+msgid "Manufacturer: "
+msgstr "Fabriquant : "
+
+#: ../launcher/gimx-launcher.cpp:2083
+msgid "Chip: "
+msgstr "Puce : "
+
+#: ../launcher/gimx-launcher.cpp:2089
+msgid "Select the bluetooth adapter."
+msgstr "Sélectionnez le dongle bluetooth."
+
+#: ../launcher/gimx-launcher.cpp:2122
+msgid "Plug a sixaxis/ds3"
+msgstr "Connectez un sixaxis/ds3"
+
+#: ../launcher/gimx-launcher.cpp:2135 ../launcher/gimx-launcher.cpp:2190
+msgid "Plug a bluetooth dongle"
+msgstr "Connectez un dongle bluetooth"
+
+#: ../launcher/gimx-launcher.cpp:2201
+msgid "Plug a ds4"
+msgstr "Connectez une ds4"
+
+#: ../launcher/gimx-launcher.cpp:2221 ../launcher/gimx-launcher.cpp:2251
+#: ../launcher/gimx-launcher.cpp:2261 ../launcher/gimx-launcher.cpp:2438
+msgid "Cannot execute: "
+msgstr "Impossible d'exécuter : "
+
+#: ../launcher/gimx-launcher.cpp:2237
+msgid "Plug the teensy"
+msgstr "Connectez le teensy"
+
+#: ../launcher/gimx-launcher.cpp:2269
+msgid ""
+"Plug the Teensy to the PS4,\n"
+"wait a few seconds,\n"
+"and plug it back to the PC"
+msgstr ""
+"Connectez le teensy à la PS4.\n"
+"Attendez quelques secondes,\n"
+"puis reconnectez le au PC."
+
+#: ../launcher/gimx-launcher.cpp:2369
+msgid "Select the pairing to restore."
+msgstr "Sélectionner l'appairage à rétablir."
+
+#: ../launcher/gimx-launcher.cpp:2399
+msgid "No previous pairing found!"
+msgstr "Pas d'appairage précédent trouvé !"
+
+#: ../launcher/gimx-launcher.cpp:2443
+msgid "Success."
+msgstr "Réussite."
+
+#: ../launcher/gimx-launcher.cpp:2450
+msgid "Plug a ds4 to repair."
+msgstr "Connecter la dualshock 4 à ré-appairer."
+
+#: ../launcher/gimx-launcher.cpp:2490
+msgid "Enter an IP address"
+msgstr "Entrez une adresse IP"
+
+#: ../launcher/gimx-launcher.cpp:2500
+msgid "Enter a port"
+msgstr "Entrez un port :"
+
+#: ../launcher/gimx-launcher.cpp:2523
+msgid "Bad IP format!"
+msgstr "Mauvais format d'adresse IP !"
+
+#: ../launcher/gimx-launcher.cpp:2578
+msgid "Repair"
+msgstr "Ré-appairage."
+
+#: ../launcher/gimx-launcher.cpp:2613
+msgid "Failed to execute gimx-loader."
+msgstr "Échec du lancement de gimx-loader."
+
+#: ../loader/gimx-loader.cpp:102
+msgid "Gimx-loader"
+msgstr "Gimx-loader"
+
+#: ../loader/gimx-loader.cpp:108
+msgid "Load"
+msgstr "Charger"
+
+#: ../loader/gimx-loader.cpp:116
+msgid "About"
+msgstr "À propos"
+
+#: ../loader/gimx-loader.cpp:146
+msgid "No firmware found in "
+msgstr "Pas de firmware trouvé dans "
+
+#: ../loader/gimx-loader.cpp:202
+msgid ""
+"This tool is only compatible with GIMX adapters made with a USB to UART "
+"adapter and a Pro Micro board. Proceed?"
+msgstr ""
+"Cet outil n'est compatible qu'avec les adaptateurs basés sur un "
+"convertisseur USB-série et une carte Pro Micro. Continuer ?"
+
+#: ../loader/gimx-loader.cpp:208
+msgid "Plug both sides of the adapter to the computer."
+msgstr "Connecter les deux extrémités de l'adaptateur à l'ordinateur."
+
+#: ../loader/gimx-loader.cpp:223
+msgid "Unplug/replug the USB cable (Pro Micro side of the adapter)."
+msgstr ""
+"Déconnecter/reconnecter le câble USB (côté Pro Micro de l'adaptateur)."
+
+#: ../loader/gimx-loader.cpp:243
+msgid "No new device found within 10 seconds."
+msgstr "Pas de nouveau périphérique trouvé sous 10 secondes."
+
+#: ../loader/gimx-loader.cpp:266
+msgid "failed to load firmware"
+msgstr "échec du chargement du firmware"
+
+#: ../loader/gimx-loader.cpp:276
+msgid "Failed to load firmware."
+msgstr "Échec du chargement du firmware."
+
+#: ../loader/gimx-loader.cpp:278
+msgid "Firmware loaded successfully!"
+msgstr "Firmware chargé avec succès !"
 
 #: ../config/configApp.h:26 ../fpsconfig/fpsconfigApp.h:25
 msgid "file"
@@ -1853,238 +2186,3 @@ msgstr "fichier"
 #: ../config/configApp.h:26 ../fpsconfig/fpsconfigApp.h:25
 msgid "specifies a file to open"
 msgstr "spécifie un fichier à ouvrir"
-
-#~ msgid "grab"
-#~ msgstr "capturer"
-
-#~ msgid "gui"
-#~ msgstr "gui"
-
-#~ msgid "terminal"
-#~ msgstr "terminal"
-
-#~ msgid "connector_init failed\n"
-#~ msgstr "connector_init a échoué\n"
-
-#~ msgid "Spoof failed.\n"
-#~ msgstr "Spoof échoué.\n"
-
-#~ msgid "spoof started\n"
-#~ msgstr "spoof démarré\n"
-
-#~ msgid "spoof successful\n"
-#~ msgstr "spoof réussi\n"
-
-#~ msgid "already spoofed\n"
-#~ msgstr "spoof déjà effectué\n"
-
-#~ msgid "connecting to %s\n"
-#~ msgstr "connexion à %s\n"
-
-#~ msgid "can't connect to %s\n"
-#~ msgstr "impossible de se connecter à %s\n"
-
-#~ msgid "can't set serial port options\n"
-#~ msgstr "impossible d'écrire les options du port série\n"
-
-#~ msgid "connected\n"
-#~ msgstr "connecté\n"
-
-#~ msgid "can't set spi port speed\n"
-#~ msgstr "impossible d'écrire les options du port spi\n"
-
-#~ msgid "can't set bits per word written\n"
-#~ msgstr "impossible d'écrire les options du port spi\n"
-
-#~ msgid "can't set bits per word read\n"
-#~ msgstr "impossible d'écrire les options du port spi\n"
-
-#~ msgid "can't set read mode\n"
-#~ msgstr "impossible d'appliquer le mode de lecture\n"
-
-#~ msgid "GPP/Cronus"
-#~ msgstr "GPP/Cronus"
-
-#~ msgid "Processing time: current=%dus average=%dus worst=%dus"
-#~ msgstr "Temps de calcul : courant=%dus moyen=%dus pire=%dus"
-
-#~ msgid "option -i with value `%s'\n"
-#~ msgstr "option -i avec la valeur `%s'\n"
-
-#~ msgid "can't assemble\n"
-#~ msgstr "impossible d'assembler\n"
-
-#~ msgid "can't send\n"
-#~ msgstr "impossible d'envoyer\n"
-
-#~ msgid "processing time higher than %dus: %dus!!\n"
-#~ msgstr "temps de calcul supérieur à %d us : %d us !!\n"
-
-#~ msgid "Gimx-serial"
-#~ msgstr "Gimx-serial"
-
-#~ msgid "Adapter"
-#~ msgstr "Adaptateur"
-
-#~ msgid "Force updates"
-#~ msgstr "Forcer l'envoi"
-
-#~ msgid "Subposition"
-#~ msgstr "Sous-positions"
-
-#~ msgid "gimx-serial is already running!"
-#~ msgstr "gimx-serial est déjà lancé !"
-
-#~ msgid "emuclient error"
-#~ msgstr "Erreur d'emuclient"
-
-#~ msgid "Please select a Sixaxis Address!"
-#~ msgstr "Veuillez sélectionner une adresse de sixaxis !"
-
-#~ msgid ""
-#~ "No Sixaxis Detected!\n"
-#~ "Sixaxis usb wire plugged?"
-#~ msgstr ""
-#~ "Pas de sixaxis détecté !\n"
-#~ "Un câble est connecté à un sixaxis ?"
-
-#~ msgid "No Bluetooth Dongle Detected!"
-#~ msgstr "Pas de dongle bluetooth détecté !"
-
-#~ msgid "Gimx-bluetooth"
-#~ msgstr "Gimx-bluetooth"
-
-#~ msgid "Sixaxis"
-#~ msgstr "Sixaxis"
-
-#~ msgid "Dongle"
-#~ msgstr "Dongle"
-
-#~ msgid "Name"
-#~ msgstr "Nom"
-
-#~ msgid "Chip version"
-#~ msgstr "Version"
-
-#~ msgid "Set Dongle Address"
-#~ msgstr "Ecrire l'adresse"
-
-#~ msgid "emu"
-#~ msgstr "emu"
-
-#~ msgid ""
-#~ "Autostart\n"
-#~ "emuclient"
-#~ msgstr ""
-#~ "Auto-démarrer\n"
-#~ "emuclient"
-
-#~ msgid "0"
-#~ msgstr "0"
-
-#~ msgid "emuclient"
-#~ msgstr "emuclient"
-
-#~ msgid "Subpositions"
-#~ msgstr "Sous-positions"
-
-#~ msgid "Save"
-#~ msgstr "Sauver"
-
-#~ msgid "gimx-bluetooth is already running!"
-#~ msgstr "gimx-bluetooth est déjà lancé !"
-
-#~ msgid "Can't init ~/.sixemugui directory!"
-#~ msgstr "Impossible d'initialiser le répertoire ~/.sixemugui !"
-
-#~ msgid "Can't init ~/.emuclient/config!"
-#~ msgstr "Impossible d'initialiser le répertoire ~/.emuclient/config !"
-
-#~ msgid "Can't init ~/.emuclient/macros!"
-#~ msgstr "Impossible d'initialiser le répertoire ~/.emuclient/macros !"
-
-#~ msgid "This dongle is in use!"
-#~ msgstr "Ce dongle est en utilisation !"
-
-#~ msgid "Stop"
-#~ msgstr "Arrêter"
-
-#~ msgid ""
-#~ "Connected!\n"
-#~ "Start emuclient now."
-#~ msgstr ""
-#~ "Connecté !\n"
-#~ "Veuillez démarrer emuclient."
-
-#~ msgid ""
-#~ "Connection error!\n"
-#~ "Did you set the dongle address?\n"
-#~ "If yes, try another dongle!"
-#~ msgstr ""
-#~ "Erreur de connection !\n"
-#~ "Avez-vous écrit l'adresse du dongle ?\n"
-#~ "Si oui, essayez un autre dongle !"
-
-#~ msgid "This dongle is already used!"
-#~ msgstr "Ce dongle est déjà utlisé !"
-
-#~ msgid "GPP"
-#~ msgstr "GPP"
-
-#~ msgid "USB to serial"
-#~ msgstr "USB - série"
-
-#~ msgid "PS2 pad"
-#~ msgstr "PS2 pad"
-
-#~ msgid "Spoof"
-#~ msgstr "Spoof"
-
-#~ msgid "Update frequency "
-#~ msgstr "Taux de rafraîchissement"
-
-#~ msgid "Hz"
-#~ msgstr "Hz"
-
-#~ msgid "Spoof the 360 controller first!"
-#~ msgstr "Spoofez d'abord le contrôleur 360 !"
-
-#~ msgid ""
-#~ "1. Make sure a single genuine 360 controller is connected to the PC.\n"
-#~ "2. Make sure the adapter is connected to the PC.\n"
-#~ "3. Make sure the adapter is NOT connected to the 360.\n"
-#~ "4. Press OK, and connect the adapter to the 360 after 2-3 seconds."
-#~ msgstr ""
-#~ "1. Assurez vous qu'un seul contrôleur 360 officiel est connecté au PC.\n"
-#~ "2. Assurez vous que l'adaptateur est connecté au PC..\n"
-#~ "3. Assurez vous que l'adaptateur n'est PAS connecté à la 360.\n"
-#~ "4. Appuez sur OK, et connectez l'adaptateur à la 360 après 2-3 secondes."
-
-#~ msgid ""
-#~ "Spoof error!\n"
-#~ "Please try again!"
-#~ msgstr ""
-#~ "Erreur du spoof !\n"
-#~ "Essayez de nouveau !"
-
-#~ msgid "Macro %s defined twice!\n"
-#~ msgstr "Macro %s définie deux fois !\n"
-
-#~ msgid "close unused joystick: %s\n"
-#~ msgstr "fermeture du joystick inutilisé: %s\n"
-
-#~ msgid "close joystick subsystem\n"
-#~ msgstr "fermeture du sous-système joystick\n"
-
-#~ msgid "Can't init ~/.sixemugui-serial directory!"
-#~ msgstr "Impossible d'initialiser le répertoire ~/.sixemugui-serial !"
-
-#~ msgid ""
-#~ "The addresses have been saved in ~/.emuclient/bdaddrs.\n"
-#~ "The dongle address will be automatically set on next startup."
-#~ msgstr ""
-#~ "Les adresses ont été sauvées dans ~/.emuclient/bdaddrs.\n"
-#~ "L'adresse du dongle sera automatiquement modifiée au prochain lancement."
-
-#~ msgid "Emu processes will be killed!"
-#~ msgstr "Les processus emu seront tués !"

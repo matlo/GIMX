@@ -1127,7 +1127,7 @@ void launcherFrame::readDebugStrings(wxArrayString & values)
     wxArrayString choices;
     choices.Add(wxT("adapter"));
     choices.Add(wxT("haptic"));
-    wxMultiChoiceDialog dialog(this, _("Select the files to debug:"), _(""), choices);
+    wxMultiChoiceDialog dialog(this, _("Select the files to debug:"), wxT(""), choices);
 
     if (dialog.ShowModal() == wxID_OK)
     {
@@ -1303,7 +1303,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
       wxArrayString destination;
       destination.Add(_("text"));
       destination.Add(_("log file"));
-      wxSingleChoiceDialog dialog(this, _("Select the destination:"), _(""), destination);
+      wxSingleChoiceDialog dialog(this, _("Select the destination:"), wxT(""), destination);
       if (dialog.ShowModal() == wxID_OK)
       {
         wxString selection = dialog.GetStringSelection();

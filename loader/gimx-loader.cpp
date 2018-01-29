@@ -199,13 +199,13 @@ void loaderFrame::OnButtonLoadClick(wxCommandEvent& event __attribute__((unused)
 
     ButtonLoad->Enable(false);
 
-    int answer = wxMessageBox(_("This tool is only compatible with GIMX adapters made with a USB to UART adapter and a Pro Micro board. Proceed?"), _(""), wxICON_INFORMATION | wxOK | wxCANCEL);
+    int answer = wxMessageBox(_("This tool is only compatible with GIMX adapters made with a USB to UART adapter and a Pro Micro board. Proceed?"), wxT(""), wxICON_INFORMATION | wxOK | wxCANCEL);
     if (answer != wxOK) {
         ButtonLoad->Enable(true);
         return;
     }
 
-    answer = wxMessageBox(_("Plug both sides of the adapter to the computer."), _(""), wxICON_INFORMATION | wxOK | wxCANCEL);
+    answer = wxMessageBox(_("Plug both sides of the adapter to the computer."), wxT(""), wxICON_INFORMATION | wxOK | wxCANCEL);
     if (answer != wxOK) {
         ButtonLoad->Enable(true);
         return;
