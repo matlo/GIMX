@@ -220,7 +220,7 @@ void loaderFrame::OnButtonLoadClick(wxCommandEvent& event __attribute__((unused)
 
     {
         wxWindowDisabler disableAll;
-        wxBusyInfo wait(_("Unplug/replug the USB cable (Pro Micro side of the adapter)."));
+        wxBusyInfo wait(_("Unplug/replug the USB cable from/to computer USB port."));
 
         for (count = 0; count < 40; ++count) {
             for (i = 0; i < MAX_PORT_NB; ++i) {
