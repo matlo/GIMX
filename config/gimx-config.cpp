@@ -2082,12 +2082,28 @@ void configFrame::OnButtonAutoDetectClick(wxCommandEvent& event __attribute__((u
  */
 void configFrame::OnButtonTabAutoDetectClick(wxCommandEvent& event __attribute__((unused)))
 {
+    bool DS4TouchpadWorkaroundNeeded = false;
+
     ButtonTabAutoDetect->Enable(false);
 
-	wxString eventType = ButtonTabEventType->GetStringSelection();
+    // If user wants to assign touchpad button then ask him for workaround
+    if((ButtonTabButtonId->GetStringSelection() == wxT("touchpad")))
+     {
+   	  int answer = wxMessageBox(_("Touchpad button does not get detected on standard HID driver on Windows if you try to assign it to Dualshock 4. Would you like to do that automatically?\n\nAnswer YES if you want to assign that button to your DualShock 4 Controller touchpad button\n\nAnswer NO if you want to assign this button to Keyboard or Steering Wheel"), _("Warning"), wxYES_NO);
+   	        if (answer == wxYES)
+   	        {
+   	          wxMessageBox(_("Please click OK and press any button on your DS4. Application will detect DS4 and assign touchpad button automatically."));
+   	          DS4TouchpadWorkaroundNeeded = true;
+   	        }
+     }
+
+    wxString eventType = ButtonTabEventType->GetStringSelection();
 
     auto_detect(ButtonTabDeviceType, &buttonTabDeviceName, ButtonTabDeviceName, ButtonTabDeviceId, eventType, ButtonTabEventId);
-
+	
+    // Sets touchpad button ID to DS4 manually bypassing bugged HID driver
+    if(DS4TouchpadWorkaroundNeeded){ ButtonTabEventId->SetLabel("15"); }
+	
     if(eventType == _("button"))
     {
         ButtonTabThreshold->Disable();
