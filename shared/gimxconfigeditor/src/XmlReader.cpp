@@ -256,7 +256,7 @@ void XmlReader::ProcessAxisElement(xmlNode * a_node)
         throw invalid_argument(message);
     }
 
-    if(id.find("stick") == string::npos)
+    if(id != ("rel_axis_0") && id != ("rel_axis_1") && id != ("rel_axis_2") && id != ("rel_axis_3"))
     {
         m_TempEvent.SetShape("");
     }
