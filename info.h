@@ -19,4 +19,8 @@
   #define INFO_ARCH "ARMv6"
 #endif
 
+#ifndef INFO_ARCH
+  #define INFO_ARCH "Unknown architecture"
+#endif
+
 #endif /* INFO_H_ */
