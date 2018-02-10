@@ -1053,11 +1053,16 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
     OnOutputSelect(event);
     OnInputSelect(event);
 
+#ifdef DOWNLOAD_URL
     readStartUpdates();
     if(MenuStartupUpdates->IsChecked())
     {
       OnMenuUpdate(event);
     }
+#else
+    MenuStartupUpdates->Enable(false);
+    MenuUpdate->Enable(false);
+#endif
 
     started = true;
 
@@ -1765,6 +1770,7 @@ void launcherFrame::OnUpdateProgress(string & file, unsigned int dlnow, unsigned
 
 void launcherFrame::OnMenuUpdate(wxCommandEvent& event __attribute__((unused)))
 {
+#ifdef DOWNLOAD_URL
   int ret;
 
   updater* u = updater::getInstance();
@@ -1800,6 +1806,7 @@ void launcherFrame::OnMenuUpdate(wxCommandEvent& event __attribute__((unused)))
   {
     wxMessageBox(_("GIMX is up-to-date!"), _("Info"), wxICON_INFORMATION);
   }
+#endif
 }
 
 void launcherFrame::OnMenuStartupUpdates(wxCommandEvent& event __attribute__((unused)))
