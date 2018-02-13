@@ -29,11 +29,10 @@
 #endif
 #define STICK_X_L 21
 
-//#define BUTTON_Y_L 3
-//#define BUTTON_X_L 3
+#define BUTTON_LENGTH sizeof("shifter forward: 65535")
 
 #define BUTTON_Y_L STICK_Y_L
-#define BUTTON_X_L 16
+#define BUTTON_X_L BUTTON_LENGTH + 1
 
 #define LSTICK_Y_P 2
 #define LSTICK_X_P 2
@@ -46,14 +45,6 @@
 
 #define CAL_Y_P LSTICK_Y_P + STICK_Y_L
 #define CAL_X_P 2
-
-//#define BUTTON_Y_P LSTICK_Y_P + STICK_Y_L
-//#define BUTTON_X_P LSTICK_X_P
-
-#define BUTTON_W LABEL_LENGTH + BUTTON_X_L + 2
-
-#define LABEL_LENGTH sizeof("triangle")
-#define BUTTON_LENGTH LABEL_LENGTH + sizeof(": 255")
 
 static WINDOW *lstick = NULL, *rstick = NULL, *wbuttons = NULL, *wcal = NULL;
 
@@ -371,7 +362,8 @@ static void show_axes(e_controller_type type, int axis[])
   {
     if(axis[i])
     {
-      snprintf(label, sizeof(label), "%8s: %4d", controller_get_axis_name(type, i), axis[i]);
+      snprintf(label, sizeof(label), "%15s: %5d", controller_get_axis_name(type, i), axis[i]);
+
       mvwaddstr(wbuttons, 1 + d, 1, label);
       d++;
       if(d == BUTTON_Y_L - 3)
