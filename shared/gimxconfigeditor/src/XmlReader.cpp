@@ -205,8 +205,8 @@ void XmlReader::ProcessAxisElement(xmlNode * a_node)
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
     id = string(prop?prop:"");
     xmlFree(prop);
-	
-	  prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_LABEL);
+
+    prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_LABEL);
     label = string(prop?prop:"");
     xmlFree(prop);
 
@@ -256,13 +256,16 @@ void XmlReader::ProcessAxisElement(xmlNode * a_node)
         throw invalid_argument(message);
     }
 
-    if(id.find("stick") == string::npos)
+    s_axis_props props = ControlMapper::GetAxisProps(id);
+
+    if(props.axis < rel_axis_0 || props.axis > rel_axis_3)
     {
+        // dead zone shape only makes sense for sticks
         m_TempEvent.SetShape("");
     }
 
-    m_TempAxisMapper.SetAxis(ControlMapper::GetAxisProps(id));
-	  m_TempAxisMapper.SetLabel(label);
+    m_TempAxisMapper.SetAxis(props);
+    m_TempAxisMapper.SetLabel(label);
     m_TempAxisMapper.SetDevice(m_TempDevice);
     m_TempAxisMapper.SetEvent(m_TempEvent);
     m_TempConfiguration.GetAxisMapperList()->push_back(m_TempAxisMapper);
@@ -278,8 +281,8 @@ void XmlReader::ProcessButtonElement(xmlNode * a_node)
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_ID);
     id = string(prop?prop:"");
     xmlFree(prop);
-	
-	  prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_LABEL);
+
+    prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_LABEL);
     label = string(prop?prop:"");
     xmlFree(prop);
 
@@ -330,7 +333,7 @@ void XmlReader::ProcessButtonElement(xmlNode * a_node)
     }
 
     m_TempButtonMapper.SetAxis(ControlMapper::GetAxisProps(id));
-	  m_TempButtonMapper.SetLabel(label);
+    m_TempButtonMapper.SetLabel(label);
     m_TempButtonMapper.SetDevice(m_TempDevice);
     m_TempButtonMapper.SetEvent(m_TempEvent);
     m_TempConfiguration.GetButtonMapperList()->push_back(m_TempButtonMapper);
