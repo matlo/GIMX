@@ -3474,13 +3474,13 @@ void configFrame::OnMenuReplaceMouseDPI(wxCommandEvent& event __attribute__((unu
                     continue;
                   }
                   double val;
-                  if(!ToDouble(it->GetEvent()->GetMultiplier().c_str(), &val, decimalPoint))
+                  if(!ToDouble(wxString(it->GetEvent()->GetMultiplier().c_str(), wxConvUTF8), &val, decimalPoint))
                   {
                     wxMessageBox( _("Failed to parse sensitivity value!"), _("Error"), wxICON_ERROR);
                     continue;
                   }
                   double exp;
-                  if(!ToDouble(it->GetEvent()->GetExponent().c_str(), &exp, decimalPoint))
+                  if(!ToDouble(wxString(it->GetEvent()->GetExponent().c_str(), wxConvUTF8), &exp, decimalPoint))
                   {
                     wxMessageBox( _("Failed to parse acceleration value!"), _("Error"), wxICON_ERROR);
                     continue;
