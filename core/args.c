@@ -28,6 +28,8 @@
 #define DEV_SERIAL "COM"
 #endif
 
+#define DEBUG_OPTION_PREFIX "debug."
+
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 
@@ -85,6 +87,8 @@ static void usage()
   printf("  --skip_leds: Filter out set led commands from FFB command stream (performance tweak for G27/G29 wheels on small targets).\n");
   printf("  --ff_conv: Force OS translation for FFB commands on Windows.\n");
   printf("  --timeout value: Exit if controllers are inactive during a given number of minutes.\n");
+
+  printf("  --show-debug-flags: Show all available debug flags.\n");
 }
 
 /*
@@ -164,6 +168,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"src",     required_argument, 0, 's'},
     {"type",    required_argument, 0, 't'},
     {"version", no_argument,       0, 'v'},
+    {"show-debug-flags", no_argument, 0, 'z'},
     {0, 0, 0, 0}
   };
   
@@ -172,7 +177,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     /* getopt_long stores the option index here. */
     int option_index = 0;
 
-    c = getopt_long (argc, argv, "b:c:d:e:h:k:l:p:r:s:t:vm", long_options, &option_index);
+    c = getopt_long (argc, argv, "b:c:d:e:h:k:l:p:r:s:t:vmz", long_options, &option_index);
 
     /* Detect the end of the options. */
     if (c == -1)
@@ -399,6 +404,21 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
       case '?':
         usage();
         exit(-1);
+        break;
+
+      case 'z':
+        {
+          printf("debug options:\n");
+          int i;
+          for (i = 0; long_options[i].name != NULL; ++i)
+          {
+            if(strstr(long_options[i].name, DEBUG_OPTION_PREFIX) == long_options[i].name)
+            {
+              printf("%s\n", long_options[i].name + sizeof(DEBUG_OPTION_PREFIX) - 1);
+            }
+          }
+          exit(0);
+        }
         break;
 
       default:

@@ -1130,9 +1130,28 @@ void MyProcess::OnTerminate(int pid __attribute__((unused)), int status)
 void launcherFrame::readDebugStrings(wxArrayString & values)
 {
     wxArrayString choices;
-    choices.Add(wxT("adapter"));
-    choices.Add(wxT("haptic"));
-    wxMultiChoiceDialog dialog(this, _("Select the files to debug:"), wxT(""), choices);
+
+    wxArrayString output, errors;
+    if(!wxExecute(wxT("gimx -z"), output, errors, wxEXEC_SYNC))
+    {
+      for(unsigned int j=1; j<output.GetCount(); ++j)
+      {
+        choices.Add(output[j]);
+      }
+    }
+    else
+    {
+      wxMessageBox( _("Failed to read debug flags!"), _("Error"), wxICON_ERROR);
+      return;
+    }
+
+    if (choices.GetCount() == 0)
+    {
+      wxMessageBox( _("No debug flag found!"), _("Error"), wxICON_ERROR);
+      return;
+    }
+
+    wxMultiChoiceDialog dialog(this, _("Select the debug flags:"), wxT(""), choices);
 
     if (dialog.ShowModal() == wxID_OK)
     {
