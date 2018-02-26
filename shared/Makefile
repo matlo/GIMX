@@ -33,7 +33,7 @@ build-input: build-gimxuhid
 endif
 build-gimxinput: build-gimxhid build-gimxpoll
 ifeq ($(OS),Windows_NT)
-build-gimxusb: build-gimxtimer build-gimxpoll
+build-gimxusb: build-gimxtimer
 endif
 
 clean: $(CLEANDIRS)
