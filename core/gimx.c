@@ -163,6 +163,11 @@ void show_devices()
 
 void show_config()
 {
+  if (gimx_params.config_file == NULL)
+  {
+    return;
+  }
+
   char file_path[PATH_MAX];
 
   snprintf(file_path, sizeof(file_path), "%s%s%s%s", gimx_params.homedir, GIMX_DIR, CONFIG_DIR, gimx_params.config_file);
