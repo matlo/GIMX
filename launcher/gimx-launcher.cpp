@@ -45,6 +45,8 @@
 #include <time.h>
 #include <gimxhid/include/ghid.h>
 #include <gimxserial/include/gserial.h>
+#include <gimxinput/include/ginput.h>
+#include <gimxpoll/include/gpoll.h>
 
 #ifdef WIN32
 #define REGISTER_FUNCTION gpoll_register_handle
@@ -124,6 +126,12 @@ BEGIN_EVENT_TABLE(launcherFrame,wxFrame)
     //(*EventTable(launcherFrame)
     //*)
 END_EVENT_TABLE()
+
+static int progress_callback(void *clientp, string & file, unsigned int dlnow, unsigned int dltotal)
+{
+    ((launcherFrame *) clientp)->OnUpdateProgress(file, dlnow, dltotal);
+    return 0;
+}
 
 /*
  * \brief This function performs a synchronous execution of a given command, and parses the command output.
@@ -809,6 +817,123 @@ void launcherFrame::readStartUpdates()
   }
 }
 
+#ifdef WIN32
+#define REGISTER_FUNCTION gpoll_register_handle
+#define REMOVE_FUNCTION gpoll_remove_handle
+#else
+#define REGISTER_FUNCTION gpoll_register_fd
+#define REMOVE_FUNCTION gpoll_remove_fd
+#endif
+
+int process_cb(GE_Event* event __attribute__((unused)))
+{
+    return 0;
+}
+
+void launcherFrame::getConfig(const std::string& config)
+{
+    string dir = string(gimxConfigDir.mb_str(wxConvUTF8));
+
+    wxString wxfile = wxString(dir.c_str(), wxConvUTF8) + wxString(config.c_str(), wxConvUTF8);
+
+    wxMessageBox( wxfile, _("Error"), wxICON_ERROR);
+
+    if (::wxFileExists(wxfile))
+    {
+      return;
+    }
+
+    configupdater* u = configupdater::getInstance();
+    u->setconfigdirectory(dir);
+
+    list<string> cl_sel;
+    cl_sel.push_back(config);
+
+    wxProgressDialog dlg(_("Downloading"), wxEmptyString);
+    progressDialog = &dlg;
+    u->getconfigs(&cl_sel, progress_callback, this);
+    progressDialog = NULL;
+}
+
+void launcherFrame::autoConfig()
+{
+    list<std::string> joysticks;
+
+    GPOLL_INTERFACE poll_interace =
+    {
+            .fp_register = REGISTER_FUNCTION,
+            .fp_remove = REMOVE_FUNCTION,
+    };
+    if(ginput_init(&poll_interace, GE_MKB_SOURCE_WINDOW_SYSTEM, process_cb) < 0)
+    {
+        ginput_quit();
+        return;
+    }
+
+    for (int i = 0; ginput_joystick_name(i) != NULL; ++i)
+    {
+        joysticks.push_back(ginput_joystick_name(i));
+    }
+
+    ginput_quit();
+
+    // TODO MLA: have an online index with device -> config, and be able to merge multiple configs
+
+    struct
+    {
+        string name;
+        string config;
+    } configs [] =
+#ifndef WIN32
+    {
+            { "Logitech Inc. WingMan Formula", "LogitechWingManFormula_G29.xml" },
+            { "Logitech Inc. WingMan Formula GP", "LogitechWingManFormulaGP_G29.xml" },
+            { "Logitech Inc. WingMan Formula Force", "LogitechWingManFormulaForce_G29.xml" },
+            { "Logitech Inc. WingMan Formula Force GP", "LogitechWingManFormulaForceGP_G29.xml" },
+            { "Logitech Logitech Driving Force", "LogitechDrivingForce_G29.xml" },
+            { "Logitech Logitech Driving Force EX", "LogitechDrivingForceEx_G29.xml" },
+            { "Logitech Logitech Driving Force Rx", "LogitechDrivingForceRx_G29.xml" },
+            { "Logitech Logitech Formula Force EX", "LogitechFormulaForceEx_G29.xml" },
+            { "PS3/USB Cordless Wheel", "LogitechDrivingForceWireless_DS4.xml" },
+            // TODO MLA { "Logitech MOMO Force USB", "LogitechMomoForce_G29.xml" },
+            { "Logitech Logitech Driving Force Pro", "LogitechDrivingForcePro_G29.xml" },
+            { "G25 Racing Wheel", "LogitechG25_G29.xml" },
+            { "Driving Force GT", "LogitechDrivingForceGT_G29.xml" },
+            { "G27 Racing Wheel", "LogitechG27_G29.xml" },
+            { "Logitech  Logitech MOMO Racing ", "LogitechMomoRacing_G29.xml" },
+            { "Logitech G920 Driving Force Racing Wheel", "LogitechG920_G29.xml" },
+    };
+#else
+    {
+            { "Logitech WingMan Formula (Yellow) (USB)", "LogitechWingManFormula_G29.xml" },
+            { "Logitech WingMan Formula GP", "LogitechWingManFormulaGP_G29.xml" },
+            { "Logitech WingMan Formula Force USB", "LogitechWingManFormulaForce_G29.xml" },
+            { "Logitech WingMan Formula Force GP USB", "LogitechWingManFormulaForceGP_G29.xml" },
+            { "Logitech Driving Force USB", "LogitechDrivingForce_G29.xml" },
+            { "Logitech MOMO Force USB", "LogitechMomoForce_G29.xml" },
+            { "Logitech Driving Force Pro USB", "LogitechDrivingForcePro_G29.xml" },
+            { "Logitech G25 Racing Wheel USB", "LogitechG25_G29.xml" },
+            { "Logitech Driving Force GT USB", "LogitechDrivingForceGT_G29.xml" },
+            { "Logitech G27 Racing Wheel USB", "LogitechG27_G29.xml" },
+            { "Logitech MOMO Racing USB", "LogitechMomoRacing_G29.xml" },
+            { "Logitech G920 Driving Force Racing Wheel USB", "LogitechG920_G29.xml" },
+    };
+#endif
+
+    for (list<string>::iterator it = joysticks.begin(); it != joysticks.end(); ++it)
+    {
+        wxMessageBox( wxString(it->c_str(), wxConvUTF8), _("Error"), wxICON_ERROR);
+        for (unsigned int i = 0; i < sizeof(configs) / sizeof(*configs); ++i)
+        {
+            if (*it == configs[i].name)
+            {
+                getConfig(configs[i].config);
+                readConfigs();
+            }
+        }
+    }
+}
+
 launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unused)))
 {
     locale = new wxLocale(wxLANGUAGE_DEFAULT);
@@ -1045,6 +1170,8 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
     Output->Append(_("Bluetooth / PS3"));
     Output->Append(_("Bluetooth / PS4"));
 #endif
+
+    autoConfig();
 
     readParam(OUTPUT_FILE, Output);
     readParam(INPUT_FILE, Input);
@@ -1764,12 +1891,6 @@ void launcherFrame::OnOutputSelect(wxCommandEvent& event __attribute__((unused))
     }
 
     refreshGui();
-}
-
-static int progress_callback(void *clientp, string & file, unsigned int dlnow, unsigned int dltotal)
-{
-    ((launcherFrame *) clientp)->OnUpdateProgress(file, dlnow, dltotal);
-    return 0;
 }
 
 void launcherFrame::OnUpdateProgress(string & file, unsigned int dlnow, unsigned int dltotal)

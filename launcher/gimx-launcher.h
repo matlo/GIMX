@@ -89,6 +89,9 @@ class launcherFrame: public wxFrame
         void readSerialPorts();
         void readConfigs();
         
+        void autoConfig();
+        void getConfig(const std::string& config);
+
         int readChoices(const char* file, wxChoice* choices, const char* default_file);
         int saveChoices(const char* file, wxChoice* choices);
         int saveLinkKeys(wxString dongleBdaddr, wxString ds4Bdaddr, wxString ds4LinkKey, wxString ps4Bdaddr, wxString ps4LinkKey);
