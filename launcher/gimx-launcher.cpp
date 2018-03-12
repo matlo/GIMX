@@ -835,9 +835,6 @@ void launcherFrame::getConfig(const std::string& config)
     string dir = string(gimxConfigDir.mb_str(wxConvUTF8));
 
     wxString wxfile = wxString(dir.c_str(), wxConvUTF8) + wxString(config.c_str(), wxConvUTF8);
-
-    wxMessageBox( wxfile, _("Error"), wxICON_ERROR);
-
     if (::wxFileExists(wxfile))
     {
       return;
@@ -922,7 +919,6 @@ void launcherFrame::autoConfig()
 
     for (list<string>::iterator it = joysticks.begin(); it != joysticks.end(); ++it)
     {
-        wxMessageBox( wxString(it->c_str(), wxConvUTF8), _("Error"), wxICON_ERROR);
         for (unsigned int i = 0; i < sizeof(configs) / sizeof(*configs); ++i)
         {
             if (*it == configs[i].name)
