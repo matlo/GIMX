@@ -204,31 +204,26 @@ int updater::Update(UPDATER_PROGRESS_CALLBACK callback, void * data)
     fclose(outfile);
 
 #ifdef WIN32
-    STARTUPINFOA startupInfo = STARTUPINFO();
-    startupInfo.cb = sizeof(startupInfo);
-    PROCESS_INFORMATION processInformation;
 
-    char* ccmd = strdup(output.c_str());
-  
-    BOOL result = CreateProcessA(
-        output.c_str(),
-        ccmd,
-        NULL,
-        NULL,
-        FALSE,
-        NORMAL_PRIORITY_CLASS,
-        NULL,
-        NULL,
-        &startupInfo,
-        &processInformation
-    );
-  
-    free(ccmd);
+    SHELLEXECUTEINFO shExInfo = SHELLEXECUTEINFO();
+    shExInfo.cbSize = sizeof(shExInfo);
+    shExInfo.fMask = SEE_MASK_DEFAULT;
+    shExInfo.hwnd = 0;
+    shExInfo.lpVerb = "runas";
+    shExInfo.lpFile = output.c_str();
+    shExInfo.lpParameters = "";
+    shExInfo.lpDirectory = 0;
+    shExInfo.nShow = SW_SHOW;
+    shExInfo.hInstApp = 0;
 
-    if(!result)
+    if (!ShellExecuteEx(&shExInfo))
     {
-      return -1;
+        return -1;
     }
+
+    WaitForSingleObject(shExInfo.hProcess, INFINITE);
+    CloseHandle(shExInfo.hProcess);
+
 #else
     string cmd = "";
     cmd.append("xdg-open ");

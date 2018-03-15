@@ -941,6 +941,124 @@ void launcherFrame::autoConfig()
     }
 }
 
+#ifdef WIN32
+#define USB_VENDOR_ID_LOGITECH                  0x046d
+
+#define USB_PRODUCT_ID_LOGITECH_FORMULA_YELLOW   0xc202 // no force feedback
+#define USB_PRODUCT_ID_LOGITECH_FORMULA_GP       0xc20e // no force feedback
+#define USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE    0xc291
+#define USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP 0xc293
+#define USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE    0xc294
+#define USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL       0xc295
+#define USB_PRODUCT_ID_LOGITECH_DFP_WHEEL        0xc298
+#define USB_PRODUCT_ID_LOGITECH_G25_WHEEL        0xc299
+#define USB_PRODUCT_ID_LOGITECH_DFGT_WHEEL       0xc29a
+#define USB_PRODUCT_ID_LOGITECH_G27_WHEEL        0xc29b
+#define USB_PRODUCT_ID_LOGITECH_WII_WHEEL        0xc29c // rumble only
+#define USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2      0xca03
+#define USB_PRODUCT_ID_LOGITECH_VIBRATION_WHEEL  0xca04 // rumble only
+#define USB_PRODUCT_ID_LOGITECH_G920_WHEEL       0xc262 // does not support classic format
+#define USB_PRODUCT_ID_LOGITECH_G29_WHEEL        0xc24f
+
+#define MAKE_IDS(USB_PRODUCT_ID) \
+    { .vendor_id = USB_VENDOR_ID_LOGITECH, .product_id = USB_PRODUCT_ID }
+
+typedef struct
+{
+    unsigned short vendor_id;
+    unsigned short product_id;
+} s_lgwheel_ids;
+
+static s_lgwheel_ids ids[] =
+{
+        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_FORMULA_YELLOW),
+        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_FORMULA_GP),
+        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE),
+        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP),
+        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE),
+        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL),
+        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_DFP_WHEEL),
+        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_G25_WHEEL),
+        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_DFGT_WHEEL),
+        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_G27_WHEEL),
+        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2),
+        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_VIBRATION_WHEEL),
+        { .vendor_id = 0, .product_id = 0 },
+};
+
+void launcherFrame::autoSetup()
+{
+    bool installLgs = false;
+
+    struct ghid_device_info *devs, *cur_dev;
+
+    if (ghid_init() < 0)
+    {
+      return;
+    }
+
+    devs = ghid_enumerate(USB_VENDOR_ID_LOGITECH, 0x0000);
+    for(cur_dev = devs; cur_dev != NULL && !installLgs; cur_dev = cur_dev->next)
+    {
+        for (unsigned int i = 0; i < sizeof(ids) / sizeof(*ids); ++i)
+        {
+            if (cur_dev->vendor_id == ids[i].vendor_id && cur_dev->product_id == ids[i].product_id)
+            {
+                installLgs = true;
+                break;
+            }
+        }
+    }
+    ghid_free_enumeration(devs);
+
+    ghid_exit();
+
+    if (installLgs)
+    {
+        if (FindWindowA(NULL, "Logitech WingMan Event Monitor") != NULL)
+        {
+            return;
+        }
+
+        int answer = wxMessageBox(_("Logitech wheel detected. Install Logitech Gaming Software?"), _("Confirm"), wxYES_NO);
+        if (answer == wxNO)
+        {
+            return;
+        }
+
+        const char * download = NULL;
+        SYSTEM_INFO info;
+        GetNativeSystemInfo(&info);
+        switch (info.wProcessorArchitecture)
+        {
+            case PROCESSOR_ARCHITECTURE_AMD64:
+            case PROCESSOR_ARCHITECTURE_IA64:
+            download = "https://gimx.fr/download/LGS64";
+            break;
+            case PROCESSOR_ARCHITECTURE_INTEL:
+            download = "https://gimx.fr/download/LGS32";
+            break;
+        }
+        if (download != NULL)
+        {
+            updater* u = updater::getInstance();
+            u->SetParams("", "", "", download, "lgs.exe");
+
+            wxProgressDialog dlg(_("Downloading"), wxEmptyString);
+            progressDialog = &dlg;
+            int uret = u->Update(progress_callback, this);
+            progressDialog = NULL;
+            if (uret < 0)
+            {
+                wxMessageBox(_("Can't retrieve Logitech Gaming Software!"), _("Error"), wxICON_ERROR);
+            }
+        }
+    }
+}
+#else
+void launcherFrame::autoSetup() {}
+#endif
+
 launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unused)))
 {
     locale = new wxLocale(wxLANGUAGE_DEFAULT);
@@ -1177,6 +1295,8 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
     Output->Append(_("Bluetooth / PS3"));
     Output->Append(_("Bluetooth / PS4"));
 #endif
+
+    autoSetup();
 
     autoConfig();
 
