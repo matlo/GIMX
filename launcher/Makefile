@@ -7,7 +7,7 @@ endif
 
 NAME=$(shell basename $(shell pwd))
 
-CPPFLAGS += `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP -Wno-unused-local-typedefs
+CPPFLAGS += `sdl2-config --cflags` `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP -Wno-unused-local-typedefs
 LDLIBS += `wx-config --libs` -lstdc++
 
 LDLIBS += $(GIMXCONFIGEDITOR_LDLIBS) $(GIMXUPDATER_LDLIBS) $(GIMXCONFIGUPDATER_LDLIBS) $(GIMXHID_LDLIBS) $(GIMXGPP_LDLIBS) $(GIMXSERIAL_LDLIBS)

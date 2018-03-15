@@ -90,7 +90,7 @@ class launcherFrame: public wxFrame
         void readConfigs();
         
         void autoConfig();
-        void getConfig(const std::string& config);
+        bool getConfig(const std::string& config);
 
         int readChoices(const char* file, wxChoice* choices, const char* default_file);
         int saveChoices(const char* file, wxChoice* choices);

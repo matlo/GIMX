@@ -830,14 +830,14 @@ int process_cb(GE_Event* event __attribute__((unused)))
     return 0;
 }
 
-void launcherFrame::getConfig(const std::string& config)
+bool launcherFrame::getConfig(const std::string& config)
 {
     string dir = string(gimxConfigDir.mb_str(wxConvUTF8));
 
     wxString wxfile = wxString(dir.c_str(), wxConvUTF8) + wxString(config.c_str(), wxConvUTF8);
     if (::wxFileExists(wxfile))
     {
-      return;
+      return false;
     }
 
     configupdater* u = configupdater::getInstance();
@@ -848,8 +848,10 @@ void launcherFrame::getConfig(const std::string& config)
 
     wxProgressDialog dlg(_("Downloading"), wxEmptyString);
     progressDialog = &dlg;
-    u->getconfigs(&cl_sel, progress_callback, this);
+    int ret = u->getconfigs(&cl_sel, progress_callback, this);
     progressDialog = NULL;
+
+    return ret == 0;
 }
 
 void launcherFrame::autoConfig()
@@ -917,16 +919,25 @@ void launcherFrame::autoConfig()
     };
 #endif
 
+    bool refresh = false;
+
     for (list<string>::iterator it = joysticks.begin(); it != joysticks.end(); ++it)
     {
         for (unsigned int i = 0; i < sizeof(configs) / sizeof(*configs); ++i)
         {
             if (*it == configs[i].name)
             {
-                getConfig(configs[i].config);
-                readConfigs();
+                if (getConfig(configs[i].config))
+                {
+                    refresh = true;
+                }
             }
         }
+    }
+
+    if (refresh)
+    {
+        readConfigs();
     }
 }
 
