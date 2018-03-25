@@ -479,9 +479,16 @@ int main(int argc, char *argv[])
   QUIT: ;
 
   e_gimx_status clean_status = adapter_clean();
-  if (status == E_GIMX_STATUS_SUCCESS && clean_status != E_GIMX_STATUS_SUCCESS)
+  if (status == E_GIMX_STATUS_SUCCESS)
   {
-    status = clean_status;
+    if (clean_status != E_GIMX_STATUS_SUCCESS)
+    {
+      status = clean_status;
+    }
+    else
+    {
+      status = adapter_get(0)->ctype;
+    }
   }
 
   macros_clean();
@@ -496,47 +503,41 @@ int main(int argc, char *argv[])
 
   xmlCleanupParser();
 
-  if (status != E_GIMX_STATUS_SUCCESS)
-  {
-    /*
-     * Write the status in the gimx.status file, in the system temp directory.
-     *
-     * In most cases gimx runs in a terminal window (such as xterm) that may not
-     * provide the return code to the parent process (in most cases gimx-launcher).
-     *
-     * The absence of the gimx.status file means the execution was successful,
-     * or that the program crashed.
-     */
+  /*
+   * Write the status in the gimx.status file, in the system temp directory.
+   *
+   * In most cases gimx runs in a terminal window (such as xterm) that may not
+   * provide the return code to the parent process (in most cases gimx-launcher).
+   */
 
 #ifndef WIN32
-    char * file = "/tmp/gimx.status";
+  char * file = "/tmp/gimx.status";
 #else
-    char file[MAX_PATH];
-    int ret = GetTempPath(sizeof(file), file);
-    if (ret > 0 && (unsigned int) ret < MAX_PATH - sizeof("/gimx.status"))
-    {
-      strcat(file, "/gimx.status");
-    }
-    else
-    {
-      file[0] = '\0';
-    }
+  char file[MAX_PATH];
+  int ret = GetTempPath(sizeof(file), file);
+  if (ret > 0 && (unsigned int) ret < MAX_PATH - sizeof("/gimx.status"))
+  {
+    strcat(file, "/gimx.status");
+  }
+  else
+  {
+    file[0] = '\0';
+  }
 #endif
-    if (file != NULL && file[0] != '\0')
+  if (file != NULL && file[0] != '\0')
+  {
+    FILE * fp = fopen(file, "w");
+    if (fp != NULL)
     {
-      FILE * fp = fopen(file, "w");
-      if (fp != NULL)
-      {
-        fprintf(fp, "%d\n", status);
-        fclose(fp);
+      fprintf(fp, "%d\n", status);
+      fclose(fp);
 #ifndef WIN32
-        int ret = chown(file, getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid);
-        if (ret < 0)
-        {
-          gerror("failed to set ownership of the gimx status file\n");
-        }
-#endif
+      int ret = chown(file, getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid);
+      if (ret < 0)
+      {
+        gerror("failed to set ownership of the gimx status file\n");
       }
+#endif
     }
   }
 

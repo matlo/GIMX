@@ -37,8 +37,6 @@ typedef struct GIMX_PACKED
 #define BYTE_OUT_REPORT   0xee
 #define BYTE_IN_REPORT    0xff
 
-#define BYTE_STATUS_NSPOOFED 0x00
-#define BYTE_STATUS_SPOOFED  0x01
 #define BYTE_STATUS_NSTARTED 0x00
 #define BYTE_STATUS_STARTED  0x01
 

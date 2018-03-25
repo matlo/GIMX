@@ -650,7 +650,7 @@ e_gimx_status adapter_detect()
               ret = E_GIMX_STATUS_ADAPTER_NOT_DETECTED;
             }
 
-            if(ret != -1)
+            if(ret == E_GIMX_STATUS_SUCCESS)
             {
               switch(adapter->ctype)
               {
@@ -658,28 +658,9 @@ e_gimx_status adapter_detect()
                 case C_TYPE_T300RS_PS4:
                 case C_TYPE_G29_PS4:
                 case C_TYPE_G27_PS3:
-                  if(status == BYTE_STATUS_STARTED)
-                  {
-                    if(adapter_send_reset(i) < 0)
-                    {
-                      gerror(_("failed to reset the GIMX adapter.\n"));
-                      ret = E_GIMX_STATUS_GENERIC_ERROR;
-                    }
-                    else
-                    {
-                      ginfo(_("Reset sent to the GIMX adapter.\n"));
-                      //Leave time for the adapter to reinitialize.
-                      usleep(ADAPTER_RESET_TIME);
-                    }
-                  }
-                  break;
                 case C_TYPE_XONE_PAD:
                 case C_TYPE_360_PAD:
-                  if(status == BYTE_STATUS_SPOOFED)
-                  {
-                    adapter->status = 1;
-                  }
-                  else
+                  if(status == BYTE_STATUS_STARTED)
                   {
                     if(adapter_send_reset(i) < 0)
                     {
@@ -709,28 +690,23 @@ e_gimx_status adapter_detect()
               int usb_res = usb_init(i, adapter->ctype);
               if(usb_res < 0)
               {
-                if((adapter->ctype != C_TYPE_360_PAD
-                    && adapter->ctype != C_TYPE_XONE_PAD)
-                    || status != BYTE_STATUS_SPOOFED)
+                gerror(_("No game controller was found on USB ports.\n"));
+                switch(adapter->ctype)
                 {
-                  gerror(_("No game controller was found on USB ports.\n"));
-                  switch(adapter->ctype)
-                  {
-                  case C_TYPE_360_PAD:
-                      ret = E_GIMX_STATUS_AUTH_MISSING_X360;
-                      break;
-                  case C_TYPE_DS4:
-                  case C_TYPE_G29_PS4:
-                  case C_TYPE_T300RS_PS4:
-                      ret = E_GIMX_STATUS_AUTH_MISSING_PS4;
-                      break;
-                  case C_TYPE_XONE_PAD:
-                      ret = E_GIMX_STATUS_AUTH_MISSING_XONE;
-                      break;
-                  default:
-                      ret = E_GIMX_STATUS_GENERIC_ERROR;
-                      break;
-                  }
+                case C_TYPE_360_PAD:
+                    ret = E_GIMX_STATUS_AUTH_MISSING_X360;
+                    break;
+                case C_TYPE_DS4:
+                case C_TYPE_G29_PS4:
+                case C_TYPE_T300RS_PS4:
+                    ret = E_GIMX_STATUS_AUTH_MISSING_PS4;
+                    break;
+                case C_TYPE_XONE_PAD:
+                    ret = E_GIMX_STATUS_AUTH_MISSING_XONE;
+                    break;
+                default:
+                    ret = E_GIMX_STATUS_GENERIC_ERROR;
+                    break;
                 }
               }
             }
@@ -1189,14 +1165,12 @@ e_gimx_status adapter_clean()
         }
         switch(adapter->ctype)
         {
-          case C_TYPE_360_PAD:
-          case C_TYPE_XONE_PAD:
-            usb_close(i);
-            break;
           case C_TYPE_DS4:
           case C_TYPE_T300RS_PS4:
           case C_TYPE_G29_PS4:
           case C_TYPE_G27_PS3:
+          case C_TYPE_360_PAD:
+          case C_TYPE_XONE_PAD:
             usb_close(i);
             adapter_send_reset(i);
             break;
