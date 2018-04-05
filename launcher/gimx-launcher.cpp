@@ -1709,10 +1709,13 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
     ButtonStart->Enable(true);
     StatusBar1->SetStatusText(wxEmptyString);
 
-    status = E_GIMX_STATUS_GENERIC_ERROR;
+    status = E_GIMX_STATUS_SUCCESS;
 
     /*
      * Get the execution status from the gimx.status file, in the system temp directory.
+     *
+     * The absence of the gimx.status file means the execution was successful,
+     * or that the program crashed.
      */
 
     wxString statusFile = wxStandardPaths::Get().GetTempDir() + wxT("/") + wxT(STATUS_FILE);
@@ -1735,6 +1738,12 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
 
     switch(status)
     {
+    case E_GIMX_STATUS_SUCCESS:
+        {
+            wxCommandEvent event;
+            OnMenuSave(event);
+        }
+        break;
     case E_GIMX_STATUS_GENERIC_ERROR:
         wxMessageBox( _("GIMX failed with a generic error (please report this)."), _("Error"), wxICON_ERROR);
         break;
@@ -1778,22 +1787,6 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
         break;
     case E_GIMX_STATUS_AUTH_MISSING_XONE:
         wxMessageBox( _("No Xbox One controller (without 3.5mm jack) was found on USB ports."), _("Error"), wxICON_ERROR);
-        break;
-    default:
-        if (status >= E_GIMX_STATUS_SUCCESS)
-        {
-            wxCommandEvent event;
-            OnMenuSave(event);
-#ifdef WIN32
-            switch (status)
-            {
-            case C_TYPE_XONE_PAD:
-            case C_TYPE_360_PAD:
-                wxMessageBox( _("Unplug and replug the controller before next GIMX start."), _("Info"), wxICON_INFORMATION);
-                break;
-            }
-#endif
-        }
         break;
     }
 
