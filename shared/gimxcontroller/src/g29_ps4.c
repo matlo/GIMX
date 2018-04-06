@@ -318,7 +318,7 @@ static s_controller controller =
 {
   .name = "G29 PS4",
   .vid = 0x046d,
-  .pid = 0xc24f,
+  .pid = 0xc260,
   .refresh_period = { .min_value = 1000, .default_value = 5000 },
   .auth_required = 1,
   .axes = axes,

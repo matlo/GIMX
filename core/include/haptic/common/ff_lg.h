@@ -35,7 +35,8 @@
 #define USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2      0xca03
 #define USB_PRODUCT_ID_LOGITECH_VIBRATION_WHEEL  0xca04 // rumble only
 #define USB_PRODUCT_ID_LOGITECH_G920_WHEEL       0xc262 // hid++ protocol
-#define USB_PRODUCT_ID_LOGITECH_G29_WHEEL        0xc24f
+#define USB_PRODUCT_ID_LOGITECH_G29_PC_WHEEL     0xc24f // not sure about this one...
+#define USB_PRODUCT_ID_LOGITECH_G29_PS4_WHEEL    0xc260 // classic protocol with 1 byte offset
 
 #define FF_LG_OUTPUT_REPORT_SIZE 7
 

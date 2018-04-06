@@ -71,7 +71,7 @@ struct haptic_source_state * haptic_source_lg_init(s_haptic_core_ids ids) {
 
     state->caps = ff_lg_get_caps(ids.pid);
 
-    if (ids.pid == USB_PRODUCT_ID_LOGITECH_G29_WHEEL) {
+    if (ids.pid == USB_PRODUCT_ID_LOGITECH_G29_PS4_WHEEL) {
         state->cmd_offset = 1;
     }
 
@@ -275,7 +275,7 @@ static s_haptic_core_ids haptic_source_lg_ids[] = {
         { .vid = USB_VENDOR_ID_LOGITECH,  .pid = USB_PRODUCT_ID_LOGITECH_DFGT_WHEEL        },
         { .vid = USB_VENDOR_ID_LOGITECH,  .pid = USB_PRODUCT_ID_LOGITECH_G27_WHEEL         },
         { .vid = USB_VENDOR_ID_LOGITECH,  .pid = USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2       },
-        { .vid = USB_VENDOR_ID_LOGITECH,  .pid = USB_PRODUCT_ID_LOGITECH_G29_WHEEL         },
+        { .vid = USB_VENDOR_ID_LOGITECH,  .pid = USB_PRODUCT_ID_LOGITECH_G29_PS4_WHEEL         },
         { .vid = 0x0000,      .pid = 0x0000       }, // end of table
 };
 

@@ -188,7 +188,7 @@ uint8_t ff_lg_get_caps(uint16_t pid) {
 
     switch(pid) {
     case USB_PRODUCT_ID_LOGITECH_G27_WHEEL:
-    case USB_PRODUCT_ID_LOGITECH_G29_WHEEL:
+    case USB_PRODUCT_ID_LOGITECH_G29_PS4_WHEEL:
         caps |= FF_LG_CAPS_LEDS;
         break;
     default:

@@ -371,7 +371,7 @@ static s_haptic_core_ids haptic_sink_lg_ids[] = {
         { .vid = USB_VENDOR_ID_LOGITECH,  .pid = USB_PRODUCT_ID_LOGITECH_DFGT_WHEEL        },
         { .vid = USB_VENDOR_ID_LOGITECH,  .pid = USB_PRODUCT_ID_LOGITECH_G27_WHEEL         },
         { .vid = USB_VENDOR_ID_LOGITECH,  .pid = USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2       },
-        { .vid = USB_VENDOR_ID_LOGITECH,  .pid = USB_PRODUCT_ID_LOGITECH_G29_WHEEL         },
+        { .vid = USB_VENDOR_ID_LOGITECH,  .pid = USB_PRODUCT_ID_LOGITECH_G29_PS4_WHEEL     },
         { .vid = 0x0000,      .pid = 0x0000       }, // end of table
 };
 
