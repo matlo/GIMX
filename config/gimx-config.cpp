@@ -2024,6 +2024,7 @@ void configFrame::auto_detect(wxStaticText* device_type, string* dname, wxStatic
     }
     else
     {
+      dname->clear();
       device_name->UnsetToolTip();
       device_name->SetLabel(wxEmptyString);
       device_id->SetLabel(wxT("0"));
