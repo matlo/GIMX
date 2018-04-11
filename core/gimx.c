@@ -189,9 +189,9 @@ void show_config()
   }
 }
 
-void auto_grab()
+void grab()
 {
-  if(gimx_params.grab)
+  if(gimx_params.autograb)
   {
     int grab = 0;
     int i;
@@ -209,6 +209,10 @@ void auto_grab()
     {
       ginput_grab();
     }
+  }
+  else if(gimx_params.grab)
+  {
+    ginput_grab();
   }
 }
 
@@ -424,7 +428,7 @@ int main(int argc, char *argv[])
     cfg_read_calibration();
   }
 
-  auto_grab();
+  grab();
 
   ginput_release_unused();
 

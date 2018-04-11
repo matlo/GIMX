@@ -180,15 +180,20 @@
 								<rows>1</rows>
 								<object class="sizeritem">
 									<object class="wxStaticText" name="ID_STATICTEXT6" variable="StaticText5" member="yes">
-										<label>Grab mouse</label>
+										<label>Mouse capture</label>
 									</object>
 									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 									<border>5</border>
 									<option>1</option>
 								</object>
 								<object class="sizeritem">
-									<object class="wxCheckBox" name="ID_CHECKBOX1" variable="CheckBoxGrab" member="yes">
-										<checked>1</checked>
+									<object class="wxChoice" name="ID_CHOICE6" variable="MouseGrabChoice" member="yes">
+										<content>
+											<item>auto</item>
+											<item>on</item>
+											<item>off</item>
+										</content>
+										<selection>0</selection>
 									</object>
 									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 									<border>5</border>

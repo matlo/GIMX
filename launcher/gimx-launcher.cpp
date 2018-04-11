@@ -78,6 +78,8 @@ using namespace std;
 
 #define START_UPDATES "/startUpdates"
 
+#define GRAB_CHOICE_FILE "/grabChoice"
+
 #define BLUETOOTH_LK_DIR "/bluetooth"
 #define BLUETOOTH_LK_FILE "/linkkeys"
 
@@ -103,7 +105,7 @@ const long launcherFrame::ID_BUTTON4 = wxNewId();
 const long launcherFrame::ID_STATICTEXT5 = wxNewId();
 const long launcherFrame::ID_CHOICE4 = wxNewId();
 const long launcherFrame::ID_STATICTEXT6 = wxNewId();
-const long launcherFrame::ID_CHECKBOX1 = wxNewId();
+const long launcherFrame::ID_CHOICE6 = wxNewId();
 const long launcherFrame::ID_BUTTON1 = wxNewId();
 const long launcherFrame::ID_BUTTON3 = wxNewId();
 const long launcherFrame::ID_PANEL1 = wxNewId();
@@ -1129,11 +1131,13 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
     FlexGridSizer3->Add(ProcessOutputChoice, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer8->Add(FlexGridSizer3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     MouseSizer = new wxFlexGridSizer(1, 2, 0, 0);
-    StaticText5 = new wxStaticText(Panel1, ID_STATICTEXT6, _("Grab mouse"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT6"));
+    StaticText5 = new wxStaticText(Panel1, ID_STATICTEXT6, _("Mouse capture"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT6"));
     MouseSizer->Add(StaticText5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    CheckBoxGrab = new wxCheckBox(Panel1, ID_CHECKBOX1, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX1"));
-    CheckBoxGrab->SetValue(true);
-    MouseSizer->Add(CheckBoxGrab, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    MouseGrabChoice = new wxChoice(Panel1, ID_CHOICE6, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE6"));
+    MouseGrabChoice->SetSelection( MouseGrabChoice->Append(_("auto")) );
+    MouseGrabChoice->Append(_("on"));
+    MouseGrabChoice->Append(_("off"));
+    MouseSizer->Add(MouseGrabChoice, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer8->Add(MouseSizer, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer1->Add(FlexGridSizer8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer7 = new wxFlexGridSizer(1, 2, 0, 0);
@@ -1303,6 +1307,7 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
 
     readParam(OUTPUT_FILE, Output);
     readParam(INPUT_FILE, Input);
+    readParam(GRAB_CHOICE_FILE, MouseGrabChoice);
 
     wxCommandEvent event;
     OnOutputSelect(event);
@@ -1620,9 +1625,13 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
         command.Append(wxT(" --window-events"));
       }
 
-      if(!CheckBoxGrab->IsChecked())
+      if(MouseGrabChoice->GetStringSelection() == _("off"))
       {
           command.Append(wxT(" --nograb"));
+      }
+      else if(MouseGrabChoice->GetStringSelection() == _("auto"))
+      {
+          command.Append(wxT(" --auto-grab"));
       }
       command.Append(wxT(" --config \""));
       command.Append(InputChoice->GetStringSelection());
@@ -2758,6 +2767,8 @@ void launcherFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
     {
       saveChoices(IP_SOURCES, InputChoice);
     }
+
+    saveParam(GRAB_CHOICE_FILE, MouseGrabChoice->GetStringSelection());
 }
 
 void launcherFrame::readIp(wxChoice* choices)

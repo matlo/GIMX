@@ -75,6 +75,7 @@ typedef struct
   int skip_leds;
   int ff_conv;
   unsigned int inactivity_timeout; // minutes, 0 means not defined
+  int autograb;
 } s_gimx_params;
 
 extern s_gimx_params gimx_params;

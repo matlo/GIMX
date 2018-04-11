@@ -7,7 +7,6 @@
 #define LAUNCHERMAIN_H
 
 //(*Headers(launcherFrame)
-#include <wx/checkbox.h>
 #include <wx/sizer.h>
 #include <wx/button.h>
 #include <wx/menu.h>
@@ -135,7 +134,7 @@ class launcherFrame: public wxFrame
         static const long ID_STATICTEXT5;
         static const long ID_CHOICE4;
         static const long ID_STATICTEXT6;
-        static const long ID_CHECKBOX1;
+        static const long ID_CHOICE6;
         static const long ID_BUTTON1;
         static const long ID_BUTTON3;
         static const long ID_PANEL1;
@@ -179,10 +178,10 @@ class launcherFrame: public wxFrame
         wxChoice* Input;
         wxMenuItem* MenuItem5;
         wxStaticText* StaticText4;
-        wxCheckBox* CheckBoxGrab;
         wxFlexGridSizer* SourceIpSizer;
         wxStaticText* StaticText5;
         wxStaticText* StaticText2;
+        wxChoice* MouseGrabChoice;
         wxMenuItem* MenuItem4;
         wxButton* ButtonStart;
         wxMenuItem* MenuEditConfig;

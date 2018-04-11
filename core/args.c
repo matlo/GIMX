@@ -89,6 +89,8 @@ static void usage()
   printf("  --timeout value: Exit if controllers are inactive during a given number of minutes.\n");
 
   printf("  --show-debug-flags: Show all available debug flags.\n");
+
+  printf("  --auto-grab: Grab if config has at least one keyboard or mouse binding. This argument overrides the --nograb one\n");
 }
 
 /*
@@ -153,6 +155,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"debug.sixaxis",  no_argument, &params->debug.sixaxis,  1},
     {"skip_leds",      no_argument, &params->skip_leds,      1},
     {"ff_conv",        no_argument, &params->ff_conv,        1},
+    {"auto-grab",      no_argument, &params->autograb,       1},
     /* These options don't set a flag. We distinguish them by their indices. */
     {"bdaddr",  required_argument, 0, 'b'},
     {"config",  required_argument, 0, 'c'},
@@ -449,6 +452,8 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     printf(_("skip_leds flag is set\n"));
   if(params->ff_conv)
     printf(_("ff_conv flag is set\n"));
+  if(params->autograb)
+    printf(_("auto-grab flag is set\n"));
 
   if(!input)
   {
