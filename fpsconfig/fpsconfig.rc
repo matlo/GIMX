@@ -7,7 +7,7 @@ BEGIN
   BEGIN
   BLOCK "040904E4"
   BEGIN
-    VALUE "CompanyName", "MatLauLab"
+    VALUE "CompanyName", "GIMX Labs"
     VALUE "FileDescription", "FPS config editor for GIMX"
     VALUE "FileVersion", "7.3"
     VALUE "InternalName", "gimx-fpsconfig"
