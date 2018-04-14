@@ -50,7 +50,7 @@ class updater
 {
 public:
   int CheckVersion();
-  int Update(UPDATER_PROGRESS_CALLBACK callback, void * data);
+  int Update(UPDATER_PROGRESS_CALLBACK callback, void * data, bool wait);
   void SetParams(string vu, string vf, string v, string du, string df)
   {
     version_url = vu;

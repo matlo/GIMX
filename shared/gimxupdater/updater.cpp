@@ -143,10 +143,8 @@ static int progress_callback(void * clientp, double dltotal, double dlnow, doubl
     return ((updater *) clientp)->onProgress(dlnow, dltotal);
 }
 
-int updater::Update(UPDATER_PROGRESS_CALLBACK callback, void * data)
+int updater::Update(UPDATER_PROGRESS_CALLBACK callback, void * data, bool wait)
 {
-  int ret = -1;
-
   if(download_url.empty())
   {
     return -1;
@@ -190,24 +188,22 @@ int updater::Update(UPDATER_PROGRESS_CALLBACK callback, void * data)
     //curl_easy_setopt(curl_handle, CURLOPT_VERBOSE, 1L);
 
     CURLcode res = curl_easy_perform(curl_handle);
-    if(res == CURLE_OK)
-    {
-      ret = 0;
-    }
-    else
-    {
-      fprintf(stderr, "%s:%d %s\n", __FILE__, __LINE__, curl_easy_strerror(res));
-    }
 
     curl_easy_cleanup(curl_handle);
 
     fclose(outfile);
 
+    if(res != CURLE_OK)
+    {
+      fprintf(stderr, "%s:%d %s\n", __FILE__, __LINE__, curl_easy_strerror(res));
+      return -1;
+    }
+
 #ifdef WIN32
 
     SHELLEXECUTEINFO shExInfo = SHELLEXECUTEINFO();
     shExInfo.cbSize = sizeof(shExInfo);
-    shExInfo.fMask = SEE_MASK_DEFAULT;
+    shExInfo.fMask = wait ? (SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC) : SEE_MASK_DEFAULT;
     shExInfo.hwnd = 0;
     shExInfo.lpVerb = "runas";
     shExInfo.lpFile = output.c_str();
@@ -228,7 +224,10 @@ int updater::Update(UPDATER_PROGRESS_CALLBACK callback, void * data)
     string cmd = "";
     cmd.append("xdg-open ");
     cmd.append(download_file);
-    cmd.append("&");
+    if (!wait)
+    {
+      cmd.append("&");
+    }
 
     if(system(cmd.c_str()))
     {
@@ -237,5 +236,5 @@ int updater::Update(UPDATER_PROGRESS_CALLBACK callback, void * data)
 #endif
   }
 
-  return ret;
+  return 0;
 }

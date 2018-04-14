@@ -50,7 +50,7 @@ class launcherFrame: public wxFrame
 
         void OnProcessTerminated(wxProcess *process, int status);
 
-        void OnUpdateProgress(string & file, unsigned int dlcurrent, unsigned int dltotal);
+        int OnUpdateProgress(string & file, unsigned int dlcurrent, unsigned int dltotal);
 
     private:
 
@@ -119,6 +119,9 @@ class launcherFrame: public wxFrame
         BluetoothPairing selectBrokenPairing(vector<BluetoothPairing>& brokenDonglePairings);
 
         void readDebugStrings(wxArrayString & values);
+
+        void initDownload(wxProgressDialog * dlg);
+        void cleanDownload();
 
         //(*Identifiers(launcherFrame)
         static const long ID_STATICTEXT4;
@@ -206,6 +209,7 @@ class launcherFrame: public wxFrame
         bool openLog;
 
         wxProgressDialog * progressDialog;
+        bool downloadCancelled;
 
         DECLARE_EVENT_TABLE()
 };

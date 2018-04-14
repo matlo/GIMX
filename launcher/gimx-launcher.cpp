@@ -131,8 +131,7 @@ END_EVENT_TABLE()
 
 static int progress_callback(void *clientp, string & file, unsigned int dlnow, unsigned int dltotal)
 {
-    ((launcherFrame *) clientp)->OnUpdateProgress(file, dlnow, dltotal);
-    return 0;
+    return ((launcherFrame *) clientp)->OnUpdateProgress(file, dlnow, dltotal);
 }
 
 /*
@@ -848,10 +847,10 @@ bool launcherFrame::getConfig(const std::string& config)
     list<string> cl_sel;
     cl_sel.push_back(config);
 
-    wxProgressDialog dlg(_("Downloading"), wxEmptyString);
-    progressDialog = &dlg;
+    wxProgressDialog dlg(_("Downloading config..."), _("Connecting..."), 100, NULL, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_CAN_ABORT | wxPD_REMAINING_TIME | wxPD_SMOOTH);
+    initDownload(&dlg);
     int ret = u->getconfigs(&cl_sel, progress_callback, this);
-    progressDialog = NULL;
+    cleanDownload();
 
     return ret == 0;
 }
@@ -1047,11 +1046,11 @@ void launcherFrame::autoSetup()
             updater* u = updater::getInstance();
             u->SetParams("", "", "", download, "lgs.exe");
 
-            wxProgressDialog dlg(_("Downloading"), wxEmptyString);
-            progressDialog = &dlg;
-            int uret = u->Update(progress_callback, this);
-            progressDialog = NULL;
-            if (uret < 0)
+            wxProgressDialog dlg(_("Downloading Logitech Gaming Software..."), _("Connecting..."), 100, NULL, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_CAN_ABORT | wxPD_REMAINING_TIME | wxPD_SMOOTH);
+            initDownload(&dlg);
+            int uret = u->Update(progress_callback, this, true);
+            cleanDownload();
+            if (uret < 0 && downloadCancelled == false)
             {
                 wxMessageBox(_("Can't retrieve Logitech Gaming Software!"), _("Error"), wxICON_ERROR);
             }
@@ -2030,19 +2029,44 @@ void launcherFrame::OnOutputSelect(wxCommandEvent& event __attribute__((unused))
     refreshGui();
 }
 
-void launcherFrame::OnUpdateProgress(string & file, unsigned int dlnow, unsigned int dltotal)
+int launcherFrame::OnUpdateProgress(string & file, unsigned int dlnow, unsigned int dltotal)
 {
+    if (downloadCancelled)
+    {
+        return -1;
+    }
+
     if (dltotal == 0 || dlnow == dltotal)
     {
-        return;
+        downloadCancelled = downloadCancelled | (progressDialog->Update(-1) == false);
+        return downloadCancelled ? -1 : 0;
     }
+
     ostringstream ios;
     if (!file.empty())
     {
         ios << file << ": ";
     }
     ios << (int)(dlnow / 1024) << " / " << (int)(dltotal / 1024) << " KB";
-    progressDialog->Update(dlnow * 100 / dltotal, wxString(ios.str().c_str(), wxConvUTF8));
+
+    downloadCancelled = (progressDialog->Update(dlnow * 100 / dltotal, wxString(ios.str().c_str(), wxConvUTF8)) == false);
+    if (downloadCancelled)
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+void launcherFrame::initDownload(wxProgressDialog * dlg)
+{
+    progressDialog = dlg;
+    downloadCancelled = false;
+}
+
+void launcherFrame::cleanDownload()
+{
+    progressDialog = NULL;
 }
 
 void launcherFrame::OnMenuUpdate(wxCommandEvent& event __attribute__((unused)))
@@ -2062,17 +2086,20 @@ void launcherFrame::OnMenuUpdate(wxCommandEvent& event __attribute__((unused)))
     {
      return;
     }
-    wxProgressDialog dlg(_("Downloading"), wxEmptyString);
-    progressDialog = &dlg;
-    int uret = u->Update(progress_callback, this);
-    progressDialog = NULL;
-    if (uret < 0)
+    wxProgressDialog dlg(_("Downloading update..."), _("Connecting..."), 100, NULL, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_CAN_ABORT | wxPD_REMAINING_TIME | wxPD_SMOOTH);
+    initDownload(&dlg);
+    int uret = u->Update(progress_callback, this, false);
+    cleanDownload();
+    if (downloadCancelled == false)
     {
-      wxMessageBox(_("Can't retrieve update file!"), _("Error"), wxICON_ERROR);
-    }
-    else
-    {
-      exit(0);
+      if (uret < 0)
+      {
+        wxMessageBox(_("Can't retrieve update file!"), _("Error"), wxICON_ERROR);
+      }
+      else
+      {
+        exit(0);
+      }
     }
   }
   else if (ret < 0)
@@ -2116,10 +2143,15 @@ void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event __attribute__((unused
   list<string> cl_sel;
 
   {
-    wxProgressDialog dlg(_("Downloading"), wxEmptyString);
-    progressDialog = &dlg;
+    wxProgressDialog dlg(_("Downloading config list..."), _("Connecting..."), 100, NULL, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_CAN_ABORT | wxPD_REMAINING_TIME | wxPD_SMOOTH);
+    initDownload(&dlg);
     cl = u->getconfiglist(progress_callback, this);
-    progressDialog = NULL;
+    cleanDownload();
+  }
+
+  if (downloadCancelled == true)
+  {
+      return;
   }
 
   if(cl && !cl->empty())
@@ -2154,16 +2186,19 @@ void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event __attribute__((unused
 
       if(!cl_sel.empty())
 	  {
-        wxProgressDialog dlg(_("Downloading"), wxEmptyString);
-        progressDialog = &dlg;
+        wxProgressDialog dlg(_("Downloading configs..."), _("Connecting..."), 100, NULL, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_CAN_ABORT | wxPD_REMAINING_TIME | wxPD_SMOOTH);
+        initDownload(&dlg);
         int uret = u->getconfigs(&cl_sel, progress_callback, this);
-        progressDialog = NULL;
-        if(uret < 0)
+        cleanDownload();
+        if (downloadCancelled == false)
         {
-          wxMessageBox(_("Can't retrieve configs!"), _("Error"), wxICON_ERROR);
-          return;
+          if(uret < 0)
+          {
+            wxMessageBox(_("Can't retrieve configs!"), _("Error"), wxICON_ERROR);
+            return;
+          }
+          wxMessageBox(_("Download is complete!"), _("Info"), wxICON_INFORMATION);
         }
-        wxMessageBox(_("Download is complete!"), _("Info"), wxICON_INFORMATION);
         readConfigs();
         InputChoice->SetSelection(InputChoice->FindString(wxString(cl_sel.front().c_str(), wxConvUTF8)));
       }
@@ -2172,7 +2207,6 @@ void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event __attribute__((unused
   else
   {
     wxMessageBox(_("Can't retrieve config list!"), _("Error"), wxICON_ERROR);
-    return;
   }
 }
 
