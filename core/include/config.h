@@ -44,6 +44,12 @@ typedef enum
 
 typedef struct
 {
+  double x;
+  double y;
+}s_mouse_residue;
+
+typedef struct
+{
   int change;
   int changed;
   double merge_x[MAX_BUFFERSIZE];
@@ -51,8 +57,7 @@ typedef struct
   int index;
   double x;
   double y;
-  double residue_x;
-  double residue_y;
+  s_mouse_residue residue;
   int postpone[GE_MOUSE_BUTTONS_MAX];
 }s_mouse_control;
 
@@ -84,7 +89,7 @@ typedef struct
   unsigned int dpi;
 }s_mouse_cal;
 
-typedef struct
+typedef struct _mapper
 {
   int button;
   int axis;
@@ -95,6 +100,10 @@ typedef struct
   int dead_zone;
 
   s_axis_props axis_props;
+
+  // if the mapper destination is a stick axis,
+  // this indicates the mapper for the other axis of the stick
+  struct _mapper * other;
 }s_mapper;
 
 typedef struct
@@ -196,5 +205,6 @@ int cfg_add_js_corr(int joystick, s_js_corr * corr);
 void cfg_set_ffb_tweaks(const s_config_entry * entry);
 const s_haptic_core_tweaks * cfg_get_ffb_tweaks(int controller);
 void cfg_init_ffb_tweaks();
+void cfg_pair_mouse_mappers();
 
 #endif /* CONFIG_H_ */

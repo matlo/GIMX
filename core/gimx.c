@@ -426,6 +426,8 @@ int main(int argc, char *argv[])
     }
 
     cfg_read_calibration();
+
+    cfg_pair_mouse_mappers();
   }
 
   grab();
