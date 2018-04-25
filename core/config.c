@@ -430,6 +430,11 @@ void cfg_process_motion()
       if (gimx_params.subpositions)
       {
         /*
+         * Add the residual motion vector from the last iteration.
+         */
+        mc->merge_x[mc->index] += mc->residue.x;
+        mc->merge_y[mc->index] += mc->residue.y;
+        /*
          * If no motion was received this iteration, the residual motion vector from the last iteration is reset.
          */
         if (!mc->change)
@@ -968,7 +973,7 @@ static void mouse2axis1d(int device, s_adapter* controller, const s_mapper * map
     val = mx;
     if(device == current_mouse && current_cal == DZX)
     {
-      controller->axis[axis] = (val > 0) ? dz : -dz;
+      controller->axis[axis] = copysign(dz, val);
       mc->residue.x = 0;
       return;
     }
@@ -979,7 +984,7 @@ static void mouse2axis1d(int device, s_adapter* controller, const s_mapper * map
     val = my;
     if(device == current_mouse && current_cal == DZY)
     {
-      controller->axis[axis] = (val > 0) ? dz : -dz;
+      controller->axis[axis] = copysign(dz, val);
       mc->residue.y = 0;
       return;
     }
@@ -990,7 +995,7 @@ static void mouse2axis1d(int device, s_adapter* controller, const s_mapper * map
 
   if(val != 0)
   {
-    z = multiplier * (val/fabs(val)) * pow(fabs(val), exp);
+    z = copysign(multiplier * pow(fabs(val), exp), val);
   }
 
   if(mode == E_MOUSE_MODE_AIMING)
@@ -1024,11 +1029,11 @@ static void mouse2axis1d(int device, s_adapter* controller, const s_mapper * map
     new_state = controller->axis[axis] + z;
     if(new_state > 0 && new_state < dz)
     {
-      new_state -= (2*dz);
+      new_state -= (2 * dz);
     }
     if(new_state < 0 && new_state > -dz)
     {
-      new_state += (2*dz);
+      new_state += (2 * dz);
     }
     controller->axis[axis] = clamp(min_axis, new_state, max_axis);
   }
@@ -1039,7 +1044,7 @@ static void mouse2axis1d(int device, s_adapter* controller, const s_mapper * map
     /*
      * Compute the motion that wasn't applied due to the double to integer conversion.
      */
-    *motion_residue = (val/fabs(val)) * ( fabs(val) - pow(fabs(ztrunk)/multiplier, 1/exp) );
+    *motion_residue = copysign(fabs(val) - pow(fabs(ztrunk)/multiplier, 1/exp), val);
     if(fabs(*motion_residue) < 0.0039)//allow 256 subpositions
     {
       *motion_residue = 0;
@@ -1048,52 +1053,108 @@ static void mouse2axis1d(int device, s_adapter* controller, const s_mapper * map
   }
 }
 
-static double update_axis(int * axis, double dead_zone, double z, e_mouse_mode mode, double max_axis, double min_axis)
+static double update_axis(int * axis, double dead_zone, double z, double max_axis, double min_axis)
 {
   double residue = 0;
 
-  if(mode == E_MOUSE_MODE_AIMING)
+  if (fabs(z) >= 1)
   {
-    if (fabs(z) > dead_zone + 1)
+    z += dead_zone;
+    *axis = z;
+    if (*axis > min_axis && *axis < max_axis)
     {
-      *axis = z;
-      if (*axis > min_axis && *axis < max_axis)
-      {
-        residue = z - *axis;
-      }
-    }
-    else
-    {
-      *axis = 0;
-      residue = copysign(fabs(z) - dead_zone, z);
+      residue = z - *axis;
     }
   }
-  else //E_MOUSE_MODE_DRIVING
+  else
   {
-    int new_state = *axis + z;
-    if(new_state > 0 && new_state < dead_zone)
-    {
-      new_state -= (2*dead_zone);
-    }
-    if(new_state < 0 && new_state > -dead_zone)
-    {
-      new_state += (2*dead_zone);
-    }
-    *axis = clamp(min_axis, new_state, max_axis);
+    *axis = 0;
+    residue = z;
   }
 
   if (gimx_params.debug.config)
   {
-    static int naxis = 0;
-    ++naxis;
-    if (naxis & 1)
-      ginfo("z: %.2f dz: %.2f r: %.2f a: %d maa: %.2f mia: %.2f\n", z, dead_zone, residue, *axis, max_axis, min_axis);
+    ginfo("z: %.2f dz: %.2f r: %.2f a: %d maa: %.2f mia: %.2f\n", z, dead_zone, residue, *axis, max_axis, min_axis);
   }
 
   return residue;
 }
 
-static void mouse2axis2d(int device, s_adapter* controller, const s_mapper * mapper_x, double x, double y, e_mouse_mode mode, s_mouse_control * mc)
+/*void update_residue(double z_x, double z_y, double multiplier_x, double multiplier_y, double exponent, s_mouse_control * mc)
+{
+  if (z_x == 0 && z_y == 0)
+  {
+    mc->residue.x = 0;
+    mc->residue.y = 0;
+  }
+  else
+  {
+    double azx = fabs(z_x);
+    double azy = fabs(z_y);
+    double hypotenuse = hypot(azx, azy);
+    double angle_cos = azx / hypotenuse;
+    double angle_sin = azy / hypotenuse;
+    if (gimx_params.debug.config)
+    {
+      ginfo("hypotenuse: %.2f angle_cos: %.2f angle_sin: %.2f\n", hypotenuse, angle_cos, angle_sin);
+    }
+    if (z_x == 0)
+    {
+      mc->residue.x = 0;
+      mc->residue.y = copysign(pow(azy / (multiplier_y * pow(gimx_params.frequency_scale, exponent)), 1 / exponent), z_y);
+    }
+    else if (z_y == 0)
+    {
+      mc->residue.x = copysign(pow(azx / (multiplier_x * pow(gimx_params.frequency_scale, exponent)), 1 / exponent), z_x);
+      mc->residue.y = 0;
+    }
+    else
+    {
+      double A2 = (multiplier_x * azy * azy) / (multiplier_y * azx * azx);
+      mc->residue.x = copysign(pow(azx / (multiplier_x * pow(gimx_params.frequency_scale, exponent) * pow(1 + A2, exponent / 2) * angle_cos), 1 / exponent), z_x);
+      mc->residue.y = copysign(pow(azy / (multiplier_y * pow(gimx_params.frequency_scale, exponent) * pow(1 + 1 / A2, exponent / 2) * angle_sin), 1 / exponent), z_y);
+    }
+  }
+
+  if (gimx_params.debug.config)
+  {
+    ginfo("z_x: %.2f z_y: %.2f r_x: %.4f r_y: %.4f m_x: %.2f, m_y: %.2f\n", z_x, z_y, mc->residue.x, mc->residue.y, multiplier_x, multiplier_y);
+  }
+}*/
+
+static int calibrate_dead_zone(int device, int * axis_x, int * axis_y, double dead_zone_x, double dead_zone_y, s_mouse_control * mc)
+{
+  if(device == current_mouse)
+  {
+    if (current_cal == DZX)
+    {
+      *axis_x = dead_zone_x;
+      mc->residue.x = 0;
+      *axis_y = 0;
+      mc->residue.y = 0;
+      return 1;
+    }
+    else if (current_cal == DZY)
+    {
+      *axis_y = dead_zone_y;
+      mc->residue.y = 0;
+      *axis_x = 0;
+      mc->residue.x = 0;
+      return 1;
+    }
+    else if(current_cal == DZS)
+    {
+      *axis_x = dead_zone_x;
+      mc->residue.x = 0;
+      *axis_y = dead_zone_y;
+      mc->residue.y = 0;
+      return 1;
+    }
+  }
+  return 0;
+}
+
+static void mouse2axis2d(int device, s_adapter* controller, const s_mapper * mapper_x, double x, double y, s_mouse_control * mc)
 {
   s_mapper * mapper_y = mapper_x->other;
 
@@ -1113,22 +1174,23 @@ static void mouse2axis2d(int device, s_adapter* controller, const s_mapper * map
   int min_axis = (mapper_x->axis_props.props == AXIS_PROP_CENTERED) ? -max_axis : 0;
 
   double axis_scale = controller_get_axis_scale(controller->ctype, mapper_x->axis);
-  double frequency_scale = gimx_params.frequency_scale;
 
   double multiplier_x = mapper_x->multiplier * axis_scale;
   double exponent = mapper_x->exponent;
   double multiplier_y = mapper_y->multiplier * axis_scale;
 
-  double dead_zone_x = mapper_x->dead_zone * axis_scale;
-  double dead_zone_y = mapper_y->dead_zone * axis_scale;
+  double dead_zone_x = copysign(mapper_x->dead_zone * axis_scale, x);
+  double dead_zone_y = copysign(mapper_y->dead_zone * axis_scale, y);
   e_shape shape = mapper_x->shape;
 
-  double hypotenuse = sqrt(x * x + y * y);
+  double hypotenuse = hypot(x, y);
   double angle_cos = fabs(x) / hypotenuse;
   double angle_sin = fabs(y) / hypotenuse;
 
-  double value_x = x * frequency_scale;
-  double value_y = y * frequency_scale;
+  if (gimx_params.debug.config)
+  {
+    ginfo("hyp: %.4f cos: %.4f sin: %.4f\n", hypotenuse, angle_cos, angle_sin);
+  }
 
   if(x && y && shape == E_SHAPE_CIRCLE)
   {
@@ -1139,55 +1201,25 @@ static void mouse2axis2d(int device, s_adapter* controller, const s_mapper * map
   int * axis_x = controller->axis + mapper_x->axis_props.axis;
   int * axis_y = controller->axis + mapper_y->axis_props.axis;
 
-  if(device == current_mouse)
+  if (calibrate_dead_zone(device, axis_x, axis_y, dead_zone_x, dead_zone_y, mc) != 0)
   {
-    if (current_cal == DZX)
-    {
-      *axis_x = (value_x > 0) ? dead_zone_x : -dead_zone_x;
-      mc->residue.x = 0;
-      *axis_y = 0;
-      mc->residue.y = 0;
-      return;
-    }
-    else if (current_cal == DZY)
-    {
-      *axis_y = (value_y > 0) ? dead_zone_y : -dead_zone_y;
-      mc->residue.y = 0;
-      *axis_x = 0;
-      mc->residue.x = 0;
-      return;
-    }
-    else if(current_cal == DZS)
-    {
-      *axis_x = (value_x > 0) ? dead_zone_x : -dead_zone_x;
-      mc->residue.x = 0;
-      *axis_y = (value_y > 0) ? dead_zone_y : -dead_zone_y;
-      mc->residue.y = 0;
-      return;
-    }
+    return;
   }
 
-  double norm = sqrt(value_x * value_x + value_y * value_y);
+  double norm = hypotenuse * gimx_params.frequency_scale;
 
   double z = pow(norm, exponent);
 
-  double z_x = copysign(dead_zone_x, x) + copysign(multiplier_x * z * angle_cos, x);
-  double z_y = copysign(dead_zone_y, y) + copysign(multiplier_y * z * angle_sin, y);
+  double z_x = copysign(multiplier_x * z * angle_cos, x);
+  double z_y = copysign(multiplier_y * z * angle_sin, y);
 
-  if (gimx_params.subpositions)
+  /*double r_x =*/ update_axis(axis_x, dead_zone_x, z_x, max_axis, min_axis);
+  /*double r_y =*/ update_axis(axis_y, dead_zone_y, z_y, max_axis, min_axis);
+
+  /*if (gimx_params.subpositions && mc->change)
   {
-    z_x += mc->residue.x;
-    z_y += mc->residue.y;
-  }
-
-  double r_x = update_axis(axis_x, dead_zone_x, z_x, mode, max_axis, min_axis);
-  double r_y = update_axis(axis_y, dead_zone_y, z_y, mode, max_axis, min_axis);
-
-  if (gimx_params.subpositions && mc->change)
-  {
-    mc->residue.x = r_x;
-    mc->residue.y = r_y;
-  }
+    update_residue(r_x, r_y, multiplier_x, multiplier_y, exponent, mc);
+  }*/
 }
 
 void update_dbutton_axis(s_mapper* mapper, int c_id, int axis)
@@ -1494,11 +1526,11 @@ void cfg_process_event(GE_Event* event)
                * Axis to axis.
                */
               mode = cal_get_mouse(device, profile)->options.mode;
-              if (mapper->other)
+              if (mapper->other && mode == E_MOUSE_MODE_AIMING)
               {
                 if (mapper->axis == AXIS_X)
                 {
-                  mouse2axis2d(device, controller, mapper, mx, my, mode, mc);
+                  mouse2axis2d(device, controller, mapper, mx, my, mc);
                 }
                 else
                 {
