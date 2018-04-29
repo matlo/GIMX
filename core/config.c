@@ -1055,80 +1055,89 @@ static void mouse2axis1d(int device, s_adapter* controller, const s_mapper * map
 
 static double update_axis(int * axis, double dead_zone, double z, double max_axis, double min_axis)
 {
-  double residue = 0;
+  double raw = z;
 
   if (fabs(z) >= 1)
   {
-    z += dead_zone;
-    *axis = z;
-    if (*axis > min_axis && *axis < max_axis)
-    {
-      residue = z - *axis;
-    }
-  }
-  else
-  {
-    *axis = 0;
-    residue = z;
+    raw = z + dead_zone;
   }
 
-  if (gimx_params.debug.config)
+  *axis = raw;
+
+  if (*axis < min_axis || *axis > max_axis)
   {
-    ginfo("z: %.2f dz: %.2f r: %.2f a: %d maa: %.2f mia: %.2f\n", z, dead_zone, residue, *axis, max_axis, min_axis);
+    raw = *axis;
   }
 
-  return residue;
+  return raw;
 }
 
-/*void update_residue(double z_x, double z_y, double multiplier_x, double multiplier_y, double exponent, s_mouse_control * mc)
+typedef struct
 {
-  if (z_x == 0 && z_y == 0)
+  double x;
+  double y;
+} s_vector;
+
+void update_residue(double axis_scale, const s_mapper * mapper_x, const s_mapper * mapper_y, s_vector * input,
+        int axis_x, int axis_y, s_vector * output_raw, s_vector * multipliers, double exponent, s_mouse_control * mc)
+{
+  s_vector input_trunk = { .x = 0, .y = 0 };
+  if (axis_x != 0 || axis_y != 0)
   {
-    mc->residue.x = 0;
-    mc->residue.y = 0;
-  }
-  else
-  {
-    double azx = fabs(z_x);
-    double azy = fabs(z_y);
-    double hypotenuse = hypot(azx, azy);
-    double angle_cos = azx / hypotenuse;
-    double angle_sin = azy / hypotenuse;
-    if (gimx_params.debug.config)
+    double zx = fabs(axis_x);
+    double zy = fabs(axis_y);
+    //
+    double angle = acos(zx / hypot(zx, zy)) / (acos(fabs(output_raw->x) / hypot(output_raw->x, output_raw->y)) / acos(fabs(input->x) / hypot(input->x, input->y)));
+    double angle_cos = cos(angle);
+    double angle_sin = sin(angle);
+
+    s_vector dead_zones =
     {
-      ginfo("hypotenuse: %.2f angle_cos: %.2f angle_sin: %.2f\n", hypotenuse, angle_cos, angle_sin);
+      .x = mapper_x->dead_zone * axis_scale,
+      .y = mapper_y->dead_zone * axis_scale,
+    };
+    e_shape shape = mapper_x->shape;
+
+    if(zx && zy && shape == E_SHAPE_CIRCLE)
+    {
+      dead_zones.x *= angle_cos;
+      dead_zones.y *= angle_sin;
     }
-    if (z_x == 0)
+
+    if (zx == 0)
     {
-      mc->residue.x = 0;
-      mc->residue.y = copysign(pow(azy / (multiplier_y * pow(gimx_params.frequency_scale, exponent)), 1 / exponent), z_y);
+      input_trunk.y = copysign(pow((zy - dead_zones.y) / (multipliers->y * pow(gimx_params.frequency_scale, exponent)), 1 / exponent), output_raw->y);
     }
-    else if (z_y == 0)
+    else if (zy == 0)
     {
-      mc->residue.x = copysign(pow(azx / (multiplier_x * pow(gimx_params.frequency_scale, exponent)), 1 / exponent), z_x);
-      mc->residue.y = 0;
+      input_trunk.x = copysign(pow((zx - dead_zones.x) / (multipliers->x * pow(gimx_params.frequency_scale, exponent)), 1 / exponent), output_raw->x);
     }
     else
     {
-      double A2 = (multiplier_x * azy * azy) / (multiplier_y * azx * azx);
-      mc->residue.x = copysign(pow(azx / (multiplier_x * pow(gimx_params.frequency_scale, exponent) * pow(1 + A2, exponent / 2) * angle_cos), 1 / exponent), z_x);
-      mc->residue.y = copysign(pow(azy / (multiplier_y * pow(gimx_params.frequency_scale, exponent) * pow(1 + 1 / A2, exponent / 2) * angle_sin), 1 / exponent), z_y);
+      double normx = pow((zx - dead_zones.x) / (multipliers->x * pow(gimx_params.frequency_scale, exponent) * angle_cos), 1 / exponent);
+      double normy = pow((zy - dead_zones.y) / (multipliers->y * pow(gimx_params.frequency_scale, exponent) * angle_sin), 1 / exponent);
+      input_trunk.x = copysign(angle_cos * normx, output_raw->x);
+      input_trunk.y = copysign(angle_sin * normy, output_raw->y);
     }
   }
 
+  mc->residue.x = input_trunk.x ? input->x - input_trunk.x : 0;
+  mc->residue.y = input_trunk.y ? input->y - input_trunk.y : 0;
+
   if (gimx_params.debug.config)
   {
-    ginfo("z_x: %.2f z_y: %.2f r_x: %.4f r_y: %.4f m_x: %.2f, m_y: %.2f\n", z_x, z_y, mc->residue.x, mc->residue.y, multiplier_x, multiplier_y);
+    ginfo("input: (%.8f, %.8f) raw output: (%.8f, %.8f) output: (%d, %d) residue: (%.8f, %.8f)\n",
+            input->x, input->y, output_raw->x, output_raw->y, axis_x, axis_y, mc->residue.x, mc->residue.y);
   }
-}*/
+}
 
-static int calibrate_dead_zone(int device, int * axis_x, int * axis_y, double dead_zone_x, double dead_zone_y, s_mouse_control * mc)
+static int calibrate_dead_zone(int device, int * axis_x, int * axis_y, s_vector * dead_zones, s_mouse_control * mc)
 {
   if(device == current_mouse)
   {
     if (current_cal == DZX)
     {
-      *axis_x = dead_zone_x;
+      *axis_x = dead_zones->x;
       mc->residue.x = 0;
       *axis_y = 0;
       mc->residue.y = 0;
@@ -1136,7 +1145,7 @@ static int calibrate_dead_zone(int device, int * axis_x, int * axis_y, double de
     }
     else if (current_cal == DZY)
     {
-      *axis_y = dead_zone_y;
+      *axis_y = dead_zones->y;
       mc->residue.y = 0;
       *axis_x = 0;
       mc->residue.x = 0;
@@ -1144,9 +1153,9 @@ static int calibrate_dead_zone(int device, int * axis_x, int * axis_y, double de
     }
     else if(current_cal == DZS)
     {
-      *axis_x = dead_zone_x;
+      *axis_x = dead_zones->x;
       mc->residue.x = 0;
-      *axis_y = dead_zone_y;
+      *axis_y = dead_zones->y;
       mc->residue.y = 0;
       return 1;
     }
@@ -1154,16 +1163,11 @@ static int calibrate_dead_zone(int device, int * axis_x, int * axis_y, double de
   return 0;
 }
 
-static void mouse2axis2d(int device, s_adapter* controller, const s_mapper * mapper_x, double x, double y, s_mouse_control * mc)
+static void mouse2axis2d(int device, s_adapter* controller, const s_mapper * mapper_x, s_vector * input, s_mouse_control * mc)
 {
   s_mapper * mapper_y = mapper_x->other;
 
-  if (gimx_params.debug.config)
-  {
-    ginfo("mouse input: %.2f %.2f\n", x, y);
-  }
-
-  if (x == 0 && y == 0)
+  if (input->x == 0 && input->y == 0)
   {
     controller->axis[mapper_x->axis_props.axis] = controller->axis[mapper_y->axis_props.axis] = 0;
     mc->residue.x = mc->residue.y = 0;
@@ -1175,33 +1179,34 @@ static void mouse2axis2d(int device, s_adapter* controller, const s_mapper * map
 
   double axis_scale = controller_get_axis_scale(controller->ctype, mapper_x->axis);
 
-  double multiplier_x = mapper_x->multiplier * axis_scale;
+  s_vector multipliers =
+  {
+    .x = mapper_x->multiplier * axis_scale,
+    .y = mapper_y->multiplier * axis_scale,
+  };
   double exponent = mapper_x->exponent;
-  double multiplier_y = mapper_y->multiplier * axis_scale;
 
-  double dead_zone_x = copysign(mapper_x->dead_zone * axis_scale, x);
-  double dead_zone_y = copysign(mapper_y->dead_zone * axis_scale, y);
+  s_vector dead_zones =
+  {
+    .x = copysign(mapper_x->dead_zone * axis_scale, input->x),
+    .y = copysign(mapper_y->dead_zone * axis_scale, input->y),
+  };
   e_shape shape = mapper_x->shape;
 
-  double hypotenuse = hypot(x, y);
-  double angle_cos = fabs(x) / hypotenuse;
-  double angle_sin = fabs(y) / hypotenuse;
+  double hypotenuse = hypot(input->x, input->y);
+  double angle_cos = fabs(input->x) / hypotenuse;
+  double angle_sin = fabs(input->y) / hypotenuse;
 
-  if (gimx_params.debug.config)
+  if(input->x && input->y && shape == E_SHAPE_CIRCLE)
   {
-    ginfo("hyp: %.4f cos: %.4f sin: %.4f\n", hypotenuse, angle_cos, angle_sin);
-  }
-
-  if(x && y && shape == E_SHAPE_CIRCLE)
-  {
-    dead_zone_x *= angle_cos;
-    dead_zone_y *= angle_sin;
+    dead_zones.x *= angle_cos;
+    dead_zones.y *= angle_sin;
   }
 
   int * axis_x = controller->axis + mapper_x->axis_props.axis;
   int * axis_y = controller->axis + mapper_y->axis_props.axis;
 
-  if (calibrate_dead_zone(device, axis_x, axis_y, dead_zone_x, dead_zone_y, mc) != 0)
+  if (calibrate_dead_zone(device, axis_x, axis_y, &dead_zones, mc) != 0)
   {
     return;
   }
@@ -1210,16 +1215,17 @@ static void mouse2axis2d(int device, s_adapter* controller, const s_mapper * map
 
   double z = pow(norm, exponent);
 
-  double z_x = copysign(multiplier_x * z * angle_cos, x);
-  double z_y = copysign(multiplier_y * z * angle_sin, y);
+  double z_x = copysign(multipliers.x * z * angle_cos, input->x);
+  double z_y = copysign(multipliers.y * z * angle_sin, input->y);
 
-  /*double r_x =*/ update_axis(axis_x, dead_zone_x, z_x, max_axis, min_axis);
-  /*double r_y =*/ update_axis(axis_y, dead_zone_y, z_y, max_axis, min_axis);
+  s_vector raw_output;
+  raw_output.x = update_axis(axis_x, dead_zones.x, z_x, max_axis, min_axis);
+  raw_output.y = update_axis(axis_y, dead_zones.y, z_y, max_axis, min_axis);
 
-  /*if (gimx_params.subpositions && mc->change)
+  if (gimx_params.subpositions && mc->change)
   {
-    update_residue(r_x, r_y, multiplier_x, multiplier_y, exponent, mc);
-  }*/
+    update_residue(axis_scale, mapper_x, mapper_y, input, *axis_x, *axis_y, &raw_output, &multipliers, exponent, mc);
+  }
 }
 
 void update_dbutton_axis(s_mapper* mapper, int c_id, int axis)
@@ -1530,7 +1536,8 @@ void cfg_process_event(GE_Event* event)
               {
                 if (mapper->axis == AXIS_X)
                 {
-                  mouse2axis2d(device, controller, mapper, mx, my, mc);
+                  s_vector mouse = { .x = mx, .y = my };
+                  mouse2axis2d(device, controller, mapper, &mouse, mc);
                 }
                 else
                 {
