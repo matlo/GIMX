@@ -1087,7 +1087,7 @@ void update_residue(double axis_scale, const s_mapper * mapper_x, const s_mapper
     double zx = fabs(axis_x);
     double zy = fabs(axis_y);
     //
-    double angle = acos(zx / hypot(zx, zy)) / (acos(fabs(output_raw->x) / hypot(output_raw->x, output_raw->y)) / acos(fabs(input->x) / hypot(input->x, input->y)));
+    double angle = atan(zy / zx) / (atan(fabs(output_raw->y) / fabs(output_raw->x)) / atan(fabs(input->y) / fabs(input->x)));
     double angle_cos = cos(angle);
     double angle_sin = sin(angle);
 
