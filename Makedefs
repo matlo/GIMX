@@ -19,7 +19,7 @@ GIMXCONFIGEDITOR_LDFLAGS = -L../shared/gimxconfigeditor \
                            $(GIMXTIMER_LDFLAGS) \
                            $(GIMXPOLL_LDFLAGS) \
                            $(GIMXCONTROLLER_LDFLAGS)
-GIMXCONFIGUPDATER_LDFLAGS = -L../shared/gimxconfigupdater
+GIMXCONFIGUPDATER_LDFLAGS = -L../shared/gimxdownloader -L../shared/gimxconfigupdater
 GIMXCONTROLLER_LDFLAGS = -L../shared/gimxcontroller
 GIMXLOG_LDFLAGS = -L../shared/gimxlog
 GIMXHID_LDFLAGS = $(GIMXLOG_LDFLAGS) -L../shared/gimxhid
@@ -31,14 +31,14 @@ GIMXTIMER_LDFLAGS = $(GIMXLOG_LDFLAGS) -L../shared/gimxtimer
 GIMXUHID_LDFLAGS = $(GIMXLOG_LDFLAGS) -L../shared/gimxuhid
 GIMXUSB_LDFLAGS = $(GIMXLOG_LDFLAGS) -L../shared/gimxusb
 GIMXGPP_LDFLAGS = $(GIMXLOG_LDFLAGS) -L../shared/gimxgpp
-GIMXUPDATER_LDFLAGS = -L../shared/gimxupdater
+GIMXUPDATER_LDFLAGS = -L../shared/gimxdownloader -L../shared/gimxupdater
 
 GIMXCONFIGEDITOR_LDLIBS = -lgimxconfigeditor \
                            $(GIMXINPUT_LDLIBS) \
                            $(GIMXTIMER_LDLIBS) \
                            $(GIMXPOLL_LDLIBS) \
                            $(GIMXCONTROLLER_LDLIBS)
-GIMXCONFIGUPDATER_LDLIBS = -lgimxconfigupdater
+GIMXCONFIGUPDATER_LDLIBS = -lgimxdownloader -lgimxconfigupdater
 GIMXCONTROLLER_LDLIBS = -lgimxcontroller
 GIMXLOG_LDLIBS = -lgimxlog
 GIMXHID_LDLIBS = $(GIMXLOG_LDLIBS) -lgimxhid
@@ -50,7 +50,7 @@ GIMXTIMER_LDLIBS = $(GIMXLOG_LDLIBS) -lgimxtimer
 GIMXUHID_LDLIBS = $(GIMXLOG_LDLIBS) -lgimxuhid
 GIMXUSB_LDLIBS = $(GIMXLOG_LDLIBS) -lgimxusb
 GIMXGPP_LDLIBS = $(GIMXLOG_LDLIBS) -lgimxgpp
-GIMXUPDATER_LDLIBS = -lgimxupdater
+GIMXUPDATER_LDLIBS = -lgimxdownloader -lgimxupdater
 
 ifeq ($(OS),Windows_NT)
 GIMXINPUT_CPPFLAGS += `sdl2-config --cflags`

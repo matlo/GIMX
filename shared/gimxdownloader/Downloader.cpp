@@ -44,7 +44,7 @@ std::string Downloader::getProgress(double progress, double total) {
 }
 
 Downloader::Downloader() :
-        m_callback(NULL), m_clientp(NULL), m_progress(0), m_curl_handle(nullptr), m_lastUpdate(0) {
+        m_callback(NULL), m_clientp(NULL), m_progress(0), m_curl_handle(NULL), m_lastUpdate(0) {
     curl_global_init (CURL_INIT_FLAGS);
 }
 
@@ -54,14 +54,14 @@ Downloader::~Downloader() {
 
 void Downloader::initCurlHandle(const std::string& url) {
 
-    if (m_curl_handle != nullptr) {
+    if (m_curl_handle != NULL) {
         curl_easy_cleanup(m_curl_handle);
-        m_curl_handle = nullptr;
+        m_curl_handle = NULL;
     }
 
     m_curl_handle = curl_easy_init();
 
-    if (m_curl_handle != nullptr) {
+    if (m_curl_handle != NULL) {
         struct curl_slist * headers = NULL;
         headers = curl_slist_append(headers, "Accept: application/vnd.github.v3+json");
         headers = curl_slist_append(headers, "Accept: */*");
@@ -124,7 +124,7 @@ Downloader::DownloaderStatus Downloader::download(const std::string& url, std::s
 
     /* cleanup curl stuff */
     curl_easy_cleanup(m_curl_handle);
-    m_curl_handle = nullptr;
+    m_curl_handle = NULL;
 
     if (chunk.memory)
         free(chunk.memory);
@@ -174,7 +174,7 @@ int Downloader::progress(double dlnow, double dltotal) {
         }
     }
 
-    time_t now = time(nullptr);
+    time_t now = time(NULL);
 
     if (!forceProgress && now - m_lastUpdate < 1)
     {
@@ -232,7 +232,7 @@ Downloader::DownloaderStatus Downloader::download(const std::string& url, const 
     CURLcode res = curl_easy_perform(m_curl_handle);
 
     curl_easy_cleanup(m_curl_handle);
-    m_curl_handle = nullptr;
+    m_curl_handle = NULL;
 
     fclose(outfile);
 

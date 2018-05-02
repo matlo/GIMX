@@ -24,18 +24,18 @@
 #define USB_PRODUCT_ID_LOGITECH_FORMULA_YELLOW   0xc202 // no force feedback
 #define USB_PRODUCT_ID_LOGITECH_FORMULA_GP       0xc20e // no force feedback
 #define USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE    0xc291 // i-force protocol
-#define USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP 0xc293
-#define USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE    0xc294
-#define USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL       0xc295
-#define USB_PRODUCT_ID_LOGITECH_DFP_WHEEL        0xc298
-#define USB_PRODUCT_ID_LOGITECH_G25_WHEEL        0xc299
-#define USB_PRODUCT_ID_LOGITECH_DFGT_WHEEL       0xc29a
-#define USB_PRODUCT_ID_LOGITECH_G27_WHEEL        0xc29b
+#define USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP 0xc293 // classic protocol
+#define USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE    0xc294 // classic protocol
+#define USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL       0xc295 // classic protocol
+#define USB_PRODUCT_ID_LOGITECH_DFP_WHEEL        0xc298 // classic protocol
+#define USB_PRODUCT_ID_LOGITECH_G25_WHEEL        0xc299 // classic protocol
+#define USB_PRODUCT_ID_LOGITECH_DFGT_WHEEL       0xc29a // classic protocol
+#define USB_PRODUCT_ID_LOGITECH_G27_WHEEL        0xc29b // classic protocol
 #define USB_PRODUCT_ID_LOGITECH_WII_WHEEL        0xc29c // rumble only
-#define USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2      0xca03
+#define USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2      0xca03 // classic protocol
 #define USB_PRODUCT_ID_LOGITECH_VIBRATION_WHEEL  0xca04 // rumble only
-#define USB_PRODUCT_ID_LOGITECH_G920_WHEEL       0xc262 // hid++ protocol
-#define USB_PRODUCT_ID_LOGITECH_G29_PC_WHEEL     0xc24f // not sure about this one...
+#define USB_PRODUCT_ID_LOGITECH_G920_WHEEL       0xc262 // hid++ protocol only
+#define USB_PRODUCT_ID_LOGITECH_G29_PC_WHEEL     0xc24f // classic protocol
 #define USB_PRODUCT_ID_LOGITECH_G29_PS4_WHEEL    0xc260 // classic protocol with 1 byte offset
 
 #define FF_LG_OUTPUT_REPORT_SIZE 7

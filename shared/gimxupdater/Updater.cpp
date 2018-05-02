@@ -143,8 +143,6 @@ Updater::UpdaterStatus Updater::update(std::string url, ProgressCallback callbac
         return UpdaterStatusInstallFailed;
     }
 
-    UpdaterStatus status = UpdaterStatusOk;
-
     while (WaitForSingleObject(shExInfo.hProcess, 1000) == WAIT_TIMEOUT) {
         if (clientCallback(clientData, UpdaterStatusInstallPending, 0, 0) != 0) {
             status = UpdaterStatusCancelled;
@@ -154,6 +152,7 @@ Updater::UpdaterStatus Updater::update(std::string url, ProgressCallback callbac
 
     CloseHandle(shExInfo.hProcess);
 #else
+    (void)wait;
     std::string cmd = "";
     cmd.append("xdg-open ");
     cmd.append(tempFile);
@@ -165,5 +164,5 @@ Updater::UpdaterStatus Updater::update(std::string url, ProgressCallback callbac
     }
 #endif
 
-    return status;
+    return UpdaterStatusOk;
 }

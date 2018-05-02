@@ -19,10 +19,6 @@ SetupManager::~SetupManager() {
 
 }
 
-static int progress_callback(void *clientp, Updater::UpdaterStatus status, double progress, double total) {
-    return ((SetupManager *) clientp)->onUpdateProgress(status, progress, total);
-}
-
 int SetupManager::onUpdateProgress(Updater::UpdaterStatus status, double progress, double total) {
     wxString message;
     switch (status) {
@@ -57,6 +53,11 @@ void SetupManager::initDownload(wxProgressDialog * dlg) {
 
 void SetupManager::cleanDownload() {
     progressDialog = NULL;
+}
+
+#ifdef WIN32
+static int progress_callback(void *clientp, Updater::UpdaterStatus status, double progress, double total) {
+    return ((SetupManager *) clientp)->onUpdateProgress(status, progress, total);
 }
 
 #define USB_VENDOR_ID_LOGITECH                   0x046d
@@ -137,7 +138,7 @@ static s_device_manager_ids ids[] =
 
 void SetupManager::run() {
 
-    std::set<std::pair<const char *, const char *>> managers;
+    std::set<std::pair<const char *, const char *> > managers;
 
     struct ghid_device_info *devs, *cur_dev;
 
@@ -169,7 +170,8 @@ void SetupManager::run() {
 
     ghid_exit();
 
-    for (auto it = managers.begin(); it != managers.end(); ++it) {
+    std::set<std::pair<const char *, const char *> >::iterator it;
+    for (it = managers.begin(); it != managers.end(); ++it) {
         int answer = wxMessageBox(_("A device requires the following component: \n")
                 + wxString(it->first, wxConvUTF8) + _("\nDownload and install?"), _("Confirm"), wxYES_NO);
         if (answer == wxNO) {
@@ -187,3 +189,8 @@ void SetupManager::run() {
     }
 
 }
+#else
+void SetupManager::run() {
+
+}
+#endif
