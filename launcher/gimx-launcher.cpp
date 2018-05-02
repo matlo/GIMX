@@ -113,6 +113,7 @@ const long launcherFrame::ID_PANEL1 = wxNewId();
 const long launcherFrame::ID_MENUITEM1 = wxNewId();
 const long launcherFrame::ID_MENUITEM2 = wxNewId();
 const long launcherFrame::ID_MENUITEM8 = wxNewId();
+const long launcherFrame::ID_MENUITEM11 = wxNewId();
 const long launcherFrame::ID_MENUITEM7 = wxNewId();
 const long launcherFrame::ID_MENUITEM3 = wxNewId();
 const long launcherFrame::ID_MENUITEM9 = wxNewId();
@@ -1037,6 +1038,8 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
     Menu1->Append(MenuEditFpsConfig);
     MenuItem3 = new wxMenuItem(Menu1, ID_MENUITEM8, _("Open config directory"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuItem3);
+    MenuItem6 = new wxMenuItem(Menu1, ID_MENUITEM11, _("Open macro directory"), wxEmptyString, wxITEM_NORMAL);
+    Menu1->Append(MenuItem6);
     MenuAutoBindControls = new wxMenuItem(Menu1, ID_MENUITEM7, _("Auto-bind and convert"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuAutoBindControls);
     MenuRefresh = new wxMenuItem(Menu1, ID_MENUITEM3, _("Refresh\tF5"), wxEmptyString, wxITEM_NORMAL);
@@ -1075,6 +1078,7 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
     Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnMenuEditConfig);
     Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnMenuEditFpsConfig);
     Connect(ID_MENUITEM8,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnMenuOpenConfigDirectory);
+    Connect(ID_MENUITEM11,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnMenuOpenMacroDirectory);
     Connect(ID_MENUITEM7,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnMenuAutoBindControls);
     Connect(ID_MENUITEM3,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnMenuRefresh);
     Connect(ID_MENUITEM9,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&launcherFrame::OnMenuSave);
@@ -2190,6 +2194,16 @@ void launcherFrame::OnMenuOpenConfigDirectory(wxCommandEvent& event __attribute_
   wxExecute(wxT("explorer ") + gimxConfigDir, wxEXEC_ASYNC, NULL);
 #else
   wxExecute(wxT("xdg-open ") + gimxConfigDir, wxEXEC_ASYNC, NULL);
+#endif
+}
+
+void launcherFrame::OnMenuOpenMacroDirectory(wxCommandEvent& event __attribute__((unused)))
+{
+#ifdef WIN32
+  gimxMacrosDir.Replace(wxT("/"), wxT("\\"));
+  wxExecute(wxT("explorer ") + gimxMacrosDir, wxEXEC_ASYNC, NULL);
+#else
+  wxExecute(wxT("xdg-open ") + gimxMacrosDir, wxEXEC_ASYNC, NULL);
 #endif
 }
 

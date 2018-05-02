@@ -82,6 +82,7 @@ class launcherFrame: public wxFrame
         void OnOutputNewButtonClick(wxCommandEvent& event);
         void OnInputNewButtonClick(wxCommandEvent& event);
         void OnMenuUpdateFirmware(wxCommandEvent& event);
+        void OnMenuOpenMacroDirectory(wxCommandEvent& event);
         //*)
 
         void refresh();
@@ -147,6 +148,7 @@ class launcherFrame: public wxFrame
         static const long ID_MENUITEM1;
         static const long ID_MENUITEM2;
         static const long ID_MENUITEM8;
+        static const long ID_MENUITEM11;
         static const long ID_MENUITEM7;
         static const long ID_MENUITEM3;
         static const long ID_MENUITEM9;
@@ -189,6 +191,7 @@ class launcherFrame: public wxFrame
         wxStaticText* StaticText2;
         wxChoice* MouseGrabChoice;
         wxMenuItem* MenuItem4;
+        wxMenuItem* MenuItem6;
         wxButton* ButtonStart;
         wxMenuItem* MenuEditConfig;
         wxStaticText* OutputText;
