@@ -8,7 +8,6 @@
 #include <cstdlib>
 #include <cstdio>
 #include "configupdater.h"
-#include <curl/curl.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -19,218 +18,114 @@
 #include <unistd.h>
 #endif
 
-configupdater* configupdater::_singleton = NULL;
-
-#ifdef WIN32
-#define CURL_INIT_FLAGS (CURL_GLOBAL_WIN32 | CURL_GLOBAL_SSL)
-#else
-#define CURL_INIT_FLAGS CURL_GLOBAL_NOTHING
-#endif
-
 #ifdef WIN32
 const char * configupdater::configs_url = "https://api.github.com/repos/matlo/GIMX-configurations/contents/Windows";
 const char * configupdater::configs_download_url = "https://raw.githubusercontent.com/matlo/GIMX-configurations/master/Windows/";
 #else
 const char * configupdater::configs_url = "https://api.github.com/repos/matlo/GIMX-configurations/contents/Linux";
-const char * configupdater::configs_download_url = "https://raw.githubusercontent.com/matlo/GIMX-configurations/master/Linux/";
+const char * configupdater::configs_download_url =
+        "https://raw.githubusercontent.com/matlo/GIMX-configurations/master/Linux/";
 #endif
-const char * configupdater::configs_file = "configs";
 
-configupdater::configupdater() : client_callback(NULL), client_data(NULL)
-{
-  curl_global_init(CURL_INIT_FLAGS);
+configupdater::configupdater() :
+        client_callback(NULL), client_data(NULL) {
 }
 
-configupdater::~configupdater()
-{
-  curl_global_cleanup();
+configupdater::~configupdater() {
 }
 
-static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
-{
-  size_t written = fwrite(ptr, size, nmemb, (FILE *)stream);
-  return written;
+int configupdater::progress(configupdater::ConfigUpdaterStatus status, double dlnow, double dltotal) {
+
+    return client_callback(client_data, status, dlnow, dltotal);
 }
 
-static int progress_callback(void * clientp, double dltotal, double dlnow, double ultotal __attribute__((unused)), double ulnow __attribute__((unused)))
-{
-    return ((configupdater *) clientp)->onProgress(dlnow, dltotal);
+configupdater::ConfigUpdaterStatus convertDowloadStatus(Downloader::DownloaderStatus status) {
+    switch (status) {
+    case Downloader::DownloaderStatusOk:
+        return configupdater::ConfigUpdaterStatusOk;
+    case Downloader::DownloaderStatusConnectionPending:
+        return configupdater::ConfigUpdaterStatusConnectionPending;
+    case Downloader::DownloaderStatusDownloadInProgress:
+        return configupdater::ConfigUpdaterStatusDownloadInProgress;
+    case Downloader::DownloaderStatusCancelled:
+        return configupdater::ConfigUpdaterStatusCancelled;
+    case Downloader::DownloaderStatusInitFailed:
+        return configupdater::ConfigUpdaterStatusInitFailed;
+    case Downloader::DownloaderStatusDownloadFailed:
+        return configupdater::ConfigUpdaterStatusDownloadFailed;
+    }
+    return configupdater::ConfigUpdaterStatusOk;
 }
 
-int configupdater::getconfiglist(const char * url)
-{
-  int ret = -1;
+int progressCallback(void *clientp, Downloader::DownloaderStatus status, double progress, double total) {
 
-  string output = "";
+    configupdater * updater = static_cast<configupdater *>(clientp);
 
-#ifdef WIN32
-  char temp[MAX_PATH];
-  if(!GetTempPathA(sizeof(temp), temp))
-  {
-    return -1;
-  }
-  output.append(temp);
-#endif
-  output.append(configs_file);
+    return updater->progress(convertDowloadStatus(status), progress, total);
+}
 
-  current.empty();
+configupdater::ConfigUpdaterStatus configupdater::getconfiglist(std::list<std::string>& cl, ProgressCallback callback, void * data) {
 
-  FILE* outfile = fopen(output.c_str(), "wb");
-  if(outfile)
-  {
-    CURL * curl_handle = curl_easy_init();
+    client_callback = callback;
+    client_data = data;
 
-    if(curl_handle)
-    {
-      struct curl_slist * headers = NULL;
-      headers = curl_slist_append(headers, "Accept: application/vnd.github.v3+json");
+    std::string tempFile = Downloader::generateTempFile("configs.json");
 
-      if(headers)
-      {
-#ifdef WIN32
-        curl_easy_setopt(curl_handle, CURLOPT_CAINFO, "ssl/certs/ca-bundle.crt");
-#endif
-        curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
-        curl_easy_setopt(curl_handle, CURLOPT_URL, url);
-        curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
-        curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);
-        curl_easy_setopt(curl_handle, CURLOPT_FILE, outfile);
-        curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+    Downloader::DownloaderStatus downloadStatus = Downloader().download(configs_url, tempFile, progressCallback, this);
 
-        if (client_callback != NULL && client_data != NULL)
-        {
-          curl_easy_setopt(curl_handle, CURLOPT_PROGRESSFUNCTION, progress_callback);
-          curl_easy_setopt(curl_handle, CURLOPT_PROGRESSDATA, this);
-          curl_easy_setopt(curl_handle, CURLOPT_NOPROGRESS, 0L);
-        }
-
-        CURLcode res = curl_easy_perform(curl_handle);
-        if(res == CURLE_OK)
-        {
-          ret = 0;
-        }
-        else
-        {
-          fprintf(stderr, "%s:%d %s\n", __FILE__, __LINE__, curl_easy_strerror(res));
-        }
-
-        curl_slist_free_all(headers);
-      }
-      curl_easy_cleanup(curl_handle);
+    if (downloadStatus != Downloader::DownloaderStatusOk) {
+        remove(tempFile.c_str());
+        return convertDowloadStatus(downloadStatus);
     }
 
-    fclose(outfile);
-  }
+    std::ifstream infile;
+    infile.open(tempFile.c_str());
 
-  if(ret != -1)
-  {
-    ifstream infile;
-    infile.open(output.c_str());
-
-    while (infile.good())
-    {
-      string line;
-      getline(infile, line);
-      size_t pos1 = line.find("\"name\": ");
-      if(pos1 != string::npos)
-      {
-        size_t pos2 = line.find("\"", pos1 + strlen("\"name\": "));
-        if(pos2 != string::npos)
-        {
-          size_t pos3 = line.find(".xml\",", pos2 + 1);
-          if(pos3 != string::npos)
-          {
-            configlist.push_back(line.substr(pos2 + 1, pos3 + 4 - (pos2 + 1)));
-          }
+    while (infile.good()) {
+        std::string line;
+        std::getline(infile, line);
+        size_t pos1 = line.find("\"name\": ");
+        if (pos1 != std::string::npos) {
+            size_t pos2 = line.find("\"", pos1 + strlen("\"name\": "));
+            if (pos2 != std::string::npos) {
+                size_t pos3 = line.find(".xml\",", pos2 + 1);
+                if (pos3 != std::string::npos) {
+                    cl.push_back(line.substr(pos2 + 1, pos3 + 4 - (pos2 + 1)));
+                }
+            }
         }
-      }
     }
 
     infile.close();
-  }
 
-  remove(output.c_str());
+    remove(tempFile.c_str());
 
-  return ret;
+    return configupdater::ConfigUpdaterStatusOk;
 }
 
-list<string>* configupdater::getconfiglist(CONFIGUPDATER_PROGRESS_CALLBACK callback, void * data)
-{
-  configlist.clear();
-  
-  client_callback = callback;
-  client_data = data;
+configupdater::ConfigUpdaterStatus configupdater::getconfig(const std::string& directory, const std::string& config, ProgressCallback callback, void * data) {
 
-  int ret = getconfiglist(configs_url);
-  
-  return (ret != -1) ? &configlist : NULL;
-}
+    if (directory.empty()) {
+        return configupdater::ConfigUpdaterStatusInitFailed;
+    }
 
-int configupdater::getconfigs(list<string>* cl, CONFIGUPDATER_PROGRESS_CALLBACK callback, void * data)
-{
-  int ret = -1;
-  
-  if(configs_dir.empty())
-  {
-    return -1;
-  }
-  
-  client_callback = callback;
-  client_data = data;
+    client_callback = callback;
+    client_data = data;
 
-  for(list<string>::iterator it = cl->begin(); it != cl->end(); ++it)
-  {
-    string config = configs_download_url + *it;
-    string output = configs_dir + *it;
-    
-    current = *it;
+    std::string url = configs_download_url + config;
+    std::string file = directory + config;
 
-    FILE* outfile = fopen(output.c_str(), "wb");
-    if(outfile)
-    {
-      CURL *curl_handle = curl_easy_init();
+    Downloader::DownloaderStatus downloadStatus = Downloader().download(url, file, progressCallback, this);
 
-      if(curl_handle)
-      {
-#ifdef WIN32
-        curl_easy_setopt(curl_handle, CURLOPT_CAINFO, "ssl/certs/ca-bundle.crt");
-#endif
-        curl_easy_setopt(curl_handle, CURLOPT_URL, config.c_str());
-        curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
-        curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);
-        curl_easy_setopt(curl_handle, CURLOPT_FILE, outfile);
-        curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
-
-        if (callback != NULL && data != NULL)
-        {
-          curl_easy_setopt(curl_handle, CURLOPT_PROGRESSFUNCTION, progress_callback);
-          curl_easy_setopt(curl_handle, CURLOPT_PROGRESSDATA, this);
-          curl_easy_setopt(curl_handle, CURLOPT_NOPROGRESS, 0L);
-        }
-
-        CURLcode res = curl_easy_perform(curl_handle);
-        if(res == CURLE_OK)
-        {
-          ret = 0;
-        }
-        else
-        {
-          fprintf(stderr, "%s:%d %s\n", __FILE__, __LINE__, curl_easy_strerror(res));
-        }
-
-        curl_easy_cleanup(curl_handle);
-      }
-
-      fclose(outfile);
+    if (downloadStatus != Downloader::DownloaderStatusOk) {
+        return convertDowloadStatus(downloadStatus);
     }
 
 #ifndef WIN32
-    if(chown(output.c_str(), getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid) < 0)
-    {
-      ret = -1;
+    if (chown(file.c_str(), getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid) < 0) {
+        return configupdater::ConfigUpdaterStatusDownloadFailed;
     }
 #endif
-  }
-  
-  return ret;
+
+    return configupdater::ConfigUpdaterStatusOk;
 }

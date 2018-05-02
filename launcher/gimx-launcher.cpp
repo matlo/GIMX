@@ -32,7 +32,6 @@
 #include "launcher.h"
 
 #include "../directories.h"
-#include <gimxupdater/updater.h>
 #include <gimxconfigupdater/configupdater.h>
 #include <gimxgpp/pcprog.h>
 #include <gimxconfigeditor/include/ConfigurationFile.h>
@@ -47,6 +46,8 @@
 #include <gimxserial/include/gserial.h>
 #include <gimxinput/include/ginput.h>
 #include <gimxpoll/include/gpoll.h>
+
+#include "SetupManager.h"
 
 #ifdef WIN32
 #define REGISTER_FUNCTION gpoll_register_handle
@@ -129,9 +130,14 @@ BEGIN_EVENT_TABLE(launcherFrame,wxFrame)
     //*)
 END_EVENT_TABLE()
 
-static int progress_callback(void *clientp, string & file, unsigned int dlnow, unsigned int dltotal)
+static int progress_callback_updater(void *clientp, Updater::UpdaterStatus status, double progress, double total)
 {
-    return ((launcherFrame *) clientp)->OnUpdateProgress(file, dlnow, dltotal);
+    return ((launcherFrame *) clientp)->OnUpdateProgress(status, progress, total);
+}
+
+static int progress_callback_configupdater(void *clientp, configupdater::ConfigUpdaterStatus status, double progress, double total)
+{
+    return ((launcherFrame *) clientp)->OnUpdateProgress(status, progress, total);
 }
 
 /*
@@ -841,18 +847,12 @@ bool launcherFrame::getConfig(const std::string& config)
       return false;
     }
 
-    configupdater* u = configupdater::getInstance();
-    u->setconfigdirectory(dir);
-
-    list<string> cl_sel;
-    cl_sel.push_back(config);
-
-    wxProgressDialog dlg(_("Downloading config..."), _("Connecting..."), 100, NULL, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_CAN_ABORT | wxPD_REMAINING_TIME | wxPD_SMOOTH);
+    wxProgressDialog dlg(_("Downloading ") + wxString(config.c_str(), wxConvUTF8), _("Connecting"), 100, NULL, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_CAN_ABORT | wxPD_REMAINING_TIME | wxPD_SMOOTH);
     initDownload(&dlg);
-    int ret = u->getconfigs(&cl_sel, progress_callback, this);
+    configupdater::ConfigUpdaterStatus status = configupdater().getconfig(dir, config, progress_callback_configupdater, this);
     cleanDownload();
 
-    return ret == 0;
+    return status == configupdater::ConfigUpdaterStatusOk;
 }
 
 void launcherFrame::autoConfig()
@@ -941,125 +941,6 @@ void launcherFrame::autoConfig()
         readConfigs();
     }
 }
-
-#ifdef WIN32
-#define USB_VENDOR_ID_LOGITECH                  0x046d
-
-#define USB_PRODUCT_ID_LOGITECH_FORMULA_YELLOW   0xc202 // no force feedback
-#define USB_PRODUCT_ID_LOGITECH_FORMULA_GP       0xc20e // no force feedback
-#define USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE    0xc291
-#define USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP 0xc293
-#define USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE    0xc294
-#define USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL       0xc295
-#define USB_PRODUCT_ID_LOGITECH_DFP_WHEEL        0xc298
-#define USB_PRODUCT_ID_LOGITECH_G25_WHEEL        0xc299
-#define USB_PRODUCT_ID_LOGITECH_DFGT_WHEEL       0xc29a
-#define USB_PRODUCT_ID_LOGITECH_G27_WHEEL        0xc29b
-#define USB_PRODUCT_ID_LOGITECH_WII_WHEEL        0xc29c // rumble only
-#define USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2      0xca03
-#define USB_PRODUCT_ID_LOGITECH_VIBRATION_WHEEL  0xca04 // rumble only
-#define USB_PRODUCT_ID_LOGITECH_G920_WHEEL       0xc262 // does not support classic format
-#define USB_PRODUCT_ID_LOGITECH_G29_PC_WHEEL     0xc24f // not sure about this one...
-#define USB_PRODUCT_ID_LOGITECH_G29_PS4_WHEEL    0xc260 // classic protocol with 1 byte offset
-
-#define MAKE_IDS(USB_PRODUCT_ID) \
-    { .vendor_id = USB_VENDOR_ID_LOGITECH, .product_id = USB_PRODUCT_ID }
-
-typedef struct
-{
-    unsigned short vendor_id;
-    unsigned short product_id;
-} s_lgwheel_ids;
-
-static s_lgwheel_ids ids[] =
-{
-        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_FORMULA_YELLOW),
-        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_FORMULA_GP),
-        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE),
-        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_FORMULA_FORCE_GP),
-        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_DRIVING_FORCE),
-        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL),
-        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_DFP_WHEEL),
-        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_G25_WHEEL),
-        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_DFGT_WHEEL),
-        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_G27_WHEEL),
-        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2),
-        MAKE_IDS(USB_PRODUCT_ID_LOGITECH_VIBRATION_WHEEL),
-        { .vendor_id = 0, .product_id = 0 },
-};
-
-void launcherFrame::autoSetup()
-{
-    bool installLgs = false;
-
-    struct ghid_device_info *devs, *cur_dev;
-
-    if (ghid_init() < 0)
-    {
-      return;
-    }
-
-    devs = ghid_enumerate(USB_VENDOR_ID_LOGITECH, 0x0000);
-    for(cur_dev = devs; cur_dev != NULL && !installLgs; cur_dev = cur_dev->next)
-    {
-        for (unsigned int i = 0; i < sizeof(ids) / sizeof(*ids); ++i)
-        {
-            if (cur_dev->vendor_id == ids[i].vendor_id && cur_dev->product_id == ids[i].product_id)
-            {
-                installLgs = true;
-                break;
-            }
-        }
-    }
-    ghid_free_enumeration(devs);
-
-    ghid_exit();
-
-    if (installLgs)
-    {
-        if (FindWindowA(NULL, "Logitech WingMan Event Monitor") != NULL)
-        {
-            return;
-        }
-
-        int answer = wxMessageBox(_("Logitech wheel detected. Install Logitech Gaming Software?"), _("Confirm"), wxYES_NO);
-        if (answer == wxNO)
-        {
-            return;
-        }
-
-        const char * download = NULL;
-        SYSTEM_INFO info;
-        GetNativeSystemInfo(&info);
-        switch (info.wProcessorArchitecture)
-        {
-            case PROCESSOR_ARCHITECTURE_AMD64:
-            case PROCESSOR_ARCHITECTURE_IA64:
-            download = "https://gimx.fr/download/LGS64";
-            break;
-            case PROCESSOR_ARCHITECTURE_INTEL:
-            download = "https://gimx.fr/download/LGS32";
-            break;
-        }
-        if (download != NULL)
-        {
-            updater* u = updater::getInstance();
-            u->SetParams("", "", "", download, "lgs.exe");
-
-            wxProgressDialog dlg(_("Downloading Logitech Gaming Software..."), _("Connecting..."), 100, NULL, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_CAN_ABORT | wxPD_REMAINING_TIME | wxPD_SMOOTH);
-            initDownload(&dlg);
-            int uret = u->Update(progress_callback, this, true);
-            cleanDownload();
-            if (uret < 0 && downloadCancelled == false)
-            {
-                wxMessageBox(_("Can't retrieve Logitech Gaming Software!"), _("Error"), wxICON_ERROR);
-            }
-        }
-    }
-}
-#else
-void launcherFrame::autoSetup() {}
-#endif
 
 launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unused)))
 {
@@ -1300,7 +1181,7 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
     Output->Append(_("Bluetooth / PS4"));
 #endif
 
-    autoSetup();
+    SetupManager().run();
 
     autoConfig();
 
@@ -2029,30 +1910,56 @@ void launcherFrame::OnOutputSelect(wxCommandEvent& event __attribute__((unused))
     refreshGui();
 }
 
-int launcherFrame::OnUpdateProgress(string & file, unsigned int dlnow, unsigned int dltotal)
+int launcherFrame::OnUpdateProgress(Updater::UpdaterStatus status, double progress, double total)
 {
-    if (downloadCancelled)
-    {
-        return -1;
+    wxString message;
+    switch (status) {
+    case Updater::UpdaterStatusConnectionPending:
+        message = _("Connecting");
+        break;
+    case Updater::UpdaterStatusDownloadInProgress:
+        message = _("Progress: ");
+        message.Append(wxString(Updater::getProgress(progress, total).c_str(), wxConvUTF8));
+        break;
+    case Updater::UpdaterStatusInstallPending:
+        message = _("Installing");
+        break;
+    default:
+        break;
     }
 
-    if (dltotal == 0 || dlnow == dltotal)
-    {
-        downloadCancelled = downloadCancelled | (progressDialog->Update(-1) == false);
-        return downloadCancelled ? -1 : 0;
+    if (status >= 0) {
+        if (progressDialog->Update(progress, message) == false) {
+            return 1;
+        }
+    } else {
+        return 1;
     }
 
-    ostringstream ios;
-    if (!file.empty())
-    {
-        ios << file << ": ";
-    }
-    ios << (int)(dlnow / 1024) << " / " << (int)(dltotal / 1024) << " KB";
+    return 0;
+}
 
-    downloadCancelled = (progressDialog->Update(dlnow * 100 / dltotal, wxString(ios.str().c_str(), wxConvUTF8)) == false);
-    if (downloadCancelled)
-    {
-        return -1;
+int launcherFrame::OnUpdateProgress(configupdater::ConfigUpdaterStatus status, double progress, double total)
+{
+    wxString message;
+    switch (status) {
+    case configupdater::ConfigUpdaterStatusConnectionPending:
+        message = _("Connecting");
+        break;
+    case configupdater::ConfigUpdaterStatusDownloadInProgress:
+        message = _("Progress: ");
+        message.Append(wxString(Updater::getProgress(progress, total).c_str(), wxConvUTF8));
+        break;
+    default:
+        break;
+    }
+
+    if (status >= 0) {
+        if (progressDialog->Update(progress, message) == false) {
+            return 1;
+        }
+    } else {
+        return 1;
     }
 
     return 0;
@@ -2061,7 +1968,6 @@ int launcherFrame::OnUpdateProgress(string & file, unsigned int dlnow, unsigned 
 void launcherFrame::initDownload(wxProgressDialog * dlg)
 {
     progressDialog = dlg;
-    downloadCancelled = false;
 }
 
 void launcherFrame::cleanDownload()
@@ -2074,10 +1980,7 @@ void launcherFrame::OnMenuUpdate(wxCommandEvent& event __attribute__((unused)))
 #ifdef DOWNLOAD_URL
   int ret;
 
-  updater* u = updater::getInstance();
-  u->SetParams(VERSION_URL, VERSION_FILE, INFO_VERSION, DOWNLOAD_URL, DOWNLOAD_FILE);
-
-  ret = u->CheckVersion();
+  ret = Updater().checkVersion(VERSION_URL, INFO_VERSION);
 
   if (ret > 0)
   {
@@ -2086,13 +1989,13 @@ void launcherFrame::OnMenuUpdate(wxCommandEvent& event __attribute__((unused)))
     {
      return;
     }
-    wxProgressDialog dlg(_("Downloading update..."), _("Connecting..."), 100, NULL, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_CAN_ABORT | wxPD_REMAINING_TIME | wxPD_SMOOTH);
+    wxProgressDialog dlg(_("Downloading update"), _("Connecting"), 100, NULL, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_CAN_ABORT | wxPD_REMAINING_TIME | wxPD_SMOOTH);
     initDownload(&dlg);
-    int uret = u->Update(progress_callback, this, false);
+    Updater::UpdaterStatus status = Updater().update(DOWNLOAD_URL, progress_callback_updater, this, false);
     cleanDownload();
-    if (downloadCancelled == false)
+    if (status != Updater::UpdaterStatusCancelled)
     {
-      if (uret < 0)
+      if (status < Updater::UpdaterStatusOk)
       {
         wxMessageBox(_("Can't retrieve update file!"), _("Error"), wxICON_ERROR);
       }
@@ -2136,29 +2039,27 @@ void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event __attribute__((unused
 {
   string dir = string(gimxConfigDir.mb_str(wxConvUTF8));
 
-  configupdater* u = configupdater::getInstance();
-  u->setconfigdirectory(dir);
-
-  list<string>* cl;
+  list<string> cl;
   list<string> cl_sel;
 
+  configupdater::ConfigUpdaterStatus status;
   {
-    wxProgressDialog dlg(_("Downloading config list..."), _("Connecting..."), 100, NULL, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_CAN_ABORT | wxPD_REMAINING_TIME | wxPD_SMOOTH);
+    wxProgressDialog dlg(_("Downloading config list"), _("Connecting"), 100, NULL, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_CAN_ABORT | wxPD_REMAINING_TIME | wxPD_SMOOTH);
     initDownload(&dlg);
-    cl = u->getconfiglist(progress_callback, this);
+    status = configupdater().getconfiglist(cl, progress_callback_configupdater, this);
     cleanDownload();
   }
 
-  if (downloadCancelled == true)
+  if (status == configupdater::ConfigUpdaterStatusCancelled)
   {
-      return;
+    return;
   }
 
-  if(cl && !cl->empty())
+  if(!cl.empty())
   {
     wxArrayString choices;
 
-    for(list<string>::iterator it = cl->begin(); it != cl->end(); ++it)
+    for(list<string>::iterator it = cl.begin(); it != cl.end(); ++it)
     {
       choices.Add(wxString(it->c_str(), wxConvUTF8));
     }
@@ -2186,21 +2087,30 @@ void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event __attribute__((unused
 
       if(!cl_sel.empty())
 	  {
-        wxProgressDialog dlg(_("Downloading configs..."), _("Connecting..."), 100, NULL, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_CAN_ABORT | wxPD_REMAINING_TIME | wxPD_SMOOTH);
+        wxProgressDialog dlg(_("Downloading"), _("Connecting"), 101, NULL, wxPD_APP_MODAL | wxPD_CAN_ABORT | wxPD_REMAINING_TIME | wxPD_SMOOTH);
         initDownload(&dlg);
-        int uret = u->getconfigs(&cl_sel, progress_callback, this);
-        cleanDownload();
-        if (downloadCancelled == false)
+        configupdater::ConfigUpdaterStatus status = configupdater::ConfigUpdaterStatusOk;
+        for (std::list<std::string>::iterator it = cl_sel.begin(); it != cl_sel.end(); ++it)
         {
-          if(uret < 0)
+          dlg.SetTitle(_("Downloading ") + wxString(it->c_str(), wxConvUTF8));
+          dlg.Update(0, _("Connecting"));
+          status = configupdater().getconfig(dir, *it, progress_callback_configupdater, this);
+          if (status == configupdater::ConfigUpdaterStatusCancelled)
           {
-            wxMessageBox(_("Can't retrieve configs!"), _("Error"), wxICON_ERROR);
-            return;
+            break;
           }
-          wxMessageBox(_("Download is complete!"), _("Info"), wxICON_INFORMATION);
         }
+        cleanDownload();
         readConfigs();
-        InputChoice->SetSelection(InputChoice->FindString(wxString(cl_sel.front().c_str(), wxConvUTF8)));
+        if (status == configupdater::ConfigUpdaterStatusOk)
+        {
+          dlg.Update(101, _("Completed"));
+          InputChoice->SetSelection(InputChoice->FindString(wxString(cl_sel.front().c_str(), wxConvUTF8)));
+        }
+        else if (status != configupdater::ConfigUpdaterStatusCancelled)
+        {
+          wxMessageBox(_("Can't retrieve configs!"), _("Error"), wxICON_ERROR);
+        }
       }
     }
   }

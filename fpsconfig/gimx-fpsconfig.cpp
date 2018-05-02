@@ -28,7 +28,7 @@
 #include <wx/filename.h>
 #include <wx/dir.h>
 
-#include <gimxupdater/updater.h>
+#include <gimxupdater/Updater.h>
 #include "../directories.h"
 
 #include <wx/tooltip.h>

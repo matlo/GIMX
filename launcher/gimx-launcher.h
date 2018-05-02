@@ -22,6 +22,9 @@
 
 #include <vector>
 
+#include <gimxconfigupdater/configupdater.h>
+#include <gimxupdater/Updater.h>
+
 using namespace std;
 
 class DongleInfo
@@ -50,7 +53,8 @@ class launcherFrame: public wxFrame
 
         void OnProcessTerminated(wxProcess *process, int status);
 
-        int OnUpdateProgress(string & file, unsigned int dlcurrent, unsigned int dltotal);
+        int OnUpdateProgress(Updater::UpdaterStatus status, double progress, double total);
+        int OnUpdateProgress(configupdater::ConfigUpdaterStatus status, double progress, double total);
 
     private:
 
@@ -90,7 +94,6 @@ class launcherFrame: public wxFrame
         
         void autoConfig();
         bool getConfig(const std::string& config);
-        void autoSetup();
 
         int readChoices(const char* file, wxChoice* choices, const char* default_file);
         int saveChoices(const char* file, wxChoice* choices);
@@ -209,7 +212,7 @@ class launcherFrame: public wxFrame
         bool openLog;
 
         wxProgressDialog * progressDialog;
-        bool downloadCancelled;
+        int progressValue;
 
         DECLARE_EVENT_TABLE()
 };

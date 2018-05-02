@@ -3,87 +3,35 @@
  License: GPLv3
  */
 
-#define VERSION_URL "http://gimx.fr/download/version"
-
-#ifdef WIN32
-
-#define VERSION_FILE "version"
-
-#ifdef __x86_64__
-#define DOWNLOAD_URL "http://gimx.fr/download/gimx-windows-64bits"
-#endif
-
-#ifdef __i386__
-#define DOWNLOAD_URL "http://gimx.fr/download/gimx-windows-32bits"
-#endif
-
-#define DOWNLOAD_FILE "gimx-update.exe"
-
-#else
-
-#define VERSION_FILE "/tmp/version"
-#define DOWNLOAD_FILE "/tmp/gimx-update.deb"
-
-#include <limits.h>
-
-#ifdef __x86_64__
-#define DOWNLOAD_URL "http://gimx.fr/download/gimx-ubuntu-64bits.html"
-#endif
-
-#ifdef __i386__
-#define DOWNLOAD_URL "http://gimx.fr/download/gimx-ubuntu-32bits.html"
-#endif
-
-#ifdef __ARM_ARCH_6__
-#define DOWNLOAD_URL "http://gimx.fr/download/gimx-raspbian.html"
-#endif
-
-#endif
+#ifndef GIMXUPDATER_H_
+#define GIMXUPDATER_H_
 
 #include <string>
 
-using namespace std;
-
-typedef int (* UPDATER_PROGRESS_CALLBACK)(void *clientp, string & file, unsigned int dlnow, unsigned int dltotal);
-
-class updater
-{
+class Updater {
 public:
-  int CheckVersion();
-  int Update(UPDATER_PROGRESS_CALLBACK callback, void * data, bool wait);
-  void SetParams(string vu, string vf, string v, string du, string df)
-  {
-    version_url = vu;
-    version_file = vf;
-    version = v;
-    download_url = du;
-    download_file = df;
-  };
-  static updater* getInstance ()
-  {
-    if (NULL == _singleton)
-    {
-      _singleton =  new updater;
-    }
+    Updater();
+    virtual ~Updater();
+    int checkVersion(std::string versionUrl, std::string version);
+    enum UpdaterStatus {
+        UpdaterStatusOk = 0,
 
-    return _singleton;
-  }
-  int onProgress(unsigned int dlnow, unsigned int dltotal)
-  {
-      string file;
-      return client_callback(client_data, file, dlnow, dltotal);
-  }
+        UpdaterStatusConnectionPending = 1,
+        UpdaterStatusDownloadInProgress = 2,
+        UpdaterStatusInstallPending = 3,
+
+        UpdaterStatusCancelled = -1,
+        UpdaterStatusInitFailed = -2,
+        UpdaterStatusDownloadFailed = -3,
+        UpdaterStatusInstallFailed = -4,
+    };
+    typedef int (*ProgressCallback)(void *clientp, Updater::UpdaterStatus status, double progress, double total);
+    UpdaterStatus update(std::string url, ProgressCallback callback, void *clientp, bool wait);
+    int progress(Updater::UpdaterStatus, double dlnow, double dltotal);
+    static std::string getProgress(double progress, double total);
 private:
-  updater();
-  virtual ~updater();
-  string version_url;
-  string version_file;
-  string version;
-  string download_url;
-  string download_file;
-
-  UPDATER_PROGRESS_CALLBACK client_callback;
-  void * client_data;
-
-  static updater* _singleton;
+    ProgressCallback clientCallback;
+    void * clientData;
 };
+
+#endif /* GIMXUPDATER_H_ */

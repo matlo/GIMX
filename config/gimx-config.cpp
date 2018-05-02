@@ -27,7 +27,7 @@
 
 #include <algorithm>
 
-#include <gimxupdater/updater.h>
+#include <gimxupdater/Updater.h>
 #include "../directories.h"
 
 #include <wx/stdpaths.h>

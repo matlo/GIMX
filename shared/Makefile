@@ -1,4 +1,4 @@
-DIRS = gimxcontroller gimxupdater gimxconfigupdater gimxlog gimxhid gimxinput gimxpoll gimxprio gimxserial gimxtimer gimxusb gimxgpp gimxconfigeditor
+DIRS = gimxcontroller gimxdownloader gimxupdater gimxconfigupdater gimxlog gimxhid gimxinput gimxpoll gimxprio gimxserial gimxtimer gimxusb gimxgpp gimxconfigeditor
 
 ifneq ($(OS),Windows_NT)
 UHID=1
@@ -35,6 +35,8 @@ build-gimxinput: build-gimxhid build-gimxpoll
 ifeq ($(OS),Windows_NT)
 build-gimxusb: build-gimxtimer
 endif
+build-gimxupdater: build-gimxdownloader
+build-gimxconfigupdater: build-gimxdownloader
 
 clean: $(CLEANDIRS)
 $(CLEANDIRS): 
