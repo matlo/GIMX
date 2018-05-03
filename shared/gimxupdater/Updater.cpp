@@ -124,6 +124,8 @@ Updater::UpdaterStatus Updater::update(std::string url, ProgressCallback callbac
         return convertDowloadStatus(downloadStatus);
     }
 
+    UpdaterStatus status = UpdaterStatusOk;
+
 #ifdef WIN32
     SHELLEXECUTEINFO shExInfo = SHELLEXECUTEINFO();
     shExInfo.cbSize = sizeof(shExInfo);
@@ -164,5 +166,5 @@ Updater::UpdaterStatus Updater::update(std::string url, ProgressCallback callbac
     }
 #endif
 
-    return UpdaterStatusOk;
+    return status;
 }
