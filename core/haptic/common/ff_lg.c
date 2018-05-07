@@ -518,7 +518,7 @@ int ff_lg_convert_extended(const s_ff_lg_command * ext, s_haptic_core_data * to)
         to->range.value = (ext->parameters[1] << 8) | ext->parameters[0];
         ret = 1;
         break;
-    case FF_LG_CMD_SET_LED:
+    case FF_LG_EXT_CMD_SET_RPM_LEDS:
         to->type = E_DATA_TYPE_LEDS;
         to->leds.value = ext->parameters[0];
         ret = 1;

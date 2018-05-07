@@ -163,6 +163,28 @@ s_gimx_params gimx_params = { 0 }; // { .debug = { .ff_lg = 1 } };
             .out.force = { F_OUT }, \
     }
 
+
+#define LED_TEST(NAME, SRC_PRODUCT_ID, DST_PRODUCT_ID, LEVEL) \
+    { \
+            .name = NAME, \
+            .src_pid = SRC_PRODUCT_ID, \
+            .in.cmd = FF_LG_CMD_EXTENDED_COMMAND, \
+            .in.force = { .cmd_param = FF_LG_EXT_CMD_SET_RPM_LEDS, .parameters = { LEVEL } }, \
+            .tweaks = { \
+                    .invert = 0, \
+                    .gain = { \
+                            .constant = 0, \
+                            .spring = 0, \
+                            .damper = 0 \
+                    }, \
+            }, \
+            .dst_pid = DST_PRODUCT_ID, \
+            .dst_range = 0, \
+            .dst_slot = 0, \
+            .out.cmd = FF_LG_CMD_EXTENDED_COMMAND, \
+            .out.force = { .cmd_param = FF_LG_EXT_CMD_SET_RPM_LEDS, .parameters = { LEVEL } }, \
+    }
+
 static const struct {
     char * name;
     uint16_t src_pid;
@@ -337,6 +359,10 @@ static const struct {
                 HR_DAMPER(0x00, 0x00, 0x00, 0x00, 0), HR_DAMPER(0x00, 0x00, 0x00, 0x00, 0xff)),
         HR_DAMPER_TEST("G29 high resolution damper force (ones, inverted, 100%)", USB_PRODUCT_ID_LOGITECH_G29_PS4_WHEEL, USB_PRODUCT_ID_LOGITECH_DFGT_WHEEL, 1, 100, 0,
                 HR_DAMPER(0x0f, 0x01, 0x0f, 0x01, 0xff), HR_DAMPER(0x0f, 0x01, 0x0f, 0x01, 0xff)),
+
+        LED_TEST("G29 LEDS to G27 LEDS 0%", USB_PRODUCT_ID_LOGITECH_G29_PS4_WHEEL, USB_PRODUCT_ID_LOGITECH_G27_WHEEL, 0),
+        LED_TEST("G29 LEDS to G27 LEDS 50%", USB_PRODUCT_ID_LOGITECH_G29_PS4_WHEEL, USB_PRODUCT_ID_LOGITECH_G27_WHEEL, 0x7f),
+        LED_TEST("G29 LEDS to G27 LEDS 100%", USB_PRODUCT_ID_LOGITECH_G29_PS4_WHEEL, USB_PRODUCT_ID_LOGITECH_G27_WHEEL, 0xff),
 };
 
 #define CHECK_PARAM(PARAM) \
@@ -429,7 +455,11 @@ int main(int argc __attribute__((unused)), char * argv[] __attribute__((unused))
 
         s_haptic_core_data data;
 
-        ff_lg_convert_force(ff_lg_get_caps(test_cases[i].src_pid), 0, &test_cases[i].in.force, 1, &data);
+        if (test_cases[i].in.cmd != FF_LG_CMD_EXTENDED_COMMAND) {
+            ff_lg_convert_force(ff_lg_get_caps(test_cases[i].src_pid), 0, &test_cases[i].in.force, 1, &data);
+        } else {
+            ff_lg_convert_extended(&test_cases[i].in.force, &data);
+        }
 
         haptic_tweak_apply(&test_cases[i].tweaks, &data);
 
