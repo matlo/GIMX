@@ -133,8 +133,10 @@ void haptic_sink_lg_update(struct haptic_sink_state * state) {
 
     for (i = 0; i < state->fifo.size; ++i) {
         e_slot slot = state->fifo.items[i];
-        if (state->slots[slot].updated && !state->slots[slot].data.playing) {
-            mask |= (1 << slot);
+        if (slot == slot_constant || slot == slot_spring || slot == slot_damper) {
+			if (state->slots[slot].updated && !state->slots[slot].data.playing) {
+				mask |= (1 << slot);
+			}
         }
     }
 
