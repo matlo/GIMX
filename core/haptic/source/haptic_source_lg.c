@@ -166,7 +166,7 @@ static void haptic_source_lg_process(struct haptic_source_state * state, size_t 
                         }
                         forces[i].updated = 1;
                         forces[i].playing = 0;
-                        memset(forces[i].parameters, 0x00, sizeof(forces[i].parameters));
+                        memset(forces[i].parameters + 1, 0x00, sizeof(forces[i].parameters) - 1); // keep force type
                     } else {
                         continue;
                     }
