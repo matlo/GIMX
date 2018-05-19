@@ -763,6 +763,16 @@ void XmlReader::ProcessForceFeedbackElement(xmlNode * a_node)
     m_TempConfiguration.SetForceFeedback(m_TempForceFeedback);
 }
 
+void XmlReader::ProcessMacrosElement(xmlNode * a_node)
+{
+    char* prop = (char*) xmlNodeGetContent(a_node);
+    if (prop != NULL)
+    {
+        m_TempConfiguration.setMacros(prop);
+        xmlFree(prop);
+    }
+}
+
 void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
 {
     xmlNode* cur_node = NULL;
@@ -818,6 +828,10 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
             else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_FORCE_FEEDBACK))
             {
                 ProcessForceFeedbackElement(cur_node);
+            }
+            else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_MACROS))
+            {
+                ProcessMacrosElement(cur_node);
             }
         }
     }

@@ -13,5 +13,6 @@ unsigned int macro_process();
 
 void macros_init();
 void macros_clean();
+int macros_process_line(const char* line);
 
 #endif

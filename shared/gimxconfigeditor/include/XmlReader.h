@@ -75,6 +75,8 @@
 #define X_ATTR_VALUE_YES "yes"
 #define X_ATTR_VALUE_NO "no"
 
+#define X_NODE_MACROS "macros"
+
 class XmlReader
 {
     public:
@@ -99,6 +101,7 @@ class XmlReader
         void ProcessIntensityListElement(xmlNode * a_node);
         void ProcessJoystickCorrectionsListElement(xmlNode * a_node);
         void ProcessForceFeedbackElement(xmlNode * a_node);
+        void ProcessMacrosElement(xmlNode * a_node);
         void ProcessCorrectionElement(xmlNode * a_node);
         void ProcessButtonMapElement(xmlNode * a_node);
         void ProcessAxisMapElement(xmlNode * a_node);

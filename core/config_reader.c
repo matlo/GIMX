@@ -1096,6 +1096,32 @@ static int ProcessForceFeedbackElement(xmlNode * a_node)
   return ret;
 }
 
+static int ProcessMacrosElement(xmlNode * a_node)
+{
+  char* prop = (char*) xmlNodeGetContent(a_node);
+
+  if (prop != NULL)
+  {
+    char * line = strtok(prop, "\n");
+    while (line)
+    {
+      while (*line == ' ')
+      {
+        ++line;
+      }
+      if (*line != '\0')
+      {
+        macros_process_line(line);
+      }
+      line = strtok(NULL, "\n");
+    }
+
+    xmlFree(prop);
+  }
+
+  return 0;
+}
+
 static int ProcessConfigurationElement(xmlNode * a_node)
 {
   int ret = 0;
@@ -1147,6 +1173,10 @@ static int ProcessConfigurationElement(xmlNode * a_node)
       else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_FORCE_FEEDBACK))
       {
         ret = ProcessForceFeedbackElement(cur_node);
+      }
+      else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_MACROS))
+      {
+        ret = ProcessMacrosElement(cur_node);
       }
       else
       {

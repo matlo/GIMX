@@ -805,7 +805,7 @@ static const struct
 /*
  * Processes a line of a macro file.
  */
-int process_line(const char* line)
+int macros_process_line(const char* line)
 {
     int ret;
 
@@ -1158,7 +1158,7 @@ static void read_macros() {
           }
           if (line[0] != '#' && line[0] != '\n' && line[0] != '\r')
           {
-            if (process_line(line) < 0)
+            if (macros_process_line(line) < 0)
             {
               has_errors = 1;
             }
@@ -1323,13 +1323,19 @@ void macro_lookup(GE_Event* event)
         if(!macro_delete(event))
         {
           gstatus("start macro: ");
-          dump_macro_id(macros+i);
+          if (gimx_params.status)
+          {
+            dump_macro_id(macros+i);
+          }
           macro_add(event, i);
         }
         else
         {
           gstatus("stop macro: ");
-          dump_macro_id(macros+i);
+          if (gimx_params.status)
+          {
+            dump_macro_id(macros+i);
+          }
         }
       }
     }

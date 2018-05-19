@@ -30,6 +30,7 @@ class XmlWritter
         void CreateForceFeedbackNode(xmlNodePtr parent_node);
         void CreateInversionNode(xmlNodePtr parent_node, ForceFeedback* ffb);
         void CreateGainNode(xmlNodePtr parent_node, ForceFeedback* ffb);
+        void CreateMacrosNode(xmlNodePtr parent_node);
         unsigned int m_CurrentProfile;
         unsigned int m_CurrentController;
         ConfigurationFile* m_ConfigurationFile;

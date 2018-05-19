@@ -38,6 +38,8 @@ class Profile
         void SetButtonMappers(std::list<ControlMapper> bml) { m_ButtonMappers = bml; }
         void SetAxisMappers(std::list<ControlMapper> aml) { m_AxisMappers = aml; }
         bool IsEmpty();
+        const std::string& getMacros() const { return m_Macros; }
+        void setMacros(const std::string& macros) { m_Macros = macros; }
     protected:
     private:
         Trigger m_Trigger;
@@ -47,6 +49,7 @@ class Profile
         std::list<ControlMapper> m_AxisMappers;
         std::list<JoystickCorrection> m_JoystickCorrectionsList;
         ForceFeedback m_ForceFeedback;
+        std::string m_Macros;
 };
 
 #endif // PROFILE_H

@@ -202,6 +202,17 @@ void XmlWritter::CreateForceFeedbackNode(xmlNodePtr parent_node)
     }
 }
 
+void XmlWritter::CreateMacrosNode(xmlNodePtr parent_node)
+{
+    const std::string& macros = m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentProfile)->getMacros();
+
+    if (!macros.empty())
+    {
+        xmlNodePtr node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_MACROS, NULL);
+        xmlNodeAddContent(node, BAD_CAST macros.c_str());
+    }
+}
+
 void XmlWritter::CreateIntensityNodes(xmlNodePtr parent_node)
 {
     xmlNodePtr pnode = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_INTENSITY_LIST, NULL);
@@ -284,6 +295,8 @@ void XmlWritter::CreateConfigurationNodes(xmlNodePtr parent_node)
         CreateJoystickCorrectionsNodes(node);
 
         CreateForceFeedbackNode(node);
+
+        CreateMacrosNode(node);
     }
 }
 
