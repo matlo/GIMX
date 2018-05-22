@@ -281,7 +281,9 @@ static void process_report(int usb_number, struct usb_state * state, unsigned ch
   }
 }
 
-void usb_poll_interrupts() {
+int usb_poll_interrupts() {
+
+  int status = 0;
 
   unsigned int i;
   for (i = 0; i < MAX_CONTROLLERS; ++i) {
@@ -290,9 +292,13 @@ void usb_poll_interrupts() {
       int ret = gusb_poll(state->usb_device, controller[state->type].endpoints.in.address);
       if (ret != -1) {
         state->ack = 0;
+      } else {
+        status = -1;
       }
     }
   }
+
+  return status;
 }
 
 static int usb_read_callback(void * user, unsigned char endpoint, const void * buf, int status) {

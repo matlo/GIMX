@@ -476,7 +476,11 @@ int main(int argc, char *argv[])
 
   usb_poll_interrupts();
 
-  mainloop();
+  e_gimx_status mstatus = mainloop();
+  if (mstatus != E_GIMX_STATUS_SUCCESS)
+  {
+    status = mstatus;
+  }
 
   ginfo(_("Exiting\n"));
 

@@ -38,8 +38,9 @@ static int timer_close(void * user __attribute__((unused)))
   return 1;
 }
 
-void mainloop()
+e_gimx_status mainloop()
 {
+  e_gimx_status status = E_GIMX_STATUS_SUCCESS;
   GE_Event events[EVENT_BUFFER_SIZE];
   int num_evt;
   GE_Event* event;
@@ -83,7 +84,11 @@ void mainloop()
 
     cfg_process_rumble();
     
-    usb_poll_interrupts();
+    if (usb_poll_interrupts() < 0)
+    {
+      done = 1;
+      status = E_GIMX_STATUS_AUTH_CONTROLLER_ERROR;
+    }
 
     /*
      * These two functions generate events.
@@ -123,4 +128,6 @@ void mainloop()
   {
     gtimer_close(timer);
   }
+
+  return status;
 }

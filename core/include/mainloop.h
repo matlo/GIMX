@@ -8,8 +8,10 @@
 #ifndef MAINLOOP_H_
 #define MAINLOOP_H_
 
+#include <gimx.h>
+
 void set_done();
 int get_done();
-void mainloop();
+e_gimx_status mainloop();
 
 #endif /* MAINLOOP_H_ */

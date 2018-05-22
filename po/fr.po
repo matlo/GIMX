@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GIMX 7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-02 23:16+0200\n"
-"PO-Revision-Date: 2018-05-02 23:32+0200\n"
+"POT-Creation-Date: 2018-05-22 08:05+0200\n"
+"PO-Revision-Date: 2018-05-22 08:07+0200\n"
 "Last-Translator: Matlo <mat.lau@laposte.net>\n"
 "Language-Team: Matlo <mat.lau@laposte.net>\n"
 "Language: fr\n"
@@ -355,11 +355,11 @@ msgstr ""
 msgid "connected to %s:%d\n"
 msgstr "connecté à %s:%d\n"
 
-#: ../core/connectors/usb_con.c:407
+#: ../core/connectors/usb_con.c:413
 msgid "no pass-through device is needed\n"
 msgstr "pas besoin de périphérique \"pass-through\"\n"
 
-#: ../core/connectors/usb_con.c:416
+#: ../core/connectors/usb_con.c:422
 #, c-format
 msgid "found pass-through device 0x%04x:0x%04x\n"
 msgstr "périphérique de pass-through : 0x%04x:0x%04x\n"
@@ -568,7 +568,7 @@ msgstr "utilisation de la période de rafraîchissement par défaut : %.02fms\n"
 msgid "Unknown key name for argument --keygen: '%s'\n"
 msgstr "Nom de touche inconnue pour l'argument --keygen : '%s'\n"
 
-#: ../core/gimx.c:481
+#: ../core/gimx.c:485
 msgid "Exiting\n"
 msgstr "Sortie\n"
 
@@ -653,7 +653,7 @@ msgstr "Gimx-config"
 #: ../config/gimx-config.cpp:700 ../config/gimx-config.cpp:821
 #: ../config/gimx-config.cpp:875 ../config/gimx-config.cpp:1041
 #: ../config/gimx-config.cpp:1102 ../config/gimx-config.cpp:1128
-#: ../config/gimx-config.cpp:1211 ../launcher/gimx-launcher.cpp:1829
+#: ../config/gimx-config.cpp:1211 ../launcher/gimx-launcher.cpp:1835
 msgid "Device"
 msgstr "Périphérique"
 
@@ -1136,9 +1136,9 @@ msgstr ""
 #: ../config/gimx-config.cpp:3982 ../fpsconfig/gimx-fpsconfig.cpp:499
 #: ../launcher/SetupManager.cpp:176 ../launcher/gimx-launcher.cpp:359
 #: ../launcher/gimx-launcher.cpp:1215 ../launcher/gimx-launcher.cpp:1421
-#: ../launcher/gimx-launcher.cpp:1441 ../launcher/gimx-launcher.cpp:1710
-#: ../launcher/gimx-launcher.cpp:1867 ../launcher/gimx-launcher.cpp:1891
-#: ../launcher/gimx-launcher.cpp:1991 ../launcher/gimx-launcher.cpp:2083
+#: ../launcher/gimx-launcher.cpp:1441 ../launcher/gimx-launcher.cpp:1716
+#: ../launcher/gimx-launcher.cpp:1873 ../launcher/gimx-launcher.cpp:1897
+#: ../launcher/gimx-launcher.cpp:1997 ../launcher/gimx-launcher.cpp:2089
 msgid "Confirm"
 msgstr "Confirmer"
 
@@ -1182,25 +1182,26 @@ msgstr "Impossible de migrer le répertoire : "
 #: ../launcher/gimx-launcher.cpp:1378 ../launcher/gimx-launcher.cpp:1389
 #: ../launcher/gimx-launcher.cpp:1400 ../launcher/gimx-launcher.cpp:1410
 #: ../launcher/gimx-launcher.cpp:1432 ../launcher/gimx-launcher.cpp:1583
-#: ../launcher/gimx-launcher.cpp:1642 ../launcher/gimx-launcher.cpp:1647
-#: ../launcher/gimx-launcher.cpp:1657 ../launcher/gimx-launcher.cpp:1663
-#: ../launcher/gimx-launcher.cpp:1667 ../launcher/gimx-launcher.cpp:1674
-#: ../launcher/gimx-launcher.cpp:1677 ../launcher/gimx-launcher.cpp:1680
-#: ../launcher/gimx-launcher.cpp:1683 ../launcher/gimx-launcher.cpp:1701
-#: ../launcher/gimx-launcher.cpp:1729 ../launcher/gimx-launcher.cpp:1741
-#: ../launcher/gimx-launcher.cpp:1766 ../launcher/gimx-launcher.cpp:1783
-#: ../launcher/gimx-launcher.cpp:1795 ../launcher/gimx-launcher.cpp:1803
-#: ../launcher/gimx-launcher.cpp:1837 ../launcher/gimx-launcher.cpp:1852
-#: ../launcher/gimx-launcher.cpp:2004 ../launcher/gimx-launcher.cpp:2014
-#: ../launcher/gimx-launcher.cpp:2116 ../launcher/gimx-launcher.cpp:2123
-#: ../launcher/gimx-launcher.cpp:2152 ../launcher/gimx-launcher.cpp:2158
-#: ../launcher/gimx-launcher.cpp:2165 ../launcher/gimx-launcher.cpp:2180
-#: ../launcher/gimx-launcher.cpp:2463 ../launcher/gimx-launcher.cpp:2493
-#: ../launcher/gimx-launcher.cpp:2503 ../launcher/gimx-launcher.cpp:2641
-#: ../launcher/gimx-launcher.cpp:2680 ../launcher/gimx-launcher.cpp:2767
-#: ../launcher/gimx-launcher.cpp:2857 ../loader/gimx-loader.cpp:132
-#: ../loader/gimx-loader.cpp:146 ../loader/gimx-loader.cpp:243
-#: ../loader/gimx-loader.cpp:266 ../loader/gimx-loader.cpp:276
+#: ../launcher/gimx-launcher.cpp:1643 ../launcher/gimx-launcher.cpp:1648
+#: ../launcher/gimx-launcher.cpp:1658 ../launcher/gimx-launcher.cpp:1664
+#: ../launcher/gimx-launcher.cpp:1668 ../launcher/gimx-launcher.cpp:1675
+#: ../launcher/gimx-launcher.cpp:1678 ../launcher/gimx-launcher.cpp:1681
+#: ../launcher/gimx-launcher.cpp:1684 ../launcher/gimx-launcher.cpp:1689
+#: ../launcher/gimx-launcher.cpp:1707 ../launcher/gimx-launcher.cpp:1735
+#: ../launcher/gimx-launcher.cpp:1747 ../launcher/gimx-launcher.cpp:1772
+#: ../launcher/gimx-launcher.cpp:1789 ../launcher/gimx-launcher.cpp:1801
+#: ../launcher/gimx-launcher.cpp:1809 ../launcher/gimx-launcher.cpp:1843
+#: ../launcher/gimx-launcher.cpp:1858 ../launcher/gimx-launcher.cpp:2010
+#: ../launcher/gimx-launcher.cpp:2020 ../launcher/gimx-launcher.cpp:2122
+#: ../launcher/gimx-launcher.cpp:2129 ../launcher/gimx-launcher.cpp:2158
+#: ../launcher/gimx-launcher.cpp:2164 ../launcher/gimx-launcher.cpp:2171
+#: ../launcher/gimx-launcher.cpp:2186 ../launcher/gimx-launcher.cpp:2469
+#: ../launcher/gimx-launcher.cpp:2499 ../launcher/gimx-launcher.cpp:2509
+#: ../launcher/gimx-launcher.cpp:2647 ../launcher/gimx-launcher.cpp:2686
+#: ../launcher/gimx-launcher.cpp:2773 ../launcher/gimx-launcher.cpp:2863
+#: ../loader/gimx-loader.cpp:132 ../loader/gimx-loader.cpp:146
+#: ../loader/gimx-loader.cpp:243 ../loader/gimx-loader.cpp:266
+#: ../loader/gimx-loader.cpp:276
 msgid "Error"
 msgstr "Erreur"
 
@@ -1222,9 +1223,9 @@ msgstr "Impossible d'initialiser le répertoire:"
 #: ../config/gimx-config.cpp:4434 ../config/gimx-config.cpp:4439
 #: ../fpsconfig/gimx-fpsconfig.cpp:924 ../fpsconfig/gimx-fpsconfig.cpp:1799
 #: ../fpsconfig/gimx-fpsconfig.cpp:2069 ../launcher/gimx-launcher.cpp:363
-#: ../launcher/gimx-launcher.cpp:1671 ../launcher/gimx-launcher.cpp:1745
-#: ../launcher/gimx-launcher.cpp:1749 ../launcher/gimx-launcher.cpp:2018
-#: ../launcher/gimx-launcher.cpp:2169 ../loader/gimx-loader.cpp:278
+#: ../launcher/gimx-launcher.cpp:1672 ../launcher/gimx-launcher.cpp:1751
+#: ../launcher/gimx-launcher.cpp:1755 ../launcher/gimx-launcher.cpp:2024
+#: ../launcher/gimx-launcher.cpp:2175 ../loader/gimx-loader.cpp:278
 msgid "Info"
 msgstr "Info"
 
@@ -1385,7 +1386,7 @@ msgid "No config opened!"
 msgstr "Pas de config ouverte !"
 
 #: ../config/gimx-config.cpp:3809 ../fpsconfig/gimx-fpsconfig.cpp:2055
-#: ../launcher/gimx-launcher.cpp:2139
+#: ../launcher/gimx-launcher.cpp:2145
 msgid "Select the reference config."
 msgstr "Sélectionner la config de référence."
 
@@ -1600,15 +1601,15 @@ msgid "Select the event."
 msgstr "Sélectionner un événement."
 
 #: ../launcher/SetupManager.cpp:26 ../launcher/SetupManager.cpp:181
-#: ../launcher/gimx-launcher.cpp:851 ../launcher/gimx-launcher.cpp:1922
-#: ../launcher/gimx-launcher.cpp:1951 ../launcher/gimx-launcher.cpp:1996
-#: ../launcher/gimx-launcher.cpp:2051 ../launcher/gimx-launcher.cpp:2094
-#: ../launcher/gimx-launcher.cpp:2100
+#: ../launcher/gimx-launcher.cpp:851 ../launcher/gimx-launcher.cpp:1928
+#: ../launcher/gimx-launcher.cpp:1957 ../launcher/gimx-launcher.cpp:2002
+#: ../launcher/gimx-launcher.cpp:2057 ../launcher/gimx-launcher.cpp:2100
+#: ../launcher/gimx-launcher.cpp:2106
 msgid "Connecting"
 msgstr "Connexion"
 
-#: ../launcher/SetupManager.cpp:29 ../launcher/gimx-launcher.cpp:1925
-#: ../launcher/gimx-launcher.cpp:1954
+#: ../launcher/SetupManager.cpp:29 ../launcher/gimx-launcher.cpp:1931
+#: ../launcher/gimx-launcher.cpp:1960
 msgid "Progress: "
 msgstr "Progression :"
 
@@ -1629,7 +1630,7 @@ msgstr ""
 "Télécharger et installer ?"
 
 #: ../launcher/SetupManager.cpp:181 ../launcher/gimx-launcher.cpp:851
-#: ../launcher/gimx-launcher.cpp:2099
+#: ../launcher/gimx-launcher.cpp:2105
 msgid "Downloading "
 msgstr "Téléchargement"
 
@@ -1682,12 +1683,12 @@ msgstr "Gimx-launcher"
 msgid "Output"
 msgstr "Sortie"
 
-#: ../launcher/gimx-launcher.cpp:977 ../launcher/gimx-launcher.cpp:1844
+#: ../launcher/gimx-launcher.cpp:977 ../launcher/gimx-launcher.cpp:1850
 msgid "Port"
 msgstr "Port"
 
 #: ../launcher/gimx-launcher.cpp:981 ../launcher/gimx-launcher.cpp:998
-#: ../launcher/gimx-launcher.cpp:1823 ../launcher/gimx-launcher.cpp:2822
+#: ../launcher/gimx-launcher.cpp:1829 ../launcher/gimx-launcher.cpp:2828
 msgid "New"
 msgstr "Nouveau"
 
@@ -1701,12 +1702,12 @@ msgstr "Périphériques"
 
 #: ../launcher/gimx-launcher.cpp:990 ../launcher/gimx-launcher.cpp:1396
 #: ../launcher/gimx-launcher.cpp:1406 ../launcher/gimx-launcher.cpp:1499
-#: ../launcher/gimx-launcher.cpp:2212 ../launcher/gimx-launcher.cpp:2724
+#: ../launcher/gimx-launcher.cpp:2218 ../launcher/gimx-launcher.cpp:2730
 msgid "Network"
 msgstr "Réseau"
 
-#: ../launcher/gimx-launcher.cpp:994 ../launcher/gimx-launcher.cpp:1902
-#: ../launcher/gimx-launcher.cpp:2214
+#: ../launcher/gimx-launcher.cpp:994 ../launcher/gimx-launcher.cpp:1908
+#: ../launcher/gimx-launcher.cpp:2220
 msgid "IP:port"
 msgstr "IP:port"
 
@@ -1729,7 +1730,7 @@ msgstr "texte"
 
 #: ../launcher/gimx-launcher.cpp:1010 ../launcher/gimx-launcher.cpp:1463
 #: ../launcher/gimx-launcher.cpp:1473 ../launcher/gimx-launcher.cpp:1482
-#: ../launcher/gimx-launcher.cpp:1715
+#: ../launcher/gimx-launcher.cpp:1721
 msgid "log file"
 msgstr "fichier de log"
 
@@ -1773,7 +1774,7 @@ msgstr "Editer la config FPS"
 msgid "Open macro directory"
 msgstr "Ouvrir le dossier de macros"
 
-#: ../launcher/gimx-launcher.cpp:1043 ../launcher/gimx-launcher.cpp:2139
+#: ../launcher/gimx-launcher.cpp:1043 ../launcher/gimx-launcher.cpp:2145
 msgid "Auto-bind and convert"
 msgstr "Auto-affecter et convertir"
 
@@ -1802,32 +1803,32 @@ msgid "Can't migrate config: "
 msgstr "Impossible de migrer la config : "
 
 #: ../launcher/gimx-launcher.cpp:1179 ../launcher/gimx-launcher.cpp:1349
-#: ../launcher/gimx-launcher.cpp:1556 ../launcher/gimx-launcher.cpp:1649
-#: ../launcher/gimx-launcher.cpp:1790 ../launcher/gimx-launcher.cpp:1840
+#: ../launcher/gimx-launcher.cpp:1556 ../launcher/gimx-launcher.cpp:1650
+#: ../launcher/gimx-launcher.cpp:1796 ../launcher/gimx-launcher.cpp:1846
 msgid "GIMX adapter"
 msgstr "Adaptateur GIMX"
 
 #: ../launcher/gimx-launcher.cpp:1181 ../launcher/gimx-launcher.cpp:1357
 #: ../launcher/gimx-launcher.cpp:1405 ../launcher/gimx-launcher.cpp:1524
-#: ../launcher/gimx-launcher.cpp:1531 ../launcher/gimx-launcher.cpp:1659
-#: ../launcher/gimx-launcher.cpp:1898 ../launcher/gimx-launcher.cpp:2716
-#: ../launcher/gimx-launcher.cpp:2734 ../launcher/gimx-launcher.cpp:2744
-#: ../launcher/gimx-launcher.cpp:2838
+#: ../launcher/gimx-launcher.cpp:1531 ../launcher/gimx-launcher.cpp:1660
+#: ../launcher/gimx-launcher.cpp:1904 ../launcher/gimx-launcher.cpp:2722
+#: ../launcher/gimx-launcher.cpp:2740 ../launcher/gimx-launcher.cpp:2750
+#: ../launcher/gimx-launcher.cpp:2844
 msgid "Remote GIMX"
 msgstr "GIMX distant"
 
 #: ../launcher/gimx-launcher.cpp:1184 ../launcher/gimx-launcher.cpp:1365
-#: ../launcher/gimx-launcher.cpp:1536 ../launcher/gimx-launcher.cpp:1855
-#: ../launcher/gimx-launcher.cpp:2242 ../launcher/gimx-launcher.cpp:2708
-#: ../launcher/gimx-launcher.cpp:2814
+#: ../launcher/gimx-launcher.cpp:1536 ../launcher/gimx-launcher.cpp:1861
+#: ../launcher/gimx-launcher.cpp:2248 ../launcher/gimx-launcher.cpp:2714
+#: ../launcher/gimx-launcher.cpp:2820
 msgid "Bluetooth / PS3"
 msgstr "Bluetooth / PS3"
 
 #: ../launcher/gimx-launcher.cpp:1185 ../launcher/gimx-launcher.cpp:1366
 #: ../launcher/gimx-launcher.cpp:1415 ../launcher/gimx-launcher.cpp:1546
-#: ../launcher/gimx-launcher.cpp:1874 ../launcher/gimx-launcher.cpp:2246
-#: ../launcher/gimx-launcher.cpp:2308 ../launcher/gimx-launcher.cpp:2712
-#: ../launcher/gimx-launcher.cpp:2818
+#: ../launcher/gimx-launcher.cpp:1880 ../launcher/gimx-launcher.cpp:2252
+#: ../launcher/gimx-launcher.cpp:2314 ../launcher/gimx-launcher.cpp:2718
+#: ../launcher/gimx-launcher.cpp:2824
 msgid "Bluetooth / PS4"
 msgstr "Bluetooth / PS4"
 
@@ -1847,8 +1848,8 @@ msgstr "Pas de flag de debug trouvé !"
 msgid "Select the debug flags:"
 msgstr "Sélectionner les flags de debug :"
 
-#: ../launcher/gimx-launcher.cpp:1337 ../launcher/gimx-launcher.cpp:1729
-#: ../launcher/gimx-launcher.cpp:2180
+#: ../launcher/gimx-launcher.cpp:1337 ../launcher/gimx-launcher.cpp:1735
+#: ../launcher/gimx-launcher.cpp:2186
 msgid "No config selected!"
 msgstr "Pas de config sélectionnée !"
 
@@ -1912,15 +1913,15 @@ msgstr "Sélectionner la destination :"
 msgid "can't start gimx!"
 msgstr "Impossible de démarrer gimx !"
 
-#: ../launcher/gimx-launcher.cpp:1642
+#: ../launcher/gimx-launcher.cpp:1643
 msgid "GIMX failed with a generic error (please report this)."
 msgstr "GIMX a échoué avec une erreur générique (reporter ceci svp)."
 
-#: ../launcher/gimx-launcher.cpp:1647
+#: ../launcher/gimx-launcher.cpp:1648
 msgid "Failed to detect the GPP/Cronus/Titan device."
 msgstr "Échec de la détection du périphérique GPP/Cronus/Titan."
 
-#: ../launcher/gimx-launcher.cpp:1651
+#: ../launcher/gimx-launcher.cpp:1652
 msgid ""
 "Failed to detect the USB adapter:\n"
 " . make sure to select the right port\n"
@@ -1937,7 +1938,7 @@ msgstr ""
 ". vérifier le raccordement (l'échange de RX et TX est une erreur courante)\n"
 ". vérifier que le firmware est correct"
 
-#: ../launcher/gimx-launcher.cpp:1661
+#: ../launcher/gimx-launcher.cpp:1662
 msgid ""
 "Failed to detect the remote GIMX instance:\n"
 " . make sure to fill the right IP:port\n"
@@ -1947,66 +1948,76 @@ msgstr ""
 ". vérifier que IP:port est correct\n"
 ". vérifier que l'instance distance est en fonctionnement"
 
-#: ../launcher/gimx-launcher.cpp:1667
+#: ../launcher/gimx-launcher.cpp:1668
 msgid "Failed to detect the adapter (fallback error message)."
 msgstr "Échec de la détection de l'adaptateur (message d'erreur de repli)"
 
-#: ../launcher/gimx-launcher.cpp:1671
+#: ../launcher/gimx-launcher.cpp:1672
 msgid "GIMX exited and the activation button was not pressed."
 msgstr "GIMX s'est terminé et le bouton d'activation n'a pas été activé."
 
-#: ../launcher/gimx-launcher.cpp:1674
+#: ../launcher/gimx-launcher.cpp:1675
 msgid "Inactivity timeout."
 msgstr "Délai d'inactivité écoulé."
 
-#: ../launcher/gimx-launcher.cpp:1677
+#: ../launcher/gimx-launcher.cpp:1678
 msgid "No wired Xbox 360 controller was found on USB ports."
 msgstr "Pas de contrôleur filaire Xbox 360 trouvé sur les ports USB."
 
-#: ../launcher/gimx-launcher.cpp:1680
+#: ../launcher/gimx-launcher.cpp:1681
 msgid "No Dualshock 4 controller was found on USB ports."
 msgstr "Pas de Dualshock 4 trouvée sur les ports USB."
 
-#: ../launcher/gimx-launcher.cpp:1683
+#: ../launcher/gimx-launcher.cpp:1684
 msgid "No Xbox One controller (without 3.5mm jack) was found on USB ports."
 msgstr ""
 "Pas de contrôleur Xbox One (sans prise jack 3.5mm) trouvé sur les ports USB."
 
-#: ../launcher/gimx-launcher.cpp:1701
+#: ../launcher/gimx-launcher.cpp:1687
+msgid ""
+"There was a connection error with the official controller:\n"
+". make sure the cable wasn't pulled\n"
+". make sure the cable is not bad (try another one)."
+msgstr ""
+"Un problème de connexion au contrôleur officiel s'est produit :\n"
+". vérifier que le câble n'est pas débranché\n"
+". vérifier que le câble n'est pas défectueux (en essayer un autre)"
+
+#: ../launcher/gimx-launcher.cpp:1707
 msgid "Failed to open log file. GIMX may have crashed (please report this)."
 msgstr ""
 "Echec de l'ouverture du fichier de log. GIMX peut avoir crashé (svp "
 "rapporter ceci)."
 
-#: ../launcher/gimx-launcher.cpp:1710
+#: ../launcher/gimx-launcher.cpp:1716
 msgid "GIMX ran less than 5 seconds. Would you like to generate a log report?"
 msgstr "GIMX a fonctionné moins de 5s. Générer un fichier de log ?"
 
-#: ../launcher/gimx-launcher.cpp:1749
+#: ../launcher/gimx-launcher.cpp:1755
 msgid "This config seems OK!\n"
 msgstr "Cette config a l'air correcte !\n"
 
-#: ../launcher/gimx-launcher.cpp:1766
+#: ../launcher/gimx-launcher.cpp:1772
 msgid "Failed to start gimx-config!"
 msgstr "Échec du lancement de gimx-config !"
 
-#: ../launcher/gimx-launcher.cpp:1783
+#: ../launcher/gimx-launcher.cpp:1789
 msgid "Failed to start gimx-fpsconfig!"
 msgstr "Échec du lancement de gimx-fpsconfig !"
 
-#: ../launcher/gimx-launcher.cpp:1795 ../launcher/gimx-launcher.cpp:1852
+#: ../launcher/gimx-launcher.cpp:1801 ../launcher/gimx-launcher.cpp:1858
 msgid "No Serial Port Detected!\n"
 msgstr "Pas de port série détecté !\n"
 
-#: ../launcher/gimx-launcher.cpp:1803 ../launcher/gimx-launcher.cpp:1837
+#: ../launcher/gimx-launcher.cpp:1809 ../launcher/gimx-launcher.cpp:1843
 msgid "No device detected!\n"
 msgstr "Pas de périphérique détecté !\n"
 
-#: ../launcher/gimx-launcher.cpp:1859 ../launcher/gimx-launcher.cpp:1878
+#: ../launcher/gimx-launcher.cpp:1865 ../launcher/gimx-launcher.cpp:1884
 msgid "Pairing"
 msgstr "Appairage"
 
-#: ../launcher/gimx-launcher.cpp:1867 ../launcher/gimx-launcher.cpp:1891
+#: ../launcher/gimx-launcher.cpp:1873 ../launcher/gimx-launcher.cpp:1897
 msgid ""
 "No pairing found.\n"
 "Perform a new pairing?"
@@ -2014,15 +2025,15 @@ msgstr ""
 "Pas d'appairage trouvé.\n"
 "Effectuer un nouvel appairage ?"
 
-#: ../launcher/gimx-launcher.cpp:1884
+#: ../launcher/gimx-launcher.cpp:1890
 msgid "New/Repair"
 msgstr "Nouveau/Réparer"
 
-#: ../launcher/gimx-launcher.cpp:1929
+#: ../launcher/gimx-launcher.cpp:1935
 msgid "Installing"
 msgstr "Installation"
 
-#: ../launcher/gimx-launcher.cpp:1991
+#: ../launcher/gimx-launcher.cpp:1997
 msgid ""
 "Update available.\n"
 "Start installation?"
@@ -2030,139 +2041,139 @@ msgstr ""
 "Mise à jour disponible.\n"
 "Démarrer l'installation ?"
 
-#: ../launcher/gimx-launcher.cpp:1996
+#: ../launcher/gimx-launcher.cpp:2002
 msgid "Downloading update"
 msgstr "Téléchargement de la mise à jour"
 
-#: ../launcher/gimx-launcher.cpp:2004
+#: ../launcher/gimx-launcher.cpp:2010
 msgid "Can't retrieve update file!"
 msgstr "Impossible de télécharger la mise à jour !"
 
-#: ../launcher/gimx-launcher.cpp:2014
+#: ../launcher/gimx-launcher.cpp:2020
 msgid "Can't check version!"
 msgstr "Impossible de vérifier la version !"
 
-#: ../launcher/gimx-launcher.cpp:2018
+#: ../launcher/gimx-launcher.cpp:2024
 msgid "GIMX is up-to-date!"
 msgstr "GIMX est à jour !"
 
-#: ../launcher/gimx-launcher.cpp:2051
+#: ../launcher/gimx-launcher.cpp:2057
 msgid "Downloading config list"
 msgstr "Téléchargement de la liste de configs"
 
-#: ../launcher/gimx-launcher.cpp:2071
+#: ../launcher/gimx-launcher.cpp:2077
 msgid "Select the files to download."
 msgstr "Sélectionnez les fichiers à télécharger."
 
-#: ../launcher/gimx-launcher.cpp:2071
+#: ../launcher/gimx-launcher.cpp:2077
 msgid "Config download"
 msgstr "Téléchargement de configs"
 
-#: ../launcher/gimx-launcher.cpp:2083
+#: ../launcher/gimx-launcher.cpp:2089
 msgid "Overwrite local file: "
 msgstr "Ecraser le fichier local : "
 
-#: ../launcher/gimx-launcher.cpp:2083
+#: ../launcher/gimx-launcher.cpp:2089
 msgid "?"
 msgstr " ?"
 
-#: ../launcher/gimx-launcher.cpp:2094
+#: ../launcher/gimx-launcher.cpp:2100
 msgid "Downloading"
 msgstr "Téléchargement"
 
-#: ../launcher/gimx-launcher.cpp:2111
+#: ../launcher/gimx-launcher.cpp:2117
 msgid "Completed"
 msgstr "Terminé"
 
-#: ../launcher/gimx-launcher.cpp:2116
+#: ../launcher/gimx-launcher.cpp:2122
 msgid "Can't retrieve configs!"
 msgstr "Impossible de télécharger les configs !"
 
-#: ../launcher/gimx-launcher.cpp:2123
+#: ../launcher/gimx-launcher.cpp:2129
 msgid "Can't retrieve config list!"
 msgstr "Impossible de télécharger la liste de configs !"
 
-#: ../launcher/gimx-launcher.cpp:2152
+#: ../launcher/gimx-launcher.cpp:2158
 msgid "Can't read config: "
 msgstr "Impossible de lire la config : "
 
-#: ../launcher/gimx-launcher.cpp:2158
+#: ../launcher/gimx-launcher.cpp:2164
 msgid "Can't auto-bind controls for config: "
 msgstr "Impossible d'auto-affecter les contrôles pour la config : "
 
-#: ../launcher/gimx-launcher.cpp:2165
+#: ../launcher/gimx-launcher.cpp:2171
 msgid "Can't write config: "
 msgstr "Impossible d'écrire la config : "
 
-#: ../launcher/gimx-launcher.cpp:2169
+#: ../launcher/gimx-launcher.cpp:2175
 msgid "Auto bind done for "
 msgstr "Auto-affectation effectuée pour "
 
-#: ../launcher/gimx-launcher.cpp:2229
+#: ../launcher/gimx-launcher.cpp:2235
 msgid "Config"
 msgstr "Config"
 
-#: ../launcher/gimx-launcher.cpp:2261
+#: ../launcher/gimx-launcher.cpp:2267
 msgid "Controller: "
 msgstr "Contrôleur : "
 
-#: ../launcher/gimx-launcher.cpp:2262
+#: ../launcher/gimx-launcher.cpp:2268
 msgid "Console: "
 msgstr "Console : "
 
-#: ../launcher/gimx-launcher.cpp:2266
+#: ../launcher/gimx-launcher.cpp:2272
 msgid "Select the pairing."
 msgstr "Sélectionner l'appairage."
 
-#: ../launcher/gimx-launcher.cpp:2266 ../launcher/gimx-launcher.cpp:2331
-#: ../launcher/gimx-launcher.cpp:2364 ../launcher/gimx-launcher.cpp:2377
-#: ../launcher/gimx-launcher.cpp:2432 ../launcher/gimx-launcher.cpp:2443
-#: ../launcher/gimx-launcher.cpp:2479 ../launcher/gimx-launcher.cpp:2511
+#: ../launcher/gimx-launcher.cpp:2272 ../launcher/gimx-launcher.cpp:2337
+#: ../launcher/gimx-launcher.cpp:2370 ../launcher/gimx-launcher.cpp:2383
+#: ../launcher/gimx-launcher.cpp:2438 ../launcher/gimx-launcher.cpp:2449
+#: ../launcher/gimx-launcher.cpp:2485 ../launcher/gimx-launcher.cpp:2517
 msgid "PS Tool"
 msgstr "PS Tool"
 
-#: ../launcher/gimx-launcher.cpp:2319
+#: ../launcher/gimx-launcher.cpp:2325
 msgid "Device: "
 msgstr "Périphérique : "
 
-#: ../launcher/gimx-launcher.cpp:2320
+#: ../launcher/gimx-launcher.cpp:2326
 msgid "Address: "
 msgstr "Adresse : "
 
-#: ../launcher/gimx-launcher.cpp:2321
+#: ../launcher/gimx-launcher.cpp:2327
 msgid "Manufacturer: "
 msgstr "Fabriquant : "
 
-#: ../launcher/gimx-launcher.cpp:2325
+#: ../launcher/gimx-launcher.cpp:2331
 msgid "Chip: "
 msgstr "Puce : "
 
-#: ../launcher/gimx-launcher.cpp:2331
+#: ../launcher/gimx-launcher.cpp:2337
 msgid "Select the bluetooth adapter."
 msgstr "Sélectionnez le dongle bluetooth."
 
-#: ../launcher/gimx-launcher.cpp:2364
+#: ../launcher/gimx-launcher.cpp:2370
 msgid "Plug a sixaxis/ds3"
 msgstr "Connectez un sixaxis/ds3"
 
-#: ../launcher/gimx-launcher.cpp:2377 ../launcher/gimx-launcher.cpp:2432
+#: ../launcher/gimx-launcher.cpp:2383 ../launcher/gimx-launcher.cpp:2438
 msgid "Plug a bluetooth dongle"
 msgstr "Connectez un dongle bluetooth"
 
-#: ../launcher/gimx-launcher.cpp:2443
+#: ../launcher/gimx-launcher.cpp:2449
 msgid "Plug a ds4"
 msgstr "Connectez une ds4"
 
-#: ../launcher/gimx-launcher.cpp:2463 ../launcher/gimx-launcher.cpp:2493
-#: ../launcher/gimx-launcher.cpp:2503 ../launcher/gimx-launcher.cpp:2680
+#: ../launcher/gimx-launcher.cpp:2469 ../launcher/gimx-launcher.cpp:2499
+#: ../launcher/gimx-launcher.cpp:2509 ../launcher/gimx-launcher.cpp:2686
 msgid "Cannot execute: "
 msgstr "Impossible d'exécuter : "
 
-#: ../launcher/gimx-launcher.cpp:2479
+#: ../launcher/gimx-launcher.cpp:2485
 msgid "Plug the teensy"
 msgstr "Connectez le teensy"
 
-#: ../launcher/gimx-launcher.cpp:2511
+#: ../launcher/gimx-launcher.cpp:2517
 msgid ""
 "Plug the Teensy to the PS4,\n"
 "wait a few seconds,\n"
@@ -2172,39 +2183,39 @@ msgstr ""
 "Attendez quelques secondes,\n"
 "puis reconnectez le au PC."
 
-#: ../launcher/gimx-launcher.cpp:2611
+#: ../launcher/gimx-launcher.cpp:2617
 msgid "Select the pairing to restore."
 msgstr "Sélectionner l'appairage à rétablir."
 
-#: ../launcher/gimx-launcher.cpp:2641
+#: ../launcher/gimx-launcher.cpp:2647
 msgid "No previous pairing found!"
 msgstr "Pas d'appairage précédent trouvé !"
 
-#: ../launcher/gimx-launcher.cpp:2685
+#: ../launcher/gimx-launcher.cpp:2691
 msgid "Success."
 msgstr "Réussite."
 
-#: ../launcher/gimx-launcher.cpp:2692
+#: ../launcher/gimx-launcher.cpp:2698
 msgid "Plug a ds4 to repair."
 msgstr "Connecter la dualshock 4 à ré-appairer."
 
-#: ../launcher/gimx-launcher.cpp:2734
+#: ../launcher/gimx-launcher.cpp:2740
 msgid "Enter an IP address"
 msgstr "Entrez une adresse IP"
 
-#: ../launcher/gimx-launcher.cpp:2744
+#: ../launcher/gimx-launcher.cpp:2750
 msgid "Enter a port"
 msgstr "Entrez un port :"
 
-#: ../launcher/gimx-launcher.cpp:2767
+#: ../launcher/gimx-launcher.cpp:2773
 msgid "Bad IP format!"
 msgstr "Mauvais format d'adresse IP !"
 
-#: ../launcher/gimx-launcher.cpp:2822
+#: ../launcher/gimx-launcher.cpp:2828
 msgid "Repair"
 msgstr "Ré-appairage."
 
-#: ../launcher/gimx-launcher.cpp:2857
+#: ../launcher/gimx-launcher.cpp:2863
 msgid "Failed to execute gimx-loader."
 msgstr "Échec du lancement de gimx-loader."
 
