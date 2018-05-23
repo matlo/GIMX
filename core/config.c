@@ -953,7 +953,6 @@ static void mouse2axis1d(int device, s_adapter* controller, const s_mapper * map
   double ztrunk = 0;
   double val = 0;
   int min_axis, max_axis;
-  int new_state;
 
   int which = mapper->axis;
   int axis = mapper->axis_props.axis;
@@ -995,14 +994,15 @@ static void mouse2axis1d(int device, s_adapter* controller, const s_mapper * map
 
   if(val != 0)
   {
-    z = copysign(multiplier * pow(fabs(val), exp), val);
+    z = multiplier * copysign(pow(fabs(val), exp), val);
   }
 
   if(mode == E_MOUSE_MODE_AIMING)
   {
     if(z > 0)
     {
-      controller->axis[axis] = dz + z;
+      z = dz + z;
+      controller->axis[axis] = z;
       /*
        * max axis position => no residue
        */
@@ -1013,12 +1013,13 @@ static void mouse2axis1d(int device, s_adapter* controller, const s_mapper * map
     }
     else if(z < 0)
     {
-      controller->axis[axis] = z - dz;
+      z = z - dz;
+      controller->axis[axis] = z;
       /*
        * max axis position => no residue
        */
       if(controller->axis[axis] > min_axis)
-      {
+      { 
         ztrunk = controller->axis[axis] + dz;
       }
     }
@@ -1026,30 +1027,34 @@ static void mouse2axis1d(int device, s_adapter* controller, const s_mapper * map
   }
   else //E_MOUSE_MODE_DRIVING
   {
-    new_state = controller->axis[axis] + z;
-    if(new_state > 0 && new_state < dz)
+    z = controller->axis[axis] + z;
+    if(z > 0 && z < dz)
     {
-      new_state -= (2 * dz);
+      z -= (2 * dz);
     }
-    if(new_state < 0 && new_state > -dz)
+    if(z < 0 && z > -dz)
     {
-      new_state += (2 * dz);
+      z += (2 * dz);
     }
-    controller->axis[axis] = clamp(min_axis, new_state, max_axis);
+    controller->axis[axis] = clamp(min_axis, z, max_axis);
   }
 
   if(val != 0 && ztrunk != 0)
   {
-    //printf("ztrunk: %.4f\n", ztrunk);
     /*
      * Compute the motion that wasn't applied due to the double to integer conversion.
      */
-    *motion_residue = copysign(fabs(val) - pow(fabs(ztrunk)/multiplier, 1/exp), val);
+    *motion_residue = copysign(fabs(val) - pow(fabs(ztrunk/multiplier), 1/exp), multiplier * val);
     if(fabs(*motion_residue) < 0.0039)//allow 256 subpositions
     {
       *motion_residue = 0;
     }
-    //printf("motion_residue: %.4f\n", motion_residue);
+
+    if (gimx_params.debug.config)
+    {
+      ginfo("input: %.8f raw output: %.8f output: %d residue: %.8f\n",
+              (which == AXIS_X) ? mx : my, z, controller->axis[axis], *motion_residue);
+    }
   }
 }
 
@@ -1072,12 +1077,6 @@ static double update_axis(int * axis, double dead_zone, double z, double max_axi
   return raw;
 }
 
-typedef struct
-{
-  double x;
-  double y;
-} s_vector;
-
 void update_residue(double axis_scale, const s_mapper * mapper_x, const s_mapper * mapper_y, s_vector * input,
         int axis_x, int axis_y, s_vector * output_raw, s_vector * multipliers, double exponent, s_mouse_control * mc)
 {
@@ -1086,8 +1085,19 @@ void update_residue(double axis_scale, const s_mapper * mapper_x, const s_mapper
   {
     double zx = fabs(axis_x);
     double zy = fabs(axis_y);
-    //
-    double angle = atan(zy / zx) / (atan(fabs(output_raw->y) / fabs(output_raw->x)) / atan(fabs(input->y) / fabs(input->x)));
+    /*
+     * approximate the residue vector angle:
+     *
+     *   theta = gamma * alpha / beta
+     *
+     * with:
+     *
+     *   alpha: input motion angle
+     *   beta: desired output motion angle
+     *   gamma: truncated output motion angle
+     *   theta: truncated input motion angle
+     */
+    double angle = atan(zy / zx) * atan(fabs(input->y) / fabs(input->x)) / atan(fabs(output_raw->y) / fabs(output_raw->x));
     double angle_cos = cos(angle);
     double angle_sin = sin(angle);
 
@@ -1106,18 +1116,18 @@ void update_residue(double axis_scale, const s_mapper * mapper_x, const s_mapper
 
     if (zx == 0)
     {
-      input_trunk.y = copysign(pow((zy - dead_zones.y) / (multipliers->y * pow(gimx_params.frequency_scale, exponent)), 1 / exponent), output_raw->y);
+      input_trunk.y = copysign(pow((zy - dead_zones.y) / (fabs(multipliers->y) * pow(gimx_params.frequency_scale, exponent)), 1 / exponent), multipliers->y * output_raw->y);
     }
     else if (zy == 0)
     {
-      input_trunk.x = copysign(pow((zx - dead_zones.x) / (multipliers->x * pow(gimx_params.frequency_scale, exponent)), 1 / exponent), output_raw->x);
+      input_trunk.x = copysign(pow((zx - dead_zones.x) / (fabs(multipliers->x) * pow(gimx_params.frequency_scale, exponent)), 1 / exponent), multipliers->x * output_raw->x);
     }
     else
     {
-      double normx = pow((zx - dead_zones.x) / (multipliers->x * pow(gimx_params.frequency_scale, exponent) * angle_cos), 1 / exponent);
-      double normy = pow((zy - dead_zones.y) / (multipliers->y * pow(gimx_params.frequency_scale, exponent) * angle_sin), 1 / exponent);
-      input_trunk.x = copysign(angle_cos * normx, output_raw->x);
-      input_trunk.y = copysign(angle_sin * normy, output_raw->y);
+      double normx = pow((zx - dead_zones.x) / (fabs(multipliers->x) * pow(gimx_params.frequency_scale, exponent) * angle_cos), 1 / exponent);
+      double normy = pow((zy - dead_zones.y) / (fabs(multipliers->y) * pow(gimx_params.frequency_scale, exponent) * angle_sin), 1 / exponent);
+      input_trunk.x = copysign(angle_cos * normx, multipliers->x * output_raw->x);
+      input_trunk.y = copysign(angle_sin * normy, multipliers->y * output_raw->y);
     }
   }
 
@@ -1188,8 +1198,8 @@ static void mouse2axis2d(int device, s_adapter* controller, const s_mapper * map
 
   s_vector dead_zones =
   {
-    .x = copysign(mapper_x->dead_zone * axis_scale, input->x),
-    .y = copysign(mapper_y->dead_zone * axis_scale, input->y),
+    .x = copysign(mapper_x->dead_zone * axis_scale, mapper_x->multiplier * input->x),
+    .y = copysign(mapper_y->dead_zone * axis_scale, mapper_y->multiplier * input->y),
   };
   e_shape shape = mapper_x->shape;
 
@@ -1215,8 +1225,8 @@ static void mouse2axis2d(int device, s_adapter* controller, const s_mapper * map
 
   double z = pow(norm, exponent);
 
-  double z_x = copysign(multipliers.x * z * angle_cos, input->x);
-  double z_y = copysign(multipliers.y * z * angle_sin, input->y);
+  double z_x = multipliers.x * copysign(z * angle_cos, input->x);
+  double z_y = multipliers.y * copysign(z * angle_sin, input->y);
 
   s_vector raw_output;
   raw_output.x = update_axis(axis_x, dead_zones.x, z_x, max_axis, min_axis);
@@ -1743,7 +1753,7 @@ void cfg_pair_mouse_mappers()
             {
               if ((lmapper->axis_props.axis == rel_axis_lstick_x && mmapper->axis_props.axis == rel_axis_lstick_y)
                   || (lmapper->axis_props.axis == rel_axis_lstick_y && mmapper->axis_props.axis == rel_axis_lstick_x)
-                  || (lmapper->axis_props.axis == rel_axis_rstick_y && mmapper->axis_props.axis == rel_axis_rstick_x)
+                  || (lmapper->axis_props.axis == rel_axis_rstick_x && mmapper->axis_props.axis == rel_axis_rstick_y)
                   || (lmapper->axis_props.axis == rel_axis_rstick_y && mmapper->axis_props.axis == rel_axis_rstick_x))
               {
                 // two mouse axes (x and y) are mapped to a stick => pair the mappers

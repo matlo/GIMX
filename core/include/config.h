@@ -46,7 +46,7 @@ typedef struct
 {
   double x;
   double y;
-}s_mouse_residue;
+}s_vector;
 
 typedef struct
 {
@@ -57,7 +57,7 @@ typedef struct
   int index;
   double x;
   double y;
-  s_mouse_residue residue;
+  s_vector residue;
   int postpone[GE_MOUSE_BUTTONS_MAX];
 }s_mouse_control;
 
