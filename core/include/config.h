@@ -52,11 +52,9 @@ typedef struct
 {
   int change;
   int changed;
-  double merge_x[MAX_BUFFERSIZE];
-  double merge_y[MAX_BUFFERSIZE];
+  s_vector merge[MAX_BUFFERSIZE];
   int index;
-  double x;
-  double y;
+  s_vector motion;
   s_vector residue;
   int postpone[GE_MOUSE_BUTTONS_MAX];
 }s_mouse_control;

@@ -363,8 +363,8 @@ void cal_key(int sym, int down)
       {
         ginfo(_("calibrating dead zone x\n"));
         current_cal = DZX;
-        mc->merge_x[mc->index] = 1;
-        mc->merge_y[mc->index] = 0;
+        mc->merge[mc->index].x = 1;
+        mc->merge[mc->index].y = 0;
         mc->change = 1;
       }
       break;
@@ -373,8 +373,8 @@ void cal_key(int sym, int down)
       {
         ginfo(_("calibrating dead zone y\n"));
         current_cal = DZY;
-        mc->merge_x[mc->index] = 0;
-        mc->merge_y[mc->index] = 1;
+        mc->merge[mc->index].x = 0;
+        mc->merge[mc->index].y = 1;
         mc->change = 1;
       }
       break;
@@ -383,8 +383,8 @@ void cal_key(int sym, int down)
       {
         ginfo(_("calibrating dead zone shape\n"));
         current_cal = DZS;
-        mc->merge_x[mc->index] = 1;
-        mc->merge_y[mc->index] = 1;
+        mc->merge[mc->index].x = 1;
+        mc->merge[mc->index].y = 1;
         mc->change = 1;
       }
       break;
@@ -511,8 +511,8 @@ void cal_button(int button)
           if (mcal->dzx && *mcal->dzx < DEADZONE_MAX(rel_axis_rstick_x))
           {
             *mcal->dzx += 1;
-            mc->merge_x[mc->index] = 1;
-            mc->merge_y[mc->index] = 0;
+            mc->merge[mc->index].x = 1;
+            mc->merge[mc->index].y = 0;
             mc->change = 1;
           }
           break;
@@ -520,8 +520,8 @@ void cal_button(int button)
           if (mcal->dzy && *mcal->dzy < DEADZONE_MAX(rel_axis_rstick_y))
           {
             *mcal->dzy += 1;
-            mc->merge_x[mc->index] = 0;
-            mc->merge_y[mc->index] = 1;
+            mc->merge[mc->index].x = 0;
+            mc->merge[mc->index].y = 1;
             mc->change = 1;
           }
           break;
@@ -536,8 +536,8 @@ void cal_button(int button)
             {
               *mcal->dzs = E_SHAPE_CIRCLE;
             }
-            mc->merge_x[mc->index] = 1;
-            mc->merge_y[mc->index] = 1;
+            mc->merge[mc->index].x = 1;
+            mc->merge[mc->index].y = 1;
             mc->change = 1;
           }
           break;
@@ -612,8 +612,8 @@ void cal_button(int button)
           if (mcal->dzx && *mcal->dzx > - DEADZONE_MAX(rel_axis_rstick_x))
           {
             *mcal->dzx -= 1;
-            mc->merge_x[mc->index] = -1;
-            mc->merge_y[mc->index] = 0;
+            mc->merge[mc->index].x = -1;
+            mc->merge[mc->index].y = 0;
             mc->change = 1;
           }
           break;
@@ -621,8 +621,8 @@ void cal_button(int button)
           if (mcal->dzy && *mcal->dzy > - DEADZONE_MAX(rel_axis_rstick_y))
           {
             *mcal->dzy -= 1;
-            mc->merge_x[mc->index] = 0;
-            mc->merge_y[mc->index] = -1;
+            mc->merge[mc->index].x = 0;
+            mc->merge[mc->index].y = -1;
             mc->change = 1;
           }
           break;
@@ -637,8 +637,8 @@ void cal_button(int button)
             {
               *mcal->dzs = E_SHAPE_CIRCLE;
             }
-            mc->merge_x[mc->index] = -1;
-            mc->merge_y[mc->index] = -1;
+            mc->merge[mc->index].x = -1;
+            mc->merge[mc->index].y = -1;
             mc->change = 1;
           }
           break;

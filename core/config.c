@@ -398,8 +398,8 @@ void cfg_process_motion_event(GE_Event* event)
   s_mouse_control* mc = cfg_get_mouse_control(ginput_get_device_id(event));
   if(mc)
   {
-    mc->merge_x[mc->index] += event->motion.xrel;
-    mc->merge_y[mc->index] += event->motion.yrel;
+    mc->merge[mc->index].x += event->motion.xrel;
+    mc->merge[mc->index].y += event->motion.yrel;
     mc->change = 1;
   }
 }
@@ -432,8 +432,8 @@ void cfg_process_motion()
         /*
          * Add the residual motion vector from the last iteration.
          */
-        mc->merge_x[mc->index] += mc->residue.x;
-        mc->merge_y[mc->index] += mc->residue.y;
+        mc->merge[mc->index].x += mc->residue.x;
+        mc->merge[mc->index].y += mc->residue.y;
         /*
          * If no motion was received this iteration, the residual motion vector from the last iteration is reset.
          */
@@ -444,7 +444,7 @@ void cfg_process_motion()
         }
       }
 
-      mc->x = 0;
+      mc->motion.x = 0;
       weight = 1;
       divider = 0;
       for(j=0; j<mcal->options.buffer_size; ++j)
@@ -454,13 +454,13 @@ void cfg_process_motion()
         {
           k += MAX_BUFFERSIZE;
         }
-        mc->x += (mc->merge_x[k]*weight);
+        mc->motion.x += (mc->merge[k].x*weight);
         divider += weight;
         weight *= mcal->options.filter;
       }
-      mc->x /= divider;
+      mc->motion.x /= divider;
 
-      mc->y = 0;
+      mc->motion.y = 0;
       weight = 1;
       divider = 0;
       for(j=0; j<mcal->options.buffer_size; ++j)
@@ -470,24 +470,24 @@ void cfg_process_motion()
         {
           k += MAX_BUFFERSIZE;
         }
-        mc->y += (mc->merge_y[k]*weight);
+        mc->motion.y += (mc->merge[k].y*weight);
         divider += weight;
         weight *= mcal->options.filter;
       }
-      mc->y /= divider;
+      mc->motion.y /= divider;
 
       mouse_evt.motion.which = i;
       mouse_evt.type = GE_MOUSEMOTION;
       cfg_process_event(&mouse_evt);
 
-      mouse_evt.motion.xrel = mc->x;
-      mouse_evt.motion.yrel = mc->y;
+      mouse_evt.motion.xrel = mc->motion.x;
+      mouse_evt.motion.yrel = mc->motion.y;
       macro_lookup(&mouse_evt);
     }
     mc->index++;
     mc->index %= MAX_BUFFERSIZE;
-    mc->merge_x[mc->index] = 0;
-    mc->merge_y[mc->index] = 0;
+    mc->merge[mc->index].x = 0;
+    mc->merge[mc->index].y = 0;
     mc->changed = mc->change;
     mc->change = 0;
     if (i == current_mouse && (current_cal == DZX || current_cal == DZY || current_cal == DZS))
@@ -946,7 +946,7 @@ static int postpone_event(unsigned int device, GE_Event* event)
   return ret;
 }
 
-static void mouse2axis1d(int device, s_adapter* controller, const s_mapper * mapper, double mx, double my, e_mouse_mode mode, s_mouse_control * mc)
+static void mouse2axis1d(int device, s_adapter* controller, const s_mapper * mapper, const s_vector * motion, e_mouse_mode mode, s_mouse_control * mc)
 {
   double z = 0;
   double * motion_residue = NULL;
@@ -969,7 +969,7 @@ static void mouse2axis1d(int device, s_adapter* controller, const s_mapper * map
 
   if(which == AXIS_X)
   {
-    val = mx;
+    val = motion->x;
     if(device == current_mouse && current_cal == DZX)
     {
       controller->axis[axis] = copysign(dz, val);
@@ -980,7 +980,7 @@ static void mouse2axis1d(int device, s_adapter* controller, const s_mapper * map
   }
   else if(which == AXIS_Y)
   {
-    val = my;
+    val = motion->y;
     if(device == current_mouse && current_cal == DZY)
     {
       controller->axis[axis] = copysign(dz, val);
@@ -1053,7 +1053,7 @@ static void mouse2axis1d(int device, s_adapter* controller, const s_mapper * map
     if (gimx_params.debug.config)
     {
       ginfo("input: %.8f raw output: %.8f output: %d residue: %.8f\n",
-              (which == AXIS_X) ? mx : my, z, controller->axis[axis], *motion_residue);
+              (which == AXIS_X) ? motion->x : motion->y, z, controller->axis[axis], *motion_residue);
     }
   }
 }
@@ -1335,8 +1335,6 @@ void cfg_process_event(GE_Event* event)
   int value = 0;
   double fvalue = 0;
   unsigned int nb_controls = 0;
-  double mx;
-  double my;
   s_mouse_control* mc;
   int min_axis, max_axis;
   e_mouse_mode mode;
@@ -1521,15 +1519,10 @@ void cfg_process_event(GE_Event* event)
             continue; // processing is done when handling AXIS_X
           }
           mc = mouse_control + device;
+          s_vector motion = { .x = 0, .y = 0 };
           if(mc->change)
           {
-            mx = mc->x;
-            my = mc->y;
-          }
-          else
-          {
-            mx = 0;
-            my = 0;
+            motion = mc->motion;
           }
           controller->send_command = 1;
           axis = mapper->axis_props.axis;
@@ -1546,8 +1539,7 @@ void cfg_process_event(GE_Event* event)
               {
                 if (mapper->axis == AXIS_X)
                 {
-                  s_vector mouse = { .x = mx, .y = my };
-                  mouse2axis2d(device, controller, mapper, &mouse, mc);
+                  mouse2axis2d(device, controller, mapper, &motion, mc);
                 }
                 else
                 {
@@ -1556,18 +1548,18 @@ void cfg_process_event(GE_Event* event)
               }
               else
               {
-                mouse2axis1d(device, controller, mapper, mx, my, mode, mc);
+                mouse2axis1d(device, controller, mapper, &motion, mode, mc);
               }
             }
             else
             {
               if (mapper->axis == AXIS_X)
               {
-                fvalue = mx;
+                fvalue = motion.x;
               }
               else
               {
-                fvalue = my;
+                fvalue = motion.y;
               }
               /*
                * Axis to button.
