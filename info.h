@@ -1,7 +1,7 @@
 #ifndef INFO_H_
 #define INFO_H_
 
-#define INFO_VERSION "7.3"
+#define INFO_VERSION "7.4"
 #define INFO_YEAR "2010-2018"
 #define INFO_DEV "Matlo"
 #define INFO_WEB "http://gimx.fr"
