@@ -153,6 +153,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"debug.controller", no_argument, &params->debug.controller,  1},
     {"debug.macros",   no_argument, &params->debug.macros,   1},
     {"debug.sixaxis",  no_argument, &params->debug.sixaxis,  1},
+    {"debug.config",   no_argument, &params->debug.config,   1},
     {"skip_leds",      no_argument, &params->skip_leds,      1},
     {"ff_conv",        no_argument, &params->ff_conv,        1},
     {"auto-grab",      no_argument, &params->autograb,       1},

@@ -64,6 +64,7 @@ typedef struct
       int controller;
       int macros;
       int sixaxis;
+      int config;
   } debug;
   char* config_file;
   int postpone_count;
