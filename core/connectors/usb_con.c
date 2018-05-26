@@ -234,6 +234,7 @@ static struct usb_state {
     s_report_packet report;
   } reports[REPORTS_MAX];
   unsigned char counter; // this is used for the Xbox One (interrupt out)
+  unsigned char disconnected;
 } usb_states[MAX_CONTROLLERS];
 
 static void process_report(int usb_number, struct usb_state * state, unsigned char * buf, unsigned int count) {
@@ -288,6 +289,11 @@ int usb_poll_interrupts() {
   unsigned int i;
   for (i = 0; i < MAX_CONTROLLERS; ++i) {
     struct usb_state * state = usb_states + i;
+    if (state->disconnected)
+    {
+      status = -1;
+      continue;
+    }
     if (state->usb_device != NULL && state->ack) {
       int ret = gusb_poll(state->usb_device, controller[state->type].endpoints.in.address);
       if (ret != -1) {
@@ -316,6 +322,7 @@ static int usb_read_callback(void * user, unsigned char endpoint, const void * b
   }
 
   if (status < 0) {
+    state->disconnected = 1;
     return -1;
   }
 
@@ -360,6 +367,7 @@ static int usb_write_callback(void * user, unsigned char endpoint, int status) {
   struct usb_state * state = usb_states + (intptr_t) user;
 
   if (status < 0) {
+    state->disconnected = 1;
     return -1;
   }
 
