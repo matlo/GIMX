@@ -1686,7 +1686,8 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
     case E_GIMX_STATUS_AUTH_CONTROLLER_ERROR:
         wxMessageBox( _("There was a connection error with the official controller:\n"
                 ". make sure the cable wasn't pulled\n"
-                ". make sure the cable is not bad (try another one)."), _("Error"), wxICON_ERROR);
+                ". make sure the cable is not bad (try another one)\n"
+                ". make sure to turn controller off before connection."), _("Error"), wxICON_ERROR);
         break;
     }
 
