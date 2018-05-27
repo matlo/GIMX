@@ -204,5 +204,6 @@ void cfg_set_ffb_tweaks(const s_config_entry * entry);
 const s_haptic_core_tweaks * cfg_get_ffb_tweaks(int controller);
 void cfg_init_ffb_tweaks();
 void cfg_pair_mouse_mappers();
+void cfg_set_profile(int controller, int profile);
 
 #endif /* CONFIG_H_ */

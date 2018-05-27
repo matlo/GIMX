@@ -465,7 +465,8 @@ void cal_button(int button)
   s_mouse_control* mc = cfg_get_mouse_control(current_mouse);
   s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
 
-  e_controller_type ctype = adapter_get(cal_get_controller(current_mouse))->ctype;
+  int controller = cal_get_controller(current_mouse);
+  e_controller_type ctype = adapter_get(controller)->ctype;
 
   if(ctype == C_TYPE_NONE)
   {
@@ -485,10 +486,10 @@ void cal_button(int button)
           }
           break;
         case CC:
-          current_conf += 1;
-          if (current_conf > MAX_PROFILES - 1)
+          if (current_conf < MAX_PROFILES - 1)
           {
-            current_conf = MAX_PROFILES - 1;
+            current_conf += 1;
+            cfg_set_profile(controller, current_conf);
           }
           break;
         case MX:
@@ -590,6 +591,7 @@ void cal_button(int button)
           if (current_conf > 0)
           {
             current_conf -= 1;
+            cfg_set_profile(controller, current_conf);
           }
           break;
         case MX:

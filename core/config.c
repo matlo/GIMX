@@ -1760,3 +1760,59 @@ void cfg_pair_mouse_mappers()
   }
 }
 
+static void trigger(s_profile * profile, int pressed)
+{
+  GE_Event event =
+  {
+    .which = profile->trigger.event.device_id,
+  };
+  switch (profile->trigger.event.device_type) {
+  case E_DEVICE_TYPE_KEYBOARD:
+    event.type = pressed ? GE_KEYDOWN : GE_KEYUP;
+    event.key.keysym = profile->trigger.event.button;
+    break;
+  case E_DEVICE_TYPE_MOUSE:
+    event.type = pressed ? GE_MOUSEBUTTONDOWN : GE_MOUSEBUTTONUP;
+    event.button.button = profile->trigger.event.button;
+    break;
+  case E_DEVICE_TYPE_JOYSTICK:
+    event.type = pressed ? GE_JOYBUTTONDOWN : GE_JOYBUTTONUP;
+    event.jbutton.button = profile->trigger.event.button;
+    break;
+  }
+  cfg_process_event(&event);
+}
+
+void cfg_set_profile(int controller, int profile)
+{
+  s_profile * current = cfg_controllers[controller].current;
+  s_profile * next = cfg_controllers[controller].profiles + profile;
+
+  if (current->trigger.event.device_type != E_DEVICE_TYPE_UNKNOWN)
+  {
+    // release trigger for current profile if switch_back is set
+    if (current->trigger.switch_back)
+    {
+      trigger(current, 0);
+    }
+  }
+
+  // go back to profile 0
+  cfg_controllers[controller].next = cfg_controllers[controller].profiles;
+  cfg_controllers[controller].delay = 0;
+  cfg_profile_activation();
+
+  if (next->trigger.event.device_type != E_DEVICE_TYPE_UNKNOWN)
+  {
+    // enable trigger for next profile if switch_back is set
+    if (next->trigger.switch_back)
+    {
+      trigger(next, 1);
+    }
+  }
+
+  // go to next profile
+  cfg_controllers[controller].next = next;
+  cfg_controllers[controller].delay = 0;
+  cfg_profile_activation();
+}
