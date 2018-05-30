@@ -1273,8 +1273,11 @@ void macro_lookup(GE_Event* event)
         {
           if(macros[i].active == ACTIVE_OFF)
           {
-            gstatus("enable macro: ");
-            dump_event(&macros[i].id.event, 1, 0);
+            if (gimx_params.debug.macros)
+            {
+              ginfo("enable macro: ");
+              dump_event(&macros[i].id.event, 1, 0);
+            }
             macros[i].active = ACTIVE_ON;
             /*
              * Disable macros that have a different activation trigger.
@@ -1289,8 +1292,11 @@ void macro_lookup(GE_Event* event)
                  && macros[j].toggle == TOGGLE_NO
                  && macros[j].active == ACTIVE_ON)
               {
-                gstatus("disable macro: ");
-                dump_event(&macros[j].id.event, 1, 0);
+                if (gimx_params.debug.macros)
+                {
+                  ginfo("disable macro: ");
+                  dump_event(&macros[j].id.event, 1, 0);
+                }
                 macros[j].active = ACTIVE_OFF;
               }
             }
@@ -1300,14 +1306,20 @@ void macro_lookup(GE_Event* event)
         {
           if(macros[i].active == ACTIVE_OFF)
           {
-            gstatus("enable macro: ");
-            dump_event(&macros[i].id.event, 1, 0);
+            if (gimx_params.debug.macros)
+            {
+              ginfo("enable macro: ");
+              dump_event(&macros[i].id.event, 1, 0);
+            }
             macros[i].active = ACTIVE_ON;
           }
           else
           {
-            gstatus("disable macro: ");
-            dump_event(&macros[i].id.event, 1, 0);
+            if (gimx_params.debug.macros)
+            {
+              ginfo("disable macro: ");
+              dump_event(&macros[i].id.event, 1, 0);
+            }
             macros[i].active = ACTIVE_OFF;
           }
         }
@@ -1322,18 +1334,18 @@ void macro_lookup(GE_Event* event)
          */
         if(!macro_delete(event))
         {
-          gstatus("start macro: ");
-          if (gimx_params.status)
+          if (gimx_params.debug.macros)
           {
+            ginfo("start macro: ");
             dump_macro_id(macros+i);
           }
           macro_add(event, i);
         }
         else
         {
-          gstatus("stop macro: ");
-          if (gimx_params.status)
+          if (gimx_params.debug.macros)
           {
+            ginfo("stop macro: ");
             dump_macro_id(macros+i);
           }
         }
