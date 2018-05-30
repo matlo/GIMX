@@ -865,7 +865,7 @@ void launcherFrame::autoConfig()
             .fp_register = REGISTER_FUNCTION,
             .fp_remove = REMOVE_FUNCTION,
     };
-    if(ginput_init(&poll_interace, GE_MKB_SOURCE_WINDOW_SYSTEM, process_cb) < 0)
+    if(ginput_init(&poll_interace, GE_MKB_SOURCE_NONE, process_cb) < 0)
     {
         ginput_quit();
         return;
