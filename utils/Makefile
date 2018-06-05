@@ -28,10 +28,10 @@ ds4tool: ds4tool.o
 
 ifneq ($(OS),Windows_NT)
 bdaddr: linux/bdaddr.o linux/oui.o
-	$(CC) $^ -o $@ -lbluetooth
+	$(LINK.o) $^ $(LOADLIBES) $(LDLIBS) -lbluetooth -o $@
 
 hcirevision: linux/hcirevision.o
-	$(CC) $^ -o $@ -lbluetooth
+	$(LINK.o) $^ $(LOADLIBES) $(LDLIBS) -lbluetooth -o $@
 endif
 
 ifneq ($(OS),Windows_NT)
