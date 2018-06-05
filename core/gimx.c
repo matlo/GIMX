@@ -461,7 +461,7 @@ int main(int argc, char *argv[])
     stats_init(0);
   }
 #ifndef WIN32
-  else
+  else if (gimx_params.logfile == NULL)
   {
     struct termios term;
     tcgetattr(STDOUT_FILENO, &term);
@@ -569,7 +569,7 @@ int main(int argc, char *argv[])
     display_end();
   }
 #ifndef WIN32
-  else
+  else if (gimx_params.logfile == NULL)
   {
     struct termios term;
     tcgetattr(STDOUT_FILENO, &term);
