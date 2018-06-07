@@ -1085,21 +1085,6 @@ void update_residue(double axis_scale, const s_mapper * mapper_x, const s_mapper
   {
     double zx = fabs(axis_x);
     double zy = fabs(axis_y);
-    /*
-     * approximate the residue vector angle:
-     *
-     *   theta = gamma * alpha / beta
-     *
-     * with:
-     *
-     *   alpha: input motion angle
-     *   beta: desired output motion angle
-     *   gamma: truncated output motion angle
-     *   theta: truncated input motion angle
-     */
-    double angle = atan(zy / zx) * atan(fabs(input->y) / fabs(input->x)) / atan(fabs(output_raw->y) / fabs(output_raw->x));
-    double angle_cos = cos(angle);
-    double angle_sin = sin(angle);
 
     s_vector dead_zones =
     {
@@ -1108,22 +1093,48 @@ void update_residue(double axis_scale, const s_mapper * mapper_x, const s_mapper
     };
     e_shape shape = mapper_x->shape;
 
-    if(zx && zy && shape == E_SHAPE_CIRCLE)
-    {
-      dead_zones.x *= angle_cos;
-      dead_zones.y *= angle_sin;
-    }
-
     if (zx == 0)
     {
-      input_trunk.y = copysign(pow((zy - dead_zones.y) / (fabs(multipliers->y) * pow(gimx_params.frequency_scale, exponent)), 1 / exponent), multipliers->y * output_raw->y);
+      zy -= dead_zones.y;
+      if (zy < 0)
+      {
+        zy = 0;
+      }
+      input_trunk.y = copysign(pow(zy / (fabs(multipliers->y) * pow(gimx_params.frequency_scale, exponent)), 1 / exponent), multipliers->y * output_raw->y);
     }
     else if (zy == 0)
     {
-      input_trunk.x = copysign(pow((zx - dead_zones.x) / (fabs(multipliers->x) * pow(gimx_params.frequency_scale, exponent)), 1 / exponent), multipliers->x * output_raw->x);
+      zx -= dead_zones.x;
+      if (zx < 0)
+      {
+        zx = 0;
+      }
+      input_trunk.x = copysign(pow(zx / (fabs(multipliers->x) * pow(gimx_params.frequency_scale, exponent)), 1 / exponent), multipliers->x * output_raw->x);
     }
     else
     {
+      /*
+       * approximate the residue vector angle:
+       *
+       *   theta = gamma * alpha / beta
+       *
+       * with:
+       *
+       *   alpha: input motion angle
+       *   beta: desired output motion angle
+       *   gamma: truncated output motion angle
+       *   theta: truncated input motion angle
+       */
+      double angle = atan(zy / zx) * atan(fabs(input->y) / fabs(input->x)) / atan(fabs(output_raw->y) / fabs(output_raw->x));
+      double angle_cos = cos(angle);
+      double angle_sin = sin(angle);
+
+      if(shape == E_SHAPE_CIRCLE)
+      {
+        dead_zones.x *= angle_cos;
+        dead_zones.y *= angle_sin;
+      }
+
       double normx = pow((zx - dead_zones.x) / (fabs(multipliers->x) * pow(gimx_params.frequency_scale, exponent) * angle_cos), 1 / exponent);
       double normy = pow((zy - dead_zones.y) / (fabs(multipliers->y) * pow(gimx_params.frequency_scale, exponent) * angle_sin), 1 / exponent);
       input_trunk.x = copysign(angle_cos * normx, multipliers->x * output_raw->x);
