@@ -11,7 +11,11 @@
 #define XONE_VENDOR 0x045e
 #define XONE_PRODUCT 0x02d1
 
+#ifndef WIN32
 #define XONE_NAME "Microsoft X-Box One pad"
+#else
+#define XONE_NAME "XInput Controller"
+#endif
 
 #define XONE_USB_INTERRUPT_ENDPOINT_IN 1
 #define XONE_USB_INTERRUPT_ENDPOINT_OUT 1

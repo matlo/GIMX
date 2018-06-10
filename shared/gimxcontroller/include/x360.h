@@ -14,7 +14,7 @@
 #ifndef WIN32
 #define X360_NAME "Microsoft X-Box 360 pad"
 #else
-#define X360_NAME "X360 Controller"
+#define X360_NAME "XInput Controller"
 #endif
 
 #define X360_USB_INTERRUPT_ENDPOINT_IN 1
