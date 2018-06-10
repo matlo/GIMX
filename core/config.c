@@ -353,7 +353,7 @@ void cfg_process_rumble()
 
       if(joystick_rumble[i].active || active)
       {
-        GE_Event haptic = { .jrumble = { .type = GE_HAPTIC_RUMBLE, .which = i, .weak = weak, .strong = strong } };
+        GE_Event haptic = { .jrumble = { .type = GE_JOYRUMBLE, .which = i, .weak = weak, .strong = strong } };
         ginput_joystick_set_haptic(&haptic);
       }
 

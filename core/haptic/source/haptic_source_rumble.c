@@ -61,10 +61,11 @@ static void haptic_source_rumble_process(struct haptic_source_state * state, siz
     uint16_t weak = data[props[state->props_index].weak] * USHRT_MAX / UCHAR_MAX;
     uint16_t strong = data[props[state->props_index].strong] * USHRT_MAX / UCHAR_MAX;
 
-    if (weak != state->weak && strong != state->strong) {
+    if (weak != state->weak || strong != state->strong) {
         state->updated = 1;
         state->weak = weak;
         state->strong = strong;
+        dprintf("> RUMBLE, weak=%hu, strong=%hu\n", weak, strong);
     }
 }
 
