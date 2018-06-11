@@ -1033,6 +1033,7 @@ static void ProcessInversionElement(xmlNode * a_node)
   {
     entry.params.ffb_tweaks.invert = 1;
   }
+  xmlFree(val);
 }
 
 static void ProcessGainElement(xmlNode * a_node)
