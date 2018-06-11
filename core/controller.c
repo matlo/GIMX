@@ -308,22 +308,19 @@ static void dump(unsigned char * packet, unsigned char length)
   ginfo("\n");
 }
 
-#define DEBUG_PACKET(PACKET, LENGTH) \
+#define DEBUG_PACKET(TYPE, DATA, LENGTH) \
   if(gimx_params.debug.controller) \
   { \
     ginfo("%s\n", __func__); \
-    dump(data, length); \
+    ginfo("type: 0x%02x\n", TYPE); \
+    dump(DATA, LENGTH); \
   }
 
 static int adapter_forward(int adapter, unsigned char type, unsigned char* data, unsigned char length)
 {
   if(adapters[adapter].serial.device != NULL)
   {
-    if(gimx_params.debug.controller)
-    {
-      ginfo("type: %hu\n", type);
-    }
-    DEBUG_PACKET(data, length)
+    DEBUG_PACKET(type, data, length)
     s_packet packet =
     {
       .header =
@@ -361,13 +358,11 @@ int adapter_forward_interrupt_in(int adapter, unsigned char* data, unsigned char
 
 static int adapter_forward_control_out(int adapter, unsigned char* data, unsigned char length)
 {
-  DEBUG_PACKET(data, length)
   return usb_send_control(adapter, data, length);
 }
 
 static int adapter_forward_interrupt_out(int adapter, unsigned char* data, unsigned char length)
 {
-  DEBUG_PACKET(data, length)
   if(adapters[adapter].ctype == C_TYPE_XONE_PAD && data[0] == 0x06 && data[1] == 0x20)
   {
     adapters[adapter].status = 1;
@@ -386,6 +381,11 @@ static int adapter_process_packet(int adapter, s_packet* packet)
   unsigned char* data = packet->value;
 
   int ret = 0;
+
+  if (type != BYTE_DEBUG) // always dumped, see below
+  {
+    DEBUG_PACKET(type, data, length)
+  }
 
   if(type == BYTE_CONTROL_DATA)
   {
