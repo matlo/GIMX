@@ -14,14 +14,20 @@ static struct {
         uint16_t vid;
         uint16_t pid;
     } ids;
-    unsigned char weak;
-    unsigned char strong;
+    struct {
+        unsigned char offset;
+        unsigned char max;
+    } weak;
+    struct {
+        unsigned char offset;
+        unsigned char max;
+    } strong;
 } props[] = {
-        { .ids = { .vid = DS4_VENDOR,  .pid = DS4_PRODUCT  }, .weak = 4, .strong = 5 },
-        { .ids = { .vid = X360_VENDOR, .pid = X360_PRODUCT }, .weak = 4, .strong = 3 },
-        { .ids = { .vid = DS3_VENDOR,  .pid = DS3_PRODUCT  }, .weak = 3, .strong = 5 },
-        { .ids = { .vid = XONE_VENDOR, .pid = XONE_PRODUCT }, .weak = 7, .strong = 6 },
-        { .ids = { .vid = 0x2508,      .pid = 0x0001       }, .weak = 7, .strong = 8 }, // GPP/Cronus/Titan
+        { .ids = { .vid = DS4_VENDOR,  .pid = DS4_PRODUCT  }, .weak = { 4, 0xff }, .strong = { 5, 0xff } },
+        { .ids = { .vid = X360_VENDOR, .pid = X360_PRODUCT }, .weak = { 4, 0xff }, .strong = { 3, 0xff } },
+        { .ids = { .vid = DS3_VENDOR,  .pid = DS3_PRODUCT  }, .weak = { 3, 0x01 }, .strong = { 5, 0xff } },
+        { .ids = { .vid = XONE_VENDOR, .pid = XONE_PRODUCT }, .weak = { 7, 0xff }, .strong = { 6, 0xff } },
+        { .ids = { .vid = 0x2508,      .pid = 0x0001       }, .weak = { 7, 0xff }, .strong = { 8, 0xff } }, // GPP/Cronus/Titan
 };
 
 struct haptic_source_state
@@ -58,8 +64,8 @@ static void haptic_source_rumble_clean(struct haptic_source_state * state) {
 
 static void haptic_source_rumble_process(struct haptic_source_state * state, size_t size __attribute((unused)), const unsigned char * data) {
 
-    uint16_t weak = data[props[state->props_index].weak] * USHRT_MAX / UCHAR_MAX;
-    uint16_t strong = data[props[state->props_index].strong] * USHRT_MAX / UCHAR_MAX;
+    uint16_t weak = data[props[state->props_index].weak.offset] * USHRT_MAX / props[state->props_index].weak.max;
+    uint16_t strong = data[props[state->props_index].strong.offset] * USHRT_MAX / props[state->props_index].strong.max;
 
     if (weak != state->weak || strong != state->strong) {
         state->updated = 1;
