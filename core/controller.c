@@ -675,11 +675,6 @@ e_gimx_status adapter_detect()
                     }
                   }
                   break;
-                case C_TYPE_SIXAXIS:
-                  //TODO MLA: fix the EMUPS3 firmware and remove this!
-                  gimx_params.force_updates = 0;
-                  ginfo(_("Disable force updates to work-around #335.\n"));
-                  break;
                 default:
                   break;
               }
