@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include <gimxlog/include/glog.h>
+#include <stddef.h>
 
 #ifdef WIN32
 #define LINE_MAX 1024
