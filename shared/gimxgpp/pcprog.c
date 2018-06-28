@@ -342,7 +342,7 @@ static int read_callback(void * user, const void * buf, int status)
   }
 
   if(status > 0 && ((unsigned char *)buf)[0] == GPPKG_INPUT_REPORT) {
-    return device->fp_read(user, buf, status);
+    return device->fp_read((void *)(intptr_t)(ptrdiff_t)(device - devices), buf, status);
   }
 
   return 0;
@@ -358,7 +358,7 @@ static int write_callback(void * user, int transfered)
   }
   if(device->fp_write)
   {
-    return device->fp_write(user, transfered);
+    return device->fp_write((void *)(intptr_t)(ptrdiff_t)(device - devices), transfered);
   }
   return 0;
 }
@@ -367,7 +367,7 @@ static int close_callback(void * user)
 {
   s_gpp_device * device = (s_gpp_device *) user;
 
-  return device->fp_close(user);
+  return device->fp_close((void *)(intptr_t)(ptrdiff_t)(device - devices));
 }
 
 int8_t gpppcprog_start_async(int id, const GHID_CALLBACKS * callbacks)
