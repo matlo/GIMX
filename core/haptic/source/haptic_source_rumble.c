@@ -27,7 +27,7 @@ static struct {
         { .ids = { .vid = X360_VENDOR, .pid = X360_PRODUCT }, .weak = { 4, 0xff }, .strong = { 3, 0xff } },
         { .ids = { .vid = DS3_VENDOR,  .pid = DS3_PRODUCT  }, .weak = { 3, 0x01 }, .strong = { 5, 0xff } },
         { .ids = { .vid = XONE_VENDOR, .pid = XONE_PRODUCT }, .weak = { 7, 0xff }, .strong = { 6, 0xff } },
-        { .ids = { .vid = 0x2508,      .pid = 0x0001       }, .weak = { 7, 0xff }, .strong = { 8, 0xff } }, // GPP/Cronus/Titan
+        { .ids = { .vid = 0x2508,      .pid = 0x0001       }, .weak = { 7, 0xff }, .strong = { 6, 0xff } }, // GPP/Cronus/Titan
 };
 
 struct haptic_source_state
@@ -95,6 +95,7 @@ static s_haptic_core_ids haptic_source_rumble_ids[] = {
         { .vid = X360_VENDOR, .pid = X360_PRODUCT },
         { .vid = DS3_VENDOR,  .pid = DS3_PRODUCT  },
         { .vid = XONE_VENDOR, .pid = XONE_PRODUCT },
+        { .vid = 0x2508,      .pid = 0x0001       }, // GPP/Cronus/Titan
         { .vid = 0x0000,      .pid = 0x0000       }, // end of table
 };
 

@@ -771,7 +771,7 @@ static int gpp_read_callback(void * user, const void * buf, int status)
     return -1;
   }
 
-  haptic_core_process_report(adapters[adapter].ff_core, status, buf);
+  haptic_core_process_report(adapters[adapter].ff_core, status, buf + 7);
 
   return 0;
 }
