@@ -1206,7 +1206,6 @@
 														<object class="sizeritem">
 															<object class="wxStaticText" name="ID_STATICTEXT38" variable="ButtonTabDeviceType" member="yes">
 																<label></label>
-																<hidden>1</hidden>
 															</object>
 															<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 															<border>5</border>
