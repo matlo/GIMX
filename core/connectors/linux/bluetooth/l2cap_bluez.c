@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <sys/uio.h>
 
 #define BT_SLOT 625 //microseconds
 
