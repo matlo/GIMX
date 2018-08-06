@@ -242,12 +242,15 @@ static int mgmt_read_evt(int sk)
   switch (opcode) {
   case MGMT_EV_CMD_COMPLETE:
     return mgmt_cmd_complete(buf + MGMT_HDR_SIZE, len);
+  case MGMT_EV_CMD_STATUS:
+    fprintf(stderr, "Command failed with error: %m\n");
+    break;
   default:
     fprintf(stderr, "Unknown Management opcode %u (index %u)\n", opcode, index);
     break;
   }
 
-  return 0;
+  return -1;
 }
 
 static int mgmt_load_link_keys(int sk, uint16_t index, uint16_t nb_keys, bdaddr_t bdaddrs[nb_keys], unsigned char keys[nb_keys][16])

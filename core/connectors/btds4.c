@@ -412,7 +412,7 @@ static int close_ds4_interrupt(void * user)
 
   struct btds4_state* state = states + btds4_number;
 
-  if(state->ds4_channels.interrupt.id)
+  if(state->ds4_channels.interrupt.id >= 0)
   {
     l2cap_abs_get()->close(state->ds4_channels.interrupt.id);
     state->ds4_channels.interrupt.id = -1;
