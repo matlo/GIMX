@@ -1425,7 +1425,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
           return;
         }
 
-        wxString stopService = wxT("gksudo --message \"stop bluetooth service\" -- bash -c \"service bluetooth stop\"");
+        wxString stopService = wxT("systemctl stop bluetooth");
 
         if(wxExecute(stopService, wxEXEC_SYNC))
         {
