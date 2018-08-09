@@ -36,6 +36,8 @@ static s_axis axes[AXIS_MAX] =
 static s_axis_name_dir axis_name_dirs[] =
 {
   {.name = "wheel",        {.axis = t300rsPs4a_wheel,      .props = AXIS_PROP_CENTERED}},
+  {.name = "wheel left",   {.axis = t300rsPs4a_wheel,      .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "wheel right",  {.axis = t300rsPs4a_wheel,      .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
 
   {.name = "gas",          {.axis = t300rsPs4a_gasPedal,   .props = AXIS_PROP_POSITIVE}},
   {.name = "brake",        {.axis = t300rsPs4a_brakePedal, .props = AXIS_PROP_POSITIVE}},

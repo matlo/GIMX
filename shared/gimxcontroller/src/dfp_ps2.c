@@ -54,6 +54,8 @@ static s_axis axes[AXIS_MAX] =
 static s_axis_name_dir axis_name_dirs[] =
 {
   {.name = "wheel",        {.axis = dfpPs2a_wheel,      .props = AXIS_PROP_CENTERED}},
+  {.name = "wheel left",   {.axis = dfpPs2a_wheel,      .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
+  {.name = "wheel right",  {.axis = dfpPs2a_wheel,      .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
 
   {.name = "gas",          {.axis = dfpPs2a_gasPedal,   .props = AXIS_PROP_POSITIVE}},
   {.name = "brake",        {.axis = dfpPs2a_brakePedal, .props = AXIS_PROP_POSITIVE}},
