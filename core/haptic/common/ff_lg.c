@@ -571,8 +571,9 @@ void ff_lg_convert_slot(const s_haptic_core_data * from, int slot, s_ff_lg_repor
 
     switch (from->type) {
     case E_DATA_TYPE_CONSTANT:
-        command->force_type = FF_LG_FTYPE_CONSTANT;
+        command->force_type = FF_LG_FTYPE_VARIABLE;
         command->parameters[0] = ff_lg_s16_to_u8(from->constant.level);
+        command->parameters[1] = 0x80;
         break;
     case E_DATA_TYPE_SPRING:
     {
