@@ -500,7 +500,11 @@ void launcherFrame::readSerialPorts()
    */
   if (OutputChoice->FindString(wxT("ttyS0")) != wxNOT_FOUND)
   {
-    OutputChoice->Delete(OutputChoice->FindString(wxT("ttyAMA0")));
+    int pos = OutputChoice->FindString(wxT("ttyAMA0"));
+    if (pos != wxNOT_FOUND)
+    {
+      OutputChoice->Delete(pos);
+    }
   }
 #endif
 
