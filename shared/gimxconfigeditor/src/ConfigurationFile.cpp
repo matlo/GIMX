@@ -35,7 +35,7 @@ ConfigurationFile& ConfigurationFile::operator=(const ConfigurationFile& rhs)
     return *this;
 }
 
-int ConfigurationFile::ReadConfigFile(string filePath)
+int ConfigurationFile::ReadConfigFile(const string& directory, const string& file)
 {
     int ret;
 
@@ -43,7 +43,8 @@ int ConfigurationFile::ReadConfigFile(string filePath)
 
     reader.SetCheckDevices(m_checkDevices);
 
-    ret = reader.ReadConfigFile(filePath);
+    string path = directory + "/" + file;
+    ret = reader.ReadConfigFile(path);
 
     if(ret < 0)
     {
@@ -54,18 +55,29 @@ int ConfigurationFile::ReadConfigFile(string filePath)
       m_Info = reader.GetInfo();
     }
 
-    m_multipleMK = reader.MultipleMK();
+    if (ret >= 0)
+    {
+        m_multipleMK = reader.MultipleMK();
 
-    m_FilePath = filePath;
+        m_Directory = directory;
+        m_File = file;
+    }
 
     return ret;
 }
 
-int ConfigurationFile::WriteConfigFile()
+int ConfigurationFile::WriteConfigFile(const string& directory, const string& file)
 {
     XmlWritter writer(this);
 
-    return writer.WriteConfigFile();
+    int ret = writer.WriteConfigFile(directory, file);
+
+    if (ret != -1) {
+        m_Directory = directory;
+        m_File = file;
+    }
+
+    return ret;
 }
 
 list<string> &split(const string &s, char delim, list<string> &elems)
@@ -154,11 +166,11 @@ static void AutoBindMappers(list<T>* refMappers, list<T>* modMappers)
   }
 }
 
-int ConfigurationFile::AutoBind(string refFilePath)
+int ConfigurationFile::AutoBind(const string& directory, const string& file)
 {
   ConfigurationFile refConfigFile;
 
-  int ret = refConfigFile.ReadConfigFile(refFilePath);
+  int ret = refConfigFile.ReadConfigFile(directory, file);
 
   if(ret >= 0)
   {
@@ -184,11 +196,11 @@ int ConfigurationFile::AutoBind(string refFilePath)
   return ret;
 }
 
-int ConfigurationFile::ConvertSensitivity(string refFilePath)
+int ConfigurationFile::ConvertSensitivity(const string& directory, const string& file)
 {
   ConfigurationFile refConfigFile;
 
-  int ret = refConfigFile.ReadConfigFile(refFilePath);
+  int ret = refConfigFile.ReadConfigFile(directory, file);
 
   if(ret >= 0)
   {
@@ -310,11 +322,11 @@ void ConfigurationFile::GetLabels(list<string>& button_labels, list<string>& axi
   }
 }
 
-void ConfigurationFile::GetLabels(string file, list<string>& button_labels, list<string>& axis_labels)
+void ConfigurationFile::GetLabels(const string& directory, const string& file, list<string>& button_labels, list<string>& axis_labels)
 {
   ConfigurationFile configFile;
   configFile.SetCheckDevices(false);
-  if(configFile.ReadConfigFile(file) >= 0)
+  if(configFile.ReadConfigFile(directory, file) >= 0)
   {
     configFile.GetLabels(button_labels, axis_labels);
   }
@@ -330,4 +342,14 @@ bool ConfigurationFile::IsEmpty()
     }
   }
   return true;
+}
+
+bool ConfigurationFile::operator==(const ConfigurationFile &other) const
+{
+    for (unsigned int i = 0; i < sizeof(m_Controllers) / sizeof(*m_Controllers); ++i) {
+        if (!(m_Controllers[i] == other.m_Controllers[i])) {
+            return false;
+        }
+    }
+    return true;
 }

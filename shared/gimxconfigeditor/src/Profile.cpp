@@ -72,3 +72,15 @@ bool Profile::IsEmpty()
   }
   return true;
 }
+
+bool Profile::operator==(const Profile &other) const
+{
+    return m_Trigger == other.m_Trigger
+            && m_IntensityList == other.m_IntensityList
+            && m_MouseOptionsList == other.m_MouseOptionsList
+            && m_ButtonMappers == other.m_ButtonMappers
+            && m_AxisMappers == other.m_AxisMappers
+            && m_JoystickCorrectionsList == other.m_JoystickCorrectionsList
+            && m_ForceFeedback == other.m_ForceFeedback
+            && m_Macros == other.m_Macros;
+}
