@@ -2137,7 +2137,7 @@ void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event __attribute__((unused
 
 void launcherFrame::autoBindControls(wxArrayString configs)
 {
-  string dir = string(gimxConfigDir.mb_str(wxConvUTF8));
+  string dir = TO_STRING(gimxConfigDir);
 
   wxString mod_config;
 
@@ -2156,7 +2156,7 @@ void launcherFrame::autoBindControls(wxArrayString configs)
       ConfigurationFile configFile;
       mod_config = configs[j];
 
-      int ret = configFile.ReadConfigFile(TO_STRING(gimxConfigDir), TO_STRING(mod_config));
+      int ret = configFile.ReadConfigFile(dir, TO_STRING(mod_config));
 
       if(ret < 0)
       {
@@ -2164,14 +2164,14 @@ void launcherFrame::autoBindControls(wxArrayString configs)
         return;
       }
 
-      if(configFile.AutoBind(TO_STRING(gimxConfigDir), TO_STRING(dialog.GetStringSelection())) < 0)
+      if(configFile.AutoBind(dir, TO_STRING(dialog.GetStringSelection())) < 0)
       {
         wxMessageBox(_("Can't auto-bind controls for config: ") + mod_config, _("Error"), wxICON_ERROR);
       }
       else
       {
-        configFile.ConvertSensitivity(TO_STRING(gimxConfigDir), TO_STRING(dialog.GetStringSelection()));
-        if(configFile.WriteConfigFile(TO_STRING(gimxConfigDir), TO_STRING(mod_config)) < 0)
+        configFile.ConvertSensitivity(dir, TO_STRING(dialog.GetStringSelection()));
+        if(configFile.WriteConfigFile(dir, TO_STRING(mod_config)) < 0)
         {
           wxMessageBox(_("Can't write config: ") + mod_config, _("Error"), wxICON_ERROR);
         }
