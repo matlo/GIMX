@@ -551,6 +551,8 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __at
 
     evcatch = EventCatcher::getInstance();
 
+    save_current(emptyConfigFile);
+
     if (!file.IsEmpty()) {
         openConfiguration(default_directory, file);
     }
@@ -561,8 +563,6 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __at
 
     Panel1->Fit();
     Fit();
-
-    save_current(emptyConfigFile);
 }
 
 fpsconfigFrame::~fpsconfigFrame()
