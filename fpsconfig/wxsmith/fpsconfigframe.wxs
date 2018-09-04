@@ -478,8 +478,5 @@
 			<widths>-1</widths>
 			<styles>wxSB_NORMAL</styles>
 		</object>
-		<object class="wxFileDialog" variable="FileDialog1" member="yes">
-			<message>Select file</message>
-		</object>
 	</object>
 </wxsmith>

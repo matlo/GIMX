@@ -38,6 +38,9 @@
 
 #define _CN(STRING) locale->GetString(wxString(STRING.c_str(), wxConvUTF8))
 
+#define TO_STRING(WXSTRING) string(WXSTRING.mb_str(wxConvUTF8))
+#define TO_WXSTRING(STRING) wxString(STRING.c_str(), wxConvUTF8)
+
 using namespace std;
 
 //(*IdInit(configFrame)
@@ -563,13 +566,11 @@ void configFrame::readLabels()
   }
 
   wxString file;
-  wxString filepath;
   wxString filespec = wxT("*.xml");
 
   for (bool cont = dir.GetFirst(&file, filespec, wxDIR_FILES); cont;  cont = dir.GetNext(&file))
   {
-    filepath = default_directory + file;
-    ConfigurationFile::GetLabels(string(filepath.mb_str(wxConvUTF8)), button_labels, axis_labels);
+    ConfigurationFile::GetLabels(TO_STRING(default_directory), TO_STRING(file), button_labels, axis_labels);
   }
 
   button_labels.sort(compare_nocase);
@@ -1361,7 +1362,6 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     StatusBar1->SetFieldsCount(1,__wxStatusBarWidths_1);
     StatusBar1->SetStatusStyles(1,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
-    FileDialog1 = new wxFileDialog(this, _("Select file"), wxEmptyString, wxEmptyString, _("XML files (*.xml)|*.xml"), wxFD_DEFAULT_STYLE|wxFD_OPEN, wxDefaultPosition, wxDefaultSize, _T("wxFileDialog"));
     GridSizer1->Fit(this);
     GridSizer1->SetSizeHints(this);
 
@@ -1450,6 +1450,7 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     Connect(ID_MENUITEM27,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuAutoBindControls);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnAbout);
     //*)
+    Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(configFrame::OnClose), NULL, this);
 
     GridPanelButton->SetSelectionMode(wxGrid::wxGridSelectRows);
     GridPanelAxis->SetSelectionMode(wxGrid::wxGridSelectRows);
@@ -1507,7 +1508,7 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
       }
     }
 
-    FileDialog1->SetDirectory(default_directory);
+    configFile.SetDirectory(TO_STRING(default_directory));
 
     GridPanelButton->SetDefaultColSize(wxGRID_AUTOSIZE);
     GridPanelButton->SetRowLabelSize(20);
@@ -1525,43 +1526,8 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
 
     evcatch = EventCatcher::getInstance();
 
-	  /* Open the file given as argument */
-    if(!file.IsEmpty())
-    {
-      wxString wxfile = default_directory + file;
-
-      if(::wxFileExists(wxfile))
-      {
-        int ret = configFile.ReadConfigFile(string(wxfile.mb_str(wxConvUTF8)));
-
-        if(ret < 0)
-        {
-          wxMessageBox(wxString(configFile.GetError().c_str(), wxConvUTF8), _("Error"), wxICON_ERROR);
-        }
-        else if(ret > 0)
-        {
-          wxMessageBox(wxString(configFile.GetInfo().c_str(), wxConvUTF8), _("Info"), wxICON_INFORMATION);
-        }
-
-        MenuItemMultipleMiceAndKeyboards->Check(configFile.MultipleMK());
-        if(MenuItemMultipleMiceAndKeyboards->IsChecked())
-        {
-            MenuItemReplaceMouse->Enable(true);
-            MenuItemReplaceKeyboard->Enable(true);
-        }
-        else
-        {
-            MenuItemReplaceMouse->Enable(false);
-            MenuItemReplaceKeyboard->Enable(false);
-        }
-        load_current();
-        MenuFile->Enable(idMenuSave, true);
-        FileDialog1->SetFilename(file);
-      }
-      else
-      {
-        wxMessageBox( _("Cannot open config file: ") + file, _("Error"), wxICON_ERROR);
-      }
+    if (!file.IsEmpty()) {
+        openConfiguration(default_directory, file);
     }
 
     readLabels();
@@ -1584,6 +1550,32 @@ configFrame::~configFrame()
 {
     //(*Destroy(configFrame)
     //*)
+}
+
+void configFrame::checkSave()
+{
+    save_current();
+    if (!configFile.GetFile().empty()) {
+        if (!(openedConfigFile == configFile)) {
+            int answer = wxMessageBox(_("Do you want to save your configuration?"), TO_WXSTRING(configFile.GetFile()), wxYES_NO);
+            if (answer == wxYES) {
+                wxCommandEvent e;
+                OnMenuSave(e);
+            }
+        }
+    } else if (!configFile.IsEmpty()) {
+        int answer = wxMessageBox(_("Do you want to save your configuration?"), wxEmptyString, wxYES_NO);
+        if (answer == wxYES) {
+            wxCommandEvent e;
+            OnMenuSaveAs(e);
+        }
+    }
+}
+
+void configFrame::OnClose(wxCloseEvent& event)
+{
+    checkSave();
+    event.Skip();
 }
 
 void configFrame::OnQuit(wxCommandEvent& event __attribute__((unused)))
@@ -1611,8 +1603,13 @@ void configFrame::OnAbout(wxCommandEvent& event __attribute__((unused)))
  */
 void configFrame::OnMenuItemNew(wxCommandEvent& event __attribute__((unused)))
 {
-    FileDialog1->SetFilename(wxEmptyString);
+    checkSave();
+
+    wxTopLevelWindow::SetTitle(wxT("Gimx-config"));
     configFile = ConfigurationFile();
+    configFile.SetDirectory(TO_STRING(default_directory));
+    configFile.SetFile("");
+    openedConfigFile = ConfigurationFile();
 
     currentController = 0;
     currentProfile = 0;
@@ -2674,37 +2671,27 @@ void configFrame::refresh_gui()
     Refresh();
 }
 
-/*
- * \brief Method called on File>Open click.
- */
-void configFrame::OnMenuOpen(wxCommandEvent& event __attribute__((unused)))
+void configFrame::openConfiguration(const wxString& directory, const wxString& file)
 {
-    int ret;
-
-    if ( FileDialog1->ShowModal() != wxID_OK ) return;
-
-    wxString FileName = FileDialog1->GetPath();
-    if ( FileName.IsEmpty() ) return;
-
-    ret = configFile.ReadConfigFile(string(FileName.mb_str(wxConvUTF8)));
-
-    if(ret < 0)
-    {
-      wxMessageBox(wxString(configFile.GetError().c_str(), wxConvUTF8), _("Error"), wxICON_ERROR);
+    if (!::wxFileExists (directory + "/" + file)) {
+        wxMessageBox( _("Cannot open config file: ") + file, _("Error"), wxICON_ERROR);
+        return;
     }
-    else if(ret > 0)
-    {
-      wxMessageBox(wxString(configFile.GetInfo().c_str(), wxConvUTF8), _("Info"), wxICON_INFORMATION);
+
+    int ret = configFile.ReadConfigFile(TO_STRING(directory), TO_STRING(file));
+
+    if (ret < 0) {
+        wxMessageBox(TO_WXSTRING(configFile.GetError()), _("Error"), wxICON_ERROR);
+        return;
+    } else if (ret > 0) {
+        wxMessageBox(TO_WXSTRING(configFile.GetInfo()), _("Info"), wxICON_INFORMATION);
     }
 
     MenuItemMultipleMiceAndKeyboards->Check(configFile.MultipleMK());
-    if(MenuItemMultipleMiceAndKeyboards->IsChecked())
-    {
+    if (MenuItemMultipleMiceAndKeyboards->IsChecked()) {
         MenuItemReplaceMouse->Enable(true);
         MenuItemReplaceKeyboard->Enable(true);
-    }
-    else
-    {
+    } else {
         MenuItemReplaceMouse->Enable(false);
         MenuItemReplaceKeyboard->Enable(false);
     }
@@ -2717,7 +2704,28 @@ void configFrame::OnMenuOpen(wxCommandEvent& event __attribute__((unused)))
     refresh_gui();
     reset_buttons();
     MenuFile->Enable(idMenuSave, true);
+    configFile.SetDirectory(TO_STRING(directory));
+    configFile.SetFile(TO_STRING(file));
+    wxTopLevelWindow::SetTitle(file + wxT(" - Gimx-config"));
+    openedConfigFile = configFile;
+}
 
+/*
+ * \brief Method called on File>Open click.
+ */
+void configFrame::OnMenuOpen(wxCommandEvent& event __attribute__((unused)))
+{
+    wxFileDialog FileDialog(this, _("Select file"), TO_WXSTRING(configFile.GetDirectory()), wxEmptyString,
+            _("XML files (*.xml)|*.xml"), wxFD_DEFAULT_STYLE | wxFD_OPEN, wxDefaultPosition, wxDefaultSize,
+            _T("wxFileDialog"));
+
+    if ( FileDialog.ShowModal() == wxID_CANCEL) {
+        return;
+    }
+
+    checkSave();
+
+    openConfiguration(FileDialog.GetDirectory(), FileDialog.GetFilename());
 }
 
 /*
@@ -2806,44 +2814,44 @@ void configFrame::OnMenuItemConfiguration(wxCommandEvent& event __attribute__((u
   refresh_gui();
 }
 
+bool configFrame::save(const wxString& directory, const wxString& file)
+{
+    save_current();
+    reset_buttons();
+    if (configFile.WriteConfigFile(TO_STRING(directory), TO_STRING(file)) < 0) {
+        wxMessageBox(_("Can't save ") + file, _("Error"), wxICON_ERROR);
+        return false;
+    } else {
+        openedConfigFile = configFile;
+        SetTitle(file + wxT(" - Gimx-config"));
+        Refresh();
+    }
+    return true;
+}
+
 /*
  * \bried Method called on File>Save click. \
  *        It saves the current profile and writes the config file on the disk.
  */
 void configFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
 {
-    wxString end;
-    save_current();
-    if(configFile.WriteConfigFile() < 0)
-    {
-      wxMessageBox(_("Can't save ") + wxString(configFile.GetFilePath().c_str(), wxConvUTF8), _("Error"), wxICON_ERROR);
-    }
-    reset_buttons();
+    save(configFile.GetDirectory(), configFile.GetFile());
 }
 
 /*
  * \bried Method called on File>Save_As click. \
  *        It asks the user for a config location & name, and calls OnMenuSave.
  */
-void configFrame::OnMenuSaveAs(wxCommandEvent& event)
+void configFrame::OnMenuSaveAs(wxCommandEvent& event __attribute__((unused)))
 {
-    wxFileDialog saveFileDialog(this, _("Save config file"), wxT(""), wxT(""), _("XML files (*.xml)|*.xml"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    wxFileDialog saveFileDialog(this, _("Save config file"), TO_WXSTRING(configFile.GetDirectory()),
+            TO_WXSTRING(configFile.GetFile()), _("XML files (*.xml)|*.xml"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 
-    saveFileDialog.SetDirectory(FileDialog1->GetDirectory());
-    saveFileDialog.SetFilename(FileDialog1->GetFilename());
+    if ( saveFileDialog.ShowModal() == wxID_CANCEL) {
+        return;
+    }
 
-    if ( saveFileDialog.ShowModal() == wxID_CANCEL ) return;
-
-    wxString FileName = saveFileDialog.GetPath();
-
-    if ( FileName.IsEmpty() ) return;
-
-    configFile.SetFilePath(string(FileName.mb_str(wxConvUTF8)));
-
-    OnMenuSave(event);
-
-    FileDialog1->SetDirectory(saveFileDialog.GetDirectory());
-    FileDialog1->SetFilename(saveFileDialog.GetFilename());
+    save(saveFileDialog.GetDirectory(), saveFileDialog.GetFilename());
 
     MenuFile->Enable(idMenuSave, true);
 }
@@ -3799,7 +3807,7 @@ void configFrame::OnMenuMultipleMK(wxCommandEvent& event __attribute__((unused))
  */
 void configFrame::OnMenuAutoBindControls(wxCommandEvent& event __attribute__((unused)))
 {
-  if(configFile.GetFilePath().empty())
+  if(configFile.GetFile().empty())
   {
     wxMessageBox( _("No config opened!"), _("Error"), wxICON_ERROR);
     return;
@@ -3812,7 +3820,7 @@ void configFrame::OnMenuAutoBindControls(wxCommandEvent& event __attribute__((un
   wxString FileName = FileDialog.GetPath();
   if ( FileName.IsEmpty() ) return;
 
-  if(configFile.AutoBind(string(FileName.mb_str(wxConvUTF8))) < 0)
+  if(configFile.AutoBind(TO_STRING(FileDialog.GetDirectory()), TO_STRING(FileDialog.GetFilename())) < 0)
   {
     wxMessageBox(_("Can't auto-bind controls!"), _("Error"), wxICON_ERROR);
   }

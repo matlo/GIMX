@@ -10,7 +10,6 @@
 #include <wx/spinctrl.h>
 #include <wx/button.h>
 #include <wx/menu.h>
-#include <wx/filedlg.h>
 #include <wx/panel.h>
 #include <wx/statusbr.h>
 #include <wx/frame.h>
@@ -84,6 +83,7 @@ class fpsconfigFrame: public wxFrame
         void OnMenuOpenConfigDirectory(wxCommandEvent& event);
         void OnMenuItemWindowEventsSelected(wxCommandEvent& event);
         //*)
+        void OnClose(wxCloseEvent& event);
 
         e_button_index getButtonIndex(wxButton* button);
         e_axis_index getAxisIndex(wxButton* button);
@@ -99,6 +99,11 @@ class fpsconfigFrame: public wxFrame
 
         void updateTextCtrlValue(wxTextCtrl* text, int step, double* value);
         void updateSpinCtrl(wxSpinCtrl * spin, wxTextCtrl* text, int step, int min, int max, double * value);
+
+        void save_current(ConfigurationFile& config);
+        bool save(const wxString& directory, const wxString& file);
+        void openConfiguration(const wxString& directory, const wxString& file);
+        void checkSave();
 
         //(*Identifiers(fpsconfigFrame)
         static const long ID_SPINCTRL8;
@@ -209,7 +214,6 @@ class fpsconfigFrame: public wxFrame
         wxMenuItem* MenuItemNew;
         wxStaticText* StaticText8;
         wxSpinCtrl* SpinCtrlSensitivityADS;
-        wxFileDialog* FileDialog1;
         wxStaticText* StaticTextDZ;
         wxButton* l3;
         wxSpinCtrl* SpinCtrlXyRatioHipFire;
@@ -244,6 +248,8 @@ class fpsconfigFrame: public wxFrame
 
         EventCatcher* evcatch;
         ConfigurationFile configFile;
+        ConfigurationFile openedConfigFile;
+        ConfigurationFile emptyConfigFile;
 
         ControlMapper buttons[BI_MAX];
         ControlMapper old_buttons[BI_MAX];
