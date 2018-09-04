@@ -628,7 +628,7 @@ e_gimx_status adapter_detect()
             rtype = adapter_send_short_command(i, BYTE_TYPE);
           }
 
-          if(rtype >= 0)
+          if(rtype >= 0 && rtype < C_TYPE_NONE)
           {
             ginfo(_("GIMX adapter detected, controller type is: %s.\n"), controller_get_name(rtype));
 
