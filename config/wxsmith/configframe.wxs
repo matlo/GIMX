@@ -2111,10 +2111,5 @@
 			<widths>-1</widths>
 			<styles>wxSB_NORMAL</styles>
 		</object>
-		<object class="wxFileDialog" variable="FileDialog1" member="yes">
-			<message>Select file</message>
-			<wildcard>XML files (*.xml)|*.xml</wildcard>
-			<style>wxFD_DEFAULT_STYLE|wxFD_OPEN</style>
-		</object>
 	</object>
 </wxsmith>

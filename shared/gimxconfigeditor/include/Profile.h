@@ -40,6 +40,7 @@ class Profile
         bool IsEmpty();
         const std::string& getMacros() const { return m_Macros; }
         void setMacros(const std::string& macros) { m_Macros = macros; }
+        bool operator==(const Profile &other) const;
     protected:
     private:
         Trigger m_Trigger;

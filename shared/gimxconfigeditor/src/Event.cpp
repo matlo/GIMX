@@ -73,5 +73,7 @@ bool Event::operator==(const Event &other) const
     && m_DeadZone == other.m_DeadZone
     && m_Multiplier == other.m_Multiplier
     && m_Exponent == other.m_Exponent
-    && m_Shape == other.m_Shape;
+    && (m_Shape == other.m_Shape
+            || (m_Shape == "Circle" && other.m_Shape == "")
+            || (m_Shape == "" && other.m_Shape == "Circle"));
 }

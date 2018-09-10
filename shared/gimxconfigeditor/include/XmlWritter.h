@@ -14,7 +14,7 @@ class XmlWritter
         XmlWritter();
         XmlWritter(ConfigurationFile* configFile);
         virtual ~XmlWritter();
-        int WriteConfigFile();
+        int WriteConfigFile(const string& directory, const string& file);
     protected:
     private:
         void CreateEventNode(xmlNodePtr parent_node, Event* event);

@@ -50,3 +50,14 @@ bool Controller::IsEmpty()
   }
   return true;
 }
+
+bool Controller::operator==(const Controller &other) const
+{
+    for (unsigned int i = 0; i < sizeof(m_Profile) / sizeof(*m_Profile); ++i) {
+        if (!(m_Profile[i] == other.m_Profile[i])) {
+            return false;
+        }
+    }
+    return m_ControllerType == other.m_ControllerType
+            && m_MouseDPI == other.m_MouseDPI;
+}

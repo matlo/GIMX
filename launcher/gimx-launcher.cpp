@@ -92,6 +92,9 @@ using namespace std;
 
 #define CONSOLETUNER_VID 0x2508
 
+#define TO_STRING(WXSTRING) string(WXSTRING.mb_str(wxConvUTF8))
+#define TO_WXSTRING(STRING) wxString(STRING.c_str(), wxConvUTF8)
+
 //(*IdInit(launcherFrame)
 const long launcherFrame::ID_STATICTEXT4 = wxNewId();
 const long launcherFrame::ID_CHOICE1 = wxNewId();
@@ -500,7 +503,11 @@ void launcherFrame::readSerialPorts()
    */
   if (OutputChoice->FindString(wxT("ttyS0")) != wxNOT_FOUND)
   {
-    OutputChoice->Delete(OutputChoice->FindString(wxT("ttyAMA0")));
+    int pos = OutputChoice->FindString(wxT("ttyAMA0"));
+    if (pos != wxNOT_FOUND)
+    {
+      OutputChoice->Delete(pos);
+    }
   }
 #endif
 
@@ -1737,11 +1744,8 @@ void launcherFrame::OnButtonCheckClick1(wxCommandEvent& event __attribute__((unu
       return;
     }
 
-    string file = string(gimxConfigDir.mb_str(wxConvUTF8));
-    file.append(InputChoice->GetStringSelection().mb_str(wxConvUTF8));
-
     ConfigurationFile configFile;
-    int ret = configFile.ReadConfigFile(file);
+    int ret = configFile.ReadConfigFile(TO_STRING(gimxConfigDir), TO_STRING(InputChoice->GetStringSelection()));
 
     if(ret < 0)
     {
@@ -2133,7 +2137,7 @@ void launcherFrame::OnMenuGetConfigs(wxCommandEvent& event __attribute__((unused
 
 void launcherFrame::autoBindControls(wxArrayString configs)
 {
-  string dir = string(gimxConfigDir.mb_str(wxConvUTF8));
+  string dir = TO_STRING(gimxConfigDir);
 
   wxString mod_config;
 
@@ -2152,7 +2156,7 @@ void launcherFrame::autoBindControls(wxArrayString configs)
       ConfigurationFile configFile;
       mod_config = configs[j];
 
-      int ret = configFile.ReadConfigFile(dir + string(mod_config.mb_str(wxConvUTF8)));
+      int ret = configFile.ReadConfigFile(dir, TO_STRING(mod_config));
 
       if(ret < 0)
       {
@@ -2160,14 +2164,14 @@ void launcherFrame::autoBindControls(wxArrayString configs)
         return;
       }
 
-      if(configFile.AutoBind(dir + string(dialog.GetStringSelection().mb_str(wxConvUTF8))) < 0)
+      if(configFile.AutoBind(dir, TO_STRING(dialog.GetStringSelection())) < 0)
       {
         wxMessageBox(_("Can't auto-bind controls for config: ") + mod_config, _("Error"), wxICON_ERROR);
       }
       else
       {
-        configFile.ConvertSensitivity(dir + string(dialog.GetStringSelection().mb_str(wxConvUTF8)));
-        if(configFile.WriteConfigFile() < 0)
+        configFile.ConvertSensitivity(dir, TO_STRING(dialog.GetStringSelection()));
+        if(configFile.WriteConfigFile(dir, TO_STRING(mod_config)) < 0)
         {
           wxMessageBox(_("Can't write config: ") + mod_config, _("Error"), wxICON_ERROR);
         }

@@ -26,6 +26,7 @@ class Controller
         unsigned int GetMouseDPI() { return m_MouseDPI; }
         void SetMouseDPI(unsigned int val) { m_MouseDPI = val; }
         bool IsEmpty();
+        bool operator==(const Controller &other) const;
     protected:
     private:
         e_controller_type m_ControllerType;
