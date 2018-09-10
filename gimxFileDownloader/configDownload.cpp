@@ -77,15 +77,6 @@ int ManualConfigDownload::chooseConfig()
     for(std::string configName : configList)
         options.push_back(configName);
 
-    selectionMenuWin = newwin(height, width, starty, startx);
-
-    Menu selectionMenu(selectionMenuWin, height, width, starty, startx, options);
-    selectionMenu.setKeypad();
-
-    /*Stylise the menu borders*/
-    //					borders =>    we  ns
-    selectionMenu.setDrawBorder(true, 36, 0);
-
     /*Download config list*/
     configupdater::ConfigUpdaterStatus status;
     {
@@ -95,7 +86,7 @@ int ManualConfigDownload::chooseConfig()
         ttyProgressDialog pDialog(downloadWin, "Downloading", height, width, 0, 0, "Progress");
         initDownload(&pDialog); //Also opens dialog window
         status = configupdater().getconfiglist(configList, progress_callback_configupdater_terminal, this);
-        wprintw(downloadWin, "status = %i\n", status); wgetch(downloadWin);//for debugging
+        wgetch(downloadWin);//for debugging
         cleanDownload();
     }
 
@@ -110,6 +101,19 @@ int ManualConfigDownload::chooseConfig()
         return 2;
     }
 
+    /*Add config names to options list*/
+    for(auto name : configList)
+        options.push_back(name);
+
+    selectionMenuWin = newwin(height, width, starty, startx);
+
+    Menu selectionMenu(selectionMenuWin, height, width, starty, startx, options);
+    selectionMenu.setKeypad();
+
+    /*Stylise the menu borders*/
+    //				borders => (bool, we, ns)
+    selectionMenu.setDrawBorder(true, 0, 0);
+
     int menuChoice;
     std::vector<int> chosen;
     while(true)
@@ -117,7 +121,9 @@ int ManualConfigDownload::chooseConfig()
         clear();
 
         std::string prompt = { "Select the files to download.\n" };
-        wprintw(selectionMenuWin, prompt.c_str());
+        wattron(selectionMenuWin, A_BOLD);
+        mvwprintw(selectionMenuWin, 1, (width - prompt.length()) /2, prompt.c_str());
+        wattroff(selectionMenuWin, A_BOLD);
         flushinp();
         wrefresh(selectionMenuWin);
 

@@ -32,7 +32,7 @@ protected:
     int numChoices;
 
     //Only to be used by menuLoop
-    virtual void menuHighlight(WINDOW *menu_win, int highlight, int xLable=2, int yLable=2) = 0;
+    virtual void menuHighlight(WINDOW *menu_win, int highlight, int xStart=2, int yStart=2) = 0;
 public:
     MenuBase(WINDOW* menu_win, std::vector<std::string> choices) : MenuBase(menu_win, LINES, COLS, 0, 0, choices) { }
     MenuBase(WINDOW* menu_win, int height, int width, int starty, int startx, std::vector<std::string> choices);
@@ -49,13 +49,12 @@ class Menu : virtual public MenuBase
 {
 private:
     //Only to be used by menuHighlight()
-    void printHorizontal(int& x, std::vector<std::string> array, int currentIndex);
-    void printVertical(int& y);
-    bool printLabelVertical;
+    void pageUp();
+    void pageDown();
     bool drawBorder;
     int bordersWE, bordersNS;
 
-    virtual void menuHighlight(WINDOW *menu_win, int highlight, int xLable=2, int yLable=2);
+    virtual void menuHighlight(WINDOW *menu_win, int highlight, int xStart=2, int yStart=2);
 public:
     Menu(WINDOW* menu_win, std::vector<std::string> choices) \
         : Menu(menu_win, LINES, COLS, 0, 0, choices) { }

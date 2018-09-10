@@ -41,19 +41,73 @@ int Menu::menuLoop(int startChoice)
 		box(menuWin, bordersWE, bordersNS);
 	menuHighlight(menuWin, highlight);
 
+	//Calculate 'pages'
+	//+1 for bottom border
+	int pageSize = (height - (yStart + 1));
+	int page = 1;
+	enum seekLine { back, next };
+	auto turnPage = [&page] (seekOption seek) -> void {
+		//Check if we need to turn to next page
+		//1st case: turn over last page to first, 2nd case: page up, 3rd case: turn over first page to last, 4th case: page down
+		switch(seek)
+		{
+			case seekOption::next:
+				if((highlight +1) > numChoices) //1st
+				{
+					page = 1;
+					break;
+				}
+				elif((highlight +1) == (page * pageSize) +1 )) //2nd
+				{
+					++page;
+					break;
+				}
+				//If it gets to this line, something went wrong!
+
+			case seekOption::back:
+				if((highlight -1) == 0) //3rd
+				{
+					page = numChoices / pageSize;
+					break;
+				}
+				elif((highlight -1) == (page -1) * pageSize )) //4th
+				{
+
+				}
+		}
+
+
+
+		if(highlight > numChoices)
+
+		if(page != 1)
+		{
+			elif(highlight > ((page -1) * pageSize)
+
+		}
+		elif(highlight < ((page +1) * pageSize)
+	};
+
+	int choice, input;
 	while (true)
 	{
-		int choice = 0;
-		int input = wgetch(menuWin);
+		choice = 0;
+		input = wgetch(menuWin);
 		switch (input)
 		{
 		case KEY_UP:
+			turnPage();
+
+			//Gone past first page, head to last
 			if (highlight == 1)
 				highlight = numChoices;
 			else
 				--highlight;
 			break;
 		case KEY_DOWN:
+			turnPage(seekOption::next, page);
+
+			//Gone past last page, head to first
 			if (highlight == numChoices)
 				highlight = 1;
 			else
@@ -75,10 +129,6 @@ int Menu::menuLoop(int startChoice)
 	}
 }
 
-inline void Menu::printHorizontal(int& x, std::vector<std::string> array, int currentIndex)
-	{ x += array[currentIndex].size(); }
-inline void Menu::printVertical(int& y)
-	{ ++y; }
 inline void Menu::setPrintOrientation(bool orientation)
 	{ printLabelVertical = orientation; }
 void Menu::setDrawBorder(bool draw, int bordersWE, int bordersNS)
@@ -87,14 +137,15 @@ void Menu::setDrawBorder(bool draw, int bordersWE, int bordersNS)
 	this->bordersWE  = bordersWE;
 	this->bordersNS = bordersNS;
 }
-void Menu::menuHighlight(WINDOW *menu_win, int highlight, int xLable, int yLable)
+void Menu::menuHighlight(WINDOW *menu_win, int highlight, int xStart, int yStart)
 {
 	int x, y;
 
-	//Postioning of choice lables in window
-	x = xLable;
-	y = yLable;
+	//Start postion of choice lables in window
+	x = xStart;
+	y = yStart;
 
+	//Print options
 	for (int i = 0; i < numChoices; ++i)
 	{
 		//Highlight the present choice
@@ -106,11 +157,8 @@ void Menu::menuHighlight(WINDOW *menu_win, int highlight, int xLable, int yLable
 		}
 		else
 			mvwprintw(menu_win, y, x, "%s", choices[i].c_str());
-		//Move to next line, or column, for next label
-		if (printLabelVertical)
-			printVertical(y);
-		else
-			printHorizontal(x, choices, i);
+		
+		++y;
 	}
 	wrefresh(menu_win);
 }
@@ -162,10 +210,11 @@ void ttyProgressDialog::dialog()
 	/*Create progress bar*/
 	//This will be on the 5th line => index 4
 	//Generate bar text
-	std::string pBar = { " []" };
+	std::string pBar = { " [" };
 	int padding = 2;
 	for(int i = 0; i < ( width - (int(pBar.length()) + (padding *2) ) ); ++i)
-		pBar.insert(2, " "); //Insert between square brackets
+		pBar += " ";
+	pBar += "]";
 
 	mvwprintw(dialogWin, 4, 2, pBar.c_str());
 }
