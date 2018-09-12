@@ -338,7 +338,7 @@ void XmlWritter::CreateControllerNodes(xmlNodePtr parent_node)
     }
 }
 
-int XmlWritter::WriteConfigFile()
+int XmlWritter::WriteConfigFile(const string& directory, const string& file)
 {
     int ret;
     xmlDocPtr doc = NULL;       /* document pointer */
@@ -358,11 +358,12 @@ int XmlWritter::WriteConfigFile()
     /*
      * Dumping document to stdio or file
      */
-    ret = xmlSaveFormatFileEnc(m_ConfigurationFile->GetFilePath().c_str(), doc, "UTF-8", 1);
+    string path = directory + "/" + file;
+    ret = xmlSaveFormatFileEnc(path.c_str(), doc, "UTF-8", 1);
 
 #ifndef WIN32
     if(ret != -1 
-    && chown(m_ConfigurationFile->GetFilePath().c_str(), getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid) < 0)
+    && chown(path.c_str(), getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid) < 0)
     {
       ret = -1;
     }

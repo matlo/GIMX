@@ -15,7 +15,6 @@
 #include <wx/notebook.h>
 #include <wx/button.h>
 #include <wx/menu.h>
-#include <wx/filedlg.h>
 #include <wx/panel.h>
 #include <wx/statusbr.h>
 #include <wx/statline.h>
@@ -111,6 +110,7 @@ class configFrame: public wxFrame
         void OnButtonFFBTweaksDelete(wxCommandEvent& event);
         void OnAxisTabAxisIdSelect(wxCommandEvent& event);
         //*)
+        void OnClose(wxCloseEvent& event);
         void DeleteSelectedRows(wxGrid* grid);
         void DeleteLinkedRows(wxGrid* grid, int row);
         void replaceDevice(wxString wx_device_type);
@@ -132,6 +132,9 @@ class configFrame: public wxFrame
         void LoadControllerType();
         pair<Device, Event> selectEvent();
         void addJoystickCorrection();
+        void openConfiguration(const wxString& directory, const wxString& file);
+        bool save(const wxString& directory, const wxString& file);
+        void checkSave();
 
         //(*Identifiers(configFrame)
         static const long ID_STATICTEXT35;
@@ -325,7 +328,6 @@ class configFrame: public wxFrame
         //*)
 
         //(*Declarations(configFrame)
-        wxFileDialog* FileDialog1;
         wxMenu* MenuType;
         wxButton* MouseOptionsAutoDetect;
         wxStaticText* StaticText1;
@@ -524,6 +526,7 @@ class configFrame: public wxFrame
 
         EventCatcher* evcatch;
         ConfigurationFile configFile;
+        ConfigurationFile openedConfigFile;
         unsigned int currentController;
         unsigned int currentProfile;
 

@@ -688,6 +688,7 @@ void XmlReader::ProcessInversionElement(xmlNode * a_node)
 {
   char * prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_ENABLE);
   m_TempForceFeedback.setInversion(string(prop ? prop : "no"));
+  xmlFree(prop);
 }
 
 void XmlReader::ProcessGainElement(xmlNode * a_node)
