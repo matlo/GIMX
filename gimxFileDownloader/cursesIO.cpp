@@ -7,86 +7,96 @@
  */
 
 #include "include/cursesIO.h"
-
-
-MenuBase::MenuBase(WINDOW* menu_win, int height, int width, int starty, int startx, std::vector<std::string> choices)
+Menu::Menu(WINDOW* menu_win, std::vector<std::string> choices, std::string title, int pady, int padx) \
+    : Menu(menu_win, LINES, COLS, 0, 0, choices, title, pady, padx)
 {
-	this->menuWin = menu_win;
-	this->starty  = starty;
-	this->startx  = startx;
-	this->height  = height;
-	this->width   = width;
-	scrollok(this->menuWin, true);
-
-	this->choices = choices;
-	numChoices = choices.size();
+	getmaxyx(menu_win, height, width);
+	starty = 0;
+	startx = 0;
 }
-
-
-Menu::Menu(WINDOW* menu_win, int height, int width, int starty, int startx, std::vector<std::string> choices) \
-	: MenuBase(menu_win, height, width, starty, startx, choices)
+Menu::Menu(WINDOW* menu_win, int height, int width, int starty, int startx, std::vector<std::string> choices, std::string title, int pady=2, int padx=2)
 {
-	printLabelVertical = true;
 	drawBorder = true;
 	bordersWE  = 0;
 	bordersNS  = 0;
 
+	paddingy = pady;
+	paddingx = padx;
+	this->starty = starty;
+	this->startx = startx;
+	this->height = height;
+	this->width  = width;
+
+	this->title   = title;
 	this->menuWin = menu_win;
+	page = 1;
+
+	this->choices = choices;
+	numChoices    = choices.size();
+
+	keypad(this->menuWin, true);
 }
 
-int Menu::menuLoop(int startChoice)
+void Menu::draw()
 {
-	int highlight = startChoice;
+	werase(menuWin);
+
 	if (drawBorder)
 		box(menuWin, bordersWE, bordersNS);
-	menuHighlight(menuWin, highlight);
 
-	//Calculate 'pages'
-	//+1 for bottom border
-	int pageSize = (height - (yStart + 1));
-	int page = 1;
-	enum seekLine { back, next };
-	auto turnPage = [&page] (seekOption seek) -> void {
-		//Check if we need to turn to next page
-		//1st case: turn over last page to first, 2nd case: page up, 3rd case: turn over first page to last, 4th case: page down
-		switch(seek)
-		{
-			case seekOption::next:
-				if((highlight +1) > numChoices) //1st
-				{
-					page = 1;
-					break;
-				}
-				elif((highlight +1) == (page * pageSize) +1 )) //2nd
-				{
-					++page;
-					break;
-				}
-				//If it gets to this line, something went wrong!
+	mvwprintw(menuWin, 0, 1, title.c_str());
+}
+void Menu::calculatePage(seekOption seek)
+{
+	//Check if we need to turn to next page
+	//1st case: turn over last page to first, 2nd case: page up, 3rd case: turn over first page to last, 4th case: page down
+	switch(seek)
+	{
+		case seekOption::next:
+			if((highlight +1) > numChoices) //1st
+			{
+				page = 1;
+				draw();
+				break;
+			}
+			else if(highlight == page * pageSize) //2nd
+			{
+				++page;
+				draw();
+				break;
+			}
 
-			case seekOption::back:
-				if((highlight -1) == 0) //3rd
-				{
-					page = numChoices / pageSize;
-					break;
-				}
-				elif((highlight -1) == (page -1) * pageSize )) //4th
-				{
+			break;
 
-				}
-		}
+		case seekOption::back:
+			if((highlight -1) == 0) //3rd
+			{
+				//+0.5 for rounding to next integer
+				float calc = (float(numChoices) / float(pageSize)) +0.5;
+				page = calc;
+				draw();
+				break;
+			}
+			else if(highlight -1 == (page -1) * pageSize) //4th
+			{
+				--page;
+				draw();
+				break;
+			}
 
+			break;
+	}
+}
+int Menu::menuLoop(int startChoice)
+{
+	highlight = startChoice;
 
+	//-1 so 0 initialised
+	pageSize = (height - (paddingy)) -1;
+	page = 1;
 
-		if(highlight > numChoices)
-
-		if(page != 1)
-		{
-			elif(highlight > ((page -1) * pageSize)
-
-		}
-		elif(highlight < ((page +1) * pageSize)
-	};
+	draw();
+	menuHighlight();
 
 	int choice, input;
 	while (true)
@@ -96,7 +106,7 @@ int Menu::menuLoop(int startChoice)
 		switch (input)
 		{
 		case KEY_UP:
-			turnPage();
+			calculatePage(seekOption::back);
 
 			//Gone past first page, head to last
 			if (highlight == 1)
@@ -105,7 +115,7 @@ int Menu::menuLoop(int startChoice)
 				--highlight;
 			break;
 		case KEY_DOWN:
-			turnPage(seekOption::next, page);
+			calculatePage(seekOption::next);
 
 			//Gone past last page, head to first
 			if (highlight == numChoices)
@@ -116,10 +126,11 @@ int Menu::menuLoop(int startChoice)
 		case 10:
 			choice = highlight;
 			break;
-		default:
-			break;
+		case 27:
+			//ESC hit
+			return 0;
 		}
-		menuHighlight(menuWin, highlight);
+		menuHighlight();
 
 		if (choice != 0)
 		{
@@ -129,38 +140,36 @@ int Menu::menuLoop(int startChoice)
 	}
 }
 
-inline void Menu::setPrintOrientation(bool orientation)
-	{ printLabelVertical = orientation; }
 void Menu::setDrawBorder(bool draw, int bordersWE, int bordersNS)
 {
 	drawBorder = draw;
 	this->bordersWE  = bordersWE;
 	this->bordersNS = bordersNS;
 }
-void Menu::menuHighlight(WINDOW *menu_win, int highlight, int xStart, int yStart)
+void Menu::menuHighlight()
 {
 	int x, y;
 
 	//Start postion of choice lables in window
-	x = xStart;
-	y = yStart;
+	x = paddingx;
+	y = paddingy;
 
 	//Print options
-	for (int i = 0; i < numChoices; ++i)
+	for (int i = (page -1) * pageSize; i < (page * pageSize) && i < choices.size(); ++i)
 	{
 		//Highlight the present choice
 		if (highlight == i + 1)
 		{
-			wattron(menu_win, A_REVERSE);
-			mvwprintw(menu_win, y, x, "%s", choices[i].c_str());
-			wattroff(menu_win, A_REVERSE);
+			wattron(menuWin, A_REVERSE);
+			mvwprintw(menuWin, y, x, "%s", choices[i].c_str());
+			wattroff(menuWin, A_REVERSE);
 		}
 		else
-			mvwprintw(menu_win, y, x, "%s", choices[i].c_str());
+			mvwprintw(menuWin, y, x, "%s", choices[i].c_str());
 		
 		++y;
 	}
-	wrefresh(menu_win);
+	wrefresh(menuWin);
 }
 
 

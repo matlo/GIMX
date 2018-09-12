@@ -19,51 +19,42 @@
 #endif
 
 
-
-
-
 class MenuBase
 {
 protected:
-    WINDOW* menuWin;
-    int height, width, starty, startx;
-
-    std::vector<std::string> choices;
-    int numChoices;
-
     //Only to be used by menuLoop
-    virtual void menuHighlight(WINDOW *menu_win, int highlight, int xStart=2, int yStart=2) = 0;
+    virtual void menuHighlight() = 0;
 public:
-    MenuBase(WINDOW* menu_win, std::vector<std::string> choices) : MenuBase(menu_win, LINES, COLS, 0, 0, choices) { }
-    MenuBase(WINDOW* menu_win, int height, int width, int starty, int startx, std::vector<std::string> choices);
-
     //User must interact with this
     virtual int menuLoop(int startChoice=1) = 0;
-    
-    //Getters and setters allow for customisation
-    //Setters
-    virtual void setKeypad(bool state=true) { keypad(this->menuWin, state); }
 };
 
 class Menu : virtual public MenuBase
 {
 private:
     //Only to be used by menuHighlight()
-    void pageUp();
-    void pageDown();
     bool drawBorder;
     int bordersWE, bordersNS;
 
-    virtual void menuHighlight(WINDOW *menu_win, int highlight, int xStart=2, int yStart=2);
+    WINDOW* menuWin;
+    std::string title;
+    int height, width, starty, startx, paddingy, paddingx;
+
+    std::vector<std::string> choices;
+    int numChoices, page, pageSize, highlight;
+
+    virtual void menuHighlight();
+
+    //Only to be used by menuLoop
+	enum seekOption { back, next };
+    void calculatePage(seekOption seek);
+    void draw();
 public:
-    Menu(WINDOW* menu_win, std::vector<std::string> choices) \
-        : Menu(menu_win, LINES, COLS, 0, 0, choices) { }
-    Menu(WINDOW* menu_win, int height, int width, int starty, int startx, std::vector<std::string> choices);
+    Menu(WINDOW* menu_win, std::vector<std::string> choices, std::string title, int pady=2, int padx=2);
+    Menu(WINDOW* menu_win, int height, int width, int starty, int startx, std::vector<std::string> choices, std::string title, int pady, int padx);
 
-    virtual int menuLoop(int startChoice=1);
+    virtual int menuLoop(int startChoice=1);    
 
-    //Setters
-    void setPrintOrientation(bool orientation);
     void setDrawBorder(bool draw=true, int bordersWE=0, int bordersNS=0);
 };
 

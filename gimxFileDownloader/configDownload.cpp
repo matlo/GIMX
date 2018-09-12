@@ -60,7 +60,7 @@ void ManualConfigDownload::initDownload(ttyProgressDialog* dialog)
 }
 void ManualConfigDownload::cleanDownload()
 {
-    wclear(downloadWin);
+    werase(downloadWin);
     wrefresh(downloadWin);
     progressDialog = NULL;
 }
@@ -106,9 +106,7 @@ int ManualConfigDownload::chooseConfig()
         options.push_back(name);
 
     selectionMenuWin = newwin(height, width, starty, startx);
-
-    Menu selectionMenu(selectionMenuWin, height, width, starty, startx, options);
-    selectionMenu.setKeypad();
+    Menu selectionMenu(selectionMenuWin, options, std::string("Select the files to download"));
 
     /*Stylise the menu borders*/
     //				borders => (bool, we, ns)
@@ -118,12 +116,7 @@ int ManualConfigDownload::chooseConfig()
     std::vector<int> chosen;
     while(true)
     {
-        clear();
-
-        std::string prompt = { "Select the files to download.\n" };
-        wattron(selectionMenuWin, A_BOLD);
-        mvwprintw(selectionMenuWin, 1, (width - prompt.length()) /2, prompt.c_str());
-        wattroff(selectionMenuWin, A_BOLD);
+        erase();
         flushinp();
         wrefresh(selectionMenuWin);
 
@@ -137,7 +130,7 @@ int ManualConfigDownload::chooseConfig()
                 break; //Finished choosing
             else
             {
-                mvwprintw(stdscr, 0, width - prompt.length(), "You must chose at least one config file, or cancel.");
+                mvwprintw(stdscr, 0, width, "You must chose at least one config file, or cancel.");
                 continue;
             }
                 
@@ -161,7 +154,7 @@ int ManualConfigDownload::chooseConfig()
             }
         }
     }
-    clear();
+    erase();
 
     /*Check if any chosen configs exist already*/
     for(int cIndex : chosen)
@@ -180,7 +173,7 @@ int ManualConfigDownload::chooseConfig()
         }
         selectedConfigs.push_back(sel);
     }
-    clear();
+    erase();
     delwin(selectionMenuWin);
 
     return grabConfig();
