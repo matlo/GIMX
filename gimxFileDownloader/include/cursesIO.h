@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <string>
+#include <math.h>
 
 #ifdef WIN32
 #include <cursesw.h>

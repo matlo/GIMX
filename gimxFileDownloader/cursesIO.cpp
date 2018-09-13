@@ -11,6 +11,7 @@ Menu::Menu(WINDOW* menu_win, std::vector<std::string> choices, std::string title
     : Menu(menu_win, LINES, COLS, 0, 0, choices, title, pady, padx)
 {
 	getmaxyx(menu_win, height, width);
+	height = 10 + paddingy +1;
 	starty = 0;
 	startx = 0;
 }
@@ -45,6 +46,8 @@ void Menu::draw()
 		box(menuWin, bordersWE, bordersNS);
 
 	mvwprintw(menuWin, 0, 1, title.c_str());
+	std::string pageNum = "pg " + std::to_string(page);
+	mvwprintw(menuWin, 0, width - pageNum.length(), pageNum.c_str());
 }
 void Menu::calculatePage(seekOption seek)
 {
@@ -71,9 +74,8 @@ void Menu::calculatePage(seekOption seek)
 		case seekOption::back:
 			if((highlight -1) == 0) //3rd
 			{
-				//+0.5 for rounding to next integer
-				float calc = (float(numChoices) / float(pageSize)) +0.5;
-				page = calc;
+				//+0.5 for rounding to next integer 
+				page = ceil( float(numChoices) / float(pageSize) );
 				draw();
 				break;
 			}
@@ -94,6 +96,14 @@ int Menu::menuLoop(int startChoice)
 	//-1 so 0 initialised
 	pageSize = (height - (paddingy)) -1;
 	page = 1;
+
+/*	for(std::string name : choices)
+	{
+		if(name > (width - (xpadding *2)))
+		{
+			
+		}
+	}*/
 
 	draw();
 	menuHighlight();
@@ -130,6 +140,24 @@ int Menu::menuLoop(int startChoice)
 			//ESC hit
 			return 0;
 		}
+
+		/*Check if already chosen and render check marks*/
+		/*for(int choice : chosen)
+		{
+			//Already toggled
+			if(choice == menuChoice)
+			{
+				chosen.erase(chosen.begin() +menuChoice);
+				mvwprintw(selectionMenuWin, choice, width -1, " ");
+			}
+			else
+			{
+				chosen.push_back(menuChoice);
+				mvwprintw(selectionMenuWin, choice, width -1, "X");
+			}
+		}
+		wgetch(menuWin);*/
+
 		menuHighlight();
 
 		if (choice != 0)

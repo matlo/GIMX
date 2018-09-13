@@ -116,10 +116,6 @@ int ManualConfigDownload::chooseConfig()
     std::vector<int> chosen;
     while(true)
     {
-        erase();
-        flushinp();
-        wrefresh(selectionMenuWin);
-
         menuChoice = selectionMenu.menuLoop();
         if(menuChoice == 1)
             return 1; //User chose to cancel
@@ -133,7 +129,7 @@ int ManualConfigDownload::chooseConfig()
                 mvwprintw(stdscr, 0, width, "You must chose at least one config file, or cancel.");
                 continue;
             }
-                
+
         }
         else
         {
