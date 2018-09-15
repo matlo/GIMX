@@ -28,19 +28,19 @@ int updateProgress_common(ttyProgressDialog* progressDialog, configupdater::Conf
 class ConfigDownload
 {
 public:
-    virtual int chooseConfig();
-    virtual int grabConfig();
+    virtual int chooseConfig() = 0;
+    virtual int grabConfig() = 0;
 
-    virtual void initDownload(ttyProgressDialog* dialog);
-    virtual void cleanDownload();
-    virtual int updateProgress(configupdater::ConfigUpdaterStatus status, double progress, double total);
+    virtual void initDownload(ttyProgressDialog* dialog) = 0;
+    virtual void cleanDownload() = 0;
+    virtual int updateProgress(configupdater::ConfigUpdaterStatus status, double progress, double total) = 0;
 };
 
 class ManualConfigDownload : public ConfigDownload
 {
 public:
     ManualConfigDownload();
-    ~ManualConfigDownload() { delwin(downloadWin); delwin(selectionMenuWin); }
+    virtual ~ManualConfigDownload() { delwin(downloadWin); delwin(selectionMenuWin); }
 
     int chooseConfig();
     int grabConfig();

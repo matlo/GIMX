@@ -60,7 +60,7 @@ void ManualConfigDownload::initDownload(ttyProgressDialog* dialog)
 }
 void ManualConfigDownload::cleanDownload()
 {
-    wclear(downloadWin);
+    werase(downloadWin);
     wrefresh(downloadWin);
     progressDialog = NULL;
 }
@@ -77,15 +77,6 @@ int ManualConfigDownload::chooseConfig()
     for(std::string configName : configList)
         options.push_back(configName);
 
-    selectionMenuWin = newwin(height, width, starty, startx);
-
-    Menu selectionMenu(selectionMenuWin, height, width, starty, startx, options);
-    selectionMenu.setKeypad();
-
-    /*Stylise the menu borders*/
-    //					borders =>    we  ns
-    selectionMenu.setDrawBorder(true, 36, 0);
-
     /*Download config list*/
     configupdater::ConfigUpdaterStatus status;
     {
@@ -95,7 +86,7 @@ int ManualConfigDownload::chooseConfig()
         ttyProgressDialog pDialog(downloadWin, "Downloading", height, width, 0, 0, "Progress");
         initDownload(&pDialog); //Also opens dialog window
         status = configupdater().getconfiglist(configList, progress_callback_configupdater_terminal, this);
-        wprintw(downloadWin, "status = %i\n", status); wgetch(downloadWin);//for debugging
+        wgetch(downloadWin);//for debugging
         cleanDownload();
     }
 
@@ -110,17 +101,21 @@ int ManualConfigDownload::chooseConfig()
         return 2;
     }
 
+    /*Add config names to options list*/
+    for(auto name : configList)
+        options.push_back(name);
+
+    selectionMenuWin = newwin(height, width, starty, startx);
+    Menu selectionMenu(selectionMenuWin, options, std::string("Select the files to download"));
+
+    /*Stylise the menu borders*/
+    //				borders => (bool, we, ns)
+    selectionMenu.setDrawBorder(true, 0, 0);
+
     int menuChoice;
     std::vector<int> chosen;
     while(true)
     {
-        clear();
-
-        std::string prompt = { "Select the files to download.\n" };
-        wprintw(selectionMenuWin, prompt.c_str());
-        flushinp();
-        wrefresh(selectionMenuWin);
-
         menuChoice = selectionMenu.menuLoop();
         if(menuChoice == 1)
             return 1; //User chose to cancel
@@ -131,10 +126,10 @@ int ManualConfigDownload::chooseConfig()
                 break; //Finished choosing
             else
             {
-                mvwprintw(stdscr, 0, width - prompt.length(), "You must chose at least one config file, or cancel.");
+                mvwprintw(stdscr, 0, width, "You must chose at least one config file, or cancel.");
                 continue;
             }
-                
+
         }
         else
         {
@@ -155,7 +150,7 @@ int ManualConfigDownload::chooseConfig()
             }
         }
     }
-    clear();
+    erase();
 
     /*Check if any chosen configs exist already*/
     for(int cIndex : chosen)
@@ -174,7 +169,7 @@ int ManualConfigDownload::chooseConfig()
         }
         selectedConfigs.push_back(sel);
     }
-    clear();
+    erase();
     delwin(selectionMenuWin);
 
     return grabConfig();

@@ -8,164 +8,321 @@
 
 #include "include/cursesIO.h"
 
-
-MenuBase::MenuBase(WINDOW* menu_win, int height, int width, int starty, int startx, std::vector<std::string> choices)
+Menu::Menu(WINDOW* menu_win, std::vector<std::string> choices, std::string title, int pady, int padx) \
+    : Menu(menu_win, LINES, COLS, 0, 0, choices, title, pady, padx)
 {
-	this->menuWin = menu_win;
-	this->starty  = starty;
-	this->startx  = startx;
-	this->height  = height;
-	this->width   = width;
-	scrollok(this->menuWin, true);
+    getmaxyx(menu_win, height, width);
+    starty = 0;
+    startx = 0;
+}
+Menu::Menu(WINDOW* menu_win, int height, int width, int starty, int startx, std::vector<std::string> choices, std::string title, int pady=2, int padx=2)
+{
+    drawBorder = true;
+    bordersWE  = 0;
+    bordersNS  = 0;
 
-	this->choices = choices;
-	numChoices = choices.size();
+    paddingy = pady;
+    paddingx = padx;
+    this->starty = starty;
+    this->startx = startx;
+    this->height = height;
+    this->width  = width;
+
+    this->title   = title;
+    this->menuWin = menu_win;
+    page = 1;
+
+    this->choices = choices;
+    numChoices    = choices.size();
+
+    keypad(this->menuWin, true);
 }
 
-
-Menu::Menu(WINDOW* menu_win, int height, int width, int starty, int startx, std::vector<std::string> choices) \
-	: MenuBase(menu_win, height, width, starty, startx, choices)
+void Menu::draw()
 {
-	printLabelVertical = true;
-	drawBorder = true;
-	bordersWE  = 0;
-	bordersNS  = 0;
+    werase(menuWin);
 
-	this->menuWin = menu_win;
+    if (drawBorder)
+        box(menuWin, bordersWE, bordersNS);
+
+    mvwprintw(menuWin, 0, 1, title.c_str());
+    std::string pageNum = "pg " + std::to_string(page);
+    mvwprintw(menuWin, 0, width - pageNum.length(), pageNum.c_str());
 }
+void Menu::calculatePage(seekOption seek)
+{
+    //Check if we need to turn to next page
+    //1st case: turn over last page to first, 2nd case: page up, 3rd case: turn over first page to last, 4th case: page down
+    switch(seek)
+    {
+        case seekOption::next:
+            if((highlight +1) > numChoices) //1st
+            {
+                page = 1;
+                draw();
+                break;
+            }
+            else if(highlight == page * maxLines) //2nd
+            {
+                ++page;
+                draw();
+                break;
+            }
 
+            break;
+
+        case seekOption::back:
+            if((highlight -1) == 0) //3rd
+            {
+                page = ceil( float(numChoices) / float(maxLines) );
+                draw();
+                break;
+            }
+            else if(highlight -1 == (page -1) * maxLines) //4th
+            {
+                --page;
+                draw();
+                break;
+            }
+
+            break;
+    }
+}
+void Menu::truncStr(std::string& text, int line)
+{
+    if(text.length() > maxChars)
+    {
+        int timesTrunc = 1;
+        std::string firstSlice;
+        std::string currentSlice;
+        std::string nextSlice;
+
+        do
+        {
+            currentSlice = nextSlice+ text.substr(maxChars *(timesTrunc -1), maxChars *timesTrunc);
+            nextSlice = text.substr(currentSlice.size() -3, 3);
+            currentSlice.replace(currentSlice.size() -3, 3, "...");
+
+            truncated.insert(std::make_pair( line, currentSlice ));
+
+            if(timesTrunc == 1)
+                firstSlice = currentSlice;
+            ++timesTrunc;
+        } while((maxChars *timesTrunc) < text.length());
+        //Last truncation
+        currentSlice = nextSlice+ text.substr(maxChars *(timesTrunc -1), maxChars *timesTrunc);
+        truncated.insert(std::make_pair( line, currentSlice ));
+
+        text = firstSlice;
+    }
+}
+//For naviagting truncated lines
+void Menu::truncNav(seekOption way, int& input)
+{
+    wattron(menuWin, A_REVERSE);
+
+    switch(way)
+    {
+        case seekOption::back:
+            if(it != beginNend.first)
+                --it;
+            break;
+        case seekOption::next:
+            if(it != beginNend.second)
+                ++it;
+            break;
+    }
+
+    wmove(menuWin, highlight -1 +paddingy - (maxLines * (page -1)), paddingx);
+    wclrtoeol(menuWin);
+    mvwprintw(menuWin, highlight -1 +paddingy - (maxLines * (page -1)), paddingx, (*it).second.c_str());
+    wrefresh(menuWin);
+
+    wattroff(menuWin, A_REVERSE);
+}
 int Menu::menuLoop(int startChoice)
 {
-	int highlight = startChoice;
-	if (drawBorder)
-		box(menuWin, bordersWE, bordersNS);
-	menuHighlight(menuWin, highlight);
+    highlight = startChoice;
 
-	while (true)
-	{
-		int choice = 0;
-		int input = wgetch(menuWin);
-		switch (input)
-		{
-		case KEY_UP:
-			if (highlight == 1)
-				highlight = numChoices;
-			else
-				--highlight;
-			break;
-		case KEY_DOWN:
-			if (highlight == numChoices)
-				highlight = 1;
-			else
-				++highlight;
-			break;
-		case 10:
-			choice = highlight;
-			break;
-		default:
-			break;
-		}
-		menuHighlight(menuWin, highlight);
+    //-1 so 0 initialised
+    maxLines = (height - (paddingy)) -1;
+    maxChars = width - (paddingx *2);
+    page = 1;
 
-		if (choice != 0)
-		{
-			//User made a decision, exit
-			return choice;
-		}
-	}
+    //If option name is too long, truncate it
+    for(int i = 0; i < choices.size(); ++i)
+        truncStr(choices[i], i);
+
+    draw();
+    menuHighlight();
+
+    int input;
+    auto navigateTruncated = [&] (seekOption way) -> void {
+        beginNend = truncated.equal_range(highlight -1);
+        //Not a truncated string
+        if(beginNend.first == beginNend.second)
+            return;
+
+        it = beginNend.first;
+        truncNav(way, input);
+    };
+
+    int choice = 0;
+    while (true)
+    {
+        input = wgetch(menuWin);
+        switch (input)
+        {
+            case KEY_UP:
+                calculatePage(seekOption::back);
+
+                //Gone past first page, head to last
+                if (highlight == 1)
+                    highlight = numChoices;
+                else
+                    --highlight;
+                break;
+            case KEY_DOWN:
+                calculatePage(seekOption::next);
+
+                //Gone past last page, head to first
+                if (highlight == numChoices)
+                    highlight = 1;
+                else
+                    ++highlight;
+                break;
+            case KEY_RIGHT:
+            {
+                navigateTruncated(seekOption::next);
+                if(input == 10)
+                    goto chose;
+                continue;
+            }
+            case KEY_LEFT:
+            {
+                navigateTruncated(seekOption::back);
+                if(input == 10)
+                    goto chose;
+                continue;
+            }
+            case 10:
+                chose:
+                choice = highlight;
+                break;
+            case 27:
+                //ESC hit
+                return 0;
+        }
+
+        /*Check if already chosen and render check marks*/
+        /*for(int choice : chosen)
+        {
+            //Already toggled
+            if(choice == menuChoice)
+            {
+                chosen.erase(chosen.begin() +menuChoice);
+                mvwprintw(selectionMenuWin, choice, width -1, " ");
+            }
+            else
+            {
+                chosen.push_back(menuChoice);
+                mvwprintw(selectionMenuWin, choice, width -1, "X");
+            }
+        }
+        wgetch(menuWin);*/
+
+        menuHighlight();
+
+        //User made a decision, exit
+        if (choice != 0)
+            return choice;
+    }
 }
 
-inline void Menu::printHorizontal(int& x, std::vector<std::string> array, int currentIndex)
-	{ x += array[currentIndex].size(); }
-inline void Menu::printVertical(int& y)
-	{ ++y; }
-inline void Menu::setPrintOrientation(bool orientation)
-	{ printLabelVertical = orientation; }
 void Menu::setDrawBorder(bool draw, int bordersWE, int bordersNS)
 {
-	drawBorder = draw;
-	this->bordersWE  = bordersWE;
-	this->bordersNS = bordersNS;
+    drawBorder = draw;
+    this->bordersWE  = bordersWE;
+    this->bordersNS = bordersNS;
 }
-void Menu::menuHighlight(WINDOW *menu_win, int highlight, int xLable, int yLable)
+void Menu::menuHighlight()
 {
-	int x, y;
+    int x, y;
 
-	//Postioning of choice lables in window
-	x = xLable;
-	y = yLable;
+    //Start postion of choice lables in window
+    x = paddingx;
+    y = paddingy;
 
-	for (int i = 0; i < numChoices; ++i)
-	{
-		//Highlight the present choice
-		if (highlight == i + 1)
-		{
-			wattron(menu_win, A_REVERSE);
-			mvwprintw(menu_win, y, x, "%s", choices[i].c_str());
-			wattroff(menu_win, A_REVERSE);
-		}
-		else
-			mvwprintw(menu_win, y, x, "%s", choices[i].c_str());
-		//Move to next line, or column, for next label
-		if (printLabelVertical)
-			printVertical(y);
-		else
-			printHorizontal(x, choices, i);
-	}
-	wrefresh(menu_win);
+    //Print options
+    for (int i = (page -1) * maxLines; i < (page * maxLines) && i < choices.size(); ++i)
+    {
+        //Highlight the present choice
+        if (highlight == i + 1)
+        {
+            wattron(menuWin, A_REVERSE);
+            mvwprintw(menuWin, y, x, "%s", choices[i].c_str());
+            wattroff(menuWin, A_REVERSE);
+        }
+        else
+            mvwprintw(menuWin, y, x, "%s", choices[i].c_str());
+
+        ++y;
+    }
+    wrefresh(menuWin);
 }
 
 
 ttyProgressDialog::ttyProgressDialog(WINDOW* dialog_win, std::string title, int height, int width, int starty, int startx, std::string message)
 {
-	dialogWin     = dialog_win;
-	this->title   = title;
-	this->message = message;
-	this->height  = height;
-	this->width   = width;
-	this->starty  = starty;
-	this->startx  = startx;
+    dialogWin     = dialog_win;
+    this->title   = title;
+    this->message = message;
+    this->height  = height;
+    this->width   = width;
+    this->starty  = starty;
+    this->startx  = startx;
 
-	drawBorder = true;
-	bordersWE  = 0;
-	bordersNS  = 0;
+    drawBorder = true;
+    bordersWE  = 0;
+    bordersNS  = 0;
 
-	this->dialogWin = dialog_win;
+    this->dialogWin = dialog_win;
 }
 
 void ttyProgressDialog::setDrawBorder(bool draw, int bordersWE, int bordersNS)
 {
-	drawBorder = draw;
-	this->bordersWE  = bordersWE;
-	this->bordersNS = bordersNS;
+    drawBorder = draw;
+    this->bordersWE  = bordersWE;
+    this->bordersNS = bordersNS;
 }
 bool ttyProgressDialog::Update(double progress, std::string message)
 {
-	/*Update ETA*/
-	//TODO update ETA
+    /*Update ETA*/
+    //TODO update ETA
 
-	/*Update progress bar*/
-	//TODO update progress bar
-	mvwprintw(dialogWin, 5, 2, "%f", progress); //print return of downloader progress info
-	return true;
+    /*Update progress bar*/
+    //TODO update progress bar
+    mvwprintw(dialogWin, 5, 2, "%f", progress); //print return of downloader progress info
+    return true;
 }
 void ttyProgressDialog::dialog()
 {
-	/*Create title and message*/
-	mvwprintw(dialogWin, 0, 2, title.c_str());
-	mvwprintw(dialogWin, 2, 2, message.c_str());
+    /*Create title and message*/
+    mvwprintw(dialogWin, 0, 2, title.c_str());
+    mvwprintw(dialogWin, 2, 2, message.c_str());
 
-	/*Create ETA*/
-	//This will be on the 4th line => index 3
-	//TODO add ETA
+    /*Create ETA*/
+    //This will be on the 4th line => index 3
+    //TODO add ETA
 
-	/*Create progress bar*/
-	//This will be on the 5th line => index 4
-	//Generate bar text
-	std::string pBar = { " []" };
-	int padding = 2;
-	for(int i = 0; i < ( width - (int(pBar.length()) + (padding *2) ) ); ++i)
-		pBar.insert(2, " "); //Insert between square brackets
+    /*Create progress bar*/
+    //This will be on the 5th line => index 4
+    //Generate bar text
+    std::string pBar = { " [" };
+    int padding = 2;
+    for(int i = 0; i < ( width - (int(pBar.length()) + (padding *2) ) ); ++i)
+        pBar += " ";
+    pBar += "]";
 
-	mvwprintw(dialogWin, 4, 2, pBar.c_str());
+    mvwprintw(dialogWin, 4, 2, pBar.c_str());
 }
