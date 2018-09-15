@@ -10,8 +10,9 @@
 #define  CURSESIO_H
 
 #include <vector>
+#include <map>
 #include <string>
-#include <math.h>
+#include <math.h> //ceil
 
 #ifdef WIN32
 #include <cursesw.h>
@@ -42,19 +43,28 @@ private:
     int height, width, starty, startx, paddingy, paddingx;
 
     std::vector<std::string> choices;
-    int numChoices, page, pageSize, highlight;
+
+    std::multimap<int,std::string> truncated;
+    //Stores info about what piece of truncated string to show
+    //        First set of strings matching trunc line , second set of strings matching trunc line
+    std::pair<std::multimap<int,std::string>::iterator, std::multimap<int,std::string>::iterator> beginNend;
+    std::multimap<int,std::string>::iterator it;
+
+    int numChoices, page, maxLines, maxChars, highlight;
 
     virtual void menuHighlight();
 
     //Only to be used by menuLoop
-	enum seekOption { back, next };
+    enum seekOption { back, next };
     void calculatePage(seekOption seek);
     void draw();
+    void truncStr(std::string& text, int line);
+    void truncNav(seekOption way, int& input);
 public:
     Menu(WINDOW* menu_win, std::vector<std::string> choices, std::string title, int pady=2, int padx=2);
     Menu(WINDOW* menu_win, int height, int width, int starty, int startx, std::vector<std::string> choices, std::string title, int pady, int padx);
 
-    virtual int menuLoop(int startChoice=1);    
+    virtual int menuLoop(int startChoice=1);
 
     void setDrawBorder(bool draw=true, int bordersWE=0, int bordersNS=0);
 };
@@ -79,6 +89,5 @@ private:
 
     std::string message;
 };
-
 
 #endif //CURSESIO_H
