@@ -18,7 +18,7 @@
 #include <gimxupdater/Updater.h>
 
 #include "cursesIO.h"
-
+using namespace EasyCurses;
 
 /*Configuration file downloaders*/
 //Common
@@ -52,7 +52,7 @@ public:
 private:
     void* clientp;
 
-    int height, width, starty, startx;
+    int height, width, startY, startX;
     WINDOW* selectionMenuWin;
     WINDOW* downloadWin;
 
@@ -77,7 +77,7 @@ public:
 private:
     void* clientp;
 
-    int height, width, starty, startx;
+    int height, width, startY, startX;
     WINDOW* downloadWin;
     
     ttyProgressDialog* progressDialog;

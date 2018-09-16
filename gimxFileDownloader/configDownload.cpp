@@ -45,7 +45,7 @@ int updateProgress_common(ttyProgressDialog* progressDialog, configupdater::Conf
 ManualConfigDownload::ManualConfigDownload()
 {
     getmaxyx(stdscr, height, width);
-    downloadWin = newwin(height, width, starty, startx);
+    downloadWin = newwin(height, width, startY, startX);
 }
 
 int ManualConfigDownload::updateProgress(configupdater::ConfigUpdaterStatus status, double progress, double total)
@@ -69,11 +69,11 @@ int ManualConfigDownload::chooseConfig()
 {
     /*Choose configs*/
         /*Create the selection menu window*/
-    int starty, startx;
-    starty = 0;
-    startx = 0;
+    int startY, startX;
+    startY = 0;
+    startX = 0;
 
-    std::vector<std::string> options = {"Cancel", "Done"};
+    std::vector<std::string> options;
     for(std::string configName : configList)
         options.push_back(configName);
 
@@ -83,7 +83,7 @@ int ManualConfigDownload::chooseConfig()
         printw("Downloading config list\nConnecting\n");
         refresh();
 
-        ttyProgressDialog pDialog(downloadWin, "Downloading", height, width, 0, 0, "Progress");
+        ttyProgressDialog pDialog(downloadWin);
         initDownload(&pDialog); //Also opens dialog window
         status = configupdater().getconfiglist(configList, progress_callback_configupdater_terminal, this);
         wgetch(downloadWin);//for debugging
@@ -105,53 +105,18 @@ int ManualConfigDownload::chooseConfig()
     for(auto name : configList)
         options.push_back(name);
 
-    selectionMenuWin = newwin(height, width, starty, startx);
-    Menu selectionMenu(selectionMenuWin, options, std::string("Select the files to download"));
+    selectionMenuWin = newwin(height, width, startY, startX);
+    SelectionMenu selectionMenu(selectionMenuWin, options, std::string("Select the files to download"));
 
     /*Stylise the menu borders*/
     //				borders => (bool, we, ns)
     selectionMenu.setDrawBorder(true, 0, 0);
 
-    int menuChoice;
+    selectionMenu.menuLoop();
     std::vector<int> chosen;
-    while(true)
-    {
-        menuChoice = selectionMenu.menuLoop();
-        if(menuChoice == 1)
-            return 1; //User chose to cancel
-        else if(menuChoice == 2)
-        {
-            /*Ensure the selected config list is not empty*/
-            if(!selectedConfigs.empty())
-                break; //Finished choosing
-            else
-            {
-                mvwprintw(stdscr, 0, width, "You must chose at least one config file, or cancel.");
-                continue;
-            }
+    selectionMenu.getResult(chosen);
 
-        }
-        else
-        {
-            /*Check if already chosen and render check marks*/
-            for(int choice : chosen)
-            {
-                //Already toggled
-                if(choice == menuChoice)
-                {
-                    chosen.erase(chosen.begin() +menuChoice);
-                    mvwprintw(selectionMenuWin, choice, width -1, " ");
-                }
-                else
-                {
-                    chosen.push_back(menuChoice);
-                    mvwprintw(selectionMenuWin, choice, width -1, "X");
-                }
-            }
-        }
-    }
-    erase();
-
+    werase(selectionMenuWin);
     /*Check if any chosen configs exist already*/
     for(int cIndex : chosen)
     {
@@ -161,6 +126,7 @@ int ManualConfigDownload::chooseConfig()
         if(check.good())
         {
             wprintw(selectionMenuWin, "Overwrite local file: %s?(y or n)\n", file);
+            wrefresh(selectionMenuWin);
             int c = getch();
 
             //No

@@ -20,74 +20,96 @@
 #include <ncursesw/ncurses.h>
 #endif
 
-
-class MenuBase
+namespace EasyCurses
 {
-protected:
-    //Only to be used by menuLoop
-    virtual void menuHighlight() = 0;
-public:
-    //User must interact with this
-    virtual int menuLoop(int startChoice=1) = 0;
-};
+    //Miscellaneous
+    int centreText(int screenWidth, int textLength, int padding=0);
+    std::string fillString(int textLength, std::string filler=" ");
 
-class Menu : virtual public MenuBase
-{
-private:
-    //Only to be used by menuHighlight()
-    bool drawBorder;
-    int bordersWE, bordersNS;
+    int maxLines(int height, int padding=0);
+    int maxChars(int screenWidth, int padding=0);
 
-    WINDOW* menuWin;
-    std::string title;
-    int height, width, starty, startx, paddingy, paddingx;
 
-    std::vector<std::string> choices;
 
-    std::multimap<int,std::string> truncated;
-    //Stores info about what piece of truncated string to show
-    //        First set of strings matching trunc line , second set of strings matching trunc line
-    std::pair<std::multimap<int,std::string>::iterator, std::multimap<int,std::string>::iterator> beginNend;
-    std::multimap<int,std::string>::iterator it;
+    class Menus
+    {
+    protected:
+        //Only to be used by menuHighlight()
+        bool drawBorder;
+        int bordersWE, bordersNS;
 
-    int numChoices, page, maxLines, maxChars, highlight;
+        WINDOW* menuWin;
+        std::string title;
+        int height, width, startY, startX, paddingY, paddingX;
 
-    virtual void menuHighlight();
+        //Common math
+        virtual int _maxLines() { return maxLines(height, paddingY); }
+        virtual int _maxChars() { return maxChars(width, paddingX); }
+    public:
+        Menus(WINDOW* menu_win, std::string title, int height, int width, int startY, int startX, int padY, int padX, \
+          bool drawBorder, int bordersWE, int bordersNS);
 
-    //Only to be used by menuLoop
-    enum seekOption { back, next };
-    void calculatePage(seekOption seek);
-    void draw();
-    void truncStr(std::string& text, int line);
-    void truncNav(seekOption way, int& input);
-public:
-    Menu(WINDOW* menu_win, std::vector<std::string> choices, std::string title, int pady=2, int padx=2);
-    Menu(WINDOW* menu_win, int height, int width, int starty, int startx, std::vector<std::string> choices, std::string title, int pady, int padx);
+        //TODO implement capability to re-use menus
+        //virtual void reset() = 0;
+    };
 
-    virtual int menuLoop(int startChoice=1);
+    class SelectionMenu : public Menus
+    {
+    private:
+        std::vector<std::string> choices;
+        std::map<int,std::string> selected;
 
-    void setDrawBorder(bool draw=true, int bordersWE=0, int bordersNS=0);
-};
+        std::multimap<int,std::string> truncated;
+        //Stores info about what piece of truncated string to show
+        //        First set of strings matching trunc line , second set of strings matching trunc line
+        std::pair<std::multimap<int,std::string>::iterator, std::multimap<int,std::string>::iterator> beginNEnd;
+        std::multimap<int,std::string>::iterator it;
 
-class ttyProgressDialog
-{
-public:
-    ttyProgressDialog(WINDOW* dialog_win, int height, int width) : ttyProgressDialog(dialog_win, "Downloading", height, width, 0, 0, "Progress") { }
-    ttyProgressDialog(WINDOW* dialog_win, std::string title, int height, int width, int starty, int startx, std::string message);
+        int numChoices, page, highlight;
 
-    void setDrawBorder(bool draw=true, int bordersWE=0, int bordersNS=0);
+        std::string checkMark = "X";
+        std::string blankMark = "O";
 
-    void dialog();
-    bool Update(double progress, std::string message);
+        //Common math
+        int currentLine() { return highlight -1 +paddingY - (_maxLines() * (page -1)); }
+        int pageBottom() { return ((page -1) * _maxLines()) +1; }
+        int lastPage() { return ceil( float(numChoices) / float(_maxLines()) ); }
+        
+        virtual void menuHighlight();
 
-private:
-    WINDOW* dialogWin;
-    std::string title;
-    int height, width, starty, startx;
-    bool drawBorder;
-    int bordersWE, bordersNS;
+        //Only to be used by menuLoop
+        enum seekOption { back, next };
+        void calculatePage(seekOption seek);
+        void draw();
+        void reDrawCheckMark(int index, int y);
+        void reDrawAllCheckMarks();
+        void prepareStr(std::string& text, int line);
+        void truncNav(seekOption way, int& input);
+    public:
+        SelectionMenu(WINDOW* menu_win, std::vector<std::string> choices, std::string title="Choose some options", int height=0, int width=0, int startY=0, \
+          int startX=0, int padY=2, int padX=2, bool drawBorder=true, int bordersWE=0, int bordersNS=0);
 
-    std::string message;
-};
+        void menuLoop(int startChoice=1);
+        void getResult(std::vector<int>& chosen);
+
+        void setDrawBorder(bool draw=true, int bordersWE=0, int bordersNS=0);
+    };
+
+    class ttyProgressDialog : public Menus
+    {
+    public:
+        ttyProgressDialog(WINDOW* menu_win, std::string title="Downloading", std::string message="Progress", int height=0, int width=0, int startY=0, int startX=0, \
+          int padY=2, int padX=2, bool drawBorder=true, int bordersWE=0, int bordersNS=0);
+
+        void setDrawBorder(bool draw=true, int bordersWE=0, int bordersNS=0);
+
+        void dialog();
+        bool Update(double progress, std::string message);
+
+    private:
+        std::string message;
+    };
+
+}
 
 #endif //CURSESIO_H
