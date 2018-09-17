@@ -30,7 +30,6 @@ int updateProgress_common(ttyProgressDialog* progressDialog, configupdater::Conf
     }
 
     if (status >= 0) {
-        //TODO change pointer to something that updates terminal instead
         if (progressDialog->Update(progress, message) == false) {
             return 1;
         }
@@ -42,11 +41,21 @@ int updateProgress_common(ttyProgressDialog* progressDialog, configupdater::Conf
 }
 
 
-ManualConfigDownload::ManualConfigDownload()
+ConfigDownload::ConfigDownload() : winData(newWinData(stdscr))
 {
-    getmaxyx(stdscr, height, width);
-    downloadWin = newwin(height, width, startY, startX);
+    screen = newwin(winData->height, winData->width, winData->startY, winData->startX);
+    winData->menuWin = screen;
+
+    /*Setup directory strings*/
+    getConfigDir(userDir);
+    /*if(getConfigDir(userDir))
+    {
+        //TODO make it known that the config directory couldn't be found
+    }*/
+    gimxDir = userDir + GIMX_DIR;
+    gimxConfigDir = gimxDir + CONFIG_DIR;
 }
+
 
 int ManualConfigDownload::updateProgress(configupdater::ConfigUpdaterStatus status, double progress, double total)
 {
@@ -60,22 +69,18 @@ void ManualConfigDownload::initDownload(ttyProgressDialog* dialog)
 }
 void ManualConfigDownload::cleanDownload()
 {
-    werase(downloadWin);
-    wrefresh(downloadWin);
+    werase(screen);
+    wrefresh(screen);
     progressDialog = NULL;
 }
 //Return codes => 0 ok, 1 cancelled, 2 something wrong with getting configs
-int ManualConfigDownload::chooseConfig()
+int ManualConfigDownload::chooseConfigs()
 {
     /*Choose configs*/
         /*Create the selection menu window*/
-    int startY, startX;
+    /*int startY, startX;
     startY = 0;
-    startX = 0;
-
-    std::vector<std::string> options;
-    for(std::string configName : configList)
-        options.push_back(configName);
+    startX = 0;*/
 
     /*Download config list*/
     configupdater::ConfigUpdaterStatus status;
@@ -83,30 +88,31 @@ int ManualConfigDownload::chooseConfig()
         printw("Downloading config list\nConnecting\n");
         refresh();
 
-        ttyProgressDialog pDialog(downloadWin);
+        ttyProgressDialog pDialog(winData.get());
         initDownload(&pDialog); //Also opens dialog window
         status = configupdater().getconfiglist(configList, progress_callback_configupdater_terminal, this);
-        wgetch(downloadWin);//for debugging
+        wgetch(screen);//for debugging
         cleanDownload();
     }
 
     if(status == configupdater::ConfigUpdaterStatusCancelled)
-        return 1;
+        return status;
 
     /*Ensure the config list is not empty*/
     if(configList.empty())
     {
         printw("Can't retrieve configs list!\n");
         refresh();
-        return 2;
+        return status;
     }
 
     /*Add config names to options list*/
-    for(auto name : configList)
-        options.push_back(name);
+    std::vector<std::string> options;
+    for(std::string configName : configList)
+        options.push_back(configName);
 
-    selectionMenuWin = newwin(height, width, startY, startX);
-    SelectionMenu selectionMenu(selectionMenuWin, options, std::string("Select the files to download"));
+    SelectionMenu selectionMenu(winData.get(), options);
+    winData->title = "Select the files to download";
 
     /*Stylise the menu borders*/
     //				borders => (bool, we, ns)
@@ -116,18 +122,21 @@ int ManualConfigDownload::chooseConfig()
     std::vector<int> chosen;
     selectionMenu.getResult(chosen);
 
-    werase(selectionMenuWin);
+    werase(screen);
+
+    std::string sel;
+    std::string file;
     /*Check if any chosen configs exist already*/
+    int c;
     for(int cIndex : chosen)
     {
-        std::string sel = options[chosen[cIndex]];
-        std::string file = configDir + sel;
-        std::ifstream check(file);
-        if(check.good())
+        sel = options[cIndex];
+        file = gimxConfigDir + sel;
+        if(fileExists(file))
         {
-            wprintw(selectionMenuWin, "Overwrite local file: %s?(y or n)\n", file);
-            wrefresh(selectionMenuWin);
-            int c = getch();
+            wprintw(screen, "Overwrite local file: %s?(y or n)\n", file.c_str());
+            wrefresh(screen);
+            c = wgetch(screen);
 
             //No
             if(not (c == 121 || c == 89) )
@@ -135,32 +144,29 @@ int ManualConfigDownload::chooseConfig()
         }
         selectedConfigs.push_back(sel);
     }
-    erase();
-    delwin(selectionMenuWin);
+    werase(screen);
 
-    return grabConfig();
+    return grabConfigs();
 }
 
-int ManualConfigDownload::grabConfig()
+int ManualConfigDownload::grabConfigs()
 {
     configupdater::ConfigUpdaterStatus status = configupdater::ConfigUpdaterStatusOk;
+    wprintw(screen, "Downloading\nConnecting\n");
+    wrefresh(screen);
     for (std::list<std::string>::iterator it = selectedConfigs.begin(); it != selectedConfigs.end(); ++it)
-    {
-        printw("Downloading\nConnecting");
-        
-        status = configupdater().getconfig(configDir, *it, progress_callback_configupdater_terminal, this);
+    {   
+        status = configupdater().getconfig(gimxConfigDir, *it, progress_callback_configupdater_terminal, this);
         if (status == configupdater::ConfigUpdaterStatusCancelled)
             break;
     }
     
     //readConfigs();
     if(status == configupdater::ConfigUpdaterStatusOk)
-        printw("Completed\n");
+        wprintw(screen, "Completed\n");
     else if (status != configupdater::ConfigUpdaterStatusCancelled)
-    {
-        printw("Can't retrieve configs!");
-        return 2;
-    }
+        wprintw(screen, "Can't retrieve configs!\n");
 
-    return 0;
+    wrefresh(screen);
+    return status;
 }

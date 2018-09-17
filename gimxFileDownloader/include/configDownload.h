@@ -14,22 +14,39 @@
 #include <vector>
 #include <fstream>
 
+#include <memory>
+
 #include <gimxconfigupdater/configupdater.h>
 #include <gimxupdater/Updater.h>
 
+#include "misc.h"
 #include "cursesIO.h"
+
+
 using namespace EasyCurses;
 
 /*Configuration file downloaders*/
 //Common
 int updateProgress_common(ttyProgressDialog* progressDialog, configupdater::ConfigUpdaterStatus status, double progress, double total);
 
-//Abstraction
 class ConfigDownload
 {
+protected:
+    std::string userDir;
+    std::string gimxDir;
+    std::string gimxConfigDir;
+
+    WINDOW* screen;
+    std::unique_ptr<WinData> winData;
+
+    ttyProgressDialog* progressDialog;
+
 public:
-    virtual int chooseConfig() = 0;
-    virtual int grabConfig() = 0;
+    ConfigDownload();
+    virtual ~ConfigDownload() { delwin(screen); }
+
+    virtual int chooseConfigs() = 0;
+    virtual int grabConfigs() = 0;
 
     virtual void initDownload(ttyProgressDialog* dialog) = 0;
     virtual void cleanDownload() = 0;
@@ -39,11 +56,8 @@ public:
 class ManualConfigDownload : public ConfigDownload
 {
 public:
-    ManualConfigDownload();
-    virtual ~ManualConfigDownload() { delwin(downloadWin); delwin(selectionMenuWin); }
-
-    int chooseConfig();
-    int grabConfig();
+    int chooseConfigs();
+    int grabConfigs();
 
     void initDownload(ttyProgressDialog* dialog);
     void cleanDownload();
@@ -52,23 +66,20 @@ public:
 private:
     void* clientp;
 
-    int height, width, startY, startX;
+    /*int height, width, startY, startX;
     WINDOW* selectionMenuWin;
-    WINDOW* downloadWin;
-
-    ttyProgressDialog* progressDialog;
+    WINDOW* downloadWin;*/
 
     //Information needed to allow user to choose config(s)
     std::list<std::string> configList;
     std::list<std::string> selectedConfigs;
-    std::string configDir;
 };
 
 class AutoConfigDownload : public ConfigDownload
 {
 public:
-    int chooseConfig();
-    int grabConfig();
+    int chooseConfigs();
+    int grabConfigs();
 
     void initDownload(ttyProgressDialog* dialog);
     void cleanDownload();
@@ -77,10 +88,8 @@ public:
 private:
     void* clientp;
 
-    int height, width, startY, startX;
-    WINDOW* downloadWin;
-    
-    ttyProgressDialog* progressDialog;
+    /*int height, width, startY, startX;
+    WINDOW* downloadWin;*/
 };
 
 
