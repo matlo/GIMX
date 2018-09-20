@@ -30,7 +30,7 @@ int updateProgress_common(ttyProgressDialog* progressDialog, configupdater::Conf
     }
 
     if (status >= 0) {
-        if (progressDialog->Update(progress, message) == false) {
+        if (progressDialog->update(progress, message) == false) {
             return 1;
         }
     } else {
@@ -44,7 +44,8 @@ int updateProgress_common(ttyProgressDialog* progressDialog, configupdater::Conf
 ConfigDownload::ConfigDownload() : winData(newWinData(stdscr))
 {
     screen = newwin(winData->height, winData->width, winData->startY, winData->startX);
-    winData->menuWin = screen;
+    winData->win = screen;
+    progressDialog.reset(new ttyProgressDialog(winData.get(), "Downloading"));
 
     /*Setup directory strings*/
     getConfigDir(userDir);
@@ -59,41 +60,29 @@ ConfigDownload::ConfigDownload() : winData(newWinData(stdscr))
 
 int ManualConfigDownload::updateProgress(configupdater::ConfigUpdaterStatus status, double progress, double total)
 {
-    return updateProgress_common(progressDialog, status, progress, total);
+    return updateProgress_common(progressDialog.get(), status, progress, total);
 }
 
-void ManualConfigDownload::initDownload(ttyProgressDialog* dialog)
+void ManualConfigDownload::initDownload()
 {
-    progressDialog = dialog;
     progressDialog->dialog();
 }
 void ManualConfigDownload::cleanDownload()
 {
+    progressDialog->resetPBar();
     werase(screen);
     wrefresh(screen);
-    progressDialog = NULL;
 }
 //Return codes => 0 ok, 1 cancelled, 2 something wrong with getting configs
 int ManualConfigDownload::chooseConfigs()
 {
-    /*Choose configs*/
-        /*Create the selection menu window*/
-    /*int startY, startX;
-    startY = 0;
-    startX = 0;*/
+    configupdater::ConfigUpdaterStatus status;
 
     /*Download config list*/
-    configupdater::ConfigUpdaterStatus status;
-    {
-        printw("Downloading config list\nConnecting\n");
-        refresh();
-
-        ttyProgressDialog pDialog(winData.get());
-        initDownload(&pDialog); //Also opens dialog window
-        status = configupdater().getconfiglist(configList, progress_callback_configupdater_terminal, this);
-        wgetch(screen);//for debugging
-        cleanDownload();
-    }
+    initDownload();
+    status = configupdater().getconfiglist(configList, progress_callback_configupdater_terminal, this);
+    wgetch(screen);//for debugging
+    cleanDownload();
 
     if(status == configupdater::ConfigUpdaterStatusCancelled)
         return status;
@@ -111,8 +100,7 @@ int ManualConfigDownload::chooseConfigs()
     for(std::string configName : configList)
         options.push_back(configName);
 
-    SelectionMenu selectionMenu(winData.get(), options);
-    winData->title = "Select the files to download";
+    SelectionMenu selectionMenu(winData.get(), options, "Select the files to download");
 
     /*Stylise the menu borders*/
     //				borders => (bool, we, ns)
@@ -152,16 +140,19 @@ int ManualConfigDownload::chooseConfigs()
 int ManualConfigDownload::grabConfigs()
 {
     configupdater::ConfigUpdaterStatus status = configupdater::ConfigUpdaterStatusOk;
-    wprintw(screen, "Downloading\nConnecting\n");
-    wrefresh(screen);
-    for (std::list<std::string>::iterator it = selectedConfigs.begin(); it != selectedConfigs.end(); ++it)
-    {   
-        status = configupdater().getconfig(gimxConfigDir, *it, progress_callback_configupdater_terminal, this);
-        if (status == configupdater::ConfigUpdaterStatusCancelled)
-            break;
+    if(!selectedConfigs.empty())
+    {
+        initDownload();
+        for (std::list<std::string>::iterator it = selectedConfigs.begin(); it != selectedConfigs.end(); ++it)
+        {
+            status = configupdater().getconfig(gimxConfigDir, *it, progress_callback_configupdater_terminal, this);
+            if (status == configupdater::ConfigUpdaterStatusCancelled)
+                break;
+        }
+        wgetch(screen);//for debugging
+        cleanDownload();
     }
-    
-    //readConfigs();
+
     if(status == configupdater::ConfigUpdaterStatusOk)
         wprintw(screen, "Completed\n");
     else if (status != configupdater::ConfigUpdaterStatusCancelled)
