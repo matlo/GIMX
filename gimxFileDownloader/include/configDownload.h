@@ -14,7 +14,7 @@
 #include <vector>
 #include <fstream>
 
-#include <memory>
+#include <memory> //for smart pointers
 
 #include <gimxconfigupdater/configupdater.h>
 #include <gimxupdater/Updater.h>
@@ -39,7 +39,7 @@ protected:
     WINDOW* screen;
     std::unique_ptr<WinData> winData;
 
-    ttyProgressDialog* progressDialog;
+    std::unique_ptr<ttyProgressDialog> progressDialog;
 
 public:
     ConfigDownload();
@@ -48,7 +48,7 @@ public:
     virtual int chooseConfigs() = 0;
     virtual int grabConfigs() = 0;
 
-    virtual void initDownload(ttyProgressDialog* dialog) = 0;
+    virtual void initDownload() = 0;
     virtual void cleanDownload() = 0;
     virtual int updateProgress(configupdater::ConfigUpdaterStatus status, double progress, double total) = 0;
 };
@@ -59,7 +59,7 @@ public:
     int chooseConfigs();
     int grabConfigs();
 
-    void initDownload(ttyProgressDialog* dialog);
+    void initDownload();
     void cleanDownload();
     int updateProgress(configupdater::ConfigUpdaterStatus status, double progress, double total);
 
@@ -81,7 +81,7 @@ public:
     int chooseConfigs();
     int grabConfigs();
 
-    void initDownload(ttyProgressDialog* dialog);
+    void initDownload();
     void cleanDownload();
     int updateProgress(configupdater::ConfigUpdaterStatus status, double progress, double total);
 

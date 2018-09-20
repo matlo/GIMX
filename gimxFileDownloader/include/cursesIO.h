@@ -24,10 +24,49 @@ namespace EasyCurses
 {
     //Miscellaneous
     int centreText(int screenWidth, int textLength, int padding=0);
-    std::string fillString(int textLength, std::string filler=" ");
-
+    std::string fillString(int textLength, char filler=' ');
+    void clrToEolFrom(WINDOW* win, int y, int x);
+        //Overwrites with " "
+    void eraseChunk(WINDOW* win, int y, int x, int amount);
+    void eraseChunk(WINDOW* win, int startLine, int endLine, int startX, int endX, int amount);
     int maxLines(int height, int padding=0);
     int maxChars(int screenWidth, int padding=0);
+
+    class ProgressBar
+    {
+        private:
+            char barChar[2];
+            char point[2];
+            std::string prefix;
+            std::string suffix;
+            int barSize;
+            int prevAmount;
+
+            WINDOW* window;
+            int startY, startX, currentX;
+
+            /*TODO create init() which fills in data like constructor. Also create clear().
+            Expose thin wrapper of init(), called reset(), which first calls clear().
+            The aim of these additions is to make this class re-usable*/
+            void init(WINDOW* win, int size, int startY, int startX, std::string prefix="[", char barChar='=', char point='>',
+             std::string suffix="]");
+
+            void parseFormat(char barChar, char point);
+
+        public:
+            ProgressBar(WINDOW* win, int size, int startY, int startX, std::string prefix="[", char barChar='=', char point='>',
+              std::string suffix="]");
+            void reset();
+            void reset(WINDOW* win, int size, int startY, int startX, std::string prefix="[", char barChar='=', char point='>',
+             std::string suffix="]");
+
+            void first();
+            void update(double progress);
+
+            void setWindow(WINDOW* newWin) { window = newWin; }
+            void setSize(int size) { barSize = size - (prefix.length() + suffix.length()); }
+            void setStartCoordinates(int y, int x) { startY = y; startX = x; currentX = x; }
+    };
 
 
     struct WinData
@@ -37,12 +76,11 @@ namespace EasyCurses
         bool drawBorder;
         int bordersWE, bordersNS;
 
-        WINDOW* menuWin;
-        std::string title;
+        WINDOW* win;
         int height, width, startY, startX, paddingY, paddingX;
     };
     //Recommended to store raw pointer in smart pointer
-    WinData* newWinData(WINDOW* menu_win, std::string title="", int height=0, int width=0, int startY=0, int startX=0, int padY=2, int padX=2, \
+    WinData* newWinData(WINDOW* window, int height=0, int width=0, int startY=0, int startX=0, int padY=2, int padX=2, \
       bool drawBorder=true, int bordersWE=0, int bordersNS=0);
       
 
@@ -50,12 +88,13 @@ namespace EasyCurses
     {
     protected:
         WinData* winData;
+        std::string title;
 
         //Common math
-        virtual int _maxLines() { return maxLines(winData->height, winData->paddingY); }
-        virtual int _maxChars() { return maxChars(winData->width, winData->paddingX); }
+        virtual int _maxLines(int padY=0) { return maxLines(winData->height, padY == 0 ? winData->paddingY : padY); }
+        virtual int _maxChars(int padX=0) { return maxChars(winData->width, padX == 0 ? winData->paddingX : padX); }
     public:
-        Menus(WinData* windowsData) : winData(windowsData) { }
+        Menus(WinData* windowsData, std::string title) : winData(windowsData), title(title) { }
 
         //TODO implement capability to re-use menus
         //virtual void reset() = 0;
@@ -94,7 +133,7 @@ namespace EasyCurses
         void prepareStr(std::string& text, int line);
         void truncNav(seekOption way, int& input);
     public:
-        SelectionMenu(WinData* windowsData, std::vector<std::string> choices);
+        SelectionMenu(WinData* windowsData, std::vector<std::string> choices, std::string title="Please chosen an option");
 
         void menuLoop(int startChoice=1);
         void getResult(std::vector<int>& chosen);
@@ -107,13 +146,20 @@ namespace EasyCurses
     private:
         std::string message;
 
+        int progInfoPosY, progInfoPosX;
+        int pBarPosY, pBarPosX;
+
+        std::string progInfo;
+        ProgressBar pBar;
+
     public:
-        ttyProgressDialog(WinData* windowsData, std::string mssg);
+        ttyProgressDialog(WinData* windowsData, std::string title="Progress", std::string mssg="");
 
         void setDrawBorder(bool draw=true, int bordersWE=0, int bordersNS=0);
 
         void dialog();
-        bool Update(double progress, std::string message);
+        bool update(double progress, std::string mssg="");
+        void resetPBar() { pBar.reset(); }
     };
 
 }

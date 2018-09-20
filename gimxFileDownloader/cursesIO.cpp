@@ -12,25 +12,104 @@ namespace EasyCurses
 {
     //Miscellaneous
     int centreText(int screenWidth, int textLength, int padding) { return (screenWidth - (textLength + (padding *2) )) / 2; }
-    std::string fillString(int textLength, std::string filler)
+    std::string fillString(int textLength, char filler)
     {
         std::string temp;
         for(int i = 0; i < textLength; ++i)
             temp += filler;
         return temp;
     }
-    //-1 so 0 initialised
+
+    void clrToEolFrom(WINDOW* win, int y, int x)
+    {
+        wmove(win, y, x);
+        wclrtoeol(win);
+    }
+    void eraseChunk(WINDOW* win, int y, int x, int amount)
+    {
+        mvwprintw(win, y, x, fillString(amount).c_str());
+    }
+    void eraseChunk(WINDOW* win, int startLine, int endLine, int startX, int endX, int amount)
+    {
+        if(startLine == endLine)
+            eraseChunk(win, startLine, startX, endX - startX);
+        else
+            clrToEolFrom(win, startLine, startX); //first line
+
+        for(int currentLine = startLine +1; currentLine < endLine; ++currentLine)
+        {
+            if(currentLine != endLine)
+                clrToEolFrom(win, currentLine, 0); //Middle
+        }
+    }
+
     int maxLines(int height, int padding) { return height - (padding *2); }
     int maxChars(int screenWidth, int padding) { return screenWidth - (padding *2); }
 
 
-    WinData* newWinData(WINDOW* menu_win, std::string title, int height, int width, int startY, int startX, int padY, int padX, \
+    ProgressBar::ProgressBar(WINDOW* win, int size, int startY, int startX, std::string prefix, char barChar, char point, std::string suffix)
+    {
+        init(win, size, startY, startX, prefix, barChar, point, suffix);
+    }
+    void ProgressBar::init(WINDOW* win, int size, int startY, int startX, std::string prefix, char barChar, char point, std::string suffix)
+    {
+        /*Setup values and generate progress bar*/
+        this->prefix     = prefix;
+        this->suffix     = suffix;
+        this->barChar[0] = barChar;
+        this->point[0]   = point;
+        this->barChar[1] = 0;
+        this->point[1]   = 0;
+        setSize(size);
+        prevAmount = 0;
+
+        window = win;
+        this->startY = startY;
+        this->startX = startX;
+        currentX = this->startX;
+    }
+    void ProgressBar::reset()
+    {
+        prevAmount = 0;
+        currentX   = this->startX;;
+    }
+    void ProgressBar::reset(WINDOW* win, int size, int startY, int startX, std::string prefix, char barChar, char point, std::string suffix)
+    {
+        init(win, size, startY, startX, prefix, barChar, point, suffix);
+    }
+
+    void ProgressBar::first()
+    {
+        //-1 so zero initialised like progress
+        mvwprintw(window, startY, startX, "%s%s%s%s", prefix.c_str(), point, fillString(barSize -1).c_str(), suffix.c_str());
+        currentX += prefix.length();
+    }
+    void ProgressBar::update(double progress)
+    {
+        /*Only print difference between the last and future render*/
+        //Progress needs to be a fraction to convert progress % into % of progress bar
+        int amount = (progress /100) * barSize;
+        int diff   = amount - prevAmount;
+
+        mvwprintw(window, startY, currentX, fillString(diff, barChar[0]).c_str());
+
+        currentX += diff;
+        prevAmount = amount;
+
+        /*mvwprintw(window, startY +1, startX, "width = %i barSize = %i currentX = %i diff = %i amount = %i prevAmount = %i\n" \
+        "prefix = %s barChar = %s point = %s suffix = %s", COLS, barSize, currentX, diff, amount, prevAmount, prefix.c_str(), barChar, point, suffix.c_str());*/
+
+        if(diff != 0 && amount < barSize)
+            mvwprintw(window, startY, currentX, "%s", point);
+    }
+
+
+    WinData* newWinData(WINDOW* window, int height, int width, int startY, int startX, int padY, int padX, \
       bool drawBorder, int bordersWE, int bordersNS)
     {
         WinData* data = new WinData;
-
-        data->title   = title;
-        data->menuWin = menu_win;
+        
+        data->win = window;
         
         data->drawBorder = drawBorder;
         data->bordersWE  = bordersWE;
@@ -41,11 +120,11 @@ namespace EasyCurses
         data->startY   = startY;
         data->startX   = startX;
         if(height == 0)
-            data->height = getmaxy(data->menuWin);
+            data->height = getmaxy(data->win);
         else
             data->height = height;
-        if(data->width == 0)
-            data->width = getmaxx(data->menuWin);
+        if(width == 0)
+            data->width  = getmaxx(data->win);
         else
             data->width  = width;
         
@@ -53,12 +132,12 @@ namespace EasyCurses
     }
     
 
-    SelectionMenu::SelectionMenu(WinData* windowsData, std::vector<std::string> choices) : Menus(windowsData)
+    SelectionMenu::SelectionMenu(WinData* windowsData, std::vector<std::string> choices, std::string title) : Menus(windowsData, title)
     {
         this->choices = choices;
         numChoices    = choices.size();
 
-        keypad(winData->menuWin, true);
+        keypad(winData->win, true);
 
         for(int i = 0; i < numChoices; ++i)
             selected[i +1] = blankMark;
@@ -77,7 +156,7 @@ namespace EasyCurses
 
     void SelectionMenu::reDrawCheckMark(int index, int y)
     {
-        mvwprintw(winData->menuWin, y, winData->width -1, selected[index].c_str());
+        mvwprintw(winData->win, y, winData->width -1, selected[index].c_str());
     }
     void SelectionMenu::reDrawAllCheckMarks()
     {
@@ -90,18 +169,18 @@ namespace EasyCurses
     }
     void SelectionMenu::draw()
     {
-        werase(winData->menuWin);
+        werase(winData->win);
 
         if(winData->drawBorder)
-            box(winData->menuWin, winData->bordersWE, winData->bordersNS);
+            box(winData->win, winData->bordersWE, winData->bordersNS);
         reDrawAllCheckMarks();
 
         int titlePos = 1;
-        if(winData->width > winData->title.length() )
-            titlePos = centreText(winData->width, winData->title.length(), winData->paddingX);
-        mvwprintw(winData->menuWin, 0, titlePos, winData->title.c_str());
+        if(winData->width > title.length() )
+            titlePos = centreText(winData->width, title.length(), winData->paddingX);
+        mvwprintw(winData->win, 0, titlePos, title.c_str());
 
-        mvwprintw(winData->menuWin, winData->height -1, 0, "pg %i / %i", page, lastPage());
+        mvwprintw(winData->win, winData->height -1, 0, "pg %i / %i", page, lastPage());
     }
     void SelectionMenu::calculatePage(seekOption seek)
     {
@@ -183,10 +262,9 @@ namespace EasyCurses
                     if(it != beginNEnd.first)
                         --it;
                     else
-                    {
                         it = beginNEnd.second;
-                    }
                     break;
+
                 case seekOption::next:
                     if(it != beginNEnd.second)
                         ++it;
@@ -195,16 +273,16 @@ namespace EasyCurses
                     break;
             }
 
-            wmove(winData->menuWin, currentLine(), winData->paddingX);
-            wclrtoeol(winData->menuWin);
-            wattron(winData->menuWin, A_REVERSE);
-            mvwprintw(winData->menuWin, currentLine(), winData->paddingX, (*it).second.c_str());
-            wattroff(winData->menuWin, A_REVERSE);
+            wmove(winData->win, currentLine(), winData->paddingX);
+            wclrtoeol(winData->win);
+            wattron(winData->win, A_REVERSE);
+            mvwprintw(winData->win, currentLine(), winData->paddingX, (*it).second.c_str());
+            wattroff(winData->win, A_REVERSE);
 
             reDrawCheckMark(highlight, currentLine());
-            wrefresh(winData->menuWin);
+            wrefresh(winData->win);
 
-            input = wgetch(winData->menuWin);
+            input = wgetch(winData->win);
             switch(input)
             {
                 case KEY_RIGHT:
@@ -238,7 +316,7 @@ namespace EasyCurses
             if(beginNEnd.first == beginNEnd.second)
             {
                 //Due to feedback design of truncNav, need new input to prevent lock-up
-                input = wgetch(winData->menuWin);
+                input = wgetch(winData->win);
                 return;
             }
 
@@ -303,9 +381,9 @@ namespace EasyCurses
             }
 
             menuHighlight();
-            wrefresh(winData->menuWin);
+            wrefresh(winData->win);
 
-            input = wgetch(winData->menuWin);
+            input = wgetch(winData->win);
         }
     }
 
@@ -329,54 +407,79 @@ namespace EasyCurses
             //Highlight the present choice
             if (highlight == i + 1)
             {
-                wattron(winData->menuWin, A_REVERSE);
-                mvwprintw(winData->menuWin, y, x, choices[i].c_str());
-                wattroff(winData->menuWin, A_REVERSE);
+                wattron(winData->win, A_REVERSE);
+                mvwprintw(winData->win, y, x, choices[i].c_str());
+                wattroff(winData->win, A_REVERSE);
             }
             else
-                mvwprintw(winData->menuWin, y, x, "%s", choices[i].c_str());
+                mvwprintw(winData->win, y, x, "%s", choices[i].c_str());
 
             ++y;
         }
     }
 
 
-    ttyProgressDialog::ttyProgressDialog(WinData* windowsData, std::string mssg) : Menus(windowsData)
+    ttyProgressDialog::ttyProgressDialog(WinData* windowsData, std::string title, std::string mssg) : Menus(windowsData, title),
+      pBar(windowsData->win, 0, 0, 0), message(mssg), progInfo("")
     {
-        this->message  = mssg;
+        //+2 to have space between eta data and message
+        progInfoPosY = winData->paddingY +2;
+        progInfoPosX = winData->paddingX;
+
+        pBarPosY = progInfoPosY +1;
+        pBarPosX = progInfoPosX;
     }
 
     void ttyProgressDialog::setDrawBorder(bool draw, int bordersWE, int bordersNS)
     {
         winData->drawBorder = draw;
         winData->bordersWE  = bordersWE;
-        winData->bordersNS = bordersNS;
+        winData->bordersNS  = bordersNS;
     }
-    bool ttyProgressDialog::Update(double progress, std::string message)
+
+    bool ttyProgressDialog::update(double progress, std::string mssg)
     {
+        if(!mssg.empty())
+        {
+            int diff = message.length() - mssg.length();
+            if(diff > 0)
+                eraseChunk(winData->win, winData->paddingY, winData->paddingX +mssg.length(), diff);
+
+            message = mssg;
+            mvwprintw(winData->win, winData->paddingY, winData->paddingX, message.c_str());
+        }
+
         /*Update ETA*/
-        //TODO update ETA
+        //TODO add ETA
+        mvwprintw(winData->win, progInfoPosY, progInfoPosX, "%*.2f%%", 6, progress);
 
         /*Update progress bar*/
-        //TODO update progress bar
-        //mvwprintw(winData->menuWin, 4, winData->paddingX +1, "%f", progress);
+        pBar.update(progress);
+
+        wrefresh(winData->win);
         return true;
     }
     void ttyProgressDialog::dialog()
     {
         /*Create title and message*/
-        mvwprintw(winData->menuWin, 1, winData->paddingX, winData->title.c_str());
-        mvwprintw(winData->menuWin, winData->paddingY, winData->paddingX, message.c_str());
+        {
+            int x = centreText(winData->width, title.length(), winData->paddingX);
+            mvwprintw(winData->win, 0, x, title.c_str());
+        }
+        mvwprintw(winData->win, winData->paddingY, winData->paddingX, message.c_str());
 
         /*Create ETA*/
         //This will be on the 4th line => index 3
         //TODO add ETA
+        mvwprintw(winData->win, progInfoPosY, progInfoPosX, progInfo.c_str());
 
-        /*Create progress bar*/
+        /*Create space for progress bar*/
         //This will be on the 5th line => index 4
-        //Generate bar text
+        pBar.setStartCoordinates(pBarPosY, pBarPosX);
+        pBar.setSize(winData->width - (winData->paddingX *2));
+        pBar.first();
 
-        mvwprintw(winData->menuWin, 4, winData->paddingX, "[%s]", fillString( winData->width - (winData->paddingX *2) ).c_str());
+        wrefresh(winData->win);
     }
 
 }
