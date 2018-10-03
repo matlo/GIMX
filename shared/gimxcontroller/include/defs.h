@@ -37,6 +37,7 @@ typedef enum
   C_TYPE_DF_PS2,
   C_TYPE_DFP_PS2,
   C_TYPE_GTF_PS2,
+  C_TYPE_G920_XONE,
   // <- add new types here
   C_TYPE_NONE,
   C_TYPE_MAX = C_TYPE_NONE,

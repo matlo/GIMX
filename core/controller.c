@@ -316,10 +316,38 @@ static void dump(unsigned char * packet, unsigned char length)
     dump(DATA, LENGTH); \
   }
 
+static void dump2(const unsigned char * packet, unsigned char length)
+{
+  int i;
+  for (i = 0; i < length; ++i)
+  {
+    if (i > 0) {
+      ginfo(":");
+    }
+    ginfo("%02x", packet[i]);
+  }
+  ginfo("\n");
+}
+
+#define DEBUG_PACKET2(STR, DATA, LENGTH) \
+  if(gimx_params.debug.controller) \
+  { \
+    ginfo("%s", STR); \
+    dump2(DATA, LENGTH); \
+  }
+
 static int adapter_forward(int adapter, unsigned char type, unsigned char* data, unsigned char length)
 {
   if(adapters[adapter].serial.device != NULL)
   {
+    if (type == BYTE_IN_REPORT
+            && adapters[adapter].controller.interface != NULL
+            && adapters[adapter].controller.interface->fp_process_in != NULL
+            && adapters[adapter].controller.state != NULL) {
+        DEBUG_PACKET2("IN >> ", data, length)
+        adapters[adapter].controller.interface->fp_process_in(adapters[adapter].controller.state, data, length);
+        return 0;
+    }
     DEBUG_PACKET(type, data, length)
     s_packet packet =
     {
@@ -361,7 +389,7 @@ static int adapter_forward_control_out(int adapter, unsigned char* data, unsigne
   return usb_send_control(adapter, data, length);
 }
 
-static int adapter_forward_interrupt_out(int adapter, unsigned char* data, unsigned char length)
+static int adapter_forward_interrupt_out(int adapter, const unsigned char* data, unsigned char length)
 {
   if(adapters[adapter].ctype == C_TYPE_XONE_PAD && data[0] == 0x06 && data[1] == 0x20)
   {
@@ -388,7 +416,9 @@ static int adapter_process_packet(int adapter, s_packet* packet)
 
   if (type != BYTE_DEBUG) // always dumped, see below
   {
-    DEBUG_PACKET(type, data, length)
+    if (adapters[adapter].controller.interface == NULL) {
+      DEBUG_PACKET(type, data, length)
+    }
   }
 
   if(type == BYTE_CONTROL_DATA)
@@ -402,6 +432,27 @@ static int adapter_process_packet(int adapter, s_packet* packet)
   }
   else if(type == BYTE_OUT_REPORT)
   {
+    if (!adapters[adapter].forward_out_reports) {
+        haptic_core_process_report(adapters[adapter].ff_core, length, data);
+        haptic_core_update(adapters[adapter].ff_core);
+    }
+    if (adapters[adapter].controller.interface != NULL
+            && adapters[adapter].controller.interface->fp_process_out != NULL
+            && adapters[adapter].controller.state != NULL) {
+        adapters[adapter].controller.interface->fp_process_out(adapters[adapter].controller.state, data, length);
+        DEBUG_PACKET2("OUT >> ", data, length);
+
+        size_t length = 0;
+        const uint8_t * data  = adapters[adapter].controller.interface->fp_get_out(adapters[adapter].controller.state, &length);
+
+        if (data != NULL) {
+            if (adapter_forward_interrupt_out(adapter, data, length) < 0) {
+                ret = -1;
+            }
+            DEBUG_PACKET2("OUT << ", data, length)
+        }
+        return 0;
+    }
     if (adapters[adapter].forward_out_reports)
     {
       ret = adapter_forward_interrupt_out(adapter, data, length);
@@ -409,11 +460,6 @@ static int adapter_process_packet(int adapter, s_packet* packet)
       {
         gerror("failed to forward interrupt out packet to game controller\n");
       }
-    }
-    else
-    {
-      haptic_core_process_report(adapters[adapter].ff_core, length, data);
-      haptic_core_update(adapters[adapter].ff_core);
     }
   }
   else if(type == BYTE_DEBUG)
@@ -663,6 +709,7 @@ e_gimx_status adapter_detect()
                 case C_TYPE_G29_PS4:
                 case C_TYPE_G27_PS3:
                 case C_TYPE_XONE_PAD:
+                case C_TYPE_G920_XONE:
                 case C_TYPE_360_PAD:
                   if(status == BYTE_STATUS_STARTED)
                   {
@@ -701,6 +748,7 @@ e_gimx_status adapter_detect()
                     ret = E_GIMX_STATUS_AUTH_MISSING_PS4;
                     break;
                 case C_TYPE_XONE_PAD:
+                case C_TYPE_G920_XONE:
                     ret = E_GIMX_STATUS_AUTH_MISSING_XONE;
                     break;
                 default:
@@ -843,6 +891,9 @@ int adapter_start()
         {
           adapter->forward_out_reports = 1; // force forwarding out reports until the authentication is successful.
         }
+
+        adapter->controller.state = controller_init(adapter->ctype, adapter->axis);
+        adapter->controller.interface = controller_get_interface(adapter->ctype);
 
         if(adapter_send_short_command(i, BYTE_START) < 0)
         {
@@ -1010,41 +1061,55 @@ int adapter_send()
             }
           }
 
-          unsigned int index = controller_build_report(adapter->ctype, adapter->axis, adapter->report);
+          if (adapter->ctype != C_TYPE_G920_XONE) {
 
-          s_report_packet* report = adapter->report+index;
+              unsigned int index = controller_build_report(adapter->ctype, adapter->axis, adapter->report);;
+              s_report_packet* report = adapter->report+index;
 
-          switch(adapter->ctype)
-          {
-          case C_TYPE_SIXAXIS:
-            ret = gserial_write(adapter->serial.device, report, HEADER_SIZE+report->length);
-            break;
-          case C_TYPE_DS4:
-            report->value.ds4.report_id = DS4_USB_HID_IN_REPORT_ID;
-            report->length = DS4_USB_INTERRUPT_PACKET_SIZE;
-            ret = gserial_write(adapter->serial.device, report, HEADER_SIZE+report->length);
-            break;
-          case C_TYPE_T300RS_PS4:
-          case C_TYPE_G29_PS4:
-            report->length = DS4_USB_INTERRUPT_PACKET_SIZE;
-            ret = gserial_write(adapter->serial.device, report, HEADER_SIZE+report->length);
-            break;
-          case C_TYPE_XONE_PAD:
-            if(adapter->status)
-            {
-              ret = gserial_write(adapter->serial.device, report, HEADER_SIZE+report->length);
-            }
-            break;
-          default:
-            if(adapter->ctype != C_TYPE_PS2_PAD)
-            {
-              ret = gserial_write(adapter->serial.device, report, HEADER_SIZE+report->length);
-            }
-            else
-            {
-              ret = gserial_write(adapter->serial.device, &report->value.ds2, report->length);
-            }
-            break;
+              switch(adapter->ctype)
+              {
+              case C_TYPE_SIXAXIS:
+                ret = gserial_write(adapter->serial.device, report, HEADER_SIZE+report->length);
+                break;
+              case C_TYPE_DS4:
+                report->value.ds4.report_id = DS4_USB_HID_IN_REPORT_ID;
+                report->length = DS4_USB_INTERRUPT_PACKET_SIZE;
+                ret = gserial_write(adapter->serial.device, report, HEADER_SIZE+report->length);
+                break;
+              case C_TYPE_T300RS_PS4:
+              case C_TYPE_G29_PS4:
+                report->length = DS4_USB_INTERRUPT_PACKET_SIZE;
+                ret = gserial_write(adapter->serial.device, report, HEADER_SIZE+report->length);
+                break;
+              case C_TYPE_XONE_PAD:
+                if(adapter->status)
+                {
+                  ret = gserial_write(adapter->serial.device, report, HEADER_SIZE+report->length);
+                }
+                break;
+              default:
+                if(adapter->ctype != C_TYPE_PS2_PAD)
+                {
+                  ret = gserial_write(adapter->serial.device, report, HEADER_SIZE+report->length);
+                }
+                else
+                {
+                  ret = gserial_write(adapter->serial.device, &report->value.ds2, report->length);
+                }
+                break;
+              }
+          } else {
+              size_t length = 0;
+              const uint8_t * data = adapter->controller.interface->fp_get_in(adapter->controller.state, &length);
+
+              if (data != NULL) {
+                  s_packet report = { .header = { .type = BYTE_IN_REPORT, .length = length } };
+                  memcpy(report.value, data, length);
+                  if (gserial_write(adapter->serial.device, &report, HEADER_SIZE + report.header.length) < 0) {
+                      ret = -1;
+                  }
+                  DEBUG_PACKET2("IN << ", data, length)
+              }
           }
         }
       }
@@ -1162,10 +1227,14 @@ e_gimx_status adapter_clean()
             status = E_GIMX_STATUS_NO_ACTIVATION;
           }
         }
+        controller_clean(adapter->ctype, adapter->controller.state);
+        adapter->controller.state = NULL;
+        adapter->controller.interface = NULL;
         switch(adapter->ctype)
         {
           case C_TYPE_360_PAD:
           case C_TYPE_XONE_PAD:
+          case C_TYPE_G920_XONE:
           case C_TYPE_DS4:
           case C_TYPE_T300RS_PS4:
           case C_TYPE_G29_PS4:

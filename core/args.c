@@ -156,6 +156,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"debug.sixaxis",    no_argument, &params->debug.sixaxis,     1},
     {"debug.config",     no_argument, &params->debug.config,      1},
     {"debug.usb_con",    no_argument, &params->debug.usb_con,     1},
+    {"debug.gimxcontroller", no_argument, &params->debug.gimxcontroller, 1},
     {"debug.gimxhid",    no_argument, &params->debug.gimxhid,     1},
     {"debug.gimxinput",  no_argument, &params->debug.gimxinput,   1},
     {"debug.gimxpoll",   no_argument, &params->debug.gimxpoll,    1},

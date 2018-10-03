@@ -1,5 +1,9 @@
 OBJECTS += $(patsubst %.c,%.o,$(wildcard src/*.c))
 
-CFLAGS += -fPIC -Iinclude
+CPPFLAGS += -Iinclude -I. -I../
+CFLAGS += -fPIC
 
-include ../Makedefs
+LDFLAGS += -L../gimxlog
+LDLIBS += -lgimxlog
+
+include Makedefs

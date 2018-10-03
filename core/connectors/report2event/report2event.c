@@ -35,6 +35,10 @@ static struct
   [C_TYPE_XONE_PAD] =
   {
     .r2e = xOnePad2event
+  },
+  [C_TYPE_G920_XONE] =
+  {
+    .r2e = xOnePad2event
   }
 };
 

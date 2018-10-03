@@ -10,6 +10,8 @@
 #include <string.h>
 #include <unistd.h>
 
+GLOG_INST(GLOG_NAME)
+
 s_controller * controllers[C_TYPE_MAX] = {};
 
 int clamp(int min, int val, int max)
@@ -383,4 +385,28 @@ void controller_get_ids(e_controller_type type, unsigned short * vid, unsigned s
     *vid = controllers[type]->vid;
     *pid = controllers[type]->pid;
   }
+}
+
+struct controller_state * controller_init(e_controller_type type, const int * axes)
+{
+  if (type < C_TYPE_MAX && controllers[type]->fp_init != NULL)
+  {
+    return controllers[type]->fp_init(axes);
+  }
+  return NULL;
+}
+
+void controller_clean(e_controller_type type, struct controller_state * state)
+{
+  if (type < C_TYPE_MAX && controllers[type]->fp_clean != NULL)
+  {
+    controllers[type]->fp_clean(state);
+  }
+}
+const struct controller_interface * controller_get_interface(e_controller_type type) {
+
+    if (type < C_TYPE_MAX) {
+      return controllers[type]->interface;
+    }
+    return NULL;
 }

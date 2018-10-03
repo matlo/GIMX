@@ -69,6 +69,7 @@ typedef struct
       int sixaxis;
       int config;
       int usb_con;
+      int gimxcontroller;
       int gimxhid;
       int gimxinput;
       int gimxpoll;

@@ -34,6 +34,7 @@
 #define USB_PRODUCT_ID_LOGITECH_WII_WHEEL        0xc29c // rumble only
 #define USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2      0xca03 // classic protocol
 #define USB_PRODUCT_ID_LOGITECH_VIBRATION_WHEEL  0xca04 // rumble only
+#define USB_PRODUCT_ID_LOGITECH_G920_XONE_WHEEL  0xc261 // Xbox One protocol
 #define USB_PRODUCT_ID_LOGITECH_G920_WHEEL       0xc262 // hid++ protocol only
 #define USB_PRODUCT_ID_LOGITECH_G29_PC_WHEEL     0xc24f // classic protocol
 #define USB_PRODUCT_ID_LOGITECH_G29_PS4_WHEEL    0xc260 // classic protocol with 1 byte offset

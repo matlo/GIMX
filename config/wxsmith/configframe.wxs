@@ -2039,6 +2039,11 @@
 					<handler function="OnMenuTypeItemSelected" entry="EVT_MENU" />
 					<radio>1</radio>
 				</object>
+				<object class="wxMenuItem" name="ID_MENUITEMG920XONE" variable="MenuItemG920Xone" member="yes">
+					<label>G920 Xbox One</label>
+					<handler function="OnMenuTypeItemSelected" entry="EVT_MENU" />
+					<radio>1</radio>
+				</object>
 			</object>
 			<object class="wxMenu" variable="MenuProfile" member="yes">
 				<label>Profile</label>

@@ -366,6 +366,109 @@ static struct
       }
     }
   } },
+  [C_TYPE_G920_XONE] =
+  { {
+    .name = XONE_NAME,
+    .ids =
+        { .vendor = XONE_VENDOR, .product = XONE_PRODUCT },
+    .configuration = 1,
+    .endpoints =
+    {
+      .in =
+      {
+        .address = XONE_USB_INTERRUPT_ENDPOINT_IN | USB_DIR_IN,
+        .size = XONE_USB_INTERRUPT_PACKET_SIZE,
+        .reports =
+        {
+          .nb = 2,
+          .elements =
+          {
+            {
+              .report_id = XONE_USB_HID_IN_REPORT_ID,
+              .report_length = sizeof(((s_report_xone*)NULL)->input)
+            },
+            {
+              .report_id = XONE_USB_HID_IN_GUIDE_REPORT_ID,
+              .report_length = sizeof(((s_report_xone*)NULL)->guide)
+            },
+          }
+        }
+      },
+      .out =
+      {
+        .address = XONE_USB_INTERRUPT_ENDPOINT_OUT | USB_DIR_OUT,
+        .size = XONE_USB_INTERRUPT_PACKET_SIZE
+      }
+    }
+  },
+  {
+    .name = XONE_NAME_2,
+    .ids =
+        { .vendor = XONE_VENDOR, .product = XONE_PRODUCT_2 },
+    .configuration = 1,
+    .endpoints =
+    {
+      .in =
+      {
+        .address = XONE_USB_INTERRUPT_ENDPOINT_IN | USB_DIR_IN,
+        .size = XONE_USB_INTERRUPT_PACKET_SIZE,
+        .reports =
+        {
+          .nb = 2,
+          .elements =
+          {
+            {
+              .report_id = XONE_USB_HID_IN_REPORT_ID,
+              .report_length = sizeof(((s_report_xone*)NULL)->input)
+            },
+            {
+              .report_id = XONE_USB_HID_IN_GUIDE_REPORT_ID,
+              .report_length = sizeof(((s_report_xone*)NULL)->guide)
+            },
+          }
+        }
+      },
+      .out =
+      {
+        .address = XONE_USB_INTERRUPT_ENDPOINT_OUT | USB_DIR_OUT,
+        .size = XONE_USB_INTERRUPT_PACKET_SIZE
+      }
+    }
+  },
+  {
+    .name = XONE_NAME_S,
+    .ids =
+        { .vendor = XONE_VENDOR, .product = XONE_PRODUCT_S },
+    .configuration = 1,
+    .endpoints =
+    {
+      .in =
+      {
+        .address = XONE_S_USB_INTERRUPT_ENDPOINT_IN | USB_DIR_IN,
+        .size = XONE_USB_INTERRUPT_PACKET_SIZE,
+        .reports =
+        {
+          .nb = 2,
+          .elements =
+          {
+            {
+              .report_id = XONE_USB_HID_IN_REPORT_ID,
+              .report_length = sizeof(((s_report_xone*)NULL)->input)
+            },
+            {
+              .report_id = XONE_USB_HID_IN_GUIDE_REPORT_ID,
+              .report_length = sizeof(((s_report_xone*)NULL)->guide)
+            },
+          }
+        }
+      },
+      .out =
+      {
+        .address = XONE_S_USB_INTERRUPT_ENDPOINT_OUT | USB_DIR_OUT,
+        .size = XONE_USB_INTERRUPT_PACKET_SIZE
+      }
+    }
+  } },
 };
 
 static struct usb_state {
@@ -413,7 +516,7 @@ static void process_report(int usb_number, struct usb_state * state, unsigned ch
     unsigned char report_length = controller[state->type][state->index].endpoints.in.reports.elements[i].report_length;
     if (buf[0] == report_id) {
       if (count == report_length) {
-        if (state->type == C_TYPE_XONE_PAD && !adapter_get(usb_number)->status) {
+        if ((state->type == C_TYPE_XONE_PAD || state->type == C_TYPE_G920_XONE) && !adapter_get(usb_number)->status) {
           break;
         }
 
@@ -428,7 +531,7 @@ static void process_report(int usb_number, struct usb_state * state, unsigned ch
           memcpy(&previous->ds4, &current->ds4, report_length); //s_report_ds4 is larger than report_length bytes!
         } else if (state->type == C_TYPE_360_PAD) {
           previous->x360 = current->x360;
-        } else if (state->type == C_TYPE_XONE_PAD) {
+        } else if (state->type == C_TYPE_XONE_PAD || state->type == C_TYPE_G920_XONE) {
           if (report_id == XONE_USB_HID_IN_REPORT_ID) {
             previous->xone.input = current->xone.input;
           } else if (report_id == XONE_USB_HID_IN_GUIDE_REPORT_ID) {
@@ -463,7 +566,7 @@ static void process_report(int usb_number, struct usb_state * state, unsigned ch
   }
 
   if (i == controller[state->type][state->index].endpoints.in.reports.nb) {
-    if (state->type == C_TYPE_XONE_PAD && !adapter_get(usb_number)->status) {
+    if ((state->type == C_TYPE_XONE_PAD || state->type == C_TYPE_G920_XONE) && !adapter_get(usb_number)->status) {
       if (adapter_forward_interrupt_in(usb_number, buf, count) < 0) {
         gwarn("can't forward interrupt data to the adapter\n");
       }
@@ -616,7 +719,7 @@ int usb_init(int usb_number, e_controller_type type) {
     }
     state->usb_device = gusb_open_ids(controller[type][i].ids.vendor, controller[type][i].ids.product);
 
-    if (state->usb_device != NULL && type == C_TYPE_XONE_PAD) {
+    if (state->usb_device != NULL && (type == C_TYPE_XONE_PAD || type == C_TYPE_G920_XONE)) {
 
 #ifdef WIN32
       if (controller[type][i].ids.product == XONE_PRODUCT_S)
@@ -703,7 +806,7 @@ int usb_close(int usb_number) {
   struct usb_state * state = usb_states + usb_number;
 
   if (state->usb_device != NULL) {
-    if (state->type == C_TYPE_XONE_PAD) {
+    if (state->type == C_TYPE_XONE_PAD || state->type == C_TYPE_G920_XONE) {
       unsigned char power_off[] = { 0x05, 0x20, 0x00, 0x01, 0x04 };
       usb_send_interrupt_out_sync(usb_number, power_off, sizeof(power_off));
     }
@@ -721,7 +824,7 @@ int usb_send_control(int usb_number, void * buf, unsigned int count) {
   return gusb_write(usb_states[usb_number].usb_device, 0x00, buf, count);
 }
 
-int usb_send_interrupt_out(int usb_number, void * buf, unsigned int count) {
+int usb_send_interrupt_out(int usb_number, const void * buf, unsigned int count) {
 
   struct usb_state * state = usb_states + usb_number;
 
@@ -745,6 +848,7 @@ int usb_forward_output(int usb_number, int joystick) {
   case C_TYPE_DF_PS2:
   case C_TYPE_DFP_PS2:
   case C_TYPE_GTF_PS2:
+  case C_TYPE_G920_XONE:
   case C_TYPE_NONE:
       break;
   }

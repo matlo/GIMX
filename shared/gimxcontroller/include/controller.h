@@ -8,6 +8,8 @@
 
 #include "defs.h"
 #include "report.h"
+#include "stddef.h"
+#include <gimxlog/include/glog.h>
 
 #define DEFAULT_MAX_AXIS_VALUE MAX_AXIS_VALUE_8BITS
 #define DEFAULT_REFRESH_PERIOD 11250 //=11.25ms
@@ -47,6 +49,15 @@ typedef struct
   int max_unsigned_value;
 } s_axis;
 
+struct controller_state;
+
+struct controller_interface {
+    void (*fp_process_out)(struct controller_state * state, const uint8_t * data, size_t len);
+    void (*fp_process_in)(struct controller_state * state, const uint8_t * data, size_t len);
+    const uint8_t * (*fp_get_out)(struct controller_state * state, size_t * len);
+    const uint8_t * (*fp_get_in)(struct controller_state * state, size_t * len);
+};
+
 typedef struct
 {
   const char * name;
@@ -66,6 +77,10 @@ typedef struct
   } axis_name_dirs;
   unsigned int (*fp_build_report)(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS]);
   void (*fp_init_report)(s_report * report);
+
+  struct controller_state * (*fp_init)(const int * axes);
+  void (*fp_clean)(struct controller_state * state);
+  struct controller_interface * interface;
 } s_controller;
 
 int clamp(int min, int val, int max);
@@ -102,6 +117,10 @@ int controller_get_axis_index(const char * name);
 int controller_is_auth_required(e_controller_type type);
 
 void controller_get_ids(e_controller_type type, unsigned short * vid, unsigned short * pid);
+
+struct controller_state * controller_init(e_controller_type type, const int * axes);
+void controller_clean(e_controller_type type, struct controller_state * state);
+const struct controller_interface * controller_get_interface(e_controller_type type);
 
 #ifdef __cplusplus
 }
