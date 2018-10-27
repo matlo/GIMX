@@ -275,6 +275,10 @@ string configFrame::reverseTranslate(string str)
   {
     return "keyboard";
   }
+  if(wxStr == _("joystick"))
+  {
+    return "joystick";
+  }
   if(wxStr == _("axis"))
   {
     return "axis";
