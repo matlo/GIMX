@@ -17,7 +17,6 @@
 
 struct haptic_core {
     struct {
-        s_haptic_core_ids ids;
         const s_haptic_source * ptr;
         struct haptic_source_state * state;
     } source;
