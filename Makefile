@@ -42,7 +42,7 @@ install: all
 	mkdir -p setup/share/locale
 	for translation in po/*.po; \
   do \
-    po=$$(basename $${translation} .po); \
+    po=$$(basename "$${translation}" .po); \
     mkdir -p setup/share/locale/$$po/LC_MESSAGES; \
     msgfmt -o setup/share/locale/$$po/LC_MESSAGES/gimx.mo po/$$po.po; \
   done
