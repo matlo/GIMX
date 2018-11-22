@@ -467,5 +467,21 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     log_info();
   }
 
+  if (params->debug.haptic) {
+      printf(_("debug.haptic flag is set\n"));
+  }
+  if (params->debug.controller) {
+      printf(_("debug.controller flag is set\n"));
+  }
+  if (params->debug.macros) {
+      printf(_("debug.macros flag is set\n"));
+  }
+  if (params->debug.sixaxis) {
+      printf(_("debug.sixaxis flag is set\n"));
+  }
+  if (params->debug.config) {
+      printf(_("debug.config flag is set\n"));
+  }
+
   return ret;
 }
