@@ -1125,7 +1125,7 @@ bool fpsconfigFrame::save(const wxString& directory, const wxString& file)
 {
     save_current(configFile);
     if (configFile.WriteConfigFile(TO_STRING(directory), TO_STRING(file)) < 0) {
-        wxMessageBox(_("Can't save_current ") + file, _("Error"), wxICON_ERROR);
+        wxMessageBox(_("Can't save ") + file, _("Error"), wxICON_ERROR);
         return false;
     } else {
         openedConfigFile = configFile;
