@@ -23,7 +23,7 @@ void control_key(int sym, int down) {
 
     switch (sym) {
     case GE_KEY_ESC:
-        if (lshift) {
+        if (lshift && gimx_params.config_file != NULL) {
             set_done();
         }
         break;
