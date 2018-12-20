@@ -1190,6 +1190,8 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
 #ifndef WIN32
     Output->Append(_("Bluetooth / PS3"));
     Output->Append(_("Bluetooth / PS4"));
+#else
+    Input->Append(_("Physical devices (elevated)"));
 #endif
 
     SetupManager().run();
@@ -1330,6 +1332,31 @@ void destroy_task_manager()
 }
 #endif
 
+void runAs(const wxString& cmd, const wxString& params)
+{
+    SHELLEXECUTEINFO shExInfo = SHELLEXECUTEINFO();
+    shExInfo.cbSize = sizeof(shExInfo);
+    shExInfo.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC;
+    shExInfo.hwnd = 0;
+    shExInfo.lpVerb = L"runas";
+    shExInfo.lpFile = cmd.wc_str();
+    shExInfo.lpParameters = params.wc_str();
+    shExInfo.lpDirectory = 0;
+    shExInfo.nShow = SW_SHOW;
+    shExInfo.hInstApp = 0;
+
+    if (!ShellExecuteEx(&shExInfo)) {
+        if (GetLastError() == ERROR_CANCELLED) {
+            return;
+        }
+        return;
+    }
+
+    while (WaitForSingleObject(shExInfo.hProcess, 1000) == WAIT_TIMEOUT) {}
+
+    CloseHandle(shExInfo.hProcess);
+}
+
 void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unused)))
 {
     wxString command;
@@ -1457,7 +1484,10 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
 #ifndef WIN32
     command.Append(wxT("xterm -e "));
 #endif
-    command.Append(wxT("gimx"));
+    if(Input->GetStringSelection() != _("Physical devices (elevated)"))
+    {
+      command.Append(wxT("gimx"));
+    }
 
     if(ProcessOutputChoice->GetStringSelection() == _("curses"))
     {
@@ -1581,13 +1611,22 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
 
     //wxMessageBox( command, _("Error"), wxICON_ERROR);
 
-    MyProcess *process = new MyProcess(this, command);
-
     startTime = wxGetUTCTime();
 
-    if(!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process))
+    if(Input->GetStringSelection() != _("Physical devices (elevated)"))
     {
-      wxMessageBox( _("can't start gimx!"), _("Error"), wxICON_ERROR);
+        MyProcess *process = new MyProcess(this, command);
+
+        if(!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process))
+        {
+          wxMessageBox( _("can't start gimx!"), _("Error"), wxICON_ERROR);
+        }
+    }
+    else
+    {
+        runAs(wxT("gimx.exe"), command);
+
+        OnProcessTerminated(NULL, 0);
     }
 }
 
