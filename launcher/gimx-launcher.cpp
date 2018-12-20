@@ -1484,7 +1484,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
 #ifndef WIN32
     command.Append(wxT("xterm -e "));
 #endif
-    if(Input->GetStringSelection() != _("Physical devices (elevated)"))
+    if(Input->GetStringSelection() != _("Physical devices (elevated privileges)"))
     {
       command.Append(wxT("gimx"));
     }
@@ -1613,7 +1613,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
 
     startTime = wxGetUTCTime();
 
-    if(Input->GetStringSelection() != _("Physical devices (elevated)"))
+    if(Input->GetStringSelection() != _("Physical devices (elevated privileges)"))
     {
         MyProcess *process = new MyProcess(this, command);
 
