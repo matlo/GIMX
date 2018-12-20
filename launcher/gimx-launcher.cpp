@@ -1191,7 +1191,7 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
     Output->Append(_("Bluetooth / PS3"));
     Output->Append(_("Bluetooth / PS4"));
 #else
-    Input->Append(_("Physical devices (elevated)"));
+    Input->Append(_("Physical devices (elevated privileges)"));
 #endif
 
     SetupManager().run();
