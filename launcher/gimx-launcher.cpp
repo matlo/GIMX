@@ -1330,7 +1330,6 @@ void destroy_task_manager()
     EndTask(hWnd, FALSE, TRUE);
   }
 }
-#endif
 
 void runAs(const wxString& cmd, const wxString& params)
 {
@@ -1356,6 +1355,7 @@ void runAs(const wxString& cmd, const wxString& params)
 
     CloseHandle(shExInfo.hProcess);
 }
+#endif
 
 void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unused)))
 {
@@ -1622,12 +1622,14 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
           wxMessageBox( _("can't start gimx!"), _("Error"), wxICON_ERROR);
         }
     }
+#ifdef WIN32
     else
     {
         runAs(wxT("gimx.exe"), command);
 
         OnProcessTerminated(NULL, 0);
     }
+#endif
 }
 
 typedef enum {
