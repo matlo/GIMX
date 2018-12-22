@@ -522,7 +522,25 @@ int usb_send_interrupt_out(int usb_number, void * buf, unsigned int count) {
   return gusb_write(state->usb_device, controller[state->type].endpoints.out.address, buf, count);
 }
 
-int usb_get_joystick(int usb_number) {
+int usb_forward_output(int usb_number, int joystick) {
 
-  return usb_states[usb_number].joystick_id;
+  switch (usb_states[usb_number].type) {
+  case C_TYPE_XONE_PAD:
+  case C_TYPE_360_PAD:
+  case C_TYPE_DS4:
+  case C_TYPE_SIXAXIS:
+      return joystick >= 0 && usb_states[usb_number].joystick_id == joystick;
+  case C_TYPE_JOYSTICK:
+  case C_TYPE_PS2_PAD:
+  case C_TYPE_XBOX_PAD:
+  case C_TYPE_T300RS_PS4:
+  case C_TYPE_G27_PS3:
+  case C_TYPE_G29_PS4:
+  case C_TYPE_DF_PS2:
+  case C_TYPE_DFP_PS2:
+  case C_TYPE_GTF_PS2:
+  case C_TYPE_NONE:
+      break;
+  }
+  return 0;
 }
