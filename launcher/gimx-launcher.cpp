@@ -1641,6 +1641,7 @@ typedef enum {
     E_GIMX_STATUS_NO_ACTIVATION = -3, // user did not activate the controller
     E_GIMX_STATUS_INACTIVITY_TIMEOUT = -4, // no user input during defined time
     E_GIMX_STATUS_AUTH_CONTROLLER_ERROR = -5, // connection issue with the authentication controller
+    E_GIMX_STATUS_FOCUS_LOST = -6, // mouse was grabbed and focus was lost
 
     E_GIMX_STATUS_AUTH_MISSING_X360 = 1, // auth source missing
     E_GIMX_STATUS_AUTH_MISSING_PS4 = 2, // auth source missing
@@ -1736,6 +1737,10 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
                 ". make sure the cable wasn't pulled\n"
                 ". make sure the cable is not bad (try another one)\n"
                 ". make sure to turn controller off before connection."), _("Error"), wxICON_ERROR);
+        break;
+    case E_GIMX_STATUS_FOCUS_LOST:
+        wxMessageBox( _("Mouse was captured, input was \"physical devices\", and focus was lost. "
+                "Either you pressed alt+tab or some other app took focus.\n"), _("Error"), wxICON_ERROR);
         break;
     }
 

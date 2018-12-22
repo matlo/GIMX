@@ -63,6 +63,7 @@ s_gimx_params gimx_params =
   .skip_leds = 0,
   .ff_conv = 0,
   .inactivity_timeout = 0,
+  .focus_lost = 0,
 };
 
 #ifdef WIN32
@@ -107,6 +108,13 @@ int process_event(GE_Event* event)
       break;
     case GE_JOYRUMBLE:
       cfg_process_rumble_event(event);
+      break;
+    case GE_FOCUS_LOST:
+      if (gimx_params.grab)
+      {
+        gimx_params.focus_lost = 1;
+        set_done();
+      }
       break;
     default:
       if (!cal_skip_event(event))
@@ -193,7 +201,6 @@ void grab()
 {
   if(gimx_params.autograb)
   {
-    int grab = 0;
     int i;
     for (i = 0; i < MAX_CONTROLLERS; ++i)
     {
@@ -202,15 +209,11 @@ void grab()
       // if config only has joystick bindings, window focus is not required, and grabbing mouse is not needed
       if(adapter_get_device(E_DEVICE_TYPE_MOUSE, i) != -1 || adapter_get_device(E_DEVICE_TYPE_KEYBOARD, i) != -1)
       {
-        grab = 1;
+          gimx_params.grab = 1;
       }
     }
-    if (grab)
-    {
-      ginput_grab();
-    }
   }
-  else if(gimx_params.grab)
+  if(gimx_params.grab)
   {
     ginput_grab();
   }
@@ -482,6 +485,11 @@ int main(int argc, char *argv[])
   if (mstatus != E_GIMX_STATUS_SUCCESS)
   {
     status = mstatus;
+  }
+
+  if (gimx_params.focus_lost)
+  {
+    status = E_GIMX_STATUS_FOCUS_LOST;
   }
 
   ginfo(_("Exiting\n"));

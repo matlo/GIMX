@@ -51,7 +51,7 @@ void control_key(int sym, int down) {
         }
     }
 
-    if (lalt && ralt) {
-        ginput_grab_toggle();
+    if (lalt && ralt && gimx_params.config_file) {
+        gimx_params.grab = ginput_grab_toggle();
     }
 }
