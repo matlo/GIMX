@@ -3,16 +3,9 @@
  License: GPLv3
  */
 
-#include <fstream>
-#include <cstdlib>
-#include <cstdio>
-#include <vector>
 #include <sstream>
-#include <cstdlib>
 #include <string.h>
-#include <climits>
 #include "Downloader.h"
-#include <iostream>
 #include <iomanip>
 
 #include <curl/curl.h>
@@ -203,6 +196,40 @@ std::string Downloader::generateTempFile(const std::string& file) {
     return value;
 }
 
+#ifndef WIN32
+static FILE *fopen2(const char *path, const char *mode) {
+    return fopen(path, mode);
+}
+#else
+static wchar_t * utf8_to_utf16le(const char * inbuf)
+{
+  wchar_t * outbuf = NULL;
+  int outsize = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, NULL, 0);
+  if (outsize != 0) {
+      outbuf = (wchar_t*) malloc(outsize * sizeof(*outbuf));
+      if (outbuf != NULL) {
+         int res = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, outbuf, outsize);
+         if (res == 0) {
+             free(outbuf);
+             outbuf = NULL;
+         }
+      }
+  }
+
+  return outbuf;
+}
+
+static FILE *fopen2(const char *path, const char *mode) {
+    wchar_t * wpath = utf8_to_utf16le(path);
+    wchar_t * wmode = utf8_to_utf16le(mode);
+    FILE* file = _wfopen(wpath, wmode);
+    perror("");
+    free(wmode);
+    free(wpath);
+    return file;
+}
+#endif
+
 Downloader::DownloaderStatus Downloader::download(const std::string& url, const std::string& file,
         ProgressCallback callback, void * clientp) {
 
@@ -210,7 +237,7 @@ Downloader::DownloaderStatus Downloader::download(const std::string& url, const 
         return Downloader::DownloaderStatusInitFailed;
     }
 
-    FILE* outfile = fopen(file.c_str(), "wb");
+    FILE* outfile = fopen2(file.c_str(), "wb");
     if (outfile == NULL) {
         return Downloader::DownloaderStatusInitFailed;
     }

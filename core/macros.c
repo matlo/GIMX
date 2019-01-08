@@ -974,7 +974,7 @@ static void read_configs_txt(const char* dir_path)
   int ret;
 
   snprintf(file_path, sizeof(file_path), "%s%s", dir_path, MACRO_CONFIGS_FILE);
-  fp = fopen(file_path, "r");
+  fp = fopen2(file_path, "r");
   if (fp)
   {
     if (gimx_params.logfile != NULL) {
@@ -1144,7 +1144,7 @@ static void read_macros() {
       //else: no configs.txt => read all macros.
 
       snprintf(file_path, sizeof(file_path), "%s%s", dir_path, filenames[i]);
-      fp = fopen(file_path, "r");
+      fp = fopen2(file_path, "r");
       if (!fp) {
         gwarn("failed to open %s\n", file_path);
       } else {

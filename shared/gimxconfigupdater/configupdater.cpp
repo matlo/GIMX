@@ -3,12 +3,8 @@
  License: GPLv3
  */
 
-#include <fstream>
-#include <iostream>
-#include <cstdlib>
-#include <cstdio>
 #include "configupdater.h"
-#include <stdlib.h>
+#include <sstream>
 #include <string.h>
 
 #ifdef WIN32
@@ -17,6 +13,64 @@
 #include <pwd.h> //to get the user & group id
 #include <unistd.h>
 #endif
+
+#include <ext/stdio_filebuf.h>
+#include <fcntl.h>
+
+#ifdef WIN32
+
+static wchar_t * utf8_to_utf16le(const char * inbuf)
+{
+  wchar_t * outbuf = NULL;
+  int outsize = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, NULL, 0);
+  if (outsize != 0) {
+      outbuf = (wchar_t*) malloc(outsize * sizeof(*outbuf));
+      if (outbuf != NULL) {
+         int res = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, outbuf, outsize);
+         if (res == 0) {
+             free(outbuf);
+             outbuf = NULL;
+         }
+      }
+  }
+  return outbuf;
+}
+
+#define ORDONLY _O_RDONLY
+#define OWRONLY _O_WRONLY
+#define OTRUNC  _O_TRUNC
+
+#define OFBUF(path, flags) \
+    wchar_t * wpath = utf8_to_utf16le(path.c_str()); \
+    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | flags), std::ios::out | std::ios::binary); \
+    free(wpath);
+
+#define IFBUF(path, flags) \
+    wchar_t * wpath = utf8_to_utf16le(path.c_str()); \
+    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | flags), std::ios::in | std::ios::binary); \
+    free(wpath);
+
+#else
+
+#define ORDONLY O_RDONLY
+#define OWRONLY O_WRONLY
+#define OTRUNC  O_TRUNC
+
+#define OFBUF(path, flags) \
+    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), flags), std::ios::out);
+
+#define IFBUF(path, flags) \
+    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), flags), std::ios::in);
+
+#endif
+
+#define IFSTREAM(path, name, flags) \
+    IFBUF(path, flags) \
+    std::istream name (&fb);
+
+#define OFSTREAM(path, name, flags) \
+    OFBUF(path, flags) \
+    std::ostream name (&fb);
 
 #ifdef WIN32
 const char * configupdater::configs_url = "https://api.github.com/repos/matlo/GIMX-configurations/contents/Windows";
@@ -78,8 +132,7 @@ configupdater::ConfigUpdaterStatus configupdater::getconfiglist(std::list<std::s
         return convertDowloadStatus(downloadStatus);
     }
 
-    std::ifstream infile;
-    infile.open(tempFile.c_str());
+    IFSTREAM(tempFile, infile, ORDONLY)
 
     while (infile.good()) {
         std::string line;
@@ -95,8 +148,6 @@ configupdater::ConfigUpdaterStatus configupdater::getconfiglist(std::list<std::s
             }
         }
     }
-
-    infile.close();
 
     remove(tempFile.c_str());
 

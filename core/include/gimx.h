@@ -236,4 +236,6 @@ int ignore_event(GE_Event*);
 #define REMOVE_FUNCTION gpoll_remove_fd
 #endif
 
+FILE *fopen2(const char *path, const char *mode);
+
 #endif /* GIMX_H_ */

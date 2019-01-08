@@ -94,6 +94,40 @@ void terminate(int sig __attribute__((unused)))
   set_done();
 }
 
+#ifndef WIN32
+FILE *fopen2(const char *path, const char *mode) {
+    return fopen(path, mode);
+}
+#else
+static wchar_t * utf8_to_utf16le(const char * inbuf)
+{
+  wchar_t * outbuf = NULL;
+  int outsize = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, NULL, 0);
+  if (outsize != 0) {
+      outbuf = (wchar_t*) malloc(outsize * sizeof(*outbuf));
+      if (outbuf != NULL) {
+         int res = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, outbuf, outsize);
+         if (res == 0) {
+             free(outbuf);
+             outbuf = NULL;
+         }
+      }
+  }
+
+  return outbuf;
+}
+
+FILE *fopen2(const char *path, const char *mode) {
+    wchar_t * wpath = utf8_to_utf16le(path);
+    wchar_t * wmode = utf8_to_utf16le(mode);
+    FILE* file = _wfopen(wpath, wmode);
+    perror("");
+    free(wmode);
+    free(wpath);
+    return file;
+}
+#endif
+
 int ignore_event(GE_Event* event __attribute__((unused)))
 {
   return 0;
@@ -180,7 +214,7 @@ void show_config()
 
   snprintf(file_path, sizeof(file_path), "%s%s%s%s", gimx_params.homedir, GIMX_DIR, CONFIG_DIR, gimx_params.config_file);
 
-  FILE * fp = fopen(file_path, "r");
+  FILE * fp = fopen2(file_path, "r");
   if (fp == NULL)
   {
     gwarn("failed to dump %s\n", file_path);
@@ -542,7 +576,7 @@ int main(int argc, char *argv[])
 #endif
     if (file != NULL && file[0] != '\0')
     {
-      FILE * fp = fopen(file, "w");
+      FILE * fp = fopen2(file, "w");
       if (fp != NULL)
       {
         fprintf(fp, "%d\n", status);

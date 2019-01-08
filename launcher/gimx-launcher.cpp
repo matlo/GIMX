@@ -16,7 +16,6 @@
 #include <errno.h>
 #include <dirent.h>
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include <limits.h>
 #include <string.h>
@@ -48,6 +47,64 @@
 #include <gimxpoll/include/gpoll.h>
 
 #include "SetupManager.h"
+
+#include <ext/stdio_filebuf.h>
+#include <fcntl.h>
+
+#ifdef WIN32
+
+static wchar_t * utf8_to_utf16le(const char * inbuf)
+{
+  wchar_t * outbuf = NULL;
+  int outsize = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, NULL, 0);
+  if (outsize != 0) {
+      outbuf = (wchar_t*) malloc(outsize * sizeof(*outbuf));
+      if (outbuf != NULL) {
+         int res = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, outbuf, outsize);
+         if (res == 0) {
+             free(outbuf);
+             outbuf = NULL;
+         }
+      }
+  }
+  return outbuf;
+}
+
+#define ORDONLY _O_RDONLY
+#define OWRONLY _O_WRONLY
+#define OTRUNC  _O_TRUNC
+
+#define OFBUF(path, flags) \
+    wchar_t * wpath = utf8_to_utf16le(path.c_str()); \
+    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | flags), std::ios::out | std::ios::binary); \
+    free(wpath);
+
+#define IFBUF(path, flags) \
+    wchar_t * wpath = utf8_to_utf16le(path.c_str()); \
+    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | flags), std::ios::in | std::ios::binary); \
+    free(wpath);
+
+#else
+
+#define ORDONLY O_RDONLY
+#define OWRONLY O_WRONLY
+#define OTRUNC  O_TRUNC
+
+#define OFBUF(path, flags) \
+    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), flags), std::ios::out);
+
+#define IFBUF(path, flags) \
+    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), flags), std::ios::in);
+
+#endif
+
+#define IFSTREAM(path, name, flags) \
+    IFBUF(path, flags) \
+    std::istream name (&fb);
+
+#define OFSTREAM(path, name, flags) \
+    OFBUF(path, flags) \
+    std::ostream name (&fb);
 
 #ifdef WIN32
 #define REGISTER_FUNCTION gpoll_register_handle
@@ -396,6 +453,13 @@ int launcherFrame::setDongleAddress(vector<DongleInfo>& dongleInfos, int dongleI
     return 0;
 }
 
+static void getfileline(const std::string& path, std::string& line) {
+    IFSTREAM(path, infile, ORDONLY)
+    if (infile.good()) {
+        getline(infile, line);
+    }
+}
+
 #ifdef WIN32
 void launcherFrame::readSerialPorts()
 {
@@ -437,15 +501,7 @@ void launcherFrame::readSerialPorts()
 
   filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append(OUTPUT_CHOICE_FILE);
-  ifstream infile (filename.c_str());
-  if ( infile.is_open() )
-  {
-      if( infile.good() )
-      {
-          getline (infile,line);
-      }
-      infile.close();
-  }
+  getfileline(filename, line);
 
   OutputChoice->Clear();
 
@@ -583,15 +639,7 @@ void launcherFrame::readConfigs()
   /* Read the last config used so as to auto-select it. */
   filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append(INPUT_CHOICE_FILE);
-  ifstream infile (filename.c_str());
-  if ( infile.is_open() )
-  {
-    if( infile.good() )
-    {
-      getline (infile,line);
-    }
-    infile.close();
-  }
+  getfileline(filename, line);
 
   InputChoice->Clear();
 
@@ -636,15 +684,7 @@ int launcherFrame::readChoices(const char* file, wxChoice* choices, const char* 
     string defaultChoice = "";
     filename = string(launcherDir.mb_str(wxConvUTF8));
     filename.append(default_file);
-    ifstream infile (filename.c_str());
-    if ( infile.is_open() )
-    {
-      if( infile.good() )
-      {
-        getline (infile,defaultChoice);
-      }
-      infile.close();
-    }
+    getfileline(filename, defaultChoice);
 
     choices->Clear();
 
@@ -656,8 +696,8 @@ int launcherFrame::readChoices(const char* file, wxChoice* choices, const char* 
       return 0;
     }
 
-    ifstream myfile(filename.c_str());
-    if(myfile.is_open())
+    IFSTREAM(filename, myfile, ORDONLY)
+    if(myfile.good())
     {
         while ( myfile.good() )
         {
@@ -677,7 +717,6 @@ int launcherFrame::readChoices(const char* file, wxChoice* choices, const char* 
         {
           choices->SetSelection(0);
         }
-        myfile.close();
     }
     else
     {
@@ -692,11 +731,10 @@ int launcherFrame::saveParam(const char* file, wxString option)
   int ret = 0;
   string filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append(file);
-  ofstream outfile (filename.c_str(), ios_base::trunc);
-  if(outfile.is_open())
+  OFSTREAM(filename, outfile, (OWRONLY | OTRUNC))
+  if(outfile.good())
   {
       outfile << option.mb_str(wxConvUTF8) << endl;
-      outfile.close();
   }
   else
   {
@@ -717,14 +755,13 @@ int launcherFrame::saveChoices(const char* file, wxChoice* choices)
     filename = string(launcherDir.mb_str(wxConvUTF8));
     filename.append(file);
 
-    ofstream outfile (filename.c_str(), ios_base::trunc);
-    if(outfile.is_open())
+    OFSTREAM(filename, outfile, (OWRONLY | OTRUNC))
+    if(outfile.good())
     {
         for(int i=0; i<(int)choices->GetCount(); i++)
         {
             outfile << choices->GetString(i).mb_str(wxConvUTF8) << endl;
         }
-        outfile.close();
     }
     else
     {
@@ -772,12 +809,11 @@ int launcherFrame::saveLinkKeys(wxString dongleBdaddr, wxString ds4Bdaddr, wxStr
 
   filename.append(BLUETOOTH_LK_FILE);
 
-  ofstream outfile (filename.c_str(), ios_base::trunc);
-  if(outfile.is_open())
+  OFSTREAM(filename, outfile, (OWRONLY | OTRUNC))
+  if(outfile.good())
   {
       outfile << ds4Bdaddr.mb_str(wxConvUTF8) << " " << ds4LinkKey.mb_str(wxConvUTF8) << " 4 0" << endl;
       outfile << ps4Bdaddr.mb_str(wxConvUTF8) << " " << ps4LinkKey.mb_str(wxConvUTF8) << " 4 0" << endl;
-      outfile.close();
   }
   else
   {
@@ -794,19 +830,11 @@ void launcherFrame::readParam(const char* file, wxChoice* choice)
 
   filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append(file);
-  ifstream infile (filename.c_str());
-  if ( infile.is_open() )
+  getfileline(filename, line);
+  int pos = choice->FindString(wxString(line.c_str(), wxConvUTF8));
+  if (pos != wxNOT_FOUND)
   {
-    if( infile.good() )
-    {
-      getline (infile,line);
-      int pos = choice->FindString(wxString(line.c_str(), wxConvUTF8));
-      if (pos != wxNOT_FOUND)
-      {
-        choice->SetSelection(pos);
-      }
-    }
-    infile.close();
+    choice->SetSelection(pos);
   }
 }
 
@@ -817,18 +845,10 @@ void launcherFrame::readStartUpdates()
 
   filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append(START_UPDATES);
-  ifstream infile (filename.c_str());
-  if ( infile.is_open() )
+  getfileline(filename, line);
+  if(line == "yes")
   {
-    if( infile.good() )
-    {
-      getline (infile,line);
-      if(line == "yes")
-      {
-        MenuStartupUpdates->Check(true);
-      }
-    }
-    infile.close();
+    MenuStartupUpdates->Check(true);
   }
 }
 
@@ -1639,17 +1659,12 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
     wxString statusFile = wxStandardPaths::Get().GetTempDir() + wxT("/") + wxT(STATUS_FILE);
     if (::wxFileExists(statusFile))
     {
-        ifstream infile(statusFile.mb_str(wxConvUTF8));
-        if (infile.is_open())
+        string line;
+        getfileline(string(statusFile.mb_str(wxConvUTF8)), line);
+        if (!line.empty())
         {
-            if (infile.good())
-            {
-                string line;
-                getline(infile, line);
-                stringstream ss(line);
-                ss >> status;
-            }
-            infile.close();
+            stringstream ss(line);
+            ss >> status;
         }
         remove(statusFile.mb_str(wxConvUTF8));
     }
@@ -2055,8 +2070,8 @@ void launcherFrame::OnMenuStartupUpdates(wxCommandEvent& event __attribute__((un
 {
   string filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append(START_UPDATES);
-  ofstream outfile (filename.c_str(), ios_base::trunc);
-  if(outfile.is_open())
+  OFSTREAM(filename, outfile, (OWRONLY | OTRUNC))
+  if(outfile.good())
   {
     if(MenuStartupUpdates->IsChecked())
     {
@@ -2066,7 +2081,6 @@ void launcherFrame::OnMenuStartupUpdates(wxCommandEvent& event __attribute__((un
     {
       outfile << "no" << endl;
     }
-    outfile.close();
   }
 }
 
@@ -2592,28 +2606,25 @@ int launcherFrame::readDonglePairings(vector<BluetoothPairing>& donglePairings)
     for (bool cont = dir.GetFirst(&dongleAddress, wxEmptyString, wxDIR_DIRS); cont;  cont = dir.GetNext(&dongleAddress))
     {
       string lkFile = btDir + "/" + string(dongleAddress.mb_str(wxConvUTF8)) + BLUETOOTH_LK_FILE;
-      ifstream infile (lkFile.c_str());
-      if ( infile.is_open() )
+
+      IFSTREAM(lkFile, infile, ORDONLY)
+      while( infile.good() )
       {
-        while( infile.good() )
+        string line;
+        getline (infile, line);
+        stringstream ss(line);
+        string remote, linkkey;
+        getline (ss, remote, ' ');
+        getline (ss, linkkey, ' ');
+        if (remote.empty() || linkkey.empty())
         {
-          string line;
-          getline (infile, line);
-          stringstream ss(line);
-          string remote, linkkey;
-          getline (ss, remote, ' ');
-          getline (ss, linkkey, ' ');
-          if (remote.empty() || linkkey.empty())
-          {
-            continue;
-          }
-          BluetoothPairing pairing;
-          pairing.local = dongleAddress;
-          pairing.remote = wxString(remote.c_str(), wxConvUTF8);
-          pairing.linkkey = wxString(linkkey.c_str(), wxConvUTF8);
-          donglePairings.push_back(pairing);
+          continue;
         }
-        infile.close();
+        BluetoothPairing pairing;
+        pairing.local = dongleAddress;
+        pairing.remote = wxString(remote.c_str(), wxConvUTF8);
+        pairing.linkkey = wxString(linkkey.c_str(), wxConvUTF8);
+        donglePairings.push_back(pairing);
       }
     }
     return 0;

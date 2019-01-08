@@ -6,14 +6,8 @@
 #include "Updater.h"
 #include <gimxdownloader/Downloader.h>
 
-#include <fstream>
-#include <cstdlib>
-#include <cstdio>
 #include <vector>
 #include <sstream>
-#include <cstdlib>
-#include <string.h>
-#include <climits>
 
 #ifdef WIN32
 #include <windows.h>
