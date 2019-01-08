@@ -84,7 +84,6 @@ static FILE *fopen2(const char *path, const char *mode) {
     wchar_t * wpath = utf8_to_utf16le(path);
     wchar_t * wmode = utf8_to_utf16le(mode);
     FILE* file = _wfopen(wpath, wmode);
-    perror("");
     free(wmode);
     free(wpath);
     return file;
