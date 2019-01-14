@@ -194,6 +194,11 @@ msgstr "le flag ff_conv est positionné\n"
 msgid "auto-grab flag is set\n"
 msgstr "le flag auto-grab est positionné\n"
 
+#: ../core/args.c:488
+#, c-format
+msgid "%s flag is set\n"
+msgstr "le flag %s est positionné\n"
+
 #: ../core/calibration.c:198
 #, c-format
 msgid "calibrating mouse %s (%d)\n"
@@ -1984,6 +1989,15 @@ msgstr ""
 ". vérifier que le câble n'est pas débranché\n"
 ". vérifier que le câble n'est pas défectueux (en essayer un autre)\n"
 ". vérifier que le contrôleur est bien éteint avant de le connecter."
+
+#: ../launcher/gimx-launcher.cpp:1731
+msgid ""
+"Mouse was captured, input was \"physical devices\", and focus was lost. "
+"Either you pressed alt+tab or some other app took focus.\n"
+msgstr ""
+"La souris était capturée, l'entrée était \"périphériques\", et le focus a "
+"été perdu. Vous avez appuyé sur alt+tab, ou une application a pris le "
+"focus.\n"
 
 #: ../launcher/gimx-launcher.cpp:1708
 msgid "Failed to open log file. GIMX may have crashed (please report this)."

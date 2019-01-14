@@ -190,6 +190,11 @@ msgstr ""
 msgid "auto-grab flag is set\n"
 msgstr ""
 
+#: ../core/args.c:488
+#, c-format
+msgid "%s flag is set\n"
+msgstr ""
+
 #: ../core/calibration.c:198
 #, c-format
 msgid "calibrating mouse %s (%d)\n"
@@ -1933,6 +1938,12 @@ msgid ""
 ". make sure the cable wasn't pulled\n"
 ". make sure the cable is not bad (try another one)\n"
 ". make sure to turn controller off before connection."
+msgstr ""
+
+#: ../launcher/gimx-launcher.cpp:1731
+msgid ""
+"Mouse was captured, input was \"physical devices\", and focus was lost. "
+"Either you pressed alt+tab or some other app took focus.\n"
 msgstr ""
 
 #: ../launcher/gimx-launcher.cpp:1708
