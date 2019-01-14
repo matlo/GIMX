@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <sstream>
+#include <cstdlib>
 
 #ifdef WIN32
 #include <windows.h>
