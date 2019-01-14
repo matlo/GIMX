@@ -4,7 +4,8 @@
  */
 
 #include <sstream>
-#include <string.h>
+#include <cstring>
+#include <cstdlib>
 #include "Downloader.h"
 #include <iomanip>
 
