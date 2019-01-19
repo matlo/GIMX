@@ -359,6 +359,7 @@ int main(int argc, char *argv[])
     goto QUIT;
   }
   gimx_params.homedir = utf16le_to_utf8(path);
+  free(path);
 #endif
 
   if (gprio() < 0)
