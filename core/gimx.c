@@ -16,9 +16,12 @@
 #include <termios.h> //to disable/enable echo
 #include <unistd.h> // chown
 #else
+#undef NTDDI_VERSION
+#define NTDDI_VERSION NTDDI_VERSION_FROM_WIN32_WINNT(NTDDI_VISTA)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shlobj.h> //to get the homedir
+#include <knownfolders.h>
 #endif
 
 #include "gimx.h"
@@ -98,8 +101,21 @@ void terminate(int sig __attribute__((unused)))
 FILE *fopen2(const char *path, const char *mode) {
     return fopen(path, mode);
 }
+
+GDIR * opendir2 (const char * path) {
+    return opendir(path);
+}
+
+int closedir2(GDIR *dirp) {
+    return closedir(dirp);
+}
+
+GDIRENT *readdir2(GDIR *dirp) {
+    return readdir(dirp);
+}
+
 #else
-static wchar_t * utf8_to_utf16le(const char * inbuf)
+wchar_t * utf8_to_utf16le(const char * inbuf)
 {
   wchar_t * outbuf = NULL;
   int outsize = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, NULL, 0);
@@ -124,6 +140,46 @@ FILE *fopen2(const char *path, const char *mode) {
     free(wmode);
     free(wpath);
     return file;
+}
+
+char * utf16le_to_utf8(const wchar_t * inbuf)
+{
+  char * outbuf = NULL;
+  int outsize = WideCharToMultiByte(CP_UTF8, 0, inbuf, -1, NULL, 0, NULL, NULL);
+  if (outsize != 0) {
+      outbuf = (char*) malloc(outsize * sizeof(*outbuf));
+      if (outbuf != NULL) {
+         int res = WideCharToMultiByte(CP_UTF8, 0, inbuf, -1, outbuf, outsize, NULL, NULL);
+         if (res == 0) {
+             free(outbuf);
+             outbuf = NULL;
+         }
+      }
+  }
+
+  return outbuf;
+}
+
+GDIR * opendir2 (const char * path) {
+    wchar_t * wpath = utf8_to_utf16le(path);
+    GDIR * dir = _wopendir(wpath);
+    free(wpath);
+    return dir;
+}
+
+int closedir2(GDIR *dirp) {
+    return _wclosedir(dirp);
+}
+
+GDIRENT *readdir2(GDIR *dirp) {
+    return _wreaddir(dirp);
+}
+
+int stat2(const char *path, GSTAT *buf) {
+    wchar_t * wpath = utf8_to_utf16le(path);
+    int ret = _wstat(wpath, buf);
+    free(wpath);
+    return ret;
 }
 #endif
 
@@ -295,14 +351,14 @@ int main(int argc, char *argv[])
 
   gimx_params.homedir = getpwuid(getuid())->pw_dir;
 #else
-  static char path[MAX_PATH];
-  if(SHGetFolderPath( NULL, CSIDL_APPDATA , NULL, 0, path ))
+  static wchar_t * path = NULL;
+  if(SHGetKnownFolderPath(&FOLDERID_RoamingAppData, 0, NULL, &path))
   {
-    gerror("SHGetFolderPath failed\n");
+    gerror("SHGetKnownFolderPath failed\n");
     status = E_GIMX_STATUS_GENERIC_ERROR;
     goto QUIT;
   }
-  gimx_params.homedir = path;
+  gimx_params.homedir = utf16le_to_utf8(path);
 #endif
 
   if (gprio() < 0)
@@ -618,6 +674,8 @@ int main(int argc, char *argv[])
     tcsetattr(STDOUT_FILENO, TCSANOW, &term);
   }
 #endif
+
+  free(gimx_params.homedir);
 
   return status;
 }

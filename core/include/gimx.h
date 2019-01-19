@@ -19,6 +19,8 @@
 #include <locale.h>
 #define _(STRING)    gettext(STRING)
 
+#include <dirent.h>
+
 #define PRINT_ERROR_OTHER(msg) fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
 
 #define PRINT_ERROR_ALLOC_FAILED(func) fprintf(stderr, "%s:%d %s: %s failed\n", __FILE__, __LINE__, __func__, func);
@@ -51,7 +53,7 @@ typedef enum {
 
 typedef struct
 {
-  char* homedir;
+  char* homedir; // utf8
   int force_updates;
   char* keygen;
   int grab;
@@ -245,5 +247,21 @@ int ignore_event(GE_Event*);
 #endif
 
 FILE *fopen2(const char *path, const char *mode);
+
+#ifdef WIN32
+wchar_t * utf8_to_utf16le(const char * inbuf);
+char * utf16le_to_utf8(const wchar_t * inbuf);
+typedef _WDIR GDIR;
+typedef struct _wdirent GDIRENT;
+typedef struct _stat GSTAT;
+int stat2(const char *path, GSTAT *buf);
+#else
+typedef DIR GDIR;
+typedef struct dirent GDIRENT;
+#endif
+
+GDIR * opendir2 (const char *dirname);
+int closedir2(GDIR *dirp);
+GDIRENT *readdir2(GDIR *dirp);
 
 #endif /* GIMX_H_ */

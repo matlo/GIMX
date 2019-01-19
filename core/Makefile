@@ -40,7 +40,7 @@ LDLIBS += `xml2-config --libs`
 ifneq ($(OS),Windows_NT)
 LDLIBS += -lm `pkg-config --libs ncursesw` -lbluetooth -lmhash
 else
-LDLIBS += $(shell sdl2-config --libs) -lws2_32 -lpdcursesw -lintl
+LDLIBS += $(shell sdl2-config --libs) -lws2_32 -lpdcursesw -lintl -lshell32 -luuid
 LDLIBS:=$(filter-out -mwindows,$(LDLIBS))
 endif
 CPPFLAGS += -Iinclude -Iconnectors/btstack/include -Iconnectors/btstack/src
