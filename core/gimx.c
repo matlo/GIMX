@@ -22,6 +22,7 @@
 #include <windows.h>
 #include <shlobj.h> //to get the homedir
 #include <knownfolders.h>
+#include <objbase.h>
 #endif
 
 #include "gimx.h"
@@ -359,7 +360,7 @@ int main(int argc, char *argv[])
     goto QUIT;
   }
   gimx_params.homedir = utf16le_to_utf8(path);
-  free(path);
+  CoTaskMemFree(path);
 #endif
 
   if (gprio() < 0)
