@@ -1,0 +1,4 @@
+eclipse.preferences.version=1
+org.eclipse.linuxtools.tools.launch.core.LinuxtoolsPath=C\:\\msys64\\usr\\bin;C\:\\msys64\\mingw64\\bin
+org.eclipse.linuxtools.tools.launch.core.LinuxtoolsPathCombo=C\:\\msys64\\usr\\bin;C\:\\msys64\\mingw64\\bin
+org.eclipse.linuxtools.tools.launch.core.LinuxtoolsSystemEnvPath=false
