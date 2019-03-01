@@ -11,7 +11,6 @@ CXXFLAGS += -Wall -Wextra -O3
 #Comment the above two lines and uncomment the below three lines to compile with debug symbols.
 #CFLAGS += -Wall -Wextra -O0 -g -fsanitize=address -fno-omit-frame-pointer
 #CXXFLAGS += -Wall -Wextra -O0 -g -fsanitize=address -fno-omit-frame-pointer
-#LDLIBS += -lasan
 
 CPPFLAGS += -I../shared
 
