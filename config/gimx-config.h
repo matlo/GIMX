@@ -109,6 +109,8 @@ class configFrame: public wxFrame
         void OnButtonForceFeedbackAutoDetect(wxCommandEvent& event);
         void OnButtonFFBTweaksDelete(wxCommandEvent& event);
         void OnAxisTabAxisIdSelect(wxCommandEvent& event);
+        void OnMenuItemExport(wxCommandEvent& event);
+        void OnMenuItemImport(wxCommandEvent& event);
         //*)
         void OnClose(wxCloseEvent& event);
         void DeleteSelectedRows(wxGrid* grid);
@@ -133,6 +135,7 @@ class configFrame: public wxFrame
         pair<Device, Event> selectEvent();
         void addJoystickCorrection();
         void openConfiguration(const wxString& directory, const wxString& file);
+        void openCommon(const wxString& directory, const wxString& file, int ret);
         bool save(const wxString& directory, const wxString& file);
         void checkSave();
 
@@ -282,6 +285,8 @@ class configFrame: public wxFrame
         static const long idMenuSave;
         static const long idMenuSaveAs;
         static const long ID_MENUITEM28;
+        static const long ID_MENUITEM26;
+        static const long ID_MENUITEM30;
         static const long idMenuQuit;
         static const long ID_MENUITEM12;
         static const long ID_MENUITEM18;
@@ -421,6 +426,7 @@ class configFrame: public wxFrame
         wxStaticText* IntensityDeviceName;
         wxStaticText* MouseOptionsName;
         wxSpinCtrl* FFBTweaksConstantGain;
+        wxMenuItem* MenuItem3;
         wxMenuItem* MenuItemDS4;
         wxButton* IntensityAutoDetect;
         wxPanel* PanelButton;
@@ -499,6 +505,7 @@ class configFrame: public wxFrame
         wxMenuItem* MenuItemMultipleMiceAndKeyboards;
         wxMenuItem* MenuController2;
         wxButton* JoystickCorrectionModify;
+        wxMenuItem* MenuItem4;
         wxStaticText* StaticTextAccelPanelAxis;
         wxStaticLine* StaticLine14;
         wxStaticText* StaticText10;

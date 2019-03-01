@@ -66,6 +66,33 @@ int ConfigurationFile::ReadConfigFile(const string& directory, const string& fil
     return ret;
 }
 
+int ConfigurationFile::FromString(const string& config)
+{
+    int ret;
+
+    XmlReader reader(this);
+
+    reader.SetCheckDevices(m_checkDevices);
+
+    ret = reader.FromString(config);
+
+    if(ret < 0)
+    {
+      m_Error = reader.GetError();
+    }
+    else if(ret > 0)
+    {
+      m_Info = reader.GetInfo();
+    }
+
+    if (ret >= 0)
+    {
+        m_multipleMK = reader.MultipleMK();
+    }
+
+    return ret;
+}
+
 int ConfigurationFile::WriteConfigFile(const string& directory, const string& file)
 {
     XmlWritter writer(this);
@@ -78,6 +105,13 @@ int ConfigurationFile::WriteConfigFile(const string& directory, const string& fi
     }
 
     return ret;
+}
+
+int ConfigurationFile::ToString(string& config)
+{
+    XmlWritter writer(this);
+
+    return writer.ToString(config);
 }
 
 list<string> &split(const string &s, char delim, list<string> &elems)

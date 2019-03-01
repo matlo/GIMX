@@ -21,11 +21,13 @@ class ConfigurationFile
         virtual ~ConfigurationFile();
         ConfigurationFile& operator=(const ConfigurationFile& other);
         int ReadConfigFile(const string& directory, const string& file);
+        int FromString(const string& config);
         bool MultipleMK() { return m_multipleMK; }
         void SetCheckDevices(bool check) { m_checkDevices = check; }
         string GetError() { return m_Error; }
         string GetInfo() { return m_Info; }
         int WriteConfigFile(const string& directory, const string& file);
+        int ToString(string& config);
         string GetFile() const { return m_File; }
         string GetDirectory() const { return m_Directory; }
         void SetFile(const string& val) { m_File = val; }

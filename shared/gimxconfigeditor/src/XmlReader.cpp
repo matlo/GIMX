@@ -939,11 +939,9 @@ bool XmlReader::MultipleMK()
     return !m_name_empty;
 }
 
-int XmlReader::ReadConfigFile(string filePath)
+int XmlReader::Init()
 {
-    xmlDoc *doc = NULL;
-    xmlNode *root_element = NULL;
-    int ret = 0;
+    LIBXML_TEST_VERSION
 
     m_info.clear();
     m_error.clear();
@@ -959,36 +957,24 @@ int XmlReader::ReadConfigFile(string filePath)
       }
     }
 
-    /*
-     * this initialize the library and check potential ABI mismatches
-     * between the version it was compiled for and the actual shared
-     * library used.
-     */
-    LIBXML_TEST_VERSION
+    return 0;
+}
 
+int XmlReader::Read(xmlDoc * doc)
+{
+    int ret = 0;
     try
     {
-        /*parse the file and get the DOM */
-        doc = xmlReadFile(filePath.c_str(), NULL, 0);
+        xmlNode * root_element = xmlDocGetRootElement(doc);
 
-        if (doc != NULL)
+        if(root_element != NULL)
         {
-            /*Get the root element node */
-            root_element = xmlDocGetRootElement(doc);
-
-            if(root_element != NULL)
-            {
-                ProcessRootElement(root_element);
-                *m_ConfigurationFile = m_TempConfigurationFile;
-            }
-            else
-            {
-                throw invalid_argument("error: no root element");
-            }
+            ProcessRootElement(root_element);
+            *m_ConfigurationFile = m_TempConfigurationFile;
         }
         else
         {
-            throw invalid_argument("error: could not parse file ");
+            throw invalid_argument("error: no root element");
         }
     }
     catch(exception& e)
@@ -1012,7 +998,43 @@ int XmlReader::ReadConfigFile(string filePath)
       ret = 1;
     }
 
-    /*free the document */
     xmlFreeDoc(doc);
+
     return ret;
+}
+
+int XmlReader::ReadConfigFile(string filePath)
+{
+    if (Init() < 0)
+    {
+        return -1;
+    }
+
+    xmlDoc * doc = xmlReadFile(filePath.c_str(), NULL, 0);
+
+    if (doc == NULL)
+    {
+        m_error = "error: could not parse file ";
+        return -1;
+    }
+
+    return Read(doc);
+}
+
+int XmlReader::FromString(const string& config)
+{
+    if (Init() < 0)
+    {
+        return -1;
+    }
+
+    xmlDoc * doc = xmlReadDoc((xmlChar*) config.c_str(), NULL, NULL, 0);
+
+    if (doc == NULL)
+    {
+        m_error = "error: could not parse clipboard content ";
+        return -1;
+    }
+
+    return Read(doc);
 }

@@ -15,6 +15,7 @@ class XmlWritter
         XmlWritter(ConfigurationFile* configFile);
         virtual ~XmlWritter();
         int WriteConfigFile(const string& directory, const string& file);
+        int ToString(string& config);
     protected:
     private:
         void CreateEventNode(xmlNodePtr parent_node, Event* event);
@@ -31,6 +32,7 @@ class XmlWritter
         void CreateInversionNode(xmlNodePtr parent_node, ForceFeedback* ffb);
         void CreateGainNode(xmlNodePtr parent_node, ForceFeedback* ffb);
         void CreateMacrosNode(xmlNodePtr parent_node);
+        xmlDocPtr ToDoc();
         unsigned int m_CurrentProfile;
         unsigned int m_CurrentController;
         ConfigurationFile* m_ConfigurationFile;
