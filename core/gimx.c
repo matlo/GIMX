@@ -677,7 +677,9 @@ int main(int argc, char *argv[])
   }
 #endif
 
+#ifdef WIN32
   free(gimx_params.homedir);
+#endif
 
   return status;
 }
