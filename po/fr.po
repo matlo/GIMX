@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: GIMX 7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-05-27 19:35+0200\n"
-"PO-Revision-Date: 2018-05-27 19:36+0200\n"
+"PO-Revision-Date: 2019-03-04 20:59+0100\n"
 "Last-Translator: Matlo <mat.lau@laposte.net>\n"
 "Language-Team: Matlo <mat.lau@laposte.net>\n"
 "Language: fr\n"
@@ -16,7 +16,7 @@ msgstr ""
 "X-Poedit-KeywordsList: _;gettext;gettext_noop\n"
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Generator: Poedit 1.8.7.1\n"
+"X-Generator: Poedit 2.0.6\n"
 "X-Poedit-SearchPath-0: ..\n"
 
 #: ../core/args.c:192
@@ -2299,3 +2299,11 @@ msgstr "Souhaitez-vous sauvegarder votre configuration?"
 #: ../launcher/gimx-launcher.cpp:1194
 msgid "Physical devices (elevated privileges)"
 msgstr "Périphériques (privilèges élevés)"
+
+#: ../config/gimx-config.cpp:1262
+msgid "Export to clipboard"
+msgstr "Exporter vers le presse-papier"
+
+#: ../config/gimx-config.cpp:1264
+msgid "Import from clipboard"
+msgstr "Importer depuis le presse-papier"

@@ -2236,3 +2236,11 @@ msgstr ""
 #: ../launcher/gimx-launcher.cpp:1194
 msgid "Physical devices (elevated privileges)"
 msgstr ""
+
+#: ../config/gimx-config.cpp:1262
+msgid "Export to clipboard"
+msgstr ""
+
+#: ../config/gimx-config.cpp:1264
+msgid "Import from clipboard"
+msgstr ""
