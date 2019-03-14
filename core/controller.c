@@ -203,6 +203,9 @@ static int network_read_callback(void * user)
       adapters[adapter].send_command = 1;
     }
     break;
+  case E_NETWORK_PACKET_EXIT:
+      set_done(1);
+      break;
   }
   // require a report to be sent immediately, except for a Sixaxis controller working over bluetooth
   if(adapters[adapter].ctype == C_TYPE_SIXAXIS && adapters[adapter].atype == E_ADAPTER_TYPE_BLUETOOTH)
