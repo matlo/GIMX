@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: GIMX 0.50\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-10 11:32+0100\n"
-"PO-Revision-Date: 2017-12-22 15:51-0200\n"
+"PO-Revision-Date: 2019-03-12 23:36-0300\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -12,7 +12,7 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Generator: Poedit 2.0.5\n"
-"Last-Translator: \n"
+"Last-Translator: Herbert <herbertfx@gmail.com>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "Language: pt_BR\n"
 "X-Poedit-SearchPath-0: ..\n"
@@ -38,7 +38,9 @@ msgstr ""
 
 #: ../core/config_reader.c:153
 msgid "A device name is empty. Multiple mice and keyboards are not managed.\n"
-msgstr "O nome de um dispositivo está vazio. Vários mouses e teclados não são gerenciados.\n"
+msgstr ""
+"O nome de um dispositivo está vazio. Vários mouses e teclados não são "
+"gerenciados.\n"
 
 #: ../core/args.c:164
 #, c-format
@@ -200,7 +202,9 @@ msgstr "Calibração do mouse (Ctrl+F1 para editar)"
 
 #: ../core/display.c:73
 msgid "Mouse calibration (Ctrl+F1 to save)(mouse wheel to change values)"
-msgstr "Calibração do mouse (Ctrl + F1 para salvar) (roda do mouse para alterar os valores)"
+msgstr ""
+"Calibração do mouse (Ctrl + F1 para salvar) (roda do mouse para alterar os "
+"valores)"
 
 #: ../core/display.c:91
 msgid "Profile:"
@@ -773,7 +777,7 @@ msgstr "Auto-fazer e converter"
 
 #: ../launcher/gimx-launcher.cpp:855
 msgid "Refresh\tF5"
-msgstr "Atualziar\tF5"
+msgstr "Atualizar\tF5"
 
 #: ../launcher/gimx-launcher.cpp:857 ../config/gimx-config.cpp:1013
 msgid "Save\tCtrl-S"
@@ -1115,7 +1119,9 @@ msgid ""
 "Plug the Teensy to the PS4,\n"
 "wait a few seconds,\n"
 "and plug it back to the PC"
-msgstr "Conecte o adaptador ao PS4, \\ naguarde alguns segundos, \\ ne ligue-o novamente ao PC"
+msgstr ""
+"Conecte o adaptador ao PS4, \\ naguarde alguns segundos, \\ ne ligue-o "
+"novamente ao PC"
 
 #: ../launcher/gimx-launcher.cpp:2065
 msgid "Enter an IP address"
@@ -1650,7 +1656,8 @@ msgstr ""
 
 #: ../config/gimx-config.cpp:3277
 msgid ""
-"This control is already used in the current profile (Overall tab>Intensity tab).\n"
+"This control is already used in the current profile (Overall tab>Intensity "
+"tab).\n"
 "Continue?"
 msgstr ""
 "Este controle já é usado no perfil atual (guia Axis). \n"
