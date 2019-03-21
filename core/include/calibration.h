@@ -38,5 +38,8 @@ void cal_init();
 int cal_get_controller(int);
 void cal_set_controller(int, int);
 void calibration_test();
+void cal_setSensibility(double);
+void cal_setDeadzoneX(int);
+void cal_setDeadzoneY(int);
 
 #endif /* CALIBRATION_H_ */

@@ -456,6 +456,40 @@ void cal_key(int sym, int down)
 #define DEADZONE_MAX(AXIS) \
     (controller_get_mean_unsigned(ctype, AXIS) / controller_get_axis_scale(ctype, AXIS) / 2)
 
+void cal_setSensibility(double s)
+{
+  s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
+  double ratio = *mcal->my / *mcal->mx;
+  *mcal->mx = s;
+  *mcal->my = *mcal->mx * ratio;
+}
+
+void cal_setDeadzoneX(int dx)
+{
+  e_controller_type ctype = adapter_get(cal_get_controller(current_mouse))->ctype;
+  s_mouse_control* mc = cfg_get_mouse_control(current_mouse);
+  s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
+  if (mcal->dzx && dx < DEADZONE_MAX(rel_axis_rstick_x)) {
+    *mcal->dzx = dx;
+    mc->merge[mc->index].x = 1;
+    mc->merge[mc->index].y = 0;
+    mc->change = 1;
+  }
+
+}
+void cal_setDeadzoneY(int dy)
+{
+  e_controller_type ctype = adapter_get(cal_get_controller(current_mouse))->ctype;
+  s_mouse_control* mc = cfg_get_mouse_control(current_mouse);
+  s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
+  if (mcal->dzy && dy < DEADZONE_MAX(rel_axis_rstick_y)) {
+    *mcal->dzy = dy;
+    mc->merge[mc->index].x = 0;
+    mc->merge[mc->index].y = 1;
+    mc->change = 1;
+  }
+}
+
 /*
  * Use the mouse wheel to calibrate the mouse.
  */

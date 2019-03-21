@@ -26,6 +26,8 @@
 #include <gimxpoll/include/gpoll.h>
 
 #include <haptic/haptic_core.h>
+#include "calibration.h"
+#include <float.h>
 
 #define BAUDRATE 500000 //bps
 #define SERIAL_TIMEOUT 1000 //millisecond
@@ -136,6 +138,24 @@ static void adapter_dump_state(int adapter)
   gstatus("\n");
 }
 
+static void handlePacketConfig(const s_network_packet_config* buf)
+{
+  if (buf->sensibility < FLT_MAX) {
+    printf("setting sensibility=%f\n",buf->sensibility);
+    cal_setSensibility(buf->sensibility);
+  }
+  int dx=buf->dead_zone_X;
+  if (dx < INT16_MAX) {
+    printf("setting dx=%d\n",dx);
+    cal_setDeadzoneX(dx);
+  }
+  int dy=buf->dead_zone_Y;
+  if (dy < INT16_MAX) {
+    printf("setting dy=%d\n",dy);
+    cal_setDeadzoneY(dy);
+  }
+}
+
 /*
  * Read a packet from a remote GIMX client.
  * The packet can be:
@@ -206,6 +226,9 @@ static int network_read_callback(void * user)
   case E_NETWORK_PACKET_EXIT:
       set_done(1);
       break;
+  case E_NETWORK_PACKET_SETCONFIG:
+    handlePacketConfig((s_network_packet_config*) buf);
+    break;
   }
   // require a report to be sent immediately, except for a Sixaxis controller working over bluetooth
   if(adapters[adapter].ctype == C_TYPE_SIXAXIS && adapters[adapter].atype == E_ADAPTER_TYPE_BLUETOOTH)
