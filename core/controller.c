@@ -144,16 +144,27 @@ static void handlePacketConfig(const s_network_packet_config* buf)
     printf("setting sensibility=%f\n",buf->sensibility);
     cal_setSensibility(buf->sensibility);
   }
-  int dx=buf->dead_zone_X;
+  int16_t dx=ntohs(buf->dead_zone_X);
   if (dx < INT16_MAX) {
     printf("setting dx=%d\n",dx);
     cal_setDeadzoneX(dx);
   }
-  int dy=buf->dead_zone_Y;
+  int16_t dy=ntohs(buf->dead_zone_Y);
   if (dy < INT16_MAX) {
     printf("setting dy=%d\n",dy);
     cal_setDeadzoneY(dy);
   }
+}
+
+static s_network_packet_config handlePacketGetConfig()
+{
+  s_network_packet_config config_pkg;
+  const s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
+  config_pkg.packet_type = E_NETWORK_PACKET_GETCONFIG;
+  config_pkg.sensibility = *mcal->mx;
+  config_pkg.dead_zone_X = htons(*mcal->dzx);
+  config_pkg.dead_zone_Y = htons(*mcal->dzy);
+  return config_pkg;
 }
 
 /*
@@ -227,8 +238,20 @@ static int network_read_callback(void * user)
       set_done(1);
       break;
   case E_NETWORK_PACKET_SETCONFIG:
+
     handlePacketConfig((s_network_packet_config*) buf);
     break;
+  case E_NETWORK_PACKET_GETCONFIG:
+  {
+    s_network_packet_config config_pkg = handlePacketGetConfig();
+    if (udp_sendto(adapters[adapter].src_fd, (void *) &config_pkg, sizeof(config_pkg), (struct sockaddr*) &sa, salen) < 0) {
+      gwarn("%s: can't send configuration values\n", __func__);
+      return 0;
+    }
+    break;
+  }
+  default:
+    gwarn("%s: packet_type not recognized",__func__);
   }
   // require a report to be sent immediately, except for a Sixaxis controller working over bluetooth
   if(adapters[adapter].ctype == C_TYPE_SIXAXIS && adapters[adapter].atype == E_ADAPTER_TYPE_BLUETOOTH)
