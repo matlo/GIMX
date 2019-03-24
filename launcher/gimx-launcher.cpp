@@ -1658,7 +1658,7 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
             stringstream ss(line);
             ss >> status;
         }
-        remove(statusFile.mb_str(wxConvUTF8));
+        wxRemoveFile(statusFile);
     }
 
     switch(status)
@@ -1752,7 +1752,7 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
         if (answer == wxYES)
         {
           wxString logfile = gimxLogDir + wxT(LOG_FILE);
-          remove(logfile.mb_str(wxConvUTF8));
+          wxRemoveFile(logfile);
           ProcessOutputChoice->SetSelection(ProcessOutputChoice->FindString(_("log file")));
           wxCommandEvent event;
           OnButtonStartClick(event);

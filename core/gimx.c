@@ -620,15 +620,17 @@ int main(int argc, char *argv[])
 #ifndef WIN32
     char * file = "/tmp/gimx.status";
 #else
-    char file[MAX_PATH];
-    int ret = GetTempPath(sizeof(file), file);
-    if (ret > 0 && (unsigned int) ret < MAX_PATH - sizeof("/gimx.status"))
+    char file[MAX_PATH + 1] = {};
+    wchar_t wtmp[MAX_PATH + 1];
+    int ret = GetTempPathW(MAX_PATH, wtmp);
+    if (ret > 0)
     {
-      strcat(file, "/gimx.status");
-    }
-    else
-    {
-      file[0] = '\0';
+      char * tmp = utf16le_to_utf8(wtmp);
+      if (strlen(tmp) + sizeof("/gimx.status") <= sizeof(file))
+      {
+        sprintf(file, "%s/gimx.status", tmp);
+      }
+      free(tmp);
     }
 #endif
     if (file != NULL && file[0] != '\0')
@@ -652,9 +654,9 @@ int main(int argc, char *argv[])
   if(gimx_params.logfile)
   {
     fclose(gimx_params.logfile);
+#ifndef WIN32
     char file_path[PATH_MAX];
     snprintf(file_path, sizeof(file_path), "%s%s%s%s", gimx_params.homedir, GIMX_DIR, LOG_DIR, gimx_params.logfilename);
-#ifndef WIN32
     int ret = chown(file_path, getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid);
     if (ret < 0)
     {
