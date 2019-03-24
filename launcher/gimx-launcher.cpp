@@ -70,40 +70,32 @@ static wchar_t * utf8_to_utf16le(const char * inbuf)
   return outbuf;
 }
 
-#define ORDONLY _O_RDONLY
-#define OWRONLY _O_WRONLY
-#define OTRUNC  _O_TRUNC
-
-#define OFBUF(path, flags) \
+#define OFBUF(path) \
     wchar_t * wpath = utf8_to_utf16le(path.c_str()); \
-    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | flags), std::ios::out | std::ios::binary); \
+    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | _O_WRONLY | _O_TRUNC | _O_CREAT, 0666), std::ios::out | std::ios::binary); \
     free(wpath);
 
-#define IFBUF(path, flags) \
+#define IFBUF(path) \
     wchar_t * wpath = utf8_to_utf16le(path.c_str()); \
-    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | flags), std::ios::in | std::ios::binary); \
+    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | _O_RDONLY), std::ios::in | std::ios::binary); \
     free(wpath);
 
 #else
 
-#define ORDONLY O_RDONLY
-#define OWRONLY O_WRONLY
-#define OTRUNC  O_TRUNC
+#define OFBUF(path) \
+    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0666), std::ios::out);
 
-#define OFBUF(path, flags) \
-    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), flags), std::ios::out);
-
-#define IFBUF(path, flags) \
-    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), flags), std::ios::in);
+#define IFBUF(path) \
+    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), O_RDONLY), std::ios::in);
 
 #endif
 
-#define IFSTREAM(path, name, flags) \
-    IFBUF(path, flags) \
+#define IFSTREAM(path, name) \
+    IFBUF(path) \
     std::istream name (&fb);
 
-#define OFSTREAM(path, name, flags) \
-    OFBUF(path, flags) \
+#define OFSTREAM(path, name) \
+    OFBUF(path) \
     std::ostream name (&fb);
 
 #ifdef WIN32
@@ -454,7 +446,7 @@ int launcherFrame::setDongleAddress(vector<DongleInfo>& dongleInfos, int dongleI
 }
 
 static void getfileline(const std::string& path, std::string& line) {
-    IFSTREAM(path, infile, ORDONLY)
+    IFSTREAM(path, infile)
     if (infile.good()) {
         getline(infile, line);
     }
@@ -696,7 +688,7 @@ int launcherFrame::readChoices(const char* file, wxChoice* choices, const char* 
       return 0;
     }
 
-    IFSTREAM(filename, myfile, ORDONLY)
+    IFSTREAM(filename, myfile)
     if(myfile.good())
     {
         while ( myfile.good() )
@@ -731,7 +723,7 @@ int launcherFrame::saveParam(const char* file, wxString option)
   int ret = 0;
   string filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append(file);
-  OFSTREAM(filename, outfile, (OWRONLY | OTRUNC))
+  OFSTREAM(filename, outfile)
   if(outfile.good())
   {
       outfile << option.mb_str(wxConvUTF8) << endl;
@@ -755,7 +747,7 @@ int launcherFrame::saveChoices(const char* file, wxChoice* choices)
     filename = string(launcherDir.mb_str(wxConvUTF8));
     filename.append(file);
 
-    OFSTREAM(filename, outfile, (OWRONLY | OTRUNC))
+    OFSTREAM(filename, outfile)
     if(outfile.good())
     {
         for(int i=0; i<(int)choices->GetCount(); i++)
@@ -809,7 +801,7 @@ int launcherFrame::saveLinkKeys(wxString dongleBdaddr, wxString ds4Bdaddr, wxStr
 
   filename.append(BLUETOOTH_LK_FILE);
 
-  OFSTREAM(filename, outfile, (OWRONLY | OTRUNC))
+  OFSTREAM(filename, outfile)
   if(outfile.good())
   {
       outfile << ds4Bdaddr.mb_str(wxConvUTF8) << " " << ds4LinkKey.mb_str(wxConvUTF8) << " 4 0" << endl;
@@ -2070,7 +2062,7 @@ void launcherFrame::OnMenuStartupUpdates(wxCommandEvent& event __attribute__((un
 {
   string filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append(START_UPDATES);
-  OFSTREAM(filename, outfile, (OWRONLY | OTRUNC))
+  OFSTREAM(filename, outfile)
   if(outfile.good())
   {
     if(MenuStartupUpdates->IsChecked())
@@ -2607,7 +2599,7 @@ int launcherFrame::readDonglePairings(vector<BluetoothPairing>& donglePairings)
     {
       string lkFile = btDir + "/" + string(dongleAddress.mb_str(wxConvUTF8)) + BLUETOOTH_LK_FILE;
 
-      IFSTREAM(lkFile, infile, ORDONLY)
+      IFSTREAM(lkFile, infile)
       while( infile.good() )
       {
         string line;

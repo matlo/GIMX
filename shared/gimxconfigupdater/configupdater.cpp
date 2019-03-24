@@ -36,41 +36,21 @@ static wchar_t * utf8_to_utf16le(const char * inbuf)
   return outbuf;
 }
 
-#define ORDONLY _O_RDONLY
-#define OWRONLY _O_WRONLY
-#define OTRUNC  _O_TRUNC
-
-#define OFBUF(path, flags) \
+#define IFBUF(path) \
     wchar_t * wpath = utf8_to_utf16le(path.c_str()); \
-    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | flags), std::ios::out | std::ios::binary); \
-    free(wpath);
-
-#define IFBUF(path, flags) \
-    wchar_t * wpath = utf8_to_utf16le(path.c_str()); \
-    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | flags), std::ios::in | std::ios::binary); \
+    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | _O_RDONLY), std::ios::in | std::ios::binary); \
     free(wpath);
 
 #else
 
-#define ORDONLY O_RDONLY
-#define OWRONLY O_WRONLY
-#define OTRUNC  O_TRUNC
-
-#define OFBUF(path, flags) \
-    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), flags), std::ios::out);
-
-#define IFBUF(path, flags) \
-    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), flags), std::ios::in);
+#define IFBUF(path) \
+    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), O_RDONLY), std::ios::in);
 
 #endif
 
-#define IFSTREAM(path, name, flags) \
-    IFBUF(path, flags) \
+#define IFSTREAM(path, name) \
+    IFBUF(path) \
     std::istream name (&fb);
-
-#define OFSTREAM(path, name, flags) \
-    OFBUF(path, flags) \
-    std::ostream name (&fb);
 
 #ifdef WIN32
 const char * configupdater::configs_url = "https://api.github.com/repos/matlo/GIMX-configurations/contents/Windows";
@@ -132,7 +112,7 @@ configupdater::ConfigUpdaterStatus configupdater::getconfiglist(std::list<std::s
         return convertDowloadStatus(downloadStatus);
     }
 
-    IFSTREAM(tempFile, infile, ORDONLY)
+    IFSTREAM(tempFile, infile)
 
     while (infile.good()) {
         std::string line;
