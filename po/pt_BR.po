@@ -19,7 +19,7 @@ msgstr ""
 #: ../core/args.c:192
 #, c-format
 msgid "ignoring: -%c %s (max controllers reached)\n"
-msgstr "ignorando: - %c %s (controladores max alcançados) \ n"
+msgstr "ignorando: - %c %s (controladores max alcançados)\n"
 
 #: ../core/args.c:202
 #, c-format
@@ -34,175 +34,175 @@ msgstr " com arg %s"
 #: ../core/args.c:215
 #, c-format
 msgid "controller #%d: option -b with value `%s'\n"
-msgstr "controller # %d : opção -b com valor ` %s '\ n"
+msgstr "controller # %d : opção -b com valor ` %s '\n"
 
 #: ../core/args.c:217 ../core/args.c:275 ../core/args.c:363
 #, c-format
 msgid "now reading arguments for controller #%d\n"
-msgstr "Agora lendo argumentos para o controlador # %d \ n"
+msgstr "Agora lendo argumentos para o controlador # %d\n"
 
 #: ../core/args.c:222
 #, c-format
 msgid "global option -c with value `%s'\n"
-msgstr "Opção global -c com valor ` %s '\ n"
+msgstr "Opção global -c com valor ` %s '\n"
 
 #: ../core/args.c:233
 #, c-format
 msgid "Bad event format: %s\n"
-msgstr "Formato de evento incorreto: %s \ n"
+msgstr "Formato de evento incorreto: %s\n"
 
 #: ../core/args.c:244
 #, c-format
 msgid "controller #%d: option -e with value `%s(%d)'\n"
-msgstr "controller # %d : opção -e com valor ` %s ( %d ) '\ n"
+msgstr "controller # %d : opção -e com valor ` %s ( %d ) '\n"
 
 #: ../core/args.c:251
 #, c-format
 msgid "Bad axis name for event: %s\n"
-msgstr "Nome do eixo inválido para o evento: %s \ n"
+msgstr "Nome do eixo inválido para o evento: %s\n"
 
 #: ../core/args.c:260
 #, c-format
 msgid "controller #%d: option -h with value `%d'\n"
-msgstr "controller # %d : opção -h com valor ` %d '\ n"
+msgstr "controller # %d : opção -h com valor ` %d '\n"
 
 #: ../core/args.c:267
 #, c-format
 msgid "Bad format for argument -d: '%s'\n"
-msgstr "Formato incorreto para o argumento -d: ' %s ' \ n"
+msgstr "Formato incorreto para o argumento -d: ' %s '\n"
 
 #: ../core/args.c:273
 #, c-format
 msgid "controller #%d: option -d with value `%s'\n"
-msgstr "controlador # %d : opção -d com valor ` %s '\ n"
+msgstr "controlador # %d : opção -d com valor ` %s '\n"
 
 #: ../core/args.c:288
 #, c-format
 msgid "Bad format for argument -s: '%s'\n"
-msgstr "Formato incorreto para o argumento -s: ' %s ' \ n"
+msgstr "Formato incorreto para o argumento -s: ' %s '\n"
 
 #: ../core/args.c:293
 #, c-format
 msgid "controller #%d: option -s with value `%s'\n"
-msgstr "controller # %d : opção -s com valor ` %s '\ n"
+msgstr "controller # %d : opção -s com valor ` %s '\n"
 
 #: ../core/args.c:301
 #, c-format
 msgid "controller #%d: option -k with value `%s'\n"
-msgstr "controller # %d : opção -k com valor ` %s '\ n"
+msgstr "controller # %d : opção -k com valor ` %s '\n"
 
 #: ../core/args.c:322
 #, c-format
 msgid "can't open log file (%s)\n"
-msgstr "não é possível abrir o arquivo de log ( %s ) \ n"
+msgstr "não é possível abrir o arquivo de log ( %s )\n"
 
 #: ../core/args.c:326
 #, c-format
 msgid "global option -l with value `%s'\n"
-msgstr "Opção global -l com valor ` %s '\ n"
+msgstr "Opção global -l com valor ` %s '\n"
 
 #: ../core/args.c:330
 msgid "log file can't be used with curses\n"
-msgstr "arquivo de log não pode ser usado com curses \ n"
+msgstr "arquivo de log não pode ser usado com curses\n"
 
 #: ../core/args.c:336
 msgid "only one log file can be specified\n"
-msgstr "apenas um arquivo de log pode ser especificado \ n"
+msgstr "apenas um arquivo de log pode ser especificado\n"
 
 #: ../core/args.c:356
 #, c-format
 msgid "port already used: `%s'\n"
-msgstr "porta já usada: ` %s '\ n"
+msgstr "porta já usada: ` %s '\n"
 
 #: ../core/args.c:361
 #, c-format
 msgid "controller #%d: option -p with value `%s'\n"
-msgstr "controller # %d : opção -p com valor ` %s '\ n"
+msgstr "controller # %d : opção -p com valor ` %s '\n"
 
 #: ../core/args.c:369
 #, c-format
 msgid "global option -q with value `%s'\n"
-msgstr "opção global -q com valor ` %s '\ n"
+msgstr "opção global -q com valor ` %s '\n"
 
 #: ../core/args.c:377
 #, c-format
 msgid "global option -r with value `%s'\n"
-msgstr "Opção global -r com valor ` %s '\ n"
+msgstr "Opção global -r com valor ` %s '\n"
 
 #: ../core/args.c:387
 #, c-format
 msgid "controller #%d: option -t with value `%s'\n"
-msgstr "controller # %d : opção -t com valor ` %s '\ n"
+msgstr "controller # %d : opção -t com valor ` %s '\n"
 
 #: ../core/args.c:429
 #, c-format
 msgid "unrecognized option: %c\n"
-msgstr "Opção não reconhecida: %c \ n"
+msgstr "Opção não reconhecida: %c\n"
 
 #: ../core/args.c:439
 #, c-format
 msgid "grab flag is unset\n"
-msgstr "flag de captura está desativado \ n"
+msgstr "flag de captura está desativado\n"
 
 #: ../core/args.c:441
 #, c-format
 msgid "status flag is set\n"
-msgstr "sinalizador de status está definido \ n"
+msgstr "sinalizador de status está definido\n"
 
 #: ../core/args.c:443
 #, c-format
 msgid "subpos flag is set\n"
-msgstr "o sinalizador de subpos é definido \ n"
+msgstr "o sinalizador de subpos é definido\n"
 
 #: ../core/args.c:445
 #, c-format
 msgid "force_updates flag is set\n"
-msgstr "O sinalizador force_updates está definido \ n"
+msgstr "O sinalizador force_updates está definido\n"
 
 #: ../core/args.c:447
 #, c-format
 msgid "curses flag is set\n"
-msgstr "sinalizador de curses está definido \ n"
+msgstr "sinalizador de curses está definido\n"
 
 #: ../core/args.c:449
 #, c-format
 msgid "window_events flag is set\n"
-msgstr "O sinalizador window_events está definido \ n"
+msgstr "O sinalizador window_events está definido\n"
 
 #: ../core/args.c:451
 #, c-format
 msgid "btstack flag is set\n"
-msgstr "A flag btstack está definida \ n"
+msgstr "A flag btstack está definida\n"
 
 #: ../core/args.c:453
 #, c-format
 msgid "skip_leds flag is set\n"
-msgstr "O sinalizador skip_leds está definido \ n"
+msgstr "O sinalizador skip_leds está definido\n"
 
 #: ../core/args.c:455
 #, c-format
 msgid "ff_conv flag is set\n"
-msgstr "O sinalizador ff_conv está definido \ n"
+msgstr "O sinalizador ff_conv está definido\n"
 
 #: ../core/args.c:457
 #, c-format
 msgid "auto-grab flag is set\n"
-msgstr "o sinalizador de captura automática está definido \ n"
+msgstr "o sinalizador de captura automática está definido\n"
 
 #: ../core/args.c:488
 #, c-format
 msgid "%s flag is set\n"
-msgstr "%s sinalizador %s está definido \ n"
+msgstr "%s sinalizador %s está definido\n"
 
 #: ../core/calibration.c:198
 #, c-format
 msgid "calibrating mouse %s (%d)\n"
-msgstr "calibrando o mouse %s ( %d ) \ n"
+msgstr "calibrando o mouse %s ( %d )\n"
 
 #: ../core/calibration.c:199
 #, c-format
 msgid "calibrating conf %d\n"
-msgstr "calibrando conf %d \ n"
+msgstr "calibrando conf %d\n"
 
 #: ../core/calibration.c:200
 msgid "sensibility:"
@@ -213,7 +213,7 @@ msgstr "sensibilidade:"
 #: ../core/calibration.c:250 ../core/calibration.c:259
 #: ../core/calibration.c:268
 msgid " NA\n"
-msgstr " NA \ n"
+msgstr " NA\n"
 
 #: ../core/calibration.c:209
 msgid "x/y ratio:"
@@ -233,11 +233,11 @@ msgstr "forma:"
 
 #: ../core/calibration.c:241
 msgid " Circle\n"
-msgstr " Círculo \ n"
+msgstr " Círculo\n"
 
 #: ../core/calibration.c:245
 msgid " Rectangle\n"
-msgstr " Retângulo \ n"
+msgstr " Retângulo\n"
 
 #: ../core/calibration.c:252
 msgid "acceleration x:"
@@ -250,217 +250,217 @@ msgstr "aceleração y:"
 #: ../core/calibration.c:270
 #, c-format
 msgid "radius: %d\n"
-msgstr "raio: %d \ n"
+msgstr "raio: %d\n"
 
 #: ../core/calibration.c:271
 #, c-format
 msgid "velocity: %d\n"
-msgstr "velocidade: %d \ n"
+msgstr "velocidade: %d\n"
 
 #: ../core/calibration.c:272
 #, c-format
 msgid "time: %d\n"
-msgstr "hora: %d \ n"
+msgstr "hora: %d\n"
 
 #: ../core/calibration.c:312 ../core/calibration.c:335
 msgid "mouse selection\n"
-msgstr "seleção de mouse \ n"
+msgstr "seleção de mouse\n"
 
 #: ../core/calibration.c:317 ../core/calibration.c:344
 msgid "profile selection\n"
-msgstr "seleção de perfil \ n"
+msgstr "seleção de perfil\n"
 
 #: ../core/calibration.c:325
 #, c-format
 msgid "error writting the config file %s\n"
-msgstr "erro ao gravar o arquivo de configuração %s \ n"
+msgstr "erro ao gravar o arquivo de configuração %s\n"
 
 #: ../core/calibration.c:327
 msgid "calibration done\n"
-msgstr "calibração feita \ n"
+msgstr "calibração feita\n"
 
 #: ../core/calibration.c:350
 msgid "calibrating sensitivity\n"
-msgstr "sensibilidade de calibração \ n"
+msgstr "sensibilidade de calibração\n"
 
 #: ../core/calibration.c:357
 msgid "calibrating x/y ratio\n"
-msgstr "calibrando a relação x / y \ n"
+msgstr "calibrando a relação x / y\n"
 
 #: ../core/calibration.c:364
 msgid "calibrating dead zone x\n"
-msgstr "calibrando zona morta x \ n"
+msgstr "calibrando zona morta x\n"
 
 #: ../core/calibration.c:374
 msgid "calibrating dead zone y\n"
-msgstr "calibrando a zona morta y \ n"
+msgstr "calibrando a zona morta y\n"
 
 #: ../core/calibration.c:384
 msgid "calibrating dead zone shape\n"
-msgstr "calibrando a forma da zona morta \ n"
+msgstr "calibrando a forma da zona morta\n"
 
 #: ../core/calibration.c:394
 msgid "calibrating acceleration x\n"
-msgstr "calibração de aceleração x \ n"
+msgstr "calibração de aceleração x\n"
 
 #: ../core/calibration.c:401
 msgid "calibrating acceleration y\n"
-msgstr "calibração de aceleração y \ n"
+msgstr "calibração de aceleração y\n"
 
 #: ../core/calibration.c:412
 msgid "adjusting circle test radius\n"
-msgstr "ajustando raio de teste do círculo \ n"
+msgstr "ajustando raio de teste do círculo\n"
 
 #: ../core/calibration.c:423
 msgid "adjusting circle test velocity\n"
-msgstr "ajuste da velocidade do teste do círculo \ n"
+msgstr "ajuste da velocidade do teste do círculo\n"
 
 #: ../core/calibration.c:437
 msgid "translation test started\n"
-msgstr "teste de tradução iniciado \ n"
+msgstr "teste de tradução iniciado\n"
 
 #: ../core/config.c:639
 #, c-format
 msgid "controller %d profile %d axis %s intensity: %.0f\n"
-msgstr "controlador %d perfil %d eixo %s intensidade:% .0f \ n"
+msgstr "controlador %d perfil %d eixo %s intensidade:% .0f\n"
 
 #: ../core/config.c:855
 #, c-format
 msgid "%d %ld.%06ld controller %d is switched from profile %d to %d\n"
-msgstr "%d % ld.% 06ld controlador% d é alternado do perfil% d para% d \ n"
+msgstr "%d % ld.% 06ld controlador% d é alternado do perfil% d para% d\n"
 
 #: ../core/config_reader.c:80
 #, c-format
 msgid "joystick not found: %s %d\n"
-msgstr "joystick não encontrado: %s %d \ n"
+msgstr "joystick não encontrado: %s %d\n"
 
 #: ../core/config_reader.c:83
 #, c-format
 msgid "mouse not found: %s %d\n"
-msgstr "mouse não encontrado: %s %d \ n"
+msgstr "mouse não encontrado: %s %d\n"
 
 #: ../core/config_reader.c:86
 #, c-format
 msgid "keyboard not found: %s %d\n"
-msgstr "teclado não encontrado: %s %d \ n"
+msgstr "teclado não encontrado: %s %d\n"
 
 #: ../core/config_reader.c:142
 msgid "A device name is empty. Multiple mice and keyboards are not managed.\n"
-msgstr "Um nome de dispositivo está vazio. Vários mouses e teclados não são gerenciados. \ N"
+msgstr "Um nome de dispositivo está vazio. Vários mouses e teclados não são gerenciados.\n"
 
 #: ../core/connectors/tcp_con.c:43
 #, c-format
 msgid "connected to %s:%d\n"
-msgstr "conectado a %s : %d \ n"
+msgstr "conectado a %s : %d\n"
 
 #: ../core/connectors/usb_con.c:413
 msgid "no pass-through device is needed\n"
-msgstr "não é necessário nenhum dispositivo de passagem \ n"
+msgstr "não é necessário nenhum dispositivo de passagem\n"
 
 #: ../core/connectors/usb_con.c:422
 #, c-format
 msgid "found pass-through device 0x%04x:0x%04x\n"
-msgstr "dispositivo de passagem encontrado 0x% 04x: 0x% 04x \ n"
+msgstr "dispositivo de passagem encontrado 0x% 04x: 0x% 04x\n"
 
 #: ../core/controller.c:276
 #, c-format
 msgid "macros are not available for: %s %s (%d)\n"
-msgstr "as macros não estão disponíveis para: %s %s ( %d ) \ n"
+msgstr "as macros não estão disponíveis para: %s %s ( %d )\n"
 
 #: ../core/controller.c:598
 msgid "no GPP detected.\n"
-msgstr "não foi detectado GPP. \ n"
+msgstr "não foi detectado GPP.\n"
 
 #: ../core/controller.c:603
 #, c-format
 msgid "GPP detected, controller type is: %s.\n"
-msgstr "GPP detectado, o tipo de controlador é: %s . \ N"
+msgstr "GPP detectado, o tipo de controlador é: %s .\n"
 
 #: ../core/controller.c:608
 msgid "unknown GPP controller type.\n"
-msgstr "tipo de controlador GPP desconhecido. \ n"
+msgstr "tipo de controlador GPP desconhecido.\n"
 
 #: ../core/controller.c:619
 msgid "failed to open the GIMX adapter\n"
-msgstr "falhou ao abrir o adaptador GIMX \ n"
+msgstr "falhou ao abrir o adaptador GIMX\n"
 
 #: ../core/controller.c:633
 #, c-format
 msgid "GIMX adapter detected, controller type is: %s.\n"
-msgstr "Adaptador GIMX detectado, o tipo de controlador é: %s . \ N"
+msgstr "Adaptador GIMX detectado, o tipo de controlador é: %s .\n"
 
 #: ../core/controller.c:641
 msgid "wrong controller type.\n"
-msgstr "tipo de controlador errado. \ n"
+msgstr "tipo de controlador errado.\n"
 
 #: ../core/controller.c:649
 msgid "failed to get the GIMX adapter status.\n"
-msgstr "Falha ao obter o status do adaptador GIMX. \ n"
+msgstr "Falha ao obter o status do adaptador GIMX.\n"
 
 #: ../core/controller.c:667
 msgid "failed to reset the GIMX adapter.\n"
-msgstr "falhou ao redefinir o adaptador GIMX. \ n"
+msgstr "falhou ao redefinir o adaptador GIMX.\n"
 
 #: ../core/controller.c:672
 msgid "Reset sent to the GIMX adapter.\n"
-msgstr "Reset enviado para o adaptador GIMX. \ N"
+msgstr "Reset enviado para o adaptador GIMX.\n"
 
 #: ../core/controller.c:681
 msgid "Disable force updates to work-around #335.\n"
-msgstr "Desabilite as atualizações de força para contornar o # 335. \ N"
+msgstr "Desabilite as atualizações de força para contornar o # 335.\n"
 
 #: ../core/controller.c:693
 msgid "No game controller was found on USB ports.\n"
-msgstr "Nenhum controlador de jogos foi encontrado nas portas USB. \ N"
+msgstr "Nenhum controlador de jogos foi encontrado nas portas USB.\n"
 
 #: ../core/controller.c:720
 msgid ""
 "Start the game with a dualshock 3, and then reassign game controllers.\n"
-msgstr "Inicie o jogo com um dualshock 3 e reatribua os controladores de jogo. \ N"
+msgstr "Inicie o jogo com um dualshock 3 e reatribua os controladores de jogo.\n"
 
 #: ../core/controller.c:743
 #, c-format
 msgid "failed to connect to network destination: %s:%d.\n"
-msgstr "Falha ao conectar-se ao destino da rede: %s : %d . \ n"
+msgstr "Falha ao conectar-se ao destino da rede: %s : %d .\n"
 
 #: ../core/controller.c:748
 #, c-format
 msgid "Remote GIMX detected, controller type is: %s.\n"
-msgstr "O GIMX remoto detectado, o tipo de controlador é: %s . \ N"
+msgstr "O GIMX remoto detectado, o tipo de controlador é: %s .\n"
 
 #: ../core/controller.c:859
 msgid "failed to start the GIMX adapter.\n"
-msgstr "Falha ao iniciar o adaptador GIMX. \ n"
+msgstr "Falha ao iniciar o adaptador GIMX.\n"
 
 #: ../core/controller.c:864
 msgid "failed to start the GIMX adapter asynchronous processing.\n"
-msgstr "Falha ao iniciar o processamento assíncrono do adaptador GIMX. \ n"
+msgstr "Falha ao iniciar o processamento assíncrono do adaptador GIMX.\n"
 
 #: ../core/controller.c:870
 #, c-format
 msgid "Press the %s button to activate the controller.\n"
-msgstr "Pressione o botão %s para ativar o controlador. \ N"
+msgstr "Pressione o botão %s para ativar o controlador.\n"
 
 #: ../core/controller.c:882
 msgid "failed to initialize the sixaxis emulation.\n"
-msgstr "Falha ao inicializar a emulação sixaxis. \ n"
+msgstr "Falha ao inicializar a emulação sixaxis.\n"
 
 #: ../core/controller.c:891
 msgid "failed to initialize the dualshock 4 emulation.\n"
-msgstr "falha ao inicializar a emulação do dualshock 4. \ n"
+msgstr "falha ao inicializar a emulação do dualshock 4.\n"
 
 #: ../core/controller.c:898
 msgid "unsupported bluetooth controller type.\n"
-msgstr "tipo de controlador bluetooth sem suporte. \ n"
+msgstr "tipo de controlador bluetooth sem suporte.\n"
 
 #: ../core/controller.c:914
 msgid "failed to start the GPP asynchronous processing.\n"
-msgstr "Falha ao iniciar o processamento assíncrono do GPP. \ n"
+msgstr "Falha ao iniciar o processamento assíncrono do GPP.\n"
 
 #: ../core/controller.c:924
 #, c-format
 msgid "failed to listen on network source: %s:%d.\n"
-msgstr "não foi possível escutar na origem da rede: %s : %d . \ n"
+msgstr "não foi possível escutar na origem da rede: %s : %d .\n"
 
 #: ../core/display.c:23 ../launcher/gimx-launcher.cpp:1571
 msgid "Press Shift+Esc to exit."
@@ -557,16 +557,16 @@ msgstr "Taxa de atualização:% 4dHz  "
 #: ../core/gimx.c:315
 #, c-format
 msgid "using default refresh period: %.02fms\n"
-msgstr "usando o período de atualização padrão:% .02fms \ n"
+msgstr "usando o período de atualização padrão:% .02fms\n"
 
 #: ../core/gimx.c:448
 #, c-format
 msgid "Unknown key name for argument --keygen: '%s'\n"
-msgstr "Nome da chave desconhecida para o argumento --keygen: ' %s ' \ n"
+msgstr "Nome da chave desconhecida para o argumento --keygen: ' %s '\n"
 
 #: ../core/gimx.c:487
 msgid "Exiting\n"
-msgstr "Sair \ n"
+msgstr "Sair\n"
 
 #: ../config/gimx-config.cpp:251 ../config/gimx-config.cpp:856
 msgid "Increase"
@@ -900,7 +900,7 @@ msgstr "No geral"
 
 #: ../config/gimx-config.cpp:1244
 msgid "New\tCtrl-N"
-msgstr "Novo \ tCtrl-N"
+msgstr "Novo\tCtrl-N"
 
 #: ../config/gimx-config.cpp:1244
 msgid "Create a new configuration"
@@ -908,7 +908,7 @@ msgstr "Crie uma nova configuração"
 
 #: ../config/gimx-config.cpp:1246
 msgid "Open\tCtrl-O"
-msgstr "Abra \ tCtrl-O"
+msgstr "Abra\tCtrl-O"
 
 #: ../config/gimx-config.cpp:1246
 msgid "Open a configuration file"
@@ -916,7 +916,7 @@ msgstr "Abra um arquivo de configuração"
 
 #: ../config/gimx-config.cpp:1248 ../launcher/gimx-launcher.cpp:1047
 msgid "Save\tCtrl-S"
-msgstr "Salvar \ tCtrl-S"
+msgstr "Salvar\tCtrl-S"
 
 #: ../config/gimx-config.cpp:1248
 msgid "Save configuration"
@@ -938,7 +938,7 @@ msgstr "Abra o diretório de configuração"
 #: ../config/gimx-config.cpp:1256 ../fpsconfig/gimx-fpsconfig.cpp:393
 #: ../launcher/gimx-launcher.cpp:1049
 msgid "Quit\tAlt-F4"
-msgstr "Saia \ tAlt-F4"
+msgstr "Saia\tAlt-F4"
 
 #: ../config/gimx-config.cpp:1256 ../fpsconfig/gimx-fpsconfig.cpp:393
 #: ../launcher/gimx-launcher.cpp:1049
@@ -1098,7 +1098,7 @@ msgstr "Avançado"
 #: ../config/gimx-config.cpp:1355 ../fpsconfig/gimx-fpsconfig.cpp:405
 #: ../launcher/gimx-launcher.cpp:1061
 msgid "About\tF1"
-msgstr "Acerca de \ tF1"
+msgstr "Acerca de\tF1"
 
 #: ../config/gimx-config.cpp:1355 ../fpsconfig/gimx-fpsconfig.cpp:405
 #: ../launcher/gimx-launcher.cpp:1061
@@ -1256,7 +1256,7 @@ msgid ""
 "1. fully press the pedal\n"
 "2. fully release the pedal\n"
 "3. press any key or button"
-msgstr "Calibração de pedal: \ n1. pressione totalmente o pedal \ n2. solte totalmente o pedal \ n3. pressione qualquer tecla ou botão"
+msgstr "Calibração de pedal:\n1. pressione totalmente o pedal\n2. solte totalmente o pedal\n3. pressione qualquer tecla ou botão"
 
 #: ../config/gimx-config.cpp:2144
 msgid "Failed to calibrate the pedal."
@@ -1266,7 +1266,7 @@ msgstr "Não foi possível calibrar o pedal."
 msgid ""
 "Joystick correction has been added in the \"Overall>Joystick corrections\" "
 "panel"
-msgstr "A correção do joystick foi adicionada no painel \ "Geral> Correções do joystick \""
+msgstr "A correção do joystick foi adicionada no painel \"Geral> Correções do joystick \""
 
 #: ../config/gimx-config.cpp:2820 ../fpsconfig/gimx-fpsconfig.cpp:1413
 msgid "Can't save "
@@ -1306,13 +1306,13 @@ msgstr "Pressione uma tecla do teclado."
 msgid ""
 "This will replace the mouse in the current controller.\n"
 "Continue?"
-msgstr "Isso substituirá o mouse no controlador atual. \ NContinuar?"
+msgstr "Isso substituirá o mouse no controlador atual.\nContinuar?"
 
 #: ../config/gimx-config.cpp:3391
 msgid ""
 "This will replace the keyboard in the current controller.\n"
 "Continue?"
-msgstr "Isso substituirá o teclado no controlador atual. \ NContinuar?"
+msgstr "Isso substituirá o teclado no controlador atual.\nContinuar?"
 
 #: ../config/gimx-config.cpp:3426 ../config/gimx-config.cpp:3437
 #: ../config/gimx-config.cpp:3539 ../fpsconfig/gimx-fpsconfig.cpp:2015
@@ -1343,20 +1343,20 @@ msgstr "Valor de DPI do mouse"
 msgid ""
 "This control is already used in the current profile (Button tab).\n"
 "Continue?"
-msgstr "Esse controle já é usado no perfil atual (guia Botão). \ NContinuar?"
+msgstr "Esse controle já é usado no perfil atual (guia Botão).\nContinuar?"
 
 #: ../config/gimx-config.cpp:3727
 msgid ""
 "This control is already used in the current profile (Axis tab).\n"
 "Continue?"
-msgstr "Esse controle já é usado no perfil atual (guia Eixo). \ NContinuar?"
+msgstr "Esse controle já é usado no perfil atual (guia Eixo).\nContinuar?"
 
 #: ../config/gimx-config.cpp:3745
 msgid ""
 "This control is already used in the current profile (Overall tab>Intensity "
 "tab).\n"
 "Continue?"
-msgstr "Esse controle já é usado no perfil atual (guia Geral> guia Intensidade). \ NContinuar?"
+msgstr "Esse controle já é usado no perfil atual (guia Geral> guia Intensidade).\nContinuar?"
 
 #: ../config/gimx-config.cpp:3805 ../fpsconfig/gimx-fpsconfig.cpp:2051
 msgid "No config opened!"
@@ -1533,15 +1533,15 @@ msgstr "Converter em sensibilidade"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:382
 msgid "New\tCtrl+N"
-msgstr "Novo \ tCtrl + N"
+msgstr "Novo\tCtrl + N"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:384
 msgid "Open\tCtrl+O"
-msgstr "Abra \ tCtrl + O"
+msgstr "Abra\tCtrl + O"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:386
 msgid "Save\tCtrl+S"
-msgstr "Salvar \ tCtrl + S"
+msgstr "Salvar\tCtrl + S"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:389
 msgid "Save As"
@@ -1563,7 +1563,7 @@ msgstr "Controles de joystick são suportados apenas através do gimx-config."
 msgid ""
 "Profiles 1 & 2 do not contain the same bindings.\n"
 "Editing this conf with gimx-fpsconfig can mess the bindings."
-msgstr "Os perfis 1 e 2 não contêm as mesmas ligações. \ NEditar este conf com gimx-fpsconfig pode atrapalhar as ligações."
+msgstr "Os perfis 1 e 2 não contêm as mesmas ligações.\nEditar este conf com gimx-fpsconfig pode atrapalhar as ligações."
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:2069
 msgid "Auto-bind done!"
@@ -1591,14 +1591,14 @@ msgid "Waiting for installation to complete"
 msgstr "Aguardando a instalação concluir"
 
 #: ../launcher/SetupManager.cpp:175
-msgid "A device requires the following component: \n"
-msgstr "Um dispositivo requer o seguinte componente: \ n"
+msgid "A device requires the following component:\n"
+msgstr "Um dispositivo requer o seguinte componente:\n"
 
 #: ../launcher/SetupManager.cpp:176
 msgid ""
 "\n"
 "Download and install?"
-msgstr "\ nTransferir e instalar?"
+msgstr "\nTransferir e instalar?"
 
 #: ../launcher/SetupManager.cpp:181 ../launcher/gimx-launcher.cpp:851
 #: ../launcher/gimx-launcher.cpp:2106
@@ -1751,7 +1751,7 @@ msgstr "Auto-bind e converter"
 
 #: ../launcher/gimx-launcher.cpp:1045
 msgid "Refresh\tF5"
-msgstr "Atualizar \ tF5"
+msgstr "Atualizar\tF5"
 
 #: ../launcher/gimx-launcher.cpp:1053
 msgid "Get configs"
@@ -1860,7 +1860,7 @@ msgstr "IP: port é o mesmo para entrada e saída!"
 msgid ""
 "Bluetooth service has to be stopped.\n"
 "Proceed?"
-msgstr "O serviço Bluetooth deve ser interrompido. \ NProced?"
+msgstr "O serviço Bluetooth deve ser interrompido.\nProced?"
 
 #: ../launcher/gimx-launcher.cpp:1432
 msgid "Can't stop bluetoothd!"
@@ -1870,7 +1870,7 @@ msgstr "Não consigo parar o bluetoothd!"
 msgid ""
 "Windows Task Manager has to be stopped.\n"
 "Proceed?"
-msgstr "O Gerenciador de Tarefas do Windows precisa ser interrompido. \ NProced?"
+msgstr "O Gerenciador de Tarefas do Windows precisa ser interrompido.\nProced?"
 
 #: ../launcher/gimx-launcher.cpp:1474
 msgid "Select the destination:"
@@ -1896,14 +1896,14 @@ msgid ""
 "If you built the adapter yourself:\n"
 " . make sure the wiring is correct (swapping RX and TX is a common mistake)\n"
 " . make sure it runs the right firmware"
-msgstr "Falha ao detectar o adaptador USB: \ n. certifique-se de selecionar a porta correta \ n. Certifique-se de ligar o console de destino \ nSe você mesmo construiu o adaptador: \ n. verifique se a fiação está correta (trocar RX e TX é um erro comum) \ n. verifique se ele executa o firmware correto"
+msgstr "Falha ao detectar o adaptador USB:\n. certifique-se de selecionar a porta correta\n. Certifique-se de ligar o console de destino\nSe você mesmo construiu o adaptador:\n. verifique se a fiação está correta (trocar RX e TX é um erro comum)\n. verifique se ele executa o firmware correto"
 
 #: ../launcher/gimx-launcher.cpp:1662
 msgid ""
 "Failed to detect the remote GIMX instance:\n"
 " . make sure to fill the right IP:port\n"
 " . make sure the remote instance is running"
-msgstr "Falha ao detectar a instância remota do GIMX: \ n. certifique-se de preencher o endereço IP: port correto \ n. verifique se a instância remota está em execução"
+msgstr "Falha ao detectar a instância remota do GIMX:\n. certifique-se de preencher o endereço IP: port correto\n. verifique se a instância remota está em execução"
 
 #: ../launcher/gimx-launcher.cpp:1668
 msgid "Failed to detect the adapter (fallback error message)."
@@ -1935,13 +1935,13 @@ msgid ""
 ". make sure the cable wasn't pulled\n"
 ". make sure the cable is not bad (try another one)\n"
 ". make sure to turn controller off before connection."
-msgstr "Houve um erro de conexão com o controlador oficial: \ n. verifique se o cabo não foi puxado \ n. verifique se o cabo não está ruim (tente outro) \ n. Certifique-se de desligar o controlador antes da conexão."
+msgstr "Houve um erro de conexão com o controlador oficial:\n. verifique se o cabo não foi puxado\n. verifique se o cabo não está ruim (tente outro)\n. Certifique-se de desligar o controlador antes da conexão."
 
 #: ../launcher/gimx-launcher.cpp:1731
 msgid ""
 "Mouse was captured, input was \"physical devices\", and focus was lost. "
 "Either you pressed alt+tab or some other app took focus.\n"
-msgstr "O rato foi capturado, a entrada foi \ "dispositivos físicos \" e o foco foi perdido. Você pressionou o Alt + Tab ou algum outro aplicativo ficou em foco. \ N"
+msgstr "O rato foi capturado, a entrada foi \"dispositivos físicos \" e o foco foi perdido. Você pressionou o Alt + Tab ou algum outro aplicativo ficou em foco.\n"
 
 #: ../launcher/gimx-launcher.cpp:1708
 msgid "Failed to open log file. GIMX may have crashed (please report this)."
@@ -1953,7 +1953,7 @@ msgstr "O GIMX correu menos de 5 segundos. Você gostaria de gerar um relatório
 
 #: ../launcher/gimx-launcher.cpp:1756
 msgid "This config seems OK!\n"
-msgstr "Esta configuração parece OK! \ N"
+msgstr "Esta configuração parece OK!\n"
 
 #: ../launcher/gimx-launcher.cpp:1773
 msgid "Failed to start gimx-config!"
@@ -1965,11 +1965,11 @@ msgstr "Falha ao iniciar o gimx-fpsconfig!"
 
 #: ../launcher/gimx-launcher.cpp:1802 ../launcher/gimx-launcher.cpp:1859
 msgid "No Serial Port Detected!\n"
-msgstr "Nenhuma porta serial detectada! \ N"
+msgstr "Nenhuma porta serial detectada!\n"
 
 #: ../launcher/gimx-launcher.cpp:1810 ../launcher/gimx-launcher.cpp:1844
 msgid "No device detected!\n"
-msgstr "Nenhum dispositivo detectado! \ N"
+msgstr "Nenhum dispositivo detectado!\n"
 
 #: ../launcher/gimx-launcher.cpp:1866 ../launcher/gimx-launcher.cpp:1885
 msgid "Pairing"
@@ -1979,7 +1979,7 @@ msgstr "Emparelhamento"
 msgid ""
 "No pairing found.\n"
 "Perform a new pairing?"
-msgstr "Nenhum par encontrado. \ NFazer um novo pareamento?"
+msgstr "Nenhum par encontrado.\nFazer um novo pareamento?"
 
 #: ../launcher/gimx-launcher.cpp:1891
 msgid "New/Repair"
@@ -1993,7 +1993,7 @@ msgstr "Instalando"
 msgid ""
 "Update available.\n"
 "Start installation?"
-msgstr "Atualização disponível. \ NIniciar a instalação?"
+msgstr "Atualização disponível.\nIniciar a instalação?"
 
 #: ../launcher/gimx-launcher.cpp:2003
 msgid "Downloading update"
