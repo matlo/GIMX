@@ -41,5 +41,7 @@ void calibration_test();
 void cal_setSensibility(double);
 void cal_setDeadzoneX(int);
 void cal_setDeadzoneY(int);
+void cal_save();
+void cal_update_display();
 
 #endif /* CALIBRATION_H_ */

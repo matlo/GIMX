@@ -273,6 +273,24 @@ static void cal_display()
   }
 }
 
+void cal_save()
+{
+  current_cal = NONE;
+  if (cfgw_modify_file(gimx_params.config_file)) {
+    gwarn(_("error writting the config file %s\n"), gimx_params.config_file);
+  }
+  ginfo(_("calibration done\n"));
+}
+
+void cal_update_display()
+{
+  if (gimx_params.curses) {
+    display_calibration();
+  } else {
+    cal_display();
+  }
+}
+
 /*
  * Use keys to calibrate the mouse.
  */
@@ -319,12 +337,7 @@ void cal_key(int sym, int down)
           }
           else
           {
-            current_cal = NONE;
-            if (cfgw_modify_file(gimx_params.config_file))
-            {
-              gwarn(_("error writting the config file %s\n"), gimx_params.config_file);
-            }
-            ginfo(_("calibration done\n"));
+            cal_save();
           }
         }
         else if(current_cal != NONE)
@@ -442,14 +455,7 @@ void cal_key(int sym, int down)
 
   if(prev != current_cal)
   {
-    if(gimx_params.curses)
-    {
-      display_calibration();
-    }
-    else
-    {
-      cal_display();
-    }
+    cal_update_display();
   }
 }
 

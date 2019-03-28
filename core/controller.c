@@ -263,6 +263,12 @@ static int network_read_callback(void * user)
     }
     break;
   }
+  case E_NETWORK_PACKET_SAVECALIBRATION:
+  {
+    cal_save();
+    cal_update_display();
+    break;
+  }
   default:
     gwarn("%s: packet_type not recognized",__func__);
   }
