@@ -10,16 +10,25 @@
 
 #define XONE_VENDOR 0x045e
 #define XONE_PRODUCT 0x02d1
+#define XONE_PRODUCT_2 0x02dd
+#define XONE_PRODUCT_S 0x02ea
 
 #ifndef WIN32
 #define XONE_NAME "Microsoft X-Box One pad"
+#define XONE_NAME_2 "Microsoft X-Box One pad (Firmware 2015)"
+#define XONE_NAME_S "Microsoft X-Box One S pad"
 #else
 #define XONE_NAME "XInput Controller"
+#define XONE_NAME_2 "XInput Controller"
+#define XONE_NAME_S "XInput Controller"
 #endif
 
 #define XONE_USB_INTERRUPT_ENDPOINT_IN 1
 #define XONE_USB_INTERRUPT_ENDPOINT_OUT 1
 #define XONE_USB_INTERRUPT_PACKET_SIZE 64
+
+#define XONE_S_USB_INTERRUPT_ENDPOINT_IN 2
+#define XONE_S_USB_INTERRUPT_ENDPOINT_OUT 2
 
 #define XONE_USB_HID_IN_REPORT_ID 0x20
 
