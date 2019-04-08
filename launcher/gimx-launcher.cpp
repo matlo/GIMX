@@ -1498,13 +1498,9 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
       if (dialog.ShowModal() == wxID_OK)
       {
         wxString selection = dialog.GetStringSelection();
-        if(selection == _("text"))
+        if(selection == _("log file"))
         {
-          command.Append(wxT(" --status"));
-        }
-        else if(selection == _("log file"))
-        {
-          command.Append(wxT(" --status --log "));
+          command.Append(wxT(" --log "));
           command.Append(wxT(LOG_FILE));
           openLog = true;
         }

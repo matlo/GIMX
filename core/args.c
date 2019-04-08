@@ -478,6 +478,11 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     log_info();
   }
 
+  if (gimx_params.debug.controller)
+  {
+    gimx_params.status = 1;
+  }
+
   int i;
   for (i = 0; long_options[i].name != NULL; ++i)
   {
