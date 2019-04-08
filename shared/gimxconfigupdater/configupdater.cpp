@@ -36,41 +36,34 @@ static wchar_t * utf8_to_utf16le(const char * inbuf)
   return outbuf;
 }
 
-#define ORDONLY _O_RDONLY
-#define OWRONLY _O_WRONLY
-#define OTRUNC  _O_TRUNC
-
-#define OFBUF(path, flags) \
+#define IFBUF(path) \
     wchar_t * wpath = utf8_to_utf16le(path.c_str()); \
-    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | flags), std::ios::out | std::ios::binary); \
-    free(wpath);
-
-#define IFBUF(path, flags) \
-    wchar_t * wpath = utf8_to_utf16le(path.c_str()); \
-    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | flags), std::ios::in | std::ios::binary); \
+    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | _O_RDONLY), std::ios::in | std::ios::binary); \
     free(wpath);
 
 #else
 
-#define ORDONLY O_RDONLY
-#define OWRONLY O_WRONLY
-#define OTRUNC  O_TRUNC
-
-#define OFBUF(path, flags) \
-    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), flags), std::ios::out);
-
-#define IFBUF(path, flags) \
-    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), flags), std::ios::in);
+#define IFBUF(path) \
+    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), O_RDONLY), std::ios::in);
 
 #endif
 
-#define IFSTREAM(path, name, flags) \
-    IFBUF(path, flags) \
+#define IFSTREAM(path, name) \
+    IFBUF(path) \
     std::istream name (&fb);
 
-#define OFSTREAM(path, name, flags) \
-    OFBUF(path, flags) \
-    std::ostream name (&fb);
+#ifndef WIN32
+static int remove2(const char *path) {
+    return remove(path);
+}
+#else
+static int remove2(const char *path) {
+    wchar_t * wpath = utf8_to_utf16le(path);
+    int result = _wremove(wpath);
+    free(wpath);
+    return result;
+}
+#endif
 
 #ifdef WIN32
 const char * configupdater::configs_url = "https://api.github.com/repos/matlo/GIMX-configurations/contents/Windows";
@@ -128,28 +121,29 @@ configupdater::ConfigUpdaterStatus configupdater::getconfiglist(std::list<std::s
     Downloader::DownloaderStatus downloadStatus = Downloader().download(configs_url, tempFile, progressCallback, this);
 
     if (downloadStatus != Downloader::DownloaderStatusOk) {
-        remove(tempFile.c_str());
         return convertDowloadStatus(downloadStatus);
     }
 
-    IFSTREAM(tempFile, infile, ORDONLY)
+    {
+        IFSTREAM(tempFile, infile)
 
-    while (infile.good()) {
-        std::string line;
-        std::getline(infile, line);
-        size_t pos1 = line.find("\"name\": ");
-        if (pos1 != std::string::npos) {
-            size_t pos2 = line.find("\"", pos1 + strlen("\"name\": "));
-            if (pos2 != std::string::npos) {
-                size_t pos3 = line.find(".xml\",", pos2 + 1);
-                if (pos3 != std::string::npos) {
-                    cl.push_back(line.substr(pos2 + 1, pos3 + 4 - (pos2 + 1)));
+        while (infile.good()) {
+            std::string line;
+            std::getline(infile, line);
+            size_t pos1 = line.find("\"name\": ");
+            if (pos1 != std::string::npos) {
+                size_t pos2 = line.find("\"", pos1 + strlen("\"name\": "));
+                if (pos2 != std::string::npos) {
+                    size_t pos3 = line.find(".xml\",", pos2 + 1);
+                    if (pos3 != std::string::npos) {
+                        cl.push_back(line.substr(pos2 + 1, pos3 + 4 - (pos2 + 1)));
+                    }
                 }
             }
         }
-    }
+    } // tempFile is closed at the end of this block, allowing removal
 
-    remove(tempFile.c_str());
+    remove2(tempFile.c_str());
 
     return configupdater::ConfigUpdaterStatusOk;
 }

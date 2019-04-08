@@ -1,6 +1,8 @@
 GIMX
 ====
 
+[![Build Status](https://travis-ci.com/matlo/GIMX.svg?branch=master)](https://travis-ci.com/matlo/GIMX)
+
 GIMX stands for `Game Input MultipleXer` or `Game Input MatriX`.  
 The purpose of this software is to control a video game console with a computer (e.g. a PC or a [Raspberry Pi](http://www.raspberrypi.org/)).  
 It works with the PS3, the Xbox 360, the PS4 and the Xbox One.  
