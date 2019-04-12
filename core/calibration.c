@@ -462,7 +462,7 @@ void cal_key(int sym, int down)
 #define DEADZONE_MAX(AXIS) \
     (controller_get_mean_unsigned(ctype, AXIS) / controller_get_axis_scale(ctype, AXIS) / 2)
 
-void cal_setSensibility(double s)
+void cal_set_sensibility(double s)
 {
   s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
   double ratio = *mcal->my / *mcal->mx;
@@ -470,7 +470,7 @@ void cal_setSensibility(double s)
   *mcal->my = *mcal->mx * ratio;
 }
 
-void cal_setDeadzoneX(int dx)
+void cal_set_deadzone_x(int dx)
 {
   e_controller_type ctype = adapter_get(cal_get_controller(current_mouse))->ctype;
   s_mouse_control* mc = cfg_get_mouse_control(current_mouse);
@@ -483,7 +483,7 @@ void cal_setDeadzoneX(int dx)
   }
 
 }
-void cal_setDeadzoneY(int dy)
+void cal_set_deadzone_y(int dy)
 {
   e_controller_type ctype = adapter_get(cal_get_controller(current_mouse))->ctype;
   s_mouse_control* mc = cfg_get_mouse_control(current_mouse);

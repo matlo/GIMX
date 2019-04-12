@@ -153,19 +153,16 @@ static float float_swap(float x)
 static void handlePacketConfig(const s_network_packet_config* buf)
 {
   float s = float_swap(buf->sensibility);
-  if (s < FLT_MAX && s >= 0) {
-    printf("setting sensibility=%f\n", s);
-    cal_setSensibility(s);
+  if (s >= 0) {
+    cal_set_sensibility(s);
   }
   int16_t dx = ntohs(buf->dead_zone_X);
   if (dx < INT16_MAX) {
-    printf("setting dx=%d\n", dx);
-    cal_setDeadzoneX(dx);
+    cal_set_deadzone_x(dx);
   }
   int16_t dy = ntohs(buf->dead_zone_Y);
   if (dy < INT16_MAX) {
-    printf("setting dy=%d\n", dy);
-    cal_setDeadzoneY(dy);
+    cal_set_deadzone_y(dy);
   }
 }
 
@@ -251,7 +248,11 @@ static int network_read_callback(void * user)
       set_done(1);
       break;
   case E_NETWORK_PACKET_SETCONFIG:
-
+    if ((unsigned int) nread != sizeof(s_network_packet_config))
+    {
+      gwarn("%s: wrong packet size: %u %zu\n", __func__, nread, sizeof(s_network_packet_config));
+      return 0;
+    }
     handlePacketConfig((s_network_packet_config*) buf);
     break;
   case E_NETWORK_PACKET_GETCONFIG:
@@ -271,6 +272,7 @@ static int network_read_callback(void * user)
   }
   default:
     gwarn("%s: packet_type not recognized",__func__);
+    break;
   }
   // require a report to be sent immediately, except for a Sixaxis controller working over bluetooth
   if(adapters[adapter].ctype == C_TYPE_SIXAXIS && adapters[adapter].atype == E_ADAPTER_TYPE_BLUETOOTH)
