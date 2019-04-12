@@ -150,7 +150,7 @@ static float float_swap(float x)
   return val.f;
 }
 
-static void handlePacketConfig(const s_network_packet_config* buf)
+static void handle_packet_config(const s_network_packet_config* buf)
 {
   float s = float_swap(buf->sensibility);
   if (s >= 0) {
@@ -166,7 +166,7 @@ static void handlePacketConfig(const s_network_packet_config* buf)
   }
 }
 
-static s_network_packet_config handlePacketGetConfig()
+static s_network_packet_config handle_packet_get_config()
 {
   s_network_packet_config config_pkg;
   const s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
@@ -253,11 +253,11 @@ static int network_read_callback(void * user)
       gwarn("%s: wrong packet size: %u %zu\n", __func__, nread, sizeof(s_network_packet_config));
       return 0;
     }
-    handlePacketConfig((s_network_packet_config*) buf);
+    handle_packet_config((s_network_packet_config*) buf);
     break;
   case E_NETWORK_PACKET_GETCONFIG:
   {
-    s_network_packet_config config_pkg = handlePacketGetConfig();
+    s_network_packet_config config_pkg = handle_packet_get_config();
     if (udp_sendto(adapters[adapter].src_fd, (void *) &config_pkg, sizeof(config_pkg), (struct sockaddr*) &sa, salen) < 0) {
       gwarn("%s: can't send configuration values\n", __func__);
       return 0;
