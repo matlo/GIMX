@@ -13,7 +13,7 @@
 #include <gimxupdater/Updater.h>
 
 #include "parseArgs.h"
-#include "cursesIO.h"
+#include "easyCurses.h"
 #include "configDownload.h"
 
 //Callback functionality for download progress
@@ -72,15 +72,17 @@ int main(int argc, char* argv[])
     /*Start curses*/
     initscr();
     cbreak();
+    curs_set(0);
+    noecho();
     keypad(stdscr, true);
 
         /*Handle command line options*/
         struct option longOpts [] =
         {
                 //These options don’t set a flag. We distinguish them by their indices.
-                {"config", no_argument, 0, 'c'},
-                {"autoconfig", no_argument, 0, 'a'},
-                {0, 0, 0, 0}
+                { "config", no_argument, 0, 'c' },
+                { "autoconfig", no_argument, 0, 'a' },
+                { 0, 0, 0, 0 }
         };
 
         FileDownloader fDownloader;

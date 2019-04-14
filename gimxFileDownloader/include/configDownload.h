@@ -13,14 +13,15 @@
 #include <list>
 #include <vector>
 #include <fstream>
+#include <iterator> //std::next & std::prev
 
 #include <memory> //for smart pointers
 
 #include <gimxconfigupdater/configupdater.h>
 #include <gimxupdater/Updater.h>
 
-#include "misc.h"
-#include "cursesIO.h"
+#include "fileOps.h"
+#include "easyCurses.h"
 
 
 using namespace EasyCurses;
@@ -36,15 +37,12 @@ protected:
     std::string gimxDir;
     std::string gimxConfigDir;
 
-    WINDOW* screen;
-    std::unique_ptr<WinData> winData;
-
-    std::unique_ptr<ttyProgressDialog> progressDialog;
-
 public:
-    ConfigDownload();
-    virtual ~ConfigDownload() { delwin(screen); }
+    ConfigDownload(WINDOW* win);
+    virtual ~ConfigDownload() { };
 
+    virtual bool setUpDirectories(WINDOW* win);
+    
     virtual int chooseConfigs() = 0;
     virtual int grabConfigs() = 0;
 
@@ -56,19 +54,28 @@ public:
 class ManualConfigDownload : public ConfigDownload
 {
 public:
+    ManualConfigDownload();
+    ~ManualConfigDownload() { delwin(screen); delwin(dlScreen); }
+    
+    bool help();
+    
     int chooseConfigs();
     int grabConfigs();
 
     void initDownload();
     void cleanDownload();
-    int updateProgress(configupdater::ConfigUpdaterStatus status, double progress, double total);
+    int  updateProgress(configupdater::ConfigUpdaterStatus status, double progress, double total);
 
 private:
-    void* clientp;
+    WINDOW* screen;
+    WINDOW* dlScreen;
+    std::unique_ptr<WinData> winData;
+    std::unique_ptr<WinData> dlWinData;
+    std::string helpText;
 
-    /*int height, width, startY, startX;
-    WINDOW* selectionMenuWin;
-    WINDOW* downloadWin;*/
+    std::unique_ptr<ttyProgressDialog> progressDialog;
+    
+    void* clientp;
 
     //Information needed to allow user to choose config(s)
     std::list<std::string> configList;

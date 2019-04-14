@@ -1,5 +1,5 @@
 /*
- * misc.cpp
+ * fileOps.cpp
  *
  *      Author: Zac
  *     Contact: codeohms@protonmail.com
@@ -7,22 +7,25 @@
  */
 
 
-#include "misc.h"
+#include "fileOps.h"
 
 
-int getConfigDir(std::string& dir)
+int getUserConfigDir(std::string& dir)
 {
-#ifndef WIN32
-    dir = "/etc"
+#ifndef  WIN32
+    char* path = getenv("HOME");
+    if(path == NULL)
+        return 1;
+    
 #else
     static char path[MAX_PATH];
     if(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, path))
         return 1;
+#endif //WIN32
 
     //TODO change forward slashes to back slashes for native windows path
     dir = path;
     return 0;
-#endif
 }
 
 bool fileExists(std::string fName)

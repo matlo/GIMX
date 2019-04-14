@@ -30,7 +30,7 @@ int updateProgress_common(ttyProgressDialog* progressDialog, configupdater::Conf
     }
 
     if (status >= 0) {
-        if (progressDialog->update(progress, message) == false) {
+        if(progressDialog->update(progress, message) == false) {
             return 1;
         }
     } else {
@@ -41,22 +41,72 @@ int updateProgress_common(ttyProgressDialog* progressDialog, configupdater::Conf
 }
 
 
-ConfigDownload::ConfigDownload() : winData(newWinData(stdscr))
+ConfigDownload::ConfigDownload(WINDOW* win)
 {
-    screen = newwin(winData->height, winData->width, winData->startY, winData->startX);
-    winData->win = screen;
-    progressDialog.reset(new ttyProgressDialog(winData.get(), "Downloading"));
-
-    /*Setup directory strings*/
-    getConfigDir(userDir);
-    /*if(getConfigDir(userDir))
-    {
-        //TODO make it known that the config directory couldn't be found
-    }*/
-    gimxDir = userDir + GIMX_DIR;
-    gimxConfigDir = gimxDir + CONFIG_DIR;
+    setUpDirectories(win);
 }
 
+bool ConfigDownload::setUpDirectories(WINDOW* screen)
+{
+    /*Setup directory strings*/
+    int res = getUserConfigDir(userDir);
+    if(res)
+    {
+        wprintw(screen, "Cannot access config directory. Press any key to continue");
+        wrefresh(screen);
+        wgetch(screen);
+        return false;
+    }
+    gimxDir = userDir + GIMX_DIR;
+    gimxConfigDir = gimxDir + CONFIG_DIR;
+    return true;
+}
+
+
+ManualConfigDownload::ManualConfigDownload() : ConfigDownload(stdscr), winData(newWinData(stdscr)),
+  dlWinData(newWinData(stdscr))
+{
+    //Selection menu
+    winData->height -= 1;
+    screen       = newwin(winData->height, winData->width, winData->startY, winData->startX);
+    winData->win = screen;
+    
+    //Progress dialog
+    dlWinData->height = 7;
+    dlWinData->width  = 30;
+    dlWinData->startX = (winData->width /2) - (dlWinData->width /2);
+    dlWinData->startY = (winData->height /2) - (dlWinData->height /2);
+    dlScreen = newwin(dlWinData->height, dlWinData->width, dlWinData->startY, dlWinData->startX);
+    dlWinData->win = dlScreen;
+    progressDialog.reset(new ttyProgressDialog(dlWinData.get(), "Downloading"));
+    
+    //Help dialog
+    helpText = "Press:\n\nESC to exit\nENTER to select\nArrow keys to change selection\n"\
+    "Page up and down keys to change page";
+    SelectionMenu::keyBindings[104] = EasyCurses::NavContent::custom; //104 => 'h'
+}
+
+bool ManualConfigDownload::help()
+{
+    BasicMenu helpMenu(helpText, winData.get(), "BasicMenu demo");
+    /*Stylise the menu borders*/
+    //				borders => (bool, we, ns)
+    helpMenu.setDrawBorder(true, 0, 0);
+    flushinp();
+    
+    mvwprintw(stdscr, winData->height, 0, "Press ESC to exit menu");
+    wrefresh(stdscr);
+    
+    helpMenu.menuLoop();
+    delwin(screen);
+    
+    wmove(stdscr, winData->height, 0);
+    wclrtoeol(stdscr);
+    mvwprintw(stdscr, winData->height, 0, "Press h for help");
+    wrefresh(stdscr);
+    
+    return true;
+}
 
 int ManualConfigDownload::updateProgress(configupdater::ConfigUpdaterStatus status, double progress, double total)
 {
@@ -70,8 +120,8 @@ void ManualConfigDownload::initDownload()
 void ManualConfigDownload::cleanDownload()
 {
     progressDialog->resetPBar();
-    werase(screen);
-    wrefresh(screen);
+    werase(dlScreen);
+    wrefresh(dlScreen);
 }
 //Return codes => 0 ok, 1 cancelled, 2 something wrong with getting configs
 int ManualConfigDownload::chooseConfigs()
@@ -81,7 +131,6 @@ int ManualConfigDownload::chooseConfigs()
     /*Download config list*/
     initDownload();
     status = configupdater().getconfiglist(configList, progress_callback_configupdater_terminal, this);
-    wgetch(screen);//for debugging
     cleanDownload();
 
     if(status == configupdater::ConfigUpdaterStatusCancelled)
@@ -90,26 +139,34 @@ int ManualConfigDownload::chooseConfigs()
     /*Ensure the config list is not empty*/
     if(configList.empty())
     {
-        printw("Can't retrieve configs list!\n");
-        refresh();
+        wprintw(screen, "Can't retrieve configs list!\nPress any key to continue");
+        wgetch(screen);
+        wrefresh(screen);
         return status;
     }
 
     /*Add config names to options list*/
-    std::vector<std::string> options;
-    for(std::string configName : configList)
-        options.push_back(configName);
-
-    SelectionMenu selectionMenu(winData.get(), options, "Select the files to download");
-
-    /*Stylise the menu borders*/
-    //				borders => (bool, we, ns)
-    selectionMenu.setDrawBorder(true, 0, 0);
-
-    selectionMenu.menuLoop();
     std::vector<int> chosen;
-    selectionMenu.getResult(chosen);
+    {
+        std::string options;
+        for(std::string configName : configList)
+            options += configName + "\n";
 
+        SelectionMenu selectionMenu(options, winData.get(), "Select the files to download");
+
+        /*Stylise the menu borders*/
+        //				borders => (bool, we, ns)
+        selectionMenu.setDrawBorder(true, 0, 0);
+
+        const char* help = "Press h for help";
+        selectionMenu.setCustomAction(std::bind(&ManualConfigDownload::help, this));
+        mvwprintw(stdscr, winData->height, 0, help);
+        wrefresh(stdscr);
+        
+        selectionMenu.menuLoop();
+        selectionMenu.getResult(chosen);
+    }
+    
     werase(screen);
 
     std::string sel;
@@ -118,7 +175,7 @@ int ManualConfigDownload::chooseConfigs()
     int c;
     for(int cIndex : chosen)
     {
-        sel = options[cIndex];
+        sel = *(std::next(configList.begin(), cIndex));
         file = gimxConfigDir + sel;
         if(fileExists(file))
         {
@@ -149,7 +206,6 @@ int ManualConfigDownload::grabConfigs()
             if (status == configupdater::ConfigUpdaterStatusCancelled)
                 break;
         }
-        wgetch(screen);//for debugging
         cleanDownload();
     }
 
@@ -157,6 +213,7 @@ int ManualConfigDownload::grabConfigs()
         wprintw(screen, "Completed\n");
     else if (status != configupdater::ConfigUpdaterStatusCancelled)
         wprintw(screen, "Can't retrieve configs!\n");
+    wprintw(screen, "Press any key to continue");
 
     wrefresh(screen);
     return status;

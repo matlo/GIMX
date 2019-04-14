@@ -1,5 +1,5 @@
 /*
- * misc.h
+ * fileOps.h
  *
  *      Author: Zac
  *     Contact: codeohms@protonmail.com
@@ -7,22 +7,26 @@
  */
 
 
-#ifndef   MISC_H
-#define   MISC_H
+#ifndef   FILEOPS_H
+#define   FILEOPS_H
 
 #include <sys/types.h> //for stat()
 #include <sys/stat.h> //for stat()
-#ifdef WIN32
-#include <shlobj.h> //SHGetFolderPath => to get the userDir
-#endif
-
 #include <string>
+
+#ifndef  WIN32
+
+#include <stdlib.h> //getenv => to get the userDir
+#else
+
+#include <shlobj.h> //SHGetFolderPath => to get the userDir
+#endif //WIN32
 
 #include "../../directories.h"
 
 
-int getConfigDir(std::string& dir);
+int getUserConfigDir(std::string& dir);
 
 bool fileExists(std::string fName);
 
-#endif //MISC_H
+#endif //FILEOPS_H
