@@ -496,6 +496,35 @@ void cal_set_deadzone_y(int dy)
   }
 }
 
+void cal_set_exponent_x(double e)
+{
+  s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
+  if (mcal->ex)
+  {
+    *mcal->ex = e;
+  }
+}
+
+void cal_set_exponent_y(double e)
+{
+  s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
+  if (mcal->ey)
+  {
+    *mcal->ey = e;
+  }
+}
+
+/**
+ * This function does *only* changes the sensibility on the vertical axis so that y/x = r.
+ */
+void cal_set_yxratio(double r){
+  s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
+  if (mcal->mx && mcal->my)
+  {
+    *mcal->my = *mcal->mx * r;
+  }
+}
+
 /*
  * Use the mouse wheel to calibrate the mouse.
  */

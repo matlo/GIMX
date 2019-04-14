@@ -152,17 +152,30 @@ static float float_swap(float x)
 
 static void handle_packet_config(const s_network_packet_config* buf)
 {
+  float ex, ey, yx_ratio;
   float s = float_swap(buf->sensibility);
-  if (s >= 0) {
+  if (s >= 0) { //Does negative sensibility makes sense?
     cal_set_sensibility(s);
   }
-  int16_t dx = ntohs(buf->dead_zone_X);
+  int16_t dx = ntohs(buf->dead_zone_x);
   if (dx < INT16_MAX) {
     cal_set_deadzone_x(dx);
   }
-  int16_t dy = ntohs(buf->dead_zone_Y);
+  int16_t dy = ntohs(buf->dead_zone_y);
   if (dy < INT16_MAX) {
     cal_set_deadzone_y(dy);
+  }
+  ex = float_swap(buf->exponent_x);
+  if (ex >= 0) {
+    cal_set_exponent_x(ex);
+  }
+  ey = float_swap(buf->exponent_y);
+  if (ey >= 0) {
+    cal_set_exponent_y(ey);
+  }
+  yx_ratio = float_swap(buf->yx_ratio);
+  if (yx_ratio >= 0) {
+    cal_set_yxratio(yx_ratio);
   }
 }
 
@@ -172,8 +185,11 @@ static s_network_packet_config handle_packet_get_config()
   const s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
   config_pkg.packet_type = E_NETWORK_PACKET_GETCONFIG;
   config_pkg.sensibility = float_swap(*mcal->mx);
-  config_pkg.dead_zone_X = htons(*mcal->dzx);
-  config_pkg.dead_zone_Y = htons(*mcal->dzy);
+  config_pkg.dead_zone_x = htons(*mcal->dzx);
+  config_pkg.dead_zone_y = htons(*mcal->dzy);
+  config_pkg.yx_ratio = float_swap((*mcal->my) / (*mcal->mx));
+  config_pkg.exponent_x = float_swap(*mcal->ex);
+  config_pkg.exponent_y = float_swap(*mcal->ey);
   return config_pkg;
 }
 
