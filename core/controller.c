@@ -270,6 +270,7 @@ static int network_read_callback(void * user)
       return 0;
     }
     handle_packet_config((s_network_packet_config*) buf);
+    cal_update_display();
     break;
   case E_NETWORK_PACKET_GETCONFIG:
   {
