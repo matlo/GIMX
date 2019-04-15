@@ -2244,3 +2244,11 @@ msgstr ""
 #: ../config/gimx-config.cpp:1264
 msgid "Import from clipboard"
 msgstr ""
+
+#: ../core/controller.c:862
+msgid "Press the key/button assigned to PS.\n"
+msgstr ""
+
+#: ../core/controller.c:866
+msgid "Press the guide button of the controller for 2 seconds.\n"
+msgstr ""

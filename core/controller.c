@@ -863,7 +863,7 @@ int adapter_start()
             break;
           case C_TYPE_XONE_PAD:
           case C_TYPE_360_PAD:
-            ginfo(_("Press the guide button of the controller for 2 second."));
+            ginfo(_("Press the guide button of the controller for 2 seconds.\n"));
             break;
           default:
             break;
