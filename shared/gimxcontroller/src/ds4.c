@@ -377,7 +377,6 @@ static s_controller controller =
   .axis_name_dirs = { .nb = sizeof(axis_name_dirs)/sizeof(*axis_name_dirs), .values = axis_name_dirs },
   .fp_build_report = build_report,
   .fp_init_report = init_report,
-  .activation_button = ds4a_ps,
 };
 
 void ds4_init(void) __attribute__((constructor));

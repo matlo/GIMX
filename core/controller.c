@@ -854,10 +854,19 @@ int adapter_start()
           gerror(_("failed to start the GIMX adapter asynchronous processing.\n"));
           ret = -1;
         }
-        adapter->activation_button.index = controller_get_activation_button(adapter->ctype);
-        if (adapter->activation_button.index != 0)
+        switch(adapter->ctype)
         {
-          ginfo(_("Press the %s button to activate the controller.\n"), controller_get_axis_name(adapter->ctype, adapter->activation_button.index));
+          case C_TYPE_DS4:
+          case C_TYPE_T300RS_PS4:
+          case C_TYPE_G29_PS4:
+            ginfo(_("Press the key/button assigned to PS.\n"));
+            break;
+          case C_TYPE_XONE_PAD:
+          case C_TYPE_360_PAD:
+            ginfo(_("Press the guide button of the controller for 2 second."));
+            break;
+          default:
+            break;
         }
       }
     }
