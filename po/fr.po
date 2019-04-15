@@ -1974,9 +1974,9 @@ msgid "No Dualshock 4 controller was found on USB ports."
 msgstr "Pas de Dualshock 4 trouvée sur les ports USB."
 
 #: ../launcher/gimx-launcher.cpp:1684
-msgid "No Xbox One controller (without 3.5mm jack) was found on USB ports."
+msgid "No Xbox One controller was found on USB ports."
 msgstr ""
-"Pas de contrôleur Xbox One (sans prise jack 3.5mm) trouvé sur les ports USB."
+"Pas de contrôleur Xbox One trouvé sur les ports USB."
 
 #: ../launcher/gimx-launcher.cpp:1687
 msgid ""
