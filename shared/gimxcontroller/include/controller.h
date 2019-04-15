@@ -106,6 +106,8 @@ void controller_get_ids(e_controller_type type, unsigned short * vid, unsigned s
 
 e_controller_axis_index controller_get_activation_button(e_controller_type type);
 
+int controller_is_xone_pad(e_controller_type type);
+
 #ifdef __cplusplus
 }
 #endif

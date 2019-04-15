@@ -19,6 +19,8 @@
 #include <locale.h>
 #define _(STRING)    gettext(STRING)
 
+#include <dirent.h>
+
 #define PRINT_ERROR_OTHER(msg) fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
 
 #define PRINT_ERROR_ALLOC_FAILED(func) fprintf(stderr, "%s:%d %s: %s failed\n", __FILE__, __LINE__, __func__, func);
@@ -32,6 +34,7 @@ typedef enum {
     E_GIMX_STATUS_NO_ACTIVATION = -3, // user did not activate the controller
     E_GIMX_STATUS_INACTIVITY_TIMEOUT = -4, // no user input during defined time
     E_GIMX_STATUS_AUTH_CONTROLLER_ERROR = -5, // connection issue with the authentication controller
+    E_GIMX_STATUS_FOCUS_LOST = -6, // mouse was grabbed and focus was lost
 
     E_GIMX_STATUS_AUTH_MISSING_X360 = 1, // auth source missing
     E_GIMX_STATUS_AUTH_MISSING_PS4 = 2, // auth source missing
@@ -50,7 +53,7 @@ typedef enum {
 
 typedef struct
 {
-  char* homedir;
+  char* homedir; // utf8
   int force_updates;
   char* keygen;
   int grab;
@@ -65,6 +68,15 @@ typedef struct
       int macros;
       int sixaxis;
       int config;
+      int usb_con;
+      int gimxhid;
+      int gimxinput;
+      int gimxpoll;
+      int gimxprio;
+      int gimxserial;
+      int gimxtimer;
+      int gimxuhid;
+      int gimxusb;
   } debug;
   char* config_file;
   int postpone_count;
@@ -78,6 +90,7 @@ typedef struct
   int ff_conv;
   unsigned int inactivity_timeout; // minutes, 0 means not defined
   int autograb;
+  int focus_lost;
 } s_gimx_params;
 
 extern s_gimx_params gimx_params;
@@ -233,5 +246,23 @@ int ignore_event(GE_Event*);
 #define REGISTER_FUNCTION gpoll_register_fd
 #define REMOVE_FUNCTION gpoll_remove_fd
 #endif
+
+FILE *fopen2(const char *path, const char *mode);
+
+#ifdef WIN32
+wchar_t * utf8_to_utf16le(const char * inbuf);
+char * utf16le_to_utf8(const wchar_t * inbuf);
+typedef _WDIR GDIR;
+typedef struct _wdirent GDIRENT;
+typedef struct _stat GSTAT;
+int stat2(const char *path, GSTAT *buf);
+#else
+typedef DIR GDIR;
+typedef struct dirent GDIRENT;
+#endif
+
+GDIR * opendir2 (const char *dirname);
+int closedir2(GDIR *dirp);
+GDIRENT *readdir2(GDIR *dirp);
 
 #endif /* GIMX_H_ */

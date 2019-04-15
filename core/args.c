@@ -29,6 +29,7 @@
 #endif
 
 #define DEBUG_OPTION_PREFIX "debug."
+#define DEBUG_OPTION_PREFIX_GIMX "debug.gimx"
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
@@ -142,21 +143,32 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
   struct option long_options[] =
   {
     /* These options set a flag. */
-    {"nograb",         no_argument, &params->grab,           0},
-    {"status",         no_argument, &params->status,         1},
-    {"subpos",         no_argument, &params->subpositions,   1},
-    {"force-updates",  no_argument, &params->force_updates,  1},
-    {"curses",         no_argument, &params->curses,         1},
-    {"window-events",  no_argument, &params->window_events,  1},
-    {"btstack",        no_argument, &params->btstack,        1},
-    {"debug.haptic",   no_argument, &params->debug.haptic,   1},
+    {"nograb",           no_argument, &params->grab,              0},
+    {"status",           no_argument, &params->status,            1},
+    {"subpos",           no_argument, &params->subpositions,      1},
+    {"force-updates",    no_argument, &params->force_updates,     1},
+    {"curses",           no_argument, &params->curses,            1},
+    {"window-events",    no_argument, &params->window_events,     1},
+    {"btstack",          no_argument, &params->btstack,           1},
+    {"debug.haptic",     no_argument, &params->debug.haptic,      1},
     {"debug.controller", no_argument, &params->debug.controller,  1},
-    {"debug.macros",   no_argument, &params->debug.macros,   1},
-    {"debug.sixaxis",  no_argument, &params->debug.sixaxis,  1},
-    {"debug.config",   no_argument, &params->debug.config,   1},
-    {"skip_leds",      no_argument, &params->skip_leds,      1},
-    {"ff_conv",        no_argument, &params->ff_conv,        1},
-    {"auto-grab",      no_argument, &params->autograb,       1},
+    {"debug.macros",     no_argument, &params->debug.macros,      1},
+    {"debug.sixaxis",    no_argument, &params->debug.sixaxis,     1},
+    {"debug.config",     no_argument, &params->debug.config,      1},
+    {"debug.usb_con",    no_argument, &params->debug.usb_con,     1},
+    {"debug.gimxhid",    no_argument, &params->debug.gimxhid,     1},
+    {"debug.gimxinput",  no_argument, &params->debug.gimxinput,   1},
+    {"debug.gimxpoll",   no_argument, &params->debug.gimxpoll,    1},
+    {"debug.gimxprio",   no_argument, &params->debug.gimxprio,    1},
+    {"debug.gimxserial", no_argument, &params->debug.gimxserial,  1},
+    {"debug.gimxtimer",  no_argument, &params->debug.gimxtimer,   1},
+#ifndef WIN32
+    {"debug.gimxuhid",   no_argument, &params->debug.gimxuhid,    1},
+#endif
+    {"debug.gimxusb",    no_argument, &params->debug.gimxusb,     1},
+    {"skip_leds",        no_argument, &params->skip_leds,         1},
+    {"ff_conv",          no_argument, &params->ff_conv,           1},
+    {"auto-grab",        no_argument, &params->autograb,          1},
     /* These options don't set a flag. We distinguish them by their indices. */
     {"bdaddr",  required_argument, 0, 'b'},
     {"config",  required_argument, 0, 'c'},
@@ -311,7 +323,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
             {
               char file_path[PATH_MAX];
               snprintf(file_path, sizeof(file_path), "%s%s%s%s", params->homedir, GIMX_DIR, LOG_DIR, params->logfilename);
-              params->logfile = fopen(file_path, "w");
+              params->logfile = fopen2(file_path, "w");
               if(params->logfile != NULL)
               {
                 dup2(fileno(params->logfile), fileno(stdout));
@@ -465,6 +477,27 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
   if(params->logfile)
   {
     log_info();
+  }
+
+  if (gimx_params.debug.controller)
+  {
+    gimx_params.status = 1;
+  }
+
+  int i;
+  for (i = 0; long_options[i].name != NULL; ++i)
+  {
+    if(strstr(long_options[i].name, DEBUG_OPTION_PREFIX) == long_options[i].name)
+    {
+      if (*long_options[i].flag)
+      {
+        printf(_("%s flag is set\n"), long_options[i].name);
+        if (strstr(long_options[i].name, DEBUG_OPTION_PREFIX_GIMX) == long_options[i].name)
+        {
+          glog_set_level(long_options[i].name + sizeof(DEBUG_OPTION_PREFIX) - 1, E_GLOG_LEVEL_DEBUG);
+        }
+      }
+    }
   }
 
   return ret;

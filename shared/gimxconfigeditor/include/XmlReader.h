@@ -84,12 +84,15 @@ class XmlReader
         XmlReader(ConfigurationFile* configFile);
         virtual ~XmlReader();
         int ReadConfigFile(string filePath);
+        int FromString(const string& config);
         string GetInfo() {return m_info;};
         string GetError() {return m_error;};
         bool MultipleMK();
         void SetCheckDevices(bool check) { m_checkDevices = check; }
     protected:
     private:
+        int Init();
+        int Read(xmlDoc * doc);
         void ProcessRootElement(xmlNode * a_node);
         void ProcessControllerElement(xmlNode * a_node);
         void ProcessConfigurationElement(xmlNode * a_node);

@@ -16,7 +16,6 @@
 #include <errno.h>
 #include <dirent.h>
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include <limits.h>
 #include <string.h>
@@ -48,6 +47,56 @@
 #include <gimxpoll/include/gpoll.h>
 
 #include "SetupManager.h"
+
+#include <ext/stdio_filebuf.h>
+#include <fcntl.h>
+
+#ifdef WIN32
+
+static wchar_t * utf8_to_utf16le(const char * inbuf)
+{
+  wchar_t * outbuf = NULL;
+  int outsize = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, NULL, 0);
+  if (outsize != 0) {
+      outbuf = (wchar_t*) malloc(outsize * sizeof(*outbuf));
+      if (outbuf != NULL) {
+         int res = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, outbuf, outsize);
+         if (res == 0) {
+             free(outbuf);
+             outbuf = NULL;
+         }
+      }
+  }
+  return outbuf;
+}
+
+#define OFBUF(path) \
+    wchar_t * wpath = utf8_to_utf16le(path.c_str()); \
+    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | _O_WRONLY | _O_TRUNC | _O_CREAT, 0666), std::ios::out | std::ios::binary); \
+    free(wpath);
+
+#define IFBUF(path) \
+    wchar_t * wpath = utf8_to_utf16le(path.c_str()); \
+    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | _O_RDONLY), std::ios::in | std::ios::binary); \
+    free(wpath);
+
+#else
+
+#define OFBUF(path) \
+    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0666), std::ios::out);
+
+#define IFBUF(path) \
+    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), O_RDONLY), std::ios::in);
+
+#endif
+
+#define IFSTREAM(path, name) \
+    IFBUF(path) \
+    std::istream name (&fb);
+
+#define OFSTREAM(path, name) \
+    OFBUF(path) \
+    std::ostream name (&fb);
 
 #ifdef WIN32
 #define REGISTER_FUNCTION gpoll_register_handle
@@ -396,6 +445,13 @@ int launcherFrame::setDongleAddress(vector<DongleInfo>& dongleInfos, int dongleI
     return 0;
 }
 
+static void getfileline(const std::string& path, std::string& line) {
+    IFSTREAM(path, infile)
+    if (infile.good()) {
+        getline(infile, line);
+    }
+}
+
 #ifdef WIN32
 void launcherFrame::readSerialPorts()
 {
@@ -437,15 +493,7 @@ void launcherFrame::readSerialPorts()
 
   filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append(OUTPUT_CHOICE_FILE);
-  ifstream infile (filename.c_str());
-  if ( infile.is_open() )
-  {
-      if( infile.good() )
-      {
-          getline (infile,line);
-      }
-      infile.close();
-  }
+  getfileline(filename, line);
 
   OutputChoice->Clear();
 
@@ -583,15 +631,7 @@ void launcherFrame::readConfigs()
   /* Read the last config used so as to auto-select it. */
   filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append(INPUT_CHOICE_FILE);
-  ifstream infile (filename.c_str());
-  if ( infile.is_open() )
-  {
-    if( infile.good() )
-    {
-      getline (infile,line);
-    }
-    infile.close();
-  }
+  getfileline(filename, line);
 
   InputChoice->Clear();
 
@@ -636,15 +676,7 @@ int launcherFrame::readChoices(const char* file, wxChoice* choices, const char* 
     string defaultChoice = "";
     filename = string(launcherDir.mb_str(wxConvUTF8));
     filename.append(default_file);
-    ifstream infile (filename.c_str());
-    if ( infile.is_open() )
-    {
-      if( infile.good() )
-      {
-        getline (infile,defaultChoice);
-      }
-      infile.close();
-    }
+    getfileline(filename, defaultChoice);
 
     choices->Clear();
 
@@ -656,8 +688,8 @@ int launcherFrame::readChoices(const char* file, wxChoice* choices, const char* 
       return 0;
     }
 
-    ifstream myfile(filename.c_str());
-    if(myfile.is_open())
+    IFSTREAM(filename, myfile)
+    if(myfile.good())
     {
         while ( myfile.good() )
         {
@@ -677,7 +709,6 @@ int launcherFrame::readChoices(const char* file, wxChoice* choices, const char* 
         {
           choices->SetSelection(0);
         }
-        myfile.close();
     }
     else
     {
@@ -692,11 +723,10 @@ int launcherFrame::saveParam(const char* file, wxString option)
   int ret = 0;
   string filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append(file);
-  ofstream outfile (filename.c_str(), ios_base::trunc);
-  if(outfile.is_open())
+  OFSTREAM(filename, outfile)
+  if(outfile.good())
   {
       outfile << option.mb_str(wxConvUTF8) << endl;
-      outfile.close();
   }
   else
   {
@@ -717,14 +747,13 @@ int launcherFrame::saveChoices(const char* file, wxChoice* choices)
     filename = string(launcherDir.mb_str(wxConvUTF8));
     filename.append(file);
 
-    ofstream outfile (filename.c_str(), ios_base::trunc);
-    if(outfile.is_open())
+    OFSTREAM(filename, outfile)
+    if(outfile.good())
     {
         for(int i=0; i<(int)choices->GetCount(); i++)
         {
             outfile << choices->GetString(i).mb_str(wxConvUTF8) << endl;
         }
-        outfile.close();
     }
     else
     {
@@ -772,12 +801,11 @@ int launcherFrame::saveLinkKeys(wxString dongleBdaddr, wxString ds4Bdaddr, wxStr
 
   filename.append(BLUETOOTH_LK_FILE);
 
-  ofstream outfile (filename.c_str(), ios_base::trunc);
-  if(outfile.is_open())
+  OFSTREAM(filename, outfile)
+  if(outfile.good())
   {
       outfile << ds4Bdaddr.mb_str(wxConvUTF8) << " " << ds4LinkKey.mb_str(wxConvUTF8) << " 4 0" << endl;
       outfile << ps4Bdaddr.mb_str(wxConvUTF8) << " " << ps4LinkKey.mb_str(wxConvUTF8) << " 4 0" << endl;
-      outfile.close();
   }
   else
   {
@@ -794,19 +822,11 @@ void launcherFrame::readParam(const char* file, wxChoice* choice)
 
   filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append(file);
-  ifstream infile (filename.c_str());
-  if ( infile.is_open() )
+  getfileline(filename, line);
+  int pos = choice->FindString(wxString(line.c_str(), wxConvUTF8));
+  if (pos != wxNOT_FOUND)
   {
-    if( infile.good() )
-    {
-      getline (infile,line);
-      int pos = choice->FindString(wxString(line.c_str(), wxConvUTF8));
-      if (pos != wxNOT_FOUND)
-      {
-        choice->SetSelection(pos);
-      }
-    }
-    infile.close();
+    choice->SetSelection(pos);
   }
 }
 
@@ -817,18 +837,10 @@ void launcherFrame::readStartUpdates()
 
   filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append(START_UPDATES);
-  ifstream infile (filename.c_str());
-  if ( infile.is_open() )
+  getfileline(filename, line);
+  if(line == "yes")
   {
-    if( infile.good() )
-    {
-      getline (infile,line);
-      if(line == "yes")
-      {
-        MenuStartupUpdates->Check(true);
-      }
-    }
-    infile.close();
+    MenuStartupUpdates->Check(true);
   }
 }
 
@@ -1190,6 +1202,8 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
 #ifndef WIN32
     Output->Append(_("Bluetooth / PS3"));
     Output->Append(_("Bluetooth / PS4"));
+#else
+    Input->Append(_("Physical devices (elevated privileges)"));
 #endif
 
     SetupManager().run();
@@ -1315,18 +1329,29 @@ void launcherFrame::readDebugStrings(wxArrayString & values)
 }
 
 #ifdef WIN32
-int is_task_manager_running()
+void runAs(const wxString& cmd, const wxString& params)
 {
-  return FindWindowA(NULL, "Windows Task Manager") != NULL;
-}
+    SHELLEXECUTEINFO shExInfo = SHELLEXECUTEINFO();
+    shExInfo.cbSize = sizeof(shExInfo);
+    shExInfo.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC;
+    shExInfo.hwnd = 0;
+    shExInfo.lpVerb = L"runas";
+    shExInfo.lpFile = cmd.wc_str();
+    shExInfo.lpParameters = params.wc_str();
+    shExInfo.lpDirectory = 0;
+    shExInfo.nShow = SW_SHOW;
+    shExInfo.hInstApp = 0;
 
-void destroy_task_manager()
-{
-  HWND hWnd = FindWindowA(NULL, "Windows Task Manager");
-  if (hWnd != NULL)
-  {
-    EndTask(hWnd, FALSE, TRUE);
-  }
+    if (!ShellExecuteEx(&shExInfo)) {
+        if (GetLastError() == ERROR_CANCELLED) {
+            return;
+        }
+        return;
+    }
+
+    while (WaitForSingleObject(shExInfo.hProcess, 1000) == WAIT_TIMEOUT) {}
+
+    CloseHandle(shExInfo.hProcess);
 }
 #endif
 
@@ -1442,22 +1467,13 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
       }
     }
 
-#ifdef WIN32
-    if (is_task_manager_running())
-    {
-      int answer = wxMessageBox(_("Windows Task Manager has to be stopped.\nProceed?"), _("Confirm"), wxYES_NO);
-      if (answer != wxYES)
-      {
-        return;
-      }
-      destroy_task_manager();
-    }
-#endif
-
 #ifndef WIN32
     command.Append(wxT("xterm -e "));
 #endif
-    command.Append(wxT("gimx"));
+    if(Input->GetStringSelection() != _("Physical devices (elevated privileges)"))
+    {
+      command.Append(wxT("gimx"));
+    }
 
     if(ProcessOutputChoice->GetStringSelection() == _("curses"))
     {
@@ -1482,13 +1498,9 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
       if (dialog.ShowModal() == wxID_OK)
       {
         wxString selection = dialog.GetStringSelection();
-        if(selection == _("text"))
+        if(selection == _("log file"))
         {
-          command.Append(wxT(" --status"));
-        }
-        else if(selection == _("log file"))
-        {
-          command.Append(wxT(" --status --log "));
+          command.Append(wxT(" --log "));
           command.Append(wxT(LOG_FILE));
           openLog = true;
         }
@@ -1581,14 +1593,25 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
 
     //wxMessageBox( command, _("Error"), wxICON_ERROR);
 
-    MyProcess *process = new MyProcess(this, command);
-
     startTime = wxGetUTCTime();
 
-    if(!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process))
+    if(Input->GetStringSelection() != _("Physical devices (elevated privileges)"))
     {
-      wxMessageBox( _("can't start gimx!"), _("Error"), wxICON_ERROR);
+        MyProcess *process = new MyProcess(this, command);
+
+        if(!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process))
+        {
+          wxMessageBox( _("can't start gimx!"), _("Error"), wxICON_ERROR);
+        }
     }
+#ifdef WIN32
+    else
+    {
+        runAs(wxT("gimx.exe"), command);
+
+        OnProcessTerminated(NULL, 0);
+    }
+#endif
 }
 
 typedef enum {
@@ -1600,6 +1623,7 @@ typedef enum {
     E_GIMX_STATUS_NO_ACTIVATION = -3, // user did not activate the controller
     E_GIMX_STATUS_INACTIVITY_TIMEOUT = -4, // no user input during defined time
     E_GIMX_STATUS_AUTH_CONTROLLER_ERROR = -5, // connection issue with the authentication controller
+    E_GIMX_STATUS_FOCUS_LOST = -6, // mouse was grabbed and focus was lost
 
     E_GIMX_STATUS_AUTH_MISSING_X360 = 1, // auth source missing
     E_GIMX_STATUS_AUTH_MISSING_PS4 = 2, // auth source missing
@@ -1623,19 +1647,14 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
     wxString statusFile = wxStandardPaths::Get().GetTempDir() + wxT("/") + wxT(STATUS_FILE);
     if (::wxFileExists(statusFile))
     {
-        ifstream infile(statusFile.mb_str(wxConvUTF8));
-        if (infile.is_open())
+        string line;
+        getfileline(string(statusFile.mb_str(wxConvUTF8)), line);
+        if (!line.empty())
         {
-            if (infile.good())
-            {
-                string line;
-                getline(infile, line);
-                stringstream ss(line);
-                ss >> status;
-            }
-            infile.close();
+            stringstream ss(line);
+            ss >> status;
         }
-        remove(statusFile.mb_str(wxConvUTF8));
+        wxRemoveFile(statusFile);
     }
 
     switch(status)
@@ -1696,6 +1715,10 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
                 ". make sure the cable is not bad (try another one)\n"
                 ". make sure to turn controller off before connection."), _("Error"), wxICON_ERROR);
         break;
+    case E_GIMX_STATUS_FOCUS_LOST:
+        wxMessageBox( _("Mouse was captured, input was \"physical devices\", and focus was lost. "
+                "Either you pressed alt+tab or some other app took focus.\n"), _("Error"), wxICON_ERROR);
+        break;
     }
 
     if(openLog)
@@ -1725,7 +1748,7 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
         if (answer == wxYES)
         {
           wxString logfile = gimxLogDir + wxT(LOG_FILE);
-          remove(logfile.mb_str(wxConvUTF8));
+          wxRemoveFile(logfile);
           ProcessOutputChoice->SetSelection(ProcessOutputChoice->FindString(_("log file")));
           wxCommandEvent event;
           OnButtonStartClick(event);
@@ -2035,8 +2058,8 @@ void launcherFrame::OnMenuStartupUpdates(wxCommandEvent& event __attribute__((un
 {
   string filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append(START_UPDATES);
-  ofstream outfile (filename.c_str(), ios_base::trunc);
-  if(outfile.is_open())
+  OFSTREAM(filename, outfile)
+  if(outfile.good())
   {
     if(MenuStartupUpdates->IsChecked())
     {
@@ -2046,7 +2069,6 @@ void launcherFrame::OnMenuStartupUpdates(wxCommandEvent& event __attribute__((un
     {
       outfile << "no" << endl;
     }
-    outfile.close();
   }
 }
 
@@ -2572,28 +2594,25 @@ int launcherFrame::readDonglePairings(vector<BluetoothPairing>& donglePairings)
     for (bool cont = dir.GetFirst(&dongleAddress, wxEmptyString, wxDIR_DIRS); cont;  cont = dir.GetNext(&dongleAddress))
     {
       string lkFile = btDir + "/" + string(dongleAddress.mb_str(wxConvUTF8)) + BLUETOOTH_LK_FILE;
-      ifstream infile (lkFile.c_str());
-      if ( infile.is_open() )
+
+      IFSTREAM(lkFile, infile)
+      while( infile.good() )
       {
-        while( infile.good() )
+        string line;
+        getline (infile, line);
+        stringstream ss(line);
+        string remote, linkkey;
+        getline (ss, remote, ' ');
+        getline (ss, linkkey, ' ');
+        if (remote.empty() || linkkey.empty())
         {
-          string line;
-          getline (infile, line);
-          stringstream ss(line);
-          string remote, linkkey;
-          getline (ss, remote, ' ');
-          getline (ss, linkkey, ' ');
-          if (remote.empty() || linkkey.empty())
-          {
-            continue;
-          }
-          BluetoothPairing pairing;
-          pairing.local = dongleAddress;
-          pairing.remote = wxString(remote.c_str(), wxConvUTF8);
-          pairing.linkkey = wxString(linkkey.c_str(), wxConvUTF8);
-          donglePairings.push_back(pairing);
+          continue;
         }
-        infile.close();
+        BluetoothPairing pairing;
+        pairing.local = dongleAddress;
+        pairing.remote = wxString(remote.c_str(), wxConvUTF8);
+        pairing.linkkey = wxString(linkkey.c_str(), wxConvUTF8);
+        donglePairings.push_back(pairing);
       }
     }
     return 0;

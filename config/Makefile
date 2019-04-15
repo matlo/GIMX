@@ -5,7 +5,7 @@ prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
 endif
 
-NAME=$(shell basename $(shell pwd))
+NAME=$(shell basename "$(shell pwd)")
 
 CPPFLAGS += `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP -Wno-unused-local-typedefs
 LDLIBS += `wx-config --libs` -lstdc++ -lm

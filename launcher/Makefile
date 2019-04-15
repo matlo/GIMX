@@ -5,7 +5,7 @@ prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
 endif
 
-NAME=$(shell basename $(shell pwd))
+NAME=$(shell basename "$(shell pwd)")
 
 ifeq ($(OS),Windows_NT)
 CPPFLAGS += `sdl2-config --cflags`

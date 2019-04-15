@@ -16,9 +16,13 @@
 #include <termios.h> //to disable/enable echo
 #include <unistd.h> // chown
 #else
+#undef NTDDI_VERSION
+#define NTDDI_VERSION NTDDI_VERSION_FROM_WIN32_WINNT(NTDDI_VISTA)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shlobj.h> //to get the homedir
+#include <knownfolders.h>
+#include <objbase.h>
 #endif
 
 #include "gimx.h"
@@ -63,6 +67,7 @@ s_gimx_params gimx_params =
   .skip_leds = 0,
   .ff_conv = 0,
   .inactivity_timeout = 0,
+  .focus_lost = 0,
 };
 
 #ifdef WIN32
@@ -93,6 +98,92 @@ void terminate(int sig __attribute__((unused)))
   set_done();
 }
 
+#ifndef WIN32
+FILE *fopen2(const char *path, const char *mode) {
+    return fopen(path, mode);
+}
+
+GDIR * opendir2 (const char * path) {
+    return opendir(path);
+}
+
+int closedir2(GDIR *dirp) {
+    return closedir(dirp);
+}
+
+GDIRENT *readdir2(GDIR *dirp) {
+    return readdir(dirp);
+}
+
+#else
+wchar_t * utf8_to_utf16le(const char * inbuf)
+{
+  wchar_t * outbuf = NULL;
+  int outsize = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, NULL, 0);
+  if (outsize != 0) {
+      outbuf = (wchar_t*) malloc(outsize * sizeof(*outbuf));
+      if (outbuf != NULL) {
+         int res = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, outbuf, outsize);
+         if (res == 0) {
+             free(outbuf);
+             outbuf = NULL;
+         }
+      }
+  }
+
+  return outbuf;
+}
+
+FILE *fopen2(const char *path, const char *mode) {
+    wchar_t * wpath = utf8_to_utf16le(path);
+    wchar_t * wmode = utf8_to_utf16le(mode);
+    FILE* file = _wfopen(wpath, wmode);
+    free(wmode);
+    free(wpath);
+    return file;
+}
+
+char * utf16le_to_utf8(const wchar_t * inbuf)
+{
+  char * outbuf = NULL;
+  int outsize = WideCharToMultiByte(CP_UTF8, 0, inbuf, -1, NULL, 0, NULL, NULL);
+  if (outsize != 0) {
+      outbuf = (char*) malloc(outsize * sizeof(*outbuf));
+      if (outbuf != NULL) {
+         int res = WideCharToMultiByte(CP_UTF8, 0, inbuf, -1, outbuf, outsize, NULL, NULL);
+         if (res == 0) {
+             free(outbuf);
+             outbuf = NULL;
+         }
+      }
+  }
+
+  return outbuf;
+}
+
+GDIR * opendir2 (const char * path) {
+    wchar_t * wpath = utf8_to_utf16le(path);
+    GDIR * dir = _wopendir(wpath);
+    free(wpath);
+    return dir;
+}
+
+int closedir2(GDIR *dirp) {
+    return _wclosedir(dirp);
+}
+
+GDIRENT *readdir2(GDIR *dirp) {
+    return _wreaddir(dirp);
+}
+
+int stat2(const char *path, GSTAT *buf) {
+    wchar_t * wpath = utf8_to_utf16le(path);
+    int ret = _wstat(wpath, buf);
+    free(wpath);
+    return ret;
+}
+#endif
+
 int ignore_event(GE_Event* event __attribute__((unused)))
 {
   return 0;
@@ -107,6 +198,13 @@ int process_event(GE_Event* event)
       break;
     case GE_JOYRUMBLE:
       cfg_process_rumble_event(event);
+      break;
+    case GE_FOCUS_LOST:
+      if (gimx_params.grab)
+      {
+        gimx_params.focus_lost = 1;
+        set_done();
+      }
       break;
     default:
       if (!cal_skip_event(event))
@@ -172,7 +270,7 @@ void show_config()
 
   snprintf(file_path, sizeof(file_path), "%s%s%s%s", gimx_params.homedir, GIMX_DIR, CONFIG_DIR, gimx_params.config_file);
 
-  FILE * fp = fopen(file_path, "r");
+  FILE * fp = fopen2(file_path, "r");
   if (fp == NULL)
   {
     gwarn("failed to dump %s\n", file_path);
@@ -193,7 +291,6 @@ void grab()
 {
   if(gimx_params.autograb)
   {
-    int grab = 0;
     int i;
     for (i = 0; i < MAX_CONTROLLERS; ++i)
     {
@@ -202,15 +299,11 @@ void grab()
       // if config only has joystick bindings, window focus is not required, and grabbing mouse is not needed
       if(adapter_get_device(E_DEVICE_TYPE_MOUSE, i) != -1 || adapter_get_device(E_DEVICE_TYPE_KEYBOARD, i) != -1)
       {
-        grab = 1;
+          gimx_params.grab = 1;
       }
     }
-    if (grab)
-    {
-      ginput_grab();
-    }
   }
-  else if(gimx_params.grab)
+  if(gimx_params.grab)
   {
     ginput_grab();
   }
@@ -259,14 +352,15 @@ int main(int argc, char *argv[])
 
   gimx_params.homedir = getpwuid(getuid())->pw_dir;
 #else
-  static char path[MAX_PATH];
-  if(SHGetFolderPath( NULL, CSIDL_APPDATA , NULL, 0, path ))
+  static wchar_t * path = NULL;
+  if(SHGetKnownFolderPath(&FOLDERID_RoamingAppData, 0, NULL, &path))
   {
-    gerror("SHGetFolderPath failed\n");
+    gerror("SHGetKnownFolderPath failed\n");
     status = E_GIMX_STATUS_GENERIC_ERROR;
     goto QUIT;
   }
-  gimx_params.homedir = path;
+  gimx_params.homedir = utf16le_to_utf8(path);
+  CoTaskMemFree(path);
 #endif
 
   if (gprio() < 0)
@@ -484,6 +578,11 @@ int main(int argc, char *argv[])
     status = mstatus;
   }
 
+  if (gimx_params.focus_lost)
+  {
+    status = E_GIMX_STATUS_FOCUS_LOST;
+  }
+
   ginfo(_("Exiting\n"));
 
   QUIT: ;
@@ -521,20 +620,22 @@ int main(int argc, char *argv[])
 #ifndef WIN32
     char * file = "/tmp/gimx.status";
 #else
-    char file[MAX_PATH];
-    int ret = GetTempPath(sizeof(file), file);
-    if (ret > 0 && (unsigned int) ret < MAX_PATH - sizeof("/gimx.status"))
+    char file[MAX_PATH + 1] = {};
+    wchar_t wtmp[MAX_PATH + 1];
+    int ret = GetTempPathW(MAX_PATH, wtmp);
+    if (ret > 0)
     {
-      strcat(file, "/gimx.status");
-    }
-    else
-    {
-      file[0] = '\0';
+      char * tmp = utf16le_to_utf8(wtmp);
+      if (strlen(tmp) + sizeof("/gimx.status") <= sizeof(file))
+      {
+        sprintf(file, "%s/gimx.status", tmp);
+      }
+      free(tmp);
     }
 #endif
     if (file != NULL && file[0] != '\0')
     {
-      FILE * fp = fopen(file, "w");
+      FILE * fp = fopen2(file, "w");
       if (fp != NULL)
       {
         fprintf(fp, "%d\n", status);
@@ -553,9 +654,9 @@ int main(int argc, char *argv[])
   if(gimx_params.logfile)
   {
     fclose(gimx_params.logfile);
+#ifndef WIN32
     char file_path[PATH_MAX];
     snprintf(file_path, sizeof(file_path), "%s%s%s%s", gimx_params.homedir, GIMX_DIR, LOG_DIR, gimx_params.logfilename);
-#ifndef WIN32
     int ret = chown(file_path, getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid);
     if (ret < 0)
     {
@@ -576,6 +677,10 @@ int main(int argc, char *argv[])
     term.c_lflag |= ECHO;
     tcsetattr(STDOUT_FILENO, TCSANOW, &term);
   }
+#endif
+
+#ifdef WIN32
+  free(gimx_params.homedir);
 #endif
 
   return status;

@@ -32,28 +32,26 @@ typedef enum {
 
 typedef struct {
     e_adapter_type atype;
-    union {
-        struct {
-            int index;
-            char* bdaddr_dst;
-        } bt;
-        struct {
-            char* portname;
-            struct gserial_device * device;
-            s_packet packet;
-            unsigned int bread;
-        } serial;
-        struct {
-            in_addr_t ip;
-            unsigned short port;
-            int fd;
-            union {
-                unsigned char buf[sizeof(s_network_packet_in_report) + AXIS_MAX * sizeof(* ((s_network_packet_in_report * )NULL)->axes)];
-                s_network_packet_in_report report;
-            };
-            int last_axes[AXIS_MAX];
-        } remote;
-    };
+    struct {
+        int index;
+        char* bdaddr_dst;
+    } bt;
+    struct {
+        char* portname;
+        struct gserial_device * device;
+        s_packet packet;
+        unsigned int bread;
+    } serial;
+    struct {
+        in_addr_t ip;
+        unsigned short port;
+        int fd;
+        union {
+            unsigned char buf[sizeof(s_network_packet_in_report) + AXIS_MAX * sizeof(* ((s_network_packet_in_report * )NULL)->axes)];
+            s_network_packet_in_report report;
+        };
+        int last_axes[AXIS_MAX];
+    } remote;
     in_addr_t src_ip;
     unsigned short src_port;
     int src_fd;

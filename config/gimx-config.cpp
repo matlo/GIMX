@@ -33,6 +33,7 @@
 #include <wx/stdpaths.h>
 #include <wx/busyinfo.h>
 #include <wx/hyperlink.h>
+#include <wx/clipbrd.h>
 
 #include <wx/app.h>
 
@@ -189,6 +190,8 @@ const long configFrame::idMenuOpen = wxNewId();
 const long configFrame::idMenuSave = wxNewId();
 const long configFrame::idMenuSaveAs = wxNewId();
 const long configFrame::ID_MENUITEM28 = wxNewId();
+const long configFrame::ID_MENUITEM26 = wxNewId();
+const long configFrame::ID_MENUITEM30 = wxNewId();
 const long configFrame::idMenuQuit = wxNewId();
 const long configFrame::ID_MENUITEM12 = wxNewId();
 const long configFrame::ID_MENUITEM18 = wxNewId();
@@ -1256,6 +1259,10 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     MenuFile->Append(MenuItemSaveAs);
     MenuItem2 = new wxMenuItem(MenuFile, ID_MENUITEM28, _("Open config directory"), wxEmptyString, wxITEM_NORMAL);
     MenuFile->Append(MenuItem2);
+    MenuItem3 = new wxMenuItem(MenuFile, ID_MENUITEM26, _("Export to clipboard"), wxEmptyString, wxITEM_NORMAL);
+    MenuFile->Append(MenuItem3);
+    MenuItem4 = new wxMenuItem(MenuFile, ID_MENUITEM30, _("Import from clipboard"), wxEmptyString, wxITEM_NORMAL);
+    MenuFile->Append(MenuItem4);
     MenuFile->AppendSeparator();
     MenuItem1 = new wxMenuItem(MenuFile, idMenuQuit, _("Quit\tAlt-F4"), _("Quit the application"), wxITEM_NORMAL);
     MenuFile->Append(MenuItem1);
@@ -1412,6 +1419,8 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     Connect(idMenuSave,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuSave);
     Connect(idMenuSaveAs,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuSaveAs);
     Connect(ID_MENUITEM28,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuOpenConfigDirectory);
+    Connect(ID_MENUITEM26,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemExport);
+    Connect(ID_MENUITEM30,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemImport);
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnQuit);
     Connect(ID_MENUITEM12,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemCopyConfiguration);
     Connect(ID_MENUITEM18,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&configFrame::OnMenuItemCopyController);
@@ -2684,6 +2693,11 @@ void configFrame::openConfiguration(const wxString& directory, const wxString& f
 
     int ret = configFile.ReadConfigFile(TO_STRING(directory), TO_STRING(file));
 
+    openCommon(directory, file, ret);
+}
+
+void configFrame::openCommon(const wxString& directory, const wxString& file, int ret)
+{
     if (ret < 0) {
         wxMessageBox(TO_WXSTRING(configFile.GetError()), _("Error"), wxICON_ERROR);
         return;
@@ -2710,7 +2724,8 @@ void configFrame::openConfiguration(const wxString& directory, const wxString& f
     MenuFile->Enable(idMenuSave, true);
     configFile.SetDirectory(TO_STRING(directory));
     configFile.SetFile(TO_STRING(file));
-    wxTopLevelWindow::SetTitle(file + wxT(" - Gimx-config"));
+    wxString title = file.IsEmpty() ? wxT("Gimx-config") : file + wxT(" - Gimx-config");
+    wxTopLevelWindow::SetTitle(title);
     openedConfigFile = configFile;
 }
 
@@ -4655,5 +4670,42 @@ void configFrame::OnAxisTabAxisIdSelect(wxCommandEvent& event __attribute__((unu
           AxisTabShape->Disable();
           AxisTabShape->SetSelection(0);
         }
+    }
+}
+
+void configFrame::OnMenuItemExport(wxCommandEvent& event __attribute__((unused)))
+{
+    save_current();
+    string config;
+    if (configFile.ToString(config) < 0)
+    {
+        wxMessageBox(_("Can't export config to clipboard"), _("Error"), wxICON_ERROR);
+    }
+    else
+    {
+        if (wxTheClipboard->Open())
+        {
+            wxTheClipboard->SetData(new wxTextDataObject(wxString(config.c_str(), wxConvUTF8)));
+            wxTheClipboard->Close();
+        }
+    }
+}
+
+void configFrame::OnMenuItemImport(wxCommandEvent& event __attribute__((unused)))
+{
+    if (wxTheClipboard->Open())
+    {
+        if (wxTheClipboard->IsSupported( wxDF_TEXT ))
+        {
+            wxTextDataObject data;
+            wxTheClipboard->GetData( data );
+
+            checkSave();
+
+            int ret = configFile.FromString(TO_STRING(data.GetText()));
+
+            openCommon(default_directory, wxEmptyString, ret);
+        }
+        wxTheClipboard->Close();
     }
 }

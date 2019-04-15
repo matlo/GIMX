@@ -3,12 +3,8 @@
  License: GPLv3
  */
 
-#include <fstream>
-#include <iostream>
-#include <cstdlib>
-#include <cstdio>
 #include "configupdater.h"
-#include <stdlib.h>
+#include <sstream>
 #include <string.h>
 
 #ifdef WIN32
@@ -16,6 +12,57 @@
 #else
 #include <pwd.h> //to get the user & group id
 #include <unistd.h>
+#endif
+
+#include <ext/stdio_filebuf.h>
+#include <fcntl.h>
+
+#ifdef WIN32
+
+static wchar_t * utf8_to_utf16le(const char * inbuf)
+{
+  wchar_t * outbuf = NULL;
+  int outsize = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, NULL, 0);
+  if (outsize != 0) {
+      outbuf = (wchar_t*) malloc(outsize * sizeof(*outbuf));
+      if (outbuf != NULL) {
+         int res = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, outbuf, outsize);
+         if (res == 0) {
+             free(outbuf);
+             outbuf = NULL;
+         }
+      }
+  }
+  return outbuf;
+}
+
+#define IFBUF(path) \
+    wchar_t * wpath = utf8_to_utf16le(path.c_str()); \
+    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | _O_RDONLY), std::ios::in | std::ios::binary); \
+    free(wpath);
+
+#else
+
+#define IFBUF(path) \
+    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), O_RDONLY), std::ios::in);
+
+#endif
+
+#define IFSTREAM(path, name) \
+    IFBUF(path) \
+    std::istream name (&fb);
+
+#ifndef WIN32
+static int remove2(const char *path) {
+    return remove(path);
+}
+#else
+static int remove2(const char *path) {
+    wchar_t * wpath = utf8_to_utf16le(path);
+    int result = _wremove(wpath);
+    free(wpath);
+    return result;
+}
 #endif
 
 #ifdef WIN32
@@ -74,31 +121,29 @@ configupdater::ConfigUpdaterStatus configupdater::getconfiglist(std::list<std::s
     Downloader::DownloaderStatus downloadStatus = Downloader().download(configs_url, tempFile, progressCallback, this);
 
     if (downloadStatus != Downloader::DownloaderStatusOk) {
-        remove(tempFile.c_str());
         return convertDowloadStatus(downloadStatus);
     }
 
-    std::ifstream infile;
-    infile.open(tempFile.c_str());
+    {
+        IFSTREAM(tempFile, infile)
 
-    while (infile.good()) {
-        std::string line;
-        std::getline(infile, line);
-        size_t pos1 = line.find("\"name\": ");
-        if (pos1 != std::string::npos) {
-            size_t pos2 = line.find("\"", pos1 + strlen("\"name\": "));
-            if (pos2 != std::string::npos) {
-                size_t pos3 = line.find(".xml\",", pos2 + 1);
-                if (pos3 != std::string::npos) {
-                    cl.push_back(line.substr(pos2 + 1, pos3 + 4 - (pos2 + 1)));
+        while (infile.good()) {
+            std::string line;
+            std::getline(infile, line);
+            size_t pos1 = line.find("\"name\": ");
+            if (pos1 != std::string::npos) {
+                size_t pos2 = line.find("\"", pos1 + strlen("\"name\": "));
+                if (pos2 != std::string::npos) {
+                    size_t pos3 = line.find(".xml\",", pos2 + 1);
+                    if (pos3 != std::string::npos) {
+                        cl.push_back(line.substr(pos2 + 1, pos3 + 4 - (pos2 + 1)));
+                    }
                 }
             }
         }
-    }
+    } // tempFile is closed at the end of this block, allowing removal
 
-    infile.close();
-
-    remove(tempFile.c_str());
+    remove2(tempFile.c_str());
 
     return configupdater::ConfigUpdaterStatusOk;
 }

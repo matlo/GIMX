@@ -963,6 +963,20 @@ static char** macro_configs = NULL;
 static unsigned int nb_macro_configs = 0;
 static unsigned char configs_txt_present = 0;
 
+#define ADD_FILE(FILES, NB_FILES, FILE) \
+        char ** ptr = realloc(FILES, (NB_FILES + 1) * sizeof(char*)); \
+        if(ptr) { \
+            FILES = ptr; \
+            FILES[NB_FILES] = strdup(FILE); \
+            if(FILES[NB_FILES]) { \
+                ++NB_FILES; \
+            } else { \
+                gwarn("%s:%d strdup failed\n", __FILE__, __LINE__); \
+            } \
+        } else { \
+            gwarn("%s:%d realloc failed\n", __FILE__, __LINE__); \
+        }
+
 static void read_configs_txt(const char* dir_path)
 {
   char line[LINE_MAX];
@@ -974,7 +988,7 @@ static void read_configs_txt(const char* dir_path)
   int ret;
 
   snprintf(file_path, sizeof(file_path), "%s%s", dir_path, MACRO_CONFIGS_FILE);
-  fp = fopen(file_path, "r");
+  fp = fopen2(file_path, "r");
   if (fp)
   {
     if (gimx_params.logfile != NULL) {
@@ -1005,24 +1019,7 @@ static void read_configs_txt(const char* dir_path)
 
         if(!strcmp(config, gimx_params.config_file))
         {
-          char ** ptr = realloc(macro_configs, (nb_macro_configs+1)*sizeof(char*));
-          if(ptr)
-          {
-            macro_configs = ptr;
-            macro_configs[nb_macro_configs] = strdup(macro);
-            if(macro_configs[nb_macro_configs])
-            {
-              nb_macro_configs++;
-            }
-            else
-            {
-              gwarn("%s:%d strdup failed\n", __FILE__, __LINE__);
-            }
-          }
-          else
-          {
-            gwarn("%s:%d realloc failed\n", __FILE__, __LINE__);
-          }
+            ADD_FILE(macro_configs, nb_macro_configs, macro)
         }
       }
     }
@@ -1035,21 +1032,16 @@ static void read_configs_txt(const char* dir_path)
  */
 static void read_macros() {
     char line[LINE_MAX];
-    DIR *dirp;
     FILE* fp;
     char dir_path[PATH_MAX];
     char file_path[PATH_MAX];
-    struct dirent *d;
     unsigned int i, j;
     unsigned int nb_filenames = 0;
     char** filenames = NULL;
-#ifdef WIN32
-    struct stat buf;
-#endif
 
     snprintf(dir_path, sizeof(dir_path), "%s/%s/%s", gimx_params.homedir, GIMX_DIR, MACRO_DIR);
 
-    dirp = opendir(dir_path);
+    GDIR * dirp = opendir2(dir_path);
     if (dirp == NULL)
     {
       if (errno == ENOENT)
@@ -1059,69 +1051,43 @@ static void read_macros() {
       else
       {
         gerror("failed to open %s:", dir_path);
-        perror("opendir");
+        perror("opendir2");
       }
       return;
     }
 
-    while ((d = readdir(dirp)))
+    GDIRENT * d;
+    while ((d = readdir2(dirp)))
     {
+#ifndef WIN32
       if(!strcmp(d->d_name, MACRO_CONFIGS_FILE))
       {
         continue;
       }
-#ifndef WIN32
       if (d->d_type == DT_REG)
       {
-        char ** ptr = realloc(filenames, (nb_filenames+1)*sizeof(char*));
-        if(ptr)
-        {
-          filenames = ptr;
-          filenames[nb_filenames] = strdup(d->d_name);
-          if(filenames[nb_filenames])
-          {
-            ++nb_filenames;
-          }
-          else
-          {
-            gwarn("%s:%d strdup failed\n", __FILE__, __LINE__);
-          }
-        }
-        else
-        {
-          gwarn("%s:%d realloc failed\n", __FILE__, __LINE__);
-        }
+          ADD_FILE(filenames, nb_filenames, d->d_name)
       }
 #else
-      snprintf(file_path, sizeof(file_path), "%s/%s", dir_path, d->d_name);
-      if(stat(file_path, &buf) == 0)
+      if(!wcscmp(d->d_name, L""MACRO_CONFIGS_FILE))
+      {
+        continue;
+      }
+      char * name = utf16le_to_utf8(d->d_name);
+      snprintf(file_path, sizeof(file_path), "%s/%s", dir_path, name);
+      GSTAT buf;
+      if(stat2(file_path, &buf) == 0)
       {
         if(S_ISREG(buf.st_mode))
         {
-          char ** ptr = realloc(filenames, (nb_filenames+1)*sizeof(char*));
-          if(ptr)
-          {
-            filenames = ptr;
-            filenames[nb_filenames] = strdup(d->d_name);
-            if(filenames[nb_filenames])
-            {
-              ++nb_filenames;
-            }
-            else
-            {
-              gwarn("%s:%d strdup failed\n", __FILE__, __LINE__);
-            }
-          }
-          else
-          {
-            gwarn("%s:%d realloc failed\n", __FILE__, __LINE__);
-          }
+            ADD_FILE(filenames, nb_filenames, name)
         }
       }
+      free(name);
 #endif
     }
 
-    closedir(dirp);
+    closedir2(dirp);
 
     read_configs_txt(dir_path);
 
@@ -1144,7 +1110,7 @@ static void read_macros() {
       //else: no configs.txt => read all macros.
 
       snprintf(file_path, sizeof(file_path), "%s%s", dir_path, filenames[i]);
-      fp = fopen(file_path, "r");
+      fp = fopen2(file_path, "r");
       if (!fp) {
         gwarn("failed to open %s\n", file_path);
       } else {

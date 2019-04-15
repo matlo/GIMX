@@ -13,7 +13,6 @@ CXXFLAGS += -Wall -Wextra -O3
 
 #CFLAGS += -Wall -Wextra -O0 -g -fsanitize=address -fno-omit-frame-pointer
 #CXXFLAGS += -Wall -Wextra -O0 -g -fsanitize=address -fno-omit-frame-pointer
-#LDLIBS += -lasan
 
 #If you don't care for library address sanitiser, uncomment below for debugging
 #CFLAGS += -Wall -Wextra -O0 -g

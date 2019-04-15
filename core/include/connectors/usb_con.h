@@ -14,6 +14,6 @@ int usb_send_control(int usb_number, void * buf, unsigned int count);
 int usb_send_interrupt_out(int usb_number, void * buf, unsigned int count);
 int usb_handle_events(int unused);
 int usb_poll_interrupts();
-int usb_get_joystick(int usb_number);
+int usb_forward_output(int usb_number, int joystick);
 
 #endif /* USB_CON_H_ */

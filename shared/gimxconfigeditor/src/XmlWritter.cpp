@@ -338,26 +338,24 @@ void XmlWritter::CreateControllerNodes(xmlNodePtr parent_node)
     }
 }
 
-int XmlWritter::WriteConfigFile(const string& directory, const string& file)
+xmlDocPtr XmlWritter::ToDoc()
 {
-    int ret;
-    xmlDocPtr doc = NULL;       /* document pointer */
-    xmlNodePtr root_node = NULL;/* node pointers */
-
     LIBXML_TEST_VERSION;
 
-    /*
-     * Creates a new document, a node and set it as a root node
-     */
-    doc = xmlNewDoc(BAD_CAST "1.0");
-    root_node = xmlNewNode(NULL, BAD_CAST X_NODE_ROOT);
+    xmlDocPtr doc = xmlNewDoc(BAD_CAST "1.0");
+    xmlNodePtr root_node = xmlNewNode(NULL, BAD_CAST X_NODE_ROOT);
     xmlDocSetRootElement(doc, root_node);
 
     CreateControllerNodes(root_node);
 
-    /*
-     * Dumping document to stdio or file
-     */
+    return doc;
+}
+
+int XmlWritter::WriteConfigFile(const string& directory, const string& file)
+{
+    int ret;
+    xmlDocPtr doc = ToDoc();
+
     string path = directory + "/" + file;
     ret = xmlSaveFormatFileEnc(path.c_str(), doc, "UTF-8", 1);
 
@@ -369,7 +367,26 @@ int XmlWritter::WriteConfigFile(const string& directory, const string& file)
     }
 #endif
 
-    /*free the document */
+    xmlFreeDoc(doc);
+
+    return ret;
+}
+
+int XmlWritter::ToString(string& config)
+{
+    int ret = 0;
+    xmlDocPtr doc = ToDoc();
+
+    xmlChar *s;
+    int size;
+    xmlDocDumpFormatMemoryEnc(doc, &s, &size, "UTF-8", 1);
+    if (s != NULL) {
+        config = (char *)s;
+        xmlFree(s);
+    } else {
+        ret = -1;
+    }
+
     xmlFreeDoc(doc);
 
     return ret;

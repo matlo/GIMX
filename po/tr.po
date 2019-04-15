@@ -3,625 +3,622 @@ msgstr ""
 "Project-Id-Version: GIMX 7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-05-27 19:35+0200\n"
-"PO-Revision-Date: 2019-03-04 20:59+0100\n"
-"Last-Translator: Matlo <mat.lau@laposte.net>\n"
-"Language-Team: Matlo <mat.lau@laposte.net>\n"
-"Language: fr\n"
+"PO-Revision-Date: 2019-03-20 00:21+0300\n"
+"Last-Translator: Osman Çitçi <www.osmancitci.com.tr>\n"
+"Language-Team: Osman Çitçi <www.osmancitci.com.tr>\n"
+"Language: tr_TR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-KeywordsList: _;gettext;gettext_noop\n"
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-KeywordsList: _;gettext;gettext_noop\n"
-"X-Poedit-Basepath: .\n"
-"X-Poedit-SourceCharset: UTF-8\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 2.2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SearchPath-0: ..\n"
 
 #: ../core/args.c:192
 #, c-format
 msgid "ignoring: -%c %s (max controllers reached)\n"
-msgstr "ignoré :  -%c %s (le nombre max de contrôleurs est atteint)\n"
+msgstr "Yok Sayılıyor: -%c %s (Maks. Kontroller Sayısına Ulaşıldı)\n"
 
 #: ../core/args.c:202
 #, c-format
 msgid "option %s"
-msgstr "option %s"
+msgstr "%s Seçeneği"
 
 #: ../core/args.c:204
 #, c-format
 msgid " with arg %s"
-msgstr " avec pour argument %s"
+msgstr " %s arg ile"
 
 #: ../core/args.c:215
 #, c-format
 msgid "controller #%d: option -b with value `%s'\n"
-msgstr ""
-"controlleur %d : option -b avec valeur `%s'\n"
-"\n"
+msgstr "Kontroller #%d: -b Baglanilan Port `%s'\n"
 
 #: ../core/args.c:217 ../core/args.c:275 ../core/args.c:363
 #, c-format
 msgid "now reading arguments for controller #%d\n"
-msgstr "début des arguments du contrôleur %d\n"
+msgstr "Simdi #%d Kontroller icin Bagimsiz Degiskenleri Okuyor\n"
 
 #: ../core/args.c:222
 #, c-format
 msgid "global option -c with value `%s'\n"
-msgstr "option globale -c avec valeur `%s'\n"
+msgstr "Ayarli Config Degeri -c `%s'\n"
 
 #: ../core/args.c:233
 #, c-format
 msgid "Bad event format: %s\n"
-msgstr "Mauvais format d'événement : %s\n"
+msgstr "Kötü Etkinlik Biçimi: %s\n"
 
 #: ../core/args.c:244
 #, c-format
 msgid "controller #%d: option -e with value `%s(%d)'\n"
-msgstr "contrôleur %d : option -e avec valeur `%s(%d)'\n"
+msgstr "Kontroller #%d: -e Baglanilan Port `%s(%d)'\n"
 
 #: ../core/args.c:251
 #, c-format
 msgid "Bad axis name for event: %s\n"
-msgstr "Mauvais nom d'axe pour l'événement : %s\n"
+msgstr "Etkinlik İçin Hatalı Eksen Adı: %s\n"
 
 #: ../core/args.c:260
 #, c-format
 msgid "controller #%d: option -h with value `%d'\n"
-msgstr "contrôleur %d : option -h avec valeur `%d'\n"
+msgstr "Kontroller #%d: -h Baglanilan Port `%d'\n"
 
 #: ../core/args.c:267
 #, c-format
 msgid "Bad format for argument -d: '%s'\n"
-msgstr "Mauvais format pour l'argument -d : '%s'\n"
+msgstr "Argüman İçin Kötü Format -d: '%s'\n"
 
 #: ../core/args.c:273
 #, c-format
 msgid "controller #%d: option -d with value `%s'\n"
-msgstr "contrôleur %d : option -d avec valeur `%s'\n"
+msgstr "Kontroller #%d: -d Baglanilan Port  `%s'\n"
 
 #: ../core/args.c:288
 #, c-format
 msgid "Bad format for argument -s: '%s'\n"
-msgstr "Mauvais format pour l'argument -s : '%s'\n"
+msgstr "Argüman İçin Kötü Format -s: '%s'\n"
 
 #: ../core/args.c:293
 #, c-format
 msgid "controller #%d: option -s with value `%s'\n"
-msgstr "contrôleur %d : option -s avec valeur `%s'\n"
+msgstr "Kontroller #%d: -s Baglanilan Port `%s'\n"
 
 #: ../core/args.c:301
 #, c-format
 msgid "controller #%d: option -k with value `%s'\n"
-msgstr "contrôleur %d : option -k avec valeur `%s'\n"
+msgstr "Kontroller #%d: -k Baglanilan Port  `%s'\n"
 
 #: ../core/args.c:322
 #, c-format
 msgid "can't open log file (%s)\n"
-msgstr "Fichier de log impossible à ouvrir (%s)\n"
+msgstr "Log Dosyası Açılamıyor (%s)\n"
 
 #: ../core/args.c:326
 #, c-format
 msgid "global option -l with value `%s'\n"
-msgstr "option globale -l avec valeur `%s'\n"
+msgstr "Ayarli Config Degeri -l `%s'\n"
 
 #: ../core/args.c:330
 msgid "log file can't be used with curses\n"
-msgstr "il n'est pas possible d'utiliser un fichier de log avec curses\n"
+msgstr "Log Dosyası Fare Modunda Kullanılamaz\n"
 
 #: ../core/args.c:336
 msgid "only one log file can be specified\n"
-msgstr "un seul fichier de log peut être spécifié\n"
+msgstr "Sadece Bir Log Dosyası Belirtilebilir\n"
 
 #: ../core/args.c:356
 #, c-format
 msgid "port already used: `%s'\n"
-msgstr "Port déjà utilisé : `%s'\n"
+msgstr "Port Zaten Kullanılmış: `%s'\n"
 
 #: ../core/args.c:361
 #, c-format
 msgid "controller #%d: option -p with value `%s'\n"
-msgstr "contrôleur %d : option -p avec valeur `%s'\n"
+msgstr "Kontroller #%d: -p Baglanilan Port `%s'\n"
 
 #: ../core/args.c:369
 #, c-format
 msgid "global option -q with value `%s'\n"
-msgstr "option globale -q avec valeur `%s'\n"
+msgstr "Ayarli Config Degeri -q `%s'\n"
 
 #: ../core/args.c:377
 #, c-format
 msgid "global option -r with value `%s'\n"
-msgstr "option globale -r avec valeur `%s'\n"
+msgstr "Ayarli Config Degeri -r `%s'\n"
 
 #: ../core/args.c:387
 #, c-format
 msgid "controller #%d: option -t with value `%s'\n"
-msgstr "contrôleur %d : option -t avec valeur `%s'\n"
+msgstr "Kontroller #%d: -t Baglanilan Port `%s'\n"
 
 #: ../core/args.c:429
 #, c-format
 msgid "unrecognized option: %c\n"
-msgstr "option non reconnue : %c\n"
+msgstr "Tanımlanamayan Seçenek: %c\n"
 
 #: ../core/args.c:439
 #, c-format
 msgid "grab flag is unset\n"
-msgstr "le flag \"grab\" est positionné\n"
+msgstr "Pencere Yakalama Ayarlandi\n"
 
 #: ../core/args.c:441
 #, c-format
 msgid "status flag is set\n"
-msgstr "le flag \"status\" est positionné\n"
+msgstr "Durum Ayarlandi\n"
 
 #: ../core/args.c:443
 #, c-format
 msgid "subpos flag is set\n"
-msgstr "le flag \"subpos\" est positionné\n"
+msgstr "subpos Ayarlandi\n"
 
 #: ../core/args.c:445
 #, c-format
 msgid "force_updates flag is set\n"
-msgstr "le flag \"force_updates\" est positionné\n"
+msgstr "Guncellemeleri Zorlama Ayarlandi\n"
 
 #: ../core/args.c:447
 #, c-format
 msgid "curses flag is set\n"
-msgstr "le flag \"curses\" est positionné\n"
+msgstr "Fare Modu Ayarlandi\n"
 
 #: ../core/args.c:449
 #, c-format
 msgid "window_events flag is set\n"
-msgstr "le flag \"window_events\" est positionné\n"
+msgstr "Pencere Olayları Ayarlandi\n"
 
 #: ../core/args.c:451
 #, c-format
 msgid "btstack flag is set\n"
-msgstr "le flag \"btstack\" est positionné\n"
+msgstr "Bluetooth Ayarlandi\n"
 
 #: ../core/args.c:453
 #, c-format
 msgid "skip_leds flag is set\n"
-msgstr "le flag skip_leds est positionné\n"
+msgstr "Ledleri Gec Ayarlandi\n"
 
 #: ../core/args.c:455
 #, c-format
 msgid "ff_conv flag is set\n"
-msgstr "le flag ff_conv est positionné\n"
+msgstr "ff_conv Ayarlandi\n"
 
 #: ../core/args.c:457
 #, c-format
 msgid "auto-grab flag is set\n"
-msgstr "le flag auto-grab est positionné\n"
+msgstr "Otomatik Pencere Yakalama Ayarlandi\n"
 
 #: ../core/args.c:488
 #, c-format
 msgid "%s flag is set\n"
-msgstr "le flag %s est positionné\n"
+msgstr "%s Durum Ayarlandi\n"
 
 #: ../core/calibration.c:198
 #, c-format
 msgid "calibrating mouse %s (%d)\n"
-msgstr "calibration de la souris %s (%d)\n"
+msgstr "%s Fare Kalibrasyonu (%d)\n"
 
 #: ../core/calibration.c:199
 #, c-format
 msgid "calibrating conf %d\n"
-msgstr "calibration de la conf %d\n"
+msgstr "Conf Kalbirasyonu %d\n"
 
 #: ../core/calibration.c:200
 msgid "sensibility:"
-msgstr "sensibilité :"
+msgstr "Duyarlılık:"
 
 #: ../core/calibration.c:207 ../core/calibration.c:216
 #: ../core/calibration.c:225 ../core/calibration.c:234
 #: ../core/calibration.c:250 ../core/calibration.c:259
 #: ../core/calibration.c:268
 msgid " NA\n"
-msgstr "ND\n"
+msgstr " NA\n"
 
 #: ../core/calibration.c:209
 msgid "x/y ratio:"
-msgstr "ratio x/y :"
+msgstr "x/y Oranı:"
 
 #: ../core/calibration.c:218
 msgid "dead zone x:"
-msgstr "dead zone x :"
+msgstr "Ölü Bölge X:"
 
 #: ../core/calibration.c:227
 msgid "dead zone y:"
-msgstr "dead zone y :"
+msgstr "Ölü Bölge Y:"
 
 #: ../core/calibration.c:236
 msgid "shape:"
-msgstr "forme :"
+msgstr "Şekil:"
 
 #: ../core/calibration.c:241
 msgid " Circle\n"
-msgstr " Cercle\n"
+msgstr " Daire\n"
 
 #: ../core/calibration.c:245
 msgid " Rectangle\n"
-msgstr " Rectangle\n"
+msgstr " Dikdörtgen\n"
 
 #: ../core/calibration.c:252
 msgid "acceleration x:"
-msgstr "accélération x :"
+msgstr "Hızlanma X:"
 
 #: ../core/calibration.c:261
 msgid "acceleration y:"
-msgstr "accélération y :"
+msgstr "Hızlanma Y:"
 
 #: ../core/calibration.c:270
 #, c-format
 msgid "radius: %d\n"
-msgstr "rayon : %d\n"
+msgstr "Yarıçap: %d\n"
 
 #: ../core/calibration.c:271
 #, c-format
 msgid "velocity: %d\n"
-msgstr "vitesse : %d\n"
+msgstr "Hız: %d\n"
 
 #: ../core/calibration.c:272
 #, c-format
 msgid "time: %d\n"
-msgstr "temps : %d\n"
+msgstr "Zaman: %d\n"
 
 #: ../core/calibration.c:312 ../core/calibration.c:335
 msgid "mouse selection\n"
-msgstr "sélection de la souris\n"
+msgstr "Fare Seçimi\n"
 
 #: ../core/calibration.c:317 ../core/calibration.c:344
 msgid "profile selection\n"
-msgstr "sélection du profil\n"
+msgstr "Profil Seçimi\n"
 
 #: ../core/calibration.c:325
 #, c-format
 msgid "error writting the config file %s\n"
-msgstr "erreur lors de l'écriture de la config %s\n"
+msgstr "Config Dosyası %s Yazılırken Hata Oluştu\n"
 
 #: ../core/calibration.c:327
 msgid "calibration done\n"
-msgstr "calibration terminée\n"
+msgstr "Kalibrasyon Tamam\n"
 
 #: ../core/calibration.c:350
 msgid "calibrating sensitivity\n"
-msgstr "calibration de la sensibilité\n"
+msgstr "Kalibrasyon Duyarlılığı\n"
 
 #: ../core/calibration.c:357
 msgid "calibrating x/y ratio\n"
-msgstr "calibration du ratio x/y\n"
+msgstr "x/y Oran Kalibrasyonu\n"
 
 #: ../core/calibration.c:364
 msgid "calibrating dead zone x\n"
-msgstr "calibration de la dead zone x\n"
+msgstr "Ölü Bölge Kalibrasyonu X\n"
 
 #: ../core/calibration.c:374
 msgid "calibrating dead zone y\n"
-msgstr "calibration de la dead zone y\n"
+msgstr "Ölü Bölge Kalibrasyonu Y\n"
 
 #: ../core/calibration.c:384
 msgid "calibrating dead zone shape\n"
-msgstr "calibration de la forme de la dead zone\n"
+msgstr "Ölü Bölge Kalibrasyonu Şekil\n"
 
 #: ../core/calibration.c:394
 msgid "calibrating acceleration x\n"
-msgstr "calibration de l'accélération x\n"
+msgstr "Hızlanma Kalibrasyonu X\n"
 
 #: ../core/calibration.c:401
 msgid "calibrating acceleration y\n"
-msgstr "calibration de l'accélération y\n"
+msgstr "Hızlanma Kalibrasyonu Y\n"
 
 #: ../core/calibration.c:412
 msgid "adjusting circle test radius\n"
-msgstr "ajustement du rayon du test du cercle\n"
+msgstr "Daire Testi Yarıçapı Ayarlama\n"
 
 #: ../core/calibration.c:423
 msgid "adjusting circle test velocity\n"
-msgstr "ajustement de la vitesse du test du cercle\n"
+msgstr "Daire Testi Hızını Ayarlama\n"
 
 #: ../core/calibration.c:437
 msgid "translation test started\n"
-msgstr "test de translation démarré\n"
+msgstr "Çeviri Testi Başladı\n"
 
 #: ../core/config.c:639
 #, c-format
 msgid "controller %d profile %d axis %s intensity: %.0f\n"
-msgstr "contrôleur %d profil %d axe %s intensité : %.0f\n"
+msgstr "Kontroller %d Profil %d Eksen %s Şiddeti : %.0f\n"
 
 #: ../core/config.c:855
 #, c-format
 msgid "%d %ld.%06ld controller %d is switched from profile %d to %d\n"
-msgstr "%d %ld.%06ld contrôleur %d est basculé du profil %d à %d\n"
+msgstr "%d %ld.%06ld Kontroller %d, %d ile %d Profilden Değiştirildi\n"
 
 #: ../core/config_reader.c:80
 #, c-format
 msgid "joystick not found: %s %d\n"
-msgstr "joystick non trouvé : %s %d\n"
+msgstr "Joystick Bulunamadı: %s %d\n"
 
 #: ../core/config_reader.c:83
 #, c-format
 msgid "mouse not found: %s %d\n"
-msgstr "souris non trouvée : %s %d\n"
+msgstr "Fare Bulunamadı: %s %d\n"
 
 #: ../core/config_reader.c:86
 #, c-format
 msgid "keyboard not found: %s %d\n"
-msgstr "clavier non trouvé : %s %d\n"
+msgstr "Klavye Bulunamadı: %s %d\n"
 
 #: ../core/config_reader.c:142
 msgid "A device name is empty. Multiple mice and keyboards are not managed.\n"
-msgstr ""
-"Un nom de device est vide. Les souris et claviers multiples ne sont pas "
-"gérés.\n"
+msgstr "Bir Cihaz Adi Bos. Birden Cok Fare ve Klavye Yonetilmez.\n"
 
 #: ../core/connectors/tcp_con.c:43
 #, c-format
 msgid "connected to %s:%d\n"
-msgstr "connecté à %s:%d\n"
+msgstr "%s ya bağlı : %d\n"
 
 #: ../core/connectors/usb_con.c:413
 msgid "no pass-through device is needed\n"
-msgstr "pas besoin de périphérique \"pass-through\"\n"
+msgstr "Geçiş Cihazına Gerek Yoktur\n"
 
 #: ../core/connectors/usb_con.c:422
 #, c-format
 msgid "found pass-through device 0x%04x:0x%04x\n"
-msgstr "périphérique de pass-through : 0x%04x:0x%04x\n"
+msgstr "Gecis Cihazı Bulundu 0x%04x:0x%04x\n"
 
 #: ../core/controller.c:276
 #, c-format
 msgid "macros are not available for: %s %s (%d)\n"
-msgstr "les macros ne sont pas disponibles pour : %s %s (%d)\n"
+msgstr "Makrolar İçin Mevcut Değil: %s %s (%d)\n"
 
 #: ../core/controller.c:598
 msgid "no GPP detected.\n"
-msgstr "pas de GPP détecté.\n"
+msgstr "GPP Tespit Edilmedi.\n"
 
 #: ../core/controller.c:603
 #, c-format
 msgid "GPP detected, controller type is: %s.\n"
-msgstr "GPP détecté, le type de contrôleur est : %s.\n"
+msgstr "GPP Tespit Edildi, Kontrolor Tipi: %s.\n"
 
 #: ../core/controller.c:608
 msgid "unknown GPP controller type.\n"
-msgstr "type de contrôleur GPP inconnu.\n"
+msgstr "Bilinmeyen GPP Kontroller Tipi.\n"
 
 #: ../core/controller.c:619
 msgid "failed to open the GIMX adapter\n"
-msgstr "échec de l'ouverture de l'adaptateur GIMX\n"
+msgstr "GIMX Adaptör Açılamadı\n"
 
 #: ../core/controller.c:633
 #, c-format
 msgid "GIMX adapter detected, controller type is: %s.\n"
-msgstr "adaptateur GIMX détecté, le type de contrôleur est : %s.\n"
+msgstr "GIMX Adaptor Algilandi, Kontroller Tipi: %s.\n"
 
 #: ../core/controller.c:641
 msgid "wrong controller type.\n"
-msgstr "type de contrôleur incorrect.\n"
+msgstr "Yanlış Kontrollor Tipi\n"
 
 #: ../core/controller.c:649
 msgid "failed to get the GIMX adapter status.\n"
-msgstr "échec de la lecture de l'état de l'adaptateur GIMX.\n"
+msgstr "GIMX Adaptör Durum Bilgisi Alınamadı\n"
 
 #: ../core/controller.c:667
 msgid "failed to reset the GIMX adapter.\n"
-msgstr "échec de la réinitialisation de l'adaptateur GIMX.\n"
+msgstr "GIMX Adaptör Sıfırlanamadı\n"
 
 #: ../core/controller.c:672
 msgid "Reset sent to the GIMX adapter.\n"
-msgstr "Reset envoyé à l'adaptateur GIMX.\n"
+msgstr "Sifirlama Islemi GIMX Adaptore Gonderildi\n"
 
 #: ../core/controller.c:681
 msgid "Disable force updates to work-around #335.\n"
-msgstr "Désactivation de \"force updates\" en raison de #335.\n"
+msgstr ""
+"Çalışmalara Güç (work-around) Güncellemelerini Devre Dışı Bırak #335.\n"
 
 #: ../core/controller.c:693
 msgid "No game controller was found on USB ports.\n"
-msgstr "Pas de contrôleur de jeu trouvé sur les ports USB.\n"
+msgstr "USB Bağlantı Noktalarında Oyun Denetleyicisi Bulunamadı.\n"
 
 #: ../core/controller.c:720
 msgid ""
 "Start the game with a dualshock 3, and then reassign game controllers.\n"
 msgstr ""
-"Démarrer le jeu avec une dualshock 3, puis réassigner les contrôleurs de "
-"jeu.\n"
+"Oyuna Bir Dualshock 3 (DS3) ile Başlayın ve Oyun Denetleyicilerini Yeniden "
+"Atayabilirsiniz.\n"
 
 #: ../core/controller.c:743
 #, c-format
 msgid "failed to connect to network destination: %s:%d.\n"
-msgstr "échec de la connexion à la destination réseau : %s:%d.\n"
+msgstr "Ağ Hedefine Bağlanamadı: %s:%d.\n"
 
 #: ../core/controller.c:748
 #, c-format
 msgid "Remote GIMX detected, controller type is: %s.\n"
-msgstr "GIMX distant détecté, le type de contrôleur est : %s.\n"
+msgstr "Uzaktan GIMX Algılandı, Denetleyici Tipi:%s.\n"
 
 #: ../core/controller.c:859
 msgid "failed to start the GIMX adapter.\n"
-msgstr "échec du démarrage de l'adaptateur GIMX.\n"
+msgstr "GIMX Bağdaştırıcısı Başlatılamadı.\n"
 
 #: ../core/controller.c:864
 msgid "failed to start the GIMX adapter asynchronous processing.\n"
-msgstr "échec du démarrage du traitement asynchrone de l'adaptateur GIMX.\n"
+msgstr "GIMX Bağdaştırıcısı Eş Zamanlı İşlem Başlatılamadı.\n"
 
 #: ../core/controller.c:870
 #, c-format
 msgid "Press the %s button to activate the controller.\n"
-msgstr "Appuyer sur le bouton %s pour activer le contrôleur.\n"
+msgstr "Kontroller Etkinlestirmek Icin ( %s ) Dugmesine Basin.\n"
 
 #: ../core/controller.c:882
 msgid "failed to initialize the sixaxis emulation.\n"
-msgstr "échec de l'initialisation de l'émulation sixaxis.\n"
+msgstr "Sixaxis Emülasyonu Başlatılamadı.\n"
 
 #: ../core/controller.c:891
 msgid "failed to initialize the dualshock 4 emulation.\n"
-msgstr "échec de l'initialisation de l'émulation dualshock 4.\n"
+msgstr "Dualshock 4 (DS4) Emülasyonu Başlatılamadı.\n"
 
 #: ../core/controller.c:898
 msgid "unsupported bluetooth controller type.\n"
-msgstr "type de contrôleur bluetooth non supporté.\n"
+msgstr "Desteklenmeyen Bluetooth Denetleyici Türü.\n"
 
 #: ../core/controller.c:914
 msgid "failed to start the GPP asynchronous processing.\n"
-msgstr "échec du démarrage du traitement asynchrone du GPP.\n"
+msgstr "GPP Eşzamansız İşlem Başlatılamadı.\n"
 
 #: ../core/controller.c:924
 #, c-format
 msgid "failed to listen on network source: %s:%d.\n"
-msgstr "échec de l'écoute de la source réseau : %s:%d.\n"
+msgstr "Ağ Kaynağından Dinlenemedi: %s:%d.\n"
 
 #: ../core/display.c:23 ../launcher/gimx-launcher.cpp:1571
 msgid "Press Shift+Esc to exit."
-msgstr "Appuyez sur MAJ+Echap pour quitter."
+msgstr "Çıkmak İçin Shift+ESC Tuşlarına Basın."
 
 #: ../core/display.c:60 ../core/display.c:319
 msgid "Mouse calibration (Ctrl+F1 to edit)"
-msgstr "Calibration de la souris (Ctrl+F1 pour éditer)"
+msgstr "Fare Kalibrasyonu (Düzenlemek İçin Ctrl+F1)"
 
 #: ../core/display.c:64
 msgid "Mouse calibration (Ctrl+F1 to save)(mouse wheel to change values)"
-msgstr "Calibration de la souris (Ctrl+F1 pour sauver)(molette pour modifier)"
+msgstr ""
+"Fare Kalibrasyonu (Kaydetmek İçin Ctrl+F1) Basın. (Değerleri Değiştirmek "
+"İçin Fare Tekerleriğini Oynatın)"
 
 #: ../core/display.c:82
 msgid "Profile:"
-msgstr "Profil :"
+msgstr "Profil:"
 
 #: ../core/display.c:94
 msgid "Dead zone:"
-msgstr "Dead zone :"
+msgstr "Ölü Bölge:"
 
 #: ../core/display.c:107 ../core/display.c:126 ../core/display.c:181
 #: ../core/display.c:200 ../core/display.c:272
 msgid "N/A"
-msgstr "ND"
+msgstr "N/A"
 
 #: ../core/display.c:137
 msgid " shape="
-msgstr " forme="
+msgstr " Şekil="
 
 #: ../core/display.c:142
 msgid "circle"
-msgstr "cercle"
+msgstr "Daire"
 
 #: ../core/display.c:146
 msgid "rectangle"
-msgstr "rectangle"
+msgstr "Dikdörtgen"
 
 #: ../core/display.c:151 ../core/display.c:220
 msgid " N/A"
-msgstr "ND"
+msgstr " N/A"
 
 #: ../core/display.c:159
 msgid "Acceleration:"
-msgstr "Accélération :"
+msgstr "Hızlanma:"
 
 #: ../core/display.c:164
 msgid " test (F6)"
-msgstr " test (F6)"
+msgstr " Test Et (F6)"
 
 #: ../core/display.c:208
 msgid "Sensitivity:"
-msgstr "Sensibilité :"
+msgstr "Duyarlılık:"
 
 #: ../core/display.c:233
 msgid " circle test"
-msgstr " test du cercle"
+msgstr " Daire Testi"
 
 #: ../core/display.c:243
 #, c-format
 msgid "radius=%d (F10)"
-msgstr "rayon=%d (F10)"
+msgstr "Yarı Çap=%d (F10)"
 
 #: ../core/display.c:254
 #, c-format
 msgid "velocity=%d (F11)"
-msgstr "vitesse=%d (F11)"
+msgstr "Hız=%d (F11)"
 
 #: ../core/display.c:264
 msgid " ratio="
-msgstr " ratio="
+msgstr " Oran="
 
 #: ../core/display.c:303
 msgid "Left stick"
-msgstr "Stick gauche"
+msgstr "Sol Çubuk"
 
 #: ../core/display.c:304
 msgid "Right stick"
-msgstr "Stick droit"
+msgstr "Sağ Çubuk"
 
 #: ../core/display.c:305
 msgid "Buttons"
-msgstr "Boutons"
+msgstr "Düğmeler"
 
 #: ../core/display.c:325
 msgid "Refresh rate:"
-msgstr "Taux de rafraîchissement :"
+msgstr "Yenileme Oranı:"
 
 #: ../core/display.c:348
 #, c-format
 msgid "Refresh rate: %4dHz  "
-msgstr "Taux de rafraîchissement : %4dHz"
+msgstr "Yenileme Oranı: %4dHz  "
 
 #: ../core/gimx.c:315
 #, c-format
 msgid "using default refresh period: %.02fms\n"
-msgstr "utilisation de la période de rafraîchissement par défaut : %.02fms\n"
+msgstr "Varsayilan Yenileme Suresini Kullanma: %.02fms\n"
 
 #: ../core/gimx.c:448
 #, c-format
 msgid "Unknown key name for argument --keygen: '%s'\n"
-msgstr "Nom de touche inconnue pour l'argument --keygen : '%s'\n"
+msgstr "Bağımsız Değişken İçin Bilinmeyen Anahtar Adı --keygen: '%s'\n"
 
 #: ../core/gimx.c:487
 msgid "Exiting\n"
-msgstr "Sortie\n"
+msgstr "Çıkılıyor\n"
 
 #: ../config/gimx-config.cpp:251 ../config/gimx-config.cpp:856
 msgid "Increase"
-msgstr "Augmenter"
+msgstr "Artış"
 
 #: ../config/gimx-config.cpp:255 ../config/gimx-config.cpp:857
 msgid "Decrease"
-msgstr "Diminuer"
+msgstr "Azalma"
 
 #: ../config/gimx-config.cpp:259 ../config/gimx-config.cpp:1190
 #: ../config/gimx-config.cpp:4051 ../fpsconfig/gimx-fpsconfig.cpp:58
 #: ../fpsconfig/gimx-fpsconfig.cpp:362 ../fpsconfig/gimx-fpsconfig.cpp:366
 msgid "Circle"
-msgstr "Cercle"
+msgstr "Daire"
 
 #: ../config/gimx-config.cpp:263 ../config/gimx-config.cpp:1191
 #: ../config/gimx-config.cpp:4052 ../fpsconfig/gimx-fpsconfig.cpp:62
 #: ../fpsconfig/gimx-fpsconfig.cpp:363 ../fpsconfig/gimx-fpsconfig.cpp:367
 msgid "Rectangle"
-msgstr "Rectangle"
+msgstr "Dikdörtgen"
 
 #: ../config/gimx-config.cpp:267 ../config/gimx-config.cpp:3067
 #: ../config/gimx-config.cpp:3202 ../config/gimx-config.cpp:4070
 #: ../config/gimx-config.cpp:4609
 msgid "mouse"
-msgstr "souris"
+msgstr "Fare"
 
 #: ../config/gimx-config.cpp:271
 msgid "keyboard"
-msgstr "clavier"
+msgstr "Klavye"
 
 #: ../config/gimx-config.cpp:275 ../config/gimx-config.cpp:1141
 #: ../config/gimx-config.cpp:3202 ../config/gimx-config.cpp:4501
 #: ../config/gimx-config.cpp:4562
 msgid "axis"
-msgstr "axe"
+msgstr "Eksen"
 
 #: ../config/gimx-config.cpp:279 ../config/gimx-config.cpp:1056
 #: ../config/gimx-config.cpp:1976 ../config/gimx-config.cpp:2104
 msgid "axis up"
-msgstr "axe plus"
+msgstr "Eksen Yukarı"
 
 #: ../config/gimx-config.cpp:283 ../config/gimx-config.cpp:1057
 #: ../config/gimx-config.cpp:1972 ../config/gimx-config.cpp:2100
 msgid "axis down"
-msgstr "axe moins"
+msgstr "Eksen Aşağı"
 
 #: ../config/gimx-config.cpp:287 ../config/gimx-config.cpp:428
 #: ../config/gimx-config.cpp:1055 ../config/gimx-config.cpp:1142
@@ -633,71 +630,71 @@ msgstr "axe moins"
 #: ../config/gimx-config.cpp:3978 ../config/gimx-config.cpp:4072
 #: ../config/gimx-config.cpp:4596
 msgid "button"
-msgstr "bouton"
+msgstr "Düğme"
 
 #: ../config/gimx-config.cpp:291 ../config/gimx-config.cpp:765
 msgid "Aiming"
-msgstr "Visée"
+msgstr "Hedefleyen"
 
 #: ../config/gimx-config.cpp:295 ../config/gimx-config.cpp:766
 msgid "Driving"
-msgstr "Conduite"
+msgstr "Sürüş"
 
 #: ../config/gimx-config.cpp:313
 msgid "Tip"
-msgstr "Astuce"
+msgstr "İpucu"
 
 #: ../config/gimx-config.cpp:321
 msgid "Click here to go to online documentation."
-msgstr "Cliquer ici pour aller à la documentation en ligne."
+msgstr "Çevrimiçi Belgelere Gitmek İçin Buraya Tıklayın."
 
 #: ../config/gimx-config.cpp:691
 msgid "Gimx-config"
-msgstr "Gimx-config"
+msgstr "Gimx-Config (Çeviri - Osman Çitçi)"
 
 #: ../config/gimx-config.cpp:700 ../config/gimx-config.cpp:821
 #: ../config/gimx-config.cpp:875 ../config/gimx-config.cpp:1041
 #: ../config/gimx-config.cpp:1102 ../config/gimx-config.cpp:1128
 #: ../config/gimx-config.cpp:1211 ../launcher/gimx-launcher.cpp:1836
 msgid "Device"
-msgstr "Périphérique"
+msgstr "Cihaz"
 
 #: ../config/gimx-config.cpp:710 ../config/gimx-config.cpp:831
 #: ../config/gimx-config.cpp:878 ../config/gimx-config.cpp:1072
 #: ../config/gimx-config.cpp:1108 ../config/gimx-config.cpp:1238
 msgid "Button"
-msgstr "Bouton"
+msgstr "Düğme"
 
 #: ../config/gimx-config.cpp:716 ../config/gimx-config.cpp:756
 #: ../config/gimx-config.cpp:840 ../config/gimx-config.cpp:922
 #: ../config/gimx-config.cpp:990 ../config/gimx-config.cpp:1066
 #: ../config/gimx-config.cpp:1151
 msgid "Auto detect"
-msgstr "Auto détecter"
+msgstr "Otomatik Algılama"
 
 #: ../config/gimx-config.cpp:720
 msgid "Switch back"
-msgstr "Retour"
+msgstr "Geri Dön"
 
 #: ../config/gimx-config.cpp:723
 msgid "Delay (ms):"
-msgstr "Délai (ms) :"
+msgstr "Gecikme (ms):"
 
 #: ../config/gimx-config.cpp:730 ../config/gimx-config.cpp:1023
 msgid "Delete"
-msgstr "Effacer"
+msgstr "Sil"
 
 #: ../config/gimx-config.cpp:739 ../config/gimx-config.cpp:789
 msgid "Mouse"
-msgstr "Souris"
+msgstr "Fare"
 
 #: ../config/gimx-config.cpp:762 ../config/gimx-config.cpp:791
 msgid "Mode"
-msgstr "Mode"
+msgstr "Mod"
 
 #: ../config/gimx-config.cpp:772 ../fpsconfig/gimx-fpsconfig.cpp:377
 msgid "Smoothing"
-msgstr "Lissage"
+msgstr "Düzleştirme"
 
 #: ../config/gimx-config.cpp:775 ../config/gimx-config.cpp:934
 #: ../config/gimx-config.cpp:940 ../config/gimx-config.cpp:1283
@@ -707,7 +704,7 @@ msgstr "1"
 
 #: ../config/gimx-config.cpp:776
 msgid "Buffer size [1..30]"
-msgstr "Taille du buffer [1..30]"
+msgstr "Arabellek Boyutu [1..30]"
 
 #: ../config/gimx-config.cpp:778
 msgid "0.00"
@@ -719,7 +716,7 @@ msgstr "Filtre [0.00..1.00]"
 
 #: ../config/gimx-config.cpp:792
 msgid "Buffer size"
-msgstr "Taille du buffer"
+msgstr "Tampon Boyutu"
 
 #: ../config/gimx-config.cpp:793
 msgid "Filter"
@@ -729,13 +726,13 @@ msgstr "Filtre"
 #: ../config/gimx-config.cpp:962 ../config/gimx-config.cpp:1114
 #: ../config/gimx-config.cpp:1226
 msgid "Add"
-msgstr "Ajouter"
+msgstr "Ekle"
 
 #: ../config/gimx-config.cpp:800 ../config/gimx-config.cpp:889
 #: ../config/gimx-config.cpp:964 ../config/gimx-config.cpp:1116
 #: ../config/gimx-config.cpp:1228
 msgid "Remove"
-msgstr "Supprimer"
+msgstr "Kaldır"
 
 #: ../config/gimx-config.cpp:802 ../config/gimx-config.cpp:891
 #: ../config/gimx-config.cpp:966 ../config/gimx-config.cpp:1118
@@ -748,39 +745,39 @@ msgstr "Supprimer"
 #: ../config/gimx-config.cpp:4193 ../config/gimx-config.cpp:4265
 #: ../config/gimx-config.cpp:4430 ../config/gimx-config.cpp:4487
 msgid "Modify"
-msgstr "Modifier"
+msgstr "Değiştir"
 
 #: ../config/gimx-config.cpp:814 ../config/gimx-config.cpp:874
 #: ../config/gimx-config.cpp:913 ../config/gimx-config.cpp:953
 #: ../config/gimx-config.cpp:1157 ../config/gimx-config.cpp:1216
 #: ../config/gimx-config.cpp:1239
 msgid "Axis"
-msgstr "Axe"
+msgstr "Eksen"
 
 #: ../config/gimx-config.cpp:846 ../config/gimx-config.cpp:879
 msgid "Direction"
-msgstr "Direction"
+msgstr "Yön"
 
 #: ../config/gimx-config.cpp:848 ../config/gimx-config.cpp:1165
 #: ../fpsconfig/gimx-fpsconfig.cpp:293
 msgid "DZ"
-msgstr "DZ"
+msgstr "Ölü Bölge"
 
 #: ../config/gimx-config.cpp:849 ../config/gimx-config.cpp:880
 #: ../config/gimx-config.cpp:1166 ../config/gimx-config.cpp:1217
 #: ../fpsconfig/gimx-fpsconfig.cpp:294
 msgid "Dead zone"
-msgstr "Dead zone"
+msgstr "Ölü Bölge"
 
 #: ../config/gimx-config.cpp:851 ../config/gimx-config.cpp:881
 #: ../config/gimx-config.cpp:1174 ../config/gimx-config.cpp:1220
 #: ../fpsconfig/gimx-fpsconfig.cpp:289
 msgid "Shape"
-msgstr "Forme"
+msgstr "Şekil"
 
 #: ../config/gimx-config.cpp:853 ../config/gimx-config.cpp:882
 msgid "Steps"
-msgstr "Etapes"
+msgstr "Adımlar"
 
 #: ../config/gimx-config.cpp:902 ../config/gimx-config.cpp:951
 #: ../config/gimx-config.cpp:976 ../config/gimx-config.cpp:1311
@@ -789,7 +786,7 @@ msgstr "Joystick"
 
 #: ../config/gimx-config.cpp:928
 msgid "Broken-line correction parameters"
-msgstr "Paramètres de correction en ligne brisée"
+msgstr "Bozuk Satır Düzeltme Parametreleri"
 
 #: ../config/gimx-config.cpp:931 ../config/gimx-config.cpp:937
 msgid "0"
@@ -797,203 +794,203 @@ msgstr "0"
 
 #: ../config/gimx-config.cpp:932
 msgid "Low value [-32767..32767]"
-msgstr "Valeur basse [-32767..32767]"
+msgstr "Düşük Değer [-32767..32767]"
 
 #: ../config/gimx-config.cpp:935 ../config/gimx-config.cpp:955
 msgid "Low coef"
-msgstr "Coef bas"
+msgstr "Düşük Katsayı"
 
 #: ../config/gimx-config.cpp:938
 msgid "High value [-32767..32767]"
-msgstr "Valeur haute [-32767..32767]"
+msgstr "Yüksek Değer [-32767..32767]"
 
 #: ../config/gimx-config.cpp:941 ../config/gimx-config.cpp:957
 msgid "High coef"
-msgstr "Coef haut"
+msgstr "Yüksek Katsayı"
 
 #: ../config/gimx-config.cpp:954
 msgid "Low value"
-msgstr "Valeur basse"
+msgstr "Düşük Değer"
 
 #: ../config/gimx-config.cpp:956
 msgid "High value"
-msgstr "Valeur haute"
+msgstr "Yüksek Değer"
 
 #: ../config/gimx-config.cpp:995
 msgid "Invert direction"
-msgstr "Inverser la direction"
+msgstr "Ters Yön"
 
 #: ../config/gimx-config.cpp:997
 msgid "Rumble"
-msgstr "Vibration"
+msgstr "Rumble"
 
 #: ../config/gimx-config.cpp:999
 msgid "Constant"
-msgstr "Constant"
+msgstr "Sabit"
 
 #: ../config/gimx-config.cpp:1001
 msgid "Spring"
-msgstr "Ressort"
+msgstr "Spring"
 
 #: ../config/gimx-config.cpp:1003
 msgid "Damper"
-msgstr "Amortissement"
+msgstr "Damper"
 
 #: ../config/gimx-config.cpp:1029
 msgid "Profile trigger"
-msgstr "Activation"
+msgstr "Profil Tetikleme"
 
 #: ../config/gimx-config.cpp:1030
 msgid "Mouse options"
-msgstr "Options de la souris"
+msgstr "Fare Seçenekleri"
 
 #: ../config/gimx-config.cpp:1031
 msgid "Axis intensity"
-msgstr "Intensité des axes"
+msgstr "Eksen Yoğunluğu"
 
 #: ../config/gimx-config.cpp:1032
 msgid "Joystick corrections"
-msgstr "Correction des joysticks"
+msgstr "Joystick Düzeltmeleri"
 
 #: ../config/gimx-config.cpp:1033
 msgid "Force Feedback Tweaks"
-msgstr "Ajustements du Force Feedback"
+msgstr "Force Feedback Düzenlemeleri"
 
 #: ../config/gimx-config.cpp:1052 ../config/gimx-config.cpp:1105
 #: ../config/gimx-config.cpp:1138 ../config/gimx-config.cpp:1214
 msgid "Event"
-msgstr "Contrôle"
+msgstr "Etkinlik"
 
 #: ../config/gimx-config.cpp:1080 ../config/gimx-config.cpp:1107
 msgid "Threshold"
-msgstr "Seuil"
+msgstr "Eksen Değeri"
 
 #: ../config/gimx-config.cpp:1089 ../config/gimx-config.cpp:1109
 #: ../config/gimx-config.cpp:1198 ../config/gimx-config.cpp:1221
 msgid "Label"
-msgstr "Label"
+msgstr "Etiket"
 
 #: ../config/gimx-config.cpp:1168 ../fpsconfig/gimx-fpsconfig.cpp:295
 msgid "Sens."
-msgstr "Sens."
+msgstr "Duyarlılık"
 
 #: ../config/gimx-config.cpp:1169 ../config/gimx-config.cpp:1218
 #: ../fpsconfig/gimx-fpsconfig.cpp:296
 msgid "Sensitivity"
-msgstr "Sensibilité"
+msgstr "Duyarlılık"
 
 #: ../config/gimx-config.cpp:1171 ../fpsconfig/gimx-fpsconfig.cpp:297
 msgid "Accel."
-msgstr "Accél."
+msgstr "Hızlanma"
 
 #: ../config/gimx-config.cpp:1172 ../config/gimx-config.cpp:1219
 #: ../fpsconfig/gimx-fpsconfig.cpp:298
 msgid "Acceleration"
-msgstr "Accélération"
+msgstr "Hızlanma"
 
 #: ../config/gimx-config.cpp:1178
 msgid "Dead zone [-64..64]"
-msgstr "Zone morte [-64..64]"
+msgstr "Ölü Bölge [-64..64]"
 
 #: ../config/gimx-config.cpp:1182
 msgid "Sensitivity [-100.00..100.00]"
-msgstr "Sensibilité [-100.00..100.00]"
+msgstr "Duyarlılık [-100.00..100.00]"
 
 #: ../config/gimx-config.cpp:1186
 msgid "Acceleration [0.00..]"
-msgstr "Accélération [0.00..]"
+msgstr "Hızlanma [0.00..]"
 
 #: ../config/gimx-config.cpp:1237
 msgid "Overall"
-msgstr "Général"
+msgstr "Genel"
 
 #: ../config/gimx-config.cpp:1244
 msgid "New\tCtrl-N"
-msgstr "Nouveau\tCtrl-N"
+msgstr "Yeni\tCtrl+N"
 
 #: ../config/gimx-config.cpp:1244
 msgid "Create a new configuration"
-msgstr "Créer une nouvelle config"
+msgstr "Yeni Bir Yapılandırma Oluştur"
 
 #: ../config/gimx-config.cpp:1246
 msgid "Open\tCtrl-O"
-msgstr "Ouvrir\tCtrl-O"
+msgstr "Open\tCtrl-O"
 
 #: ../config/gimx-config.cpp:1246
 msgid "Open a configuration file"
-msgstr "Ouvrir une config"
+msgstr "Bir Yapılandırma Dosyası Aç"
 
 #: ../config/gimx-config.cpp:1248 ../launcher/gimx-launcher.cpp:1047
 msgid "Save\tCtrl-S"
-msgstr "Enregistrer\tCtrl-S"
+msgstr "Kaydet\tCtrl-S"
 
 #: ../config/gimx-config.cpp:1248
 msgid "Save configuration"
-msgstr "Enregistrer la config"
+msgstr "Yapılandırmayı Kaydet"
 
 #: ../config/gimx-config.cpp:1251
 msgid "Save As..."
-msgstr "Enregistrer sous..."
+msgstr "Farklı Kaydet..."
 
 #: ../config/gimx-config.cpp:1251
 msgid "Save configuration to specified file"
-msgstr "Enregistrer la config dans le fichier spécifié"
+msgstr "Yapılandırmayı Belirtilen Dosyaya Kaydet"
 
 #: ../config/gimx-config.cpp:1253 ../fpsconfig/gimx-fpsconfig.cpp:391
 #: ../launcher/gimx-launcher.cpp:1039
 msgid "Open config directory"
-msgstr "Ouvrir le dossier de configs"
+msgstr "Config Dizinizi Aç"
 
 #: ../config/gimx-config.cpp:1256 ../fpsconfig/gimx-fpsconfig.cpp:393
 #: ../launcher/gimx-launcher.cpp:1049
 msgid "Quit\tAlt-F4"
-msgstr "Quitter\tAlt-F4"
+msgstr "Çıkış\tAlt-F4"
 
 #: ../config/gimx-config.cpp:1256 ../fpsconfig/gimx-fpsconfig.cpp:393
 #: ../launcher/gimx-launcher.cpp:1049
 msgid "Quit the application"
-msgstr "Quitter l'application"
+msgstr "Uygulamadan Çık"
 
 #: ../config/gimx-config.cpp:1258 ../fpsconfig/gimx-fpsconfig.cpp:395
 #: ../launcher/gimx-launcher.cpp:1051
 msgid "&File"
-msgstr "&Fichier"
+msgstr "&Dosya"
 
 #: ../config/gimx-config.cpp:1260
 msgid "Copy Profile"
-msgstr "Copier le profil"
+msgstr "Profili Kopyala"
 
 #: ../config/gimx-config.cpp:1262
 msgid "Copy Controller"
-msgstr "Copier le contrôleur"
+msgstr "Kontroller Kopyala"
 
 #: ../config/gimx-config.cpp:1265
 msgid "Paste Profile"
-msgstr "Coller le profil"
+msgstr "Profili Yapıştır"
 
 #: ../config/gimx-config.cpp:1267
 msgid "Paste Controller"
-msgstr "Coller le contrôleur"
+msgstr "Kontroller Yapıştır"
 
 #: ../config/gimx-config.cpp:1270
 msgid "Set Mouse DPI"
-msgstr "DPI de la souris"
+msgstr "Fare DPI Ayarla"
 
 #: ../config/gimx-config.cpp:1273
 msgid "Replace Mouse"
-msgstr "Remplacer la souris"
+msgstr "Fareyi Değiştir"
 
 #: ../config/gimx-config.cpp:1276
 msgid "Convert mouse sensitivity"
-msgstr "Convertir la sensibilité de la souris"
+msgstr "Fare Duyarlılığını Dönüştür"
 
 #: ../config/gimx-config.cpp:1278
 msgid "Replace Keyboard"
-msgstr "Remplacer le clavier"
+msgstr "Klavyeyi Değiştir"
 
 #: ../config/gimx-config.cpp:1281
 msgid "Edit"
-msgstr "Editer"
+msgstr "Düzenle"
 
 #: ../config/gimx-config.cpp:1285 ../config/gimx-config.cpp:1329
 msgid "2"
@@ -1021,7 +1018,7 @@ msgstr "7"
 
 #: ../config/gimx-config.cpp:1297
 msgid "Controller"
-msgstr "Contrôleur"
+msgstr "Kontroller"
 
 #: ../config/gimx-config.cpp:1299
 msgid "Dualshock 4"
@@ -1041,7 +1038,7 @@ msgstr "XOne pad"
 
 #: ../config/gimx-config.cpp:1307
 msgid "360 pad"
-msgstr "360 pad"
+msgstr "360 PAD"
 
 #: ../config/gimx-config.cpp:1309
 msgid "Xbox pad"
@@ -1073,7 +1070,7 @@ msgstr "GT Force PS2"
 
 #: ../config/gimx-config.cpp:1325
 msgid "Type"
-msgstr "Type"
+msgstr "Tür"
 
 #: ../config/gimx-config.cpp:1341
 msgid "8"
@@ -1085,54 +1082,53 @@ msgstr "Profil"
 
 #: ../config/gimx-config.cpp:1345
 msgid "Multiple Mice and Keyboards"
-msgstr "Souris et claviers multiples"
+msgstr "Çoklu Fare ve Klavye"
 
 #: ../config/gimx-config.cpp:1347 ../fpsconfig/gimx-fpsconfig.cpp:401
 #: ../launcher/gimx-launcher.cpp:989 ../launcher/gimx-launcher.cpp:1507
 msgid "Window events"
-msgstr "Événements des fenêtres"
+msgstr "Pencere Olayları"
 
 #: ../config/gimx-config.cpp:1349
 msgid "Link controls"
-msgstr "Lier les contrôles"
+msgstr "Bağlantı Kontrolleri"
 
 #: ../config/gimx-config.cpp:1351 ../fpsconfig/gimx-fpsconfig.cpp:399
 msgid "Auto-bind controls"
-msgstr "Auto-affecter les contrôles"
+msgstr "Otomatik-Bağlama Kontrolü"
 
 #: ../config/gimx-config.cpp:1353 ../fpsconfig/gimx-fpsconfig.cpp:403
 msgid "Advanced"
-msgstr "Avancé"
+msgstr "Gelişmiş"
 
 #: ../config/gimx-config.cpp:1355 ../fpsconfig/gimx-fpsconfig.cpp:405
 #: ../launcher/gimx-launcher.cpp:1061
 msgid "About\tF1"
-msgstr "À propos\tF1"
+msgstr "Hakkında\tF1"
 
 #: ../config/gimx-config.cpp:1355 ../fpsconfig/gimx-fpsconfig.cpp:405
 #: ../launcher/gimx-launcher.cpp:1061
 msgid "Show info about this application"
-msgstr "Afficher les infos sur cette application"
+msgstr "Bu Uygulama Hakkında Bilgi Göster"
 
 #: ../config/gimx-config.cpp:1357 ../fpsconfig/gimx-fpsconfig.cpp:407
 #: ../launcher/gimx-launcher.cpp:1063 ../loader/gimx-loader.cpp:118
 msgid "Help"
-msgstr "Aide"
+msgstr "Yardım"
 
 #: ../config/gimx-config.cpp:1365 ../fpsconfig/gimx-fpsconfig.cpp:415
 msgid "Select file"
-msgstr "Sélectionner un fichier"
+msgstr "Dosya Seçin"
 
 #: ../config/gimx-config.cpp:1365 ../config/gimx-config.cpp:2831
 #: ../fpsconfig/gimx-fpsconfig.cpp:1084 ../fpsconfig/gimx-fpsconfig.cpp:2055
 msgid "XML files (*.xml)|*.xml"
-msgstr "Fichiers XML (*.xml)|*.xml"
+msgstr "XML Dosyaları (*.xml) | *.xml"
 
 #: ../config/gimx-config.cpp:1470 ../fpsconfig/gimx-fpsconfig.cpp:499
 msgid "It's not recommended to run as root user. Continue?"
 msgstr ""
-"Il n'est pas recommandé d'exécuter cette application en utilisateur root. "
-"Continuer ?"
+"Bu Kök Kullanıcı Olarak Çalıştırmak İçin Tavsiye Edilmez. Devam Edilsin Mi?"
 
 #: ../config/gimx-config.cpp:1470 ../config/gimx-config.cpp:1648
 #: ../config/gimx-config.cpp:1688 ../config/gimx-config.cpp:2922
@@ -1145,12 +1141,12 @@ msgstr ""
 #: ../launcher/gimx-launcher.cpp:1874 ../launcher/gimx-launcher.cpp:1898
 #: ../launcher/gimx-launcher.cpp:1998 ../launcher/gimx-launcher.cpp:2090
 msgid "Confirm"
-msgstr "Confirmer"
+msgstr "Onayla"
 
 #: ../config/gimx-config.cpp:1485 ../fpsconfig/gimx-fpsconfig.cpp:514
 #: ../launcher/gimx-launcher.cpp:1130
 msgid "Can't migrate directory: "
-msgstr "Impossible de migrer le répertoire : "
+msgstr "Dizin Taşınamıyor: "
 
 #: ../config/gimx-config.cpp:1485 ../config/gimx-config.cpp:1497
 #: ../config/gimx-config.cpp:1506 ../config/gimx-config.cpp:1540
@@ -1208,7 +1204,7 @@ msgstr "Impossible de migrer le répertoire : "
 #: ../loader/gimx-loader.cpp:243 ../loader/gimx-loader.cpp:266
 #: ../loader/gimx-loader.cpp:276
 msgid "Error"
-msgstr "Erreur"
+msgstr "Hata"
 
 #: ../config/gimx-config.cpp:1497 ../config/gimx-config.cpp:1506
 #: ../fpsconfig/gimx-fpsconfig.cpp:526 ../fpsconfig/gimx-fpsconfig.cpp:535
@@ -1217,7 +1213,7 @@ msgstr "Erreur"
 #: ../launcher/gimx-launcher.cpp:1150 ../launcher/gimx-launcher.cpp:1160
 #: ../launcher/gimx-launcher.cpp:1170
 msgid "Can't init directory: "
-msgstr "Impossible d'initialiser le répertoire:"
+msgstr "Başlatma Dizini Olamaz: "
 
 #: ../config/gimx-config.cpp:1544 ../config/gimx-config.cpp:2207
 #: ../config/gimx-config.cpp:2698 ../config/gimx-config.cpp:2866
@@ -1232,34 +1228,34 @@ msgstr "Impossible d'initialiser le répertoire:"
 #: ../launcher/gimx-launcher.cpp:1756 ../launcher/gimx-launcher.cpp:2025
 #: ../launcher/gimx-launcher.cpp:2176 ../loader/gimx-loader.cpp:278
 msgid "Info"
-msgstr "Info"
+msgstr "Bilgi"
 
 #: ../config/gimx-config.cpp:1564 ../fpsconfig/gimx-fpsconfig.cpp:564
 msgid "Cannot open config file: "
-msgstr "Fichier impossible à ouvrir : "
+msgstr "Config Dosyası Açılamıyor: "
 
 #: ../config/gimx-config.cpp:1635 ../config/gimx-config.cpp:1675
 #: ../config/gimx-config.cpp:2909 ../config/gimx-config.cpp:3088
 #: ../config/gimx-config.cpp:3969
 msgid "Please detect an Event!"
-msgstr "Veuillez détecter un axe/bouton !"
+msgstr "Lütfen Bir Etkinlik Tespit Edin!"
 
 #: ../config/gimx-config.cpp:1640 ../config/gimx-config.cpp:2914
 #: ../config/gimx-config.cpp:3974
 msgid "Please select a Button!"
-msgstr "Veuillez sélectionner un bouton !"
+msgstr "Lütfen Bir Düğme Seçin!"
 
 #: ../config/gimx-config.cpp:1680 ../config/gimx-config.cpp:3093
 msgid "Please select an Axis!"
-msgstr "Veuillez sélectionner un axe !"
+msgstr "Lütfen Bir Eksen Seçin!"
 
 #: ../config/gimx-config.cpp:1999 ../fpsconfig/gimx-fpsconfig.cpp:916
 msgid "Press a button."
-msgstr "Appuyez sur un bouton."
+msgstr "Bir Tuşa Bas."
 
 #: ../config/gimx-config.cpp:2003
 msgid "Move an axis."
-msgstr "Déplacez un axe."
+msgstr "Bir Ekseni Hareket Ettir."
 
 #: ../config/gimx-config.cpp:2127
 msgid ""
@@ -1268,113 +1264,111 @@ msgid ""
 "2. fully release the pedal\n"
 "3. press any key or button"
 msgstr ""
-"Calibration de la pédale :\n"
-"1. appuyer sur la pédale à fond\n"
-"2. relâcher complètement la pédale\n"
-"3. appuyer sur n'importe quel bouton"
+"Pedal Kalibrasyon:\n"
+"1. Tam Olarak Pedala Basın\n"
+"2. Pedalı Tamamen Serbest Bırakın\n"
+"3. Her Hangi Bir Tuşa Veya Düğmeye Basın"
 
 #: ../config/gimx-config.cpp:2144
 msgid "Failed to calibrate the pedal."
-msgstr "Échec de la calibration de la pédale"
+msgstr "Pedal Kalibre Edilemedi."
 
 #: ../config/gimx-config.cpp:2207
 msgid ""
 "Joystick correction has been added in the \"Overall>Joystick corrections\" "
 "panel"
-msgstr ""
-"La correction du joystick a été ajoutée dans le panneau "
-"\"Général>Corrections des joysticks\""
+msgstr "Joystick Düzeltmeleri \"Tüm>Joystick Düzeltmeleri\" Paneline Eklendi"
 
 #: ../config/gimx-config.cpp:2820 ../fpsconfig/gimx-fpsconfig.cpp:1413
 msgid "Can't save "
-msgstr "Impossible d'enregistrer"
+msgstr "Kaydedemiyorum "
 
 #: ../config/gimx-config.cpp:2831 ../fpsconfig/gimx-fpsconfig.cpp:1084
 msgid "Save config file"
-msgstr "Enregistrer le fichier de config"
+msgstr "Config Dosyasını Kaydet"
 
 #: ../config/gimx-config.cpp:2866 ../config/gimx-config.cpp:3027
 #: ../config/gimx-config.cpp:3932 ../config/gimx-config.cpp:4197
 #: ../config/gimx-config.cpp:4434
 msgid "Please select a line of the table."
-msgstr "Veuillez sélectionner une ligne du tableau !"
+msgstr "Lütfen Tablonun Bir Satırını Seçin."
 
 #: ../config/gimx-config.cpp:2871 ../config/gimx-config.cpp:3032
 #: ../config/gimx-config.cpp:3937 ../config/gimx-config.cpp:4202
 #: ../config/gimx-config.cpp:4439
 msgid "Please select a SINGLE line of the table."
-msgstr "Veuillez sélectionner une UNIQUE ligne du tableau !"
+msgstr "Lütfen Tablonun TEK Satırını Seçiniz."
 
 #: ../config/gimx-config.cpp:2903 ../config/gimx-config.cpp:3082
 #: ../config/gimx-config.cpp:3963 ../config/gimx-config.cpp:4222
 #: ../config/gimx-config.cpp:4461
 msgid "Apply"
-msgstr "Appliquer"
+msgstr "Uygula"
 
 #: ../config/gimx-config.cpp:3292 ../config/gimx-config.cpp:3450
 msgid "Press a mouse button."
-msgstr "Appuyez sur un bouton de la souris."
+msgstr "Bir Fare Düğmesine Basın."
 
 #: ../config/gimx-config.cpp:3296
 msgid "Press a keyboard key."
-msgstr "Appuyez sur une touche du clavier."
+msgstr "Bir Klavye Tuşuna Basın."
 
 #: ../config/gimx-config.cpp:3375
 msgid ""
 "This will replace the mouse in the current controller.\n"
 "Continue?"
 msgstr ""
-"Ceci va remplacer la souris dans le contrôleur courant.\n"
-"Continuer ?"
+"Bu Mevcut Denetleyicideki Fareyi Değiştirir.\n"
+"Devam et?"
 
 #: ../config/gimx-config.cpp:3391
 msgid ""
 "This will replace the keyboard in the current controller.\n"
 "Continue?"
 msgstr ""
-"Ceci va remplacer le clavier dans le contrôleur courant.\n"
-"Continuer ?"
+"Bu Mevcut Kontroller Klavyenin Yerini Alacak.\n"
+"Devam Et?"
 
 #: ../config/gimx-config.cpp:3426 ../config/gimx-config.cpp:3437
 #: ../config/gimx-config.cpp:3539 ../fpsconfig/gimx-fpsconfig.cpp:2015
 msgid "Enter a number:"
-msgstr "Entrer un nombre :"
+msgstr "Bir Numara Girin:"
 
 #: ../config/gimx-config.cpp:3426
 msgid "Source mouse DPI"
-msgstr "DPI source"
+msgstr "Fare DPI Ayarlar"
 
 #: ../config/gimx-config.cpp:3437 ../fpsconfig/gimx-fpsconfig.cpp:2015
 msgid "Destination mouse DPI"
-msgstr "DPI destination"
+msgstr "Hedef Fare DPI"
 
 #: ../config/gimx-config.cpp:3480
 msgid "Failed to parse sensitivity value!"
-msgstr "Échec de l'analyse de la valeur de la sensibilité !"
+msgstr "Duyarlılık Değeri Ayrıştırılamadı!"
 
 #: ../config/gimx-config.cpp:3486
 msgid "Failed to parse acceleration value!"
-msgstr "Échec de l'analyse de la valeur de l'accélération !"
+msgstr "Hızlandırma Değeri Ayrıştırılamadı!"
 
 #: ../config/gimx-config.cpp:3539
 msgid "Mouse DPI value"
-msgstr "Valeur DPI de la souris"
+msgstr "Fare DPI Değeri"
 
 #: ../config/gimx-config.cpp:3710
 msgid ""
 "This control is already used in the current profile (Button tab).\n"
 "Continue?"
 msgstr ""
-"Ce contrôle est déjà utilisé dans le profil courant (onglet Bouton).\n"
-"Continuer ?"
+"Bu Kontrol Halihazırdaki Profilde Kullanılmaktadır (Düğme Sekmesi).\n"
+"Devam Et?"
 
 #: ../config/gimx-config.cpp:3727
 msgid ""
 "This control is already used in the current profile (Axis tab).\n"
 "Continue?"
 msgstr ""
-"Ce contrôle est déjà utilisé dans le profil courant (onglet Axis).\n"
-"Continuer ?"
+"Bu Kontrol Geçerli Profilde Kullanılmaktadır (Eksen Sekmesi).\n"
+"Devam Et?"
 
 #: ../config/gimx-config.cpp:3745
 msgid ""
@@ -1382,139 +1376,139 @@ msgid ""
 "tab).\n"
 "Continue?"
 msgstr ""
-"Ce contrôle est déjà utilisé dans le profil courant (onglet Général>onglet "
-"Intensité).\n"
-"Continuer ?"
+"Bu Kontrol Geçerli Profilde Kullanılmaktadır (Genel sekmesi> Eksen Yoğunluğu "
+"Sekmesi).\n"
+"Devam Et?"
 
 #: ../config/gimx-config.cpp:3805 ../fpsconfig/gimx-fpsconfig.cpp:2051
 msgid "No config opened!"
-msgstr "Pas de config ouverte !"
+msgstr "Hiçbir Config Açılmamış!"
 
 #: ../config/gimx-config.cpp:3809 ../fpsconfig/gimx-fpsconfig.cpp:2055
 #: ../launcher/gimx-launcher.cpp:2146
 msgid "Select the reference config."
-msgstr "Sélectionner la config de référence."
+msgstr "Referans Config Seçin."
 
 #: ../config/gimx-config.cpp:3818 ../fpsconfig/gimx-fpsconfig.cpp:2064
 msgid "Can't auto-bind controls!"
-msgstr "Impossible d'auto-affecter les contrôles!"
+msgstr "Denetimleri Otomatik Bağlayamıyorum!"
 
 #: ../config/gimx-config.cpp:3823
 msgid "Done!"
-msgstr "Effectué !"
+msgstr "Bitti!"
 
 #: ../config/gimx-config.cpp:3835
 msgid "Please detect a button!"
-msgstr "Veuillez détecter un bouton !"
+msgstr "Lütfen Bir Düğme Tespit Edin!"
 
 #: ../config/gimx-config.cpp:3840
 msgid "Please select an axis!"
-msgstr "Veuillez sélectionner un axe !"
+msgstr "Lütfen Bir Eksen Seçin!"
 
 #: ../config/gimx-config.cpp:4116 ../config/gimx-config.cpp:4228
 msgid "Please detect a mouse!"
-msgstr "Veuillez détecter une souris !"
+msgstr "Lütfen Bir Fare Tespit Edin!"
 
 #: ../config/gimx-config.cpp:4122 ../config/gimx-config.cpp:4234
 msgid "Mouse options already defined!"
-msgstr "Options de souris déjà définies !"
+msgstr "Fare Seçenekleri Zaten Tanımlanmış!"
 
 #: ../config/gimx-config.cpp:4395 ../config/gimx-config.cpp:4467
 msgid "Please detect a joystick axis!"
-msgstr "Veuillez activer un axe de joystick !"
+msgstr "Lütfen Bir Joystick Eksenini Tespit Edin!"
 
 #: ../config/gimx-config.cpp:4401 ../config/gimx-config.cpp:4473
 msgid "Joystick axis options already defined!"
-msgstr "Les options d'axe de joystick sont déjà définies !"
+msgstr "Joystick Eksen Seçenekleri Zaten Tanımlanmış!"
 
 #: ../config/gimx-config.cpp:4499 ../config/gimx-config.cpp:4560
 #: ../config/gimx-config.cpp:4628
 msgid "joystick"
-msgstr "joystick"
+msgstr "Joystick"
 
 #: ../config/gimx-config.cpp:4533
 msgid "Select an event."
-msgstr "Sélectionner un événement."
+msgstr "Bir Etkinlik Seçin."
 
 #: ../config/gimx-config.cpp:4533 ../fpsconfig/gimx-fpsconfig.cpp:2160
 msgid "Events"
-msgstr "Événements"
+msgstr "Etkinlikler"
 
 #: ../config/gimx-config.cpp:4553
 msgid "No joystick found!"
-msgstr "Pas de joystick trouvé !"
+msgstr "Joystick Bulunamadı!"
 
 #: ../config/gimx-config.cpp:4626
 msgid "Use the calibration tool to adjust the parameters."
-msgstr "Utiliser l'outil de calibration pour ajuster les paramètres."
+msgstr "Parametreleri Ayarlamak İçin Kalibrasyon Aracını Kullanın."
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:84
 msgid "OK"
-msgstr "OK"
+msgstr "TAMAM"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:85
 msgid "Cancel"
-msgstr "Annuler"
+msgstr "İptal"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:241
 msgid "Gimx-fpsconfig"
-msgstr "Gimx-fpsconfig"
+msgstr "Gimx-Fpsconfig (Çeviri - Osman Çitçi)"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:266
 msgid "Buffer size (Hip Fire)"
-msgstr "Taille du buffer (vue normale)"
+msgstr "Tampon Boyutu (Hip Fire)"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:269
 msgid "Buffer size (ADS)"
-msgstr "Taille du buffer (visée)"
+msgstr "Tampon Boyutu (ADS)"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:272
 msgid "Dead zone (Hip Fire)"
-msgstr "Dead zone (vue normale)"
+msgstr "Ölü Bölge (Hip Fire)"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:275
 msgid "Dead zone (ADS)"
-msgstr "Dead zone (visée)"
+msgstr "Ölü Bölge (ADS)"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:277
 msgid "Sensitivity (ADS)"
-msgstr "Sensibilité (visée)"
+msgstr "Duyarlılık (ADS)"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:279
 msgid "Sensitivity (Hip Fire)"
-msgstr "Sensibilité (vue normale)"
+msgstr "Duyarlılık (Hip Fire)"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:281
 msgid "Acceleration (ADS)"
-msgstr "Accélération (visée)"
+msgstr "Hızlanma (ADS)"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:283
 msgid "Filter (Hip Fire)"
-msgstr "Filtre (vue normale)"
+msgstr "Filtre (Hip Fire)"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:285
 msgid "Filter (ADS)"
-msgstr "Filtre (visée)"
+msgstr "Filtre (ADS)"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:287
 msgid "Acceleration (Hip Fire)"
-msgstr "Accélération (vue normale)"
+msgstr "Hızlanma (Hip Fire)"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:288
 msgid "Hip Fire"
-msgstr "Vue normale"
+msgstr "Hip Fire"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:290
 msgid "Dead zone shape"
-msgstr "Forme de la dead zone"
+msgstr "Ölü Bölge Şekli"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:291
 msgid "ADS"
-msgstr "Visée"
+msgstr "ADS"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:292
 msgid "Aiming Down the Sights"
-msgstr "Visée"
+msgstr "Görülecek Yerler"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:299
 msgid "x/y"
@@ -1522,88 +1516,88 @@ msgstr "x/y"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:300
 msgid "x/y ratio"
-msgstr "Ratio x/y"
+msgstr "x/y Oranı"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:364
 msgid "Dead zone shape (Hip Fire)"
-msgstr "Forme de la dead zone (vue normale)"
+msgstr "Ölü Bölge Şekli (Hip Fire)"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:368
 msgid "Dead zone shape (ADS)"
-msgstr "Forme de la dead zone (visée)"
+msgstr "Ölü Bölge Şekli (ADS)"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:370
 msgid "x/y ratio (Hip Fire)"
-msgstr "Ratio x/y (vue normale)"
+msgstr "x/y Oranı (Hip Fire)"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:372
 msgid "x/y ratio (ADS)"
-msgstr "Ratio x/y (visée)"
+msgstr "x/y Oranı (ADS)"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:375 ../fpsconfig/gimx-fpsconfig.cpp:1075
 #: ../fpsconfig/gimx-fpsconfig.cpp:1441
 msgid "Enter your mouse DPI value."
-msgstr "Entrez la valeur du DPI de la souris."
+msgstr "Fare DPI Değerini Girin."
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:376
 msgid "Mouse DPI"
-msgstr "DPI de la souris"
+msgstr "Fare DPI"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:378
 msgid "Mouse smoothing"
-msgstr "Lissage de la souris"
+msgstr "Fare Yumuşatma"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:379
 msgid ""
 "Convert\n"
 "sensitivity"
 msgstr ""
-"Convertir\n"
-"la sensibilité"
+"Duyarlılık\n"
+"Dönüştür"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:382
 msgid "New\tCtrl+N"
-msgstr "Nouveau\tCtrl+N"
+msgstr "Yeni\tCtrl+N"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:384
 msgid "Open\tCtrl+O"
-msgstr "Ouvrir\tCtrl+O"
+msgstr "Aç\tCtrl+O"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:386
 msgid "Save\tCtrl+S"
-msgstr "Enregistrer\tCtrl+S"
+msgstr "Kaydet\tCtrl+S"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:389
 msgid "Save As"
-msgstr "Enregistrer sous"
+msgstr "Farklı Kaydet"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:397
 msgid "Edit Labels"
-msgstr "Editer les labels"
+msgstr "Etiketleri Düzenle"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:884
 msgid "Edit Label"
-msgstr "Editer le label"
+msgstr "Etiketi Düzenle"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:924
 msgid "Joystick controls are only supported through gimx-config."
-msgstr "Les joysticks ne sont supportés que par gimx-config."
+msgstr "Joystick Kontrolleri Sadece Gimx-Config ile Desteklenir."
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:1799
 msgid ""
 "Profiles 1 & 2 do not contain the same bindings.\n"
 "Editing this conf with gimx-fpsconfig can mess the bindings."
 msgstr ""
-"Les profils 1 & 2 ne contiennent pas les mêmes affectations.\n"
-"Editer cette conf avec gimx-fpsconfig peut avoir des effets indésirables."
+"1 & 2 ci Profiller Aynı Bağlantıları İçermez.\n"
+"Bu Config Gimx-Fpsconfig İle Düzenlemek Bağlantıları Bozabilir."
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:2069
 msgid "Auto-bind done!"
-msgstr "Fait !"
+msgstr "Otomatik-Bağlama Tamam!"
 
 #: ../fpsconfig/gimx-fpsconfig.cpp:2160
 msgid "Select the event."
-msgstr "Sélectionner un événement."
+msgstr "Etkinliği Seçin."
 
 #: ../launcher/SetupManager.cpp:26 ../launcher/SetupManager.cpp:181
 #: ../launcher/gimx-launcher.cpp:851 ../launcher/gimx-launcher.cpp:1929
@@ -1611,20 +1605,20 @@ msgstr "Sélectionner un événement."
 #: ../launcher/gimx-launcher.cpp:2058 ../launcher/gimx-launcher.cpp:2101
 #: ../launcher/gimx-launcher.cpp:2107
 msgid "Connecting"
-msgstr "Connexion"
+msgstr "Bağlanıyor"
 
 #: ../launcher/SetupManager.cpp:29 ../launcher/gimx-launcher.cpp:1932
 #: ../launcher/gimx-launcher.cpp:1961
 msgid "Progress: "
-msgstr "Progression :"
+msgstr "İlerleme: "
 
 #: ../launcher/SetupManager.cpp:33
 msgid "Waiting for installation to complete"
-msgstr "En attente de la fin de l'installation"
+msgstr "Güncelleme Uygun Yüklemeyi Başlat"
 
 #: ../launcher/SetupManager.cpp:175
 msgid "A device requires the following component: \n"
-msgstr "Un périphérique requiert le composant suivant :\n"
+msgstr "Bir Cihaz Aşağıdaki Bileşeni Gerektirir: \n"
 
 #: ../launcher/SetupManager.cpp:176
 msgid ""
@@ -1632,61 +1626,61 @@ msgid ""
 "Download and install?"
 msgstr ""
 "\n"
-"Télécharger et installer ?"
+"İndir ve Yükle?"
 
 #: ../launcher/SetupManager.cpp:181 ../launcher/gimx-launcher.cpp:851
 #: ../launcher/gimx-launcher.cpp:2106
 msgid "Downloading "
-msgstr "Téléchargement"
+msgstr "İndiriliyor "
 
 #: ../launcher/SetupManager.cpp:187
 msgid "Can't retrieve Logitech Gaming Software!"
-msgstr "Échec du téléchargement !"
+msgstr "Logitech Oyun Yazılımı Alınamıyor!"
 
 #: ../launcher/gimx-launcher.cpp:354
 msgid "Address already used!"
-msgstr "Adresse déjà utilisée !"
+msgstr "Adres Zaten Kullanılmış!"
 
 #: ../launcher/gimx-launcher.cpp:359
 msgid "Did you saved your dongle address?"
-msgstr "Avez-vous sauvegardé l'adresse du dongle ?"
+msgstr "Dongle Adresini Kaydettin Mi?"
 
 #: ../launcher/gimx-launcher.cpp:363
 msgid "Please save it!"
-msgstr "Veuillez la sauver !"
+msgstr "Lütfen Kaydet!"
 
 #: ../launcher/gimx-launcher.cpp:372 ../launcher/gimx-launcher.cpp:390
 msgid "Success"
-msgstr "Succès"
+msgstr "Başarılı"
 
 #: ../launcher/gimx-launcher.cpp:385
 msgid "Read address after set: ko!"
-msgstr "Lecture de l'adresse après écriture : échec !"
+msgstr "Ayarlandıktan Sonra Adresi Oku: Tamam!"
 
 #: ../launcher/gimx-launcher.cpp:390
 msgid "Read address after set: seems ok!"
-msgstr "Lecture de l'adresse après écriture : succès !"
+msgstr "Ayarlandıktan Sonra Adresi Oku: İyi Görünüyor!"
 
 #: ../launcher/gimx-launcher.cpp:455 ../loader/gimx-loader.cpp:132
 msgid "Cannot open directory: "
-msgstr "Impossible d'ouvrir le répertoire : "
+msgstr "Dizin Açılamıyor: "
 
 #: ../launcher/gimx-launcher.cpp:677
 msgid "Cannot open file: "
-msgstr "Fichier impossible à ouvrir :"
+msgstr "Dosya Açılamıyor: "
 
 #: ../launcher/gimx-launcher.cpp:696 ../launcher/gimx-launcher.cpp:724
 #: ../launcher/gimx-launcher.cpp:777
 msgid "Cannot open file for writing: "
-msgstr "Impossible d'ouvrir le fichier en écriture : "
+msgstr "Yazmak İçin Dosya Açılamıyor: "
 
 #: ../launcher/gimx-launcher.cpp:966
 msgid "Gimx-launcher"
-msgstr "Gimx-launcher"
+msgstr "Gimx Türkiye (Çeviri - Osman Çitçi)"
 
 #: ../launcher/gimx-launcher.cpp:971
 msgid "Output"
-msgstr "Sortie"
+msgstr "Çıkış"
 
 #: ../launcher/gimx-launcher.cpp:977 ../launcher/gimx-launcher.cpp:1851
 msgid "Port"
@@ -1695,123 +1689,123 @@ msgstr "Port"
 #: ../launcher/gimx-launcher.cpp:981 ../launcher/gimx-launcher.cpp:998
 #: ../launcher/gimx-launcher.cpp:1830 ../launcher/gimx-launcher.cpp:2829
 msgid "New"
-msgstr "Nouveau"
+msgstr "Yeni"
 
 #: ../launcher/gimx-launcher.cpp:985
 msgid "Input"
-msgstr "Entrée"
+msgstr "Giriş"
 
 #: ../launcher/gimx-launcher.cpp:988
 msgid "Physical devices"
-msgstr "Périphériques"
+msgstr "Fiziksel Aygıtlar"
 
 #: ../launcher/gimx-launcher.cpp:990 ../launcher/gimx-launcher.cpp:1396
 #: ../launcher/gimx-launcher.cpp:1406 ../launcher/gimx-launcher.cpp:1499
 #: ../launcher/gimx-launcher.cpp:2219 ../launcher/gimx-launcher.cpp:2731
 msgid "Network"
-msgstr "Réseau"
+msgstr "Ağ"
 
 #: ../launcher/gimx-launcher.cpp:994 ../launcher/gimx-launcher.cpp:1909
 #: ../launcher/gimx-launcher.cpp:2221
 msgid "IP:port"
-msgstr "IP:port"
+msgstr "IP:PORT"
 
 #: ../launcher/gimx-launcher.cpp:1004
 msgid "Messages"
-msgstr "Messages"
+msgstr "Mesajlar"
 
 #: ../launcher/gimx-launcher.cpp:1007
 msgid "none"
-msgstr "aucun"
+msgstr "Yok"
 
 #: ../launcher/gimx-launcher.cpp:1008 ../launcher/gimx-launcher.cpp:1455
 msgid "curses"
-msgstr "curses"
+msgstr "Fare Modu"
 
 #: ../launcher/gimx-launcher.cpp:1009 ../launcher/gimx-launcher.cpp:1459
 #: ../launcher/gimx-launcher.cpp:1472 ../launcher/gimx-launcher.cpp:1478
 msgid "text"
-msgstr "texte"
+msgstr "Metin"
 
 #: ../launcher/gimx-launcher.cpp:1010 ../launcher/gimx-launcher.cpp:1463
 #: ../launcher/gimx-launcher.cpp:1473 ../launcher/gimx-launcher.cpp:1482
 #: ../launcher/gimx-launcher.cpp:1722
 msgid "log file"
-msgstr "fichier de log"
+msgstr "Log Dosyası"
 
 #: ../launcher/gimx-launcher.cpp:1011 ../launcher/gimx-launcher.cpp:1469
 msgid "debug"
-msgstr "debug"
+msgstr "Hata Ayıkla"
 
 #: ../launcher/gimx-launcher.cpp:1015
 msgid "Mouse capture"
-msgstr "Capture de la souris"
+msgstr "Fare Yakalama"
 
 #: ../launcher/gimx-launcher.cpp:1018 ../launcher/gimx-launcher.cpp:1516
 msgid "auto"
-msgstr "auto"
+msgstr "Otomatik"
 
 #: ../launcher/gimx-launcher.cpp:1019
 msgid "on"
-msgstr "activée"
+msgstr "Açık"
 
 #: ../launcher/gimx-launcher.cpp:1020 ../launcher/gimx-launcher.cpp:1512
 msgid "off"
-msgstr "désactivée"
+msgstr "Kapalı"
 
 #: ../launcher/gimx-launcher.cpp:1025
 msgid "Check"
-msgstr "Vérifier"
+msgstr "Kontrol"
 
 #: ../launcher/gimx-launcher.cpp:1027
 msgid "Start"
-msgstr "Démarrer"
+msgstr "Çalıştır"
 
 #: ../launcher/gimx-launcher.cpp:1035
 msgid "Edit config"
-msgstr "Editer la config"
+msgstr "Config Düzenle"
 
 #: ../launcher/gimx-launcher.cpp:1037
 msgid "Edit fps config"
-msgstr "Editer la config FPS"
+msgstr "FPS Config Düzenle"
 
 #: ../launcher/gimx-launcher.cpp:1041
 msgid "Open macro directory"
-msgstr "Ouvrir le dossier de macros"
+msgstr "Makro Dizinini Aç"
 
 #: ../launcher/gimx-launcher.cpp:1043 ../launcher/gimx-launcher.cpp:2146
 msgid "Auto-bind and convert"
-msgstr "Auto-affecter et convertir"
+msgstr "Otomatik-Bağlama Ayarla ve Dönüştür"
 
 #: ../launcher/gimx-launcher.cpp:1045
 msgid "Refresh\tF5"
-msgstr "Rafraîchir\tF5"
+msgstr "Yenile\tF5"
 
 #: ../launcher/gimx-launcher.cpp:1053
 msgid "Get configs"
-msgstr "Obtenir des configs"
+msgstr "Oyun Config İndir"
 
 #: ../launcher/gimx-launcher.cpp:1055
 msgid "Update"
-msgstr "Mise à jour"
+msgstr "Program Güncelle"
 
 #: ../launcher/gimx-launcher.cpp:1057
 msgid "Update firmware"
-msgstr "Mise à jour du firmware"
+msgstr "Adaptör Güncelle"
 
 #: ../launcher/gimx-launcher.cpp:1059
 msgid "Check updates at startup"
-msgstr "Vérifier les majs au démarrage"
+msgstr "Başlangıçta Güncellemeleri Kontrol Et"
 
 #: ../launcher/gimx-launcher.cpp:1118
 msgid "Can't migrate config: "
-msgstr "Impossible de migrer la config : "
+msgstr "Config Yapılandırılamıyor: "
 
 #: ../launcher/gimx-launcher.cpp:1179 ../launcher/gimx-launcher.cpp:1349
 #: ../launcher/gimx-launcher.cpp:1556 ../launcher/gimx-launcher.cpp:1650
 #: ../launcher/gimx-launcher.cpp:1797 ../launcher/gimx-launcher.cpp:1847
 msgid "GIMX adapter"
-msgstr "Adaptateur GIMX"
+msgstr "GIMX Adaptör"
 
 #: ../launcher/gimx-launcher.cpp:1181 ../launcher/gimx-launcher.cpp:1357
 #: ../launcher/gimx-launcher.cpp:1405 ../launcher/gimx-launcher.cpp:1524
@@ -1820,7 +1814,7 @@ msgstr "Adaptateur GIMX"
 #: ../launcher/gimx-launcher.cpp:2741 ../launcher/gimx-launcher.cpp:2751
 #: ../launcher/gimx-launcher.cpp:2845
 msgid "Remote GIMX"
-msgstr "GIMX distant"
+msgstr "GIMX Yönet"
 
 #: ../launcher/gimx-launcher.cpp:1184 ../launcher/gimx-launcher.cpp:1365
 #: ../launcher/gimx-launcher.cpp:1536 ../launcher/gimx-launcher.cpp:1862
@@ -1839,92 +1833,92 @@ msgstr "Bluetooth / PS4"
 
 #: ../launcher/gimx-launcher.cpp:1215
 msgid "No config found! Download configs?"
-msgstr "Pas de config trouvée ! Télécharger des configs ?"
+msgstr "Config Bulunamadı! Configleri İndir?"
 
 #: ../launcher/gimx-launcher.cpp:1288
 msgid "Failed to read debug flags!"
-msgstr "Échec de la lecture des flags de debug !"
+msgstr "Hata Ayıklama Okunamadı!"
 
 #: ../launcher/gimx-launcher.cpp:1294
 msgid "No debug flag found!"
-msgstr "Pas de flag de debug trouvé !"
+msgstr "Hata Ayıklama Bulunamadı!"
 
 #: ../launcher/gimx-launcher.cpp:1298
 msgid "Select the debug flags:"
-msgstr "Sélectionner les flags de debug :"
+msgstr "Hata Ayıklamaları Seçin:"
 
 #: ../launcher/gimx-launcher.cpp:1337 ../launcher/gimx-launcher.cpp:1736
 #: ../launcher/gimx-launcher.cpp:2187
 msgid "No config selected!"
-msgstr "Pas de config sélectionnée !"
+msgstr "Config Seçilmedi!"
 
 #: ../launcher/gimx-launcher.cpp:1345
 msgid "No device selected!"
-msgstr "Pas de périphérique sélectionné !"
+msgstr "Cihaz Seçilmedi!"
 
 #: ../launcher/gimx-launcher.cpp:1353
 msgid "No USB to serial device selected!"
-msgstr "Pas de module USB vers série sélectionné !"
+msgstr "USB Cihazı Seçilmedi!"
 
 #: ../launcher/gimx-launcher.cpp:1361
 msgid "No destination IP:port specified!"
-msgstr "Pas de IP:port destination spécifié !"
+msgstr "Hedef IP:PORT Yok!"
 
 #: ../launcher/gimx-launcher.cpp:1370
 msgid "No pairing selected!"
-msgstr "Pas d'appairage sélectionné !"
+msgstr "Eşleşme Seçilmedi!"
 
 #: ../launcher/gimx-launcher.cpp:1378
 msgid "Selected pairing is incorrect!"
-msgstr "L’appairage sélectionné est incorrect !"
+msgstr "Seçilen Eşleşme Yanlış!"
 
 #: ../launcher/gimx-launcher.cpp:1389
 msgid "Dongle not found!"
-msgstr "Dongle non trouvé !"
+msgstr "Dongle Bulunamadı!"
 
 #: ../launcher/gimx-launcher.cpp:1400
 msgid "No source IP:port specified!"
-msgstr "Pas de IP:port source spécifié !"
+msgstr "Kaynak IP:PORT Yok!"
 
 #: ../launcher/gimx-launcher.cpp:1410
 msgid "IP:port is the same for input and output!"
-msgstr "IP:port est le même pour l'entrée et la sortie !"
+msgstr "IP:PORT Giriş ve Çıkış İçin Aynıdır!"
 
 #: ../launcher/gimx-launcher.cpp:1421
 msgid ""
 "Bluetooth service has to be stopped.\n"
 "Proceed?"
 msgstr ""
-"Le service bluetooth doit être stoppé.\n"
-"Continuer ?"
+"Bluetooth Servisinin Durdurulması Gerekiyor.\n"
+"Devam Etmek İstermisin?"
 
 #: ../launcher/gimx-launcher.cpp:1432
 msgid "Can't stop bluetoothd!"
-msgstr "Impossible d'arrêter bluetoothd !"
+msgstr "Bluetooth Durdurulamıyor!"
 
 #: ../launcher/gimx-launcher.cpp:1441
 msgid ""
 "Windows Task Manager has to be stopped.\n"
 "Proceed?"
 msgstr ""
-"Le gestionnaire des tâches Windows doit être arrêté.\n"
-"Continuer ?"
+"Windows Görev Yöneticisi durdurulmalıdır.\n"
+"İlerle?"
 
 #: ../launcher/gimx-launcher.cpp:1474
 msgid "Select the destination:"
-msgstr "Sélectionner la destination :"
+msgstr "Hedefi Seçin:"
 
 #: ../launcher/gimx-launcher.cpp:1583
 msgid "can't start gimx!"
-msgstr "Impossible de démarrer gimx !"
+msgstr "Gimx Başlatılamaz!"
 
 #: ../launcher/gimx-launcher.cpp:1643
 msgid "GIMX failed with a generic error (please report this)."
-msgstr "GIMX a échoué avec une erreur générique (reporter ceci svp)."
+msgstr "GIMX Genel Bir Hata ile Başarısız Oldu ( Lütfen Bunu Bildirin )."
 
 #: ../launcher/gimx-launcher.cpp:1648
 msgid "Failed to detect the GPP/Cronus/Titan device."
-msgstr "Échec de la détection du périphérique GPP/Cronus/Titan."
+msgstr "GPP/Cronus/Titan Cihazını Tespit Edilemedi."
 
 #: ../launcher/gimx-launcher.cpp:1652
 msgid ""
@@ -1932,16 +1926,16 @@ msgid ""
 " . make sure to select the right port\n"
 " . make sure to power on the target console\n"
 "If you built the adapter yourself:\n"
-" . make sure the wiring is correct (swapping RX and TX is a common "
-"mistake)\n"
+" . make sure the wiring is correct (swapping RX and TX is a common mistake)\n"
 " . make sure it runs the right firmware"
 msgstr ""
-"Échec de la détection de l'adaptateur USB :\n"
-". vérifier le port sélectionné\n"
-". vérifier que la console cible est allumée\n"
-"Si vous avez construit l'adaptateur vous-même :\n"
-". vérifier le raccordement (l'échange de RX et TX est une erreur courante)\n"
-". vérifier que le firmware est correct"
+"USB Bağdaştırıcısı Algılanmadı:\n"
+" . Doğru Bağlantı Noktasını Seçtiğinizden Emin Olun\n"
+" . Hedef Konsolu Açtığınızdan Emin Olun\n"
+"Eğer Adaptörü Kendiniz Yaptıysanız:\n"
+" . Kablolamanın Doğru Olduğundan Emin Olun (RX ve TX'nin Değiştirilmesi "
+"Yaygın Bir Hatadır)\n"
+" . Doğru Yazılım Yüklediğinizden Emin Olun"
 
 #: ../launcher/gimx-launcher.cpp:1662
 msgid ""
@@ -1949,34 +1943,33 @@ msgid ""
 " . make sure to fill the right IP:port\n"
 " . make sure the remote instance is running"
 msgstr ""
-"Echec de la détection de l'instance GIMX distante :\n"
-". vérifier que IP:port est correct\n"
-". vérifier que l'instance distance est en fonctionnement"
+"GIMX Yönetme Algılanmadı:\n"
+" . Doğru IP:PORT Girdiğinizden Emin Olun\n"
+" . Uzaktan Yönetimin Çalıştığından Emin Olun"
 
 #: ../launcher/gimx-launcher.cpp:1668
 msgid "Failed to detect the adapter (fallback error message)."
-msgstr "Échec de la détection de l'adaptateur (message d'erreur de repli)"
+msgstr "Bağdaştırıcı Algılanamadı (Geri Dönüş Hata Mesajı)."
 
 #: ../launcher/gimx-launcher.cpp:1672
 msgid "GIMX exited and the activation button was not pressed."
-msgstr "GIMX s'est terminé et le bouton d'activation n'a pas été activé."
+msgstr "Etkinleştirme Tuşuna Basılmadığı İçin GIMX'ten Çıkış Yapıldı."
 
 #: ../launcher/gimx-launcher.cpp:1675
 msgid "Inactivity timeout."
-msgstr "Délai d'inactivité écoulé."
+msgstr "Hareketsizlik Zaman Aşımı."
 
 #: ../launcher/gimx-launcher.cpp:1678
 msgid "No wired Xbox 360 controller was found on USB ports."
-msgstr "Pas de contrôleur filaire Xbox 360 trouvé sur les ports USB."
+msgstr "USB Bağlantı Noktalarında Xbox 360 (XBC) Bulunamadı."
 
 #: ../launcher/gimx-launcher.cpp:1681
 msgid "No Dualshock 4 controller was found on USB ports."
-msgstr "Pas de Dualshock 4 trouvée sur les ports USB."
+msgstr "USB Bağlantı Noktalarında Dualshock 4 (DS4) Bulunamadı."
 
 #: ../launcher/gimx-launcher.cpp:1684
 msgid "No Xbox One controller (without 3.5mm jack) was found on USB ports."
-msgstr ""
-"Pas de contrôleur Xbox One (sans prise jack 3.5mm) trouvé sur les ports USB."
+msgstr "USB Bağlantı Noktalarında Xbox One Kontroller (3,5 mm Jaksız) Bulundu."
 
 #: ../launcher/gimx-launcher.cpp:1687
 msgid ""
@@ -1985,145 +1978,146 @@ msgid ""
 ". make sure the cable is not bad (try another one)\n"
 ". make sure to turn controller off before connection."
 msgstr ""
-"Un problème de connexion au contrôleur officiel s'est produit :\n"
-". vérifier que le câble n'est pas débranché\n"
-". vérifier que le câble n'est pas défectueux (en essayer un autre)\n"
-". vérifier que le contrôleur est bien éteint avant de le connecter."
+"Kontroller ile Bir Bağlantı Hatası Oluştu:\n"
+". Kablonun Çekilmediğinden Emin Olun\n"
+". Kablonun Deforme Olmadığından Emin Olun (Başka Bir Kablo Deneyin)\n"
+". Bağlantıdan Önce Kontrolleri Kapattığınızdan Emin Olun."
 
 #: ../launcher/gimx-launcher.cpp:1731
 msgid ""
 "Mouse was captured, input was \"physical devices\", and focus was lost. "
 "Either you pressed alt+tab or some other app took focus.\n"
 msgstr ""
-"La souris était capturée, l'entrée était \"périphériques\", et le focus a "
-"été perdu. Vous avez appuyé sur alt+tab, ou une application a pris le "
-"focus.\n"
+"Fare Yakalandı, Giriş \"Fiziksel Aygıtlar \",  idi ve odak kaybedildi. Alt"
+"+Tab Tuşlarına Bastınız yada Başka Bir Uygulama Pencereyi Kaybettirdi Lütfen "
+"Kontrol Ediniz. \n"
 
 #: ../launcher/gimx-launcher.cpp:1708
 msgid "Failed to open log file. GIMX may have crashed (please report this)."
-msgstr ""
-"Echec de l'ouverture du fichier de log. GIMX peut avoir crashé (svp "
-"rapporter ceci)."
+msgstr "Log Dosyası Açılamadı. GIMX Çöktü (Lütfen Bunu Rapor Edin)."
 
 #: ../launcher/gimx-launcher.cpp:1717
 msgid "GIMX ran less than 5 seconds. Would you like to generate a log report?"
-msgstr "GIMX a fonctionné moins de 5s. Générer un fichier de log ?"
+msgstr ""
+"GIMX 5 Saniyeden Daha Az Çalıştı. Bir Log Dosyası Oluşturmak İster Misiniz?"
 
 #: ../launcher/gimx-launcher.cpp:1756
 msgid "This config seems OK!\n"
-msgstr "Cette config a l'air correcte !\n"
+msgstr "Ayarlar İyi Görününüyor.. TAMAM!\n"
 
 #: ../launcher/gimx-launcher.cpp:1773
 msgid "Failed to start gimx-config!"
-msgstr "Échec du lancement de gimx-config !"
+msgstr "Gimx-Config Başlatılamadı!"
 
 #: ../launcher/gimx-launcher.cpp:1790
 msgid "Failed to start gimx-fpsconfig!"
-msgstr "Échec du lancement de gimx-fpsconfig !"
+msgstr "Gimx-Fpsconfig Başlatılamadı!"
 
 #: ../launcher/gimx-launcher.cpp:1802 ../launcher/gimx-launcher.cpp:1859
 msgid "No Serial Port Detected!\n"
-msgstr "Pas de port série détecté !\n"
+msgstr "Seri Bağlantı (PORT) Noktası Algılanmadı!\n"
 
 #: ../launcher/gimx-launcher.cpp:1810 ../launcher/gimx-launcher.cpp:1844
 msgid "No device detected!\n"
-msgstr "Pas de périphérique détecté !\n"
+msgstr "Cihaz Algılanmadı!!\n"
 
 #: ../launcher/gimx-launcher.cpp:1866 ../launcher/gimx-launcher.cpp:1885
 msgid "Pairing"
-msgstr "Appairage"
+msgstr "Eşleştiriyor"
 
 #: ../launcher/gimx-launcher.cpp:1874 ../launcher/gimx-launcher.cpp:1898
 msgid ""
 "No pairing found.\n"
 "Perform a new pairing?"
 msgstr ""
-"Pas d'appairage trouvé.\n"
-"Effectuer un nouvel appairage ?"
+"Eşleşme Bulunamadı.\n"
+"Yeni Bir Eşleşme Yapılsın Mı?"
 
 #: ../launcher/gimx-launcher.cpp:1891
 msgid "New/Repair"
-msgstr "Nouveau/Réparer"
+msgstr "Yeni/Onarım"
 
 #: ../launcher/gimx-launcher.cpp:1936
 msgid "Installing"
-msgstr "Installation"
+msgstr "Kuruluyor"
 
 #: ../launcher/gimx-launcher.cpp:1998
 msgid ""
 "Update available.\n"
 "Start installation?"
 msgstr ""
-"Mise à jour disponible.\n"
-"Démarrer l'installation ?"
+"Güncelleme Uygun.\n"
+"Yüklemeyi başlat?"
 
 #: ../launcher/gimx-launcher.cpp:2003
 msgid "Downloading update"
-msgstr "Téléchargement de la mise à jour"
+msgstr "Güncelleme İndiriliyor"
 
 #: ../launcher/gimx-launcher.cpp:2011
 msgid "Can't retrieve update file!"
-msgstr "Impossible de télécharger la mise à jour !"
+msgstr "Güncelleme Dosyası Alınamıyor!"
 
 #: ../launcher/gimx-launcher.cpp:2021
 msgid "Can't check version!"
-msgstr "Impossible de vérifier la version !"
+msgstr ""
+"Sürüm Kontrol Edilemiyor!\n"
+"İnternet Bağlantınızı Kontrol Edin!"
 
 #: ../launcher/gimx-launcher.cpp:2025
 msgid "GIMX is up-to-date!"
-msgstr "GIMX est à jour !"
+msgstr "GIMX Güncel Durumda!"
 
 #: ../launcher/gimx-launcher.cpp:2058
 msgid "Downloading config list"
-msgstr "Téléchargement de la liste de configs"
+msgstr "Config Dosyaları İndiriliyor"
 
 #: ../launcher/gimx-launcher.cpp:2078
 msgid "Select the files to download."
-msgstr "Sélectionnez les fichiers à télécharger."
+msgstr "İndirilecek Dosyaları Seçin."
 
 #: ../launcher/gimx-launcher.cpp:2078
 msgid "Config download"
-msgstr "Téléchargement de configs"
+msgstr "Config İndir"
 
 #: ../launcher/gimx-launcher.cpp:2090
 msgid "Overwrite local file: "
-msgstr "Ecraser le fichier local : "
+msgstr "Yerel Dosyanın Üstüne Yaz: "
 
 #: ../launcher/gimx-launcher.cpp:2090
 msgid "?"
-msgstr " ?"
+msgstr "?"
 
 #: ../launcher/gimx-launcher.cpp:2101
 msgid "Downloading"
-msgstr "Téléchargement"
+msgstr "İndiriliyor"
 
 #: ../launcher/gimx-launcher.cpp:2118
 msgid "Completed"
-msgstr "Terminé"
+msgstr "Tamamlandı"
 
 #: ../launcher/gimx-launcher.cpp:2123
 msgid "Can't retrieve configs!"
-msgstr "Impossible de télécharger les configs !"
+msgstr "Config Dosyası Alınamıyor!"
 
 #: ../launcher/gimx-launcher.cpp:2130
 msgid "Can't retrieve config list!"
-msgstr "Impossible de télécharger la liste de configs !"
+msgstr "Config Listesi Alınamıyor!"
 
 #: ../launcher/gimx-launcher.cpp:2159
 msgid "Can't read config: "
-msgstr "Impossible de lire la config : "
+msgstr "Config Okunamıyor: "
 
 #: ../launcher/gimx-launcher.cpp:2165
 msgid "Can't auto-bind controls for config: "
-msgstr "Impossible d'auto-affecter les contrôles pour la config : "
+msgstr "Config İçin Otomatik-Bağlama Yapılamaz: "
 
 #: ../launcher/gimx-launcher.cpp:2172
 msgid "Can't write config: "
-msgstr "Impossible d'écrire la config : "
+msgstr "Config Yazılamıyor: "
 
 #: ../launcher/gimx-launcher.cpp:2176
 msgid "Auto bind done for "
-msgstr "Auto-affectation effectuée pour "
+msgstr "Referans Config Ayarlandı : "
 
 #: ../launcher/gimx-launcher.cpp:2236
 msgid "Config"
@@ -2131,63 +2125,63 @@ msgstr "Config"
 
 #: ../launcher/gimx-launcher.cpp:2268
 msgid "Controller: "
-msgstr "Contrôleur : "
+msgstr "Kontroller: "
 
 #: ../launcher/gimx-launcher.cpp:2269
 msgid "Console: "
-msgstr "Console : "
+msgstr "Konsol: "
 
 #: ../launcher/gimx-launcher.cpp:2273
 msgid "Select the pairing."
-msgstr "Sélectionner l'appairage."
+msgstr "Eşleştirmeyi Seçin."
 
 #: ../launcher/gimx-launcher.cpp:2273 ../launcher/gimx-launcher.cpp:2338
 #: ../launcher/gimx-launcher.cpp:2371 ../launcher/gimx-launcher.cpp:2384
 #: ../launcher/gimx-launcher.cpp:2439 ../launcher/gimx-launcher.cpp:2450
 #: ../launcher/gimx-launcher.cpp:2486 ../launcher/gimx-launcher.cpp:2518
 msgid "PS Tool"
-msgstr "PS Tool"
+msgstr "PS Aracı"
 
 #: ../launcher/gimx-launcher.cpp:2326
 msgid "Device: "
-msgstr "Périphérique : "
+msgstr "Cihaz: "
 
 #: ../launcher/gimx-launcher.cpp:2327
 msgid "Address: "
-msgstr "Adresse : "
+msgstr "Adres: "
 
 #: ../launcher/gimx-launcher.cpp:2328
 msgid "Manufacturer: "
-msgstr "Fabriquant : "
+msgstr "Üretici Firma: "
 
 #: ../launcher/gimx-launcher.cpp:2332
 msgid "Chip: "
-msgstr "Puce : "
+msgstr "Çip: "
 
 #: ../launcher/gimx-launcher.cpp:2338
 msgid "Select the bluetooth adapter."
-msgstr "Sélectionnez le dongle bluetooth."
+msgstr "Bluetooth Adaptörünü Seçin."
 
 #: ../launcher/gimx-launcher.cpp:2371
 msgid "Plug a sixaxis/ds3"
-msgstr "Connectez un sixaxis/ds3"
+msgstr "Bir Sixaxis / DS3 Takın"
 
 #: ../launcher/gimx-launcher.cpp:2384 ../launcher/gimx-launcher.cpp:2439
 msgid "Plug a bluetooth dongle"
-msgstr "Connectez un dongle bluetooth"
+msgstr "Bir Bluetooth Dongle Takın"
 
 #: ../launcher/gimx-launcher.cpp:2450
 msgid "Plug a ds4"
-msgstr "Connectez une ds4"
+msgstr "DS4 Takın"
 
 #: ../launcher/gimx-launcher.cpp:2470 ../launcher/gimx-launcher.cpp:2500
 #: ../launcher/gimx-launcher.cpp:2510 ../launcher/gimx-launcher.cpp:2687
 msgid "Cannot execute: "
-msgstr "Impossible d'exécuter : "
+msgstr "Yürütemedi: "
 
 #: ../launcher/gimx-launcher.cpp:2486
 msgid "Plug the teensy"
-msgstr "Connectez le teensy"
+msgstr "Teensy'yi Takın"
 
 #: ../launcher/gimx-launcher.cpp:2518
 msgid ""
@@ -2195,115 +2189,130 @@ msgid ""
 "wait a few seconds,\n"
 "and plug it back to the PC"
 msgstr ""
-"Connectez le teensy à la PS4.\n"
-"Attendez quelques secondes,\n"
-"puis reconnectez le au PC."
+"Teensy'yi PS4'e Takın,\n"
+"Birkaç Saniye Bekleyin,\n"
+"ve Tekrar PC'ye Takın"
 
 #: ../launcher/gimx-launcher.cpp:2618
 msgid "Select the pairing to restore."
-msgstr "Sélectionner l'appairage à rétablir."
+msgstr "Geri Yüklemek İçin Eşleştirmeyi Seçin."
 
 #: ../launcher/gimx-launcher.cpp:2648
 msgid "No previous pairing found!"
-msgstr "Pas d'appairage précédent trouvé !"
+msgstr "Önceki Eşleşme Bulunamadı!"
 
 #: ../launcher/gimx-launcher.cpp:2692
 msgid "Success."
-msgstr "Réussite."
+msgstr "Başarılı."
 
 #: ../launcher/gimx-launcher.cpp:2699
 msgid "Plug a ds4 to repair."
-msgstr "Connecter la dualshock 4 à ré-appairer."
+msgstr "Düzeltmek İçin Bir DS4 Takın."
 
 #: ../launcher/gimx-launcher.cpp:2741
 msgid "Enter an IP address"
-msgstr "Entrez une adresse IP"
+msgstr "Bir IP Adresi Girin"
 
 #: ../launcher/gimx-launcher.cpp:2751
 msgid "Enter a port"
-msgstr "Entrez un port :"
+msgstr "Bir PORT Girin"
 
 #: ../launcher/gimx-launcher.cpp:2774
 msgid "Bad IP format!"
-msgstr "Mauvais format d'adresse IP !"
+msgstr "Kötü IP formatı!"
 
 #: ../launcher/gimx-launcher.cpp:2829
 msgid "Repair"
-msgstr "Ré-appairage."
+msgstr "Onarım"
 
 #: ../launcher/gimx-launcher.cpp:2864
 msgid "Failed to execute gimx-loader."
-msgstr "Échec du lancement de gimx-loader."
+msgstr "Gimx-Loader Çalıştırılamadı."
 
 #: ../loader/gimx-loader.cpp:102
 msgid "Gimx-loader"
-msgstr "Gimx-loader"
+msgstr "Gimx-Loader (Çeviri - Osman Çitçi)"
 
 #: ../loader/gimx-loader.cpp:108
 msgid "Load"
-msgstr "Charger"
+msgstr "Yükle"
 
 #: ../loader/gimx-loader.cpp:116
 msgid "About"
-msgstr "À propos"
+msgstr "Hakkında"
 
 #: ../loader/gimx-loader.cpp:146
 msgid "No firmware found in "
-msgstr "Pas de firmware trouvé dans "
+msgstr "Firmware Bulunamadı "
 
 #: ../loader/gimx-loader.cpp:202
 msgid ""
 "This tool is only compatible with GIMX adapters made with a USB to UART "
 "adapter and a Pro Micro board. Proceed?"
 msgstr ""
-"Cet outil n'est compatible qu'avec les adaptateurs basés sur un "
-"convertisseur USB-série et une carte Pro Micro. Continuer ?"
+"Yazılım Güncelleme Sadece GIMX Adaptör için Geçerlidir. Devam Etmek "
+"İstermisin ?"
 
 #: ../loader/gimx-loader.cpp:208
 msgid "Plug both sides of the adapter to the computer."
-msgstr "Connecter les deux extrémités de l'adaptateur à l'ordinateur."
+msgstr ""
+"GIMX Adaptörün Her İki Girişini Bilgisayara Bağlayın yada GIMX Adaptör "
+"Üstündeki Reset Tuşuna Basınız.."
 
 #: ../loader/gimx-loader.cpp:223
 msgid "Unplug/replug the USB cable from/to computer USB port."
-msgstr "Débrancher/rebrancher le câble USB du/au port USB de l'ordinateur."
+msgstr ""
+"USB Kablosunu Bilgisayar USB Portuna Tekrar Takın yada Reset Tuşuna Basın.."
 
 #: ../loader/gimx-loader.cpp:243
 msgid "No new device found within 10 seconds."
-msgstr "Pas de nouveau périphérique trouvé sous 10 secondes."
+msgstr "GIMX Adaptör Algılanmadı."
 
 #: ../loader/gimx-loader.cpp:266
 msgid "failed to load firmware"
-msgstr "échec du chargement du firmware"
+msgstr "Ürün Yazılımı Yüklenemedi"
 
 #: ../loader/gimx-loader.cpp:276
 msgid "Failed to load firmware."
-msgstr "Échec du chargement du firmware."
+msgstr "Firmware Yüklenemedi."
 
 #: ../loader/gimx-loader.cpp:278
 msgid "Firmware loaded successfully!"
-msgstr "Firmware chargé avec succès !"
+msgstr "Yazılım Başarıyla Yüklendi!"
 
 #: ../config/configApp.h:26 ../fpsconfig/fpsconfigApp.h:25
 msgid "file"
-msgstr "fichier"
+msgstr "Dosya"
 
 #: ../config/configApp.h:26 ../fpsconfig/fpsconfigApp.h:25
 msgid "specifies a file to open"
-msgstr "spécifie un fichier à ouvrir"
+msgstr "Açılacak Bir Dosya Seçin"
 
 #: ../config/gimx-config.cpp:1564 ../config/gimx-config.cpp:1571
 #: ../fpsconfig/gimx-fpsconfig.cpp:582 ../fpsconfig/gimx-fpsconfig.cpp:589
 msgid "Do you want to save your configuration?"
-msgstr "Souhaitez-vous sauvegarder votre configuration?"
+msgstr "Yapılandırmanızı Kaydetmek İstermisiniz?"
 
 #: ../launcher/gimx-launcher.cpp:1194
 msgid "Physical devices (elevated privileges)"
-msgstr "Périphériques (privilèges élevés)"
+msgstr "Fiziksel Aygıtlar ( Yüksek Öncelik )"
 
 #: ../config/gimx-config.cpp:1262
 msgid "Export to clipboard"
-msgstr "Exporter vers le presse-papier"
+msgstr "Panoya  Aktar"
 
 #: ../config/gimx-config.cpp:1264
 msgid "Import from clipboard"
-msgstr "Importer depuis le presse-papier"
+msgstr "Panodan İçe Aktar"
+
+#~ msgid "Can't save_current "
+#~ msgstr "Kaydedemiyorum "
+
+#~ msgid "gimx-config"
+#~ msgstr "Gimx-Config"
+
+#~ msgid "gimx-fpsconfig"
+#~ msgstr "Gimx-Fpsconfig"
+
+#~ msgid "gimx-launcher"
+#~ msgstr "Gimx Türkiye"

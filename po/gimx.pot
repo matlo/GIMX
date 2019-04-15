@@ -190,6 +190,11 @@ msgstr ""
 msgid "auto-grab flag is set\n"
 msgstr ""
 
+#: ../core/args.c:488
+#, c-format
+msgid "%s flag is set\n"
+msgstr ""
+
 #: ../core/calibration.c:198
 #, c-format
 msgid "calibrating mouse %s (%d)\n"
@@ -1935,6 +1940,12 @@ msgid ""
 ". make sure to turn controller off before connection."
 msgstr ""
 
+#: ../launcher/gimx-launcher.cpp:1731
+msgid ""
+"Mouse was captured, input was \"physical devices\", and focus was lost. "
+"Either you pressed alt+tab or some other app took focus.\n"
+msgstr ""
+
 #: ../launcher/gimx-launcher.cpp:1708
 msgid "Failed to open log file. GIMX may have crashed (please report this)."
 msgstr ""
@@ -2215,4 +2226,21 @@ msgstr ""
 
 #: ../config/configApp.h:26 ../fpsconfig/fpsconfigApp.h:25
 msgid "specifies a file to open"
+msgstr ""
+
+#: ../config/gimx-config.cpp:1564 ../config/gimx-config.cpp:1571
+#: ../fpsconfig/gimx-fpsconfig.cpp:582 ../fpsconfig/gimx-fpsconfig.cpp:589
+msgid "Do you want to save your configuration?"
+msgstr ""
+
+#: ../launcher/gimx-launcher.cpp:1194
+msgid "Physical devices (elevated privileges)"
+msgstr ""
+
+#: ../config/gimx-config.cpp:1262
+msgid "Export to clipboard"
+msgstr ""
+
+#: ../config/gimx-config.cpp:1264
+msgid "Import from clipboard"
 msgstr ""

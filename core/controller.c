@@ -366,7 +366,11 @@ static int adapter_forward_interrupt_out(int adapter, unsigned char* data, unsig
   if(adapters[adapter].ctype == C_TYPE_XONE_PAD && data[0] == 0x06 && data[1] == 0x20)
   {
     adapters[adapter].status = 1;
-    if (adapters[adapter].joystick >= 0 && adapters[adapter].joystick != usb_get_joystick(adapter))
+    if (adapters[adapter].ff_core == NULL)
+    {
+      adapters[adapter].forward_out_reports = usb_forward_output(adapter, adapters[adapter].joystick);
+    }
+    else
     {
       adapters[adapter].forward_out_reports = 0;
     }
@@ -830,23 +834,14 @@ int adapter_start()
     {
       if(adapter->serial.device != NULL)
       {
-        if (adapter->joystick >= 0)
+        if (adapter->ff_core == NULL)
         {
-          if (usb_get_joystick(i) == adapter->joystick)
-          {
-              adapter->forward_out_reports = 1;
-          }
+          adapter->forward_out_reports = usb_forward_output(i, adapter->joystick);
         }
-        switch(adapter->ctype)
+
+        if (adapter->ctype == C_TYPE_XONE_PAD && !adapter->status)
         {
-          case C_TYPE_XONE_PAD:
-            if(!adapter->status)
-            {
-                adapter->forward_out_reports = 1; // force forwarding out reports until the authentication is successful.
-            }
-            break;
-          default:
-            break;
+          adapter->forward_out_reports = 1; // force forwarding out reports until the authentication is successful.
         }
 
         if(adapter_send_short_command(i, BYTE_START) < 0)

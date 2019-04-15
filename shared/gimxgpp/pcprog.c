@@ -6,6 +6,9 @@
 #include <limits.h>
 #include <gimxlog/include/glog.h>
 #include <stddef.h>
+#ifdef WIN32
+#include <windows.h>
+#endif
 
 #ifdef WIN32
 #define LINE_MAX 1024
@@ -55,6 +58,38 @@ GCAPI_USB_IDS usb_ids[16] =
 
 static unsigned int nb_usb_ids = 5;
 
+#ifndef WIN32
+static FILE *fopen2(const char *path, const char *mode) {
+    return fopen(path, mode);
+}
+#else
+static wchar_t * utf8_to_utf16le(const char * inbuf)
+{
+  wchar_t * outbuf = NULL;
+  int outsize = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, NULL, 0);
+  if (outsize != 0) {
+      outbuf = (wchar_t*) malloc(outsize * sizeof(*outbuf));
+      if (outbuf != NULL) {
+         int res = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, outbuf, outsize);
+         if (res == 0) {
+             free(outbuf);
+             outbuf = NULL;
+         }
+      }
+  }
+  return outbuf;
+}
+
+static FILE *fopen2(const char *path, const char *mode) {
+    wchar_t * wpath = utf8_to_utf16le(path);
+    wchar_t * wmode = utf8_to_utf16le(mode);
+    FILE* file = _wfopen(wpath, wmode);
+    free(wmode);
+    free(wpath);
+    return file;
+}
+#endif
+
 /*
  * Read user-defined usb ids.
  */
@@ -77,7 +112,7 @@ void gpppcprog_read_user_ids(const char * user_directory, const char * app_direc
 
   snprintf(file_path, sizeof(file_path), "%s/%s/%s", user_directory, app_directory, USB_IDS_FILE);
 
-  fp = fopen(file_path, "r");
+  fp = fopen2(file_path, "r");
   if (fp)
   {
     while (fgets(line, LINE_MAX, fp))

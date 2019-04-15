@@ -6,14 +6,9 @@
 #include "Updater.h"
 #include <gimxdownloader/Downloader.h>
 
-#include <fstream>
-#include <cstdlib>
-#include <cstdio>
 #include <vector>
 #include <sstream>
 #include <cstdlib>
-#include <string.h>
-#include <climits>
 
 #ifdef WIN32
 #include <windows.h>
@@ -104,6 +99,26 @@ int progressCallback(void *clientp, Downloader::DownloaderStatus status, double 
     return updater->progress(convertDowloadStatus(status), progress, total);
 }
 
+#ifdef WIN32
+static wchar_t * utf8_to_utf16le(const char * inbuf)
+{
+  wchar_t * outbuf = NULL;
+  int outsize = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, NULL, 0);
+  if (outsize != 0) {
+      outbuf = (wchar_t*) malloc(outsize * sizeof(*outbuf));
+      if (outbuf != NULL) {
+         int res = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, outbuf, outsize);
+         if (res == 0) {
+             free(outbuf);
+             outbuf = NULL;
+         }
+      }
+  }
+
+  return outbuf;
+}
+#endif
+
 Updater::UpdaterStatus Updater::update(std::string url, ProgressCallback callback, void *clientp, bool wait) {
 
     clientCallback = callback;
@@ -127,18 +142,21 @@ Updater::UpdaterStatus Updater::update(std::string url, ProgressCallback callbac
     UpdaterStatus status = UpdaterStatusOk;
 
 #ifdef WIN32
-    SHELLEXECUTEINFO shExInfo = SHELLEXECUTEINFO();
+    wchar_t * utf16 = utf8_to_utf16le(tempFile.c_str());
+
+    SHELLEXECUTEINFOW shExInfo = SHELLEXECUTEINFOW();
     shExInfo.cbSize = sizeof(shExInfo);
     shExInfo.fMask = wait ? (SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC) : SEE_MASK_DEFAULT;
     shExInfo.hwnd = 0;
-    shExInfo.lpVerb = "runas";
-    shExInfo.lpFile = tempFile.c_str();
-    shExInfo.lpParameters = "";
+    shExInfo.lpVerb = L"runas";
+    shExInfo.lpFile = utf16;
+    shExInfo.lpParameters = L"";
     shExInfo.lpDirectory = 0;
     shExInfo.nShow = SW_SHOW;
     shExInfo.hInstApp = 0;
 
-    if (!ShellExecuteEx(&shExInfo)) {
+    if (!ShellExecuteExW(&shExInfo)) {
+        free(utf16);
         if (GetLastError() == ERROR_CANCELLED) {
             return UpdaterStatusCancelled;
         }
@@ -153,6 +171,7 @@ Updater::UpdaterStatus Updater::update(std::string url, ProgressCallback callbac
     }
 
     CloseHandle(shExInfo.hProcess);
+    free(utf16);
 #else
     (void)wait;
     std::string cmd = "";

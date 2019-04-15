@@ -15,6 +15,10 @@ struct haptic_sink_state {
 static void dump_event(const GE_Event * event) {
 
     switch (event->type) {
+    case GE_JOYRUMBLE:
+        dprintf("< RUMBLE, weak=%hu, strong=%hu\n", event->jrumble.weak, event->jrumble.strong);
+        fflush(stdout);
+        break;
     case GE_JOYCONSTANTFORCE:
         dprintf("< CONSTANT, level: %d\n", event->jconstant.level);
         fflush(stdout);
@@ -43,7 +47,7 @@ static struct haptic_sink_state * haptic_sink_os_init(int joystick) {
 
     if (joystick >= 0) {
         int haptic = ginput_joystick_get_haptic(joystick);
-        if (haptic & (GE_HAPTIC_CONSTANT | GE_HAPTIC_SPRING | GE_HAPTIC_DAMPER)) {
+        if (haptic & (GE_HAPTIC_RUMBLE | GE_HAPTIC_CONSTANT | GE_HAPTIC_SPRING | GE_HAPTIC_DAMPER)) {
             void * ptr = calloc(1, sizeof(struct haptic_sink_state));
             if (ptr != NULL) {
                 struct haptic_sink_state * state = (struct haptic_sink_state *) ptr;
@@ -100,15 +104,30 @@ static void haptic_sink_os_process(struct haptic_sink_state * state, const s_hap
         }
         ret = 1;
         break;
+    case E_DATA_TYPE_RANGE:
+        ginfo(_("adjust your wheel range to %u degrees\n"), data->range.value);
+        break;
     case E_DATA_TYPE_NONE:
     case E_DATA_TYPE_RUMBLE:
     case E_DATA_TYPE_LEDS:
-    case E_DATA_TYPE_RANGE:
         break;
     }
 
     if (ret != 0) {
         ginput_joystick_set_haptic(&event);
+        if(gimx_params.debug.haptic) {
+            dump_event(&event);
+        }
+    } else if (data->type == E_DATA_TYPE_RUMBLE) {
+        GE_Event event = {
+            .jrumble = {
+                .type = GE_JOYRUMBLE,
+                .which = state->joystick,
+                .weak = data->rumble.weak,
+                .strong = data->rumble.strong
+            }
+        };
+        ginput_queue_push(&event);
         if(gimx_params.debug.haptic) {
             dump_event(&event);
         }
