@@ -383,6 +383,28 @@ static struct usb_state {
   unsigned char disconnected;
 } usb_states[MAX_CONTROLLERS];
 
+static void dump(unsigned char * packet, unsigned char length)
+{
+  int i;
+  for (i = 0; i < length; ++i)
+  {
+    if(i && !(i%8))
+    {
+      ginfo("\n");
+    }
+    ginfo("0x%02x ", packet[i]);
+  }
+  ginfo("\n");
+}
+
+#define DEBUG_PACKET(TYPE, DATA, LENGTH) \
+  if(gimx_params.debug.controller) \
+  { \
+    ginfo("%s\n", __func__); \
+    ginfo("type: 0x%02x\n", TYPE); \
+    dump(DATA, LENGTH); \
+  }
+
 static void process_report(int usb_number, struct usb_state * state, unsigned char * buf, unsigned int count) {
 
   int i;
@@ -398,6 +420,8 @@ static void process_report(int usb_number, struct usb_state * state, unsigned ch
         s_report* current = (s_report*) buf;
         s_report* previous = &state->reports[i].report.value;
 
+        DEBUG_PACKET(BYTE_IN_REPORT, buf, count)
+
         report2event(state->type, usb_number, (s_report*) current, (s_report*) previous, state->joystick_id);
 
         if (state->type == C_TYPE_DS4 || state->type == C_TYPE_T300RS_PS4 || state->type == C_TYPE_G29_PS4) {
@@ -409,6 +433,13 @@ static void process_report(int usb_number, struct usb_state * state, unsigned ch
             previous->xone.input = current->xone.input;
           } else if (report_id == XONE_USB_HID_IN_GUIDE_REPORT_ID) {
             previous->xone.guide = current->xone.guide;
+            if (controller[state->type][state->index].ids.product == XONE_PRODUCT_S) {
+              uint8_t guide_ack[] = {
+                  0x01, 0x20, buf[2], 0x09, 0x00, 0x07, 0x20, 0x02,
+                  0x00, 0x00, 0x00, 0x00, 0x00
+              };
+              usb_send_interrupt_out(usb_number, guide_ack, sizeof(guide_ack));
+            }
           }
         }
       } else {
