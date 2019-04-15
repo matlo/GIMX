@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: GIMX 7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-05-27 19:35+0200\n"
-"PO-Revision-Date: 2019-03-04 20:59+0100\n"
+"PO-Revision-Date: 2019-04-15 22:25+0200\n"
 "Last-Translator: Matlo <mat.lau@laposte.net>\n"
 "Language-Team: Matlo <mat.lau@laposte.net>\n"
 "Language: fr\n"
@@ -2307,3 +2307,11 @@ msgstr "Exporter vers le presse-papier"
 #: ../config/gimx-config.cpp:1264
 msgid "Import from clipboard"
 msgstr "Importer depuis le presse-papier"
+
+#: ../core/controller.c:862
+msgid "Press the key/button assigned to PS.\n"
+msgstr "Appuyez sur le bouton ou la touche assignée à PS.\n"
+
+#: ../core/controller.c:866
+msgid "Press the guide button of the controller for 2 seconds.\n"
+msgstr "Appuyez sur le bouton guide du contrôleur pendant 2 secondes.\n"
