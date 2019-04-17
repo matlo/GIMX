@@ -330,7 +330,7 @@ int AutoConfigDownload::chooseConfigs()
     {
         for (unsigned int i = 0; i < sizeof(configs) / sizeof(*configs); ++i)
         {
-            if (*it == configs[i].name)
+            if(*it == configs[i].name)
             {
                 download.push_back(configs[i].config);
             }
