@@ -6,8 +6,8 @@
  *  Created on: 8 Aug. 2018
  */
 #include <memory> //for smart pointers
-
 #include <string>
+#include <iostream>
 
 #include <gimxconfigupdater/configupdater.h>
 #include <gimxupdater/Updater.h>
@@ -18,6 +18,19 @@
 
 //Callback functionality for download progress
 int progress_callback_configupdater_terminal(void *clientp, configupdater::ConfigUpdaterStatus status, double progress, double total);
+
+
+void help()
+{
+    std::cout << "Usage: gimxFileDownloader <OPTION>" << std::endl;
+    std::cout << "Options: " << std::endl;
+    std::cout << "    -a, --autoconfig    Download configuration "\
+      "files based on peripherals attached" << std::endl;
+    std::cout << "    -c, --config        Manually choose and download "\
+      "configuration files" << std::endl;
+    std::cout << "    -h, --help          Display this help text" << std::endl;
+}
+
 
 class FileDownloader
 {
@@ -31,9 +44,10 @@ public:
     }
     void autoConfig()
     {
-        //Commented until this feature begins development
-    //  configDl = std::unique_ptr<AutoConfigDownload>(new AutoConfigDownload);
-    //  dynamic_cast<AutoConfigDownload*>(configDl.get());
+        configDl = std::unique_ptr<AutoConfigDownload>(new AutoConfigDownload);
+        static_cast<AutoConfigDownload*>(configDl.get());
+        
+        configDl->chooseConfigs();
     }
 
     int callOptions(struct option* longOptions, int optionCharacter, int optionIndex)
@@ -52,13 +66,15 @@ public:
                 break;
             //Automatic configuration download
             case 'a':
+                autoConfig();
                 break;
+            case 'h':
             case '?':
-                break;
             default:
-                printw("?? getopt returned character code 0%o ??\n", optionCharacter);
+                result = -1;
+                break;
         }
-
+        
         return result;
     }
 
@@ -76,22 +92,27 @@ int main(int argc, char* argv[])
     noecho();
     keypad(stdscr, true);
 
-        /*Handle command line options*/
-        struct option longOpts [] =
-        {
-                //These options don’t set a flag. We distinguish them by their indices.
-                { "config", no_argument, 0, 'c' },
-                { "autoconfig", no_argument, 0, 'a' },
-                { 0, 0, 0, 0 }
-        };
+    /*Handle command line options*/
+    struct option longOpts [] =
+    {
+            //These options don’t set a flag. We distinguish them by their indices.
+            { "config", no_argument, 0, 'c' },
+            { "autoconfig", no_argument, 0, 'a' },
+            { "help", no_argument, 0, 'h' },
+            { 0, 0, 0, 0 }
+    };
 
-        FileDownloader fDownloader;
-        auto callback = [&fDownloader](struct option* opts, int optChar, int optI) -> int {
-                return fDownloader.callOptions(opts, optChar, optI);
-        };
-        parseArgs(argc, argv, longOpts, callback);
-
-        /*End curses*/
-        endwin();
-        return 0;
+    FileDownloader fDownloader;
+    auto callback = [&fDownloader](struct option* opts, int optChar, int optI) -> int {
+            return fDownloader.callOptions(opts, optChar, optI);
+    };
+    
+    
+    int res = parseArgs(argc, argv, longOpts, callback);
+    
+    /*End curses*/
+    endwin();
+    if(res == -1)
+        help();
+    return 0;
 }

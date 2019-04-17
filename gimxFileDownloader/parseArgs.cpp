@@ -12,20 +12,24 @@ int parseArgs(int argc, char* argv[], struct option* longOptions, std::function<
 {
 	int optIndex = 0;
 	int optChar;
+    
+    auto getOpts = [&] () -> int {
+        return getopt_long(argc, argv, "ach", longOptions, &optIndex);
+    };
 
-	int result = 0;
-
-	while (true)
+    optChar = getOpts();
+    if(optChar == -1)
+        return -1;
+    
+    while(true)
 	{
-		//'getopt_long()' stores the option index here.
-		optChar = getopt_long(argc, argv, "ca", longOptions, &optIndex);
+        if(optChar == -1) //End of list
+            break;
 
-		//End of the options
-		if(optChar == -1)
-			break;
-
-		optionsCaller(longOptions, optChar, optIndex);
+		if(optionsCaller(longOptions, optChar, optIndex) == -1) //Help or invalid args
+            return -1;
+        
+        optChar = getOpts();
 	}
-
-	return result;
+    return 0;
 }
