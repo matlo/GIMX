@@ -1929,7 +1929,7 @@ msgid "No Dualshock 4 controller was found on USB ports."
 msgstr ""
 
 #: ../launcher/gimx-launcher.cpp:1684
-msgid "No Xbox One controller (without 3.5mm jack) was found on USB ports."
+msgid "No Xbox One controller was found on USB ports."
 msgstr ""
 
 #: ../launcher/gimx-launcher.cpp:1687
@@ -2243,4 +2243,12 @@ msgstr ""
 
 #: ../config/gimx-config.cpp:1264
 msgid "Import from clipboard"
+msgstr ""
+
+#: ../core/controller.c:862
+msgid "Press the key/button assigned to PS.\n"
+msgstr ""
+
+#: ../core/controller.c:866
+msgid "Press the guide button of the controller for 2 seconds.\n"
 msgstr ""

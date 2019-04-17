@@ -1886,8 +1886,8 @@ msgid "No Dualshock 4 controller was found on USB ports."
 msgstr "USB端口沒有發現Dualshock 4控制器."
 
 #: ../launcher/gimx-launcher.cpp:1511
-msgid "No Xbox One controller (without 3.5mm jack) was found on USB ports."
-msgstr "USB端口沒有發現Xbox One控制器(無3.5mm耳機孔)"
+msgid "No Xbox One controller was found on USB ports."
+msgstr "USB端口沒有發現Xbox One控制器"
 
 #: ../launcher/gimx-launcher.cpp:1529
 msgid "Failed to open log file. GIMX may have crashed (please report this)."

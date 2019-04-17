@@ -1707,7 +1707,7 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
         wxMessageBox( _("No Dualshock 4 controller was found on USB ports."), _("Error"), wxICON_ERROR);
         break;
     case E_GIMX_STATUS_AUTH_MISSING_XONE:
-        wxMessageBox( _("No Xbox One controller (without 3.5mm jack) was found on USB ports."), _("Error"), wxICON_ERROR);
+        wxMessageBox( _("No Xbox One controller was found on USB ports."), _("Error"), wxICON_ERROR);
         break;
     case E_GIMX_STATUS_AUTH_CONTROLLER_ERROR:
         wxMessageBox( _("There was a connection error with the official controller:\n"
