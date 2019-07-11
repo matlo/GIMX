@@ -552,6 +552,7 @@ int main(int argc, char *argv[])
     glog_set_all_levels(E_GLOG_LEVEL_NONE);
     gimx_params.curses_status = 1;
     display_init();
+    cal_status(); // Show initial cal screen with modes description
     stats_init(0);
   }
 #ifndef WIN32
@@ -680,6 +681,5 @@ int main(int argc, char *argv[])
 #ifdef WIN32
   free(gimx_params.homedir);
 #endif
-
   return status;
 }

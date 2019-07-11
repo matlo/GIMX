@@ -26,12 +26,32 @@ int current_mouse = 0;
 int current_conf = 0;
 e_current_cal current_cal = NONE;
 
+static struct gcalibration calibration =
+{
+    .mouse             = &current_mouse,
+    .config         = &current_conf,
+    .cal_mode         = MODE_STATUS,
+    .cal_step         = STEP_1,
+    .is_edit_enabled     = 0,
+    .cal_modes_max_step = {2,4,6,1}
+};
+
+unsigned int steps_cal_map[5][GSTEPS_MAX] =
+{
+    {CC},
+    {MX},
+    {DZX,DZY},
+    {DZX,EX,EY,TEST}, // Not used for now
+    {DZX,EX,EY,TEST}
+};
+
 static int lctrl = 0;
 static int rctrl = 0;
 
 static const double pi = 3.14159265;
 
 static int test_time = 1000;
+
 
 /*
  * Used to calibrate mouse controls.
@@ -50,9 +70,17 @@ void cal_set_controller(int mouse, int controller)
   mouse_controller[mouse] = controller;
 }
 
+void update_cal_data()
+{
+    calibration.mouse_cal = cal_get_mouse(current_mouse, current_conf);
+    calibration.current_cal = &current_cal;
+}
+
 void cal_init()
 {
   memset(mouse_cal, 0x00, sizeof(mouse_cal));
+
+  update_cal_data();
 }
 
 inline s_mouse_cal* cal_get_mouse(int mouse, int conf)
@@ -187,6 +215,15 @@ void calibration_test()
 }
 
 /*
+ * Initial status screen for calibration
+ */
+void cal_status()
+{
+    // Values are already set, just run the display function
+    display_calibration(&calibration);
+}
+
+/*
  * Display calibration info.
  */
 static void cal_display()
@@ -273,13 +310,142 @@ static void cal_display()
   }
 }
 
+int find_last_cal_index(e_cal_steps step)
+{
+   int i;
+   for (i=0; i<GSTEPS_MAX; i++)
+   {
+     if (steps_cal_map[step][i] == 0)
+     {
+        return(i-1);  /* it was found */
+     }
+   }
+   return(-1);  /* if it was not found */
+}
+
+int find_cal_index(e_cal_steps step, e_current_cal curr_cal)
+{
+    int i;
+    for (i=0; i<GSTEPS_MAX; i++)
+    {
+      if (steps_cal_map[step][i] == curr_cal)
+      {
+         return(i);  /* it was found */
+      }
+    }
+    return(-1);  /* if it was not found */
+}
+
+void cal_previous_step()
+{
+    // if not first step
+    if (calibration.cal_step != STEP_1)
+    {
+        calibration.cal_step--;
+        int last_cal = find_last_cal_index(calibration.cal_step);
+        *calibration.current_cal = steps_cal_map[calibration.cal_step][last_cal];
+    }
+    else // If first then return to menu
+    {
+        calibration.cal_mode = MODE_STATUS;
+        *calibration.current_cal = NONE;
+    }
+}
+
+void cal_next_step()
+{
+    if (calibration.cal_step != (unsigned int) calibration.cal_modes_max_step[calibration.cal_mode] -1)
+    {
+        calibration.cal_step++;
+        *calibration.current_cal = steps_cal_map[calibration.cal_step][0];
+    }
+}
+
+void cal_handle_params_change(int sym, int down)
+{
+    if (down)
+    {
+        //Next/Previous step
+        if (sym == GE_KEY_F3)
+        {
+            int current_index = find_cal_index(calibration.cal_step, *calibration.current_cal);
+            // How many cals are in that step
+            int max_index = find_last_cal_index(calibration.cal_step);
+
+            // If selected cal isn't the last in this step
+            if(current_index != max_index)
+                *calibration.current_cal = steps_cal_map[calibration.cal_step][current_index + 1];
+            else
+                cal_next_step(); // Move to next step
+        }
+
+        if (sym == GE_KEY_F2)
+        {
+            int current_index = find_cal_index(calibration.cal_step, *calibration.current_cal);
+
+            // If selected cal isn't first in this step
+            if(current_index != 0)
+                *calibration.current_cal = steps_cal_map[calibration.cal_step][current_index - 1];
+            else
+                cal_previous_step(); // Move to previous step
+        }
+    }
+}
+
+/*
+ * Handles steps change controls in every mode except MODE_STATUS
+ */
+void cal_handle_steps_change(int sym, int down)
+{
+    if(down)
+    {
+        //Next/Previous step
+        if (sym == GE_KEY_F4)
+        {
+            cal_next_step();
+        }
+        else if (sym == GE_KEY_F1)
+        {
+            cal_previous_step();
+        }
+    }
+}
+
+/*
+ * Handles returning to menu on Ctrl + F5. Not sure if this is useful now but it was before I did steps handling
+ */
+void cal_handle_menu_return(int sym, int down)
+{
+
+    if (down) {
+        // Return to menu
+        if (rctrl || lctrl) {
+            if (sym == GE_KEY_F5) {
+                calibration.cal_mode = MODE_STATUS;
+                calibration.is_edit_enabled = 0;
+                *calibration.current_cal = NONE;
+            }
+        }
+    }
+
+}
+
 /*
  * Use keys to calibrate the mouse.
  */
 void cal_key(int sym, int down)
 {
-  s_mouse_control* mc = cfg_get_mouse_control(current_mouse);
+  //s_mouse_control* mc = cfg_get_mouse_control(current_mouse);
+
+  update_cal_data();
+
   e_current_cal prev = current_cal;
+  e_cal_modes prev_mode = calibration.cal_mode;
+  e_cal_steps prev_step = calibration.cal_step;
+  int prev_edit = calibration.is_edit_enabled;
+
+  e_cal_modes curr_mode = calibration.cal_mode;
+  e_cal_steps curr_step = calibration.cal_step;
 
   switch (sym)
   {
@@ -291,7 +457,88 @@ void cal_key(int sym, int down)
       break;
   }
 
-  switch (sym)
+  /*
+   * On/Off for Edit mode
+   * it's always possible to activate it except in MODE_STATUS so it's outside main cal input switch
+   * while not in edit mode it's not possible to edit values, exiting edit mode sets current_cal to NONE
+   */
+  /*if(down && sym == GE_KEY_F1 && calibration.cal_mode != MODE_STATUS)
+  {
+      if (!rctrl && !lctrl)
+      {
+          if(calibration.isEditEnabled)
+          {
+              calibration.isEditEnabled = false;
+              *calibration.current_cal = NONE;
+          }
+          else
+              calibration.isEditEnabled = true;
+      }
+  }*/
+
+  /*
+   * Main data loop that controls how input is managed and what actions to do
+   */
+    switch (curr_step) {
+    case STEP_1:
+        if (curr_mode == MODE_STATUS) {
+            if (down) {
+                // Initial status screen controls
+                if (rctrl || lctrl) {
+                    if (sym == GE_KEY_F1)
+                        calibration.cal_mode = MODE_BASIC;
+                    else if (sym == GE_KEY_F2)
+                        calibration.cal_mode = MODE_ADVANCED;
+                    else if (sym == GE_KEY_F3)
+                        calibration.cal_mode = MODE_EXPERT;
+
+                    // If mode changed
+                    if (prev_mode != calibration.cal_mode)
+                        *calibration.current_cal = steps_cal_map[STEP_1][0]; // select first parameter in step_1 by default
+
+                }
+            }
+        }
+        if (curr_mode != MODE_STATUS) {
+
+            // Next/Previous handling step
+            cal_handle_steps_change(sym, down);
+
+            // Menu return handling
+            cal_handle_menu_return(sym, down);
+
+            cal_handle_params_change(sym, down);
+
+        }
+        break;
+    case STEP_2:
+
+        // Next/Previous handling step
+        cal_handle_steps_change(sym, down);
+
+        // Menu return handling
+        cal_handle_menu_return(sym, down);
+
+        cal_handle_params_change(sym, down);
+
+        break;
+
+    case STEP_3:
+        // Next/Previous handling step
+        cal_handle_steps_change(sym, down);
+
+        // Menu return handling
+        cal_handle_menu_return(sym, down);
+
+        cal_handle_params_change(sym, down);
+        break;
+
+        // Suppress compiler warning about unused enum values
+    default:
+        break;
+    }
+
+  /*switch (sym)
   {
     case GE_KEY_ESC:
       if(current_cal != NONE)
@@ -340,8 +587,15 @@ void cal_key(int sym, int down)
     case GE_KEY_F2:
       if (down && current_cal != NONE)
       {
-        current_cal = CC;
-        ginfo(_("profile selection\n"));
+            if (calibration.cal_mode == MODE_BASIC)
+                calibration.cal_mode = MODE_ADVANCED;
+            else if (calibration.cal_mode == MODE_ADVANCED)
+                calibration.cal_mode = MODE_STATUS;
+            else if (calibration.cal_mode == MODE_STATUS)
+                calibration.cal_mode = MODE_BASIC;
+
+            current_cal = CC;
+            ginfo(_("profile selection\n"));
       }
       break;
     case GE_KEY_F9:
@@ -438,13 +692,14 @@ void cal_key(int sym, int down)
         current_cal = TEST;
       }
       break;
-  }
+  }*/
 
-  if(prev != current_cal)
+  // TODO, update
+  if(prev != current_cal || prev_mode != calibration.cal_mode || prev_step != calibration.cal_step || prev_edit != calibration.is_edit_enabled)
   {
     if(gimx_params.curses)
     {
-      display_calibration();
+      display_calibration(&calibration);
     }
     else
     {
@@ -461,9 +716,13 @@ void cal_key(int sym, int down)
  */
 void cal_button(int button)
 {
+  update_cal_data();
+
   double ratio;
   s_mouse_control* mc = cfg_get_mouse_control(current_mouse);
   s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
+
+  //update_cal_data();
 
   int controller = cal_get_controller(current_mouse);
   e_controller_type ctype = adapter_get(controller)->ctype;
@@ -570,7 +829,7 @@ void cal_button(int button)
       {
         if(gimx_params.curses)
         {
-          display_calibration();
+            display_calibration(&calibration);
         }
         else
         {
@@ -680,7 +939,7 @@ void cal_button(int button)
       {
         if(gimx_params.curses)
         {
-          display_calibration();
+            display_calibration(&calibration);
         }
         else
         {
