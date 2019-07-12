@@ -93,21 +93,21 @@ static void draw_statuses(struct gcalibration *calibration) {
     //static const char *editModeStringMap[] = { "Disabled", "Enabled"};
     static const char *modes_string_map[] = { "Basic Mode", "Advanced Mode", "Expert Mode" };
     static int step_text_len = strlen("Current step: 5 of 5"); //
-    static int next_step_text_len = strlen("Prev. Step (F1) | Next Step (F4)");
+    //static int next_step_text_len = strlen("Prev. Step (F1) | Next Step (F4)");
 
     //mvprintw(LINES-2, 1, "Edit mode: %s (Press F1 to change)", editModeStringMap[calibration->isEditEnabled]);
-    mvprintw(LINES - 2, 1, "Prev. Parameter (F2) | Next Parameter (F3)");
+    mvprintw(LINES - 2, 1, "Prev. Parameter (F1) | Next Parameter (F2)");
     mvprintw(LINES - 1, 1, "Current calibration mode: %s", modes_string_map[calibration->cal_mode]);
 
     // Starts from right bottom
     mvprintw(LINES - 1, COLS - step_text_len - 1, "Current step: %d of %d", (calibration->cal_step) + 1,
             calibration->cal_modes_max_step[calibration->cal_mode]);
-    mvprintw(LINES - 2, COLS - next_step_text_len - 1, "Prev. Step (F1) | Next Step (F4)");
+   // mvprintw(LINES - 2, COLS - next_step_text_len - 1, "Prev. Step (F1) | Next Step (F4)");
 }
 
-static WINDOW* draw_window(int size_y, int size_x, int window_y, int window_x, bool use_border) {
+static WINDOW* draw_window(int size_y, int size_x, int window_y, int window_x, int use_border) {
     WINDOW* newWindow = newwin(size_y, size_x, window_y, window_x);
-    if (use_border)
+    if (use_border > 0)
         box(newWindow, 0, 0);
 
     return newWindow;

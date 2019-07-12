@@ -32,7 +32,6 @@ static struct gcalibration calibration =
     .config         = &current_conf,
     .cal_mode         = MODE_STATUS,
     .cal_step         = STEP_1,
-    .is_edit_enabled     = 0,
     .cal_modes_max_step = {2,4,6,1}
 };
 
@@ -336,6 +335,13 @@ int find_cal_index(e_cal_steps step, e_current_cal curr_cal)
     return(-1);  /* if it was not found */
 }
 
+void cal_return_to_menu()
+{
+    calibration.cal_mode = MODE_STATUS;
+    calibration.cal_step = STEP_1;
+    *calibration.current_cal = NONE;
+}
+
 void cal_previous_step()
 {
     // if not first step
@@ -347,8 +353,7 @@ void cal_previous_step()
     }
     else // If first then return to menu
     {
-        calibration.cal_mode = MODE_STATUS;
-        *calibration.current_cal = NONE;
+        cal_return_to_menu();
     }
 }
 
@@ -359,14 +364,20 @@ void cal_next_step()
         calibration.cal_step++;
         *calibration.current_cal = steps_cal_map[calibration.cal_step][0];
     }
+    else // If last then return to menu
+    {
+        cal_return_to_menu();
+    }
 }
+
+
 
 void cal_handle_params_change(int sym, int down)
 {
     if (down)
     {
         //Next/Previous step
-        if (sym == GE_KEY_F3)
+        if (sym == GE_KEY_F2)
         {
             int current_index = find_cal_index(calibration.cal_step, *calibration.current_cal);
             // How many cals are in that step
@@ -379,7 +390,7 @@ void cal_handle_params_change(int sym, int down)
                 cal_next_step(); // Move to next step
         }
 
-        if (sym == GE_KEY_F2)
+        if (sym == GE_KEY_F1)
         {
             int current_index = find_cal_index(calibration.cal_step, *calibration.current_cal);
 
@@ -393,6 +404,7 @@ void cal_handle_params_change(int sym, int down)
 }
 
 /*
+ * TURNED OFF
  * Handles steps change controls in every mode except MODE_STATUS
  */
 void cal_handle_steps_change(int sym, int down)
@@ -422,7 +434,6 @@ void cal_handle_menu_return(int sym, int down)
         if (rctrl || lctrl) {
             if (sym == GE_KEY_F5) {
                 calibration.cal_mode = MODE_STATUS;
-                calibration.is_edit_enabled = 0;
                 *calibration.current_cal = NONE;
             }
         }
@@ -442,7 +453,6 @@ void cal_key(int sym, int down)
   e_current_cal prev = current_cal;
   e_cal_modes prev_mode = calibration.cal_mode;
   e_cal_steps prev_step = calibration.cal_step;
-  int prev_edit = calibration.is_edit_enabled;
 
   e_cal_modes curr_mode = calibration.cal_mode;
   e_cal_steps curr_step = calibration.cal_step;
@@ -502,7 +512,7 @@ void cal_key(int sym, int down)
         if (curr_mode != MODE_STATUS) {
 
             // Next/Previous handling step
-            cal_handle_steps_change(sym, down);
+            //cal_handle_steps_change(sym, down);
 
             // Menu return handling
             cal_handle_menu_return(sym, down);
@@ -514,7 +524,7 @@ void cal_key(int sym, int down)
     case STEP_2:
 
         // Next/Previous handling step
-        cal_handle_steps_change(sym, down);
+        //cal_handle_steps_change(sym, down);
 
         // Menu return handling
         cal_handle_menu_return(sym, down);
@@ -525,7 +535,7 @@ void cal_key(int sym, int down)
 
     case STEP_3:
         // Next/Previous handling step
-        cal_handle_steps_change(sym, down);
+        //cal_handle_steps_change(sym, down);
 
         // Menu return handling
         cal_handle_menu_return(sym, down);
@@ -695,7 +705,7 @@ void cal_key(int sym, int down)
   }*/
 
   // TODO, update
-  if(prev != current_cal || prev_mode != calibration.cal_mode || prev_step != calibration.cal_step || prev_edit != calibration.is_edit_enabled)
+  if(prev != current_cal || prev_mode != calibration.cal_mode || prev_step != calibration.cal_step)
   {
     if(gimx_params.curses)
     {

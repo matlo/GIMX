@@ -54,7 +54,6 @@ struct gcalibration
     int *config;
     e_cal_steps cal_step;
     e_cal_modes cal_mode;
-    int is_edit_enabled;
     int cal_modes_max_step[4];
 };
 
