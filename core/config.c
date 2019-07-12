@@ -490,7 +490,8 @@ void cfg_process_motion()
     mc->merge[mc->index].y = 0;
     mc->changed = mc->change;
     mc->change = 0;
-    if (i == current_mouse && (current_cal == DZX || current_cal == DZY || current_cal == DZS))
+    int current_cal = calibration_get_current();
+    if (i == calibration_get_mouse() && (current_cal == DZX || current_cal == DZY || current_cal == DZS))
     {
       mc->changed = 0;
     }
@@ -967,10 +968,13 @@ static void mouse2axis1d(int device, s_adapter* controller, const s_mapper * map
   multiplier *= controller_get_axis_scale(controller->ctype, axis);
   dz *= controller_get_axis_scale(controller->ctype, axis);
 
+  int current_cal = calibration_get_current();
+  int mouse = calibration_get_mouse();
+
   if(which == AXIS_X)
   {
     val = motion->x;
-    if(device == current_mouse && current_cal == DZX)
+    if(device == mouse && current_cal == DZX)
     {
       controller->axis[axis] = copysign(dz, val);
       mc->residue.x = 0;
@@ -981,7 +985,7 @@ static void mouse2axis1d(int device, s_adapter* controller, const s_mapper * map
   else if(which == AXIS_Y)
   {
     val = motion->y;
-    if(device == current_mouse && current_cal == DZY)
+    if(device == mouse && current_cal == DZY)
     {
       controller->axis[axis] = copysign(dz, val);
       mc->residue.y = 0;
@@ -1154,8 +1158,10 @@ void update_residue(double axis_scale, const s_mapper * mapper_x, const s_mapper
 
 static int calibrate_dead_zone(int device, int * axis_x, int * axis_y, s_vector * dead_zones, s_mouse_control * mc)
 {
-  if(device == current_mouse)
+  if(device == calibration_get_mouse())
   {
+    int current_cal = calibration_get_current();
+
     if (current_cal == DZX)
     {
       *axis_x = dead_zones->x;
@@ -1682,7 +1688,7 @@ void cfg_read_calibration()
   s_mouse_cal* mcal;
   int found;
 
-  current_mouse = -1;
+  int mouse = -1;
 
   for(i=0; i<MAX_DEVICES; ++i)
   {
@@ -1699,9 +1705,9 @@ void cfg_read_calibration()
         }*/
         for(p_mapper = table->mappers; p_mapper && p_mapper<table->mappers+table->nb_mappers; p_mapper++)
         {
-          if(current_mouse < 0)
+          if(mouse < 0)
           {
-            current_mouse = i;
+              mouse = i;
           }
           if(p_mapper->axis == 0)
           {
@@ -1728,10 +1734,7 @@ void cfg_read_calibration()
     }
   }
 
-  if(current_mouse < 0)
-  {
-    current_mouse = 0;
-  }
+  calibration_set_mouse(mouse < 0 ? 0 : mouse);
 }
 
 void cfg_pair_mouse_mappers()

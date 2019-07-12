@@ -58,7 +58,7 @@ struct gwindow
         int x;
         int y;
     } size;
-    bool use_border;
+    int use_border;
     WINDOW* window_handle;
     void (*draw)(struct gwindow *, struct gcalibration * ) ; // function drawing stuff inside the window
 };
@@ -97,12 +97,12 @@ static void draw_statuses(struct gcalibration *calibration) {
 
     //mvprintw(LINES-2, 1, "Edit mode: %s (Press F1 to change)", editModeStringMap[calibration->isEditEnabled]);
     mvprintw(LINES - 2, 1, "Prev. Parameter (F1) | Next Parameter (F2)");
-    mvprintw(LINES - 1, 1, "Current calibration mode: %s", modes_string_map[calibration->cal_mode]);
+    mvprintw(LINES - 1, 1, "Current calibration mode: %s", modes_string_map[calibration->mode]);
 
     // Starts from right bottom
-    mvprintw(LINES - 1, COLS - step_text_len - 1, "Current step: %d of %d", (calibration->cal_step) + 1,
-            calibration->cal_modes_max_step[calibration->cal_mode]);
-   // mvprintw(LINES - 2, COLS - next_step_text_len - 1, "Prev. Step (F1) | Next Step (F4)");
+    mvprintw(LINES - 1, COLS - step_text_len - 1, "Current step: %d of %d", (calibration->step) + 1,
+            calibration->cal_modes_max_step[calibration->mode]);
+    //mvprintw(LINES - 2, COLS - next_step_text_len - 1, "Prev. Step (F1) | Next Step (F4)");
 }
 
 static WINDOW* draw_window(int size_y, int size_x, int window_y, int window_x, int use_border) {
@@ -180,14 +180,14 @@ static void draw_step1_profile(struct gwindow *window, struct gcalibration *cali
 
     mvprintw(window->origin.y - 1, window->origin.x + 1, "Current parameter:");
 
-    if (*calibration->current_cal == CC) {
+    if (calibration->current == CC) {
         wattron(window->window_handle, COLOR_PAIR(4));
     }
 
-    mvwprintw(window->window_handle, 1, 1, "Profile: %d  ", *calibration->config);
+    mvwprintw(window->window_handle, 1, 1, "Profile: %d  ", calibration->profile);
     wnoutrefresh(window->window_handle);
 
-    if (*calibration->current_cal == CC) {
+    if (calibration->current == CC) {
         wattron(window->window_handle, COLOR_PAIR(1));
     }
 
@@ -220,14 +220,14 @@ static void draw_step2_sensitivity(struct gwindow *window, struct gcalibration *
     // TODO: HANDLE NULL
     mvprintw(window->origin.y - 1, window->origin.x + 1, "Current parameter:");
 
-    if (*calibration->current_cal == MX) {
+    if (calibration->current == MX) {
         wattron(window->window_handle, COLOR_PAIR(4));
     }
 
-    mvwprintw(window->window_handle, 1, 1, "Sensitivity: %.2f ", *calibration->mouse_cal->mx);
+    mvwprintw(window->window_handle, 1, 1, "Sensitivity: %.2f ", *calibration->mouse_data->mx);
     wnoutrefresh(window->window_handle);
 
-    if (*calibration->current_cal == MX) {
+    if (calibration->current == MX) {
         wattron(window->window_handle, COLOR_PAIR(1));
     }
 }
@@ -259,23 +259,23 @@ static void draw_step3_dzx_dzy(struct gwindow *window, struct gcalibration *cali
     // TODO: HANDLE NULL
     mvprintw(window->origin.y - 1, window->origin.x + 1, "Current parameter:");
 
-    if (*calibration->current_cal == DZX) {
+    if (calibration->current == DZX) {
         wattron(window->window_handle, COLOR_PAIR(4));
     }
 
-    mvwprintw(window->window_handle, 1, 1, "DZX: %d ", *calibration->mouse_cal->dzx);
+    mvwprintw(window->window_handle, 1, 1, "DZX: %d ", *calibration->mouse_data->dzx);
 
-    if (*calibration->current_cal == DZX) {
+    if (calibration->current == DZX) {
         wattron(window->window_handle, COLOR_PAIR(1));
     }
 
-    if (*calibration->current_cal == DZY) {
+    if (calibration->current == DZY) {
         wattron(window->window_handle, COLOR_PAIR(4));
     }
 
-    mvwprintw(window->window_handle, 3, 1, "DZY: %d  ", *calibration->mouse_cal->dzy);
+    mvwprintw(window->window_handle, 3, 1, "DZY: %d  ", *calibration->mouse_data->dzy);
 
-    if (*calibration->current_cal == DZY) {
+    if (calibration->current == DZY) {
         wattron(window->window_handle, COLOR_PAIR(1));
     }
 
@@ -321,208 +321,88 @@ static void draw_step3_description_innerdzxdzy(struct gwindow *window,
 #define GUI_TYPICAL_DESCRIPTION_INNER_SIZE_X 44
 #define GUI_TYPICAL_DESCRIPTION_INNER_SIZE_Y 14
 
-struct ggui guid =
+#define PROFILE_STEP \
+{ \
+    .windows = \
+    { \
+        { \
+            .origin = { .x = GUI_TYPICAL_TEXT_ORIGIN_X, .y = GUI_TYPICAL_TEXT_ORIGIN_Y }, \
+            .size = { .x = GUI_TYPICAL_TEXT_SIZE_X, .y = GUI_TYPICAL_TEXT_SIZE_Y }, \
+            .use_border = 1, \
+            .draw = draw_step1_profile \
+        }, \
+        { \
+            .origin = { .x = GUI_TYPICAL_DESCRIPTION_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_ORIGIN_Y }, \
+            .size = { .x = GUI_TYPICAL_DESCRIPTION_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_SIZE_Y }, \
+            .use_border = 1, \
+            .draw = draw_step1_description \
+        }, \
+        { \
+            .origin = { .x = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_Y }, \
+            .size = { .x = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_Y }, \
+            .use_border = 0, \
+            .draw = draw_step1_description_inner_profile \
+        }, \
+    } \
+}
+
+#define SENSITIVITY_STEP \
+{ \
+    .windows = \
+    { \
+        { \
+            .origin = { .x = GUI_TYPICAL_TEXT_ORIGIN_X, .y = GUI_TYPICAL_TEXT_ORIGIN_Y }, \
+            .size = { .x = GUI_TYPICAL_TEXT_SIZE_X, .y = GUI_TYPICAL_TEXT_SIZE_Y }, \
+            .use_border = 1, \
+            .draw = draw_step2_sensitivity \
+        }, \
+        { \
+            .origin = { .x = GUI_TYPICAL_DESCRIPTION_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_ORIGIN_Y }, \
+            .size = { .x = GUI_TYPICAL_DESCRIPTION_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_SIZE_Y }, \
+            .use_border = 1, \
+            .draw = draw_step2_description \
+        }, \
+        { \
+            .origin = { .x = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_Y }, \
+            .size = { .x = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_Y }, \
+            .use_border = 0, \
+            .draw = draw_step2_description_inner_sensitivity \
+        }, \
+    } \
+}
+
+#define DEAD_ZONE_STEP \
+{ \
+     .windows = \
+     { \
+         { \
+             .origin = { .x = GUI_TYPICAL_TEXT_ORIGIN_X, .y = GUI_TYPICAL_TEXT_ORIGIN_Y }, \
+             .size = { .x = GUI_TYPICAL_TEXT_SIZE_X, .y = GUI_TYPICAL_TEXT_SIZE_Y }, \
+             .use_border = 1, \
+             .draw = draw_step3_dzx_dzy \
+         }, \
+         { \
+             .origin = { .x = GUI_TYPICAL_DESCRIPTION_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_ORIGIN_Y }, \
+             .size = { .x = GUI_TYPICAL_DESCRIPTION_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_SIZE_Y }, \
+             .use_border = 1, \
+             .draw = draw_step3_description \
+         }, \
+         { \
+             .origin = { .x = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_Y }, \
+             .size = { .x = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_Y }, \
+             .use_border = 0, \
+             .draw = draw_step3_description_innerdzxdzy \
+         }, \
+    }, \
+},
+
+static struct ggui guid =
 {
     .gmodes =
     {
-            // MODE_BASIC
-        {
-            .steps =
-            {
-                {
-                    .windows =
-                    {
-                        {
-                            .origin = { .x = GUI_TYPICAL_TEXT_ORIGIN_X, .y = GUI_TYPICAL_TEXT_ORIGIN_Y },
-                            .size = { .x = GUI_TYPICAL_TEXT_SIZE_X, .y = GUI_TYPICAL_TEXT_SIZE_Y },
-                            .use_border = 1,
-                            .draw = draw_step1_profile
-                        },
-                        {
-
-                            .origin = { .x = GUI_TYPICAL_DESCRIPTION_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_ORIGIN_Y },
-                            .size = { .x = GUI_TYPICAL_DESCRIPTION_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_SIZE_Y },
-                            .use_border = 1,
-                            .draw = draw_step1_description
-                        },
-                        {
-
-                            .origin = { .x = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_Y },
-                            .size = { .x = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_Y },
-                            .use_border = 0,
-                            .draw = draw_step1_description_inner_profile
-                        },
-
-                    },
-                },
-                {
-                    .windows =
-                    {
-                        {
-                            .origin = { .x = GUI_TYPICAL_TEXT_ORIGIN_X, .y = GUI_TYPICAL_TEXT_ORIGIN_Y },
-                            .size = { .x = GUI_TYPICAL_TEXT_SIZE_X, .y = GUI_TYPICAL_TEXT_SIZE_Y },
-                            .use_border = 1,
-                            .draw = draw_step2_sensitivity
-                        },
-                        {
-
-                            .origin = { .x = GUI_TYPICAL_DESCRIPTION_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_ORIGIN_Y },
-                            .size = { .x = GUI_TYPICAL_DESCRIPTION_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_SIZE_Y },
-                            .use_border = 1,
-                            .draw = draw_step2_description
-                        },
-                        {
-
-                            .origin = { .x = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_Y },
-                            .size = { .x = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_Y },
-                            .use_border = 0,
-                            .draw = draw_step2_description_inner_sensitivity
-                        },
-
-                    },
-                 },
-            },
-        },
-        {    // MODE_ADVANCED
-            .steps =
-            {
-                {
-                    .windows =
-                    {
-                        {
-                            .origin = { .x = GUI_TYPICAL_TEXT_ORIGIN_X, .y = GUI_TYPICAL_TEXT_ORIGIN_Y },
-                            .size = { .x = GUI_TYPICAL_TEXT_SIZE_X, .y = GUI_TYPICAL_TEXT_SIZE_Y },
-                            .use_border = 1,
-                            .draw = draw_step1_profile
-                        },
-                        {
-
-                            .origin = { .x = GUI_TYPICAL_DESCRIPTION_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_ORIGIN_Y },
-                            .size = { .x = GUI_TYPICAL_DESCRIPTION_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_SIZE_Y },
-                            .use_border = 1,
-                            .draw = draw_step1_description
-                        },
-                        {
-
-                            .origin = { .x = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_Y },
-                            .size = { .x = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_Y },
-                            .use_border = 0,
-                            .draw = draw_step1_description_inner_profile
-                        },
-
-                    },
-                },
-                {
-                    .windows =
-                    {
-                        {
-                            .origin = { .x = GUI_TYPICAL_TEXT_ORIGIN_X, .y = GUI_TYPICAL_TEXT_ORIGIN_Y },
-                            .size = { .x = GUI_TYPICAL_TEXT_SIZE_X, .y = GUI_TYPICAL_TEXT_SIZE_Y },
-                            .use_border = 1,
-                            .draw = draw_step2_sensitivity
-                        },
-                        {
-
-                            .origin = { .x = GUI_TYPICAL_DESCRIPTION_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_ORIGIN_Y },
-                            .size = { .x = GUI_TYPICAL_DESCRIPTION_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_SIZE_Y },
-                            .use_border = 1,
-                            .draw = draw_step2_description
-                        },
-                        {
-
-                            .origin = { .x = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_Y },
-                            .size = { .x = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_Y },
-                            .use_border = 0,
-                            .draw = draw_step2_description_inner_sensitivity
-                        },
-
-                    },
-                 },
-                 {
-                     .windows =
-                     {
-                         {
-                             .origin = { .x = GUI_TYPICAL_TEXT_ORIGIN_X, .y = GUI_TYPICAL_TEXT_ORIGIN_Y },
-                             .size = { .x = GUI_TYPICAL_TEXT_SIZE_X, .y = GUI_TYPICAL_TEXT_SIZE_Y },
-                             .use_border = 1,
-                             .draw = draw_step3_dzx_dzy
-                         },
-                         {
-
-                             .origin = { .x = GUI_TYPICAL_DESCRIPTION_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_ORIGIN_Y },
-                             .size = { .x = GUI_TYPICAL_DESCRIPTION_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_SIZE_Y },
-                             .use_border = 1,
-                             .draw = draw_step3_description
-                         },
-                         {
-
-                             .origin = { .x = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_Y },
-                             .size = { .x = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_Y },
-                             .use_border = 0,
-                             .draw = draw_step3_description_innerdzxdzy
-                         },
-
-                    },
-                 },
-            },
-        },
-        {    // MODE_EXPERT
-            .steps =
-            {
-                {
-                    .windows =
-                    {
-                        {
-                            .origin = { .x = GUI_TYPICAL_TEXT_ORIGIN_X, .y = GUI_TYPICAL_TEXT_ORIGIN_Y },
-                            .size = { .x = GUI_TYPICAL_TEXT_SIZE_X, .y = GUI_TYPICAL_TEXT_SIZE_Y },
-                            .use_border = 1,
-                            .draw = draw_step1_profile
-                        },
-                        {
-
-                            .origin = { .x = GUI_TYPICAL_DESCRIPTION_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_ORIGIN_Y },
-                            .size = { .x = GUI_TYPICAL_DESCRIPTION_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_SIZE_Y },
-                            .use_border = 1,
-                            .draw = draw_step1_description
-                        },
-                        {
-
-                            .origin = { .x = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_Y },
-                            .size = { .x = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_Y },
-                            .use_border = 0,
-                            .draw = draw_step1_description_inner_profile
-                        },
-
-                    },
-                },
-                {
-                    .windows =
-                    {
-                        {
-                            .origin = { .x = GUI_TYPICAL_TEXT_ORIGIN_X, .y = GUI_TYPICAL_TEXT_ORIGIN_Y },
-                            .size = { .x = GUI_TYPICAL_TEXT_SIZE_X, .y = GUI_TYPICAL_TEXT_SIZE_Y },
-                            .use_border = 1,
-                            .draw = draw_step2_sensitivity
-                        },
-                        {
-
-                            .origin = { .x = GUI_TYPICAL_DESCRIPTION_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_ORIGIN_Y },
-                            .size = { .x = GUI_TYPICAL_DESCRIPTION_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_SIZE_Y },
-                            .use_border = 1,
-                            .draw = draw_step2_description
-                        },
-                        {
-
-                            .origin = { .x = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_ORIGIN_Y },
-                            .size = { .x = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_X, .y = GUI_TYPICAL_DESCRIPTION_INNER_SIZE_Y },
-                            .use_border = 0,
-                            .draw = draw_step2_description_inner_sensitivity
-                        },
-
-                    },
-                 },
-            },
-        },
+        { .steps = { PROFILE_STEP, SENSITIVITY_STEP }, }, // basic mode
+        { .steps = { PROFILE_STEP, SENSITIVITY_STEP, DEAD_ZONE_STEP }, /* TODO */ }, // advanced mode
+        { .steps = { PROFILE_STEP, SENSITIVITY_STEP, DEAD_ZONE_STEP }, /* TODO */ }, // expert mode
         {    // MODE_STATUS
             .steps =
             {
@@ -537,28 +417,24 @@ struct ggui guid =
                             .draw = draw_status_title
                         },
                         {
-
                             .origin = { .x = 0, .y = 6 },
                             .size = { .x = 28, .y = 10 },
                             .use_border = 1,
                             .draw = draw_status_menu
                         },
                         {
-
                             .origin = { .x = 34, .y = 6 },
                             .size = { .x = 46, .y = 15 },
                             .use_border = 1,
                             .draw = draw_status_description
                         },
                         {
-
                             .origin = { .x = 35, .y = 7 },
                             .size = { .x = 44, .y = 13 },
                             .use_border = 0,
                             .draw = draw_status_description_inner
                         },
                         {
-
                             .origin = { .x = 1, .y = 21 },
                             .size = { .x = 30, .y = 3 },
                             .use_border = 0,
@@ -582,7 +458,7 @@ static int cross[2][2] = { {STICK_X_L / 2, STICK_Y_L / 2}, {STICK_X_L / 2, STICK
 
 void display_refresh(struct gcalibration *calibration) {
     // If mode or step were switched
-    if (prev_mode != calibration->cal_mode || prev_step != calibration->cal_step) {
+    if (prev_mode != calibration->mode || prev_step != calibration->step) {
         // Clear windows from previous mode to prevent memory leak
         for (int i = 0; i < GWINDOWS_MAX; i++) {
 
@@ -592,15 +468,15 @@ void display_refresh(struct gcalibration *calibration) {
             }
         }
 
-        prev_mode = calibration->cal_mode;
-        prev_step = calibration->cal_step;
+        prev_mode = calibration->mode;
+        prev_step = calibration->step;
     }
 
     // Clear windows from current mode to allow redraw
     for (int i = 0; i < GWINDOWS_MAX; i++) {
-        if (guid.gmodes[calibration->cal_mode].steps[calibration->cal_step].windows[i].window_handle != NULL) {
+        if (guid.gmodes[calibration->mode].steps[calibration->step].windows[i].window_handle != NULL) {
 
-            delwin(guid.gmodes[calibration->cal_mode].steps[calibration->cal_step].windows[i].window_handle);
+            delwin(guid.gmodes[calibration->mode].steps[calibration->step].windows[i].window_handle);
             guid.gmodes[prev_mode].steps[prev_step].windows[i].window_handle = NULL;
         }
     }
@@ -615,12 +491,12 @@ void display_calibration(struct gcalibration *calibration) {
     display_refresh(calibration);
 
     // Display curr step/mode/editMode on every mode except initial screen
-    if (calibration->cal_mode != MODE_STATUS)
+    if (calibration->mode != MODE_STATUS)
         draw_statuses(calibration);
 
     // Step through every window and execute draw function
     for (int i = 0; i < GWINDOWS_MAX; i++) {
-        struct gwindow *curr_window = &guid.gmodes[calibration->cal_mode].steps[calibration->cal_step].windows[i];
+        struct gwindow *curr_window = &guid.gmodes[calibration->mode].steps[calibration->step].windows[i];
 
         // Check if window element is empty, newwin would crash on empty
         if (curr_window->size.x != 0 && curr_window->size.y != 0)
@@ -654,7 +530,7 @@ void display_calibration(struct gcalibration *calibration) {
     }*/
   //mvprintw(LINES-2, 1, "TEST x: %d", *calibration->mouse_cal->dzx);
 
-  /*if(*calibration->current_cal == NONE)
+  /*if(calibration->current_cal == NONE)
   {
     mvaddstr(CAL_Y_P, CAL_X_P + 1, _("Mouse calibration (Ctrl+F1 to edit)"));
   }
@@ -667,31 +543,31 @@ void display_calibration(struct gcalibration *calibration) {
   if(ginput_get_mk_mode() == GE_MK_MODE_MULTIPLE_INPUTS)
   {
     waddstr(wcal, "Mouse:");
-    if(*calibration->current_cal == MC)
+    if(calibration->current_cal == MC)
     {
       wattron(wcal, COLOR_PAIR(4));
     }
     snprintf(line, COLS, " %s (%d) (F1) ", ginput_mouse_name(*calibration->mouse), ginput_mouse_virtual_id(*calibration->mouse));
     waddstr(wcal, line);
-    if(*calibration->current_cal == MC)
+    if(calibration->current_cal == MC)
     {
       wattron(wcal, COLOR_PAIR(1));
     }
   }
   waddstr(wcal, _("Profile:"));
-  if(*calibration->current_cal == CC)
+  if(calibration->current_cal == CC)
   {
     wattron(wcal, COLOR_PAIR(4));
   }
   snprintf(line, COLS, " %d (F2)", *calibration->config + 1);
   waddstr(wcal, line);
-  if(*calibration->current_cal == CC)
+  if(calibration->current_cal == CC)
   {
     wattron(wcal, COLOR_PAIR(1));
   }
   wclrtoeol(wcal);
   mvwaddstr(wcal, 2, 1, _("Dead zone:"));
-  if(*calibration->current_cal == DZX)
+  if(calibration->current_cal == DZX)
   {
     wattron(wcal, COLOR_PAIR(4));
   }
@@ -706,11 +582,11 @@ void display_calibration(struct gcalibration *calibration) {
     waddstr(wcal, _("N/A"));
   }
   waddstr(wcal, " (F3)");
-  if(*calibration->current_cal == DZX)
+  if(calibration->current_cal == DZX)
   {
     wattron(wcal, COLOR_PAIR(1));
   }
-  if(*calibration->current_cal == DZY)
+  if(calibration->current_cal == DZY)
   {
     wattron(wcal, COLOR_PAIR(4));
   }
@@ -725,11 +601,11 @@ void display_calibration(struct gcalibration *calibration) {
     waddstr(wcal, _("N/A"));
   }
   waddstr(wcal, " (F4)");
-  if(*calibration->current_cal == DZY)
+  if(calibration->current_cal == DZY)
   {
     wattron(wcal, COLOR_PAIR(1));
   }
-  if(*calibration->current_cal == DZS)
+  if(calibration->current_cal == DZS)
   {
     wattron(wcal, COLOR_PAIR(4));
   }
@@ -750,22 +626,22 @@ void display_calibration(struct gcalibration *calibration) {
     waddstr(wcal, _(" N/A"));
   }
   waddstr(wcal, " (F5)");
-  if(*calibration->current_cal == DZS)
+  if(calibration->current_cal == DZS)
   {
     wattron(wcal, COLOR_PAIR(1));
   }
   wclrtoeol(wcal);
   mvwaddstr(wcal, 3, 1, _("Acceleration:"));
-  if(*calibration->current_cal == TEST)
+  if(calibration->current_cal == TEST)
   {
     wattron(wcal, COLOR_PAIR(4));
   }
   waddstr(wcal, _(" test (F6)"));
-  if(*calibration->current_cal == TEST)
+  if(calibration->current_cal == TEST)
   {
     wattron(wcal, COLOR_PAIR(1));
   }
-  if(*calibration->current_cal == EX)
+  if(calibration->current_cal == EX)
   {
     wattron(wcal, COLOR_PAIR(4));
   }
@@ -780,11 +656,11 @@ void display_calibration(struct gcalibration *calibration) {
     waddstr(wcal, _("N/A"));
   }
   waddstr(wcal, " (F7)");
-  if(*calibration->current_cal == EX)
+  if(calibration->current_cal == EX)
   {
     wattron(wcal, COLOR_PAIR(1));
   }
-  if(*calibration->current_cal == EY)
+  if(calibration->current_cal == EY)
   {
     wattron(wcal, COLOR_PAIR(4));
   }
@@ -799,13 +675,13 @@ void display_calibration(struct gcalibration *calibration) {
     waddstr(wcal, _("N/A"));
   }
   waddstr(wcal, " (F8)");
-  if(*calibration->current_cal == EY)
+  if(calibration->current_cal == EY)
   {
     wattron(wcal, COLOR_PAIR(1));
   }
   wclrtoeol(wcal);
   mvwaddstr(wcal, 4, 1, _("Sensitivity:"));
-  if(*calibration->current_cal == MX)
+  if(calibration->current_cal == MX)
   {
     wattron(wcal, COLOR_PAIR(4));
   }
@@ -819,44 +695,44 @@ void display_calibration(struct gcalibration *calibration) {
     waddstr(wcal, _(" N/A"));
   }
   waddstr(wcal, " (F9)");
-  if(*calibration->current_cal == MX)
+  if(calibration->current_cal == MX)
   {
     wattron(wcal, COLOR_PAIR(1));
   }
   wclrtoeol(wcal);
   mvwaddstr(wcal, 5, 1, "X/Y:");
-  if(*calibration->current_cal == RD || *calibration->current_cal == VEL)
+  if(calibration->current_cal == RD || calibration->current_cal == VEL)
   {
     wattron(wcal, COLOR_PAIR(4));
   }
   waddstr(wcal, _(" circle test"));
-  if(*calibration->current_cal == RD || *calibration->current_cal == VEL)
+  if(calibration->current_cal == RD || calibration->current_cal == VEL)
   {
     wattron(wcal, COLOR_PAIR(1));
   }
   waddstr(wcal, ", ");
-  if(*calibration->current_cal == RD)
+  if(calibration->current_cal == RD)
   {
     wattron(wcal, COLOR_PAIR(4));
   }
   snprintf(line, COLS, _("radius=%d (F10)"), mcal->rd);
   waddstr(wcal, line);
-  if(*calibration->current_cal == RD)
+  if(calibration->current_cal == RD)
   {
     wattron(wcal, COLOR_PAIR(1));
   }
   waddstr(wcal, ", ");
-  if(*calibration->current_cal == VEL)
+  if(calibration->current_cal == VEL)
   {
     wattron(wcal, COLOR_PAIR(4));
   }
   snprintf(line, COLS, _("velocity=%d (F11)"), mcal->vel);
   waddstr(wcal, line);
-  if(*calibration->current_cal == VEL)
+  if(calibration->current_cal == VEL)
   {
     wattron(wcal, COLOR_PAIR(1));
   }
-  if(*calibration->current_cal == MY)
+  if(calibration->current_cal == MY)
   {
     wattron(wcal, COLOR_PAIR(4));
   }
@@ -871,7 +747,7 @@ void display_calibration(struct gcalibration *calibration) {
     waddstr(wcal, _("N/A"));
   }
   waddstr(wcal, " (F12)");
-  if(*calibration->current_cal == MY)
+  if(calibration->current_cal == MY)
   {
     wattron(wcal, COLOR_PAIR(1));
   }

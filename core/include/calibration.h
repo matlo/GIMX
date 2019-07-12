@@ -12,54 +12,46 @@
 #define GWINDOWS_MAX 8
 #define GMODES_MAX 8
 
-typedef enum
-{
-  NONE,
-  MC,
-  CC,
-  MX,
-  MY,
-  DZX,
-  DZY,
-  DZS,
-  RD,
-  VEL,
-  EX,
-  EY,
-  TEST
-}e_current_cal;
+typedef enum {
+    NONE,
+    MC,
+    CC,
+    MX,
+    MY,
+    DZX,
+    DZY,
+    DZS,
+    RD,
+    VEL,
+    EX,
+    EY,
+    TEST
+} e_current_cal;
 
-typedef enum
-{
-	STEP_1,
-	STEP_2,
-	STEP_3,
-	STEP_4,
-	STEP_5
+typedef enum {
+    STEP_1,
+    STEP_2,
+    STEP_3,
+    STEP_4,
+    STEP_5
 } e_cal_steps;
 
-typedef enum
-{
-	MODE_BASIC,
-	MODE_ADVANCED,
-	MODE_EXPERT,
-	MODE_STATUS
+typedef enum {
+    MODE_BASIC,
+    MODE_ADVANCED,
+    MODE_EXPERT,
+    MODE_STATUS
 } e_cal_modes;
 
-struct gcalibration
-{
-    e_current_cal* current_cal;
-    s_mouse_cal* mouse_cal;
-    int *mouse;
-    int *config;
-    e_cal_steps cal_step;
-    e_cal_modes cal_mode;
+struct gcalibration {
+    e_current_cal current;
+    s_mouse_cal* mouse_data;
+    int mouse;
+    int profile;
+    e_cal_steps step;
+    e_cal_modes mode;
     int cal_modes_max_step[4];
 };
-
-extern int current_mouse;
-extern int current_conf;
-extern e_current_cal current_cal;
 
 void cal_status();
 void cal_button(int);
@@ -71,5 +63,9 @@ void cal_init();
 int cal_get_controller(int);
 void cal_set_controller(int, int);
 void calibration_test();
+
+int calibration_get_mouse();
+void calibration_set_mouse(int mouse);
+e_current_cal calibration_get_current();
 
 #endif /* CALIBRATION_H_ */
