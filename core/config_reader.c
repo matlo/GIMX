@@ -688,7 +688,7 @@ static int ProcessTriggerElement(xmlNode * a_node)
     entry.params.trigger.delay = 0;
     GetIntProp(a_node, X_ATTR_DELAY, &entry.params.trigger.delay);
 
-    if(ret != -1)
+    if(ret == 0)
     {
       cfg_set_trigger(&entry);
     }
@@ -711,7 +711,7 @@ static int ProcessUpDownElement(xmlNode * a_node, int* device_type, int* device_
     {
       ret = GetDeviceId(a_node);
 
-      if(ret != -1)
+      if(ret == 0)
       {
         ret = GetEventId(a_node, X_ATTR_BUTTON_ID);
 
@@ -731,7 +731,7 @@ static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity)
   int ret = 0;
   char* shape;
 
-  for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
+  for (cur_node = a_node->children; cur_node && ret == 0; cur_node = cur_node->next)
   {
     if (cur_node->type == XML_ELEMENT_NODE)
     {
@@ -751,7 +751,7 @@ static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity)
     }
   }
 
-  if(ret != -1 && (intensity->down.button != -1 || intensity->up.button != -1))
+  if(ret == 0 && (intensity->down.button != -1 || intensity->up.button != -1))
   {
     ret = GetUnsignedIntProp(a_node, X_ATTR_DEADZONE, &intensity->params.dead_zone);
 
@@ -822,10 +822,13 @@ static int ProcessIntensityListElement(xmlNode * a_node)
         if(axis1 >= 0)
         {
           ret = ProcessIntensityElement(cur_node, &intensity);
-          cfg_set_axis_intensity(&entry, axis1, &intensity);
-          if(axis2 >= 0)
+          if (ret == 0)
           {
-            cfg_set_axis_intensity(&entry, axis2, &intensity);
+            cfg_set_axis_intensity(&entry, axis1, &intensity);
+            if(axis2 >= 0)
+            {
+              cfg_set_axis_intensity(&entry, axis2, &intensity);
+            }
           }
         }
         xmlFree(control);
@@ -880,7 +883,7 @@ static int ProcessMouseOptionsListElement(xmlNode * a_node)
               entry.params.mouse_options.mode = E_MOUSE_MODE_AIMING;
             }
 
-            if(ret != -1)
+            if(ret == 0)
             {
               ret = GetUnsignedIntProp(cur_node, X_ATTR_BUFFERSIZE, &entry.params.mouse_options.buffer_size);
 
@@ -989,7 +992,7 @@ static int ProcessCorrectionElement(xmlNode * a_node)
     ret = -1;
   }
 
-  if(ret != -1)
+  if(ret == 0)
   {
     entry.params.joystick_correction.axis = entry.event.id;
     ret = cfg_add_js_corr(entry.device.id, &entry.params.joystick_correction);
@@ -1087,7 +1090,7 @@ static int ProcessForceFeedbackElement(xmlNode * a_node)
     ret = -1;
   }
 
-  if(ret != -1)
+  if(ret == 0)
   {
     cfg_set_ffb_tweaks(&entry);
     // force FFB selection for 1st profile only
