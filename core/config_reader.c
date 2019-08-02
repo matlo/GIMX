@@ -516,7 +516,7 @@ static int ProcessAxisElement(xmlNode * a_node)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
@@ -524,7 +524,7 @@ static int ProcessAxisElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    gerror("missing device element");
+    gerror("missing device element\n");
     ret = -1;
   }
 
@@ -539,7 +539,7 @@ static int ProcessAxisElement(xmlNode * a_node)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
@@ -547,7 +547,7 @@ static int ProcessAxisElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    gerror("missing event element");
+    gerror("missing event element\n");
     ret = -1;
   }
 
@@ -580,7 +580,7 @@ static int ProcessButtonElement(xmlNode * a_node)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
@@ -588,7 +588,7 @@ static int ProcessButtonElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    gerror("missing device element");
+    gerror("missing device element\n");
     ret = -1;
   }
 
@@ -603,7 +603,7 @@ static int ProcessButtonElement(xmlNode * a_node)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
@@ -611,7 +611,7 @@ static int ProcessButtonElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    gerror("missing event element");
+    gerror("missing event element\n");
     ret = -1;
   }
 
@@ -633,7 +633,7 @@ static int ProcessAxisMapElement(xmlNode * a_node)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
@@ -656,7 +656,7 @@ static int ProcessButtonMapElement(xmlNode * a_node)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
@@ -760,7 +760,7 @@ static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
@@ -972,7 +972,7 @@ static int ProcessCorrectionElement(xmlNode * a_node)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
@@ -980,7 +980,7 @@ static int ProcessCorrectionElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    gerror("missing device element");
+    gerror("missing device element\n");
     ret = -1;
   }
 
@@ -995,7 +995,7 @@ static int ProcessCorrectionElement(xmlNode * a_node)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
@@ -1003,7 +1003,7 @@ static int ProcessCorrectionElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    gerror("missing event element");
+    gerror("missing event element\n");
     ret = -1;
   }
 
@@ -1031,7 +1031,7 @@ static int ProcessJoystickCorrectionsListElement(xmlNode * a_node)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
