@@ -68,11 +68,27 @@ int GetDeviceName(xmlNode* a_node)
 
 static void warnDeviceNotFound()
 {
-  static unsigned char warned[E_DEVICE_TYPE_NB][MAX_DEVICES] = {};
   int type_index = entry.device.type - 1;
-  if(type_index < 0 || type_index >= E_DEVICE_TYPE_NB || warned[type_index][entry.device.id] != 0)
+  if(type_index < 0 || type_index >= E_DEVICE_TYPE_NB)
   {
     return;
+  }
+  static struct {
+      char * name;
+      int id;
+  } warned[E_DEVICE_TYPE_NB][MAX_DEVICES] = {};
+  int i;
+  for (i = 0; i < MAX_DEVICES && warned[type_index][i].name != NULL; ++i)
+  {
+    if (warned[type_index][i].id == entry.device.id && !strcmp(warned[type_index][i].name, r_device_name))
+    {
+      return;
+    }
+  }
+  if (i < MAX_DEVICES)
+  {
+    warned[type_index][i].name = strdup(r_device_name);
+    warned[type_index][i].id = entry.device.id;
   }
   switch(entry.device.type)
   {
@@ -88,7 +104,6 @@ static void warnDeviceNotFound()
   case E_DEVICE_TYPE_UNKNOWN:
     return;
   }
-  warned[type_index][entry.device.id] = 1;
 }
 
 /*
