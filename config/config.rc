@@ -1,7 +1,7 @@
 1 ICON "config.ico"
 1 VERSIONINFO
-FILEVERSION   7,14,0,0
-PRODUCTVERSION  7,14,0,0
+FILEVERSION   7,15,0,0
+PRODUCTVERSION  7,15,0,0
 BEGIN
   BLOCK "StringFileInfo"
   BEGIN
@@ -9,12 +9,12 @@ BEGIN
   BEGIN
     VALUE "CompanyName", "GIMX Labs"
     VALUE "FileDescription", "Config editor for GIMX"
-    VALUE "FileVersion", "7.14"
+    VALUE "FileVersion", "7.15"
     VALUE "InternalName", "gimx-config"
     VALUE "LegalCopyright", "Matlo GNU GPL"
     VALUE "OriginalFilename", "gimx-config.exe"
     VALUE "ProductName", "gimx-config"
-    VALUE "ProductVersion", "7.14"
+    VALUE "ProductVersion", "7.15"
   END
   END
   BLOCK "VarFileInfo"
