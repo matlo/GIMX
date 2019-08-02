@@ -91,6 +91,7 @@ class launcherFrame: public wxFrame
 
         void readHidPorts();
         void readSerialPorts();
+        void readStubs();
         void readConfigs();
         
         void autoConfig();
