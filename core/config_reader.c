@@ -38,6 +38,14 @@ static void reset_entry()
 static char * r_device_name = NULL;
 
 /*
+ * Used to avoid duplicate warning messages about missing devices.
+ */
+static struct {
+    char * name;
+    int id;
+} warned[E_DEVICE_TYPE_NB][MAX_DEVICES] = {};
+
+/*
  * Get the device name and store it into r_device_name.
  * OK, return 0
  * error, return -1
@@ -73,10 +81,6 @@ static void warnDeviceNotFound()
   {
     return;
   }
-  static struct {
-      char * name;
-      int id;
-  } warned[E_DEVICE_TYPE_NB][MAX_DEVICES] = {};
   int i;
   for (i = 0; i < MAX_DEVICES && warned[type_index][i].name != NULL; ++i)
   {
@@ -1333,6 +1337,17 @@ static int read_file(char* file_path)
 
   /*free the document */
   xmlFreeDoc(doc);
+
+  int type, device;
+  for (type = 0; type < E_DEVICE_TYPE_NB; ++type)
+  {
+    for (device = 0; device < MAX_DEVICES && warned[type][device].name != NULL; ++device)
+    {
+      free(warned[type][device].name);
+      warned[type][device].name = NULL;
+      warned[type][device].id = 0;
+    }
+  }
 
   return ret;
 }
