@@ -291,6 +291,7 @@ void grab()
 {
   if(gimx_params.autograb)
   {
+    gimx_params.grab = 0;
     int i;
     for (i = 0; i < MAX_CONTROLLERS; ++i)
     {
