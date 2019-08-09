@@ -17,7 +17,7 @@ LDLIBS += -lws2_32 -lstdc++ -lpdcursesw -lintl
 #LDLIBS:=$(filter-out -mwindows,$(LDLIBS))
 endif
 
-CPPFLAGS += -Iinclude
+CPPFLAGS += -Iinclude -std=c++11
 
 LDFLAGS += $(GIMXINPUT_LDFLAGS)   $(GIMXUSB_LDFLAGS) $(GIMXPOLL_LDFLAGS)
 LDLIBS  += $(GIMXINPUT_LDLIBS)    $(GIMXUSB_LDLIBS)  $(GIMXPOLL_LDLIBS)
