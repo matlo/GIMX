@@ -18,20 +18,17 @@ else
 LDLIBS += -lws2_32 -lstdc++ -lpdcursesw -lintl
 LDLIBS:=$(filter-out -mwindows,$(LDLIBS))
 endif
-LDLIBS += -lgimxinput
-LDFLAGS += -L../shared/gimxinput
-LDLIBS += -lgimxusb
-LDFLAGS += -L../shared/gimxusb
-LDLIBS += -lgimxpoll
-LDFlAGS += -L../shared/gimxpoll
+
+
+LDFLAGS += $(GIMXINPUT_LDFLAGS)   $(GIMXUSB_LDFLAGS) $(GIMXPOLL_LDFLAGS)
+LDLIBS  += $(GIMXINPUT_LDLIBS)    $(GIMXUSB_LDLIBS)  $(GIMXPOLL_LDLIBS)
+LDLIBS  += $(GIMXUPDATER_LDLIBS)  $(GIMXCONFIGUPDATER_LDLIBS)
+LDFLAGS += $(GIMXUPDATER_LDFLAGS) $(GIMXCONFIGUPDATER_LDFLAGS)
+
 
 CPPFLAGS += -Iinclude
 
 OBJECTS := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
-
-LDLIBS += $(GIMXUPDATER_LDLIBS) $(GIMXCONFIGUPDATER_LDLIBS)
-
-LDFLAGS += $(GIMXUPDATER_LDFLAGS) $(GIMXCONFIGUPDATER_LDFLAGS)
 
 all: $(BINS)
 

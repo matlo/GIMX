@@ -51,7 +51,7 @@ int updateProgress_common(ttyProgressDialog* progressDialog, configupdater::Conf
 ConfigDownload::ConfigDownload(WINDOW* win, WinData* win1) : dlWinData(win1)
 {
     setUpDirectories(win);
-    
+
     //Progress dialog
     int height = dlWinData->height;
     int width  = dlWinData->width;
@@ -115,7 +115,7 @@ int ConfigDownload::grabConfigs(std::list<std::string>& configs, WINDOW* screen)
     }
     else
         wprintw(screen, "No configs to download\n");
-    
+
     if(status == configupdater::ConfigUpdaterStatusOk)
         wprintw(screen, "Completed\n");
     else if(status != configupdater::ConfigUpdaterStatusCancelled)
@@ -124,7 +124,7 @@ int ConfigDownload::grabConfigs(std::list<std::string>& configs, WINDOW* screen)
 
     wrefresh(screen);
     wgetch(screen);
-    
+
     return status;
 }
 
@@ -141,7 +141,7 @@ ManualConfigDownload::ManualConfigDownload() : ConfigDownload(stdscr, newWinData
     winData->height -= 1;
     screen       = newwin(winData->height, winData->width, winData->startY, winData->startX);
     winData->win = screen;
-    
+
 //     //Progress dialog
 //     dlWinData->height = 7;
 //     dlWinData->width  = 30;
@@ -150,7 +150,7 @@ ManualConfigDownload::ManualConfigDownload() : ConfigDownload(stdscr, newWinData
 //     dlScreen = newwin(dlWinData->height, dlWinData->width, dlWinData->startY, dlWinData->startX);
 //     dlWinData->win = dlScreen;
 //     progressDialog.reset(new ttyProgressDialog(dlWinData.get(), "Downloading"));
-    
+
     //Help dialog
     helpText = "Press:\n\nESC to exit\nENTER to select\nArrow keys to change selection\n"\
       "Page up and down keys to change page";
@@ -159,23 +159,22 @@ ManualConfigDownload::ManualConfigDownload() : ConfigDownload(stdscr, newWinData
 
 bool ManualConfigDownload::help()
 {
-    BasicMenu helpMenu(helpText, winData.get(), "BasicMenu demo");
+    BasicMenu helpMenu(helpText, winData.get(), "Help menu");
     /*Stylise the menu borders*/
     //				borders => (bool, we, ns)
     helpMenu.setDrawBorder(true, 0, 0);
     flushinp();
-    
+
     mvwprintw(stdscr, winData->height, 0, "Press ESC to exit menu");
     wrefresh(stdscr);
-    
+
     helpMenu.menuLoop();
-    delwin(screen);
-    
+
     wmove(stdscr, winData->height, 0);
     wclrtoeol(stdscr);
     mvwprintw(stdscr, winData->height, 0, "Press h for help");
     wrefresh(stdscr);
-    
+
     return true;
 }
 
@@ -218,11 +217,11 @@ int ManualConfigDownload::chooseConfigs()
         selectionMenu.setCustomAction(std::bind(&ManualConfigDownload::help, this));
         mvwprintw(stdscr, winData->height, 0, help);
         wrefresh(stdscr);
-        
+
         selectionMenu.menuLoop();
         selectionMenu.getResult(chosen);
     }
-    
+
     werase(screen);
 
     std::string sel;
@@ -241,7 +240,7 @@ int ManualConfigDownload::chooseConfigs()
 
             //No
             if(not (c == 121 || c == 89) )
-                continue; 
+                continue;
         }
         selectedConfigs.push_back(sel);
     }
@@ -256,7 +255,7 @@ int ManualConfigDownload::chooseConfigs()
 
 AutoConfigDownload::AutoConfigDownload() : ConfigDownload(stdscr, newWinData(stdscr))
 {
-    
+
 }
 
 int AutoConfigDownload::chooseConfigs()
@@ -325,7 +324,7 @@ int AutoConfigDownload::chooseConfigs()
 #endif
 
     std::list<std::string> download;
-    
+
     for (std::list<std::string>::iterator it = joysticks.begin(); it != joysticks.end(); ++it)
     {
         for (unsigned int i = 0; i < sizeof(configs) / sizeof(*configs); ++i)
@@ -336,8 +335,8 @@ int AutoConfigDownload::chooseConfigs()
             }
         }
     }
-    
+
     grabConfigs(download, dlScreen);
-    
+
     return configupdater::ConfigUpdaterStatusOk;
 }
