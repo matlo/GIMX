@@ -1,4 +1,4 @@
-DIRS = shared utils core config launcher fpsconfig loader
+DIRS = shared utils core config launcher fpsconfig loader fetchconfig
 
 ifneq ($(OS),Windows_NT)
 DIRS+= po
@@ -19,9 +19,10 @@ build-core: build-shared
 build-config: build-shared
 build-launcher: build-shared
 build-fpsconfig: build-shared
+build-fetchconfig: build-shared
 
 clean: $(CLEANDIRS)
-$(CLEANDIRS): 
+$(CLEANDIRS):
 	$(MAKE) -C $(@:clean-%=%) clean
 
 ifeq ($(OS),Windows_NT)
@@ -36,6 +37,7 @@ install: all
 	cp -u -f core/gimx setup/gimx.exe
 	cp -u -f config/gimx-config setup/gimx-config.exe
 	cp -u -f launcher/gimx-launcher setup/gimx-launcher.exe
+	cp -u -f launcher/gimx-launcher setup/gimx-fetchconfig.exe
 	cp -u -f fpsconfig/gimx-fpsconfig setup/gimx-fpsconfig.exe
 	cp -u -f loader/gimx-loader setup/gimx-loader.exe
 	cp -u -f shared/gimxinput/src/windows/gamecontrollerdb.txt setup
