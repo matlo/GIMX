@@ -1,5 +1,6 @@
 DIRS = shared utils core config launcher fpsconfig loader fetchconfig
 
+
 ifneq ($(OS),Windows_NT)
 DIRS+= po
 endif
@@ -26,7 +27,7 @@ $(CLEANDIRS):
 	$(MAKE) -C $(@:clean-%=%) clean
 
 ifeq ($(OS),Windows_NT)
-DLLS = $(shell ntldd -R {core,config,fpsconfig,launcher}/*.exe | grep mingw | sed "s/.*=> //g" | cut -d' ' -f 1 | sed 's/\\/\\\\/g' | xargs cygpath -u | sort | uniq)\
+DLLS = $(shell ntldd -R {core,config,fpsconfig,launcher,fetchconfig}/*.exe | grep mingw | sed "s/.*=> //g" | cut -d' ' -f 1 | sed 's/\\/\\\\/g' | xargs cygpath -u | sort | uniq)\
 	   $(shell ntldd -R shared/*/*.dll | grep mingw | sed "s/.*=> //g" | cut -d' ' -f 1 | sed 's/\\/\\\\/g' | xargs cygpath -u | sort | uniq)
 install: all
 	mkdir -p setup
@@ -37,7 +38,7 @@ install: all
 	cp -u -f core/gimx setup/gimx.exe
 	cp -u -f config/gimx-config setup/gimx-config.exe
 	cp -u -f launcher/gimx-launcher setup/gimx-launcher.exe
-	cp -u -f launcher/gimx-launcher setup/gimx-fetchconfig.exe
+	cp -u -f fetchconfig/gimx-fetchconfig setup/gimx-fetchconfig.exe
 	cp -u -f fpsconfig/gimx-fpsconfig setup/gimx-fpsconfig.exe
 	cp -u -f loader/gimx-loader setup/gimx-loader.exe
 	cp -u -f shared/gimxinput/src/windows/gamecontrollerdb.txt setup
