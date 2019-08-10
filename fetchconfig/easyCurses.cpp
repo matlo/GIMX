@@ -21,14 +21,14 @@ namespace EasyCurses
         int roundN = n;
                 //Subtract round number from float => 2.6 - 2 OR 3.0 - 3
         float decimal = n - roundN;
-        
+
             //Check if decimal is .0 to see if n is an interger
         if(decimal == .0f)
             return roundN;
         else
             return roundN +1;
     }
-    
+
     int centreText(int windowWidth, int textLength)
     {
         //Math works best with even numbers
@@ -65,35 +65,36 @@ namespace EasyCurses
 
     int maxLines(int height, int padding) { return height - (padding *2); }
     int maxChars(int screenWidth, int padding) { return screenWidth - (padding *2); }
-    
+
     namespace TextFormat
     {
         void overflow(std::string text, int maxLength, LineEnds& markers, bool markVirtEnd)
         {
             //Scan to newline, then check if text is too long. If it is, mark a new line
             std::array<int, 2> currentRange = { 1, 0 };
-            int& lineStart = currentRange.front();
-            int& lineEnd   = currentRange.back();
-            
+            size_t lineStart = currentRange.front();
+            size_t lineEnd   = currentRange.back();
+
             auto lineLength = [&] () -> int {
                 return lineEnd - lineStart;
             };
-            auto setVirtEnd = [&] (int& virtualEnd) -> void {
-                virtualEnd = (lineStart + maxLength) -1; //-1 so zero-initialised
+
+            size_t virtEnd;
+            auto setVirtEnd = [&] () -> void {
+                virtEnd = (lineStart + maxLength) -1; //-1 so zero-initialised
             };
-            
+
             markers.clear();
             while(true)
             {
                 lineEnd = text.find("\n", lineStart -1); //-1 to avoid skipping first char
-                
+
                 if(lineEnd == std::string::npos)
                     lineEnd = text.length();
-                
+
                 if(lineLength() > maxLength)
                 {
-                    int virtEnd;
-                    setVirtEnd(virtEnd);
+                    setVirtEnd();
                     while(virtEnd < lineEnd)
                     {
                         int marked = virtEnd;
@@ -101,7 +102,7 @@ namespace EasyCurses
                             marked = -virtEnd; //Mark softwrapping with negative numbers
                         markers.push_back(marked);
                         lineStart = (virtEnd) +1;
-                        setVirtEnd(virtEnd);
+                        setVirtEnd();
                     }
                 }
                 else
@@ -113,17 +114,17 @@ namespace EasyCurses
                 }
             }
         }
-        
-        unsigned isOverflow(LineEnds markers, int index)
+
+        unsigned int isOverflow(LineEnds markers, int index)
         {
             int endPoint = markers[index];
             if(index == 0 && endPoint < 0)
                 return 1;
             else if(index == 0 && endPoint > 0)
                 return 0;
-            
+
             int prevEndPoint = markers[index -1];
-            
+
             if(endPoint < 0)
             {
                 if(prevEndPoint < 0)
@@ -132,10 +133,10 @@ namespace EasyCurses
             }
             else if(prevEndPoint < 0)
                 return 4;
-            
+
             return 0;
         }
-        
+
         void pageFormat(int maxLines, LineEnds markers, TextLayout& pageLayout, TextLayout& overflowLayout)
         {
             int numLines = markers.size();
@@ -144,7 +145,7 @@ namespace EasyCurses
             int endPoint;
             int startOfOverflow;
             bool lastLineOverflowed = false;
-            
+
             auto setEndPoint = [&] (int index) -> void {
                 endPoint = markers[index];
                 if(lastLineOverflowed)
@@ -155,7 +156,7 @@ namespace EasyCurses
                 else if(endPoint < 0)
                     endPoint *= -1;
             };
-            
+
             for(int l = 0; l < numLines; ++l)
             {
                 int res = TF::isOverflow(markers, l);
@@ -184,7 +185,7 @@ namespace EasyCurses
                             lastLineOverflowed = true;
                         break;
                 }
-                
+
                 if(l == ((maxLines * (page +1)) -1) + numLinesSkipped)
                     ++page;
             }
@@ -286,7 +287,7 @@ namespace EasyCurses
         mvwprintw(winData->win, 0, padding, title.c_str());
         wrefresh(winData->win);
     }
-    
+
     void Menus::drawFrame()
     {
         if(winData->drawBorder)
@@ -300,25 +301,25 @@ namespace EasyCurses
         text = lines;
         TF::overflow(lines, _maxChars(), lineFormat);
         numLines    = lineFormat.size();
-        
+
 //         keyBindings = {
 //             { KEY_NPAGE, NavContent::pageUp }, { KEY_PPAGE, NavContent::pageDown },
 //             { 27, NavContent::finish }
 //         }; //27 => ESC
-        
+
         keypad(winData->win, true);
     }
-    
+
     std::map<int, int> BasicMenu::keyBindings = {
         { KEY_NPAGE, NavContent::pageUp }, { KEY_PPAGE, NavContent::pageDown },
         { 27, NavContent::finish }
     }; //27 => ESC
-    
+
     int BasicMenu::getInput()
     {
         return wgetch(winData->win);
     }
-    
+
     int BasicMenu::mapInput(int input)
     {
         auto res = keyBindings.find(input);
@@ -326,31 +327,31 @@ namespace EasyCurses
             return res->second;
         return NavContent::null;
     }
-    
+
 //     void BasicMenu::setKeyBindings(std::map<int, int> newKBs)
 //     {
 //         keyBindings = newKBs;
 //     }
-//     
+//
 //     std::map<int, int>& BasicMenu::getKeyBindings()
 //     {
 //         return keyBindings;
 //     }
-    
+
     void BasicMenu::setCustomAction(F cusAct)
     {
         this->cusAct = cusAct;
     }
-    
+
     BasicMenu::F& BasicMenu::getCustomAction()
     {
         return cusAct;
     }
-    
+
     void BasicMenu::calculatePage(int seek)
     {
         int startPage = page;
-        
+
         switch(seek)
         {
             /*
@@ -365,7 +366,7 @@ namespace EasyCurses
                 else //2nd
                     --page;
                 break;
-                
+
             case NavContent::pageDown:
                 if(page == lastPage() -1) //3rd
                     page = 0;
@@ -375,29 +376,29 @@ namespace EasyCurses
 
             break;
         }
-        
+
         if(startPage != page)
             setUpdate();
     }
-    
+
     void BasicMenu::inputHandling(int& input)
     {
         input = mapInput(getInput());
-        
+
         if(input == NavContent::custom)
         {
             if(cusAct())
                 update();
         }
     }
-    
+
     void BasicMenu::printStyle(int& x, int& y)
     {
         for(int l = pageTop(); l <= pageBottom() && l < numLines; ++l)
         {
             int endPoint  = lineFormat[l]; //-1 so zero-initialised
             int lineStart = (l == 0 ? 0 : lineFormat[l - 1] );
-            
+
             wmove(winData->win, y, x);
             for(int c = lineStart; c < endPoint; ++c)
             {
@@ -408,34 +409,34 @@ namespace EasyCurses
             ++y;
         }
     }
-    
+
     void BasicMenu::drawContent()
-    {        
+    {
         int x, y;
 
         //Start postion of content in window
         x = winData->paddingX;
         y = winData->paddingY;
-        
+
         eraseChunk(winData->win, y, _maxLines() +y, x, _maxChars() +x);
-        
+
         printStyle(x, y);
         wrefresh(winData->win);
     }
-    
+
     void BasicMenu::drawPageNumber()
     {
         mvwprintw(winData->win, winData->height -1, 1, "pg %i / %i", page +1, lastPage());
         wrefresh(winData->win);
     }
-    
+
     bool BasicMenu::doUpdate()
     {
         bool old = changed;
         changed = false;
         return old;
     }
-    
+
     void BasicMenu::update()
     {
         drawContent();
@@ -444,7 +445,7 @@ namespace EasyCurses
         drawTitle();
         wrefresh(winData->win);
     }
-    
+
     void BasicMenu::menuLoop()
     {
         page = 0;
@@ -460,7 +461,7 @@ namespace EasyCurses
                 update();
         } while(input != NavContent::finish);
     }
-    
+
     void BasicMenu::setDrawBorder(bool draw, int bordersWE, int bordersNS)
     {
         winData->drawBorder = draw;
@@ -472,26 +473,26 @@ namespace EasyCurses
     SelectionMenu::SelectionMenu(std::string text, WinData* windowsData, std::string title) : BasicMenu(text, windowsData, title)
     {
         this->text = text;
-        
+
         {
             TF::LineEnds lineFormat;
             TF::overflow(text, _maxChars(), lineFormat, true);
             TF::pageFormat(_maxLines(), lineFormat, pageLayout, overflowLayout);
         }
         numLines = pageLayout.size();
-        
+
         for(int i = 0; i < numLines; ++i)
             selected[i] = false;
-        
+
         keyBindings[KEY_RIGHT] = NavContent::right;
         keyBindings[KEY_LEFT]  = NavContent::left;
         keyBindings[KEY_UP]    = NavContent::lineUp;
         keyBindings[KEY_DOWN]  = NavContent::lineDown;
         keyBindings[10]        = 10;
-        
+
         keypad(winData->win, true);
     }
-    
+
     void SelectionMenu::getResult(std::vector<int>& chosen)
     {
         for(auto option : selected)
@@ -500,13 +501,13 @@ namespace EasyCurses
                 chosen.push_back(option.first);
         }
     }
-    
+
     void SelectionMenu::drawCheckMark(int index, int y)
     {
         mvwprintw(winData->win, y, winData->width -1, (selected[index] ? checkMark : blankMark ).c_str());
         wrefresh(winData->win);
     }
-    
+
     void SelectionMenu::drawAllCheckMarks()
     {
         int y = winData->paddingY;
@@ -516,7 +517,7 @@ namespace EasyCurses
             ++y;
         }
     }
-    
+
     void SelectionMenu::calculatePage(int seek)
     {
         //Deals with page up and down keys
@@ -530,7 +531,7 @@ namespace EasyCurses
 
 
         int startPage = page;
-        
+
         //Check if we need to turn to next page
         //1st case: turn over last page to first, 2nd case: page up/next, 3rd case: turn over first page to last, 4th case: page down/back
         switch(seek)
@@ -538,7 +539,7 @@ namespace EasyCurses
             case NavContent::lineDown:
                 setUpdate();
                 updateLineTrackers(highlight +1);
-                
+
                 if(highlight == numLines) //1st
                 {
                     page = 0;
@@ -557,7 +558,7 @@ namespace EasyCurses
             case NavContent::lineUp:
                 setUpdate();
                 updateLineTrackers(highlight -1);
-                
+
                 if(highlight == -1) //3rd
                 {
                     page = lastPage() -1;
@@ -573,17 +574,17 @@ namespace EasyCurses
 
                 break;
         }
-        
+
         if(startPage != page)
             setUpdate();
     }
-    
+
     void SelectionMenu::navTrunc(int input)
     {
         if(overflowLine == overflowLayout.end())
             return;
-        
-        
+
+
         bool changed = false;
 
         TF::TextLayout::iterator first, last;
@@ -593,7 +594,7 @@ namespace EasyCurses
             last   = range.second;
             --last;
         }
-        
+
         switch(input)
         {
         case NavContent::left:
@@ -612,12 +613,12 @@ namespace EasyCurses
             }
             break;
         }
-        
+
         if(changed)
         {
             eraseChunk(winData->win, currentLine(), winData->paddingX, _maxChars());
             wattron(winData->win, A_REVERSE);
-            
+
             int lineStart;
             if(overflowLine == first)
             {
@@ -652,7 +653,7 @@ namespace EasyCurses
 
         wrefresh(winData->win);
     }
-    
+
     void SelectionMenu::inputHandling(int& input)
     {
         BasicMenu::inputHandling(input);
@@ -681,22 +682,22 @@ namespace EasyCurses
                 return;
         }
     }
-    
+
     void SelectionMenu::drawFrame()
     {
         BasicMenu::drawFrame();
-        
+
         drawAllCheckMarks();
         wrefresh(winData->win);
     }
-    
+
     void SelectionMenu::update()
     {
         BasicMenu::update();
 
         drawAllCheckMarks();
     }
-    
+
     void SelectionMenu::menuLoop(int startChoice)
     {
         updateLineTrackers(startChoice);
@@ -707,7 +708,7 @@ namespace EasyCurses
     void SelectionMenu::printStyle(int& x, int& y)
     {
         auto range = pageLayout.equal_range(page);
-        
+
         {
             int l = 0;
             int endPoint;
@@ -731,13 +732,13 @@ namespace EasyCurses
                     --temp;
                     lineStart = temp->second;
                 }
-                
+
                 wmove(winData->win, y, x);
                 for(int c = lineStart; c < endPoint; ++c)
                 {
                     if(text.compare(c, 1, "\n") == 0)
                         continue;
-                    
+
                     //Highlight the present choice
                     if(highlight == l + (_maxLines() * page))
                     {
@@ -750,7 +751,7 @@ namespace EasyCurses
                         waddch(winData->win, text[c]);
                     }
                 }
-                
+
                 ++y;
                 ++l;
                 lineStart = endPoint;
@@ -762,7 +763,7 @@ namespace EasyCurses
 //Dialogs
 
     ttyProgressDialog::ttyProgressDialog(WinData* windowsData, std::string title, std::string mssg)\
-      : Menus(windowsData, title), pBar(windowsData->win, 0, 0, 0), message(mssg), progInfo("")
+      : Menus(windowsData, title), pBar(windowsData->win, 0, 0, 0)
     {
         //+2 to have space between eta data and message
         progInfoPosY = winData->paddingY +2;
@@ -770,6 +771,10 @@ namespace EasyCurses
 
         pBarPosY = progInfoPosY +1;
         pBarPosX = progInfoPosX;
+
+        message = mssg;
+
+        progInfo = "";
     }
 
     void ttyProgressDialog::setDrawBorder(bool draw, int bordersWE, int bordersNS)
@@ -822,4 +827,3 @@ namespace EasyCurses
     }
 
 }
-

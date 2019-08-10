@@ -27,55 +27,55 @@ namespace EasyCurses
 //Miscellaneous
 
     int roundUp(float n);
-    
+
     int centreText(int windowWidth, int textLength);
-    
+
     std::string fillString(int textLength, char filler=' ');
-    
+
     void clrToEolFrom(WINDOW* win, int y, int x);
-    
+
         //Overwrites with " "
     void eraseChunk(WINDOW* win, int y, int x, int amount);
     void eraseChunk(WINDOW* win, int startY, int endY, int startX, int endX);
-    
+
     int maxLines(int height, int padding=0);
-    
+
     int maxChars(int screenWidth, int padding=0);
-    
+
     namespace TextFormat
     {
         /* Example of text handling:
-         * 
+         *
          * Original text:
          *   "camp\nsome really long text\nwork"
-         * 
+         *
          * Formatting information:
-         * 
+         *
          *   page = 0
          *     <-------------screen width------------>   <---------overflow-------->
          *     00|01|02|03|04|05|06|07|08|09|10|11|12|   |13|14|15|16|17|18|19|20|21|
          *   0| c| a| m| p|\n|  |  |  |  |  |  |  |  |   |  |  |  |  |  |  |  |  |  |
          *   1| s| o| m| e|  | r| e| a| l| l| y|  | l|   | o| n| g|  | t| e| x| t|\n|
          *   2| w| o| r| k|  |  |  |  |  |  |  |  |  |   |  |  |  |  |  |  |  |  |  |
-         * 
-         * 
+         *
+         *
          *   pageLayout = { [0] = 4, [0] = 18, [0] = -31  }
          *     => -31 denotes the previous line was the end of an overflowing line. Negating it
          *        denotes this whilst still storing the end of line, to preserve patterns
          *        dependent on indexes.
-         * 
+         *
          *   overflowLayout = { [1] = 18, [1] = 26 }
          */
-        
+
         /*
          * Existing newlines must still be filtered as this function only marks the end of lines.
          * Must also be recalculated at every screen resize
          */
-        
+
         //This records the position of each line's end, including those marked by virtual "/n". It must be updated with each screen resize
         typedef std::vector<int> LineEnds;
         typedef std::multimap<int, int> TextLayout;
-        
+
         void overflow(std::string text, int maxLength, LineEnds& markers, bool markVirtEnd=false);
         /*
          * Return 1 if on the first line, and the 'endPoint' is negative.
@@ -143,7 +143,7 @@ namespace EasyCurses
     WinData* newWinData(WINDOW* window, int height=0, int width=0, int startY=0, int startX=0, int padY=2, int padX=2, \
       bool drawBorder=true, int bordersWE=0, int bordersNS=0);
 
-    
+
     class Menus
     {
     protected:
@@ -178,7 +178,7 @@ namespace EasyCurses
         static const int finish   = 7;
         static const int custom   = 8;
     };
-    
+
     class BasicMenu : public Menus
     {
     protected:
@@ -187,14 +187,14 @@ namespace EasyCurses
             *   - WinData* winData
             *   - std::string title
             */
-        
+
         //Input
         typedef std::function<bool(void)> F;
         F cusAct;
         int getInput();
         int mapInput(int input);
         virtual void inputHandling(int& input);
-        
+
         //Text formatting
         int page, numLines;
         std::string text;
@@ -204,7 +204,7 @@ namespace EasyCurses
         int pageBottom() { return ( (page +1) * (_maxLines()) ) -1; } //page is zero-initialised, so +1.
                                                                     //-1 as result is a line number - which is zero-initialised.
         int lastPage()   { return roundUp( float(numLines) / float(_maxLines()) ); }
-        
+
             //Text painting
         virtual void calculatePage(int seek);
         virtual void printStyle(int& x, int& y); //Only to be used by drawContent
@@ -217,17 +217,17 @@ namespace EasyCurses
         void setUpdate() { changed = true; }
         bool doUpdate();
         virtual void update();
-            
+
     private:
         //Text formatting
         TF::LineEnds lineFormat;
-        
+
     public:
         BasicMenu(std::string text, WinData* windowsData, std::string title="Please chosen an option");
         virtual ~BasicMenu() { }
 
         virtual void menuLoop();
-        
+
         virtual void setDrawBorder(bool draw=true, int bordersWE=0, int bordersNS=0);
 
         static std::map<int, int> keyBindings;
@@ -248,7 +248,7 @@ namespace EasyCurses
          *   - int page, numLines
          *   - std::string text
          */
-        
+
         //Input
         std::map<int,bool> selected;
         virtual void inputHandling(int& input) override;
@@ -265,7 +265,7 @@ namespace EasyCurses
 
             //Common math
         int currentLine() { return (highlight + winData->paddingY) - (_maxLines() * page); }
-        
+
             //Text painting
         virtual void calculatePage(int seek) override;
         virtual void printStyle(int& x, int& y) override; //Only to be used by drawContent
@@ -273,7 +273,7 @@ namespace EasyCurses
         void drawCheckMark(int index, int y);
         void drawAllCheckMarks();
         void navTrunc(int input);
-        
+
         //Update
         virtual void update() override;
         void updateLineTrackers(int n) { highlight = n; overflowLine = overflowLayout.find(highlight); }
@@ -291,13 +291,13 @@ namespace EasyCurses
     class ttyProgressDialog : public Menus
     {
     private:
+        ProgressBar pBar;
+        unsigned int progInfoPosY, progInfoPosX;
+        unsigned int pBarPosY, pBarPosX;
+
         std::string message;
 
-        int progInfoPosY, progInfoPosX;
-        int pBarPosY, pBarPosX;
-
         std::string progInfo;
-        ProgressBar pBar;
 
     public:
         ttyProgressDialog(WinData* windowsData, std::string title="Progress", std::string mssg="");
