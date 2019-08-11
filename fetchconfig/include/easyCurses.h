@@ -166,17 +166,10 @@ namespace EasyCurses
     };
 
 
-    struct NavContent
+    enum class NavContent
     {
-        static const int null     = 0;
-        static const int left     = 1;
-        static const int right    = 2;
-        static const int lineUp   = 3;
-        static const int lineDown = 4;
-        static const int pageUp   = 5;
-        static const int pageDown = 6;
-        static const int finish   = 7;
-        static const int custom   = 8;
+        null, left, right, lineUp, lineDown, pageUp, pageDown, select,
+        finish, custom
     };
 
     class BasicMenu : public Menus
@@ -192,8 +185,8 @@ namespace EasyCurses
         typedef std::function<bool(void)> F;
         F cusAct;
         int getInput();
-        int mapInput(int input);
-        virtual void inputHandling(int& input);
+        NavContent mapInput(int rawInput);
+        virtual void inputHandling(NavContent& input);
 
         //Text formatting
         int page, numLines;
@@ -206,7 +199,7 @@ namespace EasyCurses
         int lastPage()   { return roundUp( float(numLines) / float(_maxLines()) ); }
 
             //Text painting
-        virtual void calculatePage(int seek);
+        virtual void calculatePage(NavContent seek);
         virtual void printStyle(int& x, int& y); //Only to be used by drawContent
         virtual void drawContent();
         virtual void drawPageNumber(); //Only to be used by update and drawFrame
@@ -230,7 +223,7 @@ namespace EasyCurses
 
         virtual void setDrawBorder(bool draw=true, int bordersWE=0, int bordersNS=0);
 
-        static std::map<int, int> keyBindings;
+        static std::map<int, NavContent> keyBindings;
         void setCustomAction(F cusAct);
         F& getCustomAction();
     };
@@ -251,7 +244,7 @@ namespace EasyCurses
 
         //Input
         std::map<int,bool> selected;
-        virtual void inputHandling(int& input) override;
+        virtual void inputHandling(NavContent& input) override;
 
         //Text formatting
         std::string checkMark = "X";
@@ -267,12 +260,12 @@ namespace EasyCurses
         int currentLine() { return (highlight + winData->paddingY) - (_maxLines() * page); }
 
             //Text painting
-        virtual void calculatePage(int seek) override;
+        virtual void calculatePage(NavContent seek) override;
         virtual void printStyle(int& x, int& y) override; //Only to be used by drawContent
         virtual void drawFrame() override;
         void drawCheckMark(int index, int y);
         void drawAllCheckMarks();
-        void navTrunc(int input);
+        void navTrunc(NavContent input);
 
         //Update
         virtual void update() override;

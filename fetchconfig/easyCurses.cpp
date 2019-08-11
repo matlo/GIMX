@@ -303,9 +303,13 @@ namespace EasyCurses
         numLines    = lineFormat.size();
 
         keypad(winData->win, true);
+
+        this->cusAct = [](void) -> bool {
+            return false;
+        };
     }
 
-    std::map<int, int> BasicMenu::keyBindings = {
+    std::map<int, NavContent> BasicMenu::keyBindings = {
         { KEY_NPAGE, NavContent::pageUp }, { KEY_PPAGE, NavContent::pageDown },
         { 27, NavContent::finish }
     }; //27 => ESC
@@ -315,9 +319,9 @@ namespace EasyCurses
         return wgetch(winData->win);
     }
 
-    int BasicMenu::mapInput(int input)
+    NavContent BasicMenu::mapInput(int rawInput)
     {
-        auto res = keyBindings.find(input);
+        auto res = keyBindings.find(rawInput);
         if(res != keyBindings.end())
             return res->second;
         return NavContent::null;
@@ -333,7 +337,7 @@ namespace EasyCurses
         return cusAct;
     }
 
-    void BasicMenu::calculatePage(int seek)
+    void BasicMenu::calculatePage(NavContent seek)
     {
         int startPage = page;
 
@@ -358,15 +362,15 @@ namespace EasyCurses
                 else //4th
                     ++page;
                 break;
-
-            break;
+            default:
+                break;
         }
 
         if(startPage != page)
             setUpdate();
     }
 
-    void BasicMenu::inputHandling(int& input)
+    void BasicMenu::inputHandling(NavContent& input)
     {
         input = mapInput(getInput());
 
@@ -437,7 +441,7 @@ namespace EasyCurses
         update();
         wrefresh(winData->win);
 
-        int input = NavContent::null;
+        NavContent input = NavContent::null;
         do
         {
             inputHandling(input);
@@ -473,7 +477,7 @@ namespace EasyCurses
         keyBindings[KEY_LEFT]  = NavContent::left;
         keyBindings[KEY_UP]    = NavContent::lineUp;
         keyBindings[KEY_DOWN]  = NavContent::lineDown;
-        keyBindings[10]        = 10;
+        keyBindings[10]        = NavContent::select; //Enter key
 
         keypad(winData->win, true);
     }
@@ -503,7 +507,7 @@ namespace EasyCurses
         }
     }
 
-    void SelectionMenu::calculatePage(int seek)
+    void SelectionMenu::calculatePage(NavContent seek)
     {
         //Deals with page up and down keys
         BasicMenu::calculatePage(seek);
@@ -537,7 +541,6 @@ namespace EasyCurses
                     updateLineTrackers(pageTop());
                     break;
                 }
-
                 break;
 
             case NavContent::lineUp:
@@ -548,15 +551,15 @@ namespace EasyCurses
                 {
                     page = lastPage() -1;
                     updateLineTrackers(numLines -1);
-                    break;
                 }
                 else if(highlight < pageTop()) //4th
                 {
                     --page;
                     updateLineTrackers(pageBottom());
-                    break;
                 }
+                break;
 
+            default:
                 break;
         }
 
@@ -564,11 +567,10 @@ namespace EasyCurses
             setUpdate();
     }
 
-    void SelectionMenu::navTrunc(int input)
+    void SelectionMenu::navTrunc(NavContent input)
     {
         if(overflowLine == overflowLayout.end())
             return;
-
 
         bool changed = false;
 
@@ -596,6 +598,9 @@ namespace EasyCurses
                 changed = true;
                 ++overflowLine;
             }
+            break;
+
+        default:
             break;
         }
 
@@ -639,7 +644,7 @@ namespace EasyCurses
         wrefresh(winData->win);
     }
 
-    void SelectionMenu::inputHandling(int& input)
+    void SelectionMenu::inputHandling(NavContent& input)
     {
         BasicMenu::inputHandling(input);
 
@@ -654,7 +659,7 @@ namespace EasyCurses
                 navTrunc(input);
                 break;
 
-            case 10:
+            case NavContent::select:
                 if(selected[highlight] == true)
                     selected[highlight] = false;
                 else
@@ -665,6 +670,9 @@ namespace EasyCurses
             case NavContent::finish:
                 //User done selecting
                 return;
+
+            default:
+                break;
         }
     }
 
