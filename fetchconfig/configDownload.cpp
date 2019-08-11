@@ -142,15 +142,6 @@ ManualConfigDownload::ManualConfigDownload() : ConfigDownload(stdscr, newWinData
     screen       = newwin(winData->height, winData->width, winData->startY, winData->startX);
     winData->win = screen;
 
-//     //Progress dialog
-//     dlWinData->height = 7;
-//     dlWinData->width  = 30;
-//     dlWinData->startX = (winData->width /2) - (dlWinData->width /2);
-//     dlWinData->startY = (winData->height /2) - (dlWinData->height /2);
-//     dlScreen = newwin(dlWinData->height, dlWinData->width, dlWinData->startY, dlWinData->startX);
-//     dlWinData->win = dlScreen;
-//     progressDialog.reset(new ttyProgressDialog(dlWinData.get(), "Downloading"));
-
     //Help dialog
     helpText = "Press:\n\nESC to exit\nENTER to select\nArrow keys to change selection\n"\
       "Page up and down keys to change page";
@@ -161,7 +152,7 @@ bool ManualConfigDownload::help()
 {
     BasicMenu helpMenu(helpText, winData.get(), "Help menu");
     /*Stylise the menu borders*/
-    //				borders => (bool, we, ns)
+    //         borders => (bool, we, ns)
     helpMenu.setDrawBorder(true, 0, 0);
     flushinp();
 

@@ -302,11 +302,6 @@ namespace EasyCurses
         TF::overflow(lines, _maxChars(), lineFormat);
         numLines    = lineFormat.size();
 
-//         keyBindings = {
-//             { KEY_NPAGE, NavContent::pageUp }, { KEY_PPAGE, NavContent::pageDown },
-//             { 27, NavContent::finish }
-//         }; //27 => ESC
-
         keypad(winData->win, true);
     }
 
@@ -327,16 +322,6 @@ namespace EasyCurses
             return res->second;
         return NavContent::null;
     }
-
-//     void BasicMenu::setKeyBindings(std::map<int, int> newKBs)
-//     {
-//         keyBindings = newKBs;
-//     }
-//
-//     std::map<int, int>& BasicMenu::getKeyBindings()
-//     {
-//         return keyBindings;
-//     }
 
     void BasicMenu::setCustomAction(F cusAct)
     {

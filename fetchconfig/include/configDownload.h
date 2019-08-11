@@ -62,16 +62,15 @@ public:
     virtual ~ConfigDownload() { };
 
     virtual bool setUpDirectories(WINDOW* win);
-    
+
     virtual int chooseConfigs()  = 0;
     virtual int getConfig(std::string& configName);
     virtual int grabConfigs(std::list<std::string>& configs, WINDOW* screen);
 
     virtual void initDownload();
     virtual void cleanDownload();
-    virtual int  updateProgress\
-      (configupdater::ConfigUpdaterStatus status, double progress,
-       double total);
+    virtual int  updateProgress(configupdater::ConfigUpdaterStatus status,
+      double progress, double total);
 };
 
 class ManualConfigDownload : public ConfigDownload
@@ -79,29 +78,15 @@ class ManualConfigDownload : public ConfigDownload
 public:
     ManualConfigDownload();
     ~ManualConfigDownload() { delwin(screen); delwin(dlScreen); }
-    
+
     bool help();
-    
+
     virtual int chooseConfigs() override;
 
-//     virtual void initDownload() override;
-//     virtual void cleanDownload() override;
-
 private:
-    /*
-     * From ConfigDownload:
-     *   std::string userDir;
-     *   std::string gimxDir;
-     *   std::string gimxConfigDir;
-     *   std::unique_ptr<ttyProgressDialog> progressDialog;
-     *   std::unique_ptr<WinData> dlWinData;
-     *   WINDOW* dlScreen;
-     *   void* clientp;
-     */
-    
     WINDOW* screen;
     std::unique_ptr<WinData> winData;
-    
+
     std::string helpText;
 
     //Information needed to allow user to choose config(s)
@@ -113,25 +98,8 @@ class AutoConfigDownload : public ConfigDownload
 {
 public:
     AutoConfigDownload();
-    
-    int chooseConfigs();
-    
-//     virtual void initDownload() override;
-//     virtual void cleanDownload() override;
 
-private:
-    /*
-     * From ConfigDownload:
-     *   std::string userDir;
-     *   std::string gimxDir;
-     *   std::string gimxConfigDir;
-     *   std::unique_ptr<ttyProgressDialog> progressDialog;
-     *   std::unique_ptr<WinData> winData;
-     *   std::unique_ptr<WinData> dlWinData;
-     *   WINDOW* screen;
-     *   WINDOW* dlScreen;
-     *   void* clientp;
-     */
+    int chooseConfigs();
 };
 
 

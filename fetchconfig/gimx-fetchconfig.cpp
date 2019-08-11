@@ -46,15 +46,18 @@ public:
     {
         configDl = std::unique_ptr<AutoConfigDownload>(new AutoConfigDownload);
         static_cast<AutoConfigDownload*>(configDl.get());
-        
+
         configDl->chooseConfigs();
     }
 
     int callOptions(struct option* longOptions, int optionCharacter, int optionIndex)
     {
-        int result = 0;
+        int result = -1;
         switch(optionCharacter)
         {
+            case -1:
+                //End of list
+                break;
             case 0:
                 //If this option set a flag, do nothing else now.
                 if(longOptions[optionIndex].flag != 0)
@@ -71,10 +74,10 @@ public:
             case 'h':
             case '?':
             default:
-                result = -1;
+                result = -2;
                 break;
         }
-        
+
         return result;
     }
 
@@ -106,13 +109,12 @@ int main(int argc, char* argv[])
     auto callback = [&fDownloader](struct option* opts, int optChar, int optI) -> int {
             return fDownloader.callOptions(opts, optChar, optI);
     };
-    
-    
+
     int res = parseArgs(argc, argv, longOpts, callback);
-    
+
     /*End curses*/
     endwin();
-    if(res == -1)
+    if(res == -2 || optind < argc)
         help();
     return 0;
 }

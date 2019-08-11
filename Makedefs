@@ -6,17 +6,17 @@
 
 LD = $(CXX)
 
-CFLAGS += -Wall -Wextra -O3
-CXXFLAGS += -Wall -Wextra -O3
-
+#CFLAGS += -Wall -Wextra -O3
+#CXXFLAGS += -Wall -Wextra -O3
 #Comment the above two lines and uncomment the below three lines to compile with debug symbols.
 
 #CFLAGS += -Wall -Wextra -O0 -g -fsanitize=address -fno-omit-frame-pointer
 #CXXFLAGS += -Wall -Wextra -O0 -g -fsanitize=address -fno-omit-frame-pointer
 
-#If you don't care for library address sanitiser, uncomment below for debugging
-#CFLAGS += -Wall -Wextra -O0 -g
-#CXXFLAGS += -Wall -Wextra -O0 -g
+#Library address sanitiser is not available for mingw64. This applies to msys2.
+#Uncomment below lines, and comment above lines, for plain debug symbols.
+CFLAGS += -Wall -Wextra -O0 -g
+CXXFLAGS += -Wall -Wextra -O0 -g
 
 CPPFLAGS += -I../shared
 

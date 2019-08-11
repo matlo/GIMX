@@ -14,7 +14,6 @@ ifneq ($(OS),Windows_NT)
 LDLIBS += -lstdc++ -lm `pkg-config --libs ncursesw`
 else
 LDLIBS += -lws2_32 -lstdc++ -lpdcursesw -lintl
-#LDLIBS:=$(filter-out -mwindows,$(LDLIBS))
 endif
 
 CPPFLAGS += -Iinclude -std=c++11

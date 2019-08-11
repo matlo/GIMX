@@ -9,7 +9,6 @@
 #ifndef PARSEARGS_H
 #define PARSEARGS_H
 
-//#include <unistd.h>
 #include <getopt.h>
 
 #include <functional>
