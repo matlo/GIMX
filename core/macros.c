@@ -17,10 +17,7 @@
 #include <controller.h>
 #include <gimxinput/include/ginput.h>
 #include "../directories.h"
-
-#ifdef WIN32
-#include <sys/stat.h>
-#endif
+#include <gimxfile/include/gfile.h>
 
 #define MACRO_CONFIGS_FILE "configs.txt"
 
@@ -988,7 +985,7 @@ static void read_configs_txt(const char* dir_path)
   int ret;
 
   snprintf(file_path, sizeof(file_path), "%s%s", dir_path, MACRO_CONFIGS_FILE);
-  fp = fopen2(file_path, "r");
+  fp = gfile_fopen(file_path, "r");
   if (fp)
   {
     if (gimx_params.logfile != NULL) {
@@ -1041,7 +1038,7 @@ static void read_macros() {
 
     snprintf(dir_path, sizeof(dir_path), "%s/%s/%s", gimx_params.homedir, GIMX_DIR, MACRO_DIR);
 
-    GDIR * dirp = opendir2(dir_path);
+    GFILE_DIR * dirp = gfile_opendir(dir_path);
     if (dirp == NULL)
     {
       if (errno == ENOENT)
@@ -1051,43 +1048,23 @@ static void read_macros() {
       else
       {
         gerror("failed to open %s:", dir_path);
-        perror("opendir2");
+        perror("gfile_opendir");
       }
       return;
     }
 
-    GDIRENT * d;
-    while ((d = readdir2(dirp)))
+    GFILE_DIRENT * d;
+    while ((d = gfile_readdir(dirp)))
     {
-#ifndef WIN32
-      if(!strcmp(d->d_name, MACRO_CONFIGS_FILE))
+      char * name = gfile_name(d);
+      if (gfile_isfile(dir_path, name) && strcmp(name, MACRO_CONFIGS_FILE))
       {
-        continue;
-      }
-      if (d->d_type == DT_REG)
-      {
-          ADD_FILE(filenames, nb_filenames, d->d_name)
-      }
-#else
-      if(!wcscmp(d->d_name, L""MACRO_CONFIGS_FILE))
-      {
-        continue;
-      }
-      char * name = utf16le_to_utf8(d->d_name);
-      snprintf(file_path, sizeof(file_path), "%s/%s", dir_path, name);
-      GSTAT buf;
-      if(stat2(file_path, &buf) == 0)
-      {
-        if(S_ISREG(buf.st_mode))
-        {
-            ADD_FILE(filenames, nb_filenames, name)
-        }
+          ADD_FILE(filenames, nb_filenames, name)
       }
       free(name);
-#endif
     }
 
-    closedir2(dirp);
+    gfile_closedir(dirp);
 
     read_configs_txt(dir_path);
 
@@ -1110,7 +1087,7 @@ static void read_macros() {
       //else: no configs.txt => read all macros.
 
       snprintf(file_path, sizeof(file_path), "%s%s", dir_path, filenames[i]);
-      fp = fopen2(file_path, "r");
+      fp = gfile_fopen(file_path, "r");
       if (!fp) {
         gwarn("failed to open %s\n", file_path);
       } else {

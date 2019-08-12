@@ -5,6 +5,10 @@ CXXFLAGS += -fPIC
 LDFLAGS += -lstdc++
 
 CPPFLAGS += -I../
+
+LDFLAGS += -L../gimxfile
+LDLIBS += -lgimxfile
+
 LDFLAGS += -L../gimxdownloader
 LDLIBS += -lgimxdownloader
 

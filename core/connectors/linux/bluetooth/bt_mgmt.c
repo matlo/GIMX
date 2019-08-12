@@ -334,7 +334,7 @@ static int read_link_keys(uint16_t index, uint16_t nb_keys, bdaddr_t bdaddrs[nb_
 
   char line[LINE_MAX];
 
-  FILE* file = fopen2(file_path, "r");
+  FILE* file = gfile_fopen(file_path, "r");
   int i = 0;
 
   if (!file)

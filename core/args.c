@@ -323,7 +323,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
             {
               char file_path[PATH_MAX];
               snprintf(file_path, sizeof(file_path), "%s%s%s%s", params->homedir, GIMX_DIR, LOG_DIR, params->logfilename);
-              params->logfile = fopen2(file_path, "w");
+              params->logfile = gfile_fopen(file_path, "w");
               if(params->logfile != NULL)
               {
                 dup2(fileno(params->logfile), fileno(stdout));

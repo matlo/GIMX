@@ -11,9 +11,7 @@
 
 #include <curl/curl.h>
 
-#ifdef WIN32
-#include <windows.h>
-#endif
+#include <gimxfile/include/gfile.h>
 
 #ifdef WIN32
 #define CURL_INIT_FLAGS (CURL_GLOBAL_WIN32 | CURL_GLOBAL_SSL)
@@ -180,88 +178,16 @@ int Downloader::progress(double dlnow, double dltotal) {
     return m_callback(m_clientp, status, m_progress, dltotal);
 }
 
-#ifdef WIN32
-char * utf16le_to_utf8(const wchar_t * inbuf)
-{
-  char * outbuf = NULL;
-  int outsize = WideCharToMultiByte(CP_UTF8, 0, inbuf, -1, NULL, 0, NULL, NULL);
-  if (outsize != 0) {
-      outbuf = (char*) malloc(outsize * sizeof(*outbuf));
-      if (outbuf != NULL) {
-         int res = WideCharToMultiByte(CP_UTF8, 0, inbuf, -1, outbuf, outsize, NULL, NULL);
-         if (res == 0) {
-             free(outbuf);
-             outbuf = NULL;
-         }
-      }
-  }
-
-  return outbuf;
-}
-#endif
-
 std::string Downloader::generateTempFile(const std::string& file) {
 
-    std::string value;
-
-#ifdef WIN32
-    wchar_t temp[MAX_PATH + 1];
-    if (!GetTempPathW(MAX_PATH, temp)) {
-        return "";
-    }
-    char * utf8 = utf16le_to_utf8(temp);
-    value.append(utf8);
-    free(utf8);
-#endif
+    char * tempDir = gfile_tempdir();
+    std::string value = tempDir;
+    free(tempDir);
 
     value += file;
 
     return value;
 }
-
-#ifndef WIN32
-static FILE *fopen2(const char *path, const char *mode) {
-    return fopen(path, mode);
-}
-
-static int remove2(const char *path) {
-    return remove(path);
-}
-#else
-static wchar_t * utf8_to_utf16le(const char * inbuf)
-{
-  wchar_t * outbuf = NULL;
-  int outsize = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, NULL, 0);
-  if (outsize != 0) {
-      outbuf = (wchar_t*) malloc(outsize * sizeof(*outbuf));
-      if (outbuf != NULL) {
-         int res = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, outbuf, outsize);
-         if (res == 0) {
-             free(outbuf);
-             outbuf = NULL;
-         }
-      }
-  }
-
-  return outbuf;
-}
-
-static FILE *fopen2(const char *path, const char *mode) {
-    wchar_t * wpath = utf8_to_utf16le(path);
-    wchar_t * wmode = utf8_to_utf16le(mode);
-    FILE* file = _wfopen(wpath, wmode);
-    free(wmode);
-    free(wpath);
-    return file;
-}
-
-static int remove2(const char *path) {
-    wchar_t * wpath = utf8_to_utf16le(path);
-    int result = _wremove(wpath);
-    free(wpath);
-    return result;
-}
-#endif
 
 Downloader::DownloaderStatus Downloader::download(const std::string& url, const std::string& file,
         ProgressCallback callback, void * clientp) {
@@ -270,7 +196,7 @@ Downloader::DownloaderStatus Downloader::download(const std::string& url, const 
         return Downloader::DownloaderStatusInitFailed;
     }
 
-    FILE* outfile = fopen2(file.c_str(), "wb");
+    FILE* outfile = gfile_fopen(file.c_str(), "wb");
     if (outfile == NULL) {
         return Downloader::DownloaderStatusInitFailed;
     }
@@ -311,7 +237,7 @@ Downloader::DownloaderStatus Downloader::download(const std::string& url, const 
     }
 
     if (status != Downloader::DownloaderStatusOk) {
-        remove2(file.c_str());
+        gfile_remove(file.c_str());
     }
 
     return status;

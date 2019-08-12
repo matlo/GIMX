@@ -18,11 +18,6 @@
 #include "macros.h"
 #include <errno.h>
 
-#ifdef WIN32
-#include <sys/stat.h>
-#define LINE_MAX 1024
-#endif
-
 /*
  * These variables are used to read the configuration.
  */

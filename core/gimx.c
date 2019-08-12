@@ -10,19 +10,14 @@
 #include <limits.h> //PATH_MAX
 
 #ifndef WIN32
-#include <pwd.h> //to get the homedir
-#include <sys/types.h> //to get the homedir
-#include <unistd.h> //to get the homedir
 #include <termios.h> //to disable/enable echo
 #include <unistd.h> // chown
+#include <pwd.h> // to get uid and gid
 #else
 #undef NTDDI_VERSION
 #define NTDDI_VERSION NTDDI_VERSION_FROM_WIN32_WINNT(NTDDI_VISTA)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <shlobj.h> //to get the homedir
-#include <knownfolders.h>
-#include <objbase.h>
 #endif
 
 #include "gimx.h"
@@ -42,6 +37,7 @@
 #include <gimxprio/include/gprio.h>
 #include <gimxusb/include/gusb.h>
 #include <gimxlog/include/glog.h>
+#include <gimxfile/include/gfile.h>
 
 #define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
 
@@ -97,92 +93,6 @@ void terminate(int sig __attribute__((unused)))
 {
   set_done();
 }
-
-#ifndef WIN32
-FILE *fopen2(const char *path, const char *mode) {
-    return fopen(path, mode);
-}
-
-GDIR * opendir2 (const char * path) {
-    return opendir(path);
-}
-
-int closedir2(GDIR *dirp) {
-    return closedir(dirp);
-}
-
-GDIRENT *readdir2(GDIR *dirp) {
-    return readdir(dirp);
-}
-
-#else
-wchar_t * utf8_to_utf16le(const char * inbuf)
-{
-  wchar_t * outbuf = NULL;
-  int outsize = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, NULL, 0);
-  if (outsize != 0) {
-      outbuf = (wchar_t*) malloc(outsize * sizeof(*outbuf));
-      if (outbuf != NULL) {
-         int res = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, outbuf, outsize);
-         if (res == 0) {
-             free(outbuf);
-             outbuf = NULL;
-         }
-      }
-  }
-
-  return outbuf;
-}
-
-FILE *fopen2(const char *path, const char *mode) {
-    wchar_t * wpath = utf8_to_utf16le(path);
-    wchar_t * wmode = utf8_to_utf16le(mode);
-    FILE* file = _wfopen(wpath, wmode);
-    free(wmode);
-    free(wpath);
-    return file;
-}
-
-char * utf16le_to_utf8(const wchar_t * inbuf)
-{
-  char * outbuf = NULL;
-  int outsize = WideCharToMultiByte(CP_UTF8, 0, inbuf, -1, NULL, 0, NULL, NULL);
-  if (outsize != 0) {
-      outbuf = (char*) malloc(outsize * sizeof(*outbuf));
-      if (outbuf != NULL) {
-         int res = WideCharToMultiByte(CP_UTF8, 0, inbuf, -1, outbuf, outsize, NULL, NULL);
-         if (res == 0) {
-             free(outbuf);
-             outbuf = NULL;
-         }
-      }
-  }
-
-  return outbuf;
-}
-
-GDIR * opendir2 (const char * path) {
-    wchar_t * wpath = utf8_to_utf16le(path);
-    GDIR * dir = _wopendir(wpath);
-    free(wpath);
-    return dir;
-}
-
-int closedir2(GDIR *dirp) {
-    return _wclosedir(dirp);
-}
-
-GDIRENT *readdir2(GDIR *dirp) {
-    return _wreaddir(dirp);
-}
-
-int stat2(const char *path, GSTAT *buf) {
-    wchar_t * wpath = utf8_to_utf16le(path);
-    int ret = _wstat(wpath, buf);
-    free(wpath);
-    return ret;
-}
-#endif
 
 int ignore_event(GE_Event* event __attribute__((unused)))
 {
@@ -270,7 +180,7 @@ void show_config()
 
   snprintf(file_path, sizeof(file_path), "%s%s%s%s", gimx_params.homedir, GIMX_DIR, CONFIG_DIR, gimx_params.config_file);
 
-  FILE * fp = fopen2(file_path, "r");
+  FILE * fp = gfile_fopen(file_path, "r");
   if (fp == NULL)
   {
     gwarn("failed to dump %s\n", file_path);
@@ -350,19 +260,14 @@ int main(int argc, char *argv[])
 
 #ifndef WIN32
   setlinebuf(stdout);
+#endif
 
-  gimx_params.homedir = getpwuid(getuid())->pw_dir;
-#else
-  static wchar_t * path = NULL;
-  if(SHGetKnownFolderPath(&FOLDERID_RoamingAppData, 0, NULL, &path))
-  {
-    gerror("SHGetKnownFolderPath failed\n");
+  gimx_params.homedir = gfile_homedir();
+
+  if (gimx_params.homedir == NULL) {
     status = E_GIMX_STATUS_GENERIC_ERROR;
     goto QUIT;
   }
-  gimx_params.homedir = utf16le_to_utf8(path);
-  CoTaskMemFree(path);
-#endif
 
   if (gprio() < 0)
   {
@@ -618,25 +523,16 @@ int main(int argc, char *argv[])
      * or that the program crashed.
      */
 
-#ifndef WIN32
-    char * file = "/tmp/gimx.status";
-#else
-    char file[MAX_PATH + 1] = {};
-    wchar_t wtmp[MAX_PATH + 1];
-    int ret = GetTempPathW(MAX_PATH, wtmp);
-    if (ret > 0)
+    char file[PATH_MAX + 1] = {};
+    char * tmp = gfile_tempdir();
+    if (strlen(tmp) + sizeof("/gimx.status") <= sizeof(file))
     {
-      char * tmp = utf16le_to_utf8(wtmp);
-      if (strlen(tmp) + sizeof("/gimx.status") <= sizeof(file))
-      {
-        sprintf(file, "%s/gimx.status", tmp);
-      }
-      free(tmp);
+      sprintf(file, "%s/gimx.status", tmp);
     }
-#endif
+    free(tmp);
     if (file != NULL && file[0] != '\0')
     {
-      FILE * fp = fopen2(file, "w");
+      FILE * fp = gfile_fopen(file, "w");
       if (fp != NULL)
       {
         fprintf(fp, "%d\n", status);
@@ -680,9 +576,7 @@ int main(int argc, char *argv[])
   }
 #endif
 
-#ifdef WIN32
   free(gimx_params.homedir);
-#endif
 
   return status;
 }

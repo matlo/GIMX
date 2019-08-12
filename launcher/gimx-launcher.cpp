@@ -48,55 +48,7 @@
 
 #include "SetupManager.h"
 
-#include <ext/stdio_filebuf.h>
-#include <fcntl.h>
-
-#ifdef WIN32
-
-static wchar_t * utf8_to_utf16le(const char * inbuf)
-{
-  wchar_t * outbuf = NULL;
-  int outsize = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, NULL, 0);
-  if (outsize != 0) {
-      outbuf = (wchar_t*) malloc(outsize * sizeof(*outbuf));
-      if (outbuf != NULL) {
-         int res = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, outbuf, outsize);
-         if (res == 0) {
-             free(outbuf);
-             outbuf = NULL;
-         }
-      }
-  }
-  return outbuf;
-}
-
-#define OFBUF(path) \
-    wchar_t * wpath = utf8_to_utf16le(path.c_str()); \
-    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | _O_WRONLY | _O_TRUNC | _O_CREAT, 0666), std::ios::out | std::ios::binary); \
-    free(wpath);
-
-#define IFBUF(path) \
-    wchar_t * wpath = utf8_to_utf16le(path.c_str()); \
-    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | _O_RDONLY), std::ios::in | std::ios::binary); \
-    free(wpath);
-
-#else
-
-#define OFBUF(path) \
-    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0666), std::ios::out);
-
-#define IFBUF(path) \
-    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), O_RDONLY), std::ios::in);
-
-#endif
-
-#define IFSTREAM(path, name) \
-    IFBUF(path) \
-    std::istream name (&fb);
-
-#define OFSTREAM(path, name) \
-    OFBUF(path) \
-    std::ostream name (&fb);
+#include <gimxfile/include/gfile.hpp>
 
 #ifdef WIN32
 #define REGISTER_FUNCTION gpoll_register_handle

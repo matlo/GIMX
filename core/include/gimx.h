@@ -9,17 +9,11 @@
 #include <gimxinput/include/ginput.h>
 #include <stdio.h>
 
-#ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#define LINE_MAX 1024
-#endif
-
 #include <libintl.h>
 #include <locale.h>
 #define _(STRING)    gettext(STRING)
 
-#include <dirent.h>
+#include <gimxfile/include/gfile.h>
 
 #define PRINT_ERROR_OTHER(msg) fprintf(stderr, "%s:%d %s: %s\n", __FILE__, __LINE__, __func__, msg);
 
@@ -246,23 +240,5 @@ int ignore_event(GE_Event*);
 #define REGISTER_FUNCTION gpoll_register_fd
 #define REMOVE_FUNCTION gpoll_remove_fd
 #endif
-
-FILE *fopen2(const char *path, const char *mode);
-
-#ifdef WIN32
-wchar_t * utf8_to_utf16le(const char * inbuf);
-char * utf16le_to_utf8(const wchar_t * inbuf);
-typedef _WDIR GDIR;
-typedef struct _wdirent GDIRENT;
-typedef struct _stat GSTAT;
-int stat2(const char *path, GSTAT *buf);
-#else
-typedef DIR GDIR;
-typedef struct dirent GDIRENT;
-#endif
-
-GDIR * opendir2 (const char *dirname);
-int closedir2(GDIR *dirp);
-GDIRENT *readdir2(GDIR *dirp);
 
 #endif /* GIMX_H_ */

@@ -5,6 +5,7 @@
 
 #include "Updater.h"
 #include <gimxdownloader/Downloader.h>
+#include <gimxfile/include/gfile.h>
 
 #include <vector>
 #include <sstream>
@@ -12,6 +13,7 @@
 
 #ifdef WIN32
 #include <windows.h>
+#include <shellapi.h>
 #endif
 
 std::string Updater::getProgress(double progress, double total) {
@@ -99,26 +101,6 @@ int progressCallback(void *clientp, Downloader::DownloaderStatus status, double 
     return updater->progress(convertDowloadStatus(status), progress, total);
 }
 
-#ifdef WIN32
-static wchar_t * utf8_to_utf16le(const char * inbuf)
-{
-  wchar_t * outbuf = NULL;
-  int outsize = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, NULL, 0);
-  if (outsize != 0) {
-      outbuf = (wchar_t*) malloc(outsize * sizeof(*outbuf));
-      if (outbuf != NULL) {
-         int res = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, outbuf, outsize);
-         if (res == 0) {
-             free(outbuf);
-             outbuf = NULL;
-         }
-      }
-  }
-
-  return outbuf;
-}
-#endif
-
 Updater::UpdaterStatus Updater::update(std::string url, ProgressCallback callback, void *clientp, bool wait) {
 
     clientCallback = callback;
@@ -142,7 +124,7 @@ Updater::UpdaterStatus Updater::update(std::string url, ProgressCallback callbac
     UpdaterStatus status = UpdaterStatusOk;
 
 #ifdef WIN32
-    wchar_t * utf16 = utf8_to_utf16le(tempFile.c_str());
+    wchar_t * utf16 = gfile_utf8_to_utf16le(tempFile.c_str());
 
     SHELLEXECUTEINFOW shExInfo = SHELLEXECUTEINFOW();
     shExInfo.cbSize = sizeof(shExInfo);

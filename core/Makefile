@@ -14,7 +14,8 @@ endif
 
 CPPFLAGS += $(GIMXINPUT_CPPFLAGS)
 
-LDLIBS += $(GIMXHID_LDLIBS) \
+LDLIBS += $(GIMXFILE_LDLIBS) \
+          $(GIMXHID_LDLIBS) \
           $(GIMXGPP_LDLIBS) \
           $(GIMXCONTROLLER_LDLIBS) \
           $(GIMXINPUT_LDLIBS) \
@@ -24,7 +25,8 @@ LDLIBS += $(GIMXHID_LDLIBS) \
           $(GIMXTIMER_LDLIBS) \
           $(GIMXUSB_LDLIBS)
 
-LDFLAGS += $(GIMXHID_LDFLAGS) \
+LDFLAGS += $(GIMXFILE_LDFLAGS) \
+           $(GIMXHID_LDFLAGS) \
            $(GIMXGPP_LDFLAGS) \
            $(GIMXCONTROLLER_LDFLAGS) \
            $(GIMXINPUT_LDFLAGS) \
@@ -40,7 +42,7 @@ LDLIBS += `xml2-config --libs`
 ifneq ($(OS),Windows_NT)
 LDLIBS += -lm `pkg-config --libs ncursesw` -lbluetooth -lmhash
 else
-LDLIBS += $(shell sdl2-config --libs) -lws2_32 -lpdcursesw -lintl -lshell32 -luuid -lole32
+LDLIBS += $(shell sdl2-config --libs) -lws2_32 -lpdcursesw -lintl
 LDLIBS:=$(filter-out -mwindows,$(LDLIBS))
 endif
 CPPFLAGS += -Iinclude -Iconnectors/btstack/include -Iconnectors/btstack/src

@@ -2,6 +2,9 @@ OBJECTS += $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 
 CXXFLAGS += -fPIC
 
-LDFLAGS += -lstdc++ `curl-config --libs`
+LDLIBS += -lstdc++ `curl-config --libs`
+
+LDFLAGS += -L../gimxfile
+LDLIBS += -lgimxfile
 
 include ../Makedefs
