@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
 
     /*End curses*/
     endwin();
-    if(res == -2 || optind < argc)
+    if(res == -2 || optind < argc || argc == 1)
         help();
     return 0;
 }

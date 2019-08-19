@@ -13,13 +13,9 @@ int parseArgs(int argc, char* argv[], struct option* longOptions, std::function<
     int optIndex = 0;
     int optChar;
 
-    auto getOpts = [&] () -> int {
-        return getopt_long(argc, argv, "ach", longOptions, &optIndex);
-    };
-
     do
     {
-        optChar = getOpts();
+        optChar = getopt_long(argc, argv, "ach", longOptions, &optIndex);
 
         optChar = optionsCaller(longOptions, optChar, optIndex);
     } while(optChar > 1);

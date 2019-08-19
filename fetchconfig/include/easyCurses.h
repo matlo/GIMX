@@ -44,39 +44,50 @@ namespace EasyCurses
 
     namespace TextFormat
     {
-        /* Example of text handling:
+        /*
+         * Example of text handling:
          *
          * Original text:
-         *   "camp\nsome really long text\nwork"
+         *   "do\nsome really long text\nwork"
          *
          * Formatting information:
          *
          *   page = 0
-         *     <-------------screen width------------>   <---------overflow-------->
-         *     00|01|02|03|04|05|06|07|08|09|10|11|12|   |13|14|15|16|17|18|19|20|21|
-         *   0| c| a| m| p|\n|  |  |  |  |  |  |  |  |   |  |  |  |  |  |  |  |  |  |
-         *   1| s| o| m| e|  | r| e| a| l| l| y|  | l|   | o| n| g|  | t| e| x| t|\n|
-         *   2| w| o| r| k|  |  |  |  |  |  |  |  |  |   |  |  |  |  |  |  |  |  |  |
+                     00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28
+         *   text = "d  o  \n s  o  m  e  _  r  e  a  l  l  y  _  l  o  n  g  _  t  e  x  t  \n w  o  r  k"
+         *                                      <---------screen width-------->
+         *    <---------screen width-------->   <---------------overflow------------>
+         *     00|01|02|03|04|05|06|07|08|09|   |00|01|02|03|04|05|06|07|08|09|10|11|12|
+         *   0| d| o|\n|  |  |  |  |  |  |  |   |  |  |  |  |  |  |  |  |  |  |  |  |  |
+         *   1| s| o| m| e|  | r| e| a| l| l|   | y|  | l| o| n| g|  | t| e| x| t|\n|  |
+         *   2| w| o| r| k|  |  |  |  |  |  |   |  |  |  |  |  |  |  |  |  |  |  |  |  |
          *
          *
-         *   pageLayout = { [0] = 4, [0] = 18, [0] = -31  }
-         *     => -31 denotes the previous line was the end of an overflowing line. Negating it
-         *        denotes this whilst still storing the end of line, to preserve patterns
-         *        dependent on indexes.
+         *                         { [index] = (end point, # characters) };
+         *   LineEnds pageLayout = { [0] = (2, 2), [1] = (13, 11), [2] = (29, 4) };
+         *     => If a line overflows, it has a special attribute.
+         *        Its number of characters = the screen width +1. Simply subtract -1 to
+         *        get the real end point.
          *
-         *   overflowLayout = { [1] = 18, [1] = 26 }
+         *                       { (line #, (end point, # characters)) }
+         *   OverFlow oFLayout = { [1] = (23, 10), [1] = (24, 1) };
+         *     => 'oFLayout' contains the virtual end points in between,
+         *        and the end point of the new line of the overflow.
+         *
+         *
+         * Must be recalculated at every screen resize.
          */
 
-        /*
-         * Existing newlines must still be filtered as this function only marks the end of lines.
-         * Must also be recalculated at every screen resize
-         */
+//                         index of line end, # characters
+        typedef std::vector<std::pair<size_t, size_t>> LineEnds;
+ //                           line #, index of line end, # characters
+        typedef std::multimap<size_t, std::pair<size_t, unsigned>> OverFlow;
 
-        //This records the position of each line's end, including those marked by virtual "/n". It must be updated with each screen resize
-        typedef std::vector<int> LineEnds;
-        typedef std::multimap<int, int> TextLayout;
+        // void overflow(std::string text, int maxLength, LineEnds& markers, bool markVirtEnd=false);
 
-        void overflow(std::string text, int maxLength, LineEnds& markers, bool markVirtEnd=false);
+        void overflow(std::string text, int maxLength, LineEnds& lineFormat,
+          OverFlow& oFLayout, bool wrap=false);
+        void overflow(std::string text, int maxLength, LineEnds& lineFormat);
         /*
          * Return 1 if on the first line, and the 'endPoint' is negative.
          * Return 2 if both 'endPoint' and 'prevEndPoint' are negative.
@@ -84,8 +95,8 @@ namespace EasyCurses
          * Return 4 if 'endPoint' is positive, but 'prevEndPoint' is negative.
          * Return 0 if both 'endPoint' and 'prevEndPoint' are positive.
          */
-        unsigned isOverflow(LineEnds markers, int index);
-        void pageFormat(int maxLines, LineEnds markers, TextLayout& pageLayout, TextLayout& overflowLayout);
+        // bool isOverflow(LineEnds markers, int index);
+        // void pageFormat(int maxLines, LineEnds markers, TextLayout& pageLayout, TextLayout& overflowLayout);
     }
     namespace TF = TextFormat;
 
@@ -175,12 +186,6 @@ namespace EasyCurses
     class BasicMenu : public Menus
     {
     protected:
-            /*
-            * From Menus:
-            *   - WinData* winData
-            *   - std::string title
-            */
-
         //Input
         typedef std::function<bool(void)> F;
         F cusAct;
@@ -191,6 +196,8 @@ namespace EasyCurses
         //Text formatting
         int page, numLines;
         std::string text;
+        TF::LineEnds pageLayout;
+        TF::OverFlow oFLayout;
 
             //Common math
         int pageTop()    { return page * _maxLines(); }
@@ -200,7 +207,7 @@ namespace EasyCurses
 
             //Text painting
         virtual void calculatePage(NavContent seek);
-        virtual void printStyle(int& x, int& y); //Only to be used by drawContent
+        virtual void printStyle(); //Only to be used by drawContent
         virtual void drawContent();
         virtual void drawPageNumber(); //Only to be used by update and drawFrame
 
@@ -210,10 +217,6 @@ namespace EasyCurses
         void setUpdate() { changed = true; }
         bool doUpdate();
         virtual void update();
-
-    private:
-        //Text formatting
-        TF::LineEnds lineFormat;
 
     public:
         BasicMenu(std::string text, WinData* windowsData, std::string title="Please chosen an option");
@@ -232,36 +235,22 @@ namespace EasyCurses
     class SelectionMenu : public BasicMenu
     {
     private:
-        /*
-         * From Menus:
-         *   - WinData* winData
-         *   - std::string title
-         *
-         * From BasicMenu:
-         *   - int page, numLines
-         *   - std::string text
-         */
-
         //Input
-        std::map<int,bool> selected;
+        std::map<size_t, bool> selected;
         virtual void inputHandling(NavContent& input) override;
 
         //Text formatting
         std::string checkMark = "X";
         std::string blankMark = "O";
-        TF::TextLayout::iterator overflowLine;
-        //<page number, end of line in text string>
-        TF::TextLayout pageLayout;
-        //<line number, end of line in text string>
-        TF::TextLayout overflowLayout;
-        int highlight;
+        size_t highlight;
+        int oFLine;
 
             //Common math
-        int currentLine() { return (highlight + winData->paddingY) - (_maxLines() * page); }
+        int yCoord() { return (highlight + winData->paddingY) - (_maxLines() * page); }
 
             //Text painting
         virtual void calculatePage(NavContent seek) override;
-        virtual void printStyle(int& x, int& y) override; //Only to be used by drawContent
+        virtual void printStyle() override; //Only to be used by drawContent
         virtual void drawFrame() override;
         void drawCheckMark(int index, int y);
         void drawAllCheckMarks();
@@ -269,7 +258,7 @@ namespace EasyCurses
 
         //Update
         virtual void update() override;
-        void updateLineTrackers(int n) { highlight = n; overflowLine = overflowLayout.find(highlight); }
+        void updateLineTrackers(int n);
 
     public:
         SelectionMenu(std::string text, WinData* windowsData, std::string title="Please chosen an option");
