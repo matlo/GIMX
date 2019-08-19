@@ -57,3 +57,5 @@ fpsconfig/gimx-fpsconfig
 core/gimx
 core/test/haptic/ff_lg_test
 loader/gimx-loader
+
+.vscode
