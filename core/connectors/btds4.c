@@ -8,7 +8,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <sys/time.h>
 #include <errno.h>
 #ifndef WIN32
 #include "connectors/btds4.h"
@@ -494,9 +493,8 @@ static int read_ps4_control(void * user)
 
     /*if(buf[1] == 0x03 || buf[1] == 0x04)
     {
-      struct timeval t;
-      gettimeofday(&t, NULL);
-      ginfo("%ld.%06ld ", t.tv_sec, t.tv_usec);
+      gtime now = gtime_gettime();
+      ginfo("%lu.%06lu ", GTIME_SECPART(now), GTIME_USECPART(now));
       ginfo("report id 0x%02x\n", buf[1]);
     }*/
 

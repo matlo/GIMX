@@ -40,7 +40,6 @@
 #include <wx/busyinfo.h>
 #include <wx/numdlg.h>
 
-#include <time.h>
 #include <gimxhid/include/ghid.h>
 #include <gimxserial/include/gserial.h>
 #include <gimxinput/include/ginput.h>
