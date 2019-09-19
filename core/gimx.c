@@ -268,7 +268,7 @@ int main(int argc, char *argv[])
     goto QUIT;
   }
 
-  if (gprio() < 0)
+  if (gprio_init() < 0)
   {
     gwarn("failed to set process priority\n")
   }
@@ -572,6 +572,8 @@ int main(int argc, char *argv[])
     tcsetattr(STDOUT_FILENO, TCSANOW, &term);
   }
 #endif
+
+  gprio_clean();
 
   free(gimx_params.homedir);
 
