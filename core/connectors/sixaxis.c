@@ -6,13 +6,13 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <sys/time.h>
 #ifndef WIN32
 #include <poll.h>
 #include <arpa/inet.h> /* for htons */
 #endif
 #include <errno.h>
 #include <gimxinput/include/ginput.h>
+#include <gimxtime/include/gtime.h>
 #include <connectors/sixaxis.h>
 #include <connectors/bluetooth/bt_device_abs.h>
 #include <connectors/bluetooth/l2cap_abs.h>
@@ -328,7 +328,6 @@ static int send_report(int sixaxis_number, uint16_t psm, uint8_t type, uint8_t r
   uint8_t buf[128];
   int len = 0;
   int i;
-  struct timeval tv;
 
   struct sixaxis_state* state = states + sixaxis_number;
 
@@ -359,8 +358,8 @@ static int send_report(int sixaxis_number, uint16_t psm, uint8_t type, uint8_t r
   /* Dump contents */
   if (gimx_params.debug.sixaxis)
   {
-    gettimeofday(&tv, NULL);
-    ginfo("%ld.%06ld Sixaxis %-7s %02x:", tv.tv_sec, tv.tv_usec,
+    gtime now = gtime_gettime();
+    ginfo("%lu.%06lu Sixaxis %-7s %02x:", GTIME_SECPART(now), GTIME_USECPART(now),
         hid_report_name[type], report);
     for (i = 2; i < len; i++)
       ginfo(" %02x", buf[i]);
@@ -377,13 +376,12 @@ static int process_report(uint8_t type, uint8_t report, const uint8_t *buf, int 
 {
   int i;
   int ret = 0;
-  struct timeval tv;
 
   /* Dump contents */
   if (gimx_params.debug.sixaxis)
   {
-    gettimeofday(&tv, NULL);
-    ginfo("%ld.%06ld     PS3 %-7s %02x:", tv.tv_sec, tv.tv_usec,
+    gtime now = gtime_gettime();
+    ginfo("%lu.%06lu     PS3 %-7s %02x:", GTIME_SECPART(now), GTIME_USECPART(now),
         hid_report_name[type], report);
     for (i = 0; i < len; i++)
       ginfo(" %02x", buf[i]);
@@ -419,8 +417,8 @@ static int process(void * user, int psm, const unsigned char *buf, int len)
   uint8_t report;
   const char *name;
   int ret = 0;
-  struct timeval tv1, tv2;
-  unsigned long time;
+  gtime tv1 = 0, tv2 = 0;
+  gtimediff time;
 
   struct sixaxis_state* state = states + sixaxis_number;
 
@@ -463,15 +461,14 @@ static int process(void * user, int psm, const unsigned char *buf, int len)
       /* gerror("<- GET_REPORT %s 0x%02x\n", hid_report_name[type], report); */
       if (gimx_params.debug.sixaxis)
       {
-        gettimeofday(&tv1, NULL);
+        tv1 = gtime_gettime();
       }
       ret = send_report(sixaxis_number, psm, type, report, 1);
       if (gimx_params.debug.sixaxis)
       {
-        gettimeofday(&tv2, NULL);
-        time = (tv2.tv_sec * 1000 + tv2.tv_usec)
-            - (tv1.tv_sec * 1000 + tv1.tv_usec);
-        ginfo("blocking send took: %ld µs\n", time);
+        tv2 = gtime_gettime();
+        time = tv2 - tv1;
+        ginfo("blocking send took: %lld µs\n", time);
       }
       break;
 

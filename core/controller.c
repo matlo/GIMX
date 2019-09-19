@@ -7,7 +7,6 @@
 
 #include <gimx.h>
 #include <string.h>
-#include <sys/time.h>
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -24,6 +23,7 @@
 #endif
 #include <gimxcontroller/include/controller.h>
 #include <gimxpoll/include/gpoll.h>
+#include <gimxtime/include/gtime.h>
 
 #include <haptic/haptic_core.h>
 
@@ -121,12 +121,11 @@ void adapter_set_axis(unsigned char adapter, int axis, int value)
 static void adapter_dump_state(int adapter)
 {
   int i;
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
+  gtime now = gtime_gettime();
 
   int* axis = adapters[adapter].axis;
 
-  gstatus("%d %ld.%06ld", adapter, tv.tv_sec, tv.tv_usec);
+  gstatus("%d %lu.%06lu", adapter, GTIME_SECPART(now), GTIME_USECPART(now));
 
   for (i = 0; i < AXIS_MAX; i++) {
       if (axis[i])
@@ -418,16 +417,14 @@ static int adapter_process_packet(int adapter, s_packet* packet)
   }
   else if(type == BYTE_DEBUG)
   {
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    ginfo("%ld.%06ld debug packet received (size = %d bytes)\n", tv.tv_sec, tv.tv_usec, length);
+    gtime now = gtime_gettime();
+    ginfo("%lu.%06lu debug packet received (size = %d bytes)\n", GTIME_SECPART(now), GTIME_USECPART(now), length);
     dump(packet->value, length);
   }
   else
   {
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    gwarn("%ld.%06ld unhandled packet (type=0x%02x)\n", tv.tv_sec, tv.tv_usec, type);
+    gtime now = gtime_gettime();
+    gwarn("%lu.%06lu unhandled packet (type=0x%02x)\n", GTIME_SECPART(now), GTIME_USECPART(now), type);
   }
 
   return ret;

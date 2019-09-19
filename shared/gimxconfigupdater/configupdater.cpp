@@ -7,13 +7,6 @@
 #include <sstream>
 #include <string.h>
 
-#ifdef WIN32
-#include <windows.h>
-#else
-#include <pwd.h> //to get the user & group id
-#include <unistd.h>
-#endif
-
 #include <gimxfile/include/gfile.hpp>
 
 #ifdef WIN32
@@ -118,7 +111,7 @@ configupdater::ConfigUpdaterStatus configupdater::getconfig(const std::string& d
     }
 
 #ifndef WIN32
-    if (chown(file.c_str(), getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid) < 0) {
+    if (gfile_makeown(file.c_str()) < 0) {
         return configupdater::ConfigUpdaterStatusDownloadFailed;
     }
 #endif

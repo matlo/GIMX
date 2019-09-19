@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <unistd.h>
-#include <sys/time.h>
+#include <gimxtime/include/gtime.h>
 #include <gimxinput/include/ginput.h>
 #include "calibration.h"
 #include "gimx.h"
@@ -834,7 +834,6 @@ void cfg_trigger_lookup(GE_Event* e)
 void cfg_profile_activation()
 {
   int i, j;
-  struct timeval tv;
 
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
@@ -850,9 +849,9 @@ void cfg_profile_activation()
         {
           if(gimx_params.status)
           {
-            gettimeofday(&tv, NULL);
+            gtime now = gtime_gettime();
 
-            gstatus(_("%d %ld.%06ld controller %d is switched from profile %d to %d\n"), i, tv.tv_sec, tv.tv_usec, i, current->index, next->index);
+            gstatus(_("%d %lu.%06lu controller %d is switched from profile %d to %d\n"), i, GTIME_SECPART(now), GTIME_USECPART(now), i, current->index, next->index);
           }
 
           if(current->state.previous != next && next->trigger.switch_back)

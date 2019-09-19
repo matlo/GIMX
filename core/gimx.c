@@ -11,8 +11,7 @@
 
 #ifndef WIN32
 #include <termios.h> //to disable/enable echo
-#include <unistd.h> // chown
-#include <pwd.h> // to get uid and gid
+#include <unistd.h>
 #else
 #undef NTDDI_VERSION
 #define NTDDI_VERSION NTDDI_VERSION_FROM_WIN32_WINNT(NTDDI_VISTA)
@@ -538,8 +537,7 @@ int main(int argc, char *argv[])
         fprintf(fp, "%d\n", status);
         fclose(fp);
 #ifndef WIN32
-        int ret = chown(file, getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid);
-        if (ret < 0)
+        if (gfile_makeown(file) < 0)
         {
           gerror("failed to set ownership of the gimx status file\n");
         }
@@ -554,8 +552,7 @@ int main(int argc, char *argv[])
 #ifndef WIN32
     char file_path[PATH_MAX];
     snprintf(file_path, sizeof(file_path), "%s%s%s%s", gimx_params.homedir, GIMX_DIR, LOG_DIR, gimx_params.logfilename);
-    int ret = chown(file_path, getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid);
-    if (ret < 0)
+    if (gfile_makeown(file_path) < 0)
     {
       gerror("failed to set ownership of the gimx log file\n");
     }
