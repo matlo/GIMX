@@ -268,11 +268,6 @@ int main(int argc, char *argv[])
     goto QUIT;
   }
 
-  if (gprio_init() < 0)
-  {
-    gwarn("failed to set process priority\n")
-  }
-
   gpppcprog_read_user_ids(gimx_params.homedir, GIMX_DIR);
 
   if(args_read(argc, argv, &gimx_params) < 0)
@@ -284,6 +279,11 @@ int main(int argc, char *argv[])
   if(gimx_params.btstack)
   {
     bt_abs_value = E_BT_ABS_BTSTACK;
+  }
+
+  if (gprio_init() < 0)
+  {
+    gwarn("failed to set process priority\n")
   }
 
   if (gusb_init() < 0)
