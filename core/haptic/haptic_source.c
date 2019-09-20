@@ -21,7 +21,7 @@ int haptic_source_register(s_haptic_source * parser) {
 
     void * ptr = realloc(sources, (nb_sources + 1) * sizeof(*sources));
     if (ptr == NULL) {
-        PRINT_ERROR_ALLOC_FAILED("realloc")
+        PRINT_ERROR_ALLOC_FAILED("realloc");
         return -1;
     }
     sources = ptr;

@@ -34,7 +34,7 @@ struct haptic_core * haptic_core_init(s_haptic_core_ids source_ids, int sink_joy
 
     struct haptic_core * core = calloc(1, sizeof(*core));
     if (core == NULL) {
-        PRINT_ERROR_ALLOC_FAILED("calloc")
+        PRINT_ERROR_ALLOC_FAILED("calloc");
         return NULL;
     }
 

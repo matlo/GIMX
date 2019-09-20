@@ -244,7 +244,7 @@ static struct haptic_sink_state * haptic_sink_lg_init(int joystick) {
     void * ptr = calloc(1, sizeof(struct haptic_sink_state));
 
     if (ptr == NULL) {
-        PRINT_ERROR_ALLOC_FAILED("calloc")
+        PRINT_ERROR_ALLOC_FAILED("calloc");
 #ifdef WIN32
         ghid_close(hid);
 #endif

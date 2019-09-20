@@ -250,7 +250,7 @@ static inline void ff_lg_fifo_push(s_cmd fifo[FIFO_SIZE], s_cmd cmd, int replace
         }
     }
     if(i == FIFO_SIZE) {
-        PRINT_ERROR_OTHER("no more space in fifo")
+        PRINT_ERROR_OTHER("no more space in fifo");
         dprintf("> can't push:");
     }
     dprintf(" %02x", cmd.cmd);

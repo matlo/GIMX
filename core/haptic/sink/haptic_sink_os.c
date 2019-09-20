@@ -54,7 +54,7 @@ static struct haptic_sink_state * haptic_sink_os_init(int joystick) {
                 state->joystick = joystick;
                 return state;
             } else {
-                PRINT_ERROR_ALLOC_FAILED("calloc")
+                PRINT_ERROR_ALLOC_FAILED("calloc");
             }
         }
     }

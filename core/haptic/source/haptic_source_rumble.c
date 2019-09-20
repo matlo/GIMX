@@ -52,7 +52,7 @@ static struct haptic_source_state * haptic_source_rumble_init(s_haptic_core_ids 
                 state->props_index = i;
                 return state;
             } else {
-                PRINT_ERROR_ALLOC_FAILED("calloc")
+                PRINT_ERROR_ALLOC_FAILED("calloc");
                 return NULL;
             }
         }
@@ -123,6 +123,6 @@ void haptic_source_rumble_constructor(void) __attribute__((constructor));
 void haptic_source_rumble_constructor(void) {
 
     if (haptic_source_register(&source_rumble) == -1) {
-        PRINT_ERROR_OTHER("failed to register source")
+        PRINT_ERROR_OTHER("failed to register source");
     }
 }
