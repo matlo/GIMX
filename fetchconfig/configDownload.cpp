@@ -48,6 +48,13 @@ int updateProgress_common(ttyProgressDialog* progressDialog, configupdater::Conf
 }
 
 
+/*
+ * Return codes for both manual and auto config download classes
+ * -3 download failed, -2 ConfigUpdater module failed to init,
+ * -1 cancelled, 0 okay, 1 connection pending, 2 download in progress
+ *
+ */
+
 ConfigDownload::ConfigDownload(WINDOW* win, WinData* win1) : dlWinData(win1)
 {
     setUpDirectories(win);
@@ -169,25 +176,31 @@ bool ManualConfigDownload::help()
     return true;
 }
 
-//Return codes => 0 ok, 1 cancelled, 2 something wrong with getting configs
 int ManualConfigDownload::chooseConfigs()
 {
     configupdater::ConfigUpdaterStatus status;
 
     /*Download config list*/
     initDownload();
-    status = configupdater().getconfiglist(configList, progress_callback_configupdater_terminal, this);
+    status = configupdater().getconfiglist(configList,
+      progress_callback_configupdater_terminal, this);
     cleanDownload();
 
-    if(status == configupdater::ConfigUpdaterStatusCancelled)
+    if(status != configupdater::ConfigUpdaterStatusOk)
+    {
+        wprintw(screen, "ConfigUpdater module failed. Return value %i\n" \
+          "Press any key to continue", status);
+        wrefresh(screen);
+        wgetch(screen);
         return status;
+    }
 
     /*Ensure the config list is not empty*/
     if(configList.empty())
     {
         wprintw(screen, "Can't retrieve configs list!\nPress any key to continue");
-        wgetch(screen);
         wrefresh(screen);
+        wgetch(screen);
         return status;
     }
 
@@ -198,7 +211,8 @@ int ManualConfigDownload::chooseConfigs()
         for(std::string configName : configList)
             options += configName + "\n";
 
-        SelectionMenu selectionMenu(options, winData.get(), "Select the files to download");
+        SelectionMenu selectionMenu(options, winData.get(),
+          "Select the files to download");
 
         /*Stylise the menu borders*/
         //				borders => (bool, we, ns)
@@ -223,17 +237,28 @@ int ManualConfigDownload::chooseConfigs()
     {
         sel = *(std::next(configList.begin(), cIndex));
         file = gimxConfigDir + sel;
-        if(fileExists(file))
+
+        if(gfile_isfile(gimxConfigDir.c_str(), sel.c_str()) > 0 )
         {
             wprintw(screen, "Overwrite local file: %s?(y or n)\n", file.c_str());
             wrefresh(screen);
             c = wgetch(screen);
-
-            //No
-            if(not (c == 121 || c == 89) )
-                continue;
+            selectedConfigs.push_back(sel);
         }
-        selectedConfigs.push_back(sel);
+
+
+
+        // if(fileExists(file))
+        // {
+        //     wprintw(screen, "Overwrite local file: %s?(y or n)\n", file.c_str());
+        //     wrefresh(screen);
+        //     c = wgetch(screen);
+        //
+        //     //No
+        //     if(not (c == 121 || c == 89) )
+        //         continue;
+        // }
+        // selectedConfigs.push_back(sel);
     }
     werase(screen);
 

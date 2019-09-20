@@ -21,6 +21,7 @@
 #include <gimxupdater/Updater.h>
 #include <gimxusb/include/gusb.h>
 #include <gimxinput/include/ginput.h>
+#include <gimxfile/include/gfile.h>
 
 #include "fileOps.h"
 #include "easyCurses.h"
