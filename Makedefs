@@ -7,17 +7,23 @@
 LD = $(CXX)
 
 ifneq ($(DEBUG),1)
-CFLAGS += -Wall -Wextra -O3
-CXXFLAGS += -Wall -Wextra -O3
+CFLAGS += -Wall -Wextra -Werror -O3
+CXXFLAGS += -Wall -Wextra -Werror -O3
 else
 ifneq ($(OS),Windows_NT)
-CFLAGS += -Wall -Wextra -O0 -g -fsanitize=address -fno-omit-frame-pointer
-CXXFLAGS += -Wall -Wextra -O0 -g -fsanitize=address -fno-omit-frame-pointer
+CFLAGS += -Wall -Wextra -Werror -O0 -g -fsanitize=address -fno-omit-frame-pointer
+CXXFLAGS += -Wall -Wextra -Werror -O0 -g -fsanitize=address -fno-omit-frame-pointer
 LDFLAGS += -fsanitize=address
 else
-CFLAGS += -Wall -Wextra -O0 -g -fno-omit-frame-pointer
-CXXFLAGS += -Wall -Wextra -O0 -g -fno-omit-frame-pointer
+CFLAGS += -Wall -Wextra -Werror -O0 -g -fno-omit-frame-pointer
+CXXFLAGS += -Wall -Wextra -Werror -O0 -g -fno-omit-frame-pointer
 endif
+endif
+
+ifeq ($(PROFILE),1)
+CFLAGS += -pg
+CXXFLAGS += -pg
+LDFLAGS += -pg
 endif
 
 CPPFLAGS += -I../shared

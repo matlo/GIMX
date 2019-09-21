@@ -2,8 +2,8 @@
 OUT = ff_lg_test
 OBJS = ../../haptic/common/ff_lg.o ../../haptic/haptic_tweaks.o
 BINS = ff_lg_test
-CFLAGS = -I../../include -I../../../shared -I../../../shared -Wall -Wextra -g -O0
-CXXFLAGS = -Wall -Wextra -g -O0
+CFLAGS = -I../../include -I../../../shared -I../../../shared -Wall -Wextra -Werror -g -O0
+CXXFLAGS = -Wall -Wextra -Werror -g -O0
 
 ifeq ($(OS),Windows_NT)
 CPPFLAGS += $(shell sdl2-config --cflags)

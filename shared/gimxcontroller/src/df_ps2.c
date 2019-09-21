@@ -90,109 +90,110 @@ static void init_report(s_report * report)
   memcpy(report, &default_report, sizeof(default_report));
 }
 
+#define dfPs2 report[index].value.dfPs2
+
 static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
   unsigned int index = 0;
   report[index].length = sizeof(s_report_dfPs2);
-  s_report_dfPs2* dfPs2 = &report[index].value.dfPs2;
 
-  dfPs2->buttonsAndWheel = clamp(0, axis[dfPs2a_wheel] + CENTER_AXIS_VALUE_10BITS, MAX_AXIS_VALUE_10BITS);
-  dfPs2->gasPedal = clamp(0, MAX_AXIS_VALUE_8BITS - axis[dfPs2a_gasPedal], MAX_AXIS_VALUE_8BITS);
-  dfPs2->brakePedal = clamp(0, MAX_AXIS_VALUE_8BITS - axis[dfPs2a_brakePedal], MAX_AXIS_VALUE_8BITS);
+  dfPs2.buttonsAndWheel = clamp(0, axis[dfPs2a_wheel] + CENTER_AXIS_VALUE_10BITS, MAX_AXIS_VALUE_10BITS);
+  dfPs2.gasPedal = clamp(0, MAX_AXIS_VALUE_8BITS - axis[dfPs2a_gasPedal], MAX_AXIS_VALUE_8BITS);
+  dfPs2.brakePedal = clamp(0, MAX_AXIS_VALUE_8BITS - axis[dfPs2a_brakePedal], MAX_AXIS_VALUE_8BITS);
 
-  dfPs2->buttons = 0x00;
+  dfPs2.buttons = 0x00;
   
   if (axis[dfPs2a_right])
   {
     if (axis[dfPs2a_down])
     {
-      dfPs2->hat = 0x03;
+      dfPs2.hat = 0x03;
     }
     else if (axis[dfPs2a_up])
     {
-      dfPs2->hat = 0x01;
+      dfPs2.hat = 0x01;
     }
     else
     {
-      dfPs2->hat = 0x02;
+      dfPs2.hat = 0x02;
     }
   }
   else if (axis[dfPs2a_left])
   {
     if (axis[dfPs2a_down])
     {
-      dfPs2->hat = 0x05;
+      dfPs2.hat = 0x05;
     }
     else if (axis[dfPs2a_up])
     {
-      dfPs2->hat = 0x07;
+      dfPs2.hat = 0x07;
     }
     else
     {
-      dfPs2->hat = 0x06;
+      dfPs2.hat = 0x06;
     }
   }
   else if (axis[dfPs2a_down])
   {
-    dfPs2->hat = 0x04;
+    dfPs2.hat = 0x04;
   }
   else if (axis[dfPs2a_up])
   {
-    dfPs2->hat = 0x0;
+    dfPs2.hat = 0x0;
   }
   else
   {
-    dfPs2->hat = 0x08;
+    dfPs2.hat = 0x08;
   }
 
   if (axis[dfPs2a_square])
   {
-    dfPs2->buttonsAndWheel |= DF_SQUARE_MASK;
+    dfPs2.buttonsAndWheel |= DF_SQUARE_MASK;
   }
   if (axis[dfPs2a_cross])
   {
-    dfPs2->buttonsAndWheel |= DF_CROSS_MASK;
+    dfPs2.buttonsAndWheel |= DF_CROSS_MASK;
   }
   if (axis[dfPs2a_triangle])
   {
-    dfPs2->buttonsAndWheel |= DF_TRIANGLE_MASK;
+    dfPs2.buttonsAndWheel |= DF_TRIANGLE_MASK;
   }
   if (axis[dfPs2a_circle])
   {
-    dfPs2->buttonsAndWheel |= DF_CIRCLE_MASK;
+    dfPs2.buttonsAndWheel |= DF_CIRCLE_MASK;
   }
   if (axis[dfPs2a_r1])
   {
-    dfPs2->buttonsAndWheel |= DF_R1_MASK;
+    dfPs2.buttonsAndWheel |= DF_R1_MASK;
   }
   if (axis[dfPs2a_l1])
   {
-    dfPs2->buttonsAndWheel |= DF_L1_MASK;
+    dfPs2.buttonsAndWheel |= DF_L1_MASK;
   }
 
   if (axis[dfPs2a_l3])
   {
-    dfPs2->buttons |= DF_L3_MASK;
+    dfPs2.buttons |= DF_L3_MASK;
   }
   if (axis[dfPs2a_r3])
   {
-    dfPs2->buttons |= DF_R3_MASK;
+    dfPs2.buttons |= DF_R3_MASK;
   }
   if (axis[dfPs2a_start])
   {
-    dfPs2->buttons |= DF_START_MASK;
+    dfPs2.buttons |= DF_START_MASK;
   }
   if (axis[dfPs2a_select])
   {
-    dfPs2->buttons |= DF_SELECT_MASK;
+    dfPs2.buttons |= DF_SELECT_MASK;
   }
   if (axis[dfPs2a_l2])
   {
-    dfPs2->buttons |= DF_L2_MASK;
+    dfPs2.buttons |= DF_L2_MASK;
   }
   if (axis[dfPs2a_r2])
   {
-    dfPs2->buttons |= DF_R2_MASK;
+    dfPs2.buttons |= DF_R2_MASK;
   }
 
   return index;

@@ -96,19 +96,14 @@ static void init_report(s_report * report)
   memcpy(report, &default_report, sizeof(default_report));
 }
 
-static inline void axis2button(int axis[AXIS_MAX], e_xone_axis_index index,
-    unsigned short* buttons, unsigned short button_mask)
-{
-  if (axis[index])
-  {
-    (*buttons) |= button_mask;
-  }
-}
+#define axis2button(axis, index, buttons, button_mask) \
+    if (axis[index]) { buttons |= button_mask; }
 
-static inline void axis2axis(int from, short * to)
-{
-  *to = clamp(SHRT_MIN, from, SHRT_MAX);
-}
+#define axis2axis(from, to) \
+    to = clamp(SHRT_MIN, from, SHRT_MAX)
+
+#define guide report[1].value.xone.guide
+#define input report[0].value.xone.input
 
 static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
@@ -116,57 +111,55 @@ static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_
 
   unsigned char guide_button = axis[xonea_guide] ? XONE_GUIDE_MASK : 0x00;
 
-  if(guide_button ^ report[1].value.xone.guide.button)
+  if(guide_button ^ guide.button)
   {
     index = 1;
-    report[index].length = sizeof(report->value.xone.guide);
-    s_report_xone* xone = &report[index].value.xone;
+    report[index].length = sizeof(guide);
 
-    xone->guide.type = XONE_USB_HID_IN_GUIDE_REPORT_ID;
-    xone->guide.unknown1 = 0x20;
-    xone->guide.counter++;
-    xone->guide.size = 0x02;
-    xone->guide.button = guide_button;
-    xone->guide.unknown2 = 0x5b;
+    guide.type = XONE_USB_HID_IN_GUIDE_REPORT_ID;
+    guide.unknown1 = 0x20;
+    guide.counter++;
+    guide.size = 0x02;
+    guide.button = guide_button;
+    guide.unknown2 = 0x5b;
   }
   else
   {
     index = 0;
-    report[index].length = sizeof(report->value.xone.input);
-    s_report_xone* xone = &report[index].value.xone;
+    report[index].length = sizeof(input);
 
-    xone->input.type = XONE_USB_HID_IN_REPORT_ID;
-    xone->input.counter++;
-    xone->input.size = 0x0e;
+    input.type = XONE_USB_HID_IN_REPORT_ID;
+    input.counter++;
+    input.size = 0x0e;
 
-    xone->input.buttons = 0x0000;
+    input.buttons = 0x0000;
 
-    axis2button(axis, xonea_up, &xone->input.buttons, XONE_UP_MASK);
-    axis2button(axis, xonea_down, &xone->input.buttons, XONE_DOWN_MASK);
-    axis2button(axis, xonea_left, &xone->input.buttons, XONE_LEFT_MASK);
-    axis2button(axis, xonea_right, &xone->input.buttons, XONE_RIGHT_MASK);
+    axis2button(axis, xonea_up, input.buttons, XONE_UP_MASK);
+    axis2button(axis, xonea_down, input.buttons, XONE_DOWN_MASK);
+    axis2button(axis, xonea_left, input.buttons, XONE_LEFT_MASK);
+    axis2button(axis, xonea_right, input.buttons, XONE_RIGHT_MASK);
 
-    axis2button(axis, xonea_view, &xone->input.buttons, XONE_VIEW_MASK);
-    axis2button(axis, xonea_menu, &xone->input.buttons, XONE_MENU_MASK);
-    axis2button(axis, xonea_LS, &xone->input.buttons, XONE_LS_MASK);
-    axis2button(axis, xonea_RS, &xone->input.buttons, XONE_RS_MASK);
+    axis2button(axis, xonea_view, input.buttons, XONE_VIEW_MASK);
+    axis2button(axis, xonea_menu, input.buttons, XONE_MENU_MASK);
+    axis2button(axis, xonea_LS, input.buttons, XONE_LS_MASK);
+    axis2button(axis, xonea_RS, input.buttons, XONE_RS_MASK);
 
-    axis2button(axis, xonea_LB, &xone->input.buttons, XONE_LB_MASK);
-    axis2button(axis, xonea_RB, &xone->input.buttons, XONE_RB_MASK);
-    axis2button(axis, xonea_guide, &xone->input.buttons, XONE_GUIDE_MASK);
+    axis2button(axis, xonea_LB, input.buttons, XONE_LB_MASK);
+    axis2button(axis, xonea_RB, input.buttons, XONE_RB_MASK);
+    axis2button(axis, xonea_guide, input.buttons, XONE_GUIDE_MASK);
 
-    axis2button(axis, xonea_A, &xone->input.buttons, XONE_A_MASK);
-    axis2button(axis, xonea_B, &xone->input.buttons, XONE_B_MASK);
-    axis2button(axis, xonea_X, &xone->input.buttons, XONE_X_MASK);
-    axis2button(axis, xonea_Y, &xone->input.buttons, XONE_Y_MASK);
+    axis2button(axis, xonea_A, input.buttons, XONE_A_MASK);
+    axis2button(axis, xonea_B, input.buttons, XONE_B_MASK);
+    axis2button(axis, xonea_X, input.buttons, XONE_X_MASK);
+    axis2button(axis, xonea_Y, input.buttons, XONE_Y_MASK);
 
-    xone->input.ltrigger = clamp(0, axis[xonea_LT], MAX_AXIS_VALUE_10BITS);
-    xone->input.rtrigger = clamp(0, axis[xonea_RT], MAX_AXIS_VALUE_10BITS);
+    input.ltrigger = clamp(0, axis[xonea_LT], MAX_AXIS_VALUE_10BITS);
+    input.rtrigger = clamp(0, axis[xonea_RT], MAX_AXIS_VALUE_10BITS);
 
-    axis2axis(axis[xonea_lstick_x], &xone->input.xaxis);
-    axis2axis(-axis[xonea_lstick_y], &xone->input.yaxis);
-    axis2axis(axis[xonea_rstick_x], &xone->input.zaxis);
-    axis2axis(-axis[xonea_rstick_y], &xone->input.taxis);
+    axis2axis(axis[xonea_lstick_x], input.xaxis);
+    axis2axis(-axis[xonea_lstick_y], input.yaxis);
+    axis2axis(axis[xonea_rstick_x], input.zaxis);
+    axis2axis(-axis[xonea_rstick_y], input.taxis);
   }
 
   return index;
