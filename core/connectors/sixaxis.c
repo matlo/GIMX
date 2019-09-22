@@ -694,7 +694,7 @@ int sixaxis_connect(int sixaxis_number, int dongle_index, const char * bdaddr_ds
   }
 
   state->dongle_index = dongle_index;
-  strncpy(state->bdaddr_dst, bdaddr_dst, sizeof(state->bdaddr_dst));
+  memcpy(state->bdaddr_dst, bdaddr_dst, sizeof(state->bdaddr_dst));
 
   sixaxis_init(sixaxis_number);
 

@@ -152,7 +152,7 @@ static int ProcessDeviceElement(xmlNode * a_node)
       prop = (char*) xmlGetProp(a_node, (xmlChar*) X_ATTR_NAME);
       if(prop)
       {
-        strncpy(r_device_name, prop, sizeof(r_device_name));
+        strncpy(r_device_name, prop, sizeof(r_device_name) - 1);
       }
       xmlFree(prop);
 
