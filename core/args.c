@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include "log.h"
+#include <gimxlog/include/glog.h>
 
 #define DEV_HIDRAW "/dev/hidraw"
 #ifndef WIN32
