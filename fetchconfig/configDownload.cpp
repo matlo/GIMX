@@ -152,7 +152,6 @@ ManualConfigDownload::ManualConfigDownload() : ConfigDownload(stdscr, newWinData
     //Help dialog
     helpText = "Press:\n\nESC to exit\nENTER to select\nArrow keys to change selection\n"\
       "Page up and down keys to change page";
-    SelectionMenu::keyBindings[104] = EasyCurses::NavContent::custom; //104 => 'h'
 }
 
 bool ManualConfigDownload::help()
@@ -188,8 +187,24 @@ int ManualConfigDownload::chooseConfigs()
 
     if(status != configupdater::ConfigUpdaterStatusOk)
     {
-        wprintw(screen, "ConfigUpdater module failed. Return value %i\n" \
-          "Press any key to continue", status);
+        wprintw(screen, "ConfigUpdater module failed. Return value %i.\n" \
+          "Reason: ", status);
+
+        switch (status) {
+            case -3:
+                wprintw(screen, "download failed.", status);
+                break;
+            case -2:
+                wprintw(screen, "initialisation failed.", status);
+                break;
+            case -1:
+                wprintw(screen, "download cancelled.", status);
+                break;
+            default:
+                break;
+        }
+
+        wprintw(screen, "\nPress any key to continue", status);
         wrefresh(screen);
         wgetch(screen);
         return status;
@@ -205,7 +220,7 @@ int ManualConfigDownload::chooseConfigs()
     }
 
     /*Add config names to options list*/
-    std::vector<int> chosen;
+    std::vector<unsigned> chosen;
     {
         std::string options;
         for(std::string configName : configList)
@@ -220,6 +235,11 @@ int ManualConfigDownload::chooseConfigs()
 
         const char* help = "Press h for help";
         selectionMenu.setCustomAction(std::bind(&ManualConfigDownload::help, this));
+        {
+            std::map<unsigned, NavContent>& kB = selectionMenu.getKeyBindings();
+            kB[104] = NavContent::custom; //104 => 'h'
+            selectionMenu.setKeyBindings(kB);
+        }
         mvwprintw(stdscr, winData->height, 0, help);
         wrefresh(stdscr);
 
@@ -243,22 +263,11 @@ int ManualConfigDownload::chooseConfigs()
             wprintw(screen, "Overwrite local file: %s?(y or n)\n", file.c_str());
             wrefresh(screen);
             c = wgetch(screen);
-            selectedConfigs.push_back(sel);
+
+            if( not (c == 121 || c == 89) ) //don't overwrite
+                continue;
         }
-
-
-
-        // if(fileExists(file))
-        // {
-        //     wprintw(screen, "Overwrite local file: %s?(y or n)\n", file.c_str());
-        //     wrefresh(screen);
-        //     c = wgetch(screen);
-        //
-        //     //No
-        //     if(not (c == 121 || c == 89) )
-        //         continue;
-        // }
-        // selectedConfigs.push_back(sel);
+        selectedConfigs.push_back(sel);
     }
     werase(screen);
 

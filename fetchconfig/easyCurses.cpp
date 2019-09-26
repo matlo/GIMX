@@ -14,11 +14,11 @@ namespace EasyCurses
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Miscellaneous
 
-    int roundUp(float n)
+    unsigned roundUp(float n)
     {
         //First, check if float is integer/round number
             //Isolate decimal point
-        int roundN = n;
+        unsigned roundN = n;
                 //Subtract round number from float => 2.6 - 2 OR 3.0 - 3
         float decimal = n - roundN;
 
@@ -29,7 +29,7 @@ namespace EasyCurses
             return roundN +1;
     }
 
-    int centreText(int windowWidth, int textLength)
+    unsigned centreText(unsigned windowWidth, unsigned textLength)
     {
         //Math works best with even numbers
         if((windowWidth % 2) != 0)
@@ -37,38 +37,38 @@ namespace EasyCurses
         return (windowWidth - textLength) / 2;
     }
 
-    std::string fillString(int textLength, char filler)
+    std::string fillString(unsigned textLength, char filler)
     {
         std::string temp;
-        for(int i = 0; i < textLength; ++i)
+        for(unsigned i = 0; i < textLength; ++i)
             temp += filler;
         return temp;
     }
 
-    void clrToEolFrom(WINDOW* win, int y, int x)
+    void clrToEolFrom(WINDOW* win, unsigned y, unsigned x)
     {
         wmove(win, y, x);
         wclrtoeol(win);
     }
-    void eraseChunk(WINDOW* win, int y, int x, int amount)
+    void eraseChunk(WINDOW* win, unsigned y, unsigned x, unsigned amount)
     {
         mvwprintw(win, y, x, fillString(amount).c_str());
         wmove(win, y, x);
     }
-    void eraseChunk(WINDOW* win, int startY, int endY, int startX, int endX)
+    void eraseChunk(WINDOW* win, unsigned startY, unsigned endY, unsigned startX, unsigned endX)
     {
-        for(int currentLine = startY; currentLine <= endY; ++currentLine)
+        for(unsigned currentLine = startY; currentLine <= endY; ++currentLine)
         {
             eraseChunk(win, currentLine, startX, endX - startX);
         }
     }
 
-    int maxLines(int height, int padding) { return height - (padding *2); }
-    int maxChars(int screenWidth, int padding) { return screenWidth - (padding *2); }
+    unsigned maxLines(unsigned height, unsigned padding) { return height - (padding *2); }
+    unsigned maxChars(unsigned screenWidth, unsigned padding) { return screenWidth - (padding *2); }
 
     namespace TextFormat
     {
-        void overflow(std::string text, int maxLength, LineEnds& lineFormat, OverFlow& oFLayout, bool wrap)
+        void overflow(std::string text, unsigned maxLength, LineEnds& lineFormat, OverFlow& oFLayout, bool wrap)
         {
             //Each time this is run, information is recalculated.
             lineFormat.clear();
@@ -151,7 +151,7 @@ namespace EasyCurses
                         for(auto line : oFlow)
                         {
                             size_t ep = line.first;
-                            int chars = line.second;
+                            unsigned chars = line.second;
                             lineFormat.push_back(std::make_pair(ep, chars));
                         }
                         oFlow.clear();
@@ -162,7 +162,7 @@ namespace EasyCurses
             }
         }
 
-        void overflow(std::string text, int maxLength, LineEnds& lineFormat)
+        void overflow(std::string text, unsigned maxLength, LineEnds& lineFormat)
         {
             OverFlow placeHolder;
 
@@ -175,11 +175,7 @@ namespace EasyCurses
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Widgets
 
-    ProgressBar::ProgressBar(WINDOW* win, int size, int startY, int startX, std::string prefix, char barChar, char point, std::string suffix)
-    {
-        init(win, size, startY, startX, prefix, barChar, point, suffix);
-    }
-    void ProgressBar::init(WINDOW* win, int size, int startY, int startX, std::string prefix, char barChar, char point, std::string suffix)
+    ProgressBar::ProgressBar(WINDOW* win, unsigned size, unsigned startY, unsigned startX, std::string prefix, std::string suffix, char barChar, char point)
     {
         /*Setup values and generate progress bar*/
         this->prefix     = prefix;
@@ -196,14 +192,11 @@ namespace EasyCurses
         this->startX = startX;
         currentX = this->startX;
     }
+
     void ProgressBar::reset()
     {
         prevAmount = 0;
         currentX   = this->startX;
-    }
-    void ProgressBar::reset(WINDOW* win, int size, int startY, int startX, std::string prefix, char barChar, char point, std::string suffix)
-    {
-        init(win, size, startY, startX, prefix, barChar, point, suffix);
     }
 
     void ProgressBar::first()
@@ -216,8 +209,8 @@ namespace EasyCurses
     {
         /*Only print difference between the last and future render*/
         //Progress needs to be a fraction to convert progress % into % of progress bar
-        int amount = (progress /100) * barSize;
-        int diff   = amount - prevAmount;
+        unsigned amount = (progress /100) * barSize;
+        unsigned diff   = amount - prevAmount;
 
         mvwprintw(window, startY, currentX, fillString(diff, barChar[0]).c_str());
 
@@ -231,7 +224,7 @@ namespace EasyCurses
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Menus
 
-    WinData* newWinData(WINDOW* window, int height, int width, int startY, int startX, int padY, int padX, \
+    WinData* newWinData(WINDOW* window, unsigned height, unsigned width, unsigned startY, unsigned startX, unsigned padY, unsigned padX, \
       bool drawBorder, int bordersWE, int bordersNS)
     {
         WinData* data = new WinData;
@@ -262,7 +255,7 @@ namespace EasyCurses
     void Menus::drawTitle()
     {
         /*Create title and message*/
-        int padding = centreText(winData->width, title.length());
+        unsigned padding = centreText(winData->width, title.length());
         mvwprintw(winData->win, 0, padding, title.c_str());
         wrefresh(winData->win);
     }
@@ -282,23 +275,22 @@ namespace EasyCurses
         numLines = pageLayout.size();
 
         keypad(winData->win, true);
+        keyBindings = {
+            { KEY_NPAGE, NavContent::pageUp }, { KEY_PPAGE, NavContent::pageDown },
+            { 27, NavContent::finish }
+        }; //27 => ESC
 
         this->cusAct = [](void) -> bool {
             return false;
         };
     }
 
-    std::map<int, NavContent> BasicMenu::keyBindings = {
-        { KEY_NPAGE, NavContent::pageUp }, { KEY_PPAGE, NavContent::pageDown },
-        { 27, NavContent::finish }
-    }; //27 => ESC
-
-    int BasicMenu::getInput()
+    unsigned BasicMenu::getInput()
     {
         return wgetch(winData->win);
     }
 
-    NavContent BasicMenu::mapInput(int rawInput)
+    NavContent BasicMenu::mapInput(unsigned rawInput)
     {
         auto res = keyBindings.find(rawInput);
         if(res != keyBindings.end())
@@ -306,19 +298,9 @@ namespace EasyCurses
         return NavContent::null;
     }
 
-    void BasicMenu::setCustomAction(F cusAct)
-    {
-        this->cusAct = cusAct;
-    }
-
-    BasicMenu::F& BasicMenu::getCustomAction()
-    {
-        return cusAct;
-    }
-
     void BasicMenu::calculatePage(NavContent seek)
     {
-        int startPage = page;
+        unsigned startPage = page;
 
         switch(seek)
         {
@@ -363,14 +345,14 @@ namespace EasyCurses
 
     void BasicMenu::printStyle()
     {
-        int x, y;
+        unsigned x, y;
         x = winData->paddingX;
         y = winData->paddingY;
 
-        for(int l = pageTop(); l <= pageBottom() && l < numLines; ++l)
+        for(unsigned l = pageTop(); l <= pageBottom() && l < numLines; ++l)
         {
             auto info        = pageLayout[l];
-            int numChars     = (info.second == _maxChars() +1? _maxChars() : info.second); //-1 so zero-initialised
+            unsigned numChars     = (info.second == _maxChars() +1? _maxChars() : info.second); //-1 so zero-initialised
             size_t lineStart = info.first - numChars;
 
             wmove(winData->win, y, x);
@@ -381,7 +363,7 @@ namespace EasyCurses
 
     void BasicMenu::drawContent()
     {
-        int x, y;
+        unsigned x, y;
 
         //Start postion of content in window
         x = winData->paddingX;
@@ -447,7 +429,7 @@ namespace EasyCurses
         oFLine  = 0;
         numLines = pageLayout.size();
 
-        for(int i = 0; i < numLines; ++i)
+        for(unsigned i = 0; i < numLines; ++i)
             selected[i] = false;
 
         keyBindings[KEY_RIGHT] = NavContent::right;
@@ -459,7 +441,7 @@ namespace EasyCurses
         keypad(winData->win, true);
     }
 
-    void SelectionMenu::getResult(std::vector<int>& chosen)
+    void SelectionMenu::getResult(std::vector<unsigned>& chosen)
     {
         for(auto option : selected)
         {
@@ -468,13 +450,13 @@ namespace EasyCurses
         }
     }
 
-    void SelectionMenu::updateLineTrackers(int n)
+    void SelectionMenu::updateLineTrackers(unsigned n)
     {
         highlight = n;
         oFLine   = 0;
     }
 
-    void SelectionMenu::drawCheckMark(int index, int y)
+    void SelectionMenu::drawCheckMark(unsigned index, unsigned y)
     {
         mvwprintw(winData->win, y, winData->width -1, (selected[index] ? checkMark : blankMark ).c_str());
         wrefresh(winData->win);
@@ -482,8 +464,8 @@ namespace EasyCurses
 
     void SelectionMenu::drawAllCheckMarks()
     {
-        int y = winData->paddingY;
-        for(int cIndex = pageTop(); cIndex <= pageBottom() && cIndex < numLines; ++cIndex)
+        unsigned y = winData->paddingY;
+        for(unsigned cIndex = pageTop(); cIndex <= pageBottom() && cIndex < numLines; ++cIndex)
         {
             drawCheckMark(cIndex, y);
             ++y;
@@ -501,45 +483,51 @@ namespace EasyCurses
             return;
         }
 
+        unsigned startPage = page;
 
-        int startPage = page;
-
-        //Check if we need to turn to next page
-        //1st case: turn over last page to first, 2nd case: page up/next, 3rd case: turn over first page to last, 4th case: page down/back
+        /*
+         * Check if we need to turn to next page:
+         * 1st case: turn over last page to first, 2nd case: page up/next,
+         * 3rd case: lineDown,
+         * 4th case: turn over first page to last, 5th case: page down/back,
+         * 6th case: lineUp
+         */
         switch(seek)
         {
             case NavContent::lineDown:
                 setUpdate();
-                updateLineTrackers(highlight +1);
 
-                if(highlight == numLines) //1st
+                if((highlight +1) == numLines) //1st
                 {
                     page = 0;
-                    updateLineTrackers(pageTop());
+                    updateLineTrackers(0);
                     break;
                 }
-                else if(highlight > pageBottom()) //2nd
+                else if((highlight +1) > pageBottom()) //2nd
                 {
                     ++page;
                     updateLineTrackers(pageTop());
                     break;
                 }
+                else //3rd
+                    updateLineTrackers(highlight +1);
                 break;
 
             case NavContent::lineUp:
                 setUpdate();
-                updateLineTrackers(highlight -1);
 
-                if(highlight == -1) //3rd
+                if(highlight == 0) //4th
                 {
                     page = lastPage() -1;
-                    updateLineTrackers(numLines -1);
+                    updateLineTrackers(pageBottom());
                 }
-                else if(highlight < pageTop()) //4th
+                else if((highlight -1) < pageTop()) //5th
                 {
                     --page;
                     updateLineTrackers(pageBottom());
                 }
+                else //6th
+                    updateLineTrackers(highlight -1);
                 break;
 
             default:
@@ -555,16 +543,16 @@ namespace EasyCurses
         if(pageLayout[highlight].second != _maxChars() +1)
             return;
 
-        bool changed     = false;
-        int numChars     = 0;
-        size_t lineStart = 0;
+        bool changed      = false;
+        unsigned numChars = 0;
+        size_t lineStart  = 0;
 
-        int first = 0;
-        int last  = oFLayout.count(highlight);
+        unsigned first = 0;
+        unsigned last  = oFLayout.count(highlight);
 
         auto set = [&]() -> void {
             auto temp = oFLayout.lower_bound(highlight);
-            for(int count = 1; count < oFLine; ++count)
+            for(unsigned count = 1; count < oFLine; ++count)
             {
                 ++temp;
             }
@@ -575,7 +563,7 @@ namespace EasyCurses
         switch(input)
         {
         case NavContent::left:
-            if((oFLine -1) > first)
+            if(oFLine != 0 && (oFLine -1) > first)
             {
                 changed = true;
                 --oFLine;
@@ -583,7 +571,7 @@ namespace EasyCurses
             }
             else if((oFLine -1) < first)
                 break;
-            else // == first
+            else // oFLine == 0
             {
                 changed = true;
                 oFLine  = 0;
@@ -671,7 +659,7 @@ namespace EasyCurses
         drawAllCheckMarks();
     }
 
-    void SelectionMenu::menuLoop(int startChoice)
+    void SelectionMenu::menuLoop(unsigned startChoice)
     {
         updateLineTrackers(startChoice);
 
@@ -680,15 +668,15 @@ namespace EasyCurses
 
     void SelectionMenu::printStyle()
     {
-        int x, y;
+        unsigned x, y;
         //Start postion of content in window
         x = winData->paddingX;
         y = winData->paddingY;
 
-        for(int l = pageTop(); l <= pageBottom() && l < numLines; ++l)
+        for(unsigned l = pageTop(); l <= pageBottom() && l < numLines; ++l)
         {
             auto info        = pageLayout[l];
-            int numChars     = (info.second == _maxChars() +1? _maxChars() : info.second);
+            unsigned numChars     = (info.second == _maxChars() +1? _maxChars() : info.second);
             size_t lineStart = info.first - numChars;
 
             wmove(winData->win, y, x);
@@ -737,7 +725,7 @@ namespace EasyCurses
     {
         if(!mssg.empty())
         {
-            int diff = message.length() - mssg.length();
+            unsigned diff = message.length() - mssg.length();
             if(diff > 0)
                 eraseChunk(winData->win, winData->paddingY, winData->paddingX +mssg.length(), diff);
 
@@ -768,7 +756,7 @@ namespace EasyCurses
 
         /*Create space for progress bar*/
         //This will be on the 5th line => index 4
-        pBar.setStartCoordinates(pBarPosY, pBarPosX);
+        pBar.setStartCoords(pBarPosY, pBarPosX);
         pBar.setSize(winData->width - (winData->paddingX *2));
         pBar.first();
 

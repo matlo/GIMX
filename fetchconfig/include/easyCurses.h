@@ -26,21 +26,21 @@ namespace EasyCurses
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Miscellaneous
 
-    int roundUp(float n);
+    unsigned roundUp(float n);
 
-    int centreText(int windowWidth, int textLength);
+    unsigned centreText(unsigned windowWidth, unsigned textLength);
 
-    std::string fillString(int textLength, char filler=' ');
+    std::string fillString(unsigned textLength, char filler=' ');
 
-    void clrToEolFrom(WINDOW* win, int y, int x);
+    void clrToEolFrom(WINDOW* win, unsigned y, unsigned x);
 
         //Overwrites with " "
-    void eraseChunk(WINDOW* win, int y, int x, int amount);
-    void eraseChunk(WINDOW* win, int startY, int endY, int startX, int endX);
+    void eraseChunk(WINDOW* win, unsigned y, unsigned x, unsigned amount);
+    void eraseChunk(WINDOW* win, unsigned startY, unsigned endY, unsigned startX, unsigned endX);
 
-    int maxLines(int height, int padding=0);
+    unsigned maxLines(unsigned height, unsigned padding=0);
 
-    int maxChars(int screenWidth, int padding=0);
+    unsigned maxChars(unsigned screenWidth, unsigned padding=0);
 
     namespace TextFormat
     {
@@ -83,11 +83,9 @@ namespace EasyCurses
  //                           line #, index of line end, # characters
         typedef std::multimap<size_t, std::pair<size_t, unsigned>> OverFlow;
 
-        // void overflow(std::string text, int maxLength, LineEnds& markers, bool markVirtEnd=false);
-
-        void overflow(std::string text, int maxLength, LineEnds& lineFormat,
+        void overflow(std::string text, unsigned maxLength, LineEnds& lineFormat,
           OverFlow& oFLayout, bool wrap=false);
-        void overflow(std::string text, int maxLength, LineEnds& lineFormat);
+        void overflow(std::string text, unsigned maxLength, LineEnds& lineFormat);
         /*
          * Return 1 if on the first line, and the 'endPoint' is negative.
          * Return 2 if both 'endPoint' and 'prevEndPoint' are negative.
@@ -95,8 +93,6 @@ namespace EasyCurses
          * Return 4 if 'endPoint' is positive, but 'prevEndPoint' is negative.
          * Return 0 if both 'endPoint' and 'prevEndPoint' are positive.
          */
-        // bool isOverflow(LineEnds markers, int index);
-        // void pageFormat(int maxLines, LineEnds markers, TextLayout& pageLayout, TextLayout& overflowLayout);
     }
     namespace TF = TextFormat;
 
@@ -110,31 +106,30 @@ namespace EasyCurses
             char point[2];
             std::string prefix;
             std::string suffix;
-            int barSize;
-            int prevAmount;
+            unsigned barSize;
+            unsigned prevAmount;
 
             WINDOW* window;
-            int startY, startX, currentX;
-
-
-            void init(WINDOW* win, int size, int startY, int startX, std::string prefix="[", char barChar='=', char point='>',
-              std::string suffix="]");
+            unsigned startY, startX, currentX;
 
             void parseFormat(char barChar, char point);
 
         public:
-            ProgressBar(WINDOW* win, int size, int startY, int startX, std::string prefix="[", char barChar='=', char point='>',
-              std::string suffix="]");
+            ProgressBar(WINDOW* win, unsigned size, unsigned startY, unsigned startX, std::string prefix="[",
+              std::string suffix="]", char barChar='=', char point='>');
             void reset();
-            void reset(WINDOW* win, int size, int startY, int startX, std::string prefix="[", char barChar='=', char point='>',
-             std::string suffix="]");
 
             void first();
             void update(double progress);
 
+            //Getters and setters
             void setWindow(WINDOW* newWin) { window = newWin; }
-            void setSize(int size) { barSize = size - (prefix.length() + suffix.length()); }
-            void setStartCoordinates(int y, int x) { startY = y; startX = x; currentX = x; }
+            void setSize(unsigned size) { barSize = size - (prefix.length() + suffix.length()); }
+            void setStartCoords(unsigned y, unsigned x) { startY = y; startX = x; currentX = x; }
+            void setPrefix(std::string p) { prefix     = p; }
+            void setSuffix(std::string s) { suffix     = s; }
+            void setBarChar(char c)       { barChar[0] = c; }
+            void setPointChar(char c)     { point[0]   = c ;}
     };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -142,16 +137,14 @@ namespace EasyCurses
 
     struct WinData
     {
-        /*WinData(WINDOW* menu_win, std::string title, int height, int width, int startY, int startX, int padY, int padX, \
-          bool drawBorder, int bordersWE, int bordersNS);*/
         bool drawBorder;
         int bordersWE, bordersNS;
 
         WINDOW* win;
-        int height, width, startY, startX, paddingY, paddingX;
+        unsigned height, width, startY, startX, paddingY, paddingX;
     };
-    //Recommended to store raw pointer in smart pointer
-    WinData* newWinData(WINDOW* window, int height=0, int width=0, int startY=0, int startX=0, int padY=2, int padX=2, \
+    //Recommended to store raw pointer, on heap mem, in smart pointer
+    WinData* newWinData(WINDOW* window, unsigned height=0, unsigned width=0, unsigned startY=0, unsigned startX=0, unsigned padY=2, unsigned padX=2, \
       bool drawBorder=true, int bordersWE=0, int bordersNS=0);
 
 
@@ -162,8 +155,8 @@ namespace EasyCurses
         std::string title;
 
         //Common math
-        virtual int _maxLines(int padY=0) { return maxLines(winData->height, padY == 0 ? winData->paddingY : padY); }
-        virtual int _maxChars(int padX=0) { return maxChars(winData->width, padX == 0 ? winData->paddingX : padX); }
+        virtual unsigned _maxLines(unsigned padY=0) { return maxLines(winData->height, padY == 0 ? winData->paddingY : padY); }
+        virtual unsigned _maxChars(unsigned padX=0) { return maxChars(winData->width, padX == 0 ? winData->paddingX : padX); }
 
         virtual void drawTitle();
         virtual void drawFrame();
@@ -173,7 +166,8 @@ namespace EasyCurses
         virtual ~Menus() { }
 
         //TODO implement capability to re-use menus
-        //virtual void reset() = 0;
+        void setTitle(std::string title) { this->title = title; }
+        void setWinData(WinData* wDat) { winData = wDat; }
     };
 
 
@@ -187,23 +181,29 @@ namespace EasyCurses
     {
     protected:
         //Input
+        std::map<unsigned, NavContent> keyBindings;
         typedef std::function<bool(void)> F;
         F cusAct;
-        int getInput();
-        NavContent mapInput(int rawInput);
+        unsigned getInput();
+        NavContent mapInput(unsigned rawInput);
         virtual void inputHandling(NavContent& input);
 
         //Text formatting
-        int page, numLines;
+        unsigned page, numLines;
         std::string text;
         TF::LineEnds pageLayout;
         TF::OverFlow oFLayout;
 
             //Common math
-        int pageTop()    { return page * _maxLines(); }
-        int pageBottom() { return ( (page +1) * (_maxLines()) ) -1; } //page is zero-initialised, so +1.
+        unsigned pageTop()    { return page * _maxLines(); }
+        unsigned pageBottom()
+        {
+            if(page == lastPage() -1)
+                return numLines -1;
+            return ( (page +1) * (_maxLines()) ) -1;
+        } //page is zero-initialised, so +1.
                                                                     //-1 as result is a line number - which is zero-initialised.
-        int lastPage()   { return roundUp( float(numLines) / float(_maxLines()) ); }
+        unsigned lastPage()   { return roundUp( float(numLines) / float(_maxLines()) ); }
 
             //Text painting
         virtual void calculatePage(NavContent seek);
@@ -219,16 +219,21 @@ namespace EasyCurses
         virtual void update();
 
     public:
-        BasicMenu(std::string text, WinData* windowsData, std::string title="Please chosen an option");
+        BasicMenu(std::string lines, WinData* windowsData, std::string title="Please chosen an option");
         virtual ~BasicMenu() { }
 
         virtual void menuLoop();
 
         virtual void setDrawBorder(bool draw=true, int bordersWE=0, int bordersNS=0);
 
-        static std::map<int, NavContent> keyBindings;
-        void setCustomAction(F cusAct);
-        F& getCustomAction();
+        //Getters and setters
+        void setKeyBindings(std::map<unsigned, NavContent>& kB)
+          { keyBindings = kB; }
+        std::map<unsigned, NavContent>& getKeyBindings()
+          { return keyBindings; }
+        void setCustomAction(F cusAct) { this->cusAct = cusAct; }
+        F& getCustomAction() { return cusAct; }
+        void setText(std::string text) { this->text = text; }
     };
 
 
@@ -243,28 +248,28 @@ namespace EasyCurses
         std::string checkMark = "X";
         std::string blankMark = "O";
         size_t highlight;
-        int oFLine;
+        unsigned oFLine;
 
             //Common math
-        int yCoord() { return (highlight + winData->paddingY) - (_maxLines() * page); }
+        unsigned yCoord() { return (highlight + winData->paddingY) - (_maxLines() * page); }
 
             //Text painting
         virtual void calculatePage(NavContent seek) override;
         virtual void printStyle() override; //Only to be used by drawContent
         virtual void drawFrame() override;
-        void drawCheckMark(int index, int y);
+        void drawCheckMark(unsigned index, unsigned y);
         void drawAllCheckMarks();
         void navTrunc(NavContent input);
 
         //Update
         virtual void update() override;
-        void updateLineTrackers(int n);
+        void updateLineTrackers(unsigned n);
 
     public:
         SelectionMenu(std::string text, WinData* windowsData, std::string title="Please chosen an option");
 
-        void menuLoop(int startChoice=0);
-        void getResult(std::vector<int>& chosen);
+        void menuLoop(unsigned startChoice=0);
+        void getResult(std::vector<unsigned>& chosen);
     };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -274,8 +279,8 @@ namespace EasyCurses
     {
     private:
         ProgressBar pBar;
-        unsigned int progInfoPosY, progInfoPosX;
-        unsigned int pBarPosY, pBarPosX;
+        unsigned progInfoPosY, progInfoPosX;
+        unsigned pBarPosY, pBarPosX;
 
         std::string message;
 
