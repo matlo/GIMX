@@ -1472,8 +1472,8 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
     else if(ProcessOutputChoice->GetStringSelection() == _("debug"))
     {
       wxArrayString destination;
-      destination.Add(_("text"));
       destination.Add(_("log file"));
+      destination.Add(_("text"));
       wxSingleChoiceDialog dialog(this, _("Select the destination:"), wxT(""), destination);
       if (dialog.ShowModal() == wxID_OK)
       {

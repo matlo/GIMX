@@ -91,19 +91,11 @@ static void init_report(s_report * report)
   memcpy(report, &default_report, sizeof(default_report));
 }
 
-static inline void axis2button(int axis[AXIS_MAX], e_x360_axis_index index,
-    unsigned short* buttons, unsigned short button_mask)
-{
-  if (axis[index])
-  {
-    (*buttons) |= button_mask;
-  }
-}
+#define axis2button(axis, index, buttons, button_mask) \
+    if (axis[index]) { buttons |= button_mask; }
 
-static inline void axis2axis(int from, short * to)
-{
-  *to = clamp(SHRT_MIN, from, SHRT_MAX);
-}
+#define axis2axis(from, to) \
+    to = clamp(SHRT_MIN, from, SHRT_MAX)
 
 static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_REPORTS])
 {
@@ -113,32 +105,32 @@ static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_
 
   x360->buttons = 0x0000;
 
-  axis2button(axis, x360a_up, &x360->buttons, X360_UP_MASK);
-  axis2button(axis, x360a_down, &x360->buttons, X360_DOWN_MASK);
-  axis2button(axis, x360a_left, &x360->buttons, X360_LEFT_MASK);
-  axis2button(axis, x360a_right, &x360->buttons, X360_RIGHT_MASK);
+  axis2button(axis, x360a_up, x360->buttons, X360_UP_MASK);
+  axis2button(axis, x360a_down, x360->buttons, X360_DOWN_MASK);
+  axis2button(axis, x360a_left, x360->buttons, X360_LEFT_MASK);
+  axis2button(axis, x360a_right, x360->buttons, X360_RIGHT_MASK);
 
-  axis2button(axis, x360a_start, &x360->buttons, X360_START_MASK);
-  axis2button(axis, x360a_back, &x360->buttons, X360_BACK_MASK);
-  axis2button(axis, x360a_LS, &x360->buttons, X360_LS_MASK);
-  axis2button(axis, x360a_RS, &x360->buttons, X360_RS_MASK);
+  axis2button(axis, x360a_start, x360->buttons, X360_START_MASK);
+  axis2button(axis, x360a_back, x360->buttons, X360_BACK_MASK);
+  axis2button(axis, x360a_LS, x360->buttons, X360_LS_MASK);
+  axis2button(axis, x360a_RS, x360->buttons, X360_RS_MASK);
 
-  axis2button(axis, x360a_LB, &x360->buttons, X360_LB_MASK);
-  axis2button(axis, x360a_RB, &x360->buttons, X360_RB_MASK);
-  axis2button(axis, x360a_guide, &x360->buttons, X360_GUIDE_MASK);
+  axis2button(axis, x360a_LB, x360->buttons, X360_LB_MASK);
+  axis2button(axis, x360a_RB, x360->buttons, X360_RB_MASK);
+  axis2button(axis, x360a_guide, x360->buttons, X360_GUIDE_MASK);
 
-  axis2button(axis, x360a_A, &x360->buttons, X360_A_MASK);
-  axis2button(axis, x360a_B, &x360->buttons, X360_B_MASK);
-  axis2button(axis, x360a_X, &x360->buttons, X360_X_MASK);
-  axis2button(axis, x360a_Y, &x360->buttons, X360_Y_MASK);
+  axis2button(axis, x360a_A, x360->buttons, X360_A_MASK);
+  axis2button(axis, x360a_B, x360->buttons, X360_B_MASK);
+  axis2button(axis, x360a_X, x360->buttons, X360_X_MASK);
+  axis2button(axis, x360a_Y, x360->buttons, X360_Y_MASK);
 
   x360->ltrigger = clamp(0, axis[x360a_LT], UCHAR_MAX);
   x360->rtrigger = clamp(0, axis[x360a_RT], UCHAR_MAX);
 
-  axis2axis(axis[x360a_lstick_x], &x360->xaxis);
-  axis2axis(-axis[x360a_lstick_y], &x360->yaxis);
-  axis2axis(axis[x360a_rstick_x], &x360->zaxis);
-  axis2axis(-axis[x360a_rstick_y], &x360->taxis);
+  axis2axis(axis[x360a_lstick_x], x360->xaxis);
+  axis2axis(-axis[x360a_lstick_y], x360->yaxis);
+  axis2axis(axis[x360a_rstick_x], x360->zaxis);
+  axis2axis(-axis[x360a_rstick_y], x360->taxis);
 
   return index;
 }

@@ -1082,8 +1082,8 @@ void update_residue(double axis_scale, const s_mapper * mapper_x, const s_mapper
   s_vector input_trunk = { .x = 0, .y = 0 };
   if (axis_x != 0 || axis_y != 0)
   {
-    double zx = fabs(axis_x);
-    double zy = fabs(axis_y);
+    double zx = abs(axis_x);
+    double zy = abs(axis_y);
 
     s_vector dead_zones =
     {

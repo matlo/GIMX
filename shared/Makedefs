@@ -4,11 +4,24 @@ exec_prefix = $(prefix)
 libdir = $(exec_prefix)/lib
 endif
 
-CFLAGS += -Wall -Wextra -O3
-CXXFLAGS += -Wall -Wextra -O3
-#Comment the above two lines and uncomment the below three lines to compile with debug symbols.
-#CFLAGS += -Wall -Wextra -O0 -g -fno-omit-frame-pointer
-#CXXFLAGS += -Wall -Wextra -O0 -g -fno-omit-frame-pointer
+ifneq ($(DEBUG),1)
+CFLAGS += -Wall -Wextra -Werror -O3
+CXXFLAGS += -Wall -Wextra -Werror -O3
+else
+ifneq ($(OS),Windows_NT)
+CFLAGS += -Wall -Wextra -Werror -O0 -g -fsanitize=address -fno-omit-frame-pointer
+CXXFLAGS += -Wall -Wextra -Werror -O0 -g -fsanitize=address -fno-omit-frame-pointer
+else
+CFLAGS += -Wall -Wextra -Werror -O0 -g -fno-omit-frame-pointer
+CXXFLAGS += -Wall -Wextra -Werror -O0 -g -fno-omit-frame-pointer
+endif
+endif
+
+ifeq ($(PROFILE),1)
+CFLAGS += -pg
+CXXFLAGS += -pg
+LDFLAGS += -pg
+endif
 
 CPPFLAGS += -I../
 

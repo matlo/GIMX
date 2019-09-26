@@ -518,7 +518,7 @@ static int usb_read_callback(void * user, unsigned char endpoint, const void * b
   if (endpoint == 0x00) {
 
     if (status > BUFFER_SIZE) {
-      PRINT_ERROR_OTHER("too many bytes transfered")
+      PRINT_ERROR_OTHER("too many bytes transfered");
       return -1;
     }
 
@@ -533,12 +533,12 @@ static int usb_read_callback(void * user, unsigned char endpoint, const void * b
   } else {
 
     if (status > controller[state->type][state->index].endpoints.in.size) {
-      PRINT_ERROR_OTHER("too many bytes transfered")
+      PRINT_ERROR_OTHER("too many bytes transfered");
       return -1;
     }
 
     if (controller[state->type][state->index].endpoints.in.address != endpoint) {
-      PRINT_ERROR_OTHER("wrong endpoint")
+      PRINT_ERROR_OTHER("wrong endpoint");
       return -1;
     }
 
@@ -563,7 +563,7 @@ static int usb_write_callback(void * user, unsigned char endpoint, int status) {
   if (endpoint != 0x00) {
 
     if (controller[state->type][state->index].endpoints.out.address != endpoint) {
-      PRINT_ERROR_OTHER("wrong endpoint")
+      PRINT_ERROR_OTHER("wrong endpoint");
       return -1;
     }
   }

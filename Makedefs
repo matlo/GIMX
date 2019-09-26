@@ -6,12 +6,25 @@
 
 LD = $(CXX)
 
-#CFLAGS += -Wall -Wextra -O3
-#CXXFLAGS += -Wall -Wextra -O3
-#Comment the above two lines and uncomment the below three lines to compile with debug symbols.
+ifneq ($(DEBUG),1)
+CFLAGS += -Wall -Wextra -Werror -O3
+CXXFLAGS += -Wall -Wextra -Werror -O3
+else
+ifneq ($(OS),Windows_NT)
+CFLAGS += -Wall -Wextra -Werror -O0 -g -fsanitize=address -fno-omit-frame-pointer
+CXXFLAGS += -Wall -Wextra -Werror -O0 -g -fsanitize=address -fno-omit-frame-pointer
+LDFLAGS += -fsanitize=address
+else
+CFLAGS += -Wall -Wextra -Werror -O0 -g -fno-omit-frame-pointer
+CXXFLAGS += -Wall -Wextra -Werror -O0 -g -fno-omit-frame-pointer
+endif
+endif
 
-#CFLAGS += -Wall -Wextra -O0 -g -fsanitize=address -fno-omit-frame-pointer
-#CXXFLAGS += -Wall -Wextra -O0 -g -fsanitize=address -fno-omit-frame-pointer
+ifeq ($(PROFILE),1)
+CFLAGS += -pg
+CXXFLAGS += -pg
+LDFLAGS += -pg
+endif
 
 #Library address sanitiser is not available for mingw64. This applies to msys2.
 #Uncomment below lines, and comment above lines, for plain debug symbols.

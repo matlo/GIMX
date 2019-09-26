@@ -58,7 +58,7 @@ struct haptic_source_state * haptic_source_lg_init(s_haptic_core_ids ids) {
     void * ptr = calloc(1, sizeof(struct haptic_source_state));
 
     if (ptr == NULL) {
-        PRINT_ERROR_ALLOC_FAILED("calloc")
+        PRINT_ERROR_ALLOC_FAILED("calloc");
         return NULL;
     }
 
@@ -292,6 +292,6 @@ void haptic_source_lg_constructor(void) __attribute__((constructor));
 void haptic_source_lg_constructor(void) {
 
     if (haptic_source_register(&source_lg) == -1) {
-        PRINT_ERROR_OTHER("failed to register source")
+        PRINT_ERROR_OTHER("failed to register source");
     }
 }
