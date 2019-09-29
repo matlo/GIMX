@@ -6,7 +6,7 @@
 #include <gimxtime/include/gtime.h>
 #include <gimx.h>
 
-#define STATS_PERIOD 500000 //ms
+#define STATS_PERIOD 500000000LL //ns
 
 static struct
 {
@@ -34,7 +34,7 @@ int stats_get_frequency(int id)
 
   if(tdiff > STATS_PERIOD)
   {
-    ret = stats[id].cpt * 1000000 / tdiff;
+    ret = stats[id].cpt * 1000000000UL / tdiff;
     stats[id].tlast = tnow;
     stats[id].cpt = 0;
   }
