@@ -281,11 +281,6 @@ int main(int argc, char *argv[])
     bt_abs_value = E_BT_ABS_BTSTACK;
   }
 
-  if (gprio_init() < 0)
-  {
-    gwarn("failed to set process priority\n")
-  }
-
   if (gusb_init() < 0)
   {
     status = E_GIMX_STATUS_GENERIC_ERROR;
@@ -477,11 +472,22 @@ int main(int argc, char *argv[])
 
   usb_poll_interrupts();
 
+  /*
+   * Call gprio_init just before mainloop,
+   * so that all libraries spawned the threads they need.
+   */
+  if (gprio_init() < 0)
+  {
+    gwarn("failed to set process priority\n")
+  }
+
   e_gimx_status mstatus = mainloop();
   if (mstatus != E_GIMX_STATUS_SUCCESS)
   {
     status = mstatus;
   }
+
+  gprio_clean();
 
   if (gimx_params.focus_lost)
   {
@@ -572,8 +578,6 @@ int main(int argc, char *argv[])
     tcsetattr(STDOUT_FILENO, TCSANOW, &term);
   }
 #endif
-
-  gprio_clean();
 
   free(gimx_params.homedir);
 
