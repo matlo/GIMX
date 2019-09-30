@@ -17,7 +17,18 @@
 #include <connectors/usb_con.h>
 #include <report2event/report2event.h>
 
-static GPERF_INST(mainloop);
+#define SAMPLETYPE \
+    struct { \
+            gtime now; \
+            gtime delta; \
+        }
+
+#define NBSAMPLES 2500 // 10s with a period of 4ms
+
+#define SAMPLEPRINT(SAMPLE) \
+    printf("now = "GTIME_FS" delta = "GTIME_FS"\n", SAMPLE.now, SAMPLE.delta)
+
+static GPERF_INST(mainloop, SAMPLETYPE, NBSAMPLES);
 
 static volatile int done = 0;
 
@@ -88,6 +99,11 @@ e_gimx_status mainloop()
 
     if (gimx_params.debug.mainloop) {
         GPERF_TICK(mainloop, gtime_gettime());
+        if (gperf_mainloop.count > 0) {
+            GPERF_SAMPLE(mainloop).now = gperf_mainloop.end;
+            GPERF_SAMPLE(mainloop).delta = gperf_mainloop.diff;
+            GPERF_SAMPLE_INC(mainloop);
+        }
     }
 
     cfg_process_rumble();
@@ -138,6 +154,7 @@ e_gimx_status mainloop()
   }
 
   if (gimx_params.debug.mainloop) {
+      GPERF_SAMPLE_PRINT(mainloop, SAMPLEPRINT);
       GPERF_LOG(mainloop);
   }
 
