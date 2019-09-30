@@ -7,6 +7,8 @@
 #include <gimxpoll/include/gpoll.h>
 #include <gimxtimer/include/gtimer.h>
 #include <gimxusb/include/gusb.h>
+#include <gimxcommon/include/gperf.h>
+#include <gimxtime/include/gtime.h>
 #include "gimx.h"
 #include "calibration.h"
 #include "macros.h"
@@ -14,6 +16,8 @@
 #include <controller.h>
 #include <connectors/usb_con.h>
 #include <report2event/report2event.h>
+
+static GPERF_INST(mainloop);
 
 static volatile int done = 0;
 
@@ -82,6 +86,10 @@ e_gimx_status mainloop()
       done = 1;
     }
 
+    if (gimx_params.debug.mainloop) {
+        GPERF_TICK(mainloop, gtime_gettime());
+    }
+
     cfg_process_rumble();
     
     if (usb_poll_interrupts() < 0)
@@ -127,6 +135,10 @@ e_gimx_status mainloop()
   if (timer != NULL)
   {
     gtimer_close(timer);
+  }
+
+  if (gimx_params.debug.mainloop) {
+      GPERF_LOG(mainloop);
   }
 
   return status;

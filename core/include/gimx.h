@@ -60,6 +60,7 @@ typedef struct
       int haptic;
       int controller;
       int macros;
+      int mainloop;
       int sixaxis;
       int config;
       int usb_con;

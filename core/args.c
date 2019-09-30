@@ -154,6 +154,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"debug.haptic",     no_argument, &params->debug.haptic,      1},
     {"debug.controller", no_argument, &params->debug.controller,  1},
     {"debug.macros",     no_argument, &params->debug.macros,      1},
+    {"debug.mainloop",   no_argument, &params->debug.mainloop,    1},
     {"debug.sixaxis",    no_argument, &params->debug.sixaxis,     1},
     {"debug.config",     no_argument, &params->debug.config,      1},
     {"debug.usb_con",    no_argument, &params->debug.usb_con,     1},
