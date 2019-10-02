@@ -3,7 +3,7 @@
  License: GPLv3
  */
 
-#include <report2event/360Pad2event.h>
+#include <connectors/report2event/360Pad2event.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>

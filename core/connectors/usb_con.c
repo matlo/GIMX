@@ -7,7 +7,7 @@
 #include <connectors/protocol.h>
 #include <controller.h>
 #include <mainloop.h>
-#include <report2event/report2event.h>
+#include <connectors/report2event/report2event.h>
 #include <gimx.h>
 #include <gimxusb/include/gusb.h>
 

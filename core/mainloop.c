@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <controller.h>
 #include <connectors/usb_con.h>
-#include <report2event/report2event.h>
+#include <connectors/report2event/report2event.h>
 
 #define SAMPLETYPE \
     struct { \

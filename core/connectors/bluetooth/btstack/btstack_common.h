@@ -3,7 +3,7 @@
  License: GPLv3
  */
 
-#ifndef BTSTACK_CON_H_
+#ifndef BTSTACK_COMMON_H_
 #define BTSTACK_COMMON_H_
 
 #include <hci.h>
@@ -31,4 +31,4 @@ int btstack_common_send_packet(uint16_t type, uint16_t cid, const unsigned char 
 int btstack_common_send_cmd(const hci_cmd_t *cmd, ...);
 int btstack_common_disconnect(uint16_t handle);
 
-#endif /* BTSTACK_CON_H_ */
+#endif /* BTSTACK_COMMON_H_ */
