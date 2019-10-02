@@ -5,39 +5,50 @@
 
 #include <gimxtime/include/gtime.h>
 #include <gimx.h>
+#include <stdlib.h>
 
 #define STATS_PERIOD 500000000LL //ns
 
-static struct
-{
-  gtime tlast;
-  int cpt;
-} stats[MAX_CONTROLLERS] = {};
+struct stats {
+    gtime tlast;
+    int cpt;
+};
 
-void stats_init(int id)
-{
-  stats[id].tlast = gtime_gettime();
+void stats_clean(struct stats * s) {
+
+    free(s);
 }
 
-void stats_update(int id)
-{
-  stats[id].cpt++;
+struct stats * stats_init() {
+
+    struct stats * s = calloc(1, sizeof(*s));
+    if (s == NULL) {
+        PRINT_ERROR_ALLOC_FAILED("calloc");
+        return NULL;
+    }
+
+    s->tlast = gtime_gettime();
+
+    return s;
 }
 
-int stats_get_frequency(int id)
-{
-  int ret = -1;
+void stats_update(struct stats * s) {
+    s->cpt++;
+}
 
-  gtime tnow = gtime_gettime();
+int stats_get_frequency(struct stats * s) {
 
-  gtimediff tdiff = tnow - stats[id].tlast;
+    int ret = -1;
 
-  if(tdiff > STATS_PERIOD)
-  {
-    ret = stats[id].cpt * 1000000000UL / tdiff;
-    stats[id].tlast = tnow;
-    stats[id].cpt = 0;
-  }
+    gtime tnow = gtime_gettime();
 
-  return ret;
+    gtimediff tdiff = tnow - s->tlast;
+
+    if (tdiff > STATS_PERIOD) {
+        ret = s->cpt * 1000000000UL / tdiff;
+        s->tlast = tnow;
+        s->cpt = 0;
+    }
+
+    return ret;
 }

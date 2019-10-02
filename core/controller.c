@@ -930,7 +930,12 @@ int adapter_start()
         gpoll_register_fd(adapter->src_fd, (void *)(intptr_t) i, &callbacks);
       }
     }
+
+    if (ret != -1) {
+        adapter->s = stats_init();
+    }
   }
+
   return ret;
 }
 
@@ -1086,8 +1091,8 @@ int adapter_send()
       }
       else if(gimx_params.curses)
       {
-        stats_update(i);
-        display_run(adapter_get(0)->ctype, adapter->send_command ? adapter_get(0)->axis : NULL);
+        stats_update(adapter->s);
+        display_run(adapter_get(0)->ctype, adapter->send_command ? adapter_get(0)->axis : NULL, adapter->s);
       }
 
       adapter->send_command = 0;
@@ -1124,6 +1129,9 @@ e_gimx_status adapter_clean()
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
     adapter = adapter_get(i);
+
+    stats_clean(adapter->s);
+
     if(adapter->atype == E_ADAPTER_TYPE_REMOTE_GIMX)
     {
       if(adapter->remote.fd >= 0)

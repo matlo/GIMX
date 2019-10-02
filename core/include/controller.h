@@ -76,6 +76,7 @@ typedef struct {
       unsigned int counter;
       unsigned int timeout;
     } inactivity;
+    struct stats * s;
 } s_adapter;
 
 int adapter_detect();

@@ -452,7 +452,6 @@ int main(int argc, char *argv[])
     glog_set_all_levels(E_GLOG_LEVEL_NONE);
     gimx_params.curses_status = 1;
     display_init();
-    stats_init(0);
   }
 #ifndef WIN32
   else if (gimx_params.logfile == NULL)
