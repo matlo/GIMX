@@ -15,7 +15,7 @@
 #include "btstack_common.h"
 #include "connectors/bluetooth/l2cap_abs.h"
 #ifdef WIN32
-#include "connectors/windows/bt_bdaddr.h"
+#include "connectors/bluetooth/windows/bt_bdaddr.h"
 #endif
 #include <hci.h>
 #include <gimxpoll/include/gpoll.h>

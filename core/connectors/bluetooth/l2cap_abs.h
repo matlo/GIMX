@@ -9,7 +9,7 @@
 #ifndef WIN32
 #include <bluetooth/bluetooth.h>
 #else
-#include <connectors/windows/bt_bdaddr.h>
+#include <connectors/bluetooth/windows/bt_bdaddr.h>
 #endif
 
 #include <connectors/bluetooth/bt_abs.h>
