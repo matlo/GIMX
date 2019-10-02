@@ -67,7 +67,7 @@ struct haptic_core * haptic_core_init(s_haptic_core_ids source_ids, int sink_joy
     core->tweaks.gain.spring = 100;
     core->tweaks.gain.damper = 100;
 
-    GLIST_ADD(ff_cores, core)
+    GLIST_ADD(ff_cores, core);
 
     return core;
 }
@@ -85,7 +85,7 @@ int haptic_core_clean(struct haptic_core * core) {
         core->sink.ptr->clean(core->sink.state);
     }
 
-    GLIST_REMOVE(ff_cores, core)
+    GLIST_REMOVE(ff_cores, core);
 
     free(core);
 
