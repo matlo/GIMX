@@ -103,8 +103,16 @@ int process_event(GE_Event* event)
   switch (event->type)
   {
     case GE_MOUSEMOTION:
+    {
       cfg_process_motion_event(event);
+      unsigned int device = ginput_get_device_id(event);
+      int controller = adapter_get_controller(E_DEVICE_TYPE_MOUSE, device);
+      s_adapter * adapter = adapter_get(controller);
+      if (adapter->mstats != NULL) {
+        stats_update(adapter->mstats);
+      }
       break;
+    }
     case GE_JOYRUMBLE:
       cfg_process_rumble_event(event);
       break;

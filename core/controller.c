@@ -65,6 +65,7 @@ void adapter_init_static(void)
     }
     adapters[i].status = 0;
     adapters[i].joystick = -1;
+    adapters[i].mfrequency = -1;
   }
   for(j=0; j<E_DEVICE_TYPE_NB; ++j)
   {
@@ -242,6 +243,9 @@ void adapter_set_device(int adapter, e_device_type device_type, int device_id)
   }
   if(adapter_device[type_index][adapter] < 0)
   {
+    if (device_type == E_DEVICE_TYPE_MOUSE) {
+        adapters[adapter].mstats = stats_init(E_STATS_TYPE_MOUSE);
+    }
     adapter_device[type_index][adapter] = device_id;
     device_adapter[type_index][device_id] = adapter;
   }
@@ -932,7 +936,7 @@ int adapter_start()
     }
 
     if (ret != -1) {
-        adapter->s = stats_init();
+        adapter->cstats = stats_init(E_STATS_TYPE_CONTROLLER);
     }
   }
 
@@ -1091,8 +1095,8 @@ int adapter_send()
       }
       else if(gimx_params.curses)
       {
-        stats_update(adapter->s);
-        display_run(adapter_get(0)->ctype, adapter->send_command ? adapter_get(0)->axis : NULL, adapter->s);
+        stats_update(adapter->cstats);
+        display_run(adapter_get(0)->ctype, adapter->send_command ? adapter_get(0)->axis : NULL, adapter->cstats);
       }
 
       adapter->send_command = 0;
@@ -1109,6 +1113,17 @@ int adapter_send()
     if (adapter->ff_core != NULL)
     {
       haptic_core_update(adapter->ff_core);
+    }
+
+    if (adapter->mfrequency == -1 && adapter->mstats != NULL) {
+      adapter->mfrequency = stats_get_frequency(adapter->mstats);
+      if (adapter->mfrequency != -1) {
+        int rfrequency = 2 * 1000000 / gimx_params.refresh_period;
+        if (adapter->mfrequency < rfrequency) {
+          gwarn(_("Expect jerky movements: mouse frequency is only %dHz.\n"), adapter->mfrequency);
+          gwarn(_("Required mouse frequency is %dHz.\n"), rfrequency);
+        }
+      }
     }
   }
 
@@ -1130,7 +1145,8 @@ e_gimx_status adapter_clean()
   {
     adapter = adapter_get(i);
 
-    stats_clean(adapter->s);
+    stats_clean(adapter->cstats);
+    stats_clean(adapter->mstats);
 
     if(adapter->atype == E_ADAPTER_TYPE_REMOTE_GIMX)
     {
