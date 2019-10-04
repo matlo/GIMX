@@ -1174,8 +1174,6 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
 #ifndef WIN32
     Output->Append(_("Bluetooth / PS3"));
     Output->Append(_("Bluetooth / PS4"));
-#else
-    Input->Append(_("Physical devices (elevated privileges)"));
 #endif
 
     Output->Append(_("Stub"));
@@ -1442,12 +1440,8 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
     }
 
 #ifndef WIN32
-    command.Append(wxT("xterm -e "));
+    command.Append(wxT("xterm -e gimx"));
 #endif
-    if(Input->GetStringSelection() != _("Physical devices (elevated privileges)"))
-    {
-      command.Append(wxT("gimx"));
-    }
 
     if(Output->GetStringSelection() == _("Stub"))
     {
@@ -1575,22 +1569,18 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
 
     startTime = wxGetUTCTime();
 
-    if(Input->GetStringSelection() != _("Physical devices (elevated privileges)"))
-    {
-        MyProcess *process = new MyProcess(this, command);
 
-        if(!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process))
-        {
-          wxMessageBox( _("can't start gimx!"), _("Error"), wxICON_ERROR);
-        }
-    }
-#ifdef WIN32
-    else
-    {
-        runAs(wxT("gimx.exe"), command);
+#ifndef WIN32
+    MyProcess *process = new MyProcess(this, command);
 
-        OnProcessTerminated(NULL, 0);
+    if(!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process))
+    {
+      wxMessageBox( _("can't start gimx!"), _("Error"), wxICON_ERROR);
     }
+#else
+    runAs(wxT("gimx.exe"), command);
+
+    OnProcessTerminated(NULL, 0);
 #endif
 }
 
