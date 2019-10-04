@@ -103,6 +103,7 @@ e_gimx_status mainloop()
     if (timer != NULL && (unsigned int)gimx_params.refresh_period != refresh_period)
     {
       refresh_period = gimx_params.refresh_period;
+      gimx_params.frequency_scale = (double) DEFAULT_REFRESH_PERIOD / gimx_params.refresh_period;
       gtimer_close(timer);
       gwarn(_("Lowering controller frequency to %dHz due to low mouse frequency.\n"), 1000000 / refresh_period);
       timer = gtimer_start(NULL, refresh_period, &callbacks);
