@@ -78,7 +78,7 @@ typedef struct {
     } inactivity;
     struct stats * cstats;
     struct stats * mstats;
-    int mfrequency;
+    int mperiod;
 } s_adapter;
 
 int adapter_detect();

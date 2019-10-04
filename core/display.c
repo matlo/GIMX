@@ -341,7 +341,7 @@ static void show_stats(struct stats * s)
 {
   char rate[COLS];
 
-  int freq = stats_get_frequency(s);
+  int freq = 1000000 / stats_get_period(s);
 
   if(freq >= 0)
   {

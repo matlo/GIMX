@@ -16,6 +16,6 @@ enum stats_type {
 struct stats * stats_init(enum stats_type type);
 void stats_clean(struct stats * s);
 void stats_update(struct stats * s);
-int stats_get_frequency(struct stats * s);
+int stats_get_period(struct stats * s);
 
 #endif /* STATS_H_ */

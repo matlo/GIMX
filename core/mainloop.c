@@ -62,15 +62,18 @@ e_gimx_status mainloop()
   unsigned int running_macros;
   struct gtimer * timer = NULL;
 
+  unsigned int refresh_period = (unsigned int)gimx_params.refresh_period;
+
+  GTIMER_CALLBACKS callbacks = {
+          .fp_read = timer_read,
+          .fp_close = timer_close,
+          .fp_register = REGISTER_FUNCTION,
+          .fp_remove = REMOVE_FUNCTION,
+  };
+
   if(adapter_get(0)->atype != E_ADAPTER_TYPE_BLUETOOTH || adapter_get(0)->ctype == C_TYPE_DS4)
   {
-    GTIMER_CALLBACKS callbacks = {
-            .fp_read = timer_read,
-            .fp_close = timer_close,
-            .fp_register = REGISTER_FUNCTION,
-            .fp_remove = REMOVE_FUNCTION,
-    };
-    timer = gtimer_start(NULL, (unsigned int)gimx_params.refresh_period, &callbacks);
+    timer = gtimer_start(NULL, refresh_period, &callbacks);
     if (timer == NULL)
     {
       done = 1;
@@ -95,6 +98,18 @@ e_gimx_status mainloop()
     if(adapter_send() < 0)
     {
       done = 1;
+    }
+
+    if (timer != NULL && (unsigned int)gimx_params.refresh_period != refresh_period)
+    {
+      refresh_period = gimx_params.refresh_period;
+      gtimer_close(timer);
+      gwarn(_("Lowering controller frequency to %dHz due to low mouse frequency.\n"), 1000000 / refresh_period);
+      timer = gtimer_start(NULL, refresh_period, &callbacks);
+      if (timer == NULL)
+      {
+        done = 1;
+      }
     }
 
     if (gimx_params.debug.mainloop) {

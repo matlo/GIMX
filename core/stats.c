@@ -15,7 +15,7 @@ struct stats {
     gtime last;
     unsigned int cpt;
     unsigned int periods[11]; // count periods from 0 to 10 ms
-    int frequency;
+    int period;
 };
 
 void stats_clean(struct stats *s) {
@@ -36,7 +36,7 @@ struct stats* stats_init(enum stats_type type) {
     if (s->type == E_STATS_TYPE_CONTROLLER) {
         s->last = gtime_gettime();
     } else {
-        s->frequency = -1;
+        s->period = -1;
     }
 
     return s;
@@ -46,7 +46,7 @@ void stats_update(struct stats *s) {
 
     s->cpt++;
 
-    if (s->type == E_STATS_TYPE_MOUSE && s->frequency == -1) {
+    if (s->type == E_STATS_TYPE_MOUSE && s->period == -1) {
         gtime now = gtime_gettime();
         if (s->last != 0) {
             gtime delta = now - s->last;
@@ -59,37 +59,37 @@ void stats_update(struct stats *s) {
             }
         }
         s->last = now;
-        // compute mouse frequency on first 1000 reports
-        if (s->cpt > 1000) {
+        // compute mouse frequency on first 250 reports (2s @125Hz, 2.5s @100Hz)
+        if (s->cpt > 250) {
             unsigned int i;
             for (i = 1; i < sizeof(s->periods) / sizeof(*s->periods); ++i) {
                 if (s->periods[i] > s->cpt * 10 / 100) {
                     if (gimx_params.debug.stats) {
                         printf("mouse frequency : %dHz\n", 1000 / i);
                     }
-                    s->frequency = 1000 / i;
+                    s->period = i * 1000;
                 }
             }
         }
     }
 }
 
-int stats_get_frequency(struct stats *s) {
+int stats_get_period(struct stats *s) {
 
     int ret = -1;
 
     if (s->type == E_STATS_TYPE_CONTROLLER) {
         gtime tnow = gtime_gettime();
 
-        gtimediff tdiff = tnow - s->last;
+        gtime tdiff = tnow - s->last;
 
         if (tdiff > STATS_PERIOD) {
-            ret = s->cpt * 1000000000UL / tdiff;
+            ret = GTIME_USEC(tdiff / s->cpt);
             s->last = tnow;
             s->cpt = 0;
         }
     } else if(s->type == E_STATS_TYPE_MOUSE) {
-        ret = s->frequency;
+        ret = s->period;
     }
 
     return ret;

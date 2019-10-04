@@ -65,7 +65,7 @@ void adapter_init_static(void)
     }
     adapters[i].status = 0;
     adapters[i].joystick = -1;
-    adapters[i].mfrequency = -1;
+    adapters[i].mperiod = -1;
   }
   for(j=0; j<E_DEVICE_TYPE_NB; ++j)
   {
@@ -1115,13 +1115,18 @@ int adapter_send()
       haptic_core_update(adapter->ff_core);
     }
 
-    if (adapter->mfrequency == -1 && adapter->mstats != NULL) {
-      adapter->mfrequency = stats_get_frequency(adapter->mstats);
-      if (adapter->mfrequency != -1) {
-        int rfrequency = 2 * 1000000 / gimx_params.refresh_period;
-        if (adapter->mfrequency < rfrequency) {
-          gwarn(_("Expect jerky movements: mouse frequency is only %dHz.\n"), adapter->mfrequency);
-          gwarn(_("Required mouse frequency is %dHz.\n"), rfrequency);
+    if (adapter->mperiod == -1 && adapter->mstats != NULL)
+    {
+      adapter->mperiod = stats_get_period(adapter->mstats);
+      if (adapter->mperiod != -1)
+      {
+        ginfo(_("Mouse frequency is %dHz.\n"), 1000000 / adapter->mperiod);
+        if (adapter->mperiod >= gimx_params.refresh_period)
+        {
+          while (gimx_params.refresh_period <= adapter->mperiod)
+          {
+            gimx_params.refresh_period += 1000;
+          }
         }
       }
     }
