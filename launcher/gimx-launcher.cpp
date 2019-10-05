@@ -1325,6 +1325,26 @@ void runAs(const wxString& cmd, const wxString& params)
 
     CloseHandle(shExInfo.hProcess);
 }
+
+bool hasLimitedElevation() {
+
+    bool result = false;
+
+    HANDLE hToken = NULL;
+
+    if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)) {
+
+        DWORD dwSize = 0;
+        TOKEN_ELEVATION_TYPE elevationType;
+        if (GetTokenInformation(hToken, TokenElevationType, &elevationType, sizeof(elevationType), &dwSize)) {
+            result = (elevationType == TokenElevationTypeLimited);
+        }
+
+        CloseHandle(hToken);
+    }
+
+    return result;
+}
 #endif
 
 void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unused)))
@@ -1441,6 +1461,10 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
 
 #ifndef WIN32
     command.Append(wxT("xterm -e gimx"));
+#else
+    if (!hasLimitedElevation()) {
+      command.Append(wxT("gimx.exe"));
+    }
 #endif
 
     if(Output->GetStringSelection() == _("Stub"))
@@ -1578,9 +1602,25 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
       wxMessageBox( _("can't start gimx!"), _("Error"), wxICON_ERROR);
     }
 #else
-    runAs(wxT("gimx.exe"), command);
+    if (hasLimitedElevation())
+    {
+      // Request elevation.
 
-    OnProcessTerminated(NULL, 0);
+      runAs(wxT("gimx.exe"), command);
+
+      OnProcessTerminated(NULL, 0);
+    }
+    else
+    {
+      // No elevation or fully elevated.
+
+      MyProcess *process = new MyProcess(this, command);
+
+      if(!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process))
+      {
+        wxMessageBox( _("can't start gimx!"), _("Error"), wxICON_ERROR);
+      }
+    }
 #endif
 }
 
