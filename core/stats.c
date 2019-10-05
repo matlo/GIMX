@@ -14,7 +14,7 @@ struct stats {
     enum stats_type type;
     gtime last;
     unsigned int cpt;
-    unsigned int periods[11]; // count periods from 0 to 10 ms
+    unsigned int periods[21]; // count periods from 0 to 20 ms
     int period;
 };
 
@@ -59,15 +59,13 @@ void stats_update(struct stats *s) {
             }
         }
         s->last = now;
-        // compute mouse frequency on first 250 reports (2s @125Hz, 2.5s @100Hz)
+        // compute mouse frequency on first 250 reports (2s @125Hz, 2.5s @100Hz, 2.8s @90Hz)
         if (s->cpt > 250) {
             unsigned int i;
             for (i = 1; i < sizeof(s->periods) / sizeof(*s->periods); ++i) {
                 if (s->periods[i] > s->cpt * 10 / 100) {
-                    if (gimx_params.debug.stats) {
-                        printf("mouse frequency : %dHz\n", 1000 / i);
-                    }
                     s->period = i * 1000;
+                    break;
                 }
             }
         }
