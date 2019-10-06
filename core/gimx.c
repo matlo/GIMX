@@ -487,7 +487,7 @@ int main(int argc, char *argv[])
    */
   if (gprio_init() < 0)
   {
-    gwarn("failed to set process priority\n")
+    gwarn("failed to set process priority\n");
   }
 
   e_gimx_status mstatus = mainloop();

@@ -209,28 +209,36 @@ static inline void resetColorStderr(void) {
 #endif
 
 #define gstatus(...) \
-    if(gimx_params.status) { \
-        printf(__VA_ARGS__); \
-    }
+    do { \
+        if(gimx_params.status) { \
+            printf(__VA_ARGS__); \
+        } \
+    } while (0)
 
 #define ginfo(...) \
-    if(!gimx_params.curses_status) { \
-        printf(__VA_ARGS__); \
-    }
+    do { \
+        if(!gimx_params.curses_status) { \
+            printf(__VA_ARGS__); \
+        } \
+    } while (0)
 
 #define gwarn(...) \
-    if(!gimx_params.curses_status) { \
-        setColorStdout(YELLOW); \
-        printf("Warning: "); \
-        resetColorStdout(); \
-        printf(__VA_ARGS__); \
-    }
+    do { \
+        if(!gimx_params.curses_status) { \
+            setColorStdout(YELLOW); \
+            printf("Warning: "); \
+            resetColorStdout(); \
+            printf(__VA_ARGS__); \
+        } \
+    } while (0)
 
 #define gerror(...) \
-    setColorStderr(LIGHTRED); \
-    fprintf(stderr, "Error: "); \
-    resetColorStderr(); \
-    fprintf(stderr, __VA_ARGS__);
+    do { \
+        setColorStderr(LIGHTRED); \
+        fprintf(stderr, "Error: "); \
+        resetColorStderr(); \
+        fprintf(stderr, __VA_ARGS__); \
+    } while (0)
 
 int process_event(GE_Event*);
 int ignore_event(GE_Event*);

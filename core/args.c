@@ -473,7 +473,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
 
   if(!input)
   {
-    gerror("At least a config file, an event, or a source IP:port should be specified as argument.\n")
+    gerror("At least a config file, an event, or a source IP:port should be specified as argument.\n");
     ret = -1;
   }
 
