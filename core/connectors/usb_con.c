@@ -10,6 +10,7 @@
 #include <connectors/report2event/report2event.h>
 #include <gimx.h>
 #include <gimxusb/include/gusb.h>
+#include <gimxtime/include/gtime.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -624,23 +625,19 @@ int usb_init(int usb_number, e_controller_type type) {
         char * path = strdup(gusb_get_path(state->usb_device));
         gusb_close(state->usb_device);
 
-        FILETIME start, now;
-        GetSystemTimeAsFileTime(&start);
-        LARGE_INTEGER li_start = { .HighPart = start.dwHighDateTime, .LowPart = start.dwLowDateTime };
-        LARGE_INTEGER li_now = li_start;
+        gtime start = gtime_gettime();
+        gtime now = start;
 
         do
         {
           state->usb_device = gusb_open_path(path);
           if (gimx_params.debug.usb_con)
           {
-            ginfo("path %s device %p time %lldms\n", path, state->usb_device, (li_now.QuadPart - li_start.QuadPart) / 10000);
+            ginfo("path %s device %p time %lldms\n", path, state->usb_device, GTIME_USEC(now - start) / 1000UL);
           }
-          GetSystemTimeAsFileTime(&now);
-          li_now.HighPart = now.dwHighDateTime;
-          li_now.LowPart = now.dwLowDateTime;
+          now = gtime_gettime();
         }
-        while (state->usb_device == NULL && (li_now.QuadPart - li_start.QuadPart) / 10 < 2000000);
+        while (state->usb_device == NULL && GTIME_USEC(now - start) < 2000000);
 
         free(path);
       }
