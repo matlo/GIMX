@@ -45,11 +45,12 @@ else
 LDLIBS += $(shell sdl2-config --libs) -lws2_32 -lpdcursesw -lintl
 LDLIBS:=$(filter-out -mwindows,$(LDLIBS))
 endif
-CPPFLAGS += -Iinclude -Iconnectors/btstack/include -Iconnectors/btstack/src
+CPPFLAGS += -I. -Iconnectors/bluetooth/btstack/include -Iconnectors/bluetooth/btstack/src
 
 OBJECTS := $(patsubst %.c,%.o,$(wildcard *.c))
-OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/btstack/*.c))
-OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/btstack/src/*.c))
+OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/bluetooth/*.c))
+OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/bluetooth/btstack/*.c))
+OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/bluetooth/btstack/src/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/gpp/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/report2event/*.c))
@@ -60,10 +61,12 @@ OBJECTS += $(patsubst %.c,%.o,$(wildcard haptic/common/*.c))
 ifneq ($(OS),Windows_NT)
 OBJECTS += $(patsubst %.c,%.o,$(wildcard system/linux/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/linux/*/*.c))
+OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/bluetooth/linux/*.c))
 else
 OBJECTS += $(patsubst %.c,%.o,$(wildcard system/windows/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/*.c))
 OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/windows/*/*.c))
+OBJECTS += $(patsubst %.c,%.o,$(wildcard connectors/bluetooth/windows/*.c))
 #OBJECTS:=$(filter-out connectors/sixaxis.o,$(OBJECTS))
 OBJECTS:=$(filter-out connectors/btds4.o,$(OBJECTS))
 endif

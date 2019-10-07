@@ -3,7 +3,7 @@
  License: GPLv3
  */
 
-#include <report2event/ds42event.h>
+#include <connectors/report2event/ds42event.h>
 #include <controller.h>
 #include <stddef.h>
 #include <stdlib.h>

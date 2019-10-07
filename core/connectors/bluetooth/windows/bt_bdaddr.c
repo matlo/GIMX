@@ -3,7 +3,7 @@
    License: GPLv3
 */
 
-#include <connectors/windows/bt_bdaddr.h>
+#include <connectors/bluetooth/windows/bt_bdaddr.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -337,11 +337,11 @@ void display_end()
   }
 }
 
-static void show_stats()
+static void show_stats(struct stats * s)
 {
   char rate[COLS];
 
-  int freq = stats_get_frequency(0);
+  int freq = 1000000 / stats_get_period(s);
 
   if(freq >= 0)
   {
@@ -408,9 +408,9 @@ static void show_axes(e_controller_type type, int axis[])
   wnoutrefresh(rstick);
 }
 
-void display_run(e_controller_type type, int axis[])
+void display_run(e_controller_type type, int axis[], struct stats * s)
 {
-  show_stats();
+  show_stats(s);
 
   if (axis != NULL)
   {

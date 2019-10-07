@@ -154,9 +154,11 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"debug.haptic",     no_argument, &params->debug.haptic,      1},
     {"debug.controller", no_argument, &params->debug.controller,  1},
     {"debug.macros",     no_argument, &params->debug.macros,      1},
+    {"debug.mainloop",   no_argument, &params->debug.mainloop,    1},
     {"debug.sixaxis",    no_argument, &params->debug.sixaxis,     1},
     {"debug.config",     no_argument, &params->debug.config,      1},
     {"debug.usb_con",    no_argument, &params->debug.usb_con,     1},
+    {"debug.stats",      no_argument, &params->debug.stats,       1},
     {"debug.gimxhid",    no_argument, &params->debug.gimxhid,     1},
     {"debug.gimxinput",  no_argument, &params->debug.gimxinput,   1},
     {"debug.gimxpoll",   no_argument, &params->debug.gimxpoll,    1},
@@ -471,7 +473,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
 
   if(!input)
   {
-    gerror("At least a config file, an event, or a source IP:port should be specified as argument.\n")
+    gerror("At least a config file, an event, or a source IP:port should be specified as argument.\n");
     ret = -1;
   }
 

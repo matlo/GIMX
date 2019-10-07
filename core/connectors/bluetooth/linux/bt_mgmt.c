@@ -17,10 +17,10 @@
 
 #include <poll.h>
 
-#include <connectors/linux/bluetooth/mgmt.h>
+#include <connectors/bluetooth/linux/mgmt.h>
 #include <connectors/bluetooth/bt_device_abs.h>
 #include <gimx.h>
-#include "../../directories.h"
+#include "../../../../directories.h"
 
 #if HCI_CHANNEL_CONTROL == 1
 #warning "Redefining HCI_CHANNEL_CONTROL to 3."

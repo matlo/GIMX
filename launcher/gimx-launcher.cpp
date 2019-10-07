@@ -1174,8 +1174,6 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
 #ifndef WIN32
     Output->Append(_("Bluetooth / PS3"));
     Output->Append(_("Bluetooth / PS4"));
-#else
-    Input->Append(_("Physical devices (elevated privileges)"));
 #endif
 
     Output->Append(_("Stub"));
@@ -1327,6 +1325,26 @@ void runAs(const wxString& cmd, const wxString& params)
 
     CloseHandle(shExInfo.hProcess);
 }
+
+bool hasLimitedElevation() {
+
+    bool result = false;
+
+    HANDLE hToken = NULL;
+
+    if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)) {
+
+        DWORD dwSize = 0;
+        TOKEN_ELEVATION_TYPE elevationType;
+        if (GetTokenInformation(hToken, TokenElevationType, &elevationType, sizeof(elevationType), &dwSize)) {
+            result = (elevationType == TokenElevationTypeLimited);
+        }
+
+        CloseHandle(hToken);
+    }
+
+    return result;
+}
 #endif
 
 void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unused)))
@@ -1442,12 +1460,12 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
     }
 
 #ifndef WIN32
-    command.Append(wxT("xterm -e "));
-#endif
-    if(Input->GetStringSelection() != _("Physical devices (elevated privileges)"))
-    {
-      command.Append(wxT("gimx"));
+    command.Append(wxT("xterm -e gimx"));
+#else
+    if (!hasLimitedElevation()) {
+      command.Append(wxT("gimx.exe"));
     }
+#endif
 
     if(Output->GetStringSelection() == _("Stub"))
     {
@@ -1575,21 +1593,33 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
 
     startTime = wxGetUTCTime();
 
-    if(Input->GetStringSelection() != _("Physical devices (elevated privileges)"))
-    {
-        MyProcess *process = new MyProcess(this, command);
 
-        if(!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process))
-        {
-          wxMessageBox( _("can't start gimx!"), _("Error"), wxICON_ERROR);
-        }
+#ifndef WIN32
+    MyProcess *process = new MyProcess(this, command);
+
+    if(!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process))
+    {
+      wxMessageBox( _("can't start gimx!"), _("Error"), wxICON_ERROR);
     }
-#ifdef WIN32
+#else
+    if (hasLimitedElevation())
+    {
+      // Request elevation.
+
+      runAs(wxT("gimx.exe"), command);
+
+      OnProcessTerminated(NULL, 0);
+    }
     else
     {
-        runAs(wxT("gimx.exe"), command);
+      // No elevation or fully elevated.
 
-        OnProcessTerminated(NULL, 0);
+      MyProcess *process = new MyProcess(this, command);
+
+      if(!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process))
+      {
+        wxMessageBox( _("can't start gimx!"), _("Error"), wxICON_ERROR);
+      }
     }
 #endif
 }

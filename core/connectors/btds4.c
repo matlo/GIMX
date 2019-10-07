@@ -11,17 +11,17 @@
 #include <errno.h>
 #ifndef WIN32
 #include "connectors/btds4.h"
-#include "connectors/bt_mgmt.h"
-#include <connectors/bluetooth/bt_device_abs.h>
+#include "connectors/bluetooth/linux/bt_mgmt.h"
+#include "connectors/bluetooth/bt_device_abs.h"
 #include <mhash.h>
 #include <poll.h>
 #include <arpa/inet.h> /* for htons */
 #else
 #include <winsock2.h> /* for htons */
 #endif
-#include <connectors/bluetooth/l2cap_abs.h>
+#include "connectors/bluetooth/l2cap_abs.h"
 #include <gimxinput/include/ginput.h>
-#include <report2event/report2event.h>
+#include "connectors/report2event/report2event.h"
 
 #define DS4_DEVICE_CLASS 0x2508
 

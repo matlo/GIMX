@@ -12,7 +12,7 @@
 #include <errno.h>
 
 #include <connectors/tcp_con.h>
-#include <connectors/bluetooth/btstack_common.h>
+#include "btstack_common.h"
 #include <connectors/bluetooth/bt_device_abs.h>
 #include <hci.h>
 

@@ -103,8 +103,18 @@ int process_event(GE_Event* event)
   switch (event->type)
   {
     case GE_MOUSEMOTION:
+    {
       cfg_process_motion_event(event);
+      unsigned int device = ginput_get_device_id(event);
+      int controller = adapter_get_controller(E_DEVICE_TYPE_MOUSE, device);
+      if (controller != -1) {
+          s_adapter * adapter = adapter_get(controller);
+          if (adapter->mstats != NULL) {
+            stats_update(adapter->mstats);
+          }
+      }
       break;
+    }
     case GE_JOYRUMBLE:
       cfg_process_rumble_event(event);
       break;
@@ -281,11 +291,6 @@ int main(int argc, char *argv[])
     bt_abs_value = E_BT_ABS_BTSTACK;
   }
 
-  if (gprio_init() < 0)
-  {
-    gwarn("failed to set process priority\n")
-  }
-
   if (gusb_init() < 0)
   {
     status = E_GIMX_STATUS_GENERIC_ERROR;
@@ -457,7 +462,6 @@ int main(int argc, char *argv[])
     glog_set_all_levels(E_GLOG_LEVEL_NONE);
     gimx_params.curses_status = 1;
     display_init();
-    stats_init(0);
   }
 #ifndef WIN32
   else if (gimx_params.logfile == NULL)
@@ -477,11 +481,22 @@ int main(int argc, char *argv[])
 
   usb_poll_interrupts();
 
+  /*
+   * Call gprio_init just before mainloop,
+   * so that all libraries spawned the threads they need.
+   */
+  if (gprio_init() < 0)
+  {
+    gwarn("failed to set process priority\n");
+  }
+
   e_gimx_status mstatus = mainloop();
   if (mstatus != E_GIMX_STATUS_SUCCESS)
   {
     status = mstatus;
   }
+
+  gprio_clean();
 
   if (gimx_params.focus_lost)
   {
@@ -572,8 +587,6 @@ int main(int argc, char *argv[])
     tcsetattr(STDOUT_FILENO, TCSANOW, &term);
   }
 #endif
-
-  gprio_clean();
 
   free(gimx_params.homedir);
 

@@ -6,9 +6,9 @@
 #include <controller.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <report2event/ds42event.h>
-#include <report2event/360Pad2event.h>
-#include <report2event/xOnePad2event.h>
+#include <connectors/report2event/ds42event.h>
+#include <connectors/report2event/360Pad2event.h>
+#include <connectors/report2event/xOnePad2event.h>
 
 static struct
 {

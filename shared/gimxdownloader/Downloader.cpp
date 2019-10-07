@@ -184,7 +184,7 @@ std::string Downloader::generateTempFile(const std::string& file) {
     std::string value = tempDir;
     free(tempDir);
 
-    value += file;
+    value = value + "/" + file;
 
     return value;
 }

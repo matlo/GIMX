@@ -418,7 +418,6 @@ static int process(void * user, int psm, const unsigned char *buf, int len)
   const char *name;
   int ret = 0;
   gtime tv1 = 0, tv2 = 0;
-  gtimediff time;
 
   struct sixaxis_state* state = states + sixaxis_number;
 
@@ -467,8 +466,7 @@ static int process(void * user, int psm, const unsigned char *buf, int len)
       if (gimx_params.debug.sixaxis)
       {
         tv2 = gtime_gettime();
-        time = tv2 - tv1;
-        ginfo("blocking send took: %lld µs\n", time);
+        ginfo("blocking send took: %lld µs\n", GTIME_USEC(tv2 - tv1));
       }
       break;
 
