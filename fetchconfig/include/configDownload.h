@@ -23,7 +23,7 @@
 #include <gimxinput/include/ginput.h>
 #include <gimxfile/include/gfile.h>
 
-#include "fileOps.h"
+#include "../directories.h"
 #include "easyCurses.h"
 
 
@@ -44,14 +44,20 @@ int process_cb(GE_Event* event __attribute__((unused)));
 
 /*Configuration file downloaders*/
 //Common
-int updateProgress_common(ttyProgressDialog* progressDialog, configupdater::ConfigUpdaterStatus status, double progress, double total);
+typedef configupdater::ConfigUpdaterStatus CUStat;
+constexpr configupdater::ConfigUpdaterStatus Ok        = configupdater::ConfigUpdaterStatusOk;
+constexpr configupdater::ConfigUpdaterStatus Pending   = configupdater::ConfigUpdaterStatusConnectionPending;
+constexpr configupdater::ConfigUpdaterStatus Running   = configupdater::ConfigUpdaterStatusDownloadInProgress;
+constexpr configupdater::ConfigUpdaterStatus Cancelled = configupdater::ConfigUpdaterStatusCancelled;
+constexpr configupdater::ConfigUpdaterStatus InitFail  = configupdater::ConfigUpdaterStatusInitFailed;
+constexpr configupdater::ConfigUpdaterStatus DlFail    = configupdater::ConfigUpdaterStatusDownloadFailed;
+
+int updateProgress_common(ttyProgressDialog* progressDialog, CUStat status, double progress, double total);
 
 
 class ConfigDownload
 {
 protected:
-    std::string userDir;
-    std::string gimxDir;
     std::string gimxConfigDir;
     std::unique_ptr<ttyProgressDialog> progressDialog;
     std::unique_ptr<WinData> dlWinData;
@@ -59,18 +65,15 @@ protected:
     void* clientp;
 
 public:
-    ConfigDownload(WINDOW* win, WinData* win1);
-    virtual ~ConfigDownload() { };
-
-    virtual bool setUpDirectories(WINDOW* win);
+    ConfigDownload();
+    virtual ~ConfigDownload() { delwin(dlScreen); };
 
     virtual int chooseConfigs()  = 0;
-    virtual int getConfig(std::string& configName);
     virtual int grabConfigs(std::list<std::string>& configs, WINDOW* screen);
 
     virtual void initDownload();
     virtual void cleanDownload();
-    virtual int  updateProgress(configupdater::ConfigUpdaterStatus status,
+    virtual int  updateProgress(CUStat status,
       double progress, double total);
 };
 
@@ -78,14 +81,13 @@ class ManualConfigDownload : public ConfigDownload
 {
 public:
     ManualConfigDownload();
-    ~ManualConfigDownload() { delwin(screen); delwin(dlScreen); }
+    // ~ManualConfigDownload() { }
 
     bool help();
 
-    virtual int chooseConfigs() override;
+    int chooseConfigs() override;
 
 private:
-    WINDOW* screen;
     std::unique_ptr<WinData> winData;
 
     std::string helpText;
@@ -100,7 +102,7 @@ class AutoConfigDownload : public ConfigDownload
 public:
     AutoConfigDownload();
 
-    int chooseConfigs();
+    int chooseConfigs() override;
 };
 
 

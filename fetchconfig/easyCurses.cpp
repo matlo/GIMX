@@ -725,7 +725,7 @@ namespace EasyCurses
     {
         if(!mssg.empty())
         {
-            unsigned diff = message.length() - mssg.length();
+            int diff = message.length() - mssg.length();
             if(diff > 0)
                 eraseChunk(winData->win, winData->paddingY, winData->paddingX +mssg.length(), diff);
 

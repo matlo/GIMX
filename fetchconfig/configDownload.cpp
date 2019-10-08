@@ -15,20 +15,20 @@ int process_cb(GE_Event* event __attribute__((unused)))
 }
 
 
-int progress_callback_configupdater_terminal(void *clientp, configupdater::ConfigUpdaterStatus status, double progress, double total)
+int progress_callback_configupdater_terminal(void *clientp, CUStat status, double progress, double total)
 {
     return ((ConfigDownload *) clientp)->updateProgress(status, progress, total);
 }
 
-int updateProgress_common(ttyProgressDialog* progressDialog, configupdater::ConfigUpdaterStatus status, double progress, double total)
+int updateProgress_common(ttyProgressDialog* progressDialog, CUStat status, double progress, double total)
 {
     std::string message;
     switch(status)
     {
-        case configupdater::ConfigUpdaterStatusConnectionPending:
+        case Pending:
             message = "Connecting";
             break;
-        case configupdater::ConfigUpdaterStatusDownloadInProgress:
+        case Running:
             message = "Progress: ";
             message += Updater::getProgress(progress, total);
             break;
@@ -55,9 +55,20 @@ int updateProgress_common(ttyProgressDialog* progressDialog, configupdater::Conf
  *
  */
 
-ConfigDownload::ConfigDownload(WINDOW* win, WinData* win1) : dlWinData(win1)
+ConfigDownload::ConfigDownload() : dlWinData(newWinData(stdscr))
 {
-    setUpDirectories(win);
+    {
+        char* res = gfile_homedir();
+        if(res == NULL)
+        {
+            wprintw(stdscr, "Cannot access config directory. Press any key to continue");
+            wrefresh(stdscr);
+            wgetch(stdscr);
+        }
+
+        gimxConfigDir = std::string(res) + (GIMX_DIR CONFIG_DIR);
+        free(res);
+    }
 
     //Progress dialog
     int height = dlWinData->height;
@@ -68,7 +79,7 @@ ConfigDownload::ConfigDownload(WINDOW* win, WinData* win1) : dlWinData(win1)
     dlWinData->startY = (height /2) - (dlWinData->height /2);
     dlScreen = newwin(dlWinData->height, dlWinData->width, dlWinData->startY, dlWinData->startX);
     dlWinData->win = dlScreen;
-    progressDialog.reset(new ttyProgressDialog(dlWinData.get(), "Downloading"));
+    progressDialog = std::make_unique<ttyProgressDialog>(dlWinData.get(), "Downloading");
 }
 
 void ConfigDownload::initDownload()
@@ -83,39 +94,17 @@ void ConfigDownload::cleanDownload()
     wrefresh(dlScreen);
 }
 
-bool ConfigDownload::setUpDirectories(WINDOW* screen)
-{
-    /*Setup directory strings*/
-    int res = getUserConfigDir(userDir);
-    if(res)
-    {
-        wprintw(screen, "Cannot access config directory. Press any key to continue");
-        wrefresh(screen);
-        wgetch(screen);
-        return false;
-    }
-    gimxDir = userDir + GIMX_DIR;
-    gimxConfigDir = gimxDir + CONFIG_DIR;
-    return true;
-}
-
-int ConfigDownload::getConfig(std::string& configName)
-{
-    configupdater::ConfigUpdaterStatus status = configupdater::ConfigUpdaterStatusOk;
-    status = configupdater().getconfig(gimxConfigDir, configName, progress_callback_configupdater_terminal, this);
-    return status;
-}
-
 int ConfigDownload::grabConfigs(std::list<std::string>& configs, WINDOW* screen)
 {
-    configupdater::ConfigUpdaterStatus status = configupdater::ConfigUpdaterStatusOk;
+    CUStat status = Ok;
     if(!configs.empty())
     {
         initDownload();
         for(std::list<std::string>::iterator it = configs.begin(); it != configs.end(); ++it)
         {
-            status = configupdater().getconfig(gimxConfigDir, *it, progress_callback_configupdater_terminal, this);
-            if (status == configupdater::ConfigUpdaterStatusCancelled)
+            status = configupdater().getconfig(gimxConfigDir, *it,
+              progress_callback_configupdater_terminal, this);
+            if (status == Cancelled)
                 break;
         }
         cleanDownload();
@@ -123,9 +112,9 @@ int ConfigDownload::grabConfigs(std::list<std::string>& configs, WINDOW* screen)
     else
         wprintw(screen, "No configs to download\n");
 
-    if(status == configupdater::ConfigUpdaterStatusOk)
+    if(status == Ok)
         wprintw(screen, "Completed\n");
-    else if(status != configupdater::ConfigUpdaterStatusCancelled)
+    else if(status != Cancelled)
         wprintw(screen, "Can't retrieve configs!\n");
     wprintw(screen, "Press any key to continue");
 
@@ -135,19 +124,17 @@ int ConfigDownload::grabConfigs(std::list<std::string>& configs, WINDOW* screen)
     return status;
 }
 
-int ConfigDownload::updateProgress(configupdater::ConfigUpdaterStatus status, double progress, double total)
+int ConfigDownload::updateProgress(CUStat status, double progress, double total)
 {
     return updateProgress_common(progressDialog.get(), status, progress, total);
 }
 
 
-ManualConfigDownload::ManualConfigDownload() : ConfigDownload(stdscr, newWinData(stdscr)),
-  winData(newWinData(stdscr))
+ManualConfigDownload::ManualConfigDownload() : winData(newWinData(stdscr))
 {
     //Selection menu
     winData->height -= 1;
-    screen       = newwin(winData->height, winData->width, winData->startY, winData->startX);
-    winData->win = screen;
+    winData->win = newwin(winData->height, winData->width, winData->startY, winData->startX);
 
     //Help dialog
     helpText = "Press:\n\nESC to exit\nENTER to select\nArrow keys to change selection\n"\
@@ -177,7 +164,7 @@ bool ManualConfigDownload::help()
 
 int ManualConfigDownload::chooseConfigs()
 {
-    configupdater::ConfigUpdaterStatus status;
+    CUStat status;
 
     /*Download config list*/
     initDownload();
@@ -185,37 +172,37 @@ int ManualConfigDownload::chooseConfigs()
       progress_callback_configupdater_terminal, this);
     cleanDownload();
 
-    if(status != configupdater::ConfigUpdaterStatusOk)
+    if(status != Ok)
     {
-        wprintw(screen, "ConfigUpdater module failed. Return value %i.\n" \
+        wprintw(winData->win, "ConfigUpdater module failed. Return value %i.\n" \
           "Reason: ", status);
 
         switch (status) {
-            case -3:
-                wprintw(screen, "download failed.", status);
+            case DlFail:
+                wprintw(winData->win, "download failed.", status);
                 break;
-            case -2:
-                wprintw(screen, "initialisation failed.", status);
+            case InitFail:
+                wprintw(winData->win, "initialisation failed.", status);
                 break;
-            case -1:
-                wprintw(screen, "download cancelled.", status);
+            case Cancelled:
+                wprintw(winData->win, "download cancelled.", status);
                 break;
             default:
                 break;
         }
 
-        wprintw(screen, "\nPress any key to continue", status);
-        wrefresh(screen);
-        wgetch(screen);
+        wprintw(winData->win, "\nPress any key to continue", status);
+        wrefresh(winData->win);
+        wgetch(winData->win);
         return status;
     }
 
     /*Ensure the config list is not empty*/
     if(configList.empty())
     {
-        wprintw(screen, "Can't retrieve configs list!\nPress any key to continue");
-        wrefresh(screen);
-        wgetch(screen);
+        wprintw(winData->win, "Can't retrieve configs list!\nPress any key to continue");
+        wrefresh(winData->win);
+        wgetch(winData->win);
         return status;
     }
 
@@ -247,7 +234,7 @@ int ManualConfigDownload::chooseConfigs()
         selectionMenu.getResult(chosen);
     }
 
-    werase(screen);
+    werase(winData->win);
 
     std::string sel;
     std::string file;
@@ -258,27 +245,28 @@ int ManualConfigDownload::chooseConfigs()
         sel = *(std::next(configList.begin(), cIndex));
         file = gimxConfigDir + sel;
 
-        if(gfile_isfile(gimxConfigDir.c_str(), sel.c_str()) > 0 )
+        if(gfile_isfile(gimxConfigDir.c_str(), sel.c_str()) != 0 )
         {
-            wprintw(screen, "Overwrite local file: %s?(y or n)\n", file.c_str());
-            wrefresh(screen);
-            c = wgetch(screen);
+            wprintw(winData->win, "Overwrite local file: %s?(y or n)\n", file.c_str());
+            wrefresh(winData->win);
+            c = wgetch(winData->win);
 
             if( not (c == 121 || c == 89) ) //don't overwrite
                 continue;
         }
         selectedConfigs.push_back(sel);
     }
-    werase(screen);
+    werase(winData->win);
+    wrefresh(winData->win);
 
-    status = static_cast<configupdater::ConfigUpdaterStatus>(grabConfigs(selectedConfigs, screen));
+    status = static_cast<CUStat>(grabConfigs(selectedConfigs, winData->win));
 
-    wrefresh(screen);
+    wrefresh(winData->win);
     return status;
 }
 
 
-AutoConfigDownload::AutoConfigDownload() : ConfigDownload(stdscr, newWinData(stdscr))
+AutoConfigDownload::AutoConfigDownload()
 {
 
 }
@@ -363,5 +351,5 @@ int AutoConfigDownload::chooseConfigs()
 
     grabConfigs(download, dlScreen);
 
-    return configupdater::ConfigUpdaterStatusOk;
+    return Ok;
 }

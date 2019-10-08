@@ -16,7 +16,7 @@ else
 LDLIBS += -lws2_32 -lstdc++ -lpdcursesw -lintl
 endif
 
-CPPFLAGS += -Iinclude -std=c++11
+CPPFLAGS += -Iinclude -std=c++14
 
 LDFLAGS += $(GIMXINPUT_LDFLAGS)   $(GIMXUSB_LDFLAGS) $(GIMXPOLL_LDFLAGS)
 LDLIBS  += $(GIMXINPUT_LDLIBS)    $(GIMXUSB_LDLIBS)  $(GIMXPOLL_LDLIBS)
