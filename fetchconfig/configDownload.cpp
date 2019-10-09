@@ -9,6 +9,37 @@
 #include "include/configDownload.h"
 
 
+bool printStat(CUStat status, WINDOW* s)
+{
+    if(status != Ok)
+    {
+        wprintw(s, "ConfigUpdater module failed. Return value %i.\n" \
+          "Reason: ", status);
+
+        switch (status) {
+            case DlFail:
+                wprintw(s, "download failed.", status);
+                break;
+            case InitFail:
+                wprintw(s, "initialisation failed.", status);
+                break;
+            case Cancelled:
+                wprintw(s, "download cancelled.", status);
+                break;
+            default:
+                break;
+        }
+
+        wprintw(s, "\nPress any key to continue", status);
+        wrefresh(s);
+        wgetch(s);
+        return false;
+    }
+
+    return true;
+}
+
+
 int process_cb(GE_Event* event __attribute__((unused)))
 {
     return 0;
@@ -84,13 +115,19 @@ ConfigDownload::ConfigDownload() : dlWinData(newWinData(stdscr))
 
 void ConfigDownload::initDownload()
 {
+    werase(stdscr);
+    werase(dlScreen);
+    wrefresh(stdscr);
+    wrefresh(dlScreen);
     progressDialog->dialog();
 }
 
 void ConfigDownload::cleanDownload()
 {
     progressDialog->resetPBar();
+    werase(stdscr);
     werase(dlScreen);
+    wrefresh(stdscr);
     wrefresh(dlScreen);
 }
 
@@ -112,11 +149,11 @@ int ConfigDownload::grabConfigs(std::list<std::string>& configs, WINDOW* screen)
     else
         wprintw(screen, "No configs to download\n");
 
-    if(status == Ok)
+    if(printStat(status, screen))
+    {
         wprintw(screen, "Completed\n");
-    else if(status != Cancelled)
-        wprintw(screen, "Can't retrieve configs!\n");
-    wprintw(screen, "Press any key to continue");
+        wprintw(screen, "Press any key to continue");
+    }
 
     wrefresh(screen);
     wgetch(screen);
@@ -172,30 +209,8 @@ int ManualConfigDownload::chooseConfigs()
       progress_callback_configupdater_terminal, this);
     cleanDownload();
 
-    if(status != Ok)
-    {
-        wprintw(winData->win, "ConfigUpdater module failed. Return value %i.\n" \
-          "Reason: ", status);
-
-        switch (status) {
-            case DlFail:
-                wprintw(winData->win, "download failed.", status);
-                break;
-            case InitFail:
-                wprintw(winData->win, "initialisation failed.", status);
-                break;
-            case Cancelled:
-                wprintw(winData->win, "download cancelled.", status);
-                break;
-            default:
-                break;
-        }
-
-        wprintw(winData->win, "\nPress any key to continue", status);
-        wrefresh(winData->win);
-        wgetch(winData->win);
+    if(!printStat(status, winData->win))
         return status;
-    }
 
     /*Ensure the config list is not empty*/
     if(configList.empty())

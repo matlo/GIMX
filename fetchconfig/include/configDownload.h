@@ -52,6 +52,8 @@ constexpr configupdater::ConfigUpdaterStatus Cancelled = configupdater::ConfigUp
 constexpr configupdater::ConfigUpdaterStatus InitFail  = configupdater::ConfigUpdaterStatusInitFailed;
 constexpr configupdater::ConfigUpdaterStatus DlFail    = configupdater::ConfigUpdaterStatusDownloadFailed;
 
+bool printStat(CUStat status, WINDOW* s);
+
 int updateProgress_common(ttyProgressDialog* progressDialog, CUStat status, double progress, double total);
 
 
