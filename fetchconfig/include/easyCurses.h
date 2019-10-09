@@ -155,8 +155,10 @@ namespace EasyCurses
         std::string title;
 
         //Common math
-        virtual unsigned _maxLines(unsigned padY=0) { return maxLines(winData->height, padY == 0 ? winData->paddingY : padY); }
-        virtual unsigned _maxChars(unsigned padX=0) { return maxChars(winData->width, padX == 0 ? winData->paddingX : padX); }
+        virtual unsigned _maxLines(unsigned padY=0)
+          { return maxLines(winData->height, padY == 0 ? winData->paddingY : padY); }
+        virtual unsigned _maxChars(unsigned padX=0)
+          { return maxChars(winData->width, padX == 0 ? winData->paddingX : padX); }
 
         virtual void drawTitle();
         virtual void drawFrame();
@@ -213,7 +215,7 @@ namespace EasyCurses
 
 
         //Update
-        bool changed = false;
+        bool changed;
         void setUpdate() { changed = true; }
         bool doUpdate();
         virtual void update();
@@ -245,8 +247,8 @@ namespace EasyCurses
         virtual void inputHandling(NavContent& input) override;
 
         //Text formatting
-        std::string checkMark = "X";
-        std::string blankMark = "O";
+        std::string checkMark;
+        std::string blankMark;
         size_t highlight;
         unsigned oFLine;
 

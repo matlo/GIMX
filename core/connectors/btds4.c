@@ -902,9 +902,9 @@ int btds4_init(int btds4_number, int dongle_index, const char * bdaddr_dst)
       #pragma GCC diagnostic ignored "-Wstringop-truncation"
   strncpy(state->ps4_bdaddr, bdaddr_dst, sizeof(state->ps4_bdaddr));
       #pragma GCC diagnostic pop
-    #endif
-  #else
+    #else
   strncpy(state->ps4_bdaddr, bdaddr_dst, sizeof(state->ps4_bdaddr));
+    #endif
   #endif
 
   memcpy(&state->bt_report, &init_report_btds4, sizeof(s_btds4_report));

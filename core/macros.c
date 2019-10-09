@@ -998,9 +998,9 @@ static void read_configs_txt(const char* dir_path)
       #pragma GCC diagnostic ignored "-Wformat-truncation"
   snprintf(file_path, sizeof(file_path), "%s%s", dir_path, MACRO_CONFIGS_FILE);
       #pragma GCC diagnostic pop
-    #endif
-  #else
+    #else
   snprintf(file_path, sizeof(file_path), "%s%s", dir_path, MACRO_CONFIGS_FILE);
+    #endif
   #endif
   fp = gfile_fopen(file_path, "r");
   if (fp)

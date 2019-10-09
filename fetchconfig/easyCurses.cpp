@@ -175,7 +175,8 @@ namespace EasyCurses
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Widgets
 
-    ProgressBar::ProgressBar(WINDOW* win, unsigned size, unsigned startY, unsigned startX, std::string prefix, std::string suffix, char barChar, char point)
+    ProgressBar::ProgressBar(WINDOW* win, unsigned size, unsigned startY,
+      unsigned startX, std::string prefix, std::string suffix, char barChar, char point)
     {
         /*Setup values and generate progress bar*/
         this->prefix     = prefix;
@@ -184,13 +185,13 @@ namespace EasyCurses
         this->point[0]   = point;
         this->barChar[1] = 0;
         this->point[1]   = 0;
-        setSize(size);
         prevAmount = 0;
+        setSize(size);
 
         window = win;
         this->startY = startY;
         this->startX = startX;
-        currentX = this->startX;
+        currentX     = this->startX;
     }
 
     void ProgressBar::reset()
@@ -270,9 +271,13 @@ namespace EasyCurses
 
     BasicMenu::BasicMenu(std::string lines, WinData* windowsData, std::string title) : Menus(windowsData, title)
     {
+        page = 0;
         text = lines;
+        //This sets up pageLayout and oFLayout
         TF::overflow(lines, _maxChars(), pageLayout);
         numLines = pageLayout.size();
+
+        changed = false;
 
         keypad(winData->win, true);
         keyBindings = {
@@ -421,16 +426,21 @@ namespace EasyCurses
     }
 
 
-    SelectionMenu::SelectionMenu(std::string text, WinData* windowsData, std::string title) : BasicMenu(text, windowsData, title)
+    SelectionMenu::SelectionMenu(std::string text, WinData* windowsData, std::string title)
+      : BasicMenu(text, windowsData, title)
     {
         this->text = text;
 
         TF::overflow(text, _maxChars(), pageLayout, oFLayout);
-        oFLine  = 0;
-        numLines = pageLayout.size();
+        highlight = 0;
+        oFLine    = 0;
+        numLines  = pageLayout.size();
 
         for(unsigned i = 0; i < numLines; ++i)
             selected[i] = false;
+
+        checkMark = "X";
+        blankMark = "O";
 
         keyBindings[KEY_RIGHT] = NavContent::right;
         keyBindings[KEY_LEFT]  = NavContent::left;
