@@ -896,10 +896,16 @@ int btds4_init(int btds4_number, int dongle_index, const char * bdaddr_dst)
    * TODO this produces warning with gcc 9
    * error: ‘strncpy’ specified bound 18 equals destination size.
    */
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wstringop-truncation"
+  #if defined(__GNUC__)
+    #if(__GNUC__ >= 8)
+      #pragma GCC diagnostic push
+      #pragma GCC diagnostic ignored "-Wstringop-truncation"
   strncpy(state->ps4_bdaddr, bdaddr_dst, sizeof(state->ps4_bdaddr));
-  #pragma GCC diagnostic pop
+      #pragma GCC diagnostic pop
+    #endif
+  #else
+  strncpy(state->ps4_bdaddr, bdaddr_dst, sizeof(state->ps4_bdaddr));
+  #endif
 
   memcpy(&state->bt_report, &init_report_btds4, sizeof(s_btds4_report));
   state->joystick_id = ginput_register_joystick(DS4_DEVICE_NAME, GE_HAPTIC_RUMBLE, ds4_interrupt_rumble);

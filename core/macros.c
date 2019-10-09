@@ -992,10 +992,16 @@ static void read_configs_txt(const char* dir_path)
    * On OSX and GNU Linux, it varies greatly. This link has some useful info:
    * https://insanecoding.blogspot.com/2007/11/pathmax-simply-isnt.html.
    */
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wformat-truncation"
+  #if defined(__GNUC__)
+    #if(__GNUC__ >= 8)
+      #pragma GCC diagnostic push
+      #pragma GCC diagnostic ignored "-Wformat-truncation"
   snprintf(file_path, sizeof(file_path), "%s%s", dir_path, MACRO_CONFIGS_FILE);
-  #pragma GCC diagnostic pop
+      #pragma GCC diagnostic pop
+    #endif
+  #else
+  snprintf(file_path, sizeof(file_path), "%s%s", dir_path, MACRO_CONFIGS_FILE);
+  #endif
   fp = gfile_fopen(file_path, "r");
   if (fp)
   {
