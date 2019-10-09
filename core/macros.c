@@ -304,7 +304,7 @@ static int get_macro(char tokens[MAX_LINE_TOKENS][LINE_MAX], int ntoks)
   if(ntoks < 2) {
     return -1;
   }
-  
+
   pcurrent = NULL;
 
   if(ntoks > 2)
@@ -460,19 +460,19 @@ static int get_event(char tokens[MAX_LINE_TOKENS][LINE_MAX], int ntoks)
   int rvalue;
   int delay_nb;
   int i;
-  
+
   if(!pcurrent || ntoks < 2) {
     return -1;
   }
-  
+
   int ret = 0;
-  
+
   if (!strncmp(tokens[0], "KEYDOWN", strlen("KEYDOWN")))
   {
     rbutton = ginput_key_id(tokens[1]);
 
     ALLOCATE_EVENT_OR_FAIL
-    
+
     pcurrent->events[pcurrent->nb_events - 1].type = GE_KEYDOWN;
     pcurrent->events[pcurrent->nb_events - 1].key.keysym = rbutton;
   }
@@ -490,7 +490,7 @@ static int get_event(char tokens[MAX_LINE_TOKENS][LINE_MAX], int ntoks)
     rbutton = ginput_key_id(tokens[1]);
 
     ALLOCATE_EVENT_OR_FAIL
-    
+
     pcurrent->events[pcurrent->nb_events - 1].type = GE_KEYDOWN;
     pcurrent->events[pcurrent->nb_events - 1].key.keysym = rbutton;
 
@@ -501,7 +501,7 @@ static int get_event(char tokens[MAX_LINE_TOKENS][LINE_MAX], int ntoks)
     }
 
     ALLOCATE_EVENT_OR_FAIL
-    
+
     pcurrent->events[pcurrent->nb_events - 1].type = GE_KEYUP;
     pcurrent->events[pcurrent->nb_events - 1].key.keysym = rbutton;
   }
@@ -510,7 +510,7 @@ static int get_event(char tokens[MAX_LINE_TOKENS][LINE_MAX], int ntoks)
     rbutton = ginput_mouse_button_id(tokens[1]);
 
     ALLOCATE_EVENT_OR_FAIL
-    
+
     pcurrent->events[pcurrent->nb_events - 1].type = GE_MOUSEBUTTONDOWN;
     pcurrent->events[pcurrent->nb_events - 1].button.button = rbutton;
   }
@@ -646,12 +646,12 @@ int get_trigger(char tokens[MAX_LINE_TOKENS][LINE_MAX], int ntoks)
 {
   int etype = -1;
   int rbutton;
-  
+
   if(!pcurrent || ntoks < 2)
   {
     return -1;
   }
-  
+
   if(ntoks > 2)
   {
     if(!strncmp(tokens[1], "KEYDOWN", strlen("KEYDOWN")))
@@ -984,7 +984,18 @@ static void read_configs_txt(const char* dir_path)
   FILE* fp;
   int ret;
 
+  /*
+   * TODO this produces warning with gcc 9
+   * error: ‘%s’ directive output may be truncated writing 11 bytes into a
+   * region of size between 1 and 4096.
+   * NOTE: PATH_MAX only reflects the maximum length a path can be on Windows.
+   * On OSX and GNU Linux, it varies greatly. This link has some useful info:
+   * https://insanecoding.blogspot.com/2007/11/pathmax-simply-isnt.html.
+   */
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wformat-truncation"
   snprintf(file_path, sizeof(file_path), "%s%s", dir_path, MACRO_CONFIGS_FILE);
+  #pragma GCC diagnostic pop
   fp = gfile_fopen(file_path, "r");
   if (fp)
   {
@@ -1386,4 +1397,3 @@ unsigned int macro_process()
   }
   return running_macro_nb;
 }
-
