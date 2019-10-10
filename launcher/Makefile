@@ -7,6 +7,7 @@ endif
 
 NAME=$(shell basename "$(shell pwd)")
 
+CPPFLAGS += -std=c++11
 ifeq ($(OS),Windows_NT)
 CPPFLAGS += `sdl2-config --cflags`
 endif
