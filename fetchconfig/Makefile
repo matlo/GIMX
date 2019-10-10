@@ -16,7 +16,7 @@ else
 LDLIBS += -lws2_32 -lstdc++ -lpdcursesw -lintl
 endif
 
-CPPFLAGS += -Iinclude -std=c++11
+CPPFLAGS += -Iinclude -std=c++14
 
 LDFLAGS += -L../shared/gimxfetchconfig
 LDLIBS  += -lgimxfetchconfig
