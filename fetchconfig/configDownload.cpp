@@ -279,10 +279,6 @@ int AutoConfigDownload::chooseConfigs()
 {
     std::list<std::string> download;
 
-    // auto getConfNames = [&download](std::string confName) -> void {
-    //     download.push_back(confName);
-    // };
-
     autoConfigDownload([&download](std::string confName) -> void {
         download.push_back(confName); }
     );

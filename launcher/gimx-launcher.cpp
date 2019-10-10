@@ -847,12 +847,12 @@ void launcherFrame::autoConfig()
 
     bool refresh = false;
 
-    auto get = [&](std::string confName) -> void {
-        if(getConfig(confName))
-            refresh = true;
-    };
-
-    autoConfigDownload(get);
+    autoConfigDownload(
+        [&](std::string confName) -> void {
+            if(getConfig(confName))
+                refresh = true;
+        }
+    );
 
     if(refresh)
         readConfigs();
