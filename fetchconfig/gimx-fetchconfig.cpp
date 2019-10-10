@@ -16,9 +16,6 @@
 #include "easyCurses.h"
 #include "configDownload.h"
 
-//Callback functionality for download progress
-int progress_callback_configupdater_terminal(void *clientp, configupdater::ConfigUpdaterStatus status, double progress, double total);
-
 
 void help()
 {
@@ -35,6 +32,14 @@ void help()
 class FileDownloader
 {
 public:
+    void exec()
+    {
+        if(doConfig)
+            manualConfig();
+        else if(doAutoConfig)
+            autoConfig();
+    }
+
     void manualConfig()
     {
         configDl = std::unique_ptr<ConfigDownload>(new ManualConfigDownload);
@@ -50,7 +55,7 @@ public:
         configDl->chooseConfigs();
     }
 
-    int callOptions(struct option* longOptions, int optionCharacter, int optionIndex)
+    int callOptions(int optionCharacter)
     {
         int result = -1;
         switch(optionCharacter)
@@ -58,18 +63,15 @@ public:
             case -1:
                 //End of list
                 break;
-            case 0:
-                //If this option set a flag, do nothing else now.
-                if(longOptions[optionIndex].flag != 0)
-                    result = 1;
-                break;
             //Manual configuration download
             case 'c':
-                manualConfig();
+                //manualConfig();
+                doConfig = true;
                 break;
             //Automatic configuration download
             case 'a':
-                autoConfig();
+                //autoConfig();
+                doAutoConfig = true;
                 break;
             case 'h':
             case '?':
@@ -82,49 +84,58 @@ public:
     }
 
 private:
+    bool doConfig     = false;
+    bool doAutoConfig = false;
+
     std::unique_ptr<ConfigDownload> configDl;
 };
 
 
 int main(int argc, char* argv[])
 {
-    /*Start curses*/
-    initscr();
-    cbreak();
-    curs_set(0);
-    noecho();
-    keypad(stdscr, true);
-
-    /*Handle command line options*/
-    struct option longOpts [] =
-    {
-            //These options don’t set a flag. We distinguish them by their indices.
-            { "config", no_argument, 0, 'c' },
-            { "autoconfig", no_argument, 0, 'a' },
-            { "help", no_argument, 0, 'h' },
-            { 0, 0, 0, 0 }
-    };
-
-    FileDownloader fDownloader;
-    auto callback = [&fDownloader](struct option* opts, int optChar, int optI) -> int {
-            return fDownloader.callOptions(opts, optChar, optI);
-    };
-
-    if(argc > 2)
-    {
-        endwin();
+    if(argc == 1)
         help();
-    }
     else
     {
+        /*Handle command line options*/
+        struct option longOpts [] =
+        {
+                //These options don’t set a flag. We distinguish them by their indices.
+                { "config",     no_argument, 0, 'c' },
+                { "autoconfig", no_argument, 0, 'a' },
+                { "help",       no_argument, 0, 'h' },
+                { 0, 0, 0, 0 }
+        };
+
+        FileDownloader fDownloader;
+        auto callback = [&fDownloader](int optChar) -> int {
+                return fDownloader.callOptions(optChar);
+        };
+
         if(parseArgs(argc, argv, longOpts, callback) == -2)
         {
-            endwin();
             help();
+            return 0;
+        }
+        else if(optind < argc)
+        {
+            std::cout << "Invalid input: " << argv[optind++] << std::endl;
+            help();
+            return 0;
+        }
+        else
+        {
+            initscr();
+            cbreak();
+            curs_set(0);
+            noecho();
+            keypad(stdscr, true);
+
+            fDownloader.exec();
+
+            endwin();
         }
     }
 
-    /*End curses*/
-    endwin();
     return 0;
 }

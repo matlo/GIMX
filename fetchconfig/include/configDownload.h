@@ -40,8 +40,8 @@ using namespace EasyCurses;
 #endif
 
 
-int process_cb(GE_Event* event __attribute__((unused)));
-
+//Callback functionality for download progress
+int progress_callback_configupdater_terminal(void *clientp, configupdater::ConfigUpdaterStatus status, double progress, double total);
 
 /*Configuration file downloaders*/
 //Common

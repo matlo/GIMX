@@ -16,10 +16,9 @@ int parseArgs(int argc, char* argv[], struct option* longOptions, Call optionsCa
 
     do
     {
-        optChar = getopt_long(argc, argv, "ach", longOptions, &optIndex);
+        optChar = getopt_long(argc, argv, "cah", longOptions, &optIndex);
 
-        optChar = optionsCaller(longOptions, optChar, optIndex);
+        optChar = optionsCaller(optChar);
     } while(optIndex > argc);
-
     return optChar;
 }
