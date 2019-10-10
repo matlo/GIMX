@@ -22,6 +22,7 @@
 #include <gimxusb/include/gusb.h>
 #include <gimxinput/include/ginput.h>
 #include <gimxfile/include/gfile.h>
+#include <gimxfetchconfig/include/commonOps.h>
 
 #include "../directories.h"
 #include "easyCurses.h"
@@ -71,12 +72,11 @@ public:
     virtual ~ConfigDownload() { delwin(dlScreen); };
 
     virtual int chooseConfigs()  = 0;
-    virtual int grabConfigs(std::list<std::string>& configs, WINDOW* screen);
+    virtual CUStat grabConfigs(std::list<std::string>& configs, WINDOW* screen);
 
     virtual void initDownload();
     virtual void cleanDownload();
-    virtual int  updateProgress(CUStat status,
-      double progress, double total);
+    virtual int  updateProgress(CUStat status, double progress, double total);
 };
 
 class ManualConfigDownload : public ConfigDownload
