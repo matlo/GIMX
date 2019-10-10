@@ -40,12 +40,6 @@ bool printStat(CUStat status, WINDOW* s)
 }
 
 
-int process_cb(GE_Event* event __attribute__((unused)))
-{
-    return 0;
-}
-
-
 int progress_callback_configupdater_terminal(void *clientp, CUStat status, double progress, double total)
 {
     return ((ConfigDownload *) clientp)->updateProgress(status, progress, total);
@@ -281,21 +275,17 @@ int ManualConfigDownload::chooseConfigs()
 }
 
 
-AutoConfigDownload::AutoConfigDownload()
-{
-
-}
-
-
 int AutoConfigDownload::chooseConfigs()
 {
     std::list<std::string> download;
 
-    auto getConfNames = [&download](std::string confName) -> void {
-        download.push_back(confName);
-    };
+    // auto getConfNames = [&download](std::string confName) -> void {
+    //     download.push_back(confName);
+    // };
 
-    autoConfigDownload(getConfNames);
+    autoConfigDownload([&download](std::string confName) -> void {
+        download.push_back(confName); }
+    );
 
     CUStat res = grabConfigs(download, dlScreen);
 

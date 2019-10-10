@@ -1,5 +1,5 @@
 ﻿/*
- * gimxFileDownloader.cpp
+ * gimx-fetchconfig
  *
  *      Author: Zac
  *     Contact: codeohms@protonmail.com
@@ -110,11 +110,21 @@ int main(int argc, char* argv[])
             return fDownloader.callOptions(opts, optChar, optI);
     };
 
-    int res = parseArgs(argc, argv, longOpts, callback);
+    if(argc > 2)
+    {
+        endwin();
+        help();
+    }
+    else
+    {
+        if(parseArgs(argc, argv, longOpts, callback) == -2)
+        {
+            endwin();
+            help();
+        }
+    }
 
     /*End curses*/
     endwin();
-    if(res == -2 || optind < argc || argc == 1)
-        help();
     return 0;
 }

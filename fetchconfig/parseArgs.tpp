@@ -3,12 +3,13 @@
  *
  *      Author: Zac
  *     Contact: codeohms@protonmail.com
- *  Created on: 8 Aug. 2018
+ *  Created on: 10 Oct. 2019
  */
 
 #include "include/parseArgs.h"
 
-int parseArgs(int argc, char* argv[], struct option* longOptions, std::function<int (struct option*, int, int)> optionsCaller)
+template <typename Call>
+int parseArgs(int argc, char* argv[], struct option* longOptions, Call optionsCaller)
 {
     int optIndex = 0;
     int optChar;
@@ -18,7 +19,7 @@ int parseArgs(int argc, char* argv[], struct option* longOptions, std::function<
         optChar = getopt_long(argc, argv, "ach", longOptions, &optIndex);
 
         optChar = optionsCaller(longOptions, optChar, optIndex);
-    } while(optChar > 1);
+    } while(optIndex > argc);
 
-    return (optChar == -2 ? -2 : 0);
+    return optChar;
 }

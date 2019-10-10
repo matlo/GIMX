@@ -3,7 +3,6 @@
 
 #include <string>
 #include <list>
-#include <functional>
 
 #include <gimxinput/include/ginput.h>
 
@@ -16,9 +15,13 @@
 #endif
 
 
-int process_cb(GE_Event* event __attribute__((unused)));
+inline int process_cb(GE_Event* event __attribute__((unused)))
+  { return 0; }
 
-void autoConfigDownload(std::function<void(std::string)> func);
+template<typename Call>
+void autoConfigDownload(Call func);
+
+#include "../src/commonOps.tpp"
 
 
 #endif //COMMONOPS_H

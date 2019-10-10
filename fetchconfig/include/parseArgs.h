@@ -11,10 +11,10 @@
 
 #include <getopt.h>
 
-#include <functional>
 
+template <typename Call>
+int parseArgs(int argc, char* argv[], struct option* longOptions, Call optionsCaller);
 
-int parseArgs(int argc, char* argv[], struct option* longOptions, std::function<int (struct option*, int, int)> optionsCaller);
-
+#include "../parseArgs.tpp"
 
 #endif //PARSEARGS_H

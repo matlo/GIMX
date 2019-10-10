@@ -1,13 +1,7 @@
 #include "../include/commonOps.h"
 
-
-int process_cb(GE_Event* event __attribute__((unused)))
-{
-    return 0;
-}
-
-
-void autoConfigDownload(std::function<void(std::string)> func)
+template<typename Call>
+void autoConfigDownload(Call func)
 {
     std::list<std::string> joysticks;
 

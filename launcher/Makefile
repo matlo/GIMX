@@ -7,15 +7,12 @@ endif
 
 NAME=$(shell basename "$(shell pwd)")
 
-CPPFLAGS += -std=c++11
 ifeq ($(OS),Windows_NT)
 CPPFLAGS += `sdl2-config --cflags`
 endif
 CPPFLAGS += `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP -Wno-cast-function-type -Wno-deprecated-copy -Wno-ignored-qualifiers
 LDLIBS += `wx-config --libs` -lstdc++
 
-LDFLAGS += -L../shared/gimxfetchconfig
-LDLIBS  += -lgimxfetchconfig
 LDLIBS += $(GIMXCONFIGEDITOR_LDLIBS) $(GIMXUPDATER_LDLIBS) $(GIMXCONFIGUPDATER_LDLIBS) $(GIMXHID_LDLIBS) $(GIMXGPP_LDLIBS) $(GIMXSERIAL_LDLIBS)
 
 LDFLAGS += $(GIMXCONFIGEDITOR_LDFLAGS) $(GIMXUPDATER_LDFLAGS) $(GIMXCONFIGUPDATER_LDFLAGS) $(GIMXHID_LDFLAGS) $(GIMXGPP_LDFLAGS) $(GIMXSERIAL_LDFLAGS)

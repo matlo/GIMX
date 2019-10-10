@@ -83,7 +83,6 @@ class ManualConfigDownload : public ConfigDownload
 {
 public:
     ManualConfigDownload();
-    // ~ManualConfigDownload() { }
 
     bool help();
 
@@ -102,7 +101,7 @@ private:
 class AutoConfigDownload : public ConfigDownload
 {
 public:
-    AutoConfigDownload();
+    AutoConfigDownload() { }
 
     int chooseConfigs() override;
 };
