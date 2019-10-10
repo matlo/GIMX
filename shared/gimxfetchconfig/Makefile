@@ -1,6 +1,6 @@
 OBJECTS += $(patsubst %.cpp,%.o,$(wildcard src/*.cpp))
 
-CXXFLAGS += -fPIC -Iinclude
+CPPFLAGS += -fPIC -Iinclude -std=c++14
 
 LDLIBS += -lstdc++
 
