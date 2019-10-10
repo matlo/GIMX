@@ -8,7 +8,7 @@ endif
 NAME=$(shell basename "$(shell pwd)")
 
 ifeq ($(OS),Windows_NT)
-CPPFLAGS += `sdl2-config --cflags`
+CPPFLAGS += `sdl2-config --cflags` -std=c++14
 endif
 CPPFLAGS += `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP -Wno-cast-function-type -Wno-deprecated-copy -Wno-ignored-qualifiers
 LDLIBS += `wx-config --libs` -lstdc++
