@@ -408,8 +408,8 @@ void cfg_process_motion()
 {
   int i, k;
   unsigned int j;
-  int weight;
-  int divider;
+  double weight;
+  double divider;
   s_mouse_control* mc;
   s_mouse_cal* mcal;
   GE_Event mouse_evt = { };
