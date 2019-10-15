@@ -984,24 +984,7 @@ static void read_configs_txt(const char* dir_path)
   FILE* fp;
   int ret;
 
-  /*
-   * TODO this produces warning with gcc 9
-   * error: ‘%s’ directive output may be truncated writing 11 bytes into a
-   * region of size between 1 and 4096.
-   * NOTE: PATH_MAX only reflects the maximum length a path can be on Windows.
-   * On OSX and GNU Linux, it varies greatly. This link has some useful info:
-   * https://insanecoding.blogspot.com/2007/11/pathmax-simply-isnt.html.
-   */
-  #if defined(__GNUC__)
-    #if(__GNUC__ >= 8)
-      #pragma GCC diagnostic push
-      #pragma GCC diagnostic ignored "-Wformat-truncation"
   snprintf(file_path, sizeof(file_path), "%s%s", dir_path, MACRO_CONFIGS_FILE);
-      #pragma GCC diagnostic pop
-    #else
-  snprintf(file_path, sizeof(file_path), "%s%s", dir_path, MACRO_CONFIGS_FILE);
-    #endif
-  #endif
   fp = gfile_fopen(file_path, "r");
   if (fp)
   {
