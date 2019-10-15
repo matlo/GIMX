@@ -980,7 +980,7 @@ static void read_configs_txt(const char* dir_path)
   char config[LINE_MAX];
   char macro[LINE_MAX];
   char extra[LINE_MAX];
-  char file_path[PATH_MAX];
+  char file_path[strlen(dir_path) + sizeof(MACRO_CONFIGS_FILE)];
   FILE* fp;
   int ret;
 

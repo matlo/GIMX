@@ -892,7 +892,7 @@ int btds4_init(int btds4_number, int dongle_index, const char * bdaddr_dst)
   }
 
   state->dongle_index = dongle_index;
-  strncpy(state->ps4_bdaddr, bdaddr_dst, sizeof(state->ps4_bdaddr));
+  strncpy(state->ps4_bdaddr, bdaddr_dst, sizeof(state->ps4_bdaddr) - 1);
 
   memcpy(&state->bt_report, &init_report_btds4, sizeof(s_btds4_report));
   state->joystick_id = ginput_register_joystick(DS4_DEVICE_NAME, GE_HAPTIC_RUMBLE, ds4_interrupt_rumble);
