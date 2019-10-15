@@ -892,6 +892,7 @@ int btds4_init(int btds4_number, int dongle_index, const char * bdaddr_dst)
   }
 
   state->dongle_index = dongle_index;
+<<<<<<< HEAD
   /*
    * TODO this produces warning with gcc 9
    * error: ‘strncpy’ specified bound 18 equals destination size.
@@ -906,6 +907,9 @@ int btds4_init(int btds4_number, int dongle_index, const char * bdaddr_dst)
   strncpy(state->ps4_bdaddr, bdaddr_dst, sizeof(state->ps4_bdaddr));
     #endif
   #endif
+=======
+  strncpy(state->ps4_bdaddr, bdaddr_dst, sizeof(state->ps4_bdaddr) - 1);
+>>>>>>> 6bf1de9e0b6f88a993b2409121a9c6e24d3861d5
 
   memcpy(&state->bt_report, &init_report_btds4, sizeof(s_btds4_report));
   state->joystick_id = ginput_register_joystick(DS4_DEVICE_NAME, GE_HAPTIC_RUMBLE, ds4_interrupt_rumble);
