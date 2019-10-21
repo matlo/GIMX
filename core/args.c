@@ -134,12 +134,63 @@ static int read_ip(char* optarg, in_addr_t* ip, unsigned short* port)
   return ret;
 }
 
+static int init_log(int argc, char *argv[], s_gimx_params* params)
+{
+  int ret = 0;
+
+  int i;
+  for (i = 0; i < argc; ++i)
+  {
+    if (strcmp("-l", argv[i]) && strcmp("--log", argv[i]))
+    {
+      continue;
+    }
+
+    if (i + 1 == argc)
+    {
+      gerror(_("no log file specified\n"));
+      ret = -1;
+      break;
+    }
+
+    if(params->logfilename == NULL)
+    {
+      params->logfilename = argv[i + 1];
+      if(params->logfilename && strlen(params->logfilename))
+      {
+        char file_path[PATH_MAX];
+        snprintf(file_path, sizeof(file_path), "%s%s%s%s", params->homedir, GIMX_DIR, LOG_DIR, params->logfilename);
+        params->logfile = gfile_fopen(file_path, "w");
+        if(params->logfile != NULL)
+        {
+          dup2(fileno(params->logfile), fileno(stdout));
+          dup2(fileno(params->logfile), fileno(stderr));
+        }
+        else
+        {
+          gerror(_("can't open log file (%s)\n"), file_path);
+          ret = -1;
+        }
+      }
+      printf(_("global option -l with value `%s'\n"), params->logfilename);
+    }
+    else
+    {
+      gerror(_("only one log file can be specified\n"));
+      ret = -1;
+    }
+  }
+  return ret;
+}
+
 int args_read(int argc, char *argv[], s_gimx_params* params)
 {
   int ret = 0;
   int c;
   unsigned char controller = 0;
   unsigned char input = 0;
+
+  ret = init_log(argc, argv, params);
 
   struct option long_options[] =
   {
@@ -317,40 +368,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         break;
 
       case 'l':
-        if(params->logfilename == NULL)
-        {
-          if(!params->curses)
-          {
-            params->logfilename = optarg;
-            if(params->logfilename && strlen(params->logfilename))
-            {
-              char file_path[PATH_MAX];
-              snprintf(file_path, sizeof(file_path), "%s%s%s%s", params->homedir, GIMX_DIR, LOG_DIR, params->logfilename);
-              params->logfile = gfile_fopen(file_path, "w");
-              if(params->logfile != NULL)
-              {
-                dup2(fileno(params->logfile), fileno(stdout));
-                dup2(fileno(params->logfile), fileno(stderr));
-              }
-              else
-              {
-                gerror(_("can't open log file (%s)\n"), file_path);
-                ret = -1;
-              }
-            }
-            printf(_("global option -l with value `%s'\n"), optarg);
-          }
-          else
-          {
-            gerror(_("log file can't be used with curses\n"));
-            ret = -1;
-          }
-        }
-        else
-        {
-          gerror(_("only one log file can be specified\n"));
-          ret = -1;
-        }
+        // already processed
         break;
 
       case 'p':
