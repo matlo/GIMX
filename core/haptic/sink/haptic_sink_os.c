@@ -17,28 +17,23 @@ static void dump_event(const GE_Event * event) {
     switch (event->type) {
     case GE_JOYRUMBLE:
         dprintf("< RUMBLE, weak=%hu, strong=%hu\n", event->jrumble.weak, event->jrumble.strong);
-        fflush(stdout);
         break;
     case GE_JOYCONSTANTFORCE:
         dprintf("< CONSTANT, level: %d\n", event->jconstant.level);
-        fflush(stdout);
         break;
     case GE_JOYSPRINGFORCE:
         dprintf("< SPRING, saturation: %u %u, coefficient: %u %u, center: %d, deadband: %u\n",
                 event->jcondition.saturation.left, event->jcondition.saturation.right,
                 event->jcondition.coefficient.left, event->jcondition.coefficient.right,
                 event->jcondition.center, event->jcondition.deadband);
-        fflush(stdout);
         break;
     case GE_JOYDAMPERFORCE:
         dprintf("< DAMPER, saturation: %u %u, coefficient: %d %d\n",
                 event->jcondition.saturation.left, event->jcondition.saturation.right,
                 event->jcondition.coefficient.left, event->jcondition.coefficient.right);
-        fflush(stdout);
         break;
     default:
         dprintf("< UNKNOWN\n");
-        fflush(stdout);
         break;
     }
 }

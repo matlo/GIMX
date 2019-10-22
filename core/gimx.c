@@ -17,6 +17,7 @@
 #define NTDDI_VERSION NTDDI_VERSION_FROM_WIN32_WINNT(NTDDI_VISTA)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <fcntl.h>
 #endif
 
 #include "gimx.h"
@@ -237,14 +238,6 @@ int main(int argc, char *argv[])
 
   glog_set_all_levels(E_GLOG_LEVEL_INFO);
 
-#ifdef WIN32
-  if (!SetConsoleOutputCP(CP_UTF8))
-  {
-    gerror("SetConsoleOutputCP(CP_UTF8) failed\n");
-    exit(-1);
-  }
-#endif
-
   (void) signal(SIGINT, terminate);
   (void) signal(SIGTERM, terminate);
 #ifndef WIN32
@@ -267,8 +260,26 @@ int main(int argc, char *argv[])
 
   setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 
-#ifndef WIN32
-  setlinebuf(stdout);
+#ifdef WIN32
+  /*
+   * Log file has to be in utf-8:
+   * - force console output code point to utf-8
+   * - use binary mode to avoid any text output processing
+   * - make gettext return utf-8 strings
+   */
+
+  UINT cp = GetConsoleOutputCP();
+
+  if (SetConsoleOutputCP(CP_UTF8))
+  {
+    _setmode(_fileno(stdout), _O_BINARY);
+    _setmode(_fileno(stderr), _O_BINARY);
+    bind_textdomain_codeset("gimx", "utf-8");
+  }
+  else
+  {
+    gerror("SetConsoleOutputCP(CP_UTF8) failed\n");
+  }
 #endif
 
   gimx_params.homedir = gfile_homedir();
@@ -461,6 +472,15 @@ int main(int argc, char *argv[])
   {
     glog_set_all_levels(E_GLOG_LEVEL_NONE);
     gimx_params.curses_status = 1;
+
+#ifdef WIN32
+    /*
+     * ncurses does not accomodate with utf-8 strings,
+     * so make gettext to use default encoding.
+     */
+    bind_textdomain_codeset("gimx", "");
+#endif
+
     display_init();
   }
 #ifndef WIN32
@@ -577,7 +597,19 @@ int main(int argc, char *argv[])
   if(gimx_params.curses)
   {
     display_end();
+
+#ifdef WIN32
+    bind_textdomain_codeset("gimx", "utf-8");
+#endif
   }
+
+#ifdef WIN32
+    if (cp && !SetConsoleOutputCP(cp))
+    {
+      gerror("SetConsoleOutputCP(cp) failed\n");
+    }
+#endif
+
 #ifndef WIN32
   else if (gimx_params.logfile == NULL)
   {

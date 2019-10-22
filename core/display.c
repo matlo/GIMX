@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2012 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2019 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
@@ -67,12 +67,19 @@ void display_calibration()
   wmove(wcal, 1, 1);
   if(ginput_get_mk_mode() == GE_MK_MODE_MULTIPLE_INPUTS)
   {
-    waddstr(wcal, "Mouse:");
+    waddstr(wcal, "Mouse: ");
     if(current_cal == MC)
     {
       wattron(wcal, COLOR_PAIR(4));
     }
-    snprintf(line, COLS, " %s (%d) (F1) ", ginput_mouse_name(current_mouse), ginput_mouse_virtual_id(current_mouse));
+#ifdef WIN32
+    wchar_t * name = gfile_utf8_to_utf16le(ginput_mouse_name(current_mouse));
+    waddwstr(wcal, name);
+    free(name);
+#else
+    waddstr(wcal, ginput_mouse_name(current_mouse));
+#endif
+    snprintf(line, COLS, " (%d) (F1) ", ginput_mouse_virtual_id(current_mouse));
     waddstr(wcal, line);
     if(current_cal == MC)
     {

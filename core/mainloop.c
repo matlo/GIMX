@@ -82,6 +82,10 @@ e_gimx_status mainloop()
 
   report2event_set_callback(process_event);
 
+  // flush all messages
+  fflush(stdout);
+  fflush(stderr);
+
   while(!done)
   {
     /*

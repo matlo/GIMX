@@ -126,14 +126,18 @@ static void adapter_dump_state(int adapter)
 
   int* axis = adapters[adapter].axis;
 
-  gstatus("%d %lu.%06lu", adapter, GTIME_SECPART(now), GTIME_USECPART(now));
+  // we don't use gstatus to avoid flushing stdout multiple times
+
+  printf("%d %lu.%06lu", adapter, GTIME_SECPART(now), GTIME_USECPART(now));
 
   for (i = 0; i < AXIS_MAX; i++) {
       if (axis[i])
-          gstatus(", %s (%d)", controller_get_axis_name(adapters[adapter].ctype, i), axis[i]);
+          printf(", %s (%d)", controller_get_axis_name(adapters[adapter].ctype, i), axis[i]);
   }
 
-  gstatus("\n");
+  printf("\n");
+
+  fflush(stdout);
 }
 
 /*
@@ -1087,10 +1091,6 @@ int adapter_send()
         if (adapter->send_command)
         {
           adapter_dump_state(i);
-#ifdef WIN32
-          //There is no setlinebuf(stdout) in windows.
-          fflush(stdout);
-#endif
         }
       }
       else if(gimx_params.curses)

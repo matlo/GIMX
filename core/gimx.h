@@ -212,6 +212,7 @@ static inline void resetColorStderr(void) {
     do { \
         if(gimx_params.status) { \
             printf(__VA_ARGS__); \
+            fflush(stdout); \
         } \
     } while (0)
 
@@ -219,6 +220,7 @@ static inline void resetColorStderr(void) {
     do { \
         if(!gimx_params.curses_status) { \
             printf(__VA_ARGS__); \
+            fflush(stdout); \
         } \
     } while (0)
 
@@ -229,6 +231,7 @@ static inline void resetColorStderr(void) {
             printf("Warning: "); \
             resetColorStdout(); \
             printf(__VA_ARGS__); \
+            fflush(stdout); \
         } \
     } while (0)
 

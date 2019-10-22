@@ -8,6 +8,12 @@
 
 #include <gimx.h>
 
-#define dprintf(...) if(gimx_params.debug.haptic) printf(__VA_ARGS__)
+#define dprintf(...) \
+    do { \
+        if(gimx_params.debug.haptic) { \
+            printf(__VA_ARGS__); \
+            fflush(stdout); \
+        } \
+    } while (0)
 
 #endif /* HAPTIC_COMMON_H_ */
