@@ -39,10 +39,18 @@ LDFLAGS += $(GIMXFILE_LDFLAGS) \
 CPPFLAGS += `xml2-config --cflags`
 LDLIBS += `xml2-config --libs`
 
-ifneq ($(OS),Windows_NT)
-LDLIBS += -lm `pkg-config --libs ncursesw` -lbluetooth -lmhash
+ifneq ($(PDCURSES),1)
+CPPFLAGS +=  `ncursesw6-config --cflags`
+LDLIBS += `ncursesw6-config --libs`
 else
-LDLIBS += $(shell sdl2-config --libs) -lws2_32 -lpdcursesw -lintl
+CFLAGS += -DPDCURSES
+LDLIBS += -lpdcursesw
+endif
+
+ifneq ($(OS),Windows_NT)
+LDLIBS += -lm -lbluetooth -lmhash
+else
+LDLIBS += $(shell sdl2-config --libs) -lws2_32 -lintl
 LDLIBS:=$(filter-out -mwindows,$(LDLIBS))
 endif
 CPPFLAGS += -I. -Iconnectors/bluetooth/btstack/include -Iconnectors/bluetooth/btstack/src

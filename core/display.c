@@ -5,7 +5,7 @@
 
 #include <string.h>
 #include <stdlib.h>
-#ifdef WIN32
+#ifdef PDCURSES
 #include <cursesw.h>
 #else
 #include <ncursesw/ncurses.h>
@@ -417,7 +417,10 @@ static void show_axes(e_controller_type type, int axis[])
 
 void display_run(e_controller_type type, int axis[], struct stats * s)
 {
-  show_stats(s);
+  if (s != NULL)
+  {
+    show_stats(s);
+  }
 
   if (axis != NULL)
   {
@@ -428,21 +431,3 @@ void display_run(e_controller_type type, int axis[], struct stats * s)
   wnoutrefresh(stdscr);
   doupdate();
 }
-
-/*int main(int argc, char* argv[])
-{
-  int i;
-  display_init();
-  int axes[4] = {16,16,0,0};
-  int buttons[BUTTON_NB] = {1, 0, 1};
-
-  for(i=0; i<10000; ++i)
-  {
-    display_run(axes, 32, buttons, 1);
-    usleep(10000);
-  }
-
-  display_end();
-
-  return 0;
-}*/
