@@ -40,8 +40,13 @@ CPPFLAGS += `xml2-config --cflags`
 LDLIBS += `xml2-config --libs`
 
 ifneq ($(PDCURSES),1)
+ifneq ($(OS),Windows_NT)
+CPPFLAGS +=  `ncursesw5-config --cflags`
+LDLIBS += `ncursesw5-config --libs`
+else
 CPPFLAGS +=  `ncursesw6-config --cflags`
 LDLIBS += `ncursesw6-config --libs`
+endif
 else
 CFLAGS += -DPDCURSES
 LDLIBS += -lpdcursesw
