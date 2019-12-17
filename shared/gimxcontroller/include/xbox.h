@@ -8,6 +8,9 @@
 
 #include "defs.h"
 
+#define XBOX_VENDOR 0x045e
+#define XBOX_PRODUCT 0x0289
+
 #define XBOX_UP_MASK    0x01
 #define XBOX_DOWN_MASK  0x02
 #define XBOX_LEFT_MASK  0x04
