@@ -661,31 +661,16 @@ e_gimx_status adapter_detect()
 
             if(ret != -1)
             {
-              switch(adapter->ctype)
+              if(adapter_send_reset(i) < 0)
               {
-                case C_TYPE_DS4:
-                case C_TYPE_T300RS_PS4:
-                case C_TYPE_G29_PS4:
-                case C_TYPE_G27_PS3:
-                case C_TYPE_XONE_PAD:
-                case C_TYPE_360_PAD:
-                  if(status == BYTE_STATUS_STARTED)
-                  {
-                    if(adapter_send_reset(i) < 0)
-                    {
-                      gerror(_("failed to reset the GIMX adapter.\n"));
-                      ret = E_GIMX_STATUS_GENERIC_ERROR;
-                    }
-                    else
-                    {
-                      ginfo(_("Reset sent to the GIMX adapter.\n"));
-                      //Leave time for the adapter to reinitialize.
-                      usleep(ADAPTER_RESET_TIME);
-                    }
-                  }
-                  break;
-                default:
-                  break;
+                gerror(_("failed to reset the GIMX adapter.\n"));
+                ret = E_GIMX_STATUS_GENERIC_ERROR;
+              }
+              else
+              {
+                ginfo(_("Reset sent to the GIMX adapter.\n"));
+                //Leave time for the adapter to reinitialize.
+                usleep(ADAPTER_RESET_TIME);
               }
             }
 
@@ -1188,20 +1173,8 @@ e_gimx_status adapter_clean()
             status = E_GIMX_STATUS_NO_ACTIVATION;
           }
         }
-        switch(adapter->ctype)
-        {
-          case C_TYPE_360_PAD:
-          case C_TYPE_XONE_PAD:
-          case C_TYPE_DS4:
-          case C_TYPE_T300RS_PS4:
-          case C_TYPE_G29_PS4:
-          case C_TYPE_G27_PS3:
-            usb_close(i);
-            adapter_send_reset(i);
-            break;
-          default:
-            break;
-        }
+        usb_close(i);
+        adapter_send_reset(i);
         gserial_close(adapter->serial.device);
       }
     }
