@@ -302,18 +302,6 @@ int main(int argc, char *argv[])
     bt_abs_value = E_BT_ABS_BTSTACK;
   }
 
-  if (gusb_init() < 0)
-  {
-    status = E_GIMX_STATUS_GENERIC_ERROR;
-    goto QUIT;
-  }
-
-  if (gserial_init() < 0)
-  {
-    status = E_GIMX_STATUS_GENERIC_ERROR;
-    goto QUIT;
-  }
-
   status = adapter_detect();
   if(status != E_GIMX_STATUS_SUCCESS)
   {
@@ -386,12 +374,6 @@ int main(int argc, char *argv[])
   else
   {
     fp = process_event;
-  }
-
-  if (ghid_init() < 0)
-  {
-    status = E_GIMX_STATUS_GENERIC_ERROR;
-    goto QUIT;
   }
 
   //TODO MLA: if there is no config file:
@@ -536,12 +518,6 @@ int main(int argc, char *argv[])
   macros_clean();
   cfg_clean();
   ginput_quit();
-
-  ghid_exit();
-
-  gserial_exit();
-
-  gusb_exit();
 
   xmlCleanupParser();
 

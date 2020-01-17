@@ -412,8 +412,6 @@ void launcherFrame::readSerialPorts()
 
   OutputChoice->Clear();
 
-  gserial_init();
-
   for(i=0; i<MAX_PORT_ID; ++i)
   {
     snprintf(portname, sizeof(portname), "COM%d", i);
@@ -423,8 +421,6 @@ void launcherFrame::readSerialPorts()
       gserial_close(device);
     }
   }
-
-  gserial_exit();
 
   if(previous != wxEmptyString)
   {
@@ -533,11 +529,6 @@ void launcherFrame::readHidPorts()
   unsigned int nb_usb_ids;
   const GCAPI_USB_IDS * usb_ids = gpppcprog_get_ids(&nb_usb_ids);
 
-  if (ghid_init() < 0)
-  {
-    return;
-  }
-
   devs = ghid_enumerate(0x0000, 0x0000);
   for(cur_dev = devs; cur_dev != NULL; cur_dev = cur_dev->next)
   {
@@ -560,8 +551,6 @@ void launcherFrame::readHidPorts()
     }
   }
   ghid_free_enumeration(devs);
-
-  ghid_exit();
 
   if(previous != wxEmptyString)
   {

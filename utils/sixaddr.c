@@ -100,10 +100,6 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     int ret = 0;
     int status;
 
-    if (gusb_init(&((GPOLL_INTERFACE){ REGISTER_FUNCTION, REMOVE_FUNCTION })) < 0) {
-        return -1;
-    }
-
     struct gusb_device_info * devs = gusb_enumerate(VENDOR, 0x0000);
 
     struct gusb_device_info * current;
@@ -135,8 +131,6 @@ int main(int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
     }
 
     gusb_free_enumeration(devs);
-
-    gusb_exit();
 
     return ret;
 }

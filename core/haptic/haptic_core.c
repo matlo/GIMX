@@ -4,7 +4,6 @@
  */
 
 #include <gimx.h>
-#include <gimxhid/include/ghid.h>
 #include <gimxcontroller/include/controller.h>
 #include <gimxcommon/include/glist.h>
 #include <string.h>
@@ -29,7 +28,6 @@ struct haptic_core {
 };
 
 static GLIST_INST(struct haptic_core, ff_cores);
-GLIST_DESTRUCTOR(ff_cores, haptic_core_clean)
 
 struct haptic_core * haptic_core_init(s_haptic_core_ids source_ids, int sink_joystick) {
 

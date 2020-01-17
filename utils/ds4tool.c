@@ -290,10 +290,6 @@ int main(int argc, char *argv[]) {
 
     read_args(argc, argv);
 
-    if (gusb_init(&((GPOLL_INTERFACE){ REGISTER_FUNCTION, REMOVE_FUNCTION })) < 0) {
-        return -1;
-    }
-
     struct gusb_device_info * devs = gusb_enumerate(VENDOR, 0x0000);
 
     struct gusb_device_info * current;
@@ -325,8 +321,6 @@ int main(int argc, char *argv[]) {
     }
 
     gusb_free_enumeration(devs);
-
-    gusb_exit();
 
     return ret;
 }

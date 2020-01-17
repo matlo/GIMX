@@ -212,28 +212,15 @@ int8_t gppcprog_connect(int id, const char * path)
       return -1;
     }
 
-    if (ghid_init() < 0)
-    {
-      return -1;
-    }
-
     devices[id].device = ghid_open_path(path);
 
     if(devices[id].device != NULL)
     {
       devices[id].path = strdup(path);
     }
-    else
-    {
-      ghid_exit();
-    }
   }
   else
   {
-    if (ghid_init() < 0)
-    {
-      return -1;
-    }
     // Connect to any GPP/Cronus/Titan
 
     struct ghid_device_info *devs, *cur_dev;
@@ -266,7 +253,6 @@ int8_t gppcprog_connect(int id, const char * path)
 
   if (devices[id].device == NULL)
   {
-    ghid_exit();
     return -1;
   }
 
@@ -300,8 +286,6 @@ void gppcprog_disconnect(int id)
     devices[id].device = NULL;
     free(devices[id].path);
     devices[id].path = NULL;
-
-    ghid_exit();
   }
   return;
 }
