@@ -20,4 +20,4 @@ Issue tracker: http://gimx.fr/buglist
 
 Licence: [GPLv3](https://www.gnu.org/copyleft/gpl.html)  
 
-Donation link: http://blog.gimx.fr/give/main-gimx-donation-campaign/
+Donation link: https://blog.gimx.fr/give/gimx-donations-current/
