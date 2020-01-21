@@ -27,6 +27,7 @@
 
 #include <haptic/haptic_core.h>
 
+static const int baudrates[] = { 2000000, 1000000, 500000 }; //bps
 #define BAUDRATE 500000 //bps
 #define SERIAL_TIMEOUT 1000 //millisecond
 /*
@@ -38,6 +39,10 @@
  * The number of times the adapter is queried for its type, before it is assumed as unreachable.
  */
 #define ADAPTER_INIT_RETRIES 10
+/*
+ * The number of times the adapter is queried for its baudrate before assuming baudrate is not supported.
+ */
+#define ADAPTER_BAUDRATE_RETRIES 3
 
 static s_adapter adapters[MAX_CONTROLLERS] = {};
 
@@ -517,6 +522,46 @@ static int adapter_start_serialasync(int adapter)
   return 0;
 }
 
+int adapter_read_reply(int adapter, s_packet * packet, int permissive)
+{
+  uint8_t type = packet->header.type;
+
+  /*
+   * The adapter may send a packet before it processes the command,
+   * so it is possible to receive a packet that is not the command response.
+   */
+  while(1)
+  {
+    int ret = gserial_read_timeout(adapters[adapter].serial.device, &packet->header, sizeof(packet->header), SERIAL_TIMEOUT);
+    if(ret < 0 || (size_t)ret < sizeof(packet->header))
+    {
+      if (!permissive)
+      {
+        gerror("failed to read packet header from the GIMX adapter\n");
+      }
+      return -1;
+    }
+
+    ret = gserial_read_timeout(adapters[adapter].serial.device, &packet->value, packet->header.length, SERIAL_TIMEOUT);
+    if(ret < 0 || (size_t)ret < packet->header.length)
+    {
+      if (!permissive)
+      {
+        gerror("failed to read packet data from the GIMX adapter\n");
+      }
+      return -1;
+    }
+
+    //Check this packet is the command response.
+    if(packet->header.type == type)
+    {
+      return 0;
+    }
+  }
+
+  return -1;
+}
+
 /*
  * This function should only be used in the initialization stages, i.e. before the mainloop.
  */
@@ -532,43 +577,94 @@ static int adapter_send_short_command(int adapter, unsigned char type)
   };
 
   int ret = gserial_write_timeout(adapters[adapter].serial.device, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
-  if(ret < 0 || (unsigned int)ret < sizeof(packet.header))
+  if(ret < 0 || (size_t)ret < sizeof(packet.header))
   {
     gerror("failed to send data to the GIMX adapter\n");
     return -1;
   }
 
-  /*
-   * The adapter may send a packet before it processes the command,
-   * so it is possible to receive a packet that is not the command response.
-   */
-  while(1)
+  ret = adapter_read_reply(adapter, &packet, 0);
+
+  if(ret == 0)
   {
-    ret = gserial_read_timeout(adapters[adapter].serial.device, &packet.header, sizeof(packet.header), SERIAL_TIMEOUT);
-    if(ret < 0 || (unsigned int)ret < sizeof(packet.header))
+    if(packet.header.length != BYTE_LEN_1_BYTE)
     {
-      gerror("failed to read packet header from the GIMX adapter\n");
+      gerror("bad response from the GIMX adapter (invalid length)\n");
       return -1;
     }
+    return packet.value[0];
+  }
 
-    ret = gserial_read_timeout(adapters[adapter].serial.device, &packet.value, packet.header.length, SERIAL_TIMEOUT);
-    if(ret < 0 || (unsigned int)ret < packet.header.length)
-    {
-      gerror("failed to read packet data from the GIMX adapter\n");
-      return -1;
-    }
+  return -1;
+}
 
-    //Check this packet is the command response.
-    if(packet.header.type == type)
-    {
-      if(packet.header.length != BYTE_LEN_1_BYTE)
-      {
-        gerror("bad response from the GIMX adapter (invalid length)\n");
-        return -1;
-      }
+static int adapter_get_version(int adapter, int *major, int *minor)
+{
+  s_packet packet = { .header = { .type = BYTE_VERSION, .length = 0 }, .value = {} };
 
-      return packet.value[0];
-    }
+  int ret = gserial_write_timeout(adapters[adapter].serial.device, &packet, sizeof(packet.header), SERIAL_TIMEOUT);
+  if (ret < 0 || (size_t)ret != sizeof(packet.header))
+  {
+    gerror("failed to send data to the GIMX adapter\n");
+    return -1;
+  }
+
+  ret = adapter_read_reply(adapter, &packet, 1);
+
+  if(ret == 0 && packet.header.length == 2)
+  {
+    *major = packet.value[0];
+    *minor = packet.value[1];
+  }
+  else
+  {
+    *major = 5;
+    *minor = 8;
+  }
+
+  ginfo(_("Firmware version: %d.%d\n"), *major, *minor);
+
+  return 0;
+}
+
+static int adapter_get_baudrate(int adapter)
+{
+  s_packet packet = { .header = { .type = BYTE_BAUDRATE, .length = 0 }, .value = {} };
+
+  int ret = gserial_write_timeout(adapters[adapter].serial.device, &packet, sizeof(packet.header), SERIAL_TIMEOUT);
+  if (ret < 0 || (size_t)ret != sizeof(packet.header))
+  {
+    gerror("failed to send data to the GIMX adapter\n");
+    return -1;
+  }
+
+  ret = adapter_read_reply(adapter, &packet, 1);
+
+  int baudrate = (ret != -1) ? packet.value[0] * 100000 : -1;
+
+  return baudrate;
+}
+
+static int adapter_get_baudrate_retry(int adapter, int retries)
+{
+  int baudrate = -1;
+  int i;
+  for (i = 0; i < retries && baudrate == -1 && get_done() == 0; ++i)
+  {
+    baudrate = adapter_get_baudrate(adapter);
+  }
+  return baudrate;
+}
+
+static int adapter_set_baudrate(int adapter, int baudrate)
+{
+  s_packet packet = { .header = { .type = BYTE_BAUDRATE, .length = 1 }, .value = { baudrate / 100000 } };
+
+  int ret = gserial_write_timeout(adapters[adapter].serial.device, &packet, sizeof(packet.header) + packet.header.length, SERIAL_TIMEOUT);
+  if (ret < 0 || (size_t)ret != sizeof(packet.header) + packet.header.length)
+  {
+    gerror("failed to send data to the GIMX adapter\n");
+    return -1;
   }
 
   return 0;
@@ -582,8 +678,10 @@ static int adapter_send_reset(int adapter)
     .length = BYTE_LEN_0_BYTE
   };
 
-  if(gserial_write_timeout(adapters[adapter].serial.device, &header, sizeof(header), SERIAL_TIMEOUT) != sizeof(header))
+  int ret = gserial_write_timeout(adapters[adapter].serial.device, &header, sizeof(header), SERIAL_TIMEOUT);
+  if(ret < 0 || (size_t)ret != sizeof(header))
   {
+    gerror("failed to send data to the GIMX adapter\n");
     return -1;
   }
 
@@ -622,6 +720,7 @@ e_gimx_status adapter_detect()
     {
       if(adapter->serial.portname)
       {
+        // open serial port at default baudrate, for backward compatibility
         adapter->serial.device = gserial_open(adapter->serial.portname, BAUDRATE);
         if(adapter->serial.device == NULL)
         {
@@ -651,15 +750,16 @@ e_gimx_status adapter_detect()
               ret = E_GIMX_STATUS_GENERIC_ERROR;
             }
 
-            int status = adapter_send_short_command(i, BYTE_STATUS);
-
-            if(status < 0)
+            int major, minor;
+            if (ret == E_GIMX_STATUS_SUCCESS)
             {
-              gerror(_("failed to get the GIMX adapter status.\n"));
-              ret = E_GIMX_STATUS_ADAPTER_NOT_DETECTED;
+              if (adapter_get_version(i, &major, &minor) < 0)
+              {
+                ret = E_GIMX_STATUS_GENERIC_ERROR;
+              }
             }
 
-            if(ret != -1)
+            if(ret == E_GIMX_STATUS_SUCCESS)
             {
               if(adapter_send_reset(i) < 0)
               {
@@ -671,6 +771,47 @@ e_gimx_status adapter_detect()
                 ginfo(_("Reset sent to the GIMX adapter.\n"));
                 //Leave time for the adapter to reinitialize.
                 usleep(ADAPTER_RESET_TIME);
+              }
+            }
+
+            if (ret == E_GIMX_STATUS_SUCCESS && major >= 8)
+            {
+              int baudrate = adapter_get_baudrate_retry(i, ADAPTER_BAUDRATE_RETRIES);
+
+              if (baudrate > 0) {
+
+                unsigned int b;
+                for (b = 0; b < sizeof(baudrates) / sizeof(*baudrates); ++b)
+                {
+                  if (baudrate == baudrates[b]) {
+                    break;
+                  }
+                  adapter_set_baudrate(i, baudrates[b]);
+
+                  ginfo(_("Trying baudrate: %d bps.\n"), baudrates[b]);
+
+                  gserial_close(adapter->serial.device);
+
+                  adapter->serial.device = gserial_open(adapter->serial.portname, baudrates[b]);
+                  if(adapter->serial.device == NULL)
+                  {
+                    ret = E_GIMX_STATUS_GENERIC_ERROR;
+                    continue;
+                  }
+                  baudrate = adapter_get_baudrate_retry(i, ADAPTER_BAUDRATE_RETRIES);
+                  if (baudrate == baudrates[b]) {
+                    break;
+                  }
+                }
+
+                if (b == sizeof(baudrates) / sizeof(*baudrates))
+                {
+                  ret = E_GIMX_STATUS_GENERIC_ERROR;
+                }
+
+                if (ret == E_GIMX_STATUS_SUCCESS){
+                  ginfo(_("Using baudrate: %d bps.\n"), baudrate);
+                }
               }
             }
 
@@ -1007,7 +1148,7 @@ int adapter_send()
 
           unsigned int index = controller_build_report(adapter->ctype, adapter->axis, adapter->report);
 
-          s_report_packet* report = adapter->report+index;
+          s_report_packet* report = adapter->report + index;
 
           switch(adapter->ctype)
           {
