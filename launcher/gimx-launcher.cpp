@@ -50,6 +50,10 @@
 #include <gimxfile/include/gfile.hpp>
 
 #ifdef WIN32
+#include <tlhelp32.h>
+#endif
+
+#ifdef WIN32
 #define REGISTER_FUNCTION gpoll_register_handle
 #define REMOVE_FUNCTION gpoll_remove_handle
 #else
@@ -1290,6 +1294,64 @@ void launcherFrame::readDebugStrings(wxArrayString & values)
 }
 
 #ifdef WIN32
+bool is_running(const wchar_t * exe)
+{
+    HANDLE processes = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (processes == INVALID_HANDLE_VALUE) {
+        return false;
+    }
+
+    PROCESSENTRY32 entry = {};
+    entry.dwSize = sizeof(entry);
+    if (!Process32First(processes, &entry)) {
+        CloseHandle(processes);
+        return false;
+    }
+
+    bool found = 0;
+
+    do {
+
+        found = (wcscmp(exe, entry.szExeFile) == 0);
+
+    } while (Process32Next(processes, &entry) && !found);
+
+    CloseHandle(processes);
+
+    return found;
+}
+
+void destroy(const wchar_t * exe)
+{
+    HANDLE processes = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (processes == INVALID_HANDLE_VALUE) {
+        return;
+    }
+
+    PROCESSENTRY32 entry = {};
+    entry.dwSize = sizeof(entry);
+    if (!Process32First(processes, &entry)) {
+        CloseHandle(processes);
+        return;
+    }
+
+    do {
+
+        if (wcscmp(exe, entry.szExeFile) == 0)
+        {
+            HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, 0, (DWORD) entry.th32ProcessID);
+            if (hProcess != NULL)
+            {
+                TerminateProcess(hProcess, 9);
+                CloseHandle(hProcess);
+            }
+        }
+
+    } while (Process32Next(processes, &entry));
+
+    CloseHandle(processes);
+}
+
 void runAs(const wxString& cmd, const wxString& params)
 {
     SHELLEXECUTEINFO shExInfo = SHELLEXECUTEINFO();
@@ -1447,6 +1509,30 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
         }
       }
     }
+
+#ifdef WIN32
+    const wchar_t * exes[] = { L"lghub.exe", L"lghub_agent.exe" };
+    bool found = false;
+    for (unsigned int e = 0; e < sizeof(exes) / sizeof(*exes) && !found; ++e)
+    {
+      found = is_running(exes[e]);
+    }
+    if (found)
+    {
+      int answer = wxMessageBox(_("Logitech G HUB has to be stopped.\nProceed?"), _("Confirm"), wxYES_NO);
+      if (answer != wxYES)
+      {
+        return;
+      }
+      for (unsigned int e = 0; e < sizeof(exes) / sizeof(*exes); ++e)
+      {
+        if (is_running(exes[e]))
+        {
+          destroy(exes[e]);
+        }
+      }
+    }
+#endif
 
 #ifndef WIN32
     command.Append(wxT("xterm -e gimx"));
