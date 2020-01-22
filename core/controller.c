@@ -324,7 +324,7 @@ static void dump(unsigned char * packet, unsigned char length)
   if(gimx_params.debug.controller) \
   { \
     ginfo("%s\n", __func__); \
-    ginfo("type: 0x%02x\n", TYPE); \
+    ginfo("type: 0x%02x, length: %u\n", TYPE, LENGTH); \
     dump(DATA, LENGTH); \
   }
 

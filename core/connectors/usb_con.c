@@ -507,11 +507,11 @@ static int usb_read_callback(void * user, unsigned char endpoint, const void * b
     state->ack = 1;
   }
 
-  if (status == E_TRANSFER_TIMED_OUT) {
+  if (status == E_STATUS_TRANSFER_TIMED_OUT) {
     return 0;
   }
 
-  if (status < 0) {
+  if (status == E_STATUS_NO_DEVICE) {
     state->disconnected = 1;
     return -1;
   }
@@ -523,12 +523,11 @@ static int usb_read_callback(void * user, unsigned char endpoint, const void * b
       return -1;
     }
 
-    if (status >= 0) {
+    // in case of error, send 0 to prevent adapter deadlock
 
-      int ret = adapter_forward_control_in(adapter, (unsigned char *)buf, status);
-      if (ret < 0) {
-        return -1;
-      }
+    int ret = adapter_forward_control_in(adapter, (unsigned char *)buf, status >= 0 ? status : 0);
+    if (ret < 0) {
+      return -1;
     }
 
   } else {
@@ -556,7 +555,7 @@ static int usb_write_callback(void * user, unsigned char endpoint, int status) {
 
   struct usb_state * state = usb_states + (intptr_t) user;
 
-  if (status < 0) {
+  if (status == E_STATUS_NO_DEVICE) {
     state->disconnected = 1;
     return -1;
   }
