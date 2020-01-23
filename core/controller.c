@@ -847,7 +847,7 @@ e_gimx_status adapter_detect()
 
               if (adapter->ctype == C_TYPE_G27_PS3)
               {
-                ginfo(_("Start the game with a dualshock 3, and then reassign game controllers.\n"));
+                ginfo(_("If target is a PS3, start the game with a dualshock 3, and then reassign game controllers.\n"));
               }
             }
           }
