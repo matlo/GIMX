@@ -73,16 +73,24 @@ static int hid_close_cb(void *user) {
 
 static struct haptic_sink_state* haptic_sink_ds4_init(int joystick) {
 
-    s_haptic_core_ids ids = { 0x0000, 0x0000 };
 
-    if (ginput_joystick_get_usb_ids(joystick, &ids.vid, &ids.pid) == -1) {
-        return NULL;
-    }
+    struct ghid_device * hid;
 
-    struct ghid_device *hid = ghid_open_ids(ids.vid, ids.pid);
+#ifndef WIN32
+    hid = ginput_joystick_get_hid(joystick);
     if (hid == NULL) {
         return NULL;
     }
+#else
+    s_haptic_core_ids ids = { 0x0000, 0x0000 };
+    if (ginput_joystick_get_usb_ids(joystick, &ids.vid, &ids.pid) == -1) {
+        return NULL;
+    }
+    hid = ghid_open_ids(ids.vid, ids.pid);
+    if (hid == NULL) {
+        return NULL;
+    }
+#endif
 
     void *ptr = calloc(1, sizeof(struct haptic_sink_state));
 
