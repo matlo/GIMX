@@ -62,9 +62,6 @@ e_gimx_status mainloop()
 {
   e_gimx_status status = E_GIMX_STATUS_SUCCESS;
   GE_Event events[EVENT_BUFFER_SIZE];
-  int num_evt;
-  GE_Event* event;
-  unsigned int running_macros;
   struct gtimer * timer = NULL;
 
   unsigned int refresh_period = (unsigned int)gimx_params.refresh_period;
@@ -109,28 +106,18 @@ e_gimx_status mainloop()
      */
     gpoll();
 
-    ginput_periodic_task();
+    if (gimx_params.config_file)
+    {
+      ginput_periodic_task();
 
-    cfg_process_motion();
+      cfg_process_motion();
 
-    cfg_profile_activation();
+      cfg_profile_activation();
+    }
 
     if(adapter_send() < 0)
     {
       done = 1;
-    }
-
-    if ((unsigned int)gimx_params.refresh_period != refresh_period)
-    {
-      refresh_period = gimx_params.refresh_period;
-      gimx_params.frequency_scale = (double) DEFAULT_REFRESH_PERIOD / gimx_params.refresh_period;
-      gtimer_close(timer);
-      gwarn(_("Lowering controller frequency to %dHz due to low mouse frequency.\n"), 1000000 / refresh_period);
-      timer = gtimer_start(NULL, refresh_period, &callbacks);
-      if (timer == NULL)
-      {
-        done = 1;
-      }
     }
 
     if (gimx_params.debug.mainloop) {
@@ -141,8 +128,6 @@ e_gimx_status mainloop()
             GPERF_SAMPLE_INC(mainloop);
         }
     }
-
-    cfg_process_rumble();
     
     if (usb_poll_interrupts() < 0)
     {
@@ -150,37 +135,56 @@ e_gimx_status mainloop()
       status = E_GIMX_STATUS_AUTH_CONTROLLER_ERROR;
     }
 
-    /*
-     * These two functions generate events.
-     */
-    calibration_test();
-
-    running_macros = macro_process();
-
-    /*
-     * This part of the loop processes events generated
-     * by macros and calibration tests, and the --keygen argument.
-     */
-
-    num_evt = ginput_queue_pop(events, sizeof(events) / sizeof(events[0]));
-
-    if (num_evt == EVENT_BUFFER_SIZE)
+    if (gimx_params.config_file)
     {
-      gwarn("buffer too small!!!\n");
-    }
+      if ((unsigned int)gimx_params.refresh_period != refresh_period)
+      {
+        refresh_period = gimx_params.refresh_period;
+        gimx_params.frequency_scale = (double) DEFAULT_REFRESH_PERIOD / gimx_params.refresh_period;
+        gtimer_close(timer);
+        gwarn(_("Lowering controller frequency to %dHz due to low mouse frequency.\n"), 1000000 / refresh_period);
+        timer = gtimer_start(NULL, refresh_period, &callbacks);
+        if (timer == NULL)
+        {
+          done = 1;
+        }
+      }
+
+      cfg_process_rumble();
+
+      /*
+       * These two functions generate events.
+       */
+      calibration_test();
+
+      unsigned int running_macros = macro_process();
+
+      /*
+       * This part of the loop processes events generated
+       * by macros and calibration tests, and the --keygen argument.
+       */
+
+      int num_evt = ginput_queue_pop(events, sizeof(events) / sizeof(events[0]));
+
+      if (num_evt == EVENT_BUFFER_SIZE)
+      {
+        gwarn("buffer too small!!!\n");
+      }
     
-    for (event = events; event < events + num_evt; ++event)
-    {
-      process_event(event);
-    }
+      GE_Event* event;
+      for (event = events; event < events + num_evt; ++event)
+      {
+        process_event(event);
+      }
 
-    /*
-     * The --keygen argument is used
-     * and there are no more event or macro to process => exit.
-     */
-    if(!gimx_params.network_input && gimx_params.keygen && !running_macros && !num_evt)
-    {
-      done = 1;
+      /*
+       * The --keygen argument is used
+       * and there are no more event or macro to process => exit.
+       */
+      if(!gimx_params.network_input && gimx_params.keygen && !running_macros && !num_evt)
+      {
+        done = 1;
+      }
     }
   }
 

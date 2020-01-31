@@ -355,49 +355,44 @@ int main(int argc, char *argv[])
     goto QUIT;
   }
 
-  unsigned char src = GE_MKB_SOURCE_PHYSICAL;
-
-  if(gimx_params.window_events)
+  if (gimx_params.config_file)
   {
-    src = GE_MKB_SOURCE_WINDOW_SYSTEM;
-  }
+    unsigned char src = GE_MKB_SOURCE_PHYSICAL;
 
-  int(*fp)(GE_Event*) = NULL;
+    if(gimx_params.window_events)
+    {
+      src = GE_MKB_SOURCE_WINDOW_SYSTEM;
+    }
 
-  /*
-   * Non-generated events are ignored if the --keygen argument is used.
-   */
-  if(gimx_params.keygen)
-  {
-    fp = ignore_event;
-  }
-  else
-  {
-    fp = process_event;
-  }
+    int(*fp)(GE_Event*) = NULL;
 
-  //TODO MLA: if there is no config file:
-  // - there's no need to read macros
-  // - there's no need to read inputs
-  // - there's no need to grab the mouse
-  GPOLL_INTERFACE poll_interace = {
-          .fp_register = REGISTER_FUNCTION,
-          .fp_remove = REMOVE_FUNCTION,
-  };
-  if (ginput_init(&poll_interace, src, fp) < 0)
-  {
-    status = E_GIMX_STATUS_GENERIC_ERROR;
-    goto QUIT;
-  }
+    /*
+     * Non-generated events are ignored if the --keygen argument is used.
+     */
+    if(gimx_params.keygen)
+    {
+      fp = ignore_event;
+    }
+    else
+    {
+      fp = process_event;
+    }
+    GPOLL_INTERFACE poll_interace = {
+            .fp_register = REGISTER_FUNCTION,
+            .fp_remove = REMOVE_FUNCTION,
+    };
+    if (ginput_init(&poll_interace, src, fp) < 0)
+    {
+      status = E_GIMX_STATUS_GENERIC_ERROR;
+      goto QUIT;
+    }
 
-  if (gimx_params.logfile != NULL)
-  {
-    show_devices();
-    show_config();
-  }
+    if (gimx_params.logfile != NULL)
+    {
+      show_devices();
+      show_config();
+    }
 
-  if(gimx_params.config_file)
-  {
     cal_init();
 
     cfg_intensity_init();
@@ -425,30 +420,30 @@ int main(int argc, char *argv[])
     cfg_read_calibration();
 
     cfg_pair_mouse_mappers();
-  }
 
-  grab();
+    grab();
 
-  ginput_release_unused();
+    ginput_release_unused();
 
-  macros_init();
+    macros_init();
 
-  if(gimx_params.keygen)
-  {
-    kgevent.key.keysym = ginput_key_id(gimx_params.keygen);
-    if(kgevent.key.keysym)
+    if(gimx_params.keygen)
     {
-      macro_lookup(&kgevent);
+      kgevent.key.keysym = ginput_key_id(gimx_params.keygen);
+      if(kgevent.key.keysym)
+      {
+        macro_lookup(&kgevent);
+      }
+      else
+      {
+        gerror(_("Unknown key name for argument --keygen: '%s'\n"), gimx_params.keygen);
+        status = E_GIMX_STATUS_GENERIC_ERROR;
+        goto QUIT;
+      }
     }
-    else
-    {
-      gerror(_("Unknown key name for argument --keygen: '%s'\n"), gimx_params.keygen);
-      status = E_GIMX_STATUS_GENERIC_ERROR;
-      goto QUIT;
-    }
-  }
 
-  cfg_trigger_init();
+    cfg_trigger_init();
+  }
 
   if(gimx_params.curses)
   {
@@ -515,11 +510,14 @@ int main(int argc, char *argv[])
     status = clean_status;
   }
 
-  macros_clean();
-  cfg_clean();
-  ginput_quit();
+  if (gimx_params.config_file)
+  {
+    macros_clean();
+    cfg_clean();
+    ginput_quit();
 
-  xmlCleanupParser();
+    xmlCleanupParser();
+  }
 
   if (status != E_GIMX_STATUS_SUCCESS)
   {
@@ -578,14 +576,6 @@ int main(int argc, char *argv[])
     bind_textdomain_codeset("gimx", "utf-8");
 #endif
   }
-
-#ifdef WIN32
-    if (cp && !SetConsoleOutputCP(cp))
-    {
-      gerror("SetConsoleOutputCP(cp) failed\n");
-    }
-#endif
-
 #ifndef WIN32
   else if (gimx_params.logfile == NULL)
   {
@@ -593,6 +583,13 @@ int main(int argc, char *argv[])
     tcgetattr(STDOUT_FILENO, &term);
     term.c_lflag |= ECHO;
     tcsetattr(STDOUT_FILENO, TCSANOW, &term);
+  }
+#endif
+
+#ifdef WIN32
+  if (cp && !SetConsoleOutputCP(cp))
+  {
+    gerror("SetConsoleOutputCP(cp) failed\n");
   }
 #endif
 
