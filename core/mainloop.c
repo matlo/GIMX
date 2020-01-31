@@ -71,6 +71,12 @@ e_gimx_status mainloop()
 
   int clocked = 1;
 
+  if (adapter_get(0)->src_ip)
+  {
+    // input report period is driven by remote gimx instance
+    clocked = 0;
+  }
+
   if (adapter_get(0)->atype == E_ADAPTER_TYPE_BLUETOOTH && adapter_get(0)->ctype == C_TYPE_SIXAXIS)
   {
     // input report period is driven by output report period
