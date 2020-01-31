@@ -42,7 +42,7 @@ int get_done()
   return done;
 }
 
-static int timer_read(void * user __attribute__((unused)))
+static int clocked_timer_read(void * user __attribute__((unused)))
 {
   return 1;
 }
@@ -51,6 +51,11 @@ static int timer_close(void * user __attribute__((unused)))
 {
   set_done();
   return 1;
+}
+
+static int default_timer_read(void * user __attribute__((unused)))
+{
+  return done;
 }
 
 e_gimx_status mainloop()
@@ -64,20 +69,25 @@ e_gimx_status mainloop()
 
   unsigned int refresh_period = (unsigned int)gimx_params.refresh_period;
 
+  int clocked = 1;
+
+  if (adapter_get(0)->atype == E_ADAPTER_TYPE_BLUETOOTH && adapter_get(0)->ctype == C_TYPE_SIXAXIS)
+  {
+    // input report period is driven by output report period
+    clocked = 0;
+  }
+
   GTIMER_CALLBACKS callbacks = {
-          .fp_read = timer_read,
+          .fp_read = clocked ? clocked_timer_read : default_timer_read,
           .fp_close = timer_close,
           .fp_register = REGISTER_FUNCTION,
           .fp_remove = REMOVE_FUNCTION,
   };
 
-  if(adapter_get(0)->atype != E_ADAPTER_TYPE_BLUETOOTH || adapter_get(0)->ctype == C_TYPE_DS4)
+  timer = gtimer_start(NULL, refresh_period, &callbacks);
+  if (timer == NULL)
   {
-    timer = gtimer_start(NULL, refresh_period, &callbacks);
-    if (timer == NULL)
-    {
-      done = 1;
-    }
+    done = 1;
   }
 
   report2event_set_callback(process_event);
@@ -104,7 +114,7 @@ e_gimx_status mainloop()
       done = 1;
     }
 
-    if (timer != NULL && (unsigned int)gimx_params.refresh_period != refresh_period)
+    if ((unsigned int)gimx_params.refresh_period != refresh_period)
     {
       refresh_period = gimx_params.refresh_period;
       gimx_params.frequency_scale = (double) DEFAULT_REFRESH_PERIOD / gimx_params.refresh_period;
