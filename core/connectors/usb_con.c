@@ -399,14 +399,18 @@ static void dump(unsigned char * packet, unsigned char length)
 }
 
 #define DEBUG_PACKET(TYPE, DATA, LENGTH) \
-  if(gimx_params.debug.controller) \
-  { \
-    ginfo("%s\n", __func__); \
-    ginfo("type: 0x%02x\n", TYPE); \
-    dump(DATA, LENGTH); \
-  }
+  do { \
+    if(gimx_params.debug.usb_con) \
+    { \
+      ginfo("> %s\n", __func__); \
+      ginfo("type: 0x%02x\n", TYPE); \
+      dump(DATA, LENGTH); \
+    } \
+  } while (0)
 
 static void process_report(int usb_number, struct usb_state * state, unsigned char * buf, unsigned int count) {
+
+  DEBUG_PACKET(BYTE_IN_REPORT, buf, count);
 
   int i;
   for (i = 0; i < controller[state->type][state->index].endpoints.in.reports.nb; ++i) {
@@ -420,8 +424,6 @@ static void process_report(int usb_number, struct usb_state * state, unsigned ch
 
         s_report* current = (s_report*) buf;
         s_report* previous = &state->reports[i].report.value;
-
-        DEBUG_PACKET(BYTE_IN_REPORT, buf, count)
 
         report2event(state->type, usb_number, (s_report*) current, (s_report*) previous, state->joystick_id);
 
