@@ -1,4 +1,4 @@
-DIRS = gimxfile gimxtime gimxcontroller gimxdownloader gimxupdater gimxconfigupdater gimxlog gimxhid gimxinput gimxpoll gimxprio gimxserial gimxtimer gimxusb gimxgpp gimxconfigeditor
+DIRS = gimxfile gimxtime gimxcontroller gimxdownloader gimxupdater gimxconfigupdater gimxlog gimxhid gimxinput gimxpoll gimxprio gimxserial gimxtimer gimxusb gimxgpp gimxconfigeditor gimxfetchconfig
 
 ifneq ($(OS),Windows_NT)
 UHID=1
@@ -40,9 +40,10 @@ endif
 build-gimxdownloader: build-gimxfile
 build-gimxupdater: build-gimxdownloader
 build-gimxconfigupdater: build-gimxdownloader
+build-gimxfetchconfig: build-input
 
 clean: $(CLEANDIRS)
-$(CLEANDIRS): 
+$(CLEANDIRS):
 	$(MAKE) -C $(@:clean-%=%) clean
 
 install: $(INSTALLDIRS) all

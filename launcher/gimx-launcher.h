@@ -24,6 +24,7 @@
 
 #include <gimxconfigupdater/configupdater.h>
 #include <gimxupdater/Updater.h>
+#include <gimxfetchconfig/include/commonOps.h>
 
 using namespace std;
 
@@ -93,7 +94,7 @@ class launcherFrame: public wxFrame
         void readSerialPorts();
         void readStubs();
         void readConfigs();
-        
+
         void autoConfig();
         bool getConfig(const std::string& config);
 
@@ -101,9 +102,9 @@ class launcherFrame: public wxFrame
         int saveChoices(const char* file, wxChoice* choices);
         int saveLinkKeys(wxString dongleBdaddr, wxString ds4Bdaddr, wxString ds4LinkKey, wxString ps4Bdaddr, wxString ps4LinkKey);
         int saveParam(const char* file, wxString option);
-        
+
         void readIp(wxChoice* choices);
-        
+
         void readStartUpdates();
         void readParam(const char* file, wxChoice* choices);
 
@@ -111,10 +112,10 @@ class launcherFrame: public wxFrame
         void readDongles(vector<DongleInfo>& dongleInfos);
 
         int setDongleAddress(vector<DongleInfo>& dongleInfos, int dongleIndex, wxString address);
-        
+
         int choosePairing(BluetoothPairing& pairing);
         int chooseDongle(wxString address, DongleInfo& dongleInfo);
-        
+
         wxString generateLinkKey();
 
         int ps3Setup();

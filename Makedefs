@@ -26,6 +26,11 @@ CXXFLAGS += -pg
 LDFLAGS += -pg
 endif
 
+#Library address sanitiser is not available for mingw64. This applies to msys2.
+#Uncomment below lines, and comment above lines, for plain debug symbols.
+#CFLAGS += -Wall -Wextra -Werror -O0 -g
+#CXXFLAGS += -Wall -Wextra -Werror -O0 -g
+
 CPPFLAGS += -I../shared
 
 GIMXFILE_LDFLAGS = $(GIMXLOG_LDFLAGS) -L../shared/gimxfile
