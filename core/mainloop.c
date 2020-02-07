@@ -68,7 +68,7 @@ e_gimx_status mainloop()
 
   int clocked = 1;
 
-  if (adapter_get(0)->src_ip)
+  if (adapter_get(0)->src.ip)
   {
     // input report period is driven by remote gimx instance
     clocked = 0;

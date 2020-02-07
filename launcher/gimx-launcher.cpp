@@ -971,6 +971,7 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
     Input = new wxChoice(Panel1, ID_CHOICE2, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE2"));
     Input->SetSelection( Input->Append(_("Physical devices")) );
     Input->Append(_("Window events"));
+    Input->Append(_("Network (adapter proxy)"));
     Input->Append(_("Network"));
     FlexGridSizer5->Add(Input, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     IOSizer->Add(FlexGridSizer5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -1162,6 +1163,7 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
 
     Output->SetSelection( Output->Append(_("GIMX adapter")) );
     Output->Append(_(GPP_NAME));
+    Output->Append(_("Remote adapter"));
     Output->Append(_("Remote GIMX"));
 
 #ifndef WIN32
@@ -1429,7 +1431,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
         return;
       }
     }
-    else if(Output->GetStringSelection() == _("Remote GIMX"))
+    else if(Output->GetStringSelection() == _("Remote GIMX") || Output->GetStringSelection() == _("Remote adapter"))
     {
       if(outputSelection.IsEmpty())
       {
@@ -1468,7 +1470,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
       hciIndex = dongleInfo.hci.Mid(3);
     }
 
-    if(Input->GetStringSelection() == _("Network"))
+    if(Input->GetStringSelection() == _("Network") || Input->GetStringSelection() == _("Network (adapter proxy)"))
     {
       if(InputChoice->GetStringSelection().IsEmpty())
       {
@@ -1477,8 +1479,8 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
       }
     }
 
-    if(Output->GetStringSelection() == _("Remote GIMX")
-    && Input->GetStringSelection() == _("Network"))
+    if((Output->GetStringSelection() == _("Remote GIMX") || Output->GetStringSelection() == _("Remote adapter"))
+    && (Input->GetStringSelection() == _("Network") || Input->GetStringSelection() == _("Network (adapter proxy)")))
     {
       if(InputChoice->GetStringSelection() == outputSelection)
       {
@@ -1588,7 +1590,12 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
       }
     }
 
-    if(Input->GetStringSelection() == _("Network"))
+    if (Input->GetStringSelection() == _("Network (adapter proxy)"))
+    {
+      command.Append(wxT(" --proxy "));
+    }
+
+    if(Input->GetStringSelection() == _("Network") || Input->GetStringSelection() == _("Network (adapter proxy)"))
     {
       command.Append(wxT(" --src "));
       command.Append(InputChoice->GetStringSelection());
@@ -1613,14 +1620,18 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
       command.Append(InputChoice->GetStringSelection());
       command.Append(wxT("\""));
 
-      if(Output->GetStringSelection() != _("Remote GIMX"))
+      if(Output->GetStringSelection() != _("Remote GIMX") || Output->GetStringSelection() == _("Remote adapter"))
       {
         command.Append(wxT(" --force-updates"));
       }
       command.Append(wxT(" --subpos"));
     }
 
-    if(Output->GetStringSelection() == _("Remote GIMX"))
+    if (Output->GetStringSelection() == _("Remote adapter"))
+    {
+      command.Append(wxT(" --proxy "));
+    }
+    if(Output->GetStringSelection() == _("Remote GIMX") || Output->GetStringSelection() == _("Remote adapter"))
     {
       command.Append(wxT(" --dst "));
       command.Append(outputSelection);
@@ -1773,6 +1784,12 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
             wxMessageBox( _("Failed to detect the remote GIMX instance:\n"
                     " . make sure to fill the right IP:port\n"
                     " . make sure the remote instance is running"), _("Error"), wxICON_ERROR);
+        }
+        else if(Output->GetStringSelection() == _("Remote adapter"))
+        {
+            wxMessageBox( _("Failed to detect the remote adapter:\n"
+                    " . make sure to fill the right IP:port\n"
+                    " . make sure the remote adapter proxy is running"), _("Error"), wxICON_ERROR);
         }
         else
         {
@@ -2014,7 +2031,7 @@ void launcherFrame::OnOutputSelect(wxCommandEvent& event __attribute__((unused))
         }
       }
     }
-    else if(Output->GetStringSelection() == _("Remote GIMX"))
+    else if(Output->GetStringSelection() == _("Remote GIMX") || Output->GetStringSelection() == _("Remote adapter"))
     {
       OutputSizer->Show(true);
       OutputNewButton->Show(true);
@@ -2335,7 +2352,7 @@ void launcherFrame::OnMenuOpenMacroDirectory(wxCommandEvent& event __attribute__
 
 void launcherFrame::OnInputSelect(wxCommandEvent& event __attribute__((unused)))
 {
-  if(Input->GetStringSelection() == _("Network"))
+  if(Input->GetStringSelection() == _("Network") || Input->GetStringSelection() == _("Network (adapter proxy)"))
   {
     StaticText2->SetLabel(_("IP:port"));
     readChoices(IP_SOURCES, InputChoice, INPUT_CHOICE_FILE);
@@ -2836,7 +2853,7 @@ void launcherFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
     {
       saveChoices(PS4_PAIRINGS, OutputChoice);
     }
-    else if(Output->GetStringSelection() == _("Remote GIMX"))
+    else if(Output->GetStringSelection() == _("Remote GIMX") || Output->GetStringSelection() == _("Remote adapter"))
     {
       saveChoices(IP_DESTS, OutputChoice);
     }
@@ -2844,7 +2861,7 @@ void launcherFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
     saveParam(INPUT_FILE, Input->GetStringSelection());
     saveParam(INPUT_CHOICE_FILE, InputChoice->GetStringSelection());
 
-    if(Input->GetStringSelection() == _("Network"))
+    if(Input->GetStringSelection() == _("Network") || Input->GetStringSelection() == _("Network (adapter proxy)"))
     {
       saveChoices(IP_SOURCES, InputChoice);
     }
@@ -2854,7 +2871,7 @@ void launcherFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
 
 void launcherFrame::readIp(wxChoice* choices)
 {
-  wxTextEntryDialog dialogIp(this, _("Enter an IP address"), _("Remote GIMX"), wxT("127.0.0.1"));
+  wxTextEntryDialog dialogIp(this, _("Enter an IP address"), _("Remote address"), wxT("127.0.0.1"));
 
   if(dialogIp.ShowModal() == wxID_OK)
   {
@@ -2864,7 +2881,7 @@ void launcherFrame::readIp(wxChoice* choices)
 
     if (ip != INADDR_NONE)
     {
-      wxNumberEntryDialog dialogPort(this, wxT(""), _("Enter a port"), _("Remote GIMX"), 51914, 0, 65535);
+      wxNumberEntryDialog dialogPort(this, wxT(""), _("Enter a port"), _("Remote address"), 51914, 0, 65535);
 
       if(dialogPort.ShowModal() == wxID_OK)
       {
@@ -2958,7 +2975,7 @@ void launcherFrame::OnOutputNewButtonClick(wxCommandEvent& event __attribute__((
       ps4Setup();
     }
   }
-  else if(Output->GetStringSelection() == _("Remote GIMX"))
+  else if(Output->GetStringSelection() == _("Remote GIMX") || Output->GetStringSelection() == _("Remote adapter"))
   {
     readIp(OutputChoice);
   }

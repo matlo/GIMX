@@ -23,7 +23,8 @@ LDLIBS += $(GIMXFILE_LDLIBS) \
           $(GIMXPRIO_LDLIBS) \
           $(GIMXSERIAL_LDLIBS) \
           $(GIMXTIMER_LDLIBS) \
-          $(GIMXUSB_LDLIBS)
+          $(GIMXUSB_LDLIBS) \
+          $(GIMXUDP_LDLIBS)
 
 LDFLAGS += $(GIMXFILE_LDFLAGS) \
            $(GIMXHID_LDFLAGS) \
@@ -34,7 +35,8 @@ LDFLAGS += $(GIMXFILE_LDFLAGS) \
            $(GIMXPRIO_LDFLAGS) \
            $(GIMXSERIAL_LDFLAGS) \
            $(GIMXTIMER_LDFLAGS) \
-           $(GIMXUSB_LDFLAGS)
+           $(GIMXUSB_LDFLAGS) \
+           $(GIMXUDP_LDFLAGS)
 
 CPPFLAGS += `xml2-config --cflags`
 LDLIBS += `xml2-config --libs`

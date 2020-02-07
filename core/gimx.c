@@ -338,7 +338,7 @@ int main(int argc, char *argv[])
     {
       adapter->send_command = 1;
       event = 1;
-      if(adapter->remote.fd < 0)
+      if(adapter->remote.socket == NULL)
       {
         ginfo("The --event argument may require running two gimx instances.\n");
       }

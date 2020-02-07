@@ -1,4 +1,20 @@
-DIRS = gimxfile gimxtime gimxcontroller gimxdownloader gimxupdater gimxconfigupdater gimxlog gimxhid gimxinput gimxpoll gimxprio gimxserial gimxtimer gimxusb gimxgpp gimxconfigeditor
+DIRS = gimxfile \
+       gimxtime \
+       gimxcontroller \
+       gimxdownloader \
+       gimxupdater \
+       gimxconfigupdater \
+       gimxlog \
+       gimxhid \
+       gimxinput \
+       gimxpoll \
+       gimxprio \
+       gimxserial \
+       gimxtimer \
+       gimxusb \
+       gimxgpp \
+       gimxconfigeditor \
+       gimxudp
 
 ifneq ($(OS),Windows_NT)
 UHID=1

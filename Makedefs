@@ -48,6 +48,7 @@ GIMXUHID_LDFLAGS = $(GIMXLOG_LDFLAGS) -L../shared/gimxuhid
 GIMXUSB_LDFLAGS = $(GIMXLOG_LDFLAGS) -L../shared/gimxusb
 GIMXGPP_LDFLAGS = $(GIMXLOG_LDFLAGS) -L../shared/gimxgpp
 GIMXUPDATER_LDFLAGS = -L../shared/gimxfile -L../shared/gimxdownloader -L../shared/gimxupdater
+GIMXUDP_LDFLAGS = $(GIMXLOG_LDFLAGS) -L../shared/gimxudp
 
 GIMXFILE_LDLIBS = $(GIMXLOG_LDLIBS) -lgimxfile
 GIMXCONFIGEDITOR_LDLIBS = -lgimxconfigeditor \
@@ -69,6 +70,7 @@ GIMXUHID_LDLIBS = $(GIMXLOG_LDLIBS) -lgimxuhid
 GIMXUSB_LDLIBS = $(GIMXLOG_LDLIBS) -lgimxusb
 GIMXGPP_LDLIBS = $(GIMXLOG_LDLIBS) -lgimxgpp
 GIMXUPDATER_LDLIBS = -lgimxfile -lgimxdownloader -lgimxupdater
+GIMXUDP_LDLIBS = $(GIMXLOG_LDLIBS) -lgimxudp
 
 ifeq ($(OS),Windows_NT)
 GIMXINPUT_CPPFLAGS += `sdl2-config --cflags`

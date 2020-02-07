@@ -21,6 +21,7 @@
 #include <limits.h>
 #include "log.h"
 #include <gimxlog/include/glog.h>
+#include <gimxudp/include/gudp.h>
 
 #define DEV_HIDRAW "/dev/hidraw"
 #ifndef WIN32
@@ -93,45 +94,8 @@ static void usage()
   printf("  --show-debug-flags: Show all available debug flags.\n");
 
   printf("  --auto-grab: Grab if config has at least one keyboard or mouse binding. This argument overrides the --nograb one\n");
-}
 
-/*
- * Try to parse an argument with the following expected format: a.b.c.d:e
- * where a.b.c.d is an IPv4 address and e is a port.
- */
-static int read_ip(char* optarg, in_addr_t* ip, unsigned short* port)
-{
-  int ret = 0;
-  int pos;
-  size_t len = strlen(optarg);
-  //check the length
-  if(len + 1 > sizeof("111.111.111.111:65535"))
-  {
-    return -1;
-  }
-  //check the absence of spaces
-  if(strchr(optarg, ' '))
-  {
-    return -1;
-  }
-  //get the position of the ':'
-  char* sep = strchr(optarg, ':');
-  if (sep)
-  {
-    *sep = ' ';//Temporarily separate the address and the port
-    *ip = inet_addr(optarg);//parse the IP
-    //parse the port
-    if(sscanf(sep + 1, "%hu%n", port, &pos) != 1 || (unsigned int)pos != (len - (sep + 1 - optarg)))
-    {
-      ret = -1;
-    }
-    *sep = ':';//Revert.
-  }
-  if (!sep || *ip == INADDR_NONE || *port == 0)
-  {
-    ret = -1;
-  }
-  return ret;
+  printf("  --proxy: Adapter is proxied from server to client when provided before --src and before --dst.\n");
 }
 
 static int init_log(int argc, char *argv[], s_gimx_params* params)
@@ -189,6 +153,8 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
   int c;
   unsigned char controller = 0;
   unsigned char input = 0;
+  struct gudp_address address;
+  int proxy = 0;
 
   ret = init_log(argc, argv, params);
 
@@ -208,6 +174,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"debug.mainloop",   no_argument, &params->debug.mainloop,    1},
     {"debug.sixaxis",    no_argument, &params->debug.sixaxis,     1},
     {"debug.config",     no_argument, &params->debug.config,      1},
+    {"debug.udp_con",    no_argument, &params->debug.udp_con,     1},
     {"debug.usb_con",    no_argument, &params->debug.usb_con,     1},
     {"debug.stats",      no_argument, &params->debug.stats,       1},
     {"debug.gimxhid",    no_argument, &params->debug.gimxhid,     1},
@@ -220,9 +187,11 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"debug.gimxuhid",   no_argument, &params->debug.gimxuhid,    1},
 #endif
     {"debug.gimxusb",    no_argument, &params->debug.gimxusb,     1},
+    {"debug.gimxudp",    no_argument, &params->debug.gimxudp,     1},
     {"skip_leds",        no_argument, &params->skip_leds,         1},
     {"ff_conv",          no_argument, &params->ff_conv,           1},
     {"auto-grab",        no_argument, &params->autograb,          1},
+    {"proxy",            no_argument, &proxy,                     1},
     /* These options don't set a flag. We distinguish them by their indices. */
     {"bdaddr",  required_argument, 0, 'b'},
     {"config",  required_argument, 0, 'c'},
@@ -280,6 +249,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         }
         printf(_("controller #%d: option -b with value `%s'\n"), controller + 1, optarg);
         ++controller;
+        proxy = 0;
         printf(_("now reading arguments for controller #%d\n"), controller + 1);
         break;
 
@@ -327,18 +297,29 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         break;
 
       case 'd':
-        if(read_ip(optarg, &adapter_get(controller)->remote.ip,
-            &adapter_get(controller)->remote.port) < 0)
+        if(gudp_parse_address(optarg, &address) < 0)
         {
           gerror(_("Bad format for argument -d: '%s'\n"), optarg);
           ret = -1;
         }
         else
         {
-          adapter_get(controller)->atype = E_ADAPTER_TYPE_REMOTE_GIMX;
-          printf(_("controller #%d: option -d with value `%s'\n"), controller + 1, optarg);
-          ++controller;
-          printf(_("now reading arguments for controller #%d\n"), controller + 1);
+          if (!proxy)
+          {
+            adapter_get(controller)->remote.address = address;
+            adapter_get(controller)->atype = E_ADAPTER_TYPE_REMOTE_GIMX;
+            printf(_("controller #%d: option -d with value `%s'\n"), controller + 1, optarg);
+            ++controller;
+            proxy = 0;
+            printf(_("now reading arguments for controller #%d\n"), controller + 1);
+          }
+          else
+          {
+            printf(_("controller #%d: option -d with value `%s' (proxy)\n"), controller + 1, optarg);
+            adapter_get(controller)->proxy.is_client = 1;
+            adapter_get(controller)->proxy.remote = address;
+            adapter_get(controller)->atype = E_ADAPTER_TYPE_PROXY;
+          }
         }
         break;
 
@@ -348,17 +329,29 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         break;
 
       case 's':
-        if(read_ip(optarg, &adapter_get(controller)->src_ip,
-            &adapter_get(controller)->src_port) < 0)
+        if(gudp_parse_address(optarg, &address) < 0)
         {
           gerror(_("Bad format for argument -s: '%s'\n"), optarg);
           ret = -1;
         }
         else
         {
-          printf(_("controller #%d: option -s with value `%s'\n"), controller + 1, optarg);
-          input = 1;
-          params->network_input = 1;
+          if (!proxy)
+          {
+            printf(_("controller #%d: option -s with value `%s'\n"), controller + 1, optarg);
+            adapter_get(controller)->src = address;
+            input = 1;
+            params->network_input = 1;
+          }
+          else
+          {
+            printf(_("controller #%d: option -s with value `%s' (proxy)\n"), controller + 1, optarg);
+            adapter_get(controller)->proxy.is_proxy = 1;
+            adapter_get(controller)->proxy.local = address;
+            input = 1;
+            params->network_input = 1;
+            proxy = 0;
+          }
         }
         break;
 
@@ -393,6 +386,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         {
           printf(_("controller #%d: option -p with value `%s'\n"), controller + 1, optarg);
           ++controller;
+          proxy = 0;
           printf(_("now reading arguments for controller #%d\n"), controller + 1);
         }
         break;

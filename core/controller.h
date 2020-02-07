@@ -11,14 +11,9 @@
 #include <config.h>
 #include <gimxserial/include/gserial.h>
 #include <gimxcontroller/include/controller.h>
+#include <gimxudp/include/gudp.h>
 #include "haptic/haptic_core.h"
 #include <gimx.h>
-
-#ifndef WIN32
-#include <netinet/in.h>
-#else
-#include <connectors/windows/sockets.h>
-#endif
 
 #include <stdio.h>
 
@@ -28,6 +23,7 @@ typedef enum {
     E_ADAPTER_TYPE_DIY_USB,
     E_ADAPTER_TYPE_REMOTE_GIMX,
     E_ADAPTER_TYPE_GPP,
+    E_ADAPTER_TYPE_PROXY,
 } e_adapter_type;
 
 typedef struct {
@@ -43,18 +39,23 @@ typedef struct {
         unsigned int bread;
     } serial;
     struct {
-        in_addr_t ip;
-        unsigned short port;
-        int fd;
+        struct gudp_address address;
+        struct gudp_socket * socket;
         union {
             unsigned char buf[sizeof(s_network_packet_in_report) + AXIS_MAX * sizeof(* ((s_network_packet_in_report * )NULL)->axes)];
             s_network_packet_in_report report;
         };
         int last_axes[AXIS_MAX];
     } remote;
-    in_addr_t src_ip;
-    unsigned short src_port;
-    int src_fd;
+    struct gudp_address src;
+    struct gudp_socket * src_socket;
+    struct {
+        int is_proxy;
+        int is_client;
+        struct gudp_address local;
+        struct gudp_address remote;
+        struct gudp_socket * socket;
+    } proxy;
     e_controller_type ctype;
   struct {
     e_controller_axis_index index;

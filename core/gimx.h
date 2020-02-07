@@ -63,6 +63,7 @@ typedef struct
       int mainloop;
       int sixaxis;
       int config;
+      int udp_con;
       int usb_con;
       int stats;
       int gimxhid;
@@ -73,6 +74,7 @@ typedef struct
       int gimxtimer;
       int gimxuhid;
       int gimxusb;
+      int gimxudp;
   } debug;
   char* config_file;
   int postpone_count;
