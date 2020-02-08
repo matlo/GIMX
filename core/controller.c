@@ -373,12 +373,7 @@ static int network_read_callback(void * user, const void * buf, int status, stru
     }
     break;
   }
-  // require a report to be sent immediately, except for a Sixaxis controller working over bluetooth
-  if(adapters[adapter].ctype == C_TYPE_SIXAXIS && adapters[adapter].atype == E_ADAPTER_TYPE_BLUETOOTH)
-  {
-    return 0;
-  }
-  return 1;
+  return (gimx_params.clock_source == CLOCK_INPUT);
 }
 
 int adapter_close_callback(void * user __attribute__((unused)))

@@ -66,22 +66,8 @@ e_gimx_status mainloop()
 
   unsigned int refresh_period = (unsigned int)gimx_params.refresh_period;
 
-  int clocked = 1;
-
-  if (adapter_get(0)->src.ip)
-  {
-    // input report period is driven by remote gimx instance
-    clocked = 0;
-  }
-
-  if (adapter_get(0)->atype == E_ADAPTER_TYPE_BLUETOOTH && adapter_get(0)->ctype == C_TYPE_SIXAXIS)
-  {
-    // input report period is driven by output report period
-    clocked = 0;
-  }
-
   GTIMER_CALLBACKS callbacks = {
-          .fp_read = clocked ? clocked_timer_read : default_timer_read,
+          .fp_read = (gimx_params.clock_source == CLOCK_TIMER) ? clocked_timer_read : default_timer_read,
           .fp_close = timer_close,
           .fp_register = REGISTER_FUNCTION,
           .fp_remove = REMOVE_FUNCTION,

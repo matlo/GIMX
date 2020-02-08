@@ -89,6 +89,11 @@ typedef struct
   unsigned int inactivity_timeout; // minutes, 0 means not defined
   int autograb;
   int focus_lost;
+  enum {
+      CLOCK_TIMER,
+      CLOCK_TARGET,
+      CLOCK_INPUT
+  } clock_source;
 } s_gimx_params;
 
 extern s_gimx_params gimx_params;

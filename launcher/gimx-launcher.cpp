@@ -1620,10 +1620,8 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
       command.Append(InputChoice->GetStringSelection());
       command.Append(wxT("\""));
 
-      if(Output->GetStringSelection() != _("Remote GIMX") || Output->GetStringSelection() == _("Remote adapter"))
-      {
-        command.Append(wxT(" --force-updates"));
-      }
+      command.Append(wxT(" --force-updates"));
+
       command.Append(wxT(" --subpos"));
     }
 

@@ -64,6 +64,7 @@ s_gimx_params gimx_params =
   .ff_conv = 0,
   .inactivity_timeout = 0,
   .focus_lost = 0,
+  .clock_source = CLOCK_TIMER,
 };
 
 #ifdef WIN32
@@ -101,6 +102,10 @@ int ignore_event(GE_Event* event __attribute__((unused)))
 
 int process_event(GE_Event* event)
 {
+  if (!gimx_params.config_file)
+  {
+    return 0;
+  }
   switch (event->type)
   {
     case GE_MOUSEMOTION:

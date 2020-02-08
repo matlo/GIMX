@@ -155,6 +155,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
   unsigned char input = 0;
   struct gudp_address address;
   int proxy = 0;
+  int btps3 = 0;
 
   ret = init_log(argc, argv, params);
 
@@ -246,6 +247,10 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         if(adapter_get(controller)->ctype == C_TYPE_NONE)
         {
           adapter_get(controller)->ctype = C_TYPE_SIXAXIS;
+        }
+        if (adapter_get(controller)->ctype == C_TYPE_SIXAXIS)
+        {
+          btps3 = 1;
         }
         printf(_("controller #%d: option -b with value `%s'\n"), controller + 1, optarg);
         ++controller;
@@ -349,7 +354,6 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
             adapter_get(controller)->proxy.is_proxy = 1;
             adapter_get(controller)->proxy.local = address;
             input = 1;
-            params->network_input = 1;
             proxy = 0;
           }
         }
@@ -392,7 +396,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         break;
 
       case 'q':
-        gimx_params.inactivity_timeout = atoi(optarg);
+        params->inactivity_timeout = atoi(optarg);
         printf(_("global option -q with value `%s'\n"), optarg);
         break;
 
@@ -494,9 +498,20 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     log_info();
   }
 
-  if (gimx_params.debug.controller)
+  if (params->debug.controller)
   {
-    gimx_params.status = 1;
+    params->status = 1;
+  }
+
+  if (btps3)
+  {
+    // output reports (from PS3) drive the report period
+    params->clock_source = CLOCK_TARGET;
+  }
+  else if (params->network_input && !params->config_file)
+  {
+    // the client drives the report period (to cut down latency)
+    params->clock_source = CLOCK_INPUT;
   }
 
   int i;
