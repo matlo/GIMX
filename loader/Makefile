@@ -11,6 +11,10 @@ NAME=$(shell basename "$(shell pwd)")
 CPPFLAGS += `wx-config --cflags` -Winvalid-pch -include wx_pch.h -DWX_PRECOMP -Wno-cast-function-type -Wno-deprecated-copy -Wno-ignored-qualifiers
 LDLIBS += `wx-config --libs` -lstdc++
 
+LDLIBS += $(GIMXTIME_LDLIBS)
+
+LDFLAGS += $(GIMXTIME_LDFLAGS)
+
 OBJECTS := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 
 OUT = gimx-$(NAME)

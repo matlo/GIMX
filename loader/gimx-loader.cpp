@@ -35,6 +35,8 @@
 #include <stdlib.h>
 #endif
 
+#include <gimxtime/include/gtime.h>
+
 using namespace std;
 
 #define MAX_PORT_NB 257 // 0 to 256
@@ -87,7 +89,7 @@ BEGIN_EVENT_TABLE(loaderFrame,wxFrame)
 //*)
 END_EVENT_TABLE()
 
-loaderFrame::loaderFrame(wxWindow* parent,wxWindowID id __attribute__((unused)))
+loaderFrame::loaderFrame(wxString firmware,wxWindow* parent,wxWindowID id __attribute__((unused)))
 {
     locale = new wxLocale(wxLANGUAGE_DEFAULT);
 #ifdef WIN32
@@ -153,6 +155,14 @@ loaderFrame::loaderFrame(wxWindow* parent,wxWindowID id __attribute__((unused)))
     Panel1->Fit();
     Fit();
     Refresh();
+
+    if (!firmware.IsEmpty())
+    {
+      selected = firmware;
+      ChoiceFirmware->SetSelection(ChoiceFirmware->FindString(firmware));
+      wxCommandEvent event;
+      OnButtonLoadClick(event);
+    }
 }
 
 loaderFrame::~loaderFrame() {
@@ -215,15 +225,18 @@ void loaderFrame::OnButtonLoadClick(wxCommandEvent& event __attribute__((unused)
     list_ports(ports);
 
     int i = -1;
-    int count;
+    int found = -1;
 
     {
         wxWindowDisabler disableAll;
         wxBusyInfo wait(_("Unplug/replug the USB cable from/to computer USB port."));
 
-        for (count = 0; count < 1000; ++count) {
+        // We don't compute timeout based on check_port call count.
+        // On Windows check_port takes some time (100ms on my desktop).
+        gtime start = gtime_gettime();
+        do {
             for (i = 0; i < MAX_PORT_NB; ++i) {
-                int found = check_port(i);
+                found = check_port(i);
                 if (found != -1) {
                     if (ports[i] == 0) {
                         break; // found
@@ -238,12 +251,17 @@ void loaderFrame::OnButtonLoadClick(wxCommandEvent& event __attribute__((unused)
             usleep(10000); // we need to be aggressive to detect removal
 
             wxTheApp->Yield();
-        }
+
+        } while (gtime_gettime() - start < 10000000000ULL);
     }
 
-    if (count == 1000) {
+    if (found == -1) {
         wxMessageBox(_("No new device found within 10 seconds."), _("Error"), wxICON_ERROR);
         ButtonLoad->Enable(true);
+        if (!selected.IsEmpty()) {
+            wxCommandEvent event;
+            OnQuit(event);
+        }
         return;
     }
 
@@ -267,6 +285,10 @@ void loaderFrame::OnButtonLoadClick(wxCommandEvent& event __attribute__((unused)
     if (!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process)) {
         wxMessageBox(_("failed to load firmware"), _("Error"), wxICON_ERROR);
         ButtonLoad->Enable(true);
+        if (!selected.IsEmpty()) {
+            wxCommandEvent event;
+            OnQuit(event);
+        }
     }
 }
 
@@ -281,5 +303,10 @@ void loaderFrame::OnProcessTerminated(wxProcess *process __attribute__((unused))
     }
 
     SetFocus();
+
+    if (!selected.IsEmpty()) {
+        wxCommandEvent event;
+        OnQuit(event);
+    }
 }
 

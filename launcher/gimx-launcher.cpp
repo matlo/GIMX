@@ -53,6 +53,12 @@
 #include <tlhelp32.h>
 #endif
 
+#include <gimxserial/include/gserial.h>
+#include <gimx-adapter-protocol/include/protocol.h>
+
+#define BAUDRATE 500000 //bps
+#define ADAPTER_TIMEOUT 1000 //millisecond
+
 #ifdef WIN32
 #define REGISTER_FUNCTION gpoll_register_handle
 #define REMOVE_FUNCTION gpoll_remove_handle
@@ -1211,6 +1217,8 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
     refreshGui();
 
     openLog = false;
+
+    checkFirmware();
 }
 
 launcherFrame::~launcherFrame()
@@ -2908,4 +2916,235 @@ void launcherFrame::OnMenuUpdateFirmware(wxCommandEvent& event __attribute__((un
     {
       wxMessageBox(_("Failed to execute gimx-loader."), _("Error"), wxICON_ERROR);
     }
+}
+
+int adapter_read_reply(gserial_device * device, s_packet * packet, int permissive)
+{
+  uint8_t type = packet->header.type;
+
+  /*
+   * The adapter may send a packet before it processes the command,
+   * so it is possible to receive a packet that is not the command response.
+   */
+  while(1)
+  {
+    int ret = gserial_read_timeout(device, (void *) &packet->header, sizeof(packet->header), ADAPTER_TIMEOUT);
+    if(ret < 0 || (size_t)ret < sizeof(packet->header))
+    {
+      if (!permissive)
+      {
+        std::cerr << "failed to read packet header from the GIMX adapter" << std::endl;
+      }
+      return -1;
+    }
+
+    if (ret == sizeof(packet->header))
+    {
+      ret = gserial_read_timeout(device, (void *) &packet->value, packet->header.length, ADAPTER_TIMEOUT);
+      if(ret < 0 || (size_t)ret < packet->header.length)
+      {
+        if (!permissive)
+        {
+          std::cerr << "failed to read packet data from the GIMX adapter" << std::endl;
+        }
+        return -1;
+      }
+    }
+
+    //Check this packet is the command response.
+    if(packet->header.type == type)
+    {
+      return 0;
+    }
+  }
+
+  return -1;
+}
+
+/*
+ * This function should only be used in the initialization stages, i.e. before the mainloop.
+ */
+static int adapter_send_short_command(gserial_device * device, unsigned char type)
+{
+  s_packet packet =
+  {
+    .header =
+    {
+      .type = type,
+      .length = BYTE_LEN_0_BYTE
+    },
+    .value = {}
+  };
+
+  int ret = gserial_write_timeout(device, &packet, sizeof(packet.header) + packet.header.length, ADAPTER_TIMEOUT);
+  if(ret < 0 || (size_t)ret < sizeof(packet.header))
+  {
+    std::cerr << "failed to send data to the GIMX adapter" << std::endl;
+    return -1;
+  }
+
+  ret = adapter_read_reply(device, &packet, 0);
+
+  if(ret == 0)
+  {
+    if(packet.header.length != BYTE_LEN_1_BYTE)
+    {
+      std::cerr << "bad response from the GIMX adapter (invalid length)" << std::endl;
+      return -1;
+    }
+    return packet.value[0];
+  }
+
+  return -1;
+}
+
+static int adapter_get_version(gserial_device * device, int *major, int *minor)
+{
+  s_packet packet = { .header = { .type = BYTE_VERSION, .length = 0 }, .value = {} };
+
+  int ret = gserial_write_timeout(device, &packet, sizeof(packet.header), ADAPTER_TIMEOUT);
+  if (ret < 0 || (size_t)ret != sizeof(packet.header))
+  {
+    std::cerr << "failed to send data to the GIMX adapter" << std::endl;
+    return -1;
+  }
+
+  ret = adapter_read_reply(device, &packet, 1);
+
+  if(ret == 0 && packet.header.length == 2)
+  {
+    *major = packet.value[0];
+    *minor = packet.value[1];
+  }
+  else
+  {
+    *major = 5;
+    *minor = 8;
+  }
+
+  return 0;
+}
+
+static std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
+    std::stringstream ss(s);
+    std::string item;
+    while (getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+    return elems;
+}
+
+static std::vector<std::string> split(const std::string &s, char delim) {
+    std::vector<std::string> elems;
+    return split(s, delim, elems);
+}
+
+void launcherFrame::checkFirmware()
+{
+  if (Output->GetStringSelection() != _("GIMX adapter"))
+  {
+    return;
+  }
+
+  wxString outputSelection = OutputChoice->GetStringSelection();
+
+  string filename = string(launcherDir.mb_str(wxConvUTF8));
+  filename.append(OUTPUT_CHOICE_FILE);
+
+  if(!::wxFileExists(wxString(filename.c_str(), wxConvUTF8)))
+  {
+    return;
+  }
+
+  string line;
+  getfileline(filename, line);
+
+  if (TO_WXSTRING(line) != outputSelection)
+  {
+    return;
+  }
+
+  wxString port;
+#ifndef WIN32
+  port.Append(wxT("/dev/"));
+#endif
+  port.Append(outputSelection);
+
+  gserial_device * device = gserial_open(TO_STRING(port).c_str(), BAUDRATE);
+
+  if (device == NULL)
+  {
+    // adapter is probably not plugged, return silently
+    return;
+  }
+
+  int rtype = adapter_send_short_command(device, BYTE_TYPE);
+
+  if(rtype < 0 || rtype >= C_TYPE_NONE)
+  {
+    wxMessageBox(_("Failed to read firmware type."), _("Error"), wxICON_ERROR);
+    gserial_close(device);
+    return;
+  }
+
+  const string firmwares[C_TYPE_MAX] =
+  {
+    [C_TYPE_JOYSTICK]   = "EMUJOYSTICK.hex",
+    [C_TYPE_360_PAD]    = "EMU360.hex",
+    [C_TYPE_SIXAXIS]    = "EMUPS3.hex",
+    [C_TYPE_PS2_PAD]    = "", // broken
+    [C_TYPE_XBOX_PAD]   = "EMUXBOX.hex",
+    [C_TYPE_DS4]        = "EMUPS4.hex",
+    [C_TYPE_XONE_PAD]   = "EMUXONE.hex",
+    [C_TYPE_T300RS_PS4] = "", // unfinished
+    [C_TYPE_G27_PS3]    = "EMUG27.hex",
+    [C_TYPE_G29_PS4]    = "EMUG29PS4.hex",
+    [C_TYPE_DF_PS2]     = "EMUDF.hex",
+    [C_TYPE_DFP_PS2]    = "EMUDFP.hex",
+    [C_TYPE_GTF_PS2]    = "EMUGTF.hex",
+  };
+
+  if (firmwares[rtype][0] == '\0')
+  {
+    // no update for this type, return silently
+    gserial_close(device);
+    return;
+  }
+
+  int major, minor;
+  if (adapter_get_version(device, &major, &minor) < 0)
+  {
+    wxMessageBox(_("Failed to read firmware version."), _("Error"), wxICON_ERROR);
+    gserial_close(device);
+    return;
+  }
+
+  gserial_close(device);
+
+  std::vector<std::string> elems = split(INFO_FW_VERSION, '.');
+  if (elems.size() != 2)
+  {
+    wxMessageBox(_("Failed to parse firmware version."), _("Error"), wxICON_ERROR);
+    return;
+  }
+
+  int sw_major = atoi(elems[0].c_str());
+  int sw_minor = atoi(elems[1].c_str());
+
+  if (sw_major < major || (sw_major == major && sw_minor <= minor))
+  {
+    // firmware is up to date
+    return;
+  }
+
+  int answer = wxMessageBox(_("A firmware update is available.\nStart firmware update?"), _("Confirm"), wxYES_NO);
+  if (answer != wxYES)
+  {
+    return;
+  }
+
+  if (wxExecute(wxT("gimx-loader -f ") + TO_WXSTRING(firmwares[rtype]), wxEXEC_SYNC))
+  {
+    wxMessageBox(_("Failed to execute gimx-loader."), _("Error"), wxICON_ERROR);
+  }
 }

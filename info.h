@@ -7,6 +7,8 @@
 #define INFO_WEB "http://gimx.fr"
 #define INFO_LICENCE "GNU GPL v3"
 
+#define INFO_FW_VERSION "8.0"
+
 #ifdef __x86_64__
   #define INFO_ARCH "x86_64"
 #endif

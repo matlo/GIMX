@@ -128,6 +128,8 @@ class launcherFrame: public wxFrame
         void initDownload(wxProgressDialog * dlg);
         void cleanDownload();
 
+        void checkFirmware();
+
         //(*Identifiers(launcherFrame)
         static const long ID_STATICTEXT4;
         static const long ID_CHOICE1;
