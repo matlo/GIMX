@@ -51,6 +51,8 @@ class loaderFrame: public wxFrame
         wxMenuBar* MenuBar1;
         //*)
 
+        void checkQuit();
+
         wxLocale* locale;
 
         wxString selected;

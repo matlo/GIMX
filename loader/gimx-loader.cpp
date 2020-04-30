@@ -211,12 +211,14 @@ void loaderFrame::OnButtonLoadClick(wxCommandEvent& event __attribute__((unused)
     int answer = wxMessageBox(_("This tool is only compatible with GIMX adapters made with a USB to UART adapter and a Pro Micro board. Proceed?"), wxT(""), wxICON_INFORMATION | wxOK | wxCANCEL);
     if (answer != wxOK) {
         ButtonLoad->Enable(true);
+        checkQuit();
         return;
     }
 
     answer = wxMessageBox(_("Plug both sides of the adapter to the computer."), wxT(""), wxICON_INFORMATION | wxOK | wxCANCEL);
     if (answer != wxOK) {
         ButtonLoad->Enable(true);
+        checkQuit();
         return;
     }
 
@@ -258,10 +260,7 @@ void loaderFrame::OnButtonLoadClick(wxCommandEvent& event __attribute__((unused)
     if (found == -1) {
         wxMessageBox(_("No new device found within 10 seconds."), _("Error"), wxICON_ERROR);
         ButtonLoad->Enable(true);
-        if (!selected.IsEmpty()) {
-            wxCommandEvent event;
-            OnQuit(event);
-        }
+        checkQuit();
         return;
     }
 
@@ -285,10 +284,7 @@ void loaderFrame::OnButtonLoadClick(wxCommandEvent& event __attribute__((unused)
     if (!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process)) {
         wxMessageBox(_("failed to load firmware"), _("Error"), wxICON_ERROR);
         ButtonLoad->Enable(true);
-        if (!selected.IsEmpty()) {
-            wxCommandEvent event;
-            OnQuit(event);
-        }
+        checkQuit();
     }
 }
 
@@ -303,6 +299,11 @@ void loaderFrame::OnProcessTerminated(wxProcess *process __attribute__((unused))
     }
 
     SetFocus();
+
+    checkQuit();
+}
+
+void loaderFrame::checkQuit() {
 
     if (!selected.IsEmpty()) {
         wxCommandEvent event;
