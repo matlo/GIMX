@@ -178,10 +178,10 @@ static void haptic_source_lg_process(struct haptic_source_state * state, size_t 
         break;
         default:
         {
-            static int warn = 1;
-            if (warn == 1) {
+            static int warn[0x10] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+            if (cmd < sizeof(warn) / sizeof(*warn) && warn[cmd] == 1) {
                 gwarn("skipping unsupported command %s\n", ff_lg_get_cmd_name(cmd));
-                warn = 0;
+                warn[cmd] = 0;
             }
         }
         break;
