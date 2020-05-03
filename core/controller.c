@@ -1201,7 +1201,10 @@ int adapter_start()
       if (adapter->ff_core == NULL)
       {
         adapter->forward_out_reports = usb_forward_output(i, adapter->joystick);
-        ginfo("Rumble pass-through to joystick %d (%s)\n", adapter->joystick, ginput_joystick_name(adapter->joystick));
+        if (adapter->forward_out_reports)
+        {
+          ginfo("Rumble pass-through to joystick %d (%s)\n", adapter->joystick, ginput_joystick_name(adapter->joystick));
+        }
       }
 
       if (adapter->ctype == C_TYPE_XONE_PAD && !adapter->status)
