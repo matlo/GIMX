@@ -144,10 +144,12 @@ BEGIN_EVENT_TABLE(launcherFrame,wxFrame)
     //*)
 END_EVENT_TABLE()
 
+#ifdef DOWNLOAD_URL
 static int progress_callback_updater(void *clientp, Updater::UpdaterStatus status, double progress, double total)
 {
     return ((launcherFrame *) clientp)->OnUpdateProgress(status, progress, total);
 }
+#endif
 
 static int progress_callback_configupdater(void *clientp, configupdater::ConfigUpdaterStatus status, double progress, double total)
 {
