@@ -23,11 +23,12 @@
 #include <gimxcontroller/include/controller.h>
 #include <gimxpoll/include/gpoll.h>
 #include <gimxtime/include/gtime.h>
+#include <gimxlog/include/glog.h>
 
 #include <haptic/haptic_core.h>
 
-static const int baudrates[] = { 2000000, 1000000, 500000 }; //bps
-#define BAUDRATE 500000 //bps
+#define DEFAULT_BAUDRATE 500000 //bps
+static const int baudrates[] = { 2000000, 1000000, DEFAULT_BAUDRATE }; //bps
 #define ADAPTER_TIMEOUT 1000 //millisecond
 /*
  * The adapter restarts about 15ms after receiving the reset command.
@@ -256,7 +257,7 @@ static int proxy_src_read_callback(void * user, const void * buf, int status, st
 
     if (type == BYTE_RESET)
     {
-        if (adapter_open(i, BAUDRATE) != E_GIMX_STATUS_SUCCESS)
+        if (adapter_open(i, DEFAULT_BAUDRATE) != E_GIMX_STATUS_SUCCESS)
         {
           return -1;
         }
@@ -865,7 +866,18 @@ static e_gimx_status adapter_open(int i, unsigned int baudrate)
       {
           gserial_close(adapter->serial.device);
       }
+      // silence errors when probing
+      int silence = baudrate != DEFAULT_BAUDRATE && !gimx_params.debug.gimxserial;
+      if (silence)
+      {
+        glog_set_level("gimxserial", E_GLOG_LEVEL_NONE);
+      }
       adapter->serial.device = gserial_open(adapter->serial.portname, baudrate);
+      if (silence)
+      {
+        // restore error level
+        glog_set_level("gimxserial", E_GLOG_LEVEL_INFO);
+      }
       if (adapter->serial.device == NULL)
       {
         gerror(_("failed to open the GIMX adapter\n"));
@@ -937,7 +949,7 @@ e_gimx_status adapter_detect()
     }
     else if (is_gimx_adapter(i))
     {
-      ret = adapter_open(i, BAUDRATE);
+      ret = adapter_open(i, DEFAULT_BAUDRATE);
       if(ret == E_GIMX_STATUS_SUCCESS)
       {
         int rtype = -1;
