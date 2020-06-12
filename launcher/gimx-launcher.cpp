@@ -811,10 +811,7 @@ void launcherFrame::readStartUpdates()
   filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append(START_UPDATES);
   getfileline(filename, line);
-  if(line == "yes")
-  {
-    MenuStartupUpdates->Check(true);
-  }
+  MenuStartupUpdates->Check(line != "no");
 }
 
 #ifdef WIN32
