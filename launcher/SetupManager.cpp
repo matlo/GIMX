@@ -75,6 +75,7 @@ static int progress_callback(void *clientp, Updater::UpdaterStatus status, doubl
 #define USB_PRODUCT_ID_LOGITECH_WII_WHEEL        0xc29c // rumble only
 #define USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2      0xca03 // classic protocol
 #define USB_PRODUCT_ID_LOGITECH_VIBRATION_WHEEL  0xca04 // rumble only
+#define USB_PRODUCT_ID_LOGITECH_G920_XONE_WHEEL  0xc261 // Xbox One protocol
 #define USB_PRODUCT_ID_LOGITECH_G920_WHEEL       0xc262 // hid++ protocol only
 #define USB_PRODUCT_ID_LOGITECH_G29_PC_WHEEL     0xc24f // classic protocol
 #define USB_PRODUCT_ID_LOGITECH_G29_PS4_WHEEL    0xc260 // classic protocol with 1 byte offset
@@ -86,10 +87,12 @@ const char * lgsDownload64 = "https://gimx.fr/download/LGS64";
 
 const char * lgsManager = "Logitech WingMan Event Monitor";
 
-const char * lgs2Download32 = "https://gimx.fr/download/LGS32_2";
-const char * lgs2Download64 = "https://gimx.fr/download/LGS64_2";
+const char * lghubName = "Logitech G HUB";
 
-const char * lgs2Manager = "Logitech Gaming Framework";
+const char * lghubDownload32 = "https://gimx.fr/download/LGHUB32";
+const char * lghubDownload64 = "https://gimx.fr/download/LGHUB64";
+
+const char * lghubManager = "Logi_Devio_MainWindow";
 
 #define MAKE_IDS1(USB_VENDOR_ID, USB_PRODUCT_ID, MANAGER_NAME, MANAGER_WINDOW, MANAGER_DOWNLOAD_32, MANAGER_DOWNLOAD_64) \
     { \
@@ -130,8 +133,11 @@ static s_device_manager_ids ids[] =
     MAKE_IDS1(USB_VENDOR_ID_LOGITECH, USB_PRODUCT_ID_LOGITECH_MOMO_WHEEL2, lgsName, lgsManager, lgsDownload32, lgsDownload64),
     MAKE_IDS1(USB_VENDOR_ID_LOGITECH, USB_PRODUCT_ID_LOGITECH_VIBRATION_WHEEL, lgsName, lgsManager, lgsDownload32, lgsDownload64),
 
-    MAKE_IDS1(USB_VENDOR_ID_LOGITECH, USB_PRODUCT_ID_LOGITECH_G29_PC_WHEEL, lgsName, lgs2Manager, lgs2Download32, lgs2Download64),
-    MAKE_IDS1(USB_VENDOR_ID_LOGITECH, USB_PRODUCT_ID_LOGITECH_G29_PS4_WHEEL, lgsName, lgs2Manager, lgs2Download32, lgs2Download64),
+    MAKE_IDS1(USB_VENDOR_ID_LOGITECH, USB_PRODUCT_ID_LOGITECH_G29_PC_WHEEL, lghubName, lghubManager, lghubDownload32, lghubDownload64),
+    MAKE_IDS1(USB_VENDOR_ID_LOGITECH, USB_PRODUCT_ID_LOGITECH_G29_PS4_WHEEL, lghubName, lghubManager, lghubDownload32, lghubDownload64),
+
+    MAKE_IDS1(USB_VENDOR_ID_LOGITECH, USB_PRODUCT_ID_LOGITECH_G920_WHEEL, lghubName, lghubManager, lghubDownload32, lghubDownload64),
+    MAKE_IDS1(USB_VENDOR_ID_LOGITECH, USB_PRODUCT_ID_LOGITECH_G920_XONE_WHEEL, lghubName, lghubManager, lghubDownload32, lghubDownload64),
 
     { },
 };
@@ -151,7 +157,6 @@ void SetupManager::run() {
                     GetNativeSystemInfo(&info);
                     switch (info.wProcessorArchitecture) {
                     case PROCESSOR_ARCHITECTURE_AMD64:
-                    case PROCESSOR_ARCHITECTURE_IA64:
                         managers.insert(std::make_pair(ids[i].manager.name, ids[i].manager.download64));
                         break;
                     case PROCESSOR_ARCHITECTURE_INTEL:
