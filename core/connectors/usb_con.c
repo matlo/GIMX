@@ -707,6 +707,8 @@ int usb_close(int usb_number) {
     }
 
     gusb_close(state->usb_device);
+
+    state->usb_device = NULL;
   }
 
   set_done();
