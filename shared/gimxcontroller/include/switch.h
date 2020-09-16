@@ -17,12 +17,10 @@
 #define BATTERY_CHARGING    0x01 // Can be OR'ed
 
 #define SWITCH_Y  0x01
-#define SWITCH_B  0x02
-#define SWITCH_A  0x04
-#define SWITCH_X  0x08
-#define SWITCH_L  0x10
-#define SWITCH_R  0x20
-#define SWITCH_ZL  0x40
+#define SWITCH_X  0x02
+#define SWITCH_B  0x04
+#define SWITCH_A  0x08
+#define SWITCH_R 0x40
 #define SWITCH_ZR  0x80
 #define SWITCH_MINUS  0x100
 #define SWITCH_PLUS  0x200
@@ -35,6 +33,8 @@
 #define SWITCH_DPADUP   0x20000
 #define SWITCH_DPADRIGHT  0x40000
 #define SWITCH_DPADLEFT   0x80000
+#define SWITCH_L  0x400000
+#define SWITCH_ZL  0x800000
 
 typedef enum
 {
