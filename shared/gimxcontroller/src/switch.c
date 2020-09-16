@@ -127,14 +127,14 @@ static unsigned int build_report(int axis[AXIS_MAX], s_report_packet report[MAX_
 
   // Left stick
   unsigned long lx = clamp(0, axis[switcha_lstick_x] + CENTER_AXIS_VALUE_12BITS, MAX_AXIS_VALUE_12BITS);
-  unsigned long ly = clamp(0, axis[switcha_lstick_y] + CENTER_AXIS_VALUE_12BITS, MAX_AXIS_VALUE_12BITS);
+  unsigned long ly = clamp(0, -axis[switcha_lstick_y] + CENTER_AXIS_VALUE_12BITS, MAX_AXIS_VALUE_12BITS);
   ns->analog[0] = lx & 0xFF;
   ns->analog[1] = ((ly & 0x0F) << 4) | ((lx & 0xF00) >> 8);
   ns->analog[2] = (ly & 0xFF0) >> 4;
 
   // Right stick
   unsigned long rx = clamp(0, axis[switcha_rstick_x] + CENTER_AXIS_VALUE_12BITS, MAX_AXIS_VALUE_12BITS);
-  unsigned long ry = clamp(0, axis[switcha_rstick_y] + CENTER_AXIS_VALUE_12BITS, MAX_AXIS_VALUE_12BITS);
+  unsigned long ry = clamp(0, -axis[switcha_rstick_y] + CENTER_AXIS_VALUE_12BITS, MAX_AXIS_VALUE_12BITS);
   ns->analog[3] = rx & 0xFF;
   ns->analog[4] = ((ry & 0x0F) << 4) | ((rx & 0xF00) >> 8);
   ns->analog[5] = (ry & 0xFF0) >> 4;
