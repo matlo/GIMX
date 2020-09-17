@@ -38,10 +38,10 @@ static s_axis axes[AXIS_MAX] =
 
 static s_axis_name_dir axis_name_dirs[] =
 {
-  {.name = "rstick x",     {.axis = switcha_lstick_x, .props = AXIS_PROP_CENTERED}},
-  {.name = "rstick y",     {.axis = switcha_lstick_y, .props = AXIS_PROP_CENTERED}},
-  {.name = "lstick x",     {.axis = switcha_rstick_x, .props = AXIS_PROP_CENTERED}},
-  {.name = "lstick y",     {.axis = switcha_rstick_y, .props = AXIS_PROP_CENTERED}},
+  {.name = "rstick x",     {.axis = switcha_rstick_x, .props = AXIS_PROP_CENTERED}},
+  {.name = "rstick y",     {.axis = switcha_rstick_y, .props = AXIS_PROP_CENTERED}},
+  {.name = "lstick x",     {.axis = switcha_lstick_x, .props = AXIS_PROP_CENTERED}},
+  {.name = "lstick y",     {.axis = switcha_lstick_y, .props = AXIS_PROP_CENTERED}},
 
   {.name = "rstick left",  {.axis = switcha_rstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_NEGATIVE}},
   {.name = "rstick right", {.axis = switcha_rstick_x, .props = AXIS_PROP_CENTERED | AXIS_PROP_POSITIVE}},
