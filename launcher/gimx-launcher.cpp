@@ -622,6 +622,27 @@ void launcherFrame::readHidPorts()
   }
 }
 
+void launcherFrame::readStubs()
+{
+  wxString previous = OutputChoice->GetStringSelection();
+
+  OutputChoice->Clear();
+
+  for (int type = 0; type < C_TYPE_MAX; ++type)
+  {
+    OutputChoice->SetSelection(OutputChoice->Append(controller_get_name((e_controller_type)type)));
+  }
+
+  if(previous != wxEmptyString)
+  {
+    OutputChoice->SetSelection(OutputChoice->FindString(previous));
+  }
+  if(OutputChoice->GetSelection() < 0)
+  {
+    OutputChoice->SetSelection(0);
+  }
+}
+
 void launcherFrame::readConfigs()
 {
   string filename;
@@ -1206,6 +1227,8 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
     Input->Append(_("Physical devices (elevated privileges)"));
 #endif
 
+    Output->Append(_("Stub"));
+
     SetupManager().run();
 
     autoConfig();
@@ -1475,6 +1498,12 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
       command.Append(wxT("gimx"));
     }
 
+    if(Output->GetStringSelection() == _("Stub"))
+    {
+      command.Append(wxT(" -t \""));
+      command.Append(outputSelection);
+      command.Append(wxT("\""));
+    }
     if(ProcessOutputChoice->GetStringSelection() == _("curses"))
     {
       command.Append(wxT(" --curses"));
@@ -1498,13 +1527,9 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
       if (dialog.ShowModal() == wxID_OK)
       {
         wxString selection = dialog.GetStringSelection();
-        if(selection == _("text"))
+        if(selection == _("log file"))
         {
-          command.Append(wxT(" --status"));
-        }
-        else if(selection == _("log file"))
-        {
-          command.Append(wxT(" --status --log "));
+          command.Append(wxT(" --log "));
           command.Append(wxT(LOG_FILE));
           openLog = true;
         }
@@ -1711,7 +1736,7 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
         wxMessageBox( _("No Dualshock 4 controller was found on USB ports."), _("Error"), wxICON_ERROR);
         break;
     case E_GIMX_STATUS_AUTH_MISSING_XONE:
-        wxMessageBox( _("No Xbox One controller (without 3.5mm jack) was found on USB ports."), _("Error"), wxICON_ERROR);
+        wxMessageBox( _("No Xbox One controller was found on USB ports."), _("Error"), wxICON_ERROR);
         break;
     case E_GIMX_STATUS_AUTH_CONTROLLER_ERROR:
         wxMessageBox( _("There was a connection error with the official controller:\n"
@@ -1947,6 +1972,14 @@ void launcherFrame::OnOutputSelect(wxCommandEvent& event __attribute__((unused))
       {
         readIp(OutputChoice);
       }
+    }
+    else if(Output->GetStringSelection() == _("Stub"))
+    {
+      OutputSizer->Show(true);
+      OutputNewButton->Show(false);
+      OutputText->SetLabel(_("Type"));
+
+      readStubs();
     }
 
     refreshGui();

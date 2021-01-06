@@ -68,6 +68,7 @@ typedef struct
       int macros;
       int sixaxis;
       int config;
+      int usb_con;
       int gimxhid;
       int gimxinput;
       int gimxpoll;

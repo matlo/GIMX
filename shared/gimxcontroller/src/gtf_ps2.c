@@ -113,7 +113,7 @@ static s_controller controller =
   .fp_init_report = init_report,
 };
 
-void gtfPs2_init(void) __attribute__((constructor (101)));
+void gtfPs2_init(void) __attribute__((constructor));
 void gtfPs2_init(void)
 {
   controller_register(C_TYPE_GTF_PS2, &controller);

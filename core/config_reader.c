@@ -38,6 +38,14 @@ static void reset_entry()
 static char * r_device_name = NULL;
 
 /*
+ * Used to avoid duplicate warning messages about missing devices.
+ */
+static struct {
+    char * name;
+    int id;
+} warned[E_DEVICE_TYPE_NB][MAX_DEVICES] = {};
+
+/*
  * Get the device name and store it into r_device_name.
  * OK, return 0
  * error, return -1
@@ -68,11 +76,23 @@ int GetDeviceName(xmlNode* a_node)
 
 static void warnDeviceNotFound()
 {
-  static unsigned char warned[E_DEVICE_TYPE_NB][MAX_DEVICES] = {};
   int type_index = entry.device.type - 1;
-  if(type_index < 0 || type_index >= E_DEVICE_TYPE_NB || warned[type_index][entry.device.id] != 0)
+  if(type_index < 0 || type_index >= E_DEVICE_TYPE_NB)
   {
     return;
+  }
+  int i;
+  for (i = 0; i < MAX_DEVICES && warned[type_index][i].name != NULL; ++i)
+  {
+    if (warned[type_index][i].id == entry.device.id && !strcmp(warned[type_index][i].name, r_device_name))
+    {
+      return;
+    }
+  }
+  if (i < MAX_DEVICES)
+  {
+    warned[type_index][i].name = strdup(r_device_name);
+    warned[type_index][i].id = entry.device.id;
   }
   switch(entry.device.type)
   {
@@ -88,7 +108,6 @@ static void warnDeviceNotFound()
   case E_DEVICE_TYPE_UNKNOWN:
     return;
   }
-  warned[type_index][entry.device.id] = 1;
 }
 
 /*
@@ -501,7 +520,7 @@ static int ProcessAxisElement(xmlNode * a_node)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
@@ -509,7 +528,7 @@ static int ProcessAxisElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    gerror("missing device element");
+    gerror("missing device element\n");
     ret = -1;
   }
 
@@ -524,7 +543,7 @@ static int ProcessAxisElement(xmlNode * a_node)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
@@ -532,7 +551,7 @@ static int ProcessAxisElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    gerror("missing event element");
+    gerror("missing event element\n");
     ret = -1;
   }
 
@@ -565,7 +584,7 @@ static int ProcessButtonElement(xmlNode * a_node)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
@@ -573,7 +592,7 @@ static int ProcessButtonElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    gerror("missing device element");
+    gerror("missing device element\n");
     ret = -1;
   }
 
@@ -588,7 +607,7 @@ static int ProcessButtonElement(xmlNode * a_node)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
@@ -596,7 +615,7 @@ static int ProcessButtonElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    gerror("missing event element");
+    gerror("missing event element\n");
     ret = -1;
   }
 
@@ -618,7 +637,7 @@ static int ProcessAxisMapElement(xmlNode * a_node)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
@@ -641,7 +660,7 @@ static int ProcessButtonMapElement(xmlNode * a_node)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
@@ -688,7 +707,7 @@ static int ProcessTriggerElement(xmlNode * a_node)
     entry.params.trigger.delay = 0;
     GetIntProp(a_node, X_ATTR_DELAY, &entry.params.trigger.delay);
 
-    if(ret != -1)
+    if(ret == 0)
     {
       cfg_set_trigger(&entry);
     }
@@ -711,7 +730,7 @@ static int ProcessUpDownElement(xmlNode * a_node, int* device_type, int* device_
     {
       ret = GetDeviceId(a_node);
 
-      if(ret != -1)
+      if(ret == 0)
       {
         ret = GetEventId(a_node, X_ATTR_BUTTON_ID);
 
@@ -731,7 +750,7 @@ static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity)
   int ret = 0;
   char* shape;
 
-  for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
+  for (cur_node = a_node->children; cur_node && ret == 0; cur_node = cur_node->next)
   {
     if (cur_node->type == XML_ELEMENT_NODE)
     {
@@ -745,13 +764,13 @@ static int ProcessIntensityElement(xmlNode * a_node, s_intensity* intensity)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
   }
 
-  if(ret != -1 && (intensity->down.button != -1 || intensity->up.button != -1))
+  if(ret == 0 && (intensity->down.button != -1 || intensity->up.button != -1))
   {
     ret = GetUnsignedIntProp(a_node, X_ATTR_DEADZONE, &intensity->params.dead_zone);
 
@@ -822,10 +841,13 @@ static int ProcessIntensityListElement(xmlNode * a_node)
         if(axis1 >= 0)
         {
           ret = ProcessIntensityElement(cur_node, &intensity);
-          cfg_set_axis_intensity(&entry, axis1, &intensity);
-          if(axis2 >= 0)
+          if (ret == 0)
           {
-            cfg_set_axis_intensity(&entry, axis2, &intensity);
+            cfg_set_axis_intensity(&entry, axis1, &intensity);
+            if(axis2 >= 0)
+            {
+              cfg_set_axis_intensity(&entry, axis2, &intensity);
+            }
           }
         }
         xmlFree(control);
@@ -880,7 +902,7 @@ static int ProcessMouseOptionsListElement(xmlNode * a_node)
               entry.params.mouse_options.mode = E_MOUSE_MODE_AIMING;
             }
 
-            if(ret != -1)
+            if(ret == 0)
             {
               ret = GetUnsignedIntProp(cur_node, X_ATTR_BUFFERSIZE, &entry.params.mouse_options.buffer_size);
 
@@ -954,7 +976,7 @@ static int ProcessCorrectionElement(xmlNode * a_node)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
@@ -962,7 +984,7 @@ static int ProcessCorrectionElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    gerror("missing device element");
+    gerror("missing device element\n");
     ret = -1;
   }
 
@@ -977,7 +999,7 @@ static int ProcessCorrectionElement(xmlNode * a_node)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
@@ -985,11 +1007,11 @@ static int ProcessCorrectionElement(xmlNode * a_node)
 
   if (!cur_node)
   {
-    gerror("missing event element");
+    gerror("missing event element\n");
     ret = -1;
   }
 
-  if(ret != -1)
+  if(ret == 0)
   {
     entry.params.joystick_correction.axis = entry.event.id;
     ret = cfg_add_js_corr(entry.device.id, &entry.params.joystick_correction);
@@ -1013,7 +1035,7 @@ static int ProcessJoystickCorrectionsListElement(xmlNode * a_node)
       }
       else
       {
-        gerror("bad element name: %s", cur_node->name);
+        gerror("bad element name: %s\n", cur_node->name);
         ret = -1;
       }
     }
@@ -1087,7 +1109,7 @@ static int ProcessForceFeedbackElement(xmlNode * a_node)
     ret = -1;
   }
 
-  if(ret != -1)
+  if(ret == 0)
   {
     cfg_set_ffb_tweaks(&entry);
     // force FFB selection for 1st profile only
@@ -1315,6 +1337,17 @@ static int read_file(char* file_path)
 
   /*free the document */
   xmlFreeDoc(doc);
+
+  int type, device;
+  for (type = 0; type < E_DEVICE_TYPE_NB; ++type)
+  {
+    for (device = 0; device < MAX_DEVICES && warned[type][device].name != NULL; ++device)
+    {
+      free(warned[type][device].name);
+      warned[type][device].name = NULL;
+      warned[type][device].id = 0;
+    }
+  }
 
   return ret;
 }

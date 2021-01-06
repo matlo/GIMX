@@ -14,6 +14,7 @@ static struct {
         uint16_t vid;
         uint16_t pid;
     } ids;
+    uint8_t reportId;
     struct {
         unsigned char offset;
         unsigned char max;
@@ -23,11 +24,13 @@ static struct {
         unsigned char max;
     } strong;
 } props[] = {
-        { .ids = { .vid = DS4_VENDOR,  .pid = DS4_PRODUCT  }, .weak = { 4, 0xff }, .strong = { 5, 0xff } },
-        { .ids = { .vid = X360_VENDOR, .pid = X360_PRODUCT }, .weak = { 4, 0xff }, .strong = { 3, 0xff } },
-        { .ids = { .vid = DS3_VENDOR,  .pid = DS3_PRODUCT  }, .weak = { 3, 0x01 }, .strong = { 5, 0xff } },
-        { .ids = { .vid = XONE_VENDOR, .pid = XONE_PRODUCT }, .weak = { 7, 0xff }, .strong = { 6, 0xff } },
-        { .ids = { .vid = 0x2508,      .pid = 0x0001       }, .weak = { 7, 0xff }, .strong = { 6, 0xff } }, // GPP/Cronus/Titan
+        { .ids = { .vid = DS4_VENDOR,  .pid = DS4_PRODUCT    }, .reportId = 0x00, .weak = { 4, 0xff }, .strong = { 5, 0xff } },
+        { .ids = { .vid = X360_VENDOR, .pid = X360_PRODUCT   }, .reportId = 0x00, .weak = { 4, 0xff }, .strong = { 3, 0xff } },
+        { .ids = { .vid = DS3_VENDOR,  .pid = DS3_PRODUCT    }, .reportId = 0x00, .weak = { 3, 0x01 }, .strong = { 5, 0xff } },
+        { .ids = { .vid = XONE_VENDOR, .pid = XONE_PRODUCT   }, .reportId = 0x09, .weak = { 9, 0xff }, .strong = { 8, 0xff } },
+        { .ids = { .vid = XONE_VENDOR, .pid = XONE_PRODUCT_2 }, .reportId = 0x09, .weak = { 9, 0xff }, .strong = { 8, 0xff } },
+        { .ids = { .vid = XONE_VENDOR, .pid = XONE_PRODUCT_S }, .reportId = 0x09, .weak = { 9, 0xff }, .strong = { 8, 0xff } },
+        { .ids = { .vid = 0x2508,      .pid = 0x0001         }, .reportId = 0x00, .weak = { 7, 0xff }, .strong = { 6, 0xff } }, // GPP/Cronus/Titan
 };
 
 struct haptic_source_state
@@ -64,6 +67,12 @@ static void haptic_source_rumble_clean(struct haptic_source_state * state) {
 
 static void haptic_source_rumble_process(struct haptic_source_state * state, size_t size __attribute((unused)), const unsigned char * data) {
 
+    uint8_t reportId = props[state->props_index].reportId;
+
+    if (reportId != 0x00 && data[0] != reportId) {
+        return;
+    }
+
     uint16_t weak = data[props[state->props_index].weak.offset] * USHRT_MAX / props[state->props_index].weak.max;
     uint16_t strong = data[props[state->props_index].strong.offset] * USHRT_MAX / props[state->props_index].strong.max;
 
@@ -91,12 +100,14 @@ static int haptic_source_rumble_get(struct haptic_source_state * state, s_haptic
 }
 
 static s_haptic_core_ids haptic_source_rumble_ids[] = {
-        { .vid = DS4_VENDOR,  .pid = DS4_PRODUCT  },
-        { .vid = X360_VENDOR, .pid = X360_PRODUCT },
-        { .vid = DS3_VENDOR,  .pid = DS3_PRODUCT  },
-        { .vid = XONE_VENDOR, .pid = XONE_PRODUCT },
-        { .vid = 0x2508,      .pid = 0x0001       }, // GPP/Cronus/Titan
-        { .vid = 0x0000,      .pid = 0x0000       }, // end of table
+        { .vid = DS4_VENDOR,  .pid = DS4_PRODUCT    },
+        { .vid = X360_VENDOR, .pid = X360_PRODUCT   },
+        { .vid = DS3_VENDOR,  .pid = DS3_PRODUCT    },
+        { .vid = XONE_VENDOR, .pid = XONE_PRODUCT   },
+        { .vid = XONE_VENDOR, .pid = XONE_PRODUCT_2 },
+        { .vid = XONE_VENDOR, .pid = XONE_PRODUCT_S },
+        { .vid = 0x2508,      .pid = 0x0001         }, // GPP/Cronus/Titan
+        { .vid = 0x0000,      .pid = 0x0000         }, // end of table
 };
 
 static s_haptic_source source_rumble = {

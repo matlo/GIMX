@@ -1968,8 +1968,8 @@ msgid "No Dualshock 4 controller was found on USB ports."
 msgstr "USB Bağlantı Noktalarında Dualshock 4 (DS4) Bulunamadı."
 
 #: ../launcher/gimx-launcher.cpp:1684
-msgid "No Xbox One controller (without 3.5mm jack) was found on USB ports."
-msgstr "USB Bağlantı Noktalarında Xbox One Kontroller (3,5 mm Jaksız) Bulundu."
+msgid "No Xbox One controller was found on USB ports."
+msgstr "USB Bağlantı Noktalarında Xbox One Kontroller Bulundu."
 
 #: ../launcher/gimx-launcher.cpp:1687
 msgid ""

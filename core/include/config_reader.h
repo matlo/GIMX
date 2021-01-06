@@ -14,6 +14,4 @@ int GetIntProp(xmlNode*, char*, int*);
 int GetUnsignedIntProp(xmlNode*, char*, unsigned int*);
 int GetDoubleProp(xmlNode*, char*, double*);
 
-const char* _UTF8_to_8BIT(const char*);
-
 #endif /* CONFIG_READER_H_ */

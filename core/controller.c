@@ -457,6 +457,10 @@ static int adapter_forward_interrupt_out(int adapter, unsigned char* data, unsig
     {
       adapters[adapter].forward_out_reports = usb_forward_output(adapter, adapters[adapter].joystick);
     }
+    else
+    {
+      adapters[adapter].forward_out_reports = 0;
+    }
   }
   return usb_send_interrupt_out(adapter, data, length);
 }
@@ -922,16 +926,9 @@ int adapter_start()
           adapter->forward_out_reports = usb_forward_output(i, adapter->joystick);
         }
 
-        switch(adapter->ctype)
+        if (adapter->ctype == C_TYPE_XONE_PAD && !adapter->status)
         {
-          case C_TYPE_XONE_PAD:
-            if(!adapter->status)
-            {
-                adapter->forward_out_reports = 1; // force forwarding out reports until the authentication is successful.
-            }
-            break;
-          default:
-            break;
+          adapter->forward_out_reports = 1; // force forwarding out reports until the authentication is successful.
         }
 
         if(adapter_send_short_command(i, BYTE_START) < 0)
@@ -944,10 +941,19 @@ int adapter_start()
           gerror(_("failed to start the GIMX adapter asynchronous processing.\n"));
           ret = -1;
         }
-        adapter->activation_button.index = controller_get_activation_button(adapter->ctype);
-        if (adapter->activation_button.index != 0)
+        switch(adapter->ctype)
         {
-          ginfo(_("Press the %s button to activate the controller.\n"), controller_get_axis_name(adapter->ctype, adapter->activation_button.index));
+          case C_TYPE_DS4:
+          case C_TYPE_T300RS_PS4:
+          case C_TYPE_G29_PS4:
+            ginfo(_("Press the key/button assigned to PS.\n"));
+            break;
+          case C_TYPE_XONE_PAD:
+          case C_TYPE_360_PAD:
+            ginfo(_("Press the guide button of the controller for 2 seconds.\n"));
+            break;
+          default:
+            break;
         }
       }
     }

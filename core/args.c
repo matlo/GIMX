@@ -155,6 +155,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"debug.macros",     no_argument, &params->debug.macros,      1},
     {"debug.sixaxis",    no_argument, &params->debug.sixaxis,     1},
     {"debug.config",     no_argument, &params->debug.config,      1},
+    {"debug.usb_con",    no_argument, &params->debug.usb_con,     1},
     {"debug.gimxhid",    no_argument, &params->debug.gimxhid,     1},
     {"debug.gimxinput",  no_argument, &params->debug.gimxinput,   1},
     {"debug.gimxpoll",   no_argument, &params->debug.gimxpoll,    1},
@@ -476,6 +477,11 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
   if(params->logfile)
   {
     log_info();
+  }
+
+  if (gimx_params.debug.controller)
+  {
+    gimx_params.status = 1;
   }
 
   int i;
