@@ -23,7 +23,10 @@ CXXFLAGS += -pg
 LDFLAGS += -pg
 endif
 
-CPPFLAGS += -D__USE_MINGW_ANSI_STDIO=0 -I../
+ifeq ($(OS),Windows_NT)
+CPPFLAGS += -D__USE_MINGW_ANSI_STDIO=0
+endif
+CPPFLAGS += -I../
 
 LIBNAME=lib$(shell basename "$(shell pwd)")
 
