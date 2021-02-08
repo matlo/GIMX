@@ -8,21 +8,20 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <sys/time.h>
 #include <errno.h>
 #ifndef WIN32
 #include "connectors/btds4.h"
-#include "connectors/bt_mgmt.h"
-#include <connectors/bluetooth/bt_device_abs.h>
+#include "connectors/bluetooth/linux/bt_mgmt.h"
+#include "connectors/bluetooth/bt_device_abs.h"
 #include <mhash.h>
 #include <poll.h>
 #include <arpa/inet.h> /* for htons */
 #else
 #include <winsock2.h> /* for htons */
 #endif
-#include <connectors/bluetooth/l2cap_abs.h>
+#include "connectors/bluetooth/l2cap_abs.h"
 #include <gimxinput/include/ginput.h>
-#include <report2event/report2event.h>
+#include "connectors/report2event/report2event.h"
 
 #define DS4_DEVICE_CLASS 0x2508
 
@@ -494,9 +493,8 @@ static int read_ps4_control(void * user)
 
     /*if(buf[1] == 0x03 || buf[1] == 0x04)
     {
-      struct timeval t;
-      gettimeofday(&t, NULL);
-      ginfo("%ld.%06ld ", t.tv_sec, t.tv_usec);
+      gtime now = gtime_gettime();
+      ginfo("%lu.%06lu ", GTIME_SECPART(now), GTIME_USECPART(now));
       ginfo("report id 0x%02x\n", buf[1]);
     }*/
 
@@ -894,7 +892,7 @@ int btds4_init(int btds4_number, int dongle_index, const char * bdaddr_dst)
   }
 
   state->dongle_index = dongle_index;
-  strncpy(state->ps4_bdaddr, bdaddr_dst, sizeof(state->ps4_bdaddr));
+  strncpy(state->ps4_bdaddr, bdaddr_dst, sizeof(state->ps4_bdaddr) - 1);
 
   memcpy(&state->bt_report, &init_report_btds4, sizeof(s_btds4_report));
   state->joystick_id = ginput_register_joystick(DS4_DEVICE_NAME, GE_HAPTIC_RUMBLE, ds4_interrupt_rumble);

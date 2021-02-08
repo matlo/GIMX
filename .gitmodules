@@ -34,3 +34,12 @@
 [submodule "shared/gimxlog"]
 	path = shared/gimxlog
 	url = https://github.com/matlo/gimxlog.git
+[submodule "shared/gimxfile"]
+	path = shared/gimxfile
+	url = https://github.com/matlo/gimxfile.git
+[submodule "shared/gimxtime"]
+	path = shared/gimxtime
+	url = https://github.com/matlo/gimxtime.git
+[submodule "shared/gimxudp"]
+	path = shared/gimxudp
+	url = https://github.com/matlo/gimxudp.git

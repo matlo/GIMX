@@ -85,6 +85,7 @@
 										<content>
 											<item>Physical devices</item>
 											<item>Window events</item>
+											<item>Network (adapter proxy)</item>
 											<item>Network</item>
 										</content>
 										<selection>0</selection>

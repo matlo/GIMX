@@ -1,11 +1,11 @@
 /*
- Copyright (c) 2012 Mathieu Laurendeau <mat.lau@laposte.net>
+ Copyright (c) 2019 Mathieu Laurendeau <mat.lau@laposte.net>
  License: GPLv3
  */
 
 #include <string.h>
 #include <stdlib.h>
-#ifdef WIN32
+#ifdef PDCURSES
 #include <cursesw.h>
 #else
 #include <ncursesw/ncurses.h>
@@ -67,12 +67,19 @@ void display_calibration()
   wmove(wcal, 1, 1);
   if(ginput_get_mk_mode() == GE_MK_MODE_MULTIPLE_INPUTS)
   {
-    waddstr(wcal, "Mouse:");
+    waddstr(wcal, "Mouse: ");
     if(current_cal == MC)
     {
       wattron(wcal, COLOR_PAIR(4));
     }
-    snprintf(line, COLS, " %s (%d) (F1) ", ginput_mouse_name(current_mouse), ginput_mouse_virtual_id(current_mouse));
+#ifdef WIN32
+    wchar_t * name = gfile_utf8_to_utf16le(ginput_mouse_name(current_mouse));
+    waddwstr(wcal, name);
+    free(name);
+#else
+    waddstr(wcal, ginput_mouse_name(current_mouse));
+#endif
+    snprintf(line, COLS, " (%d) (F1) ", ginput_mouse_virtual_id(current_mouse));
     waddstr(wcal, line);
     if(current_cal == MC)
     {
@@ -337,11 +344,11 @@ void display_end()
   }
 }
 
-static void show_stats()
+static void show_stats(struct stats * s)
 {
   char rate[COLS];
 
-  int freq = stats_get_frequency(0);
+  int freq = 1000000 / stats_get_period(s);
 
   if(freq >= 0)
   {
@@ -408,9 +415,12 @@ static void show_axes(e_controller_type type, int axis[])
   wnoutrefresh(rstick);
 }
 
-void display_run(e_controller_type type, int axis[])
+void display_run(e_controller_type type, int axis[], struct stats * s)
 {
-  show_stats();
+  if (s != NULL)
+  {
+    show_stats(s);
+  }
 
   if (axis != NULL)
   {
@@ -421,21 +431,3 @@ void display_run(e_controller_type type, int axis[])
   wnoutrefresh(stdscr);
   doupdate();
 }
-
-/*int main(int argc, char* argv[])
-{
-  int i;
-  display_init();
-  int axes[4] = {16,16,0,0};
-  int buttons[BUTTON_NB] = {1, 0, 1};
-
-  for(i=0; i<10000; ++i)
-  {
-    display_run(axes, 32, buttons, 1);
-    usleep(10000);
-  }
-
-  display_end();
-
-  return 0;
-}*/

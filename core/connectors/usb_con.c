@@ -7,9 +7,10 @@
 #include <connectors/protocol.h>
 #include <controller.h>
 #include <mainloop.h>
-#include <report2event/report2event.h>
+#include <connectors/report2event/report2event.h>
 #include <gimx.h>
 #include <gimxusb/include/gusb.h>
+#include <gimxtime/include/gtime.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -398,14 +399,18 @@ static void dump(unsigned char * packet, unsigned char length)
 }
 
 #define DEBUG_PACKET(TYPE, DATA, LENGTH) \
-  if(gimx_params.debug.controller) \
-  { \
-    ginfo("%s\n", __func__); \
-    ginfo("type: 0x%02x\n", TYPE); \
-    dump(DATA, LENGTH); \
-  }
+  do { \
+    if(gimx_params.debug.usb_con) \
+    { \
+      ginfo("> %s\n", __func__); \
+      ginfo("type: 0x%02x\n", TYPE); \
+      dump(DATA, LENGTH); \
+    } \
+  } while (0)
 
 static void process_report(int usb_number, struct usb_state * state, unsigned char * buf, unsigned int count) {
+
+  DEBUG_PACKET(BYTE_IN_REPORT, buf, count);
 
   int i;
   for (i = 0; i < controller[state->type][state->index].endpoints.in.reports.nb; ++i) {
@@ -419,8 +424,6 @@ static void process_report(int usb_number, struct usb_state * state, unsigned ch
 
         s_report* current = (s_report*) buf;
         s_report* previous = &state->reports[i].report.value;
-
-        DEBUG_PACKET(BYTE_IN_REPORT, buf, count)
 
         report2event(state->type, usb_number, (s_report*) current, (s_report*) previous, state->joystick_id);
 
@@ -506,11 +509,11 @@ static int usb_read_callback(void * user, unsigned char endpoint, const void * b
     state->ack = 1;
   }
 
-  if (status == E_TRANSFER_TIMED_OUT) {
+  if (status == E_STATUS_TRANSFER_TIMED_OUT) {
     return 0;
   }
 
-  if (status < 0) {
+  if (status == E_STATUS_NO_DEVICE) {
     state->disconnected = 1;
     return -1;
   }
@@ -518,27 +521,26 @@ static int usb_read_callback(void * user, unsigned char endpoint, const void * b
   if (endpoint == 0x00) {
 
     if (status > BUFFER_SIZE) {
-      PRINT_ERROR_OTHER("too many bytes transfered")
+      PRINT_ERROR_OTHER("too many bytes transfered");
       return -1;
     }
 
-    if (status >= 0) {
+    // in case of error, send 0 to prevent adapter deadlock
 
-      int ret = adapter_forward_control_in(adapter, (unsigned char *)buf, status);
-      if (ret < 0) {
-        return -1;
-      }
+    int ret = adapter_forward_control_in(adapter, (unsigned char *)buf, status >= 0 ? status : 0);
+    if (ret < 0) {
+      return -1;
     }
 
   } else {
 
     if (status > controller[state->type][state->index].endpoints.in.size) {
-      PRINT_ERROR_OTHER("too many bytes transfered")
+      PRINT_ERROR_OTHER("too many bytes transfered");
       return -1;
     }
 
     if (controller[state->type][state->index].endpoints.in.address != endpoint) {
-      PRINT_ERROR_OTHER("wrong endpoint")
+      PRINT_ERROR_OTHER("wrong endpoint");
       return -1;
     }
 
@@ -555,7 +557,7 @@ static int usb_write_callback(void * user, unsigned char endpoint, int status) {
 
   struct usb_state * state = usb_states + (intptr_t) user;
 
-  if (status < 0) {
+  if (status == E_STATUS_NO_DEVICE) {
     state->disconnected = 1;
     return -1;
   }
@@ -563,7 +565,7 @@ static int usb_write_callback(void * user, unsigned char endpoint, int status) {
   if (endpoint != 0x00) {
 
     if (controller[state->type][state->index].endpoints.out.address != endpoint) {
-      PRINT_ERROR_OTHER("wrong endpoint")
+      PRINT_ERROR_OTHER("wrong endpoint");
       return -1;
     }
   }
@@ -624,23 +626,19 @@ int usb_init(int usb_number, e_controller_type type) {
         char * path = strdup(gusb_get_path(state->usb_device));
         gusb_close(state->usb_device);
 
-        FILETIME start, now;
-        GetSystemTimeAsFileTime(&start);
-        LARGE_INTEGER li_start = { .HighPart = start.dwHighDateTime, .LowPart = start.dwLowDateTime };
-        LARGE_INTEGER li_now = li_start;
+        gtime start = gtime_gettime();
+        gtime now = start;
 
         do
         {
           state->usb_device = gusb_open_path(path);
           if (gimx_params.debug.usb_con)
           {
-            ginfo("path %s device %p time %lldms\n", path, state->usb_device, (li_now.QuadPart - li_start.QuadPart) / 10000);
+            ginfo("path %s device %p time %lldms\n", path, state->usb_device, GTIME_USEC(now - start) / 1000UL);
           }
-          GetSystemTimeAsFileTime(&now);
-          li_now.HighPart = now.dwHighDateTime;
-          li_now.LowPart = now.dwLowDateTime;
+          now = gtime_gettime();
         }
-        while (state->usb_device == NULL && (li_now.QuadPart - li_start.QuadPart) / 10 < 2000000);
+        while (state->usb_device == NULL && GTIME_USEC(now - start) < 2000000);
 
         free(path);
       }
@@ -689,7 +687,7 @@ int usb_init(int usb_number, e_controller_type type) {
   // register joystick
   state->joystick_id = ginput_register_joystick(controller[state->type][state->index].name, GE_HAPTIC_NONE, NULL);
 
-  ginfo("registered joystick %d with name \"%s\"\n", state->joystick_id, controller[state->type][state->index].name)
+  ginfo("registered joystick %d with name \"%s\"\n", state->joystick_id, controller[state->type][state->index].name);
 
   for(i = 0; i < controller[state->type][state->index].endpoints.in.reports.nb; ++i) {
     usb_states[usb_number].reports[i].report_id = controller[state->type][state->index].endpoints.in.reports.elements[i].report_id;

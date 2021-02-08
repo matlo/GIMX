@@ -10,19 +10,14 @@
 #include <limits.h> //PATH_MAX
 
 #ifndef WIN32
-#include <pwd.h> //to get the homedir
-#include <sys/types.h> //to get the homedir
-#include <unistd.h> //to get the homedir
 #include <termios.h> //to disable/enable echo
-#include <unistd.h> // chown
+#include <unistd.h>
 #else
 #undef NTDDI_VERSION
 #define NTDDI_VERSION NTDDI_VERSION_FROM_WIN32_WINNT(NTDDI_VISTA)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <shlobj.h> //to get the homedir
-#include <knownfolders.h>
-#include <objbase.h>
+#include <fcntl.h>
 #endif
 
 #include "gimx.h"
@@ -42,6 +37,7 @@
 #include <gimxprio/include/gprio.h>
 #include <gimxusb/include/gusb.h>
 #include <gimxlog/include/glog.h>
+#include <gimxfile/include/gfile.h>
 
 #define DEFAULT_POSTPONE_COUNT 3 //unit = DEFAULT_REFRESH_PERIOD
 
@@ -67,7 +63,7 @@ s_gimx_params gimx_params =
   .skip_leds = 0,
   .ff_conv = 0,
   .inactivity_timeout = 0,
-  .focus_lost = 0,
+  .clock_source = CLOCK_TIMER,
 };
 
 #ifdef WIN32
@@ -98,91 +94,13 @@ void terminate(int sig __attribute__((unused)))
   set_done();
 }
 
-#ifndef WIN32
-FILE *fopen2(const char *path, const char *mode) {
-    return fopen(path, mode);
-}
-
-GDIR * opendir2 (const char * path) {
-    return opendir(path);
-}
-
-int closedir2(GDIR *dirp) {
-    return closedir(dirp);
-}
-
-GDIRENT *readdir2(GDIR *dirp) {
-    return readdir(dirp);
-}
-
-#else
-wchar_t * utf8_to_utf16le(const char * inbuf)
+void grab()
 {
-  wchar_t * outbuf = NULL;
-  int outsize = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, NULL, 0);
-  if (outsize != 0) {
-      outbuf = (wchar_t*) malloc(outsize * sizeof(*outbuf));
-      if (outbuf != NULL) {
-         int res = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, outbuf, outsize);
-         if (res == 0) {
-             free(outbuf);
-             outbuf = NULL;
-         }
-      }
+  if(gimx_params.grab)
+  {
+    ginput_grab();
   }
-
-  return outbuf;
 }
-
-FILE *fopen2(const char *path, const char *mode) {
-    wchar_t * wpath = utf8_to_utf16le(path);
-    wchar_t * wmode = utf8_to_utf16le(mode);
-    FILE* file = _wfopen(wpath, wmode);
-    free(wmode);
-    free(wpath);
-    return file;
-}
-
-char * utf16le_to_utf8(const wchar_t * inbuf)
-{
-  char * outbuf = NULL;
-  int outsize = WideCharToMultiByte(CP_UTF8, 0, inbuf, -1, NULL, 0, NULL, NULL);
-  if (outsize != 0) {
-      outbuf = (char*) malloc(outsize * sizeof(*outbuf));
-      if (outbuf != NULL) {
-         int res = WideCharToMultiByte(CP_UTF8, 0, inbuf, -1, outbuf, outsize, NULL, NULL);
-         if (res == 0) {
-             free(outbuf);
-             outbuf = NULL;
-         }
-      }
-  }
-
-  return outbuf;
-}
-
-GDIR * opendir2 (const char * path) {
-    wchar_t * wpath = utf8_to_utf16le(path);
-    GDIR * dir = _wopendir(wpath);
-    free(wpath);
-    return dir;
-}
-
-int closedir2(GDIR *dirp) {
-    return _wclosedir(dirp);
-}
-
-GDIRENT *readdir2(GDIR *dirp) {
-    return _wreaddir(dirp);
-}
-
-int stat2(const char *path, GSTAT *buf) {
-    wchar_t * wpath = utf8_to_utf16le(path);
-    int ret = _wstat(wpath, buf);
-    free(wpath);
-    return ret;
-}
-#endif
 
 int ignore_event(GE_Event* event __attribute__((unused)))
 {
@@ -191,20 +109,27 @@ int ignore_event(GE_Event* event __attribute__((unused)))
 
 int process_event(GE_Event* event)
 {
+  if (!gimx_params.config_file || get_done())
+  {
+    return 0;
+  }
   switch (event->type)
   {
     case GE_MOUSEMOTION:
+    {
       cfg_process_motion_event(event);
+      unsigned int device = ginput_get_device_id(event);
+      int controller = adapter_get_controller(E_DEVICE_TYPE_MOUSE, device);
+      if (controller != -1) {
+          s_adapter * adapter = adapter_get(controller);
+          if (adapter->mstats != NULL) {
+            stats_update(adapter->mstats);
+          }
+      }
       break;
+    }
     case GE_JOYRUMBLE:
       cfg_process_rumble_event(event);
-      break;
-    case GE_FOCUS_LOST:
-      if (gimx_params.grab)
-      {
-        gimx_params.focus_lost = 1;
-        set_done();
-      }
       break;
     default:
       if (!cal_skip_event(event))
@@ -270,7 +195,7 @@ void show_config()
 
   snprintf(file_path, sizeof(file_path), "%s%s%s%s", gimx_params.homedir, GIMX_DIR, CONFIG_DIR, gimx_params.config_file);
 
-  FILE * fp = fopen2(file_path, "r");
+  FILE * fp = gfile_fopen(file_path, "r");
   if (fp == NULL)
   {
     gwarn("failed to dump %s\n", file_path);
@@ -287,29 +212,6 @@ void show_config()
   }
 }
 
-void grab()
-{
-  if(gimx_params.autograb)
-  {
-    gimx_params.grab = 0;
-    int i;
-    for (i = 0; i < MAX_CONTROLLERS; ++i)
-    {
-      // check if config has a keyboard binding or a mouse binding
-      // in most cases window focus is required for getting keyboard/mouse events
-      // if config only has joystick bindings, window focus is not required, and grabbing mouse is not needed
-      if(adapter_get_device(E_DEVICE_TYPE_MOUSE, i) != -1 || adapter_get_device(E_DEVICE_TYPE_KEYBOARD, i) != -1)
-      {
-          gimx_params.grab = 1;
-      }
-    }
-  }
-  if(gimx_params.grab)
-  {
-    ginput_grab();
-  }
-}
-
 int main(int argc, char *argv[])
 {
   e_gimx_status status = E_GIMX_STATUS_SUCCESS;
@@ -317,14 +219,6 @@ int main(int argc, char *argv[])
   GE_Event kgevent = { .key = { .type = GE_KEYDOWN } };
 
   glog_set_all_levels(E_GLOG_LEVEL_INFO);
-
-#ifdef WIN32
-  if (!SetConsoleOutputCP(CP_UTF8))
-  {
-    gerror("SetConsoleOutputCP(CP_UTF8) failed\n");
-    exit(-1);
-  }
-#endif
 
   (void) signal(SIGINT, terminate);
   (void) signal(SIGTERM, terminate);
@@ -348,25 +242,33 @@ int main(int argc, char *argv[])
 
   setlocale( LC_NUMERIC, "C" ); /* Make sure we use '.' to write doubles. */
 
-#ifndef WIN32
-  setlinebuf(stdout);
+#ifdef WIN32
+  /*
+   * Log file has to be in utf-8:
+   * - force console output code point to utf-8
+   * - use binary mode to avoid any text output processing
+   * - make gettext return utf-8 strings
+   */
 
-  gimx_params.homedir = getpwuid(getuid())->pw_dir;
-#else
-  static wchar_t * path = NULL;
-  if(SHGetKnownFolderPath(&FOLDERID_RoamingAppData, 0, NULL, &path))
+  UINT cp = GetConsoleOutputCP();
+
+  if (SetConsoleOutputCP(CP_UTF8))
   {
-    gerror("SHGetKnownFolderPath failed\n");
-    status = E_GIMX_STATUS_GENERIC_ERROR;
-    goto QUIT;
+    _setmode(_fileno(stdout), _O_BINARY);
+    _setmode(_fileno(stderr), _O_BINARY);
+    bind_textdomain_codeset("gimx", "utf-8");
   }
-  gimx_params.homedir = utf16le_to_utf8(path);
-  CoTaskMemFree(path);
+  else
+  {
+    gerror("SetConsoleOutputCP(CP_UTF8) failed\n");
+  }
 #endif
 
-  if (gprio() < 0)
-  {
-    gwarn("failed to set process priority\n")
+  gimx_params.homedir = gfile_homedir();
+
+  if (gimx_params.homedir == NULL) {
+    status = E_GIMX_STATUS_GENERIC_ERROR;
+    goto QUIT;
   }
 
   gpppcprog_read_user_ids(gimx_params.homedir, GIMX_DIR);
@@ -380,18 +282,6 @@ int main(int argc, char *argv[])
   if(gimx_params.btstack)
   {
     bt_abs_value = E_BT_ABS_BTSTACK;
-  }
-
-  if (gusb_init() < 0)
-  {
-    status = E_GIMX_STATUS_GENERIC_ERROR;
-    goto QUIT;
-  }
-
-  if (gserial_init() < 0)
-  {
-    status = E_GIMX_STATUS_GENERIC_ERROR;
-    goto QUIT;
   }
 
   status = adapter_detect();
@@ -430,7 +320,7 @@ int main(int argc, char *argv[])
     {
       adapter->send_command = 1;
       event = 1;
-      if(adapter->remote.fd < 0)
+      if(adapter->remote.socket == NULL)
       {
         ginfo("The --event argument may require running two gimx instances.\n");
       }
@@ -447,55 +337,44 @@ int main(int argc, char *argv[])
     goto QUIT;
   }
 
-  unsigned char src = GE_MKB_SOURCE_PHYSICAL;
-
-  if(gimx_params.window_events)
+  if (gimx_params.config_file)
   {
-    src = GE_MKB_SOURCE_WINDOW_SYSTEM;
-  }
+    unsigned char src = GE_MKB_SOURCE_PHYSICAL;
 
-  int(*fp)(GE_Event*) = NULL;
+    if(gimx_params.window_events)
+    {
+      src = GE_MKB_SOURCE_WINDOW_SYSTEM;
+    }
 
-  /*
-   * Non-generated events are ignored if the --keygen argument is used.
-   */
-  if(gimx_params.keygen)
-  {
-    fp = ignore_event;
-  }
-  else
-  {
-    fp = process_event;
-  }
+    int(*fp)(GE_Event*) = NULL;
 
-  if (ghid_init() < 0)
-  {
-    status = E_GIMX_STATUS_GENERIC_ERROR;
-    goto QUIT;
-  }
+    /*
+     * Non-generated events are ignored if the --keygen argument is used.
+     */
+    if(gimx_params.keygen)
+    {
+      fp = ignore_event;
+    }
+    else
+    {
+      fp = process_event;
+    }
+    GPOLL_INTERFACE poll_interace = {
+            .fp_register = REGISTER_FUNCTION,
+            .fp_remove = REMOVE_FUNCTION,
+    };
+    if (ginput_init(&poll_interace, src, fp) < 0)
+    {
+      status = E_GIMX_STATUS_GENERIC_ERROR;
+      goto QUIT;
+    }
 
-  //TODO MLA: if there is no config file:
-  // - there's no need to read macros
-  // - there's no need to read inputs
-  // - there's no need to grab the mouse
-  GPOLL_INTERFACE poll_interace = {
-          .fp_register = REGISTER_FUNCTION,
-          .fp_remove = REMOVE_FUNCTION,
-  };
-  if (ginput_init(&poll_interace, src, fp) < 0)
-  {
-    status = E_GIMX_STATUS_GENERIC_ERROR;
-    goto QUIT;
-  }
+    if (gimx_params.logfile != NULL)
+    {
+      show_devices();
+      show_config();
+    }
 
-  if (gimx_params.logfile != NULL)
-  {
-    show_devices();
-    show_config();
-  }
-
-  if(gimx_params.config_file)
-  {
     cal_init();
 
     cfg_intensity_init();
@@ -523,37 +402,61 @@ int main(int argc, char *argv[])
     cfg_read_calibration();
 
     cfg_pair_mouse_mappers();
-  }
 
-  grab();
-
-  ginput_release_unused();
-
-  macros_init();
-
-  if(gimx_params.keygen)
-  {
-    kgevent.key.keysym = ginput_key_id(gimx_params.keygen);
-    if(kgevent.key.keysym)
+    if(gimx_params.autograb)
     {
-      macro_lookup(&kgevent);
+      gimx_params.grab = 0;
+      int i;
+      for (i = 0; i < MAX_CONTROLLERS; ++i)
+      {
+        // check if config has a keyboard binding or a mouse binding
+        // in most cases window focus is required for getting keyboard/mouse events
+        // if config only has joystick bindings, window focus is not required, and grabbing mouse is not needed
+        if(adapter_get_device(E_DEVICE_TYPE_MOUSE, i) != -1 || adapter_get_device(E_DEVICE_TYPE_KEYBOARD, i) != -1)
+        {
+            gimx_params.grab = 1;
+        }
+      }
     }
-    else
-    {
-      gerror(_("Unknown key name for argument --keygen: '%s'\n"), gimx_params.keygen);
-      status = E_GIMX_STATUS_GENERIC_ERROR;
-      goto QUIT;
-    }
-  }
 
-  cfg_trigger_init();
+    grab();
+
+    ginput_release_unused();
+
+    macros_init();
+
+    if(gimx_params.keygen)
+    {
+      kgevent.key.keysym = ginput_key_id(gimx_params.keygen);
+      if(kgevent.key.keysym)
+      {
+        macro_lookup(&kgevent);
+      }
+      else
+      {
+        gerror(_("Unknown key name for argument --keygen: '%s'\n"), gimx_params.keygen);
+        status = E_GIMX_STATUS_GENERIC_ERROR;
+        goto QUIT;
+      }
+    }
+
+    cfg_trigger_init();
+  }
 
   if(gimx_params.curses)
   {
     glog_set_all_levels(E_GLOG_LEVEL_NONE);
     gimx_params.curses_status = 1;
+
+#ifdef WIN32
+    /*
+     * ncurses does not accomodate with utf-8 strings,
+     * so make gettext to use default encoding.
+     */
+    bind_textdomain_codeset("gimx", "");
+#endif
+
     display_init();
-    stats_init(0);
   }
 #ifndef WIN32
   else if (gimx_params.logfile == NULL)
@@ -573,16 +476,22 @@ int main(int argc, char *argv[])
 
   usb_poll_interrupts();
 
+  /*
+   * Call gprio_init just before mainloop,
+   * so that all libraries spawned the threads they need.
+   */
+  if (gprio_init() < 0)
+  {
+    gwarn("failed to set process priority\n");
+  }
+
   e_gimx_status mstatus = mainloop();
   if (mstatus != E_GIMX_STATUS_SUCCESS)
   {
     status = mstatus;
   }
 
-  if (gimx_params.focus_lost)
-  {
-    status = E_GIMX_STATUS_FOCUS_LOST;
-  }
+  gprio_clean();
 
   ginfo(_("Exiting\n"));
 
@@ -594,17 +503,14 @@ int main(int argc, char *argv[])
     status = clean_status;
   }
 
-  macros_clean();
-  cfg_clean();
-  ginput_quit();
+  if (gimx_params.config_file)
+  {
+    macros_clean();
+    cfg_clean();
+    ginput_quit();
 
-  ghid_exit();
-
-  gserial_exit();
-
-  gusb_exit();
-
-  xmlCleanupParser();
+    xmlCleanupParser();
+  }
 
   if (status != E_GIMX_STATUS_SUCCESS)
   {
@@ -618,32 +524,22 @@ int main(int argc, char *argv[])
      * or that the program crashed.
      */
 
-#ifndef WIN32
-    char * file = "/tmp/gimx.status";
-#else
-    char file[MAX_PATH + 1] = {};
-    wchar_t wtmp[MAX_PATH + 1];
-    int ret = GetTempPathW(MAX_PATH, wtmp);
-    if (ret > 0)
+    char file[PATH_MAX + 1] = {};
+    char * tmp = gfile_tempdir();
+    if (strlen(tmp) + sizeof("/gimx.status") <= sizeof(file))
     {
-      char * tmp = utf16le_to_utf8(wtmp);
-      if (strlen(tmp) + sizeof("/gimx.status") <= sizeof(file))
-      {
-        sprintf(file, "%s/gimx.status", tmp);
-      }
-      free(tmp);
+      sprintf(file, "%s/gimx.status", tmp);
     }
-#endif
+    free(tmp);
     if (file != NULL && file[0] != '\0')
     {
-      FILE * fp = fopen2(file, "w");
+      FILE * fp = gfile_fopen(file, "w");
       if (fp != NULL)
       {
         fprintf(fp, "%d\n", status);
         fclose(fp);
 #ifndef WIN32
-        int ret = chown(file, getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid);
-        if (ret < 0)
+        if (gfile_makeown(file) < 0)
         {
           gerror("failed to set ownership of the gimx status file\n");
         }
@@ -658,8 +554,7 @@ int main(int argc, char *argv[])
 #ifndef WIN32
     char file_path[PATH_MAX];
     snprintf(file_path, sizeof(file_path), "%s%s%s%s", gimx_params.homedir, GIMX_DIR, LOG_DIR, gimx_params.logfilename);
-    int ret = chown(file_path, getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid);
-    if (ret < 0)
+    if (gfile_makeown(file_path) < 0)
     {
       gerror("failed to set ownership of the gimx log file\n");
     }
@@ -669,6 +564,10 @@ int main(int argc, char *argv[])
   if(gimx_params.curses)
   {
     display_end();
+
+#ifdef WIN32
+    bind_textdomain_codeset("gimx", "utf-8");
+#endif
   }
 #ifndef WIN32
   else if (gimx_params.logfile == NULL)
@@ -681,8 +580,13 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef WIN32
-  free(gimx_params.homedir);
+  if (cp && !SetConsoleOutputCP(cp))
+  {
+    gerror("SetConsoleOutputCP(cp) failed\n");
+  }
 #endif
+
+  free(gimx_params.homedir);
 
   return status;
 }

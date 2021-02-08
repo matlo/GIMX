@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <unistd.h>
-#include <sys/time.h>
+#include <gimxtime/include/gtime.h>
 #include <gimxinput/include/ginput.h>
 #include "calibration.h"
 #include "gimx.h"
@@ -408,8 +408,8 @@ void cfg_process_motion()
 {
   int i, k;
   unsigned int j;
-  int weight;
-  int divider;
+  double weight;
+  double divider;
   s_mouse_control* mc;
   s_mouse_cal* mcal;
   GE_Event mouse_evt = { };
@@ -834,7 +834,6 @@ void cfg_trigger_lookup(GE_Event* e)
 void cfg_profile_activation()
 {
   int i, j;
-  struct timeval tv;
 
   for(i=0; i<MAX_CONTROLLERS; ++i)
   {
@@ -850,9 +849,9 @@ void cfg_profile_activation()
         {
           if(gimx_params.status)
           {
-            gettimeofday(&tv, NULL);
+            gtime now = gtime_gettime();
 
-            gstatus(_("%d %ld.%06ld controller %d is switched from profile %d to %d\n"), i, tv.tv_sec, tv.tv_usec, i, current->index, next->index);
+            gstatus(_("%d %lu.%06lu controller %d is switched from profile %d to %d\n"), i, GTIME_SECPART(now), GTIME_USECPART(now), i, current->index, next->index);
           }
 
           if(current->state.previous != next && next->trigger.switch_back)
@@ -1083,8 +1082,8 @@ void update_residue(double axis_scale, const s_mapper * mapper_x, const s_mapper
   s_vector input_trunk = { .x = 0, .y = 0 };
   if (axis_x != 0 || axis_y != 0)
   {
-    double zx = fabs(axis_x);
-    double zy = fabs(axis_y);
+    double zx = abs(axis_x);
+    double zy = abs(axis_y);
 
     s_vector dead_zones =
     {

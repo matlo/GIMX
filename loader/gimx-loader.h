@@ -21,7 +21,7 @@ class loaderFrame: public wxFrame
 {
     public:
 
-        loaderFrame(wxWindow* parent,wxWindowID id = -1);
+        loaderFrame(wxString firmware,wxWindow* parent,wxWindowID id = -1);
         virtual ~loaderFrame();
 
         void OnProcessTerminated(wxProcess *process, int status);
@@ -51,7 +51,11 @@ class loaderFrame: public wxFrame
         wxMenuBar* MenuBar1;
         //*)
 
+        void checkQuit();
+
         wxLocale* locale;
+
+        wxString selected;
 
         DECLARE_EVENT_TABLE()
 };

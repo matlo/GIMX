@@ -142,10 +142,6 @@ void SetupManager::run() {
 
     struct ghid_device_info *devs, *cur_dev;
 
-    if (ghid_init() < 0) {
-        return;
-    }
-
     devs = ghid_enumerate(0x0000, 0x0000);
     for (cur_dev = devs; cur_dev != NULL; cur_dev = cur_dev->next) {
         for (unsigned int i = 0; i < sizeof(ids) / sizeof(*ids); ++i) {
@@ -167,8 +163,6 @@ void SetupManager::run() {
         }
     }
     ghid_free_enumeration(devs);
-
-    ghid_exit();
 
     std::set<std::pair<const char *, const char *> >::iterator it;
     for (it = managers.begin(); it != managers.end(); ++it) {

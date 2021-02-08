@@ -40,7 +40,6 @@
 #include <wx/busyinfo.h>
 #include <wx/numdlg.h>
 
-#include <time.h>
 #include <gimxhid/include/ghid.h>
 #include <gimxserial/include/gserial.h>
 #include <gimxinput/include/ginput.h>
@@ -48,55 +47,17 @@
 
 #include "SetupManager.h"
 
-#include <ext/stdio_filebuf.h>
-#include <fcntl.h>
+#include <gimxfile/include/gfile.hpp>
 
 #ifdef WIN32
-
-static wchar_t * utf8_to_utf16le(const char * inbuf)
-{
-  wchar_t * outbuf = NULL;
-  int outsize = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, NULL, 0);
-  if (outsize != 0) {
-      outbuf = (wchar_t*) malloc(outsize * sizeof(*outbuf));
-      if (outbuf != NULL) {
-         int res = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, outbuf, outsize);
-         if (res == 0) {
-             free(outbuf);
-             outbuf = NULL;
-         }
-      }
-  }
-  return outbuf;
-}
-
-#define OFBUF(path) \
-    wchar_t * wpath = utf8_to_utf16le(path.c_str()); \
-    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | _O_WRONLY | _O_TRUNC | _O_CREAT, 0666), std::ios::out | std::ios::binary); \
-    free(wpath);
-
-#define IFBUF(path) \
-    wchar_t * wpath = utf8_to_utf16le(path.c_str()); \
-    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | _O_RDONLY), std::ios::in | std::ios::binary); \
-    free(wpath);
-
-#else
-
-#define OFBUF(path) \
-    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0666), std::ios::out);
-
-#define IFBUF(path) \
-    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), O_RDONLY), std::ios::in);
-
+#include <tlhelp32.h>
 #endif
 
-#define IFSTREAM(path, name) \
-    IFBUF(path) \
-    std::istream name (&fb);
+#include <gimxserial/include/gserial.h>
+#include <gimx-adapter-protocol/include/protocol.h>
 
-#define OFSTREAM(path, name) \
-    OFBUF(path) \
-    std::ostream name (&fb);
+#define BAUDRATE 500000 //bps
+#define ADAPTER_TIMEOUT 1000 //millisecond
 
 #ifdef WIN32
 #define REGISTER_FUNCTION gpoll_register_handle
@@ -461,8 +422,6 @@ void launcherFrame::readSerialPorts()
 
   OutputChoice->Clear();
 
-  gserial_init();
-
   for(i=0; i<MAX_PORT_ID; ++i)
   {
     snprintf(portname, sizeof(portname), "COM%d", i);
@@ -472,8 +431,6 @@ void launcherFrame::readSerialPorts()
       gserial_close(device);
     }
   }
-
-  gserial_exit();
 
   if(previous != wxEmptyString)
   {
@@ -582,11 +539,6 @@ void launcherFrame::readHidPorts()
   unsigned int nb_usb_ids;
   const GCAPI_USB_IDS * usb_ids = gpppcprog_get_ids(&nb_usb_ids);
 
-  if (ghid_init() < 0)
-  {
-    return;
-  }
-
   devs = ghid_enumerate(0x0000, 0x0000);
   for(cur_dev = devs; cur_dev != NULL; cur_dev = cur_dev->next)
   {
@@ -609,8 +561,6 @@ void launcherFrame::readHidPorts()
     }
   }
   ghid_free_enumeration(devs);
-
-  ghid_exit();
 
   if(previous != wxEmptyString)
   {
@@ -1027,6 +977,7 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
     Input = new wxChoice(Panel1, ID_CHOICE2, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE2"));
     Input->SetSelection( Input->Append(_("Physical devices")) );
     Input->Append(_("Window events"));
+    Input->Append(_("Network (adapter proxy)"));
     Input->Append(_("Network"));
     FlexGridSizer5->Add(Input, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     IOSizer->Add(FlexGridSizer5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -1218,13 +1169,12 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
 
     Output->SetSelection( Output->Append(_("GIMX adapter")) );
     Output->Append(_(GPP_NAME));
+    Output->Append(_("Remote adapter"));
     Output->Append(_("Remote GIMX"));
 
 #ifndef WIN32
     Output->Append(_("Bluetooth / PS3"));
     Output->Append(_("Bluetooth / PS4"));
-#else
-    Input->Append(_("Physical devices (elevated privileges)"));
 #endif
 
     Output->Append(_("Stub"));
@@ -1267,6 +1217,8 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
     refreshGui();
 
     openLog = false;
+
+    checkFirmware();
 }
 
 launcherFrame::~launcherFrame()
@@ -1376,6 +1328,26 @@ void runAs(const wxString& cmd, const wxString& params)
 
     CloseHandle(shExInfo.hProcess);
 }
+
+bool hasLimitedElevation() {
+
+    bool result = false;
+
+    HANDLE hToken = NULL;
+
+    if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)) {
+
+        DWORD dwSize = 0;
+        TOKEN_ELEVATION_TYPE elevationType;
+        if (GetTokenInformation(hToken, TokenElevationType, &elevationType, sizeof(elevationType), &dwSize)) {
+            result = (elevationType == TokenElevationTypeLimited);
+        }
+
+        CloseHandle(hToken);
+    }
+
+    return result;
+}
 #endif
 
 void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unused)))
@@ -1409,7 +1381,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
         return;
       }
     }
-    else if(Output->GetStringSelection() == _("Remote GIMX"))
+    else if(Output->GetStringSelection() == _("Remote GIMX") || Output->GetStringSelection() == _("Remote adapter"))
     {
       if(outputSelection.IsEmpty())
       {
@@ -1448,7 +1420,7 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
       hciIndex = dongleInfo.hci.Mid(3);
     }
 
-    if(Input->GetStringSelection() == _("Network"))
+    if(Input->GetStringSelection() == _("Network") || Input->GetStringSelection() == _("Network (adapter proxy)"))
     {
       if(InputChoice->GetStringSelection().IsEmpty())
       {
@@ -1457,8 +1429,8 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
       }
     }
 
-    if(Output->GetStringSelection() == _("Remote GIMX")
-    && Input->GetStringSelection() == _("Network"))
+    if((Output->GetStringSelection() == _("Remote GIMX") || Output->GetStringSelection() == _("Remote adapter"))
+    && (Input->GetStringSelection() == _("Network") || Input->GetStringSelection() == _("Network (adapter proxy)")))
     {
       if(InputChoice->GetStringSelection() == outputSelection)
       {
@@ -1491,12 +1463,12 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
     }
 
 #ifndef WIN32
-    command.Append(wxT("xterm -e "));
-#endif
-    if(Input->GetStringSelection() != _("Physical devices (elevated privileges)"))
-    {
-      command.Append(wxT("gimx"));
+    command.Append(wxT("xterm -e gimx"));
+#else
+    if (!hasLimitedElevation()) {
+      command.Append(wxT("gimx.exe"));
     }
+#endif
 
     if(Output->GetStringSelection() == _("Stub"))
     {
@@ -1521,8 +1493,8 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
     else if(ProcessOutputChoice->GetStringSelection() == _("debug"))
     {
       wxArrayString destination;
-      destination.Add(_("text"));
       destination.Add(_("log file"));
+      destination.Add(_("text"));
       wxSingleChoiceDialog dialog(this, _("Select the destination:"), wxT(""), destination);
       if (dialog.ShowModal() == wxID_OK)
       {
@@ -1544,7 +1516,12 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
       }
     }
 
-    if(Input->GetStringSelection() == _("Network"))
+    if (Input->GetStringSelection() == _("Network (adapter proxy)"))
+    {
+      command.Append(wxT(" --proxy "));
+    }
+
+    if(Input->GetStringSelection() == _("Network") || Input->GetStringSelection() == _("Network (adapter proxy)"))
     {
       command.Append(wxT(" --src "));
       command.Append(InputChoice->GetStringSelection());
@@ -1569,14 +1546,16 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
       command.Append(InputChoice->GetStringSelection());
       command.Append(wxT("\""));
 
-      if(Output->GetStringSelection() != _("Remote GIMX"))
-      {
-        command.Append(wxT(" --force-updates"));
-      }
+      command.Append(wxT(" --force-updates"));
+
       command.Append(wxT(" --subpos"));
     }
 
-    if(Output->GetStringSelection() == _("Remote GIMX"))
+    if (Output->GetStringSelection() == _("Remote adapter"))
+    {
+      command.Append(wxT(" --proxy "));
+    }
+    if(Output->GetStringSelection() == _("Remote GIMX") || Output->GetStringSelection() == _("Remote adapter"))
     {
       command.Append(wxT(" --dst "));
       command.Append(outputSelection);
@@ -1624,21 +1603,33 @@ void launcherFrame::OnButtonStartClick(wxCommandEvent& event __attribute__((unus
 
     startTime = wxGetUTCTime();
 
-    if(Input->GetStringSelection() != _("Physical devices (elevated privileges)"))
-    {
-        MyProcess *process = new MyProcess(this, command);
 
-        if(!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process))
-        {
-          wxMessageBox( _("can't start gimx!"), _("Error"), wxICON_ERROR);
-        }
+#ifndef WIN32
+    MyProcess *process = new MyProcess(this, command);
+
+    if(!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process))
+    {
+      wxMessageBox( _("can't start gimx!"), _("Error"), wxICON_ERROR);
     }
-#ifdef WIN32
+#else
+    if (hasLimitedElevation())
+    {
+      // Request elevation.
+
+      runAs(wxT("gimx.exe"), command);
+
+      OnProcessTerminated(NULL, 0);
+    }
     else
     {
-        runAs(wxT("gimx.exe"), command);
+      // No elevation or fully elevated.
 
-        OnProcessTerminated(NULL, 0);
+      MyProcess *process = new MyProcess(this, command);
+
+      if(!wxExecute(command, wxEXEC_ASYNC | wxEXEC_NOHIDE, process))
+      {
+        wxMessageBox( _("can't start gimx!"), _("Error"), wxICON_ERROR);
+      }
     }
 #endif
 }
@@ -1652,7 +1643,7 @@ typedef enum {
     E_GIMX_STATUS_NO_ACTIVATION = -3, // user did not activate the controller
     E_GIMX_STATUS_INACTIVITY_TIMEOUT = -4, // no user input during defined time
     E_GIMX_STATUS_AUTH_CONTROLLER_ERROR = -5, // connection issue with the authentication controller
-    E_GIMX_STATUS_FOCUS_LOST = -6, // mouse was grabbed and focus was lost
+    E_GIMX_STATUS_FOCUS_LOST = -6, // mouse was grabbed and focus was lost (no more returned, deprecated)
 
     E_GIMX_STATUS_AUTH_MISSING_X360 = 1, // auth source missing
     E_GIMX_STATUS_AUTH_MISSING_PS4 = 2, // auth source missing
@@ -1718,6 +1709,12 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
                     " . make sure to fill the right IP:port\n"
                     " . make sure the remote instance is running"), _("Error"), wxICON_ERROR);
         }
+        else if(Output->GetStringSelection() == _("Remote adapter"))
+        {
+            wxMessageBox( _("Failed to detect the remote adapter:\n"
+                    " . make sure to fill the right IP:port\n"
+                    " . make sure the remote adapter proxy is running"), _("Error"), wxICON_ERROR);
+        }
         else
         {
             wxMessageBox( _("Failed to detect the adapter (fallback error message)."), _("Error"), wxICON_ERROR);
@@ -1743,10 +1740,6 @@ void launcherFrame::OnProcessTerminated(wxProcess *process __attribute__((unused
                 ". make sure the cable wasn't pulled\n"
                 ". make sure the cable is not bad (try another one)\n"
                 ". make sure to turn controller off before connection."), _("Error"), wxICON_ERROR);
-        break;
-    case E_GIMX_STATUS_FOCUS_LOST:
-        wxMessageBox( _("Mouse was captured, input was \"physical devices\", and focus was lost. "
-                "Either you pressed alt+tab or some other app took focus.\n"), _("Error"), wxICON_ERROR);
         break;
     }
 
@@ -1958,7 +1951,7 @@ void launcherFrame::OnOutputSelect(wxCommandEvent& event __attribute__((unused))
         }
       }
     }
-    else if(Output->GetStringSelection() == _("Remote GIMX"))
+    else if(Output->GetStringSelection() == _("Remote GIMX") || Output->GetStringSelection() == _("Remote adapter"))
     {
       OutputSizer->Show(true);
       OutputNewButton->Show(true);
@@ -2279,7 +2272,7 @@ void launcherFrame::OnMenuOpenMacroDirectory(wxCommandEvent& event __attribute__
 
 void launcherFrame::OnInputSelect(wxCommandEvent& event __attribute__((unused)))
 {
-  if(Input->GetStringSelection() == _("Network"))
+  if(Input->GetStringSelection() == _("Network") || Input->GetStringSelection() == _("Network (adapter proxy)"))
   {
     StaticText2->SetLabel(_("IP:port"));
     readChoices(IP_SOURCES, InputChoice, INPUT_CHOICE_FILE);
@@ -2780,7 +2773,7 @@ void launcherFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
     {
       saveChoices(PS4_PAIRINGS, OutputChoice);
     }
-    else if(Output->GetStringSelection() == _("Remote GIMX"))
+    else if(Output->GetStringSelection() == _("Remote GIMX") || Output->GetStringSelection() == _("Remote adapter"))
     {
       saveChoices(IP_DESTS, OutputChoice);
     }
@@ -2788,7 +2781,7 @@ void launcherFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
     saveParam(INPUT_FILE, Input->GetStringSelection());
     saveParam(INPUT_CHOICE_FILE, InputChoice->GetStringSelection());
 
-    if(Input->GetStringSelection() == _("Network"))
+    if(Input->GetStringSelection() == _("Network") || Input->GetStringSelection() == _("Network (adapter proxy)"))
     {
       saveChoices(IP_SOURCES, InputChoice);
     }
@@ -2798,7 +2791,7 @@ void launcherFrame::OnMenuSave(wxCommandEvent& event __attribute__((unused)))
 
 void launcherFrame::readIp(wxChoice* choices)
 {
-  wxTextEntryDialog dialogIp(this, _("Enter an IP address"), _("Remote GIMX"), wxT("127.0.0.1"));
+  wxTextEntryDialog dialogIp(this, _("Enter an IP address"), _("Remote address"), wxT("127.0.0.1"));
 
   if(dialogIp.ShowModal() == wxID_OK)
   {
@@ -2808,7 +2801,7 @@ void launcherFrame::readIp(wxChoice* choices)
 
     if (ip != INADDR_NONE)
     {
-      wxNumberEntryDialog dialogPort(this, wxT(""), _("Enter a port"), _("Remote GIMX"), 51914, 0, 65535);
+      wxNumberEntryDialog dialogPort(this, wxT(""), _("Enter a port"), _("Remote address"), 51914, 0, 65535);
 
       if(dialogPort.ShowModal() == wxID_OK)
       {
@@ -2902,7 +2895,7 @@ void launcherFrame::OnOutputNewButtonClick(wxCommandEvent& event __attribute__((
       ps4Setup();
     }
   }
-  else if(Output->GetStringSelection() == _("Remote GIMX"))
+  else if(Output->GetStringSelection() == _("Remote GIMX") || Output->GetStringSelection() == _("Remote adapter"))
   {
     readIp(OutputChoice);
   }
@@ -2923,4 +2916,235 @@ void launcherFrame::OnMenuUpdateFirmware(wxCommandEvent& event __attribute__((un
     {
       wxMessageBox(_("Failed to execute gimx-loader."), _("Error"), wxICON_ERROR);
     }
+}
+
+int adapter_read_reply(gserial_device * device, s_packet * packet, int permissive)
+{
+  uint8_t type = packet->header.type;
+
+  /*
+   * The adapter may send a packet before it processes the command,
+   * so it is possible to receive a packet that is not the command response.
+   */
+  while(1)
+  {
+    int ret = gserial_read_timeout(device, (void *) &packet->header, sizeof(packet->header), ADAPTER_TIMEOUT);
+    if(ret < 0 || (size_t)ret < sizeof(packet->header))
+    {
+      if (!permissive)
+      {
+        std::cerr << "failed to read packet header from the GIMX adapter" << std::endl;
+      }
+      return -1;
+    }
+
+    if (ret == sizeof(packet->header))
+    {
+      ret = gserial_read_timeout(device, (void *) &packet->value, packet->header.length, ADAPTER_TIMEOUT);
+      if(ret < 0 || (size_t)ret < packet->header.length)
+      {
+        if (!permissive)
+        {
+          std::cerr << "failed to read packet data from the GIMX adapter" << std::endl;
+        }
+        return -1;
+      }
+    }
+
+    //Check this packet is the command response.
+    if(packet->header.type == type)
+    {
+      return 0;
+    }
+  }
+
+  return -1;
+}
+
+/*
+ * This function should only be used in the initialization stages, i.e. before the mainloop.
+ */
+static int adapter_send_short_command(gserial_device * device, unsigned char type)
+{
+  s_packet packet =
+  {
+    .header =
+    {
+      .type = type,
+      .length = BYTE_LEN_0_BYTE
+    },
+    .value = {}
+  };
+
+  int ret = gserial_write_timeout(device, &packet, sizeof(packet.header) + packet.header.length, ADAPTER_TIMEOUT);
+  if(ret < 0 || (size_t)ret < sizeof(packet.header))
+  {
+    std::cerr << "failed to send data to the GIMX adapter" << std::endl;
+    return -1;
+  }
+
+  ret = adapter_read_reply(device, &packet, 0);
+
+  if(ret == 0)
+  {
+    if(packet.header.length != BYTE_LEN_1_BYTE)
+    {
+      std::cerr << "bad response from the GIMX adapter (invalid length)" << std::endl;
+      return -1;
+    }
+    return packet.value[0];
+  }
+
+  return -1;
+}
+
+static int adapter_get_version(gserial_device * device, int *major, int *minor)
+{
+  s_packet packet = { .header = { .type = BYTE_VERSION, .length = 0 }, .value = {} };
+
+  int ret = gserial_write_timeout(device, &packet, sizeof(packet.header), ADAPTER_TIMEOUT);
+  if (ret < 0 || (size_t)ret != sizeof(packet.header))
+  {
+    std::cerr << "failed to send data to the GIMX adapter" << std::endl;
+    return -1;
+  }
+
+  ret = adapter_read_reply(device, &packet, 1);
+
+  if(ret == 0 && packet.header.length == 2)
+  {
+    *major = packet.value[0];
+    *minor = packet.value[1];
+  }
+  else
+  {
+    *major = 5;
+    *minor = 8;
+  }
+
+  return 0;
+}
+
+static std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
+    std::stringstream ss(s);
+    std::string item;
+    while (getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+    return elems;
+}
+
+static std::vector<std::string> split(const std::string &s, char delim) {
+    std::vector<std::string> elems;
+    return split(s, delim, elems);
+}
+
+void launcherFrame::checkFirmware()
+{
+  if (Output->GetStringSelection() != _("GIMX adapter"))
+  {
+    return;
+  }
+
+  wxString outputSelection = OutputChoice->GetStringSelection();
+
+  string filename = string(launcherDir.mb_str(wxConvUTF8));
+  filename.append(OUTPUT_CHOICE_FILE);
+
+  if(!::wxFileExists(wxString(filename.c_str(), wxConvUTF8)))
+  {
+    return;
+  }
+
+  string line;
+  getfileline(filename, line);
+
+  if (TO_WXSTRING(line) != outputSelection)
+  {
+    return;
+  }
+
+  wxString port;
+#ifndef WIN32
+  port.Append(wxT("/dev/"));
+#endif
+  port.Append(outputSelection);
+
+  gserial_device * device = gserial_open(TO_STRING(port).c_str(), BAUDRATE);
+
+  if (device == NULL)
+  {
+    // adapter is probably not plugged, return silently
+    return;
+  }
+
+  int rtype = adapter_send_short_command(device, BYTE_TYPE);
+
+  if(rtype < 0 || rtype >= C_TYPE_NONE)
+  {
+    wxMessageBox(_("Failed to read firmware type."), _("Error"), wxICON_ERROR);
+    gserial_close(device);
+    return;
+  }
+
+  const string firmwares[C_TYPE_MAX] =
+  {
+    [C_TYPE_JOYSTICK]   = "EMUJOYSTICK.hex",
+    [C_TYPE_360_PAD]    = "EMU360.hex",
+    [C_TYPE_SIXAXIS]    = "EMUPS3.hex",
+    [C_TYPE_PS2_PAD]    = "", // broken
+    [C_TYPE_XBOX_PAD]   = "EMUXBOX.hex",
+    [C_TYPE_DS4]        = "EMUPS4.hex",
+    [C_TYPE_XONE_PAD]   = "EMUXONE.hex",
+    [C_TYPE_T300RS_PS4] = "", // unfinished
+    [C_TYPE_G27_PS3]    = "EMUG27.hex",
+    [C_TYPE_G29_PS4]    = "EMUG29PS4.hex",
+    [C_TYPE_DF_PS2]     = "EMUDF.hex",
+    [C_TYPE_DFP_PS2]    = "EMUDFP.hex",
+    [C_TYPE_GTF_PS2]    = "EMUGTF.hex",
+  };
+
+  if (firmwares[rtype][0] == '\0')
+  {
+    // no update for this type, return silently
+    gserial_close(device);
+    return;
+  }
+
+  int major, minor;
+  if (adapter_get_version(device, &major, &minor) < 0)
+  {
+    wxMessageBox(_("Failed to read firmware version."), _("Error"), wxICON_ERROR);
+    gserial_close(device);
+    return;
+  }
+
+  gserial_close(device);
+
+  std::vector<std::string> elems = split(INFO_FW_VERSION, '.');
+  if (elems.size() != 2)
+  {
+    wxMessageBox(_("Failed to parse firmware version."), _("Error"), wxICON_ERROR);
+    return;
+  }
+
+  int sw_major = atoi(elems[0].c_str());
+  int sw_minor = atoi(elems[1].c_str());
+
+  if (sw_major < major || (sw_major == major && sw_minor <= minor))
+  {
+    // firmware is up to date
+    return;
+  }
+
+  int answer = wxMessageBox(_("A firmware update is available.\nStart firmware update?"), _("Confirm"), wxYES_NO);
+  if (answer != wxYES)
+  {
+    return;
+  }
+
+  if (wxExecute(wxT("gimx-loader -f ") + TO_WXSTRING(firmwares[rtype]), wxEXEC_SYNC))
+  {
+    wxMessageBox(_("Failed to execute gimx-loader."), _("Error"), wxICON_ERROR);
+  }
 }

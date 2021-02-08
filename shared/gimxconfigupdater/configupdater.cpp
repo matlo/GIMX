@@ -7,63 +7,7 @@
 #include <sstream>
 #include <string.h>
 
-#ifdef WIN32
-#include <windows.h>
-#else
-#include <pwd.h> //to get the user & group id
-#include <unistd.h>
-#endif
-
-#include <ext/stdio_filebuf.h>
-#include <fcntl.h>
-
-#ifdef WIN32
-
-static wchar_t * utf8_to_utf16le(const char * inbuf)
-{
-  wchar_t * outbuf = NULL;
-  int outsize = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, NULL, 0);
-  if (outsize != 0) {
-      outbuf = (wchar_t*) malloc(outsize * sizeof(*outbuf));
-      if (outbuf != NULL) {
-         int res = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, outbuf, outsize);
-         if (res == 0) {
-             free(outbuf);
-             outbuf = NULL;
-         }
-      }
-  }
-  return outbuf;
-}
-
-#define IFBUF(path) \
-    wchar_t * wpath = utf8_to_utf16le(path.c_str()); \
-    __gnu_cxx::stdio_filebuf<char> fb(_wopen(wpath, _O_BINARY | _O_RDONLY), std::ios::in | std::ios::binary); \
-    free(wpath);
-
-#else
-
-#define IFBUF(path) \
-    __gnu_cxx::stdio_filebuf<char> fb(open(path.c_str(), O_RDONLY), std::ios::in);
-
-#endif
-
-#define IFSTREAM(path, name) \
-    IFBUF(path) \
-    std::istream name (&fb);
-
-#ifndef WIN32
-static int remove2(const char *path) {
-    return remove(path);
-}
-#else
-static int remove2(const char *path) {
-    wchar_t * wpath = utf8_to_utf16le(path);
-    int result = _wremove(wpath);
-    free(wpath);
-    return result;
-}
-#endif
+#include <gimxfile/include/gfile.hpp>
 
 #ifdef WIN32
 const char * configupdater::configs_url = "https://api.github.com/repos/matlo/GIMX-configurations/contents/Windows";
@@ -143,7 +87,7 @@ configupdater::ConfigUpdaterStatus configupdater::getconfiglist(std::list<std::s
         }
     } // tempFile is closed at the end of this block, allowing removal
 
-    remove2(tempFile.c_str());
+    gfile_remove(tempFile.c_str());
 
     return configupdater::ConfigUpdaterStatusOk;
 }
@@ -167,7 +111,7 @@ configupdater::ConfigUpdaterStatus configupdater::getconfig(const std::string& d
     }
 
 #ifndef WIN32
-    if (chown(file.c_str(), getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid) < 0) {
+    if (gfile_makeown(file.c_str()) < 0) {
         return configupdater::ConfigUpdaterStatusDownloadFailed;
     }
 #endif

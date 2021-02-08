@@ -15,4 +15,4 @@ class launcherApp : public wxApp
         virtual int OnExit();
 };
 
-#endif // SIXEMUGUIAPP_H
+#endif // LAUNCHERAPP_H

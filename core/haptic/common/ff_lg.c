@@ -486,7 +486,6 @@ int ff_lg_convert_force(uint8_t caps, uint8_t slot_index, const s_ff_lg_command 
             static int warned[0x0F] = {};
             if (force->force_type < sizeof(warned) / sizeof(*warned) && warned[force->force_type] == 0) {
                 gwarn("unsupported force type: %s\n", ff_lg_get_ftype_name(force->force_type));
-                fflush(stdout);
                 warned[force->force_type] = 1;
             }
         }

@@ -9,10 +9,7 @@
 #ifdef WIN32
 #include <windows.h>
 #endif
-
-#ifdef WIN32
-#define LINE_MAX 1024
-#endif
+#include <gimxfile/include/gfile.h>
 
 #define USB_IDS_FILE "gpp.txt"
 
@@ -58,38 +55,6 @@ GCAPI_USB_IDS usb_ids[16] =
 
 static unsigned int nb_usb_ids = 5;
 
-#ifndef WIN32
-static FILE *fopen2(const char *path, const char *mode) {
-    return fopen(path, mode);
-}
-#else
-static wchar_t * utf8_to_utf16le(const char * inbuf)
-{
-  wchar_t * outbuf = NULL;
-  int outsize = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, NULL, 0);
-  if (outsize != 0) {
-      outbuf = (wchar_t*) malloc(outsize * sizeof(*outbuf));
-      if (outbuf != NULL) {
-         int res = MultiByteToWideChar(CP_UTF8, 0, inbuf, -1, outbuf, outsize);
-         if (res == 0) {
-             free(outbuf);
-             outbuf = NULL;
-         }
-      }
-  }
-  return outbuf;
-}
-
-static FILE *fopen2(const char *path, const char *mode) {
-    wchar_t * wpath = utf8_to_utf16le(path);
-    wchar_t * wmode = utf8_to_utf16le(mode);
-    FILE* file = _wfopen(wpath, wmode);
-    free(wmode);
-    free(wpath);
-    return file;
-}
-#endif
-
 /*
  * Read user-defined usb ids.
  */
@@ -112,7 +77,7 @@ void gpppcprog_read_user_ids(const char * user_directory, const char * app_direc
 
   snprintf(file_path, sizeof(file_path), "%s/%s/%s", user_directory, app_directory, USB_IDS_FILE);
 
-  fp = fopen2(file_path, "r");
+  fp = gfile_fopen(file_path, "r");
   if (fp)
   {
     while (fgets(line, LINE_MAX, fp))
@@ -247,28 +212,15 @@ int8_t gppcprog_connect(int id, const char * path)
       return -1;
     }
 
-    if (ghid_init() < 0)
-    {
-      return -1;
-    }
-
     devices[id].device = ghid_open_path(path);
 
     if(devices[id].device != NULL)
     {
       devices[id].path = strdup(path);
     }
-    else
-    {
-      ghid_exit();
-    }
   }
   else
   {
-    if (ghid_init() < 0)
-    {
-      return -1;
-    }
     // Connect to any GPP/Cronus/Titan
 
     struct ghid_device_info *devs, *cur_dev;
@@ -301,7 +253,6 @@ int8_t gppcprog_connect(int id, const char * path)
 
   if (devices[id].device == NULL)
   {
-    ghid_exit();
     return -1;
   }
 
@@ -335,8 +286,6 @@ void gppcprog_disconnect(int id)
     devices[id].device = NULL;
     free(devices[id].path);
     devices[id].path = NULL;
-
-    ghid_exit();
   }
   return;
 }

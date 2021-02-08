@@ -58,7 +58,7 @@ struct haptic_source_state * haptic_source_lg_init(s_haptic_core_ids ids) {
     void * ptr = calloc(1, sizeof(struct haptic_source_state));
 
     if (ptr == NULL) {
-        PRINT_ERROR_ALLOC_FAILED("calloc")
+        PRINT_ERROR_ALLOC_FAILED("calloc");
         return NULL;
     }
 
@@ -178,10 +178,10 @@ static void haptic_source_lg_process(struct haptic_source_state * state, size_t 
         break;
         default:
         {
-            static int warn = 1;
-            if (warn == 1) {
+            static int warn[0x10] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+            if (cmd < sizeof(warn) / sizeof(*warn) && warn[cmd] == 1) {
                 gwarn("skipping unsupported command %s\n", ff_lg_get_cmd_name(cmd));
-                warn = 0;
+                warn[cmd] = 0;
             }
         }
         break;
@@ -292,6 +292,6 @@ void haptic_source_lg_constructor(void) __attribute__((constructor));
 void haptic_source_lg_constructor(void) {
 
     if (haptic_source_register(&source_lg) == -1) {
-        PRINT_ERROR_OTHER("failed to register source")
+        PRINT_ERROR_OTHER("failed to register source");
     }
 }

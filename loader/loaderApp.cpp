@@ -15,12 +15,16 @@ IMPLEMENT_APP(loaderApp);
 
 bool loaderApp::OnInit()
 {
+    // call default behaviour (mandatory)
+    if (!wxApp::OnInit())
+        return false;
+
     //(*AppInitialize
     bool wxsOK = true;
     wxInitAllImageHandlers();
     if ( wxsOK )
     {
-    	loaderFrame* Frame = new loaderFrame(0);
+    	loaderFrame* Frame = new loaderFrame(firmware, 0);
     	Frame->Show();
     	SetTopWindow(Frame);
     }
@@ -32,4 +36,18 @@ bool loaderApp::OnInit()
 int loaderApp::OnExit()
 {
     return 0;
+}
+
+void loaderApp::OnInitCmdLine(wxCmdLineParser& parser)
+{
+    parser.SetDesc (g_cmdLineDesc);
+    // must refuse '/' as parameter starter or cannot use "/path" style paths
+    parser.SetSwitchChars (wxT("-"));
+}
+
+bool loaderApp::OnCmdLineParsed(wxCmdLineParser& parser)
+{
+    parser.Found(wxT("f"), &firmware);
+
+    return true;
 }

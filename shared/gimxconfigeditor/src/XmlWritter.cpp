@@ -7,10 +7,7 @@
 #include <string>
 #include <string.h>
 
-#ifndef WIN32
-#include <pwd.h> //to get the user & group id
-#include <unistd.h>
-#endif
+#include <gimxfile/include/gfile.h>
 
 #include <gimxcontroller/include/controller.h>
 
@@ -360,8 +357,7 @@ int XmlWritter::WriteConfigFile(const string& directory, const string& file)
     ret = xmlSaveFormatFileEnc(path.c_str(), doc, "UTF-8", 1);
 
 #ifndef WIN32
-    if(ret != -1 
-    && chown(path.c_str(), getpwuid(getuid())->pw_uid, getpwuid(getuid())->pw_gid) < 0)
+    if(ret != -1 && gfile_makeown(path.c_str()) < 0)
     {
       ret = -1;
     }

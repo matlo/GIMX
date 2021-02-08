@@ -25,7 +25,7 @@ void haptic_sink_register(s_haptic_sink * sink) {
 
     void * ptr = realloc(sinks, (nb_sinks + 1) * sizeof(*sinks));
     if (ptr == NULL) {
-        PRINT_ERROR_ALLOC_FAILED("realloc")
+        PRINT_ERROR_ALLOC_FAILED("realloc");
         return;
     }
     sinks = ptr;

@@ -1,11 +1,13 @@
 #ifndef INFO_H_
 #define INFO_H_
 
-#define INFO_VERSION "7.15"
-#define INFO_YEAR "2010-2019"
+#define INFO_VERSION "8.0"
+#define INFO_YEAR "2010-2020"
 #define INFO_DEV "Matlo"
 #define INFO_WEB "http://gimx.fr"
 #define INFO_LICENCE "GNU GPL v3"
+
+#define INFO_FW_VERSION "8.0"
 
 #ifdef __x86_64__
   #define INFO_ARCH "x86_64"

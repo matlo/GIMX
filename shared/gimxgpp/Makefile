@@ -8,4 +8,7 @@ LDLIBS += -lgimxlog
 LDFLAGS += -L../gimxhid
 LDLIBS += -lgimxhid
 
+LDFLAGS += -L../gimxfile
+LDLIBS += -lgimxfile
+
 include ../Makedefs

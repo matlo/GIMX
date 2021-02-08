@@ -3,21 +3,11 @@ GIMX
 
 [![Build Status](https://travis-ci.com/matlo/GIMX.svg?branch=master)](https://travis-ci.com/matlo/GIMX)
 
-GIMX stands for `Game Input MultipleXer` or `Game Input MatriX`.  
-The purpose of this software is to control a video game console with a computer (e.g. a PC or a [Raspberry Pi](http://www.raspberrypi.org/)).  
-It works with the PS3, the Xbox 360, the PS4 and the Xbox One.  
-It operates:  
-¤ over bluetooth: works with Linux (PS3, PS4) only. A compatible bluetooth dongle is required.  
-¤ over usb: works with Linux and Windows (PS3, PS4, 360, XOne). A USB adapter is required.  
-The application gets data from the peripherals (mice, keyboards and joysticks) and sends controls to the console over bluetooth or usb.  
-Other controls such as gesture or voice are possible through the use of external software that emulate peripherals.  
+GIMX is a free software that allows to use a computer as a hub for your gaming devices. It works on Windows® and GNU/Linux platforms. It is compatible with Playstation® and Xbox® gaming consoles. The connection between the computer and the gaming console is performed using a USB adapter – [get one on the GIMX shop!](https://blog.gimx.fr/product/gimx-adapter/) – or a Bluetooth® dongle (PS3/PS4 only). The capabilities depend on the platform, the connection method, and the gaming platform.
 
-Documentation is at http://wiki.gimx.fr/  
-
-Source code: http://gimx.fr/source  
-
-Issue tracker: http://gimx.fr/buglist  
-
-Licence: [GPLv3](https://www.gnu.org/copyleft/gpl.html)  
-
-Donation link: http://blog.gimx.fr/give/main-gimx-donation-campaign/
+Links:
+* [Documentation](https://wiki.gimx.fr)  
+* [Source code](https://gimx.fr/source)  
+* [Issue tracker](https://gimx.fr/buglist)  
+* Licence: [GPLv3](https://www.gnu.org/copyleft/gpl.html)  
+* [Donations](https://blog.gimx.fr/give/gimx-donations-current/)

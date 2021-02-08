@@ -20,6 +20,8 @@
 #include <unistd.h>
 #include <limits.h>
 #include "log.h"
+#include <gimxlog/include/glog.h>
+#include <gimxudp/include/gudp.h>
 
 #define DEV_HIDRAW "/dev/hidraw"
 #ifndef WIN32
@@ -92,43 +94,55 @@ static void usage()
   printf("  --show-debug-flags: Show all available debug flags.\n");
 
   printf("  --auto-grab: Grab if config has at least one keyboard or mouse binding. This argument overrides the --nograb one\n");
+
+  printf("  --proxy: Adapter is proxied from server to client when provided before --src and before --dst.\n");
 }
 
-/*
- * Try to parse an argument with the following expected format: a.b.c.d:e
- * where a.b.c.d is an IPv4 address and e is a port.
- */
-static int read_ip(char* optarg, in_addr_t* ip, unsigned short* port)
+static int init_log(int argc, char *argv[], s_gimx_params* params)
 {
   int ret = 0;
-  int pos;
-  size_t len = strlen(optarg);
-  //check the length
-  if(len + 1 > sizeof("111.111.111.111:65535"))
+
+  int i;
+  for (i = 0; i < argc; ++i)
   {
-    return -1;
-  }
-  //check the absence of spaces
-  if(strchr(optarg, ' '))
-  {
-    return -1;
-  }
-  //get the position of the ':'
-  char* sep = strchr(optarg, ':');
-  if (sep)
-  {
-    *sep = ' ';//Temporarily separate the address and the port
-    *ip = inet_addr(optarg);//parse the IP
-    //parse the port
-    if(sscanf(sep + 1, "%hu%n", port, &pos) != 1 || (unsigned int)pos != (len - (sep + 1 - optarg)))
+    if (strcmp("-l", argv[i]) && strcmp("--log", argv[i]))
     {
+      continue;
+    }
+
+    if (i + 1 == argc)
+    {
+      gerror(_("no log file specified\n"));
+      ret = -1;
+      break;
+    }
+
+    if(params->logfilename == NULL)
+    {
+      params->logfilename = argv[i + 1];
+      if(params->logfilename && strlen(params->logfilename))
+      {
+        char file_path[PATH_MAX];
+        snprintf(file_path, sizeof(file_path), "%s%s%s%s", params->homedir, GIMX_DIR, LOG_DIR, params->logfilename);
+        params->logfile = gfile_fopen(file_path, "w");
+        if(params->logfile != NULL)
+        {
+          dup2(fileno(params->logfile), fileno(stdout));
+          dup2(fileno(params->logfile), fileno(stderr));
+        }
+        else
+        {
+          gerror(_("can't open log file (%s)\n"), file_path);
+          ret = -1;
+        }
+      }
+      printf(_("global option -l with value `%s'\n"), params->logfilename);
+    }
+    else
+    {
+      gerror(_("only one log file can be specified\n"));
       ret = -1;
     }
-    *sep = ':';//Revert.
-  }
-  if (!sep || *ip == INADDR_NONE || *port == 0)
-  {
-    ret = -1;
   }
   return ret;
 }
@@ -139,6 +153,11 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
   int c;
   unsigned char controller = 0;
   unsigned char input = 0;
+  struct gudp_address address;
+  int proxy = 0;
+  int btps3 = 0;
+
+  ret = init_log(argc, argv, params);
 
   struct option long_options[] =
   {
@@ -153,9 +172,12 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"debug.haptic",     no_argument, &params->debug.haptic,      1},
     {"debug.controller", no_argument, &params->debug.controller,  1},
     {"debug.macros",     no_argument, &params->debug.macros,      1},
+    {"debug.mainloop",   no_argument, &params->debug.mainloop,    1},
     {"debug.sixaxis",    no_argument, &params->debug.sixaxis,     1},
     {"debug.config",     no_argument, &params->debug.config,      1},
+    {"debug.udp_con",    no_argument, &params->debug.udp_con,     1},
     {"debug.usb_con",    no_argument, &params->debug.usb_con,     1},
+    {"debug.stats",      no_argument, &params->debug.stats,       1},
     {"debug.gimxhid",    no_argument, &params->debug.gimxhid,     1},
     {"debug.gimxinput",  no_argument, &params->debug.gimxinput,   1},
     {"debug.gimxpoll",   no_argument, &params->debug.gimxpoll,    1},
@@ -166,9 +188,11 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     {"debug.gimxuhid",   no_argument, &params->debug.gimxuhid,    1},
 #endif
     {"debug.gimxusb",    no_argument, &params->debug.gimxusb,     1},
+    {"debug.gimxudp",    no_argument, &params->debug.gimxudp,     1},
     {"skip_leds",        no_argument, &params->skip_leds,         1},
     {"ff_conv",          no_argument, &params->ff_conv,           1},
     {"auto-grab",        no_argument, &params->autograb,          1},
+    {"proxy",            no_argument, &proxy,                     1},
     /* These options don't set a flag. We distinguish them by their indices. */
     {"bdaddr",  required_argument, 0, 'b'},
     {"config",  required_argument, 0, 'c'},
@@ -224,8 +248,13 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         {
           adapter_get(controller)->ctype = C_TYPE_SIXAXIS;
         }
+        if (adapter_get(controller)->ctype == C_TYPE_SIXAXIS)
+        {
+          btps3 = 1;
+        }
         printf(_("controller #%d: option -b with value `%s'\n"), controller + 1, optarg);
         ++controller;
+        proxy = 0;
         printf(_("now reading arguments for controller #%d\n"), controller + 1);
         break;
 
@@ -273,18 +302,29 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         break;
 
       case 'd':
-        if(read_ip(optarg, &adapter_get(controller)->remote.ip,
-            &adapter_get(controller)->remote.port) < 0)
+        if(gudp_parse_address(optarg, &address) < 0)
         {
           gerror(_("Bad format for argument -d: '%s'\n"), optarg);
           ret = -1;
         }
         else
         {
-          adapter_get(controller)->atype = E_ADAPTER_TYPE_REMOTE_GIMX;
-          printf(_("controller #%d: option -d with value `%s'\n"), controller + 1, optarg);
-          ++controller;
-          printf(_("now reading arguments for controller #%d\n"), controller + 1);
+          if (!proxy)
+          {
+            adapter_get(controller)->remote.address = address;
+            adapter_get(controller)->atype = E_ADAPTER_TYPE_REMOTE_GIMX;
+            printf(_("controller #%d: option -d with value `%s'\n"), controller + 1, optarg);
+            ++controller;
+            proxy = 0;
+            printf(_("now reading arguments for controller #%d\n"), controller + 1);
+          }
+          else
+          {
+            printf(_("controller #%d: option -d with value `%s' (proxy)\n"), controller + 1, optarg);
+            adapter_get(controller)->proxy.is_client = 1;
+            adapter_get(controller)->proxy.remote = address;
+            adapter_get(controller)->atype = E_ADAPTER_TYPE_PROXY;
+          }
         }
         break;
 
@@ -294,17 +334,28 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         break;
 
       case 's':
-        if(read_ip(optarg, &adapter_get(controller)->src_ip,
-            &adapter_get(controller)->src_port) < 0)
+        if(gudp_parse_address(optarg, &address) < 0)
         {
           gerror(_("Bad format for argument -s: '%s'\n"), optarg);
           ret = -1;
         }
         else
         {
-          printf(_("controller #%d: option -s with value `%s'\n"), controller + 1, optarg);
-          input = 1;
-          params->network_input = 1;
+          if (!proxy)
+          {
+            printf(_("controller #%d: option -s with value `%s'\n"), controller + 1, optarg);
+            adapter_get(controller)->src = address;
+            input = 1;
+            params->network_input = 1;
+          }
+          else
+          {
+            printf(_("controller #%d: option -s with value `%s' (proxy)\n"), controller + 1, optarg);
+            adapter_get(controller)->proxy.is_proxy = 1;
+            adapter_get(controller)->proxy.local = address;
+            input = 1;
+            proxy = 0;
+          }
         }
         break;
 
@@ -314,40 +365,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         break;
 
       case 'l':
-        if(params->logfilename == NULL)
-        {
-          if(!params->curses)
-          {
-            params->logfilename = optarg;
-            if(params->logfilename && strlen(params->logfilename))
-            {
-              char file_path[PATH_MAX];
-              snprintf(file_path, sizeof(file_path), "%s%s%s%s", params->homedir, GIMX_DIR, LOG_DIR, params->logfilename);
-              params->logfile = fopen2(file_path, "w");
-              if(params->logfile != NULL)
-              {
-                dup2(fileno(params->logfile), fileno(stdout));
-                dup2(fileno(params->logfile), fileno(stderr));
-              }
-              else
-              {
-                gerror(_("can't open log file (%s)\n"), file_path);
-                ret = -1;
-              }
-            }
-            printf(_("global option -l with value `%s'\n"), optarg);
-          }
-          else
-          {
-            gerror(_("log file can't be used with curses\n"));
-            ret = -1;
-          }
-        }
-        else
-        {
-          gerror(_("only one log file can be specified\n"));
-          ret = -1;
-        }
+        // already processed
         break;
 
       case 'p':
@@ -372,12 +390,13 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
         {
           printf(_("controller #%d: option -p with value `%s'\n"), controller + 1, optarg);
           ++controller;
+          proxy = 0;
           printf(_("now reading arguments for controller #%d\n"), controller + 1);
         }
         break;
 
       case 'q':
-        gimx_params.inactivity_timeout = atoi(optarg);
+        params->inactivity_timeout = atoi(optarg);
         printf(_("global option -q with value `%s'\n"), optarg);
         break;
 
@@ -470,7 +489,7 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
 
   if(!input)
   {
-    gerror("At least a config file, an event, or a source IP:port should be specified as argument.\n")
+    gerror("At least a config file, an event, or a source IP:port should be specified as argument.\n");
     ret = -1;
   }
 
@@ -479,9 +498,20 @@ int args_read(int argc, char *argv[], s_gimx_params* params)
     log_info();
   }
 
-  if (gimx_params.debug.controller)
+  if (params->debug.controller)
   {
-    gimx_params.status = 1;
+    params->status = 1;
+  }
+
+  if (btps3)
+  {
+    // output reports (from PS3) drive the report period
+    params->clock_source = CLOCK_TARGET;
+  }
+  else if (params->network_input && !params->config_file)
+  {
+    // the client drives the report period (to cut down latency)
+    params->clock_source = CLOCK_INPUT;
   }
 
   int i;
