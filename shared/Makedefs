@@ -28,7 +28,11 @@ CPPFLAGS += -D__USE_MINGW_ANSI_STDIO=0
 endif
 CPPFLAGS += -I../
 
-LIBNAME=lib$(shell basename "$(shell pwd)")
+NAME=$(shell basename "$(shell pwd)")
+
+LIBNAME=lib$(NAME)
+
+CPPFLAGS += -DGLOG_NAME=$(NAME)
 
 ifneq ($(OS),Windows_NT)
 LIB=$(LIBNAME).so
