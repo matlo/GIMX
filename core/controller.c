@@ -320,7 +320,7 @@ static float float_swap(float x)
   };
   union V val;
   val.f = x;
-  val.i = htonl(val.i);
+  val.i = gudp_htonl(val.i);
   return val.f;
 }
 
@@ -331,11 +331,11 @@ static void handle_packet_config(const s_network_packet_config* buf)
   if (s >= 0) { //Does negative sensibility makes sense?
     cal_set_sensibility(s);
   }
-  int16_t dx = ntohs(buf->dead_zone_x);
+  int16_t dx = gudp_ntohs(buf->dead_zone_x);
   if (dx < INT16_MAX) {
     cal_set_deadzone_x(dx);
   }
-  int16_t dy = ntohs(buf->dead_zone_y);
+  int16_t dy = gudp_ntohs(buf->dead_zone_y);
   if (dy < INT16_MAX) {
     cal_set_deadzone_y(dy);
   }
@@ -359,8 +359,8 @@ static s_network_packet_config handle_packet_get_config()
   const s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
   config_pkg.packet_type = E_NETWORK_PACKET_GETCONFIG;
   config_pkg.sensibility = float_swap(*mcal->mx);
-  config_pkg.dead_zone_x = htons(*mcal->dzx);
-  config_pkg.dead_zone_y = htons(*mcal->dzy);
+  config_pkg.dead_zone_x = gudp_htons(*mcal->dzx);
+  config_pkg.dead_zone_y = gudp_htons(*mcal->dzy);
   config_pkg.yx_ratio = float_swap((*mcal->my) / (*mcal->mx));
   config_pkg.exponent_x = float_swap(*mcal->ex);
   config_pkg.exponent_y = float_swap(*mcal->ey);
@@ -434,9 +434,9 @@ static int network_read_callback(void * user, const void * buf, int status, stru
       set_done(1);
       break;
   case E_NETWORK_PACKET_SETCONFIG:
-    if ((unsigned int) nread != sizeof(s_network_packet_config))
+    if ((unsigned int) status != sizeof(s_network_packet_config))
     {
-      gwarn("%s: wrong packet size: %u %zu\n", __func__, nread, sizeof(s_network_packet_config));
+      gwarn("%s: wrong packet size: %u %zu\n", __func__, status, sizeof(s_network_packet_config));
       return 0;
     }
     handle_packet_config((s_network_packet_config*) buf);
@@ -445,7 +445,7 @@ static int network_read_callback(void * user, const void * buf, int status, stru
   case E_NETWORK_PACKET_GETCONFIG:
   {
     s_network_packet_config config_pkg = handle_packet_get_config();
-    if (udp_sendto(adapters[adapter].src_fd, (void *) &config_pkg, sizeof(config_pkg), (struct sockaddr*) &sa, salen) < 0) {
+    if (gudp_send(adapters[adapter].src_socket, (void *) &config_pkg, sizeof(config_pkg), address) < 0) {
       gwarn("%s: can't send configuration values\n", __func__);
       return 0;
     }
