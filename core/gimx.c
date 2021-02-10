@@ -13,8 +13,6 @@
 #include <termios.h> //to disable/enable echo
 #include <unistd.h>
 #else
-#undef NTDDI_VERSION
-#define NTDDI_VERSION NTDDI_VERSION_FROM_WIN32_WINNT(NTDDI_VISTA)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <fcntl.h>

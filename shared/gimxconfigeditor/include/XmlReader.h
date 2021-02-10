@@ -92,6 +92,7 @@ class XmlReader
     protected:
     private:
         int Init();
+        void Clean();
         int Read(xmlDoc * doc);
         void ProcessRootElement(xmlNode * a_node);
         void ProcessControllerElement(xmlNode * a_node);

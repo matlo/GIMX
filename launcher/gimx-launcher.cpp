@@ -56,6 +56,11 @@
 #include <gimxserial/include/gserial.h>
 #include <gimx-adapter-protocol/include/protocol.h>
 
+#ifdef WIN32
+#include <wx/filename.h>
+#include <gimxusb/include/gusb.h>
+#endif
+
 #define BAUDRATE 500000 //bps
 #define ADAPTER_TIMEOUT 1000 //millisecond
 
@@ -144,10 +149,12 @@ BEGIN_EVENT_TABLE(launcherFrame,wxFrame)
     //*)
 END_EVENT_TABLE()
 
+#ifdef DOWNLOAD_URL
 static int progress_callback_updater(void *clientp, Updater::UpdaterStatus status, double progress, double total)
 {
     return ((launcherFrame *) clientp)->OnUpdateProgress(status, progress, total);
 }
+#endif
 
 static int progress_callback_configupdater(void *clientp, configupdater::ConfigUpdaterStatus status, double progress, double total)
 {
@@ -809,10 +816,7 @@ void launcherFrame::readStartUpdates()
   filename = string(launcherDir.mb_str(wxConvUTF8));
   filename.append(START_UPDATES);
   getfileline(filename, line);
-  if(line == "yes")
-  {
-    MenuStartupUpdates->Check(true);
-  }
+  MenuStartupUpdates->Check(line != "no");
 }
 
 #ifdef WIN32
@@ -1178,6 +1182,10 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
 #endif
 
     Output->Append(_("Stub"));
+
+#ifdef WIN32
+    checkUsbDk();
+#endif
 
     SetupManager().run();
 
@@ -3148,3 +3156,31 @@ void launcherFrame::checkFirmware()
     wxMessageBox(_("Failed to execute gimx-loader."), _("Error"), wxICON_ERROR);
   }
 }
+
+#ifdef WIN32
+void launcherFrame::checkUsbDk()
+{
+  struct gusb_device_info * usb_devs = gusb_enumerate(0x0000, 0x0000);
+  if (usb_devs == NULL) {
+    int answer = wxMessageBox(_("UsbDk does not seem to be installed.\nDo you want to install it now?"), _("Confirm"), wxYES_NO);
+    if (answer == wxYES)
+    {
+      wxString args = wxT(" /i \"") + wxFileName(wxStandardPaths::Get().GetExecutablePath()).GetPath() + wxT("\\tools\\usbdk\\");
+      SYSTEM_INFO info;
+      GetNativeSystemInfo(&info);
+      switch (info.wProcessorArchitecture) {
+      case PROCESSOR_ARCHITECTURE_AMD64:
+        args.Append("UsbDk_1.0.22_x64.msi");
+        break;
+      case PROCESSOR_ARCHITECTURE_INTEL:
+        args.Append("UsbDk_1.0.22_x86.msi");
+        break;
+      }
+      args.Append("\"");
+      runAs(wxT("msiexec"), args);
+    }
+  }
+
+  gusb_free_enumeration(usb_devs);
+}
+#endif

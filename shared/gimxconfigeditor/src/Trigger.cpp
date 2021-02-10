@@ -48,6 +48,8 @@ bool Trigger::operator==(const Trigger &other) const
 {
     return m_Device == other.m_Device
     && m_Event == other.m_Event
-    && m_SwitchBack == other.m_SwitchBack
+    && (m_SwitchBack == other.m_SwitchBack
+            || (m_SwitchBack == "" && other.m_SwitchBack == "no")
+            || (m_SwitchBack == "no" && other.m_SwitchBack == ""))
     && m_Delay == other.m_Delay;
 }

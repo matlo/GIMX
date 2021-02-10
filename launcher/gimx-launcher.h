@@ -129,6 +129,9 @@ class launcherFrame: public wxFrame
         void cleanDownload();
 
         void checkFirmware();
+#ifdef WIN32
+        void checkUsbDk();
+#endif
 
         //(*Identifiers(launcherFrame)
         static const long ID_STATICTEXT4;

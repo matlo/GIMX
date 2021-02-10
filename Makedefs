@@ -26,6 +26,9 @@ CXXFLAGS += -pg
 LDFLAGS += -pg
 endif
 
+ifeq ($(OS),Windows_NT)
+CPPFLAGS += -D__USE_MINGW_ANSI_STDIO=0
+endif
 CPPFLAGS += -I../shared
 
 GIMXFILE_LDFLAGS = $(GIMXLOG_LDFLAGS) -L../shared/gimxfile

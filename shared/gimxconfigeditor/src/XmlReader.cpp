@@ -960,6 +960,14 @@ int XmlReader::Init()
     return 0;
 }
 
+void XmlReader::Clean()
+{
+    if(m_checkDevices)
+    {
+      m_evtcatch->clean();
+    }
+}
+
 int XmlReader::Read(xmlDoc * doc)
 {
     int ret = 0;
@@ -981,11 +989,6 @@ int XmlReader::Read(xmlDoc * doc)
     {
         m_error = e.what();
         ret = -1;
-    }
-
-    if(m_checkDevices)
-    {
-      m_evtcatch->clean();
     }
 
     if(m_name_empty && m_name_nempty)
@@ -1010,15 +1013,23 @@ int XmlReader::ReadConfigFile(string filePath)
         return -1;
     }
 
+    int ret = 0;
+
     xmlDoc * doc = xmlReadFile(filePath.c_str(), NULL, 0);
 
     if (doc == NULL)
     {
         m_error = "error: could not parse file ";
-        return -1;
+        ret = -1;
+    }
+    else
+    {
+        ret = Read(doc);
     }
 
-    return Read(doc);
+    Clean();
+
+    return ret;
 }
 
 int XmlReader::FromString(const string& config)
@@ -1028,13 +1039,21 @@ int XmlReader::FromString(const string& config)
         return -1;
     }
 
+    int ret = 0;
+
     xmlDoc * doc = xmlReadDoc((xmlChar*) config.c_str(), NULL, NULL, 0);
 
     if (doc == NULL)
     {
         m_error = "error: could not parse clipboard content ";
-        return -1;
+        ret = -1;
+    }
+    else
+    {
+        ret = Read(doc);
     }
 
-    return Read(doc);
+    Clean();
+
+    return ret;
 }
