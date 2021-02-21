@@ -7,15 +7,15 @@
 #define FPSCONFIGMAIN_H
 
 //(*Headers(fpsconfigFrame)
-#include <wx/spinctrl.h>
 #include <wx/button.h>
+#include <wx/choice.h>
+#include <wx/frame.h>
 #include <wx/menu.h>
 #include <wx/panel.h>
-#include <wx/statusbr.h>
-#include <wx/frame.h>
+#include <wx/spinctrl.h>
 #include <wx/stattext.h>
+#include <wx/statusbr.h>
 #include <wx/textctrl.h>
-#include <wx/choice.h>
 //*)
 
 #include <gimxconfigeditor/include/EventCatcher.h>
@@ -175,70 +175,70 @@ class fpsconfigFrame: public wxFrame
         //*)
 
         //(*Declarations(fpsconfigFrame)
-        wxButton* down;
-        wxSpinCtrl* SpinCtrlFilterHipFire;
-        wxButton* left;
-        wxMenuItem* MenuItemSaveAs;
-        wxStaticText* StaticTextAccel;
-        wxSpinCtrl* SpinCtrlSensitivityHipFire;
-        wxButton* ps;
-        wxPanel* Panel1;
-        wxButton* circle;
-        wxTextCtrl* TextCtrlSensitivityADS;
-        wxMenuItem* MenuEditLabels;
-        wxStatusBar* StatusBar1;
-        wxButton* start;
-        wxMenuItem* MenuAutoBindControls;
-        wxTextCtrl* TextCtrlXyRatioADS;
-        wxButton* right;
-        wxChoice* ChoiceDeadZoneShapeHipFire;
-        wxChoice* ChoiceDeadZoneShapeADS;
-        wxMenuItem* MenuItemWindowEvents;
-        wxSpinCtrl* SpinCtrlBufferSizeADS;
-        wxStaticText* StaticTextShape;
-        wxMenuItem* MenuItemSave;
-        wxButton* r1;
-        wxSpinCtrl* SpinCtrlBufferSizeHipFire;
-        wxSpinCtrl* SpinCtrlXyRatioADS;
-        wxStaticText* StaticTextSmoothing;
-        wxButton* square;
-        wxSpinCtrl* SpinCtrlDeadZoneHipFire;
-        wxButton* r2;
-        wxButton* l2;
-        wxButton* r3;
-        wxStaticText* StaticTextHipFire;
-        wxButton* l1;
-        wxSpinCtrl* SpinCtrlAccelerationHipFire;
         wxButton* ButtonConvertSensitivity;
-        wxTextCtrl* TextCtrlFilterHipFire;
-        wxMenuItem* MenuItemNew;
-        wxStaticText* StaticText8;
-        wxSpinCtrl* SpinCtrlSensitivityADS;
-        wxStaticText* StaticTextDZ;
-        wxButton* l3;
-        wxSpinCtrl* SpinCtrlXyRatioHipFire;
-        wxTextCtrl* TextCtrlXyRatioHipFire;
-        wxSpinCtrl* SpinCtrlDeadZoneADS;
-        wxButton* up;
-        wxButton* stickright;
-        wxSpinCtrl* SpinCtrlAccelerationADS;
-        wxStaticText* StaticTextSens;
-        wxButton* stickup;
-        wxTextCtrl* TextCtrlSensitivityHipFire;
-        wxButton* select;
+        wxButton* circle;
         wxButton* cross;
-        wxStaticText* StaticTextADS;
-        wxTextCtrl* TextCtrlAccelerationADS;
-        wxSpinCtrl* SpinCtrlDPI;
+        wxButton* down;
+        wxButton* l1;
+        wxButton* l2;
+        wxButton* l3;
+        wxButton* left;
+        wxButton* ps;
+        wxButton* r1;
+        wxButton* r2;
+        wxButton* r3;
+        wxButton* right;
+        wxButton* select;
+        wxButton* square;
+        wxButton* start;
         wxButton* stickdown;
         wxButton* stickleft;
-        wxMenuItem* MenuItemOpen;
-        wxSpinCtrl* SpinCtrlFilterADS;
+        wxButton* stickright;
+        wxButton* stickup;
         wxButton* triangle;
-        wxTextCtrl* TextCtrlFilterADS;
-        wxTextCtrl* TextCtrlAccelerationHipFire;
+        wxButton* up;
+        wxChoice* ChoiceDeadZoneShapeADS;
+        wxChoice* ChoiceDeadZoneShapeHipFire;
+        wxMenuItem* MenuAutoBindControls;
+        wxMenuItem* MenuEditLabels;
+        wxMenuItem* MenuItemNew;
+        wxMenuItem* MenuItemOpen;
         wxMenuItem* MenuItemOpenConfigDirectory;
+        wxMenuItem* MenuItemSave;
+        wxMenuItem* MenuItemSaveAs;
+        wxMenuItem* MenuItemWindowEvents;
+        wxPanel* Panel1;
+        wxSpinCtrl* SpinCtrlAccelerationADS;
+        wxSpinCtrl* SpinCtrlAccelerationHipFire;
+        wxSpinCtrl* SpinCtrlBufferSizeADS;
+        wxSpinCtrl* SpinCtrlBufferSizeHipFire;
+        wxSpinCtrl* SpinCtrlDPI;
+        wxSpinCtrl* SpinCtrlDeadZoneADS;
+        wxSpinCtrl* SpinCtrlDeadZoneHipFire;
+        wxSpinCtrl* SpinCtrlFilterADS;
+        wxSpinCtrl* SpinCtrlFilterHipFire;
+        wxSpinCtrl* SpinCtrlSensitivityADS;
+        wxSpinCtrl* SpinCtrlSensitivityHipFire;
+        wxSpinCtrl* SpinCtrlXyRatioADS;
+        wxSpinCtrl* SpinCtrlXyRatioHipFire;
+        wxStaticText* StaticText8;
+        wxStaticText* StaticTextADS;
+        wxStaticText* StaticTextAccel;
+        wxStaticText* StaticTextDZ;
+        wxStaticText* StaticTextHipFire;
+        wxStaticText* StaticTextSens;
+        wxStaticText* StaticTextShape;
+        wxStaticText* StaticTextSmoothing;
         wxStaticText* StaticTextXy;
+        wxStatusBar* StatusBar1;
+        wxTextCtrl* TextCtrlAccelerationADS;
+        wxTextCtrl* TextCtrlAccelerationHipFire;
+        wxTextCtrl* TextCtrlFilterADS;
+        wxTextCtrl* TextCtrlFilterHipFire;
+        wxTextCtrl* TextCtrlSensitivityADS;
+        wxTextCtrl* TextCtrlSensitivityHipFire;
+        wxTextCtrl* TextCtrlXyRatioADS;
+        wxTextCtrl* TextCtrlXyRatioHipFire;
         //*)
 
         wxBackgroundBitmap* ToolBarBackground;

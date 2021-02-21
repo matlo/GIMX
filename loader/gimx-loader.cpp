@@ -8,8 +8,8 @@
 #include <wx/msgdlg.h>
 
 //(*InternalHeaders(loaderFrame)
-#include <wx/string.h>
 #include <wx/intl.h>
+#include <wx/string.h>
 //*)
 
 #include <unistd.h>
@@ -99,7 +99,7 @@ loaderFrame::loaderFrame(wxString firmware,wxWindow* parent,wxWindowID id __attr
 
     //(*Initialize(loaderFrame)
     wxFlexGridSizer* FlexGridSizer2;
-    
+
     Create(parent, wxID_ANY, _("Gimx-loader"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL1"));
     FlexGridSizer1 = new wxFlexGridSizer(1, 1, 0, 0);
@@ -119,7 +119,7 @@ loaderFrame::loaderFrame(wxString firmware,wxWindow* parent,wxWindowID id __attr
     MenuBar1->Append(Menu1, _("Help"));
     SetMenuBar(MenuBar1);
     Center();
-    
+
     Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&loaderFrame::OnButtonLoadClick);
     Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&loaderFrame::OnAbout);
     //*)

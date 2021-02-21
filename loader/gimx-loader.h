@@ -7,12 +7,12 @@
 #define LAUNCHERMAIN_H
 
 //(*Headers(loaderFrame)
-#include <wx/sizer.h>
 #include <wx/button.h>
+#include <wx/choice.h>
+#include <wx/frame.h>
 #include <wx/menu.h>
 #include <wx/panel.h>
-#include <wx/frame.h>
-#include <wx/choice.h>
+#include <wx/sizer.h>
 //*)
 
 #include <wx/process.h>
@@ -42,13 +42,13 @@ class loaderFrame: public wxFrame
         //*)
 
         //(*Declarations(loaderFrame)
-        wxMenuItem* MenuItem1;
-        wxFlexGridSizer* FlexGridSizer1;
-        wxPanel* Panel1;
-        wxChoice* ChoiceFirmware;
-        wxMenu* Menu1;
         wxButton* ButtonLoad;
+        wxChoice* ChoiceFirmware;
+        wxFlexGridSizer* FlexGridSizer1;
+        wxMenu* Menu1;
         wxMenuBar* MenuBar1;
+        wxMenuItem* MenuItem1;
+        wxPanel* Panel1;
         //*)
 
         void checkQuit();

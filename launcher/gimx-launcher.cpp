@@ -8,8 +8,8 @@
 #include <wx/msgdlg.h>
 
 //(*InternalHeaders(launcherFrame)
-#include <wx/string.h>
 #include <wx/intl.h>
+#include <wx/string.h>
 //*)
 
 #include <unistd.h>
@@ -946,16 +946,16 @@ launcherFrame::launcherFrame(wxWindow* parent,wxWindowID id __attribute__((unuse
     locale->AddCatalog(wxT("gimx"));
 
     //(*Initialize(launcherFrame)
-    wxMenuItem* MenuItem2;
-    wxMenuItem* MenuItem1;
-    wxFlexGridSizer* FlexGridSizer8;
     wxFlexGridSizer* FlexGridSizer2;
-    wxMenu* Menu1;
-    wxFlexGridSizer* FlexGridSizer7;
     wxFlexGridSizer* FlexGridSizer3;
-    wxMenuBar* MenuBar1;
-    wxMenu* Menu2;
     wxFlexGridSizer* FlexGridSizer5;
+    wxFlexGridSizer* FlexGridSizer7;
+    wxFlexGridSizer* FlexGridSizer8;
+    wxMenu* Menu1;
+    wxMenu* Menu2;
+    wxMenuBar* MenuBar1;
+    wxMenuItem* MenuItem1;
+    wxMenuItem* MenuItem2;
 
     Create(parent, wxID_ANY, _("Gimx-launcher"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL1"));

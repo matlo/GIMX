@@ -7,14 +7,14 @@
 #define LAUNCHERMAIN_H
 
 //(*Headers(launcherFrame)
-#include <wx/sizer.h>
 #include <wx/button.h>
+#include <wx/choice.h>
+#include <wx/frame.h>
 #include <wx/menu.h>
 #include <wx/panel.h>
-#include <wx/statusbr.h>
-#include <wx/frame.h>
+#include <wx/sizer.h>
 #include <wx/stattext.h>
-#include <wx/choice.h>
+#include <wx/statusbr.h>
 //*)
 
 #include <wx/process.h>
@@ -168,40 +168,40 @@ class launcherFrame: public wxFrame
         //*)
 
         //(*Declarations(launcherFrame)
+        wxButton* Button1;
+        wxButton* ButtonCheck;
+        wxButton* ButtonStart;
+        wxButton* OutputNewButton;
+        wxChoice* Input;
+        wxChoice* InputChoice;
+        wxChoice* MouseGrabChoice;
         wxChoice* Output;
+        wxChoice* OutputChoice;
         wxChoice* ProcessOutputChoice;
         wxFlexGridSizer* FlexGridSizer1;
-        wxPanel* Panel1;
-        wxStatusBar* StatusBar1;
-        wxMenuItem* MenuAutoBindControls;
-        wxButton* ButtonCheck;
-        wxMenuItem* MenuEditFpsConfig;
-        wxChoice* InputChoice;
-        wxButton* OutputNewButton;
-        wxButton* Button1;
-        wxMenuItem* MenuGetConfigs;
-        wxMenuItem* MenuUpdate;
-        wxFlexGridSizer* OutputSizer;
-        wxStaticText* StaticText1;
-        wxStaticText* StaticText3;
         wxFlexGridSizer* IOSizer;
-        wxChoice* OutputChoice;
+        wxFlexGridSizer* MouseSizer;
+        wxFlexGridSizer* OutputSizer;
+        wxFlexGridSizer* SourceIpSizer;
+        wxMenuItem* MenuAutoBindControls;
+        wxMenuItem* MenuEditConfig;
+        wxMenuItem* MenuEditFpsConfig;
+        wxMenuItem* MenuGetConfigs;
+        wxMenuItem* MenuItem3;
+        wxMenuItem* MenuItem4;
+        wxMenuItem* MenuItem5;
+        wxMenuItem* MenuItem6;
         wxMenuItem* MenuRefresh;
         wxMenuItem* MenuStartupUpdates;
-        wxMenuItem* MenuItem3;
-        wxChoice* Input;
-        wxMenuItem* MenuItem5;
-        wxStaticText* StaticText4;
-        wxFlexGridSizer* SourceIpSizer;
-        wxStaticText* StaticText5;
-        wxStaticText* StaticText2;
-        wxChoice* MouseGrabChoice;
-        wxMenuItem* MenuItem4;
-        wxMenuItem* MenuItem6;
-        wxButton* ButtonStart;
-        wxMenuItem* MenuEditConfig;
+        wxMenuItem* MenuUpdate;
+        wxPanel* Panel1;
         wxStaticText* OutputText;
-        wxFlexGridSizer* MouseSizer;
+        wxStaticText* StaticText1;
+        wxStaticText* StaticText2;
+        wxStaticText* StaticText3;
+        wxStaticText* StaticText4;
+        wxStaticText* StaticText5;
+        wxStatusBar* StatusBar1;
         //*)
 
         wxLocale* locale;
