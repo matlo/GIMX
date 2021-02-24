@@ -316,6 +316,8 @@ class configFrame: public wxFrame
         static const long ID_MENUITEMDFPS2;
         static const long ID_MENUITEMDFPPS2;
         static const long ID_MENUITEMGTFPS2;
+        static const long ID_MENUITEMG920XONE;
+        static const long ID_MENUITEMSWITCH;
         static const long ID_MENUITEM8;
         static const long ID_MENUITEM9;
         static const long ID_MENUITEM10;
@@ -497,6 +499,8 @@ class configFrame: public wxFrame
         wxStaticText* StaticTextShapePanelAxis;
         wxStaticText* MouseOptionsId;
         wxMenuItem* MenuItemGtfPs2;
+        wxMenuItem* MenuItemG920XOne;
+        wxMenuItem* MenuItemSwitch;
         wxStaticText* StaticText12;
         wxStaticText* ButtonTabDeviceName;
         wxStaticText* FFBTweaksId;
@@ -545,7 +549,7 @@ class configFrame: public wxFrame
         unsigned int grid3mod;
         unsigned int grid4mod;
         unsigned int gridJoystickCorrectionsMod;
-        
+
         wxString default_directory;
 
         string buttonTabDeviceName;

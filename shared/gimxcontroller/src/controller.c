@@ -25,6 +25,10 @@ const char * controller_get_name(e_controller_type type)
 {
   if(type < C_TYPE_MAX)
   {
+    if (controllers[type] == NULL)
+    {
+      return "none";
+    }
     return controllers[type]->name;
   }
   return "none";
@@ -34,6 +38,10 @@ e_controller_type controller_get_type(const char* name)
 {
   int type;
   for(type = 0; type < C_TYPE_MAX; ++type) {
+    if (controllers[type] == NULL)
+    {
+      continue;
+    }
     if(!strcmp(controllers[type]->name, name)) {
       return type;
     }
