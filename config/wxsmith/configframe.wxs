@@ -61,7 +61,7 @@
 																		<option>1</option>
 																	</object>
 																</object>
-																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<flag>wxALL|wxEXPAND</flag>
 																<border>5</border>
 																<option>1</option>
 															</object>
@@ -86,7 +86,7 @@
 																		<option>1</option>
 																	</object>
 																</object>
-																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<flag>wxALL|wxEXPAND</flag>
 																<border>5</border>
 																<option>1</option>
 															</object>
@@ -125,10 +125,11 @@
 																<option>1</option>
 															</object>
 															<object class="sizeritem">
-																<object class="wxSpinCtrl" name="ID_SPINCTRL5" variable="ProfileTriggerDelay" member="yes">
+																<object class="wxTextCtrl" name="ID_TEXTCTRL6" variable="ProfileTriggerDelay" member="yes">
 																	<value>0</value>
-																	<max>1000</max>
-																	<size>65,-1</size>
+																	<size>50,-1</size>
+																	<tooltip>Trigger delay [0..1000]</tooltip>
+																	<handler function="OnTextCtrl" entry="EVT_TEXT" />
 																</object>
 																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																<border>5</border>
@@ -153,7 +154,7 @@
 																<option>1</option>
 															</object>
 														</object>
-														<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+														<flag>wxALL|wxEXPAND</flag>
 														<border>5</border>
 														<option>1</option>
 													</object>
@@ -217,7 +218,7 @@
 																		<option>1</option>
 																	</object>
 																</object>
-																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<flag>wxALL|wxEXPAND</flag>
 																<border>5</border>
 																<option>1</option>
 															</object>
@@ -243,7 +244,7 @@
 																		<option>1</option>
 																	</object>
 																</object>
-																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<flag>wxALL|wxEXPAND</flag>
 																<border>5</border>
 																<option>1</option>
 															</object>
@@ -282,7 +283,7 @@
 																		<option>1</option>
 																	</object>
 																</object>
-																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<flag>wxALL|wxEXPAND</flag>
 																<border>5</border>
 																<option>1</option>
 															</object>
@@ -314,7 +315,7 @@
 																			<object class="sizeritem">
 																				<object class="wxTextCtrl" name="ID_TEXTCTRL7" variable="MouseOptionsBuffer" member="yes">
 																					<value>1</value>
-																					<size>27,-1</size>
+																					<size>35,-1</size>
 																					<tooltip>Buffer size [1..30]</tooltip>
 																					<handler function="OnTextCtrl" entry="EVT_TEXT" />
 																				</object>
@@ -325,7 +326,7 @@
 																			<object class="sizeritem">
 																				<object class="wxTextCtrl" name="ID_TEXTCTRL11" variable="MouseOptionsFilter" member="yes">
 																					<value>0.00</value>
-																					<size>41,-1</size>
+																					<size>50,-1</size>
 																					<tooltip>Filter [0.00..1.00]</tooltip>
 																					<handler function="OnTextCtrl" entry="EVT_TEXT" />
 																				</object>
@@ -365,7 +366,7 @@
 																	</collabels>
 																	<style>wxVSCROLL</style>
 																</object>
-																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<flag>wxALL|wxEXPAND</flag>
 																<border>5</border>
 															</object>
 															<object class="sizeritem">
@@ -405,7 +406,7 @@
 																<option>1</option>
 															</object>
 														</object>
-														<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+														<flag>wxALL|wxEXPAND</flag>
 														<border>5</border>
 														<option>1</option>
 													</object>
@@ -497,7 +498,7 @@
 																				<option>1</option>
 																			</object>
 																		</object>
-																		<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<flag>wxALL|wxEXPAND</flag>
 																		<border>5</border>
 																		<option>1</option>
 																	</object>
@@ -522,7 +523,7 @@
 																				<option>1</option>
 																			</object>
 																		</object>
-																		<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<flag>wxALL|wxEXPAND</flag>
 																		<border>5</border>
 																		<option>1</option>
 																	</object>
@@ -548,7 +549,7 @@
 																				<option>1</option>
 																			</object>
 																		</object>
-																		<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<flag>wxALL|wxEXPAND</flag>
 																		<border>5</border>
 																		<option>1</option>
 																	</object>
@@ -611,10 +612,11 @@
 																				<option>1</option>
 																			</object>
 																			<object class="sizeritem">
-																				<object class="wxSpinCtrl" name="ID_SPINCTRL6" variable="IntensityDeadZone" member="yes">
+																				<object class="wxTextCtrl" name="ID_TEXTCTRL12" variable="IntensityDeadZone" member="yes">
 																					<value>32</value>
-																					<max>127</max>
 																					<size>50,-1</size>
+																					<tooltip>Dead zone [0..64]</tooltip>
+																					<handler function="OnTextCtrl" entry="EVT_TEXT" />
 																				</object>
 																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																				<border>5</border>
@@ -627,18 +629,17 @@
 																				<option>1</option>
 																			</object>
 																			<object class="sizeritem">
-																				<object class="wxSpinCtrl" name="ID_SPINCTRL7" variable="IntensitySteps" member="yes">
+																				<object class="wxTextCtrl" name="ID_TEXTCTRL13" variable="IntensitySteps" member="yes">
 																					<value>3</value>
-																					<min>1</min>
-																					<max>127</max>
 																					<size>50,-1</size>
+																					<handler function="OnTextCtrl" entry="EVT_TEXT" />
 																				</object>
 																				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																				<border>5</border>
 																				<option>1</option>
 																			</object>
 																		</object>
-																		<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<flag>wxALL|wxEXPAND</flag>
 																		<border>5</border>
 																		<option>1</option>
 																	</object>
@@ -668,7 +669,7 @@
 																			</collabels>
 																			<style>wxVSCROLL</style>
 																		</object>
-																		<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																		<flag>wxALL|wxEXPAND</flag>
 																		<border>5</border>
 																	</object>
 																	<object class="sizeritem">
@@ -708,12 +709,12 @@
 																		<option>1</option>
 																	</object>
 																</object>
-																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<flag>wxALL|wxEXPAND</flag>
 																<border>5</border>
 																<option>1</option>
 															</object>
 														</object>
-														<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+														<flag>wxALL|wxEXPAND</flag>
 														<border>5</border>
 														<option>1</option>
 													</object>
@@ -768,7 +769,7 @@
 																		<option>1</option>
 																	</object>
 																</object>
-																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<flag>wxALL|wxEXPAND</flag>
 																<border>5</border>
 																<option>1</option>
 															</object>
@@ -793,7 +794,7 @@
 																		<option>1</option>
 																	</object>
 																</object>
-																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<flag>wxALL|wxEXPAND</flag>
 																<border>5</border>
 																<option>1</option>
 															</object>
@@ -819,7 +820,7 @@
 																		<option>1</option>
 																	</object>
 																</object>
-																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<flag>wxALL|wxEXPAND</flag>
 																<border>5</border>
 																<option>1</option>
 															</object>
@@ -926,7 +927,7 @@
 																	</collabels>
 																	<style>wxVSCROLL</style>
 																</object>
-																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<flag>wxALL|wxEXPAND</flag>
 																<border>5</border>
 															</object>
 															<object class="sizeritem">
@@ -966,7 +967,7 @@
 																<option>1</option>
 															</object>
 														</object>
-														<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+														<flag>wxALL|wxEXPAND</flag>
 														<border>5</border>
 														<option>1</option>
 													</object>
@@ -1030,7 +1031,7 @@
 																		<option>1</option>
 																	</object>
 																</object>
-																<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<flag>wxALL|wxEXPAND</flag>
 																<border>5</border>
 																<option>1</option>
 															</object>
@@ -1103,44 +1104,44 @@
 																		<option>1</option>
 																	</object>
 																	<object class="sizeritem">
-																		<object class="wxSpinCtrl" name="ID_SPINCTRL4" variable="FFBTweaksRumbleGain" member="yes">
+																		<object class="wxTextCtrl" name="ID_TEXTCTRL14" variable="FFBTweaksRumbleGain" member="yes">
 																			<value>100</value>
-																			<min>-1000</min>
-																			<max>1000</max>
 																			<size>55,-1</size>
+																			<tooltip>[-1000..1000]</tooltip>
+																			<handler function="OnTextCtrl" entry="EVT_TEXT" />
 																		</object>
 																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																		<border>5</border>
 																		<option>1</option>
 																	</object>
 																	<object class="sizeritem">
-																		<object class="wxSpinCtrl" name="ID_SPINCTRL3" variable="FFBTweaksConstantGain" member="yes">
+																		<object class="wxTextCtrl" name="ID_TEXTCTRL16" variable="FFBTweaksConstantGain" member="yes">
 																			<value>100</value>
-																			<min>-1000</min>
-																			<max>1000</max>
 																			<size>55,-1</size>
+																			<tooltip>[-1000..1000]</tooltip>
+																			<handler function="OnTextCtrl" entry="EVT_TEXT" />
 																		</object>
 																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																		<border>5</border>
 																		<option>1</option>
 																	</object>
 																	<object class="sizeritem">
-																		<object class="wxSpinCtrl" name="ID_SPINCTRL2" variable="FFBTweaksSpringGain" member="yes">
+																		<object class="wxTextCtrl" name="ID_TEXTCTRL15" variable="FFBTweaksSpringGain" member="yes">
 																			<value>100</value>
-																			<min>-1000</min>
-																			<max>1000</max>
 																			<size>55,-1</size>
+																			<tooltip>[-1000..1000]</tooltip>
+																			<handler function="OnTextCtrl" entry="EVT_TEXT" />
 																		</object>
 																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																		<border>5</border>
 																		<option>1</option>
 																	</object>
 																	<object class="sizeritem">
-																		<object class="wxSpinCtrl" name="ID_SPINCTRL1" variable="FFBTweaksDamperGain" member="yes">
+																		<object class="wxTextCtrl" name="ID_TEXTCTRL17" variable="FFBTweaksDamperGain" member="yes">
 																			<value>100</value>
-																			<min>-1000</min>
-																			<max>1000</max>
 																			<size>55,-1</size>
+																			<tooltip>[-1000..1000]</tooltip>
+																			<handler function="OnTextCtrl" entry="EVT_TEXT" />
 																		</object>
 																		<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																		<border>5</border>
@@ -1179,7 +1180,7 @@
 											<label>Force Feedback Tweaks</label>
 										</object>
 									</object>
-									<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+									<flag>wxALL|wxEXPAND</flag>
 									<border>5</border>
 									<option>1</option>
 								</object>
@@ -1233,7 +1234,7 @@
 													<option>1</option>
 												</object>
 											</object>
-											<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+											<flag>wxALL|wxEXPAND</flag>
 											<border>5</border>
 											<option>1</option>
 										</object>
@@ -1272,7 +1273,7 @@
 													<option>1</option>
 												</object>
 											</object>
-											<flag>wxALL|wxEXPAND|wxFIXED_MINSIZE|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+											<flag>wxALL|wxEXPAND|wxFIXED_MINSIZE</flag>
 											<border>5</border>
 											<option>1</option>
 										</object>
@@ -1298,7 +1299,7 @@
 													<option>1</option>
 												</object>
 											</object>
-											<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+											<flag>wxALL|wxEXPAND</flag>
 											<border>5</border>
 											<option>1</option>
 										</object>
@@ -1366,7 +1367,7 @@
 													<option>1</option>
 												</object>
 											</object>
-											<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+											<flag>wxALL|wxEXPAND</flag>
 											<border>5</border>
 											<option>1</option>
 										</object>
@@ -1398,7 +1399,7 @@
 													<option>1</option>
 												</object>
 											</object>
-											<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+											<flag>wxALL|wxEXPAND</flag>
 											<border>5</border>
 											<option>1</option>
 										</object>
@@ -1429,7 +1430,7 @@
 												</collabels>
 												<style>wxVSCROLL</style>
 											</object>
-											<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+											<flag>wxALL|wxEXPAND</flag>
 											<border>5</border>
 										</object>
 										<object class="sizeritem">
@@ -1469,7 +1470,7 @@
 											<option>1</option>
 										</object>
 									</object>
-									<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+									<flag>wxALL|wxEXPAND</flag>
 									<border>5</border>
 									<option>1</option>
 								</object>
@@ -1524,7 +1525,7 @@
 													<option>1</option>
 												</object>
 											</object>
-											<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+											<flag>wxALL|wxEXPAND</flag>
 											<border>5</border>
 											<option>1</option>
 										</object>
@@ -1562,7 +1563,7 @@
 													<option>1</option>
 												</object>
 											</object>
-											<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+											<flag>wxALL|wxEXPAND</flag>
 											<border>5</border>
 											<option>1</option>
 										</object>
@@ -1589,7 +1590,7 @@
 													<option>1</option>
 												</object>
 											</object>
-											<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+											<flag>wxALL|wxEXPAND</flag>
 											<border>5</border>
 											<option>1</option>
 										</object>
@@ -1624,7 +1625,7 @@
 													<option>1</option>
 												</object>
 											</object>
-											<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+											<flag>wxALL|wxEXPAND</flag>
 											<border>5</border>
 											<option>1</option>
 										</object>
@@ -1725,7 +1726,7 @@
 													<option>1</option>
 												</object>
 											</object>
-											<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+											<flag>wxALL|wxEXPAND</flag>
 											<border>5</border>
 											<option>1</option>
 										</object>
@@ -1757,7 +1758,7 @@
 													<option>1</option>
 												</object>
 											</object>
-											<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+											<flag>wxALL|wxEXPAND</flag>
 											<border>5</border>
 											<option>1</option>
 										</object>
@@ -1793,7 +1794,7 @@
 												</collabels>
 												<style>wxVSCROLL</style>
 											</object>
-											<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+											<flag>wxALL|wxEXPAND</flag>
 											<border>5</border>
 										</object>
 										<object class="sizeritem">
@@ -1833,7 +1834,7 @@
 											<option>1</option>
 										</object>
 									</object>
-									<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+									<flag>wxALL|wxEXPAND</flag>
 									<border>5</border>
 									<option>1</option>
 								</object>
@@ -1842,7 +1843,7 @@
 						<label>Axis</label>
 					</object>
 				</object>
-				<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+				<flag>wxALL|wxEXPAND</flag>
 				<border>5</border>
 				<option>1</option>
 			</object>

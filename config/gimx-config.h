@@ -17,7 +17,6 @@
 #include <wx/notebook.h>
 #include <wx/panel.h>
 #include <wx/sizer.h>
-#include <wx/spinctrl.h>
 #include <wx/statline.h>
 #include <wx/stattext.h>
 #include <wx/statusbr.h>
@@ -88,7 +87,6 @@ class configFrame: public wxFrame
         void OnMenuItemConfiguration(wxCommandEvent& event);
         void OnChoice1Select(wxCommandEvent& event);
         void OnIntensityAutoDetectClick(wxCommandEvent& event);
-        void OnIntensityDeadZoneChange(wxSpinEvent& event);
         void OnIntensityModifyClick(wxCommandEvent& event);
         void OnIntensityAddClick(wxCommandEvent& event);
         void OnIntensityRemoveClick(wxCommandEvent& event);
@@ -148,7 +146,7 @@ class configFrame: public wxFrame
         static const long ID_STATICLINE5;
         static const long ID_CHECKBOX1;
         static const long ID_STATICTEXT28;
-        static const long ID_SPINCTRL5;
+        static const long ID_TEXTCTRL6;
         static const long ID_STATICLINE6;
         static const long ID_BUTTON10;
         static const long ID_PANEL4;
@@ -185,9 +183,9 @@ class configFrame: public wxFrame
         static const long ID_STATICTEXT1;
         static const long ID_STATICTEXT54;
         static const long ID_CHOICE9;
-        static const long ID_SPINCTRL6;
+        static const long ID_TEXTCTRL12;
         static const long ID_CHOICE2;
-        static const long ID_SPINCTRL7;
+        static const long ID_TEXTCTRL13;
         static const long ID_GRID3;
         static const long ID_BUTTON21;
         static const long ID_BUTTON22;
@@ -222,10 +220,10 @@ class configFrame: public wxFrame
         static const long ID_STATICTEXT33;
         static const long ID_STATICTEXT48;
         static const long ID_CHECKBOX2;
-        static const long ID_SPINCTRL4;
-        static const long ID_SPINCTRL3;
-        static const long ID_SPINCTRL2;
-        static const long ID_SPINCTRL1;
+        static const long ID_TEXTCTRL14;
+        static const long ID_TEXTCTRL16;
+        static const long ID_TEXTCTRL15;
+        static const long ID_TEXTCTRL17;
         static const long ID_STATICLINE15;
         static const long ID_BUTTON24;
         static const long ID_PANEL8;
@@ -437,13 +435,6 @@ class configFrame: public wxFrame
         wxPanel* PanelMouseOptions;
         wxPanel* PanelOverall;
         wxPanel* PanelTrigger;
-        wxSpinCtrl* FFBTweaksConstantGain;
-        wxSpinCtrl* FFBTweaksDamperGain;
-        wxSpinCtrl* FFBTweaksRumbleGain;
-        wxSpinCtrl* FFBTweaksSpringGain;
-        wxSpinCtrl* IntensityDeadZone;
-        wxSpinCtrl* IntensitySteps;
-        wxSpinCtrl* ProfileTriggerDelay;
         wxStaticLine* StaticLine10;
         wxStaticLine* StaticLine11;
         wxStaticLine* StaticLine12;
@@ -520,12 +511,19 @@ class configFrame: public wxFrame
         wxTextCtrl* AxisTabDeadZone;
         wxTextCtrl* AxisTabSensitivity;
         wxTextCtrl* ButtonTabThreshold;
+        wxTextCtrl* FFBTweaksConstantGain;
+        wxTextCtrl* FFBTweaksDamperGain;
+        wxTextCtrl* FFBTweaksRumbleGain;
+        wxTextCtrl* FFBTweaksSpringGain;
+        wxTextCtrl* IntensityDeadZone;
+        wxTextCtrl* IntensitySteps;
         wxTextCtrl* JoystickCorrectionsHighCoef;
         wxTextCtrl* JoystickCorrectionsHighValue;
         wxTextCtrl* JoystickCorrectionsLowCoef;
         wxTextCtrl* JoystickCorrectionsLowValue;
         wxTextCtrl* MouseOptionsBuffer;
         wxTextCtrl* MouseOptionsFilter;
+        wxTextCtrl* ProfileTriggerDelay;
         //*)
 
         wxLocale* locale;

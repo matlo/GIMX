@@ -388,7 +388,7 @@ void XmlReader::ProcessTriggerElement(xmlNode * a_node)
     string device_name;
     string button_id;
     string switch_back;
-    unsigned short delay;
+    string delay;
     char * prop;
 
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_TYPE);
@@ -412,14 +412,7 @@ void XmlReader::ProcessTriggerElement(xmlNode * a_node)
     xmlFree(prop);
 
     prop = (char*)xmlGetProp(a_node, (xmlChar*) X_ATTR_DELAY);
-    if(prop)
-    {
-        delay = atoi(prop);
-    }
-    else
-    {
-        delay = 0;
-    }
+    delay = string(prop?prop:"0");
     xmlFree(prop);
 
     m_TempTrigger.SetDevice(Device(device_type, device_id, device_name));

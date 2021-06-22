@@ -1302,7 +1302,7 @@ void fpsconfigFrame::save_current(ConfigurationFile& config)
         config.GetController(0)->GetProfile(1)->GetTrigger()->GetDevice()->SetId(defaultMouseId);
         config.GetController(0)->GetProfile(1)->GetTrigger()->GetEvent()->SetId("BUTTON_RIGHT");
         config.GetController(0)->GetProfile(1)->GetTrigger()->SetSwitchBack("yes");
-        config.GetController(0)->GetProfile(1)->GetTrigger()->SetDelay(0);
+        config.GetController(0)->GetProfile(1)->GetTrigger()->SetDelay("0");
     }
     //Save ButtonMappers
     ButtonMappers = config.GetController(0)->GetProfile(1)->GetButtonMapperList();

@@ -53,7 +53,7 @@ const long configFrame::ID_BUTTON1 = wxNewId();
 const long configFrame::ID_STATICLINE5 = wxNewId();
 const long configFrame::ID_CHECKBOX1 = wxNewId();
 const long configFrame::ID_STATICTEXT28 = wxNewId();
-const long configFrame::ID_SPINCTRL5 = wxNewId();
+const long configFrame::ID_TEXTCTRL6 = wxNewId();
 const long configFrame::ID_STATICLINE6 = wxNewId();
 const long configFrame::ID_BUTTON10 = wxNewId();
 const long configFrame::ID_PANEL4 = wxNewId();
@@ -90,9 +90,9 @@ const long configFrame::ID_STATICTEXT53 = wxNewId();
 const long configFrame::ID_STATICTEXT1 = wxNewId();
 const long configFrame::ID_STATICTEXT54 = wxNewId();
 const long configFrame::ID_CHOICE9 = wxNewId();
-const long configFrame::ID_SPINCTRL6 = wxNewId();
+const long configFrame::ID_TEXTCTRL12 = wxNewId();
 const long configFrame::ID_CHOICE2 = wxNewId();
-const long configFrame::ID_SPINCTRL7 = wxNewId();
+const long configFrame::ID_TEXTCTRL13 = wxNewId();
 const long configFrame::ID_GRID3 = wxNewId();
 const long configFrame::ID_BUTTON21 = wxNewId();
 const long configFrame::ID_BUTTON22 = wxNewId();
@@ -127,10 +127,10 @@ const long configFrame::ID_STATICTEXT29 = wxNewId();
 const long configFrame::ID_STATICTEXT33 = wxNewId();
 const long configFrame::ID_STATICTEXT48 = wxNewId();
 const long configFrame::ID_CHECKBOX2 = wxNewId();
-const long configFrame::ID_SPINCTRL4 = wxNewId();
-const long configFrame::ID_SPINCTRL3 = wxNewId();
-const long configFrame::ID_SPINCTRL2 = wxNewId();
-const long configFrame::ID_SPINCTRL1 = wxNewId();
+const long configFrame::ID_TEXTCTRL14 = wxNewId();
+const long configFrame::ID_TEXTCTRL16 = wxNewId();
+const long configFrame::ID_TEXTCTRL15 = wxNewId();
+const long configFrame::ID_TEXTCTRL17 = wxNewId();
 const long configFrame::ID_STATICLINE15 = wxNewId();
 const long configFrame::ID_BUTTON24 = wxNewId();
 const long configFrame::ID_PANEL8 = wxNewId();
@@ -704,7 +704,7 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     Notebook2 = new wxNotebook(PanelOverall, ID_NOTEBOOK2, wxDefaultPosition, wxDefaultSize, 0, _T("ID_NOTEBOOK2"));
     PanelTrigger = new wxPanel(Notebook2, ID_PANEL4, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL4"));
     FlexGridSizer13 = new wxFlexGridSizer(1, 1, 0, 0);
-    FlexGridSizer17 = new wxFlexGridSizer(1, 10, 0, 0);
+    FlexGridSizer17 = new wxFlexGridSizer(1, 9, 0, 0);
     StaticBoxSizer9 = new wxStaticBoxSizer(wxHORIZONTAL, PanelTrigger, _("Device"));
     FlexGridSizer23 = new wxFlexGridSizer(1, 3, 0, 0);
     ProfileTriggerDeviceType = new wxStaticText(PanelTrigger, ID_STATICTEXT35, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT35"));
@@ -730,8 +730,8 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     FlexGridSizer17->Add(CheckBoxSwitchBack, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticTextDelayPanelOverall = new wxStaticText(PanelTrigger, ID_STATICTEXT28, _("Delay (ms):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT28"));
     FlexGridSizer17->Add(StaticTextDelayPanelOverall, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    ProfileTriggerDelay = new wxSpinCtrl(PanelTrigger, ID_SPINCTRL5, _T("0"), wxDefaultPosition, wxDefaultSize, 0, 0, 1000, 0, _T("ID_SPINCTRL5"));
-    ProfileTriggerDelay->SetValue(_T("0"));
+    ProfileTriggerDelay = new wxTextCtrl(PanelTrigger, ID_TEXTCTRL6, _("0"), wxDefaultPosition, wxSize(50,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL6"));
+    ProfileTriggerDelay->SetToolTip(_("Trigger delay [0..1000]"));
     FlexGridSizer17->Add(ProfileTriggerDelay, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticLine6 = new wxStaticLine(PanelTrigger, ID_STATICLINE6, wxDefaultPosition, wxSize(-1,50), wxLI_VERTICAL, _T("ID_STATICLINE6"));
     FlexGridSizer17->Add(StaticLine6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -780,10 +780,10 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     StaticText24 = new wxStaticText(PanelMouseOptions, ID_STATICTEXT26, _("Smoothing"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT26"));
     FlexGridSizer36->Add(StaticText24, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer41 = new wxFlexGridSizer(1, 2, 0, 0);
-    MouseOptionsBuffer = new wxTextCtrl(PanelMouseOptions, ID_TEXTCTRL7, _("1"), wxDefaultPosition, wxSize(27,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL7"));
+    MouseOptionsBuffer = new wxTextCtrl(PanelMouseOptions, ID_TEXTCTRL7, _("1"), wxDefaultPosition, wxSize(35,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL7"));
     MouseOptionsBuffer->SetToolTip(_("Buffer size [1..30]"));
     FlexGridSizer41->Add(MouseOptionsBuffer, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    MouseOptionsFilter = new wxTextCtrl(PanelMouseOptions, ID_TEXTCTRL11, _("0.00"), wxDefaultPosition, wxSize(41,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL11"));
+    MouseOptionsFilter = new wxTextCtrl(PanelMouseOptions, ID_TEXTCTRL11, _("0.00"), wxDefaultPosition, wxSize(50,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL11"));
     MouseOptionsFilter->SetToolTip(_("Filter [0.00..1.00]"));
     FlexGridSizer41->Add(MouseOptionsFilter, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer36->Add(FlexGridSizer41, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -864,13 +864,12 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     IntensityDirection->Append(_("Increase"));
     IntensityDirection->SetSelection( IntensityDirection->Append(_("Decrease")) );
     FlexGridSizer25->Add(IntensityDirection, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    IntensityDeadZone = new wxSpinCtrl(PanelIntensity, ID_SPINCTRL6, _T("32"), wxDefaultPosition, wxSize(50,-1), 0, 0, 127, 32, _T("ID_SPINCTRL6"));
-    IntensityDeadZone->SetValue(_T("32"));
+    IntensityDeadZone = new wxTextCtrl(PanelIntensity, ID_TEXTCTRL12, _("32"), wxDefaultPosition, wxSize(50,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL12"));
+    IntensityDeadZone->SetToolTip(_("Dead zone [0..64]"));
     FlexGridSizer25->Add(IntensityDeadZone, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     IntensityShape = new wxChoice(PanelIntensity, ID_CHOICE2, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE2"));
     FlexGridSizer25->Add(IntensityShape, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    IntensitySteps = new wxSpinCtrl(PanelIntensity, ID_SPINCTRL7, _T("3"), wxDefaultPosition, wxSize(50,-1), 0, 1, 127, 3, _T("ID_SPINCTRL7"));
-    IntensitySteps->SetValue(_T("3"));
+    IntensitySteps = new wxTextCtrl(PanelIntensity, ID_TEXTCTRL13, _("3"), wxDefaultPosition, wxSize(50,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL13"));
     FlexGridSizer25->Add(IntensitySteps, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer20->Add(FlexGridSizer25, 1, wxALL|wxEXPAND, 5);
     FlexGridSizer19->Add(FlexGridSizer20, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -1013,17 +1012,17 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     FFBTweaksInvert = new wxCheckBox(PanelForceFeedback, ID_CHECKBOX2, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX2"));
     FFBTweaksInvert->SetValue(false);
     FlexGridSizer56->Add(FFBTweaksInvert, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FFBTweaksRumbleGain = new wxSpinCtrl(PanelForceFeedback, ID_SPINCTRL4, _T("100"), wxDefaultPosition, wxSize(55,-1), 0, -1000, 1000, 100, _T("ID_SPINCTRL4"));
-    FFBTweaksRumbleGain->SetValue(_T("100"));
+    FFBTweaksRumbleGain = new wxTextCtrl(PanelForceFeedback, ID_TEXTCTRL14, _("100"), wxDefaultPosition, wxSize(55,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL14"));
+    FFBTweaksRumbleGain->SetToolTip(_("[-1000..1000]"));
     FlexGridSizer56->Add(FFBTweaksRumbleGain, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FFBTweaksConstantGain = new wxSpinCtrl(PanelForceFeedback, ID_SPINCTRL3, _T("100"), wxDefaultPosition, wxSize(55,-1), 0, -1000, 1000, 100, _T("ID_SPINCTRL3"));
-    FFBTweaksConstantGain->SetValue(_T("100"));
+    FFBTweaksConstantGain = new wxTextCtrl(PanelForceFeedback, ID_TEXTCTRL16, _("100"), wxDefaultPosition, wxSize(55,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL16"));
+    FFBTweaksConstantGain->SetToolTip(_("[-1000..1000]"));
     FlexGridSizer56->Add(FFBTweaksConstantGain, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FFBTweaksSpringGain = new wxSpinCtrl(PanelForceFeedback, ID_SPINCTRL2, _T("100"), wxDefaultPosition, wxSize(55,-1), 0, -1000, 1000, 100, _T("ID_SPINCTRL2"));
-    FFBTweaksSpringGain->SetValue(_T("100"));
+    FFBTweaksSpringGain = new wxTextCtrl(PanelForceFeedback, ID_TEXTCTRL15, _("100"), wxDefaultPosition, wxSize(55,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL15"));
+    FFBTweaksSpringGain->SetToolTip(_("[-1000..1000]"));
     FlexGridSizer56->Add(FFBTweaksSpringGain, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    FFBTweaksDamperGain = new wxSpinCtrl(PanelForceFeedback, ID_SPINCTRL1, _T("100"), wxDefaultPosition, wxSize(55,-1), 0, -1000, 1000, 100, _T("ID_SPINCTRL1"));
-    FFBTweaksDamperGain->SetValue(_T("100"));
+    FFBTweaksDamperGain = new wxTextCtrl(PanelForceFeedback, ID_TEXTCTRL17, _("100"), wxDefaultPosition, wxSize(55,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL17"));
+    FFBTweaksDamperGain->SetToolTip(_("[-1000..1000]"));
     FlexGridSizer56->Add(FFBTweaksDamperGain, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer54->Add(FlexGridSizer56, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticLine15 = new wxStaticLine(PanelForceFeedback, ID_STATICLINE15, wxDefaultPosition, wxSize(-1,50), wxLI_VERTICAL, _T("ID_STATICLINE15"));
@@ -1377,6 +1376,7 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     GridSizer1->SetSizeHints(this);
 
     Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonAutoDetectClick);
+    Connect(ID_TEXTCTRL6,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
     Connect(ID_BUTTON10,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonDeleteTrigger);
     Connect(ID_BUTTON11,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnMouseOptionsAutoDetectClick);
     Connect(ID_TEXTCTRL7,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
@@ -1386,6 +1386,8 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     Connect(ID_BUTTON14,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnMouseOptionsModifyClick);
     Connect(ID_CHOICE6,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&configFrame::OnIntensityAxisSelect);
     Connect(ID_BUTTON19,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnIntensityAutoDetectClick);
+    Connect(ID_TEXTCTRL12,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
+    Connect(ID_TEXTCTRL13,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
     Connect(ID_BUTTON21,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnIntensityAddClick);
     Connect(ID_BUTTON22,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnIntensityRemoveClick);
     Connect(ID_BUTTON23,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnIntensityModifyClick);
@@ -1398,6 +1400,10 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     Connect(ID_BUTTON17,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnJoystickCorrectionsRemoveClick);
     Connect(ID_BUTTON18,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnJoystickCorrectionsModifyClick);
     Connect(ID_BUTTON20,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonForceFeedbackAutoDetect);
+    Connect(ID_TEXTCTRL14,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
+    Connect(ID_TEXTCTRL16,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
+    Connect(ID_TEXTCTRL15,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
+    Connect(ID_TEXTCTRL17,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
     Connect(ID_BUTTON24,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonFFBTweaksDelete);
     Connect(ID_CHOICE4,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&configFrame::OnButtonTabEventTypeSelect);
     Connect(ID_BUTTON8,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonTabAutoDetectClick);
@@ -2280,7 +2286,7 @@ void configFrame::save_current()
     profile->GetTrigger()->GetDevice()->SetId(string(ProfileTriggerDeviceId->GetLabel().mb_str(wxConvUTF8)));
     profile->GetTrigger()->GetEvent()->SetId(string(ProfileTriggerButtonId->GetLabel().mb_str(wxConvUTF8)));
     profile->GetTrigger()->SetSwitchBack(string(CheckBoxSwitchBack->GetValue()?"yes":"no"));
-    profile->GetTrigger()->SetDelay(ProfileTriggerDelay->GetValue());
+    profile->GetTrigger()->SetDelay(string(ProfileTriggerDelay->GetValue().mb_str(wxConvUTF8)));
     //Save MouseOptions
     mouseOptionsList = profile->GetMouseOptionsList();
     mouseOptionsList->erase(mouseOptionsList->begin(), mouseOptionsList->end());
@@ -3543,20 +3549,6 @@ void configFrame::OnIntensityAutoDetectClick(wxCommandEvent& event __attribute__
 }
 
 /*
- * \brief Method called on Overall_Panel>IntensityDeadZone selection.
- */
-void configFrame::OnIntensityDeadZoneChange(wxSpinEvent& event __attribute__((unused)))
-{
-    int max = 127-IntensityDeadZone->GetValue();
-    if(max)
-    {
-        IntensitySteps->SetValue(IntensitySteps->GetValue()*IntensitySteps->GetMax()/max);
-        IntensitySteps->SetRange(1, max);
-    }
-    refresh_gui();
-}
-
-/*
  * \brief Method called on Edit>Set_Mouse_DPI. \
  *        It sets the mouse DPI for the current controller.
  */
@@ -3699,6 +3691,74 @@ void configFrame::OnTextCtrl(wxCommandEvent& event)
             text->SetValue(wxString::Format(wxT("%i"),INT_MAX));
         }
     }
+    else if(text == ProfileTriggerDelay)
+    {
+        if(!str.ToLong(&lvalue))
+        {
+            text->SetValue(wxT("0"));
+        }
+        else if(lvalue < 0)
+        {
+            text->SetValue(wxT("0"));
+        }
+        else if(lvalue > 1000)
+        {
+            text->SetValue(wxT("1000"));
+        }
+    }
+    else if(text == IntensityDeadZone)
+    {
+        if(!str.ToLong(&lvalue))
+        {
+            text->SetValue(wxT("0"));
+        }
+        else if(lvalue < 0)
+        {
+            text->SetValue(wxT("0"));
+        }
+        else if(lvalue > 64)
+        {
+            text->SetValue(wxT("64"));
+        }
+        wxCommandEvent evt;
+        evt.SetEventObject(IntensitySteps);
+        OnTextCtrl(evt);
+    }
+    else if(text == IntensitySteps)
+    {
+        int max = 127 - wxAtoi(IntensityDeadZone->GetValue());
+        if(!str.ToLong(&lvalue))
+        {
+            text->SetValue(wxT("1"));
+        }
+        else if(lvalue < 1)
+        {
+            text->SetValue(wxT("1"));
+        }
+        else if(lvalue > max)
+        {
+            text->SetValue(wxString::Format(wxT("%i"), max));
+        }
+    }
+    else if(text == FFBTweaksRumbleGain ||
+            text == FFBTweaksConstantGain ||
+            text == FFBTweaksSpringGain ||
+            text == FFBTweaksDamperGain)
+    {
+        if(!str.ToLong(&lvalue))
+        {
+            text->SetValue(wxT("100"));
+        }
+        else if(lvalue < -1000)
+        {
+            text->SetValue(wxT("-1000"));
+        }
+        else if(lvalue > 1000)
+        {
+            text->SetValue(wxT("1000"));
+        }
+    }
+
 
     text->SetInsertionPoint(pos);
 }
@@ -3885,13 +3945,9 @@ void configFrame::OnIntensityAddClick(wxCommandEvent& event __attribute__((unuse
   GridIntensity->SetCellValue(0, 3, IntensityDeviceId->GetLabel());
   GridIntensity->SetCellValue(0, 4, IntensityButtonId->GetLabel());
   GridIntensity->SetCellValue(0, 5, IntensityDirection->GetStringSelection());
-  wxString dz;
-  dz << IntensityDeadZone->GetValue();
-  GridIntensity->SetCellValue(0, 6, dz);
+  GridIntensity->SetCellValue(0, 6, IntensityDeadZone->GetValue());
   GridIntensity->SetCellValue(0, 7, IntensityShape->GetStringSelection());
-  wxString steps;
-  steps << IntensitySteps->GetValue();
-  GridIntensity->SetCellValue(0, 8, steps);
+  GridIntensity->SetCellValue(0, 8, IntensitySteps->GetValue());
 
   GridIntensity->AutoSizeColumns();
   refresh_gui();
@@ -3981,9 +4037,9 @@ void configFrame::OnIntensityModifyClick(wxCommandEvent& event)
       IntensityDeviceId->SetLabel(GridIntensity->GetCellValue(grid3mod, 3));
       IntensityButtonId->SetLabel(GridIntensity->GetCellValue(grid3mod, 4));
       IntensityDirection->SetSelection(IntensityDirection->FindString(GridIntensity->GetCellValue(grid3mod, 5)));
-      IntensityDeadZone->SetValue(wxAtoi(GridIntensity->GetCellValue(grid3mod, 6)));
+      IntensityDeadZone->SetValue(GridIntensity->GetCellValue(grid3mod, 6));
       IntensityShape->SetSelection(IntensityShape->FindString(GridIntensity->GetCellValue(grid3mod, 7)));
-      IntensitySteps->SetValue(wxAtoi(GridIntensity->GetCellValue(grid3mod, 8)));
+      IntensitySteps->SetValue(GridIntensity->GetCellValue(grid3mod, 8));
       IntensityAdd->Disable();
       IntensityRemove->Disable();
       IntensityModify->SetLabel(_("Apply"));
@@ -4031,13 +4087,9 @@ void configFrame::OnIntensityModifyClick(wxCommandEvent& event)
       GridIntensity->SetCellValue(grid3mod, 3, IntensityDeviceId->GetLabel());
       GridIntensity->SetCellValue(grid3mod, 4, IntensityButtonId->GetLabel());
       GridIntensity->SetCellValue(grid3mod, 5, IntensityDirection->GetStringSelection());
-      wxString dz;
-      dz << IntensityDeadZone->GetValue();
-      GridIntensity->SetCellValue(grid3mod, 6, dz);
+      GridIntensity->SetCellValue(grid3mod, 6, IntensityDeadZone->GetValue());
       GridIntensity->SetCellValue(grid3mod, 7, IntensityShape->GetStringSelection());
-      wxString steps;
-      steps << IntensitySteps->GetValue();
-      GridIntensity->SetCellValue(grid3mod, 8, steps);
+      GridIntensity->SetCellValue(grid3mod, 8, IntensitySteps->GetValue());
 
       Intensity newI(
           Intensity::GetGenericAxisProps(controller->GetControllerType(), string(GridIntensity->GetCellValue(grid3mod, 0).mb_str(wxConvUTF8))),

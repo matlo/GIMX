@@ -109,8 +109,6 @@ void XmlWritter::CreateButtonMapNode(xmlNodePtr parent_node)
 
 void XmlWritter::CreateTriggerNode(xmlNodePtr parent_node)
 {
-    char delay[6];
-
     Trigger* trigger = m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentProfile)->GetTrigger();
 
     xmlNodePtr node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_TRIGGER, NULL);
@@ -125,8 +123,7 @@ void XmlWritter::CreateTriggerNode(xmlNodePtr parent_node)
 
     xmlNewProp(node, BAD_CAST X_ATTR_SWITCH_BACK, BAD_CAST (const char*) trigger->GetSwitchBack().c_str());
 
-    snprintf(delay, sizeof(delay), "%hu", trigger->GetDelay());
-    xmlNewProp(node, BAD_CAST X_ATTR_DELAY, BAD_CAST (const char*) delay);
+    xmlNewProp(node, BAD_CAST X_ATTR_DELAY, BAD_CAST (const char*) trigger->GetDelay().c_str());
 }
 
 void XmlWritter::CreateMouseOptionsNodes(xmlNodePtr parent_node)

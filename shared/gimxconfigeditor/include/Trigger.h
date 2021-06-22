@@ -13,7 +13,7 @@ class Trigger
 {
     public:
         Trigger();
-        Trigger(string dtype, string did, string dname, string eid, string switchback, unsigned short delay);
+        Trigger(string dtype, string did, string dname, string eid, string switchback, string delay);
         virtual ~Trigger();
         Trigger(const Trigger& other);
         Trigger& operator=(const Trigger& other);
@@ -24,14 +24,14 @@ class Trigger
         void SetEvent(Event val) { m_Event = val; }
         string GetSwitchBack() { return m_SwitchBack; }
         void SetSwitchBack(string val) { m_SwitchBack = val; }
-        unsigned short GetDelay() { return m_Delay; }
-        void SetDelay(unsigned short val) { m_Delay = val; }
+        string GetDelay() { return m_Delay; }
+        void SetDelay(string val) { m_Delay = val; }
     protected:
     private:
         Device m_Device;
         Event m_Event;
         string m_SwitchBack;
-        unsigned short m_Delay;
+        string m_Delay;
 };
 
 #endif // TRIGGER_H

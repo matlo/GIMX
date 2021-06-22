@@ -8,10 +8,9 @@
 Trigger::Trigger()
 {
     //ctor
-    m_Delay = 0;
 }
 
-Trigger::Trigger(string dtype, string did, string dname, string eid, string switchback, unsigned short delay):
+Trigger::Trigger(string dtype, string did, string dname, string eid, string switchback, string delay):
     m_Device(dtype, did, dname),
     m_Event(eid),
     m_SwitchBack(switchback),
