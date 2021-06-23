@@ -44,6 +44,11 @@ bool fpsconfigApp::OnInit()
 
 }
 
+int fpsconfigApp::OnExit()
+{
+  return 0;
+}
+
 void fpsconfigApp::OnInitCmdLine(wxCmdLineParser& parser)
 {
     parser.SetDesc (g_cmdLineDesc);
