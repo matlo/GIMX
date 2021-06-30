@@ -8,70 +8,6 @@
 			<pos>0,0</pos>
 			<size>-1,-1</size>
 			<bg>#FFFFFF</bg>
-			<object class="wxSpinCtrl" name="ID_SPINCTRL8" variable="SpinCtrlXyRatioADS" member="yes">
-				<value>100</value>
-				<min>-10000</min>
-				<max>10000</max>
-				<pos>486,352</pos>
-				<size>19,-1</size>
-				<handler function="OnSpinCtrlChange" entry="EVT_SPINCTRL" />
-			</object>
-			<object class="wxSpinCtrl" name="ID_SPINCTRL7" variable="SpinCtrlXyRatioHipFire" member="yes">
-				<value>100</value>
-				<min>-10000</min>
-				<max>10000</max>
-				<pos>486,320</pos>
-				<size>19,-1</size>
-				<handler function="OnSpinCtrlChange" entry="EVT_SPINCTRL" />
-			</object>
-			<object class="wxSpinCtrl" name="ID_SPINCTRL6" variable="SpinCtrlAccelerationADS" member="yes">
-				<value>100</value>
-				<min>-10000</min>
-				<max>10000</max>
-				<pos>418,352</pos>
-				<size>19,-1</size>
-				<handler function="OnSpinCtrlChange" entry="EVT_SPINCTRL" />
-			</object>
-			<object class="wxSpinCtrl" name="ID_SPINCTRL5" variable="SpinCtrlAccelerationHipFire" member="yes">
-				<value>100</value>
-				<min>-10000</min>
-				<max>10000</max>
-				<pos>418,320</pos>
-				<size>19,-1</size>
-				<handler function="OnSpinCtrlChange" entry="EVT_SPINCTRL" />
-			</object>
-			<object class="wxSpinCtrl" name="ID_SPINCTRL4" variable="SpinCtrlSensitivityADS" member="yes">
-				<value>100</value>
-				<min>-10000</min>
-				<max>10000</max>
-				<pos>360,352</pos>
-				<size>19,-1</size>
-				<handler function="OnSpinCtrlChange" entry="EVT_SPINCTRL" />
-			</object>
-			<object class="wxSpinCtrl" name="ID_SPINCTRL10" variable="SpinCtrlFilterHipFire" member="yes">
-				<value>0</value>
-				<min>-10000</min>
-				<max>10000</max>
-				<pos>588,320</pos>
-				<size>19,-1</size>
-				<handler function="OnSpinCtrlChange" entry="EVT_SPINCTRL" />
-			</object>
-			<object class="wxSpinCtrl" name="ID_SPINCTRL11" variable="SpinCtrlFilterADS" member="yes">
-				<value>0</value>
-				<min>-10000</min>
-				<max>10000</max>
-				<pos>588,352</pos>
-				<size>19,-1</size>
-				<handler function="OnSpinCtrlChange" entry="EVT_SPINCTRL" />
-			</object>
-			<object class="wxSpinCtrl" name="ID_SPINCTRL3" variable="SpinCtrlSensitivityHipFire" member="yes">
-				<value>100</value>
-				<min>-10000</min>
-				<max>10000</max>
-				<pos>360,320</pos>
-				<size>19,-1</size>
-				<handler function="OnSpinCtrlChange" entry="EVT_SPINCTRL" />
-			</object>
 			<object class="wxButton" name="ID_BUTTON10" variable="stickright" member="yes">
 				<pos>256,222</pos>
 				<size>50,-1</size>
@@ -80,89 +16,68 @@
 				</font>
 				<handler function="OnButtonClick" entry="EVT_BUTTON" />
 			</object>
-			<object class="wxSpinCtrl" name="ID_SPINCTRL13" variable="SpinCtrlBufferSizeHipFire" member="yes">
-				<value>1</value>
-				<min>1</min>
-				<max>30</max>
-				<pos>506,320</pos>
-				<size>44,-1</size>
-				<tooltip>Buffer size (Hip Fire)</tooltip>
-			</object>
-			<object class="wxSpinCtrl" name="ID_SPINCTRL14" variable="SpinCtrlBufferSizeADS" member="yes">
-				<value>1</value>
-				<min>1</min>
-				<max>30</max>
-				<pos>506,352</pos>
-				<size>44,-1</size>
-				<tooltip>Buffer size (ADS)</tooltip>
-			</object>
-			<object class="wxSpinCtrl" name="ID_SPINCTRL1" variable="SpinCtrlDeadZoneHipFire" member="yes">
-				<value>20</value>
-				<min>-64</min>
-				<max>64</max>
-				<pos>184,320</pos>
-				<size>44,-1</size>
-				<tooltip>Dead zone (Hip Fire)</tooltip>
-			</object>
-			<object class="wxSpinCtrl" name="ID_SPINCTRL2" variable="SpinCtrlDeadZoneADS" member="yes">
-				<value>20</value>
-				<min>-64</min>
-				<max>64</max>
-				<pos>184,352</pos>
-				<size>44,-1</size>
-				<tooltip>Dead zone (ADS)</tooltip>
-			</object>
 			<object class="wxTextCtrl" name="ID_TEXTCTRL24" variable="TextCtrlSensitivityADS" member="yes">
-				<pos>312,352</pos>
-				<size>50,-1</size>
+				<pos>309,352</pos>
+				<size>64,27</size>
 				<tooltip>Sensitivity (ADS)</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
-				<handler function="OnTextCtrlText" entry="EVT_TEXT_ENTER" />
 			</object>
 			<object class="wxTextCtrl" name="ID_TEXTCTRL4" variable="TextCtrlSensitivityHipFire" member="yes">
-				<pos>312,320</pos>
-				<size>50,-1</size>
+				<pos>309,320</pos>
+				<size>64,27</size>
 				<tooltip>Sensitivity (Hip Fire)</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
-				<handler function="OnTextCtrlText" entry="EVT_TEXT_ENTER" />
 			</object>
 			<object class="wxTextCtrl" name="ID_TEXTCTRL26" variable="TextCtrlAccelerationADS" member="yes">
 				<pos>380,352</pos>
-				<size>40,-1</size>
-				<tooltip>Acceleration (ADS)</tooltip>
+				<size>48,27</size>
+				<tooltip>Acceleration (ADS) [0.00..2.00]</tooltip>
+				<style>wxTE_PROCESS_ENTER</style>
+				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
+			</object>
+			<object class="wxTextCtrl" name="ID_TEXTCTRL8" variable="TextCtrlBufferSizeHipFire" member="yes">
+				<pos>492,320</pos>
+				<size>35,-1</size>
+				<tooltip>Buffer size (Hip Fire) [1..30]</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
 				<handler function="OnTextCtrlText" entry="EVT_TEXT_ENTER" />
 			</object>
 			<object class="wxTextCtrl" name="ID_TEXTCTRL2" variable="TextCtrlFilterHipFire" member="yes">
-				<pos>550,320</pos>
-				<size>40,-1</size>
-				<tooltip>Filter (Hip Fire)</tooltip>
+				<pos>532,320</pos>
+				<size>48,-1</size>
+				<tooltip>Filter (Hip Fire) [0.00..1.00]</tooltip>
+				<style>wxTE_PROCESS_ENTER</style>
+				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
+			</object>
+			<object class="wxTextCtrl" name="ID_TEXTCTRL9" variable="TextCtrlBufferSizeADS" member="yes">
+				<pos>492,352</pos>
+				<size>35,-1</size>
+				<tooltip>Buffer size (ADS) [1..30]</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
 				<handler function="OnTextCtrlText" entry="EVT_TEXT_ENTER" />
 			</object>
 			<object class="wxTextCtrl" name="ID_TEXTCTRL3" variable="TextCtrlFilterADS" member="yes">
-				<pos>550,352</pos>
-				<size>40,-1</size>
-				<tooltip>Filter (ADS)</tooltip>
+				<pos>532,352</pos>
+				<size>48,-1</size>
+				<tooltip>Filter (ADS) [0.00..1.00]</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
 				<handler function="OnTextCtrlText" entry="EVT_TEXT_ENTER" />
 			</object>
 			<object class="wxTextCtrl" name="ID_TEXTCTRL22" variable="TextCtrlAccelerationHipFire" member="yes">
 				<pos>380,320</pos>
-				<size>40,-1</size>
-				<tooltip>Acceleration (Hip Fire)</tooltip>
+				<size>48,-1</size>
+				<tooltip>Acceleration (Hip Fire) [0.00..2.00]</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
-				<handler function="OnTextCtrlText" entry="EVT_TEXT_ENTER" />
 			</object>
 			<object class="wxStaticText" name="ID_STATICTEXT1" variable="StaticTextHipFire" member="yes">
 				<label>Hip Fire</label>
-				<pos>120,328</pos>
+				<pos>100,328</pos>
 			</object>
 			<object class="wxStaticText" name="ID_STATICTEXT7" variable="StaticTextShape" member="yes">
 				<label>Shape</label>
@@ -171,12 +86,12 @@
 			</object>
 			<object class="wxStaticText" name="ID_STATICTEXT2" variable="StaticTextADS" member="yes">
 				<label>ADS</label>
-				<pos>144,360</pos>
+				<pos>124,360</pos>
 				<tooltip>Aiming Down the Sights</tooltip>
 			</object>
 			<object class="wxStaticText" name="ID_STATICTEXT3" variable="StaticTextDZ" member="yes">
 				<label>DZ</label>
-				<pos>192,296</pos>
+				<pos>172,296</pos>
 				<tooltip>Dead zone</tooltip>
 			</object>
 			<object class="wxStaticText" name="ID_STATICTEXT4" variable="StaticTextSens" member="yes">
@@ -360,8 +275,8 @@
 					<item>Rectangle</item>
 				</content>
 				<selection>0</selection>
-				<pos>230,320</pos>
-				<size>80,-1</size>
+				<pos>207,320</pos>
+				<size>96,27</size>
 				<tooltip>Dead zone shape (Hip Fire)</tooltip>
 			</object>
 			<object class="wxChoice" name="ID_CHOICE1" variable="ChoiceDeadZoneShapeADS" member="yes">
@@ -370,37 +285,27 @@
 					<item>Rectangle</item>
 				</content>
 				<selection>0</selection>
-				<pos>230,352</pos>
-				<size>80,-1</size>
+				<pos>207,352</pos>
+				<size>96,27</size>
 				<tooltip>Dead zone shape (ADS)</tooltip>
 			</object>
 			<object class="wxTextCtrl" name="ID_TEXTCTRL1" variable="TextCtrlXyRatioHipFire" member="yes">
-				<pos>438,320</pos>
+				<pos>436,320</pos>
 				<size>50,-1</size>
 				<tooltip>x/y ratio (Hip Fire)</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
-				<handler function="OnTextCtrlText" entry="EVT_TEXT_ENTER" />
 			</object>
 			<object class="wxTextCtrl" name="ID_TEXTCTRL25" variable="TextCtrlXyRatioADS" member="yes">
-				<pos>438,352</pos>
+				<pos>436,352</pos>
 				<size>50,-1</size>
 				<tooltip>x/y ratio (ADS)</tooltip>
 				<style>wxTE_PROCESS_ENTER</style>
 				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
-				<handler function="OnTextCtrlText" entry="EVT_TEXT_ENTER" />
-			</object>
-			<object class="wxSpinCtrl" name="ID_SPINCTRL9" variable="SpinCtrlDPI" member="yes">
-				<value>0</value>
-				<max>20000</max>
-				<pos>24,256</pos>
-				<size>64,-1</size>
-				<tooltip>Enter your mouse DPI value.</tooltip>
-				<handler function="OnMouseDPIChange" entry="EVT_SPINCTRL" />
 			</object>
 			<object class="wxStaticText" name="ID_STATICTEXT8" variable="StaticText8" member="yes">
 				<label>Mouse DPI</label>
-				<pos>24,240</pos>
+				<pos>5,240</pos>
 			</object>
 			<object class="wxStaticText" name="ID_STATICTEXT9" variable="StaticTextSmoothing" member="yes">
 				<label>Smoothing</label>
@@ -409,8 +314,29 @@
 			</object>
 			<object class="wxButton" name="ID_BUTTON22" variable="ButtonConvertSensitivity" member="yes">
 				<label>Convert&#x0A;sensitivity</label>
-				<pos>24,288</pos>
+				<pos>5,288</pos>
 				<handler function="OnButtonConvertSensitivityClick" entry="EVT_BUTTON" />
+			</object>
+			<object class="wxTextCtrl" name="ID_TEXTCTRL5" variable="TextCtrlDPI" member="yes">
+				<value>0</value>
+				<pos>5,256</pos>
+				<size>60,-1</size>
+				<tooltip>Mouse DPI [0..40000]</tooltip>
+				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
+			</object>
+			<object class="wxTextCtrl" name="ID_TEXTCTRL7" variable="TextCtrlDeadZoneHipFire" member="yes">
+				<value>20</value>
+				<pos>164,320</pos>
+				<size>35,-1</size>
+				<tooltip>Dead zone (Hip Fire) [-64..64]</tooltip>
+				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
+			</object>
+			<object class="wxTextCtrl" name="ID_TEXTCTRL6" variable="TextCtrlDeadZoneADS" member="yes">
+				<value>20</value>
+				<pos>164,352</pos>
+				<size>35,-1</size>
+				<tooltip>Dead zone (ADS) [-64..64]</tooltip>
+				<handler function="OnTextCtrlText" entry="EVT_TEXT" />
 			</object>
 		</object>
 		<object class="wxMenuBar" variable="MenuBar1" member="no">

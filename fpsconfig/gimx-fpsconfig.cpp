@@ -113,23 +113,13 @@ protected:
 };
 
 //(*IdInit(fpsconfigFrame)
-const long fpsconfigFrame::ID_SPINCTRL8 = wxNewId();
-const long fpsconfigFrame::ID_SPINCTRL7 = wxNewId();
-const long fpsconfigFrame::ID_SPINCTRL6 = wxNewId();
-const long fpsconfigFrame::ID_SPINCTRL5 = wxNewId();
-const long fpsconfigFrame::ID_SPINCTRL4 = wxNewId();
-const long fpsconfigFrame::ID_SPINCTRL10 = wxNewId();
-const long fpsconfigFrame::ID_SPINCTRL11 = wxNewId();
-const long fpsconfigFrame::ID_SPINCTRL3 = wxNewId();
 const long fpsconfigFrame::ID_BUTTON10 = wxNewId();
-const long fpsconfigFrame::ID_SPINCTRL13 = wxNewId();
-const long fpsconfigFrame::ID_SPINCTRL14 = wxNewId();
-const long fpsconfigFrame::ID_SPINCTRL1 = wxNewId();
-const long fpsconfigFrame::ID_SPINCTRL2 = wxNewId();
 const long fpsconfigFrame::ID_TEXTCTRL24 = wxNewId();
 const long fpsconfigFrame::ID_TEXTCTRL4 = wxNewId();
 const long fpsconfigFrame::ID_TEXTCTRL26 = wxNewId();
+const long fpsconfigFrame::ID_TEXTCTRL8 = wxNewId();
 const long fpsconfigFrame::ID_TEXTCTRL2 = wxNewId();
+const long fpsconfigFrame::ID_TEXTCTRL9 = wxNewId();
 const long fpsconfigFrame::ID_TEXTCTRL3 = wxNewId();
 const long fpsconfigFrame::ID_TEXTCTRL22 = wxNewId();
 const long fpsconfigFrame::ID_STATICTEXT1 = wxNewId();
@@ -163,10 +153,12 @@ const long fpsconfigFrame::ID_CHOICE2 = wxNewId();
 const long fpsconfigFrame::ID_CHOICE1 = wxNewId();
 const long fpsconfigFrame::ID_TEXTCTRL1 = wxNewId();
 const long fpsconfigFrame::ID_TEXTCTRL25 = wxNewId();
-const long fpsconfigFrame::ID_SPINCTRL9 = wxNewId();
 const long fpsconfigFrame::ID_STATICTEXT8 = wxNewId();
 const long fpsconfigFrame::ID_STATICTEXT9 = wxNewId();
 const long fpsconfigFrame::ID_BUTTON22 = wxNewId();
+const long fpsconfigFrame::ID_TEXTCTRL5 = wxNewId();
+const long fpsconfigFrame::ID_TEXTCTRL7 = wxNewId();
+const long fpsconfigFrame::ID_TEXTCTRL6 = wxNewId();
 const long fpsconfigFrame::ID_PANEL1 = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM1 = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM4 = wxNewId();
@@ -245,55 +237,31 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __at
     SetBackgroundColour(wxColour(255,255,255));
     Panel1 = new wxPanel(this, ID_PANEL1, wxPoint(0,0), wxSize(-1,-1), wxTAB_TRAVERSAL, _T("ID_PANEL1"));
     Panel1->SetBackgroundColour(wxColour(255,255,255));
-    SpinCtrlXyRatioADS = new wxSpinCtrl(Panel1, ID_SPINCTRL8, _T("100"), wxPoint(486,352), wxSize(19,-1), 0, -10000, 10000, 100, _T("ID_SPINCTRL8"));
-    SpinCtrlXyRatioADS->SetValue(_T("100"));
-    SpinCtrlXyRatioHipFire = new wxSpinCtrl(Panel1, ID_SPINCTRL7, _T("100"), wxPoint(486,320), wxSize(19,-1), 0, -10000, 10000, 100, _T("ID_SPINCTRL7"));
-    SpinCtrlXyRatioHipFire->SetValue(_T("100"));
-    SpinCtrlAccelerationADS = new wxSpinCtrl(Panel1, ID_SPINCTRL6, _T("100"), wxPoint(418,352), wxSize(19,-1), 0, -10000, 10000, 100, _T("ID_SPINCTRL6"));
-    SpinCtrlAccelerationADS->SetValue(_T("100"));
-    SpinCtrlAccelerationHipFire = new wxSpinCtrl(Panel1, ID_SPINCTRL5, _T("100"), wxPoint(418,320), wxSize(19,-1), 0, -10000, 10000, 100, _T("ID_SPINCTRL5"));
-    SpinCtrlAccelerationHipFire->SetValue(_T("100"));
-    SpinCtrlSensitivityADS = new wxSpinCtrl(Panel1, ID_SPINCTRL4, _T("100"), wxPoint(360,352), wxSize(19,-1), 0, -10000, 10000, 100, _T("ID_SPINCTRL4"));
-    SpinCtrlSensitivityADS->SetValue(_T("100"));
-    SpinCtrlFilterHipFire = new wxSpinCtrl(Panel1, ID_SPINCTRL10, _T("0"), wxPoint(588,320), wxSize(19,-1), 0, -10000, 10000, 0, _T("ID_SPINCTRL10"));
-    SpinCtrlFilterHipFire->SetValue(_T("0"));
-    SpinCtrlFilterADS = new wxSpinCtrl(Panel1, ID_SPINCTRL11, _T("0"), wxPoint(588,352), wxSize(19,-1), 0, -10000, 10000, 0, _T("ID_SPINCTRL11"));
-    SpinCtrlFilterADS->SetValue(_T("0"));
-    SpinCtrlSensitivityHipFire = new wxSpinCtrl(Panel1, ID_SPINCTRL3, _T("100"), wxPoint(360,320), wxSize(19,-1), 0, -10000, 10000, 100, _T("ID_SPINCTRL3"));
-    SpinCtrlSensitivityHipFire->SetValue(_T("100"));
     stickright = new wxButton(Panel1, ID_BUTTON10, wxEmptyString, wxPoint(256,222), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON10"));
     wxFont stickrightFont(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
     stickright->SetFont(stickrightFont);
-    SpinCtrlBufferSizeHipFire = new wxSpinCtrl(Panel1, ID_SPINCTRL13, _T("1"), wxPoint(506,320), wxSize(44,-1), 0, 1, 30, 1, _T("ID_SPINCTRL13"));
-    SpinCtrlBufferSizeHipFire->SetValue(_T("1"));
-    SpinCtrlBufferSizeHipFire->SetToolTip(_("Buffer size (Hip Fire)"));
-    SpinCtrlBufferSizeADS = new wxSpinCtrl(Panel1, ID_SPINCTRL14, _T("1"), wxPoint(506,352), wxSize(44,-1), 0, 1, 30, 1, _T("ID_SPINCTRL14"));
-    SpinCtrlBufferSizeADS->SetValue(_T("1"));
-    SpinCtrlBufferSizeADS->SetToolTip(_("Buffer size (ADS)"));
-    SpinCtrlDeadZoneHipFire = new wxSpinCtrl(Panel1, ID_SPINCTRL1, _T("20"), wxPoint(184,320), wxSize(44,-1), 0, -64, 64, 20, _T("ID_SPINCTRL1"));
-    SpinCtrlDeadZoneHipFire->SetValue(_T("20"));
-    SpinCtrlDeadZoneHipFire->SetToolTip(_("Dead zone (Hip Fire)"));
-    SpinCtrlDeadZoneADS = new wxSpinCtrl(Panel1, ID_SPINCTRL2, _T("20"), wxPoint(184,352), wxSize(44,-1), 0, -64, 64, 20, _T("ID_SPINCTRL2"));
-    SpinCtrlDeadZoneADS->SetValue(_T("20"));
-    SpinCtrlDeadZoneADS->SetToolTip(_("Dead zone (ADS)"));
-    TextCtrlSensitivityADS = new wxTextCtrl(Panel1, ID_TEXTCTRL24, wxEmptyString, wxPoint(312,352), wxSize(50,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL24"));
+    TextCtrlSensitivityADS = new wxTextCtrl(Panel1, ID_TEXTCTRL24, wxEmptyString, wxPoint(309,352), wxSize(64,27), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL24"));
     TextCtrlSensitivityADS->SetToolTip(_("Sensitivity (ADS)"));
-    TextCtrlSensitivityHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL4, wxEmptyString, wxPoint(312,320), wxSize(50,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL4"));
+    TextCtrlSensitivityHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL4, wxEmptyString, wxPoint(309,320), wxSize(64,27), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL4"));
     TextCtrlSensitivityHipFire->SetToolTip(_("Sensitivity (Hip Fire)"));
-    TextCtrlAccelerationADS = new wxTextCtrl(Panel1, ID_TEXTCTRL26, wxEmptyString, wxPoint(380,352), wxSize(40,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL26"));
-    TextCtrlAccelerationADS->SetToolTip(_("Acceleration (ADS)"));
-    TextCtrlFilterHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL2, wxEmptyString, wxPoint(550,320), wxSize(40,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL2"));
-    TextCtrlFilterHipFire->SetToolTip(_("Filter (Hip Fire)"));
-    TextCtrlFilterADS = new wxTextCtrl(Panel1, ID_TEXTCTRL3, wxEmptyString, wxPoint(550,352), wxSize(40,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL3"));
-    TextCtrlFilterADS->SetToolTip(_("Filter (ADS)"));
-    TextCtrlAccelerationHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL22, wxEmptyString, wxPoint(380,320), wxSize(40,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL22"));
-    TextCtrlAccelerationHipFire->SetToolTip(_("Acceleration (Hip Fire)"));
-    StaticTextHipFire = new wxStaticText(Panel1, ID_STATICTEXT1, _("Hip Fire"), wxPoint(120,328), wxDefaultSize, 0, _T("ID_STATICTEXT1"));
+    TextCtrlAccelerationADS = new wxTextCtrl(Panel1, ID_TEXTCTRL26, wxEmptyString, wxPoint(380,352), wxSize(48,27), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL26"));
+    TextCtrlAccelerationADS->SetToolTip(_("Acceleration (ADS) [0.00..2.00]"));
+    TextCtrlBufferSizeHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL8, wxEmptyString, wxPoint(492,320), wxSize(35,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL8"));
+    TextCtrlBufferSizeHipFire->SetToolTip(_("Buffer size (Hip Fire) [1..30]"));
+    TextCtrlFilterHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL2, wxEmptyString, wxPoint(532,320), wxSize(48,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL2"));
+    TextCtrlFilterHipFire->SetToolTip(_("Filter (Hip Fire) [0.00..1.00]"));
+    TextCtrlBufferSizeADS = new wxTextCtrl(Panel1, ID_TEXTCTRL9, wxEmptyString, wxPoint(492,352), wxSize(35,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL9"));
+    TextCtrlBufferSizeADS->SetToolTip(_("Buffer size (ADS) [1..30]"));
+    TextCtrlFilterADS = new wxTextCtrl(Panel1, ID_TEXTCTRL3, wxEmptyString, wxPoint(532,352), wxSize(48,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL3"));
+    TextCtrlFilterADS->SetToolTip(_("Filter (ADS) [0.00..1.00]"));
+    TextCtrlAccelerationHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL22, wxEmptyString, wxPoint(380,320), wxSize(48,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL22"));
+    TextCtrlAccelerationHipFire->SetToolTip(_("Acceleration (Hip Fire) [0.00..2.00]"));
+    StaticTextHipFire = new wxStaticText(Panel1, ID_STATICTEXT1, _("Hip Fire"), wxPoint(100,328), wxDefaultSize, 0, _T("ID_STATICTEXT1"));
     StaticTextShape = new wxStaticText(Panel1, ID_STATICTEXT7, _("Shape"), wxPoint(246,296), wxDefaultSize, 0, _T("ID_STATICTEXT7"));
     StaticTextShape->SetToolTip(_("Dead zone shape"));
-    StaticTextADS = new wxStaticText(Panel1, ID_STATICTEXT2, _("ADS"), wxPoint(144,360), wxDefaultSize, 0, _T("ID_STATICTEXT2"));
+    StaticTextADS = new wxStaticText(Panel1, ID_STATICTEXT2, _("ADS"), wxPoint(124,360), wxDefaultSize, 0, _T("ID_STATICTEXT2"));
     StaticTextADS->SetToolTip(_("Aiming Down the Sights"));
-    StaticTextDZ = new wxStaticText(Panel1, ID_STATICTEXT3, _("DZ"), wxPoint(192,296), wxDefaultSize, 0, _T("ID_STATICTEXT3"));
+    StaticTextDZ = new wxStaticText(Panel1, ID_STATICTEXT3, _("DZ"), wxPoint(172,296), wxDefaultSize, 0, _T("ID_STATICTEXT3"));
     StaticTextDZ->SetToolTip(_("Dead zone"));
     StaticTextSens = new wxStaticText(Panel1, ID_STATICTEXT4, _("Sens."), wxPoint(320,296), wxDefaultSize, 0, _T("ID_STATICTEXT4"));
     StaticTextSens->SetToolTip(_("Sensitivity"));
@@ -361,25 +329,28 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __at
     r3 = new wxButton(Panel1, ID_BUTTON21, wxEmptyString, wxPoint(368,222), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON21"));
     wxFont r3Font(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
     r3->SetFont(r3Font);
-    ChoiceDeadZoneShapeHipFire = new wxChoice(Panel1, ID_CHOICE2, wxPoint(230,320), wxSize(80,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE2"));
+    ChoiceDeadZoneShapeHipFire = new wxChoice(Panel1, ID_CHOICE2, wxPoint(207,320), wxSize(96,27), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE2"));
     ChoiceDeadZoneShapeHipFire->SetSelection( ChoiceDeadZoneShapeHipFire->Append(_("Circle")) );
     ChoiceDeadZoneShapeHipFire->Append(_("Rectangle"));
     ChoiceDeadZoneShapeHipFire->SetToolTip(_("Dead zone shape (Hip Fire)"));
-    ChoiceDeadZoneShapeADS = new wxChoice(Panel1, ID_CHOICE1, wxPoint(230,352), wxSize(80,-1), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
+    ChoiceDeadZoneShapeADS = new wxChoice(Panel1, ID_CHOICE1, wxPoint(207,352), wxSize(96,27), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
     ChoiceDeadZoneShapeADS->SetSelection( ChoiceDeadZoneShapeADS->Append(_("Circle")) );
     ChoiceDeadZoneShapeADS->Append(_("Rectangle"));
     ChoiceDeadZoneShapeADS->SetToolTip(_("Dead zone shape (ADS)"));
-    TextCtrlXyRatioHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL1, wxEmptyString, wxPoint(438,320), wxSize(50,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL1"));
+    TextCtrlXyRatioHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL1, wxEmptyString, wxPoint(436,320), wxSize(50,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL1"));
     TextCtrlXyRatioHipFire->SetToolTip(_("x/y ratio (Hip Fire)"));
-    TextCtrlXyRatioADS = new wxTextCtrl(Panel1, ID_TEXTCTRL25, wxEmptyString, wxPoint(438,352), wxSize(50,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL25"));
+    TextCtrlXyRatioADS = new wxTextCtrl(Panel1, ID_TEXTCTRL25, wxEmptyString, wxPoint(436,352), wxSize(50,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL25"));
     TextCtrlXyRatioADS->SetToolTip(_("x/y ratio (ADS)"));
-    SpinCtrlDPI = new wxSpinCtrl(Panel1, ID_SPINCTRL9, _T("0"), wxPoint(24,256), wxSize(64,-1), 0, 0, 20000, 0, _T("ID_SPINCTRL9"));
-    SpinCtrlDPI->SetValue(_T("0"));
-    SpinCtrlDPI->SetToolTip(_("Enter your mouse DPI value."));
-    StaticText8 = new wxStaticText(Panel1, ID_STATICTEXT8, _("Mouse DPI"), wxPoint(24,240), wxDefaultSize, 0, _T("ID_STATICTEXT8"));
+    StaticText8 = new wxStaticText(Panel1, ID_STATICTEXT8, _("Mouse DPI"), wxPoint(5,240), wxDefaultSize, 0, _T("ID_STATICTEXT8"));
     StaticTextSmoothing = new wxStaticText(Panel1, ID_STATICTEXT9, _("Smoothing"), wxPoint(514,296), wxDefaultSize, 0, _T("ID_STATICTEXT9"));
     StaticTextSmoothing->SetToolTip(_("Mouse smoothing"));
-    ButtonConvertSensitivity = new wxButton(Panel1, ID_BUTTON22, _("Convert\nsensitivity"), wxPoint(24,288), wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON22"));
+    ButtonConvertSensitivity = new wxButton(Panel1, ID_BUTTON22, _("Convert\nsensitivity"), wxPoint(5,288), wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON22"));
+    TextCtrlDPI = new wxTextCtrl(Panel1, ID_TEXTCTRL5, _("0"), wxPoint(5,256), wxSize(60,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL5"));
+    TextCtrlDPI->SetToolTip(_("Mouse DPI [0..40000]"));
+    TextCtrlDeadZoneHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL7, _("20"), wxPoint(164,320), wxSize(35,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL7"));
+    TextCtrlDeadZoneHipFire->SetToolTip(_("Dead zone (Hip Fire) [-64..64]"));
+    TextCtrlDeadZoneADS = new wxTextCtrl(Panel1, ID_TEXTCTRL6, _("20"), wxPoint(164,352), wxSize(35,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL6"));
+    TextCtrlDeadZoneADS->SetToolTip(_("Dead zone (ADS) [-64..64]"));
     MenuBar1 = new wxMenuBar();
     MenuFile = new wxMenu();
     MenuItemNew = new wxMenuItem(MenuFile, ID_MENUITEM1, _("New\tCtrl+N"), wxEmptyString, wxITEM_NORMAL);
@@ -416,27 +387,18 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __at
     StatusBar1->SetStatusStyles(1,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
 
-    Connect(ID_SPINCTRL8,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnSpinCtrlChange);
-    Connect(ID_SPINCTRL7,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnSpinCtrlChange);
-    Connect(ID_SPINCTRL6,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnSpinCtrlChange);
-    Connect(ID_SPINCTRL5,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnSpinCtrlChange);
-    Connect(ID_SPINCTRL4,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnSpinCtrlChange);
-    Connect(ID_SPINCTRL10,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnSpinCtrlChange);
-    Connect(ID_SPINCTRL11,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnSpinCtrlChange);
-    Connect(ID_SPINCTRL3,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnSpinCtrlChange);
     Connect(ID_BUTTON10,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&fpsconfigFrame::OnButtonClick);
     Connect(ID_TEXTCTRL24,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL24,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
     Connect(ID_TEXTCTRL4,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL4,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
     Connect(ID_TEXTCTRL26,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL26,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_TEXTCTRL8,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_TEXTCTRL8,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
     Connect(ID_TEXTCTRL2,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL2,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_TEXTCTRL9,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_TEXTCTRL9,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
     Connect(ID_TEXTCTRL3,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
     Connect(ID_TEXTCTRL3,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
     Connect(ID_TEXTCTRL22,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL22,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
     Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&fpsconfigFrame::OnButtonClick);
     Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&fpsconfigFrame::OnButtonClick);
     Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&fpsconfigFrame::OnButtonClick);
@@ -458,11 +420,11 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __at
     Connect(ID_BUTTON20,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&fpsconfigFrame::OnButtonClick);
     Connect(ID_BUTTON21,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&fpsconfigFrame::OnButtonClick);
     Connect(ID_TEXTCTRL1,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL1,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
     Connect(ID_TEXTCTRL25,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL25,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_SPINCTRL9,wxEVT_COMMAND_SPINCTRL_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnMouseDPIChange);
     Connect(ID_BUTTON22,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&fpsconfigFrame::OnButtonConvertSensitivityClick);
+    Connect(ID_TEXTCTRL5,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_TEXTCTRL7,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_TEXTCTRL6,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
     Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuNew);
     Connect(ID_MENUITEM4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuOpen);
     Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuSave);
@@ -487,7 +449,9 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __at
     TextCtrlXyRatioHipFire->SetValue(wxT("1.00"));
     TextCtrlXyRatioADS->SetValue(wxT("1.00"));
     TextCtrlFilterHipFire->SetValue(wxT("0.00"));
+    TextCtrlBufferSizeHipFire->SetValue(wxT("1"));
     TextCtrlFilterADS->SetValue(wxT("0.00"));
+    TextCtrlBufferSizeADS->SetValue(wxT("1"));
 
     default_directory = wxEmptyString;
 
@@ -562,7 +526,8 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __at
     readLabels();
 
     Panel1->Fit();
-    Fit();
+    SetClientSize(Panel1->GetSize());
+
 }
 
 fpsconfigFrame::~fpsconfigFrame()
@@ -615,68 +580,6 @@ void fpsconfigFrame::OnAbout(wxCommandEvent& event __attribute__((unused)))
   info.SetWebSite(wxT(INFO_WEB));
 
   wxAboutBox(info);
-}
-
-void fpsconfigFrame::updateTextCtrlValue(wxTextCtrl* text, int step, double* value)
-{
-    wxString str;
-    *value = (double)(step) / 100;
-    str = FormatDouble(*value, decimalPoint);
-    text->SetValue(str);
-}
-
-void fpsconfigFrame::updateSpinCtrl(wxSpinCtrl * spin, wxTextCtrl* text, int step, int min, int max, double * value)
-{
-    if (step < min * 100)
-    {
-        spin->SetValue(min * 100);
-    }
-    else if (step > max * 100)
-    {
-        spin->SetValue(max * 100);
-    }
-    else
-    {
-        updateTextCtrlValue(text, step, value);
-    }
-}
-
-void fpsconfigFrame::OnSpinCtrlChange(wxSpinEvent& event)
-{
-    wxSpinCtrl* spin = (wxSpinCtrl*)event.GetEventObject();
-
-    if(spin == SpinCtrlSensitivityHipFire)
-    {
-        updateSpinCtrl(spin, TextCtrlSensitivityHipFire, event.GetInt(), -100, 100, values + 0);
-    }
-    else if(spin == SpinCtrlSensitivityADS)
-    {
-        updateSpinCtrl(spin, TextCtrlSensitivityADS, event.GetInt(), -100, 100, values + 1);
-    }
-    else if(spin == SpinCtrlAccelerationHipFire)
-    {
-        updateSpinCtrl(spin, TextCtrlAccelerationHipFire, event.GetInt(), 0, 2, values + 2);
-    }
-    else if(spin == SpinCtrlAccelerationADS)
-    {
-        updateSpinCtrl(spin, TextCtrlAccelerationADS, event.GetInt(), 0, 2, values + 3);
-    }
-    else if(spin == SpinCtrlXyRatioHipFire)
-    {
-        updateTextCtrlValue(TextCtrlXyRatioHipFire, event.GetInt(), values+4);
-    }
-    else if(spin == SpinCtrlXyRatioADS)
-    {
-        updateTextCtrlValue(TextCtrlXyRatioADS, event.GetInt(), values+5);
-    }
-    else if(spin == SpinCtrlFilterHipFire)
-    {
-        updateSpinCtrl(spin, TextCtrlFilterHipFire, event.GetInt(), 0, 1, values + 6);
-    }
-    else if(spin == SpinCtrlFilterADS)
-    {
-        updateSpinCtrl(spin, TextCtrlFilterADS, event.GetInt(), 0, 1, values + 7);
-    }
 }
 
 e_button_index fpsconfigFrame::getButtonIndex(wxButton* button)
@@ -1084,8 +987,8 @@ void fpsconfigFrame::OnMenuNew(wxCommandEvent& event __attribute__((unused)))
         }
     }
 
-    SpinCtrlDeadZoneHipFire->SetValue(20);
-    SpinCtrlDeadZoneADS->SetValue(20);
+    TextCtrlDeadZoneHipFire->SetValue(wxT("20"));
+    TextCtrlDeadZoneADS->SetValue(wxT("20"));
     ChoiceDeadZoneShapeADS->SetSelection(0);
     ChoiceDeadZoneShapeHipFire->SetSelection(0);
     TextCtrlSensitivityHipFire->SetValue(wxT("1.00"));
@@ -1094,15 +997,15 @@ void fpsconfigFrame::OnMenuNew(wxCommandEvent& event __attribute__((unused)))
     TextCtrlAccelerationADS->SetValue(wxT("1.00"));
     TextCtrlXyRatioHipFire->SetValue(wxT("1.00"));
     TextCtrlXyRatioADS->SetValue(wxT("1.00"));
-    SpinCtrlBufferSizeHipFire->SetValue(1);
-    SpinCtrlBufferSizeADS->SetValue(1);
+    TextCtrlBufferSizeHipFire->SetValue(wxT("1"));
+    TextCtrlBufferSizeADS->SetValue(wxT("1"));
     TextCtrlFilterHipFire->SetValue(wxT("0.00"));
     TextCtrlFilterADS->SetValue(wxT("0.00"));
 
-    SpinCtrlDPI->Enable(true);
-    SpinCtrlDPI->SetValue(0);
+    TextCtrlDPI->Enable(true);
+    TextCtrlDPI->SetValue(wxT("0"));
     current_dpi = 0;
-    SpinCtrlDPI->SetToolTip(_("Enter your mouse DPI value."));
+    TextCtrlDPI->SetToolTip(_("Enter your mouse DPI value."));
 
     MenuItemSave->Enable(false);
 }
@@ -1144,16 +1047,10 @@ void fpsconfigFrame::save_current(ConfigurationFile& config)
     wxString wsmx, wsmy, wsxyratio;
     bool found;
 
-    string sDzHf, sBsHf, sDzADS, sBsADS;
-    stringstream ss1, ss2, ss3, ss4;
-    ss1 << SpinCtrlDeadZoneHipFire->GetValue();
-    ss1 >> sDzHf;
-    ss2 << SpinCtrlBufferSizeHipFire->GetValue();
-    ss2 >> sBsHf;
-    ss3 << SpinCtrlDeadZoneADS->GetValue();
-    ss3 >> sDzADS;
-    ss4 << SpinCtrlBufferSizeADS->GetValue();
-    ss4 >> sBsADS;
+    string sDzHf = string(TextCtrlDeadZoneHipFire->GetValue().mb_str(wxConvUTF8));
+    string sBsHf = string(TextCtrlBufferSizeHipFire->GetValue().mb_str(wxConvUTF8));
+    string sDzADS = string(TextCtrlDeadZoneADS->GetValue().mb_str(wxConvUTF8));
+    string sBsADS = string(TextCtrlBufferSizeADS->GetValue().mb_str(wxConvUTF8));
 
     /*
      * Save DPI value.
@@ -1462,16 +1359,16 @@ void fpsconfigFrame::LoadConfig()
   wxString wsmx, wsmy, wsexp, wsxyratio, wsf;
 
   current_dpi = configFile.GetController(0)->GetMouseDPI();
-  SpinCtrlDPI->SetValue(current_dpi);
+  TextCtrlDPI->SetValue(wxString::Format(wxT("%i"), current_dpi));
   if(current_dpi)
   {
-    SpinCtrlDPI->Enable(false);
-    SpinCtrlDPI->UnsetToolTip();
+    TextCtrlDPI->Enable(false);
+    TextCtrlDPI->UnsetToolTip();
   }
   else
   {
-    SpinCtrlDPI->Enable(true);
-    SpinCtrlDPI->SetToolTip(_("Enter your mouse DPI value."));
+    TextCtrlDPI->Enable(true);
+    TextCtrlDPI->SetToolTip(_("Enter your mouse DPI value."));
   }
 
   defaultMouseName = "";
@@ -1645,7 +1542,7 @@ void fpsconfigFrame::LoadConfig()
       {
           if(it->CompareAxisProps(ControlMapper::GetAxisProps("rel_axis_2")))
           {
-              SpinCtrlDeadZoneHipFire->SetValue(wxAtoi(wxString(it->GetEvent()->GetDeadZone().c_str(), wxConvUTF8)));
+              TextCtrlDeadZoneHipFire->SetValue(wxString(it->GetEvent()->GetDeadZone().c_str(), wxConvUTF8));
               ChoiceDeadZoneShapeHipFire->SetStringSelection(_CN(it->GetEvent()->GetShape()));
 
               mouseOptions = configFile.GetController(0)->GetProfile(0)->GetMouseOptionsList();
@@ -1654,14 +1551,13 @@ void fpsconfigFrame::LoadConfig()
                 if(it2->GetMouse()->GetName() == it->GetDevice()->GetName()
                    && it2->GetMouse()->GetId() == it->GetDevice()->GetId())
                 {
-                  SpinCtrlBufferSizeHipFire->SetValue(wxAtoi(wxString(it2->GetBufferSize().c_str(), wxConvUTF8)));
+                  TextCtrlBufferSizeHipFire->SetValue(wxString(it2->GetBufferSize().c_str(), wxConvUTF8));
 
                   wsf = wxString(it2->GetFilter().c_str(), wxConvUTF8);
 
                   if(ToDouble(wsf, &f, decimalPoint))
                   {
                     TextCtrlFilterHipFire->SetValue(wsf);
-                    SpinCtrlFilterHipFire->SetValue(f*100);
                   }
                   break;
                 }
@@ -1672,14 +1568,12 @@ void fpsconfigFrame::LoadConfig()
               if(ToDouble(wsmx, &mx, decimalPoint))
               {
                   TextCtrlSensitivityHipFire->SetValue(wsmx);
-                  SpinCtrlSensitivityHipFire->SetValue(mx*100);
                   if(my && mx)
                   {
                       xyratio = my / mx;
                       wsxyratio = FormatDouble(xyratio, decimalPoint);
 
                       TextCtrlXyRatioHipFire->SetValue(wsxyratio);
-                      SpinCtrlXyRatioHipFire->SetValue(xyratio*100);
                   }
               }
 
@@ -1688,7 +1582,6 @@ void fpsconfigFrame::LoadConfig()
               if(ToDouble(wsexp, &exp, decimalPoint))
               {
                 TextCtrlAccelerationHipFire->SetValue(wxString(it->GetEvent()->GetExponent().c_str(), wxConvUTF8));
-                SpinCtrlAccelerationHipFire->SetValue(exp*100);
               }
           }
           else if(it->CompareAxisProps(ControlMapper::GetAxisProps("rel_axis_3")))
@@ -1701,7 +1594,6 @@ void fpsconfigFrame::LoadConfig()
                   wsxyratio = FormatDouble(xyratio, decimalPoint);
 
                   TextCtrlXyRatioHipFire->SetValue(wsxyratio);
-                  SpinCtrlXyRatioHipFire->SetValue(xyratio*100);
                   values[4] = xyratio;
               }
           }
@@ -1764,7 +1656,7 @@ void fpsconfigFrame::LoadConfig()
       {
           if(it->CompareAxisProps(ControlMapper::GetAxisProps("rel_axis_2")))
           {
-              SpinCtrlDeadZoneADS->SetValue(wxAtoi(wxString(it->GetEvent()->GetDeadZone().c_str(), wxConvUTF8)));
+              TextCtrlDeadZoneADS->SetValue(wxString(it->GetEvent()->GetDeadZone().c_str(), wxConvUTF8));
               ChoiceDeadZoneShapeADS->SetStringSelection(_CN(it->GetEvent()->GetShape()));
 
               mouseOptions = configFile.GetController(0)->GetProfile(1)->GetMouseOptionsList();
@@ -1773,14 +1665,13 @@ void fpsconfigFrame::LoadConfig()
                 if(it2->GetMouse()->GetName() == it->GetDevice()->GetName()
                    && it2->GetMouse()->GetId() == it->GetDevice()->GetId())
                 {
-                  SpinCtrlBufferSizeADS->SetValue(wxAtoi(wxString(it2->GetBufferSize().c_str(), wxConvUTF8)));
+                  TextCtrlBufferSizeADS->SetValue(wxString(it2->GetBufferSize().c_str(), wxConvUTF8));
 
                   wsf = wxString(it2->GetFilter().c_str(), wxConvUTF8);
 
                   if(ToDouble(wsf, &f, decimalPoint))
                   {
                     TextCtrlFilterADS->SetValue(wsf);
-                    SpinCtrlFilterADS->SetValue(f*100);
                   }
                   break;
                 }
@@ -1791,14 +1682,12 @@ void fpsconfigFrame::LoadConfig()
               if(ToDouble(wsmx, &mx, decimalPoint))
               {
                   TextCtrlSensitivityADS->SetValue(wsmx);
-                  SpinCtrlSensitivityADS->SetValue(mx*100);
                   if(my && mx)
                   {
                       xyratio = my / mx;
                       wsxyratio = FormatDouble(xyratio, decimalPoint);
 
                       TextCtrlXyRatioADS->SetValue(wsxyratio);
-                      SpinCtrlXyRatioADS->SetValue(xyratio*100);
                   }
               }
 
@@ -1807,7 +1696,6 @@ void fpsconfigFrame::LoadConfig()
               if(ToDouble(wsexp, &exp, decimalPoint))
               {
                 TextCtrlAccelerationADS->SetValue(wxString(it->GetEvent()->GetExponent().c_str(), wxConvUTF8));
-                SpinCtrlAccelerationADS->SetValue(exp*100);
               }
           }
           else if(it->CompareAxisProps(ControlMapper::GetAxisProps("rel_axis_3")))
@@ -1820,7 +1708,6 @@ void fpsconfigFrame::LoadConfig()
                   wsxyratio = FormatDouble(xyratio, decimalPoint);
 
                   TextCtrlXyRatioADS->SetValue(wsxyratio);
-                  SpinCtrlXyRatioADS->SetValue(xyratio*100);
                   values[5] = xyratio;
               }
           }
@@ -1877,7 +1764,7 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
     wxString str;
     wxTextCtrl* text;
     double value;
-    int ivalue;
+    long lvalue;
 
     text = (wxTextCtrl*)event.GetEventObject();
     long pos = text->GetInsertionPoint();
@@ -1906,11 +1793,35 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
         str = wxT("invalid");
     }
 
-    if(!ToDouble(str, &value, decimalPoint))
+    bool valid = true;
+
+    if (text == TextCtrlBufferSizeHipFire || text == TextCtrlBufferSizeADS ||
+        text == TextCtrlDeadZoneHipFire || text == TextCtrlDeadZoneADS || text == TextCtrlDPI)
+    {
+        valid = str.ToLong(&lvalue);
+    }
+    else
+    {
+        valid = ToDouble(str, &value, decimalPoint);
+    }
+
+    if(!valid)
     {
         if (text == TextCtrlFilterHipFire || text == TextCtrlFilterADS)
         {
             text->SetValue(wxT("0.00"));
+        }
+        else if (text == TextCtrlDPI)
+        {
+            text->SetValue(wxT("0"));
+        }
+        else if (text == TextCtrlBufferSizeHipFire || text == TextCtrlBufferSizeADS)
+        {
+            text->SetValue(wxT("1"));
+        }
+        else if (text == TextCtrlDeadZoneHipFire || text == TextCtrlDeadZoneADS)
+        {
+            text->SetValue(wxT("20"));
         }
         else
         {
@@ -1919,22 +1830,18 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
     }
     else
     {
-        ivalue = round(value * 100);
         if(text == TextCtrlSensitivityHipFire)
         {
             if(value > 100)
             {
                 value = 100;
-                ivalue = value * 100;
                 text->SetValue(wxT("100.00"));
             }
             else if(value < -100)
             {
                 value = -100;
-                ivalue = value * 100;
                 text->SetValue(wxT("-100.00"));
             }
-            SpinCtrlSensitivityHipFire->SetValue(ivalue);
             values[0] = value;
         }
         else if(text == TextCtrlSensitivityADS)
@@ -1942,16 +1849,13 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
             if(value > 100)
             {
                 value = 100;
-                ivalue = value * 100;
                 text->SetValue(wxT("100.00"));
             }
             else if(value < -100)
             {
                 value = -100;
-                ivalue = value * 100;
                 text->SetValue(wxT("-100.00"));
             }
-            SpinCtrlSensitivityADS->SetValue(ivalue);
             values[1] = value;
         }
         else if(text == TextCtrlAccelerationHipFire)
@@ -1959,16 +1863,13 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
             if(value > 2)
             {
                 value = 2;
-                ivalue = value * 100;
                 text->SetValue(wxT("2.00"));
             }
             else if(value < 0)
             {
                 value = 0;
-                ivalue = value * 100;
                 text->SetValue(wxT("0.00"));
             }
-            SpinCtrlAccelerationHipFire->SetValue(ivalue);
             values[2] = value;
         }
         else if(text == TextCtrlAccelerationADS)
@@ -1976,26 +1877,21 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
             if(value > 2)
             {
                 value = 2;
-                ivalue = value * 100;
                 text->SetValue(wxT("2.00"));
             }
             else if(value < 0)
             {
                 value = 0;
-                ivalue = value * 100;
                 text->SetValue(wxT("0.00"));
             }
-            SpinCtrlAccelerationADS->SetValue(ivalue);
             values[3] = value;
         }
         else if(text == TextCtrlXyRatioHipFire)
         {
-            SpinCtrlXyRatioHipFire->SetValue(ivalue);
             values[4] = value;
         }
         else if(text == TextCtrlXyRatioADS)
         {
-            SpinCtrlXyRatioADS->SetValue(ivalue);
             values[5] = value;
         }
         else if(text == TextCtrlFilterHipFire)
@@ -2003,16 +1899,13 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
             if(value > 1)
             {
                 value = 1;
-                ivalue = value * 100;
                 text->SetValue(wxT("1.00"));
             }
             else if(value < 0)
             {
                 value = 0;
-                ivalue = value * 100;
                 text->SetValue(wxT("0.00"));
             }
-            SpinCtrlFilterHipFire->SetValue(ivalue);
             values[6] = value;
         }
         else if(text == TextCtrlFilterADS)
@@ -2020,42 +1913,51 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
             if(value > 1)
             {
                 value = 1;
-                ivalue = value * 100;
                 text->SetValue(wxT("1.00"));
             }
             else if(value < 0)
             {
                 value = 0;
-                ivalue = value * 100;
                 text->SetValue(wxT("0.00"));
             }
-            SpinCtrlFilterADS->SetValue(ivalue);
             values[7] = value;
+        }
+        else if (text == TextCtrlDPI)
+        {
+            if (lvalue < 0)
+            {
+                text->SetValue(wxT("0"));
+            }
+            else if (lvalue > 40000) {
+                text->SetValue(wxT("40000"));
+            }
+            current_dpi = value;
+        }
+        else if(text == TextCtrlBufferSizeHipFire || text == TextCtrlBufferSizeADS)
+        {
+            if(lvalue > 30)
+            {
+                text->SetValue(wxT("30"));
+            }
+            else if(lvalue < 1)
+            {
+                text->SetValue(wxT("1"));
+            }
+        }
+        else if(text == TextCtrlDeadZoneHipFire || text == TextCtrlDeadZoneADS)
+        {
+            if(lvalue > 64)
+            {
+                text->SetValue(wxT("64"));
+            }
+            else if(lvalue < -64)
+            {
+                text->SetValue(wxT("-64"));
+            }
         }
     }
 
     text->SetInsertionPoint(pos);
-}
-
-#define STEP 100
-
-void fpsconfigFrame::OnMouseDPIChange(wxSpinEvent& event __attribute__((unused)))
-{
-    int v = SpinCtrlDPI->GetValue();
-    int vceil = ceil((double)v/STEP)*STEP;
-    int vfloor = floor((double)v/STEP)*STEP;
-    int new_dpi;
-    if(vceil-v > STEP/2)
-    {
-        new_dpi = vceil;
-    }
-    else
-    {
-        new_dpi = vfloor;
-    }
-
-    current_dpi = new_dpi;
-    SpinCtrlDPI->SetValue(new_dpi);
 }
 
 void fpsconfigFrame::OnButtonConvertSensitivityClick(wxCommandEvent& event __attribute__((unused)))
@@ -2083,19 +1985,17 @@ void fpsconfigFrame::OnButtonConvertSensitivityClick(wxCommandEvent& event __att
      * Store the new x multipliers so as not to loose precision due to rounding.
      */
     values[0] = values[0]*pow((double)current_dpi/dest_value, values[2]);
-    SpinCtrlSensitivityHipFire->SetValue(values[0]*100);
     wsm = FormatDouble(values[0], decimalPoint);
 
     TextCtrlSensitivityHipFire->SetValue(wsm);
 
     values[1] = values[1]*pow((double)current_dpi/dest_value, values[3]);
-    SpinCtrlSensitivityADS->SetValue(values[1]*100);
     wsm = FormatDouble(values[1], decimalPoint);
 
     TextCtrlSensitivityADS->SetValue(wsm);
 
     current_dpi = dest_value;
-    SpinCtrlDPI->SetValue(dest_value);
+    TextCtrlDPI->SetValue(wxString::Format(wxT("%i"), dest_value));
 
   }
 }

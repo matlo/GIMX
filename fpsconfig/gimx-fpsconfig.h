@@ -12,7 +12,6 @@
 #include <wx/frame.h>
 #include <wx/menu.h>
 #include <wx/panel.h>
-#include <wx/spinctrl.h>
 #include <wx/stattext.h>
 #include <wx/statusbr.h>
 #include <wx/textctrl.h>
@@ -74,9 +73,7 @@ class fpsconfigFrame: public wxFrame
         void OnMenuNew(wxCommandEvent& event);
         void OnMenuSaveAs(wxCommandEvent& event);
         void OnMenuOpen(wxCommandEvent& event);
-        void OnSpinCtrlChange(wxSpinEvent& event);
         void OnTextCtrlText(wxCommandEvent& event);
-        void OnMouseDPIChange(wxSpinEvent& event);
         void OnMenuEditLabels(wxCommandEvent& event);
         void OnButtonConvertSensitivityClick(wxCommandEvent& event);
         void OnMenuAutoBindControls(wxCommandEvent& event);
@@ -97,32 +94,19 @@ class fpsconfigFrame: public wxFrame
 
         pair<Device, Event> selectEvent();
 
-        void updateTextCtrlValue(wxTextCtrl* text, int step, double* value);
-        void updateSpinCtrl(wxSpinCtrl * spin, wxTextCtrl* text, int step, int min, int max, double * value);
-
         void save_current(ConfigurationFile& config);
         bool save(const wxString& directory, const wxString& file);
         void openConfiguration(const wxString& directory, const wxString& file);
         void checkSave();
 
         //(*Identifiers(fpsconfigFrame)
-        static const long ID_SPINCTRL8;
-        static const long ID_SPINCTRL7;
-        static const long ID_SPINCTRL6;
-        static const long ID_SPINCTRL5;
-        static const long ID_SPINCTRL4;
-        static const long ID_SPINCTRL10;
-        static const long ID_SPINCTRL11;
-        static const long ID_SPINCTRL3;
         static const long ID_BUTTON10;
-        static const long ID_SPINCTRL13;
-        static const long ID_SPINCTRL14;
-        static const long ID_SPINCTRL1;
-        static const long ID_SPINCTRL2;
         static const long ID_TEXTCTRL24;
         static const long ID_TEXTCTRL4;
         static const long ID_TEXTCTRL26;
+        static const long ID_TEXTCTRL8;
         static const long ID_TEXTCTRL2;
+        static const long ID_TEXTCTRL9;
         static const long ID_TEXTCTRL3;
         static const long ID_TEXTCTRL22;
         static const long ID_STATICTEXT1;
@@ -156,10 +140,12 @@ class fpsconfigFrame: public wxFrame
         static const long ID_CHOICE1;
         static const long ID_TEXTCTRL1;
         static const long ID_TEXTCTRL25;
-        static const long ID_SPINCTRL9;
         static const long ID_STATICTEXT8;
         static const long ID_STATICTEXT9;
         static const long ID_BUTTON22;
+        static const long ID_TEXTCTRL5;
+        static const long ID_TEXTCTRL7;
+        static const long ID_TEXTCTRL6;
         static const long ID_PANEL1;
         static const long ID_MENUITEM1;
         static const long ID_MENUITEM4;
@@ -208,19 +194,6 @@ class fpsconfigFrame: public wxFrame
         wxMenuItem* MenuItemSaveAs;
         wxMenuItem* MenuItemWindowEvents;
         wxPanel* Panel1;
-        wxSpinCtrl* SpinCtrlAccelerationADS;
-        wxSpinCtrl* SpinCtrlAccelerationHipFire;
-        wxSpinCtrl* SpinCtrlBufferSizeADS;
-        wxSpinCtrl* SpinCtrlBufferSizeHipFire;
-        wxSpinCtrl* SpinCtrlDPI;
-        wxSpinCtrl* SpinCtrlDeadZoneADS;
-        wxSpinCtrl* SpinCtrlDeadZoneHipFire;
-        wxSpinCtrl* SpinCtrlFilterADS;
-        wxSpinCtrl* SpinCtrlFilterHipFire;
-        wxSpinCtrl* SpinCtrlSensitivityADS;
-        wxSpinCtrl* SpinCtrlSensitivityHipFire;
-        wxSpinCtrl* SpinCtrlXyRatioADS;
-        wxSpinCtrl* SpinCtrlXyRatioHipFire;
         wxStaticText* StaticText8;
         wxStaticText* StaticTextADS;
         wxStaticText* StaticTextAccel;
@@ -233,6 +206,11 @@ class fpsconfigFrame: public wxFrame
         wxStatusBar* StatusBar1;
         wxTextCtrl* TextCtrlAccelerationADS;
         wxTextCtrl* TextCtrlAccelerationHipFire;
+        wxTextCtrl* TextCtrlBufferSizeADS;
+        wxTextCtrl* TextCtrlBufferSizeHipFire;
+        wxTextCtrl* TextCtrlDPI;
+        wxTextCtrl* TextCtrlDeadZoneADS;
+        wxTextCtrl* TextCtrlDeadZoneHipFire;
         wxTextCtrl* TextCtrlFilterADS;
         wxTextCtrl* TextCtrlFilterHipFire;
         wxTextCtrl* TextCtrlSensitivityADS;
