@@ -1,4 +1,4 @@
-dist: xenial
+dist: focal
 
 language: c++
 
@@ -9,7 +9,7 @@ sudo: false
 addons:
   apt:
     packages:
-      - libwxgtk3.0-dev libbluetooth-dev libxml2-dev libusb-1.0-0-dev libncursesw5-dev gettext libmhash-dev libcurl4-gnutls-dev libxi-dev libx11-dev
+      - libwxgtk3.0-gtk3-dev libbluetooth-dev libxml2-dev libusb-1.0-0-dev libncursesw5-dev gettext libmhash-dev libcurl4-gnutls-dev libxi-dev libx11-dev
 
 compiler:
   - gcc
