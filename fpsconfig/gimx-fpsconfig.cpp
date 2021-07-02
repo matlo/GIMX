@@ -1931,7 +1931,7 @@ void fpsconfigFrame::OnTextCtrlText(wxCommandEvent& event)
             else if (lvalue > 40000) {
                 text->SetValue(wxT("40000"));
             }
-            current_dpi = value;
+            current_dpi = lvalue;
         }
         else if(text == TextCtrlBufferSizeHipFire || text == TextCtrlBufferSizeADS)
         {
