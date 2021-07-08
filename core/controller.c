@@ -26,6 +26,8 @@
 #include <gimxlog/include/glog.h>
 
 #include <haptic/haptic_core.h>
+#include "calibration.h"
+#include <float.h>
 
 #define DEFAULT_BAUDRATE 500000 //bps
 static const int baudrates[] = { 2000000, 1000000, DEFAULT_BAUDRATE }; //bps
@@ -310,6 +312,61 @@ static int proxy_dst_read_callback(void * user, const void * buf, int status, st
     return adapter_process_packet(i, (s_packet*) buf);
 }
 
+static float float_swap(float x)
+{
+  union V {
+    float f;
+    uint32_t i;
+  };
+  union V val;
+  val.f = x;
+  val.i = gudp_htonl(val.i);
+  return val.f;
+}
+
+static void handle_packet_config(const s_network_packet_config* buf)
+{
+  float ex, ey, yx_ratio;
+  float s = float_swap(buf->sensibility);
+  if (s >= 0) { //Does negative sensibility makes sense?
+    cal_set_sensibility(s);
+  }
+  int16_t dx = gudp_ntohs(buf->dead_zone_x);
+  if (dx < INT16_MAX) {
+    cal_set_deadzone_x(dx);
+  }
+  int16_t dy = gudp_ntohs(buf->dead_zone_y);
+  if (dy < INT16_MAX) {
+    cal_set_deadzone_y(dy);
+  }
+  ex = float_swap(buf->exponent_x);
+  if (ex >= 0) {
+    cal_set_exponent_x(ex);
+  }
+  ey = float_swap(buf->exponent_y);
+  if (ey >= 0) {
+    cal_set_exponent_y(ey);
+  }
+  yx_ratio = float_swap(buf->yx_ratio);
+  if (yx_ratio >= 0) {
+    cal_set_yxratio(yx_ratio);
+  }
+}
+
+static s_network_packet_config handle_packet_get_config()
+{
+  s_network_packet_config config_pkg;
+  const s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
+  config_pkg.packet_type = E_NETWORK_PACKET_GETCONFIG;
+  config_pkg.sensibility = float_swap(*mcal->mx);
+  config_pkg.dead_zone_x = gudp_htons(*mcal->dzx);
+  config_pkg.dead_zone_y = gudp_htons(*mcal->dzy);
+  config_pkg.yx_ratio = float_swap((*mcal->my) / (*mcal->mx));
+  config_pkg.exponent_x = float_swap(*mcal->ex);
+  config_pkg.exponent_y = float_swap(*mcal->ey);
+  return config_pkg;
+}
+
 /*
  * Read a packet from a remote GIMX client.
  * The packet can be:
@@ -372,6 +429,36 @@ static int network_read_callback(void * user, const void * buf, int status, stru
       }
       adapters[adapter].send_command = 1;
     }
+    break;
+  case E_NETWORK_PACKET_EXIT:
+      set_done(1);
+      break;
+  case E_NETWORK_PACKET_SETCONFIG:
+    if ((unsigned int) status != sizeof(s_network_packet_config))
+    {
+      gwarn("%s: wrong packet size: %u %zu\n", __func__, status, sizeof(s_network_packet_config));
+      return 0;
+    }
+    handle_packet_config((s_network_packet_config*) buf);
+    cal_update_display();
+    break;
+  case E_NETWORK_PACKET_GETCONFIG:
+  {
+    s_network_packet_config config_pkg = handle_packet_get_config();
+    if (gudp_send(adapters[adapter].src_socket, (void *) &config_pkg, sizeof(config_pkg), address) < 0) {
+      gwarn("%s: can't send configuration values\n", __func__);
+      return 0;
+    }
+    break;
+  }
+  case E_NETWORK_PACKET_SAVECALIBRATION:
+  {
+    cal_save();
+    cal_update_display();
+    break;
+  }
+  default:
+    gwarn("%s: packet_type not recognized",__func__);
     break;
   }
   return (gimx_params.clock_source == CLOCK_INPUT);
