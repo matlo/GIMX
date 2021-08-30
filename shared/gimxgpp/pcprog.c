@@ -384,9 +384,9 @@ int8_t gpppcprog_start_async(int id, const GHID_CALLBACKS * callbacks)
   return 0;
 }
 
-int8_t gpppcprog_output(int id, int8_t output[GCAPI_INPUT_TOTAL])
+int8_t gpppcprog_output(int id, int8_t output[GCAPI_OUTPUT_TOTAL])
 {
   CHECK_DEVICE(id, -1)
 
-  return gpppcprog_send(id, GPPKG_OUTPUT_REPORT, (uint8_t *)output, GCAPI_INPUT_TOTAL);
+  return gpppcprog_send(id, GPPKG_OUTPUT_REPORT, (uint8_t *)output, GCAPI_OUTPUT_TOTAL);
 }
