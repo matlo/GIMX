@@ -61,6 +61,8 @@ else
 	cp -u -f /mingw32/bin/avrdude.exe setup
 	cp -u -f /mingw32/bin/avrdude.conf setup
 endif
+	mkdir -p setup/image
+	cp -u -f fpsconfig/fpsconfig.png image
 
 .PHONY: subdirs $(DIRS)
 .PHONY: subdirs $(BUILDDIRS)

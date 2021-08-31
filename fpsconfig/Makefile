@@ -3,6 +3,7 @@ include ../Makedefs
 ifneq ($(OS),Windows_NT)
 prefix=$(DESTDIR)/usr
 bindir=$(prefix)/bin
+sharedir=$(prefix)/share
 endif
 
 NAME=$(shell basename "$(shell pwd)")
@@ -42,11 +43,13 @@ ifneq ($(OS),Windows_NT)
 install: all
 	mkdir -p $(prefix)
 	mkdir -p $(bindir)
-	mkdir -p $(prefix)/share/applications
-	mkdir -p $(prefix)/share/pixmaps
+	mkdir -p $(sharedir)/applications
+	mkdir -p $(sharedir)/pixmaps
 	for i in $(BINS); do cp $$i $(bindir)/; done
 	cp gimx-$(NAME).desktop $(prefix)/share/applications
 	cp gimx-$(NAME).png $(prefix)/share/pixmaps
+	mkdir -p $(sharedir)/gimx/image
+	cp fpsconfig.png $(sharedir)/gimx/image
 
 uninstall:
 	-$(RM) $(prefix)/share/pixmaps/gimx-$(NAME).png

@@ -12,6 +12,7 @@
 #include <wx/frame.h>
 #include <wx/menu.h>
 #include <wx/panel.h>
+#include <wx/sizer.h>
 #include <wx/stattext.h>
 #include <wx/statusbr.h>
 #include <wx/textctrl.h>
@@ -101,21 +102,6 @@ class fpsconfigFrame: public wxFrame
 
         //(*Identifiers(fpsconfigFrame)
         static const long ID_BUTTON10;
-        static const long ID_TEXTCTRL24;
-        static const long ID_TEXTCTRL4;
-        static const long ID_TEXTCTRL26;
-        static const long ID_TEXTCTRL8;
-        static const long ID_TEXTCTRL2;
-        static const long ID_TEXTCTRL9;
-        static const long ID_TEXTCTRL3;
-        static const long ID_TEXTCTRL22;
-        static const long ID_STATICTEXT1;
-        static const long ID_STATICTEXT7;
-        static const long ID_STATICTEXT2;
-        static const long ID_STATICTEXT3;
-        static const long ID_STATICTEXT4;
-        static const long ID_STATICTEXT5;
-        static const long ID_STATICTEXT6;
         static const long ID_BUTTON1;
         static const long ID_BUTTON2;
         static const long ID_BUTTON3;
@@ -136,17 +122,33 @@ class fpsconfigFrame: public wxFrame
         static const long ID_BUTTON19;
         static const long ID_BUTTON20;
         static const long ID_BUTTON21;
-        static const long ID_CHOICE2;
-        static const long ID_CHOICE1;
-        static const long ID_TEXTCTRL1;
-        static const long ID_TEXTCTRL25;
-        static const long ID_STATICTEXT8;
-        static const long ID_STATICTEXT9;
-        static const long ID_BUTTON22;
-        static const long ID_TEXTCTRL5;
-        static const long ID_TEXTCTRL7;
-        static const long ID_TEXTCTRL6;
         static const long ID_PANEL1;
+        static const long ID_STATICTEXT8;
+        static const long ID_TEXTCTRL5;
+        static const long ID_BUTTON22;
+        static const long ID_STATICTEXT10;
+        static const long ID_STATICTEXT3;
+        static const long ID_STATICTEXT7;
+        static const long ID_STATICTEXT4;
+        static const long ID_STATICTEXT5;
+        static const long ID_STATICTEXT6;
+        static const long ID_STATICTEXT9;
+        static const long ID_STATICTEXT1;
+        static const long ID_TEXTCTRL7;
+        static const long ID_CHOICE2;
+        static const long ID_TEXTCTRL4;
+        static const long ID_TEXTCTRL22;
+        static const long ID_TEXTCTRL1;
+        static const long ID_TEXTCTRL8;
+        static const long ID_TEXTCTRL2;
+        static const long ID_STATICTEXT2;
+        static const long ID_TEXTCTRL6;
+        static const long ID_CHOICE1;
+        static const long ID_TEXTCTRL24;
+        static const long ID_TEXTCTRL26;
+        static const long ID_TEXTCTRL25;
+        static const long ID_TEXTCTRL9;
+        static const long ID_TEXTCTRL3;
         static const long ID_MENUITEM1;
         static const long ID_MENUITEM4;
         static const long ID_MENUITEM2;
@@ -194,6 +196,7 @@ class fpsconfigFrame: public wxFrame
         wxMenuItem* MenuItemSaveAs;
         wxMenuItem* MenuItemWindowEvents;
         wxPanel* Panel1;
+        wxStaticText* StaticText1;
         wxStaticText* StaticText8;
         wxStaticText* StaticTextADS;
         wxStaticText* StaticTextAccel;
@@ -220,6 +223,7 @@ class fpsconfigFrame: public wxFrame
         //*)
 
         wxBackgroundBitmap* ToolBarBackground;
+        wxBackgroundBitmap* ToolBarBackground2;
 
         wxLocale* locale;
         wxString decimalPoint;

@@ -13,12 +13,11 @@
 #endif
 
 //(*InternalHeaders(fpsconfigFrame)
-#include <wx/font.h>
 #include <wx/intl.h>
+#include <wx/settings.h>
 #include <wx/string.h>
 //*)
 
-#include "background.png.cpp"
 #include <wx/mstream.h>
 
 #include <wx/aboutdlg.h>
@@ -114,21 +113,6 @@ protected:
 
 //(*IdInit(fpsconfigFrame)
 const long fpsconfigFrame::ID_BUTTON10 = wxNewId();
-const long fpsconfigFrame::ID_TEXTCTRL24 = wxNewId();
-const long fpsconfigFrame::ID_TEXTCTRL4 = wxNewId();
-const long fpsconfigFrame::ID_TEXTCTRL26 = wxNewId();
-const long fpsconfigFrame::ID_TEXTCTRL8 = wxNewId();
-const long fpsconfigFrame::ID_TEXTCTRL2 = wxNewId();
-const long fpsconfigFrame::ID_TEXTCTRL9 = wxNewId();
-const long fpsconfigFrame::ID_TEXTCTRL3 = wxNewId();
-const long fpsconfigFrame::ID_TEXTCTRL22 = wxNewId();
-const long fpsconfigFrame::ID_STATICTEXT1 = wxNewId();
-const long fpsconfigFrame::ID_STATICTEXT7 = wxNewId();
-const long fpsconfigFrame::ID_STATICTEXT2 = wxNewId();
-const long fpsconfigFrame::ID_STATICTEXT3 = wxNewId();
-const long fpsconfigFrame::ID_STATICTEXT4 = wxNewId();
-const long fpsconfigFrame::ID_STATICTEXT5 = wxNewId();
-const long fpsconfigFrame::ID_STATICTEXT6 = wxNewId();
 const long fpsconfigFrame::ID_BUTTON1 = wxNewId();
 const long fpsconfigFrame::ID_BUTTON2 = wxNewId();
 const long fpsconfigFrame::ID_BUTTON3 = wxNewId();
@@ -149,17 +133,33 @@ const long fpsconfigFrame::ID_BUTTON18 = wxNewId();
 const long fpsconfigFrame::ID_BUTTON19 = wxNewId();
 const long fpsconfigFrame::ID_BUTTON20 = wxNewId();
 const long fpsconfigFrame::ID_BUTTON21 = wxNewId();
-const long fpsconfigFrame::ID_CHOICE2 = wxNewId();
-const long fpsconfigFrame::ID_CHOICE1 = wxNewId();
-const long fpsconfigFrame::ID_TEXTCTRL1 = wxNewId();
-const long fpsconfigFrame::ID_TEXTCTRL25 = wxNewId();
-const long fpsconfigFrame::ID_STATICTEXT8 = wxNewId();
-const long fpsconfigFrame::ID_STATICTEXT9 = wxNewId();
-const long fpsconfigFrame::ID_BUTTON22 = wxNewId();
-const long fpsconfigFrame::ID_TEXTCTRL5 = wxNewId();
-const long fpsconfigFrame::ID_TEXTCTRL7 = wxNewId();
-const long fpsconfigFrame::ID_TEXTCTRL6 = wxNewId();
 const long fpsconfigFrame::ID_PANEL1 = wxNewId();
+const long fpsconfigFrame::ID_STATICTEXT8 = wxNewId();
+const long fpsconfigFrame::ID_TEXTCTRL5 = wxNewId();
+const long fpsconfigFrame::ID_BUTTON22 = wxNewId();
+const long fpsconfigFrame::ID_STATICTEXT10 = wxNewId();
+const long fpsconfigFrame::ID_STATICTEXT3 = wxNewId();
+const long fpsconfigFrame::ID_STATICTEXT7 = wxNewId();
+const long fpsconfigFrame::ID_STATICTEXT4 = wxNewId();
+const long fpsconfigFrame::ID_STATICTEXT5 = wxNewId();
+const long fpsconfigFrame::ID_STATICTEXT6 = wxNewId();
+const long fpsconfigFrame::ID_STATICTEXT9 = wxNewId();
+const long fpsconfigFrame::ID_STATICTEXT1 = wxNewId();
+const long fpsconfigFrame::ID_TEXTCTRL7 = wxNewId();
+const long fpsconfigFrame::ID_CHOICE2 = wxNewId();
+const long fpsconfigFrame::ID_TEXTCTRL4 = wxNewId();
+const long fpsconfigFrame::ID_TEXTCTRL22 = wxNewId();
+const long fpsconfigFrame::ID_TEXTCTRL1 = wxNewId();
+const long fpsconfigFrame::ID_TEXTCTRL8 = wxNewId();
+const long fpsconfigFrame::ID_TEXTCTRL2 = wxNewId();
+const long fpsconfigFrame::ID_STATICTEXT2 = wxNewId();
+const long fpsconfigFrame::ID_TEXTCTRL6 = wxNewId();
+const long fpsconfigFrame::ID_CHOICE1 = wxNewId();
+const long fpsconfigFrame::ID_TEXTCTRL24 = wxNewId();
+const long fpsconfigFrame::ID_TEXTCTRL26 = wxNewId();
+const long fpsconfigFrame::ID_TEXTCTRL25 = wxNewId();
+const long fpsconfigFrame::ID_TEXTCTRL9 = wxNewId();
+const long fpsconfigFrame::ID_TEXTCTRL3 = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM1 = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM4 = wxNewId();
 const long fpsconfigFrame::ID_MENUITEM2 = wxNewId();
@@ -225,7 +225,18 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __at
     struct lconv * l = localeconv();
     decimalPoint = wxString(l->decimal_point, wxConvUTF8);
 
+    wxString filepath = wxT(IMAGE_DIR);
+    filepath.Append(wxT("/"));
+    filepath.Append(wxT("fpsconfig.png"));
+    wxBitmap background = wxBitmap(wxImage(filepath));
+
     //(*Initialize(fpsconfigFrame)
+    wxFlexGridSizer* FlexGridSizer1;
+    wxFlexGridSizer* FlexGridSizer2;
+    wxFlexGridSizer* FlexGridSizer3;
+    wxFlexGridSizer* FlexGridSizer4;
+    wxFlexGridSizer* FlexGridSizer5;
+    wxFlexGridSizer* FlexGridSizer6;
     wxMenu* MenuAdvanced;
     wxMenu* MenuFile;
     wxMenu* MenuHelp;
@@ -234,123 +245,129 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __at
     wxMenuItem* MenuItemQuit;
 
     Create(parent, wxID_ANY, _("Gimx-fpsconfig"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
+    SetClientSize(wxSize(921,572));
     SetBackgroundColour(wxColour(255,255,255));
+    FlexGridSizer1 = new wxFlexGridSizer(2, 1, 0, 0);
     Panel1 = new wxPanel(this, ID_PANEL1, wxPoint(0,0), wxSize(-1,-1), wxTAB_TRAVERSAL, _T("ID_PANEL1"));
-    Panel1->SetBackgroundColour(wxColour(255,255,255));
-    stickright = new wxButton(Panel1, ID_BUTTON10, wxEmptyString, wxPoint(256,222), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON10"));
-    wxFont stickrightFont(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    stickright->SetFont(stickrightFont);
-    TextCtrlSensitivityADS = new wxTextCtrl(Panel1, ID_TEXTCTRL24, wxEmptyString, wxPoint(309,352), wxSize(64,27), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL24"));
-    TextCtrlSensitivityADS->SetToolTip(_("Sensitivity (ADS)"));
-    TextCtrlSensitivityHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL4, wxEmptyString, wxPoint(309,320), wxSize(64,27), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL4"));
-    TextCtrlSensitivityHipFire->SetToolTip(_("Sensitivity (Hip Fire)"));
-    TextCtrlAccelerationADS = new wxTextCtrl(Panel1, ID_TEXTCTRL26, wxEmptyString, wxPoint(380,352), wxSize(48,27), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL26"));
-    TextCtrlAccelerationADS->SetToolTip(_("Acceleration (ADS) [0.00..2.00]"));
-    TextCtrlBufferSizeHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL8, wxEmptyString, wxPoint(492,320), wxSize(35,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL8"));
-    TextCtrlBufferSizeHipFire->SetToolTip(_("Buffer size (Hip Fire) [1..30]"));
-    TextCtrlFilterHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL2, wxEmptyString, wxPoint(532,320), wxSize(48,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL2"));
-    TextCtrlFilterHipFire->SetToolTip(_("Filter (Hip Fire) [0.00..1.00]"));
-    TextCtrlBufferSizeADS = new wxTextCtrl(Panel1, ID_TEXTCTRL9, wxEmptyString, wxPoint(492,352), wxSize(35,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL9"));
-    TextCtrlBufferSizeADS->SetToolTip(_("Buffer size (ADS) [1..30]"));
-    TextCtrlFilterADS = new wxTextCtrl(Panel1, ID_TEXTCTRL3, wxEmptyString, wxPoint(532,352), wxSize(48,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL3"));
-    TextCtrlFilterADS->SetToolTip(_("Filter (ADS) [0.00..1.00]"));
-    TextCtrlAccelerationHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL22, wxEmptyString, wxPoint(380,320), wxSize(48,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL22"));
-    TextCtrlAccelerationHipFire->SetToolTip(_("Acceleration (Hip Fire) [0.00..2.00]"));
-    StaticTextHipFire = new wxStaticText(Panel1, ID_STATICTEXT1, _("Hip Fire"), wxPoint(100,328), wxDefaultSize, 0, _T("ID_STATICTEXT1"));
-    StaticTextShape = new wxStaticText(Panel1, ID_STATICTEXT7, _("Shape"), wxPoint(246,296), wxDefaultSize, 0, _T("ID_STATICTEXT7"));
-    StaticTextShape->SetToolTip(_("Dead zone shape"));
-    StaticTextADS = new wxStaticText(Panel1, ID_STATICTEXT2, _("ADS"), wxPoint(124,360), wxDefaultSize, 0, _T("ID_STATICTEXT2"));
-    StaticTextADS->SetToolTip(_("Aiming Down the Sights"));
-    StaticTextDZ = new wxStaticText(Panel1, ID_STATICTEXT3, _("DZ"), wxPoint(172,296), wxDefaultSize, 0, _T("ID_STATICTEXT3"));
+    stickright = new wxButton(Panel1, ID_BUTTON10, wxEmptyString, wxPoint(384,336), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON10"));
+    l2 = new wxButton(Panel1, ID_BUTTON1, wxEmptyString, wxPoint(216,0), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON1"));
+    l1 = new wxButton(Panel1, ID_BUTTON2, wxEmptyString, wxPoint(216,48), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON2"));
+    up = new wxButton(Panel1, ID_BUTTON3, wxEmptyString, wxPoint(168,144), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON3"));
+    left = new wxButton(Panel1, ID_BUTTON4, wxEmptyString, wxPoint(120,200), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON4"));
+    right = new wxButton(Panel1, ID_BUTTON5, wxEmptyString, wxPoint(216,200), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON5"));
+    down = new wxButton(Panel1, ID_BUTTON6, wxEmptyString, wxPoint(168,256), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON6"));
+    l3 = new wxButton(Panel1, ID_BUTTON7, wxEmptyString, wxPoint(304,336), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON7"));
+    stickup = new wxButton(Panel1, ID_BUTTON8, wxEmptyString, wxPoint(304,264), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON8"));
+    stickleft = new wxButton(Panel1, ID_BUTTON9, wxEmptyString, wxPoint(224,336), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON9"));
+    stickdown = new wxButton(Panel1, ID_BUTTON11, wxEmptyString, wxPoint(304,408), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON11"));
+    select = new wxButton(Panel1, ID_BUTTON12, wxEmptyString, wxPoint(384,224), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON12"));
+    start = new wxButton(Panel1, ID_BUTTON13, wxEmptyString, wxPoint(488,224), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON13"));
+    ps = new wxButton(Panel1, ID_BUTTON14, wxEmptyString, wxPoint(440,280), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON14"));
+    r2 = new wxButton(Panel1, ID_BUTTON15, wxEmptyString, wxPoint(648,0), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON15"));
+    r1 = new wxButton(Panel1, ID_BUTTON16, wxEmptyString, wxPoint(648,48), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON16"));
+    triangle = new wxButton(Panel1, ID_BUTTON17, wxEmptyString, wxPoint(760,88), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON17"));
+    square = new wxButton(Panel1, ID_BUTTON18, wxEmptyString, wxPoint(584,152), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON18"));
+    circle = new wxButton(Panel1, ID_BUTTON19, wxEmptyString, wxPoint(824,152), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON19"));
+    cross = new wxButton(Panel1, ID_BUTTON20, wxEmptyString, wxPoint(760,312), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON20"));
+    r3 = new wxButton(Panel1, ID_BUTTON21, wxEmptyString, wxPoint(568,336), wxDLG_UNIT(Panel1,wxSize(24,16)), 0, wxDefaultValidator, _T("ID_BUTTON21"));
+    FlexGridSizer1->Add(Panel1, 1, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer4 = new wxFlexGridSizer(1, 2, 0, 0);
+    FlexGridSizer3 = new wxFlexGridSizer(3, 1, 0, 0);
+    StaticText8 = new wxStaticText(this, ID_STATICTEXT8, _("Mouse DPI"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT8"));
+    FlexGridSizer3->Add(StaticText8, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    TextCtrlDPI = new wxTextCtrl(this, ID_TEXTCTRL5, _("0"), wxDefaultPosition, wxDLG_UNIT(this,wxSize(30,16)), 0, wxDefaultValidator, _T("ID_TEXTCTRL5"));
+    TextCtrlDPI->SetToolTip(_("Mouse DPI [0..40000]"));
+    FlexGridSizer3->Add(TextCtrlDPI, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    ButtonConvertSensitivity = new wxButton(this, ID_BUTTON22, _("Convert\nsensitivity"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON22"));
+    FlexGridSizer3->Add(ButtonConvertSensitivity, 0, wxALIGN_LEFT, 0);
+    FlexGridSizer4->Add(FlexGridSizer3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer2 = new wxFlexGridSizer(3, 7, wxDLG_UNIT(this,wxSize(1,0)).GetWidth(), wxDLG_UNIT(this,wxSize(1,0)).GetWidth());
+    StaticText1 = new wxStaticText(this, ID_STATICTEXT10, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT10"));
+    FlexGridSizer2->Add(StaticText1, 1, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticTextDZ = new wxStaticText(this, ID_STATICTEXT3, _("DZ"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT3"));
+    StaticTextDZ->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE));
     StaticTextDZ->SetToolTip(_("Dead zone"));
-    StaticTextSens = new wxStaticText(Panel1, ID_STATICTEXT4, _("Sens."), wxPoint(320,296), wxDefaultSize, 0, _T("ID_STATICTEXT4"));
+    FlexGridSizer2->Add(StaticTextDZ, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    StaticTextShape = new wxStaticText(this, ID_STATICTEXT7, _("Shape"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT7"));
+    StaticTextShape->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE));
+    StaticTextShape->SetToolTip(_("Dead zone shape"));
+    FlexGridSizer2->Add(StaticTextShape, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    StaticTextSens = new wxStaticText(this, ID_STATICTEXT4, _("Sens."), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT4"));
+    StaticTextSens->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE));
     StaticTextSens->SetToolTip(_("Sensitivity"));
-    StaticTextAccel = new wxStaticText(Panel1, ID_STATICTEXT5, _("Accel."), wxPoint(382,296), wxDefaultSize, 0, _T("ID_STATICTEXT5"));
+    FlexGridSizer2->Add(StaticTextSens, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    StaticTextAccel = new wxStaticText(this, ID_STATICTEXT5, _("Accel."), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT5"));
+    StaticTextAccel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE));
     StaticTextAccel->SetToolTip(_("Acceleration"));
-    StaticTextXy = new wxStaticText(Panel1, ID_STATICTEXT6, _("x/y"), wxPoint(452,296), wxDefaultSize, 0, _T("ID_STATICTEXT6"));
+    FlexGridSizer2->Add(StaticTextAccel, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    StaticTextXy = new wxStaticText(this, ID_STATICTEXT6, _("x/y"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT6"));
+    StaticTextXy->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE));
     StaticTextXy->SetToolTip(_("x/y ratio"));
-    l2 = new wxButton(Panel1, ID_BUTTON1, wxEmptyString, wxPoint(136,0), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON1"));
-    wxFont l2Font(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    l2->SetFont(l2Font);
-    l1 = new wxButton(Panel1, ID_BUTTON2, wxEmptyString, wxPoint(136,32), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON2"));
-    wxFont l1Font(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    l1->SetFont(l1Font);
-    up = new wxButton(Panel1, ID_BUTTON3, wxEmptyString, wxPoint(104,96), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON3"));
-    wxFont upFont(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    up->SetFont(upFont);
-    left = new wxButton(Panel1, ID_BUTTON4, wxEmptyString, wxPoint(80,128), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON4"));
-    wxFont leftFont(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    left->SetFont(leftFont);
-    right = new wxButton(Panel1, ID_BUTTON5, wxEmptyString, wxPoint(128,128), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON5"));
-    wxFont rightFont(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    right->SetFont(rightFont);
-    down = new wxButton(Panel1, ID_BUTTON6, wxEmptyString, wxPoint(104,160), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON6"));
-    wxFont downFont(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    down->SetFont(downFont);
-    l3 = new wxButton(Panel1, ID_BUTTON7, wxEmptyString, wxPoint(194,222), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON7"));
-    wxFont l3Font(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    l3->SetFont(l3Font);
-    stickup = new wxButton(Panel1, ID_BUTTON8, wxEmptyString, wxPoint(194,176), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON8"));
-    wxFont stickupFont(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    stickup->SetFont(stickupFont);
-    stickleft = new wxButton(Panel1, ID_BUTTON9, wxEmptyString, wxPoint(130,222), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON9"));
-    wxFont stickleftFont(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    stickleft->SetFont(stickleftFont);
-    stickdown = new wxButton(Panel1, ID_BUTTON11, wxEmptyString, wxPoint(194,264), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON11"));
-    wxFont stickdownFont(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    stickdown->SetFont(stickdownFont);
-    select = new wxButton(Panel1, ID_BUTTON12, wxEmptyString, wxPoint(256,144), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON12"));
-    wxFont selectFont(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    select->SetFont(selectFont);
-    start = new wxButton(Panel1, ID_BUTTON13, wxEmptyString, wxPoint(312,144), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON13"));
-    wxFont startFont(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    start->SetFont(startFont);
-    ps = new wxButton(Panel1, ID_BUTTON14, wxEmptyString, wxPoint(284,176), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON14"));
-    wxFont psFont(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    ps->SetFont(psFont);
-    r2 = new wxButton(Panel1, ID_BUTTON15, wxEmptyString, wxPoint(424,0), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON15"));
-    wxFont r2Font(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    r2->SetFont(r2Font);
-    r1 = new wxButton(Panel1, ID_BUTTON16, wxEmptyString, wxPoint(424,32), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON16"));
-    wxFont r1Font(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    r1->SetFont(r1Font);
-    triangle = new wxButton(Panel1, ID_BUTTON17, wxEmptyString, wxPoint(488,56), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON17"));
-    wxFont triangleFont(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    triangle->SetFont(triangleFont);
-    square = new wxButton(Panel1, ID_BUTTON18, wxEmptyString, wxPoint(384,104), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON18"));
-    wxFont squareFont(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    square->SetFont(squareFont);
-    circle = new wxButton(Panel1, ID_BUTTON19, wxEmptyString, wxPoint(544,112), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON19"));
-    wxFont circleFont(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    circle->SetFont(circleFont);
-    cross = new wxButton(Panel1, ID_BUTTON20, wxEmptyString, wxPoint(496,192), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON20"));
-    wxFont crossFont(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    cross->SetFont(crossFont);
-    r3 = new wxButton(Panel1, ID_BUTTON21, wxEmptyString, wxPoint(368,222), wxSize(50,-1), 0, wxDefaultValidator, _T("ID_BUTTON21"));
-    wxFont r3Font(6,wxFONTFAMILY_DEFAULT,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxEmptyString,wxFONTENCODING_DEFAULT);
-    r3->SetFont(r3Font);
-    ChoiceDeadZoneShapeHipFire = new wxChoice(Panel1, ID_CHOICE2, wxPoint(207,320), wxSize(96,27), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE2"));
+    FlexGridSizer2->Add(StaticTextXy, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    StaticTextSmoothing = new wxStaticText(this, ID_STATICTEXT9, _("Smoothing"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT9"));
+    StaticTextSmoothing->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE));
+    StaticTextSmoothing->SetToolTip(_("Mouse smoothing"));
+    FlexGridSizer2->Add(StaticTextSmoothing, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    StaticTextHipFire = new wxStaticText(this, ID_STATICTEXT1, _("Hip Fire"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
+    StaticTextHipFire->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE));
+    FlexGridSizer2->Add(StaticTextHipFire, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    TextCtrlDeadZoneHipFire = new wxTextCtrl(this, ID_TEXTCTRL7, _("20"), wxDefaultPosition, wxDLG_UNIT(this,wxSize(20,16)), 0, wxDefaultValidator, _T("ID_TEXTCTRL7"));
+    TextCtrlDeadZoneHipFire->SetToolTip(_("Dead zone (Hip Fire) [-64..64]"));
+    FlexGridSizer2->Add(TextCtrlDeadZoneHipFire, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    ChoiceDeadZoneShapeHipFire = new wxChoice(this, ID_CHOICE2, wxDefaultPosition, wxDLG_UNIT(this,wxSize(48,16)), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE2"));
     ChoiceDeadZoneShapeHipFire->SetSelection( ChoiceDeadZoneShapeHipFire->Append(_("Circle")) );
     ChoiceDeadZoneShapeHipFire->Append(_("Rectangle"));
     ChoiceDeadZoneShapeHipFire->SetToolTip(_("Dead zone shape (Hip Fire)"));
-    ChoiceDeadZoneShapeADS = new wxChoice(Panel1, ID_CHOICE1, wxPoint(207,352), wxSize(96,27), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
+    FlexGridSizer2->Add(ChoiceDeadZoneShapeHipFire, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    TextCtrlSensitivityHipFire = new wxTextCtrl(this, ID_TEXTCTRL4, wxEmptyString, wxDefaultPosition, wxDLG_UNIT(this,wxSize(32,16)), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL4"));
+    TextCtrlSensitivityHipFire->SetToolTip(_("Sensitivity (Hip Fire)"));
+    FlexGridSizer2->Add(TextCtrlSensitivityHipFire, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    TextCtrlAccelerationHipFire = new wxTextCtrl(this, ID_TEXTCTRL22, wxEmptyString, wxDefaultPosition, wxDLG_UNIT(this,wxSize(24,16)), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL22"));
+    TextCtrlAccelerationHipFire->SetToolTip(_("Acceleration (Hip Fire) [0.00..2.00]"));
+    FlexGridSizer2->Add(TextCtrlAccelerationHipFire, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    TextCtrlXyRatioHipFire = new wxTextCtrl(this, ID_TEXTCTRL1, wxEmptyString, wxDefaultPosition, wxDLG_UNIT(this,wxSize(24,16)), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL1"));
+    TextCtrlXyRatioHipFire->SetToolTip(_("x/y ratio (Hip Fire)"));
+    FlexGridSizer2->Add(TextCtrlXyRatioHipFire, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    FlexGridSizer5 = new wxFlexGridSizer(1, 2, 0, wxDLG_UNIT(this,wxSize(1,0)).GetWidth());
+    TextCtrlBufferSizeHipFire = new wxTextCtrl(this, ID_TEXTCTRL8, wxEmptyString, wxDefaultPosition, wxDLG_UNIT(this,wxSize(17,16)), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL8"));
+    TextCtrlBufferSizeHipFire->SetToolTip(_("Buffer size (Hip Fire) [1..30]"));
+    FlexGridSizer5->Add(TextCtrlBufferSizeHipFire, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    TextCtrlFilterHipFire = new wxTextCtrl(this, ID_TEXTCTRL2, wxEmptyString, wxDefaultPosition, wxDLG_UNIT(this,wxSize(24,16)), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL2"));
+    TextCtrlFilterHipFire->SetToolTip(_("Filter (Hip Fire) [0.00..1.00]"));
+    FlexGridSizer5->Add(TextCtrlFilterHipFire, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    FlexGridSizer2->Add(FlexGridSizer5, 1, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticTextADS = new wxStaticText(this, ID_STATICTEXT2, _("ADS"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
+    StaticTextADS->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE));
+    StaticTextADS->SetToolTip(_("Aiming Down the Sights"));
+    FlexGridSizer2->Add(StaticTextADS, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    TextCtrlDeadZoneADS = new wxTextCtrl(this, ID_TEXTCTRL6, _("20"), wxDefaultPosition, wxDLG_UNIT(this,wxSize(20,16)), 0, wxDefaultValidator, _T("ID_TEXTCTRL6"));
+    TextCtrlDeadZoneADS->SetToolTip(_("Dead zone (ADS) [-64..64]"));
+    FlexGridSizer2->Add(TextCtrlDeadZoneADS, 0, wxALL|wxALIGN_LEFT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    ChoiceDeadZoneShapeADS = new wxChoice(this, ID_CHOICE1, wxDefaultPosition, wxDLG_UNIT(this,wxSize(48,16)), 0, 0, 0, wxDefaultValidator, _T("ID_CHOICE1"));
     ChoiceDeadZoneShapeADS->SetSelection( ChoiceDeadZoneShapeADS->Append(_("Circle")) );
     ChoiceDeadZoneShapeADS->Append(_("Rectangle"));
     ChoiceDeadZoneShapeADS->SetToolTip(_("Dead zone shape (ADS)"));
-    TextCtrlXyRatioHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL1, wxEmptyString, wxPoint(436,320), wxSize(50,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL1"));
-    TextCtrlXyRatioHipFire->SetToolTip(_("x/y ratio (Hip Fire)"));
-    TextCtrlXyRatioADS = new wxTextCtrl(Panel1, ID_TEXTCTRL25, wxEmptyString, wxPoint(436,352), wxSize(50,-1), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL25"));
+    FlexGridSizer2->Add(ChoiceDeadZoneShapeADS, 0, wxALIGN_LEFT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    TextCtrlSensitivityADS = new wxTextCtrl(this, ID_TEXTCTRL24, wxEmptyString, wxDefaultPosition, wxDLG_UNIT(this,wxSize(32,16)), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL24"));
+    TextCtrlSensitivityADS->SetToolTip(_("Sensitivity (ADS)"));
+    FlexGridSizer2->Add(TextCtrlSensitivityADS, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    TextCtrlAccelerationADS = new wxTextCtrl(this, ID_TEXTCTRL26, wxEmptyString, wxDefaultPosition, wxDLG_UNIT(this,wxSize(24,16)), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL26"));
+    TextCtrlAccelerationADS->SetToolTip(_("Acceleration (ADS) [0.00..2.00]"));
+    FlexGridSizer2->Add(TextCtrlAccelerationADS, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    TextCtrlXyRatioADS = new wxTextCtrl(this, ID_TEXTCTRL25, wxEmptyString, wxDefaultPosition, wxDLG_UNIT(this,wxSize(24,16)), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL25"));
     TextCtrlXyRatioADS->SetToolTip(_("x/y ratio (ADS)"));
-    StaticText8 = new wxStaticText(Panel1, ID_STATICTEXT8, _("Mouse DPI"), wxPoint(5,240), wxDefaultSize, 0, _T("ID_STATICTEXT8"));
-    StaticTextSmoothing = new wxStaticText(Panel1, ID_STATICTEXT9, _("Smoothing"), wxPoint(514,296), wxDefaultSize, 0, _T("ID_STATICTEXT9"));
-    StaticTextSmoothing->SetToolTip(_("Mouse smoothing"));
-    ButtonConvertSensitivity = new wxButton(Panel1, ID_BUTTON22, _("Convert\nsensitivity"), wxPoint(5,288), wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON22"));
-    TextCtrlDPI = new wxTextCtrl(Panel1, ID_TEXTCTRL5, _("0"), wxPoint(5,256), wxSize(60,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL5"));
-    TextCtrlDPI->SetToolTip(_("Mouse DPI [0..40000]"));
-    TextCtrlDeadZoneHipFire = new wxTextCtrl(Panel1, ID_TEXTCTRL7, _("20"), wxPoint(164,320), wxSize(35,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL7"));
-    TextCtrlDeadZoneHipFire->SetToolTip(_("Dead zone (Hip Fire) [-64..64]"));
-    TextCtrlDeadZoneADS = new wxTextCtrl(Panel1, ID_TEXTCTRL6, _("20"), wxPoint(164,352), wxSize(35,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL6"));
-    TextCtrlDeadZoneADS->SetToolTip(_("Dead zone (ADS) [-64..64]"));
+    FlexGridSizer2->Add(TextCtrlXyRatioADS, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    FlexGridSizer6 = new wxFlexGridSizer(1, 2, 0, wxDLG_UNIT(this,wxSize(1,0)).GetWidth());
+    TextCtrlBufferSizeADS = new wxTextCtrl(this, ID_TEXTCTRL9, wxEmptyString, wxDefaultPosition, wxDLG_UNIT(this,wxSize(17,16)), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL9"));
+    TextCtrlBufferSizeADS->SetToolTip(_("Buffer size (ADS) [1..30]"));
+    FlexGridSizer6->Add(TextCtrlBufferSizeADS, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    TextCtrlFilterADS = new wxTextCtrl(this, ID_TEXTCTRL3, wxEmptyString, wxDefaultPosition, wxDLG_UNIT(this,wxSize(24,16)), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRL3"));
+    TextCtrlFilterADS->SetToolTip(_("Filter (ADS) [0.00..1.00]"));
+    FlexGridSizer6->Add(TextCtrlFilterADS, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
+    FlexGridSizer2->Add(FlexGridSizer6, 1, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer4->Add(FlexGridSizer2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer1->Add(FlexGridSizer4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    SetSizer(FlexGridSizer1);
     MenuBar1 = new wxMenuBar();
     MenuFile = new wxMenu();
     MenuItemNew = new wxMenuItem(MenuFile, ID_MENUITEM1, _("New\tCtrl+N"), wxEmptyString, wxITEM_NORMAL);
@@ -386,19 +403,10 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __at
     StatusBar1->SetFieldsCount(1,__wxStatusBarWidths_1);
     StatusBar1->SetStatusStyles(1,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
+    SetSizer(FlexGridSizer1);
+    Layout();
 
     Connect(ID_BUTTON10,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&fpsconfigFrame::OnButtonClick);
-    Connect(ID_TEXTCTRL24,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL4,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL26,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL8,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL8,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL2,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL9,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL9,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL3,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL3,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL22,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
     Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&fpsconfigFrame::OnButtonClick);
     Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&fpsconfigFrame::OnButtonClick);
     Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&fpsconfigFrame::OnButtonClick);
@@ -419,12 +427,23 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __at
     Connect(ID_BUTTON19,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&fpsconfigFrame::OnButtonClick);
     Connect(ID_BUTTON20,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&fpsconfigFrame::OnButtonClick);
     Connect(ID_BUTTON21,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&fpsconfigFrame::OnButtonClick);
-    Connect(ID_TEXTCTRL1,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_TEXTCTRL25,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
-    Connect(ID_BUTTON22,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&fpsconfigFrame::OnButtonConvertSensitivityClick);
     Connect(ID_TEXTCTRL5,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_BUTTON22,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&fpsconfigFrame::OnButtonConvertSensitivityClick);
     Connect(ID_TEXTCTRL7,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_TEXTCTRL4,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_TEXTCTRL22,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_TEXTCTRL1,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_TEXTCTRL8,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_TEXTCTRL8,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_TEXTCTRL2,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
     Connect(ID_TEXTCTRL6,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_TEXTCTRL24,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_TEXTCTRL26,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_TEXTCTRL25,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_TEXTCTRL9,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_TEXTCTRL9,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_TEXTCTRL3,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
+    Connect(ID_TEXTCTRL3,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&fpsconfigFrame::OnTextCtrlText);
     Connect(ID_MENUITEM1,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuNew);
     Connect(ID_MENUITEM4,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuOpen);
     Connect(ID_MENUITEM2,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&fpsconfigFrame::OnMenuSave);
@@ -437,10 +456,10 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __at
     //*)
     Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(fpsconfigFrame::OnClose), NULL, this);
 
-    wxMemoryInputStream istream(background_png, sizeof background_png);
-    wxImage background_img(istream, wxBITMAP_TYPE_PNG);
-    ToolBarBackground = new wxBackgroundBitmap(wxBitmap(background_img));
-    Panel1->PushEventHandler(ToolBarBackground);
+    ToolBarBackground = new wxBackgroundBitmap(background);
+    PushEventHandler(ToolBarBackground);
+    ToolBarBackground2 = new wxBackgroundBitmap(background);
+    Panel1->PushEventHandler(ToolBarBackground2);
 
     TextCtrlSensitivityHipFire->SetValue(wxT("1.00"));
     TextCtrlSensitivityADS->SetValue(wxT("1.00"));
@@ -525,7 +544,7 @@ fpsconfigFrame::fpsconfigFrame(wxString file,wxWindow* parent,wxWindowID id __at
 
     readLabels();
 
-    Panel1->Fit();
+    Panel1->SetSize(background.GetSize());
     SetClientSize(Panel1->GetSize());
 
 }
@@ -534,7 +553,9 @@ fpsconfigFrame::~fpsconfigFrame()
 {
     //(*Destroy(fpsconfigFrame)
     //*)
-    Panel1->RemoveEventHandler(ToolBarBackground);
+    Panel1->RemoveEventHandler(ToolBarBackground2);
+    delete ToolBarBackground2;
+    RemoveEventHandler(ToolBarBackground);
     delete ToolBarBackground;
 }
 

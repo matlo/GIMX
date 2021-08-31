@@ -31,4 +31,16 @@
 #define FIRMWARE_DIR "firmware"
 #endif
 
+#ifndef WIN32
+#define FIRMWARE_DIR "/usr/share/gimx/firmware"
+#else
+#define FIRMWARE_DIR "firmware"
+#endif
+
+#ifndef WIN32
+#define IMAGE_DIR "/usr/share/gimx/image"
+#else
+#define IMAGE_DIR "image"
+#endif
+
 #endif /* DIRECTORIES_H_ */
