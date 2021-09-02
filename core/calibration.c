@@ -273,6 +273,24 @@ static void cal_display()
   }
 }
 
+void cal_save()
+{
+  current_cal = NONE;
+  if (cfgw_modify_file(gimx_params.config_file)) {
+    gwarn(_("error writting the config file %s\n"), gimx_params.config_file);
+  }
+  ginfo(_("calibration done\n"));
+}
+
+void cal_update_display()
+{
+  if (gimx_params.curses) {
+    display_calibration();
+  } else {
+    cal_display();
+  }
+}
+
 /*
  * Use keys to calibrate the mouse.
  */
@@ -319,12 +337,7 @@ void cal_key(int sym, int down)
           }
           else
           {
-            current_cal = NONE;
-            if (cfgw_modify_file(gimx_params.config_file))
-            {
-              gwarn(_("error writting the config file %s\n"), gimx_params.config_file);
-            }
-            ginfo(_("calibration done\n"));
+            cal_save();
           }
         }
         else if(current_cal != NONE)
@@ -442,19 +455,75 @@ void cal_key(int sym, int down)
 
   if(prev != current_cal)
   {
-    if(gimx_params.curses)
-    {
-      display_calibration();
-    }
-    else
-    {
-      cal_display();
-    }
+    cal_update_display();
   }
 }
 
 #define DEADZONE_MAX(AXIS) \
     (controller_get_mean_unsigned(ctype, AXIS) / controller_get_axis_scale(ctype, AXIS) / 2)
+
+void cal_set_sensibility(double s)
+{
+  s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
+  double ratio = *mcal->my / *mcal->mx;
+  *mcal->mx = s;
+  *mcal->my = *mcal->mx * ratio;
+}
+
+void cal_set_deadzone_x(int dx)
+{
+  e_controller_type ctype = adapter_get(cal_get_controller(current_mouse))->ctype;
+  s_mouse_control* mc = cfg_get_mouse_control(current_mouse);
+  s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
+  if (mcal->dzx && dx < DEADZONE_MAX(rel_axis_rstick_x)) {
+    *mcal->dzx = dx;
+    mc->merge[mc->index].x = 1;
+    mc->merge[mc->index].y = 0;
+    mc->change = 1;
+  }
+
+}
+void cal_set_deadzone_y(int dy)
+{
+  e_controller_type ctype = adapter_get(cal_get_controller(current_mouse))->ctype;
+  s_mouse_control* mc = cfg_get_mouse_control(current_mouse);
+  s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
+  if (mcal->dzy && dy < DEADZONE_MAX(rel_axis_rstick_y)) {
+    *mcal->dzy = dy;
+    mc->merge[mc->index].x = 0;
+    mc->merge[mc->index].y = 1;
+    mc->change = 1;
+  }
+}
+
+void cal_set_exponent_x(double e)
+{
+  s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
+  if (mcal->ex)
+  {
+    *mcal->ex = e;
+  }
+}
+
+void cal_set_exponent_y(double e)
+{
+  s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
+  if (mcal->ey)
+  {
+    *mcal->ey = e;
+  }
+}
+
+/**
+ * This function does *only* changes the sensibility on the vertical axis so that y/x = r.
+ */
+void cal_set_yxratio(double r){
+  s_mouse_cal* mcal = cal_get_mouse(current_mouse, current_conf);
+  if (mcal->mx && mcal->my)
+  {
+    *mcal->my = *mcal->mx * r;
+  }
+}
 
 /*
  * Use the mouse wheel to calibrate the mouse.
