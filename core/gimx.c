@@ -7,6 +7,7 @@
 #include <signal.h> //to catch SIGINT
 #include <errno.h> //to print errors
 #include <string.h> //to print errors
+#include <stdlib.h> //free()
 #include <limits.h> //PATH_MAX
 
 #ifndef WIN32
