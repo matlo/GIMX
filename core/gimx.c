@@ -8,6 +8,7 @@
 #include <errno.h> //to print errors
 #include <string.h> //to print errors
 #include <limits.h> //PATH_MAX
+#include <stdlib.h>
 
 #ifndef WIN32
 #include <termios.h> //to disable/enable echo
@@ -529,7 +530,7 @@ int main(int argc, char *argv[])
       sprintf(file, "%s/gimx.status", tmp);
     }
     free(tmp);
-    if (file != NULL && file[0] != '\0')
+    if (file[0] != '\0')
     {
       FILE * fp = gfile_fopen(file, "w");
       if (fp != NULL)

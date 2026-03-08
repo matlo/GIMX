@@ -82,7 +82,7 @@ typedef struct {
     int mperiod;
 } s_adapter;
 
-int adapter_detect();
+e_gimx_status adapter_detect();
 int adapter_start();
 int adapter_send();
 e_gimx_status adapter_clean();

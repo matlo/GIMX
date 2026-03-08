@@ -17,6 +17,7 @@
 #include "../directories.h"
 #include "macros.h"
 #include <errno.h>
+#include <stdlib.h>
 
 /*
  * These variables are used to read the configuration.
