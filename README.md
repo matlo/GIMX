@@ -9,8 +9,10 @@ I've updated code in GIMX to use modern Linux dependencies so it builds on updat
 
 At this time the config editor is only capable of detecting the evdev controller in "slot 1" so you must disconnect and reconnect stuff to get into slot 1 to recognize it, but it supports full features of Linux devices again.  
 
+```
 make
 sudo make install
+```
 
 That's all you (should) need to do to install it on Linux.
 
