@@ -3,6 +3,7 @@
  License: GPLv3
  */
 
+#include <stdlib.h>
 #include <string.h>
 #include "config_reader.h"
 #include <xml_defs.h>
@@ -17,6 +18,7 @@
 #include "../directories.h"
 #include "macros.h"
 #include <errno.h>
+#include <stdlib.h>
 
 /*
  * These variables are used to read the configuration.

@@ -358,7 +358,7 @@ int controller_get_axis_index(const char* name)
     int i;
     for(i=0; i<AXIS_MAX; ++i)
     {
-      if(controllers[C_TYPE_SIXAXIS]->axes[i].name)
+      if(controllers[C_TYPE_SIXAXIS]->axes[i].name[0])
       {
         if(!strcmp(controllers[C_TYPE_SIXAXIS]->axes[i].name, name))
         {
