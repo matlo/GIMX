@@ -8,7 +8,7 @@
 #ifdef PDCURSES
 #include <cursesw.h>
 #else
-#include <ncursesw/ncurses.h>
+#include <ncurses.h>
 #endif
 
 #include "display.h"
