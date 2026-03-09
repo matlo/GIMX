@@ -8,6 +8,7 @@
 #include <errno.h> //to print errors
 #include <string.h> //to print errors
 #include <limits.h> //PATH_MAX
+#include <stdlib.h>
 
 #ifndef WIN32
 #include <termios.h> //to disable/enable echo
