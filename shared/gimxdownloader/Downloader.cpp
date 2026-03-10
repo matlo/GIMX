@@ -129,12 +129,12 @@ static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream) {
     return written;
 }
 
-static int progress_callback(void * clientp, double dltotal, double dlnow, double ultotal __attribute__((unused)),
-        double ulnow __attribute__((unused))) {
+static int progress_callback(void * clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal __attribute__((unused)),
+        curl_off_t ulnow __attribute__((unused))) {
     return ((Downloader *) clientp)->progress(dlnow, dltotal);
 }
 
-int Downloader::progress(double dlnow, double dltotal) {
+int Downloader::progress(int64_t  dlnow, int64_t  dltotal) {
 
     DownloaderStatus status = Downloader::DownloaderStatusConnectionPending;
 
@@ -209,8 +209,8 @@ Downloader::DownloaderStatus Downloader::download(const std::string& url, const 
     curl_easy_setopt(m_curl_handle, CURLOPT_WRITEFUNCTION, write_data);
     curl_easy_setopt(m_curl_handle, CURLOPT_FILE, outfile);
 
-    curl_easy_setopt(m_curl_handle, CURLOPT_PROGRESSFUNCTION, progress_callback);
-    curl_easy_setopt(m_curl_handle, CURLOPT_PROGRESSDATA, this);
+    curl_easy_setopt(m_curl_handle, CURLOPT_XFERINFOFUNCTION, progress_callback);
+    curl_easy_setopt(m_curl_handle, CURLOPT_XFERINFODATA, this);
     curl_easy_setopt(m_curl_handle, CURLOPT_NOPROGRESS, 0L);
 
     //curl_easy_setopt(m_curl_handle, CURLOPT_VERBOSE, 1L);
