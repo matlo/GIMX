@@ -105,5 +105,6 @@ int adapter_forward_interrupt_in(int adapter, unsigned char* data, unsigned char
 
 void adapter_set_haptic_sink(int adapter, int joystick, int force);
 void adapter_set_haptic_tweaks(int adapter, const s_haptic_core_tweaks * tweaks);
+void adapter_set_haptic_wheel_rotation(int adapter, const s_haptic_core_wheel_rotation* rot);
 
 #endif /* CONTROLLER_H_ */

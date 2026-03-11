@@ -117,6 +117,29 @@ void cfg_init_ffb_tweaks()
   }
 }
 
+static s_haptic_core_wheel_rotation wheelRotations[MAX_CONTROLLERS][MAX_PROFILES];
+
+void cfg_set_wheel_rotation(const s_config_entry* entry) {
+    wheelRotations[entry->controller_id][entry->profile_id].rotation = entry->params.wheel_rotation.degrees;
+}
+
+const s_haptic_core_wheel_rotation* cfg_get_wheel_rotation(int controller)
+{
+    return wheelRotations[controller] + cfg_controllers[controller].current->index;
+}
+
+void cfg_init_wheel_rotations()
+{
+    unsigned int i, j;
+    for (i = 0; i < MAX_CONTROLLERS; ++i)
+    {
+        for (j = 0; j < MAX_PROFILES; ++j)
+        {
+            wheelRotations[i][j].rotation = 900;
+        }
+    }
+}
+
 static struct
 {
   unsigned int nb;
@@ -875,6 +898,10 @@ void cfg_profile_activation()
           const s_haptic_core_tweaks * tweaks = cfg_get_ffb_tweaks(i);
           
           adapter_set_haptic_tweaks(i, tweaks);
+
+          const s_haptic_core_wheel_rotation* rot = cfg_get_wheel_rotation(i);
+
+          adapter_set_haptic_wheel_rotation(i, rot);
 
           unsigned int k;
           for (k = 0; k < sizeof(mouse_control) / sizeof(*mouse_control); ++k)

@@ -21,6 +21,7 @@ typedef enum {
     E_HAPTIC_SINK_CAP_CONSTANT = (1 << 1),
     E_HAPTIC_SINK_CAP_SPRING = (1 << 2),
     E_HAPTIC_SINK_CAP_DAMPER = (1 << 3),
+    E_HAPTIC_SINK_CAP_RANGE = (1 << 4),
 } e_haptic_sink_caps;
 
 typedef struct {

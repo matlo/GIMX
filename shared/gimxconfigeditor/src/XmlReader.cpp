@@ -526,7 +526,7 @@ void XmlReader::ProcessIntensityElement(xmlNode * a_node)
               string message(string("bad element name: ") + string((char*)cur_node->name));
               throw invalid_argument(message);
             }
-            
+
             prop = (char*)xmlGetProp(cur_node, (xmlChar*) X_ATTR_TYPE);
             device_type = string(prop?prop:"");
             xmlFree(prop);
@@ -544,7 +544,7 @@ void XmlReader::ProcessIntensityElement(xmlNode * a_node)
             {
               m_TempIntensity.SetDevice(Device(device_type, device_id, device_name));
               m_TempIntensity.SetEvent(Event(button_id));
-              
+
               if(control == "left_stick")
               {
                 m_TempIntensity.SetAxis(Intensity::GetAxisProps("lstick"));
@@ -705,6 +705,52 @@ void XmlReader::ProcessGainElement(xmlNode * a_node)
     xmlFree(prop);
 }
 
+void XmlReader::ProcessRotationElement(xmlNode* a_node) {
+    xmlNode* cur_node = NULL;
+
+    for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
+    {
+        if (cur_node->type == XML_ELEMENT_NODE)
+        {
+            if (xmlStrEqual(cur_node->name, (xmlChar*)X_NODE_DEVICE))
+            {
+                ProcessDeviceElement(cur_node);
+                break;
+            }
+            else
+            {
+                string message(string("bad element name: ") + string((char*)cur_node->name));
+                throw invalid_argument(message);
+            }
+        }
+    }
+    if (!cur_node)
+    {
+        string message(string("missing device element"));
+        throw invalid_argument(message);
+    }
+
+    for (cur_node = cur_node->next; cur_node; cur_node = cur_node->next)
+    {
+        if (cur_node->type == XML_ELEMENT_NODE)
+        {
+            if (xmlStrEqual(cur_node->name, (xmlChar*)X_NODE_ROTATION))
+            {
+                char* prop;
+
+                prop = (char*)xmlGetProp(cur_node, (xmlChar*)X_ATTR_DEGREES);
+                string str(prop);
+                printf("Degrees prop: %s\n", prop);
+                m_TempWheelRotation.SetRotation(string(prop ? prop : "900"));
+                xmlFree(prop);
+            }
+        }
+    }
+    m_TempWheelRotation.SetJoystick(m_TempDevice);
+
+    m_TempConfiguration.SetWheelRotation(m_TempWheelRotation);
+}
+
 void XmlReader::ProcessForceFeedbackElement(xmlNode * a_node)
 {
     xmlNode* cur_node = NULL;
@@ -819,9 +865,13 @@ void XmlReader::ProcessConfigurationElement(xmlNode * a_node)
             {
                 ProcessJoystickCorrectionsListElement(cur_node);
             }
-            else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_FORCE_FEEDBACK))
+            else if (xmlStrEqual(cur_node->name, (xmlChar*)X_NODE_FORCE_FEEDBACK))
             {
                 ProcessForceFeedbackElement(cur_node);
+            }
+            else if (xmlStrEqual(cur_node->name, (xmlChar*)X_NODE_WHEEL_SETTINGS))
+            {
+                ProcessRotationElement(cur_node);
             }
             else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_MACROS))
             {

@@ -74,6 +74,10 @@
 #define X_ATTR_SPRING "spring"
 #define X_ATTR_DAMPER "damper"
 
+#define X_NODE_WHEEL_SETTINGS "wheel_settings"
+#define X_NODE_ROTATION "wheel_rotation"
+#define X_ATTR_DEGREES "degrees"
+
 #define X_NODE_MACROS "macros"
 
 #endif /* XML_DEFS_H_ */

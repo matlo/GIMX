@@ -24,6 +24,7 @@ struct haptic_core {
         struct haptic_sink_state * state;
     } sink;
     s_haptic_core_tweaks tweaks;
+    s_haptic_core_wheel_rotation rotationTweaks;
     GLIST_LINK(struct haptic_core);
 };
 
@@ -64,6 +65,7 @@ struct haptic_core * haptic_core_init(s_haptic_core_ids source_ids, int sink_joy
     core->tweaks.gain.constant = 100;
     core->tweaks.gain.spring = 100;
     core->tweaks.gain.damper = 100;
+    core->rotationTweaks.rotation = 900;
 
     GLIST_ADD(ff_cores, core);
 
@@ -106,6 +108,7 @@ void haptic_core_update(struct haptic_core * core) {
     s_haptic_core_data data;
     while (core->source.ptr->get(core->source.state, &data)) {
         haptic_tweak_apply(&core->tweaks, &data);
+        haptic_rotation_apply(&core->rotationTweaks, &data);
         core->sink.ptr->process(core->sink.state, &data);
     }
 
@@ -141,4 +144,18 @@ void haptic_core_set_tweaks(struct haptic_core * core, const s_haptic_core_tweak
     }
 
     core->tweaks = *tweaks;
+}
+
+void haptic_core_set_rotation(struct haptic_core* core, const s_haptic_core_wheel_rotation* rotation) {
+
+    if (core == NULL) {
+        return;
+    }
+
+    if (gimx_params.status) {
+        if (core->sink.ptr->caps & E_HAPTIC_SINK_CAP_RANGE) {
+            ginfo("wheel lock=%d\n", rotation->rotation);
+        }
+    }
+    core->rotationTweaks = *rotation;
 }

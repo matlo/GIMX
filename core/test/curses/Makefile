@@ -6,7 +6,7 @@ else
 OUT=gimx.exe
 endif
 
-CFLAGS = -Wall -Wextra -Werror -g -O0
+CFLAGS = -Wall -Wextra -g -O0
 CPPFLAGS = -DSDL_MAIN_HANDLED -I../../../shared -I../.. -I/mingw64/include/SDL2
 
 LDFLAGS = -L../../../shared/gimxcontroller -L../../../shared/gimxtime

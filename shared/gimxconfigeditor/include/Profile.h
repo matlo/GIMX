@@ -14,6 +14,7 @@
 #include "MouseOptions.h"
 #include "JoystickCorrection.h"
 #include "ForceFeedback.h"
+#include "WheelRotation.h"
 #include <list>
 
 class Profile
@@ -33,6 +34,8 @@ class Profile
         void SetJoystickCorrectionsList(std::list<JoystickCorrection> val) { m_JoystickCorrectionsList = val; }
         ForceFeedback* GetForceFeedback() { return &m_ForceFeedback; }
         void SetForceFeedback(ForceFeedback val) { m_ForceFeedback = val; }
+        WheelRotation* GetWheelRotation() { return &m_WheelRotation; }
+        void SetWheelRotation(WheelRotation val) { m_WheelRotation = val; }
         std::list<ControlMapper>* GetButtonMapperList() { return &m_ButtonMappers; }
         std::list<ControlMapper>* GetAxisMapperList() { return &m_AxisMappers; }
         void SetButtonMappers(std::list<ControlMapper> bml) { m_ButtonMappers = bml; }
@@ -50,6 +53,7 @@ class Profile
         std::list<ControlMapper> m_AxisMappers;
         std::list<JoystickCorrection> m_JoystickCorrectionsList;
         ForceFeedback m_ForceFeedback;
+        WheelRotation m_WheelRotation;
         std::string m_Macros;
 };
 

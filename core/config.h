@@ -145,6 +145,9 @@ typedef struct
         int damper;
       } gain;
     } ffb_tweaks;
+    struct {
+        int degrees;
+    } wheel_rotation;
   } params;
 }s_config_entry;
 
@@ -203,6 +206,9 @@ int cfg_add_js_corr(int joystick, s_js_corr * corr);
 void cfg_set_ffb_tweaks(const s_config_entry * entry);
 const s_haptic_core_tweaks * cfg_get_ffb_tweaks(int controller);
 void cfg_init_ffb_tweaks();
+void cfg_set_wheel_rotation(const s_config_entry* entry);
+const s_haptic_core_wheel_rotation* cfg_get_wheel_rotation(int controller);
+void cfg_init_wheel_rotations();
 void cfg_pair_mouse_mappers();
 void cfg_set_profile(int controller, int profile);
 

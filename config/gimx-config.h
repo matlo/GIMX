@@ -104,7 +104,9 @@ class configFrame: public wxFrame
         void OnJoystickCorrectionsRemoveClick(wxCommandEvent& event);
         void OnJoystickCorrectionsModifyClick(wxCommandEvent& event);
         void OnJoystickCorrectionsAutoDetectClick(wxCommandEvent& event);
+        void OnButtonWheelRotationAutoDetect(wxCommandEvent& event);
         void OnButtonForceFeedbackAutoDetect(wxCommandEvent& event);
+        void OnButtonWheelRotationDelete(wxCommandEvent& event);
         void OnButtonFFBTweaksDelete(wxCommandEvent& event);
         void OnAxisTabAxisIdSelect(wxCommandEvent& event);
         void OnMenuItemExport(wxCommandEvent& event);
@@ -226,6 +228,16 @@ class configFrame: public wxFrame
         static const long ID_TEXTCTRL17;
         static const long ID_STATICLINE15;
         static const long ID_BUTTON24;
+        static const long ID_STATICTEXT56;
+        static const long ID_STATICTEXT57;
+        static const long ID_STATICTEXT58;
+        static const long ID_STATICTEXT59;
+        static const long ID_BUTTON26;
+        static const long ID_STATICLINE17;
+        static const long ID_STATICTEXT60;
+        static const long ID_TEXTCTRL19;
+        static const long ID_STATICLINE18;
+        static const long ID_BUTTON27;
         static const long ID_PANEL8;
         static const long ID_NOTEBOOK2;
         static const long ID_PANEL1;
@@ -342,6 +354,7 @@ class configFrame: public wxFrame
         wxButton* ButtonTabAutoDetect;
         wxButton* ButtonTabModify;
         wxButton* ButtonTabRemove;
+        wxButton* DeleteRotationButton;
         wxButton* ForceFeedbackAutoDetect;
         wxButton* IntensityAdd;
         wxButton* IntensityAutoDetect;
@@ -355,6 +368,7 @@ class configFrame: public wxFrame
         wxButton* MouseOptionsAutoDetect;
         wxButton* MouseOptionsModify;
         wxButton* MouseOptionsRemove;
+        wxButton* WheelRotationAutoDetectButton;
         wxCheckBox* CheckBoxSwitchBack;
         wxCheckBox* FFBTweaksInvert;
         wxChoice* AxisTabAxisId;
@@ -441,6 +455,8 @@ class configFrame: public wxFrame
         wxStaticLine* StaticLine13;
         wxStaticLine* StaticLine14;
         wxStaticLine* StaticLine15;
+        wxStaticLine* StaticLine17;
+        wxStaticLine* StaticLine18;
         wxStaticLine* StaticLine1;
         wxStaticLine* StaticLine2;
         wxStaticLine* StaticLine3;
@@ -488,6 +504,7 @@ class configFrame: public wxFrame
         wxStaticText* StaticText18;
         wxStaticText* StaticText19;
         wxStaticText* StaticText1;
+        wxStaticText* StaticText23;
         wxStaticText* StaticText24;
         wxStaticText* StaticText2;
         wxStaticText* StaticText3;
@@ -506,6 +523,10 @@ class configFrame: public wxFrame
         wxStaticText* StaticTextSensPanelAxis;
         wxStaticText* StaticTextShapePanelAxis;
         wxStaticText* StaticTextThresholdPanelButton;
+        wxStaticText* WheelRotationAxis;
+        wxStaticText* WheelRotationId;
+        wxStaticText* WheelRotationName;
+        wxStaticText* WheelRotationType;
         wxStatusBar* StatusBar1;
         wxTextCtrl* AxisTabAcceleration;
         wxTextCtrl* AxisTabDeadZone;
@@ -524,6 +545,7 @@ class configFrame: public wxFrame
         wxTextCtrl* MouseOptionsBuffer;
         wxTextCtrl* MouseOptionsFilter;
         wxTextCtrl* ProfileTriggerDelay;
+        wxTextCtrl* WheelRotationDegrees;
         //*)
 
         wxLocale* locale;
@@ -543,7 +565,7 @@ class configFrame: public wxFrame
         unsigned int grid3mod;
         unsigned int grid4mod;
         unsigned int gridJoystickCorrectionsMod;
-        
+
         wxString default_directory;
 
         string buttonTabDeviceName;
@@ -553,6 +575,7 @@ class configFrame: public wxFrame
         string intensityTabDeviceName;
         string joystickTabDeviceName;
         string ffbTweaksTabDeviceName;
+        string wheelRotationDeviceName;
 
         DECLARE_EVENT_TABLE()
 };

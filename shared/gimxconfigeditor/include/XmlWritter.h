@@ -29,6 +29,7 @@ class XmlWritter
         void CreateControllerNodes(xmlNodePtr parent_node);
         void CreateJoystickCorrectionsNodes(xmlNodePtr parent_node);
         void CreateForceFeedbackNode(xmlNodePtr parent_node);
+        void CreateRotationNode(xmlNodePtr parent_node);
         void CreateInversionNode(xmlNodePtr parent_node, ForceFeedback* ffb);
         void CreateGainNode(xmlNodePtr parent_node, ForceFeedback* ffb);
         void CreateMacrosNode(xmlNodePtr parent_node);

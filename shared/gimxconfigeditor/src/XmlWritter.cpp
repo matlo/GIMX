@@ -196,6 +196,16 @@ void XmlWritter::CreateForceFeedbackNode(xmlNodePtr parent_node)
     }
 }
 
+void XmlWritter::CreateRotationNode(xmlNodePtr parent_node) {
+    WheelRotation* rotation = m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentProfile)->GetWheelRotation();
+    if (!rotation->GetJoystick()->GetName().empty()) {
+        xmlNodePtr node = xmlNewChild(parent_node, NULL, BAD_CAST X_NODE_WHEEL_SETTINGS, NULL);
+        CreateDeviceNode(node, rotation->GetJoystick());
+        xmlNodePtr d_node = xmlNewChild(node, NULL, BAD_CAST X_NODE_ROTATION, NULL);
+        xmlNewProp(d_node, BAD_CAST X_ATTR_DEGREES, BAD_CAST rotation->GetRotation().c_str());
+    }
+}
+
 void XmlWritter::CreateMacrosNode(xmlNodePtr parent_node)
 {
     const std::string& macros = m_ConfigurationFile->GetController(m_CurrentController)->GetProfile(m_CurrentProfile)->getMacros();
@@ -288,6 +298,8 @@ void XmlWritter::CreateConfigurationNodes(xmlNodePtr parent_node)
 
         CreateJoystickCorrectionsNodes(node);
 
+        CreateRotationNode(node);
+
         CreateForceFeedbackNode(node);
 
         CreateMacrosNode(node);
@@ -356,7 +368,7 @@ int XmlWritter::WriteConfigFile(const string& directory, const string& file)
 #ifndef WIN32
     if(ret != -1 && gfile_makeown(path.c_str()) < 0)
     {
-      ret = -1;
+        ret = -1;
     }
 #endif
 

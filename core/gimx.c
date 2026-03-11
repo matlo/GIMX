@@ -377,6 +377,7 @@ int main(int argc, char *argv[])
 
     cfg_intensity_init();
     cfg_init_ffb_tweaks();
+    cfg_init_wheel_rotations();
 
     if(read_config_file(gimx_params.config_file) < 0)
     {
@@ -393,7 +394,7 @@ int main(int argc, char *argv[])
 
       cfg_intensity_init();
       cfg_init_ffb_tweaks();
-
+      cfg_init_wheel_rotations();
       read_config_file(gimx_params.config_file);
     }
 

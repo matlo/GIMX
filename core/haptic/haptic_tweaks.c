@@ -3,6 +3,7 @@
  License: GPLv3
  */
 
+#include <gimx.h>
 #include <limits.h>
 #include <haptic/haptic_core.h>
 
@@ -18,6 +19,16 @@
             int64_t tmp = VALUE * GAIN / 100; \
             VALUE = CLAMP(MIN, tmp, MAX); \
         }
+        
+void haptic_rotation_apply(const s_haptic_core_wheel_rotation* rotation, s_haptic_core_data* data) {
+
+    if (data->type == E_DATA_TYPE_RANGE) {
+        if (data->range.value > rotation->rotation) {
+            ginfo("Setting range to user set %d* limit.\n", rotation->rotation);
+            data->range.value = rotation->rotation;
+        }
+    }
+}
 
 void haptic_tweak_apply(const s_haptic_core_tweaks * tweaks, s_haptic_core_data * data) {
 

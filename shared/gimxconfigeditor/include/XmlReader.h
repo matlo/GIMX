@@ -72,6 +72,10 @@
 #define X_ATTR_SPRING "spring"
 #define X_ATTR_DAMPER "damper"
 
+#define X_NODE_WHEEL_SETTINGS "wheel_settings"
+#define X_NODE_ROTATION "wheel_rotation"
+#define X_ATTR_DEGREES "degrees"
+
 #define X_ATTR_VALUE_YES "yes"
 #define X_ATTR_VALUE_NO "no"
 
@@ -104,6 +108,7 @@ class XmlReader
         void ProcessIntensityElement(xmlNode * a_node);
         void ProcessIntensityListElement(xmlNode * a_node);
         void ProcessJoystickCorrectionsListElement(xmlNode * a_node);
+        void ProcessRotationElement(xmlNode* a_node);
         void ProcessForceFeedbackElement(xmlNode * a_node);
         void ProcessMacrosElement(xmlNode * a_node);
         void ProcessCorrectionElement(xmlNode * a_node);
@@ -123,6 +128,7 @@ class XmlReader
         Trigger m_TempTrigger;
         MouseOptions m_TempMouseOptions;
         JoystickCorrection m_TempJoystickCorrection;
+        WheelRotation m_TempWheelRotation;
         ForceFeedback m_TempForceFeedback;
         Intensity m_TempIntensity;
         Profile m_TempConfiguration;

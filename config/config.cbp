@@ -3,31 +3,56 @@
 	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="gimx-config" />
+		<Option makefile="makefile" />
+		<Option makefile_is_custom="1" />
+		<Option execution_dir="C:/msys64/home/Crowbar/GIMX-build/windows/GIMX" />
 		<Option pch_mode="0" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/sixaxis-emu-gui" prefix_auto="1" extension_auto="1" />
+				<Option output="../setup/gimx-config" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option projectLinkerOptionsRelation="2" />
 				<Compiler>
 					<Add option="-g" />
+					<Add directory="C:/msys64/home/Crowbar/GIMX-build/windows/GIMX/shared/" />
 				</Compiler>
+				<ExtraCommands>
+					<Add after="cp -u -f config/gimx-config.exe setup/gimx-config.exe" />
+					<Add after="cp -u -f shared/*/*.dll setup" />
+				</ExtraCommands>
+				<MakeCommands>
+					<Build command="$make" />
+					<CompileFile command="$make -f $makefile $file" />
+					<Clean command="$make -f $makefile clean" />
+					<DistClean command="$make -f $makefile distclean$target" />
+					<AskRebuildNeeded command="$make -q -f $makefile $target" />
+					<SilentBuild command="$make &gt; $(CMD_NULL)" />
+				</MakeCommands>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/sixaxis-emu-gui" prefix_auto="1" extension_auto="1" />
+				<Option output="../setup/gimx-config" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option projectLinkerOptionsRelation="2" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="C:/msys64/home/Crowbar/GIMX-build/windows/GIMX/shared/" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 				</Linker>
+				<MakeCommands>
+					<Build command="$makefile" />
+					<CompileFile command="$make -f $makefile $file" />
+					<Clean command="$make -f $makefile clean" />
+					<DistClean command="$make -f $makefile distclean$target" />
+					<AskRebuildNeeded command="$make -q -f $makefile $target" />
+					<SilentBuild command="$makefile &gt; $(CMD_NULL)" />
+				</MakeCommands>
 			</Target>
 		</Build>
 		<Compiler>
@@ -44,46 +69,311 @@
 			<Add library="SDL" />
 			<Add library="xml2" />
 		</Linker>
-		<Unit filename="include/ControlMapper.h" />
-		<Unit filename="include/Configuration.h" />
-		<Unit filename="include/ConfigurationFile.h" />
-		<Unit filename="include/Controller.h" />
-		<Unit filename="include/Device.h" />
-		<Unit filename="include/Event.h" />
-		<Unit filename="include/Trigger.h" />
-		<Unit filename="include/XmlReader.h" />
-		<Unit filename="include/XmlWritter.h" />
-		<Unit filename="include/event_catcher.h" />
+		<Unit filename="../shared/gimx-adapter-protocol/include/protocol.h" />
+		<Unit filename="../shared/gimx-network-protocol/protocol.h" />
+		<Unit filename="../shared/gimxcommon/include/async.h" />
+		<Unit filename="../shared/gimxcommon/include/gerror.h" />
+		<Unit filename="../shared/gimxcommon/include/glist.h" />
+		<Unit filename="../shared/gimxcommon/include/gperf.h" />
+		<Unit filename="../shared/gimxcommon/src/posix/async.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxcommon/src/windows/async.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxcommon/src/windows/gerror.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxcommon/test/common.h" />
+		<Unit filename="../shared/gimxcommon/test/handlers.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxcommon/test/hid.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxcommon/test/input.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxcommon/test/timer.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxconfigeditor/include/ConfigurationFile.h" />
+		<Unit filename="../shared/gimxconfigeditor/include/ControlMapper.h" />
+		<Unit filename="../shared/gimxconfigeditor/include/Controller.h" />
+		<Unit filename="../shared/gimxconfigeditor/include/Device.h" />
+		<Unit filename="../shared/gimxconfigeditor/include/Event.h" />
+		<Unit filename="../shared/gimxconfigeditor/include/EventCatcher.h" />
+		<Unit filename="../shared/gimxconfigeditor/include/ForceFeedback.h" />
+		<Unit filename="../shared/gimxconfigeditor/include/Intensity.h" />
+		<Unit filename="../shared/gimxconfigeditor/include/JoystickCorrection.h" />
+		<Unit filename="../shared/gimxconfigeditor/include/MouseOptions.h" />
+		<Unit filename="../shared/gimxconfigeditor/include/Profile.h" />
+		<Unit filename="../shared/gimxconfigeditor/include/Trigger.h" />
+		<Unit filename="../shared/gimxconfigeditor/include/WheelRotation.h" />
+		<Unit filename="../shared/gimxconfigeditor/include/XmlReader.h" />
+		<Unit filename="../shared/gimxconfigeditor/include/XmlWritter.h" />
+		<Unit filename="../shared/gimxconfigeditor/src/ConfigurationFile.cpp" />
+		<Unit filename="../shared/gimxconfigeditor/src/ControlMapper.cpp" />
+		<Unit filename="../shared/gimxconfigeditor/src/Controller.cpp" />
+		<Unit filename="../shared/gimxconfigeditor/src/Device.cpp" />
+		<Unit filename="../shared/gimxconfigeditor/src/Event.cpp" />
+		<Unit filename="../shared/gimxconfigeditor/src/EventCatcher.cpp" />
+		<Unit filename="../shared/gimxconfigeditor/src/ForceFeedback.cpp" />
+		<Unit filename="../shared/gimxconfigeditor/src/Intensity.cpp" />
+		<Unit filename="../shared/gimxconfigeditor/src/JoystickCorrections.cpp" />
+		<Unit filename="../shared/gimxconfigeditor/src/MouseOptions.cpp" />
+		<Unit filename="../shared/gimxconfigeditor/src/Profile.cpp" />
+		<Unit filename="../shared/gimxconfigeditor/src/Trigger.cpp" />
+		<Unit filename="../shared/gimxconfigeditor/src/WheelRotation.cpp" />
+		<Unit filename="../shared/gimxconfigeditor/src/XmlReader.cpp" />
+		<Unit filename="../shared/gimxconfigeditor/src/XmlWritter.cpp" />
+		<Unit filename="../shared/gimxconfigupdater/configupdater.cpp" />
+		<Unit filename="../shared/gimxconfigupdater/configupdater.h" />
+		<Unit filename="../shared/gimxcontroller/include/controller.h" />
+		<Unit filename="../shared/gimxcontroller/include/defs.h" />
+		<Unit filename="../shared/gimxcontroller/include/df_ps2.h" />
+		<Unit filename="../shared/gimxcontroller/include/dfp_ps2.h" />
+		<Unit filename="../shared/gimxcontroller/include/ds2.h" />
+		<Unit filename="../shared/gimxcontroller/include/ds3.h" />
+		<Unit filename="../shared/gimxcontroller/include/ds4.h" />
+		<Unit filename="../shared/gimxcontroller/include/g27_ps3.h" />
+		<Unit filename="../shared/gimxcontroller/include/g29_ps4.h" />
+		<Unit filename="../shared/gimxcontroller/include/gtf_ps2.h" />
+		<Unit filename="../shared/gimxcontroller/include/joystick.h" />
+		<Unit filename="../shared/gimxcontroller/include/report.h" />
+		<Unit filename="../shared/gimxcontroller/include/state.h" />
+		<Unit filename="../shared/gimxcontroller/include/t300rs_ps4.h" />
+		<Unit filename="../shared/gimxcontroller/include/x360.h" />
+		<Unit filename="../shared/gimxcontroller/include/xbox.h" />
+		<Unit filename="../shared/gimxcontroller/include/xone.h" />
+		<Unit filename="../shared/gimxcontroller/src/controller.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxcontroller/src/df_ps2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxcontroller/src/dfp_ps2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxcontroller/src/ds2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxcontroller/src/ds3.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxcontroller/src/ds4.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxcontroller/src/g27_ps3.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxcontroller/src/g29_ps4.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxcontroller/src/gtf_ps2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxcontroller/src/joystick.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxcontroller/src/t300rs_ps4.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxcontroller/src/x360.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxcontroller/src/xbox.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxcontroller/src/xone.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxdownloader/Downloader.cpp" />
+		<Unit filename="../shared/gimxdownloader/Downloader.h" />
+		<Unit filename="../shared/gimxfile/include/gfile.h" />
+		<Unit filename="../shared/gimxfile/include/gfile.hpp" />
+		<Unit filename="../shared/gimxfile/src/gfile.cpp" />
+		<Unit filename="../shared/gimxgpp/pcprog.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxgpp/pcprog.h" />
+		<Unit filename="../shared/gimxhid/include/ghid.h" />
+		<Unit filename="../shared/gimxhid/src/libusb/ghid.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxhid/src/libusb/gusbhid.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxhid/src/libusb/gusbhid.h" />
+		<Unit filename="../shared/gimxhid/src/windows/ghid.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxhid/test/ghid_test.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxinput/include/ginput.h" />
+		<Unit filename="../shared/gimxinput/include/ginput_linux.h" />
+		<Unit filename="../shared/gimxinput/include/ginput_windows.h" />
+		<Unit filename="../shared/gimxinput/src/conversion.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxinput/src/conversion.h" />
+		<Unit filename="../shared/gimxinput/src/darwin/events.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxinput/src/events.h" />
+		<Unit filename="../shared/gimxinput/src/ginput.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxinput/src/hid/hidinput.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxinput/src/hid/hidinput.h" />
+		<Unit filename="../shared/gimxinput/src/hid/logitechwheel.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxinput/src/hid/steamcontroller.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxinput/src/linux/events.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxinput/src/linux/js.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxinput/src/linux/keycodes.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxinput/src/linux/mkb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxinput/src/linux/xinput.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxinput/src/queue.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxinput/src/queue.h" />
+		<Unit filename="../shared/gimxinput/src/sdl/keycodes.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxinput/src/sdl/keycodes.h" />
+		<Unit filename="../shared/gimxinput/src/sdl/sdlinput.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxinput/src/sdl/sdlinput.h" />
+		<Unit filename="../shared/gimxinput/src/windows/events.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxinput/src/windows/rawinput.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxinput/src/windows/rawinput.h" />
+		<Unit filename="../shared/gimxinput/src/windows/scancodes.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxinput/src/windows/scancodes.h" />
+		<Unit filename="../shared/gimxinput/test/ginput_haptic_test.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxinput/test/ginput_test.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxlog/include/glog.h" />
+		<Unit filename="../shared/gimxlog/src/glog.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxpoll/include/gpoll.h" />
+		<Unit filename="../shared/gimxpoll/src/posix/gpoll.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxpoll/src/windows/gpoll.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxprio/include/gprio.h" />
+		<Unit filename="../shared/gimxprio/src/linux/gprio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxprio/src/windows/gprio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxserial/include/gserial.h" />
+		<Unit filename="../shared/gimxserial/src/posix/gserial.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxserial/src/windows/gserial.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxserial/test/gserial_test.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxtime/include/gtime.h" />
+		<Unit filename="../shared/gimxtime/src/posix/gtime.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxtime/src/windows/gtime.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxtimer/include/gtimer.h" />
+		<Unit filename="../shared/gimxtimer/src/linux/gtimer.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxtimer/src/windows/gtimer.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxtimer/src/windows/timerres.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxtimer/src/windows/timerres.h" />
+		<Unit filename="../shared/gimxtimer/test/gtimer_test.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxudp/include/gudp.h" />
+		<Unit filename="../shared/gimxudp/src/posix/gudp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxudp/src/windows/sockets.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxudp/src/windows/sockets.h" />
+		<Unit filename="../shared/gimxudp/test/gudp_test.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxuhid/include/guhid.h" />
+		<Unit filename="../shared/gimxuhid/src/linux/rpi/uhid.h" />
+		<Unit filename="../shared/gimxuhid/src/linux/uhidasync.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxuhid/test/guhid_test.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxupdater/Updater.cpp" />
+		<Unit filename="../shared/gimxupdater/Updater.h" />
+		<Unit filename="../shared/gimxusb/include/gusb.h" />
+		<Unit filename="../shared/gimxusb/include/windows/usb/ch9.h" />
+		<Unit filename="../shared/gimxusb/src/gusb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../shared/gimxusb/test/gusb_test.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="configApp.cpp" />
 		<Unit filename="configApp.h" />
 		<Unit filename="gimx-config.cpp" />
 		<Unit filename="gimx-config.h" />
-		<Unit filename="src/ControlMapper.cpp" />
-		<Unit filename="src/Configuration.cpp" />
-		<Unit filename="src/ConfigurationFile.cpp" />
-		<Unit filename="src/Controller.cpp" />
-		<Unit filename="src/Device.cpp" />
-		<Unit filename="src/Event.cpp" />
-		<Unit filename="src/Trigger.cpp" />
-		<Unit filename="src/XmlReader.cpp" />
-		<Unit filename="src/XmlWritter.cpp" />
-		<Unit filename="src/event_catcher.cpp" />
 		<Unit filename="wx_pch.h">
 			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>
 		<Unit filename="wxsmith/configframe.wxs" />
 		<Extensions>
-			<code_completion />
-			<envvars />
+			<lib_finder disable_auto="1" />
 			<wxsmith version="1">
 				<gui name="wxWidgets" src="configApp.cpp" main="configFrame" init_handlers="necessary" language="CPP" />
 				<resources>
-					<wxFrame wxs="wxsmith/configframe.wxs" src="gimx-config.cpp" hdr="gimx-config.h" name="configFrame" language="CPP" />
+					<wxFrame wxs="wxsmith/configframe.wxs" src="gimx-config.cpp" hdr="gimx-config.h" fwddecl="0" i18n="1" name="configFrame" language="CPP" />
 				</resources>
 			</wxsmith>
-			<debugger />
-			<lib_finder disable_auto="1" />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

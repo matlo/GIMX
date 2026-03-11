@@ -1061,6 +1061,51 @@ static void ProcessGainElement(xmlNode * a_node)
   GetIntProp(a_node, X_ATTR_DAMPER, &entry.params.ffb_tweaks.gain.damper);
 }
 
+static int ProcessRotationElement(xmlNode* a_node) {
+
+    int ret = 0;
+    int has_device = 0;
+
+    reset_entry();
+
+    entry.params.wheel_rotation.degrees = 900;
+
+    xmlNode* cur_node = NULL;
+    for (cur_node = a_node->children; cur_node; cur_node = cur_node->next)
+    {
+        if (cur_node->type == XML_ELEMENT_NODE)
+        {
+            if (xmlStrEqual(cur_node->name, (xmlChar*)X_NODE_DEVICE))
+            {
+                has_device = 1;
+                ret = ProcessDeviceElement(cur_node);
+            }
+            else if (xmlStrEqual(cur_node->name, (xmlChar*)X_NODE_ROTATION))
+            {
+                GetIntProp(cur_node, X_ATTR_DEGREES, &entry.params.wheel_rotation.degrees);
+            }
+            else
+            {
+                gerror("unexpected element: %s\n", cur_node->name);
+            }
+        }
+    }
+    if (has_device == 0)
+    {
+        gerror("missing device element\n");
+        ret = -1;
+    }
+
+    if (ret == 0)
+    {
+        cfg_set_wheel_rotation(&entry);
+        // force FFB selection for 1st profile only
+        adapter_set_haptic_sink(entry.controller_id, entry.device.id, entry.profile_id == 0 ? 1 : 0);
+    }
+
+    return ret;
+}
+
 static int ProcessForceFeedbackElement(xmlNode * a_node)
 {
   int ret = 0;
@@ -1188,9 +1233,13 @@ static int ProcessConfigurationElement(xmlNode * a_node)
       {
         ret = ProcessJoystickCorrectionsListElement(cur_node);
       }
-      else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_FORCE_FEEDBACK))
+      else if (xmlStrEqual(cur_node->name, (xmlChar*)X_NODE_FORCE_FEEDBACK))
       {
-        ret = ProcessForceFeedbackElement(cur_node);
+          ret = ProcessForceFeedbackElement(cur_node);
+      }
+      else if (xmlStrEqual(cur_node->name, (xmlChar*)X_NODE_WHEEL_SETTINGS))
+      {
+          ret = ProcessRotationElement(cur_node);
       }
       else if (xmlStrEqual(cur_node->name, (xmlChar*) X_NODE_MACROS))
       {

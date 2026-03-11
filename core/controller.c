@@ -1206,6 +1206,8 @@ int adapter_start()
       adapter->ff_core = haptic_core_init(source, adapter->haptic_sink_joystick);
       const s_haptic_core_tweaks * tweaks = cfg_get_ffb_tweaks(i);
       adapter_set_haptic_tweaks(i, tweaks);
+      const s_haptic_core_wheel_rotation* rotation = cfg_get_wheel_rotation(i);
+      adapter_set_haptic_wheel_rotation(i, rotation);
     }
 
     if(is_gimx_adapter(i))
@@ -1642,7 +1644,12 @@ void adapter_set_haptic_sink(int adapter, int joystick, int force)
   }
 }
 
-void adapter_set_haptic_tweaks(int adapter, const s_haptic_core_tweaks * tweaks)
+void adapter_set_haptic_tweaks(int adapter, const s_haptic_core_tweaks* tweaks)
 {
-  haptic_core_set_tweaks(adapters[adapter].ff_core, tweaks);
+    haptic_core_set_tweaks(adapters[adapter].ff_core, tweaks);
+}
+
+void adapter_set_haptic_wheel_rotation(int adapter, const s_haptic_core_wheel_rotation* rot)
+{
+    haptic_core_set_rotation(adapters[adapter].ff_core, rot);
 }

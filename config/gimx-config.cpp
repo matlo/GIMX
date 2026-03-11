@@ -133,6 +133,16 @@ const long configFrame::ID_TEXTCTRL15 = wxNewId();
 const long configFrame::ID_TEXTCTRL17 = wxNewId();
 const long configFrame::ID_STATICLINE15 = wxNewId();
 const long configFrame::ID_BUTTON24 = wxNewId();
+const long configFrame::ID_STATICTEXT56 = wxNewId();
+const long configFrame::ID_STATICTEXT57 = wxNewId();
+const long configFrame::ID_STATICTEXT58 = wxNewId();
+const long configFrame::ID_STATICTEXT59 = wxNewId();
+const long configFrame::ID_BUTTON26 = wxNewId();
+const long configFrame::ID_STATICLINE17 = wxNewId();
+const long configFrame::ID_STATICTEXT60 = wxNewId();
+const long configFrame::ID_TEXTCTRL19 = wxNewId();
+const long configFrame::ID_STATICLINE18 = wxNewId();
+const long configFrame::ID_BUTTON27 = wxNewId();
 const long configFrame::ID_PANEL8 = wxNewId();
 const long configFrame::ID_NOTEBOOK2 = wxNewId();
 const long configFrame::ID_PANEL1 = wxNewId();
@@ -608,7 +618,7 @@ static bool ToDouble(const wxString & from, double * to, const wxString & decima
  * \param parent  the parent window
  * \param id      the parent window id
  */
-configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribute__((unused)))
+configFrame::configFrame(wxString file, wxWindow* parent, wxWindowID id __attribute__((unused)))
 {
     locale = new wxLocale(wxLANGUAGE_DEFAULT);
 #ifdef WIN32
@@ -671,7 +681,11 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     wxFlexGridSizer* FlexGridSizer54;
     wxFlexGridSizer* FlexGridSizer55;
     wxFlexGridSizer* FlexGridSizer56;
+    wxFlexGridSizer* FlexGridSizer58;
+    wxFlexGridSizer* FlexGridSizer59;
     wxFlexGridSizer* FlexGridSizer5;
+    wxFlexGridSizer* FlexGridSizer60;
+    wxFlexGridSizer* FlexGridSizer61;
     wxFlexGridSizer* FlexGridSizer6;
     wxFlexGridSizer* FlexGridSizer7;
     wxFlexGridSizer* FlexGridSizer8;
@@ -686,6 +700,7 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     wxStaticBoxSizer* StaticBoxSizer10;
     wxStaticBoxSizer* StaticBoxSizer11;
     wxStaticBoxSizer* StaticBoxSizer12;
+    wxStaticBoxSizer* StaticBoxSizer13;
     wxStaticBoxSizer* StaticBoxSizer1;
     wxStaticBoxSizer* StaticBoxSizer2;
     wxStaticBoxSizer* StaticBoxSizer3;
@@ -979,7 +994,7 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     FlexGridSizer10->SetSizeHints(PanelJoystickCorrections);
     PanelForceFeedback = new wxPanel(Notebook2, ID_PANEL8, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL8"));
     FlexGridSizer39 = new wxFlexGridSizer(2, 1, 0, 0);
-    FlexGridSizer54 = new wxFlexGridSizer(1, 6, 0, 0);
+    FlexGridSizer54 = new wxFlexGridSizer(1, 8, 0, 0);
     StaticBoxSizer11 = new wxStaticBoxSizer(wxHORIZONTAL, PanelForceFeedback, _("Joystick"));
     FlexGridSizer55 = new wxFlexGridSizer(1, 4, 0, 0);
     FFBTweaksType = new wxStaticText(PanelForceFeedback, ID_STATICTEXT13, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT13"));
@@ -1027,9 +1042,40 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     FlexGridSizer54->Add(FlexGridSizer56, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticLine15 = new wxStaticLine(PanelForceFeedback, ID_STATICLINE15, wxDefaultPosition, wxSize(-1,50), wxLI_VERTICAL, _T("ID_STATICLINE15"));
     FlexGridSizer54->Add(StaticLine15, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    ButtonFFBTweaksDelete = new wxButton(PanelForceFeedback, ID_BUTTON24, _("Delete"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON24"));
-    FlexGridSizer54->Add(ButtonFFBTweaksDelete, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer58 = new wxFlexGridSizer(0, 1, 0, 0);
+    ButtonFFBTweaksDelete = new wxButton(PanelForceFeedback, ID_BUTTON24, _("Delete FFB"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON24"));
+    FlexGridSizer58->Add(ButtonFFBTweaksDelete, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer54->Add(FlexGridSizer58, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     FlexGridSizer39->Add(FlexGridSizer54, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer59 = new wxFlexGridSizer(1, 6, 0, 0);
+    StaticBoxSizer13 = new wxStaticBoxSizer(wxHORIZONTAL, PanelForceFeedback, _("Joystick"));
+    FlexGridSizer60 = new wxFlexGridSizer(1, 4, 0, 0);
+    WheelRotationType = new wxStaticText(PanelForceFeedback, ID_STATICTEXT56, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT56"));
+    FlexGridSizer60->Add(WheelRotationType, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    WheelRotationName = new wxStaticText(PanelForceFeedback, ID_STATICTEXT57, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT57"));
+    FlexGridSizer60->Add(WheelRotationName, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    WheelRotationId = new wxStaticText(PanelForceFeedback, ID_STATICTEXT58, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT58"));
+    FlexGridSizer60->Add(WheelRotationId, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    WheelRotationAxis = new wxStaticText(PanelForceFeedback, ID_STATICTEXT59, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT59"));
+    FlexGridSizer60->Add(WheelRotationAxis, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticBoxSizer13->Add(FlexGridSizer60, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer59->Add(StaticBoxSizer13, 1, wxALL|wxEXPAND, 5);
+    WheelRotationAutoDetectButton = new wxButton(PanelForceFeedback, ID_BUTTON26, _("Auto Detect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON26"));
+    FlexGridSizer59->Add(WheelRotationAutoDetectButton, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticLine17 = new wxStaticLine(PanelForceFeedback, ID_STATICLINE17, wxDefaultPosition, wxSize(1,50), wxLI_HORIZONTAL, _T("ID_STATICLINE17"));
+    FlexGridSizer59->Add(StaticLine17, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer61 = new wxFlexGridSizer(2, 1, 0, 0);
+    StaticText23 = new wxStaticText(PanelForceFeedback, ID_STATICTEXT60, _("Rotation"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT60"));
+    FlexGridSizer61->Add(StaticText23, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    WheelRotationDegrees = new wxTextCtrl(PanelForceFeedback, ID_TEXTCTRL19, _("900"), wxDefaultPosition, wxSize(55,-1), 0, wxDefaultValidator, _T("ID_TEXTCTRL19"));
+    WheelRotationDegrees->SetToolTip(_("[200..900]"));
+    FlexGridSizer61->Add(WheelRotationDegrees, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer59->Add(FlexGridSizer61, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticLine18 = new wxStaticLine(PanelForceFeedback, ID_STATICLINE18, wxDefaultPosition, wxSize(1,50), wxLI_HORIZONTAL, _T("ID_STATICLINE18"));
+    FlexGridSizer59->Add(StaticLine18, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    DeleteRotationButton = new wxButton(PanelForceFeedback, ID_BUTTON27, _("Delete Rotation"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON27"));
+    FlexGridSizer59->Add(DeleteRotationButton, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FlexGridSizer39->Add(FlexGridSizer59, 1, wxALL|wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL, 5);
     PanelForceFeedback->SetSizer(FlexGridSizer39);
     FlexGridSizer39->Fit(PanelForceFeedback);
     FlexGridSizer39->SetSizeHints(PanelForceFeedback);
@@ -1400,11 +1446,14 @@ configFrame::configFrame(wxString file,wxWindow* parent, wxWindowID id __attribu
     Connect(ID_BUTTON17,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnJoystickCorrectionsRemoveClick);
     Connect(ID_BUTTON18,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnJoystickCorrectionsModifyClick);
     Connect(ID_BUTTON20,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonForceFeedbackAutoDetect);
+    Connect(ID_BUTTON26,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonWheelRotationAutoDetect);
     Connect(ID_TEXTCTRL14,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
     Connect(ID_TEXTCTRL16,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
     Connect(ID_TEXTCTRL15,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
     Connect(ID_TEXTCTRL17,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
+    Connect(ID_TEXTCTRL19,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&configFrame::OnTextCtrl);
     Connect(ID_BUTTON24,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonFFBTweaksDelete);
+    Connect(ID_BUTTON27,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonWheelRotationDelete);
     Connect(ID_CHOICE4,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&configFrame::OnButtonTabEventTypeSelect);
     Connect(ID_BUTTON8,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonTabAutoDetectClick);
     Connect(ID_BUTTON4,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&configFrame::OnButtonAddPanelButton);
@@ -2349,6 +2398,21 @@ void configFrame::save_current()
     wxString damper;
     damper << FFBTweaksDamperGain->GetValue();
     profile->GetForceFeedback()->setDamperGain(string(damper.mb_str(wxConvUTF8)));
+    //Save Rotation settings
+    wxString rotation;
+    rotation << WheelRotationDegrees->GetValue();
+    long rotationVal;
+    if(!rotation.ToLong(&rotationVal)){
+        rotation = "900";
+    } else if(rotationVal < 200){
+        rotation = "200";
+    } else if(rotationVal > 900){
+        rotation = "900";
+    }
+    profile->GetWheelRotation()->GetJoystick()->SetType(reverseTranslate(string(WheelRotationType->GetLabel().mb_str(wxConvUTF8))));
+    profile->GetWheelRotation()->GetJoystick()->SetName(wheelRotationDeviceName);
+    profile->GetWheelRotation()->GetJoystick()->SetId(string(WheelRotationId->GetLabel().mb_str(wxConvUTF8)));
+    profile->GetWheelRotation()->SetRotation(string(rotation.mb_str(wxConvUTF8)));
     //Save ControlMappers
     buttonMappers = profile->GetButtonMapperList();
     buttonMappers->erase(buttonMappers->begin(), buttonMappers->end());
@@ -2572,6 +2636,19 @@ void configFrame::load_current()
     FFBTweaksConstantGain->SetValue(wxString(tweaks->getConstantGain().c_str(),wxConvUTF8));
     FFBTweaksSpringGain->SetValue(wxString(tweaks->getSpringGain().c_str(),wxConvUTF8));
     FFBTweaksDamperGain->SetValue(wxString(tweaks->getDamperGain().c_str(),wxConvUTF8));
+
+    WheelRotation* rotation = profile->GetWheelRotation();
+    wheelRotationDeviceName = rotation->GetJoystick()->GetName();
+    name = wheelRotationDeviceName;
+    if (name.size() > 20)
+    {
+        name = name.substr(0, 20);
+        name.append("...");
+    }
+    WheelRotationType->SetLabel(_CN(rotation->GetJoystick()->GetType()));
+    WheelRotationName->SetLabel(wxString(name.c_str(), wxConvUTF8));
+    WheelRotationId->SetLabel(wxString(rotation->GetJoystick()->GetId().c_str(), wxConvUTF8));
+    WheelRotationDegrees->SetValue(wxString(rotation->GetRotation().c_str(), wxConvUTF8));
     //Load buttonMappers
     clearGrid(GridPanelButton);
     buttonMappers = profile->GetButtonMapperList();
@@ -3758,6 +3835,12 @@ void configFrame::OnTextCtrl(wxCommandEvent& event)
             text->SetValue(wxT("1000"));
         }
     }
+    else if (text == WheelRotationDegrees) {
+        if (!str.ToLong(&lvalue))
+        {
+            text->SetValue(wxT("900"));
+        }
+    }
 
 
     text->SetInsertionPoint(pos);
@@ -4623,6 +4706,25 @@ pair<Device, Event> configFrame::selectEvent()
     return make_pair(Device(), Event());
 }
 
+void configFrame::OnButtonWheelRotationAutoDetect(wxCommandEvent& event __attribute__((unused))) {
+    if (evcatch->hasJoystick() == false)
+    {
+        wxMessageBox(_("No joystick found!"), _("Error"), wxICON_ERROR);
+    }
+
+    WheelRotationAutoDetectButton->Enable(false);
+
+    WheelRotationType->SetLabel(wxT(""));
+
+    while (WheelRotationType->GetLabel() != _("joystick"))
+    {
+        auto_detect(WheelRotationType, &wheelRotationDeviceName, WheelRotationName, WheelRotationId, _("axis"), WheelRotationAxis);
+    }
+
+    WheelRotationAutoDetectButton->Enable(true);
+
+    refresh_gui();
+}
 
 void configFrame::OnButtonForceFeedbackAutoDetect(wxCommandEvent& event __attribute__((unused)))
 {
@@ -4663,6 +4765,14 @@ void configFrame::OnButtonFFBTweaksDelete(wxCommandEvent& event __attribute__((u
     refresh_gui();
 }
 
+void configFrame::OnButtonWheelRotationDelete(wxCommandEvent& event __attribute__((unused))) {
+    WheelRotationType->SetLabel(wxEmptyString);
+    WheelRotationName->SetLabel(wxEmptyString);
+    WheelRotationId->SetLabel(wxEmptyString);
+    wheelRotationDeviceName.clear();
+    WheelRotationDegrees->SetValue(_T("900"));
+    refresh_gui();
+}
 
 void configFrame::OnAxisTabAxisIdSelect(wxCommandEvent& event __attribute__((unused)))
 {

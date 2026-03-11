@@ -8,6 +8,7 @@
 
 #include <haptic/haptic_core.h>
 
+void haptic_rotation_apply(const s_haptic_core_wheel_rotation* rotation, s_haptic_core_data* data);
 void haptic_tweak_apply(const s_haptic_core_tweaks * tweaks, s_haptic_core_data * data);
 
 #endif /* HAPTIC_TWEAKS_H_ */
