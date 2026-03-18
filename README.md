@@ -1,4 +1,4 @@
-GIMX
+GIMX-evdev
 ====
 
 [![Build Status](https://travis-ci.com/matlo/GIMX.svg?branch=master)](https://travis-ci.com/matlo/GIMX)
